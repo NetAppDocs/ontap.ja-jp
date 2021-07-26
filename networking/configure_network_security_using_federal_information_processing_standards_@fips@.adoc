@@ -1,0 +1,122 @@
+---
+sidebar: sidebar 
+permalink: networking/configure_network_security_using_federal_information_processing_standards_@fips@.html 
+keywords: federal, information, processing, standards, fips, 140-2, compliant, ssl, connections, tlsv1.2, tlsv1.1, tlsv1, enable, enabling, disable, disabling, view, status, federal information processing standards (fips) 140-2 compliant for all ssl connections, configure network security using federal information processing standards (fips), enable fips, disable fips, view fips compliance status 
+summary: すべての SSL 接続に対応した Federal Information Processing Standard （ FIPS ；連邦情報処理標準） 140-2 が準拠しています 
+---
+= 連邦情報処理標準（ FIPS ）を使用したネットワークセキュリティの設定
+:hardbreaks:
+:nofooter: 
+:icons: font
+:linkattrs: 
+:imagesdir: ./media/
+
+
+[role="lead"]
+ONTAP は、すべての SSL 接続に対する連邦情報処理標準（ FIPS ） 140-2 に準拠しています。ONTAP では、 SSL FIPS モードを有効または無効にしたり、 SSL プロトコルをグローバルに設定したり、 RC4 などの弱い暗号を無効にしたりできます。
+
+デフォルトでは、 ONTAP の SSL は、次のプロトコルを使用して FIPS 準拠が無効、 SSL プロトコルが有効な状態で設定されます。
+
+* TLSv1.2
+* TLSv1.1
+* TLSv1
+
+
+SSL FIPS モードがイネーブルの場合、 ONTAP から ONTAP 外部のクライアントまたはサーバコンポーネントへの SSL 通信には、 FIPS 準拠の SSL 用暗号が使用されます。
+
+
+
+== FIPS を有効にします
+
+システムのインストールまたはアップグレードの直後に、すべてのセキュアユーザがセキュリティ設定を調整することを推奨します。SSL FIPS モードがイネーブルの場合、 ONTAP から ONTAP 外部のクライアントまたはサーバコンポーネントへの SSL 通信には、 FIPS 準拠の SSL 用暗号が使用されます。
+
+FIPS を有効にする場合は、以下の設定が推奨されます。
+
+* 'FIPs:ON' のように表示されます
+* 「 SL プロトコル = {TLSv1.2 }` 」
+* 'SL ciphers={all:!low:!aNULL:!EXP:!eNULL:!RC4}`
+
+
+.手順
+. advanced 権限レベルに切り替えます。
++
+「 advanced 」の権限が必要です
+
+. FIPS を有効にします。
++
+「 securityconfig modify -interface ssl-is-fips-enabled true 」という記述があります
+
+. 続行するかどうかを確認するメッセージが表示されたら 'y' を入力します
+. クラスタ内の各ノードを 1 つずつ手動でリブートします。
+
+
+....
+security config modify -interface SSL -is-fips-enabled true
+
+Warning: This command will enable FIPS compliance and can potentially cause some non-compliant components to fail. MetroCluster and Vserver DR require FIPS to be enabled on both sites in order to be compatible.
+Do you want to continue? {y|n}: y
+
+Warning: When this command completes, reboot all nodes in the cluster. This is necessary to prevent components from failing due to an inconsistent security configuration state in the cluster. To avoid a service outage, reboot one node at a time and wait for it to completely initialize before rebooting the next node. Run "security config status show" command to monitor the reboot status.
+Do you want to continue? {y|n}: y
+....
+
+
+== FIPS を無効にする
+
+古いシステム構成を実行し続けている状況で、 ONTAP の設定で下位互換性を確保する場合は、 FIPS が無効な場合にのみ SSLv3 を有効にすることができます。
+
+FIPS を無効にする場合は、以下の設定が推奨されます。
+
+* 'fips=false
+* 'SL プロトコル = {SSLv3}
+* 'SL ciphers={all:!low:!aNULL:!EXP:!eNULL}`
+
+
+.手順
+. advanced 権限レベルに切り替えます。
++
+「 advanced 」の権限が必要です
+
+. 次のように入力して FIPS を無効に
++
+「 securityconfig modify -interface ssl-supported-protocols sslvSSLv3 」です
+
+. 続行するかどうかを確認するメッセージが表示されたら 'y' を入力します
+. クラスタ内の各ノードを手動でリブートします。
+
+
+....
+security config modify -interface SSL -supported-protocols SSLv3
+
+Warning: Enabling the SSLv3 protocol may reduce the security of the interface, and is not recommended.
+Do you want to continue? {y|n}: y
+
+Warning: When this command completes, reboot all nodes in the cluster. This is necessary to prevent components from failing due to an inconsistent security configuration state in the cluster. To avoid a service outage, reboot one node at a time and wait for it to completely initialize before rebooting the next node. Run "security config status show" command to monitor the reboot status.
+Do you want to continue? {y|n}: y
+....
+
+
+== FIPS 準拠ステータスを表示します
+
+クラスタ全体で現在のセキュリティ設定が実行されているかどうかを確認することができます。
+
+.手順
+. クラスタ内の各ノードを 1 つずつリブートします。
++
+すべてのクラスタノードを同時にリブートしないでください。クラスタ内のすべてのアプリケーションで新しいセキュリティ設定が実行されるようにするには、リブートが必要です。また、 FIPS のオン / オフモード、プロトコル、暗号に対する変更を行う際にもリブートが必要です。
+
+. 現在の準拠ステータスを表示します。
++
+「 securityconfig show 」を参照してください
+
+
+
+....
+security config show
+
+          Cluster                                              Cluster Security
+Interface FIPS Mode  Supported Protocols     Supported Ciphers Config Ready
+--------- ---------- ----------------------- ----------------- ----------------
+SSL       false      TLSv1_2, TLSv1_1, TLSv1 ALL:!LOW:!aNULL:  yes
+                                             !EXP:!eNULL
+....

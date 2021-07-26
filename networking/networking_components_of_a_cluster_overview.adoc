@@ -1,0 +1,66 @@
+---
+sidebar: sidebar 
+permalink: networking/networking_components_of_a_cluster_overview.html 
+keywords: routing, DNS zones, physical ports, logical ports, IPspaces, broadcast domains, subnets, logical interfaces, familiarize yourself with the networking components of a cluster before setting up the cluster, networking components of a cluster overview, network components of a cluster, four-node cluster diagram, 4 node cluster diagram, four node cluster diagram 
+summary: クラスタをセットアップする前に、クラスタのネットワークコンポーネントについて理解します 
+---
+= 概要
+:hardbreaks:
+:nofooter: 
+:icons: font
+:linkattrs: 
+:imagesdir: ./media/
+
+
+[role="lead"]
+クラスタをセットアップする前に、クラスタのネットワークコンポーネントについて理解しておく必要があります。クラスタの物理ネットワークコンポーネントを論理コンポーネントに設定することで、 ONTAP の持つ柔軟性とマルチテナンシー機能を活かせます。
+
+クラスタのさまざまなネットワークコンポーネントを次に示します。
+
+* 物理ポート
++
+Network Interface Card （ NIC ；ネットワークインターフェイスカード）と Host Bus Adapter （ HBA ；ホストバスアダプタ）は、各ノードから物理ネットワーク（管理ネットワークとデータネットワーク）への物理接続（イーサネットおよびファイバチャネル）を提供します。
+
++
+サイトの要件、スイッチの情報、ポートのケーブル接続の情報、コントローラのオンボードポートのケーブル接続については、の Hardware Universe を参照してください https://hwu.netapp.com/["hwu.netapp.com"^]。
+
+* 論理ポート
++
+論理ポートは仮想ローカルエリアネットワーク（ VLAN ）とインターフェイスグループで構成されます。インターフェイスグループは複数の物理ポートを 1 つのポートとして扱い、 VLAN は 1 つの物理ポートを複数の個別のポートに分割します。
+
+* IPspace
++
+IPspace を使用すると、クラスタ内の SVM ごとに個別の IP アドレススペースを作成できます。これにより、管理上分離されたネットワークドメインのクライアントが、 IP アドレスの同じサブネット範囲内の重複した IP アドレスを使用してクラスタのデータにアクセスできるようになります。
+
+* ブロードキャストドメイン
++
+ブロードキャストドメインは IPspace 内に存在し、同じレイヤ 2 ネットワークに属する、クラスタ内の多数のノードからのネットワークポートグループを含んでいます。このグループのポートは、 SVM でデータトラフィック用に使用されます。
+
+* サブネット
++
+サブネットはブロードキャストドメイン内に作成され、同じレイヤ 3 サブネットに属する IP アドレスのプールを含んでいます。この IP アドレスプールを使用すると、 LIF の作成時の IP アドレスの割り当てが簡単になります。
+
+* 論理インターフェイス
++
+論理インターフェイス（ LIF ）は、ポートに関連付けられた IP アドレスまたはワールドワイドポート名（ WWPN ）です。フェイルオーバーグループ、フェイルオーバールール、ファイアウォールルールなどの属性があります。LIF は、現在バインドされているポート（物理または論理）からネットワーク経由で通信します。
+
++
+クラスタ内の LIF のタイプには、データ LIF 、クラスタを対象とした管理 LIF 、ノードを対象とした管理 LIF 、クラスタ間 LIF 、およびクラスタ LIF があります。LIF の所有権は、 LIF を実装する SVM によって異なります。データ LIF はデータ SVM によって、ノードを対象とした管理 LIF 、クラスタを対象とした管理 LIF 、およびクラスタ間 LIF は管理 SVM によって、クラスタ LIF はクラスタ SVM によって所有されます。
+
+* DNS ゾーン
++
+DNS ゾーンは LIF の作成時に指定でき、クラスタの DNS サーバ経由でエクスポートされる LIF の名前を提供します。複数の LIF で同じ名前を共有できるため、 DNS ロードバランシング機能を使用し、その名前の IP アドレスを負荷に従って分散させることができます。
+
++
+SVM には、複数の DNS ゾーンを設定できます。
+
+* ルーティング
++
+各 SVM は、ネットワーク上で完全な機能を持つ独立した存在です。SVM は、 LIF および設定済みの外部サーバに到達可能なルートを持っています。
+
++
+次の図は、 4 ノードクラスタにおける各種ネットワークコンポーネントの関係を示しています。
+
+
+
+image:ontap_nm_image2.jpeg["4 ノードクラスタの図"]

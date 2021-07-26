@@ -1,0 +1,50 @@
+---
+sidebar: sidebar 
+permalink: networking/modify_network_port_attributes.html 
+keywords: change, changing, modify, modifying, network, port, attributes, modify network port attributes, change the autonegotiation, duplex, flow control, speed, and health settings of a physical network port 
+summary: 物理ネットワークポートの自動ネゴシエーション、二重モード、フロー制御、速度、および健全性の設定を変更します 
+---
+= ネットワークポートの属性を変更します
+:hardbreaks:
+:nofooter: 
+:icons: font
+:linkattrs: 
+:imagesdir: ./media/
+
+
+[role="lead"]
+物理ネットワークポートの自動ネゴシエーション、二重モード、フロー制御、速度、および健全性の設定を変更することができます。
+
+LIF をホストしているポートは変更できません。
+
+.このタスクについて
+* 100GbE 、 40GbE 、 10GbE 、または 1GbE のネットワークインターフェイスの管理設定は変更しないでください。
++
+二重モードおよびポート速度の設定可能な値のことを管理設定と呼びます。ネットワークの制限によっては、管理設定が運用設定（ポートで実際に使用されている二重モードおよび速度）と異なる場合があります。
+
+* インターフェイスグループの基盤となる物理ポートの管理設定を変更しないでください。
++
+ポートの管理設定を変更するには 'up-admin パラメータ（ advanced 特権レベルで使用可能）を使用します
+
+* ノードのすべてのポート、またはノードで動作している最後のクラスタ LIF をホストしているポートの -up-admin 管理設定を false に設定しないでください。
+* 管理ポート「 e0M 」の MTU サイズは変更しないでください。
+* ブロードキャストドメインのポートの MTU サイズを、そのブロードキャストドメイン用に設定された MTU 値以外に変更することはできません。
+* VLAN の MTU サイズがベースポートの MTU サイズの値を超えることはできません。
+
+
+.手順
+. ネットワークポートの属性を変更します。
++
+「 network port modify 」を参照してください
+
+. -ignore-health-status フィールドを true に設定すると、指定されたポートのネットワークポートのヘルスステータスをシステムが無視できるように指定できます。
++
+ネットワークポートの健常性ステータスは「デグレード」から「正常」に自動的に変わり、このポートを使用して LIF をホストできるようになりました。クラスタ・ポートのフロー制御は 'none' に設定する必要がありますデフォルトでは、フロー制御は「 full 」に設定されています。
+
+
+
+次のコマンドは、フロー制御を none に設定してポート e0b のフロー制御を無効にします。
+
+....
+network port modify -node cluster-1-01 -port e0b -flowcontrol-admin none
+....

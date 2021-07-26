@@ -1,0 +1,81 @@
+---
+permalink: upgrade/task_verifying_the_lif_failover_configuration.html 
+sidebar: sidebar 
+keywords: ontap, upgrade, verifying, verify, lif, failover, configuration 
+summary: アップグレードを実行する前に、フェイルオーバーポリシーとフェイルオーバーグループが正しく設定されていることを確認する必要があります。 
+---
+= LIF フェイルオーバーの設定の確認
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+アップグレードを実行する前に、フェイルオーバーポリシーとフェイルオーバーグループが正しく設定されていることを確認する必要があります。
+
+
+NOTE: アップグレードプロセスでは、 LIF がアップグレード方式に基づいて移行されます。アップグレード方式によっては、 LIF フェイルオーバーポリシーが使用される場合と使用されない場合があります。
+
+クラスタにノードが 8 つ以上ある場合は、自動アップグレードがバッチ方式で実行されます。バッチアップグレード方式では、クラスタを複数のバッチに分けて、最初のバッチに含まれるノードのセットをアップグレードし、それらの high-availability （ HA ）パートナーをアップグレードしてから、残りのバッチについても同じ処理を実行します。ONTAP 9.7 以前では、バッチ方式を使用する場合に、アップグレードするノードの HA パートナーに LIF が移行されます。ONTAP 9.8 以降では、バッチ方式を使用する場合に、 LIF を他のバッチグループに移行します。
+
+クラスタ内のノードが 8 つ未満の場合は、ローリング方式で自動アップグレードが実行されます。ローリングアップグレード方式では、 HA ペアの各ノードでフェイルオーバー処理を開始し、「障害」ノードを更新してギブバックを開始します。この処理をクラスタ内の HA ペアごとに繰り返します。ローリング方式を使用する場合は、 LIF フェイルオーバーポリシーの定義に従って、フェイルオーバーターゲットノードに LIF が移行されます。
+
+. 各データ LIF のフェイルオーバーポリシーを表示します。
++
+[cols="2*"]
+|===
+| ONTAP のバージョン | 使用するコマンド 
+
+
+| 9.6 以降  a| 
+「 network interface show -service -policy data -failover 」を実行します
+
+
+
+| 9.5 以前  a| 
+「 network interface show -role data -failover 」
+
+|===
++
+次の例は、 2 つのデータ LIF を含む 2 ノードクラスタのデフォルトのフェイルオーバー設定を示しています。
+
++
+[listing]
+----
+cluster1::> network interface show -role data -failover
+         Logical         Home                  Failover        Failover
+Vserver  Interface       Node:Port             Policy          Group
+-------- --------------- --------------------- --------------- ---------------
+vs0
+         lif0            node0:e0b             nextavail       system-defined
+                         Failover Targets: node0:e0b, node0:e0c,
+                                           node0:e0d, node0:e0e,
+                                           node0:e0f, node1:e0b,
+                                           node1:e0c, node1:e0d,
+                                           node1:e0e, node1:e0f
+vs1
+         lif1            node1:e0b             nextavail       system-defined
+                         Failover Targets: node1:e0b, node1:e0c,
+                                           node1:e0d, node1:e0e,
+                                           node1:e0f, node0:e0b,
+                                           node0:e0c, node0:e0d,
+                                           node0:e0e, node0:e0f
+----
++
+「 * Failover Targets * 」フィールドには、各 LIF のフェイルオーバーターゲットが優先順位の高いものから順番に表示されます。たとえば、 lif0 のホームポート（ node0 の e0b ）からのフェイルオーバーでは、 node0 のポート e0c へのフェイルオーバーが最初に試行されます。そのあと、 e0c にフェイルオーバーできない場合は node0 のポート e0d というように、順番にフェイルオーバーが試行されます。
+
+. SAN LIF 以外の LIF に対してフェイルオーバーポリシーを disabled に設定している場合は、 network interface modify コマンドを使用してフェイルオーバーを有効にします。
+. それぞれの LIF について、 LIF のホームノードのアップグレード時に稼働したままにする別のノードのデータポートが「 * Failover Targets * 」フィールドに含まれていることを確認します。
++
+フェイルオーバー・グループにフェイルオーバー・ターゲットを追加するには 'network interface failover-groups modify コマンドを使用します
+
++
+.例
+[listing]
+----
+network interface failover-groups modify -vserver vs0 -failover-group fg1 -targets sti8-vsim-ucs572q:e0d,sti8-vsim-ucs572r:e0d
+----
+
+
+* 関連情報 *
+
+link:https://docs.netapp.com/us-en/ontap/networking/networking_reference.html["ネットワークと LIF の管理"]

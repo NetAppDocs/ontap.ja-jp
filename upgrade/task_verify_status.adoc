@@ -1,0 +1,190 @@
+---
+permalink: upgrade/task_verify_status.html 
+sidebar: sidebar 
+keywords: ontap, upgrade, upgrade, verify, status, ha, ldap, dns, networking, storage, metrocluster 
+summary: クラスタのアップグレードの準備には、さまざまな構成設定が影響する可能性が 
+---
+= ステータスを確認します
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+アップグレードする前に、次のことを確認する必要があります。
+
+* HA ペアのステータス
+* LDAP のステータス（ ONTAP 9.2 以降）
+* DNS サーバのステータス（ ONTAP 9.2 以降）
+* ネットワークとストレージのステータス（ MetroCluster 構成の場合）
+
+
+
+
+== HA ステータスを確認しています
+
+無停止アップグレードを実行する前に、各 HA ペアでストレージフェイルオーバーが有効になっていることを確認する必要があります。クラスタが 2 つのノードだけで構成されている場合は、クラスタ HA が有効になっていることも確認する必要があります。
+
+停止を伴うアップグレードを実行する場合、 HA ステータスを確認する必要はありません。このアップグレード方式ではストレージフェイルオーバーが不要なためです。
+
+. ストレージフェイルオーバーが有効になっていて、各 HA ペアで実行可能であることを確認します。「 storage failover show 」
++
+次の例では、 node0 と node1 でストレージフェイルオーバーが有効かつ実行可能な状態になっています。
+
++
+[listing]
+----
+cluster1::> storage failover show
+                              Takeover
+Node           Partner        Possible State
+-------------- -------------- -------- -------------------------------------
+node0          node1          true     Connected to node1
+node1          node0          true     Connected to node0
+2 entries were displayed.
+----
++
+必要に応じて、 storage failover modify コマンドを使用してストレージフェイルオーバーを有効にできます。
+
+. クラスタが 2 つのノードだけで構成されている場合（単一の HA ペア）、クラスタ HA が構成されていることを確認します
++
+次の例では、クラスタ HA が構成されています。
+
++
+[listing]
+----
+cluster1::> cluster ha show
+High Availability Configured: true
+----
++
+必要に応じて、 cluster ha modify コマンドを使用してクラスタ HA を有効にできます。
+
+
+
+
+
+== LDAP ステータスの確認（ ONTAP 9.2 以降）
+
+ONTAP 9.2 以降では、 Storage Virtual Machine （ SVM ）で LDAP を使用する場合、無停止アップグレードを実行するための LDAP 接続を確立しておく必要があります。アップグレードを開始する前に LDAP 接続を確認してください。
+
+このタスクは、 ONTAP 9.1 以前からアップグレードする場合は必要ありません。
+
+. LDAP の状態を確認します LDAP check -vserver vserver_name
+. LDAP のステータスが down の場合は、「 ldap client modify -client-config ldap_client -ldap-servers IP_address 」に変更します
+. LDAP のステータスが up になっていることを確認します。「 ldap check -vserver vserver_name
+
+
+
+
+== DNS サーバのステータスの確認（ ONTAP 9.2 以降）
+
+ONTAP 9.2 以降では、無停止アップグレードの実行前と実行後に、ドメインネームサービス（ DNS ）サーバのステータスを確認する必要があります。
+
+このタスクは、 ONTAP 9.1 以前からアップグレードする場合は必要ありません。
+
+. DNS サーバのステータスを確認します。「 dns check -vserver vserver_name
++
+「 up 」ステータスは、サービスが実行されていることを示します。「 down 」ステータスは、サービスが実行されていないことを示します。
+
+. DNS サーバがダウンしている場合は、「 dns modify -vserver vserver_name -domains domain_name -servers name _server_ipaddress 」を変更します
+. DNS サーバのステータスが「 up 」になっていることを確認します。
+
+
+
+
+== MetroCluster 構成のネットワークとストレージのステータスの確認
+
+MetroCluster 構成で更新を実行する際は、実行前と実行後に、各クラスタの LIF 、アグリゲート、およびボリュームのステータスを確認する必要があります。
+
+. LIF のステータスを確認します。「 network interface show 」
++
+通常運用時は、ソース SVM の LIF の管理ステータスが稼働状態で、ホームノードに配置されている必要があります。デスティネーション SVM の LIF については、稼働し、ホームノードに配置されている必要はありません。スイッチオーバー時には、すべての LIF の管理ステータスが稼働状態になっている必要がありますが、ホームノードに配置されている必要はありません。
+
++
+[listing]
+----
+cluster1::> network interface show
+            Logical    Status     Network            Current       Current Is
+Vserver     Interface  Admin/Oper Address/Mask       Node          Port    Home
+----------- ---------- ---------- ------------------ ------------- ------- ----
+Cluster
+            cluster1-a1_clus1
+                         up/up    192.0.2.1/24       cluster1-01
+                                                                   e2a     true
+            cluster1-a1_clus2
+                         up/up    192.0.2.2/24       cluster1-01
+                                                                   e2b     true
+
+
+cluster1-01
+            clus_mgmt    up/up    198.51.100.1/24    cluster1-01
+                                                                   e3a     true
+            cluster1-a1_inet4_intercluster1
+                         up/up    198.51.100.2/24    cluster1-01
+                                                                   e3c     true
+            ...
+
+27 entries were displayed.
+----
+. アグリゲートの状態を確認します。「 storage aggregate show -state ！ online 」
++
+このコマンドを実行すると、オンラインでないアグリゲートが表示されます。通常運用時は、ローカルサイトにあるすべてのアグリゲートがオンラインになっている必要があります。ただし、 MetroCluster 構成がスイッチオーバー状態の場合は、ディザスタリカバリサイトにあるルートアグリゲートをオフラインにすることができます。
+
++
+次の例は、通常運用時のクラスタを示しています。
+
++
+[listing]
+----
+cluster1::> storage aggregate show -state !online
+There are no entries matching your query.
+----
++
+次の例は、スイッチオーバー時のクラスタを示しています。ディザスタリカバリサイトにあるルートアグリゲートはオフラインです。
+
++
+[listing]
+----
+cluster1::> storage aggregate show -state !online
+Aggregate     Size Available Used% State   #Vols  Nodes            RAID Status
+--------- -------- --------- ----- ------- ------ ---------------- ------------
+aggr0_b1
+                0B        0B    0% offline      0 cluster2-01      raid_dp,
+                                                                   mirror
+                                                                   degraded
+aggr0_b2
+                0B        0B    0% offline      0 cluster2-02      raid_dp,
+                                                                   mirror
+                                                                   degraded
+2 entries were displayed.
+----
+. ボリュームの状態を確認します :volume show -state ！ online
++
+このコマンドを実行すると、オンラインでないボリュームが表示されます。
+
++
+MetroCluster 構成が正常に動作している（スイッチオーバー状態でない）場合は、クラスタのセカンダリ SVM （名前に「 -mc 」が付いている SVM ）が所有するすべてのボリュームが出力に表示されます。
+
++
+これらのボリュームはスイッチオーバー時にのみオンラインになります。
+
++
+次の例は、通常運用時のクラスタを示しています。ディザスタリカバリサイトにあるボリュームはオフラインです。
+
++
+[listing]
+----
+cluster1::> volume show -state !online
+  (volume show)
+Vserver   Volume       Aggregate    State      Type       Size  Available Used%
+--------- ------------ ------------ ---------- ---- ---------- ---------- -----
+vs2-mc    vol1         aggr1_b1     -          RW            -          -     -
+vs2-mc    root_vs2     aggr0_b1     -          RW            -          -     -
+vs2-mc    vol2         aggr1_b1     -          RW            -          -     -
+vs2-mc    vol3         aggr1_b1     -          RW            -          -     -
+vs2-mc    vol4         aggr1_b1     -          RW            -          -     -
+5 entries were displayed.
+----
+. 整合性のないボリュームがないことを確認します。 volume show -is-inconsistent true
++
+整合性のないボリュームが返された場合は、アップグレードを実行する前にネットアップサポートにお問い合わせください。
+
+

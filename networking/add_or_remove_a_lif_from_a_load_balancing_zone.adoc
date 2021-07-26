@@ -1,0 +1,52 @@
+---
+sidebar: sidebar 
+permalink: networking/add_or_remove_a_lif_from_a_load_balancing_zone.html 
+keywords: lif, adding, add, create, creating, remove, removing, delete, deleting, load, balancing, zone, dns, svm, storage, virtual, add or remove a LIF from a load balancing zone, machine, add a lif, remove a single lif, remove all lifs 
+summary: Storage Virtual Machine （ SVM ）の DNS ロードバランシングゾーンに対して LIF を追加または削除する 
+---
+= ロードバランシングゾーンに対して LIF を追加または削除する
+:hardbreaks:
+:nofooter: 
+:icons: font
+:linkattrs: 
+:imagesdir: ./media/
+
+
+[role="lead"]
+仮想マシン（ SVM ）の DNS ロードバランシングゾーンに対して LIF を追加または削除できます。すべての LIF をロードバランシングゾーンから同時に削除することもできます。
+
+.作業を開始する前に
+* ロードバランシングゾーンの LIF は、すべて同じ SVM に属している必要があります。
+* 各 LIF は 1 つの DNS ロードバランシングゾーンにのみ含めることができます。
+* サブネットの異なる LIF がある場合は、サブネットごとのフェイルオーバーグループが設定されている必要があります。
+
+
+管理ステータスが down の LIF は一時的に DNS ロードバランシングゾーンから削除されます。LIF の管理ステータスが up に戻ると、自動的に DNS ロードバランシングゾーンに追加されます。
+
+ロードバランシングゾーンに対して LIF を追加または削除します。
+
+[cols="2*"]
+|===
+| 状況 | 入力するコマンド 
+
+
+ a| 
+LIF を追加する
+ a| 
+network interface modify -vserver vserver_name -lif lif_name -dns-zone zone_name 例： network interface modify -vserver vs1 -lif data1 -dns-zone cifs.company.com
+
+
+
+ a| 
+1 つの LIF を削除する
+ a| 
+network interface modify -vserver vserver_name -lif lif_name -dns-zone none 例： network interface modify -vserver vs1 -lif data1 -dns-zone none
+
+
+
+ a| 
+すべての LIF を削除します
+ a| 
+network interface modify -vserver vserver_name -lif * -dns-zone none 例： network interface modify -vserver vs0 -lif * -dns-zone none このゾーンから SVM のすべての LIF を削除することにより、ロードバランシングゾーンから SVM を削除できます。
+
+|===

@@ -1,0 +1,47 @@
+---
+sidebar: sidebar 
+permalink: networking/create_a_failover_group.html 
+keywords: create, creation, creating, add, adding, failover, fail, over, group, create a failover group, failover group of network ports automatically migrate a lif to a different port when a link failure occurs, failover-groups create, ifgrps 
+summary: リンク障害が発生した場合は、ネットワークポートのフェイルオーバーグループを作成して、 LIF を別のポートに自動的に移行します 
+---
+= フェイルオーバーグループを作成します
+:hardbreaks:
+:nofooter: 
+:icons: font
+:linkattrs: 
+:imagesdir: ./media/
+
+
+[role="lead"]
+ネットワークポートのフェイルオーバーグループを作成して、 LIF の現在のポートでリンク障害が発生した場合に、 LIF が別のポートに自動的に移行できるようにします。これにより、システムのネットワークトラフィックがクラスタ内の使用可能な他のポートに再ルーティングされます。
+
+「 network interface failover-groups create 」コマンドを使用して、グループを作成し、そのグループにポートを追加します。
+
+* フェイルオーバーグループに追加できるポートは、ネットワークポート、 VLAN 、インターフェイスグループ（ ifgrp ）です。
+* フェイルオーバーグループに追加するポートは、すべて同じブロードキャストドメインに属している必要があります。
+* 1 つのポートを複数のフェイルオーバーグループに含めることができます。
+* 異なる VLAN またはブロードキャストドメインに LIF がある場合は、 VLAN またはブロードキャストドメインごとにフェイルオーバーグループを設定する必要があります。
+* フェイルオーバーグループは、 SAN の iSCSI 環境と FC 環境には適用されません。
+
+
+フェイルオーバーグループを作成します。
+
+「 network interface failover-groups create -vserver_vserver_name __ failover-group_failover_group_name __ targets_ports_list_
+
+* `_vserver_name _ は、フェイルオーバーグループを使用できる SVM の名前です。
+* `_failover_group_name は ' 作成するフェイルオーバー・グループの名前です
+* `_ports_list_ は ' フェイルオーバーグループに追加するポートのリストですnode_name > ： < port_number > という形式でポートを指定してください。たとえば、 node1 ： e0c のようになります。
+
+
+次のコマンドは、 SVM vs3 にフェイルオーバーグループ fg3 を作成してポートを 2 つ追加します。
+
+....
+network interface failover-groups create -vserver vs3 -failover-group fg3 -targets cluster1-01:e0e,cluster1-02:e0e
+....
+.完了後
+* フェイルオーバーグループを作成したら、 LIF にフェイルオーバーグループを適用する必要があります。
+* 有効なフェイルオーバーターゲットのないフェイルオーバーグループを LIF に設定すると、警告メッセージが表示されます。
++
+有効なフェイルオーバーターゲットのない LIF がフェイルオーバーしようとすると、システムが停止する可能性があります。
+
+

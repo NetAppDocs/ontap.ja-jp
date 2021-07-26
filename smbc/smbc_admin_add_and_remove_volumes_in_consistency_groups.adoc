@@ -1,0 +1,69 @@
+---
+sidebar: sidebar 
+permalink: smbc/smbc_admin_add_and_remove_volumes_in_consistency_groups.html 
+keywords: SM-BC, SMBC, volume, consistency group, remove volume, add volume 
+summary: ボリュームを追加または削除して整合グループの構成を変更する場合は、最初に元の関係を削除してから、新しい構成で整合グループを作成し直す必要があります。 
+---
+= 整合グループ内のボリュームの追加と削除
+:hardbreaks:
+:nofooter: 
+:icons: font
+:linkattrs: 
+:imagesdir: ../media/
+
+
+[role="lead"]
+ボリュームを追加または削除して整合グループの構成を変更する場合は、最初に元の関係を削除してから、新しい構成で整合グループを作成し直す必要があります。
+
+.このタスクについて
+* 整合グループが「 InSync 」状態の場合、コンポジションを変更することはできません。
+* デスティネーションボリュームのタイプは DP でなければなりません。
+
+
+整合性グループを拡張するために追加する新しいボリュームには、ソースボリュームとデスティネーションボリュームの間に共通の Snapshot コピーのペアが必要です。
+
+この手順では、エンドポイント vs1_src ： /cc/cg_src と vs1_dst ： /cc/cg_dst の間の整合グループ関係に、 vol_src1 と vol_src2 のボリュームマッピングがあることを前提としています。
+
+. ソースとデスティネーションの両方のクラスタ上にあるソースボリュームとデスティネーションボリュームの間に共通の Snapshot コピーが存在することを確認します。
++
+「ソース：： > snapshot show -vserver vs1_src-volume vol_src3 -snapshot snapmirror * 」というエラーが表示されます
+
++
+「デスティネーション：： > snapshot show -vserver vs1_dst -volume vol_dst3 -snapshot snapmirror * 」という名前になります
+
+. 共通の Snapshot コピーが存在しない場合は、 FlexVol の SnapMirror 関係を作成して初期化します。
++
+「デスティネーション」：： > snapmirror initialize-ls-set - path vs1_src ： vol_src3 -destination-path vs1_dst ： vol_dst2
+
+. ゼロ RTO 整合グループ関係を削除します。
++
+「デスティネーション」：： > snapmirror delete -destination-path vs1_dst ： vol_dst3
+
+. ソース SnapMirror 関係を解放し、共通の Snapshot コピーを保持します。
++
+「 source ：： > snapmirror release-relationship-info -only true -destination-path vs1_dst ： vol_dst3
+
+. LUN のマッピングを解除し、既存の整合グループ関係を削除します。
++
+「デスティネーション」：： > lun mapping delete -vserver vs1_dst-path <lun_path > -igroup <igroup_name>` 注：デスティネーション LUN はマッピング解除されていますが、プライマリコピー上の LUN はホスト I/O を処理し続けます
+
++
+「デスティネーション」：： > snapmirror delete -destination-path vs1_dst ： /cg /cg_dst
+
++
+「 source ：： > snapmirror release -destination-path vs1_dst ： /cg /cg_dst -relationship-info-only true 」
+
+. 新しい構成を使用して新しい整合グループを作成します。
++
+「デスティネーション：： > snapmirror create -source-path vs1_src ： /cc/cg_src -destination-path vs1_dst ： /cg_dst -item-mappings vol_src1 ： @vol_dst1 、 vol_src2 ： @vol_dst2 、 vol_src3 ： @vol_dst3
+
+. ゼロ RTO 整合グループ関係を再同期し、同期されていることを確認します。
++
+「デスティネーション」：： > snapmirror resync -destination-path vs1_dst ： /cg /cg_dst
+
+. 手順 5 でマッピング解除した LUN を再マッピングします。
++
+「デスティネーション：： > lun map -vserver vs1_dst-path <lun_path > -igroup <igroup_name>`
+
+. ホスト LUN の I/O パスを再スキャンして、 LUN へのすべてのパスをリストアします。
+

@@ -1,0 +1,275 @@
+---
+sidebar: sidebar 
+permalink: networking/lifs_and_service_policies96.html 
+keywords: service policies for system svms, lif service policies, lif, logical, interface, service, policy, policies, lifs and service policies in ontap 9.6 and later, assign service policies to lifs to specify the supported traffic, service policies for system svms, service policies for data svms, data-core service 
+summary: LIF にサービスポリシーを割り当てて、サポートされるトラフィックを指定します 
+---
+= ONTAP 9.6 以降の LIF とサービスポリシー
+:hardbreaks:
+:nofooter: 
+:icons: font
+:linkattrs: 
+:imagesdir: ./media/
+
+
+[role="lead"]
+LIF のロールの代わりに、 LIF でサポートされるトラフィックの種類を決定するサービスポリシーを LIF に割り当てることができます。Serv ポリシーは、 LIF でサポートされる一連のネットワークサービスを定義します。ONTAP には、 LIF に関連付けることができる一連の組み込みのサービスポリシーが用意されています。
+
+
+
+== システム SVM のサービスポリシー
+
+管理 SVM とすべてのシステム SVM には、管理 LIF とクラスタ間 LIF を含む、その SVM の LIF に使用できるサービスポリシーが含まれています。これらのポリシーは、 IPspace の作成時にシステムによって自動的に作成されます。次の表に、システム SVM の LIF の組み込みのポリシーを示します。
+
+[cols="4*"]
+|===
+| ポリシー | 含まれるサービス | 同等のロール | 説明 
+
+
+ a| 
+デフォルト - intercluster
+ a| 
+intercluster-core
+ a| 
+クラスタ間
+ a| 
+クラスタ間トラフィックを処理する LIF で使用されます。注： ONTAP 9.5 では、 net-intercluster サービスポリシーという名前で提供されています。
+
+
+
+ a| 
+default-route-announce
+ a| 
+management-bgp
+ a| 
+-
+ a| 
+BGP ピア接続を処理する LIF で使用されます。注： ONTAP 9.5 では net-route-announce サービスポリシーという名前で提供されています。
+
+
+
+ a| 
+default-management
+ a| 
+management-core 、 management-sems 、 management-ssh 、 management-shttps 、 management-autosupport
+ a| 
+ノード管理、またはクラスタ管理
+ a| 
+管理要求を処理する LIF で使用します。Management - EMS は、 EMS コンテンツを公開できる LIF を制御します。
+
+|===
+次の表に、システム SVM で使用できる各サービスを LIF のフェイルオーバーポリシーに適用される制限とともに示します。
+
+[cols="3*"]
+|===
+| サービス | フェイルオーバーの制限 | 説明 
+
+
+ a| 
+intercluster-core
+ a| 
+home-node-only
+ a| 
+中核となるクラスタ間サービス
+
+
+
+ a| 
+管理コア
+ a| 
+-
+ a| 
+中核となる管理サービス
+
+
+
+ a| 
+management-ssh
+ a| 
+-
+ a| 
+SSH 管理アクセス用のサービス
+
+
+
+ a| 
+管理 - HTTPS
+ a| 
+-
+ a| 
+HTTPS 管理アクセス用のサービス
+
+
+
+ a| 
+management-autosupport
+ a| 
+-
+ a| 
+AutoSupport ペイロードの送信に関連するサービス
+
+
+
+ a| 
+management-bgp
+ a| 
+home-port - Only （ホームポートのみ）
+ a| 
+BGP ピアのやり取りに関連するサービス
+
+|===
+
+
+== データ SVM のサービスポリシー
+
+すべてのデータ SVM に、その SVM の LIF で使用できるサービスポリシーが含まれています。次の表に、データ SVM の LIF の組み込みのポリシーを示します。
+
+[cols="4*"]
+|===
+| ポリシー | 含まれるサービス | 同等のデータプロトコル | 説明 
+
+
+ a| 
+default-management
+ a| 
+management-ssh 、 management-https ： //
+ a| 
+なし
+ a| 
+管理要求を処理する LIF で使用します
+
+
+
+ a| 
+default-data-blocks （デフォルトデータブロック）
+ a| 
+データ - iSCSI
+ a| 
+iSCSI
+ a| 
+ブロックベースの SAN データトラフィックを処理する LIF で使用されます
+
+
+
+ a| 
+default-data-files の形式で指定します
+ a| 
+datanfs 、 data-cifs 、 data-fflexcache 、 data-fpolicy-client
+ a| 
+NFS 、 CIFS 、 fcache
+ a| 
+ファイルベースの NAS データトラフィックを処理する LIF で使用されます。
+
+|===
+次の表に、データ SVM で使用できる各サービスを LIF のフェイルオーバーポリシーに適用される制限とともに示します。
+
+[cols="4*"]
+|===
+| ポリシー | 含まれるサービス | 同等のデータプロトコル | 説明 
+
+
+ a| 
+management-ssh
+ a| 
+-
+ a| 
+-
+ a| 
+SSH 管理アクセス用のサービス
+
+
+
+ a| 
+管理 - HTTPS
+ a| 
+-
+ a| 
+-
+ a| 
+HTTPS 管理アクセス用のサービス
+
+
+
+ a| 
+データコア
+ a| 
+-
+ a| 
+データのみ
+ a| 
+コアデータサービス（詳細については、を参照してください）。
+
+
+
+ a| 
+データ NFS
+ a| 
+-
+ a| 
+データのみ
+ a| 
+NFS データサービスに関連するプロトコル
+
+
+
+ a| 
+データ - CIFS
+ a| 
+-
+ a| 
+データのみ
+ a| 
+CIFS データサービスに関連するプロトコル
+
+
+
+ a| 
+データ FlexCache
+ a| 
+-
+ a| 
+データのみ
+ a| 
+FlexCache データサービスに関連するプロトコル
+
+
+
+ a| 
+データ - iSCSI
+ a| 
+home-port - Only （ホームポートのみ）
+ a| 
+データのみ
+ a| 
+iSCSI データサービスに関連するプロトコル
+
+|===
+データ SVM の LIF に対するサービスポリシーの割り当てについて、次の点に注意してください。
+
+* データサービスのリストを指定してデータ SVM を作成した場合、その SVM には、指定したサービスを使用して組み込みの「 default-data-files 」サービスポリシーと「 default-data-blocks 」サービスポリシーが作成されます。
+* データサービスのリストを指定せずにデータ SVM を作成した場合、その SVM にはデフォルトのデータサービスのリストを使用して組み込みの「 default-data-files 」サービスポリシーと「 default-data-blocks 」サービスポリシーが作成されます。
++
+デフォルトのデータサービスのリストには、 iSCSI 、 NFS 、 SMB 、 FlexCache の各サービスが含まれます。
+
+* データプロトコルのリストを指定して LIF を作成した場合、指定したデータプロトコルと同等のサービスポリシーが LIF に割り当てられます。
++
+同等のサービスポリシーが存在しない場合は、カスタムサービスポリシーが作成されます。
+
+* サービスポリシーやデータプロトコルのリストを指定せずに LIF を作成した場合、デフォルトで default-data-files サービスポリシーが LIF に割り当てられます。
+
+
+
+
+== データコアサービス
+
+コアサービスでは、データロールが割り当てられた LIF を使用していたコンポーネントを、 LIF のロールではなくサービスポリシーを使用して LIF を管理するようにアップグレードされたクラスタで想定どおりに機能させることができます（ ONTAP 9.6 では廃止）。
+
+コアをサービスとして指定してもファイアウォール内のポートは開かれませんが、データ SVM のサービスポリシーにはこのサービスを含める必要があります。たとえば、 default-data-files サービスポリシーには、デフォルトで次のサービスが含まれています。
+
+* データコア
+* データ NFS
+* データ - CIFS
+* データ FlexCache
+
+
+LIF を使用するすべてのアプリケーションが想定どおりに機能するように、コアサービスをポリシーに含めます。ただし、必要に応じて、他の 3 つのサービスは削除できます。

@@ -1,0 +1,161 @@
+---
+sidebar: sidebar 
+permalink: networking/configure_ip_security_@ipsec@_over_wire_encryption.html 
+keywords: ipsec, security, internet protocol, on wire, in transit, encrypt, encryption, secure, configure ip security (ipsec) over wire encryption, ensure data is continuously secure and encrypted, ipsec protocol, enable ipsec on the cluster, security ipsec config show, ipsec enabled, ipsec config modify, ipsec config show, security ipsec policy create, protocols, local-ports, remote-ports, define the security policy database (spd), use ipsec identities, subnet configuration, allow all clients configuration, ipsec statistics 
+summary: 転送中もデータの安全性と暗号化を維持するために、 ONTAP は転送モードで IPSec プロトコルを使用します 
+---
+= ワイヤ暗号化を介した IP セキュリティ（ IPsec ）を設定します
+:hardbreaks:
+:nofooter: 
+:icons: font
+:linkattrs: 
+:imagesdir: ./media/
+
+
+[role="lead"]
+ONTAP 9.8 以降では、 ONTAP は転送モードで IPSec プロトコルを使用して、転送中もデータの安全性と暗号化を維持します。IPSec では、 NFS 、 iSCSI 、 SMB/CIFS の各プロトコルを含むすべての IP トラフィックを暗号化できます。IPSec では、 iSCSI トラフィックに対して転送中の暗号化オプションのみが提供されます。
+
+クラスタで IPSec 機能が有効になっている間、ネットワークでトラフィックを伝送するには、 Security Policy Database （ SPD ）エントリおよび事前共有シークレットキーがクライアントに必要になります。
+
+IPSec の設定後は、リプレイ攻撃や中間者（ MITM ）攻撃に対抗するための予防措置を講じて、クライアントと ONTAP 間のネットワークトラフィックを保護します。
+
+NetApp SnapMirror およびクラスタピアリングトラフィックの暗号化では、引き続き IPSec 経由でクラスタピアリング暗号化（ CPE ）を使用して、ネットワーク経由でセキュアな転送を実現することを推奨します。これは、 CPE のパフォーマンスが IPsec よりも優れているためです。IPSec のライセンスは不要で、インポートまたはエクスポートの制限はありません。
+
+
+
+== クラスタで IPSec を有効に設定します
+
+クラスタの Internet Protocol Security （ IPSec ；インターネットプロトコルセキュリティ）を有効にして、転送中もデータのセキュリティを継続的に確保し、暗号化することができます。
+
+.手順
+. IPSec がすでに有効になっているかどうかを検出します。
++
+「 securityIPSec config show 」を参照してください
+
++
+結果に「 ipsec enabled:false 」が含まれている場合は、次の手順に進みます。
+
+. IPsec を有効にします。
++
+「 securityIPSec config modify -is-enabled true
+
+. 検出コマンドを再度実行します。
++
+「 securityIPSec config show 」を参照してください
+
++
+結果には 'ipsec enabled:true' が含まれます
+
+
+
+
+
+== セキュリティポリシーデータベース（ SPD ）の定義
+
+IPSec では、トラフィックをネットワーク上に転送する前に SPD エントリが必要です。
+
+.ステップ
+. 「 securityIPSec policy create 」コマンドを使用して、次の操作を実行します。
++
+.. ONTAP IP アドレスまたは IP アドレスのサブネットを選択して、 IPSec 転送に参加します。
+.. ONTAP IP アドレスに接続するクライアント IP アドレスを選択します。
++
+
+NOTE: クライアントは、 Pre-Shared Key （ PSK ）を使用して Internet Key Exchange バージョン 2 （ IKEv2 ）をサポートしている必要があります。
+
+.. 任意。上位層プロトコル（ UDP 、 TCP 、 ICMP など）、ローカルポート番号、および保護するリモートポート番号を選択します。対応するパラメータは、それぞれ「 protocols 」、「 local-ports 」、および「 re moe-ports 」です。
++
+ONTAP IP アドレスとクライアント IP アドレスの間のすべてのトラフィックを保護するには、この手順を省略します。デフォルトでは、すべてのトラフィックを保護します。
+
+.. クライアントと ONTAP の間で使用する事前共有キーを入力します。
+
+
+
+
+....
+security ipsec policy create -vserver <vs1> -name <test34> -local-ip-subnets <192.168.134.34/32> -remote-ip-subnets <192.168.134.44/32>
+Enter the preshared key for IPsec Policy _test34_ on Vserver _vs1_:
+....
+
+NOTE: IP トラフィックは、クライアントの事前共有キーが IPSec クライアントに設定されるまで、クライアントとサーバの間を流れることはできません。
+
+
+
+== IPsec ID を使用する
+
+Libreswan などの一部の IPsec クライアントでは、 IPsec 接続を認証するために事前共有キーに加えて、 ID の使用が必要です。
+
+ONTAP では、 SPD エントリを変更するか、または SPD ポリシーを作成する際に、 ID を指定します。SPD には、 IP アドレスまたは文字列形式の ID 名を使用できます。
+
+既存の SPD に ID を追加するには、次のコマンドを使用します。
+
+「セキュリティ IPsec ポリシーの変更」を参照してください
+
+「 securityIPSec policy modify -vserver _vs1_-name_test34_local-identity_192.168.134.34_ -remote-identity _client.fooboo.com_` 」を参照してください
+
+
+
+== IPSec の複数クライアント設定
+
+多数のクライアントで IPSec を利用する必要がある場合、クライアントごとに 1 つの SPD エントリを使用すれば十分です。ただし、数百、数千のクライアントで IPSec を利用する必要がある場合には、 IPSec の複数クライアント設定を使用することを推奨します。
+
+ONTAP では、 IPSec が有効な単一の SVM IP アドレスに、多数のネットワーク上にある複数のクライアントを接続できます。これを行うには、次のいずれかの方法を使用します。
+
+* * サブネット構成 *
++
+特定のサブネット上のすべてのクライアント（ 192.168.134.0/24 など）が、 1 つの SPD ポリシーエントリを使用して 1 つの SVM IP アドレスに接続できるようにするには、「 IP サブネット」をサブネット形式で指定する必要があります。また、「 remote-identity 」フィールドに正しいクライアント側の ID を指定する必要があります。
+
+
+
+
+NOTE: サブネット設定で 1 つのポリシーエントリを使用する場合、そのサブネット内の IPsec クライアントは、 IPsec ID と Pre-Shared Key （ PSK ；事前共有キー）を共有します。
+
+* * すべてのクライアント設定を許可 *
++
+ソース IP アドレスに関係なく、すべてのクライアントが SVM IPsec 対応 IP アドレスに接続できるようにするには、「 remont-ip-Subnets 」フィールドを指定するときに「 0.0.0.0/0 」ワイルドカードを使用します。
+
++
+また、「 remote-identity 」フィールドに正しいクライアント側の ID を指定する必要があります。
+
++
+また '0.0.0/0' ワイルドカードを使用する場合は ' 使用する特定のローカルまたはリモートのポート番号を設定する必要がありますたとえば 'nfs port 2049 と入力します
+
++
+.ステップ
+.. 複数のクライアントに対して IPSec を設定するには、次のいずれかのコマンドを使用します。
++
+... 複数の IPSec クライアントをサポートするために * サブネット構成 * を使用する場合：
++
+「 securityIPSec policy create -vserver _vserver_name __ -name_policy_name_local-ip-subnets_ipsec_IP_address /32_ -remote-ip -subnets_ip_address / subnet_local-identity_local_id _ -remote-identity_remote_id`
+
++
+「 securityIPSec policy create -vserver_vs1_-name_subnet134_ -local-ip-subnets_192.168.134.34/32_ -remote-ip -subnets_192.168.134.0/24_local-identity_ONTAP_Side-identy_client_Side-idental_identity_
+
+... すべてのクライアント構成を許可する * を使用して複数の IPSec クライアントをサポートする場合：
++
+「 securityIPSec policy create -vserver_name_policy-name_local-ip-subnets_ipsec_IP_address /32__ remote-ip-subnets_0.0.0/0_-local-ports_ports_number_local-identity_local-identity_local_id _ -remote_id`
+
++
+「 securityIPSec policy create -vserver_vs1_-name_test35_ -local-ipSubnets _IP_ip_address /32_ -remote-IP-Subnets _0.0/0_-local-ports_2049 」 -local-identity_ONTAP_Side-identity_Side-idental_Side-idental_identity_Side-idental_identity_Side-identity_identity_`
+
+
+
+
+
+
+
+
+
+== IPSec の統計情報
+
+ネゴシエーションを使用すると、 ONTAP SVM の IP アドレスとクライアントの IP アドレスの間に、 IKE セキュリティアソシエーション（ SA ）と呼ばれるセキュリティチャネルを確立できます。IPsec SA は、実際のデータ暗号化および復号化を実行するために両方のエンドポイントにインストールされます。
+
+statistics コマンドを使用して、 IPsec SA と IKE SA の両方のステータスを確認できます。
+
+IKE SA サンプルコマンド：
+
+「 securityIPSec show -ikesasa -node _hosting_node_name _for _svm _ip_` 」を参照してください
+
+IPSec SA サンプルコマンド：
+
+「 securityIPSec show -ipsecsa -node_hosting_node_name _for _svm_ip_ 」と入力します

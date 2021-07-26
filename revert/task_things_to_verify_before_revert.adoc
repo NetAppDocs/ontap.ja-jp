@@ -1,0 +1,298 @@
+---
+permalink: revert/task_things_to_verify_before_revert.html 
+sidebar: sidebar 
+keywords: ontap, revert, reversion, reverting, downgrade, downgrading, preparation 
+summary: クラスタのアップグレードの準備には、さまざまな構成設定が影響する可能性が 
+---
+= リバート前に確認しておく項目
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+リバートを実行する前に、クラスタの健全性、ストレージの健全性、およびシステム時間を確認する必要があります。また、実行中のクラスタジョブを削除して、継続的可用性に対応していない CIFS セッションを正常に終了する必要があります。
+
+
+
+== クラスタの健常性を確認
+
+クラスタをリバートする前に、ノードが正常に機能していてクラスタに追加するための条件を満たしていること、およびクラスタがクォーラムにあることを確認する必要があります。
+
+. クラスタ内のノードがオンラインであり ' クラスタに参加できることを確認します cluster show
++
+[listing]
+----
+cluster1::> cluster show
+Node                  Health  Eligibility
+--------------------- ------- ------------
+node0                 true    true
+node1                 true    true
+----
++
+正常に機能していないノードや条件を満たしていないノードがある場合は、 EMS ログでエラーを確認して適切に修正します。
+
+. 権限レベルを advanced に設定します。「 set -privilege advanced 」
+. 「 y 」と入力して続行します。
+. 各 RDB プロセスの構成の詳細を確認します。
++
+** リレーショナルデータベースのエポックとデータベースのエポックが各ノードで一致すること。
+** リングごとのクォーラムマスターがすべてのノードで同じであることが必要です。
++
+各リングのクォーラムマスターが異なる場合があることに注意してください。
+
+
+
+
+
+[cols="2*"]
+|===
+| 表示する RDB プロセス | 入力するコマンド 
+
+
+ a| 
+管理アプリケーション
+ a| 
+cluster ring show -unitname mgmt
+
+
+
+ a| 
+ボリュームロケーションデータベース
+ a| 
+cluster ring show -unitname vldb
+
+
+
+ a| 
+仮想インターフェイスマネージャ
+ a| 
+cluster ring show -unitname vifmgr
+
+
+
+ a| 
+SAN 管理デーモン
+ a| 
+cluster ring show -unitname bcomd
+
+|===
+次の例は、ボリュームロケーションデータベースのプロセスを示しています。
+
+[listing]
+----
+cluster1::*> cluster ring show -unitname vldb
+Node      UnitName Epoch    DB Epoch DB Trnxs Master    Online
+--------- -------- -------- -------- -------- --------- ---------
+node0     vldb     154      154      14847    node0     master
+node1     vldb     154      154      14847    node0     secondary
+node2     vldb     154      154      14847    node0     secondary
+node3     vldb     154      154      14847    node0     secondary
+4 entries were displayed.
+----
+. SAN 環境を使用している場合は、各ノードが SAN クォーラムにあることを確認します。「 event log show -messagename scsiblade. * 」
++
+各ノードの最新の scsiblade イベントメッセージに、 SCSI ブレードがクォーラムにあることが示されます。
+
++
+[listing]
+----
+cluster1::*> event log show -messagename scsiblade.*
+Time                Node             Severity      Event
+------------------- ---------------- ------------- ---------------------------
+MM/DD/YYYY TIME  node0            INFORMATIONAL scsiblade.in.quorum: The scsi-blade ...
+MM/DD/YYYY TIME  node1            INFORMATIONAL scsiblade.in.quorum: The scsi-blade ...
+----
+. admin 権限レベルに戻ります。「 set -privilege admin 」
+
+
+* 関連情報 *
+
+https://docs.netapp.com/ontap-9/topic/com.netapp.doc.dot-cm-sag/home.html["システム管理"]
+
+
+
+== ストレージの健常性を確認
+
+クラスタをリバートする前に、ディスク、アグリゲート、およびボリュームのステータスを確認する必要があります。
+
+. ディスクのステータスを確認します。
++
+[cols="2*"]
+|===
+| 確認する項目 | 手順 
+
+
+ a| 
+破損ディスク
+ a| 
+.. 破損ディスクを表示します。「 storage disk show -state broken 」
+.. 破損ディスクを取り外すか交換します。
+
+
+
+
+ a| 
+メンテナンス中または再構築中のディスク
+ a| 
+.. 「 storage disk show -state maintenance|pending|reconstructing 」の状態のディスクを表示します
+.. メンテナンスまたは再構築の処理が完了するまで待ってから次に進みます。
+
+
+|===
+. ストレージアグリゲート「 storage aggregate show -state ！ online 」を含む物理ストレージと論理ストレージの状態を表示して、すべてのアグリゲートがオンラインであることを確認します
++
+このコマンドを実行すると、オンラインでないアグリゲートが表示されます。メジャーアップグレードまたはリバートの実行前と実行後には、すべてのアグリゲートがオンラインになっている必要があります。
+
++
+[listing]
+----
+cluster1::> storage aggregate show -state !online
+There are no entries matching your query.
+----
+. すべてのボリュームがオンラインであることを確認するには 'volume show -state ！ online ' のようなボリュームを表示します
++
+メジャーアップグレードまたはリバートの実行前と実行後には、すべてのボリュームがオンラインになっている必要があります。
+
++
+[listing]
+----
+cluster1::> volume show -state !online
+There are no entries matching your query.
+----
+. 整合性のないボリュームがないことを確認します。 volume show -is-inconsistent true
++
+整合性のないボリュームが返された場合は、アップグレードを実行する前にネットアップサポートにお問い合わせください。
+
+
+
+* 関連情報 *
+
+https://docs.netapp.com/ontap-9/topic/com.netapp.doc.dot-cm-psmg/home.html["ディスクおよびアグリゲートの管理"]
+
+
+
+== システム時間の確認
+
+リバートを行う前に、 NTP が設定されていること、および時刻がクラスタ全体で同期されていることを確認する必要があります。
+
+. クラスタが NTP サーバに関連付けられていることを確認します。 cluster time-service ntp server show
+. 各ノードの日付と時刻が同じであることを確認します
++
+[listing]
+----
+cluster1::> cluster date show
+Node      Date                Timezone
+--------- ------------------- -------------------------
+node0     4/6/2013 20:54:38   GMT
+node1     4/6/2013 20:54:38   GMT
+node2     4/6/2013 20:54:38   GMT
+node3     4/6/2013 20:54:38   GMT
+4 entries were displayed.
+----
+
+
+
+
+== 実行中のジョブがないことを確認します
+
+ONTAP ソフトウェアをリバートする前に、クラスタジョブのステータスを確認する必要があります。アグリゲート、ボリューム、 NDMP （ダンプまたはリストア）、または Snapshot に関する実行中のジョブ（作成、削除、移動、変更、複製など） およびマウントジョブ）が実行中またはキューに登録されている場合は、ジョブが正常に完了するまで待つか、キューのエントリを停止する必要があります。
+
+. 実行中またはキューに格納されているアグリゲート、ボリューム、または Snapshot に関するジョブのリストを確認します。「 job show
++
+[listing]
+----
+cluster1::> job show
+                            Owning
+Job ID Name                 Vserver    Node           State
+------ -------------------- ---------- -------------- ----------
+8629   Vol Reaper           cluster1   -              Queued
+       Description: Vol Reaper Job
+8630   Certificate Expiry Check
+                            cluster1   -              Queued
+       Description: Certificate Expiry Check
+.
+.
+.
+----
+. アグリゲート、ボリューム、または Snapshot コピーに関する実行中のジョブとキューに格納されているジョブをすべて削除します。「 job delete -id job_id
++
+[listing]
+----
+cluster1::> job delete -id 8629
+----
+. アグリゲート、ボリューム、または Snapshot ジョブが実行中またはキューに格納されていないことを確認します。「 job show
++
+次の例では、実行中のジョブとキューに登録されているジョブがすべて削除されています
+
++
+[listing]
+----
+cluster1::> job show
+                            Owning
+Job ID Name                 Vserver    Node           State
+------ -------------------- ---------- -------------- ----------
+9944   SnapMirrorDaemon_7_2147484678
+                            cluster1   node1          Dormant
+       Description: Snapmirror Daemon for 7_2147484678
+18377  SnapMirror Service Job
+                            cluster1   node0          Dormant
+       Description: SnapMirror Service Job
+2 entries were displayed
+----
+
+
+
+
+== 終了する必要のある CIFS セッション
+
+リバートを行う前に、継続的可用性に対応していない CIFS セッションを特定して正常に終了する必要があります。
+
+Hyper-V クライアントまたは Microsoft SQL Server クライアントが SMB 3.0 プロトコルを使用してアクセスする、継続的可用性を備えた CIFS 共有を、アップグレード前またはダウングレード前に終了する必要はありません。
+
+. 継続的可用性に対応していない確立済みの CIFS セッションを特定します。 vserver cifs session show -continuously-available Yes -instance
++
+このコマンドは、継続的可用性に対応していない CIFS セッションの詳細情報を表示します。これらのセッションは、 ONTAP のダウングレードを開始する前に終了する必要があります。
+
++
+[listing]
+----
+cluster1::> vserver cifs session show -continuously-available Yes -instance
+
+                        Node: node1
+                     Vserver: vs1
+                  Session ID: 1
+               Connection ID: 4160072788
+Incoming Data LIF IP Address: 198.51.100.5
+      Workstation IP address: 203.0.113.20
+    Authentication Mechanism: NTLMv2
+                Windows User: CIFSLAB\user1
+                   UNIX User: nobody
+                 Open Shares: 1
+                  Open Files: 2
+                  Open Other: 0
+              Connected Time: 8m 39s
+                   Idle Time: 7m 45s
+            Protocol Version: SMB2_1
+      Continuously Available: No
+1 entry was displayed.
+----
+. 必要に応じて、特定された各 CIFS セッションの開いているファイルを確認します。 vserver cifs session file show -session-id session_id'
++
+[listing]
+----
+cluster1::> vserver cifs session file show -session-id 1
+
+Node:       node1
+Vserver:    vs1
+Connection: 4160072788
+Session:    1
+File    File      Open Hosting                               Continuously
+ID      Type      Mode Volume          Share                 Available
+------- --------- ---- --------------- --------------------- ------------
+1       Regular   rw   vol10           homedirshare          No
+Path: \TestDocument.docx
+2       Regular   rw   vol10           homedirshare          No
+Path: \file1.txt
+2 entries were displayed.
+----
+

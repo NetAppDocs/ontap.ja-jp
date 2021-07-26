@@ -1,0 +1,99 @@
+---
+sidebar: sidebar 
+permalink: networking/display_routing_information.html 
+keywords: display, view, show, route, svm, storage, virtual, machine, display routing information, view information about the routing configuration for each svm on your cluster, network route show, network route show-lifs, network route active-entry show 
+summary: クラスタの各 SVM のルーティング設定に関する情報を表示する 
+---
+= ルーティング情報を表示します
+:hardbreaks:
+:nofooter: 
+:icons: font
+:linkattrs: 
+:imagesdir: ./media/
+
+
+[role="lead"]
+クラスタの各 SVM のルーティング設定に関する情報を表示することができます。この情報は、クライアントアプリケーションまたはサービスとクラスタ内のノード上の LIF との接続に関連するルーティングの問題を診断するのに役立ちます。
+
+.手順
+. 1 つ以上の SVM 内のルートを表示するには、「 network route show 」コマンドを使用します。次の例は、 vs0 という SVM に設定されているルートを表示しています。
++
+....
+network route show
+  (network route show)
+Vserver             Destination     Gateway         Metric
+------------------- --------------- --------------- ------
+vs0
+                    0.0.0.0/0       172.17.178.1    20
+....
+. 「 network route show-lifs 」コマンドを使用して、 1 つ以上の SVM 内のルートと LIF の関連付けを表示します。
++
+次の例は、 vs0 という SVM が所有しているルートと LIF の関連付けを表示しています。
+
++
+....
+network route show-lifs
+  (network route show-lifs)
+
+Vserver: vs0
+Destination             Gateway                 Logical Interfaces
+----------------------  --------------          --------------------
+0.0.0.0/0               172.17.178.1            cluster_mgmt,
+                                                LIF-b-01_mgmt1,
+                                                LIF-b-02_mgmt1
+....
+. 1 つ以上のノード、 SVM 、サブネット、または特定の宛先を持つルートにインストールされているルートを表示するには、「 network route active-entry show 」コマンドを使用します。
++
+次の例は、特定の SVM に設定されているすべてのルートを表示しています。
+
++
+....
+network route active-entry show -vserver Data0
+
+Vserver: Data0
+Node: node-1
+Subnet Group: 0.0.0.0/0
+Destination             Gateway              Interface   Metric  Flags
+----------------------  -------------------  ---------   ------  -----
+127.0.0.1               127.0.0.1            lo              10  UHS
+127.0.10.1              127.0.20.1           losk            10  UHS
+127.0.20.1              127.0.20.1           losk            10  UHS
+
+Vserver: Data0
+Node: node-1
+Subnet Group: fd20:8b1e:b255:814e::/64
+Destination             Gateway              Interface   Metric  Flags
+----------------------  -------------------  ---------   ------  -----
+default                 fd20:8b1e:b255:814e::1
+                                             e0d             20  UGS
+fd20:8b1e:b255:814e::/64
+                        link#4               e0d              0  UC
+
+Vserver: Data0
+Node: node-2
+Subnet Group: 0.0.0.0/0
+Destination             Gateway              Interface   Metric  Flags
+----------------------  -------------------  ---------   ------  -----
+127.0.0.1               127.0.0.1            lo              10  UHS
+
+Vserver: Data0
+Node: node-2
+Subnet Group: 0.0.0.0/0
+Destination             Gateway              Interface   Metric  Flags
+----------------------  -------------------  ---------   ------  -----
+127.0.10.1              127.0.20.1           losk            10  UHS
+127.0.20.1              127.0.20.1           losk            10  UHS
+
+Vserver: Data0
+Node: node-2
+Subnet Group: fd20:8b1e:b255:814e::/64
+Destination             Gateway              Interface   Metric  Flags
+----------------------  -------------------  ---------   ------  -----
+default                 fd20:8b1e:b255:814e::1
+                                             e0d             20  UGS
+fd20:8b1e:b255:814e::/64
+                        link#4               e0d              0  UC
+fd20:8b1e:b255:814e::1  link#4               e0d              0  UHL
+11 entries were displayed.
+....
+

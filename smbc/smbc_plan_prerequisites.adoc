@@ -1,0 +1,98 @@
+---
+sidebar: sidebar 
+permalink: smbc/smbc_plan_prerequisites.html 
+keywords: SM-BC, SMBC, prerequisites, planning, software, hardware, licensing, protocols, network 
+summary: SnapMirror Business Continuity 解決策の導入計画の一環として考慮する必要があるいくつかの前提条件があります。 
+---
+= 前提条件
+:hardbreaks:
+:nofooter: 
+:icons: font
+:linkattrs: 
+:imagesdir: ../media/
+
+
+[role="lead"]
+SnapMirror Business Continuity 解決策の導入計画の一環として考慮する必要があるいくつかの前提条件があります。
+
+
+
+=== ハードウェア
+
+* 2 ノードの HA クラスタのみがサポートされます
+* 両方のクラスタが AFF または ASA のどちらかである必要があります（混在させない）。
+
+
+
+
+=== ソフトウェア
+
+* ONTAP 9.8 以降
+* ONTAP メディエーター 1.2 以降
+* 次のいずれかを実行している ONTAP メディエーター用の Linux サーバまたは仮想マシン
++
+** Red Hat Enterprise Linux 7.6 または 7 。7.
+** CentOS 8.0 または 8.1
+
+
+
+
+
+
+=== ライセンス
+
+* SnapMirror 同期（ SM-S ）ライセンスが両方のクラスタに適用されている必要があります
+* 両方のクラスタに SnapMirror ライセンスが適用されている必要があります
++
+
+NOTE: ONTAP ストレージシステムを 2019 年 6 月より前に購入した場合は、をクリックします https://mysupport.netapp.com/NOW/knowledge/docs/olio/guides/master_lickey/["NetApp ONTAP のマスターライセンスキー"^] 必要な SM-S ライセンスを取得します。
+
+
+
+
+
+=== ネットワーク環境
+
+* クラスタ間レイテンシラウンドトリップ時間（ RTT ）は 10 ミリ秒未満である必要があります
+
+
+
+
+=== サポートされているプロトコル
+
+* SAN プロトコルのみがサポートされます（ NFS / CIFS はサポートされません）。
+* Fibre Channel プロトコルと iSCSI プロトコルのみがサポートされます
+
+
+
+
+=== ONTAP メディエーター
+
+* 透過的なアプリケーションフェイルオーバーを実現するためには、外部でプロビジョニングして ONTAP に接続する必要があります
+
+
+
+
+=== 読み書き可能なデスティネーションボリューム
+
+* SM-BC 関係は、読み書き可能なデスティネーションボリュームではサポートされません。読み書き可能ボリュームを使用するには、ボリュームレベルの SnapMirror 関係を作成してから関係を削除して、読み書き可能ボリュームを DP ボリュームに変換する必要があります。詳細については、を参照してください link:smbc_admin_converting_existing_relationships_to_smbc.html#["既存の関係を SM-BC 関係に変換します"]
+
+
+
+
+=== LUN および大容量ボリューム
+
+* 大容量 LUN および 100TB を超える大容量ボリュームは、すべての SAN アレイでのみサポートされます
+
+
+
+NOTE: プライマリクラスタとセカンダリクラスタの両方がすべて SAN アレイであり、両方に ONTAP 9.8 がインストールされていることを確認する必要があります。セカンダリクラスタで ONTAP 9.8 より前のバージョンが実行されている場合やオール SAN アレイでない場合は、プライマリボリュームのサイズが 100TB を超えると同期関係が同期されない可能性があります。
+
+
+
+=== AppDM アプリケーションボリューム
+
+AppDM アプリケーションに関連付けられたボリュームは、 SM-BC ではサポートされません。一連のボリュームの SM-BC 関係を作成する前に、 AppDM アプリケーションに関連付けられたボリュームがないことを確認します。
+
+
+NOTE: ONTAP 9.8 RC リリースでは、 AppDM アプリケーションボリュームのセットとの関係を作成する前に、 SM-BC で自動的に確認されることはありません。

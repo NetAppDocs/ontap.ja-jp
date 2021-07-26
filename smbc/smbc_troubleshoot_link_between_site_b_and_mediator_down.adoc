@@ -1,0 +1,55 @@
+---
+sidebar: sidebar 
+permalink: smbc/smbc_troubleshoot_link_between_site_b_and_mediator_down.html 
+keywords: SM-BC, SMBC, troubleshooting, link down, Mediator 
+summary: サイト B からのメディエーターの接続が到達不能と表示される。 
+---
+= サイト B とメディエーターの間のリンクが停止し、サイト A が停止しています
+:hardbreaks:
+:nofooter: 
+:icons: font
+:linkattrs: 
+:imagesdir: ../media/
+
+
+....
+cluster::*> snapmirror mediator show
+Mediator Address Peer Cluster     Connection Status Quorum Status
+---------------- ---------------- ----------------- -------------
+10.237.86.17     C1_cluster       unreachable       true
+SnapMirror consistency group relationship status is out of sync.
+
+C2_cluster::*> snapmirror show -expand
+Source            Destination Mirror  Relationship   Total             Last
+Path        Type  Path        State   Status         Progress  Healthy Updated
+----------- ---- ------------ ------- -------------- --------- ------- --------
+vs0:/cg/src_cg_1 XDP vs1:/cg/dst_cg_1 Snapmirrored OutOfSync - false   -
+vs0:zrto_cg_655724_188a_RW1 XDP vs1:zrto_cg_655755_188c_DP1 Snapmirrored OutOfSync - false -
+vs0:zrto_cg_655733_188a_RW2 XDP vs1:zrto_cg_655762_188c_DP2 Snapmirrored OutOfSync - false -
+vs0:zrto_cg_655739_188b_RW1 XDP vs1:zrto_cg_655768_188d_DP1 Snapmirrored OutOfSync - false -
+vs0:zrto_cg_655748_188b_RW2 XDP vs1:zrto_cg_655776_188d_DP2 Snapmirrored OutOfSync - false -
+5 entries were displayed.
+
+Site B cluster is unable to reach Site A.
+C2_cluster::*> cluster peer show
+Peer Cluster Name         Cluster Serial Number Availability   Authentication
+------------------------- --------------------- -------------- --------------
+C1_cluster 			  1-80-000011           Unavailable    ok
+....
+フェイルオーバーを強制的に実行してサイト B からの I/O を有効にし、サイト B からサイト A への RTO 関係をゼロにします
+
+サイト B で強制フェイルオーバーを実行するには、次の手順を実行します
+
+. この整合グループに属するすべての LUN のマッピングをサイト B から解除します
+. force オプションを使用して、 SnapMirror 整合グループ関係を削除します。
+. 整合性グループコンスティチュエントボリュームで snapmirror break コマンドを入力して、ボリュームを DP から RW に変換し、サイト B からの I/O を有効にします
+. サイト A のノードをブートして、サイト B からサイト A への RTO 関係をゼロにします
+. サイト A で relationship-info-only を指定して整合グループを解放して共通の Snapshot コピーを保持し、整合グループに属する LUN のマッピングを解除します。
+. Sync ポリシーまたは非同期ポリシーを使用してボリュームレベルの関係を設定し、サイト A のボリュームを RW から DP に変換します。
+. snapmirror resync を使用して関係を同期します。問題
+. サイト A の Sync ポリシーが設定された SnapMirror 関係を削除します
+. サイト B で relationship-info-only true を使用して、 Sync ポリシーが設定された SnapMirror 関係を解放します
+. サイト B からサイト A への整合グループ関係を作成します
+. サイト A から整合グループの再同期を実行し、整合グループが同期されていることを確認します。
+. ホスト LUN の I/O パスを再スキャンして、 LUN へのすべてのパスをリストアします。
+

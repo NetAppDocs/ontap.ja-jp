@@ -1,0 +1,607 @@
+---
+permalink: upgrade/task_updating_a_four_or_eight_node_mcc.html 
+sidebar: sidebar 
+keywords: 4-node MetroCluster configurations,8-node MetroCluster configurations 
+summary: 4 ノードまたは 8 ノード MetroCluster 構成をアップグレードまたはダウングレードするための手動更新手順では、更新の準備を行い、 1 つまたは 2 つの DR グループの各 DR ペアを同時に更新し、更新後にいくつかの手順を実行します。 
+---
+= CLI を使用した 4 ノードまたは 8 ノード MetroCluster 構成の無停止アップグレード
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+4 ノードまたは 8 ノード MetroCluster 構成をアップグレードまたはダウングレードするための手動更新手順では、更新の準備を行い、 1 つまたは 2 つの DR グループの各 DR ペアを同時に更新し、更新後にいくつかの手順を実行します。
+
+* このタスクでは、次の構成を環境に設定します。
++
+** ONTAP 9.2 以前を実行している 4 ノード MetroCluster FC 構成または IP 構成
+** ONTAP のバージョンに関係なく、 8 ノードの MetroCluster FC 構成
+
+
+* 2 ノード MetroCluster 構成の場合は、この手順を使用しないでください。
+* ここで説明する手順では、 ONTAP の古いバージョンと新しいバージョンという表現を使用します。
++
+** アップグレードの場合、古いバージョンは ONTAP の以前のバージョンで、 ONTAP の新しいバージョンよりも下位のバージョン番号が割り当てられます。
+** ダウングレード手順での古いバージョンとは、 ONTAP の新しいバージョン、つまり ONTAP の新しいバージョンのバージョン番号よりも上位の番号を持つバージョンを指します。
+
+
+* このタスクのワークフローは次のとおりです。
++
+image::../media/workflow_mcc_lockstep_upgrade.gif[ワークフロー MCC ロックステップアップグレード]
+
+
+
+
+
+== ソフトウェアを 8 ノードと 4 ノードの MetroCluster 構成で更新する場合の違い
+
+MetroCluster ソフトウェアの更新プロセスは、 MetroCluster 構成にノードが 8 つあるか 4 つあるかによって異なります。
+
+MetroCluster 構成は、 1 つまたは 2 つの DR グループで構成されます。各 DR グループは 2 つの HA ペアで構成され、各 MetroCluster クラスタに HA ペアが 1 つずつ配置されます。8 ノードの MetroCluster には、 2 つの DR グループが含まれています。
+
+image::../media/mcc_dr_groups_8_node.gif[MCC DR グループ 8 ノード]
+
+MetroCluster ソフトウェアの更新手順では、一度に 1 つの DR グループをアップグレードまたはダウングレードします。
+
+4 ノード MetroCluster 構成の場合：
+
+. DR グループ 1 を更新します。
++
+.. node_A_1 と node_B_1 を更新します。
+.. node_B_2 と node_B_2 を更新
+
+
+
+
+8 ノード MetroCluster 構成の場合は、 DR グループの更新手順を 2 回実行します。
+
+. DR グループ 1 を更新します。
++
+.. node_A_1 と node_B_1 を更新します。
+.. node_B_2 と node_B_2 を更新
+
+
+. DR グループ 2 を更新します。
++
+.. node_A_1 と node_B_1 を更新します。
+.. node_A_1 4 と node_B_1 を更新します。
+
+
+
+
+
+
+== MetroCluster DR グループの更新準備をしています
+
+ノード上のソフトウェアを実際に更新する前に、ノード間の DR 関係を特定し、更新を開始することを示す AutoSupport メッセージを送信して、各ノードで実行されている ONTAP のバージョンを確認する必要があります。
+
+が必要です xref:task_download_and_install_ontap_software_image.html[ソフトウェアイメージをダウンロードしてインストール]。
+
+このタスクは DR グループごとに実行する必要があります。MetroCluster 構成が 8 つのノードで構成されている場合は、 DR グループが 2 つあります。そのため、 DR グループごとにこの手順を繰り返す必要があります。
+
+このタスクの例では、次の図に示すクラスタとノードの名前を使用しています。
+
+image::../media/mcc_dr_groups_8_node.gif[MCC DR グループ 8 ノード]
+
+. 構成内の DR ペアを特定します MetroCluster node show -fields dr-partner
++
+[listing]
+----
+ cluster_A::> metrocluster node show -fields dr-partner
+   (metrocluster node show)
+ dr-group-id cluster     node       dr-partner
+ ----------- -------     --------   ----------
+ 1           cluster_A   node_A_1   node_B_1
+ 1           cluster_A   node_A_2   node_B_2
+ 1           cluster_B   node_B_1   node_A_1
+ 1           cluster_B   node_B_2   node_A_2
+ 4 entries were displayed.
+
+ cluster_A::>
+----
+. 権限レベルを admin から advanced に設定します。続行するかどうかを尋ねられたら、「 * y * 」と入力します。「 set -privilege advanced 」
++
+詳細プロンプト (`*>') が表示されます
+
+. 各ノードで実行中の ONTAP のバージョンを確認します。
++
+.. cluster_A のシステムイメージのバージョンを確認します
++
+[listing]
+----
+ cluster_A::*> system image show
+                  Is      Is                Install
+ Node     Image   Default Current Version   Date
+ -------- ------- ------- ------- -------   -------------------
+ node_A_1
+          image1  true    true    X.X.X     MM/DD/YYYY TIME
+          image2  false   false   Y.Y.Y     MM/DD/YYYY TIME
+ node_A_2
+          image1  true    true    X.X.X     MM/DD/YYYY TIME
+          image2  false   false   Y.Y.Y     MM/DD/YYYY TIME
+ 4 entries were displayed.
+
+ cluster_A::>
+----
+.. cluster_B のシステムイメージが表示されていることを確認します
++
+[listing]
+----
+ cluster_B::*> system image show
+                  Is      Is                 Install
+ Node     Image   Default Current Version    Date
+ -------- ------- ------- ------- -------    -------------------
+ node_B_1
+          image1  true    true    X.X.X      MM/DD/YYYY TIME
+          image2  false   false   Y.Y.Y      MM/DD/YYYY TIME
+ node_B_2
+          image1  true    true    X.X.X      MM/DD/YYYY TIME
+          image2  false   false   Y.Y.Y      MM/DD/YYYY TIME
+ 4 entries were displayed.
+
+ cluster_B::>
+----
+
+
+. AutoSupport 通知をトリガーします。 AutoSupport invoke -node * -type all -message "starting_NDU"
++
+この AutoSupport 通知には、更新前のシステムステータスの記録が含まれます。これにより、更新処理で問題が発生した場合に役立つトラブルシューティング情報が保存されます。
+
++
+AutoSupport メッセージを送信するようにクラスタが設定されていない場合は、通知のコピーがローカルに保存されます。
+
+. 最初のセットに含まれる各ノードについて、ターゲットの ONTAP ソフトウェアイメージをデフォルトのイメージとして設定します。「 system image modify ｛ -node nodename -iscurrent false ｝ -isdefault true
++
+このコマンドでは、拡張クエリを使用して、代替イメージとしてインストールされるターゲットのソフトウェアイメージがノードのデフォルトのイメージになるように変更します。
+
+. ターゲットの ONTAP ソフトウェアイメージがデフォルトのイメージとして設定されたことを確認します。
++
+.. cluster_A 上のイメージを確認します : 'system image show'
++
+次の例では、 image2 が新しい ONTAP バージョンで、最初のセットに含まれる各ノードでデフォルトのイメージとして設定されています。
+
++
+[listing]
+----
+ cluster_A::*> system image show
+                  Is      Is              Install
+ Node     Image   Default Current Version Date
+ -------- ------- ------- ------- ------- -------------------
+ node_A_1
+          image1  false   true    X.X.X   MM/DD/YYYY TIME
+          image2  true    false   Y.Y.Y   MM/DD/YYYY TIME
+ node_A_2
+          image1  false   true    X.X.X   MM/DD/YYYY TIME
+          image2  true   false   Y.Y.Y   MM/DD/YYYY TIME
+
+ 2 entries were displayed.
+----
+.. cluster_B のイメージを確認します : 'system image show
++
+次の例では、最初のセットに含まれる各ノードで、ターゲットのバージョンがデフォルトのイメージとして設定されています。
+
++
+[listing]
+----
+ cluster_B::*> system image show
+                  Is      Is              Install
+ Node     Image   Default Current Version Date
+ -------- ------- ------- ------- ------- -------------------
+ node_A_1
+          image1  false   true    X.X.X   MM/DD/YYYY TIME
+          image2  true    false   Y.Y.Y   MM/YY/YYYY TIME
+ node_A_2
+          image1  false   true    X.X.X   MM/DD/YYYY TIME
+          image2  true    false   Y.Y.Y   MM/DD/YYYY TIME
+
+ 2 entries were displayed.
+----
+
+
+. 各ノードに対して次のコマンドを 2 回入力して、アップグレード対象のノードが現在クライアントに対して処理を行っているかどうかを確認します。「 system node run -node target-node-command uptime 」
++
+uptime コマンドは、ノードの前回のブート以降に NFS 、 CIFS 、 FC 、および iSCSI の各クライアントに対してノードが実行した処理総数を表示します。プロトコルごとにコマンドを 2 回実行して、処理数が増加しているかどうかを確認する必要があります。増加している場合は、そのプロトコルのクライアントに対してノードが現在処理を行っています。増加していない場合は、そのプロトコルのクライアントに対してノードは現在処理を行っていません。
+
++
+* 注：ノードのアップグレード後にクライアントトラフィックが再開したことを確認できるように、クライアントの処理数が増加しているプロトコルをそれぞれ書き留めておいてください。
+
++
+次の例は、 NFS 、 CIFS 、 FC 、および iSCSI の処理が含まれるノードを示しています。ただし、ノードは現在 NFS クライアントと iSCSI クライアントに対してのみ処理を行っています。
+
++
+[listing]
+----
+ cluster_x::> system node run -node node0 -command uptime
+   2:58pm up  7 days, 19:16 800000260 NFS ops, 1017333 CIFS ops, 0 HTTP ops, 40395 FCP ops, 32810 iSCSI ops
+
+ cluster_x::> system node run -node node0 -command uptime
+   2:58pm up  7 days, 19:17 800001573 NFS ops, 1017333 CIFS ops, 0 HTTP ops, 40395 FCP ops, 32815 iSCSI ops
+----
+
+
+
+
+== MetroCluster DR グループ内の最初の DR ペアの更新
+
+ONTAP の新しいバージョンをノードの現在のバージョンにするには、ノードのテイクオーバーとギブバックを正しい順序で行う必要があります。
+
+すべてのノードで古いバージョンの ONTAP を実行している必要があります。
+
+このタスクでは、 node_A_1 と node_B_1 を更新します。
+
+最初の DR グループの ONTAP ソフトウェアを更新済みで、 8 ノード MetroCluster 構成内の 2 つ目の DR グループを更新する場合は、この手順で node_A_3 と node_B_1 を更新します。
+
+. MetroCluster Tiebreaker ソフトウェアが有効になっている場合は、無効にします。
+. HA ペアの各ノードについて、自動ギブバックを無効にします。「 storage failover modify -node target-node-auto-giveback false
++
+このコマンドは HA ペアのノードごとに実行する必要があります。
+
+. 自動ギブバックが無効になっていることを確認します。「 storage failover show -fields auto-giveback 」
++
+次の例は、両方のノードで自動ギブバックが無効になっていることを示しています。
+
++
+[listing]
+----
+ cluster_x::> storage failover show -fields auto-giveback
+ node     auto-giveback
+ -------- -------------
+ node_x_1 false
+ node_x_2 false
+ 2 entries were displayed.
+----
+. 各コントローラの I/O が 50% を超えないようにします。コントローラあたりの CPU 使用率が 50% を超えないようにします。
+. cluster_A のターゲットノードのテイクオーバーを開始します。
++
+テイクオーバーされたノードを新しいソフトウェアイメージでブートするには通常のテイクオーバーが必要なため、 -option immediate パラメータは指定しないでください。
+
++
+.. cluster_A (node_A_1 の ) 上の DR パートナーをテイクオーバーします「 storage failover takeover -ofnode node_A_1
++
+ノードがブートし、「 Waiting for giveback 」状態になります。
+
++
+
+NOTE: AutoSupport が有効な場合は、ノードがクラスタクォーラムのメンバーでないことを示す AutoSupport メッセージが送信されます。この通知を無視し、アップグレードを続行してかまいません。
+
+.. テイクオーバーが正常に完了したことを確認します。「 storage failover show
++
+次の例は、テイクオーバーが正常に完了したことを示しています。node_A_1 は「 Waiting for giveback 」状態、 node_A_1 は「 In takeover 」状態です。
+
++
+[listing]
+----
+ cluster1::> storage failover show
+                               Takeover
+ Node           Partner        Possible State Description
+ -------------- -------------- -------- -------------------------------------
+ node_A_1       node_A_2       -        Waiting for giveback (HA mailboxes)
+ node_A_2       node_A_1       false    In takeover
+ 2 entries were displayed.
+----
+
+
+. cluster_B （ node_B_1 ）の DR パートナーをテイクオーバーします。
++
+テイクオーバーされたノードを新しいソフトウェアイメージでブートするには通常のテイクオーバーが必要なため、 -option immediate パラメータは指定しないでください。
+
++
+.. node_B_1 をテイクオーバーします。「 storage failover takeover -ofnode node_B_1
++
+ノードがブートし、「 Waiting for giveback 」状態になります。
+
++
+
+NOTE: AutoSupport が有効な場合は、ノードがクラスタクォーラムのメンバーでないことを示す AutoSupport メッセージが送信されます。この通知を無視し、アップグレードを続行してかまいません。
+
+.. テイクオーバーが正常に完了したことを確認します。「 storage failover show
++
+次の例は、テイクオーバーが正常に完了したことを示しています。node_B_1 が「 Waiting for giveback 」状態、 node_B_2 が「 In takeover 」状態です。
+
++
+[listing]
+----
+ cluster1::> storage failover show
+                               Takeover
+ Node           Partner        Possible State Description
+ -------------- -------------- -------- -------------------------------------
+ node_B_1       node_B_2       -        Waiting for giveback (HA mailboxes)
+ node_B_2       node_B_1       false    In takeover
+ 2 entries were displayed.
+----
+
+
+. 8 分以上待ってから、次の条件を満たしていることを確認します。
++
+** クライアントのマルチパス（導入している場合）が安定している。
+** クライアントがテイクオーバー中に発生した I/O の中断から回復している。
++
+回復までの時間はクライアントによって異なり、クライアントアプリケーションの特性によっては 8 分以上かかることもあります。
+
+
+
+. アグリゲートをターゲットノードに戻します。
++
+MetroCluster IP 構成を ONTAP 9.5 以降にアップグレードすると、アグリゲートの状態は短時間 degraded になったあとに再同期されて mirrored に戻ります。
+
++
+.. アグリゲートを cluster_A の DR パートナーにギブバックします。「 storage failover giveback – ofnode node_A_1
+.. アグリゲートを cluster_B の DR パートナーにギブバックします。「 storage failover giveback – ofnode node_B_1
++
+ギブバック処理では、最初にルートアグリゲートがノードに戻され、そのノードのブートが完了するとルート以外のアグリゲートが戻されます。
+
+
+
+. 両方のクラスタで次のコマンドを実行して、すべてのアグリゲートが戻されたことを確認します。「 storage failover show-giveback
++
+Giveback Status フィールドにギブバックするアグリゲートがないことが示されている場合は、すべてのアグリゲートが戻されています。ギブバックが拒否された場合は、コマンドによってギブバックの進捗が表示され、ギブバックを拒否したサブシステムも表示されます。
+
+. いずれかのアグリゲートが戻されていない場合は、次の手順を実行します。
++
+.. 拒否された回避策を確認して、「 ve to 」状態に対処するか、拒否を無視するかを決定します。
+.. 必要に応じて、エラーメッセージに記載されている「宛」の状態に対処し、特定された処理が正常に終了するようにします。
+.. storage failover giveback コマンドを再度入力します。
++
+「 "" ～ "" 」条件をオーバーライドする場合は、 -override-vetoes パラメータを true に設定します。
+
+
+
+. 8 分以上待ってから、次の条件を満たしていることを確認します。
++
+** クライアントのマルチパス（導入している場合）が安定している。
+** クライアントがギブバック中に発生した I/O の中断から回復している。
++
+回復までの時間はクライアントによって異なり、クライアントアプリケーションの特性によっては 8 分以上かかることもあります。
+
+
+
+. 権限レベルを admin から advanced に設定します。続行するかどうかを尋ねられたら、「 * y * 」と入力します。「 set -privilege advanced 」
++
+詳細プロンプト (`*>') が表示されます
+
+. cluster_A のシステムイメージのバージョンを確認します
++
+次の例は、 System image2 が node_A_1 のデフォルトおよび現在のバージョンであることを示しています。
+
++
+[listing]
+----
+ cluster_A::*> system image show
+                  Is      Is               Install
+ Node     Image   Default Current Version  Date
+ -------- ------- ------- ------- -------- -------------------
+ node_A_1
+          image1  false   false    X.X.X   MM/DD/YYYY TIME
+          image2  true    true     Y.Y.Y   MM/DD/YYYY TIME
+ node_A_2
+          image1  false   true     X.X.X   MM/DD/YYYY TIME
+          image2  true    false    Y.Y.Y   MM/DD/YYYY TIME
+ 4 entries were displayed.
+
+ cluster_A::>
+----
+. cluster_B のシステムイメージが表示されていることを確認します
++
+次の例は、 System image2 （ ONTAP 9.0.0 ）が node_A_1 のデフォルトおよび現在のバージョンであることを示しています。
+
++
+[listing]
+----
+ cluster_A::*> system image show
+                  Is      Is               Install
+ Node     Image   Default Current Version  Date
+ -------- ------- ------- ------- -------- -------------------
+ node_B_1
+          image1  false   false    X.X.X   MM/DD/YYYY TIME
+          image2  true    true     Y.Y.Y   MM/DD/YYYY TIME
+ node_B_2
+          image1  false   true     X.X.X   MM/DD/YYYY TIME
+          image2  true    false    Y.Y.Y   MM/DD/YYYY TIME
+ 4 entries were displayed.
+
+ cluster_A::>
+----
+
+
+
+
+== MetroCluster DR グループ内の 2 つ目の DR ペアの更新
+
+ONTAP の新しいバージョンをノードの現在のバージョンにするには、ノードのテイクオーバーとギブバックを正しい順序で行う必要があります。
+
+最初の DR ペア（ node_A_1 と node_B_1 ）をアップグレードしておく必要があります。
+
+このタスクでは、 node_B_2 と node_B_2 が更新されます。
+
+最初の DR グループの ONTAP ソフトウェアを更新済みで、 8 ノード MetroCluster 構成内の 2 つ目の DR グループを更新する場合は、この手順で node_A_4 と node_B_1 を更新します。
+
+. cluster_A のターゲットノードのテイクオーバーを開始します。
++
+テイクオーバーされたノードを新しいソフトウェアイメージでブートするには通常のテイクオーバーが必要なため、 -option immediate パラメータは指定しないでください。
+
++
+.. cluster_A の DR パートナーをテイクオーバーします。
++
+「 storage failover takeover -ofnode node_A_1 」 -option allow-version-mismatch
+
++
+
+NOTE: ONTAP 9.0 から ONTAP 9.1 にアップグレードする場合、またはパッチをアップグレードする場合、「 allow-version-mismatch 」オプションは必要ありません。
+
++
+ノードがブートし、「 Waiting for giveback 」状態になります。
+
++
+AutoSupport が有効な場合は、ノードがクラスタクォーラムのメンバーでないことを示す AutoSupport メッセージが送信されます。この通知を無視し、アップグレードを続行してかまいません。
+
+.. テイクオーバーが正常に完了したことを確認します。「 storage failover show
++
+次の例は、テイクオーバーが正常に完了したことを示しています。Node_a_2 の状態が Waiting for giveback 、 node_A_1 の状態が In takeover になっています。
+
++
+[listing]
+----
+cluster1::> storage failover show
+                              Takeover
+Node           Partner        Possible State Description
+-------------- -------------- -------- -------------------------------------
+node_A_1       node_A_2       false    In takeover
+node_A_2       node_A_1       -        Waiting for giveback (HA mailboxes)
+2 entries were displayed.
+----
+
+
+. cluster_B のターゲットノードのテイクオーバーを開始します。
++
+テイクオーバーされたノードを新しいソフトウェアイメージでブートするには通常のテイクオーバーが必要なため、 -option immediate パラメータは指定しないでください。
+
++
+.. cluster_B （ node_B_2 ）の DR パートナーをテイクオーバーします。
++
+[cols="2*"]
+|===
+| アップグレード前のバージョン | 入力するコマンド 
+
+
+ a| 
+ONTAP 9.2 または ONTAP 9.1
+ a| 
+「 storage failover takeover -ofnode node_B_1
+
+
+
+ a| 
+ONTAP 9.0 または Data ONTAP 8.3.x
+ a| 
+「 storage failover takeover -ofnode node_name -option allow-version mismatch 」注： ONTAP 9.0 から ONTAP 9.1 へのアップグレードやパッチのアップグレードに「 allow-version-mismatch 」オプションは必要ありません。
+
+|===
+
+
+
+
+ノードがブートし、「 Waiting for giveback 」状態になります。
+
++ 注： AutoSupport が有効な場合、ノードがクラスタクォーラムのメンバーでないことを示す AutoSupport メッセージが送信されます。この通知を無視し、アップグレードを続行してかまいません。
+
+. テイクオーバーが正常に完了したことを確認します。「 storage failover show
++
+次の例は、テイクオーバーが正常に完了したことを示しています。node_B_2 は「 Waiting for giveback 」状態、 node_B_1 は「 In takeover 」状態です。
+
++
+[listing]
+----
+cluster1::> storage failover show
+                              Takeover
+Node           Partner        Possible State Description
+-------------- -------------- -------- -------------------------------------
+node_B_1       node_B_2       false    In takeover
+node_B_2       node_B_1       -        Waiting for giveback (HA mailboxes)
+2 entries were displayed.
+----
++
+.. 8 分以上待ってから、次の条件を満たしていることを確認します。
++
+*** クライアントのマルチパス（導入している場合）が安定している。
+*** クライアントがテイクオーバー中に発生した I/O の中断から回復している。
++
+回復までの時間はクライアントによって異なり、クライアントアプリケーションの特性によっては 8 分以上かかることもあります。
+
+
+
+.. アグリゲートをターゲットノードに戻します。
++
+MetroCluster IP 構成を ONTAP 9.5 にアップグレードすると、アグリゲートの状態は短時間 degraded になったあとに再同期されて mirrored に戻ります。
+
+
+
+. アグリゲートを cluster_A の DR パートナーにギブバックします。「 storage failover giveback – ofnode node_A_1 _a_2
+. アグリゲートを cluster_B の DR パートナーにギブバックします。「 storage failover giveback – ofnode node_B_1
++
+ギブバック処理では、最初にルートアグリゲートがノードに戻され、そのノードのブートが完了するとルート以外のアグリゲートが戻されます。
+
++
+.. 両方のクラスタで次のコマンドを実行して、すべてのアグリゲートが戻されたことを確認します。「 storage failover show-giveback
++
+Giveback Status フィールドにギブバックするアグリゲートがないことが示されている場合は、すべてのアグリゲートが戻されています。ギブバックが拒否された場合は、コマンドによってギブバックの進捗が表示され、ギブバックを拒否したサブシステムも表示されます。
+
+.. いずれかのアグリゲートが戻されていない場合は、次の手順を実行します。
+
+
+. 拒否された回避策を確認して、「 ve to 」状態に対処するか、拒否を無視するかを決定します。
+. 必要に応じて、エラーメッセージに記載されている「宛」の状態に対処し、特定された処理が正常に終了するようにします。
+. storage failover giveback コマンドを再度入力します。
++
+「 "" ～ "" 」条件をオーバーライドする場合は、 -override-vetoes パラメータを true に設定します。。8 分以上待ってから、次の状態を確認します。 ** クライアントマルチパス（導入している場合）が安定している。** クライアントはギブバック中に発生した I/O の中断から回復しています。
+
++
++ リカバリ時間はクライアントによって異なり、クライアントアプリケーションの特性によっては 8 分以上かかることもあります。
+
++
+.. 権限レベルを admin から advanced に設定します。続行するかどうかを尋ねられたら、「 * y * 」と入力します。「 set -privilege advanced 」
++
+詳細プロンプト (`*>') が表示されます
+
+.. cluster_A のシステムイメージのバージョンを確認します
++
+次の例は、 System image2 （ターゲットの ONTAP イメージ）が node_A_2 のデフォルトおよび現在のバージョンであることを示しています。
+
++
+[listing]
+----
+cluster_B::*> system image show
+                 Is      Is                 Install
+Node     Image   Default Current Version    Date
+-------- ------- ------- ------- ---------- -------------------
+node_A_1
+         image1  false   false    X.X.X     MM/DD/YYYY TIME
+         image2  true    true     Y.Y.Y     MM/DD/YYYY TIME
+node_A_2
+         image1  false   false    X.X.X     MM/DD/YYYY TIME
+         image2  true    true     Y.Y.Y     MM/DD/YYYY TIME
+4 entries were displayed.
+
+cluster_A::>
+----
+.. cluster_B のシステムイメージが表示されていることを確認します
++
+次の例は、 System image2 （ターゲットの ONTAP イメージ）が node_B_2 のデフォルトおよび現在のバージョンであることを示しています。
+
++
+[listing]
+----
+cluster_B::*> system image show
+                 Is      Is                 Install
+Node     Image   Default Current Version    Date
+-------- ------- ------- ------- ---------- -------------------
+node_B_1
+         image1  false   false    X.X.X     MM/DD/YYYY TIME
+         image2  true    true     Y.Y.Y     MM/DD/YYYY TIME
+node_B_2
+         image1  false   false    X.X.X     MM/DD/YYYY TIME
+         image2  true    true     Y.Y.Y     MM/DD/YYYY TIME
+4 entries were displayed.
+
+cluster_A::>
+----
+.. HA ペアの各ノードで自動ギブバックを有効にします。「 storage failover modify -node target-node-auto-giveback true
++
+このコマンドは HA ペアのノードごとに実行する必要があります。
+
+.. 自動ギブバックが有効になっていることを確認します。「 storage failover show -fields auto-giveback 」
++
+次の例では、両方のノードで自動ギブバックが有効になっています。
+
++
+[listing]
+----
+cluster_x::> storage failover show -fields auto-giveback
+node     auto-giveback
+-------- -------------
+node_x_1 true
+node_x_2 true
+2 entries were displayed.
+----
+
+
+

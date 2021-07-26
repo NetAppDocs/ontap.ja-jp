@@ -1,0 +1,227 @@
+---
+sidebar: sidebar 
+permalink: networking/configure_snmpv3_users_in_a_cluster.html 
+keywords: configure, configuration, configuring, setup, setting, set, up, snmp, snmpv3, users, user, cluster, security, secure, configure an snmpv3 user to run the snmp utilities from the snmp manager, security login create command, configure snmpv3 users in a cluster, snmpv3 security parameters, examples for different security levels, security level authpriv, fips mode, snmpwalk test, security level authnopriv 
+summary: SNMP マネージャから SNMP ユーティリティを実行するための SNMPv3 ユーザを設定します 
+---
+= クラスタに SNMPv3 ユーザを設定します
+:hardbreaks:
+:nofooter: 
+:icons: font
+:linkattrs: 
+:imagesdir: ./media/
+
+
+[role="lead"]
+SNMPv3 は、 SNMPv1 や SNMPv2c に比べて安全なプロトコルです。SNMPv3 を使用するには、 SNMP マネージャから SNMP ユーティリティを実行するための SNMPv3 ユーザを設定する必要があります。
+
+「 security login create コマンド」を使用して SNMPv3 ユーザを作成します。
+
+次の情報を入力するように求められます。
+
+* エンジン ID ：デフォルトで、推奨値はローカルエンジン ID です
+* 認証プロトコル
+* 認証パスワード
+* プライバシープロトコル
+* プライバシープロトコルのパスワード
+
+
+SNMPv3 ユーザは、ユーザ名とパスワードを使用して SNMP マネージャからログインし、 SNMP ユーティリティのコマンドを実行できます。
+
+
+
+== SNMPv3 セキュリティパラメータ
+
+SNMPv3 には認証機能が備わっており、この機能を選択すると、コマンドの呼び出し時に、ユーザ名、認証プロトコル、認証キー、および必要なセキュリティレベルの入力が必要になります。
+
+次の表に、 SNMPv3 セキュリティパラメータを示します。
+
+[cols="3*"]
+|===
+| パラメータ | コマンドラインオプション | 説明 
+
+
+ a| 
+エンジン ID
+ a| 
+-e engineID
+ a| 
+SNMP エージェントのエンジン ID 。デフォルト値はローカルのエンジン ID （推奨）です。
+
+
+
+ a| 
+securityName の略
+ a| 
+-u 名
+ a| 
+ユーザ名は 32 文字以内にする必要があります。
+
+
+
+ a| 
+authProtocol の略
+ a| 
+- a ｛ none | md5 | sha | SHA-256 ｝
+ a| 
+認証タイプには、 none 、 md5 、 SHA 、または SHA-256 を指定できます。
+
+
+
+ a| 
+authKey
+ a| 
+- パスフレーズ
+ a| 
+8 文字以上の長さのパスフレーズ
+
+
+
+ a| 
+セキュリティレベル
+ a| 
+-l ｛ authNoPriv | AuthPriv | noAuthNoPriv ｝
+ a| 
+セキュリティレベルには、「 Authentication 、 No Privacy 」、「 Authentication 、 Privacy 」、「 No Authentication 、 No Authentication 」のいずれかを指定できます。 プライバシーなし。
+
+
+
+ a| 
+privProtocol の略
+ a| 
+-x ｛ none | des | aes128 ｝
+ a| 
+プライバシープロトコルには、 none 、 des 、または aes128 を指定できます
+
+
+
+ a| 
+プライベートパスワード
+ a| 
+-X パスワード
+ a| 
+8 文字以上のパスワード。
+
+|===
+
+
+== さまざまなセキュリティレベルの例
+
+この例では、さまざまなセキュリティレベルで作成された SNMPv3 ユーザが、 SNMP クライアント側コマンド（「 mpwalk 」など）を使用してクラスタオブジェクトを照会する方法を示します。
+
+パフォーマンスを高めるには、テーブルから単一または少数のオブジェクトを取得するのではなく、テーブル内のすべてのオブジェクトを取得します。
+
+
+NOTE: 認証プロトコルが SHA の場合は、「 mpwalk 」 5.3.1 以降を使用する必要があります。
+
+
+
+=== セキュリティレベル： authPriv
+
+authPriv セキュリティレベルの SNMPv3 ユーザを作成した場合の出力を次に示します。
+
+....
+security login create -username snmpv3user -application snmp -authmethod usm
+Enter the authoritative entity's EngineID [local EngineID]:
+Which authentication protocol do you want to choose  (none, md5, sha) [none]:sha
+....
+
+
+==== FIPS モード
+
+....
+Which authentication protocol do you want to choose (sha, sha2-256) [sha]
+
+Enter authentication protocol password (minimum 8 characters long):
+Enter authentication protocol password again:
+Which privacy protocol do you want to choose  (none, des) [none]: des
+Enter privacy protocol password (minimum 8 characters long):
+Enter privacy protocol password again:
+....
+
+
+==== snmpwalk テストを実行します
+
+この SNMPv3 ユーザが snmpwalk コマンドを実行した場合の出力を次に示します。
+
+パフォーマンスを高めるには、テーブルから単一または少数のオブジェクトを取得するのではなく、テーブル内のすべてのオブジェクトを取得します。
+
+....
+$ snmpwalk -v 3 -u snmpv3user -a SHA -A password1! -x DES -X password1! -l authPriv 192.0.2.62 .1.3.6.1.4.1.789.1.5.8.1.2
+Enterprises.789.1.5.8.1.2.1028 = "vol0"
+Enterprises.789.1.5.8.1.2.1032 = "vol0"
+Enterprises.789.1.5.8.1.2.1038 = "root_vs0"
+Enterprises.789.1.5.8.1.2.1042 = "root_vstrap"
+Enterprises.789.1.5.8.1.2.1064 = "vol1"
+....
+
+
+=== セキュリティレベル： authNoPriv
+
+authNoPriv セキュリティレベルの SNMPv3 ユーザを作成した場合の出力を次に示します。
+
+....
+security login create -username snmpv3user1 -application snmp -authmethod usm -role admin
+Enter the authoritative entity's EngineID [local EngineID]:
+Which authentication protocol do you want to choose (none, md5, sha) [none]: md5
+....
+
+
+==== FIPS モード
+
+....
+Which privacy protocol do you want to choose (aes128) [aes128]
+
+Enter authentication protocol password (minimum 8 characters long):
+Enter authentication protocol password again:
+Which privacy protocol do you want to choose (none, des) [none]: none
+....
+
+
+==== snmpwalk テストを実行します
+
+この SNMPv3 ユーザが snmpwalk コマンドを実行した場合の出力を次に示します。
+
+パフォーマンスを高めるには、テーブルから単一または少数のオブジェクトを取得するのではなく、テーブル内のすべてのオブジェクトを取得します。
+
+....
+$ snmpwalk -v 3 -u snmpv3user1 -a MD5 -A password1!  -l authNoPriv 192.0.2.62 .1.3.6.1.4.1.789.1.5.8.1.2
+Enterprises.789.1.5.8.1.2.1028 = "vol0"
+Enterprises.789.1.5.8.1.2.1032 = "vol0"
+Enterprises.789.1.5.8.1.2.1038 = "root_vs0"
+Enterprises.789.1.5.8.1.2.1042 = "root_vstrap"
+Enterprises.789.1.5.8.1.2.1064 = "vol1"
+....
+
+
+=== セキュリティレベル： noAuthNoPriv
+
+noAuthNoPriv セキュリティレベルの SNMPv3 ユーザを作成した場合の出力を次に示します。
+
+....
+security login create -username snmpv3user2 -application snmp -authmethod usm -role admin
+Enter the authoritative entity's EngineID [local EngineID]:
+Which authentication protocol do you want to choose (none, md5, sha) [none]: none
+....
+
+
+==== FIPS モード
+
+FIPS では、 none は選択できません
+
+
+
+==== snmpwalk テストを実行します
+
+この SNMPv3 ユーザが snmpwalk コマンドを実行した場合の出力を次に示します。
+
+パフォーマンスを高めるには、テーブルから単一または少数のオブジェクトを取得するのではなく、テーブル内のすべてのオブジェクトを取得します。
+
+....
+$ snmpwalk -v 3 -u snmpv3user2 -l noAuthNoPriv 192.0.2.62 .1.3.6.1.4.1.789.1.5.8.1.2
+Enterprises.789.1.5.8.1.2.1028 = "vol0"
+Enterprises.789.1.5.8.1.2.1032 = "vol0"
+Enterprises.789.1.5.8.1.2.1038 = "root_vs0"
+Enterprises.789.1.5.8.1.2.1042 = "root_vstrap"
+Enterprises.789.1.5.8.1.2.1064 = "vol1"
+....

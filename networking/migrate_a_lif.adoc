@@ -1,0 +1,74 @@
+---
+sidebar: sidebar 
+permalink: networking/migrate_a_lif.html 
+keywords: move the lif, change lif port, migrate a lif, migrate a LIF to a different port on the same node or a different node within the cluster 
+summary: LIF を同じノードの別のポートやクラスタ内の別のノードに移行する 
+---
+= LIF を移行
+:hardbreaks:
+:nofooter: 
+:icons: font
+:linkattrs: 
+:imagesdir: ./media/
+
+
+[role="lead"]
+ポートで障害が発生した場合やメンテナンスを行う場合など、同じノードの別のポートやクラスタ内の別のノードに LIF を移行しなければならないことがあります。LIF の移行は LIF のフェイルオーバーと似ていますが、 LIF の移行は手動で行います。 LIF のフェイルオーバーは、 LIF の現在のネットワークポートのリンク障害に対応して LIF を自動的に移行する機能です。
+
+.作業を開始する前に
+* LIF のフェイルオーバーグループを設定しておく必要があります。
+* デスティネーションのノードおよびポートが動作していて、ソースポートと同じネットワークにアクセスできる必要があります。
+
+
+.このタスクについて
+* ノードから NIC を削除する前に、 NIC に属しているポートでホストされている LIF をクラスタ内の他のポートに移行する必要があります。
+* クラスタ LIF を移行するコマンドは、そのクラスタ LIF がホストされているノードで実行する必要があります。
+* ノードを対象とした管理 LIF 、クラスタ LIF 、クラスタ間 LIF など、ノードを対象とした LIF をリモートノードに移行することはできません。
+* NFSv4 の LIF をノード間で移行する場合は、その LIF が新しいポートで使用できるようになるまで、 45 秒ほどかかります。
++
+この問題を回避するには、 NFSv4.1 を使用します。
+
+* iSCSI LIF をノード間で移行することはできません。
++
+この問題を回避するには、デスティネーションノードに iSCSI LIF を作成する必要があります。iSCSI LIF の作成に関するガイドラインについては、を参照してください https://docs.netapp.com/ontap-9/topic/com.netapp.doc.dot-cm-sanag/home.html["SAN 管理"^]。
+
+* VMware VAAI のコピーオフロード処理は、ソース LIF またはデスティネーション LIF を移行すると失敗します。VMware VAAI の詳細については、を参照してください http://docs.netapp.com/ontap-9/topic/com.netapp.doc.cdot-famg-nfs/GUID-39C8E616-EAE8-46A4-881A-87C4B8421281.html["NFS リファレンス"^] または。
+
+
+特定の LIF を移行するかすべての LIF を移行するかに応じて、該当する操作を実行します。
+
+[cols="2*"]
+|===
+| 移行対象 | 入力するコマンド 
+
+
+ a| 
+特定の LIF
+ a| 
+「ネットワーク・インターフェイス移行」
+
+
+
+ a| 
+ノードのすべてのデータ LIF とクラスタ管理 LIF
+ a| 
+「 network interface migrate-all 」
+
+
+
+ a| 
+ポートに接続していないすべての LIF です
+ a| 
+「 network interface migrate-all -node <node> -port <port> 」のようになります
+
+|===
+次の例は、 SVM vs0 上の datalif1 という LIF を node0b 上のポート e0d に移行する方法を示しています。
+
+....
+network interface migrate -vserver vs0 -lif datalif1 -dest-node node0b -dest-port e0d
+....
+次の例は、現在（ローカル）のノードからすべてのデータ LIF とクラスタ管理 LIF を移行する方法を示しています。
+
+....
+network interface migrate-all -node local
+....

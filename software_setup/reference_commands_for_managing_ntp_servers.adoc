@@ -1,0 +1,73 @@
+---
+permalink: software_setup/reference_commands_for_managing_ntp_servers.html 
+sidebar: sidebar 
+keywords: ontap, software, setup, commands, managing, symmetric, authentication, ntp, servers 
+summary: ONTAP 9.5 以降では、ネットワークタイムプロトコル（ NTP; ネットワークタイムプロトコル）バージョン 3 がサポートされます。NTPv3 には SHA-1 鍵を使用した対称認証機能が含まれ、ネットワークセキュリティが強化されます。 
+---
+= NTP サーバの対称認証を管理するコマンドです
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+ONTAP 9.5 以降では、ネットワークタイムプロトコル（ NTP ）バージョン 3 がサポートされます。NTPv3 には SHA-1 鍵を使用した対称認証機能が含まれ、ネットワークセキュリティが強化されます。
+
+[cols="2*"]
+|===
+| 作業 | 使用するコマンド 
+
+
+ a| 
+対称認証を使用せずに NTP サーバを設定する
+ a| 
+cluster time-service ntp server create -server server_name を選択します
+
+
+
+ a| 
+対称認証を使用して NTP サーバを設定する
+ a| 
+cluster time-service ntp server create -server server_ip_address -key-id key_id
+
+
+
+ a| 
+既存の NTP サーバで対称認証を有効にします
+
+必要なキー ID を追加することで、既存の NTP サーバを変更して認証を有効にすることができます
+ a| 
+cluster time-service ntp server modify -server server_name -key_id key_id `
+
+
+
+ a| 
+共有 NTP キーを設定する
+ a| 
+cluster time-service ntp key create -id shared_key_id -type shared_key_type - value shared_key_value
+
+* 注：共有キーは ID で参照されます。ID 、そのタイプ、および値が、ノードと NTP サーバで同じである必要があります
+
+
+
+ a| 
+不明なキー ID で NTP サーバを設定する
+ a| 
+cluster time-service ntp server create -server server_name -key_id key_id
+
+
+
+ a| 
+NTP サーバで設定されていないキー ID でサーバを設定する。
+ a| 
+cluster time-service ntp server create -server server_name -key_id key_id
+
+* 注： * キー ID 、タイプ、および値は、 NTP サーバに設定されているキー ID 、タイプ、および値と同じである必要があります。
+
+
+
+ a| 
+対称認証を無効にします
+ a| 
+「 cluster time-service ntp server modify -server server_name -authentication disabled 」の形式で指定します
+
+|===

@@ -1,0 +1,50 @@
+---
+sidebar: sidebar 
+permalink: networking/removing_a_nic_from_the_node.html 
+keywords: delete, deleting, remove, removing, nic, network, interface, card, slot, maintenance, faulty, error, bad, failed, fail, node, remove a faulty NIC from its slot or move the NIC to another slot for maintenance purposes, removing a nic from the node on ontap 9.8 or later, controller-replacement, network displaced-vlans, displaced-vlans show, displaced-vlans restore, 
+summary: ONTAP 9.8 以降では、障害のある NIC をスロットから取り外したり、メンテナンスのために NIC を別のスロットに移したりします 
+---
+= ONTAP 9.8 以降でのノードからの NIC の取り外し
+:hardbreaks:
+:nofooter: 
+:icons: font
+:linkattrs: 
+:imagesdir: ./media/
+
+
+[role="lead"]
+このトピックは環境 ONTAP 9.8 以降です。障害の発生した NIC をスロットから取り外したり、メンテナンスのために NIC を別のスロットに移したりしなければならない場合があります。
+
+.手順
+. ノードの電源をオフにします。
+. NIC をスロットから物理的に取り外します。
+. ノードの電源をオンにします。
+. ポートが削除されたことを確認します。
++
+....
+network port show
+....
++
+
+NOTE: ONTAP は、すべてのインターフェイスグループからポートを自動的に削除します。ポートがインターフェイスグループの唯一のメンバーであった場合は、インターフェイスグループが削除されます。
+
+. ポートに VLAN が設定されている場合は、ポートが取り外されます。次のコマンドを使用すると、削除された VLAN を表示できます。
++
+....
+cluster controller-replacement network displaced-vlans show
+....
++
+
+NOTE: 「 dispaced-interface show 」、「 displaced-vlans show 」、「 dispaced-vlans restore 」コマンドは一意であり、「 cluster controller-replacement network 」で始まる完全修飾コマンド名は必要ありません。
+
+. これらの VLAN は削除されますが、次のコマンドを使用してリストアできます。
++
+....
+displaced-vlans restore
+....
+. ポートに LIF が設定されている場合は、同じブロードキャストドメインの別のポート上のそれらの LIF に新しいホームポートが ONTAP によって自動的に選択されます。同じ Filer 上に適切なホーム・ポートが見つからない場合、これらの LIF は取り外されたと見なされます。削除した LIF を表示するには、次のコマンドを使用します。
++
+「 dispaced-interface show 」
+
+. 同じノードのブロードキャストドメインに新しいポートを追加すると、 LIF のホームポートは自動的にリストアされます。または、「 network interface modify -home-node -home-port home -node 」を使用してホームポートを設定するか、または、 o変位 した interface restore コマンドを使用することもできます。
+

@@ -1,0 +1,171 @@
+---
+permalink: upgrade/task_updating_a_two_node_metrocluster_configuration_in_ontap_9_2_and_earlier.html 
+sidebar: sidebar 
+keywords: ontap, upgrade, two-node, metrocluster, mcc, 9.2, earlier 
+summary: 2 ノード MetroCluster 構成の ONTAP は、無停止でアップグレードできます。この方法には、ネゴシエートスイッチオーバーの開始、「障害」サイトでのクラスタの更新、スイッチバックの開始、もう一方のサイトのクラスタでの処理の繰り返しの手順があります。 
+---
+= ONTAP 9.2 以前では、 CLI を使用して 2 ノード MetroCluster 構成を無停止で手動アップグレードします
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+2 ノード MetroCluster 構成の ONTAP は、無停止でアップグレードできます。この方法には、ネゴシエートスイッチオーバーの開始、「 failed 」サイトでのクラスタの更新、スイッチバックの開始、もう一方のサイトのクラスタでの処理の繰り返しの手順が含まれます。
+
+この手順は、 ONTAP 9.2 以前を実行している 2 ノード MetroCluster 構成専用です。
+
++ 4 ノード MetroCluster 構成の場合は、この手順を使用しないでください。
+
++ ONTAP 9.3 以降を実行している 2 ノード MetroCluster 構成の場合は、を実行します xref:task_upgrade_andu_sm.html[System Manager を使用した自動無停止アップグレード]。
+
+. 権限レベルを advanced に設定します。続行するかどうかを尋ねられたら、「 * y * 」と入力します。「 set -privilege advanced 」
++
+詳細プロンプト (`*>') が表示されます
+
+. アップグレード対象のクラスタで、新しい ONTAP ソフトウェアイメージをデフォルトとしてインストールします。「 system node image update -package package_location-setdefault true -replace-package true 」
++
+[listing]
+----
+cluster_B::*> system node image update -package http://www.example.com/NewImage.tgz -setdefault true -replace-package true
+----
+. ターゲットのソフトウェアイメージがデフォルトイメージとして設定されていることを確認します : 'system node image show
++
+次の例では 'NewImage' がデフォルトイメージとして設定されています
+
++
+[listing]
+----
+cluster_B::*> system node image show
+                    Is      Is                           Install
+Node     Image      Default Current Version              Date
+-------- -------    ------- ------- -------------------- -------------------
+node_B_1
+         OldImage  false   true    X.X.X                MM/DD/YYYY TIME
+         NewImage  true    false   Y.Y.Y                MM/DD/YYYY TIME
+2 entries were displayed.
+----
+. ターゲットのソフトウェアイメージがデフォルトのイメージとして設定されていない場合は、次のように変更します。 'system image modify ｛ -node * -iscurrent false ｝ -isdefault true
+. すべてのクラスタ SVM が「 MetroCluster vserver show 」の状態であることを確認します
+. 更新対象でないクラスタ上で、ネゴシエートスイッチオーバーを開始します。 MetroCluster switchover
++
+この処理には数分かかることがあります。MetroCluster operation show コマンドを使用して、スイッチオーバーが完了したことを確認できます。
+
++
+次の例では ' ネゴシエート・スイッチオーバーがリモート・クラスタ（ "cluster_a" ）上で実行されますこれにより ' ローカルクラスタ ("`cluster_B`") が停止し ' 更新できるようになります
+
++
+[listing]
+----
+cluster_A::> metrocluster switchover
+
+Warning: negotiated switchover is about to start. It will stop all the data
+         Vservers on cluster "cluster_B" and
+         automatically re-start them on cluster
+         "cluster_A". It will finally gracefully shutdown
+         cluster "cluster_B".
+Do you want to continue? {y|n}: y
+----
+. すべてのクラスタ SVM が「 MetroCluster vserver show 」の状態であることを確認します
+. 「 vovinging 」クラスタのデータアグリゲートを再同期化します。「 MetroCluster heal-phase aggregates 」
++
+MetroCluster IP 構成を ONTAP 9.5 以降にアップグレードすると、アグリゲートの状態は短時間 degraded になったあとに再同期されて mirrored に戻ります。
+
++
+[listing]
+----
+cluster_A::> metrocluster heal -phase aggregates
+[Job 130] Job succeeded: Heal Aggregates is successful.
+----
+. 修復操作が正常に完了したことを確認します MetroCluster operation show
++
+[listing]
+----
+cluster_A::> metrocluster operation show
+Operation: heal-aggregates
+State: successful
+Start Time: MM/DD/YYYY TIME
+End Time: MM/DD/YYYY TIME
+Errors: -
+----
+. 「 vovinging 」クラスタのルートアグリゲートを再同期化します。「 MetroCluster heal-phase root-aggregates 」
++
+[listing]
+----
+cluster_A::> metrocluster heal -phase root-aggregates
+[Job 131] Job succeeded: Heal Root Aggregates is successful.
+----
+. 修復操作が正常に完了したことを確認します MetroCluster operation show
++
+[listing]
+----
+cluster_A::> metrocluster operation show
+Operation: heal-root-aggregates
+State: successful
+Start Time: MM/DD/YYYY TIME
+End Time: MM/DD/YYYY TIME
+Errors: -
+----
+. 停止したクラスタで、 LOADER プロンプト「 boot_ontap 」からノードをブートします
+. ブートプロセスが完了するのを待ってから、すべてのクラスタ SVM が「 MetroCluster vserver show 」のヘルス状態であることを確認します
+. 「 urvovinging 」クラスタ「 MetroCluster switchback 」からスイッチバックを実行します
+. スイッチバックが正常に完了したことを確認します MetroCluster operation show
++
+[listing]
+----
+cluster_A::> metrocluster operation show
+Operation: switchback
+State: successful
+Start Time: MM/DD/YYYY TIME
+End Time: MM/DD/YYYY TIME
+Errors: -
+----
+. すべてのクラスタ SVM が「 MetroCluster vserver show 」の状態であることを確認します
+. もう一方のクラスタで、ここまでのすべての手順を繰り返します。
+. MetroCluster 構成が正常であることを確認します。
++
+.. 構成を確認します MetroCluster check run
++
+[listing]
+----
+cluster_A::> metrocluster check run
+Last Checked On: MM/DD/YYYY TIME
+Component           Result
+------------------- ---------
+nodes               ok
+lifs                ok
+config-replication  ok
+aggregates          ok
+4 entries were displayed.
+
+Command completed. Use the "metrocluster check show -instance"
+command or sub-commands in "metrocluster check" directory for
+detailed results.
+To check if the nodes are ready to do a switchover or switchback
+operation, run "metrocluster switchover -simulate" or "metrocluster
+switchback -simulate", respectively.
+----
+.. より詳細な結果を表示するには、 MetroCluster check run コマンドを使用します。「 MetroCluster check aggregate show `m etrocluster check config-replication show `m etrocluster check lif show ```m etrocluster check node show`
+.. 権限レベルを advanced に設定します。「 set -privilege advanced 」
+.. スイッチオーバー操作をシミュレートします MetroCluster switchover-simulate
+.. スイッチオーバー・シミュレーションの結果を確認します。 MetroCluster operation show
++
+[listing]
+----
+cluster_A::*> metrocluster operation show
+    Operation: switchover
+        State: successful
+   Start time: MM/DD/YYYY TIME
+     End time: MM/DD/YYYY TIME
+       Errors: -
+----
+.. admin 権限レベルに戻ります。「 set -privilege admin 」
+.. もう一方のクラスタで上記の手順を繰り返します。
+
+
+
+
+アップグレード後の手順をすべて実行してください。
+
+* 関連情報 *
+
+link:https://docs.netapp.com/us-en/ontap-metrocluster/disaster-recovery/index.html["MetroCluster によるディザスタリカバリ"]

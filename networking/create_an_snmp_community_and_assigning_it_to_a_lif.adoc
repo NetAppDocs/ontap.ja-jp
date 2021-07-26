@@ -1,0 +1,115 @@
+---
+sidebar: sidebar 
+permalink: networking/create_an_snmp_community_and_assigning_it_to_a_lif.html 
+keywords: create, creation, creating, add, adding, snmp, community, assign, assigning, lif, logical, interface, create an snmp community and assigning it to a lif, snmpwalk, snmpget, snmp community add 
+summary: 管理ステーションと SVM の間の認証メカニズムとして機能する SNMP コミュニティを作成します 
+---
+= SNMP コミュニティを作成して LIF に割り当てます
+:hardbreaks:
+:nofooter: 
+:icons: font
+:linkattrs: 
+:imagesdir: ./media/
+
+
+[role="lead"]
+SNMPv1 および SNMPv2c を使用する場合に管理ステーションと Storage Virtual Machine （ SVM ）間の認証メカニズムとして機能する、 SNMP コミュニティを作成できます。
+
+データ SVM に SNMP コミュニティを作成することにより、データ LIF で「 mpwalk 」や「 mpget 」などのコマンドを実行できるようになります。
+
+.このタスクについて
+* ONTAP の新規インストールでは、 SNMPv1 と SNMPv2c はデフォルトで無効になっています。
++
+SNMPv1 と SNMPv2c は、 SNMP コミュニティを作成すると有効になります。
+
+* ONTAP でサポートされるのは、読み取り専用のコミュニティです。
+* デフォルトでは、データ LIF に割り当てられている「 data 」ファイアウォールポリシーで、 SNMP サービスが「 `d eny' 」に設定されています。
++
+データ SVM の SNMP ユーザを作成するときに、 SNMP サービスが「 allow 」に設定された新しいファイアウォールポリシーを作成する必要があります。
+
+* 管理 SVM とデータ SVM の両方に、 SNMPv1 ユーザと SNMPv2c ユーザの SNMP コミュニティを作成できます。
+* SVM は SNMP 標準の一部ではないので、データ LIF でのクエリにはネットアップのルート OID （ 1.3.6.1.4.1.789 ）を含める必要があります。たとえば、「 mpwalk -v 2c -c snmpNFS 10.238.19.14 1.3.6.1.4.1.789 」のように指定します。
+
+
+.手順
+. 「 system snmp community add 」コマンドを使用して、 SNMP コミュニティを作成します。次のコマンドは、管理 SVM cluster-1 に SNMP コミュニティを作成する方法を示しています。
++
+....
+system snmp community add -type ro -community-name comty1 -vserver cluster-1
+....
++
+次のコマンドは、データ SVM vs1 に SNMP コミュニティを作成する方法を示しています。
+
++
+....
+system snmp community add -type ro -community-name comty2 -vserver vs1
+....
+. system snmp community show コマンドを使用して、コミュニティが作成されたことを確認します。
++
+次のコマンドは、 SNMPv1 および SNMPv2c 用に作成された 2 つのコミュニティを表示します。
+
++
+....
+system snmp community show
+cluster-1
+rocomty1
+vs1
+rocomty2
+....
+. 「 system services firewall policy 'how 」コマンドを使用して、「 data 」ファイアウォールポリシーで SNMP がサービスとして許可されているかどうかを確認します。
++
+次のコマンドは、デフォルトの「 data 」ファイアウォールポリシーでは SNMP サービスが許可されていないことを示しています（ SNMP サービスは「 mgmt 」ファイアウォールポリシーでのみ許可されています）。
+
++
+....
+system services firewall policy show
+Vserver Policy       Service    Allowed
+------- ------------ ---------- -------------------
+cluster-1
+        data
+                     dns        0.0.0.0/0
+                     ndmp       0.0.0.0/0
+                     ndmps      0.0.0.0/0
+cluster-1
+        intercluster
+                     https      0.0.0.0/0
+                     ndmp       0.0.0.0/0
+                     ndmps      0.0.0.0/0
+cluster-1
+        mgmt
+                     dns        0.0.0.0/0
+                     http       0.0.0.0/0
+                     https      0.0.0.0/0
+                     ndmp       0.0.0.0/0
+                     ndmps      0.0.0.0/0
+                     ntp        0.0.0.0/0
+                     snmp       0.0.0.0/0
+                     ssh        0.0.0.0/0
+....
+. 「 system services firewall policy create 」コマンドを使用して、 snmp サービスを使用したアクセスを許可する新しいファイアウォールポリシーを作成します。
++
+次のコマンドは、「 data1 」という名前の新しいデータファイアウォールポリシーを作成し、「 NMP 」を許可します
+
++
+....
+system services firewall policy create -policy data1 -service snmp -vserver  vs1 -allow-list 0.0.0.0/0
+
+cluster-1::> system services firewall policy show -service snmp
+Vserver  Policy       Service    Allowed
+-------  ------------ ---------- -------------------
+cluster-1
+         mgmt
+                      snmp       0.0.0.0/0
+vs1
+         data1
+                      snmp       0.0.0.0/0
+....
+. firewall-policy パラメータを指定して「 network interface modify 」コマンドを使用し、ファイアウォールポリシーをデータ LIF に適用します。
++
+次のコマンドは、新しい「 data1 」ファイアウォールポリシーを LIF 「 datalif1 」に割り当てます。
+
++
+....
+network interface modify -vserver vs1 -lif datalif1 -firewall-policy data1
+....
+

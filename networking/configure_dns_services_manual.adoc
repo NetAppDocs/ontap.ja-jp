@@ -1,0 +1,141 @@
+---
+sidebar: sidebar 
+permalink: networking/configure_dns_services_manual.html 
+keywords: dns, service, services, configuration, configure, configuring, set, up, setup, nfs, smb, cifs, active, directory, statistics, configure dns services, files, dns, hosts, , vserver services name-service dns create, configure dynamic dns on the svm, vserver-fqdn 
+summary: NFS または SMB サーバを作成する前に、 SVM 用の DNS サービスを設定してください 
+---
+= DNS サービスを設定する
+:hardbreaks:
+:nofooter: 
+:icons: font
+:linkattrs: 
+:imagesdir: ./media/
+
+
+[role="lead"]
+NFS または CIFS サーバを作成する前に、 SVM 用の DNS サービスを設定する必要があります。通常、 DNS ネームサーバは、 NFS または CIFS サーバが参加するドメインの Active Directory 統合 DNS サーバです。
+
+Active Directory 統合 DNS サーバには、ドメイン LDAP およびドメインコントローラサーバのサービスロケーションレコード（ SRV ）が格納されます。SVM が Active Directory LDAP サーバおよびドメインコントローラを見つけられない場合は、 NFS または CIFS サーバのセットアップに失敗します。
+
+SVM は、ホストについての情報を検索する際に、 hosts ネームサービス ns-switch データベースを使用してどのネームサービスを使用するか、どの順番で使用するかを決定します。ホスト・データベースでサポートされている 2 つのネーム・サービスは 'files' と 'ns' です
+
+CIFS サーバを作成する前に、「 dns 」がソースの 1 つであることを確認する必要があります。
+
+
+NOTE: mgwd プロセスと SecD プロセスについて DNS ネームサービスの統計を表示するには、統計画面を使用します。
+
+.手順
+. 現在の構成が 'hosts ネームサービス・データベースに対応しているかどうかを確認します
++
+この例では、 hosts ネームサービスデータベースはデフォルトの設定を使用しています。
+
++
+「 vserver services name-service ns-switch show -vserver _vs1_-database _hosts_` 」を指定します
+
++
+....
+                     Vserver: vs1
+Name Service Switch Database: hosts
+   Name Service Source Order: files, dns
+....
+. 必要に応じて、次の操作を実行します。
++
+.. DNS ネームサービスを希望の順序で hosts ネームサービスデータベースに追加するか、ソースの順序を変更します。
++
+この例では、 DNS ファイルとローカルファイルを順に使用するように hosts データベースを設定しています。
+
++
+「 vserver services name-service ns-switch modify -vserver _vs1_-database-hosts_-sources_dns 、 files_`
+
+.. ネームサービスの設定が正しいことを確認します。
++
+「 vserver services name-service ns-switch show -vserver _vs1_-database _hosts_` 」を指定します
+
+
+
+. DNS サービスを設定する
++
+「 vserver services name-service dns create -vserver_vs1_-domains _example.com,example2.com_ -name-servers_10.0.0.50 、 10.0.0.51_`
+
++
+
+NOTE: vserver services name-service dns create コマンドを使用すると、自動構成検証が実行され、 ONTAP がネームサーバに接続できない場合はエラーメッセージが報告されます。
+
+. DNS の設定が正しいことと、サービスが有効になっていることを確認してください。
++
+....
+           Vserver: vs1
+           Domains: example.com, example2.com Name
+           Servers: 10.0.0.50, 10.0.0.51
+Enable/Disable DNS: enabled Timeout (secs): 2
+  Maximum Attempts: 1
+....
+. ネームサーバのステータスを検証します。
++
+「 vserver services name-service dns check -vserver_vs1_` 」のようになります
+
++
+....
+Vserver  Name Server  Status  Status Details
+-------  -----------  ------  -----------------------
+vs1      10.0.0.50    up      Response time (msec): 2
+vs1      10.0.0.51    up      Response time (msec): 2
+....
+
+
+
+
+== SVM に動的 DNS を設定します
+
+Active Directory に統合された DNS サーバを DNS にある NFS または SMB サーバの DNS レコードに動的に登録する場合は、 SVM で動的 DNS （ DDNS ）を設定する必要があります。
+
+SVM で DNS ネームサービスが設定されている必要があります。セキュア DDNS を使用する場合は、 Active Directory 統合 DNS ネームサーバを使用して、 SVM 用の NFS または SMB サーバまたは Active Directory アカウントを作成しておく必要があります。
+
+完全修飾ドメイン名（ FQDN ）は一意にする必要があります。
+
+* NFS の場合、「 vserver services name-service dns dynamic-update 」コマンドで「 -vserver -fqdn 」で指定した値が、 LIF の登録 FQDN になります。
+* SMB / CIFS の場合、 CIFS サーバの NetBIOS 名および CIFS サーバの完全修飾ドメイン名として指定された値が、 LIF の登録済み FQDN になります。ONTAP では設定できません。次のシナリオでは、 LIF FQDN は「 CIFS_VS1.EXAMPLE.COM": 」です
++
+....
+cluster1::> cifs server show -vserver vs1
+
+                                          Vserver: vs1
+                         CIFS Server NetBIOS Name: CIFS_VS1
+                    NetBIOS Domain/Workgroup Name: EXAMPLE
+                      Fully Qualified Domain Name: EXAMPLE.COM
+                              Organizational Unit: CN=Computers
+Default Site Used by LIFs Without Site Membership:
+                                   Workgroup Name: -
+                                   Kerberos Realm: -
+                             Authentication Style: domain
+                CIFS Server Administrative Status: up
+                          CIFS Server Description:
+                          List of NetBIOS Aliases: -
+....
+
+
+
+NOTE: DDNS 更新の RFC ルールに準拠していない SVM FQDN の設定エラーを回避するには、 RFC に準拠した FQDN 名を使用します。詳細については、を参照してください link:https://tools.ietf.org/html/rfc1123["RFC 1123"]。
+
+.手順
+. SVM で DDNS を設定します。
++
+「 vserver services name-service dns dynamic-update modify -vserver _vserver_name __ is-enabled_[-use-secure ｛ true|false ｝ -vserver -fqdn_used_on_dns_update_`
+
++
+「 vserver services name-service dns dynamic-update modify -vserver _vs1_-is-enabled_-use-secure_true_-vserver -fqdn _vs1.example.com_`
+
++
+カスタマイズした FQDN の一部としてアスタリスクを使用することはできません。たとえば '*.netapp.com は無効です
+
+. DDNS の設定が正しいことを確認します。
++
+vserver services name-service dns dynamic-update show
+
++
+....
+Vserver  Is-Enabled Use-Secure Vserver FQDN      TTL
+-------- ---------- ---------- ----------------- -------
+vs1      true       true       vs1.example.com   24h
+....
+

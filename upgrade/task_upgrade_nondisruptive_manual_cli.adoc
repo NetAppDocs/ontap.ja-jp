@@ -1,0 +1,537 @@
+---
+sidebar: sidebar 
+permalink: upgrade/task_upgrade_nondisruptive_manual_cli.html 
+keywords: netapp, ontap, upgrade, nondisruptive, nondisruptively, non-disruptive update, nondisruptive upgrade, upgrade a cluster, shift workload between clusters, hardware platform, configuration, software image, update, update ONTAP, update software, ndu 
+summary: クラスタの ONTAP のバージョンは無停止で更新できます。 
+---
+= CLI を使用した手動による無停止（ローリング方式
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+ローリングアップグレード方式を使用すると、 2 ノード以上のクラスタを無停止で更新できます。この方法には、 HA ペアの各ノードでフェイルオーバー処理を開始し、「 failed 」ノードを更新し、ギブバックを開始してから、クラスタの各 HA ペアについて同じ処理を繰り返します。
+
+アップグレード前の必要な準備作業を完了しておきます。
+
+. HA ペアの最初のノードを更新します
++
+ノードのパートナーによるテイクオーバーを開始して、 HA ペアの最初のノードをアップグレードします。最初のノードをアップグレードしている間、ノードのデータはパートナーから提供されます。
+
+. HA ペアの 2 つ目のノードを更新
++
+HA ペアの最初のノードをアップグレードまたはダウングレードしたあと、そのノードでテイクオーバーを開始してパートナーをアップグレードします。パートナーをアップグレードしている間、パートナーのデータは最初のノードから提供されます。
+
+. 残りの HA ペアについても、同じ手順を繰り返します。
+
+
+アップグレード後の手順を実行してください。
+
+
+
+== HA ペアの最初のノードの更新
+
+ノードのパートナーによるテイクオーバーを開始することで、 HA ペアの最初のノードを更新できます。最初のノードをアップグレードしている間、ノードのデータはパートナーから提供されます。
+
+メジャーアップグレードを実行する場合は、外部接続用にデータ LIF を設定し、最初の ONTAP イメージをインストールしたノードをアップグレード対象の最初のノードにする必要があります。
+
+最初のノードをアップグレードしたら、できるだけ早くパートナーノードをアップグレードする必要があります。2 つのノードが必要以上に長い間バージョン不一致の状態のままで放置しないでください。
+
+. AutoSupport メッセージを呼び出して、クラスタ内の最初のノードを更新します。「 AutoSupport invoke -node * -type all -message "starting_NDU"
++
+この AutoSupport 通知には、更新直前のシステムステータスの記録が含まれます。これにより、更新処理で問題が発生した場合に役立つトラブルシューティング情報が保存されます。
+
++
+AutoSupport メッセージを送信するようにクラスタが設定されていない場合は、通知のコピーがローカルに保存されます。
+
+. 権限レベルを advanced に設定します。続行するかどうかを尋ねられたら、「 * y * 」と入力します。「 set -privilege advanced 」
++
+詳細プロンプト (`*>') が表示されます
+
+. 新しい ONTAP ソフトウェアイメージをデフォルトのイメージとして設定します。「 system image modify ｛ -node nodenameA -iscurrent false ｝ -isdefault true
++
+system image modify コマンドでは、拡張クエリを使用して、代替イメージとしてインストールされる新しい ONTAP ソフトウェアイメージがノードのデフォルトのイメージに変更されます。
+
+. 更新の進捗を監視します：「 system node upgrade-revert show 」
+. 新しい ONTAP ソフトウェアイメージがデフォルトイメージ「 system image show 」に設定されていることを確認します
++
+次の例では、 image2 が新しい ONTAP バージョンで、 node0 のデフォルトのバージョンとして設定されています。
+
++
+[listing]
+----
+cluster1::*> system image show
+                 Is      Is                Install
+Node     Image   Default Current Version    Date
+-------- ------- ------- ------- --------- -------------------
+node0
+         image1  false   true    X.X.X     MM/DD/YYYY TIME
+         image2  true    false   Y.Y.Y     MM/DD/YYYY TIME
+node1
+         image1  true    true    X.X.X     MM/DD/YYYY TIME
+         image2  false   false   Y.Y.Y     MM/DD/YYYY TIME
+4 entries were displayed.
+----
+. 自動ギブバックが有効になっている場合は、パートナーノードで無効にします。「 storage failover modify -node nodenameB -auto-giveback false
++
+2 ノードクラスタでは、自動ギブバックを無効にすると、 2 つのノードで交互に障害が発生した場合に管理クラスタのサービスがオンラインにならないことを警告するメッセージが表示されます。「 y 」と入力して続行します。
+
+. ノードのパートナーで自動ギブバックが無効になっていることを確認します。「 storage failover show -node nodenameB -fields auto-giveback
++
+[listing]
+----
+cluster1::> storage failover show -node node1 -fields auto-giveback
+node     auto-giveback
+-------- -------------
+node1    false
+1 entry was displayed.
+----
+. 次のコマンドを 2 回実行して、更新対象のノードが現在クライアントのシステムノードの実行ノード nodenameA コマンドのアップタイムを処理しているかどうかを確認します
++
+uptime コマンドは、ノードの前回のブート以降に NFS 、 CIFS 、 FC 、および iSCSI の各クライアントに対してノードが実行した処理総数を表示します。プロトコルごとにコマンドを 2 回実行して、処理数が増加しているかどうかを確認する必要があります。増加している場合は、そのプロトコルのクライアントに対してノードが現在処理を行っています。増加していない場合は、そのプロトコルのクライアントに対してノードは現在処理を行っていません。
+
++
+* 注 * ：ノードの更新後にクライアントトラフィックが再開したことを確認できるように、クライアント処理の増加に伴う各プロトコルを書き留めてください。
+
++
+次の例は、 NFS 、 CIFS 、 FC 、および iSCSI の処理が含まれるノードを示しています。ただし、ノードは現在 NFS クライアントと iSCSI クライアントに対してのみ処理を行っています。
+
++
+[listing]
+----
+cluster1::> system node run -node node0 -command uptime
+  2:58pm up  7 days, 19:16 800000260 NFS ops, 1017333 CIFS ops, 0 HTTP ops, 40395 FCP ops, 32810 iSCSI ops
+
+cluster1::> system node run -node node0 -command uptime
+  2:58pm up  7 days, 19:17 800001573 NFS ops, 1017333 CIFS ops, 0 HTTP ops, 40395 FCP ops, 32815 iSCSI ops
+----
+. ノードからすべてのデータ LIF を移行します。「 network interface migrate-all -node nodenameA
+. 移行した LIF を確認します。「 network interface show 」
++
+LIF のステータスの確認に使用できるパラメータの詳細については、 network interface show のマニュアルページを参照してください。
+
++
+次の例は、 node0 のデータ LIF が正常に移行されたことを示しています。それぞれの LIF について、この例に含まれるフィールドを使用して、 LIF のホームノードとポート、 LIF の移行先である現在のノードとポート、および LIF の動作ステータスと管理ステータスを確認できます。
+
++
+[listing]
+----
+cluster1::> network interface show -data-protocol nfs|cifs -role data -home-node node0 -fields home-node,curr-node,curr-port,home-port,status-admin,status-oper
+vserver lif     home-node home-port curr-node curr-port status-oper status-admin
+------- ------- --------- --------- --------- --------- ----------- ------------
+vs0     data001 node0     e0a       node1     e0a       up          up
+vs0     data002 node0     e0b       node1     e0b       up          up
+vs0     data003 node0     e0b       node1     e0b       up          up
+vs0     data004 node0     e0a       node1     e0a       up          up
+4 entries were displayed.
+----
+. テイクオーバーを開始します。「 storage failover takeover -ofnode nodenameA
++
+テイクオーバーされたノードを新しいソフトウェアイメージでブートするには通常のテイクオーバーが必要なため、 -option immediate パラメータは指定しないでください。ノードから LIF を手動で移行しなかった場合は、 LIF がノードの HA パートナーに自動的に移行されるため、サービスが停止することはありません。
+
++
+最初のノードがブートし、 Waiting for giveback 状態になります。
+
++
+* 注： AutoSupport が有効な場合、ノードがクラスタクォーラムのメンバーでないことを示す AutoSupport メッセージが送信されます。この通知を無視し、更新を続行してかまいません。
+
+. テイクオーバーが正常に完了したことを確認します。「 storage failover show
++
+バージョン不一致およびメールボックス形式の問題を示すエラーメッセージが表示される場合があります。これは想定されている動作であり、無停止メジャーアップグレードにおける一時的な状態を表しており、悪影響はありません。
+
++
+次の例は、テイクオーバーが正常に完了したことを示しています。ノード node0 の状態は Waiting for giveback 、パートナーの状態は In takeover になっています。
+
++
+[listing]
+----
+cluster1::> storage failover show
+                              Takeover
+Node           Partner        Possible State Description
+-------------- -------------- -------- -------------------------------------
+node0          node1          -        Waiting for giveback (HA mailboxes)
+node1          node0          false    In takeover
+2 entries were displayed.
+----
+. 次の状態になるまで少なくとも 8 分待ちます。
++
+** クライアントのマルチパス（導入している場合）が安定している。
+** クライアントがテイクオーバー中に発生した I/O 処理の中断から回復している。
++
+回復までの時間はクライアントによって異なり、クライアントアプリケーションの特性によっては 8 分以上かかることもあります。
+
+
+
+. アグリゲートを最初のノードに戻します。「 storage failover giveback – ofnode nodenameA
++
+ギブバックでは、最初にルートアグリゲートがパートナーノードに戻され、そのノードのブートが完了すると、ルート以外のアグリゲートと自動的にリバートするように設定されたすべての LIF が戻されます。新しくブートしたノードで、戻されたアグリゲートから順番にクライアントへのデータ提供が開始されます。
+
+. すべてのアグリゲートが戻されたことを確認します。「 storage failover show-giveback
++
+Giveback Status フィールドにギブバックするアグリゲートがないことが示されている場合は、すべてのアグリゲートが戻されています。ギブバックが拒否された場合は、コマンドによってギブバックの進捗が表示され、ギブバックを拒否したサブシステムも表示されます。
+
+. いずれかのアグリゲートが戻されていない場合は、次の手順を実行します。
++
+.. 拒否された回避策を確認して、「 ve to 」状態に対処するか、拒否を無視するかを決定します。
++
+link:https://docs.netapp.com/us-en/ontap/high-availability/index.html["ハイアベイラビリティ構成"]
+
+.. 必要に応じて、エラーメッセージに記載されている「宛」の状態に対処し、特定された処理が正常に終了するようにします。
+.. storage failover giveback コマンドを再実行します。
++
+「 "" ～ "" 」条件をオーバーライドする場合は、 -override-vetoes パラメータを true に設定します。
+
+
+
+. 次の状態になるまで少なくとも 8 分待ちます。
++
+** クライアントのマルチパス（導入している場合）が安定している。
+** クライアントがギブバック中に発生した I/O 処理の中断から回復している。
++
+回復までの時間はクライアントによって異なり、クライアントアプリケーションの特性によっては 8 分以上かかることもあります。
+
+
+
+. ノードの更新が正常に完了したことを確認します。
++
+.. advanced 権限レベル「 'set -privilege advanced 」に移動します
+.. ノードの更新ステータスが完了したことを確認します。「 system node upgrade-revert show -node nodenameA
++
+ステータスが complete になっている必要があります。
+
++
+ステータスが complete になっていない場合は、ノードから system node upgrade-revert upgrade コマンドを実行します。このコマンドを実行しても更新が完了しない場合は、テクニカルサポートにお問い合わせください。
+
+.. admin 権限レベルに戻ります。「 set -privilege admin 」
+
+
+. ノードのポートが動作していることを確認します。「 network port show -node nodenameA
++
+このコマンドは、 ONTAP 9 の上位バージョンにアップグレードされたノードで実行する必要があります。
+
++
+次の例は、ノードのすべてのポートが動作していることを示しています。
+
++
+[listing]
+----
+cluster1::> network port show -node node0
+                                                             Speed (Mbps)
+Node   Port      IPspace      Broadcast Domain Link   MTU    Admin/Oper
+------ --------- ------------ ---------------- ----- ------- ------------
+node0
+       e0M       Default      -                up       1500  auto/100
+       e0a       Default      -                up       1500  auto/1000
+       e0b       Default      -                up       1500  auto/1000
+       e1a       Cluster      Cluster          up       9000  auto/10000
+       e1b       Cluster      Cluster          up       9000  auto/10000
+5 entries were displayed.
+----
+. LIF をノードにリバートします。「 network interface revert *
++
+このコマンドを実行すると、移行した LIF が元のノードに戻されます。
+
++
+[listing]
+----
+cluster1::> network interface revert *
+8 entries were acted on.
+----
+. ノードのデータ LIF が正常にノードにリバートされ、 up になっていることを確認します。「 network interface show
++
+次の例は、ノードがホストするすべてのデータ LIF が正常にノードにリバートされ、動作ステータスが「 up 」になっていることを示しています。
+
++
+[listing]
+----
+cluster1::> network interface show
+            Logical    Status     Network            Current       Current Is
+Vserver     Interface  Admin/Oper Address/Mask       Node          Port    Home
+----------- ---------- ---------- ------------------ ------------- ------- ----
+vs0
+            data001      up/up    192.0.2.120/24     node0         e0a     true
+            data002      up/up    192.0.2.121/24     node0         e0b     true
+            data003      up/up    192.0.2.122/24     node0         e0b     true
+            data004      up/up    192.0.2.123/24     node0         e0a     true
+4 entries were displayed.
+----
+. このノードがクライアントに対する処理を行っていると以前に判断した場合は、以前に処理を行っていた各プロトコルに対してノードがサービスを提供していることを確認します。「 system node run -node nodenameA -command uptime
++
+更新中に、処理数はゼロにリセットされます。
+
++
+次の例は、更新したノードが NFS クライアントと iSCSI クライアントに対する処理を再開していることを示しています。
+
++
+[listing]
+----
+cluster1::> system node run -node node0 -command uptime
+  3:15pm up  0 days, 0:16 129 NFS ops, 0 CIFS ops, 0 HTTP ops, 0 FCP ops, 2 iSCSI ops
+----
+. 以前に自動ギブバックを無効にした場合は、パートナーノードで再度有効にします。「 storage failover modify -node nodenameB -auto-giveback true
+
+
+できるだけ早くノードの HA パートナーの更新に進んでください。何らかの理由で更新プロセスを中断する必要がある場合は、 HA ペアの両方のノードで同じバージョンの ONTAP を実行する必要があります。
+
+
+
+== HA ペアのパートナーノードの更新
+
+HA ペアの最初のノードを更新したあとは、そのノードでテイクオーバーを開始してパートナーを更新します。パートナーをアップグレードしている間、パートナーのデータは最初のノードから提供されます。
+
+. 権限レベルを advanced に設定します。続行するかどうかを尋ねられたら、「 * y * 」と入力します。「 set -privilege advanced 」
++
+詳細プロンプト (`*>') が表示されます
+
+. 新しい ONTAP ソフトウェアイメージをデフォルトのイメージとして設定します。「 system image modify ｛ -node nodenameB -iscurrent false ｝ -isdefault true
++
+system image modify コマンドでは、拡張クエリを使用して、代替イメージとしてインストールされる新しい ONTAP ソフトウェアイメージがノードのデフォルトのイメージになるように変更します。
+
+. 更新の進捗を監視します：「 system node upgrade-revert show 」
+. 新しい ONTAP ソフトウェアイメージがデフォルトイメージ「 system image show 」に設定されていることを確認します
++
+次の例では 'image2 が ONTAP の新しいバージョンで ' ノードのデフォルトのイメージとして設定されています
+
++
+[listing]
+----
+cluster1::*> system image show
+                 Is      Is                Install
+Node     Image   Default Current Version    Date
+-------- ------- ------- ------- --------- -------------------
+node0
+         image1  false   false   X.X.X     MM/DD/YYYY TIME
+         image2  true    true    Y.Y.Y     MM/DD/YYYY TIME
+node1
+         image1  false   true    X.X.X     MM/DD/YYYY TIME
+         image2  true    false   Y.Y.Y     MM/DD/YYYY TIME
+4 entries were displayed.
+----
+. 自動ギブバックが有効になっている場合は、パートナーノードで無効にします。「 storage failover modify -node nodenameA -auto-giveback false
++
+2 ノードクラスタでは、自動ギブバックを無効にすると、 2 つのノードで交互に障害が発生した場合に管理クラスタのサービスがオンラインにならないことを警告するメッセージが表示されます。「 y 」と入力して続行します。
+
+. パートナーノードで自動ギブバックが無効になっていることを確認します。「 storage failover show -node nodenameA -fields auto-giveback 」
++
+[listing]
+----
+cluster1::> storage failover show -node node0 -fields auto-giveback
+node     auto-giveback
+-------- -------------
+node0    false
+1 entry was displayed.
+----
+. 次のコマンドを 2 回実行して、更新対象のノードが現在クライアントに対して処理を行っているかどうかを確認します。「 system node run -node nodenameB -command uptime 」
++
+uptime コマンドは、ノードの前回のブート以降に NFS 、 CIFS 、 FC 、および iSCSI の各クライアントに対してノードが実行した処理総数を表示します。プロトコルごとにコマンドを 2 回実行して、処理数が増加しているかどうかを確認する必要があります。増加している場合は、そのプロトコルのクライアントに対してノードが現在処理を行っています。増加していない場合は、そのプロトコルのクライアントに対してノードは現在処理を行っていません。
+
++
+* 注 * ：ノードの更新後にクライアントトラフィックが再開したことを確認できるように、クライアント処理の増加に伴う各プロトコルを書き留めてください。
+
++
+次の例は、 NFS 、 CIFS 、 FC 、および iSCSI の処理が含まれるノードを示しています。ただし、ノードは現在 NFS クライアントと iSCSI クライアントに対してのみ処理を行っています。
+
++
+[listing]
+----
+cluster1::> system node run -node node1 -command uptime
+  2:58pm up  7 days, 19:16 800000260 NFS ops, 1017333 CIFS ops, 0 HTTP ops, 40395 FCP ops, 32810 iSCSI ops
+
+cluster1::> system node run -node node1 -command uptime
+  2:58pm up  7 days, 19:17 800001573 NFS ops, 1017333 CIFS ops, 0 HTTP ops, 40395 FCP ops, 32815 iSCSI ops
+----
+. ノードからすべての LIF を移行します。「 network interface migrate-all -node nodenameB
+. 移行した LIF のステータスを確認します。「 network interface show 」
++
+LIF のステータスの確認に使用できるパラメータの詳細については、 network interface show のマニュアルページを参照してください。
+
++
+次の例は、 node1 のデータ LIF が正常に移行されたことを示しています。それぞれの LIF について、この例に含まれるフィールドを使用して、 LIF のホームノードとポート、 LIF の移行先である現在のノードとポート、および LIF の動作ステータスと管理ステータスを確認できます。
+
++
+[listing]
+----
+cluster1::> network interface show -data-protocol nfs|cifs -role data -home-node node1 -fields home-node,curr-node,curr-port,home-port,status-admin,status-oper
+vserver lif     home-node home-port curr-node curr-port status-oper status-admin
+------- ------- --------- --------- --------- --------- ----------- ------------
+vs0     data001 node1     e0a       node0     e0a       up          up
+vs0     data002 node1     e0b       node0     e0b       up          up
+vs0     data003 node1     e0b       node0     e0b       up          up
+vs0     data004 node1     e0a       node0     e0a       up          up
+4 entries were displayed.
+----
+. テイクオーバーを開始します。「 storage failover takeover -ofnode nodenameB -option allow-version-mismatch
++
+テイクオーバーされたノードを新しいソフトウェアイメージでブートするには通常のテイクオーバーが必要なため、 -option immediate パラメータは指定しないでください。ノードから LIF を手動で移行しなかった場合は、 LIF がノードの HA パートナーに自動的に移行されるため、サービスが停止することはありません。
+
++
+テイクオーバーされたノードがブートし、 Waiting for giveback 状態になります。
+
++
+* 注： AutoSupport が有効な場合、ノードがクラスタクォーラムのメンバーでないことを示す AutoSupport メッセージが送信されます。この通知を無視し、更新を続行してかまいません。
+
+. テイクオーバーが正常に完了したことを確認します。「 storage failover show
++
+次の例は、テイクオーバーが正常に完了したことを示しています。ノード node1 の状態は Waiting for giveback 、パートナーの状態は In takeover になっています。
+
++
+[listing]
+----
+cluster1::> storage failover show
+                              Takeover
+Node           Partner        Possible State Description
+-------------- -------------- -------- -------------------------------------
+node0          node1          -        In takeover
+node1          node0          false    Waiting for giveback (HA mailboxes)
+2 entries were displayed.
+----
+. 次の状態になるまで少なくとも 8 分待ちます。
++
+** クライアントのマルチパス（導入している場合）が安定している。
+** クライアントがテイクオーバー中に発生した I/O の中断から回復している。
++
+回復までの時間はクライアントによって異なり、クライアントアプリケーションの特性によっては 8 分以上かかることもあります。
+
+
+
+. アグリゲートをパートナーノードに戻します。「 storage failover giveback -ofnode nodenameB
++
+ギブバック処理では、最初にルートアグリゲートがパートナーノードに戻され、そのノードのブートが完了すると、ルート以外のアグリゲートと自動的にリバートするように設定されたすべての LIF が戻されます。新しくブートしたノードで、戻されたアグリゲートから順番にクライアントへのデータ提供が開始されます。
+
+. すべてのアグリゲートが戻されたことを確認します。「 storage failover show-giveback
++
+Giveback Status フィールドにギブバックするアグリゲートがないことが示されている場合は、すべてのアグリゲートが戻されています。ギブバックが拒否された場合は、コマンドによってギブバックの進捗が表示され、ギブバック処理を拒否したサブシステムも表示されます。
+
+. いずれかのアグリゲートが戻されていない場合は、次の手順を実行します。
++
+.. 拒否された回避策を確認して、「 ve to 」状態に対処するか、拒否を無視するかを決定します。
++
+link:https://docs.netapp.com/us-en/ontap/high-availability/index.html["ハイアベイラビリティ構成"]
+
+.. 必要に応じて、エラーメッセージに記載されている「宛」の状態に対処し、特定された処理が正常に終了するようにします。
+.. storage failover giveback コマンドを再実行します。
++
+「 "" ～ "" 」条件をオーバーライドする場合は、 -override-vetoes パラメータを true に設定します。
+
+
+
+. 次の状態になるまで少なくとも 8 分待ちます。
++
+** クライアントのマルチパス（導入している場合）が安定している。
+** クライアントがギブバック中に発生した I/O 処理の中断から回復している。
++
+回復までの時間はクライアントによって異なり、クライアントアプリケーションの特性によっては 8 分以上かかることもあります。
+
+
+
+. ノードの更新が正常に完了したことを確認します。
++
+.. advanced 権限レベル「 'set -privilege advanced 」に移動します
+.. ノードの更新が完了したことを確認します。「 system node upgrade-revert show -node nodenameB
++
+ステータスが complete になっている必要があります。
+
++
+ステータスが complete になっていない場合は、ノードから system node upgrade-revert upgrade コマンドを実行します。このコマンドを実行しても更新が完了しない場合は、テクニカルサポートにお問い合わせください。
+
+.. admin 権限レベルに戻ります。「 set -privilege admin 」
+
+
+. ノードのポートが動作していることを確認します。「 network port show -node nodenameB
++
+このコマンドは、 ONTAP 9.4 にアップグレードされたノードで実行する必要があります。
+
++
+次の例は、ノードのすべてのデータポートが動作していることを示しています。
+
++
+[listing]
+----
+cluster1::> network port show -node node1
+                                                             Speed (Mbps)
+Node   Port      IPspace      Broadcast Domain Link   MTU    Admin/Oper
+------ --------- ------------ ---------------- ----- ------- ------------
+node1
+       e0M       Default      -                up       1500  auto/100
+       e0a       Default      -                up       1500  auto/1000
+       e0b       Default      -                up       1500  auto/1000
+       e1a       Cluster      Cluster          up       9000  auto/10000
+       e1b       Cluster      Cluster          up       9000  auto/10000
+5 entries were displayed.
+----
+. LIF をノードにリバートします。「 network interface revert *
++
+このコマンドを実行すると、移行した LIF が元のノードに戻されます。
+
++
+[listing]
+----
+cluster1::> network interface revert *
+8 entries were acted on.
+----
+. ノードのデータ LIF が正常にノードにリバートされ、 up になっていることを確認します。「 network interface show
++
+次の例は、ノードがホストするすべてのデータ LIF が正常にノードにリバートされ、動作ステータスが「 up 」になっていることを示しています。
+
++
+[listing]
+----
+cluster1::> network interface show
+            Logical    Status     Network            Current       Current Is
+Vserver     Interface  Admin/Oper Address/Mask       Node          Port    Home
+----------- ---------- ---------- ------------------ ------------- ------- ----
+vs0
+            data001      up/up    192.0.2.120/24     node1         e0a     true
+            data002      up/up    192.0.2.121/24     node1         e0b     true
+            data003      up/up    192.0.2.122/24     node1         e0b     true
+            data004      up/up    192.0.2.123/24     node1         e0a     true
+4 entries were displayed.
+----
+. このノードがクライアントに対する処理を行っていると以前に判断した場合は、ノードが以前に処理を行っていた各プロトコルに対してサービスを提供していることを確認します。「 system node run -node nodenameB -command uptime
++
+更新中に、処理数はゼロにリセットされます。
+
++
+次の例は、更新したノードが NFS クライアントと iSCSI クライアントに対する処理を再開していることを示しています。
+
++
+[listing]
+----
+cluster1::> system node run -node node1 -command uptime
+  3:15pm up  0 days, 0:16 129 NFS ops, 0 CIFS ops, 0 HTTP ops, 0 FCP ops, 2 iSCSI ops
+----
+. これがクラスタ内で更新する最後のノードであった場合は、 AutoSupport 通知を発行します。「 AutoSupport invoke -node * -type all -message "Finishing_NDU"
++
+この AutoSupport 通知には、更新直前のシステムステータスの記録が含まれます。これにより、更新処理で問題が発生した場合に役立つトラブルシューティング情報が保存されます。
+
++
+AutoSupport メッセージを送信するようにクラスタが設定されていない場合は、通知のコピーがローカルに保存されます。
+
+. HA ペアの両方のノードで新しい ONTAP ソフトウェアが実行されていることを確認します。「 system node image show
++
+次の例では、 image2 が ONTAP の更新されたバージョンで、両方のノードのデフォルトのバージョンになっています。
+
++
+[listing]
+----
+cluster1::*> system node image show
+                 Is      Is                Install
+Node     Image   Default Current Version    Date
+-------- ------- ------- ------- --------- -------------------
+node0
+         image1  false   false   X.X.X     MM/DD/YYYY TIME
+         image2  true    true    Y.Y.Y     MM/DD/YYYY TIME
+node1
+         image1  false   false   X.X.X     MM/DD/YYYY TIME
+         image2  true    true    Y.Y.Y     MM/DD/YYYY TIME
+4 entries were displayed.
+----
+. 以前に自動ギブバックを無効にした場合は、パートナーノードで再度有効にします。「 storage failover modify -node nodenameA -auto-giveback true
+. cluster show コマンドと cluster ring show （ advanced 権限レベル）コマンドを使用して、クラスタがクォーラムにあること、およびサービスが実行されていることを確認します。
++
+追加の HA ペアをアップグレードする前にこの手順を実行する必要があります。
+
+. admin 権限レベルに戻ります。「 set -privilege admin 」
+
+
+追加の HA ペアがある場合はアップグレードします。

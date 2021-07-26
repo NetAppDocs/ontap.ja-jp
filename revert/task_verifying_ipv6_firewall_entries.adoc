@@ -1,0 +1,60 @@
+---
+permalink: revert/task_verifying_ipv6_firewall_entries.html 
+sidebar: sidebar 
+keywords: revert, reverting, reversion, ipv6, firewall, entries, verify 
+summary: ONTAP 9 のいずれかのバージョンからのリバートを実行すると、ファイアウォールポリシーの一部のサービスのデフォルトの IPv6 ファイアウォールエントリが失われる可能性があります。必要なファイアウォールエントリがシステムにリストアされていることを確認する必要があります。 
+---
+= IPv6 ファイアウォールエントリを確認します
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+ONTAP 9 のいずれかのバージョンからのリバートを実行すると、ファイアウォールポリシーの一部のサービスのデフォルトの IPv6 ファイアウォールエントリが失われる可能性があります。必要なファイアウォールエントリがシステムにリストアされていることを確認する必要があります。
+
+. すべてのファイアウォールポリシーをデフォルトのポリシーと比較して、正しいことを確認します。「 system services firewall policy show 」
++
+次の例は、デフォルトのポリシーを示しています。
+
++
+[listing]
+----
+cluster1::*> system services firewall policy show
+Policy           Service    Action IP-List
+---------------- ---------- ------ --------------------
+cluster
+                 dns        allow  0.0.0.0/0
+                 http       allow  0.0.0.0/0
+                 https      allow  0.0.0.0/0
+                 ndmp       allow  0.0.0.0/0
+                 ntp        allow  0.0.0.0/0
+                 rsh        allow  0.0.0.0/0
+                 snmp       allow  0.0.0.0/0
+                 ssh        allow  0.0.0.0/0
+                 telnet     allow  0.0.0.0/0
+data
+                 dns        allow  0.0.0.0/0, ::/0
+                 http       deny   0.0.0.0/0, ::/0
+                 https      deny   0.0.0.0/0, ::/0
+                 ndmp       allow  0.0.0.0/0, ::/0
+                 ntp        deny   0.0.0.0/0, ::/0
+                 rsh        deny   0.0.0.0/0, ::/0
+.
+.
+.
+----
+. 新しいファイアウォールポリシー「 system services firewall policy create 」を作成して、失われたデフォルトの IPv6 ファイアウォールエントリを手動で追加します
++
+[listing]
+----
+cluster1::*> system services firewall policy create -policy newIPv6
+-service ssh -action allow -ip-list ::/0
+----
+. 新しいポリシーを LIF に適用してネットワークサービス「 network interface modify 」へのアクセスを許可します
++
+[listing]
+----
+cluster1::*> network interface modify -vserver VS1 -lif LIF1
+-firewall-policy newIPv6
+----
+

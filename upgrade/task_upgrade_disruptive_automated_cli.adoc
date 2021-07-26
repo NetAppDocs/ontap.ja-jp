@@ -1,0 +1,73 @@
+---
+sidebar: sidebar 
+permalink: upgrade/task_upgrade_disruptive_automated_cli.html 
+keywords: netapp, ontap, upgrade, nondisruptive, nondisruptively, non-disruptive update, nondisruptive upgrade, upgrade a cluster, shift workload between clusters, hardware platform, configuration, software image, update, update ONTAP, update software, ndu 
+summary: クラスタの ONTAP のバージョンは無停止で更新できます。 
+---
+= CLI を使用した自動停止（シングルノードクラスタのみ）
+:toc: macro
+:hardbreaks:
+:toclevels: 1
+:toc: 
+:toclevels: 1
+:nofooter: 
+:icons: font
+:linkattrs: 
+:imagesdir: ./media/
+:toc-position: content
+
+
+[role="lead"]
+ONTAP 9.2 以降では、シングルノードクラスタの自動更新を実行できます。シングルノードクラスタは冗長性に欠けるため、更新時は必ずシステムの停止を伴います。
+
+* アップグレード前の必要な準備作業を完了しておきます。
++
+.. 以前の ONTAP ソフトウェア・パッケージを削除します： cluster image package delete -version previous_package_version
+.. ターゲットの ONTAP ソフトウェアパッケージをダウンロードします。「 cluster image package get -url location 」
++
+[listing]
+----
+cluster1::> cluster image package get -url http://www.example.com/software/9.7/image.tgz
+
+Package download completed.
+Package processing completed.
+----
+.. クラスタパッケージリポジトリでソフトウェアパッケージが使用可能であることを確認します。「 cluster image package show-repository 」
++
+[listing]
+----
+cluster1::> cluster image package show-repository
+Package Version  Package Build Time
+---------------- ------------------
+9.7              M/DD/YYYY 10:32:15
+----
+.. クラスタをアップグレードする準備ができていることを確認します。 cluster image validate -version package_version_number
++
+[listing]
+----
+cluster1::> cluster image validate -version 9.7
+
+WARNING: There are additional manual upgrade validation checks that must be performed after these automated validation checks have completed...
+----
+.. 検証の進捗状況を監視します。「 cluster image show-update-progress
+.. 検証で特定された必要なアクションをすべて完了します。
+.. オプションで ' ソフトウェア・アップグレードの見積もりを生成します cluster image update -version package_version_number -estimate-only
++
+ソフトウェアアップグレードの見積もりには、更新対象の各コンポーネントの詳細とアップグレードの推定期間が表示されます。
+
+.. ソフトウェア・アップグレードを実行しますクラスタイメージ update -version package_version_number
++
+
+NOTE: 問題が検出されると、更新が一時停止し、措置を講じるように求められます。問題の詳細や更新の進捗を確認するには、 cluster image show-update-progress コマンドを使用します。問題を修正したら、 cluster image resume-update コマンドを使用して更新を再開できます。
+
+.. クラスタの更新の進行状況を表示します。 cluster image show-update-progress
++
+ノードは更新の一環としてリブートされ、リブート中はアクセスできません。
+
+.. 通知をトリガーするには、「 AutoSupport invoke -node * -type all -message 」「 Finishing_Upgrade 」を実行します
++
+メッセージを送信するようにクラスタが設定されていない場合は、通知のコピーがローカルに保存されます。
+
+
+
+

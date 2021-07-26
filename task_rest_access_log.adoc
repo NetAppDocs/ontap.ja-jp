@@ -1,0 +1,97 @@
+---
+sidebar: sidebar 
+permalink: task_rest_access_log.html 
+keywords: netapp, ontap, rest api log, accessing rest api log, accessing api log 
+summary: System Manager で実行された ONTAP REST API 呼び出しのログの記録にアクセスできます。ログを表示したときに、 API 呼び出しを再発行して結果を確認することもできます。 
+---
+= REST API ログへのアクセス
+:toc: macro
+:hardbreaks:
+:toclevels: 1
+:toc: 
+:toclevels: 1
+:nofooter: 
+:icons: font
+:linkattrs: 
+:imagesdir: ./media/
+:toc-position: content
+
+
+[role="lead"]
+System Manager から実行された ONTAP REST API 呼び出しのレコードを含むログにアクセスできます。ログを表示する際には、 API 呼び出しの再発行と出力の確認も行うことができます。
+
+.手順
+. ページの上部で、をクリックします image:icon_double_arrow.gif["API ログを表示します"] をクリックして REST API ログを表示します。
++
+ページの下部に最新のエントリが表示されます。
+
+. 左側の * dashboard * をクリックして、ページを更新するために発行された API 呼び出しに対して新しく作成されるエントリを確認します。
+. storage * をクリックし、 * qtrees * をクリックします。
++
+その結果、問題 System Manager で特定の API 呼び出しを実行して qtree のリストを取得できるようになります。
+
+. 次の形式の API 呼び出しを説明するログエントリを探します。
++
+「 get/api/storage/qtrees 」
+
++
+エントリに含まれている追加の HTTP クエリーパラメータが表示されます。たとえば、「 mAX_records 」と表示されます。
+
+. ログエントリをクリックして GET API 呼び出しを再発行し、 raw JSON 出力を表示します。
++
+例
+
++
+[source, json]
+----
+{
+  "records": [
+    {
+      "svm": {
+        "uuid": "19507946-e801-11e9-b984-00a0986ab770",
+        "name": "SMQA",
+        "_links": {
+          "self": {
+            "href": "/api/svm/svms/19507946-e801-11e9-b984-00a0986ab770"
+          }
+        }
+      },
+      "volume": {
+        "uuid": "1e173258-f98b-11e9-8f05-00a0986abd71",
+        "name": "vol_vol_test2_dest_dest",
+        "_links": {
+          "self": {
+            "href": "/api/storage/volumes/1e173258-f98b-11e9-8f05-00a0986abd71"
+          }
+        }
+      },
+      "id": 1,
+      "name": "test2",
+      "security_style": "mixed",
+      "unix_permissions": 777,
+      "export_policy": {
+        "name": "default",
+        "id": 12884901889,
+        "_links": {
+          "self": {
+            "href": "/api/protocols/nfs/export-policies/12884901889"
+          }
+        }
+      },
+      "path": "/vol_vol_test2_dest_dest/test2",
+      "_links": {
+        "self": {
+          "href": "/api/storage/qtrees/1e173258-f98b-11e9-8f05-00a0986abd71/1"
+        }
+      }
+    },
+    ],
+    "num_records": 1,
+    "_links": {
+      "self": {
+        "href": "/api/storage/qtrees?max_records=20&fields=*&name=!%22%22"
+      }
+    }
+  }
+----
+

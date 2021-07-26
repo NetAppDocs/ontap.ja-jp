@@ -1,0 +1,95 @@
+---
+sidebar: sidebar 
+permalink: networking/create_svms.html 
+keywords: create, creation, creating, add, adding, svm, storage, virtual, machine, create svms, create storage virtual machines, create an svm to serve data to clients 
+summary: クライアントにデータを提供する SVM を作成します 
+---
+= SVMs を作成します
+:hardbreaks:
+:nofooter: 
+:icons: font
+:linkattrs: 
+:imagesdir: ./media/
+
+
+[role="lead"]
+クライアントにデータを提供するには、 SVM を作成する必要があります。
+
+.作業を開始する前に
+* このタスクを実行するには、クラスタ管理者である必要があります。
+* SVM のルートボリュームに設定するセキュリティ形式を決めておく必要があります。
++
+この SVM に Hyper-V over SMB または SQL Server over SMB 解決策を実装する予定がある場合は、ルートボリュームに NTFS セキュリティ形式を使用してください。Hyper-V ファイルまたは SQL データベースファイルを格納するボリュームは、作成時に NTFS セキュリティ形式に設定する必要があります。ルートボリュームのセキュリティ形式を NTFS に設定しておくと、 UNIX セキュリティ形式または mixed セキュリティ形式のデータボリュームを誤って作成することがありません。
+
+
+
+.手順
+. SVM のルートボリュームを格納するためのアグリゲートを決定します。
++
+「 storage aggregate show -has-mroot false 」という 2 つのコマンドを入力します
+
++
+ルートボリュームを格納するための空きスペースが 1GB 以上あるアグリゲートを選択する必要があります。SVM で NAS の監査を設定する場合は、ルートアグリゲートに少なくとも 3GB の追加の空きスペースと、監査を有効にしたときに監査ステージングボリュームの作成に使用される追加のスペースが必要です。
+
++
+
+NOTE: 既存の SVM で NAS の監査がすでに有効になっている場合は、アグリゲートの作成が完了したあとすぐにアグリゲートのステージングボリュームが作成されます。
+
+. SVM のルートボリュームを作成するアグリゲートの名前を控えます。
+. SVM を作成するときに言語を指定する予定であり、使用する値がわからない場合は、指定する言語の値を確認し、その値を控えます。
++
+「 vserver create -language ？」と入力します
+
+. SVM を作成するときに Snapshot ポリシーを指定する予定であり、ポリシーの名前がわからない場合は、使用可能なポリシーの一覧を表示し、使用する Snapshot ポリシーの名前を確認して、その名前を控えます。
++
+'volume snapshot policy show -vserver <vserver_name>`
+
+. SVM を作成するときにクォータポリシーを指定する予定であり、ポリシーの名前がわからない場合は、使用可能なポリシーの一覧を表示し、使用するクォータポリシーの名前を確認して、その名前を控えます。
++
+volume quota policy show -vserver <vserver_name>`
+
+. SVM を作成します。
++
+vserver create -vserver <vserver_name> -aggregate <aggregate_name > ‑ rootvolume <root_volume_name > -rootvolume-security-style ｛ unix|ntfs|mixed ｝ [-ipspace <IPspace_name> ] [-language <language] [-snapshot-policy <snapshot_policy_name>] [-quota-policy <quota_policy_name] [-comment comment]
+
++
+「 vserver create -vserver vs1 -aggregate aggr3 -rootvolume vs1_root ‑ rootvolume-security-style ntfs -ipspace ipspace1 -language en_US.UTF-8
+
++
+[ ジョブ 72] ジョブは成功しました : SVM の作成は完了しました
+
+. SVM の設定が正しいことを確認します。
++
+「 vserver show -vserver vs1 」のように表示されます
+
++
+....
+Vserver: vs1
+Vserver Type: data
+Vserver Subtype: default
+Vserver UUID: 11111111-1111-1111-1111-111111111111
+Root Volume: vs1_root
+Aggregate: aggr3
+NIS Domain: -
+Root Volume Security Style: ntfs
+LDAP Client: -
+Default Volume Language Code: en_US.UTF-8
+Snapshot Policy: default
+Comment:
+Quota Policy: default
+List of Aggregates Assigned: -
+Limit on Maximum Number of Volumes allowed: unlimited
+Vserver Admin State: running
+Vserver Operational State: running
+Vserver Operational State Stopped Reason: -
+Allowed Protocols: nfs, cifs, ndmp
+Disallowed Protocols: fcp, iscsi
+QoS Policy Group: -
+Config Lock: false
+IPspace Name: ipspace1
+Is Vserver Protected: false
+....
++
+この例では、コマンドを実行すると「 vs1 」という名前の SVM が IPspace 「 ipspace1 」に作成されます。ルートボリュームは「 vs1_root 」という名前で、 NTFS セキュリティ形式を使用して aggr3 に作成されます。
+
+

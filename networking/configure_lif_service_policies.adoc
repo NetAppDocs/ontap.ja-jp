@@ -1,0 +1,235 @@
+---
+sidebar: sidebar 
+permalink: networking/configure_lif_service_policies.html 
+keywords: create service policy, assign service policy, service policy commands, configure lif service policies, create and assign a service policy for lifs, configure lif service policies, create a service policy for lifs, network interface service show, service-policy create, assign a service policy to a lif, examples, commands for managing lif service policies 
+summary: LIF のサービスポリシーを作成して割り当てます 
+---
+= LIF のサービスポリシーを設定
+:hardbreaks:
+:nofooter: 
+:icons: font
+:linkattrs: 
+:imagesdir: ./media/
+
+
+[role="lead"]
+LIF のサービスポリシーを設定して、 LIF を使用する単一のサービスまたは一連のサービスを指定できます。
+
+
+
+== LIF のサービスポリシーを作成
+
+LIF のサービスポリシーを作成することができます。1 つ以上の LIF にサービスポリシーを割り当てることで、 1 つまたは一連のサービスのトラフィックの処理を LIF に許可することができます。
+
+データ SVM とシステム SVM の両方でデータトラフィックと管理トラフィックの管理に使用できる組み込みのサービスとサービスポリシーを用意しています。ほとんどのユースケースでは、カスタムサービスポリシーを作成するのではなく、組み込みのサービスポリシーを使用して対応できます。
+
+これらの組み込みのサービスポリシーは必要に応じて変更できます。
+
+.手順
+. クラスタで使用可能なサービスを表示します。
++
+....
+network interface service show
+....
++
+サービスとは、 LIF がアクセスするアプリケーション、およびクラスタで提供されるアプリケーションです。各サービスには、アプリケーションがリスンしている TCP ポートと UDP ポートが 0 個以上含まれます。
+
++
+次のデータサービスと管理サービスも利用できます。
+
++
+....
+network interface service show
+Service                     Protocol:Ports
+-------                     --------------
+cluster-core                -
+data-cifs                   -
+data-core                   -
+data-flexcache              -
+data-iscsi                  -
+data-nfs                    -
+intercluster-core           tcp:11104-11105
+management-autosupport      -
+management-bgp              tcp:179
+management-core             -
+management-https            tcp:443
+management-ssh              tcp:22
+12 entries were displayed.
+....
+. サービスポリシーを作成します。
++
+....
+network interface service-policy create -vserver <svm_name> -policy <service_policy_name> -services <service_name> -allowed-addresses <IP_address/mask,...>
+....
++
+** 「 SERVICE_NAME 」は、ポリシーに含めるサービスのリストを指定します。
+** 「 ip_address /mask 」には、サービスポリシー内のサービスへのアクセスを許可するアドレスのサブネットマスクのリストを指定します。デフォルトでは、指定されたすべてのサービスがデフォルトの許可アドレスリスト 0.0.0.0/0 で追加され、すべてのサブネットからのトラフィックが許可されます。デフォルト以外の許可アドレスリストを指定した場合、そのポリシーを使用する LIF は、指定したマスクと一致しないソースアドレスを使用するすべての要求をブロックするように設定されます。
++
+次の例は、 NFS サービスと SMB サービスを含む SVM のデータサービスポリシー svm1_data_policy を作成する方法を示しています。
+
++
+....
+network interface service-policy create -vserver svm1 -policy svm1_data_policy - services data-nfs,data-cifs,data-core -allowed-addresses 10.1.0.0/16
+....
++
+次の例は、クラスタ間サービスポリシーを作成する方法を示しています。
+
++
+....
+network interface service-policy create -vserver cluster1 -policy intercluster1 - services intercluster-core -allowed-addresses 10.1.0.0/16
+....
+
+
+. サービスポリシーが作成されたことを確認します。
++
+....
+network interface service-policy show
+....
++
+次の出力は、使用可能なサービスポリシーを示しています。
+
++
+....
+network interface service-policy show
+Vserver   Policy                     Service: Allowed Addresses
+--------- -------------------------- ----------------------------------------
+cluster1
+          default-intercluster       intercluster-core: 0.0.0.0/0
+                                     management-https: 0.0.0.0/0
+
+          default-management         management-core: 0.0.0.0/0
+                                     management-autosupport: 0.0.0.0/0
+                                     management-ssh: 0.0.0.0/0
+                                     management-https: 0.0.0.0/0
+
+          default-route-announce     management-bgp: 0.0.0.0/0
+
+Cluster
+          default-cluster            cluster-core: 0.0.0.0/0
+
+vs0
+          default-data-blocks        data-core: 0.0.0.0/0
+                                     data-iscsi: 0.0.0.0/0
+
+          default-data-files         data-core: 0.0.0.0/0
+                                     data-nfs: 0.0.0.0/0
+                                     data-cifs: 0.0.0.0/0
+                                     data-flexcache: 0.0.0.0/0
+
+          default-management         data-core: 0.0.0.0/0
+                                     management-ssh: 0.0.0.0/0
+                                     management-https: 0.0.0.0/0
+
+7 entries were displayed.
+....
+
+
+LIF の作成時または既存の LIF の変更時にサービスポリシーを割り当てます。
+
+
+
+== LIF にサービスポリシーを割り当てます
+
+LIF の作成時または変更時に、 LIF にサービスポリシーを割り当てることができます。サービスポリシーは、 LIF で使用できる一連のサービスを定義します。
+
+管理 SVM とデータ SVM の LIF にサービスポリシーを割り当てることができます。
+
+LIF にサービスポリシーをいつ割り当てるかに応じて、次のいずれかを実行します。
+
+[cols="25,75"]
+|===
+| 実行する作業 | サービスポリシーを割り当てるコマンド 
+
+
+| LIF を作成する | network interface create -vserver SVM_name -lif <LIF_name> -home-node <node_name > -home-port <port_name> ｛ （ -address <IP_address> -netmask <IP_address> ） -subnet-name <subnet_name> ｝ -service-policy <service_policy_name> 
+
+
+| LIF の変更 | network interface modify -vserver <svm_name> -lif <lif_name> -service -policy <service_policy_name> 
+|===
+LIF のサービスポリシーを指定する際に、 LIF のデータプロトコルとロールを指定する必要はありません。ロールとデータプロトコルを指定して LIF を作成することもできます。
+
+
+NOTE: サービスポリシーは、サービスポリシーの作成時に指定した同じ SVM に含まれる LIF でのみ使用できます。
+
+
+
+=== 例
+
+次の例は、 LIF のサービスポリシーを default-management に変更する方法を示しています。
+
+....
+network interface modify -vserver cluster1 -lif lif1 -service-policy default-management
+....
+
+
+== LIF のサービスポリシーを管理するためのコマンド
+
+LIF のサービス・ポリシーを管理するには 'network interface service-policy コマンドを使用します
+
+[cols="2*"]
+|===
+| 状況 | 使用するコマンド 
+
+
+ a| 
+サービスポリシーを作成する
+ a| 
+「 network interface service-policy create 」を参照してください
+
+
+
+ a| 
+既存のサービスポリシーにサービスエントリを追加します
+ a| 
+「 network interface service-policy add-service 」
+
+
+
+ a| 
+既存のサービスポリシーをクローニングする
+ a| 
+「 network interface service-policy clone 」と入力します
+
+
+
+ a| 
+既存のサービスポリシーのサービスエントリを変更する
+ a| 
+「 network interface service-policy modify-service 」
+
+
+
+ a| 
+既存のサービスポリシーからサービスエントリを削除します
+ a| 
+「 network interface service-policy remove-service 」と入力します
+
+
+
+ a| 
+既存のサービスポリシーの名前を変更します
+ a| 
+「 network interface service-policy rename 」を参照してください
+
+
+
+ a| 
+既存のサービスポリシーを削除する
+ a| 
+「 network interface service-policy delete 」
+
+
+
+ a| 
+組み込みのサービスポリシーを元の状態にリストアします
+ a| 
+「 network interface service-policy restore -defaults 」を指定します
+
+
+
+ a| 
+既存のサービスポリシーを表示します
+ a| 
+「 network interface service-policy show 」を参照してください
+
+|===

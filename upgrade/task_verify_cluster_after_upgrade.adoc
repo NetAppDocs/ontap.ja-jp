@@ -1,0 +1,182 @@
+---
+permalink: upgrade/task_verify_cluster_after_upgrade.html 
+sidebar: sidebar 
+keywords: ontap, upgrade, upgrade, verify, status, health, post, after 
+summary: アップグレード後にクラスタを確認する必要があります。 
+---
+= アップグレード後のクラスタ検証
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+アップグレード後に、クラスタのバージョン、クラスタの健全性、ストレージの健全性を確認する必要があります。
+
+
+
+== クラスタのバージョンを確認
+
+すべての HA ペアをアップグレードしたら、 version コマンドを使用して、すべてのノードでターゲットリリースが実行されていることを確認する必要があります。
+
+クラスタのバージョンは、クラスタ内のいずれかのノードで実行されている ONTAP の最下位のバージョンです。クラスタのバージョンがターゲットの ONTAP リリースになっていない場合は、クラスタをアップグレードできます。
+
+. クラスタのバージョンがターゲットの ONTAP リリース「バージョン」であることを確認します
+. クラスタのバージョンがターゲットの ONTAP リリースになっていない場合は、すべてのノードのアップグレードステータスを確認できます。「 system node upgrade-revert show
+
+
+
+
+== クラスタの健常性を確認
+
+[role="lead"]
+クラスタをアップグレードしたら、ノードが正常に機能していてクラスタに追加するための条件を満たしていること、およびクラスタがクォーラムにあることを確認する必要があります。
+
+. クラスタ内のノードがオンラインであり ' クラスタに参加できることを確認します cluster show
++
+[listing]
+----
+cluster1::> cluster show
+Node                  Health  Eligibility
+--------------------- ------- ------------
+node0                 true    true
+node1                 true    true
+----
++
+正常に機能していないノードや条件を満たしていないノードがある場合は、 EMS ログでエラーを確認して適切に修正します。
+
+. 権限レベルを advanced に設定します。「 set -privilege advanced 」
+. 「 y 」と入力して続行します。
+. 各 RDB プロセスの構成の詳細を確認します。
++
+** リレーショナルデータベースのエポックとデータベースのエポックが各ノードで一致すること。
+** リングごとのクォーラムマスターがすべてのノードで同じであることが必要です。
++
+各リングのクォーラムマスターが異なる場合があることに注意してください。
+
++
+|===
+| 表示する RDB プロセス | 入力するコマンド 
+
+
+ a| 
+管理アプリケーション
+ a| 
+cluster ring show -unitname mgmt
+
+
+
+ a| 
+ボリュームロケーションデータベース
+ a| 
+cluster ring show -unitname vldb
+
+
+
+ a| 
+仮想インターフェイスマネージャ
+ a| 
+cluster ring show -unitname vifmgr
+
+
+
+ a| 
+SAN 管理デーモン
+ a| 
+cluster ring show -unitname bcomd
+
+|===
++
+次の例は、ボリュームロケーションデータベースのプロセスを示しています。
+
+
+
++
+[listing]
+----
+cluster1::*> cluster ring show -unitname vldb
+Node      UnitName Epoch    DB Epoch DB Trnxs Master    Online
+--------- -------- -------- -------- -------- --------- ---------
+node0     vldb     154      154      14847    node0     master
+node1     vldb     154      154      14847    node0     secondary
+node2     vldb     154      154      14847    node0     secondary
+node3     vldb     154      154      14847    node0     secondary
+4 entries were displayed.
+----
+. SAN 環境を使用している場合は、各ノードが SAN クォーラムにあることを確認します。「 event log show -messagename scsiblade. * 」
++
+各ノードの最新の scsiblade イベントメッセージに、 SCSI ブレードがクォーラムにあることが示されます。
+
++
+[listing]
+----
+cluster1::*> event log show -messagename scsiblade.*
+Time                Node             Severity      Event
+------------------- ---------------- ------------- ---------------------------
+MM/DD/YYYY TIME  node0            INFORMATIONAL scsiblade.in.quorum: The scsi-blade ...
+MM/DD/YYYY TIME  node1            INFORMATIONAL scsiblade.in.quorum: The scsi-blade ...
+----
+. admin 権限レベルに戻ります。「 set -privilege admin 」
+
+
+* 関連情報 *
+
+https://docs.netapp.com/ontap-9/topic/com.netapp.doc.dot-cm-sag/home.html["システム管理"]
+
+
+
+== ストレージの健常性を確認
+
+クラスタをアップグレードしたら、ディスク、アグリゲート、およびボリュームのステータスを確認する必要があります。
+
+. ディスクのステータスを確認します。
++
+|===
+| 確認する項目 | 手順 
+
+
+ a| 
+破損ディスク
+ a| 
+.. 破損ディスクを表示します。「 storage disk show -state broken 」
+.. 破損ディスクを取り外すか交換します。
+
+
+
+
+ a| 
+メンテナンス中または再構築中のディスク
+ a| 
+.. 「 storage disk show -state maintenance|pending|reconstructing 」の状態のディスクを表示します
+.. メンテナンスまたは再構築の処理が完了するまで待ってから次に進みます。
+
+
+|===
+. ストレージアグリゲート「 storage aggregate show -state ！ online 」を含む物理ストレージと論理ストレージの状態を表示して、すべてのアグリゲートがオンラインであることを確認します
++
+このコマンドを実行すると、オンラインでないアグリゲートが表示されます。メジャーアップグレードまたはリバートの実行前と実行後には、すべてのアグリゲートがオンラインになっている必要があります。
+
++
+[listing]
+----
+cluster1::> storage aggregate show -state !online
+There are no entries matching your query.
+----
+. すべてのボリュームがオンラインであることを確認するには 'volume show -state ！ online ' のようなボリュームを表示します
++
+メジャーアップグレードまたはリバートの実行前と実行後には、すべてのボリュームがオンラインになっている必要があります。
+
++
+[listing]
+----
+cluster1::> volume show -state !online
+There are no entries matching your query.
+----
+. 整合性のないボリュームがないことを確認します。 volume show -is-inconsistent true
++
+整合性のないボリュームが返された場合は、アップグレードを実行する前にネットアップサポートにお問い合わせください。
+
+
+
+* 関連情報 *
+
+https://docs.netapp.com/ontap-9/topic/com.netapp.doc.dot-cm-psmg/home.html["ディスクおよびアグリゲートの管理"]

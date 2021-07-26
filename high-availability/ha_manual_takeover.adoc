@@ -1,0 +1,134 @@
+---
+sidebar: sidebar 
+permalink: high-availability/ha_manual_takeover.html 
+keywords: ontap, high, availability, ha, pair, manual, takeover, moving, move, epislon, manually, initiated 
+summary: パートナーで保守を実施する場合、およびその他の同様の状況では、テイクオーバーを手動で実行できます。 
+---
+= 手動テイクオーバーのコマンド
+:hardbreaks:
+:nofooter: 
+:icons: font
+:linkattrs: 
+:imagesdir: ./media/
+
+
+[role="lead"]
+パートナーで保守を実施する場合、およびその他の同様の状況では、テイクオーバーを手動で実行できます。テイクオーバーの実行に使用するコマンドは、パートナーの状態に応じて異なります。
+
+[cols="2*"]
+|===
+| 状況 | 使用するコマンド 
+
+
+| パートナーノードをテイクオーバーします | 「 storage failover takeover 」のように表示されます 
+
+
+| パートナーのアグリゲートをテイクオーバーを実行中のノードに移動するまでのテイクオーバーの進捗を監視する | 「 storage failover show ‑ takeover 」 
+
+
+| クラスタ内のすべてのノードのストレージフェイルオーバーのステータスを表示します | 「 storage failover show 」をクリックします 
+
+
+| LIF を移行せずにパートナーノードをテイクオーバーする | 「 storage failover takeover ‑ skip ‑ lif ‑ migration ‑ before ‑ takeover true 」 
+
+
+| ディスクが一致していなくてもパートナーノードをテイクオーバーする | 「 storage failover takeover ‑ skip ‑ lif ‑ migration ‑ before ‑ takeover true 」 
+
+
+| ONTAP バージョンが一致していない場合でもパートナーノードをテイクオーバーする * 注： * このオプションは、無停止の ONTAP アップグレードプロセスでのみ使用されます。 | 「 storage failover takeover ‑ option allow-version -mismatch 」を選択します 
+
+
+| アグリゲートの再配置を実行せずにパートナーノードをテイクオーバーする | 「 storage failover takeover ‑ bypass ‑ optimization true 」 
+
+
+| パートナーによるストレージリソースの正常終了を待たずにパートナーノードをテイクオーバーします | 「 storage failover takeover ‑ option immediate 」 
+|===
+* 注：ストレージフェイルオーバーコマンドを immediate オプションとともに問題する前に、次のコマンドを使用して別のノードにデータ LIF を移行する必要があります：「 network interface migrate-all -node _`
+
+* 
++
+最初にデータ LIF を移行せずに「 storage failover takeover ‑ option immediate 」コマンドを指定すると、「 'kip ‑ lif ‑ migration ‑ before ‑ takeover 」オプションが指定されていなくても、ノードからのデータ LIF の移行が大幅に遅延します。
+
+* 
++
+同様に、 immediate オプションを指定した場合は、 bypass ‑ optimization オプションを _false_ に設定しても、ネゴシエートテイクオーバーの最適化が省略されます。
+
+
+
+
+
+== テイクオーバーを手動で開始する場合のイプシロンの移動
+
+手動で開始したテイクオーバーによって、ストレージシステムの 1 つのノードで予期しないノード障害が発生するとクラスタ全体のクォーラムが失われる可能性がある場合は、イプシロンを移動する必要があります。
+
+* このタスクについて *
+
+計画的なメンテナンスを実施するときは、 HA ペアの一方のノードをテイクオーバーする必要があります。残りのノードでクライアントデータの計画外の中断を防ぐには、クラスタ全体のクォーラムを維持する必要があります。場合によっては、テイクオーバーの実行時にクラスタで予期しないノード障害が発生し、クラスタ全体のクォーラムが失われることがあります。
+
+この状況は、テイクオーバーするノードにイプシロンが設定されている場合や、イプシロンが設定されたノードが正常な状態でない場合に発生します。クラスタの耐障害性を高めるには、テイクオーバーするノード以外の正常なノードにイプシロンを移動します。通常は HA パートナーに移動します。
+
+クォーラムの投票に参加するのは、対象となる正常なノードだけです。クラスタ全体のクォーラムを維持するには、対象となる、オンラインかつ正常なノードの半数を超える投票が必要です。オンラインのノード数が偶数のクラスタの場合は、クォーラムを維持するために、イプシロンと呼ばれる投票加重がいずれかのノードに追加で割り当てられます。
+
+
+NOTE: クラスタ形成投票は 'cluster modify ‑ eligibility false コマンドを使用して変更できますが ' ノード構成の復元やノードのメンテナンスの延長などの状況を除いて ' 変更しないようにしてくださいクラスタ参加資格を無効に設定すると、参加資格を再設定してリブートするまで、そのノードは SAN データを提供しなくなります。ノードにクラスタ参加資格がないと、そのノードへの NAS データアクセスも影響を受ける可能性があります。
+
+* 手順 *
+
+. 
++
+クラスタの状態を確認し、テイクオーバーするノード以外の正常なノードにイプシロンが設定されていることを確認します。
+
++
+.. 
++
+advanced モードのプロンプト（ * > ）が表示されたら、次のコマンドを入力して advanced 権限レベルに変更します。「 set -privilege advanced
+
+.. 
++
+イプシロンが設定されているノードを特定します cluster show
+
++
+--
+次の例では、 Node1 にイプシロンが設定されています。
+
+[cols=",,,"]
+|===
+| ノード | 健常性 | 資格 | イプシロン 
+
+
+| ノード 1 ：ノード 2  a| 
+正しいです
+ a| 
+正しいです
+ a| 
+true false
+
+|===
+テイクオーバーするノードにイプシロンが設定されていない場合は、手順 4 に進みます。
+
+--
+
+
+. 
++
+テイクオーバーするノードからイプシロンを削除します。 cluster modify -node Node1 -epsilon false
+
+
+
+. 
++
+次のコマンドを使用して、パートナーノード（この例では Node2 ）にイプシロンを割り当てます。 cluster modify -node Node2 -epsilon true
+
+
+
+. 
++
+テイクオーバー処理を実行します。「 storage failover takeover -ofnode node_name _
+
+
+
+. 
++
+admin 権限レベルに戻ります。「 set -privilege admin 」
+
+

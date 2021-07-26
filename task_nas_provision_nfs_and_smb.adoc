@@ -1,0 +1,99 @@
+---
+sidebar: sidebar 
+permalink: task_nas_provision_nfs_and_smb.html 
+keywords: netapp, ontap, name mapping, multiprotocol, povision NAS, linux, windows, NAS provisioning, active directory, workgroup, smb, CIFS, SMB/CIFS, share name, default ACL, access control list, LIF, network interface 
+summary: NFS または SMB / CIFS プロトコルを使用してストレージを提供するボリュームを作成します 
+---
+= NFS と SMB / CIFS の両方を使用して、 Windows と Linux の両方に NAS ストレージをプロビジョニングします
+:toc: macro
+:hardbreaks:
+:toclevels: 1
+:toc: 
+:toclevels: 1
+:nofooter: 
+:icons: font
+:linkattrs: 
+:imagesdir: ./media/
+:toc-position: content
+
+
+[role="lead"]
+NFS または SMB / CIFS プロトコルを使用してクライアントにストレージを提供するボリュームを作成します。
+
+この手順は、に新しいボリュームを作成します link:task_nas_enable_nfs_and_smb.html["既存の Storage VM で NFS プロトコルと SMB プロトコルの両方が有効になっています"]。
+
+image:workflow_provision_multi_nas.gif["NFS と SMB / CIFS の両方を使用して Windows と Linux の両方に NAS ストレージをプロビジョニングするタスクのワークフロー図"]
+
+FlexVol ボリュームを作成することも、高いパフォーマンスが求められる大規模なファイルシステムには FlexGroup ボリュームを作成することもできます。も参照してください link:task_nas_provision_flexgroup.html["FlexGroup を使用して大規模ファイルシステム用の NAS ストレージをプロビジョニング"]。
+
+このボリュームの仕様は Ansible Playbook に保存することもできます。詳細については、を参照してください link:task_admin_use_ansible_playbooks_add_edit_volumes_luns.html["Ansible Playbook を使用して、ボリュームや LUN を追加、編集できます"]。
+
+.手順
+. NFS と SMB / CIFS の両方に対して有効になっている Storage VM に新しいボリュームを追加します。
++
+.. [ * ストレージ ] 、 [ ボリューム ] の順にクリックし、 [ * 追加 ] をクリックします。
+.. 名前を入力し、 Storage VM を選択してサイズを入力します。NFS プロトコルと SMB プロトコルの両方が設定されている Storage VM のみが表示されます。NFS プロトコルと SMB プロトコルが設定された Storage VM が 1 つしかない場合、「 * Storage VM * 」フィールドは表示されません。
+.. [ * その他のオプション * ] をクリックし、 [* NFS で共有 ] を選択します。
++
+デフォルト設定では、すべてのユーザにフルアクセスが許可されます。エクスポートポリシーにはあとから制限付きルールを追加できます。
+
+.. [* SMB / CIFS で共有 ] を選択します。
++
+共有が作成され、デフォルトのアクセス制御リスト（ ACL ）が「 Everyone 」グループに「 Full Control 」に設定されます。ACL にはあとから制限を追加できます。
+
+.. この時点で * Save * をクリックすると、 System Manager はシステムデフォルトを使用して FlexVol ボリュームを作成および追加します。
+
+
++
+または、許可、サービス品質、データ保護など、必要な追加サービスを引き続き有効にすることもできます。を参照してください <<Customize the volume configuration>>をクリックし、次の手順を実行するためにここに戻ります。
+
+. [step2 、手順 2 （ワークフロー内） ] Linux クライアントで、エクスポートがアクセス可能であることを確認します。
++
+.. Storage VM のネットワークインターフェイスを使用してボリュームを作成してマウントします。
+.. 新しくマウントしたボリュームで、テストファイルを作成し、テキストを書き込んでから、ファイルを削除します。
+
+
+. Windows クライアントで、次の手順を実行して、共有にアクセスできることを確認します。
++
+.. エクスプローラで、「 +\\_SMB_Server_Name___Share_Name_+` 」の形式で共有にドライブをマッピングします
+.. 新しく作成したドライブで、テストファイルを作成し、テキストを書き込み、ファイルを削除します。
+
+
++
+アクセスを確認したら、を実行できます link:task_nas_provision_export_policies.html["ボリュームのエクスポートポリシーを使用してクライアントアクセスを制限し、共有 ACL を使用してクライアントアクセスを制限します"]をクリックし、エクスポートおよび共有ボリュームに対して必要な所有権と権限を設定します。
+
+
+
+
+
+== ボリュームの設定をカスタマイズする
+
+システムのデフォルトを受け入れる代わりに、ボリュームを追加するときにボリューム構成をカスタマイズできます。
+
+[ * その他のオプション * ] をクリックした後、必要な機能を選択し、必要な値を入力します。
+
+* リモートボリュームのキャッシュ。
+* パフォーマンスサービスレベル（サービス品質、 QoS ）：
++
+ONTAP 9.8 以降では、デフォルト値の選択に加えて、カスタム QoS ポリシーを指定したり、 QoS を無効にしたりできます。
+
++
+** QoS を無効にするには、「 * Custom * 」、「 * Existing * 」、「 * none * 」の順に選択します。
+** 「 * Custom * 」を選択し、既存のサービスレベルを指定すると、ローカル階層が自動的に選択されます。
+** ONTAP 9.9..1 以降では、カスタムパフォーマンスサービスレベルを作成する場合、 System Manager を使用して、作成するボリュームを配置するローカル階層（ * 手動配置 * ）を手動で選択できます。
++
+このオプションは、リモートキャッシュまたは FlexGroup ボリュームのオプションを選択した場合は使用できません。
+
+
+
+* FlexGroup ボリューム（ * ボリュームデータをクラスタ全体に分散 * を選択）。
++
+このオプションは、パフォーマンスサービスレベル * で手動配置 * を選択した場合は使用できません。そうしないと、追加するボリュームはデフォルトで FlexVol ボリュームになります。
+
+* ボリュームが設定されているプロトコルのアクセス権限。
+* SnapMirror によるデータ保護（ローカルまたはリモート）を実行してから、プルダウンリストからデスティネーションクラスタの保護ポリシーと設定を指定します。
+* 保存 * をクリックしてボリュームを作成し、クラスタと Storage VM に追加します。
+
+
+
+NOTE: ボリュームを保存したら、に戻ります <<step2>> Windows サーバおよび Linux サーバのマルチプロトコルプロビジョニングを完了するため。

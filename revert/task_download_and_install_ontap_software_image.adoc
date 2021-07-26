@@ -1,0 +1,105 @@
+---
+permalink: revert/task_download_and_install_ontap_software_image.html 
+sidebar: sidebar 
+keywords: ontap, software, image, download, downloading, install, installing 
+summary: ONTAP ソフトウェアをダウンロードしてからインストールする必要があります。 
+---
+= ONTAP ソフトウェアイメージをダウンロードしてインストールします
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+最初にネットアップサポートサイトから ONTAP ソフトウェアをダウンロードして、インストールしておく必要があります。
+
+
+
+== ソフトウェアイメージをダウンロードします
+
+ONTAP 9.4 以降からダウングレードまたはリバートするには、 ONTAP ソフトウェアイメージをネットアップサポートサイトからローカルフォルダにコピーします。ONTAP 9.3 以前にダウングレードまたはリバートする場合は、 ONTAP ソフトウェアイメージをネットワーク上の HTTP サーバまたは FTP サーバにコピーする必要があります。
+
+次の重要な情報に注意してください。
+
+* ソフトウェアイメージはプラットフォームモデルに固有です。
++
+ご使用のクラスタに対応するイメージを取得してください。ソフトウェアイメージ、ファームウェアのバージョン情報、プラットフォームモデルの最新のファームウェアは、ネットアップサポートサイトで入手できます。
+
+* ソフトウェアイメージには、 ONTAP の特定のバージョンのリリース時点でのシステムファームウェアの最新バージョンが含まれています。
+* ONTAP 9.5 以降から NetApp Volume Encryption を搭載したシステムをダウングレードする場合は、 NetApp Volume Encryption を含む制限のない国の ONTAP ソフトウェアイメージをダウンロードする必要があります。
++
+規制対象国用の ONTAP ソフトウェアイメージを使用して NetApp Volume Encryption を搭載したシステムをダウングレードまたはリバートすると、システムがパニック状態になり、ボリュームへのアクセスが失われます。
+
++
+.. で、対象となる ONTAP ソフトウェアを見つけます link:http://mysupport.netapp.com/NOW/cgi-bin/software["ソフトウェアのダウンロード"] ネットアップサポートサイトの領域。
+.. ソフトウェアイメージをコピーします。
++
+*** ONTAP 9.3 以前の場合は、ネットアップサポートサイトから、イメージを提供する HTTP サーバまたは FTP サーバ上のディレクトリにソフトウェアイメージ（ 93_q_image.tgz など）をコピーします。
+*** ONTAP 9.4 以降の場合は、ネットアップサポートサイトから、イメージを提供する HTTP サーバまたは FTP サーバ上のディレクトリかローカルフォルダにソフトウェアイメージ（ 97_q_image.tgz など）をコピーします。
+
+
+
+
+
+
+
+
+== ソフトウェアイメージをインストールします
+
+ターゲットのソフトウェアイメージをクラスタのノードにインストールする必要があります。
+
+* ONTAP 9.5 以降から NetApp Volume Encryption を搭載したシステムをダウングレードまたはリバートする場合は、 NetApp Volume Encryption を含む制限のない国の ONTAP ソフトウェアイメージをダウンロードしておく必要があります。
++
+規制対象国用の ONTAP ソフトウェアイメージを使用して NetApp Volume Encryption を搭載したシステムをダウングレードまたはリバートすると、システムがパニック状態になり、ボリュームへのアクセスが失われます。
+
++
+.. 権限レベルを advanced に設定します。続行するかどうかを尋ねられたら、「 * y * 」と入力します。「 set -privilege advanced 」
++
+詳細プロンプト (`*>') が表示されます
+
+.. ソフトウェアイメージをノードにインストールします。
++
+このコマンドを実行すると、ソフトウェアイメージがすべてのノードに同時にダウンロードされてインストールされます。一度に 1 つずつ各ノードにイメージをダウンロードしてインストールする場合は、 -background パラメータを指定せずに実行します。
+
++
+*** MetroCluster 以外の構成または 2 ノード MetroCluster 構成をダウングレードまたはリバートする場合は、「システムノードイメージの更新ノード * パッケージの場所 -replace-package true -setdefault true -background true 」と入力します
++
+このコマンドでは、拡張クエリを使用して、代替イメージとしてインストールされるターゲットのソフトウェアイメージがノードのデフォルトのイメージになるように変更します。
+
+*** 4 ノードまたは 8 ノードの MetroCluster 構成をダウングレードまたはリバートする場合は、両方のクラスタで次のコマンドを問題する必要があります。「 system node image update -node * -package location -replace-package true -background true -setdefault false 」
++
+このコマンドでは、拡張クエリを使用して、各ノードに代替イメージとしてインストールされるターゲットソフトウェアイメージを変更します。
+
+
+
+.. プロンプトが表示されたら 'y' を入力して続行します
+.. ソフトウェアイメージが各ノードにダウンロードおよびインストールされたことを確認します。「 system node image show-update-progress -node *
++
+このコマンドは、ソフトウェアイメージのダウンロードとインストールの現在のステータスを表示します。すべてのノードの Run Status が Exited になり、 Exit Status が Success になるまで、このコマンドを繰り返し実行します。
+
++
+system node image update コマンドが失敗して、エラーまたは警告メッセージが表示されることがあります。エラーまたは警告を解決したら、もう一度コマンドを実行できます。
+
++
+次の例では、 2 ノードクラスタの両方のノードでソフトウェアイメージのダウンロードとインストールが正常に完了しています。
+
++
+[listing]
+----
+cluster1::*> system node image show-update-progress -node *
+There is no update/install in progress
+Status of most recent operation:
+        Run Status:     Exited
+        Exit Status:    Success
+        Phase:          Run Script
+        Exit Message:   After a clean shutdown, image2 will be set as the default boot image on node0.
+There is no update/install in progress
+Status of most recent operation:
+        Run Status:     Exited
+        Exit Status:    Success
+        Phase:          Run Script
+        Exit Message:   After a clean shutdown, image2 will be set as the default boot image on node1.
+2 entries were acted on.
+----
+
+
+

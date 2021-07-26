@@ -1,0 +1,40 @@
+---
+sidebar: sidebar 
+permalink: networking/change_subnet_properties.html 
+keywords: change, changing, modify, modifying, gateway, ip, address, internet, protocol, mask, value, subnet, address, range, property, properties, change subnet properties, network subnet modify, subnet-name, -ipspace, -subnet, -gateway, -ip-ranges, -force-update-lif-associations 
+summary: サブネットアドレス、マスク値、ゲートウェイアドレス、または IP アドレスの範囲を変更します 
+---
+= サブネットのプロパティを変更します
+:hardbreaks:
+:nofooter: 
+:icons: font
+:linkattrs: 
+:imagesdir: ./media/
+
+
+[role="lead"]
+既存のサブネットのアドレスとマスク値、ゲートウェイアドレス、 IP アドレスの範囲を変更することができます。
+
+.このタスクについて
+* IP アドレスを変更するときは、別々のサブネットまたはホストで同じ IP アドレスが使用されることのないように、ネットワーク内で IP アドレスの範囲が重複しないようにする必要があります。
+* ゲートウェイの IP アドレスを追加または変更した場合は、 LIF を作成するときに、変更したゲートウェイがサブネットを使用して新しい SVM に適用されます。SVM のゲートウェイへのルートがない場合は、デフォルトルートが作成されます。ゲートウェイの IP アドレスを変更した場合は、 SVM に新しいルートを手動で追加する必要があります。
+
+
+サブネットのプロパティを変更します。
+
+....
+network subnet modify -subnet-name <subnet_name> [-ipspace <ipspace_name>] [-subnet <subnet_address>] [-gateway <gateway_address>] [-ip-ranges <ip_address_list>] [-force-update-lif-associations <true>]
+....
+* 「 ubnet_name 」は、変更するサブネットの名前です。
+* 「 ipspace 」は、サブネットが存在する IPspace の名前です。
+* 「 ubnet 」は、サブネットの新しいアドレスとマスク（該当する場合）です。たとえば、 192.0.2.0/24 のように指定します。
+* 「 gateway 」は、サブネットの新しいゲートウェイ（該当する場合）です。たとえば、 192.0.2.1 のように指定します。「 * 」と入力すると、ゲートウェイのエントリが削除されます。
+* 「 ip_ranges 」は、サブネットに割り当てる IP アドレスの新しいリスト、つまり範囲です（該当する場合）。個別の IP アドレス、 IP アドレスの範囲、またはその組み合わせをカンマで区切って指定できます。ここで指定した範囲によって、既存の IP アドレスが置き換えられます。
+* IP アドレス範囲を変更する場合には、「 force-update-lif-associations 」が必要です。IP アドレスの範囲を変更する場合、このオプションの値を * true * に設定できます。指定した範囲の IP アドレスを使用しているサービスプロセッサまたはネットワークインターフェイスがある場合は、このコマンドが失敗します。この値を * true に設定すると、手動でアドレスが指定されているインターフェイスが現在のサブネットに関連付けられ、コマンドは問題なく実行されます。
+
+
+次のコマンドは、 sub3 というサブネットのゲートウェイの IP アドレスを変更します。
+
+....
+network subnet modify -subnet-name <sub3> -gateway <192.0.3.1>
+....

@@ -1,0 +1,31 @@
+---
+permalink: upgrade/task_configuring_ldap_clients_to_use_tls_for_highest_security.html 
+sidebar: sidebar 
+keywords: ontap, upgrade, configuring, configure, ldap, clients, servers, tls, security 
+summary: ターゲットの ONTAP リリースにアップグレードする前に、 SSLv3 を使用している LDAP クライアントが TLS を使用して LDAP サーバとセキュアに通信できるように設定する必要があります。SSL はアップグレード後に使用できなくなります。 
+---
+= TLS を使用して高度なセキュリティを実現するように LDAP クライアントを設定します
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+ターゲットの ONTAP リリースにアップグレードする前に、 SSLv3 を使用している LDAP クライアントが TLS を使用して LDAP サーバとセキュアに通信できるように設定する必要があります。SSL はアップグレード後に使用できなくなります。
+
+デフォルトでは、クライアントアプリケーションとサーバアプリケーション間の LDAP 通信は暗号化されません。SSL の使用を禁止して、強制的に TLS を使用する必要があります。
+
+. 環境内の LDAP サーバで TLS がサポートされていることを確認します。
++
+サポートされていない場合は、次の手順に進まないでください。TLS をサポートするバージョンに LDAP サーバをアップグレードする必要があります。
+
+. どの ONTAP LDAP クライアント設定で SSL/TLS 経由の LDAP が有効になっているかを確認します。「 vserver services name-service ldap client show
++
+ない場合は、残りの手順を省略できます。ただし、セキュリティを強化するには、 TLS 経由の LDAP の使用を検討してください。
+
+. LDAP クライアントの設定ごとに、 SSL を禁止して TLS を強制的に使用します。 vserver services name-service ldap client modify -vserver vserver_name -client-config ldap_client_config_name -allow-ssl false
+. すべての LDAP クライアントで SSL の使用が許可されていないことを確認します。「 vserver services name-service ldap client show
+
+
+* 関連情報 *
+
+https://docs.netapp.com/ontap-9/topic/com.netapp.doc.cdot-famg-nfs/home.html["NFS の管理"]

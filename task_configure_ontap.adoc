@@ -1,0 +1,110 @@
+---
+sidebar: sidebar 
+permalink: task_configure_ontap.html 
+keywords: install, installing, cluster, set up, setup, configure, disk, data ports, guided setup, local tiers, aggregate, vserver, volume, configuring ONTAP on a new cluster, configuring a new cluster, assign a node-management IP address, node, DNS server, host name, hostname, NTP server, synchronize time, create a local tier, configure protocol, SSD, provision storage, add LUN, add volume, add namespace, volume, vserver, configure ONTAP on a new cluster, configuration 
+summary: クラスタを作成し、そのクラスタ用の ONTAP ソフトウェアを設定することができます。System Manager では、クラスタのセットアップとストレージの設定を簡単に行うことができます。 
+---
+= 新しいクラスタで ONTAP を設定
+:toc: macro
+:hardbreaks:
+:toclevels: 1
+:toc: 
+:toclevels: 1
+:nofooter: 
+:icons: font
+:linkattrs: 
+:imagesdir: ./media/
+:toc-position: content
+
+
+[role="lead"]
+ONTAP System Manager では、新しいクラスタをセットアップしてストレージを設定するためのシンプルで簡単なワークフローを提供します。
+
+特定の MetroCluster 環境やクラスタで IPv6 ネットワークアドレスを必要とする場合など、新しいクラスタの設定に ONTAP CLI の使用が必要になることがあります。をクリックします link:https://docs.netapp.com/us-en/ontap/software_setup/concept_set_up_the_cluster.html["こちらをご覧ください"] これらの要件の詳細、および ONTAP CLI を使用したクラスタのセットアップ手順については、を参照してください。
+
+System Manager と CLI のどちらを使用するかに関係なく、に従ってシステムを設置し、ケーブル接続しておく必要があります http://docs.netapp.com/platstor/index.jsp["『セットアップガイド』"^] システムに同梱されていたものです。また、クラスタ内通信用にクラスタの各ノードにクラスタネットワークインターフェイスを設定する必要があります。
+
+image:workflow_configure_ontap_on_new_cluster.gif["新しいクラスタで ONTAP を設定するタスクのワークフロー"]
+
+video::6WjyADPXDZ0[youtube, width=848,height=480]
+
+
+== ノード管理 IP アドレスを割り当て
+
+
+
+=== Windows システム
+
+Windows コンピュータは、コントローラと同じサブネットに接続する必要があります。これにより、システムにノード管理 IP アドレスが自動的に割り当てられます。
+
+.ステップ
+. Windows システムで、 * Network * ドライブを開いてノードを検出します。
+. ノードをダブルクリックしてクラスタセットアップウィザードを起動します。
+
+
+
+
+=== その他のシステム
+
+クラスタ内のいずれかのノードにノード管理 IP アドレスを設定する必要があります。このノード管理 IP アドレスを使用して、クラスタセットアップウィザードを起動できます。
+
+を参照してください link:https://docs.netapp.com/us-en/ontap/software_setup/task_create_the_cluster_on_the_first_node.html["第 1 ノードへのクラスタの作成"] ノード管理 IP アドレスの割り当てについては、を参照してください。
+
+
+
+== クラスタを初期化
+
+クラスタを初期化するには、クラスタの管理パスワードを設定し、クラスタ管理ネットワークとノード管理ネットワークをセットアップします。DNS サーバなどのサービスを設定してホスト名を解決したり、 NTP サーバを設定して時間を同期したりすることもできます。
+
+.手順
+. Web ブラウザで、設定したノード管理 IP アドレスを入力します。 "https://node-management-IP"[]
++
+System Manager は、クラスタ内の残りのノードを自動的に検出します。
+
+. すべてのノードに対してクラスタ管理ネットワークとノード管理 IP アドレスを設定して、ストレージシステムを初期化します。
+
+
+
+
+== ローカル階層を作成します
+
+ノードの使用可能なディスクまたは SSD からローカル階層を作成してください。System Manager では、ハードウェアに基づいて最適なティア構成が自動的に計算されます。
+
+.手順
+. [Dashboard] をクリックし、 [* Prepare Storage] をクリックします。
++
+ローカル階層に対するストレージの推奨事項を承認します。
+
+
+
+
+
+== プロトコルを設定する
+
+クラスタで有効になっているライセンスに応じて、クラスタで必要なプロトコルを有効にすることができます。次に、ストレージへのアクセスに使用するネットワークインターフェイスを作成します。
+
+.手順
+. [ * ダッシュボード * ] をクリックし、 [ * プロトコルの設定 * ] をクリックします。
++
+** SAN アクセス用に iSCSI または FC を有効にします。
+** NAS アクセス用に NFS または SMB / CIFS を有効化
+** FC-NVMe アクセスに対して NVMe を有効にします。
+
+
+
+
+
+
+== ストレージのプロビジョニング
+
+ストレージをプロビジョニングできるようになりました。表示されるオプションは、インストールされているライセンスによって異なります。
+
+.手順
+. [Dashboard] をクリックし、 [* Provision Storage] をクリックします。
++
+** 終了： link:concept_san_provision_overview.html["SAN アクセスをプロビジョニング"]をクリックし、 * LUN の追加 * をクリックします。
+** 終了： link:concept_nas_provision_overview.html["NAS アクセスをプロビジョニング"]をクリックし、 * ボリュームの追加 * をクリックします。
+** 終了： link:concept_nvme_provision_overview.html["NVMe ストレージをプロビジョニングする"]をクリックし、 [ 名前空間の追加 ] をクリックします。
+
+
+

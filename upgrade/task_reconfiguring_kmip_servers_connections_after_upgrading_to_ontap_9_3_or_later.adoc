@@ -1,0 +1,33 @@
+---
+permalink: upgrade/task_reconfiguring_kmip_servers_connections_after_upgrading_to_ontap_9_3_or_later.html 
+sidebar: sidebar 
+keywords: ontap, upgrade, reconfigure, reconfiguring, kmip, server, connections, 9.3, later 
+summary: ONTAP 9.3 以降へのアップグレードを実行したら、外部キー管理（ KMIP ）サーバの接続を再設定する必要があります。 
+---
+= ONTAP 9.3 以降へのアップグレード後に行う KMIP サーバ接続の再設定
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+ONTAP 9.3 以降へのアップグレードを実行したら、外部キー管理（ KMIP ）サーバの接続を再設定する必要があります。
+
+. キー管理ツールの接続を構成します : 「セキュリティキーマネージャの設定
+. KMIP サーバを追加します。「 securitykey-manager add -address key_management_server _ip_address 」
+. KMIP サーバが接続されていることを確認します。「 securitykey-manager show -status 」
+. キーサーバを照会します：「 securitykey-manager query
+. 新しい認証キーとパスフレーズを作成します。「 securitykey-manager create-key prompt-fkey true
++
+パスフレーズは 32 文字以上にする必要があります。
+
+. 新しい認証キー「セキュリティキーマネージャ照会」を照会します
+. 新しい認証キーを自己暗号化ディスク（ SED ）に割り当てます。「 storage encryption disk modify -disk disk_id -data-key-id key_ID 」
++
+
+NOTE: 新しい認証キーをクエリで使用していることを確認します。
+
+. 必要に応じて、 FIPS キーを SED に割り当てます。「 storage encryption disk modify -disk disk_id -fips-key-id fips_authentication_key_id 」
++
+セキュリティの設定によりデータ認証と FIPS 140-2 認証に異なるキーを使用する必要がある場合は、それぞれの認証用のキーを作成する必要があります。そうでない場合は、 FIPS 準拠の認証キーをデータアクセスにも使用できます。
+
+

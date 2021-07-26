@@ -1,0 +1,51 @@
+---
+sidebar: sidebar 
+permalink: smbc/smbc_troubleshoot_aufo_not_triggered_on_site_b.html 
+keywords: SM-BC, SMBC, troubleshooting, automatic unplanned failover, aufo, failover, Mediator, quorum 
+summary: サイト A で障害が発生しても、サイト B で計画外フェイルオーバーはトリガーされません 
+---
+= サイト B で自動計画外フェイルオーバーがトリガーされない
+:hardbreaks:
+:nofooter: 
+:icons: font
+:linkattrs: 
+:imagesdir: ../media/
+
+
+[role="lead"]
+サイト A で障害が発生しても、サイト B で計画外フェイルオーバーはトリガーされません
+
+メディエーターが設定されていません。これが原因かどうかを判断するには、サイト B クラスタで問題の「 SnapMirro mediator show 」コマンドを実行します。
+
+....
+Cluster2::*> snapmirror mediator show
+This table is currently empty.
+....
+この例は、メディエーターがサイト B で設定されていないことを示しています
+
+メディエーターは両方のクラスタで設定し、ステータスが Connected 、クォーラムが True に設定されていることを確認します。
+
+SnapMirror 整合グループが同期されていません。これが原因かどうかを確認するには、イベントログを表示して、サイト A で障害が発生したときに整合グループが同期されているかどうかを確認します。
+
+....
+cluster::*> event log show -event *out.of.sync*
+
+Time                Node             Severity      Event
+------------------- ---------------- ------------- ---------------------------
+10/1/2020 23:26:12  sti42-vsim-ucs511w ERROR       sms.status.out.of.sync: Source volume "vs0:zrto_cg_556844_511u_RW1" and destination volume "vs1:zrto_cg_556881_511w_DP1" with relationship UUID "55ab7942-03e5-11eb-ba5a-005056a7dc14" is in "out-of-sync" status due to the following reason: "Transfer failed."
+....
+サイト B で強制フェイルオーバーを実行するには、次の手順を実行します
+
+. この整合グループに属するすべての LUN のマッピングをサイト B から解除します
+. 「 force 」オプションを使用して、 SnapMirror 整合グループ関係を削除します。
+. サイト B からの I/O を有効にするには、整合性グループのコンスティチュエントボリュームで「 snapmirror break 」コマンドを入力して、 DP から R/W にボリュームを変換します
+. サイト A のノードをブートして、サイト B からサイト A への RTO 関係をゼロにします
+. 共通の Snapshot コピーを保持し、整合グループに属する LUN のマッピングを解除するには、「 re lationship -info -only 」をサイト A に設定して整合グループをリリースします。
+. Sync ポリシーまたは非同期ポリシーを使用してボリュームレベルの関係を設定し、サイト A のボリュームを R/W から DP に変換します。
+. 問題：「 SnapMirro resync 」を選択して、関係を同期します。
+. サイト A の Sync ポリシーを使用して、 SnapMirror 関係を削除します
+. サイト B で「 lationship -info -only true 」を使用して、 Sync ポリシーが設定された SnapMirror 関係を解放します
+. サイト B からサイト A への整合グループ関係を作成します
+. サイト A から整合グループの再同期を実行し、整合グループが同期されていることを確認します。
+. ホスト LUN の I/O パスを再スキャンして、 LUN へのすべてのパスをリストアします。
+

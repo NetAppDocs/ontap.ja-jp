@@ -1,0 +1,118 @@
+---
+sidebar: sidebar 
+permalink: task_admin_add_a_volume.html 
+keywords: volume, storage, add, increase storage, NFS volume, create, add a volume, create a volume, add to storage VM, Ansible Playbook, manual placement, distribute volume data across cluster, add FlexGroup volume, add FlexVol volume, access permissions, SnapMirror, protection, QoS policy, cache for remote volume, performance service level policy, 
+summary: NFS ボリュームを作成して、 NFS サービスまたは SMB / CIFS サービス用に設定された既存の Storage VM に追加できます。 
+---
+= ボリュームを追加します
+:toc: macro
+:hardbreaks:
+:toclevels: 1
+:toc: 
+:toclevels: 1
+:nofooter: 
+:icons: font
+:linkattrs: 
+:imagesdir: ./media/
+:toc-position: content
+
+
+[role="lead"]
+NFS ボリュームを作成して、 NFS サービスまたは SMB / CIFS サービス用に設定された既存の Storage VM に追加できます。
+
+image:workflow_admin_add_a_volume.gif["ボリューム追加タスクのワークフローの図"]
+
+NFS サービスまたは SMB / CIFS サービス用に設定された Storage VM がクラスタに存在する必要があります。
+
+.手順
+. [ ストレージ ] > [ ボリューム ] に移動します。
+. をクリックします image:icon_add.gif["追加アイコン"]。
+. ボリュームの名前とサイズを指定します。
+. 次のいずれかの手順を実行します。
++
+[cols="35,65"]
+|===
+| クリックするボタン | 実行する処理 
+
+
+| * 保存 * | ボリュームが作成され、システムのデフォルトを使用して追加されます。追加の手順は必要ありません。 
+
+
+| * その他のオプション * | に進みます <<step5>> ボリュームの仕様を定義します。 
+|===
+. [[step5 、 Step 5] ] ボリュームの名前とサイズを指定した場合は、それらが表示されます。それ以外の場合は、名前とサイズを入力します。
+. プルダウンリストから Storage VM を選択します。
++
+NFS プロトコルが設定されている Storage VM のみが表示されます。NFS プロトコルが設定された Storage VM が 1 つしかない場合、「 * Storage VM * 」フィールドは表示されません。
+
+. リモートボリュームのキャッシュを追加するには、 * リモートボリュームのキャッシュを追加 * を選択し、次の値を指定します。
++
+** クラスタを選択
+** Storage VM を選択してください。
+** キャッシュボリュームにするボリュームを選択します。
+
+
+. ストレージと最適化 * セクションで、次の値を指定します。
++
+.. ボリュームの容量はすでに表示されていますが、変更することはできます。
+.. [ パフォーマンスサービスレベル * ] フィールドで、サービスレベルを選択します。
++
+[cols="60,40"]
+|===
+| 選択するサービスレベル | 発生する処理 
+
+
+ a| 
+「最高レベル」、「パフォーマンス」、「バリュー」などの既存のサービスレベル。
+
+システムプラットフォームに有効なサービスレベル（ AFF 、 FAS など）のみが表示されます。
+| ローカル階層が自動的に選択されます。に進みます <<step9>>。 
+
+
+| カスタム | に進みます <<step8c>> 新しいサービスレベルを定義します。 
+|===
+.. [[step8c, Step 8c]] ONTAP 9.9..1 以降では、 System Manager を使用して、作成するボリュームを配置するローカル階層を手動で選択できます ([ カスタム ] サービスレベルを選択した場合 ) 。
++
+
+NOTE: このオプションは、リモートボリュームのキャッシュとして * 追加を選択した場合、または * ボリュームデータをクラスタに分散した場合には使用できません * （以下を参照）。
+
++
+|===
+| 選択内容 | 実行する手順 
+
+
+| * 手動配置 * | 手動配置が有効になっています。*Distribute volume data across the cluster * selection （ * ボリュームデータのクラスタへの分散）が無効になっています（以下を参照）。に進みます <<step8d>> をクリックしてプロセスを完了します。 
+
+
+| 選択なし | 手動配置が有効になっていません。ローカル階層が自動的に選択されます。に進みます <<step9>>。 
+|===
+.. [[step8d, Step 8d]] プルダウンメニューからローカル階層を選択します。
+.. QoS ポリシーを選択します。
++
+「既存」を選択して既存のポリシーのリストから選択するか、「新規」を選択して新しいポリシーの仕様を入力します。
+
+
+
+. [[step9 、 Step 9] * Optimization options * セクションで、ボリュームデータをクラスタ全体に分散するかどうかを決定します。
++
+[cols="40,60"]
+|===
+| 選択内容 | 発生する処理 
+
+
+| * ボリュームデータをクラスタ全体に分散 * | 追加するボリュームが FlexGroup ボリュームになります。このオプションは、以前に * 手動配置 * を選択した場合は使用できません。 
+
+
+| 選択なし | 追加するボリュームは、デフォルトで FlexVol ボリュームになります。 
+|===
+. アクセス権限 * セクションで、ボリュームを構成するプロトコルのアクセス権限を指定します。
+. 「 * 保護」セクションで、ボリュームの保護を指定します。SnapMirror を有効にする（ローカルまたはリモート） * を選択する場合は、プルダウンリストからデスティネーションクラスタの保護ポリシーと設定を指定します。
+. [ 保存（ Save ） ] をクリックします。
++
+ボリュームが作成され、クラスタと Storage VM に追加されます。
+
++
+
+NOTE: このボリュームの仕様は Ansible Playbook に保存することもできます。詳細については、を参照してください link:https://docs.netapp.com/us-en/ontap/task_use_ansible_playbooks_add_edit_volumes_luns.html["Ansible Playbook を使用して、ボリュームや LUN を追加、編集できます"]。
+
+

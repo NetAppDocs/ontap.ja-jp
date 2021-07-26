@@ -1,0 +1,64 @@
+---
+sidebar: sidebar 
+permalink: networking/create_a_subnet_reference.html 
+keywords: create, creation, creating, add, adding, subnet, create a subnet, subnet create, force-update-lif-associations, network subnet rename 
+summary: サブネットを作成して、 ONTAP ネットワーク設定用に IP アドレスの特定のブロックを割り当てたりリザーブしたりします 
+---
+= サブネットを作成
+:hardbreaks:
+:nofooter: 
+:icons: font
+:linkattrs: 
+:imagesdir: ./media/
+
+
+[role="lead"]
+サブネットを作成して、 ONTAP ネットワーク設定用に IPv4 アドレスまたは IPv6 アドレスの特定のブロックを割り当てまたはリザーブします。サブネット名を指定することでインターフェイスを簡単に作成でき、新しいインターフェイスごとに IP アドレスとネットワークマスク値を指定する必要がなくなります。
+
+サブネットを追加するブロードキャストドメインと IPspace がすでに存在している必要があります。
+
+.このタスクについて
+* すべてのサブネット名が IPspace 内で一意である必要があります。
+* サブネットに IP アドレスの範囲を追加するときは、別々のサブネットまたはホストで同じ IP アドレスが使用されないように、ネットワーク内で IP アドレスの範囲が重複しないことを確認する必要があります。
+* サブネットを定義するときにゲートウェイを指定した場合は、そのサブネットを使用して LIF を作成するときに、そのゲートウェイへのデフォルトルートが SVM に自動的に追加されます。サブネットを使用しない場合や、サブネットを定義するときにゲートウェイを指定しない場合は、「 route create 」コマンドを使用して SVM にルートを手動で追加する必要があります。
+
+
+サブネットを作成します。
+
+....
+network subnet create -subnet-name subnet_name -broadcast-domain <broadcast_domain_name> [- ipspace <ipspace_name>] -subnet <subnet_address> [-gateway <gateway_address>] [-ip-ranges <ip_address_list>] [-force-update-lif-associations <true>]
+....
+* 「 ubnet_name 」は、作成するレイヤ 3 サブネットの名前です。
++
+「 Mgmt 」のようなテキスト文字列形式の名前を付けることも、 192.0.2.0/24 などのサブネットの IP アドレスの値にすることもできます。
+
+* 'broadcast_domain_name' は、サブネットが存在するブロードキャストドメインの名前です。
+* 「 ipspace_name 」は、ブロードキャストドメインのある IPspace の名前です。
++
+「 default 」 IPspace は、このオプションの値を指定しないかぎり使用されます。
+
+* 「 ubnet_address 」はサブネットの IP アドレスとマスクです。たとえば、 192.0.2.0/24 のように指定します。
+* 「 gateway_address 」は、サブネットのデフォルトルートのゲートウェイです。たとえば、 192.0.2.1 のように指定します。
+* 「 ip_address_list 」は、サブネットに割り当てる IP アドレスのリスト、または範囲です。
++
+個別の IP アドレス、 IP アドレスの範囲、またはその組み合わせをカンマで区切って指定できます。
+
+* 値「 true 」は、「 -force -update-lif-associations 」オプションに設定できます。
++
+指定した範囲の IP アドレスを現在使用しているサービスプロセッサまたはネットワークインターフェイスがある場合は、このコマンドが失敗します。この値を true に設定すると、手動でアドレスが指定されているインターフェイスが現在のサブネットに関連付けられ、コマンドは問題なく実行されます。
+
+
+
+次のコマンドは、 Default IPspace のブロードキャストドメイン default-1 に sub1 というサブネットを作成します。IPv4 のサブネット IP アドレスとマスク、ゲートウェイ、 IP アドレスの範囲を指定しています。
+
+....
+network subnet create -subnet-name sub1 -broadcast-domain Default-1 -subnet 192.0.2.0/24 - gateway 192.0.2.1 -ip-ranges 192.0.2.1-192.0.2.100, 192.0.2.122
+....
+次のコマンドは、「 Default 」 IPspace のブロードキャストドメイン Default に sub2 というサブネットを作成します。IPv6 アドレスの範囲を指定しています。
+
+....
+network subnet create -subnet-name sub2 -broadcast-domain Default -subnet 3FFE::/64 - gateway 3FFE::1 -ip-ranges "3FFE::10-3FFE::20"
+....
+サブネット内のアドレスを使用して、 SVM とインターフェイスを IPspace に割り当てることができます。
+
+既存のサブネットの名前を変更する必要がある場合は、「 network subnet rename 」コマンドを使用します。

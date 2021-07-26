@@ -1,0 +1,69 @@
+---
+permalink: upgrade/task_verifying_storage_health_verifying_that_the_cluster_is_ready.html 
+sidebar: sidebar 
+keywords: ontap, upgrade, upgrading, verify, verifying, storage, health 
+summary: クラスタのアップグレード前とアップグレード後に、ディスク、アグリゲート、およびボリュームのステータスを確認する必要があります。 
+---
+= ストレージの健常性を確認
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+クラスタのアップグレード前とアップグレード後に、ディスク、アグリゲート、およびボリュームのステータスを確認する必要があります。
+
+. ディスクのステータスを確認します。
++
+[cols="2*"]
+|===
+| 確認する項目 | 手順 
+
+
+ a| 
+破損ディスク
+ a| 
+.. 破損ディスクを表示します。「 storage disk show -state broken 」
+.. 破損ディスクを取り外すか交換します。
+
+
+
+
+ a| 
+メンテナンス中または再構築中のディスク
+ a| 
+.. 「 storage disk show -state maintenance 」という状態のディスクを表示します
+
+
+
+
+| 保留中です | 再構築中メンテナンスまたは再構築の処理が完了するまで待ってから次に進みます。[+] 
+|===
+. 「 storage aggregate show -state ！ online 」という状態を表示して、すべてのアグリゲートがオンラインであることを確認します
++
+このコマンドを実行すると、オンラインでないアグリゲートが表示されます。メジャーアップグレードまたはリバートの実行前と実行後には、すべてのアグリゲートがオンラインになっている必要があります。
+
++
+[listing]
+----
+cluster1::> storage aggregate show -state !online
+There are no entries matching your query.
+----
+. すべてのボリュームがオンラインであることを確認するには 'volume show -state ！ online ' のようなボリュームを表示します
++
+メジャーアップグレードまたはリバートの実行前と実行後には、すべてのボリュームがオンラインになっている必要があります。
+
++
+[listing]
+----
+cluster1::> volume show -state !online
+There are no entries matching your query.
+----
+. 整合性のないボリュームがないことを確認します。 volume show -is-inconsistent true
++
+整合性のないボリュームが返された場合は、アップグレードを実行する前にネットアップサポートにお問い合わせください。
+
+
+
+* 関連情報 *
+
+https://docs.netapp.com/ontap-9/topic/com.netapp.doc.dot-cm-vsmg/home.html["論理ストレージ管理"]

@@ -1,0 +1,84 @@
+---
+sidebar: sidebar 
+permalink: networking/add_or_remove_ports_from_a_broadcast_domain97.html 
+keywords: adding, add, create, creating, remove, removing, delete, deleting, port, broadcast, domain, reachability, repair, physical, switch, configuration, manually add or remove ports from a broadcast domain, network port broadcast-domain add-ports, network port broadcast-domain remove-ports, examples of adding and removing ports 
+summary: ブロードキャストドメインにポートを手動で追加したりドメインからポートを削除したりすることは、推奨されません 
+---
+= ブロードキャストドメインのポートを追加または削除します
+:hardbreaks:
+:nofooter: 
+:icons: font
+:linkattrs: 
+:imagesdir: ./media/
+
+
+[role="lead"]
+ブロードキャストドメインの最初の作成時にネットワークポートを追加したり、既存のブロードキャストドメインに対してポートを追加または削除したりできます。これにより、クラスタ内のすべてのポートを効率的に使用できます。
+
+.作業を開始する前に
+* ブロードキャストドメインに追加するポートは、他のブロードキャストドメインに属していないポートでなければなりません。
+* すでにインターフェイスグループに属しているポートを個別にブロードキャストドメインに追加することはできません。
+
+
+ネットワークポートの追加と削除には、次のルールが適用されます。
+
+[cols="2*"]
+|===
+| ポートの追加 | ポートの削除 
+
+
+| 追加できるポートは、ネットワークポート、 VLAN 、インターフェイスグループ（ ifgrp ）です。 | 該当なし 
+
+
+| ポートは、ブロードキャストドメインのシステム定義のフェイルオーバーグループに追加されます。 | ポートは、ブロードキャストドメインのすべてのフェイルオーバーグループから削除されます。 
+
+
+| ポートの MTU は、ブロードキャストドメインに設定されている MTU 値に更新されます。 | ポートの MTU は変更されません。 
+
+
+| ポートの IPspace は、ブロードキャストドメインの IPspace 値に更新されます。 | ポートは「 Default 」 IPspace に移動し、ブロードキャストドメイン属性はない。 
+|===
+
+NOTE: 「 network port ifgrp remove-port 」コマンドを使用してインターフェイスグループの最後のメンバーポートを削除すると、そのインターフェイスグループポートがブロードキャストドメインから削除されます。これは、ブロードキャストドメインに空のインターフェイスグループポートが存在できないからです。
+
+.手順
+. network port show コマンドを使用して、現在ブロードキャストドメインに割り当てられているポートまたは割り当てられていないポートを表示します。
+. ブロードキャストドメインにポートを追加するか、ブロードキャストドメインからポートを削除します。
++
+[cols="2*"]
+|===
+| 状況 | 使用 
+
+
+ a| 
+ブロードキャストドメインにポートを追加します
+ a| 
+「 network port broadcast-domain add-ports 」と入力します
+
+
+
+ a| 
+ブロードキャストドメインからポートを削除します
+ a| 
+「 network port broadcast-domain remove-ports 」と入力します
+
+|===
+
+
+これらのコマンドの詳細については、を参照してください http://docs.netapp.com/ontap-9/topic/com.netapp.doc.dot-cm-cmpr/GUID-5CB10C70-AC11-41C0-8C16-B4D0DF916E9B.html["ONTAP 9 のコマンド"^]。
+
+
+
+== ポートの追加と削除の例
+
+次のコマンドは、 Default IPspace のブロードキャストドメイン bcast1 に、ノード cluster-1-01 のポート e0g と、ノード cluster-1-02 の e0g を追加します。
+
+'cluster-1:::> network port broadcast-domain add-ports -broadcast-domain bcast1 -port cluster-1 -01 ： e0g 、 cluster1-02 ： e0g
+
+次のコマンドは、 Cluster IPspace のブロードキャストドメイン Cluster にクラスタポートを 2 つ追加します。
+
+'cluster-1:::> ネットワークポートブロードキャストドメイン追加ポートブロードキャストドメインクラスタポート cluster-2-03:e0f 、 cluster2 -04: e0f - IPspace クラスタ
+
+次のコマンドは、 Default IPspace のブロードキャストドメイン bcast1 から、ノード cluster1-01 のポート e0e を削除します。
+
+'cluster-1::>network port broadcast-domain remove-ports -broadcast-domain bcast1 -port cluster-1-01 ： e0e

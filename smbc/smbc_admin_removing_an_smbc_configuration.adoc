@@ -1,0 +1,30 @@
+---
+sidebar: sidebar 
+permalink: smbc/smbc_admin_removing_an_smbc_configuration.html 
+keywords: SM-BC, SMBC, removing, protection relationship 
+summary: ゼロ RTO 同期 SnapMirror 保護を削除し、 SM-BC 関係の設定を削除できます。 
+---
+= SM-BC 設定の削除
+:hardbreaks:
+:nofooter: 
+:icons: font
+:linkattrs: 
+:imagesdir: ../media/
+
+
+[role="lead"]
+ゼロ RTO 同期 SnapMirror 保護を削除し、 SM-BC 関係の設定を削除できます。
+
+SM-BC 関係を削除する前に、デスティネーションクラスタ内のすべての LUN のマッピングを解除する必要があります。LUN のマッピングが解除されてホストが再スキャンされると、 SCSI ターゲットは LUN のインベントリが変更されたことをホストに通知します。RTO ゼロのセカンダリボリュームにある既存の LUN は、ゼロの RTO 関係が削除されたあとに新しい ID が反映されるように変更されます。ホストは、セカンダリボリューム LUN を、ソースボリューム LUN とは関係のない新しい LUN として検出します。関係を削除しても、セカンダリボリュームは DP ボリュームのままです。snapmirror break コマンドを使用して、読み取り / 書き込みに変換できます。問題フェイルオーバー状態でない関係は削除できません。
+
+.手順
+. SM-BC 整合グループ関係を削除します。
++
+「デスティネーション」：： > snapmirror delete -destination-path vs1_dst ： /cg /cg_dst
+
+. ソースクラスタで、関係に対して作成された整合グループ関係と Snapshot コピーを解放します。
++
+「ソース：： > snapmirror release -destination-path vs1_dst ： /cg /cg_dst
+
+. ホストの再スキャンを実行して LUN インベントリを更新する。
+

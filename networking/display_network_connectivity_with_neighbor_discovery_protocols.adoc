@@ -1,0 +1,478 @@
+---
+sidebar: sidebar 
+permalink: networking/display_network_connectivity_with_neighbor_discovery_protocols.html 
+keywords: display, view, show, network, connectivity, neighbor, discovery, protocol, ndp, cdp, cisco, link, layer, lldp, display network connectivity with neighbor discovery protocols, use neighbor discovery protocols to view network connectivity between a pair of physical or virtual systems and their network interfaces, use cdp to detect network connectivity, considerations for using cdp, enable or disable cdp, view cdp neighbor information, example of showing and clearing statistics, use lldp to detect network connectivity, enable or disable lldp, view lldp neighbor information, adjust the interval for transmitting lldp advertisements 
+summary: 近接探索プロトコルを使用して、物理または仮想システムのペアとそのネットワークインターフェイス間のネットワーク接続を表示します 
+---
+= 近接探索プロトコルによるネットワーク接続を表示します
+:hardbreaks:
+:nofooter: 
+:icons: font
+:linkattrs: 
+:imagesdir: ./media/
+
+
+[role="lead"]
+データセンターでは、近接探索プロトコルを使用して、物理または仮想システムのペアとそのネットワークインターフェイス間のネットワーク接続を表示できます。ONTAP では、 2 つの近接探索プロトコルとして、 Cisco Discovery Protocol （ CDP ）と Link Layer Discovery Protocol （ LLDP ）がサポートされます。
+
+近接探索プロトコルを使用すると、ネットワーク内の直接接続されているプロトコル対応デバイスを自動的に検出し、その情報を表示できます。各デバイスは、 ID 、機能、および接続情報をアドバタイズします。この情報はイーサネットフレームでマルチキャスト MAC アドレスへ送信され、近接するすべてのプロトコル対応デバイスで受信されます。
+
+2 つのデバイスがネイバーになるには、各デバイスでプロトコルが有効になっていて、正しく設定されている必要があります検出プロトコルの機能は、直接接続されたネットワークに限定されます。近接機器には、スイッチ、ルータ、ブリッジなどのプロトコル対応デバイスが含まれます。ONTAP では、 2 つの近接探索プロトコルがサポートされます。これらは個別に使用することも一緒に使用することもでき
+
+* シスコ検出プロトコル（ CDP ） *
+
+CDP は、 Cisco Systems が開発したリンクレイヤプロトコルです。ONTAP では、クラスタポートに対してこのプロトコルがデフォルトで有効になりますが、データポートに対しては明示的に有効にする必要があります。
+
+* リンク層検出プロトコル（ LLDP ） *
+
+LLDP は、ベンダーに依存しないプロトコルであり、 IEEE 802.1AB 規格のドキュメントで指定されています。すべてのポートに対して明示的にイネーブルにする必要があります。
+
+
+
+== CDP を使用してネットワーク接続を検出します
+
+CDP を使用してネットワーク接続を検出するには、導入時の考慮事項を確認し、データポートで CDP を有効にし、ネイバーデバイスを表示し、必要に応じて CDP 設定値を調整します。クラスタポートでは、 CDP はデフォルトで有効になります。
+
+隣接デバイスに関する情報を表示するには、スイッチとルータでも CDP を有効にする必要があります。
+
+CDP は、クラスタと管理ネットワークスイッチを自動的に検出するためにクラスタスイッチヘルスモニタでも使用されます。
+
+* 関連情報 *
+
+https://docs.netapp.com/ontap-9/topic/com.netapp.doc.dot-cm-sag/home.html["システム管理"^]
+
+
+
+=== CDP を使用する場合の考慮事項
+
+デフォルトでは、 CDP 対応デバイスは CDPv2 通知を送信します。CDP 対応デバイスは、 CDPv1 通知を受信した場合にのみ、 CDPv1 通知を送信します。ONTAP は CDPv1 のみをサポートします。したがって、 ONTAP ノードが CDPv1 通知を送信すると、 CDP 対応の隣接デバイスが CDPv1 通知を返します。
+
+ノードで CDP を有効にする前に、次の点を確認してください。
+
+* CDP はクラスタポートで常に有効になります。
+* 非クラスタポートでは、 CDP はデフォルトで無効になります。
+* CDP はすべてのポートでサポートされます。
+* CDP 通知は、 up 状態のポートから送受信されます。
+* CDP 通知を送受信するには、送信デバイスと受信デバイスの両方で CDP を有効にする必要があります。
+* CDP 通知は一定間隔で送信され、送信間隔は設定可能です。
+* LIF の IP アドレスが変更されると、ノードは更新された情報を次の CDP 通知で送信します。
+
+
+
+NOTE: ノードで LIF が変更された場合、スイッチなどの受信デバイス側で CDP 情報が更新されないことがあります。このような問題が発生した場合は、ノードのネットワークインターフェイスをいったん down 状態にしてから、 up 状態に設定してください。
+
+* CDP 通知で送信されるのは IPv4 アドレスのみです。
+* VLAN が設定されている物理ネットワークポートの場合、 VLAN に設定されているすべての LIF が通知されます。
+* インターフェイスグループの一部となっている物理ポートの場合、そのインターフェイスグループに設定されているすべての IP アドレスが、各物理ポートで通知されます。
+* VLAN をホストするインターフェイスグループの場合、インターフェイスグループおよび VLAN に設定されているすべての LIF が各ネットワークポートで通知されます。
+* MTU サイズが 1 、 500 バイト以上のパケットの場合、 1 、 500 バイトのパケットに収まる数の LIF のみが通知されます。
+
+
+
+
+=== CDP を有効または無効にします
+
+CDP 対応の隣接デバイスを検出して通知を送信するには、クラスタの各ノードで CDP が有効になっている必要があります。デフォルトでは、 CDP はノードのすべてのクラスタポートで有効に、非クラスタポートで無効になっています。
+
+cdpd .enable オプションは ' ノードのポートで CDP を有効にするか無効にするかを制御します
+
+* on にすると、非クラスタポートで CDP が有効になります。
+* off にすると、非クラスタポートで CDP が無効になります。クラスタポートの CDP を無効にすることはできません。
+
+
+CDP 対応デバイスに接続されているポートで CDP を無効にすると、ネットワークトラフィックが最適化されない可能性があります。
+
+.手順
+. クラスタ内の 1 つまたはすべてのノードの、現在の CDP 設定を表示します。
++
+[cols="2*"]
+|===
+| CDP 設定を表示する対象 | 入力するコマンド 
+
+
+ a| 
+ノード
+| run -node <node_name > options cdpd.enable を実行します 
+
+
+ a| 
+クラスタ内のすべてのノード
+| options cdpd.enable を使用します 
+|===
+. クラスタ内の 1 つまたはすべてのノードで、すべてのポートの CDP を有効または無効にします。
++
+[cols="2*"]
+|===
+| CDP を有効または無効にする対象 | 入力するコマンド 
+
+
+ a| 
+ノード
+ a| 
+実行ノードの node_name オプション cdpd.enable ｛ on または off ｝
+
+
+
+ a| 
+クラスタ内のすべてのノード
+ a| 
+options cdpd.enable ｛ on または off ｝
+
+|===
+
+
+
+
+=== CDP ネイバー情報を表示します
+
+クラスタのノードのポートに CDP 対応デバイスが接続されている場合は、そのポートの隣接デバイスの情報を表示することができます。ネイバー情報を表示するには、「 network device-discovery show-protocol cdp 」コマンドを使用します。
+
+クラスタポートでは CDP が常に有効になっているので、これらのポートの CDP 隣接情報は常に表示されます。非クラスタポートの隣接情報を表示するには、これらのポートで CDP を有効にする必要があります。
+
+クラスタ内のノードのポートに接続されているすべての CDP 対応デバイスの情報を表示します。
+
+....
+network device-discovery show -node node -protocol cdp
+....
+次のコマンドは、ノード cluster-1_01 のポートに接続されている隣接デバイスの情報を表示します。
+
+....
+network device-discovery show -node sti2650-212 -protocol cdp
+Node/       Local  Discovered
+Protocol    Port   Device (LLDP: ChassisID)  Interface         Platform
+----------- ------ ------------------------- ----------------  ----------------
+sti2650-212/cdp
+            e0M    RTP-LF810-510K37.gdl.eng.netapp.com(SAL1942R8JS)
+                                             Ethernet1/14      N9K-C93120TX
+            e0a    CS:RTP-CS01-510K35        0/8               CN1610
+            e0b    CS:RTP-CS01-510K36        0/8               CN1610
+            e0c    RTP-LF350-510K34.gdl.eng.netapp.com(FDO21521S76)
+                                             Ethernet1/21      N9K-C93180YC-FX
+            e0d    RTP-LF349-510K33.gdl.eng.netapp.com(FDO21521S4T)
+                                             Ethernet1/22      N9K-C93180YC-FX
+            e0e    RTP-LF349-510K33.gdl.eng.netapp.com(FDO21521S4T)
+                                             Ethernet1/23      N9K-C93180YC-FX
+            e0f    RTP-LF349-510K33.gdl.eng.netapp.com(FDO21521S4T)
+                                             Ethernet1/24      N9K-C93180YC-FX
+....
+出力には、指定したノードの各ポートに接続されている Cisco デバイスが一覧表示されます。
+
+
+
+=== CDP メッセージの保持時間を設定します
+
+保持時間とは、 CDP 通知が CDP 対応の隣接デバイスのキャッシュに格納される時間です。保持時間は各 CDPv1 パケットで通知され、ノードが CDPv1 パケットを受信するたびに更新されます。
+
+* cdpd .holdtime オプションの値は HA ペアの両方のノードで同じ値に設定する必要があります
+* デフォルトの保持時間は 180 ですが、 10~255 秒の値を入力できます。
+* 保持時間が切れる前に IP アドレスが削除された場合、 CDP 情報は保持時間が切れるまでキャッシュされます。
+
+
+.手順
+. クラスタ内の 1 つまたはすべてのノードの CDP メッセージの現在の保持時間を表示します。
++
+|===
+| 保持時間を表示する対象 | 入力するコマンド 
+
+
+| ノード | 'run -node node_name options cdpd.holdtime' のように指定します 
+
+
+| クラスタ内のすべてのノード | オプション CDPD.holdtime 
+|===
+. クラスタ内の 1 つまたはすべてのノードで、すべてのポートの CDP 通知の保持時間を設定します。
++
+|===
+| 保持時間を設定する対象 | 入力するコマンド 
+
+
+| ノード | 'run-node node_name options cdpd.holdtime holdtime 
+
+
+| クラスタ内のすべてのノード | op ’ ions cdpd.holdtime holdtime` 
+|===
+
+
+
+
+=== CDP 通知の送信間隔を設定します
+
+CDP 通知は、一定の間隔で CDP 隣接機器に送信されます。ネットワークトラフィックの量やネットワークトポロジの変化に応じて、 CDP 通知の送信間隔を調整することができます。
+
+* cdpd.interval` オプションの値は 'HA ペアの両方のノードで同じ値に設定する必要があります
+* デフォルトの送信間隔は 60 秒ですが、 5~900 秒の値を入力できます。
+
+
+.手順
+. クラスタ内の 1 つまたはすべてのノードについて、 CDP 通知の現在の送信間隔を表示します。
++
+|===
+| 送信間隔を表示する対象 | 入力するコマンド 
+
+
+| ノード | 'run -node node_name options cdpd.interval` 
+
+
+| クラスタ内のすべてのノード | options cdpd.interval` を参照してください 
+|===
+. クラスタ内の 1 つまたはすべてのノードで、すべてのポートの CDP 通知の送信間隔を設定します。
++
+|===
+| 送信間隔を設定する対象 | 入力するコマンド 
+
+
+| ノード | 'run -node node_name options cdpd.interval interval 
+
+
+| クラスタ内のすべてのノード | 「 options cdpd.interval interval 」を実行します 
+|===
+
+
+
+
+=== CDP 統計情報を表示または消去します
+
+ネットワーク接続に潜在的な問題を検出するために、各ノードのクラスタポートと非クラスタポートの CDP 統計を表示することができます。CDP 統計は、値が前回消去されたときからの累積値です。
+
+クラスタポートでは CDP が常に有効になっているので、これらのポートのトラフィックに関する CDP 統計情報は常に表示されます。非クラスタポートの CDP 統計情報を表示するには、これらのポートで CDP を有効にする必要があります。
+
+ノードのすべてのポートに関する現在の CDP 統計情報を表示または消去します。
+
+|===
+| 状況 | 入力するコマンド 
+
+
+| CDP 統計情報を表示します | 'run -node node_name cdpd show-stats ' 
+
+
+| CDP 統計情報を消去します | 'run -node node_name cdpd zero-stats' 
+|===
+
+
+==== 統計情報の表示と消去の例
+
+次のコマンドは、消去する前の CDP 統計情報を表示します。出力には、前回統計情報が消去されてから送受信されたパケットの合計数が表示されます。
+
+....
+run -node node1 cdpd show-stats
+
+RECEIVE
+ Packets:         9116  | Csum Errors:       0  | Unsupported Vers:  4561
+ Invalid length:     0  | Malformed:         0  | Mem alloc fails:      0
+ Missing TLVs:       0  | Cache overflow:    0  | Other errors:         0
+
+TRANSMIT
+ Packets:         4557  | Xmit fails:        0  | No hostname:          0
+ Packet truncated:   0  | Mem alloc fails:   0  | Other errors:         0
+
+OTHER
+ Init failures:      0
+....
+次のコマンドは、 CDP 統計情報を消去します。
+
+....
+run -node node1 cdpd zero-stats
+....
+....
+run -node node1 cdpd show-stats
+
+RECEIVE
+ Packets:            0  | Csum Errors:       0  | Unsupported Vers:     0
+ Invalid length:     0  | Malformed:         0  | Mem alloc fails:      0
+ Missing TLVs:       0  | Cache overflow:    0  | Other errors:         0
+
+TRANSMIT
+ Packets:            0  | Xmit fails:        0  | No hostname:          0
+ Packet truncated:   0  | Mem alloc fails:   0  | Other errors:         0
+
+OTHER
+ Init failures:      0
+....
+統計を消去すると、次回 CDP 通知を送信または受信したあとに統計が累積され始めます。
+
+
+
+== LLDP を使用してネットワーク接続を検出します
+
+LLDP を使用してネットワーク接続を検出するには、導入時の考慮事項を確認し、すべてのポートで LLDP を有効にし、隣接デバイスを表示し、必要に応じて LLDP の設定値を調整します。
+
+隣接デバイスに関する情報を表示するには、スイッチとルータでも LLDP を有効にする必要があります。
+
+ONTAP は現在、次の Type-Length-Value 構造（ TLV ）を報告します。
+
+* シャーシ ID
+* ポート ID
+* Time-To-Live （ TTL ）
+* システム名
++
+システム名 TLV は、 CNA デバイスでは送信されません。
+
+
+
+X1143 アダプタや UTA2 オンボードポートなどの特定の統合ネットワークアダプタ（ CNA ）には LLDP のオフロードサポートが含まれています。
+
+* LLDP のオフロードは、 Data Center Bridging （ DCB ）に使用されます。
+* 表示される情報がクラスタとスイッチで異なる場合があります。
++
+たとえば、 CNA ポートと CNA 以外のポートについてスイッチで表示されるシャーシ ID とポート ID のデータが異なっていて、これらのポートについてクラスタで表示されるデータは一貫している可能性があります。
+
+
+
+
+NOTE: LLDP の仕様では、 SNMP MIB による収集情報へのアクセスを定義します。ただし、現時点では、 ONTAP は LLDP MIB をサポートしていません。
+
+
+
+=== LLDP を有効または無効にします
+
+LLDP 対応の隣接デバイスを検出して通知を送信するには、クラスタの各ノードで LLDP が有効になっている必要があります。ONTAP 9.7 以降では、 LLDP がノードのすべてのポートでデフォルトで有効になっています。
+
+「 ll dp.enable 」オプションは、ノードのポートで LLDP をイネーブルにするかディセーブルにするかを制御します。
+
+* on ’は、すべてのポートで LLDP をイネーブルにします。
+* 「 off 」にすると、すべてのポートで LLDP が無効になります。
+
+
+.手順
+. クラスタ内の 1 つまたはすべてのノードの、現在の LLDP 設定を表示します。
++
+** シングルノード： 'run-node node_name options lldp.enable
+** すべてのノード： options `ll dp.enable`
+
+
+. クラスタ内の 1 つまたはすべてのノードで、すべてのポートの LLDP を有効または無効に設定します。
++
+|===
+| LLDP を有効または無効にする対象 | 入力するコマンド 
+
+
+| ノード  a| 
+「 run -node node_name options lldp.enable ｛ on | off ｝ 」のように指定します
+
+
+
+| クラスタ内のすべてのノード  a| 
+options lldp.enable { on | off }
+
+|===
++
+** シングルノード
++
+....
+run -node node_name options lldp.enable {on|off}
+....
+** すべてのノード：
++
+....
+options lldp.enable {on|off}
+....
+
+
+
+
+
+
+=== LLDP ネイバー情報を表示します
+
+クラスタのノードのポートに LLDP 対応デバイスが接続されている場合は、そのポートの隣接デバイスの情報を表示することができます。ネイバー情報を表示するには、 network device-discovery show コマンドを使用します。
+
+クラスタ内のノードのポートに接続されているすべての LLDP 対応デバイスの情報を表示します。
+
+....
+network device-discovery show -node node -protocol lldp
+....
+次のコマンドは、ノード cluster-1_01 のポートに接続されている隣接デバイスの情報を表示します。この出力には、指定したノードの各ポートに接続されている LLDP 対応デバイスが一覧表示されます。-protocol' オプションを省略した場合 ' 出力には CDP 対応デバイスも表示されます
+
+....
+network device-discovery show -node cluster-1_01 -protocol lldp
+Node/       Local  Discovered
+Protocol    Port   Device                    Interface         Platform
+----------- ------ ------------------------- ----------------  ----------------
+cluster-1_01/lldp
+            e2a    0013.c31e.5c60            GigabitEthernet1/36
+            e2b    0013.c31e.5c60            GigabitEthernet1/35
+            e2c    0013.c31e.5c60            GigabitEthernet1/34
+            e2d    0013.c31e.5c60            GigabitEthernet1/33
+....
+
+
+=== LLDP 通知の送信間隔を調整します
+
+LLDP 通知は、一定の間隔で LLDP 隣接機器に送信されます。ネットワークトラフィックの量やネットワークトポロジの変化に応じて、 LLDP 通知の送信間隔を調整することができます。
+
+IEEE が推奨するデフォルトの送信間隔は 30 秒ですが、 5~300 秒の値を入力できます。
+
+.手順
+. クラスタ内の 1 つまたはすべてのノードについて、 LLDP 通知の現在の送信間隔を表示します。
++
+** シングルノード
++
+....
+run -node <node_name> options lldp.xmit.interval
+....
+** すべてのノード：
++
+....
+options lldp.xmit.interval
+....
+
+
+. クラスタ内の 1 つまたはすべてのノードで、すべてのポートの LLDP 通知の送信間隔を調整します。
++
+** シングルノード
++
+....
+run -node <node_name> options lldp.xmit.interval <interval>
+....
+** すべてのノード：
++
+....
+options lldp.xmit.interval <interval>
+....
+
+
+
+
+
+
+=== LLDP 通知の TTL 値を調整します
+
+Time-To-Live （ TTL ）とは、 LLDP 通知が LLDP 対応の隣接デバイスのキャッシュに格納される時間です。TTL は各 LLDP パケットで通知され、ノードが LLDP パケットを受信するたびに更新されます。発信 LLDP フレームで TTL を変更できます。
+
+.このタスクについて
+* TTL は計算値であり、送信間隔 (ll dp.xmit.interval` ) と保持乗数 (ll DP.xmit.hold `) の積に 1 を加算した値です。
+* デフォルトの保持の乗数値は 4 ですが、 1~100 の値を入力できます。
+* IEEE が推奨するデフォルトの TTL は 121 秒ですが、送信間隔と保持の乗数の値を調整することにより、発信フレームの値を 6~30001 秒に指定できます。
+* TTL が期限切れになる前に IP アドレスが削除された場合、 LLDP 情報は TTL が期限切れになるまでキャッシュされます。
+
+
+.手順
+. クラスタ内の 1 つまたはすべてのノードの現在の保持の乗数値を表示します。
++
+** シングルノード
++
+....
+run -node <node_name> options lldp.xmit.hold
+....
+** すべてのノード：
++
+....
+options lldp.xmit.hold
+....
+
+
+. クラスタ内の 1 つまたはすべてのノードで、すべてのポートの保持の乗数値を調整します。
++
+** シングルノード
++
+....
+run -node <node_name> options lldp.xmit.hold <hold_value>
+....
+** すべてのノード：
++
+....
+options lldp.xmit.hold <hold_value>
+....
+
+
+

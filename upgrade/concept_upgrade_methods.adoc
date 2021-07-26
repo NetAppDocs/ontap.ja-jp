@@ -1,0 +1,101 @@
+---
+permalink: upgrade/concept_upgrade_methods.html 
+sidebar: sidebar 
+keywords: upgrade, methods, andu, ndu, automated, automatic, system manager, cli, nondisruptive, disruptive 
+summary: アップグレード方法は構成によって異なります。可能な場合は、 System Manager を使用した自動無停止アップグレード（ ANDU ）を推奨します。 
+---
+= どのアップグレード方式を使用する必要がありますか？
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+アップグレード方法は構成によって異なります。可能な場合は、 System Manager を使用した自動無停止アップグレード（ ANDU ）を推奨します。
+
+* * 無停止アップグレード * ：無停止アップグレードでは、クライアントへのサービスを維持したまま、更新手順がバックグラウンドで実行されます。無停止アップグレードは、自動または手動で実行できます。
++
+** * 自動無停止アップグレード（ ANDU ） * は、 System Manager または ONTAP コマンドラインインターフェイス（ CLI ）を使用して実行できます。お使いの構成で利用できる場合は、 System Manager を使用した ANDU のアップグレードが推奨されます。NDU では、 ONTAP によってターゲット ONTAP イメージが各ノードに自動的にインストールされ、クラスタの無停止アップグレードが可能なことを確認するためにクラスタコンポーネントが検証されてから、アップグレードがバックグラウンドで実行されます。
+** * 無停止アップグレードでは、各ノードの ONTAP 設定を手動で確認してから、ローリング更新方法でアップグレードを実行します。ローリング更新方式では、ノードを 1 つずつオフラインにしてアップグレードし、その間そのノードのストレージをパートナーにフェイルオーバーします。ノードのアップグレードが完了したら、パートナーノードから元の所有者ノードに制御を戻し、今度はパートナーノードで同じ処理を行います。HA ペアのそれぞれについて、すべての HA ペアがターゲットリリースに切り替わるまで順番にアップグレードを行います。手動の無停止アップグレードは、 ONTAP CLI を使用して実行します。
+
+
+* * 停止を伴うアップグレードでは、各 HA ペアのストレージフェイルオーバーを無効にしてから、各ノードが 1 つずつリブートされます。停止を伴うアップグレードは、無停止アップグレードよりも短時間で実行でき、完了までの手順も少なくなります。ただし、停止を伴うアップグレードを実行するには、アップグレード中にクラスタをオフラインにする必要があります。SAN 環境を使用している場合は、停止を伴うアップグレードを実行する前に、すべての SAN クライアントをシャットダウンまたは一時停止できるように準備しておく必要があります。停止を伴うアップグレードは、 ONTAP CLI を使用して実行します。
+
+
+手動方式は、構成で ANDU がサポートされていない場合にのみ使用してください。
+
+
+
+== Non-MCC 構成
+
+各構成で使用可能なアップグレード方式は、推奨される使用方法の順に記載されています。
+
+[cols="3*"]
+|===
+| ONTAP バージョン | ノードの数 | アップグレード方法 
+
+
+| 9.0 以降 | 2 、 4 、 8  a| 
+* xref:task_upgrade_andu_sm.html[System Manager を使用した自動無停止アップグレード]
+* xref:task_upgrade_andu_cli.html[CLI を使用した自動無停止アップグレード]
+* xref:task_upgrade_nondisruptive_manual_cli.html[CLI を使用した手動による無停止（移動方式）]
+* xref:task_updating_an_ontap_cluster_disruptively.html[CLI を使用して手動でシステムを停止]
+
+
+
+
+| 9.0 以降 | 12.  a| 
+* xref:task_upgrade_andu_cli.html[CLI を使用した自動無停止アップグレード]
+* xref:task_upgrade_nondisruptive_manual_cli.html[CLI を使用した手動による無停止（移動方式）]
+* xref:task_updating_an_ontap_cluster_disruptively.html[CLI を使用して手動でシステムを停止]
+
+
+
+
+| 9.2 以降 | シングルノード | xref:task_upgrade_disruptive_automated_cli.html[CLI を使用した自動停止] 
+|===
+
+
+== MCC 構成
+
+各構成で使用可能なアップグレード方式は、推奨される使用方法の順に記載されています。
+
+[cols="3*"]
+|===
+| ONTAP バージョン | ノードの数 | アップグレード方法 
+
+
+| 9.3 以降 | 2/4  a| 
+* xref:task_upgrade_andu_sm.html[System Manager を使用した自動無停止アップグレード]
+* xref:task_upgrade_andu_cli.html[CLI を使用した自動無停止アップグレード]
+* xref:task_updating_an_ontap_cluster_disruptively.html[CLI を使用して手動でシステムを停止]
+
+
+
+
+| 9.3 以降 | 8.  a| 
+* xref:task_upgrade_andu_cli.html[CLI を使用した自動無停止アップグレード]
+* xref:task_updating_a_four_or_eight_node_mcc.html[CLI を使用して手動で無停止]
+* xref:task_updating_an_ontap_cluster_disruptively.html[CLI を使用して手動でシステムを停止]
+
+
+
+
+| 9.2 以前 | 2.  a| 
+* xref:task_updating_a_two_node_metrocluster_configuration_in_ontap_9_2_and_earlier.html[CLI を使用して手動で無停止（ 2 ノードクラスタの場合]
+* xref:task_updating_an_ontap_cluster_disruptively.html[CLI を使用して手動でシステムを停止]
+
+
+
+
+| 9.2 以前 | 4/8  a| 
+* xref:task_updating_a_four_or_eight_node_mcc.html[CLI を使用して手動で無停止]
+* xref:task_updating_an_ontap_cluster_disruptively.html[CLI を使用して手動でシステムを停止]
+
+
+
+
+| 9.0 以降 | 4 、 8 （パッチのみ） | xref:task_upgrade_andu_sm.html[System Manager を使用した自動無停止アップグレード] 
+
+
+| 9.2 以前 | 2 、 4 、 8 （パッチのみ） | xref:task_upgrade_andu_sm.html[System Manager を使用した自動無停止アップグレード] 
+|===

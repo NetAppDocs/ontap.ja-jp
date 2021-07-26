@@ -1,0 +1,104 @@
+---
+sidebar: sidebar 
+permalink: networking/display_lif_information.html 
+keywords: display, view, show, lif, logical, interface, display lif information, view detailed information about a lif to determine its configuration 
+summary: LIF に関する詳細情報を表示して、その設定を確認します 
+---
+= LIF 情報を表示します
+:hardbreaks:
+:nofooter: 
+:icons: font
+:linkattrs: 
+:imagesdir: ./media/
+
+
+[role="lead"]
+LIF に関する詳細情報を表示して、その設定を確認できます。
+
+この情報は、 IP アドレスが重複していないか、ネットワークポートが正しいサブネットに属しているかなど、 LIF の基本的な問題を診断するのに便利です。Storage Virtual Machine （ SVM ）管理者は、 SVM に関連付けられている LIF の情報だけを表示できます。
+
+次の情報が表示されます。
+
+* LIF に関連付けられている IP アドレス
+* LIF の管理ステータス
+* LIF の動作ステータス
++
+データ LIF の動作ステータスは、そのデータ LIF が関連付けられている SVM のステータスによって決まります。SVM が停止すると、 LIF の動作ステータスが down に変わります。SVM が再び起動すると、動作ステータスは up に変わります
+
+* LIF が配置されているノードとポート
+
+
+フィールドのデータが利用できない場合 ( ステータスの詳細情報がない場合など ) 、フィールドの値は「 - 」と表示されます。
+
+network interface show コマンドを使用して、 LIF の情報を表示します。
+
+各 LIF の詳しい情報を表示するには、 -instance パラメータを指定します。特定の情報を表示するには、 -fields パラメータを使用してフィールド名を指定します。
+
+次のコマンドは、クラスタ内のすべての LIF に関する一般的な情報を表示します。
+
+....
+network interface show
+           Logical    Status     Network          Current      Current Is
+Vserver    Interface  Admin/Oper Address/Mask     Node         Port    Home
+---------- ---------- ---------- ---------------- ------------ ------- ----
+example
+           lif1         up/up    192.0.2.129/22   node-01
+                                                               e0d     false
+node
+           cluster_mgmt up/up    192.0.2.3/20     node-02
+                                                               e0c     false
+node-01
+           clus1        up/up    192.0.2.65/18    node-01
+                                                               e0a     true
+           clus2        up/up    192.0.2.66/18    node-01
+                                                               e0b     true
+           mgmt1        up/up    192.0.2.1/20     node-01
+                                                               e0c     true
+node-02
+           clus1        up/up    192.0.2.67/18    node-02
+                                                               e0a     true
+           clus2        up/up    192.0.2.68/18    node-02
+                                                               e0b     true
+           mgmt2        up/up    192.0.2.2/20     node-02
+                                                               e0d     true
+vs1
+           d1           up/up    192.0.2.130/21   node-01
+                                                               e0d     false
+           d2           up/up    192.0.2.131/21   node-01
+                                                               e0d     true
+           data3        up/up    192.0.2.132/20   node-02
+                                                               e0c     true
+....
+次のコマンドは、 1 つの LIF に関する詳細情報を表示します。
+
+....
+network interface show -lif data1 -instance
+
+                    Vserver Name: vs1
+          Logical Interface Name: data1
+                            Role: data
+                   Data Protocol: nfs,cifs
+                       Home Node: node-01
+                       Home Port: e0c
+                    Current Node: node-03
+                    Current Port: e0c
+              Operational Status: up
+                 Extended Status: -
+                         Is Home: false
+                 Network Address: 192.0.2.128
+                         Netmask: 255.255.192.0
+             Bits in the Netmask: 18
+                 IPv4 Link Local: -
+                     Subnet Name: -
+           Administrative Status: up
+                 Failover Policy: local-only
+                 Firewall Policy: data
+                     Auto Revert: false
+   Fully Qualified DNS Zone Name: xxx.example.com
+         DNS Query Listen Enable: false
+             Failover Group Name: Default
+                        FCP WWPN: -
+                  Address family: ipv4
+                         Comment: -
+                  IPspace of LIF: Default
+....

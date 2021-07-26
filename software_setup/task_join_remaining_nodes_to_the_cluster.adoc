@@ -1,0 +1,60 @@
+---
+permalink: software_setup/task_join_remaining_nodes_to_the_cluster.html 
+sidebar: sidebar 
+keywords: ontap, software, setup, join, remaining, nodes, cluster, HA, high availability, autosupport 
+summary: 新しいクラスタの作成が完了したら、クラスタセットアップウィザードを使用して、残りの各ノードを一度に 1 つずつクラスタに追加します。このウィザードを使用して、各ノードのノード管理インターフェイスを設定できます。 
+---
+= 残りのノードをクラスタに追加
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+新しいクラスタの作成が完了したら、クラスタセットアップウィザードを使用して、残りの各ノードを一度に 1 つずつクラスタに追加します。このウィザードを使用して、各ノードのノード管理インターフェイスを設定できます。
+
+クラスタ内の 2 つのノードを追加すると、ハイアベイラビリティ（ HA ）ペアが作成されます。4 つのノードを追加する場合は、 2 つの HA ペアを作成します。HA の詳細については、を参照してください link:https://docs.netapp.com/us-en/ontap/high-availability/index.html["HA の詳細をご確認ください"]。
+
+クラスタに一度に追加できるノードは 1 つだけです。クラスタへのノードの追加を開始したら、そのノードの追加処理を完了する必要があります。また、そのノードがクラスタに参加するまでは、次のノードの追加を開始することはできません。
+
+* ベストプラクティス： 24 本以下の NL-SAS ドライブで FAS2720 を使用している場合は、ストレージ構成のデフォルトがアクティブ / パッシブに設定されていることを確認し、パフォーマンスを最適化してください。詳細については、を参照してください link:https://docs.netapp.com/ontap-9/topic/com.netapp.doc.dot-cm-psmg/GUID-4AC35094-4077-4F1E-8D6E-82BF111354B0.html?cp=4_5_5_11["ルート / データパーティショニングを使用しているノードでアクティブ / パッシブ構成を設定"]
+
+. クラスタに追加するノードにログインします。
++
+コンソール上でクラスタセットアップウィザードが起動します。
+
++
+[listing]
+----
+Welcome to the cluster setup wizard....
+----
+. AutoSupport 文を承認します。
++
+
+NOTE: AutoSupport はデフォルトでは有効になっています。
+
++
+[listing]
+----
+Type yes to confirm and continue {yes}: yes
+----
+. 画面の指示に従ってノードに IP アドレスを割り当てます。
+. ノードをクラスタに参加させます :join
+. 画面の指示に従ってノードをセットアップし、クラスタに追加します。
+. セットアップが完了したら ' ノードが正常であり ' クラスタに参加するための条件を満たしていることを確認します cluster show
++
+次の例は、 2 つ目のノード（ cluster1-02 ）をクラスタに追加したあとのクラスタを示しています。
+
++
+[listing]
+----
+cluster1::> cluster show
+Node                  Health  Eligibility
+--------------------- ------- ------------
+cluster1-01           true    true
+cluster1-02           true    true
+----
++
+cluster setup コマンドを使用すると、クラスタセットアップウィザードにアクセスして、管理 SVM またはノード SVM に対して入力した値を変更できます。
+
+. 残りのノードそれぞれについて、同じ手順を繰り返します。
+

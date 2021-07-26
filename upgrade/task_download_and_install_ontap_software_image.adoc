@@ -1,0 +1,160 @@
+---
+permalink: upgrade/task_download_and_install_ontap_software_image.html 
+sidebar: sidebar 
+keywords: ontap, software, image, download, downloading, install, installing 
+summary: ONTAP ソフトウェアをダウンロードしてからインストールする必要があります。 
+---
+= ONTAP ソフトウェアイメージをダウンロードしてインストールします
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+最初にネットアップサポートサイトから ONTAP ソフトウェアをダウンロードして、インストールしておく必要があります。
+
+
+
+== ソフトウェアイメージをダウンロードします
+
+ONTAP 9.4 以降では、 ONTAP ソフトウェアイメージをネットアップサポートサイトからローカルフォルダにコピーできます。ONTAP 9.3 以前からのアップグレードの場合は、 ONTAP ソフトウェアイメージをネットワーク上の HTTP サーバまたは FTP サーバにコピーする必要があります。
+
+次の重要な情報に注意してください。
+
+* ソフトウェアイメージはプラットフォームモデルに固有です。
++
+ご使用のクラスタに対応するイメージを取得してください。ソフトウェアイメージ、ファームウェアのバージョン情報、プラットフォームモデルの最新のファームウェアは、ネットアップサポートサイトで入手できます。
+
+* ソフトウェアイメージには、 ONTAP の特定のバージョンのリリース時点でのシステムファームウェアの最新バージョンが含まれています。
+* NetApp Volume Encryption を搭載したシステムを ONTAP 9.5 以降にアップグレードする場合は、 NetApp Volume Encryption を含む制限のない国の ONTAP ソフトウェアイメージをダウンロードする必要があります。
++
+規制対象国用の ONTAP ソフトウェアイメージを使用して NetApp Volume Encryption を搭載したシステムをアップグレードすると、システムがパニック状態になり、ボリュームへのアクセスが失われます。
+
+* ONTAP 9.5 から 9.6.1 にアップグレードする場合は、 ONTAP 9.7 および 9.6.1 のソフトウェアイメージをコピーする必要があります。
+* ONTAP 9.3 から 9.7 にアップグレードする場合は、 ONTAP 9.5 および 9.7 のソフトウェアイメージをコピーする必要があります。
++
+.. で、対象となる ONTAP ソフトウェアを見つけます link:http://mysupport.netapp.com/NOW/cgi-bin/software["ソフトウェアのダウンロード"] ネットアップサポートサイトの領域。
+.. ソフトウェアイメージをコピーします。
++
+*** ONTAP 9.3 以前の場合は、ネットアップサポートサイトから、イメージを提供する HTTP サーバまたは FTP サーバ上のディレクトリにソフトウェアイメージ（ 93_q_image.tgz など）をコピーします。
+*** ONTAP 9.4 以降の場合は、ネットアップサポートサイトから、イメージを提供する HTTP サーバまたは FTP サーバ上のディレクトリかローカルフォルダにソフトウェアイメージ（ 97_q_image.tgz など）をコピーします。
+
+
+
+
+
+
+
+
+== ソフトウェアイメージをインストールします
+
+ターゲットのソフトウェアイメージをクラスタのノードにインストールする必要があります。
+
+* NetApp Volume Encryption を搭載したシステムを ONTAP 9.5 以降にアップグレードする場合は、 NetApp Volume Encryption を含む制限のない国の ONTAP ソフトウェアイメージをダウンロードしておく必要があります。
++
+規制対象国用の ONTAP ソフトウェアイメージを使用して NetApp Volume Encryption を搭載したシステムをアップグレードすると、システムがパニック状態になり、ボリュームへのアクセスが失われます。
+
+* ONTAP 9.5 から 9.6.1 に直接アップグレードする場合は、 ONTAP 9.7 および 9.6.1 のソフトウェアイメージをダウンロードする必要があります。ONTAP 9.3 から 9.7 に直接アップグレードする場合は、 ONTAP 9.5 および 9.7 のソフトウェアイメージをダウンロードする必要があります。
++
+自動アップグレードプロセスでは、両方のイメージがバックグラウンドで使用されてアップグレードが完了します。
+
++
+.. 権限レベルを advanced に設定します。続行するかどうかを尋ねられたら、「 * y * 」と入力します。「 set -privilege advanced 」
++
+詳細プロンプト (`*>') が表示されます
+
+
+
+
+
+
+
+=== 自動無停止アップグレード（ ANDU ）
+
+. イメージリポジトリをチェックし、以前のイメージを削除してください。
++
+cluster image package show-repository
+
++
+[listing]
+----
+cluster image package show-repository\
+<<smoke6-vsim-ucs6b4c#c-login_27|There are no packages in the repository.\r\n
+----
+. イメージをダウンロードします。
++
+'cluster image package get -url url-to-image_on_nssN
+
++
+'cluster image package get-url http://10.60.132.98/x/eng/rlse/DOT/9.7P13X2/promo/9.7P13X2/x86_64.optimize/image.tgz`[]
+
+. パッケージがダウンロードされていることを確認します。
++
+cluster image package show-repository
+
++
+.例
+[listing]
+----
+cluster image package show-repository -fields download-ver\
+<<smoke6-vsim-ucs6b4c#c-login_27| download-verX;X\r\n
+<<smoke6-vsim-ucs6b4c#c-login_27| Downloaded VersionX;X\r\n
+<<smoke6-vsim-ucs6b4c#c-login_27| Stormking__9.10.0X;X\r\n
+----
+
+
+
+
+=== 手動アップグレードの場合
+
+. イメージをダウンロードします。
++
+.. MetroCluster 以外の構成または 2 ノード MetroCluster 構成をアップグレードする場合は、次のコマンドを使用してイメージをダウンロードします。
++
+「 system node image update -node * -package location -replace-package true -setdefault true -background true 」を指定します
+
++
+
+NOTE: このコマンドを実行すると、ソフトウェアイメージがすべてのノードに同時にダウンロードされてインストールされます。一度に 1 つずつ各ノードにイメージをダウンロードしてインストールする場合は、 -background パラメータを指定せずに実行します。
+
+.. 4 ノードまたは 8 ノードの MetroCluster 構成をアップグレードする場合は、両方のクラスタで次のコマンドを問題処理する必要があります。
++
+「 system node image update -node * -package location -replace-package true -background true -setdefault false 」を指定します
+
++
+このコマンドでは、拡張クエリを使用して、各ノードに代替イメージとしてインストールされるターゲットソフトウェアイメージを変更します。
+
+
+
+. プロンプトが表示されたら 'y' を入力して続行します
+. ソフトウェアイメージが各ノードにダウンロードおよびインストールされたことを確認します。
++
+「 system node image show-update-progress -node * 」という 2 つのモードが表示されます
+
++
+このコマンドは、ソフトウェアイメージのダウンロードとインストールの現在のステータスを表示します。すべてのノードの Run Status * が Exited * になり、 * Exit Status * が * Success * になるまで、このコマンドを繰り返し実行します。
+
++
+system node image update コマンドが失敗して、エラーまたは警告メッセージが表示されることがあります。エラーまたは警告を解決したら、もう一度コマンドを実行できます。
+
++
+次の例では、 2 ノードクラスタの両方のノードでソフトウェアイメージのダウンロードとインストールが正常に完了しています。
+
++
+[listing]
+----
+cluster1::*> system node image show-update-progress -node *
+There is no update/install in progress
+Status of most recent operation:
+        Run Status:     Exited
+        Exit Status:    Success
+        Phase:          Run Script
+        Exit Message:   After a clean shutdown, image2 will be set as the default boot image on node0.
+There is no update/install in progress
+Status of most recent operation:
+        Run Status:     Exited
+        Exit Status:    Success
+        Phase:          Run Script
+        Exit Message:   After a clean shutdown, image2 will be set as the default boot image on node1.
+2 entries were acted on.
+----
+

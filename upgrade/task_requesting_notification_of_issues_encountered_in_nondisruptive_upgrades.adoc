@@ -1,0 +1,59 @@
+---
+permalink: upgrade/task_requesting_notification_of_issues_encountered_in_nondisruptive_upgrades.html 
+sidebar: sidebar 
+keywords: ontap, upgrade, requesting, notification, issues, encountered, ndu, andu, nondisruptive, upgrades 
+summary: アップグレードプロセスの進捗状況を監視する予定がない場合は、手動での対応が必要となる可能性があるエラーの EMS 通知を要求することを推奨します。または、社内のサポート部門に送信する AutoSupport メッセージを設定することもできます。 
+---
+= 無停止アップグレードで発生した問題の通知を要求する
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+アップグレードプロセスの進捗状況を監視する予定がない場合は、手動での対応が必要となる可能性があるエラーの EMS 通知を要求することを推奨します。または、社内のサポート部門に送信する AutoSupport メッセージを設定することもできます。
+
+このタスクを実行するには、クラスタ管理者である必要があります。
+
+アップグレードプロセスで問題が発生した場合に通知が送信されるように設定しておくと便利です。特に、 callhome.andu.pausederr メッセージには役に立つトラブルシューティング情報が含まれています。
+
+AutoSupport の noteto パラメータが E メールアドレスを使用して設定されている場合は、 ONTAP 9 または 9.1 へのアップグレード時に、それらのアドレスが EMS 通知の送信先に自動的にコピーされます。important-events フィルタをこれらのアドレスにマッピングする新しい EMS 通知も作成されます。その結果、 AutoSupport の noteto パラメータから E メールアドレスを削除するまで、各 callhome イベントについて 2 つの E メール通知の受信が開始されます。また、元々設定されていたその他の重要なイベントに関する E メール通知も受信します。
+
+
+NOTE: AutoSupport メッセージを送信するようにクラスタが設定されていない場合は、通知のコピーがローカルに保存されます。
+
+. 無停止アップグレードで発生した問題の通知を要求します。
++
+https://docs.netapp.com/ontap-9/topic/com.netapp.doc.exp-ems/home.html["EMS の簡単な設定"]
+
+. このクラスタで AutoSupport が有効になっている場合は、無停止アップグレードを開始する前に、 AutoSupport メッセージを呼び出してケースの自動作成を停止します。このクラスタで AutoSupport が有効になっていない場合は、この手順を無視します。「 system node AutoSupport invoke -node * -type all -message MAINT= xh
++
+x は、メンテナンス時間の長さ（時間単位）です。
+
++
+
+NOTE: メッセージはテクニカルサポートにこのメンテナンスタスクについて通知し、メンテナンス時間中はケースの自動作成が停止されます。
+
++
+次のコマンドは、ケースの自動作成を 2 時間停止します。
+
++
+[listing]
+----
+cluster::*> system node autosupport invoke -node * -type all -message MAINT=2h
+----
+. 無停止アップグレードの完了後、 AutoSupport メッセージ「 system node AutoSupport invoke -node * -type all -message MAINT=END 」を呼び出して、ケースの自動作成を再度有効にします
++
+次のコマンドは、ケースの自動作成を再度有効にします
+
++
+[listing]
+----
+cluster::*> system node autosupport invoke -node * -type all -message MAINT=END
+----
+
+
+* 関連情報 *
+
+http://docs.netapp.com/ontap-9/topic/com.netapp.doc.dot-cm-cmpr/GUID-5CB10C70-AC11-41C0-8C16-B4D0DF916E9B.html["ONTAP 9 のコマンド"]
+
+https://docs.netapp.com/ontap-9/topic/com.netapp.doc.exp-ems/home.html["EMS の簡単な設定"]

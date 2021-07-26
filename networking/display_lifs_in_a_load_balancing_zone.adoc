@@ -1,0 +1,85 @@
+---
+sidebar: sidebar 
+permalink: networking/display_lifs_in_a_load_balancing_zone.html 
+keywords: display, view, show, lif, logical, interface, load, balancing, zone, balance, performance, display lifs in a load balancing zone, verify whether a load balancing zone is configured correctly by displaying all of the lifs that belong to it, examples of displaying load balancing zones for lifs 
+summary: ロードバランシングゾーンに属するすべての LIF を表示して、そのゾーンが正しく設定されているかどうかを確認します 
+---
+= ロードバランシングゾーンの LIF を表示します
+:hardbreaks:
+:nofooter: 
+:icons: font
+:linkattrs: 
+:imagesdir: ./media/
+
+
+[role="lead"]
+ロードバランシングゾーンに属するすべての LIF を表示して、そのゾーンが正しく設定されているかどうかを確認できます。特定の LIF 、またはすべての LIF のロードバランシングゾーンを表示することもできます。
+
+次のいずれかのコマンドを使用して、 LIF とロードバランシングの詳細を表示します
+
+[cols="2*"]
+|===
+| 表示する内容 | 入力するコマンド 
+
+
+ a| 
+特定のロードバランシングゾーンに属する LIF
+ a| 
+network interface show -dns-zone zone_name zone_name には、ロードバランシングゾーンの名前を指定します
+
+
+
+ a| 
+特定の LIF のロードバランシングゾーン
+ a| 
+network interface show -lif lif_name -fields dns-zone
+
+
+
+ a| 
+すべての LIF のロードバランシングゾーン
+ a| 
+network interface show -fields dns-zone
+
+|===
+
+
+== LIF のロードバランシングゾーンを表示する例
+
+次のコマンドは、 SVM vs0 の storage.company.com というロードバランシングゾーンに属するすべての LIF の詳細を表示します。
+
+....
+net int show -vserver vs0 -dns-zone storage.company.com
+
+         Logical    Status     Network           Current   Current Is
+Vserver  Interface  Admin/Oper Address/Mask      Node      Port    Home
+-------- ---------- ---------- ----------------- --------- ------- ----
+vs0
+         lif3         up/up    10.98.226.225/20  ndeux-11  e0c     true
+         lif4         up/up    10.98.224.23/20   ndeux-21  e0c     true
+         lif5         up/up    10.98.239.65/20   ndeux-11  e0c     true
+         lif6         up/up    10.98.239.66/20   ndeux-11  e0c     true
+         lif7         up/up    10.98.239.63/20   ndeux-21  e0c     true
+         lif8         up/up    10.98.239.64/20   ndeux-21  e0c     true
+....
+次のコマンドは、 data3 という LIF の DNS ゾーンの詳細を表示します。
+
+....
+network interface show -lif data3 -fields dns-zone
+Vserver  lif    dns-zone
+-------  -----  --------
+vs0      data3  storage.company.com
+....
+次のコマンドは、クラスタ内のすべての LIF 、および対応する DNS ゾーンを表示します。
+
+....
+network interface show -fields dns-zone
+Vserver   lif          dns-zone
+-------   ------------ --------
+cluster   cluster_mgmt none
+ndeux-21  clus1        none
+ndeux-21  clus2        none
+ndeux-21  mgmt1        none
+vs0       data1        storage.company.com
+vs0       data2        storage.company.com
+....

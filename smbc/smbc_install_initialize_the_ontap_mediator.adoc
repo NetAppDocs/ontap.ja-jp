@@ -1,0 +1,49 @@
+---
+sidebar: sidebar 
+permalink: smbc/smbc_install_initialize_the_ontap_mediator.html 
+keywords: SM-BC, SMBC, Mediator, initialize, ONTAP 
+summary: SM-BC で計画的および自動計画外フェイルオーバー処理を実行するには、いずれかのクラスタピアでメディエーターを初期化する必要があります。 
+---
+= ONTAP メディエーターを初期化します
+:hardbreaks:
+:nofooter: 
+:icons: font
+:linkattrs: 
+:imagesdir: ../media/
+
+
+[role="lead"]
+SM-BC で計画的および自動計画外フェイルオーバー処理を実行するには、いずれかのクラスタピアでメディエーターを初期化する必要があります。
+
+メディエーターはどちらのクラスタからも初期化できます。1 つのクラスタに「 mediator add 」コマンドを問題すると、メディエーターはもう一方のクラスタに自動的に追加されます。
+
+.手順
+. いずれかのクラスタでメディエーターを初期化します。
++
+'napmirror mediator-address IP_address IP_address IP_address -peer-cluster cluster_name -username user_name
+
++
+* 例 *
+
++
+....
+cluster1::> snapmirror mediator add -mediator-address 192.168.10.1 -peer-cluster cluster2 -username mediatoradmin
+Notice: Enter the mediator password.
+
+Enter the password: ******
+Enter the password again: ******
+....
+. メディエーター設定のステータスを確認します。
++
+「 napmirror mediator show 」のように表示されます
+
++
+....
+Mediator Address Peer Cluster     Connection Status Quorum Status
+---------------- ---------------- ----------------- -------------
+192.168.10.1     cluster-2        connected         true
+....
++
+「 -quorum -status 」は、 SnapMirror 整合グループの関係がメディエーターと同期されているかどうかを示します。
+
+

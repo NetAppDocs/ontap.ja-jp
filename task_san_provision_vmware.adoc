@@ -1,0 +1,92 @@
+---
+sidebar: sidebar 
+permalink: task_san_provision_vmware.html 
+keywords: netapp, ontap, SAN, provisioning, provision, vmware, datastore, add lun, create, fc, iscsi, zone switches, storage, esxi host, Virtual Storage Console (VSC), vmware, vsphere 
+summary: FC または iSCSI SAN プロトコルを使用して ESXi ホストにストレージを提供するための LUN を作成します。LUN は、 ESXi ホストではディスクとして表示されます。 
+---
+= VMware データストア用の SAN ストレージをプロビジョニングする
+:toc: macro
+:hardbreaks:
+:toclevels: 1
+:toc: 
+:toclevels: 1
+:nofooter: 
+:icons: font
+:linkattrs: 
+:imagesdir: ./media/
+:toc-position: content
+
+
+[role="lead"]
+FC または iSCSI SAN プロトコルを使用して ESXi ホストにストレージを提供するための LUN を作成します。LUN は、 ESXi ホストではディスクとして表示されます。
+
+この手順は、既存の Storage VM に新しい LUN を作成します。FC プロトコルまたは iSCSI プロトコルのセットアップが完了している必要があります。
+
+image:workflow_san_provision_vmware.gif["VMware 用の SAN をプロビジョニングするワークフローの図"]
+
+
+NOTE: ONTAP 9.8 以降では、ストレージをプロビジョニングすると QoS がデフォルトで有効になります。QoS を無効にするか、プロビジョニングプロセス中またはあとからカスタムの QoS ポリシーを選択できます。
+
+.手順
+. ONTAP システムマネージャで、 * ストレージ > LUN* をクリックし、 * 追加をクリックします。
++
+.. LUN の作成に必要な情報を入力します。
+.. ONTAP のバージョンに応じて、「 * その他のオプション * 」をクリックして次の操作を行うことができます。
++
+[cols="2"]
+|===
+| オプション | 使用可能な場所 
+
+
+ a| 
+既存の igroup を使用して新しいイニシエータグループを作成します
+
+*** * 「その他のオプション」 > 「ホスト情報」 *
+*** 既存のイニシエータグループを使用して新しいイニシエータグループを選択します * 。
++
+* 注：他の igroup を含む igroup の OS タイプは、作成後に変更することはできません。
+
+
+| ONTAP 9.9.1 
+
+
+ a| 
+概要を igroup またはホストイニシエータに追加します
+
+概要は、 igroup またはホストイニシエータのエイリアスとして機能します。
+
+*** * 「その他のオプション」 > 「ホスト情報」 *
+
+| ONTAP 9.9.1 
+
+
+ a| 
+既存のボリュームに LUN を作成します
+
+デフォルトでは、新しいボリュームに新しい LUN が作成されます。
+
+*** * その他のオプション > LUN の追加 *
+*** ［ * グループ関連の LUN * ］ を選択します。
+
+| ONTAP 9.9.1 
+
+
+ a| 
+QoS を無効にするか、カスタムの QoS ポリシーを選択します
+
+*** * その他のオプション > ストレージと最適化 *
+*** パフォーマンスサービスレベル * を選択します。
++
+* 注： ONTAP 9.9.1 以降では、カスタム QoS ポリシーを選択した場合、指定したローカル階層への手動配置を選択することもできます。
+
+
+| ONTAP 9.8 以降 
+|===
+
+
+
+
+. FC の場合は、 FC スイッチを WWPN でゾーニングします。イニシエータごとに 1 つのゾーンを使用し、各ゾーンにすべてのターゲットポートを含めます。
+. LUN を検出して初期化するには、 Virtual Storage Console （ VSC ） for VMware vSphere を使用します。
+. ESXi ホストが LUN 上のデータの書き込みと読み取りを実行できることを確認します。
+

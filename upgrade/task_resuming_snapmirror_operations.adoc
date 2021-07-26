@@ -1,0 +1,52 @@
+---
+permalink: upgrade/task_resuming_snapmirror_operations.html 
+sidebar: sidebar 
+keywords: ontap, upgrade, resuming, resume, snapmirror 
+summary: 無停止アップグレードを行った場合は、一時停止していた SnapMirror 関係を完了後に再開する必要があります。 
+---
+= SnapMirror 処理を再開しています
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+無停止アップグレードを行った場合は、一時停止していた SnapMirror 関係を完了後に再開する必要があります。
+
+snapmirror quiesce コマンドを使用して既存の SnapMirror 関係を一時停止し、クラスタの無停止アップグレードを完了しておく必要があります。
+
+. 以前に休止した各 SnapMirror 関係の転送を再開します。「 snapmirror resume *
++
+このコマンドは、一時停止したすべての SnapMirror 関係の転送を再開します。
+
+. SnapMirror 処理が再開されたことを確認します。「 snapmirror show 」
++
+[listing]
+----
+cluster1::> snapmirror show
+
+Source            Destination  Mirror  Relationship  Total             Last
+Path        Type  Path         State   Status        Progress  Healthy Updated
+----------- ---- ------------ ------- -------------- --------- ------- --------
+cluster1-vs1:dp_src1
+            DP   cluster1-vs2:dp_dst1
+                              Snapmirrored
+                                      Idle           -         true    -
+cluster1-vs1:xdp_src1
+            XDP  cluster1-vs2:xdp_dst1
+                              Snapmirrored
+                                      Idle           -         true    -
+cluster1://cluster1-vs1/ls_src1
+            LS   cluster1://cluster1-vs1/ls_mr1
+                              Snapmirrored
+                                      Idle           -         true    -
+                 cluster1://cluster1-vs1/ls_mr2
+                              Snapmirrored
+                                      Idle           -         true    -
+4 entries were displayed.
+----
++
+各 SnapMirror 関係について、 Relationship Status が * Idle * になっていることを確認します。このステータスが「 * Transferring * 」の場合は、 SnapMirror 転送が完了するまで待ってから、コマンドを再入力してステータスが「 * Idle 」に変わったことを確認します。
+
+
+
+スケジュールに基づいて実行するように設定された各 SnapMirror 関係について、最初にスケジュール設定された SnapMirror 転送が正常に完了したことを確認する必要があります。

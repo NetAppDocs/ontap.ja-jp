@@ -1,0 +1,58 @@
+---
+sidebar: sidebar 
+permalink: networking/add_or_remove_ip_addresses_from_a_subnet.html 
+keywords: adding, add, create, creating, remove, removing, delete, deleting, ip, internet, protocol, address, addresses, subnet, add or remove ip addresses from a subnet, force update lif associations, network subnet add ranges, network subnet remove ranges 
+summary: 既存のサブネットに IP アドレスを追加したり、サブネットの作成時に IP アドレスを追加または削除したりできます 
+---
+= サブネットの IP アドレスを追加または削除します
+:hardbreaks:
+:nofooter: 
+:icons: font
+:linkattrs: 
+:imagesdir: ./media/
+
+
+[role="lead"]
+新しくサブネットを作成するときに IP アドレスを追加したり、既存のサブネットに IP アドレスを追加したりできます。既存のサブネットから IP アドレスを削除することもできます。このようにして、 SVM に必要な IP アドレスだけが割り当てられるようにします。
+
+IP アドレスを追加するときに、追加しようとしている範囲の IP アドレスを使用しているサービスプロセッサまたはネットワークインターフェイスがあるとエラーが表示されます。手動でアドレスを指定したインターフェイスを現在のサブネットに関連付ける場合は、「 -force-update-lif-associations 」オプションを true に設定します。
+
+IP アドレスを削除するときに、削除する IP アドレスを使用しているサービスプロセッサまたはネットワークインターフェイスがあるとエラーが表示されます。インターフェイスの IP アドレスをサブネットから削除したあとも、インターフェイスでそのアドレスを使用する場合は、「 -force-update-lif-associations 」オプションを true に設定します。
+
+サブネットの IP アドレスを追加または削除します。
+
+[cols="2*"]
+|===
+| 状況 | 使用するコマンド 
+
+
+ a| 
+サブネットに IP アドレスを追加する
+ a| 
+network subnet add-ranges
+
+
+
+ a| 
+サブネットから IP アドレスを削除します
+ a| 
+network subnet remove-ranges
+
+|===
+これらのコマンドの詳細については、マニュアルページを参照してください。
+
+次のコマンドは、 192.0.2.82~192.0.2.85 の IP アドレスをサブネット sub1 に追加します。
+
+....
+network subnet add-ranges -subnet-name <sub1> -ip-ranges <192.0.2.82-192.0.2.85>
+....
+次のコマンドは、 IP アドレス 198.51.100.9 をサブネット sub3 から削除します。
+
+....
+network subnet remove-ranges -subnet-name <sub3> -ip-ranges <198.51.100.9>
+....
+現在の範囲が 1~10 と 20~40 で、追加するアドレスが 11~19 と 41~50 （つまり、 1~50 を範囲にする）の場合は、次のコマンドを使用して既存のアドレス範囲と重複させることができます。このコマンドは新しいアドレスのみを追加し、既存のアドレスには影響しません。
+
+....
+network subnet add-ranges -subnet-name <sub3> -ip-ranges <198.51.10.1-198.51.10.50>
+....

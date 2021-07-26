@@ -1,0 +1,119 @@
+---
+sidebar: sidebar 
+permalink: task_nas_secure_client_access_with_kerberos.html 
+keywords: netapp, ontap, kerberos, security, client access, group permissions, user permissions, UNIX permissions, name mapping, NAS client, storage access 
+summary: NAS クライアントのストレージアクセスを保護するには、 Kerberos を有効にします。 
+---
+= Kerberos を使用してクライアントアクセスを保護
+:toc: macro
+:hardbreaks:
+:toclevels: 1
+:toc: 
+:toclevels: 1
+:nofooter: 
+:icons: font
+:linkattrs: 
+:imagesdir: ./media/
+:toc-position: content
+
+
+[role="lead"]
+NAS クライアントのストレージアクセスを保護するには、 Kerberos を有効にします。
+
+この手順は、で有効になっている既存の Storage VM に Kerberos を設定します link:task_nas_enable_linux_nfs.html["NFS"] または 。
+
+開始する前に、 DNS 、 NTP 、およびを設定しておく必要があります link:task_nas_provide_client_access_with_name_services.html["LDAP"] ストレージシステム。
+
+image:workflow_nas_secure_client_access_with_kerberos.gif["Kerberos でクライアントアクセスを保護するためのワークフロー"]
+
+.手順
+. ONTAP コマンドラインで、 Storage VM ルートボリュームに対する UNIX 権限を設定します。
++
+.. Storage VM のルートボリュームについて、関連する権限を表示します。 volume show -volume _root_vol_name __ -fields user 、 group 、 unix-permissions
++
+Storage VM のルートボリュームを次のように設定しておく必要があります。
+
++
+[cols="2"]
+|===
+| 名前 | 設定 
+
+
+| UID | root または ID 0 
+
+
+| GID | root または ID 0 
+
+
+| UNIX 権限 | 755 
+|===
+.. これらの値が表示されていない場合は 'volume modify コマンドを使用して更新します
+
+
+. Storage VM ルートボリュームに対するユーザ権限を設定します。
++
+.. ローカル UNIX ユーザを表示します。 vserver services name-service unix-user show -vserver vserver_name _`
++
+Storage VM で次の UNIX ユーザを設定しておく必要があります。
+
++
+[cols="3"]
+|===
+| ユーザ名 | ユーザ ID | プライマリグループ ID 
+
+
+| NFS | 500 | 0 
+
+
+| ルート | 0 | 0 
+|===
++
+* 注： NFS クライアントユーザの SPN に対する Kerberos-UNIX ネームマッピングがある場合は、 nfs ユーザは必要ありません。手順 5 を参照してください。
+
+.. これらの値が表示されない場合は、「 vserver services name-service unix-user modify 」コマンドを使用して値を更新します。
+
+
+. Storage VM ルートボリュームに対するグループ権限を設定します。
++
+.. ローカル UNIX グループを表示します。 vserver services name-service unix-group show -vserver vserver_name _`
++
+Storage VM で次の UNIX グループを設定しておく必要があります。
+
++
+[cols="2"]
+|===
+| グループ名 | グループ ID 
+
+
+| デーモン | 1. 
+
+
+| ルート | 0 
+|===
+.. これらの値が表示されていない場合は、「 vserver services name-service unix-group modify 」コマンドを使用して、値を更新します。
+
+
+. Kerberos を設定するには、 System Manager に切り替えてください
+. ONTAP システムマネージャで、 * Storage > Storage VM* をクリックし、 Storage VM を選択します。
+. [* 設定 * ] をクリックします。
+. をクリックします image:icon_arrow.gif["矢印（ Arrow ）"] Kerberos を使用します。
+. Kerberos Realm の下の * Add * をクリックし、次のセクションを完了します。
++
+** Kerberos Realm を追加します
++
+KDC ベンダーに応じて設定の詳細を入力します。
+
+** Realm にネットワークインターフェイスを追加します
++
+[ * 追加 ] をクリックし、ネットワーク・インターフェイスを選択します。
+
+
+
+. 必要に応じて、 Kerberos プリンシパル名からローカルユーザ名へのマッピングを追加します。
++
+.. Storage > Storage VM* をクリックし、 Storage VM を選択します。
+.. [ * 設定 * ] をクリックし、をクリックします image:icon_arrow.gif["矢印（ Arrow ）"] [* ネームマッピング（ * Name Mapping ） ] の下。
+.. *Kerberos から UNIX* の下で、正規表現を使用してパターンと置換を追加します。
+
+
+

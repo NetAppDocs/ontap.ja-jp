@@ -1,0 +1,73 @@
+---
+sidebar: sidebar 
+permalink: networking/create_lifs.html 
+keywords: create, creation, creating, add, adding, lifs, logical, interface, create lifs 
+summary: SVM データをクライアントに提供するための LIF を作成します 
+---
+= LIFs を作成します
+:hardbreaks:
+:nofooter: 
+:icons: font
+:linkattrs: 
+:imagesdir: ./media/
+
+
+[role="lead"]
+SVM は、 1 つ以上のネットワーク論理インターフェイス（ LIF ）を通じてクライアントにデータを提供します。データへのアクセスに使用するポートに LIF を作成する必要があります。
+
+このタスクを実行するには、クラスタ管理者である必要があります。
+
+ONTAP 9.7 以降では、その IPspace の同じサブネットに少なくとも 1 つの LIF がすでに存在するかぎり、 ONTAP によって LIF のホームポートが自動的に選択されます。ONTAP は、そのサブネット内の他の LIF と同じブロードキャストドメイン内のホームポートを選択します。ホームポートは指定できますが、指定した IPspace のサブネットにまだ LIF がない場合を除き、指定する必要はありません。
+
+CIFS トラフィックを伝送する LIF を、ホームノードに自動的にリバートするように設定しないでください。Hyper-V over SMB または SQL Server over SMB でノンストップオペレーションを実現する解決策を CIFS サーバでホストする場合、これは必須です。
+
+.手順
+. LIF に使用するブロードキャストドメインのポートを決定します。
++
+「 network port broadcast-domain show -ipspace_ipspace1 」に設定します
+
++
+....
+IPspace     Broadcast                       Update
+Name        Domain name   MTU   Port List   Status Details
+ipspace1
+            default       1500
+                                node1:e0d   complete
+                                node1:e0e   complete
+                                node2:e0d   complete
+                                node2:e0e   complete
+....
+. LIF に使用するサブネットに未使用の IP アドレスが十分にあることを確認します。
++
+network subnet show -ipspace_ipspace1 に設定します
+
+. データへのアクセスに使用するポートに 1 つ以上の LIF を作成します。
++
+'network interface create -vserver_vs1_-lif lif1 -home-node node1_-home-node _home-port_e0d_service-policy_default-data-subnet_name_ipspace1 _`
+
+. LIF インターフェイスの設定が正しいことを確認します。
++
+「 network interface show -vserver vs1 」のように表示されます
+
++
+....
+          Logical    Status     Network         Current   Current Is
+Vserver   Interface  Admin/Oper Address/Mask    Node      Port    Home
+--------- ---------- ---------- --------------- --------- ------- ----
+vs1
+           lif1       up/up      10.0.0.128/24   node1     e0d     true
+....
+. フェイルオーバーグループの設定が適切であることを確認します。
++
+「 network interface show -failover -vserver _vs1_` 」と入力します
+
++
+....
+         Logical    Home       Failover        Failover
+Vserver  interface  Node:Port  Policy          Group
+-------- ---------- ---------  ---------       --------
+vs1
+         lif1       node1:e0d  system-defined  ipspace1
+Failover Targets: node1:e0d, node1:e0e, node2:e0d, node2:e0e
+....
+

@@ -1,0 +1,56 @@
+---
+sidebar: sidebar 
+permalink: smbc/smbc_troubleshoot_link_between_site_a_and_mediator_down.html 
+keywords: SM-BC, SMBC, troubleshooting, link down, Mediator 
+summary: サイト A とメディエーターが停止し、サイト B が停止している場合のトラブルシューティングリンク。 
+---
+= サイト A とメディエーターの間のリンクが停止し、サイト B が停止しています
+:hardbreaks:
+:nofooter: 
+:icons: font
+:linkattrs: 
+:imagesdir: ../media/
+
+
+[role="lead"]
+サイト A からメディエーターのステータスを確認します
+
+....
+C1_cluster::*> snapmirror mediator show
+Mediator Address Peer Cluster     Connection Status Quorum Status
+---------------- ---------------- ----------------- -------------
+10.237.86.17     C2_cluster       unreachable       true
+
+C1_cluster::*> snapmirror list-destinations
+                                                  Progress
+Source             Destination         Transfer   Last         Relationship
+Path         Type  Path         Status Progress   Updated      Id
+----------- ----- ------------ ------- --------- ------------ ---------------
+vs0:/cg/src_cg_1  XDP   vs1:/cg/dst_cg_1  OutOfSync  -         -            bba7d354-06f6-11eb-9138-005056acec19
+....
+サイト B の接続を確認します。
+
+....
+C1_sti78-vsim-ucs188a_cluster::*> cluster peer show
+Peer Cluster Name         Cluster Serial Number Availability   Authentication
+------------------------- --------------------- -------------- --------------
+C2_cluster                1-80-000011           Unavailable    ok
+....
+SM-BC ボリュームでコンセンサスステータスを確認します。
+
+....
+C1_cluster::*> volume show zrto_cg_894191_188b_RW1 -fields smbc-consensus
+vserver volume                  smbc-consensus
+------- ----------------------- ------------------
+vs0     zrto_cg_894191_188b_RW1 Awaiting-consensus
+....
+SM-BC 合意を無効にし、サイト A で I/O を強制的に再開するには、次の手順を実行します。
+
+. サイト A の LUN のマッピングを解除します
+. 問題サイト A の「 -force 」オプションと「 override-smpe--sコンセンサス 」オプションを使用して snapmirror release コマンドを実行します
+. LUN を再マッピングします。
+. まずメディエーターを起動し、サイト B のノードを起動します。
+. 「 snapmirror resync 」を使用して整合グループ関係を再同期します。
+. サイト B が稼働したら、整合グループ関係が稼働し、同期されていることを確認します。
+. ホストで LUN を再スキャンし、 LUN へのすべてのパスをリストアします。
+

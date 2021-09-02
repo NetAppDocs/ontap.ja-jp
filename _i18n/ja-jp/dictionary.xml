@@ -450,7 +450,6 @@
   <block id="edd065cbe8aace4091a0ae0c74038b57" category="list-text">ONTAP 9.0 から 9.7 を実行している新しいシステムでネットワークを設定する。</block>
   <block id="f5bf5336fca238353f35af37209df243" category="paragraph">9.7 よりも前のリリースの ONTAP を実行している場合は、 ONTAP 9.8 以降で NAS パスフェイルオーバー手順を使用する必要があります。</block>
   <block id="57e1317b607ce67686550d96b78223d7" category="inline-link-macro">ONTAP 9.8 以降の NAS パスフェイルオーバーワークフロー</block>
-  <block id="6b4dcc58fc6ffc64e6611bb2f7ace4a9" category="list-text"><block ref="6b4dcc58fc6ffc64e6611bb2f7ace4a9" category="inline-link-macro-rx"></block></block>
   <block id="43c67c200c072266e6ebbedf8dc24490" category="paragraph">ネットワーク管理の詳細を確認する場合は、次の ONTAP 9 ネットワーク管理リファレンスを使用してください。</block>
   <block id="2b72b25c85b4fee38e72569dd156e20b" category="inline-link-macro">ONTAP 9 ネットワーク管理リファレンス</block>
   <block id="8aaadb35a968f55eb2d96245471f29e6" category="list-text"><block ref="8aaadb35a968f55eb2d96245471f29e6" category="inline-link-macro-rx"></block></block>
@@ -1838,11 +1837,9 @@
   <block id="8396bc39accde3594cc1abbe0798f2ec" category="doc">ONTAP 9.5 以前の LIF のロール</block>
   <block id="55be25f2d613951fc86ef605c1fa20ec" category="paragraph">ONTAP 9.6 以降では、 LIF のロールは廃止されています。ロールの代わりに LIF のサービスポリシーを指定する必要があります。サービスポリシーを使用して LIF を作成する場合、 LIF のロールを指定する必要はありません。</block>
   <block id="2627215f600219ccfa80dfa1258453d7" category="section-title">ポートのタイプと LIF の互換性があります</block>
-  <block id="c29db11403a0214b2995add52ab264c8" category="admonition">同じサブネットで静的ルートと関連付けるようにクラスタ間 LIF と管理 LIF が設定されている状況で、そのルートをクラスタ間 LIF に関連付けると、管理トラフィックが外部のファイアウォールによってブロックされ、 AutoSupport 接続と NTP 接続が失敗します。システムをリカバリするには、「 network interface modify -vserver vserver_name --lif_intercluster lif__ status-admin up | down 」コマンドを実行してクラスタ間 LIF を切り替えます。ただし、この問題を回避するには、クラスタ間 LIF と管理 LIF を別々のサブネットに設定する必要があります。</block>
   <block id="f86f4a50388930909d983126e43601d2" category="cell">データ LIF</block>
   <block id="72618f91e0500b0de0f483f4ac9372c7" category="cell">Storage Virtual Machine （ SVM ）に関連付けられた LIF で、クライアントとの通信に使用します。1 つのポートに複数のデータ LIF を設定できます。これらのインターフェイスは、クラスタ全体で移行またはフェイルオーバーできます。ファイアウォールポリシーを mgmt に変更すると、データ LIF を SVM 管理 LIF として使用できます。データ LIF は、 NIS 、 LDAP 、 Active Directory 、 WINS 、および DNS の各サーバに対するセッションで使用されます。</block>
   <block id="aff7b3c6a1a82a339ee68a62e5bf859e" category="cell">クラスタ LIF</block>
-  <block id="55f778b00e3c5f61e8d4dde81a16650d" category="cell">クラスタ内のノード間のクラスタ内トラフィックに使用される LIF です。必ず 10GbE のネットワークポートに作成する必要があります。クラスタ LIF は、同じノードのクラスタポート間でフェイルオーバーできますが、リモートノードに移行またはフェイルオーバーすることはできません。新しいノードがクラスタに追加されると、 IP アドレスは自動的に生成されます。ただし、クラスタ LIF に IP アドレスを手動で割り当てる場合は、新しい IP アドレスが既存のクラスタ LIF と同じサブネット範囲に含まれるようにする必要があります。</block>
   <block id="e2578ec54f85b5b6333c94364b756a1c" category="cell">ノード管理 LIF</block>
   <block id="cc6ff18647a66c1d43119d8291d3ab95" category="cell">クラスタ内の特定のノードを管理するために専用の IP アドレスを提供する LIF です。クラスタの作成時またはクラスタへのノードの追加時に作成されます。これらの LIF は、クラスタからノードにアクセスできなくなった場合など、システムのメンテナンスに使用されます。</block>
   <block id="15a4d902a9e2eeb56724bdb94f9d1977" category="cell">クラスタ管理 LIF</block>
@@ -7392,7 +7389,6 @@
   <block id="7bbee198af002fe1c29ff626e7735702" category="cell">network interface delete -vserver vserver_name -lif lif_name</block>
   <block id="894e3570a98cc47da57b2358c69df077" category="cell">network interface delete -vserver vserver_name -lif *`</block>
   <block id="971dbc285b73d7c6f7ac90280984bb27" category="paragraph">LIF の特性はロールごとに異なります。LIF のロールにより、インターフェイスでサポートされるトラフィックの種類のほか、適用されるフェイルオーバールール、適用されるファイアウォールの制限、セキュリティ、ロードバランシング、ルーティングの方法が決まります。LIF のロールには、 cluster 、 cluster management 、 data 、 intercluster 、 node management 、 undef （未定義）です。undef ロールは、 BGP LIF に使用されます。</block>
-  <block id="8112643f2216c92c95655d7fa3866d3e" category="cell">クラスタ全体に対する単一の管理インターフェイスを提供する LIF です。クラスタ管理 LIF は、クラスタ内の任意のノード管理ポートまたはデータポートにフェイルオーバーできます。クラスタポートまたはクラスタ間ポートにはフェイルオーバーできません</block>
   <block id="c46b415b735a844431face26e3dd78c5" category="cell">クラスタ間の通信、バックアップ、およびレプリケーションに使用される LIF です。クラスタピア関係を確立する前に、クラスタ内の各ノードにクラスタ間 LIF を作成する必要があります。これらの LIF は、同じノードのポートにのみフェイルオーバーできます。クラスタ内の別のノードに移行またはフェイルオーバーすることはできません。</block>
   <block id="a60bc7e76772c2e18ae4af7cda2f8093" category="list-text">「 auto-revert 」オプションの値を true に設定しないかぎり、 LIF は自動的にリバートされることはありません。</block>
   <block id="44a2b2362cfe1c461d177053fa6240dd" category="list-text">LIF がホームポートにリバートされるように、「 auto-revert 」オプションを有効にしてください。</block>
@@ -7433,4 +7429,13 @@
   <block id="49ccd4da2ef8cd987e3e8781b62c6a3c" category="list-text">影響を受けるノード</block>
   <block id="5334db8236a9684d1c675f5561cc39e7" category="list-text">必要な軽減のタイプ</block>
   <block id="3b1702a34e7e9227f5b26c5276fd25b3" category="list-text">対処方法</block>
+  <block id="5332061b15c5e539606de0f42ba37eec" category="list-text"><block ref="5332061b15c5e539606de0f42ba37eec" category="inline-link-macro-rx"></block></block>
+  <block id="3dac1553cd34a4387f92153c3a582713" category="summary">LIF には、さまざまなポートタイプをサポートするための特性があります</block>
+  <block id="86554767e9874406e845da28cd086b0b" category="paragraph">LIF には、さまざまなポートタイプをサポートするための特性があります。</block>
+  <block id="ad678c0f71ca384bc3202876203e73d2" category="admonition">クラスタ間 LIF と管理 LIF が同じサブネットに設定されていると、管理トラフィックが外部のファイアウォールによってブロックされ、 AutoSupport 接続と NTP 接続が失敗する可能性があります。システムをリカバリするには、「 network interface modify -vserver vserver_name --lif_intercluster lif__ status-admin up | down 」コマンドを実行してクラスタ間 LIF を切り替えます。ただし、この問題を回避するには、クラスタ間 LIF と管理 LIF を別々のサブネットに設定する必要があります。</block>
+  <block id="95416f2c916dabe21f738406546ebc53" category="cell">LIF</block>
+  <block id="bb6b3eeeeea530b9d443139aa98bab5b" category="cell">クラスタ内のノード間のクラスタ内トラフィックに使用される LIF です。クラスタ LIF は、必ずクラスタポート上に作成する必要があります。クラスタ LIF は、同じノードのクラスタポート間でフェイルオーバーできますが、リモートノードに移行またはフェイルオーバーすることはできません。新しいノードがクラスタに追加されると、 IP アドレスは自動的に生成されます。ただし、クラスタ LIF に IP アドレスを手動で割り当てる場合は、新しい IP アドレスが既存のクラスタ LIF と同じサブネット範囲に含まれるようにする必要があります。</block>
+  <block id="fdb61a9372481ce365c4df0d03c756b9" category="cell">クラスタ全体に対する単一の管理インターフェイスを提供する LIF です。クラスタ管理 LIF は、クラスタ内の任意のノードにフェイルオーバーできます。クラスタポートまたはクラスタ間ポートにはフェイルオーバーできません</block>
+  <block id="960e2e9197894ba266cc974be53f97d7" category="cell">VIP LIF</block>
+  <block id="910ccea314c6d72f2cd102d7f31bedd7" category="cell">VIP LIF は、 VIP ポートで作成される任意のデータ LIF です。詳細については、を参照してください <block ref="43d93948b7becfd15462e91085fd63cc" category="inline-link-macro-rx"></block>。</block>
 </blocks>

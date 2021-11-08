@@ -1,0 +1,42 @@
+---
+permalink: volumes/create-flexclone-task.html 
+sidebar: sidebar 
+keywords: create, flexclone volume 
+summary: FlexClone ボリュームの作成 
+---
+= FlexClone ボリュームを作成します
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+データ保護 FlexClone ボリュームは、 SnapMirror デスティネーションから作成するか、 SnapVault セカンダリボリュームである親の FlexVol から作成できます。FlexClone ボリュームの作成後は、 FlexClone ボリュームが存在する間は親ボリュームを削除できません。
+
+.必要なもの
+* クラスタに FlexClone ライセンスがインストールされている必要があります。
+* クローニングするボリュームはオンライン状態である必要があります。
+
+
+.ステップ
+. FlexClone ボリュームを作成します。
++
+volume clone create を実行します
+
++
+[NOTE]
+====
+読み書き可能な親ボリュームから読み書き可能な FlexClone ボリュームを作成する場合、ベースの Snapshot コピーを指定する必要はありません。クローンのベース Snapshot コピーを特に指定しない場合、 ONTAP によって Snapshot コピーが作成されます。親ボリュームがデータ保護ボリュームである場合は、 FlexClone ボリュームを作成するためのベースの Snapshot コピーを指定する必要があります。
+
+====
+
+
+.例
+* 次のコマンドを実行すると、親ボリューム vol1 から、読み書き可能 FlexClone ボリューム vol1_clone が作成されます。
++
+'volume clone create -vserver vs0 -flexclone vol1_clone -type RW -parent-volume vol1'
+
+* 次のコマンドを実行すると、ベース Snapshot コピー snap1 を使用して、親ボリューム dp_vol からデータ保護 FlexClone ボリューム vol_dp_clon が作成されます。
++
+volume clone create -vserver vs1 -flexclone vol_dp_clone -type DP -parent-volume dp_vol -parent-snapshot snap1 ’
+
+

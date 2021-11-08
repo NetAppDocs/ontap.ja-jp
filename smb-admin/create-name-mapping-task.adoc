@@ -1,0 +1,50 @@
+---
+permalink: smb-admin/create-name-mapping-task.html 
+sidebar: sidebar 
+keywords: vserver, name-mapping, create, command, name, map, windows, enable, user, access, unix, security, style, volume, reverse, create a name mapping 
+summary: vserver name-mapping create コマンドを使用して、ネームマッピングを作成できます。ネームマッピングを使用すると、 Windows ユーザから UNIX セキュリティ形式のボリュームへのアクセスおよびその逆方向のアクセスが可能になります。 
+---
+= ネームマッピングを作成します
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+ネームマッピングを作成するには、「 vserver name-mapping create 」コマンドを使用します。ネームマッピングを使用すると、 Windows ユーザから UNIX セキュリティ形式のボリュームへのアクセスおよびその逆方向のアクセスが可能になります。
+
+ONTAP では、 SVM ごとに、各方向について最大 12 、 500 個のネームマッピングがサポートされます。
+
+.ステップ
+. ネームマッピングを作成します。 vserver name-mapping create -vserver _vserver_name __ direction ｛ krb-unix|win-unix|unix-win ｝ -pose_integer -pattern text -replacement _text_`
++
+[NOTE]
+====
+「 -pattern 」文と「 -replacement 」文は、正規表現として使用できます。また '-replacement 文を使用すると 'null 置換文字列 "" ( スペース文字 ) を使用して ' ユーザへのマッピングを明示的に拒否することもできます詳細については 'vserver name-mapping create のマニュアル・ページを参照してください
+
+====
++
+Windows から UNIX へのマッピングを作成した場合、新しいマッピングが作成されたときに ONTAP システムに接続していたすべての SMB クライアントは、新しいマッピングを使用するために、一度ログアウトしてから、再度ログインする必要があります。
+
+
+
+次のコマンドは、 vs1 という名前の SVM 上にネームマッピングを作成します。このマッピングは UNIX から Windows へのマッピングで、優先順位リスト内での位置は 1 番目です。UNIX ユーザ johnd を Windows ユーザ ENG\JohnDoe にマッピングします。
+
+[listing]
+----
+vs1::> vserver name-mapping create -vserver vs1 -direction unix-win -position 1 -pattern johnd
+-replacement "ENG\\JohnDoe"
+----
+次のコマンドは、 vs1 という名前の SVM 上に別のネームマッピングを作成します。このマッピングは Windows から UNIX へのマッピングで、優先順位リスト内での位置は 1 番目です。パターンとリプレースメントには正規表現が使用されています。このマッピングにより、ドメイン ENG 内のすべての CIFS ユーザが、 SVM に関連付けられた LDAP ドメイン内のユーザにマッピングされます。
+
+[listing]
+----
+vs1::> vserver name-mapping create -vserver vs1 -direction win-unix -position 1 -pattern "ENG\\(.+)"
+-replacement "\1"
+----
+次のコマンドは、 vs1 という名前の SVM 上に別のネームマッピングを作成します。このパターンには、エスケープする必要がある Windows ユーザ名の要素として「 $` 」が含まれています。Windows ユーザ ENG\john$ops を UNIX ユーザ john_ops にマッピングします。
+
+[listing]
+----
+vs1::> vserver name-mapping create -direction win-unix -position 1 -pattern ENG\\john\$ops
+-replacement john_ops
+----

@@ -1,0 +1,58 @@
+---
+permalink: nfs-admin/multi-byte-file-directory-qtree-names-concept.html 
+sidebar: sidebar 
+keywords: ontap, multi byte, file, directory, qtree, name 
+summary: ONTAP 9.5 以降では、 4 バイトの UTF-8 エンコード形式の名前がサポートされるようになり、 Basic Multilingual Plane （ BMP ；基本多言語面）以外の Unicode 補助文字を含むファイル、ディレクトリ、ツリーの名前を作成および表示できるようになりました。以前のリリースでは、これらの補助文字はマルチプロトコル環境では正しく表示されませんでした。 
+---
+= マルチバイトを含むファイル名、ディレクトリ名、 qtree 名の ONTAP での処理
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+ONTAP 9.5 以降では、 4 バイトの UTF-8 エンコード形式の名前がサポートされるようになり、 Basic Multilingual Plane （ BMP ；基本多言語面）以外の Unicode 補助文字を含むファイル、ディレクトリ、ツリーの名前を作成および表示できるようになりました。以前のリリースでは、これらの補助文字はマルチプロトコル環境では正しく表示されませんでした。
+
+4 バイトの UTF-8 エンコード形式の名前をサポートするために 'vserver' および 'volume' コマンド・ファミリでは new_utf8mb4_language コードを使用できます
+
+* 次のいずれかの方法で新しいボリュームを作成する必要があります。
+* ボリュームの --language' オプションを明示的に設定します
++
+'volume create -language utf8mb4{...}`
+
+* language オプションを指定して作成または変更された SVM から設定を継承する。
++
+「 vserver [create | modify] -language utf8mb4 {...}`volume create {...}` 」
+
+* 既存のボリュームを utf8mb4 をサポートするように変更することはできません。 utf8mb4 対応の新しいボリュームを作成し、クライアントベースのコピーツールを使用してデータを移行する必要があります。
++
+SVM は utf8mb4 をサポートするように更新できますが、既存のボリュームの言語コードは元の設定のままです。
+
++
+[NOTE]
+====
+現在のところ、 4 バイトの UTF-8 文字を含む LUN 名はサポートされていません。
+
+====
+* 一般に、 Unicode 文字データは、 Windows ファイルシステムアプリケーションでは 16-bit Unicode Transformation Format （ UTF-16 ）、 NFS ファイルシステムでは 8-bit Unicode Transformation Format （ UTF-8 ）を使用して表現されます。
++
+ONTAP 9.5 よりも前のリリースでは、 Windows クライアントで作成された UTF-16 の補助文字を含む名前は、他の Windows クライアントには正しく表示されましたが、 NFS クライアントでは UTF-8 に正しく変換されませんでした。同様に、 NFS クライアントで作成された UTF-8 の補助文字を含む名前は、 Windows クライアントで UTF-16 に正しく変換されませんでした。
+
+* ONTAP 9.4 以前を実行しているシステムで作成したファイル名に有効な追加文字が含まれている場合や無効な追加文字が含まれている場合、 ONTAP はそれらのファイル名を拒否し、ファイル名が無効であることを示すエラーを返します。
++
+この問題を回避するには、ファイル名に BMP 文字のみを使用して補助文字は使用しないようにするか、 ONTAP 9.5 以降にアップグレードしてください。
+
+
+
+Unicode 文字は qtree 名で使用できます。
+
+* qtree 名の設定または変更には、 volume qtree コマンドファミリーまたは System Manager のいずれかを使用できます。
+* 日本語や中国語などの Unicode 形式のマルチバイト文字を qtree 名に含めることができます。
+* ONTAP 9.5 よりも前のリリースでは、 BMP 文字（つまり 3 バイトで表現可能な文字）のみがサポートされます。
++
+[NOTE]
+====
+ONTAP 9.5 よりも前のリリースでは、 qtree の親ボリュームのジャンクションパスに、 Unicode 文字を使用した qtree 名やディレクトリ名を含めることができます。親ボリュームの言語設定が UTF-8 の場合 'volume show コマンドはこれらの名前を正しく表示しますただし、親ボリュームの言語設定が UTF-8 のいずれかでない場合は、ジャンクションパスの一部が数値の NFS 名に置き換えられて表示されます。
+
+====
+* 9.5 以降のリリースでは、 qtree が utf8mb4 に対応したボリュームに含まれていれば、 qtree 名で 4 バイト文字がサポートされます。
+

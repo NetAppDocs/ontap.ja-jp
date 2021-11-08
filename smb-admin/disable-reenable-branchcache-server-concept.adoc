@@ -1,0 +1,32 @@
+---
+permalink: smb-admin/disable-reenable-branchcache-server-concept.html 
+sidebar: sidebar 
+keywords: previous, configure, branchcache, branch, office, client, cache, content, disable, what happens when you disable or reenable branchcache on the cifs server 
+summary: BranchCache を設定したあとに、ブランチオフィスのクライアントがキャッシュされたコンテンツを使用できないようにするには、 CIFS サーバでキャッシュを無効にします。BranchCache を無効にするときは、それを実行した場合の動作について理解しておく必要があります 
+---
+= CIFS サーバで BranchCache を無効または再度有効にしたときの動作
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+BranchCache を設定したあとに、ブランチオフィスのクライアントがキャッシュされたコンテンツを使用できないようにするには、 CIFS サーバでキャッシュを無効にします。BranchCache を無効にするときは、それを実行した場合の動作について理解しておく必要があります
+
+BranchCache を無効にすると、 ONTAP によるハッシュの計算や要求元クライアントへのメタデータの送信が行われなくなります。ただし、ファイルアクセスは中断されません。以降に、 BranchCache 対応クライアント ONTAP からアクセスするコンテンツのメタデータ情報を要求すると、 Microsoft のエラーが返されます。この場合は、クライアントでもう一度要求を送信して、実際のコンテンツを要求します。これに対する応答として、 CIFS サーバから Storage Virtual Machine （ SVM ）に格納されている実際のコンテンツが送信されます。
+
+CIFS サーバで BranchCache を無効にしたあとは、 SMB 共有で BranchCache の機能がアドバタイズされなくなります。新しい SMB 接続でデータにアクセスするには、通常の SMB 読み取り要求を行います。
+
+BranchCache は、 CIFS サーバでいつでも再度有効にすることができます。
+
+* BranchCache ONTAP を無効にしてもハッシュストアは削除されないため、要求されたハッシュがまだ有効であれば、 BranchCache を再度有効にしたあとに、格納されたハッシュを使用してハッシュの要求に応答することができます。
+* BranchCache 対応の共有に対する SMB 接続を確立したクライアントで接続を確立したときに BranchCache が無効になっていたクライアントの場合には、以降に BranchCache を再度有効にしても、 BranchCache のサポートは有効になりません。
++
+これは、 SMB セッションのセットアップ時に共有に対する BranchCache のサポートが通知されるから ONTAP です。BranchCache を無効にしたときに BranchCache 対応の共有に対するセッションを確立していた場合、その共有のキャッシュされたコンテンツを使用するには、いったん切断してから再接続する必要があります。
+
+
+
+[NOTE]
+====
+CIFS サーバで BranchCache を無効にしたあとにハッシュストアを保存しておく必要がない場合は、手動で削除することができます。BranchCache を再度有効にするときは、ハッシュストアのディレクトリが存在することを確認する必要があります。BranchCache を再度有効にすると、 BranchCache 対応の共有で BranchCache の機能がアドバタイズされるようになります。BranchCache 対応クライアントから新しい要求が行われると、 ONTAP によって新しいハッシュが作成されます。
+
+====

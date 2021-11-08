@@ -1,0 +1,114 @@
+---
+permalink: system-admin/add-nodes-cluster-concept.html 
+sidebar: sidebar 
+keywords: add, node, cluster, create, expand 
+summary: 作成したクラスタは、ノードを追加して拡張できます。一度に追加できるノードは 1 つだけです。 
+---
+= クラスタにノードを追加します
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+作成したクラスタは、ノードを追加して拡張できます。一度に追加できるノードは 1 つだけです。
+
+.必要なもの
+* 複数ノードクラスタにノードを追加する場合は ' クラスタ内の既存ノードのうち半数以上が正常である必要があります (cluster show で示されます )
+* 2 ノードスイッチレスクラスタにノードを追加する場合は、ノードを追加する前に、クラスタ管理スイッチとインターコネクトスイッチをインストールして設定しておく必要があります。
++
+スイッチレスクラスタ機能は、 2 ノードクラスタでのみサポートされます。
+
++
+クラスタ HA は、クラスタのノードが 3 つ以上のときは不要であるため、 3 つ以上で構成する場合や 3 つ以上に増えた場合は自動的に無効になります。
+
+* シングルノードクラスタに 2 つ目のノードを追加する場合は、その 2 つ目のノードがインストールされていて、クラスタネットワークが構成されている必要があります。
+* クラスタで SP の自動設定が有効になっている場合、 SP 用に指定されたサブネットに、参加するノードで使用可能なリソースが必要です。
++
+クラスタに参加するノードは、指定されたサブネットを使用して、 SP の自動設定を実行します。
+
+* 新しいノードのノード管理 LIF について、次の情報を収集しておく必要があります。
++
+** ポート
+** IP アドレス
+** ネットマスク
+** デフォルトゲートウェイ
+
+
+
+
+ノードは、 HA ペアを形成できるように偶数である必要があります。クラスタへのノードの追加を開始したら、その処理を完了する必要があります。別のノードの追加を開始するには、事前にノードがクラスタに含まれている必要があります。
+
+.手順
+. クラスタに追加するノードに電源を入れます。
++
+ノードがブートし、ノードのセットアップウィザードがコンソール上で起動されます。
+
++
+[listing]
+----
+Welcome to node setup.
+
+You can enter the following commands at any time:
+  "help" or "?" - if you want to have a question clarified,
+  "back" - if you want to change previously answered questions, and
+  "exit" or "quit" - if you want to quit the setup wizard.
+     Any changes you made before quitting will be saved.
+
+To accept a default or omit a question, do not enter a value.
+
+Enter the node management interface port [e0c]:
+----
+. Node Setup ウィザードを終了します :exit
++
+ノードのセットアップウィザードが終了し、セットアップタスクが完了していないという警告がログインプロンプトに表示されます。
+
+. admin ユーザ名を使用して admin アカウントにログインします
+. クラスタセットアップウィザードを開始します。
++
+'*cluster setup*
+
++
+[listing]
+----
+::> cluster setup
+
+Welcome to the cluster setup wizard.
+
+You can enter the following commands at any time:
+ "help" or "?" - if you want to have a question clarified,
+ "back" - if you want to change previously answered questions, and
+ "exit" or "quit" - if you want to quit the cluster setup wizard.
+ Any changes you made before quitting will be saved.
+
+You can return to cluster setup at any time by typing "cluster setup".
+To accept a default or omit a question, do not enter a value....
+
+Use your web browser to complete cluster setup by accessing
+https://10.63.11.29
+
+Otherwise, press Enter to complete cluster setup using the
+command line interface:
+----
++
+[NOTE]
+====
+セットアップ GUI を使用したクラスタのセットアップの詳細については、を参照してください link:https://docs.netapp.com/us-en/ontap/task_admin_add_nodes_to_cluster.html["ONTAP システムマネージャ"] オンラインヘルプ。
+
+====
+. CLI を使用してこの作業を完了するには、 Enter キーを押します。新しいクラスタを作成するか ' 既存のクラスタに参加するかを確認するメッセージが表示されたら '*join*' と入力します
++
+[listing]
+----
+Do you want to create a new cluster or join an existing cluster? {create, join}:
+join
+----
+. プロンプトに従ってノードをセットアップし、クラスタに追加します。
++
+** プロンプトでデフォルト値を受け入れるには、 Enter キーを押します。
+** プロンプトで独自の値を入力するには、値を入力して Enter キーを押します。
+
+
+. 追加するノードごとに前述の手順を繰り返します。
+
+
+ノードをクラスタに追加したあと、 HA ペアごとにストレージフェイルオーバーを有効にする必要があります。

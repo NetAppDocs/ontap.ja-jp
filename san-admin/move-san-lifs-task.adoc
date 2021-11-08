@@ -1,0 +1,40 @@
+---
+permalink: san-admin/move-san-lifs-task.html 
+sidebar: sidebar 
+keywords: move, san, lifs 
+summary: ノードをオフラインにする必要がある場合、 SAN LIF を移動して WWPN などの設定情報を保持しておけば、スイッチファブリックの再ゾーニングを行わずに済みます。SAN LIF は移動前にオフラインにする必要があるため、ホストトラフィックについては、ホストマルチパスソフトウェアを使用して、 LUN への無停止アクセスを確保する必要があります。SAN LIF はクラスタ内の任意のノードに移動できますが、 SAN LIF を別の Storage Virtual Machine （ SVM ）に移動することはできません。 
+---
+= SAN LIF を移動します
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+ノードをオフラインにする必要がある場合、 SAN LIF を移動して WWPN などの設定情報を保持しておけば、スイッチファブリックの再ゾーニングを行わずに済みます。SAN LIF は移動前にオフラインにする必要があるため、ホストトラフィックについては、ホストマルチパスソフトウェアを使用して、 LUN への無停止アクセスを確保する必要があります。SAN LIF はクラスタ内の任意のノードに移動できますが、 SAN LIF を別の Storage Virtual Machine （ SVM ）に移動することはできません。
+
+LIF がポートセットのメンバーである場合、 LIF を別のノードに移動する前に、その LIF をポートセットから削除しておく必要があります。
+
+移動する LIF のデスティネーションノードおよび物理ポートは、同じ FC ファブリック上またはイーサネットネットワーク上に存在する必要があります。適切にゾーニングされていない別のファブリック上に LIF を移動したり、 iSCSI イニシエータとターゲットを接続していないイーサネットネットワーク上に LIF を移動したりすると、その LIF をオンラインに戻しても接続できなくなります。
+
+.手順
+. LIF の管理ステータスと動作ステータスを表示します。
++
+「 network interface show -vserver_vserver_name _ 」のように表示されます
+
+. LIF のステータスを「自身」（オフライン）に変更します。
++
+「 network interface modify -vserver _vserver_name __ -lif lif_name --status-admin down 」を参照してください
+
+. LIF を新しいノードとポートに割り当てます。
++
+「 network interface modify -vserver _vserver_name __ lif_lif_name_-home-node_name __ -home-node _node_name _-home-port port_name _ ’
+
+. LIF のステータスを up （オンライン）に変更します。
++
+「 network interface modify -vserver vserver_name __ -lif LIF_name -status-admin up
+
+. 変更内容を確認します。
++
+「 network interface show -vserver_vserver_name _ 」のように表示されます
+
+

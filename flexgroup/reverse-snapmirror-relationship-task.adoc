@@ -1,0 +1,79 @@
+---
+permalink: flexgroup/reverse-snapmirror-relationship-task.html 
+sidebar: sidebar 
+keywords: reverse, snapmirror, relation, flexgroup, volume, disaster, recovery 
+summary: 災害によって SnapMirror 関係のソース FlexGroup が機能しなくなった場合、ソース FlexGroup ボリュームの修理や交換を行う間、デスティネーション FlexGroup ボリュームを使用してデータを提供できます。ソース FlexGroup ボリュームがオンラインになったら、元のソース FlexGroup ボリュームを読み取り専用のデスティネーションにして、 SnapMirror 関係を反転できます。 
+---
+= ディザスタリカバリ時に FlexGroup ボリューム間の SnapMirror 関係を反転する
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+災害によって SnapMirror 関係のソース FlexGroup が機能しなくなった場合、ソース FlexGroup ボリュームの修理や交換を行う間、デスティネーション FlexGroup ボリュームを使用してデータを提供できます。ソース FlexGroup ボリュームがオンラインになったら、元のソース FlexGroup ボリュームを読み取り専用のデスティネーションにして、 SnapMirror 関係を反転できます。
+
+再同期が実行される前に、デスティネーションボリュームのアクティブなクォータルールは非アクティブ化され、削除されます。
+
+volume quota policy rule create コマンドと volume quota modify コマンドを使用すると ' 再同期操作の完了後にクォータ・ルールを作成し ' 再びアクティブにすることができます
+
+.手順
+. 元のデスティネーション FlexGroup ボリュームで、ソース FlexGroup ボリュームとデスティネーション FlexGroup ボリュームの間のデータ保護ミラー関係を削除します。「 snapmirror delete -destination-path svm_name ： volume_name
++
+[listing]
+----
+cluster2::> snapmirror delete -destination-path vsd:dst
+----
+. 元のソース FlexGroup ボリュームで、ソース FlexGroup ボリュームから関係の情報を削除します。「 snapmirror release -destination-path svm_name ： volume_name -relationship-info-only 」
++
+SnapMirror 関係を削除したあと、再同期処理を実行する前に、ソース FlexGroup ボリュームから関係の情報を削除する必要があります。
+
++
+[listing]
+----
+cluster1::> snapmirror release -destination-path vsd:dst -relationship-info-only true
+----
+. 新しいデスティネーション FlexGroup ボリュームで、ミラー関係を作成します。「 snapmirror create -source-path src_svm_name ： volume_name -destination-path dst_svm_name ： volume_name -type XDP -policy MirrorAllSnapshots
++
+[listing]
+----
+cluster1::> snapmirror create -source-path vsd:dst -destination-path vss:src -type XDP -policy MirrorAllSnapshots
+----
+. 新しいデスティネーション FlexGroup ボリュームで、ソース FlexGroup を再同期します。「 snapmirror resync -source-path svm_name ： volume_name
++
+[listing]
+----
+cluster1::> snapmirror resync -source-path vsd:dst
+----
+. SnapMirror 転送を監視します。「 snapmirror show -expand
++
+[listing]
+----
+cluster2::> snapmirror show -expand
+                                                                       Progress
+Source            Destination Mirror  Relationship   Total             Last
+Path        Type  Path        State   Status         Progress  Healthy Updated
+----------- ---- ------------ ------- -------------- --------- ------- --------
+vsd:dst       XDP  vss:src        Snapmirrored
+                                      Idle           -         true    -
+vss:dst__0001 XDP  vss:src__0001  Snapmirrored
+                                      Idle           -         true    -
+vsd:dst__0002 XDP  vss:src__0002  Snapmirrored
+                                      Idle           -         true    -
+vsd:dst__0003 XDP  vss:src__0003  Snapmirrored
+                                      Idle           -         true    -
+vsd:dst__0004 XDP  vss:src__0004  Snapmirrored
+                                      Idle           -         true    -
+vsd:dst__0005 XDP  vss:src__0005  Snapmirrored
+                                      Idle           -         true    -
+vsd:dst__0006 XDP  vss:src__0006  Snapmirrored
+                                      Idle           -         true    -
+vsd:dst__0007 XDP  vss:src__0007  Snapmirrored
+                                      Idle           -         true    -
+vsd:dst__0008 XDP  vss:src__0008  Snapmirrored
+                                      Idle           -         true    -
+...
+----
++
+各コンスティチュエントの SnapMirror 関係のステータスには、再同期が成功したことを示す「 SnapManager がミラーリングされています」と表示されます。
+
+

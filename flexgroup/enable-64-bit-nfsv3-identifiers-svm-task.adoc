@@ -1,0 +1,36 @@
+---
+permalink: flexgroup/enable-64-bit-nfsv3-identifiers-svm-task.html 
+sidebar: sidebar 
+keywords: enable, nfsv3, identifier, svm 
+summary: FlexGroup ボリュームの大量のファイルをサポートし、ファイル ID の競合を防ぐためには、 FlexGroup ボリュームを作成する必要がある SVM で 64 ビットのファイル ID を有効にします。 
+---
+= SVM で 64 ビットの NFSv3 ID を有効にします
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+FlexGroup ボリュームの大量のファイルをサポートし、ファイル ID の競合を防ぐためには、 FlexGroup ボリュームを作成する必要がある SVM で 64 ビットのファイル ID を有効にします。
+
+.手順
+. advanced 権限レベル「 set -privilege advanced 」にログインします
+. 64 ビットの NFSv3 FSID とファイル ID を使用するように SVM を変更します。 vserver nfs modify -vserver SVM_name -v3-64-identifiers enabled`
++
+[listing]
+----
+cluster1::*> vserver nfs modify -vserver vs0 -v3-64bit-identifiers enabled
+
+Warning: You are attempting to increase the number of bits used for NFSv3
+         FSIDs and File IDs from 32 to 64 on Vserver "vs0". This could
+         result in older client software no longer working with the volumes
+         owned by Vserver "vs0".
+Do you want to continue? {y|n}: y
+
+Warning: Based on the changes you are making to the NFS server on Vserver
+         "vs0", it is highly recommended that you remount all NFSv3 clients
+         connected to it after the command completes.
+Do you want to continue? {y|n}: y
+----
+
+
+すべてのクライアントを再マウントする必要があります。これは、ファイルシステム ID が変わるため、クライアントが NFS 処理を試みたときに stale file handle メッセージが表示される可能性があるためです。

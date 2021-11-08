@@ -1,0 +1,95 @@
+---
+permalink: smb-admin/create-ntfs-security-descriptor-audit-task.html 
+sidebar: sidebar 
+keywords: create, creating, ntfs, security, descriptor, audit, policy, configure, configuring, apply, access, control, list, acl, file, residing, reside, svm, associate, folder, policy, task, create an ntfs security descriptor 
+summary: NTFS セキュリティ記述子監査ポリシーの作成は、 SVM 内のファイルやフォルダの NTFS Access Control List （ ACL ；アクセス制御リスト）を設定および適用するための最初のステップです。このセキュリティ記述子をポリシータスクでファイルパスまたはフォルダパスに関連付けます。 
+---
+= NTFS セキュリティ記述子を作成します
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+NTFS セキュリティ記述子監査ポリシーの作成は、 SVM 内のファイルやフォルダの NTFS Access Control List （ ACL ；アクセス制御リスト）を設定および適用するための最初のステップです。このセキュリティ記述子をポリシータスクでファイルパスまたはフォルダパスに関連付けます。
+
+NTFS セキュリティ形式のボリューム内に存在するファイルやフォルダ、または mixed セキュリティ形式のボリューム上に存在するファイルやフォルダに対して、 NTFS セキュリティ記述子を作成できます。
+
+デフォルトでは、セキュリティ記述子を作成すると、 Discretionary Access Control List （ DACL ；随意アクセス制御リスト）の 4 つの Access Control Entry （ ACE ；アクセス制御エントリ）がそのセキュリティ記述子に追加されます。4 つのデフォルトの ACE は次のとおりです。
+
+|===
+| オブジェクト | アクセスタイプ | アクセス権 | 権限の適用先 
+
+
+ a| 
+組み込み管理者
+ a| 
+許可（ Allow ）
+ a| 
+フルコントロール
+ a| 
+このフォルダ、サブフォルダ、ファイル
+
+
+
+ a| 
+組み込みユーザ
+ a| 
+許可（ Allow ）
+ a| 
+フルコントロール
+ a| 
+このフォルダ、サブフォルダ、ファイル
+
+
+
+ a| 
+作成者の所有者
+ a| 
+許可（ Allow ）
+ a| 
+フルコントロール
+ a| 
+このフォルダ、サブフォルダ、ファイル
+
+
+
+ a| 
+NT AUTHORITY\SYSTEM
+ a| 
+許可（ Allow ）
+ a| 
+フルコントロール
+ a| 
+このフォルダ、サブフォルダ、ファイル
+
+|===
+次のオプションのパラメータを使用して、セキュリティ記述子の設定をカスタマイズできます。
+
+* セキュリティ記述子の所有者
+* 所有者のプライマリグループ
+* raw 制御フラグ
+
+
+オプションのパラメータの値はストレージレベルのアクセス保護では無視されます。詳細については、マニュアルページを参照してください。
+
+.手順
+. advanced パラメータを使用する場合は、権限レベルを advanced に設定します。「 set -privilege advanced
+. セキュリティ記述子を作成します。 vserver security file-directory ntfs create -vserver vserver_name -ntfs-sd SD_name optional_parameters
++
+vserver security file-directory ntfs create -ntfs-sd sd1 -vserver vs1 -owner domain\jo`
+
+. セキュリティ記述子の設定が正しいことを確認します。「 vserver security file-directory ntfs show -vserver vserver_name -ntfs-sd SD_name 」
++
+[listing]
+----
+vserver security file-directory ntfs show -vserver vs1 -ntfs-sd sd1
+----
++
+[listing]
+----
+                                     Vserver: vs1
+                           Security Descriptor Name: sd1
+                   Owner of the Security Descriptor: DOMAIN\joe
+----
+. advanced 権限レベルになっている場合は、 admin 権限レベルに戻ります。「 set -privilege admin 」
+

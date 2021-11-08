@@ -1,0 +1,60 @@
+---
+permalink: smb-admin/enable-disable-local-user-authentication-task.html 
+sidebar: sidebar 
+keywords: enable, disable, local, user, authentication, smb, access, storage, virtual, machine, svm, domain, controller, domain-level, level, enable or disable local user authentication 
+summary: Storage Virtual Machine （ SVM ）での SMB アクセスに関するローカルユーザ認証を有効または無効にすることができます。デフォルトでは、ローカルユーザ認証は許可されます。これは、 SVM がドメインコントローラにアクセスできない場合、またはドメインレベルのアクセス制御を使用しない場合に役立ちます。 
+---
+= ローカルユーザ認証を有効または無効にします
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+Storage Virtual Machine （ SVM ）での SMB アクセスに関するローカルユーザ認証を有効または無効にすることができます。デフォルトでは、ローカルユーザ認証は許可されます。これは、 SVM がドメインコントローラにアクセスできない場合、またはドメインレベルのアクセス制御を使用しない場合に役立ちます。
+
+CIFS サーバでローカルユーザとローカルグループ機能を有効にする必要があります。
+
+ローカルユーザ認証はいつでも有効または無効にできます。SMB 接続の作成時の認証のためにローカルユーザを使用する場合は、 CIFS サーバのローカルユーザとローカルグループオプションも有効にする必要があります。
+
+.手順
+. 権限レベルを advanced に設定します。「 set -privilege advanced 」
+. 次のいずれかを実行します。
++
+|===
+| ローカル認証の設定 | 入力するコマンド 
+
+
+ a| 
+有効
+ a| 
+vserver cifs options modify -vserver vserver_name -is-local-auth -enabled true
+
+
+
+ a| 
+無効
+ a| 
+vserver cifs options modify -vserver vserver_name -is-local-auth -enabled false です
+
+|===
+. admin 権限レベルに戻ります。「 set -privilege admin 」
+
+
+次の例は、 SVM vs1 でローカルユーザ認証を有効にします。
+
+[listing]
+----
+cluster1::>set -privilege advanced
+Warning: These advanced commands are potentially dangerous; use them
+only when directed to do so by technical support personnel.
+Do you wish to continue? (y or n): y
+
+cluster1::*> vserver cifs options modify -vserver vs1 -is-local-auth-enabled true
+
+cluster1::*> set -privilege admin
+----
+* 関連情報 *
+
+xref:local-user-authentication-concept.adoc[ローカルユーザ認証の仕組み]
+
+xref:enable-disable-local-users-groups-task.adoc[ローカルユーザとローカルグループの有効化と無効化]

@@ -1,0 +1,92 @@
+---
+permalink: flexgroup/move-constituents-task.html 
+sidebar: sidebar 
+keywords: constituents, flexgroup, volume 
+summary: FlexGroup ボリュームのコンスティチュエントをアグリゲート間で移動して、特定のコンスティチュエントのトラフィックが増加した場合に負荷を分散することができます。コンスティチュエントを移動することで、アグリゲートのスペースを解放して既存のコンスティチュエントのサイズを変更することもできます 
+---
+= FlexGroup ボリュームのコンスティチュエントを移動します
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+FlexGroup ボリュームのコンスティチュエントをアグリゲート間で移動して、特定のコンスティチュエントのトラフィックが増加した場合に負荷を分散することができます。コンスティチュエントを移動することで、アグリゲートのスペースを解放して既存のコンスティチュエントのサイズを変更することもできます
+
+SnapMirror 関係にある FlexGroup ボリュームコンスティチュエントを移動する場合は、 SnapMirror 関係を初期化しておく必要があります。
+
+ボリューム移動処理は、 FlexGroup のコンスティチュエントの拡張中は実行できません。
+
+.手順
+. 移動する FlexGroup ボリュームコンスティチュエントを特定します。 volume show -vserver SVM_name -is-constituent *
++
+[listing]
+----
+cluster1::> volume show -vserver vs2 -is-constituent *
+Vserver   Volume       Aggregate    State      Type       Size  Available Used%
+--------- ------------ ------------ ---------- ---- ---------- ---------- -----
+vs2       fg1          -            online     RW        400TB    15.12TB   62%
+vs2       fg1__0001    aggr1        online     RW         25TB     8.12MB   59%
+vs2       fg1__0002    aggr2        online     RW         25TB     2.50TB   90%
+...
+----
+. FlexGroup ボリュームコンスティチュエントを移動できるアグリゲートを特定します。 volume move target-aggr show -vserver SVM_name -volume vol_name constituent_name
++
+選択するアグリゲート内の使用可能なスペースは、移動する FlexGroup ボリュームコンスティチュエントのサイズよりも大きくする必要があります。
+
++
+[listing]
+----
+cluster1::> volume move target-aggr show -vserver vs2 -volume fg1_0002
+Aggregate Name   Available Size   Storage Type
+--------------   --------------   ------------
+aggr2            467.9TB          hdd
+node12a_aggr3    100.34TB         hdd
+node12a_aggr2    100.36TB         hdd
+node12a_aggr1    100.36TB         hdd
+node12a_aggr4    100.36TB         hdd
+5 entries were displayed.
+----
+. FlexGroup ボリュームコンスティチュエントを目的のアグリゲートに移動できることを確認します。 volume move start -vserver SVM_name -volume vol_name -perform-validation-only true
++
+[listing]
+----
+cluster1::> volume move start -vserver vs2 -volume fg1_0002 -destination-aggregate node12a_aggr3 -perform-validation-only true
+Validation succeeded.
+----
+. FlexGroup ボリュームコンスティチュエントを移動します。 volume move start -vserver SVM_name -volume vol_name -destination-aggregate aggr_name [-allow-allow-mixed-aggr-types ｛ true|false ｝ ] `
++
+ボリューム移動処理はバックグラウンドプロセスとして実行されます。
+
++
+ONTAP 9.5 以降では '-allow-mixed-aggr-types パラメータを true に設定することにより ' ファブリック・プールから非ファブリック・プールへ FlexGroup ボリューム・コンスティチュエントを移動できますデフォルトでは '-allow-mixed-aggr-types] オプションは 'false' に設定されています
+
++
+[NOTE]
+====
+FlexGroup ボリュームで暗号化を有効にするために 'volume move' コマンドは使用できません
+
+====
++
+[listing]
+----
+cluster1::> volume move start -vserver vs2 -volume fg1_002 -destination-aggregate node12a_aggr3
+----
++
+[NOTE]
+====
+アクティブな SnapMirror 処理が原因でボリューム移動処理が失敗する場合は、「 snapmirror abort -h 」コマンドを使用して SnapMirror 処理を中止します。場合によっては、 SnapMirror の中止処理も失敗することがあります。このような場合は、ボリューム移動処理を中止してから再試行してください。
+
+====
+. ボリューム移動処理の状態を確認します。 volume move show -volume vol_constituent_name
++
+次の例は、ボリューム移動処理のレプリケーションフェーズを完了し、カットオーバーフェーズにある FlexGroup コンスティチュエントボリュームの状態を示しています。
+
++
+[listing]
+----
+cluster1::> volume move show -volume fg1_002
+Vserver   Volume     State    Move Phase  Percent-Complete Time-To-Complete
+--------- ---------- -------- ----------  ---------------- ----------------
+vs2       fg1_002    healthy  cutover     -                -
+----
+

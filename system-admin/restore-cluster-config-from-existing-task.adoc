@@ -1,0 +1,138 @@
+---
+permalink: system-admin/restore-cluster-config-from-existing-task.html 
+sidebar: sidebar 
+keywords: restore, cluster, configuration, existing, configuration, failure, recovering, node, rejoin, cluster 
+summary: クラスタ障害後に既存の構成からクラスタ構成をリストアするには、クラスタ構成を選択してリカバリするノードで利用できるようにし、その構成を使用してクラスタを再作成し、各追加ノードを新しいクラスタに再追加します。 
+---
+= 既存の構成からクラスタ構成をリストアします
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+クラスタ障害後に既存の構成からクラスタ構成をリストアするには、クラスタ構成を選択してリカバリするノードで利用できるようにし、その構成を使用してクラスタを再作成し、各追加ノードを新しいクラスタに再追加します。
+
+クラスタ構成の損失となる障害からリカバリするには、このタスクのみを実行する必要があります。
+
+[NOTE]
+====
+構成バックアップファイルからクラスタを再作成する場合は、テクニカルサポートに連絡して、構成バックアップファイルと現在のクラスタ構成との矛盾をすべて解決する必要があります。
+
+====
+.手順
+. 各 HA ペアのストレージフェイルオーバーを無効にします。
++
+'*storage failover modify -node _node_name -enabled false *
+
++
+ストレージフェイルオーバーを無効にするのは、各 HA ペアに対して 1 度だけです。ノードのストレージフェイルオーバーを無効にすると、そのノードのパートナーでもストレージフェイルオーバーが無効になります。
+
+. リカバリするノード以外の各ノードを停止します。
++
+*system node halt -node node_name --reason "text"*`
+
++
+[listing]
+----
+cluster1::*> system node halt -node node0 -reason "recovering cluster"
+
+Warning: Are you sure you want to halt the node? {y|n}: y
+----
+. 権限レベルを advanced に設定します。
++
+「 * set -privilege advanced * 」のように指定します
+
+. リカバリ・ノード上で '*system configuration recovery cluster recreate *' コマンドを使用してクラスタを再作成します
++
+この例では、リカバリノードに保存された構成情報を使用してクラスタを再作成します。
+
++
+[listing]
+----
+cluster1::*> configuration recovery cluster recreate -from node
+
+Warning: This command will destroy your existing cluster. It will
+         rebuild a new single-node cluster consisting of this node
+         and its current configuration. This feature should only be
+         used to recover from a disaster. Do not perform any other
+         recovery operations while this operation is in progress.
+Do you want to continue? {y|n}: y
+----
++
+リカバリノードに新しいクラスタが作成されます。
+
+. 構成バックアップファイルからクラスタを再作成する場合は、クラスタのリカバリがまだ進行中であることを確認します。
++
+*system configuration recovery cluster show *
+
++
+正常なノードからクラスタを再作成する場合、クラスタのリカバリの状態を確認する必要はありません。
+
++
+[listing]
+----
+cluster1::*> system configuration recovery cluster show
+ Recovery Status: in-progress
+ Is Recovery Status Persisted: false
+----
+. 再作成したクラスタに再追加が必要な各ノードをブートします。
++
+ノードは一度に 1 つずつリブートする必要があります。
+
+. 再作成したクラスタに再追加が必要な各ノードで、次の作業を行います。
++
+.. 再作成したクラスタ上の正常なノードから、ターゲットノードを再追加します。
++
+`* system configuration recovery cluster rejoin -node_node_name _*`
+
++
+この例では ' ターゲット・ノードを再作成されたクラスタに再結合します
+
++
+[listing]
+----
+cluster1::*> system configuration recovery cluster rejoin -node node2
+
+Warning: This command will rejoin node "node2" into the local
+         cluster, potentially overwriting critical cluster
+         configuration files. This command should only be used
+         to recover from a disaster. Do not perform any other
+         recovery operations while this operation is in progress.
+         This command will cause node "node2" to reboot.
+Do you want to continue? {y|n}: y
+----
++
+ターゲットノードがリブートし、クラスタに追加されます。
+
+.. ターゲットノードが正常であり、クラスタ内の残りのノードとクォーラムを形成していることを確認します。
++
+*cluster show -eligibility true *
+
++
+別のノードを再追加する前に、ターゲットノードを再作成したクラスタに再追加する必要があります。
+
++
+[listing]
+----
+cluster1::*> cluster show -eligibility true
+Node                 Health  Eligibility   Epsilon
+-------------------- ------- ------------  ------------
+node0                true    true          false
+node1                true    true          false
+2 entries were displayed.
+----
+
+
+. 構成バックアップファイルからクラスタを再作成した場合は、リカバリステータスを「 complete 」に設定します。
++
+*system configuration recovery cluster modify -recovery-status complete *
+
+. admin 権限レベルに戻ります。
++
+'*set -privilege admin*
+
+. クラスタが 2 つのノードだけで構成されている場合は '*cluster ha modify *' コマンドを使用してクラスタ HA を再度有効にします
+. 各 HA ペアのストレージ・フェイルオーバーを再度有効にするには '*storage failover modify*' コマンドを使用します
+
+
+クラスタに SnapMirror ピア関係がある場合は、それらの関係も再作成する必要があります。詳細については、を参照してください link:../data-protection/index.html["データ保護"]。

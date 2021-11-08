@@ -1,0 +1,108 @@
+---
+permalink: peering/create-cluster-relationship-92-earlier-task.html 
+sidebar: sidebar 
+keywords: create, cluster, peer, relationship 
+summary: cluster peer create コマンドを使用して、ローカルクラスタとリモートクラスタ間のピア関係の要求を開始できます。ローカルクラスタからピア関係を要求したら、リモートクラスタで cluster peer create を実行して関係を承認できます。 
+---
+= クラスタピア関係を作成する（ ONTAP 9.2 以前）
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+「 cluster peer create 」コマンドを使用して、ローカルクラスタとリモートクラスタ間のピア関係の要求を開始できます。ピア関係がローカルクラスタによって要求された後 ' リモートクラスタ上で cluster peer create を実行して ' 関係を受け入れることができます
+
+.必要なもの
+* ピア関係にあるクラスタ内の各ノードでクラスタ間 LIF を作成しておく必要があります。
+* クラスタ管理者は、各クラスタが他のクラスタに対して自身を認証する際に使用するパスフレーズに同意しておく必要があります。
+
+
+.手順
+. データ保護のデスティネーションクラスタで、データ保護のソースクラスタとのピア関係を作成します。
++
+'cluster peer create -peer-addrs_peer_lif_ips_-ipspace_`
+
++
+カスタム IPspace を使用しない場合は、 -ipspace オプションを無視してかまいません。コマンド構文全体については、マニュアルページを参照してください。
+
++
+次の例は、クラスタ間 LIF の IP アドレス 192.168.2.201 および 192.168.2.202 で、リモートクラスタとのクラスタピア関係を作成します。
+
++
+[listing]
+----
+cluster02::> cluster peer create -peer-addrs 192.168.2.201,192.168.2.202
+Enter the passphrase:
+Please enter the passphrase again:
+----
++
+プロンプトが表示されたら、ピア関係のパスフレーズを入力します。
+
+. データ保護のソースクラスタで、ソースクラスタをデスティネーションクラスタに対して認証します。
++
+'cluster peer create -peer-addrs_peer_lif_ips_-ipspace_`
+
++
+コマンド構文全体については、マニュアルページを参照してください。
+
++
+次の例は、クラスタ間 LIF の IP アドレス 192.140.112.203 および 192.140.112.204 でローカルクラスタをリモートクラスタに対して認証します。
+
++
+[listing]
+----
+cluster01::> cluster peer create -peer-addrs 192.168.2.203,192.168.2.204
+Please confirm the passphrase:
+Please confirm the passphrase again:
+----
++
+プロンプトが表示されたら、ピア関係のパスフレーズを入力します。
+
+. クラスタピア関係が作成されたことを確認します。
++
+cluster peer show – instance
+
++
+コマンド構文全体については、マニュアルページを参照してください。
+
++
+[listing]
+----
+cluster01::> cluster peer show –instance
+Peer Cluster Name: cluster01
+Remote Intercluster Addresses: 192.168.2.201,192.168.2.202
+Availability: Available
+Remote Cluster Name: cluster02
+Active IP Addresses: 192.168.2.201,192.168.2.202
+Cluster Serial Number: 1-80-000013
+----
+. ピア関係にあるノードの接続状態とステータスを確認します。
++
+cluster peer health show
+
++
+コマンド構文全体については、マニュアルページを参照してください。
+
++
+[listing]
+----
+cluster01::> cluster peer health show
+Node       cluster-Name                Node-Name
+             Ping-Status               RDB-Health Cluster-Health  Avail…
+---------- --------------------------- ---------  --------------- --------
+cluster01-01
+           cluster02                   cluster02-01
+             Data: interface_reachable
+             ICMP: interface_reachable true       true            true
+                                       cluster02-02
+             Data: interface_reachable
+             ICMP: interface_reachable true       true            true
+cluster01-02
+           cluster02                   cluster02-01
+             Data: interface_reachable
+             ICMP: interface_reachable true       true            true
+                                       cluster02-02
+             Data: interface_reachable
+             ICMP: interface_reachable true       true            true
+----
+

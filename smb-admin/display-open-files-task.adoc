@@ -1,0 +1,170 @@
+---
+permalink: smb-admin/display-open-files-task.html 
+sidebar: sidebar 
+keywords: display, information, smb, file, connection, session, if, list, volume, share, name, contiuous, available, protection, level, helpful, nondisruptive, operation, display information about open smb files 
+summary: SMB 接続、 SMB セッション ID 、ホスティングボリューム、共有名、共有パスなど、開いている SMB ファイルに関する情報を表示できます。ファイルの継続的可用性保護レベルに関する情報を表示できます。この情報は、開いているファイルがノンストップオペレーションをサポートする状態であるかどうかを確認するのに役立ちます。 
+---
+= 開いている SMB ファイルに関する情報を表示します
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+SMB 接続、 SMB セッション ID 、ホスティングボリューム、共有名、共有パスなど、開いている SMB ファイルに関する情報を表示できます。ファイルの継続的可用性を備えた保護のレベルに関する情報を表示できます。この情報は、開いているファイルがノンストップオペレーションをサポートする状態であるかどうか確認するのに役立ちます。
+
+確立された SMB セッションで開いているファイルに関する情報を表示できます。これは、 SMB セッション内の特定のファイルに関する SMB セッション情報を確認する必要がある場合に役立ちます。
+
+たとえば、 SMB セッションで、継続的可用性を備えた保護を使用して開いているファイルと、継続的可用性を備えた保護を使用せずに開いているファイルがある場合（ vserver cifs session show コマンド出力の「 -continuously-available 」フィールドの値は「 Partial 」です）、 このコマンドを使用すると、継続的可用性に対応していないファイルを確認できます。
+
+オプションのパラメータを何も指定せずに vserver cifs session file show コマンドを実行することで、 Storage Virtual Machine （ SVM ）上の確立された SMB セッションのすべての開いているファイルに関する情報を要約形式で表示できます。
+
+ただし、多くの場合、大量の出力が返されます。オプションのパラメータを指定すると、出力に表示される情報をカスタマイズできます。これは、開いているファイルの一部のみに関する情報を表示する場合に便利です。
+
+* オプションの「 -fields 」パラメータを使用すると、選択したフィールドの出力を表示できます。
++
+このパラメータは、単独で使用することも、他のオプションのパラメータと組み合わせて使用することもできます。
+
+* 「 -instance 」パラメータを使用すると、開いている SMB ファイルに関する詳細情報を表示できます。
++
+このパラメータは、単独で使用することも、他のオプションのパラメータと組み合わせて使用することもできます。
+
+
+
+.ステップ
+. 次のいずれかを実行します。
++
+|===
+| 表示する開いている SMB ファイル | 入力するコマンド 
+
+
+ a| 
+をクリックします
+ a| 
+vserver cifs session file show -vserver vserver_name
+
+
+
+ a| 
+指定したノード上のセッションを表示します
+ a| 
+vserver cifs session file show -vserver vserver_name -node ｛ node_name | local ｝ `
+
+
+
+ a| 
+指定したファイル ID のファイル
+ a| 
+vserver cifs session file show -vserver vserver_name -file-id integer
+
+
+
+ a| 
+指定した SMB 接続 ID のファイル
+ a| 
+vserver cifs session file show -vserver vserver_name -connection-id integer
+
+
+
+ a| 
+指定した SMB セッション ID のファイル
+ a| 
+vserver cifs session file show -vserver vserver_name -session-id integer
+
+
+
+ a| 
+指定したホスティングアグリゲートのファイル
+ a| 
+vserver cifs session file show -vserver vserver_name -hosting-aggregate aggregate-name
+
+
+
+ a| 
+指定したボリュームのファイルです
+ a| 
+vserver cifs session file show -vserver vserver_name -hosting-volume volume_name
+
+
+
+ a| 
+指定した SMB 共有のファイル
+ a| 
+vserver cifs session file show -vserver vserver_name -share-name share_name です
+
+
+
+ a| 
+指定した SMB パスのオブジェクト
+ a| 
+vserver cifs session file show -vserver vserver_name -path path
+
+
+
+ a| 
+指定したレベルの継続的可用性を備えた保護を使用しているファイル
+ a| 
+「 vserver cifs session file show -vserver vserver_name -continuously-available ｛ No | Yes ｝ 」を参照してください
+
+[NOTE]
+====
+継続的可用性のステータスが No の場合 ' これらの開いているファイルは ' テイクオーバーおよびギブバックから無停止でリカバリすることはできませんまた、可用性の高い関係にあるパートナー間での一般的なアグリゲートの再配置からリカバリすることもできません。
+
+====
+
+
+ a| 
+指定した再接続の状態のファイル
+ a| 
+vserver cifs session file show -vserver vserver_name -reconnected ｛ No | Yes ｝ `
+
+[NOTE]
+====
+再接続状態が「 No 」の場合、その開いているファイルは、切断イベントの後に再接続されません。これは、ファイルが一度も切断されていないこと、またはファイルが切断されてから再接続できなかったことを意味します。再接続の状態が Yes の場合 ' その開いているファイルは ' 切断の発生後に正常に再接続されたことを意味します
+
+====
+|===
++
+ほかにも、出力結果の絞り込みに使用できるオプションのパラメータがあります。詳細については、のマニュアルページを参照してください。
+
+
+
+次の例は、 SVM vs1 の開いているファイルに関する情報を表示します。
+
+[listing]
+----
+cluster1::> vserver cifs session file show -vserver vs1
+Node:       node1
+Vserver:    vs1
+Connection: 3151274158
+Session:    1
+File    File      Open Hosting               Continuously
+ID      Type      Mode Volume    Share       Available
+------- --------- ---- --------- ----------- ------------
+41      Regular   r    data      data        Yes
+Path: \mytest.rtf
+----
+次の例は、 SVM vs1 のファイル ID 82 の開いている SMB ファイルに関する詳細情報を表示します。
+
+[listing]
+----
+cluster1::> vserver cifs session file show -vserver vs1 -file-id 82 -instance
+
+                  Node: node1
+               Vserver: vs1
+               File ID: 82
+         Connection ID: 104617
+            Session ID: 1
+             File Type: Regular
+             Open Mode: rw
+Aggregate Hosting File: aggr1
+   Volume Hosting File: data1
+            CIFS Share: data1
+  Path from CIFS Share: windows\win8\test\test.txt
+            Share Mode: rw
+           Range Locks: 1
+Continuously Available: Yes
+           Reconnected: No
+----
+* 関連情報 *
+
+xref:display-session-task.adoc[SMB セッション情報の表示]

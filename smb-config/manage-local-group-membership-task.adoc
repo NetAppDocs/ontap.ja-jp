@@ -1,0 +1,56 @@
+---
+permalink: smb-config/manage-local-group-membership-task.html 
+sidebar: sidebar 
+keywords: manage, local, group, membership, add, remove, removing, local, domain, user, privilege, manage local group membership 
+summary: ローカルグループメンバーシップの管理では、ローカルユーザやドメインユーザの追加と削除、ドメイングループの追加と削除ができます。この機能は、特定のグループに対するアクセス制御に基づいてデータへのアクセスを制御したり、グループに関連した権限をユーザに付与したりする上で役に立ちます。 
+---
+= ローカルグループメンバーシップを管理します
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+ローカルグループメンバーシップの管理では、ローカルユーザやドメインユーザの追加と削除、ドメイングループの追加と削除ができます。この機能は、特定のグループに対するアクセス制御に基づいてデータへのアクセスを制御したり、グループに関連した権限をユーザに付与したりする上で役に立ちます。
+
+特定のグループのメンバーシップに基づいてローカルユーザ、ドメインユーザ、またはドメイングループに付与されたアクセス権や権限を取り消す場合に、メンバーをグループから削除できます。
+
+メンバーをローカルグループに追加する場合は、次の点に注意する必要があります。
+
+* 特殊なグループ _Everyone にユーザーを追加することはできません。
+* 別のローカルグループにローカルグループを追加することはできません。
+* ローカルグループにドメインユーザまたはグループを追加するには、 ONTAP で名前を SID に解決できる必要があります。
+
+
+メンバーをローカルグループから削除する場合は、次の点に注意する必要があります。
+
+* 特殊なグループ _Everyone からメンバーを削除することはできません。
+* ローカルグループからメンバーを削除するには、 ONTAP で名前を SID に解決できる必要があります。
+
+
+.手順
+. メンバーをグループに追加するか、グループから削除します。
++
+** メンバーを追加するには、「 + vserver cifs users-and-groups local-group add-members ‑ vserver vserver_name -group-name group_name ‑ member-names [、 …… ] + 」のようにします
++
+カンマ区切りのリストに記載されたローカルユーザ、ドメインユーザ、ドメイングループを指定し、特定のローカルグループに追加します。
+
+** メンバーを削除します。「 + vserver cifs users-and-groups local-group remove-members -vserver vserver_name -group-name group_name -member-names [、 …… ] + 」
++
+カンマ区切りのリストに記載されたローカルユーザ、ドメインユーザ、ドメイングループを指定し、特定のローカルグループから削除します。
+
+
+
+
+
+次の例では、 SVM vs1.example.com 上のローカルグループ「 `s MB_SERVER01\engineering` 」にローカルユーザ「 ````s MB_SERVER01\engineering 」を追加します。
+
+[listing]
+----
+cluster1::> vserver cifs users-and-groups local-group add-members -vserver vs1.example.com -group-name SMB_SERVER01\engineering -member-names SMB_SERVER01\sue
+----
+次の例では、 SVM vs1.example.com 上のローカルグループ「 `s MB_SERVER1\engineering` 」からローカルユーザ「 `````s MB_SERVER01\Sue` 」および「 `S MB_SERVER01\engineering` 」を削除します。
+
+[listing]
+----
+cluster1::> vserver cifs users-and-groups local-group remove-members -vserver vs1.example.com -group-name SMB_SERVER\engineering -member-names SMB_SERVER\sue,SMB_SERVER\james
+----

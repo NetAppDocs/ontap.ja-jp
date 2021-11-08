@@ -1,0 +1,468 @@
+---
+permalink: flexgroup/quota-reporting-task.html 
+sidebar: sidebar 
+keywords: quota, flexgroup, volume 
+summary: ONTAP 9.4 以前では、 FlexGroup ボリュームにクォータルールを適用してもレポートの対象となるだけで、クォータ制限を適用することはできませんでした。ONTAP 9.5 以降では、 FlexGroup ボリュームに適用されるクォータルールに制限を適用できます。 
+---
+= FlexGroup ボリュームにクォータを使用する
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+ONTAP 9.4 以前では、 FlexGroup ボリュームにクォータルールを適用してもレポートの対象となるだけで、クォータ制限を適用することはできませんでした。ONTAP 9.5 以降では、 FlexGroup ボリュームに適用されるクォータルールに制限を適用できます。
+
+.このタスクについて
+* ONTAP 9.5 以降では、 FlexGroup ボリュームにハードリミット、ソフトリミット、しきい値制限の各クォータを指定できます。
++
+これらの制限を指定して、特定のユーザ、グループ、または qtree が作成できるスペースの量、ファイルの数、またはその両方を制限できます。クォータ制限を指定すると、次の状況で警告メッセージが生成されます。
+
++
+** 使用量が設定されたソフトリミットを超えると、 ONTAP は警告メッセージを発行しますが、それ以上のトラフィックは許可されます。
++
+その後使用量がソフトリミットを再び下回ると、解決済みのメッセージが表示されます。
+
+** 使用量が設定されているしきい値制限を超えた場合、 ONTAP は 2 つ目の警告メッセージを発行します。
++
+その後使用量がしきい値制限を下回っても、解決済みのメッセージは表示されません。
+
+** 使用量が設定されたハードリミットに達すると、 ONTAP はトラフィックを拒否して、それ以上のリソース消費を防止します。
+
+
+* ONTAP 9.5 では、 SnapMirror 関係のデスティネーション FlexGroup ボリュームでクォータルールを作成またはアクティブ化することができません。
+
+
+
+
+== クォータのターゲットとタイプ
+
+クォータにはユーザ、グループ、またはツリーのいずれかのタイプがあります。クォータターゲットは、クォータ制限が適用されるユーザ、グループ、または qtree を指定します。
+
+次の表に、クォータターゲットの種類、各クォータターゲットに関連付けられているクォータのタイプ、および各クォータターゲットの指定方法を示します。
+
+[cols="4*"]
+|===
+| クォータターゲット | クォータタイプ | ターゲットの指定方法 | 注： 
+
+
+ a| 
+ユーザ
+ a| 
+ユーザクォータ
+ a| 
+UNIX ユーザ名 UNIX UID
+
+Windows 2000 より前の形式の Windows ユーザ名
+
+Windows SID の場合
+ a| 
+ユーザクォータは、特定のボリュームまたは qtree に適用できます。
+
+
+
+ a| 
+グループ
+ a| 
+グループクォータ
+ a| 
+UNIX グループ名 UNIX GID
+ a| 
+グループクォータは、特定のボリュームまたは qtree に適用できます。
+
+[NOTE]
+====
+ONTAP では、 Windows ID に基づいてグループクォータを適用しません。
+
+====
+
+
+ a| 
+qtree
+ a| 
+ツリークォータ
+ a| 
+qtree 名
+ a| 
+ツリークォータは特定のボリュームに適用され、他のボリューム内の qtree には影響しません。
+
+
+
+ a| 
+ a| 
+ユーザ quotagroup クォータ
+
+ツリークォータ
+ a| 
+二重引用符（ "" ）
+ a| 
+と表示されたクォータターゲットは、 a_default QUOTA_示さ れています。デフォルトクォータの場合、クォータのタイプは type フィールドの値によって決まります。
+
+|===
+
+
+== クォータ制限を超えた場合の FlexGroup ボリュームの動作
+
+ONTAP 9.5 以降では、 FlexGroup ボリュームでクォータ制限がサポートされます。FlexGroup ボリュームと FlexVol ボリュームでは、クォータ制限の適用方法にいくつかの違いがあります。
+
+クォータ制限を超えたときの FlexGroup ボリュームの動作は次のとおりです。
+
+* FlexGroup ボリュームのスペースとファイルの使用量が、設定されているハードリミットを最大で 5% 上回っても、クォータ制限が適用されず、後続のトラフィックが拒否されない場合があります。
++
+ONTAP では、最大のパフォーマンスを実現するために、スペース消費量が設定されているハードリミットをわずかに超えてもクォータが適用されないことがあります。この追加で消費されるスペースは、設定されているハードリミットの 5% 、 1GB 、または 65536 のファイルのいずれか小さい方を超えません。
+
+* クォータ制限に達したあとにユーザまたは管理者が一部のファイルやディレクトリを削除してクォータ使用量が制限を下回ると、クォータを消費する後続のファイル処理が遅れて再開されます（再開までの時間は 5 秒以内）。
+* FlexGroup ボリュームのスペースとファイルの合計使用量が設定されているクォータ制限を超えた場合、イベントログメッセージのロギングがわずかに遅れることがあります。
+* FlexGroup ボリュームの一部のコンスティチュエントがいっぱいになったにもかかわらず、クォータ制限に達していない場合は、「スペース不足」エラーが表示されます。
+* クォータのハードリミットが設定されているクォータターゲットで、ファイルまたはディレクトリの名前変更や qtree 間のファイル移動などの処理を実行すると、 FlexVol で同様の処理を実行する場合に比べて時間がかかることがあります。
+
+
+[role="lead"]
+以下の各例では、 ONTAP 9.5 以降で制限が指定されたクォータを設定する方法を説明します。
+
+.例 1 ：ディスク制限を指定してクォータルールを適用する
+. user タイプのクォータ・ポリシー・ルールを作成し ' 実現可能なディスクのソフトリミットとハード・ディスクのリミットを指定する必要があります
++
+[listing]
+----
+cluster1::> volume quota policy rule create -vserver vs0 -policy-name default -volume FG -type user -target "" -qtree "" -disk-limit 1T -soft-disk-limit 800G
+----
+. クォータポリシールールを表示できます。
++
+[listing]
+----
+cluster1::> volume quota policy rule show -vserver vs0 -policy-name default -volume FG
+
+Vserver: vs0               Policy: default           Volume: FG
+
+                                               Soft             Soft
+                         User         Disk     Disk   Files    Files
+Type   Target    Qtree   Mapping     Limit    Limit   Limit    Limit  Threshold
+-----  --------  ------- -------  --------  -------  ------  -------  ---------
+user   ""        ""      off           1TB    800GB       -        -          -
+----
+. 新しいクォータルールをアクティブ化するには、ボリュームでクォータを初期化します。
++
+[listing]
+----
+cluster1::> volume quota on -vserver vs0 -volume FG -foreground true
+[Job 49] Job succeeded: Successful
+----
+. クォータレポートを使用して、 FlexGroup ボリュームのディスク使用量とファイル使用量の情報を表示できます。
++
+[listing]
+----
+cluster1::> volume quota report -vserver vs0 -volume FG
+Vserver: vs0
+
+                                    ----Disk----  ----Files-----   Quota
+Volume   Tree      Type    ID        Used  Limit    Used   Limit   Specifier
+-------  --------  ------  -------  -----  -----  ------  ------   ---------
+FG                 user    root      50GB      -       1       -
+FG                 user    *         800GB    1TB      0       -   *
+2 entries were displayed.
+----
+
+
+ディスクのハードリミットに達すると、クォータポリシールールのターゲット（この場合はユーザ）はファイルへのデータの書き込みをブロックされます。
+
+.例 2 ：複数のユーザにクォータルールを適用する
+. クォータ・ターゲットに複数のユーザ（ UNIX ユーザ 'CIFS ユーザ ' または両方の組み合わせ）を指定し ' そのルールが達成可能なディスクのソフト・リミットとディスクのハード・リミットを持つ 'user' タイプのクォータ・ポリシー・ルールを作成する必要があります
++
+[listing]
+----
+cluster1::> quota policy rule create -vserver vs0 -policy-name default -volume FG -type user -target "rdavis,ABCCORP\RobertDavis" -qtree "" -disk-limit 1TB -soft-disk-limit  800GB
+----
+. クォータポリシールールを表示できます。
++
+[listing]
+----
+cluster1::> quota policy rule show -vserver vs0 -policy-name default -volume FG
+
+Vserver: vs0               Policy: default           Volume: FG
+
+                                               Soft             Soft
+                         User         Disk     Disk   Files    Files
+Type   Target    Qtree   Mapping     Limit    Limit   Limit    Limit  Threshold
+-----  --------  ------- -------  --------  -------  ------  -------  ---------
+user   "rdavis,ABCCORP\RobertDavis"  "" off  1TB  800GB  -  -
+----
+. 新しいクォータルールをアクティブ化するには、ボリュームでクォータを初期化します。
++
+[listing]
+----
+cluster1::> volume quota on -vserver vs0 -volume FG -foreground true
+[Job 49] Job succeeded: Successful
+----
+. クォータの状態がアクティブであることを確認できます。
++
+[listing]
+----
+cluster1::> volume quota show -vserver vs0 -volume FG
+              Vserver Name: vs0
+               Volume Name: FG
+               Quota State: on
+               Scan Status: -
+          Logging Messages: on
+          Logging Interval: 1h
+          Sub Quota Status: none
+  Last Quota Error Message: -
+Collection of Quota Errors: -
+----
+. クォータレポートを使用して、 FlexGroup ボリュームのディスク使用量とファイル使用量の情報を表示できます。
++
+[listing]
+----
+cluster1::> quota report -vserver vs0 -volume FG
+Vserver: vs0
+
+                                    ----Disk----  ----Files-----   Quota
+Volume   Tree      Type    ID        Used  Limit    Used   Limit   Specifier
+-------  --------  ------  -------  -----  -----  ------  ------   ---------
+FG                 user    rdavis,ABCCORP\RobertDavis  0B  1TB  0  -   rdavis,ABCCORP\RobertDavis
+----
++
+クォータ制限は、クォータターゲットにリストされているすべてのユーザに適用されます。
+
+
+
+ディスクのハードリミットに達すると、クォータターゲットにリストされているユーザはそれ以降のファイルへのデータの書き込みをブロックされます。
+
+.例 3 ：ユーザマッピングが有効なクォータを適用する
+. user タイプのクォータ・ポリシー・ルールを作成し ' クォータ・ターゲットとして UNIX ユーザまたは Windows ユーザを 'user-mapping' を on に設定して指定し ' 実現可能なディスクのソフトリミットとディスクのハードリミットを指定してルールを作成する必要があります
++
+UNIX ユーザと Windows ユーザのマッピングは、「 vserver name-mapping create 」コマンドを使用して、事前に設定しておく必要があります。
+
++
+[listing]
+----
+cluster1::> quota policy rule create -vserver vs0 -policy-name default -volume FG -type user -target rdavis -qtree "" -disk-limit 1TB -soft-disk-limit  800GB -user-mapping on
+----
+. クォータポリシールールを表示できます。
++
+[listing]
+----
+cluster1::> quota policy rule show -vserver vs0 -policy-name default -volume FG
+
+Vserver: vs0               Policy: default           Volume: FG
+
+                                               Soft             Soft
+                         User         Disk     Disk   Files    Files
+Type   Target    Qtree   Mapping     Limit    Limit   Limit    Limit  Threshold
+-----  --------  ------- -------  --------  -------  ------  -------  ---------
+user   rdavis    ""      on           1TB    800GB       -        -          -
+----
+. 新しいクォータルールをアクティブ化するには、ボリュームでクォータを初期化します。
++
+[listing]
+----
+cluster1::> volume quota on -vserver vs0 -volume FG -foreground true
+[Job 49] Job succeeded: Successful
+----
+. クォータの状態がアクティブであることを確認できます。
++
+[listing]
+----
+cluster1::> volume quota show -vserver vs0 -volume FG
+              Vserver Name: vs0
+               Volume Name: FG
+               Quota State: on
+               Scan Status: -
+          Logging Messages: on
+          Logging Interval: 1h
+          Sub Quota Status: none
+  Last Quota Error Message: -
+Collection of Quota Errors: -
+----
+. クォータレポートを使用して、 FlexGroup ボリュームのディスク使用量とファイル使用量の情報を表示できます。
++
+[listing]
+----
+cluster1::> quota report -vserver vs0 -volume FG
+Vserver: vs0
+
+                                    ----Disk----  ----Files-----   Quota
+Volume   Tree      Type    ID        Used  Limit    Used   Limit   Specifier
+-------  --------  ------  -------  -----  -----  ------  ------   ---------
+FG                 user    rdavis,ABCCORP\RobertDavis  0B  1TB  0  -   rdavis
+----
++
+クォータ制限は、クォータターゲットにリストされているユーザと、そのユーザに対応する Windows ユーザまたは UNIX ユーザの両方に適用されます。
+
+
+
+ディスクのハードリミットに達すると、クォータターゲットにリストされているユーザと、そのユーザに対応する Windows ユーザまたは UNIX ユーザは、それ以降のファイルへのデータの書き込みをブロックされます。
+
+.例 4 ：クォータが有効になっている場合に qtree のサイズを確認する
+. 「 tree 」タイプのクォータ・ポリシー・ルールを作成する必要があります。このルールでは、現実的な値のディスクのソフト・リミットとハード・ディスク・リミットが指定されています。
++
+[listing]
+----
+cluster1::> quota policy rule create -vserver vs0 -policy-name default -volume FG -type tree -target tree_4118314302 -qtree "" -disk-limit 48GB -soft-disk-limit 30GB
+----
+. クォータポリシールールを表示できます。
++
+[listing]
+----
+cluster1::> quota policy rule show -vserver vs0
+
+Vserver: vs0               Policy: default           Volume: FG
+
+                                               Soft             Soft
+                         User         Disk     Disk   Files    Files
+Type   Target    Qtree   Mapping     Limit    Limit   Limit    Limit  Threshold
+-----  --------  ------- -------  --------  -------  ------  -------  ---------
+tree   tree_4118314302  "" -          48GB        -      20        -
+----
+. 新しいクォータルールをアクティブ化するには、ボリュームでクォータを初期化します。
++
+[listing]
+----
+cluster1::> volume quota on -vserver vs0 -volume FG -foreground true
+[Job 49] Job succeeded: Successful
+----
++
+.. クォータレポートを使用して、 FlexGroup ボリュームのディスク使用量とファイル使用量の情報を表示できます。
++
+[listing]
+----
+cluster1::> quota report -vserver vs0
+Vserver: vs0
+----Disk---- ----Files----- Quota
+Volume Tree Type ID Used Limit Used Limit Specifier
+------- -------- ------ ------- ----- ----- ------ ------ ---------
+FG tree_4118314302 tree 1 30.35GB 48GB 14 20 tree_4118314302
+----
++
+クォータ制限は、クォータターゲットにリストされているユーザと、そのユーザに対応する Windows ユーザまたは UNIX ユーザの両方に適用されます。
+
+
+
+. NFS クライアントからは、「 f 」コマンドを使用して、合計スペース使用量、使用可能なスペース、および使用済みスペースを表示します。
++
+[listing]
+----
+scsps0472342001# df -m /t/10.53.2.189/FG-3/tree_4118314302
+Filesystem 1M-blocks Used Available Use% Mounted on
+10.53.2.189/FG-3 49152 31078 18074 63% /t/10.53.2.189/FG-3
+----
++
+ハードリミットが指定されている場合、 NFS クライアントでは次のようにスペース使用量が計算されます。
+
++
+** 合計スペース使用量 = ツリーのハードリミット
+** 空きスペース = ハードリミットから qtree のスペース使用量をハードリミットなしで引いた値は、 NFS クライアントで次のようにスペース使用量が計算されます。
+** スペース使用量 = クォータ使用量
+** 合計スペース = ボリューム内のクォータ使用量と物理的な空きスペースの合計です
+
+
+. SMB 共有からは、エクスプローラを使用して、合計スペース使用量、使用可能なスペース、および使用済みスペースを表示します。
++
+SMB 共有では、スペース使用量の計算に関する次の考慮事項を理解しておく必要があります。
+
++
+** 使用可能な合計スペースの計算では、ユーザおよびグループのユーザクォータのハードリミットが考慮されます。
+** ツリークォータルール、ユーザクォータルール、グループクォータルールの空きスペースの中で最も小さな値が、 SMB 共有の空きスペースと見なされます。
+** SMB では合計スペース使用量が一定ではなく、ツリー、ユーザ、グループの中で最も小さな空きスペースに対応するハードリミットによって決まります。
+
+
+
+
+
+
+== FlexGroup ボリュームにルールと制限を適用します
+
+.手順
+. ターゲットのクォータルールを作成します。 'volume quota policy rule create -vserver vs0 -policy-name quota_policy_OF_ザ _rule -volume flexgroup vol-type ｛ tree | user | group ｝ -target target_for _rule -qtree qtree_name [-disk-limit hard_limit_size ] [-file-file-limit hard_limit_number_disk_limit] soft_limit [soft_limit_disk_limit] -disks[soft_limit ファイル sor_limit
++
+** ONTAP 9.2 および ONTAP 9.1 では、 FlexGroup ボリュームのクォータターゲットのタイプは「 user 」または「 group 」にする必要があります。
++
+FlexGroup 9.2 および ONTAP 9.1 の ONTAP では、ツリークォータタイプはサポートされません。
+
+** ONTAP 9.3 以降では、 FlexGroup ボリュームのクォータターゲットタイプは「 user 」、「 group 」、または「 tree 」になります。
+** FlexGroup ボリュームのクォータルールを作成する際に、ターゲットとしてパスを指定することはできません。
+** ONTAP 9.5 以降では、 FlexGroup ボリュームに対して、ディスクのハードリミット、ファイルのハードリミット、ディスクのソフトリミット、ファイルのソフトリミット、しきい値制限の各クォータを指定できます。
++
+ONTAP 9.4 以前では、 FlexGroup ボリュームのクォータルールを作成するときに、ディスクリミット、ファイルリミット、ディスクリミットのしきい値、ディスクのソフトリミット、ファイルのソフトリミットを指定できません。
+
+
+
+
+
+次の例は、ユーザターゲットタイプにデフォルトのクォータルールを作成します。
+
+[listing]
+----
+cluster1::> volume quota policy rule create -vserver vs0 -policy-name quota_policy_vs0_1 -volume fg1 -type user -target "" -qtree ""
+----
+次の例は、 qtree1 という名前の qtree にツリークォータルールを作成します。
+
+[listing]
+----
+cluster1::> volume quota policy rule create -policy-name default -vserver vs0 -volume fg1 -type tree -target "qtree1"
+----
+. 指定した FlexGroup ボリュームのクォータをアクティブ化します。 volume quota on -vserver SVM_name -volume flexgroup vol-foreground true
+
+
+[listing]
+----
+cluster1::> volume quota on -vserver vs0 -volume fg1 -foreground true
+----
+. クォータの初期化の状態を監視します。 volume quota show -vserver SVM_name
+
+
+FlexGroup ボリュームに「 mixed 」状態が表示されることがあります。この状態は、コンスティチュエントボリュームがすべて同じ状態になっていることを示しています。
+
+[listing]
+----
+cluster1::> volume quota show -vserver vs0
+                                          Scan
+Vserver    Volume        State            Status
+---------  ------------  ---------------  ------
+vs0        fg1           initializing         95%
+vs0        vol1          off                   -
+2 entries were displayed.
+----
+. アクティブクォータがある FlexGroup のクォータレポートを表示します。 volume quota report -vserver SVM_name -volume flexgroup vol`
++
+FlexGroup ボリュームには volume quota report コマンドを使用してパスを指定することはできません
+
++
+次の例は、 FlexGroup ボリューム fg1 のユーザクォータを表示します。
+
++
+[listing]
+----
+cluster1::> volume quota report -vserver vs0 -volume fg1
+  Vserver: vs0
+                                      ----Disk----  ----Files-----   Quota
+  Volume   Tree      Type    ID        Used  Limit    Used   Limit   Specifier
+  -------  --------  ------  -------  -----  -----  ------  ------   ---------
+  fg1                user    *           0B      -       0       -   *
+  fg1                user    root       1GB      -       1       -   *
+  2 entries were displayed.
+----
++
+次の例は、 FlexGroup ボリューム fg1 のツリークォータを表示します。
+
++
+[listing]
+----
+cluster1::> volume quota report -vserver vs0 -volume fg1
+Vserver: vs0
+
+                                    ----Disk----  ----Files-----   Quota
+Volume   Tree      Type    ID        Used  Limit    Used   Limit   Specifier
+-------  --------  ------  -------  -----  -----  ------  ------   ---------
+fg1      qtree1  tree      1         68KB      -      18       -   qtree1
+fg1              tree      *           0B      -       0       -   *
+2 entries were displayed.
+----
+
+
+クォータルールとクォータ制限が FlexGroup ボリュームに適用されます。
+
+使用量が設定されているハードリミットを最大 5% 超過するまで、 ONTAP はそれ以上のトラフィックを拒否してクォータを適用しません。
+
+* 関連情報 *
+
+http://docs.netapp.com/ontap-9/topic/com.netapp.doc.dot-cm-cmpr/GUID-5CB10C70-AC11-41C0-8C16-B4D0DF916E9B.html["ONTAP 9 のコマンド"]

@@ -1,0 +1,106 @@
+---
+permalink: smb-hyper-v-sql/verify-domain-accounts-map-default-unix-user-task.html 
+sidebar: sidebar 
+keywords: verfiy, domain, account, default, unix, server, smb, share, user 
+summary: Hyper-V および SQL Server では、継続的可用性を備えた共有への SMB 接続を作成する際にドメインアカウントを使用します。接続を作成するには、コンピュータアカウントが UNIX ユーザに正しくマッピングされている必要があります。そのための最も便利な方法は、コンピュータアカウントをデフォルトの UNIX ユーザにマッピングすることです。 
+---
+= ドメインアカウントがデフォルトの UNIX ユーザにマッピングされていることを確認します
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+Hyper-V および SQL Server では、継続的可用性を備えた共有への SMB 接続を作成する際にドメインアカウントを使用します。接続を作成するには、コンピュータアカウントが UNIX ユーザに正しくマッピングされている必要があります。そのための最も便利な方法は、コンピュータアカウントをデフォルトの UNIX ユーザにマッピングすることです。
+
+Hyper-V および SQL Server は、ドメインコンピュータアカウントを使用して SMB 接続を作成します。また、 SQL Server は、 SMB 接続を作成するサービスアカウントとしてドメインユーザアカウントを使用します。
+
+Storage Virtual Machine （ SVM ）を作成すると、 ONTAP はデフォルトユーザ「 pcuser 」（ UID は 65534 ）およびグループ「 pcuser 」（ GID は 65534 ）を自動的に作成し、デフォルトユーザを「 pcuser 」グループに追加します。クラスタを Data ONTAP 8.2 にアップグレードする前に使用していた SVM で Hyper-V over SMB 解決策を設定する場合は、デフォルトのユーザとグループが存在していない可能性があります。デフォルトの UNIX ユーザを設定していない場合は、 CIFS サーバのデフォルトの UNIX ユーザを設定する前に、デフォルトのユーザとグループを作成する必要があります。
+
+.手順
+. デフォルトの UNIX ユーザが存在するかどうかを確認します。
++
+「 * vserver cifs options show -vserver vserver_name _ * 」のように指定します
+
+. デフォルトユーザオプションが設定されていない場合は、デフォルトの UNIX ユーザとして指定できる UNIX ユーザが存在するかどうかを確認します。
++
+「 * vserver services unix-user show -vserver vserver_name _ * 」のようになります
+
+. デフォルトユーザオプションが設定されておらず、デフォルトの UNIX ユーザとして指定できる UNIX ユーザも存在しない場合は、デフォルトの UNIX ユーザとデフォルトのグループを作成し、デフォルトのユーザをそのグループに追加します。
++
+通常 ' デフォルト・ユーザにはユーザ名 "`pcuser `" が与えられ ' その UID には '65534 を割り当てる必要がありますデフォルトのグループには ' 通常 ' グループ名として pcuser が与えられますグループに割り当てられる GID は '65534 にする必要があります
+
++
+.. デフォルトのグループを作成します。 +`* vserver services unix-group create -vserver vserver_name _name pcuser -id 65534 *
+.. デフォルトのユーザを作成し、デフォルトのグループに追加します。 +`* vserver services unix-user create -vserver vserver_name __ user pcuser -id 65534 -primary-gid 65534 * `
+.. デフォルトのユーザとデフォルトのグループが正しく設定されていることを確認します。 +`* vserver services unix-user show -vserver vserver_name _*`+`* vserver services unix-group show -vserver vserver_name _members *
+
+
+. CIFS サーバのデフォルトのユーザが設定されていない場合は、次の手順を実行します。
++
+.. デフォルトユーザを設定します。
++
+「 * vserver cifs options modify -vserver * vserver_name * -default-unix-user pcuser *
+
+.. デフォルトの UNIX ユーザが正しく設定されていることを確認します。
++
+「 * vserver cifs options show -vserver vserver_name _ * 」のように指定します
+
+
+
+. アプリケーションサーバのコンピュータアカウントがデフォルトのユーザに正しくマッピングされていることを確認するには、 SVM 上の共有にドライブをマッピングし、「 vserver cifs session show 」コマンドを使用して Windows ユーザと UNIX ユーザのマッピングを確認します。
++
+このコマンドの使用の詳細については、マニュアルページを参照してください。
+
+
+
+次のコマンドでは、 CIFS サーバのデフォルトのユーザが設定されていないことがわかりますが、「 pcuser 」ユーザと「 pcuser 」グループは存在します。「 pcuser 」ユーザは、 SVM vs1 上の CIFS サーバのデフォルトのユーザとして割り当てられています。
+
+[listing]
+----
+cluster1::> vserver cifs options show
+
+Vserver: vs1
+
+  Client Session Timeout : 900
+  Default Unix Group     : -
+  Default Unix User      : -
+  Guest Unix User        : -
+  Read Grants Exec       : disabled
+  Read Only Delete       : disabled
+  WINS Servers           : -
+
+
+
+cluster1::> vserver services unix-user show
+          User            User   Group  Full
+Vserver   Name            ID     ID     Name
+--------- --------------- ------ ------ ----------------
+vs1       nobody          65535  65535  -
+vs1       pcuser          65534  65534  -
+vs1       root            0      1      -
+
+cluster1::> vserver services unix-group show -members
+Vserver        Name                ID
+vs1            daemon              1
+       Users: -
+vs1            nobody              65535
+       Users: -
+vs1            pcuser              65534
+       Users: -
+vs1            root                0
+       Users: -
+
+cluster1::> vserver cifs options modify -vserver vs1 -default-unix-user pcuser
+
+cluster1::> vserver cifs options show
+
+Vserver: vs1
+
+  Client Session Timeout : 900
+  Default Unix Group     : -
+  Default Unix User      : pcuser
+  Guest Unix User        : -
+  Read Grants Exec       : disabled
+  Read Only Delete       : disabled
+  WINS Servers           : -
+----

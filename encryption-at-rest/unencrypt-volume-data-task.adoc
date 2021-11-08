@@ -1,0 +1,57 @@
+---
+permalink: encryption-at-rest/unencrypt-volume-data-task.html 
+sidebar: sidebar 
+keywords: unencrypting, volume, data 
+summary: volume move start コマンドを使用して、ボリュームデータの移動と暗号化解除を行うことができます。 
+---
+= ボリュームデータの暗号化を解除します
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+volume move start コマンドを使用して ' ボリューム・データの移動と暗号化解除を行うことができます
+
+このタスクを実行するには、クラスタ管理者であるか、クラスタ管理者から権限を委譲された SVM 管理者である必要があります。
+
+xref:delegate-volume-encryption-svm-administrator-task.adoc[volume move コマンドの実行権限の委譲]
+
+.手順
+. 既存の暗号化されたボリュームを移動し、ボリュームのデータの暗号化を解除します。
++
+volume move start -vserver svm_name -volume volume_name -destination aggregate-aggregate aggregate-name -encrypt-destination false
+
++
+コマンド構文全体については、コマンドのマニュアルページを参照してください。
+
++
+次に、「 vol1 」という名前の既存のボリュームをデスティネーションアグリゲート「 aggr3 」に移動し、ボリュームのデータの暗号化を解除するコマンドを示します。
+
++
+[listing]
+----
+cluster1::> volume move start -vserver vs1 -volume vol1 -destination-aggregate aggr3 -encrypt-destination false
+----
++
+ボリュームの暗号化キーが削除されます。ボリュームのデータの暗号化が解除されます。
+
+. ボリュームで暗号化が無効になっていることを確認します。
++
+volume show -encryption
+
++
+コマンド構文全体については、コマンドのマニュアルページを参照してください。
+
++
+次のコマンドは 'cluster1 のボリュームが暗号化されているかどうかを表示します
+
++
+[listing]
+----
+cluster1::> volume show -encryption
+
+Vserver  Volume   Aggregate   State    Encryption State
+-------  ------   ---------   -----    ----------------
+vs1      vol1     aggr1       online   none
+----
+

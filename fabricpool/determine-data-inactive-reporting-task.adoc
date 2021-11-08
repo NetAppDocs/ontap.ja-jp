@@ -1,0 +1,83 @@
+---
+permalink: fabricpool/determine-data-inactive-reporting-task.html 
+sidebar: sidebar 
+keywords: determining, how, much, data, volume, inactive, using, data reporting, fabricpool 
+summary: ボリューム内のアクセス頻度の低いデータの量を確認することで、ストレージ階層を効率よく使用することができます。Inactive Data Reporting の情報を参考に、 FabricPool に使用するアグリゲート、 FabricPool との間でボリュームを移動するかどうか、ボリュームの階層化ポリシーを変更するかどうかを決定することができます。 
+---
+= Inactive Data Reporting でボリューム内のアクセス頻度の低いデータの量を確認
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+ボリューム内のアクセス頻度の低いデータの量を確認することで、ストレージ階層を効率よく使用することができます。Inactive Data Reporting の情報を参考に、 FabricPool に使用するアグリゲート、 FabricPool との間でボリュームを移動するかどうか、ボリュームの階層化ポリシーを変更するかどうかを決定することができます。
+
+Inactive Data Reporting 機能を使用するには、 ONTAP 9.4 以降が必要です。
+
+.このタスクについて
+* Inactive Data Reporting は、一部のアグリゲートではサポートされません。
++
+FabricPool を有効にできない場合は、次のような Inactive Data Reporting を有効にできません。
+
++
+** ルートアグリゲート
+** 9.7 より前のバージョンの ONTAP を実行している MetroCluster アグリゲート
+** Flash Pool （ハイブリッドアグリゲートまたは SnapLock アグリゲート）
+
+
+* ONTAP 9.6 では、すべての SSD アグリゲートに対して Inactive Data Reporting がデフォルトで有効になります。
+* ONTAP 9.4 および ONTAP 9.5 の FabricPool アグリゲートでは、 Inactive Data Reporting がデフォルトで有効になります。
+* ONTAP 9.6 以降では、 HDD アグリゲートを含む ONTAP CLI を使用して、 FabricPool 以外のアグリゲートに対して Inactive Data Reporting を有効にできます。
+
+
+.手順
+. 非アクティブデータのレポートを表示するアグリゲートが FabricPool で使用されていない場合は、「 storage aggregate modify 」コマンドで「 -is-inactive-data-reporting-enabled true 」パラメータを指定して、アグリゲートの Inactive Data Reporting を有効にします。
++
+[listing]
+----
+cluster1::> storage aggregate modify -aggregate aggr1 -is-inactive-data-reporting-enabled true
+----
++
+FabricPool に使用されていないアグリゲートでは、 Inactive Data Reporting 機能を明示的に有効にする必要があります。
+
++
+FabricPool 対応アグリゲートについては、すでに Inactive Data Reporting が有効になっているため有効にする必要はありません。is-inactive-data-reporting-enabled パラメータは FabricPool 対応アグリゲートでは機能しません。
+
++
+「 storage aggregate show 」コマンドの「 -fields is-inactive-data-reporting-enabled 」パラメータを使用すると、アグリゲートで Inactive Data Reporting が有効になっているかどうかを確認できます。
+
+. ボリューム上のアクセス頻度の低いデータの量を表示するには 'volume show コマンドを使用して '-fields performance-tier-inactive-user-data 、 performance-tier-inactive-user-data-percent パラメータを指定します
++
+[listing]
+----
+cluster1::> volume show -fields performance-tier-inactive-user-data,performance-tier-inactive-user-data-percent
+
+vserver volume performance-tier-inactive-user-data performance-tier-inactive-user-data-percent
+------- ------ ----------------------------------- -------------------------------------------
+vsim1   vol0   0B                                  0%
+vs1     vs1rv1 0B                                  0%
+vs1     vv1    10.34MB                             0%
+vs1     vv2    10.38MB                             0%
+4 entries were displayed.
+----
++
+** 「 performance-tier-inactive-user-data 」フィールドには、アグリゲートに格納されているどのくらいのユーザデータが非アクティブであるかが表示されます。
+** 「 performance-tier-inactive-user-data-percent 」フィールドには、アクティブなファイルシステムと Snapshot コピー全体で非アクティブなデータの割合が表示されます。
+** FabricPool に使用されていないアグリゲートの場合、階層化ポリシーの設定や階層化ポリシーの内容に関係なく、 ONTAP の Inactive Data Reporting を有効にしてボリューム全体のアクセス頻度の低いデータの量が表示されるまでには 31 日かかります。
++
+期間が終了するまで ' 出力には ' 値ではなく ' 非アクティブなデータの量が表示されます
+
+** FabricPool に含まれるボリュームの場合、アクセス頻度の低いデータとして報告される ONTAP は、ボリュームに設定されている階層化ポリシーによって異なります。
++
+*** 「 auto 」階層化ポリシーの場合、 ONTAP は、 volume create コマンドまたは volume modify コマンドの advanced 権限レベルで、「 -tiering-minimum-cooling-days 」パラメータで指定された期間、ボリューム全体の非アクティブな量を報告します。
++
+-tiering-minimum-cooling-days に値が設定されていない場合、 ONTAP はデフォルト値（ 31 日）を使用します。
+
+*** 「スナップショットのみ」階層化ポリシーの場合、 ONTAP は、 31 日以上非アクティブなアクティブファイルシステムの量を報告します。
+*** 「 none 」階層化ポリシーの場合、 ONTAP はボリューム全体のうち、 31 日間以上非アクティブなデータ量を報告します。
+*** 「すべて」階層化ポリシーの場合、非アクティブデータレポートはサポートされません。
+
+
+
+
+

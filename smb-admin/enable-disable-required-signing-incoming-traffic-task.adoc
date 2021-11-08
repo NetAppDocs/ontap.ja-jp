@@ -1,0 +1,68 @@
+---
+permalink: smb-admin/enable-disable-required-signing-incoming-traffic-task.html 
+sidebar: sidebar 
+keywords: enforce, requirement, client, smb, message, enabling, enable, require, sign, disable, enable or disable require smb signing for incoming smb traffic 
+summary: SMB メッセージへのクライアントによる署名を強制するには、 SMB 署名要求を有効にします。有効にすると、 ONTAP は有効な署名のある SMB メッセージのみを受け入れます。SMB 署名を許可するが要求しない場合は、 SMB 署名要求を無効にできます。 
+---
+= 受信 SMB トラフィックの SMB 署名要求を有効または無効にします
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+SMB メッセージへのクライアントによる署名を強制するには、 SMB 署名要求を有効にします。有効にすると、 ONTAP は有効な署名のある SMB メッセージのみを受け入れます。SMB 署名を許可するが要求しない場合は、 SMB 署名要求を無効にできます。
+
+デフォルトでは、 SMB 署名要求は無効になっています。SMB 署名要求はいつでも有効または無効にできます。
+
+[NOTE]
+====
+次の状況では、 SMB 署名はデフォルトで無効になりません。
+
+. SMB 署名要求が有効になっており、クラスタが SMB 署名をサポートしていないバージョンの ONTAP にリバートされた。
+. その後、クラスタが SMB 署名をサポートするバージョンの ONTAP にアップグレードされた。
++
+このような場合は、サポートされているバージョンの ONTAP で最初に行われた SMB 署名の設定が、リバートとその後のアップグレードを通して維持されます。
+
+
+
+====
+Storage Virtual Machine （ SVM ）ディザスタリカバリ関係をセットアップするときに、「 snapmirror-create 」コマンドの「 -identity-preserve 」オプションで選択した値によって、デスティネーション SVM にレプリケートされる設定の詳細が決まります。
+
+「 -identity-preserve 」オプションを「 true 」（ ID 保持）に設定すると、 SMB 署名のセキュリティ設定がデスティネーションに複製されます。
+
+「 -identity-preserve 」オプションを「 false 」（非 ID 保持）に設定した場合、 SMB 署名のセキュリティ設定はデスティネーションに複製されません。この場合、デスティネーションの CIFS サーバセキュリティ設定はデフォルト値に設定されます。ソース SVM で SMB 署名要求を有効にしている場合は、デスティネーション SVM で SMB 署名要求を手動で有効にする必要があります。
+
+.手順
+. 次のいずれかを実行します。
++
+|===
+| SMB 署名要求の設定 | 入力するコマンド 
+
+
+ a| 
+有効
+ a| 
+「 vserver cifs security modify -vserver _vserver_name __ is-signing-required true 」の形式で指定します
+
+
+
+ a| 
+無効
+ a| 
+「 vserver cifs security modify -vserver _vserver_name __ is-signing-required false
+
+|===
+. 次のコマンドの出力で、「 Is Signing Required 」フィールドの値が目的の値に設定されているかどうかを判断して、 SMB 署名要求が有効または無効になっていることを確認します。「 vserver cifs security show -vserver vserver_name -fields is-signing-required
+
+
+次の例は、 SVM vs1 で SMB 署名要求を有効にします。
+
+[listing]
+----
+cluster1::> vserver cifs security modify -vserver vs1 -is-signing-required true
+
+cluster1::> vserver cifs security show -vserver vs1 -fields is-signing-required
+vserver  is-signing-required
+-------- -------------------
+vs1      true
+----

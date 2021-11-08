@@ -1,0 +1,66 @@
+---
+permalink: nfs-admin/modify-nfsv3-nfsv4-tcp-maximum-transfer-size-task.html 
+sidebar: sidebar 
+keywords:  
+summary: NFSv3 および NFSv4.x プロトコルを使用するすべての TCP 接続の最大転送サイズを設定するには、 -tcp-max-xfer-size オプションを変更します。 
+---
+= NFSv3 と NFSv4 の TCP 最大転送サイズを変更する
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+NFSv3 および NFSv4.x プロトコルを使用するすべての TCP 接続の最大転送サイズを設定するには、「 -tcp-max-xfer-size 」オプションを変更します。
+
+これらのオプションは Storage Virtual Machine （ SVM ）ごとに変更できます。
+
+ONTAP 9 以降では 'v3-tcp-max-read-size オプションと v3-tcp-max-write-size オプションは廃止されました代わりに '-tcp-max-xfer-size オプションを使用する必要があります
+
+.手順
+. 権限レベルを advanced に設定します。
++
+「 advanced 」の権限が必要です
+
+. 次のいずれかを実行します。
++
+[cols="2*"]
+|===
+| 状況 | 入力するコマンド 
+
+
+ a| 
+NFSv3 または NFSv4 の TCP 最大転送サイズを変更する
+ a| 
+vserver nfs modify -vserver vserver_name -tcp-max-xfer-size integer _max_sfer_size
+
+|===
++
+[cols="3*"]
+|===
+| オプション | 範囲 | デフォルト 
+
+
+ a| 
+「 -tcp-max-xfer-size 」
+ a| 
+8192~1048576 バイト
+ a| 
+65536 バイト
+
+|===
++
+[NOTE]
+====
+最大転送サイズには、 4KB （ 4096 バイト）の倍数を入力する必要があります。要求が要件を満たしていない場合は、パフォーマンスが低下します。
+
+====
+. 変更内容を確認するには、「 vserver nfs show -fields tcp-max-xfer-size 」コマンドを使用します。
+. 静的マウントを使用しているクライアントがある場合、新しいパラメータサイズを有効にするには、いったんアンマウントしてから再度マウントします。
+
+
+次のコマンドは、 vs1 という SVM で NFSv3 と NFSv4.x の TCP 最大転送サイズを 1 、 048 、 576 バイトに設定します。
+
+[listing]
+----
+vs1::> vserver nfs modify -vserver vs1 -tcp-max-xfer-size 1048576
+----

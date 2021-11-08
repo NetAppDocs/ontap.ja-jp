@@ -1,0 +1,64 @@
+---
+permalink: smb-admin/manage-accessibility-users-home-directories-task.html 
+sidebar: sidebar 
+keywords: default, user, home, directory, access, dynamic, name, share, precede, enable, disable, windows, administrator, public, access, manage accessibility to users' home directories 
+summary: デフォルトでは、ユーザのホームディレクトリにはそのユーザだけがアクセスできます。動的な共有名の前にチルダ（ ｛ チルダ ｝ ）が付いている共有の場合、 Windows 管理者や他のユーザ（パブリックアクセス）によるユーザのホームディレクトリへのアクセスを有効または無効にできます。 
+---
+= ユーザのホームディレクトリへのアクセスを管理します
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+デフォルトでは、ユーザのホームディレクトリにはそのユーザしかアクセスできません。動的な共有名の前にチルダ（ ｛ チルダ ｝ ）が付いている共有の場合、 Windows 管理者や他のユーザ（パブリックアクセス）によるユーザのホームディレクトリへのアクセスを有効または無効にできます。
+
+Storage Virtual Machine （ SVM ）のホームディレクトリ共有に、動的な共有名の前にチルダ（ ｛ チルダ ｝ ）を追加した共有名を設定する必要があります。共有の命名要件は次のとおりです。
+
+|===
+| ホームディレクトリの共有名 | 共有に接続するコマンドの例 
+
+
+ a| 
+｛ チルダ ｝ %d ｛ チルダ ｝ %w
+ a| 
+'net use * ｛ backslash ｝ ｛ backslash ｝ IPaddress ｛ backslash ｝ ｛ チルダ ｝ domain ｛ チルダ ｝ user/u:credentials'
+
+
+
+ a| 
+｛ チルダ ｝ %w
+ a| 
+'net use * ｛ backslash ｝ ｛ backslash ｝ IPaddress ｛ backslash ｝ ｛ チルダ ｝ user/u: credentials'
+
+
+
+ a| 
+｛ チルダ ｝ abc ｛ チルダ ｝ %w
+ a| 
+「 net use * ｛ backslash ｝ ｛ backslash ｝ 」 IPaddress ｛ backslash ｝ abc ｛ tilde ｝ user/u: credentials'
+
+|===
+.ステップ
+. 適切な操作を実行します。
++
+|===
+| ユーザのホームディレクトリへのアクセスを有効または無効にする対象 | 入力するコマンド 
+
+
+| Windows 管理者 | 「 vserver cifs home-directory modify -vserver _vserver_name __ is-home-dirs-access-for-admin-enabled ｛ true ｛ vbar ｝ false ｝ 」デフォルトは「 true 」です。 
+
+
+| 任意のユーザ（パブリックアクセス）  a| 
+.. 権限レベルを advanced に設定します。 + 「 set -privilege advanced 」
+.. アクセスを有効または無効にします：「 vserver cifs home-directory modify -vserver vserver_name -is-home-dirs-access-for-public-enabled ｛ true|false ｝ 」 + デフォルトは「 false 」です。
+.. admin 権限レベルに戻ります。 +`set -privilege admin`
+
+
+|===
+
+
+次の例では、ユーザのホームディレクトリへのパブリックアクセスを有効にします。 +`set -privilege advanced `+`vserver cifs home-directory modify -vserver vs1 -is-home-dirs-access-for-public-enabled true `+``set -privilege admin
+
+* 関連情報 *
+
+xref:display-user-home-directory-path-task.adoc[SMB ユーザのホームディレクトリパスに関する情報を表示する]

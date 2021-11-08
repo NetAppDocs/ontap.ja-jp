@@ -1,0 +1,165 @@
+---
+permalink: tape-backup/format-tape-config-file-concept.html 
+sidebar: sidebar 
+keywords: format, tape, configuration, file, vendor, id, product, compression, type, drive 
+summary: テープ構成ファイルの形式は、テープドライブのベンダー ID 、製品 ID 、圧縮形式の詳細などのフィールドで構成されます。このファイルには、テープ・ドライブの自動ロード機能を有効にし、テープ・ドライブのコマンド・タイムアウト値を変更するオプションのフィールドも含まれています。 
+---
+= テープ構成ファイルの形式
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+テープ構成ファイルの形式は、テープドライブのベンダー ID 、製品 ID 、圧縮形式の詳細などのフィールドで構成されます。このファイルには、テープ・ドライブの自動ロード機能を有効にし、テープ・ドライブのコマンド・タイムアウト値を変更するオプションのフィールドも含まれています。
+
+次の表に、テープ構成ファイルの形式を示します。
+
+|===
+| 項目 | サイズ | 説明 
+
+
+ a| 
+'ve ndor_id' ( 文字列 )
+ a| 
+最大 8 バイト
+ a| 
+「 S csi Inquiry 」コマンドで表示されるベンダー ID 。
+
+
+
+ a| 
+`product_id ( 文字列 )
+ a| 
+最大 16 バイト
+ a| 
+「 S csi Inquiry 」コマンドで表示される製品 ID 。
+
+
+
+ a| 
+`id_match_size ( 数値 )
+ a| 
+ a| 
+テープドライブの識別に使用される製品 ID のバイト数を指定します。このバイト数は、 Inquiry コマンドで表示される製品 ID の最初の文字から数えます。
+
+
+
+ a| 
+「 ve ndor_pretty 」（文字列）
+ a| 
+最大 16 バイト
+ a| 
+このパラメータを使用する場合は、「 storage tape show -device-names 」コマンドによって返される文字列を指定します。値を指定しないと、 INQ_VENDOR_ID と表示されます。
+
+
+
+ a| 
+`product_pretty ` ( 文字列 )
+ a| 
+最大 16 バイト
+ a| 
+このパラメータを使用する場合は、「 storage tape show -device-names 」コマンドによって返される文字列を指定します。値を指定しないと、 INQ_PRODUCT_ID と表示されます。
+
+|===
+[NOTE]
+====
+「 ve ndor_pretty 」フィールドと「 product_pretty 」フィールドはオプションですが、これらのフィールドのいずれかに値がある場合は、もう一方のフィールドにも値が必要です。
+
+====
+次の表に 'l`'`'m`'h`'a` など ' さまざまな圧縮タイプの概要 ' 密度コード ' および圧縮アルゴリズムを示します
+
+|===
+| 項目 | サイズ | 説明 
+
+
+ a| 
+'{ l | m | h | a } _description= （文字列） `
+ a| 
+最大 24 バイト
+ a| 
+ノードシェルコマンド「 sysconfig -t 」に対して出力される文字列。特定の密度の設定の特性を示します。
+
+
+
+ a| 
+'{l|m|h|a} _density=(16 進コード )`
+ a| 
+ a| 
+l 、 m 、 h 、または a の密度コードに対応する SCSI モードのページブロック記述子で設定される密度コード
+
+
+
+ a| 
+'{l|m|h|a} _algorithm=(16 進コード )`
+ a| 
+ a| 
+密度コードと目的の密度特性に対応する SCSI 圧縮モードページで設定される圧縮アルゴリズム。
+
+|===
+次の表に、テープ構成ファイル内のオプションフィールドを示します。
+
+|===
+| フィールド | 説明 
+
+
+ a| 
+autoload= (boolean yes/no
+ a| 
+テープ・ドライブに自動ロード機能がある場合 ' このフィールドは 'yes' に設定されますつまり ' テープ・カートリッジを挿入すると ' テープ・ドライブは 'S csi load' (start/stop unit) コマンドを実行しなくても使用可能になりますこのフィールドのデフォルトは「 no 」です。
+
+
+
+ a| 
+'cmd_timeout_0x
+ a| 
+個々のタイムアウト値。このフィールドは、テープドライバのデフォルトのタイムアウト値とは異なるタイムアウト値を指定する場合にのみ使用します。サンプルファイルには、テープドライブのデフォルトの SCSI コマンドタイムアウト値の一覧が記載されています。タイムアウト値は、分（ m ）、秒（ s ）、またはミリ秒（ ms ）で指定できます。
+
+[NOTE]
+====
+このフィールドは、必ずテクニカルサポートの指示に従って変更してください。
+
+====
+|===
+テープ構成ファイルは、ネットアップサポートサイトからダウンロードして確認できます。
+
+HP LTO5 ULTRIUM テープドライブのテープ構成ファイルの記述形式は次のとおりです。
+
+'ve ndor_id`="HP"
+
+「 product_id 」 = 「 Ultrium 5-SCSI 」
+
+'id_match_size '=9
+
+「 ve ndor_pretty 」 = 「 Hewlett-Packard 」
+
+「 product_pretty 」 = 「 LTO-5 」
+
+l_description'="LTO-3 （ ro ） /4 4/800GB "
+
+「 l_density 」 = 0x00
+
+`l_algorithm `=0x00
+
+`m_description`="LTO-3 (ro)/4 8/1600GB CMP"
+
+`m_density`=0x00
+
+「 m_algorithm 」 = 0x01
+
+「 h_description`="LTO-5 1600GB" 」
+
+「 h_density`=0x58 」
+
+「 h_algorithm 」 = 0x00
+
+'a_description`="LTO-5 3200GB CMP"
+
+'a_density`=0x58
+
+'a_algorithm`=0x01
+
+autoload`="yes"
+
+* 関連情報 *
+
+http://mysupport.netapp.com/NOW/download/tools/tape_config["ネットアップのダウンロード：テープデバイスの構成ファイル"]

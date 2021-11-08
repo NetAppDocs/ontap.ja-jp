@@ -1,0 +1,62 @@
+---
+permalink: smb-admin/default-administrative-shares-concept.html 
+sidebar: sidebar 
+keywords: create, cifs, server, storage, virtual, machine, svm, default, administrative, share, automatic, what the default administrative shares are 
+summary: Storage Virtual Machine （ SVM ）上に CIFS サーバを作成すると、 3 つのデフォルトの管理共有が自動的に作成されます。これらのデフォルトの共有とその用途について理解しておく必要があります。 
+---
+= デフォルトの管理共有とは
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+Storage Virtual Machine （ SVM ）上に CIFS サーバを作成すると、 3 つのデフォルトの管理共有が自動的に作成されます。これらのデフォルトの共有とその用途について理解しておく必要があります。
+
+CIFS サーバを作成すると、 ONTAP によって次のデフォルトの管理共有が作成されます。
+
+* IPC $
+* 管理者 $
+* c$
+
+
+末尾が $ 文字である共有は非表示の共有であるため、デフォルトの管理共有はマイコンピュータには表示されませんが、共有フォルダを使用して表示することはできます。
+
+
+
+== ipc$ および admin$ デフォルト管理共有の用途
+
+ipc$ および admin$ 共有は ONTAP が使用するものであり、 Windows 管理者が SVM 上にあるデータにアクセスするために使用することはできません。
+
+* ipc$ 共有
++
+ipc$ 共有は、プログラム間通信に必要な名前付きパイプを共有するリソースです。ipc$ 共有はコンピュータのリモート管理や、コンピュータの共有リソースを表示する際に使用されます。ipc$ 共有の共有設定、共有プロパティ、 ACL は変更できません。また、 ipc$ 共有の名前の変更や削除もできません。
+
+* admin$ 共有
++
+admin$ 共有は、 SVM のリモート管理に使用されます。このリソースのパスは、常に SVM ルートへのパスです。admin$ 共有の共有設定、共有プロパティ、 ACL は変更できません。また、 admin$ 共有の名前の変更や削除もできません。
+
+
+
+
+
+== c$ デフォルト共有の用途
+
+c$ 共有は、クラスタまたは SVM の管理者が SVM のルートボリュームへのアクセスおよび管理に使用できる管理共有です。
+
+c$ 共有には、次のような特徴があります。
+
+* この共有へのパスは、常に SVM ルートボリュームへのパスで、変更することはできません。
+* c$ 共有のデフォルト ACL は、 Administrator / Full Control です。
++
+このユーザは、 BUILTIN\administrator です。デフォルトで、 BUILTIN\administrator を共有にマッピングでき、マッピングされたルートディレクトリ内のファイルやフォルダの表示、作成、変更、削除が可能です。このディレクトリ内のファイルおよびフォルダを管理する場合は、注意が必要です。
+
+* c$ 共有の ACL は変更できます。
+* c$ 共有の設定や共有プロパティは変更できます。
+* c$ 共有は削除できません。
+* SVM 管理者は、ネームスペースジャンクションを横断することによって、マッピングされた c$ 共有から残りの SVM ネームスペースにアクセスできます。
+* c$ 共有には、 Microsoft 管理コンソールを使用してアクセスできます。
+
+
+* 関連情報 *
+
+xref:configure-ntfs-windows-security-tab-task.adoc[Windows ノセキュリティタブヲシヨウシタショウサイナ NTFS ファイルアクセスケンノセッテイ]

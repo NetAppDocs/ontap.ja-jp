@@ -1,0 +1,232 @@
+---
+permalink: smb-admin/monitor-encryption-statistics-task.html 
+sidebar: sidebar 
+keywords: monitor, smb, encryption, statistics, determine, establish, session, share, connection, encrypt, monitor smb encryption statistics 
+summary: SMB 暗号化の統計を監視し、確立されたセッションおよび共有接続のうち、暗号化されたものと暗号化されていないものを区別できます。 
+---
+= SMB 暗号化統計情報を監視する
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+SMB 暗号化の統計を監視し、確立されたセッションおよび共有接続のうち、暗号化されたものと暗号化されていないものを区別できます。
+
+advanced 権限レベルの「 statistics 」コマンドには、暗号化された SMB セッションおよび共有接続の数を監視するために使用できる次のカウンタがあります。
+
+|===
+| カウンタ名 | 説明 
+
+
+ a| 
+「 encrypted_sessions 」のようになります
+ a| 
+暗号化された SMB 3.0 セッションの数
+
+
+
+ a| 
+「 encrypted_share_connections 」のように指定します
+ a| 
+ツリー接続が行われた暗号化された共有の数
+
+
+
+ a| 
+「残念な _ 暗号化されていない _ セッション」
+ a| 
+クライアントに暗号化機能がないために拒否されたセッションセットアップ数を示します
+
+
+
+ a| 
+'`re_funencrypted_shares`
+ a| 
+クライアントに暗号化機能がないために拒否された共有マッピング数
+
+|===
+これらのカウンタでは、次の統計オブジェクトを使用できます。
+
+* CIFS では ' すべての SMB 3.0 セッションの SMB 暗号化を監視できます
++
+[NOTE]
+====
+SMB 3.0 の統計情報は 'CIFS' オブジェクトの出力に含まれています暗号化されたセッションの数をセッションの合計数と比較する場合は 'encrypted_sessions カウンタの出力と 'established_sessions カウンタの出力を比較します
+
+ If you want to compare the number of encrypted share connections to the total number of share connections, you can compare output for the `encrypted_share_connections` counter with the output for the `connected_shares` counter.
+====
+* 「 reat_unencrypted_sessions 」は、 SMB 暗号化をサポートしていないクライアントから暗号化を必要とする SMB セッションを確立しようとした回数を提供します。
+* 「 reat_unencrypted_shares 」は、 SMB 暗号化をサポートしないクライアントから暗号化を必要とする SMB 共有への接続試行の回数を示します。
+
+
+データを取得して表示するには、統計サンプルの収集を開始する必要があります。データ収集を停止しなければ、サンプルからデータを表示できます。データ収集を停止すると、サンプルが固定された状態になります。データ収集を停止しないと、以前のクエリとの比較に使用できる更新されたデータを取得できます。この比較は、傾向を確認するのに役立ちます。
+
+link:../performance-admin/index.html["パフォーマンス管理"]
+
+.手順
+. 権限レベルを advanced に設定します。「 set -privilege advanced 」
+. データ収集を開始します。 'statistics start -object ｛ cifs|smb1|smb2 ｝ -instance _instance-instance-id_sample_ID_[-node_name_]
++
+「 -sample-id 」パラメータを指定しない場合、コマンドはサンプル ID を生成し、このサンプルを CLI セッションのデフォルトサンプルとして定義します。「 -sample-id 」の値はテキスト文字列です。同じ CLI セッションでこのコマンドを実行し、「 -sample-id 」パラメータを指定しない場合、コマンドは以前のデフォルトサンプルを上書きします。
+
++
+必要に応じて、統計を収集するノードを指定できます。ノードを指定しない場合、サンプルは、クラスタ内のすべてのノードについて統計情報を収集します。
+
+. サンプルのデータ収集を停止するには、 'statistics stop' コマンドを使用します。
+. SMB 暗号化統計情報を表示します。
++
+|===
+| 表示する情報 | 入力するコマンド 
+
+
+ a| 
+暗号化されたセッション
+ a| 
+'show -sample-id_sample_ID-- カウンタ encrypted_sessions|_node_name _[-node-node_name _]'
+
+
+
+ a| 
+暗号化されたセッションと確立されたセッション
+ a| 
+'ser-sample_id_counter encrypted_sessions|established_sessions |_node_name [-node-node_name _]'` を実行します
+
+
+
+ a| 
+暗号化された共有接続
+ a| 
+'show -sample-id_sample_ID -- カウンタ encrypted_share_connections|_node_name [-node _node_name _]'
+
+
+
+ a| 
+暗号化された共有接続と接続された共有
+ a| 
+'ser-sample_id_counter encrypted_share_connections|connected_shares |_node_name [-node _node_name _]] のように設定します
+
+
+
+ a| 
+暗号化されていないセッションは
+ a| 
+'sample_id_sample_id_counter rejected_unencrypted_sessions | _node_name [-node _node_name _]] を実行します
+
+
+
+ a| 
+拒否された暗号化されていない
+ a| 
+「 show -sample-id_sample_ID_ -counter rejected_unencrypted_share | _node_name [-node _node_name _]] 」
+
+|===
++
+単一ノードの情報のみを表示する場合は ' オプションの -node' パラメータを指定します
+
+. admin 権限レベルに戻ります。「 set -privilege admin 」
+
+
+次の例は、「 vs1 」という Storage Virtual Machine （ SVM ）について、 SMB 3.0 の暗号化統計情報を監視する方法を示します。
+
+次のコマンドは、 advanced 権限レベルへの変更を行います。
+
+[listing]
+----
+cluster1::> set -privilege advanced
+
+Warning: These advanced commands are potentially dangerous; use them only when directed to do so by support personnel.
+Do you want to continue? {y|n}: y
+----
+次のコマンドは、新しいサンプルのデータ収集を開始します。
+
+[listing]
+----
+cluster1::*> statistics start -object cifs -sample-id smbencryption_sample -vserver vs1
+Statistics collection is being started for Sample-id: smbencryption_sample
+----
+次のコマンドは、サンプルのデータ収集を停止します。
+
+[listing]
+----
+cluster1::*> statistics stop -sample-id smbencryption_sample
+Statistics collection is being stopped for Sample-id: smbencryption_sample
+----
+次のコマンドは、指定したノードについて、暗号化された SMB セッション数と確立されたセッション数をサンプルから表示します。
+
+[listing]
+----
+cluster2::*> statistics show -object cifs -counter established_sessions|encrypted_sessions|node_name –node node_name
+
+Object: cifs
+Instance: [proto_ctx:003]
+Start-time: 4/12/2016 11:17:45
+End-time: 4/12/2016 11:21:45
+Scope: vsim2
+
+    Counter                               Value
+    ----------------------------  ----------------------
+    established_sessions                     1
+    encrypted_sessions                       1
+
+2 entries were displayed
+----
+次のコマンドは、指定したノードについて、拒否された暗号化されていない SMB セッション数をサンプルから表示します。
+
+[listing]
+----
+clus-2::*> statistics show -object cifs -counter rejected_unencrypted_sessions –node node_name
+
+Object: cifs
+Instance: [proto_ctx:003]
+Start-time: 4/12/2016 11:17:45
+End-time: 4/12/2016 11:21:51
+Scope: vsim2
+
+    Counter                                    Value
+    ----------------------------    ----------------------
+    rejected_unencrypted_sessions                1
+
+1 entry was displayed.
+----
+次のコマンドは、指定したノードについて、接続された SMB 共有数と暗号化された SMB 共有数をサンプルから表示します。
+
+[listing]
+----
+clus-2::*> statistics show -object cifs -counter connected_shares|encrypted_share_connections|node_name –node node_name
+
+Object: cifs
+Instance: [proto_ctx:003]
+Start-time: 4/12/2016 10:41:38
+End-time: 4/12/2016 10:41:43
+Scope: vsim2
+
+    Counter                                     Value
+    ----------------------------    ----------------------
+    connected_shares                              2
+    encrypted_share_connections                   1
+
+2 entries were displayed.
+----
+次のコマンドは、指定したノードについて、拒否された暗号化されていない SMB 共有接続数をサンプルから表示します。
+
+[listing]
+----
+clus-2::*> statistics show -object cifs -counter rejected_unencrypted_shares –node node_name
+
+Object: cifs
+Instance: [proto_ctx:003]
+Start-time: 4/12/2016 10:41:38
+End-time: 4/12/2016 10:42:06
+Scope: vsim2
+
+    Counter                                     Value
+    --------------------------------    ----------------------
+    rejected_unencrypted_shares                   1
+
+1 entry was displayed.
+----
+* 関連情報 *
+
+xref:determine-statistics-objects-counters-available-task.adoc[使用可能な統計オブジェクトと統計カウンタの確認]
+
+link:../performance-config/index.html["パフォーマンス監視の簡単なセットアップ"]

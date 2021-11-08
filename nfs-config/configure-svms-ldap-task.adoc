@@ -1,0 +1,67 @@
+---
+permalink: nfs-config/configure-svms-ldap-task.html 
+sidebar: sidebar 
+keywords: verify, ldap, sources, name, service, switch, table 
+summary: ネームサービスの LDAP ソースが SVM のネームサービススイッチテーブルに正しく表示されていることを確認する必要があります。 
+---
+= ネームサービススイッチテーブルで LDAP ソースを確認します
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+ネームサービスの LDAP ソースが SVM のネームサービススイッチテーブルに正しく表示されていることを確認する必要があります。
+
+.手順
+. 現在のネームサービススイッチテーブルの内容を表示します。
++
+vserver services name-service ns-switch show -vserver _svm_name _`
+
++
+次のコマンドは、 SVM My_SVM の結果を表示します。
+
++
+[listing]
+----
+ie3220-a::> vserver services name-service ns-switch show -vserver My_SVM
+                               Source
+Vserver         Database       Order
+--------------- ------------   ---------
+My_SVM          hosts          files,
+                               dns
+My_SVM          group          files,ldap
+My_SVM          passwd         files,ldap
+My_SVM          netgroup       files
+My_SVM          namemap        files
+5 entries were displayed.
+----
++
+namemap は、ネームマッピング情報を検索するためのソースとその検索順序を指定します。UNIX のみの環境では、このエントリは必要ありません。ネームマッピングは、 UNIX と Windows の両方を使用する混在環境でのみ必要になります。
+
+. 必要に応じて 'ns-switch エントリーを更新します
++
+|===
+| ns-switch エントリの更新対象 | 入力するコマンド 
+
+
+ a| 
+ユーザ情報
+ a| 
+「 vserver services name-service ns-switch modify -vserver vserver_name __ database passwd -sources ldap 、 files 」のように入力します
+
+
+
+ a| 
+グループ情報
+ a| 
+「 vserver services name-service ns-switch modify -vserver vserver_name __ database group-sources ldap 、 files 」の形式で指定します
+
+
+
+ a| 
+ネットグループ情報
+ a| 
+「 vserver services name-service ns-switch modify -vserver vserver_name __ database netgroup-sources ldap 、 files 」のように指定します
+
+|===
+

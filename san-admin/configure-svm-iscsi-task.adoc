@@ -1,0 +1,35 @@
+---
+permalink: san-admin/configure-svm-iscsi-task.html 
+sidebar: sidebar 
+keywords: configure, svm, iscsi 
+summary: iSCSI 用に Storage Virtual Machine （ SVM ）を設定するには、 SVM 用の LIF を作成し、それらの LIF に iSCSI プロトコルを割り当てる必要があります。 
+---
+= SVM を iSCSI 用に設定
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+iSCSI 用に Storage Virtual Machine （ SVM ）を設定するには、 SVM 用の LIF を作成し、それらの LIF に iSCSI プロトコルを割り当てる必要があります。
+
+iSCSI プロトコルを使用してデータを提供するそれぞれの SVM について、各ノードに少なくとも 1 つの iSCSI LIF が必要です。冗長性を確保するには、各ノードに少なくとも 2 つの LIF を作成する必要があります。
+
+.手順
+. SVM が iSCSI トラフィックをリスンするようにします。
++
+vserver iscsi create -vserver_name_-target-alias_vserver_name_`
+
+. iSCSI に使用する各ノードに、 SVM 用の LIF を作成します。
++
+「 network interface create -vserver _vserver_name _ -lif lif_name _ role data -data-protocol iscsi -home-node _node_name _ -home-port port_name _ -address _ip_address _ -netmask netmask 」の略
+
+. LIF が正しく設定されたことを確認します。
++
+「 network interface show -vserver_vserver_name _ 」のように表示されます
+
+. iSCSI が正常に稼働していること、およびその SVM のターゲット IQN を確認します。
++
+vserver iscsi show – vserver_vserver_name _
+
+. ホストから、 LIF への iSCSI セッションを作成します。
+

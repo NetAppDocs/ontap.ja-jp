@@ -1,0 +1,55 @@
+---
+permalink: s3-audit/modify-config-task.html 
+sidebar: sidebar 
+keywords: s3 audit, enable 
+summary: 個々のバケットの監査パラメータや SVM の監査設定を変更する場合は、まず SVM の監査を無効にしてから、適切な modify コマンドを実行する必要があります。 
+---
+= S3 監査の設定を変更します
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+個々のバケットの監査パラメータや SVM の監査設定を変更する場合は、まず SVM の監査を無効にしてから、適切な「変更」コマンドを実行する必要があります。
+
+バケットの監査設定を変更する際、新しい値を指定する対象として、 1 つのバケットまたはその SVM で監査対象として選択したすべてのバケットを指定できます。
+
+SVM の監査設定を変更すると、その SVM で監査対象として選択されているすべてのバケットに新しい値が反映されます。
+
+.手順
+. S3 監査を無効にします。
++
+vserver object-store-server audit disable -vserver _svm_name _`
+
+. 監査の設定を変更します。
++
+[cols="2,4"]
+|===
+| 設定を変更する対象 | 入力するコマンド 
+
+
+| バケット | 「 vserver object-store-server audit event-selector modify -vserver _svm_name _[-bucket_bucket_name_][-parameters to modify_]` 
+
+
+| SVM  a| 
+「 vserver object-store-server audit modify -vserver _svm_name _[_parameters to modify]`
+
+|===
+. S3 監査を再度有効にします。
++
+vserver object-store-server audit enable -vserver_svm_name _`
+
+
+
+次の例は、書き込み専用のアクセスイベントのみを監査するようにバケットの監査の設定を変更します。
+
+[listing]
+----
+cluster1::> vserver object-store-server audit event-selector modify -vserver vs1 -bucket test-bucket -access write-only
+----
+次の例は、 SVM の監査の設定を変更して、ログサイズの上限を 10MB に変更し、 3 つのログファイルを保持するように変更します。
+
+[listing]
+----
+cluster1::> vserver object-store-server audit modify -vserver vs1 -rotate-size 10MB -rotate-limit 3
+----

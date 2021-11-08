@@ -1,0 +1,52 @@
+---
+permalink: volumes/fast-directory-delete-task.html 
+sidebar: sidebar 
+keywords: fast, directory, delete, deleting, using CLI 
+summary: ディレクトリの削除には REST API を使用することを推奨します。ONTAP コマンドラインインターフェイス（ CLI ）を使用してディレクトリを削除することもできます。 
+---
+= CLI を使用して高速ディレクトリ削除を実行します
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+ディレクトリの削除には REST API を使用することを推奨します。ONTAP コマンドラインインターフェイス（ CLI ）を使用してディレクトリを削除することもできます。
+
+.手順
+. advanced 権限モードに切り替えます。
++
+「特権アドバンス」
+
+. ディレクトリを削除します。
++
+volume file async -delete start volume volume_name vserver vserver_name path directory-throttle
+
++
+最小スロットル値は 10 、最大スロットル値は 100 、 000 、デフォルトは 5000 です。
+
++
+次の例は、デフォルトのスロットルを使用して、新しいディレクトリ async 削除ジョブを作成します。
+
++
+[listing]
+----
+cluster-cli::*> volume file async-delete start -vserver vs1 -volume vol1 -path d1
+
+[Job 32] Job is queued: Asynchronous directory delete job.
+----
+. ディレクトリが削除されたことを確認します。
++
+「 event log show 」を参照してください
+
++
+次の例は、ディレクトリが正常に削除されたときのイベントログの出力を示しています。
+
++
+[listing]
+----
+cluster-cli::*> event log show
+Time              Node             Severity      Event
+------------------- ---------------- ------------- --------------------
+MM/DD/YYYY 00:11:11  cluster-vsim     INFORMATIONAL asyncDelete.message.success: Async delete job on path d1 of volume (MSID: 2162149232) was completed.
+----
+

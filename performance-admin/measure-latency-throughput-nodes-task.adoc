@@ -1,0 +1,104 @@
+---
+permalink: performance-admin/measure-latency-throughput-nodes-task.html 
+sidebar: sidebar 
+keywords: check, throughput, latency, between, nodes 
+summary: network test-path コマンドを使用して、ネットワークのボトルネックを特定したり、ノード間のネットワークパスのパフォーマンスを事前に確認したりできます。このコマンドは、クラスタ間のノード間でもクラスタ内のノード間でも実行できます。 
+---
+= ノード間のスループットとレイテンシを確認
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+network test-path コマンドを使用して ' ネットワークのボトルネックを特定したり ' ノード間のネットワーク・パスを事前に確認したりできますこのコマンドは、クラスタ間のノード間でもクラスタ内のノード間でも実行できます。
+
+.必要なもの
+* このタスクを実行するには、クラスタ管理者である必要があります。
+* このタスクを実行するには、 advanced 権限レベルのコマンドが必要です。
+* クラスタ間のパスの場合、ソースクラスタとデスティネーションクラスタがピアリングされている必要があります。
+
+
+ノード間のネットワークパフォーマンスが、パス構成に対して期待される値にならない場合があります。たとえば、ソースクラスタとデスティネーションクラスタの間のリンクが 10GbE の場合でも、 SnapMirror レプリケーション処理による大量のデータ転送では 1Gbps の伝送速度が観察されることがあります。
+
+ノード間のスループットと遅延を測定するには 'network test-path コマンドを使用しますこのコマンドは、クラスタ間のノード間でもクラスタ内のノード間でも実行できます。
+
+[NOTE]
+====
+このテストはネットワークパスが一杯になるまでデータを投入するため、システムがビジーでなく、ノード間のネットワークトラフィックが集中していないときに実行してください。テストは 10 秒後にタイムアウトします。このコマンドは、 ONTAP 9 のノード間でのみ実行できます。
+
+====
+「 session-type 」オプションは、ネットワークパスで実行する処理を指定します。たとえば、リモートデスティネーションへの SnapMirror レプリケーションに「 AsyncMirrorRemote 」と指定します。タイプによって、テストで使用されるデータの量が決まります。次の表に、セッションタイプを示します。
+
+|===
+| セッションタイプ（ Session Type ） | 説明 
+
+
+ a| 
+デフォルト
+ a| 
+異なるクラスタのノード間の SnapMirror レプリケーション
+
+
+
+ a| 
+AsyncMirrorLocal です
+ a| 
+同じクラスタ内のノード間の SnapMirror レプリケーション
+
+
+
+ a| 
+AsyncMirrorRemote
+ a| 
+異なるクラスタのノード間の SnapMirror レプリケーション
+
+
+
+ a| 
+SyncMirrorRemote
+ a| 
+異なるクラスタのノード間の SyncMirror レプリケーション
+
+
+
+ a| 
+RemoteDataTransfer
+ a| 
+同じクラスタのノード間のデータ転送（あるノードへの NFS 要求で別のノードのボリュームに格納されたファイルを要求する場合など）
+
+|===
+.手順
+. advanced 権限レベルに切り替えます。
++
+「 advanced 」の権限が必要です
+
+. ノード間のスループットとレイテンシを測定します。
++
+「 network test-path -source-path -source-path -source -node _source_nodename 」 | local-destination cluster_destination_clustername -- destination -node _destination_nodename __ -session-type default | AsyncMirrorLocal | AsyncMirrorRemote | SyncMirrorRemote | RemoteDataTransfer 」
+
++
+ソースノードはローカルクラスタにある必要があります。デスティネーションノードはローカルクラスタまたはピアクラスタに含めることができます。「 -source-node 」の値として、コマンドを実行するノードを指定します。
+
++
+次のコマンドは ' ローカル・クラスタ上の node1 と cluster2 上の node3 との間で SnapMirror タイプのレプリケーション・オペレーションのスループットと遅延を測定します
+
++
+[listing]
+----
+cluster1::> network test-path -source-node node1 -destination-cluster cluster2 -destination-node node3 -session-type AsyncMirrorRemote
+Test Duration:      10.88 secs
+Send Throughput:    18.23 MB/sec
+Receive Throughput: 18.23 MB/sec
+MB sent:            198.31
+MB received:        198.31
+Avg latency in ms:  2301.47
+Min latency in ms:  61.14
+Max latency in ms:  3056.86
+----
+. admin 権限に戻ります。
++
+「特権管理者」
+
+
+
+パス構成に対して期待される値を得られない場合は、ノードのパフォーマンス統計の確認、ツールを使用したネットワークの問題の切り分け、スイッチ設定の確認などを行います。

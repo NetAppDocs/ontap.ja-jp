@@ -1,0 +1,45 @@
+---
+permalink: nfs-admin/check-whether-client-ip-address-is-member-netgroup-task.html 
+sidebar: sidebar 
+keywords: check, client, ip, address, member, netgroup 
+summary: ネットグループに関する NFS クライアントアクセスの問題のトラブルシューティング時には、 vserver export-policy netgroup check-membership コマンドを使用すると、クライアント IP が特定のネットグループのメンバーであるかどうかを確認するのに役立ちます。 
+---
+= クライアント IP アドレスがネットグループのメンバーであるかどうかを確認します
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+ネットグループに関連した NFS クライアントアクセスの問題をトラブルシューティングするときは、「 vserver export-policy netgroup check-membership 」コマンドを使用すると、クライアント IP が特定のネットグループのメンバーであるかどうかを確認するのに役立ちます。
+
+ネットグループメンバーシップのチェックにより、クライアントがネットグループのメンバーであることまたはメンバーでないことを ONTAP が認識しているかどうかを確認できます。また、ネットグループ情報の更新中に ONTAP ネットグループキャッシュが一時的な状態にあるかどうかもわかります。この情報は、クライアントに対して予期せずアクセスが許可または拒否される理由を理解するのに役立ちます。
+
+.ステップ
+. クライアント IP アドレスのネットグループメンバーシップをチェックします。 vserver export-policy netgroup check-membership -vserver vserver_name -netgroup netgroup_name -client-ip client_ip
++
+このコマンドによって次のような結果が返されることがあります。
+
++
+** クライアントはネットグループのメンバーです。
++
+これは、リバースルックアップスキャンまたはホスト単位のネットグループ検索によって確認されました。
+
+** クライアントはネットグループのメンバーです。
++
+クライアントが ONTAP のネットグループキャッシュに見つかりました。
+
+** クライアントはネットグループのメンバーではありません。
+** ONTAP が現在ネットグループキャッシュを更新中なので、まだクライアントのメンバーシップを決定できません。
++
+これが完了するまで、メンバーシップの判断を明示的に下すことはできません。「 vserver export-policy netgroup queue show 」コマンドを使用してネットグループのロードを監視し、ロード完了後に再びチェックを試みます。
+
+
+
+
+
+次の例は、 IP アドレスが 172.17.16.72 のクライアントが SVM vs1 上のネットグループ mercury のメンバーであるかどうかをチェックします。
+
+[listing]
+----
+ cluster1::> vserver export-policy netgroup check-membership -vserver vs1 -netgroup  mercury -client-ip 172.17.16.72
+----

@@ -1,8 +1,8 @@
 ---
 sidebar: sidebar 
 permalink: task_cloud_backup_data_using_cbs.html 
-keywords: cloud, data, backup, back up, storage, volume, lun, connector, secret key, access key, Cloud Backup Service, CBS, restore data, protect volumes, ipspace 
-summary: ONTAP 9.9..1 以降では、 Cloud Backup Service を使用してクラウドにデータをバックアップできます。 
+keywords: cloud, data, backup, back up, storage, volume, lun, connector, secret key, access key, Cloud Backup Service, CBS, restore data, protect volumes, ipspace, storagegrid, storage grid, archive, archival, archiving, cost, calculator, glacier, deep archive 
+summary: ONTAP 9.9.ロール 以降では、 System Manager を使用して、 Cloud Backup Service を使用してクラウドにデータをバックアップできます。 
 ---
 = Cloud Backup Service を使用してデータをバックアップします
 :toc: macro
@@ -18,7 +18,7 @@ summary: ONTAP 9.9..1 以降では、 Cloud Backup Service を使用してクラ
 
 
 [role="lead"]
-ONTAP 9.9..1 以降では、 Cloud Backup Service を使用してクラウドにデータをバックアップできます。
+ONTAP 9.9.ロール 以降では、 System Manager を使用して、 Cloud Backup Service を使用してクラウドにデータをバックアップできます。
 
 
 NOTE: Cloud Backup Service は、 FlexVol の読み書き可能ボリュームとデータ保護（ DP ）ボリュームをサポートしています。FlexGroup ボリュームと SnapLock ボリュームはサポートされません。
@@ -31,6 +31,11 @@ Cloud Manager でアカウントを確立するには、次の手順を実行す
 ** Microsoft Azure
 ** Amazon Web Services （ AWS ）
 ** Google Cloud Platform （ GCP ）
+** StorageGRID （ ONTAP 9.10.1 ）
++
+
+NOTE: ONTAP 9.10.1 以降では、クラウドバックアッププロバイダとして StorageGRID を選択できますが、オンプレミスに Cloud Manager が導入されている場合にのみ選択できます。Cloud Manager Connector はオンプレミスにインストールし、 Cloud Manager ソフトウェアサービス（ SaaS ）アプリケーションから利用できる必要があります。
+
 
 
 . link:https://docs.netapp.com/us-en/occm/concept_backup_to_cloud.html["Cloud Manager で Cloud Backup Service に登録"] （適切なライセンスが必要です）。
@@ -58,52 +63,126 @@ Cloud Manager でアカウントを確立するには、次の手順を実行す
 
 == Cloud Backup Service を有効にします
 
-クラスタを Cloud Manager に登録したら、 Cloud Backup Service を有効にしてクラウドへの初回バックアップを開始できます。
+クラスタを Cloud Manager に登録したら、 Cloud Backup Service を有効にして、クラウドへの最初のバックアップを開始する必要があります。
 
 .手順
-. Enable Cloud Backup Service * ページで、次の詳細情報を入力します。
+. System Manager で、 * Protection > Overview * をクリックし、 * Cloud Backup Service * セクションまでスクロールします。
+. クライアント ID * と * クライアントシークレット * を入力します。
 +
-** 保護ポリシー（既存または新しいポリシー）
-** クラスタ IP スペース
 
+NOTE: ONTAP 9.10.1 以降では、クラウドの使用コストについて、「 * クラウドの使用コストの詳細 * 」をクリックして確認できます。
 
-. クラスタ内のすべてのボリュームをバックアップする場合は、チェックボックスを選択します。
-. [ 有効 ] を選択します。
-. 指定したクラウドプロバイダに応じて、次の情報を指定する必要があります。
+. [ 接続して Cloud Backup Service を有効にする *] をクリックします。
+. [* Cloud Backup Service を有効にする *] ページで、選択したプロバイダーに応じて次の詳細を入力します。
 +
-[cols="25,75"]
+[cols="35,65"]
 |===
+
+
 | クラウドプロバイダ | 入力するデータ 
 
 
-| Azure  a| 
+ a| 
+Azure
+ a| 
 ** Azure サブスクリプション ID
-** リソースグループ名（既存または新規）
 ** 地域
-** 表示されます
+** リソースグループ名（既存または新規）
 
 
 
 
-| AWS  a| 
+ a| 
+AWS
+ a| 
 ** AWS アカウント ID
 ** アクセスキー
 ** シークレットキー
 ** 地域
-** 表示されます
 
 
 
 
-| Google Cloud プロジェクト（ GCP ）  a| 
+ a| 
+Google Cloud プロジェクト（ GCP ）
+ a| 
 ** Google Cloud プロジェクト名
 ** Google Cloud Access キー
 ** Google Cloud Secret キー
 ** 地域
-** 表示されます
+
+
+
+
+ a| 
+StorageGRID （ ONTAP 9.10.1 以降、オンプレミス環境の Cloud Manager のみ）
+ a| 
+** サーバ
+** SG Access Key
+** SG シークレットキー
 
 
 |===
+. 保護ポリシー * を選択：
++
+** * 既存のポリシー * ：既存のポリシーを選択します。
+** * 新しいポリシー * ：名前を指定し、転送スケジュールを設定します。
++
+
+NOTE: ONTAP 9.10.1 以降では、 Azure と AWS のどちらでアーカイブを有効にするかを指定できます。
+
++
+
+IMPORTANT: Azure または AWS を使用してボリュームのアーカイブを有効にした場合、アーカイブを無効にすることはできません。
+
++
+Azure または AWS のアーカイブを有効にする場合は、次の情報を指定します。
+
++
+*** ボリュームがアーカイブされるまでの日数。
+*** アーカイブに保持するバックアップの数。最新のバックアップまでアーカイブするには、「 0 」（ゼロ）を指定します。
+*** AWS の場合は、アーカイブストレージクラスを選択します。
+
+
+
+
+. バックアップするボリュームを選択します。
+. [ 保存（ Save ） ] を選択します。
+
+
+
+
+== Cloud Backup Service に使用する保護ポリシーを編集します
+
+Cloud Backup Service で使用する保護ポリシーを変更することができます。
+
+.手順
+. System Manager で、 * Protection > Overview * をクリックし、 * Cloud Backup Service * セクションまでスクロールします。
+. をクリックします image:../media/icon_kabob.gif["kebab アイコン"]をクリックし、 * Edit * をクリックします。
+. 保護ポリシー * を選択：
++
+** * 既存のポリシー * ：既存のポリシーを選択します。
+** * 新しいポリシー * ：名前を指定し、転送スケジュールを設定します。
++
+
+NOTE: ONTAP 9.10.1 以降では、 Azure と AWS のどちらでアーカイブを有効にするかを指定できます。
+
++
+
+IMPORTANT: Azure または AWS を使用してボリュームのアーカイブを有効にした場合、アーカイブを無効にすることはできません。
+
++
+Azure または AWS のアーカイブを有効にする場合は、次の情報を指定します。
+
++
+*** ボリュームがアーカイブされるまでの日数。
+*** アーカイブに保持するバックアップの数。最新のバックアップまでアーカイブするには、「 0 」（ゼロ）を指定します。
+*** AWS の場合は、アーカイブストレージクラスを選択します。
+
+
+
+
+. [ 保存（ Save ） ] を選択します。
 
 
 
@@ -114,22 +193,22 @@ Cloud Manager でアカウントを確立するには、次の手順を実行す
 
 .作業を開始する前に
 * SnapMirror ライセンスが必要です。
-* WORM 機能は無効にする必要があります。
 * クラスタ間 LIF を設定する必要があります。
 * NTP を設定する必要があります。
 * クラスタで ONTAP 9.9..1 が実行されている必要があります。
-* この機能は、次のクラスタ構成では使用できません。
-+
-** クラスタを MetroCluster 環境に含めることはできません。
-** SVM-DR はサポートされていません。
-** Cloud Backup Service を使用して FlexGroup をバックアップすることはできません。
 
 
+次のクラスタ構成では、クラウド上の新しいボリュームや LUN を保護することはできません。
+
+* クラスタを MetroCluster 環境に含めることはできません。
+* SVM-DR はサポートされていません。
+* Cloud Backup Service を使用して FlexGroup をバックアップすることはできません。
 
 
 .手順
-. ボリュームまたは LUN をプロビジョニングするときは、 * Protection * ページで、 * SnapMirror を有効にする（ローカルまたはリモート） * というチェックボックスを選択します。
-. 「 Cloud Backup Service を有効にする」を選択します。
+. ボリュームまたは LUN をプロビジョニングするときは、 System Manager の * Protection * ページで、 * SnapMirror を有効にする（ローカルまたはリモート） * チェックボックスを選択します。
+. Cloud Backup Service ポリシータイプを選択します。
+. Cloud Backup Service が有効になっていない場合は、 * Cloud Backup Service を有効にする * を選択します。
 
 
 
@@ -140,7 +219,7 @@ Cloud Manager でアカウントを確立するには、次の手順を実行す
 
 .手順
 . 既存のボリュームまたは LUN を選択し、 * Protect * （保護）をクリックします。
-. Protect Volumes] ページで、保護ポリシーに「 Backup Using Cloud Backup Service 」と指定します。
+. [* Protect Volumes] ページで、保護ポリシーに [* Backup using Cloud Backup Service * ] を指定します。
 . [*Protect*]( 保護 ) をクリックします
 . [* 保護 *] ページで、 [* SnapMirror を有効にする ( ローカルまたはリモート )*] チェックボックスをオンにします。
 . 「 Cloud Backup Service を有効にする」を選択します。
@@ -150,4 +229,4 @@ Cloud Manager でアカウントを確立するには、次の手順を実行す
 
 == バックアップファイルからデータをリストアする
 
-データのリストア、関係の更新、関係の削除などのバックアップ管理処理は、 Cloud Manager でのみ実行できます。を参照してください link:https://docs.netapp.com/us-en/occm/task_restore_backups.html["バックアップファイルからのデータのリストア"] を参照してください。
+データのリストア、関係の更新、関係の削除などのバックアップ管理処理は、 Cloud Manager のインターフェイスを使用している場合にのみ実行できます。を参照してください link:https://docs.netapp.com/us-en/occm/task_restore_backups.html["バックアップファイルからのデータのリストア"] を参照してください。

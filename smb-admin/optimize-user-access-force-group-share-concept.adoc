@@ -1,0 +1,34 @@
+---
+permalink: smb-admin/optimize-user-access-force-group-share-concept.html 
+sidebar: sidebar 
+keywords: create, share, ontap, command, line, data, unix, effective, security, smb, user, group, force-group, predefined, database, force-group, access, how to optimize smb user access with the force-group share setting 
+summary: ONTAP コマンドラインから、 UNIX 対応のセキュリティを使用するデータへの共有を作成するときに、 SMB ユーザがその共有内に作成するすべてのファイルが force-group と呼ばれる同じグループに属するように指定できます。このグループは、 UNIX グループデータベース内に事前に定義されている必要があります。force-group を使用すると、さまざまなグループに属する SMB ユーザがファイルに確実にアクセスできるようになります。 
+---
+= force-group 共有設定を使用して、 SMB ユーザアクセスを最適化します
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+ONTAP コマンドラインから、 UNIX 対応のセキュリティを使用するデータへの共有を作成するときに、 SMB ユーザがその共有内に作成するすべてのファイルが、 _force-group_ と呼ばれる同じグループに属するように指定できます。このグループは、 UNIX グループデータベースで事前に定義されている必要があります。force-group を使用すると、さまざまなグループに属する SMB ユーザがファイルに確実にアクセスできるようになります。
+
+force-group の指定は、共有が UNIX または mixed qtree 内にある場合にのみ有効です。NTFS セキュリティ形式のボリュームまたは qtree にある共有内のファイルへのアクセスは、 UNIX の GID ではなく Windows の権限によって判断されるため、これらの共有に force-group を設定する必要はありません。
+
+共有に force-group が指定されている場合、次のようになります。
+
+* この共有にアクセスする force-group 内の SMB ユーザは、 force-group の GID に一時的に変更されます。
++
+この GID を使用すると、通常はプライマリ GID または UID を使用してアクセスできないファイルにこの共有内のファイルにアクセスできるようになります。
+
+* SMB ユーザがこの共有内に作成するすべてのファイルは、ファイル所有者のプライマリ GID に関係なく、同じフォースグループに属します。
+
+
+SMB ユーザが、 NFS ユーザによって作成されたファイルにアクセスしようとすると、 SMB ユーザのプライマリ GID によって、権限があるかどうかが判断されます。
+
+force-group は、 NFS ユーザがこの共有内のファイルにアクセスする方法には影響を与えません。NFS ユーザが作成したファイルは、ファイル所有者から GID を取得します。アクセス権限の決定は、ファイルにアクセスしようとしている NFS ユーザの UID およびプライマリ GID に基づきます。
+
+force-group を使用すると、さまざまなグループに属する SMB ユーザがファイルに確実にアクセスできるようになります。たとえば、会社の Web ページを保存する共有を作成し、 Engineering グループと Marketing グループのユーザに書き込みアクセス権を付与する必要がある場合、共有を作成して、「 webgroup1 」という名前の force-group に書き込み権限を与えます。force-group が指定されているため、 SMB ユーザがこの共有内に作成するすべてのファイルは「 webgroup1 」グループによって所有されます。また、ユーザが共有にアクセスするときは、「 webgroup1 」グループの GID が自動的に割り当てられます。そのため、 Engineering グループと Marketing グループのユーザの権限を管理しなくても、すべてのユーザがこの共有に書き込むことができます。
+
+* 関連情報 *
+
+xref:create-share-force-group-setting-task.adoc[force-group 共有設定を使用した SMB 共有の作成]

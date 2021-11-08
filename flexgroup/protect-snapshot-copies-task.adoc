@@ -1,0 +1,80 @@
+---
+permalink: flexgroup/protect-snapshot-copies-task.html 
+sidebar: sidebar 
+keywords: protect, flexgroup, volume, snapshot, copy 
+summary: Snapshot コピーの作成を自動的に管理する Snapshot ポリシーを作成したり、 FlexGroup ボリュームの Snapshot コピーを手動で作成したりできます。FlexGroup ボリュームの有効な Snapshot コピーが作成されるのは、 FlexGroup が ONTAP ボリュームの各コンスティチュエントの Snapshot コピーを正常に作成できたあとのみです。 
+---
+= Snapshot コピーを使用して FlexGroup ボリュームを保護する
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+Snapshot コピーの作成を自動的に管理する Snapshot ポリシーを作成したり、 FlexGroup ボリュームの Snapshot コピーを手動で作成したりできます。FlexGroup ボリュームの有効な Snapshot コピーが作成されるのは、 FlexGroup が ONTAP ボリュームの各コンスティチュエントの Snapshot コピーを正常に作成できたあとのみです。
+
+Snapshot ポリシーに複数の FlexGroup ボリュームが関連付けられている場合は、 FlexGroup ボリュームのスケジュールが重ならないようにする必要があります。ONTAP 9.8 以降、 FlexGroup ボリュームでサポートされる Snapshot コピーの最大数は 1023 です。
+
+.手順
+. Snapshot ポリシーを作成するか、手動で Snapshot コピーを作成します。
++
+[cols="2*"]
+|===
+| 作成する項目 | 入力するコマンド 
+
+
+ a| 
+スナップショットポリシー
+ a| 
+'volume snapshot policy create
+
+[NOTE]
+====
+FlexGroup ボリュームの Snapshot ポリシーに関連付けるスケジュールは、間隔を 30 分よりも長くする必要があります。
+
+====
+FlexGroup ボリュームを作成すると、デフォルトの Snapshot ポリシーが FlexGroup ボリュームに適用されます。
+
+
+
+ a| 
+Snapshot コピーを手動で作成
+ a| 
+volume snapshot create を実行します
+
+[NOTE]
+====
+FlexGroup ボリュームの Snapshot コピーを作成したあとに、 Snapshot コピーの属性を変更することはできません。属性を変更する場合は、 Snapshot コピーを削除して作成し直す必要があります。
+
+====
+|===
++
+Snapshot コピーの作成中は、 FlexGroup ボリュームへのクライアントアクセスが一時的に休止されます。
+
+. FlexGroup ボリュームに対して有効な Snapshot コピーが作成されたことを確認します。 volume snapshot show -volume volume_name -fields state`
++
+[listing]
+----
+cluster1::> volume snapshot show -volume fg -fields state
+vserver volume snapshot               state
+------- ------ ---------------------- -----
+fg_vs   fg     hourly.2016-08-23_0505 valid
+----
+. FlexGroup ボリュームのコンスティチュエントの Snapshot コピーを表示します。 volume snapshot show -is-constituent true
++
+[listing]
+----
+cluster1::> volume snapshot show -is-constituent true
+                                                                 ---Blocks---
+Vserver  Volume   Snapshot                                  Size Total% Used%
+-------- -------- ------------------------------------- -------- ------ -----
+fg_vs    fg__0001
+                  hourly.2016-08-23_0505                    72MB     0%   27%
+         fg__0002
+                  hourly.2016-08-23_0505                    72MB     0%   27%
+         fg__0003
+                  hourly.2016-08-23_0505                    72MB     0%   27%
+...
+         fg__0016
+                  hourly.2016-08-23_0505                    72MB     0%   27%
+----
+

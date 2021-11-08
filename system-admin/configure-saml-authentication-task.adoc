@@ -1,0 +1,108 @@
+---
+permalink: system-admin/configure-saml-authentication-task.html 
+sidebar: sidebar 
+keywords: tdp, ldap, identity, provider, saml, security, assertion, markup, lanaguage, active, directory 
+summary: ONTAP 9.3 以降では、 Web サービスに Security Assertion Markup Language （ SAML ）認証を設定できます。SAML 認証を設定して有効にすると、 Active Directory や LDAP などのディレクトリサービスプロバイダではなく、外部のアイデンティティプロバイダ（ IdP ）によってユーザが認証されます。 
+---
+= SAML 認証を設定する
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+ONTAP 9.3 以降では、 Web サービスに Security Assertion Markup Language （ SAML ）認証を設定できます。SAML 認証を設定して有効にすると、 Active Directory や LDAP などのディレクトリサービスプロバイダではなく、外部のアイデンティティプロバイダ（ IdP ）によってユーザが認証されます。
+
+.必要なもの
+* SAML 認証用の IdP を設定しておく必要があります。
+* IdP URI が必要です。
+
+
+.このタスクについて
+* SAML 認証は 'http' および 'ontapi' アプリケーションにのみ適用されます
++
+「 http 」アプリケーションと「 ontapi 」アプリケーションは、サービスプロセッサインフラストラクチャ、 ONTAP API 、または ONTAP システムマネージャの Web サービスで使用されます。
+
+* SAML 認証は、管理 SVM へのアクセス時にのみ適用できます。
+
+
+.手順
+. SAML の設定を作成して、 ONTAP が IdP メタデータにアクセスできるようにします。
++
+`* security saml - sp create - idp -uri_idp_uri - sp-host_ontap _host_name_*
+
++
+「 idp_uri 」は、 IdP メタデータのダウンロード元である IdP ホストの FTP または HTTP アドレスです。
+
++
+「 ONTAP_HOST_NAME 」は、 SAML サービスプロバイダホストのホスト名または IP アドレスです。この場合は、 ONTAP システムです。デフォルトでは、クラスタ管理 LIF の IP アドレスが使用されます。
+
++
+必要に応じて、 ONTAP サーバ証明書の情報を指定できます。デフォルトでは、 ONTAP Web サーバ証明書の情報が使用されます。
+
++
+[listing]
+----
+cluster_12::> security saml-sp create -idp-uri https://scspr0235321001.gdl.englab.netapp.com/idp/shibboleth -verify-metadata-server false
+
+Warning: This restarts the web server. Any HTTP/S connections that are active
+         will be disrupted.
+Do you want to continue? {y|n}: y
+[Job 179] Job succeeded: Access the SAML SP metadata using the URL:
+https://10.63.56.150/saml-sp/Metadata
+
+Configure the IdP and Data ONTAP users for the same directory server domain to ensure that users are the same for different authentication methods. See the "security login show" command for the Data ONTAP user configuration.
+----
++
+ONTAP ホストメタデータにアクセスするための URL が表示されます。
+
+. IdP ホストから、 ONTAP ホストメタデータを使用して IdP を設定します。
++
+IdP の設定の詳細については、 IdP のマニュアルを参照してください。
+
+. SAML の設定を有効にします。
++
+'*security saml-sp modify-is-enabled true*
+
++
+「 http 」または「 ontapi 」アプリケーションにアクセスする既存のユーザは、自動的に SAML 認証用に設定されます。
+
+. SAML を設定した後に 'http' または 'ontapi' アプリケーションのユーザを作成する場合は ' 新しいユーザの認証方式として SAML を指定します
++
+.. SAML 認証を使用して新しいユーザのログイン方法を作成します。 +`* security login create -user-or -group-name_user_name _-application [http|ontapi] -authentication-method saml-vserver_svm_name _*`
++
+[listing]
+----
+cluster_12::> security login create -user-or-group-name admin1 -application http -authentication-method saml -vserver  cluster_12
+----
+.. ユーザエントリが作成されたことを確認します。
++
+「 * security login show * 」と表示されます
+
++
+[listing]
+----
+cluster_12::> security login show
+
+Vserver: cluster_12
+                                                                 Second
+User/Group                 Authentication                 Acct   Authentication
+Name           Application Method        Role Name        Locked Method
+-------------- ----------- ------------- ---------------- ------ --------------
+admin          console     password      admin            no     none
+admin          http        password      admin            no     none
+admin          http        saml          admin            -      none
+admin          ontapi      password      admin            no     none
+admin          ontapi      saml          admin            -      none
+admin          service-processor
+                           password      admin            no     none
+admin          ssh         password      admin            no     none
+admin1         http        password      backup           no     none
+**admin1         http        saml          backup           -      none**
+----
+
+
+
+
+* 関連情報 *
+
+http://docs.netapp.com/ontap-9/topic/com.netapp.doc.dot-cm-cmpr/GUID-5CB10C70-AC11-41C0-8C16-B4D0DF916E9B.html["ONTAP 9 のコマンド"]

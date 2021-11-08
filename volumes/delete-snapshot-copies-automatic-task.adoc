@@ -1,0 +1,49 @@
+---
+permalink: volumes/delete-snapshot-copies-automatic-task.html 
+sidebar: sidebar 
+keywords: delete, snapshot, copies, automatically, flexclone luns 
+summary: Snapshot コピーと FlexClone LUN の自動削除ポリシーを定義して有効にすることができます。Snapshot コピーと FlexClone LUN の自動削除はスペース使用の管理に役立ちます。 
+---
+= Snapshot コピーを自動的に削除する
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+Snapshot コピーと FlexClone LUN の自動削除ポリシーを定義して有効にすることができます。Snapshot コピーと FlexClone LUN の自動削除はスペース使用の管理に役立ちます。
+
+読み書き可能なボリュームの Snapshot コピーと読み書き可能な親ボリュームの FlexClone LUN について、自動的に削除されるように設定できます。SnapMirror デスティネーションボリュームなど、読み取り専用ボリュームからの Snapshot コピーの自動削除は設定できません。
+
+.ステップ
+. volume snapshot autodelete modify コマンドを使用して、 Snapshot コピーの自動削除ポリシーを定義して有効にします。
++
+このコマンドで使用できるパラメータについては 'volume snapshot autodelete modify マニュアル・ページを参照してくださいこのコマンドを使用すると ' ニーズに合ったポリシーを定義できます
+
++
+次に、 Storage Virtual Machine （ SVM ） vs0.example.com に属するボリューム vol3 に対して、 Snapshot コピーの自動削除を有効にするコマンドを示します。このコマンドでは、 trigger を「 snap_reserve 」に設定しています。
+
++
+[listing]
+----
+cluster1::> volume snapshot autodelete modify -vserver vs0.example.com
+-volume vol3 -enabled true -trigger snap_reserve
+----
++
+次に、 Storage Virtual Machine （ SVM ） vs0.example.com に属するボリューム vol3 に対して、 Snapshot コピーと対象としてマークされた FlexClone LUN の自動削除を有効にするコマンドを示します。
+
++
+[listing]
+----
+cluster1::> volume snapshot autodelete modify -vserver vs0.example.com
+-volume vol3 -enabled true -trigger volume -commitment try -delete-order
+oldest_first -destroy-list lun_clone,file_clone
+----
++
+[NOTE]
+====
+アグリゲートレベルの Snapshot コピーの機能は、ボリュームレベルの Snapshot コピーとは異なり、また、 ONTAP によって自動的に管理されます。アグリゲート Snapshot コピーを削除するオプションは常に有効になっており、スペース使用の管理に役立ちます。
+
+trigger パラメータが「 snap_reserve 」に設定されているアグリゲートの場合、 Snapshot コピーは、リザーブされているスペースがしきい値を超えるまで保持されます。したがって、 trigger パラメータが「 snap _reserve 」に設定されていない場合でも、コマンド内の Snapshot コピーが使用するスペースは、「 0 」と表示されます。これらの Snapshot コピーは自動的に削除されるためです。また、アグリゲートで Snapshot コピーによって使用されるスペースは空きスペースとみなされ、コマンドの使用可能なスペースのパラメータに含まれます。
+
+====
+

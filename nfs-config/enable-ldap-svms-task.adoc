@@ -1,0 +1,56 @@
+---
+permalink: nfs-config/enable-ldap-svms-task.html 
+sidebar: sidebar 
+keywords: associate, ldap, client, configuration, svms 
+summary: SVM で LDAP を有効にするには、 vserver services name-service ldap create コマンドを使用して、 LDAP クライアント設定を SVM に関連付ける必要があります。 
+---
+= LDAP クライアント設定を SVM に関連付けます
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+SVM で LDAP を有効にするには、「 vserver services name-service ldap create 」コマンドを使用して、 LDAP クライアント設定を SVM に関連付ける必要があります。
+
+.必要なもの
+* LDAP ドメインがネットワーク内にすでに存在しており、 SVM が配置されているクラスタからアクセスできる必要があります。
+* LDAP クライアント設定が SVM に存在している必要があります。
+
+
+.手順
+. SVM で LDAP を有効にします。
++
+vserver services name-service ldap create -vserver_name_-client-config _client_config_name _ です
+
++
+[NOTE]
+====
+ONTAP 9.2 以降では、「 vserver services name-service ldap create 」コマンドによって設定の自動検証が実行され、 ONTAP がネームサーバに接続できない場合はエラーメッセージが報告されます。
+
+====
++
+次のコマンドは、「 vs1 」という SVM で LDAP を有効にし、「 ldap1 」という LDAP クライアント設定を使用するように設定します。
+
++
+[listing]
+----
+cluster1::> vserver services name-service ldap create -vserver vs1 -client-config ldap1 -client-enabled true
+----
+. vserver services name-service ldap check コマンドを使用して、ネームサーバのステータスを検証します。
++
+次のコマンドは、 SVM vs1. 上の LDAP サーバを検証します。
+
++
+[listing]
+----
+cluster1::> vserver services name-service ldap check -vserver vs1
+
+| Vserver: vs1                                                |
+| Client Configuration Name: c1                               |
+| LDAP Status: up                                             |
+| LDAP Status Details: Successfully connected to LDAP server "10.11.12.13".                                              |
+----
++
+ネームサービスのチェックコマンドは ONTAP 9.2 以降で使用できます。
+
+

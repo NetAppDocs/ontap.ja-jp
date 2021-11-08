@@ -1,0 +1,111 @@
+---
+permalink: peering/add-svm-intercluster-relationship-93-later-task.html 
+sidebar: sidebar 
+keywords: add, intercluster, svm, peer, relationship 
+summary: クラスタピア関係を設定したあとに SVM を作成する場合は、 SVM のピア関係を手動で追加する必要があります。vserver peer create コマンドを使用すると、 SVM 間のピア関係を作成できます。ピア関係が作成されたら、リモートクラスタで vserver peer accept を実行してピア関係を承認できます。 
+---
+= クラスタ間 SVM ピア関係を追加する（ ONTAP 9.3 以降）
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+クラスタピア関係を設定したあとに SVM を作成する場合は、 SVM のピア関係を手動で追加する必要があります。SVM 間にピア関係を作成するには、「 vserver peer create 」コマンドを使用します。ピア関係が作成されたら、リモートクラスタで「 vserver peer accept 」を実行してピア関係を許可できます。
+
+ソースクラスタとデスティネーションクラスタのピア関係が確立されている必要があります。
+
+ローカルデータのバックアップ用に、同じクラスタの SVM 間にピア関係を作成できます。詳細については 'vserver peer create マニュアル・ページを参照してください
+
+管理者は、「 vserver peer reject 」コマンドを使用して、提案された SVM ピア関係を拒否することがあります。SVM 間の関係が「残念な」状態の場合は、新しい SVM を作成する前に関係を削除する必要があります。詳細については 'vserver peer delete マニュアル・ページを参照してください
+
+.手順
+. データ保護のソースクラスタで、データ保護のデスティネーションクラスタ上の SVM とのピア関係を作成します。
++
+「 vserver peer create -vserver _local_svm __ -peer-vserver_remote_SVM_applications snapmirror | file-copy | lun-copy-peer-cluster_remote_cluster_'` 」という形式で指定します
+
++
+次の例は、ローカル SVM 「 pvs1 」とリモート SVM 「 vs1 」の間にピア関係を作成します
+
++
+[listing]
+----
+cluster01::> vserver peer create -vserver pvs1 -peer-vserver vs1 -applications snapmirror -peer-cluster cluster02
+----
++
+ローカルとリモートの SVM の名前が同じ場合は、 _local name_to を使用して SVM ピア関係を作成する必要があります。
+
++
+[listing]
+----
+cluster01::> vserver peer create -vserver vs1 -peer-vserver
+vs1 -applications snapmirror -peer-cluster cluster01
+-local-name cluster1vs1LocallyUniqueName
+----
+. データ保護のソースクラスタで、ピア関係が開始されていることを確認します。
++
+vserver peer show-all コマンドを実行します
+
++
+コマンド構文全体については、マニュアルページを参照してください。
+
++
+次の例は、 SVM 「 pvs1 」と SVM 「 vs1 」間のピア関係が開始されたことを示しています。
+
++
+[listing]
+----
+cluster01::> vserver peer show-all
+                   Peer              Peer                        Peering
+Vserver            Vserver           State       Peer Cluster    Applications
+-----------        -----------       ----------  --------------  ------------
+pvs1               vs1               initiated   Cluster02       snapmirror
+----
+. データ保護のデスティネーションクラスタで、保留中の SVM ピア関係を表示します。
++
+vserver peer show
+
++
+コマンド構文全体については、マニュアルページを参照してください。
+
++
+次に 'cluster02 の保留中のピア関係の一覧を表示する例を示します
+
++
+[listing]
+----
+cluster02::> vserver peer show
+
+                   Peer               Peer
+Vserver            Vserver            State
+-----------        -----------        ------------
+vs1                pvs1               pending
+----
+. データ保護のデスティネーションクラスタで、保留中のピア関係を承認します。
++
+「 vserver peer accept -vserver _local_svm __ -peer-vserver_remote_SVM_` 」のように指定します
+
++
+コマンド構文全体については、マニュアルページを参照してください。
+
++
+次の例は、ローカル SVM 「 vs1 」とリモート SVM 「 pvs1 」の間のピア関係を承認します。
+
++
+[listing]
+----
+cluster02::> vserver peer accept -vserver vs1 -peer-vserver pvs1
+----
+. SVM ピア関係を確認します。
++
+vserver peer show
+
++
+[listing]
+----
+cluster01::> vserver peer show
+            Peer        Peer                           Peering        Remote
+Vserver     Vserver     State        Peer Cluster      Applications   Vserver
+----------- ----------- ------------ ----------------- -------------- ---------
+pvs1        vs1         peered       cluster02         snapmirror     vs1
+----
+

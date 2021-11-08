@@ -1,0 +1,82 @@
+---
+permalink: volumes/rehost-snapmirror-relationship-task.html 
+sidebar: sidebar 
+keywords: rehost, volumes, snapmirror, relationship 
+summary: SnapMirror 関係にあるボリュームをリホストできます。 
+---
+= SnapMirror 関係にあるボリュームをリホストします
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+SnapMirror 関係にあるボリュームをリホストできます。
+
+.必要なもの
+* ボリュームはオンラインである必要があります。
+* ボリューム移動や LUN 移動などのボリューム管理操作は実行しないでください。
+* リホストするボリュームへのデータアクセスを停止する必要があります。
+* リホストするボリュームのデータアクセスをサポートするようにターゲット SVM の ns-switch とネームサービスを設定する必要があります。
+* ボリュームのユーザ ID とグループ ID をターゲット SVM で使用可能であるか、またはホストするボリュームで変更する必要があります。
+
+
+.このタスクについて
+* リホストはシステム停止を伴う処理です。
+* リホスト処理が失敗した場合は、ソースボリュームでボリュームのポリシーおよび関連するルールを再設定しなければならない場合があります。
+* 次のボリュームポリシー、ポリシールール、および構成はリホスト処理後にソースボリュームから失われるため、リホスト後のボリュームで手動で再設定する必要があります。
++
+** ボリュームと qtree のエクスポートポリシー
+** ウィルス対策ポリシー
+** ボリューム効率化ポリシー
+** Quality of Service （ QoS ；サービス品質）ポリシー
+** Snapshot ポリシー
+** クォータルール
+** ns-switch とネームサービスの設定のエクスポートポリシーとルール
+** ユーザ ID とグループ ID
+
+
+
+
+.手順
+. SnapMirror 関係のタイプを記録します。
++
+「 Snapmirror show 」のように表示されます
+
++
+これは、ボリュームのリホストが失敗した場合に SnapMirror 関係のタイプに関する情報が失われないようにするための予防的な手順です。
+
+. デスティネーションクラスタから、 SnapMirror 関係を削除します。
++
+'napmirror deleted'
+
++
+SnapMirror 関係は解除しないでください。解除するとデスティネーションボリュームのデータ保護機能が失われ、リホスト処理の完了後に関係を再確立できません。
+
+. ソースクラスタから、 SnapMirror 関係情報を削除します。
++
+'napmirror release relationship-info-only true
+
++
+「 relationship-info-only 」パラメータを「 true 」に設定すると、 Snapshot コピーが削除されずにソースの関係情報が削除されます。
+
+. advanced 権限レベルに切り替えます。
++
+「 advanced 」の権限が必要です
+
+. デスティネーション SVM でボリュームをリホストします。
++
+「 volume rehost -vserver source_svm -volume vol_name -destination-vserver destination_svm 」という形式で指定します
+
+. SVM ピア関係が存在しない場合は、ソース SVM とデスティネーション SVM 間に SVM ピア関係を作成します。
++
+「 vserver peer create 」
+
+. ソースボリュームとデスティネーションボリューム間に SnapMirror 関係を作成します。
++
+'Snapmirror create'
+
++
+DP ボリュームをホストしている SVM から「 snapmirror create 」コマンドを実行する必要があります。リホストしたボリュームは、 SnapMirror 関係のソースまたはデスティネーションにすることができます。
+
+. SnapMirror 関係を再同期
+

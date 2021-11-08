@@ -1,0 +1,38 @@
+---
+permalink: san-config/setting-queue-depths-hp-ux-hosts-concept.html 
+sidebar: sidebar 
+keywords: set, queue, depths, hp-ux, hosts 
+summary: HP-UX ホストの LUN またはデバイスのキュー深度は、カーネルパラメータ scsi_max_qdepth を使用して変更できます。HBA のキュー深度は、カーネルパラメータ max_fcp_reqs を使用して変更できます。 
+---
+= HP-UX ホストでキュー深度を設定します
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+HP-UX ホストの LUN またはデバイスのキュー深度は ' カーネル・パラメータ cs_max_qdepth を使用して変更できますHBA のキュー深度は ' カーネル・パラメータ 'mAX_FCP_reqs' を使用して変更できます
+
+* 「 cs_max_qdepth 」のデフォルト値は 8 です。最大値は 255 です。
++
+「 kmtune 」コマンドの「 -u 」オプションを使用して、実行中のシステムで「 csc_max_qdepth 」を動的に変更できます。変更は、システム上のすべてのデバイスに有効です。たとえば、 LUN のキュー深度を 64 に増やすには、次のコマンドを使用します。
+
++
+`kmtune -u -s scsi_max_qdepth=64`
+
++
+個々のデバイスファイルのキュー深度は、 'csictl' コマンドを使用して変更できます。「 csictl 」コマンドを使用した変更は、システムのリブート後は維持されません。特定のデバイスファイルのキュー深度を表示および変更するには、次のコマンドを実行します。
+
++
+'csictl-a/dev/rdsk/c2t2d0`
+
++
+'csictl-m queue_depth=16 /dev/rdsk/c2t2d0`
+
+* 「 mAX_FCP_reqs 」のデフォルト値は 512 です。最大値は 1024 です。
++
+「 mAX_FCP_reqs 」への変更を有効にするには、カーネルを再構築し、システムを再起動する必要があります。たとえば、 HBA のキュー深度を 256 に変更するには、次のコマンドを使用します。
+
++
+`kmtune -u -s max_fcp_reqs = 256`
+
+

@@ -1,0 +1,104 @@
+---
+permalink: system-admin/create-banner-task.html 
+sidebar: sidebar 
+keywords: create, banner, svm, access, cluster, ssh, session 
+summary: バナーを作成して、クラスタまたは SVM へのアクセスを試行したユーザにメッセージを表示することができます。バナーは、ユーザに認証を要求する前に、コンソールセッション（クラスタアクセスのみ）または SSH セッション（クラスタアクセスまたは SVM アクセス）に表示されます。 
+---
+= バナーを作成します
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+バナーを作成して、クラスタまたは SVM へのアクセスを試行したユーザにメッセージを表示することができます。バナーは、ユーザに認証を要求する前に、コンソールセッション（クラスタアクセスのみ）または SSH セッション（クラスタアクセスまたは SVM アクセス）に表示されます。
+
+.手順
+. 「 securitylogin banner modify 」コマンドを使用して、クラスタまたは SVM のバナーを作成します。
++
+|===
+| 状況 | 作業 
+
+
+ a| 
+1 行のメッセージを指定します
+ a| 
+テキストを指定するには '-message"" [.code]`text` パラメータを使用します
+
+
+
+ a| 
+メッセージで改行（ EOL ）を使用する必要があります
+ a| 
+message パラメータまたは --uri' パラメータを指定せずにコマンドを使用して ' バナーを編集するための対話型モードを起動します
+
+
+
+ a| 
+バナーに使用するコンテンツを特定の場所からアップロードします
+ a| 
+コンテンツの FTP または HTTP の場所を指定するには '-uri パラメータを使用します
+
+|===
++
+バナーの最大サイズは、改行も含めて 2 、 048 バイトまでです。
+
++
+「 -uri 」パラメータを使用して作成されたバナーは静的です。以降にソースコンテンツが変更されても、自動では反映されません。
+
++
+クラスタ用に作成したバナーは、既存のバナーがない SVM に対しても表示されます。以降に SVM 用のバナーを作成すると、その SVM に対しては、クラスタレベルのバナーではなくそのバナーが表示されます。SVM に対する「 -message 」パラメータに二重引用符（ "-" ）内のハイフンを指定すると、クラスタレベルのバナーを使用するように SVM がリセットされます。
+
+. 「 securitylogin banner show 」コマンドを使用して、バナーが作成されたことを確認します。
++
+空の文字列（「」）で「 -message 」パラメータを指定すると、内容のないバナーが表示されます。
+
++
+「 -message 」パラメータに「 - 」を指定すると、バナーが設定されていないすべての SVM （管理またはデータ）が表示されます。
+
+
+
+次の例では、非対話型モードを使用して「 cluster1 」クラスタ用のバナーを作成しています。
+
+[listing]
+----
+cluster1::> security login banner modify -message "Authorized users only!"
+
+cluster1::>
+----
+次の例では、対話型モードを使用して「 'vm1 」 SVM 用のバナーを作成しています。
+
+[listing]
+----
+cluster1::> security login banner modify -vserver svm1
+
+Enter the message of the day for Vserver "svm1".
+Max size: 2048. Enter a blank line to terminate input. Press Ctrl-C to abort.
+0        1         2         3         4         5         6         7         8
+12345678901234567890123456789012345678901234567890123456789012345678901234567890
+The svm1 SVM is reserved for authorized users only!
+
+
+cluster1::>
+----
+次の例は、作成したバナーを表示します。
+
+[listing]
+----
+cluster1::> security login banner show
+Vserver: cluster1
+Message
+-----------------------------------------------------------------------------
+Authorized users only!
+
+Vserver: svm1
+Message
+-----------------------------------------------------------------------------
+The svm1 SVM is reserved for authorized users only!
+
+2 entries were displayed.
+
+cluster1::>
+----
+* 関連情報 *
+
+xref:manage-banner-reference.adoc[バナーの管理]

@@ -1,0 +1,43 @@
+---
+permalink: smb-hyper-v-sql/add-sesecurityprivilege-user-account-task.html 
+sidebar: sidebar 
+keywords: add, sesecurityprivilege, privilege, user, aacount, sql, server, smb, share 
+summary: SQL Server のインストールに使用するドメインユーザアカウントには、デフォルトではドメインユーザに割り当てられない権限を必要とする特定の操作を CIFS サーバで実行するために、「 SeSecurityPrivilege 」権限を割り当てる必要があります。 
+---
+= ユーザアカウント（ SMB 共有の SQL Server 用）に SeSecurityPrivilege 権限を追加する
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+SQL Server のインストールに使用するドメインユーザアカウントには、デフォルトではドメインユーザに割り当てられていない権限を必要とする特定の操作を CIFS サーバで実行するために、「すべてのユーザ」権限を割り当てる必要があります。
+
+SQL Server のインストールに使用するドメインアカウントがすでに存在している必要があります。
+
+SQL Server インストーラのアカウントに権限を追加するときに、 ONTAP がドメインコントローラに照会してアカウントを検証することがあります。ONTAP からドメインコントローラに接続できない場合、コマンドが失敗することがあります。
+
+.手順
+. "`s eepleed`" 権限を追加します。
++
+「 * vserver cifs users-and-groups privilege add-privilege -vserver vserver_name -user-or-group-name account_name __ -privileges SeSecurityPrivilege *
+
++
+-user-または -group-name パラメータの値は 'SQL Server のインストールに使用されるドメイン・ユーザ・アカウントの名前です
+
+. 権限がアカウントに適用されていることを確認します。
++
+「 * vserver cifs users-and-groups privilege show -vserver vserver_name _‑ user-or -group-name_account_name _ * 」のように表示されます
+
+
+
+次のコマンドでは、 Storage Virtual Machine （ SVM ） vs1 の EXAMPLE ドメインにある SQL Server インストーラのアカウントに「 `s eepleed` 」権限を追加しています。
+
+[listing]
+----
+cluster1::> vserver cifs users-and-groups privilege add-privilege -vserver vs1 -user-or-group-name EXAMPLE\SQLinstaller -privileges SeSecurityPrivilege
+
+cluster1::> vserver cifs users-and-groups privilege show -vserver vs1
+Vserver   User or Group Name          Privileges
+--------- ---------------------       ---------------
+vs1       EXAMPLE\SQLinstaller        SeSecurityPrivilege
+----

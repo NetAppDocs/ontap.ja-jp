@@ -1,0 +1,50 @@
+---
+permalink: smb-hyper-v-sql/verify-security-style-svm-root-volume-ntfs-task.html 
+sidebar: sidebar 
+keywords: verify, security, style, svm, root, volume, ntfs, storage, virtual, machine 
+summary: Hyper-V および SQL Server over SMB のノンストップオペレーションを実行する場合は、ボリュームを NTFS セキュリティ形式で作成する必要があります。ルートボリュームのセキュリティ形式には、 Storage Virtual Machine （ SVM ）で作成されたボリュームのデフォルトが適用されるため、ルートボリュームのセキュリティ形式は NTFS に設定する必要があります。 
+---
+= SVM のルートボリュームのセキュリティ形式が NTFS に設定されていることを確認します
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+Hyper-V および SQL Server over SMB のノンストップオペレーションを実行する場合は、ボリュームを NTFS セキュリティ形式で作成する必要があります。ルートボリュームのセキュリティ形式には、 Storage Virtual Machine （ SVM ）で作成されたボリュームのデフォルトが適用されるため、ルートボリュームのセキュリティ形式は NTFS に設定する必要があります。
+
+.このタスクについて
+* ルートボリュームのセキュリティ形式は SVM の作成時に指定できます。
+* SVM の作成時にルートボリュームのセキュリティ形式を NTFS 以外に設定した場合は、あとで volume modify コマンドを使用してセキュリティ形式を変更できます。
+
+
+.手順
+. SVM のルートボリュームの現在のセキュリティ形式を確認します。
++
+`* volume show -vserver_vserver_name __ -fields vserver 、 volume 、 security-style *`
+
+. ルートボリュームのセキュリティ形式が NTFS 以外になっている場合は、セキュリティ形式を NTFS に変更します。
++
+`* volume modify -vserver _vserver_name __ volume root_volume_name -security-style ntfs_*`
+
+. SVM のルートボリュームのセキュリティ形式が NTFS に設定されていることを確認します。
++
+`* volume show -vserver_vserver_name __ -fields vserver 、 volume 、 security-style *`
+
+
+
+次に、 SVM vs1 のルートボリュームのセキュリティ形式が NTFS になっていることを確認するコマンドの例を示します。
+
+[listing]
+----
+cluster1::> volume show -vserver vs1 -fields vserver,volume,security-style
+vserver  volume     security-style
+-------- ---------- --------------
+vs1      vs1_root   unix
+
+cluster1::> volume modify -vserver vs1 -volume vs1_root -security-style ntfs
+
+cluster1::> volume show -vserver vs1 -fields vserver,volume,security-style
+vserver  volume     security-style
+-------- ---------- --------------
+vs1      vs1_root   ntfs
+----

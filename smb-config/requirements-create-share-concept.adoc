@@ -1,0 +1,56 @@
+---
+permalink: smb-config/requirements-create-share-concept.html 
+sidebar: sidebar 
+keywords: creating, create, smb, share, requirement, path, properties, property, home, directories, directory, requirements and considerations for creating an smb share 
+summary: SMB 共有を作成する前に、特にホームディレクトリに関して、共有パスと共有プロパティの要件を理解しておく必要があります。 
+---
+= SMB 共有の作成に関する要件と考慮事項
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+SMB 共有を作成する前に、特にホームディレクトリに関して、共有パスと共有プロパティの要件を理解しておく必要があります。
+
+SMB 共有を作成するには ' クライアントがアクセスするディレクトリ・パス構造を指定する必要があります（ vserver cifs share create コマンドでは '-path オプションを使用）ディレクトリパスは、 SVM ネームスペース内に作成したボリュームまたは qtree のジャンクションパスに相当します。ディレクトリパスと対応するジャンクションパスは、共有を作成する前に存在している必要があります。
+
+共有パスには次の要件があります。
+
+* ディレクトリパス名は 255 文字以内で指定します。
+* パス名にスペースが含まれている場合は、文字列全体を引用符で囲む必要があります（例： "/new volume/mount here" ）。
+* 共有の UNC パス (`\\servername\sharename\filepath') に 256 文字を超える (UNC パスの初期 "\\`" を除く ) が含まれている場合、 Windows の [ プロパティ ] ボックスの *Security* タブは使用できません。
++
+これは、 ONTAP 問題ではなく Windows クライアント問題です。この問題を回避するには、 UNC パスが 256 文字を超える共有を作成しないでください。
+
+
+
+共有プロパティのデフォルト値は変更できます。
+
+* すべての共有のデフォルトの初期プロパティは 'oplock'browsable 'changenotify ' および 'how -previous versions] です
+* 共有の作成時、共有プロパティの指定はオプションです。
++
+ただし、共有の作成時に共有プロパティを指定した場合、デフォルト値は使用されません。共有の作成時に「 -share-properties 」パラメータを使用する場合は、適用するすべての共有プロパティをカンマで区切って指定する必要があります。
+
+* ホーム・ディレクトリ共有を指定するには、「 homedirectory 」プロパティを使用します。
++
+この機能を使用すると、接続するユーザと一連の変数に基づいてさまざまなディレクトリにマッピングされる共有を設定できます。ユーザごとに別個の共有を作成する必要はありません。 1 つの共有を設定し、いくつかのホームディレクトリパラメータを指定して、エントリポイント（共有）とユーザのホームディレクトリ（ SVM 上のディレクトリ）間のユーザの関係を定義します。
+
++
+[NOTE]
+====
+共有の作成後にこのプロパティを追加または削除することはできません。
+
+====
+
+
+ホームディレクトリの共有には次の要件があります。
+
+* SMB ホーム・ディレクトリを作成する前に、 vserver cifs home-directory search-path add コマンドを使用して少なくとも 1 つのホーム・ディレクトリ検索パスを追加する必要があります。
+* 「 -share-properties 」パラメータに homedirectory と指定されたホーム・ディレクトリ共有は、共有名に %w （ Windows ユーザ名）動的変数を含める必要があります。
++
+共有名には '%d' ( ドメイン名 ) 動的変数 ( 例 : %d/%w ) や ' 固定部分 ( 例 : 'home1_%w ') を含めることもできます
+
+* 管理者またはユーザが他のユーザのホーム・ディレクトリに接続するために共有を使用する場合（ vserver cifs home-directory modify コマンドのオプションを使用）、動的共有名のパターンの先頭にチルダ（「 ~」 ）を付ける必要があります。
+
+
+link:../smb-admin/index.html["SMB の管理"] また 'vserver cifs share man ページには追加情報があります

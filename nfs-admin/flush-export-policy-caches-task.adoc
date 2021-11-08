@@ -1,0 +1,99 @@
+---
+permalink: nfs-admin/flush-export-policy-caches-task.html 
+sidebar: sidebar 
+keywords: flush, export, policy, cache 
+summary: エクスポートポリシーキャッシュを手動でフラッシュすると（ vserver export-policy cache flush ）、古くなった可能性のある情報が削除され、 ONTAP による適切な外部リソースからの最新情報の取得が強制的に行われます。これは、 NFS エクスポートへのクライアントアクセスに関するさまざまな問題の解決に役立ちます。 
+---
+= エクスポートポリシーキャッシュをフラッシュします
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+ONTAP は、アクセスを高速化するために、エクスポートポリシーに関連する情報の格納に複数のエクスポートポリシーキャッシュを使用します。エクスポートポリシーキャッシュを手動でフラッシュすると（「 vserver export-policy cache flush 」）、古くなった可能性のある情報が削除され、 ONTAP が適切な外部リソースから最新情報を取得するように強制されます。これは、 NFS エクスポートへのクライアントアクセスに関するさまざまな問題の解決に役立ちます。
+
+エクスポートポリシーキャッシュの情報は、次の理由で古くなる可能性があります。
+
+* エクスポートポリシールールが最近変更された
+* ネームサーバでホスト名レコードが最近変更された
+* ネームサーバでネットグループエントリが最近変更された
+* ネットグループの完全なロードを妨げていたネットワーク停止からのリカバリが発生しました
+
+
+.手順
+. ネームサービスキャッシュを有効にしていない場合は、 advanced 権限モードで次のいずれかを実行します。
++
+[cols="2*"]
+|===
+| フラッシュ対象 | 入力するコマンド 
+
+
+ a| 
+すべてのエクスポートポリシーキャッシュ（ showmount を除く）
+ a| 
+vserver export-policy cache flush -vserver vserver_name `
+
+
+
+ a| 
+エクスポートポリシールールアクセスキャッシュ
+ a| 
+vserver export-policy cache flush -vserver vserver_name -cache access ’オプションの「 -node 」パラメータを使用すると、アクセスキャッシュをフラッシュするノードを指定できます。
+
+
+
+ a| 
+ホスト名キャッシュ
+ a| 
+「 vserver export-policy cache flush -vserver vserver_name -cache host 」のように入力します
+
+
+
+ a| 
+ネットグループキャッシュ
+ a| 
+「 vserver export-policy cache flush -vserver vserver_name -cache netgroup 」は、リソースを大量に消費します。ネットグループキャッシュのフラッシュは、古いネットグループが原因で発生したクライアントアクセス問題の解決を試みる場合にのみ行ってください。
+
+
+
+ a| 
+showmount キャッシュ
+ a| 
+「 vserver export-policy cache flush -vserver vserver_name -cache showmount 」を参照してください
+
+|===
+. ネームサービスキャッシュが有効になっている場合は、次のいずれかを実行します。
++
+[cols="2*"]
+|===
+| フラッシュ対象 | 入力するコマンド 
+
+
+ a| 
+エクスポートポリシールールアクセスキャッシュ
+ a| 
+vserver export-policy cache flush -vserver vserver_name -cache access ’オプションの「 -node 」パラメータを使用すると、アクセスキャッシュをフラッシュするノードを指定できます。
+
+
+
+ a| 
+ホスト名キャッシュ
+ a| 
+'vserver services name-service cache hosts forward-lookup delete-all
+
+
+
+ a| 
+ネットグループキャッシュ
+ a| 
+vserver services name-service cache netgroups ip-to-netgroup delete -all 'vserver services name-service cache netgroups members delete -all ' ネットグループの処理は ' リソースを大量に消費しますネットグループキャッシュのフラッシュは、古いネットグループが原因で発生したクライアントアクセス問題の解決を試みる場合にのみ行ってください。
+
+
+
+ a| 
+showmount キャッシュ
+ a| 
+「 vserver export-policy cache flush -vserver vserver_name -cache showmount 」を参照してください
+
+|===
+

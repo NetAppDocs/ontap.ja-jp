@@ -1,0 +1,76 @@
+---
+permalink: smb-admin/configure-bypass-traverse-checking-concept.html 
+sidebar: sidebar 
+keywords: bypass, traverse, user, privilege, permission, directory, allow, check, configure, storage, virtual, machine, svm, configure bypass traverse checking 
+summary: トラバースチェックのバイパスは、トラバースするディレクトリに対する権限がユーザにない場合でも、ファイルのパスに含まれるすべてのディレクトリをユーザがトラバースできるかどうかを判断するユーザ権限です。トラバースチェックのバイパスを許可または拒否した場合の動作と、 Storage Virtual Machine （ SVM ）でのユーザに対するトラバースチェックのバイパスの設定方法を理解しておく必要があります。 
+---
+= トラバースチェックのバイパスの設定の概要
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+トラバースチェックのバイパスは、トラバースするディレクトリに対する権限がユーザにない場合でも、ファイルのパスに含まれるすべてのディレクトリをユーザがトラバースできるかどうかを判断するユーザ権限です。トラバースチェックのバイパスを許可または拒否した場合の動作と、 Storage Virtual Machine （ SVM ）でのユーザに対するトラバースチェックのバイパスの設定方法を理解しておく必要があります。
+
+
+
+== トラバースチェックのバイパスを許可または拒否した場合の動作
+
+* 許可した場合、ユーザがファイルにアクセスしようとすると、中間ディレクトリのトラバース権限が ONTAP でチェックされないで、ファイルへのアクセスの可否が判別されます。
+* 拒否した場合、 ONTAP はファイルのパスにあるすべてのディレクトリでトラバース（実行）権限をチェックします。
++
+中間ディレクトリのいずれかに「 X 」（トラバース権限）がない場合、 ONTAP はファイルへのアクセスを拒否します。
+
+
+
+
+
+== トラバースチェックのバイパスを設定する
+
+ONTAP CLI を使用するか、 Active Directory グループポリシーにこのユーザ権限を設定すると、トラバースチェックのバイパスを設定できます。
+
+ユーザーがトラバースチェックのバイパスを許可するかどうかは、「ユーザーの特権」によって制御されます。
+
+* この権限を SVM のローカル SMB ユーザまたはグループ、ドメインユーザまたはグループに追加すると、トラバースチェックのバイパスを許可できます。
+* この権限を SVM のローカル SMB ユーザまたはグループ、ドメインユーザまたはグループから削除すると、トラバースチェックのバイパスを拒否できます。
+
+
+SVM の次の BUILTIN グループには、デフォルトでトラバースチェックのバイパス権限が割り当てられています。
+
+* 「 BUILTIN\Administrators 」
+* 「 BUILTIN\Power Users 」のようになります
+* 「 BUILTIN\Backup Operators 」のようになります
+* 「 BUILTIN\Users 」です
+* 「みんな」
+
+
+これらのいずれかのグループのメンバーにトラバースチェックのバイパスを許可したくない場合は、グループからこの権限を削除する必要があります。
+
+CLI を使用して SVM のローカル SMB ユーザおよびグループのトラバースチェックのバイパスを設定する場合は、次の点に注意する必要があります。
+
+* カスタムのローカルグループまたはドメイングループのメンバーにトラバースチェックのバイパスを許可する場合は、そのグループに「すべてのグループ」権限を追加する必要があります。
+* 個々のローカルユーザまたはドメインユーザにトラバースチェックのバイパスを許可し、そのユーザがその権限を持つグループのメンバーでない場合は、そのユーザアカウントに「すべてのグループ」権限を追加できます。
+* ローカルまたはドメインのユーザまたはグループに対するトラバースチェックのバイパスを無効にするには、「一時的に」権限を削除します。
++
+[NOTE]
+====
+指定されたローカルまたはドメインのユーザまたはグループに対してトラバースチェックのバイパスを無効にするには、「 Everyone 」グループから「 S ekleygeble` 」権限も削除する必要があります。
+
+====
+
+
+* 関連情報 *
+
+xref:allow-users-groups-bypass-directory-traverse-task.adoc[ユーザまたはグループに対するディレクトリのトラバースチェックのバイパスを許可する]
+
+xref:disallow-users-groups-bypass-directory-traverse-task.adoc[ユーザまたはグループに対するディレクトリのトラバースチェックのバイパスを禁止する]
+
+xref:configure-character-mappings-file-name-translation-task.adoc[ボリュームでの SMB ファイル名の変換のための文字マッピングを設定する]
+
+xref:secure-file-access-share-acls-concept.adoc[SMB 共有の ACL を使用したファイルアクセスの保護]
+
+xref:secure-file-access-file-permissions-concept.adoc[ファイル権限を使用したファイルアクセスの保護]
+
+xref:list-supported-privileges-reference.adoc[サポートされる権限のリスト]
+
+xref:manage-local-privileges-concept.adoc[ローカル権限の管理]

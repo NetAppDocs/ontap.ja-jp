@@ -1,0 +1,52 @@
+---
+permalink: volumes/setup-quotas-svm-task.html 
+sidebar: sidebar 
+keywords: set up, quotas on svm 
+summary: 新しい Storage Virtual Machine （ SVM 、旧 Vserver ）でクォータを設定するには、クォータポリシーを作成してクォータポリシールールをポリシーに追加し、そのポリシーを SVM に割り当て、 SVM 上の各 FlexVol でクォータを初期化する必要があります。 
+---
+= SVM でクォータを設定します
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+新しい Storage Virtual Machine （ SVM 、旧 Vserver ）でクォータを設定するには、クォータポリシーを作成してクォータポリシールールをポリシーに追加し、そのポリシーを SVM に割り当て、 SVM 上の各 FlexVol でクォータを初期化する必要があります。
+
+.手順
+. 「 -instance 」オプションを指定して vserver show コマンドを使用し、 SVM の作成時に自動的に作成されたデフォルトのクォータポリシーの名前を表示します。
++
+SVM の作成時に名前が指定されなかった場合、名前は「 default 」です。vserver quota policy rename コマンドを使用すると、デフォルトのポリシーに名前を指定できます。
+
++
+[NOTE]
+====
+volume quota policy create コマンドを使用して ' 新しいポリシーを作成することもできます
+
+====
+. volume quota policy rule create コマンドを使用して、 SVM 上の各ボリュームに次のクォータルールの new_any _ を作成します。
++
+** すべてのユーザに対するデフォルトのクォータルール
+** 特定のユーザに対する明示的クォータルール
+** すべてのグループに対するデフォルトのクォータルール
+** 特定のグループに対する明示的クォータルール
+** すべての qtree に対するデフォルトのクォータルール
+** 特定の qtree に対する明示的クォータルール
+
+
+. volume quota policy rule show コマンドを使用して ' クォータ・ルールが正しく設定されているかどうかを確認します
+. 新しいポリシーを使用する場合は、「 vserver modify 」コマンドを使用して新しいポリシーを SVM に割り当てます。
+. volume quota on コマンドを使用して SVM 上の各ボリュームのクォータを初期化します
++
+初期化プロセスは、次の方法で監視できます。
+
++
+** volume quota on コマンドを使用する場合 '-foreground パラメータを追加すると ' フォアグラウンドのジョブでクォータを実行できます（デフォルトでは、このジョブはバックグラウンドで実行されます）。
++
+ジョブがバックグラウンドで実行される場合は、「 job show 」コマンドを使用して進行状況を監視できます。
+
+** volume quota show コマンドを使用すると ' クォータ初期化のステータスを監視できます
+
+
+. 初期化に失敗したクォータ・ルールなどの初期化エラーを確認するには 'volume quota show -instance コマンドを使用します
+. volume quota report コマンドを使用してクォータ・レポートを表示し ' 適用クォータが期待どおりであることを確認します
+

@@ -1,0 +1,63 @@
+---
+permalink: data-protection/vault-archive-snapmirror-technology-concept.html 
+sidebar: sidebar 
+keywords: vault, archiving, snapmirror, technology 
+summary: SnapVault 9.3 以降では、 ONTAP テクノロジの代わりに SnapMirror バックアップポリシーが使用されます。標準への準拠およびその他のガバナンス関連の目的で、ディスクツーディスクの Snapshot コピーレプリケーションに SnapMirror バックアップポリシーを使用します。SnapMirror 関係では、通常、ソースボリューム内の Snapshot コピーだけがデスティネーションに含まれますが、 SnapVault デスティネーションはより長期間にわたって作成されたポイントインタイムの Snapshot コピーを保持します。 
+---
+= SnapMirror テクノロジを使用したバックアップのアーカイブ
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+SnapVault 9.3 以降では、 ONTAP テクノロジの代わりに SnapMirror バックアップポリシーが使用されます。標準への準拠およびその他のガバナンス関連の目的で、ディスクツーディスクの Snapshot コピーレプリケーションに SnapMirror バックアップポリシーを使用します。SnapMirror 関係では、通常、ソースボリューム内の Snapshot コピーだけがデスティネーションに含まれますが、 SnapVault デスティネーションはより長期間にわたって作成されたポイントインタイムの Snapshot コピーを保持します。
+
+たとえば、ビジネスに関する政府会計規則に準拠するために、 20 年にわたってデータの月次 Snapshot コピーを保持しなければならない場合があります。SnapVault ストレージからデータを提供する必要はないため、デスティネーションシステムでは低速かつ低コストのディスクを使用できます。
+
+次の図は、 SnapMirror バックアップデータ保護関係を示しています。
+
+image::../media/snapvault-data-protection.gif[SnapVault によるデータ保護]
+
+
+
+== バックアップデータ保護関係を初期化する方法
+
+関係の SnapMirror ポリシーでは、ベースラインおよび更新の内容を定義します。
+
+デフォルトのバックアップポリシー「 XDPDefault 」に基づくベースライン転送では、ソースボリュームの Snapshot コピーが作成され、そのコピーおよびコピーが参照するデータブロックがデスティネーションボリュームに転送されます。SnapMirror 関係とは異なり、バックアップにはベースラインに古い Snapshot コピーは含まれません。
+
+
+
+== バックアップデータ保護関係を更新する方法
+
+更新は、設定したスケジュールに従って非同期に行われます。関係のポリシーで定義するルールによって、更新に含める新しい Snapshot コピーおよび保持するコピーの数が特定されます。ポリシーで定義されているラベル ("``s onty,`") は、ソース上の Snapshot ポリシーで定義されている 1 つ以上のラベルと一致する必要があります。そうしないと、レプリケーションが失敗します。
+
+「 XDPDefault 」ポリシーに基づく各更新では、ポリシー・ルールで定義されたラベルと一致するラベルがあれば、 SnapMirror は前回の更新後に作成された Snapshot コピーを転送します。次に示す「 XDPDefault 」ポリシーの「 snapmirror policy show 」コマンドの出力では、次の点に注意してください。
+
+* Create Snapshot は 'false' であり ' SnapMirror が関係を更新するときに 'XDPDefault によって Snapshot コピーが作成されないことを示します
+* 「 XDPDefault 」には、「毎日」および「毎週」というルールがあります。これは、 SnapMirror が関係を更新するときに、ソース上のラベルが一致するすべての Snapshot コピーが転送されることを示します。
+
+
+[listing]
+----
+cluster_dst::> snapmirror policy show -policy XDPDefault -instance
+
+                     Vserver: vs0
+      SnapMirror Policy Name: XDPDefault
+      SnapMirror Policy Type: vault
+                Policy Owner: cluster-admin
+                 Tries Limit: 8
+           Transfer Priority: normal
+   Ignore accesstime Enabled: false
+     Transfer Restartability: always
+ Network Compression Enabled: false
+             Create Snapshot: false
+                     Comment: Default policy for XDP relationships with daily and weekly
+                              rules.
+       Total Number of Rules: 2
+                  Total Keep: 59
+                       Rules: SnapMirror Label     Keep  Preserve Warn Schedule Prefix
+                              ----------------     ----  -------- ---- -------- ------
+                              daily                   7  false       0 -        -
+                              weekly                 52  false       0 -        -
+----

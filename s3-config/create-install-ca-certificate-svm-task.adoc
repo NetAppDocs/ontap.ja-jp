@@ -1,0 +1,138 @@
+---
+permalink: s3-config/create-install-ca-certificate-svm-task.html 
+sidebar: sidebar 
+keywords: create, install, ca certificate, svm 
+summary: S3 クライアントから S3 対応 SVM への HTTPS トラフィックを有効にするには、認証局（ CA ）証明書が必要です。 
+---
+= CA 証明書を作成して SVM にインストールします
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+S3 クライアントから S3 対応 SVM への HTTPS トラフィックを有効にするには、認証局（ CA ）証明書が必要です。
+
+HTTP のみを使用するように S3 サーバを設定することは可能ですが、 CA 証明書が不要なクライアントを設定することも可能です。ただし、 ONTAP S3 サーバへの HTTPS トラフィックを CA 証明書を使用して保護することを推奨します。
+
+IP トラフィックがクラスタ LIF のみを経由するローカル階層化の場合、 CA 証明書は必要ありません。
+
+この手順に記載されている手順では、 ONTAP 自己署名証明書を作成してインストールします。サードパーティベンダーの CA 証明書もサポートされています。詳細については、管理者認証のドキュメントを参照してください。
+
+link:../authentication/index.html["管理者認証と RBAC"]
+
+その他の設定オプションについては 'security' のマニュアル・ページを参照してください
+
+.手順
+. 自己署名デジタル証明書を作成します。
++
+「 securitycertificate create -vserver svm_name -type root-ca -common-name ca_cert_name 」を参照してください
+
++
+「 -type root-ca 」オプションは、他の証明書に署名するための自己署名デジタル証明書を作成してインストールし、認証局（ CA ）として機能します。
+
++
+「 -common-name 」オプションを指定すると、 SVM の認証局（ CA ）名が作成され、証明書の完全な名前を生成するときに使用されます。
+
++
+デフォルトの証明書サイズは 2048 ビットです。
+
++
+例
+
++
+[listing]
+----
+cluster-1::> security certificate create -vserver svm1.example.com -type root-ca -common-name svm1_ca
+
+The certificate's generated name for reference: svm1_ca_159D1587CE21E9D4_svm1_ca
+----
++
+生成された証明書の名前が表示されたら、この手順の以降の手順で名前を保存してください。
+
+. 証明書署名要求を生成します。
++
+「セキュリティ証明書の生成 - CSR-common-name s3_server_name [ 追加オプション ]
+
++
+署名要求の「 -common-name 」パラメータには、 S3 サーバ名（ FQDN ）を指定する必要があります。
+
++
+必要に応じて、 SVM の場所やその他の詳細情報を指定できます。
+
++
+今後の参照用に、証明書要求と秘密鍵のコピーを保管するように求められます。
+
+. SVM_CA を使用して CSR に署名し、 S3 サーバの証明書を生成します。
++
+「 securitycertificate sign -vserver svm_name -ca ca_cert_name -ca -serial ca_cert_serial_number [additional _options]] 」というエラーが表示されます
+
++
+前の手順で使用したコマンドオプションを入力します。
+
++
+** ca-ca -- 手順 1 で入力した CA の共通名。
+** ca-serial -- ステップ 1 の CA シリアル番号。たとえば、 CA 証明書の名前が svm1_ca_159D1587CE21E9D4_svm1_ca の場合、シリアル番号は 159D1587CE21E9D4 です。
+
+
++
+デフォルトでは、署名済み証明書の有効期限は 365 日です。別の値を選択し、他の署名の詳細を指定できます。
+
++
+プロンプトが表示されたら、手順 2 で保存した証明書要求文字列をコピーして入力します。
+
++
+署名済み証明書が表示されます。あとで使用できるように保存しておきます。
+
+. S3 対応 SVM に署名済み証明書をインストールします。
++
+「 securitycertificate install -type server -vserver svm_name 」を参照してください
+
++
+プロンプトが表示されたら、証明書と秘密鍵を入力します。
+
++
+証明書チェーンが必要な場合は、中間証明書を入力できます。
+
++
+秘密鍵と CA 署名デジタル証明書が表示されたら、あとで参照できるように保存します。
+
+. 公開鍵証明書を取得します。
++
+「 securitycertificate show -vserver svm_name -common-name ca_cert_name -type root-ca -instance 」を参照してください
+
++
+公開鍵証明書を保存しておき、以降のクライアント側の設定に使用します。
+
++
+例
+
++
+[listing]
+----
+cluster-1::> security certificate show -vserver svm1.example.com -common-name svm1_ca -type root-ca  -instance
+
+                      Name of Vserver: svm1.example.com
+           FQDN or Custom Common Name: svm1_ca
+         Serial Number of Certificate: 159D1587CE21E9D4
+                Certificate Authority: svm1_ca
+                  Type of Certificate: root-ca
+     (DEPRECATED)-Certificate Subtype: -
+              Unique Certificate Name: svm1_ca_159D1587CE21E9D4_svm1_ca
+Size of Requested Certificate in Bits: 2048
+               Certificate Start Date: Thu May 09 10:58:39 2020
+          Certificate Expiration Date: Fri May 08 10:58:39 2021
+               Public Key Certificate: -----BEGIN CERTIFICATE-----
+MIIDZ ...==
+-----END CERTIFICATE-----
+                         Country Name: US
+               State or Province Name:
+                        Locality Name:
+                    Organization Name:
+                    Organization Unit:
+Contact Administrator's Email Address:
+                             Protocol: SSL
+                     Hashing Function: SHA256
+              Self-Signed Certificate: true
+       Is System Internal Certificate: false
+----
+

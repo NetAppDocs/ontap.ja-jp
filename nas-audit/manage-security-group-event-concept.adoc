@@ -1,0 +1,41 @@
+---
+permalink: nas-audit/manage-security-group-event-concept.html 
+sidebar: sidebar 
+keywords: manage, security-group, event 
+summary: Storage Virtual Machine （ SVM ）に対してセキュリティグループイベントが設定されている場合、監査を有効にしたときに、それらについての監査イベントが生成されます。 
+---
+= セキュリティグループイベントの管理
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+Storage Virtual Machine （ SVM ）に対してセキュリティグループイベントが設定されている場合、監査を有効にしたときに、それらについての監査イベントが生成されます。
+
+セキュリティグループイベントは、システムのローカルの CIFS グループまたは NFS グループが作成または削除されたとき、それらのグループのローカルユーザが追加または削除されたときに生成されます。イベント ID は 4731 、 4732 、 4733 、 4734 、および 4735 です。security-group-events は、「 vserver cifs users-and-groups <local-group> 」コマンドと「 vserver services name-service <unix-group> 」コマンドを使用してユーザアカウントが変更されたときに生成されます。
+
+次の例では、ローカル UNIX セキュリティグループが作成され、 ID 4731 のセキュリティグループイベントが生成されています。
+
+[listing]
+----
+netapp-clus1::*> vserver services name-service unix-group create -name testunixgroup -id 20
+- System
+  - Provider
+   [ Name]  NetApp-Security-Auditing
+   [ Guid]  {3CB2A168-FE19-4A4E-BDAD-DCF422F13473}
+   EventID 4731
+   EventName Local Unix Security Group Created
+   ...
+   ...
+  SubjectUserName admin
+  SubjectUserSid 65533-1001
+  SubjectDomainName ~
+  SubjectIP console
+  SubjectPort
+  TargetUserName testunixgroup
+  TargetDomainName
+  TargetGid 20
+  TargetType NFS
+  PrivilegeList ~
+  GidHistory ~
+----

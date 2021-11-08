@@ -1,0 +1,76 @@
+---
+permalink: s3-config/enable-ontap-s3-access-local-fabricpool-task.html 
+sidebar: sidebar 
+keywords: enable, ontap, s3 access, local, fabricpool, tiering 
+summary: ONTAP S3 をローカルの FabricPool 大容量階層として使用するには、作成したバケットに基づいてオブジェクトストアを定義し、パフォーマンス階層のアグリゲートにオブジェクトストアを接続して FabricPool を作成する必要があります。 
+---
+= ローカルの FabricPool 階層化のために ONTAP S3 アクセスを有効にします
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+ONTAP S3 をローカルの FabricPool 大容量階層として使用するには、作成したバケットに基づいてオブジェクトストアを定義し、パフォーマンス階層のアグリゲートにオブジェクトストアを接続して FabricPool を作成する必要があります。
+
+ONTAP S3 サーバ名とバケット名が必要です。また、（「 -vserver Cluster 」パラメータを指定した）クラスタ LIF を使用して S3 サーバを作成しておく必要があります。
+
+オブジェクトストアの設定には、 S3 サーバとバケットの名前や認証要件など、ローカルの大容量階層の情報が含まれています。
+
+作成したオブジェクトストア設定は、別のオブジェクトストアまたはバケットに再関連付けしないでください。ローカル階層には複数のバケットを作成できますが、 1 つのバケットに複数のオブジェクトストアを作成することはできません。
+
+ローカルの大容量階層には FabricPool ライセンスは必要ありません。
+
+.手順
+. ローカルの大容量階層用のオブジェクトストアを作成します。
++
+「 storage aggregate object-store config create -object-store-name store_name -ispace Cluster -provider-type ONTAP_S3 -server S3_server_name -container-type bucket_name -access key access-key access-key access-key access-secret-password password
+
++
+** 「 -container-type 」は、作成した S3 バケットです。
+** access-key' パラメータは ONTAP S3 サーバへの要求を許可します
+** 「 -secret-password 」パラメータ（シークレットアクセスキー）は、 ONTAP S3 サーバへの要求を認証します。
+** ONTAP S3 の証明書チェックを無効にするには '-is-certificate-validation-enabled パラメータを false に設定します
+
+
++
+[listing]
+----
+cluster1::> storage aggregate object-store config create
+-object-store-name MyLocalObjStore -ispace Cluster -provider-type ONTAP_S3 -server s3.example.com
+-container-name bucket1 -access-key myS3key -secret-password myS3pass
+----
+. オブジェクトストアの設定情報を表示して確認します。
++
+「 storage aggregate object-store config show 」を参照してください
+
+. オプション：ボリューム内のアクセス頻度の低いデータの量を確認するには、の手順に従います http://docs.netapp.com/ontap-9/topic/com.netapp.doc.dot-mgng-stor-tier-fp/GUID-78C09B0C-9508-4CEC-96FE-7ED73F7F5120.html["Inactive Data Reporting によるボリューム内のアクセス頻度の低いデータ量の確認"]。
++
+ボリューム内のアクセス頻度の低いデータの量を確認すると、 FabricPool のローカル階層化にどのアグリゲートを使用するかを決定するのに役立ちます。
+
+. オブジェクトストアをアグリゲートに接続します。
++
+「 storage aggregate object-store attach -aggregate aggr_name -object -store-name store_name 」のように表示されます
+
++
+「 allow-flexgroup 」「 * true * 」オプションを使用すると、 FlexGroup ボリュームコンスティチュエントを含むアグリゲートを接続できます。
+
++
+[listing]
+----
+cluster1::> storage aggregate object-store attach
+-aggregate aggr1 -object-store-name MyLocalObjStore
+----
+. オブジェクトストアの情報を表示し、接続したオブジェクトストアが使用可能であることを確認します。
++
+「 storage aggregate object-store show 」を参照してください
+
++
+[listing]
+----
+cluster1::> storage aggregate object-store show
+
+Aggregate    Object Store Name    Availability State
+---------    -----------------    ------------------
+aggr1        MyLocalObjStore      available
+----
+

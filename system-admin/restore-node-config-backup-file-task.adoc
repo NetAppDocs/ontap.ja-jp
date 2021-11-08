@@ -1,0 +1,56 @@
+---
+permalink: system-admin/restore-node-config-backup-file-task.html 
+sidebar: sidebar 
+keywords: restore, node, configuration, backup, file, recovering 
+summary: ノード構成をリストアするには、特定し、リカバリノードに利用可能にした構成バックアップファイルを使用します。 
+---
+= 構成バックアップファイルを使用してノード構成をリストアする
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+ノード構成をリストアするには、特定し、リカバリノードに利用可能にした構成バックアップファイルを使用します。
+
+ノードのローカル構成ファイルが失われた障害からリカバリするには、このタスクのみを実行する必要があります。
+
+.手順
+. ノードが正常な場合は ' 別のノードの advanced 特権レベルで 'cluster modify コマンドに -node' パラメータと -eligibility パラメータを指定して実行し ' ノードの資格を無効にしてクラスタから分離します
++
+ノードが正常でない場合は、この手順を省略する必要があります。
+
++
+この例では、 node2 を変更してクラスタへ参加させないようにし、構成をリストアできるようにします。
+
++
+[listing]
+----
+cluster1::*> cluster modify -node node2 -eligibility false
+----
+. ノード構成を構成バックアップファイルからリストアするには、 advanced 権限レベルで「 system configuration recovery node restore 」コマンドを使用します。
++
+ノードの ID が名前も含めて失われた場合は、「 -nodename-in-backup 」パラメータを使用して構成バックアップファイルのノード名を指定する必要があります。
+
++
+この例では、ノードに保存されている構成バックアップファイルの 1 つを使用してノードの構成をリストアします。
+
++
+[listing]
+----
+cluster1::*> system configuration recovery node restore -backup cluster1.8hour.2011-02-22.18_15_00.7z
+
+Warning: This command overwrites local configuration files with
+         files contained in the specified backup file. Use this
+         command only to recover from a disaster that resulted
+         in the loss of the local configuration files.
+         The node will reboot after restoring the local configuration.
+Do you want to continue? {y|n}: y
+----
++
+構成がリストアされ、ノードがリブートします。
+
+. ノードをクラスタの対象外にした場合は、「 system configuration recovery cluster sync 」コマンドを使用してノードを適格とマークし、クラスタと同期します。
+. SAN 環境を使用している場合は、「 system node reboot 」コマンドを使用して、ノードをリブートし、 SAN クォーラムを再確立します。
+
+
+以前にクラスタを作成し直したことがある場合、またクラスタの再作成前に作成された構成バックアップファイルを使用してノード構成をリストアする場合は、再度クラスタを作成し直す必要があります。

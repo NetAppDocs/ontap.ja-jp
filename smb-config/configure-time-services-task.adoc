@@ -1,0 +1,39 @@
+---
+permalink: smb-config/configure-time-services-task.html 
+sidebar: sidebar 
+keywords: creating, create, smb, server, active, domain, controller, ensure, cluster, time, match, configure time services 
+summary: Active Directory ドメインコントローラで SMB サーバを作成する前に、クラスタ時間と SMB サーバが所属するドメインのドメインコントローラの時間のずれが 5 分以内であることを確認する必要があります。 
+---
+= タイムサービスを設定
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+Active Directory ドメインコントローラで SMB サーバを作成する前に、クラスタ時間と SMB サーバが所属するドメインのドメインコントローラの時間のずれが 5 分以内であることを確認する必要があります。
+
+Active Directory ドメインと同じ NTP サーバを使用して時刻を同期するようにクラスタ NTP サービスを設定する必要があります。
+
+ONTAP 9.5 以降では、対称認証を使用するように NTP サーバをセットアップできます。
+
+.手順
+. タイム・サービスを設定するには 'cluster time-service ntp server create コマンドを使用します
++
+** 対称認証を使用せずにタイムサービスを設定するには、次のコマンドを入力します。 cluster time-service ntp server create -server server_ip_address
+** 対称認証を使用してタイムサービスを設定するには、次のコマンドを入力します。 cluster time-service ntp server create -server server_ip_address -key -id key_id ` cluster time-service ntp server create -server 10.10.10.1 `cluster time-service ntp server create -server 10.10.10.2`
+
+
+. cluster time-service ntp server show コマンドを使用して、タイムサービスが正しく設定されていることを確認します。
++
+cluster time-service ntp server show
+
++
+[listing]
+----
+
+Server                         Version
+------------------------------ -------
+10.10.10.1                     auto
+10.10.10.2                     auto
+----
+

@@ -1,0 +1,27 @@
+---
+permalink: peering/peering-basics-concept.html 
+sidebar: sidebar 
+keywords: peer, basics 
+summary: ピア関係にあるクラスタおよび SVM は、クラスタ間 LIF （論理インターフェイス）を使用してクラスタ間ネットワーク経由で通信します。インタークラスタ LIF は、「 intercluster-core 」ネットワークインターフェイスサービスをサポートする LIF で、通常は「 default-intercluster 」ネットワークインターフェイスサービスポリシーを使用して作成されます。ピア関係にあるクラスタ内の各ノードでクラスタ間 LIF を作成する必要があります。 
+---
+= ピアリングの基本
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+SnapMirror を使用して Snapshot コピーをレプリケートするには、ソースとデスティネーションのクラスタ間およびソースとデスティネーションの SVM 間でピア関係を作成する必要があります。ピア関係で定義されるネットワーク接続により、クラスタ間および SVM 間でデータをセキュアにやり取りすることができます。
+
+ピア関係にあるクラスタおよび SVM は、 _intercluster 論理インターフェイス（ LIF ）を使用してクラスタ間ネットワーク経由で通信します。 _ クラスタ間 LIF は、「 intercluster-core 」ネットワークインターフェイスサービスをサポートする LIF で、通常は「 default-intercluster 」ネットワークインターフェイスサービスポリシーを使用して作成されます。ピア関係にあるクラスタ内の各ノードでクラスタ間 LIF を作成する必要があります。
+
+クラスタ間 LIF は、 LIF が割り当てられているシステム SVM に属するルートを使用します。ONTAP は、クラスタレベルの通信用に IPspace 内にシステム SVM を自動的に作成します。
+
+ファンアウトとカスケードの両方のトポロジがサポートされます。カスケードトポロジの場合、クラスタ間ネットワークを作成する必要があるのは、プライマリクラスタとセカンダリクラスタの間、およびセカンダリクラスタとターシャリクラスタの間だけです。プライマリクラスタとターシャリクラスタの間にクラスタ間ネットワークを作成する必要はありません。
+
+[NOTE]
+====
+管理者は、 default-intercluster サービスポリシーから intercluster-core サービスを削除することが可能です（ただし推奨されません）。この場合、「 default-intercluster 」を使用して作成 LIF を作成しても、その LIF はクラスタ間 LIF にはなりません。default-intercluster サービスポリシーに intercluster-core サービスが含まれていることを確認するには、次のコマンドを使用します。
+
+「 network interface service-policy show -policy default -intercluster 」のように入力します
+
+====

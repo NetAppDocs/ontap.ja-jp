@@ -1,0 +1,101 @@
+---
+permalink: ndmp/prepare-ndmp-config-task.html 
+sidebar: sidebar 
+keywords: prepare, ndmp, configuration 
+summary: Network Data Management Protocol （ NDMP ；ネットワークデータ管理プロトコル）を使用したテープバックアップアクセスを設定する前に、計画した構成がサポートされていることを確認し、各ノードにテープドライブが認定ドライブとして表示されていることを確認し、すべてのノードにクラスタ間 LIF があることを確認する必要があります。 また、バックアップアプリケーションが Cluster Aware Backup （ CAB ）拡張をサポートしているかどうかを確認します。 
+---
+= NDMP 構成を準備
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+Network Data Management Protocol （ NDMP ；ネットワークデータ管理プロトコル）を使用したテープバックアップアクセスを設定する前に、計画した構成がサポートされていることを確認し、各ノードにテープドライブが認定ドライブとして表示されていることを確認し、すべてのノードにクラスタ間 LIF があることを確認する必要があります。 また、バックアップアプリケーションが Cluster Aware Backup （ CAB ）拡張をサポートしているかどうかを確認します。
+
+.手順
+. Interoperability Matrix （ IMT ）を使用して、計画した構成がサポートされていることを確認します。
++
+https://mysupport.netapp.com/matrix["NetApp Interoperability Matrix Tool で確認できます"]
+
++
+次のコンポーネントに互換性があることを確認する必要があります。
+
++
+** クラスタで実行されている ONTAP 9 のバージョン。
+** バックアップアプリケーションのベンダーとバージョン。例： Symantec NetBackup 7.6 、 CommVault Simpana 10 SP8
+** テープデバイスの詳細情報には、テープドライブのメーカー、モデル、インターフェイスなどが含まれます。これには、 IBM Ultrium -TD4 FC や HP Ultrium -5 SAS などが含まれます。
+** クラスタ内のノードのプラットフォーム。例： FAS3260 、 FAS6280
+
+
+. 各ノードの組み込みのテープ構成ファイルにテープドライブが認定ドライブとしてリストされていることを確認します。
++
+.. コマンドラインインターフェイスで、「 storage tape show -supported-status 」コマンドを使用して、組み込みのテープ構成ファイルを表示します。
++
+[listing]
+----
+cluster1::> storage tape show-supported-status
+
+Node: cluster1-1
+                                Is
+Tape Drives                     Supported  Support Status
+------------------------------  ---------  -------------------------------
+Certance Ultrium 2              true       Dynamically Qualified
+Certance Ultrium 3              true       Dynamically Qualified
+Digital DLT2000                 true       Qualified
+....
+----
+.. テープドライブを出力に表示された認定ドライブのリストと比較します。
++
+[NOTE]
+====
+出力に表示されるテープデバイスの名前は、デバイスラベルまたは Interoperability Matrix に表示された名前と多少異なる場合があります。たとえば、 Digital DLT2000 は DLT2k と表示されることもあります。このような小さな名前の違いは無視してかまいません。
+
+====
+.. デバイスが Interoperability Matrix で認定されているにもかかわらず、出力に認定デバイスとしてリストされない場合は、ネットアップサポートサイトの手順に従って、デバイスの更新された構成ファイルをダウンロードしてインストールします。
++
+http://mysupport.netapp.com/NOW/download/tools/tape_config["ネットアップのダウンロード：テープデバイスの構成ファイル"]
+
++
+ノードの出荷後にテープデバイスが認定された場合、認定デバイスが組み込みのテープ構成ファイルにリストされていないことがあります。
+
+
+
+. クラスタ内のすべてのノードにクラスタ間 LIF があることを確認します。
++
+.. 「 network interface show -role intercluster 」コマンドを使用して、ノードのクラスタ間 LIF を表示します。
++
+[listing]
+----
+cluster1::> network interface show -role intercluster
+
+            Logical    Status     Network            Current       Current Is
+Vserver     Interface  Admin/Oper Address/Mask       Node          Port    Home
+----------- ---------- ---------- ------------------ ------------- ------- ----
+cluster1    IC1        up/up      192.0.2.65/24      cluster1-1    e0a     true
+----
+.. インタークラスタ LIF がどのノードにも存在しない場合は、 network interface create コマンドを使用して、インタークラスタ LIF を作成します。
++
+[listing]
+----
+cluster1::> network interface create -vserver cluster1 -lif IC2 -role intercluster
+-home-node cluster1-2 -home-port e0b -address 192.0.2.68 -netmask 255.255.255.0
+-status-admin up -failover-policy local-only -firewall-policy intercluster
+
+cluster1::> network interface show -role intercluster
+
+            Logical    Status     Network            Current       Current Is
+Vserver     Interface  Admin/Oper Address/Mask       Node          Port    Home
+----------- ---------- ---------- ------------------ ------------- ------- ----
+cluster1    IC1        up/up      192.0.2.65/24      cluster1-1    e0a     true
+cluster1    IC2        up/up      192.0.2.68/24      cluster1-2    e0b     true
+----
++
+link:../networking/index.html["Network Management の略"]
+
+
+
+. バックアップアプリケーションに付属のドキュメントを参照して、バックアップアプリケーションが Cluster Aware Backup （ CAB ）をサポートしているかどうかを確認します。
++
+CAB のサポートは、実行できるバックアップの種類に影響する重要な要素です。
+
+

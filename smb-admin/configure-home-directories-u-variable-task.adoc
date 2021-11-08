@@ -1,0 +1,138 @@
+---
+permalink: smb-admin/configure-home-directories-u-variable-task.html 
+sidebar: sidebar 
+keywords: create, home, directory, configuration, designate, share, name, variable, user, windows, dynamic, configure, configure home directories using the %u variable 
+summary: ホームディレクトリ設定を作成する際、 %w 変数を使用して共有名を指定し、 %u 変数を使用してホームディレクトリ共有の相対パスを指定することができます。これにより、ユーザは、ホームディレクトリの実際の名前やパスを意識することなく、 Windows ユーザ名を使用して動的に作成された共有を使用してホームディレクトリ共有に接続できます。 
+---
+= %u 変数を使用してホームディレクトリを設定します
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+ホーム・ディレクトリ構成を作成するには '%w 変数を使用して共有名を指定し ' 変数 %u を使用してホーム・ディレクトリ共有の相対パスを指定しますこれにより、ユーザは、ホームディレクトリの実際の名前やパスを意識することなく、 Windows ユーザ名を使用して動的に作成された共有を使用してホームディレクトリ共有に接続できます。
+
+.手順
+. ユーザのホームディレクトリを含む qtree を作成します。 volume qtree create -vserver vserver_name -qtree-path qtree_path
+. qtree が正しいセキュリティ形式を使用していることを確認します。 volume qtree show
+. 目的のセキュリティ形式が qtree で使用されていない場合は、 volume qtree security コマンドを使用してセキュリティ形式を変更します。
+. ホームディレクトリ共有を追加します。 `+vserver cifs share create -vserver vserver -share-name %w -path %u -share-properties homedirectory 、 ...] + `
++
+「 -vserver `vserver 」には、検索パスを追加する CIFS 対応の Storage Virtual Machine （ SVM ）を指定します。
+
++
+`-share-name `%w は、ホームディレクトリ共有名を指定します。ユーザがホームディレクトリに接続すると、ユーザごとに _windows_user_name の形式で共有名が動的に作成されます。
+
++
+[NOTE]
+====
+-share-name オプションに '%u 変数を使用することもできますこれにより、マッピング先の UNIX ユーザ名を使用して相対共有パスが作成されます。
+
+====
++
+`-path `%u は ' ホームディレクトリへの相対パスを指定しますユーザがホームディレクトリに接続すると、ユーザごとに _mapped_UNIX_user_name の形式で共有名が動的に作成されます。
+
++
+[NOTE]
+====
+このオプションの値には静的な要素も含めることができます。たとえば 'eng/%u などです
+
+====
++
+`-share-properties `+homedirectory \[,...\]+` は、その共有の共有プロパティを指定します。homedirectory の値を指定する必要があります追加の共有プロパティをカンマで区切って指定できます。
+
+. vserver cifs share show コマンドを使用して、共有の設定が適切であることを確認します。
+. ホームディレクトリ検索パス「 vserver cifs home-directory search-path add -vserver vserver -path path 」を追加します
++
+「 -vserver `vserver 」には、検索パスを追加する CIFS 対応の SVM を指定します。
+
++
+「 -path 」には、検索パスの絶対ディレクトリパスを指定します。
+
+. vserver cifs home-directory search-path show コマンドを使用して、検索パスが正常に追加されたことを確認します。
+. UNIX ユーザが存在しない場合は、「 vserver services unix-user create 」コマンドを使用して UNIX ユーザを作成します。
++
+[NOTE]
+====
+ユーザをマッピングするには、 Windows ユーザ名のマッピング先となる UNIX ユーザ名があらかじめ存在している必要があります。
+
+====
+. 次のコマンドを使用して、 UNIX ユーザへの Windows ユーザのネームマッピングを作成します。 vserver name-mapping create -vserver vserver_name -direction win-unix -priority integer -pattern windows_user_name -replacement unix_user_name
++
+[NOTE]
+====
+Windows ユーザを UNIX ユーザにマッピングするネームマッピングがすでに存在する場合は、このマッピング手順を実行する必要はありません。
+
+====
++
+Windows ユーザ名は対応する UNIX ユーザ名にマッピングされます。Windows ユーザは、ホームディレクトリ共有に接続すると、 Windows ユーザ名に対応する共有名を使用して動的に作成されたホームディレクトリに接続することになります。その際、ディレクトリ名が UNIX ユーザ名に対応していることはユーザにはわかりません。
+
+. ユーザにホームディレクトリがある場合は、ホームディレクトリを含むように指定した qtree またはボリュームに対応するディレクトリを作成します。
++
+たとえば、「 /vol/vol1/users' 」というパスの qtree を作成した場合に、ディレクトリの作成対象となるユーザのマッピング先 UNIX ユーザ名が「 unixuser1 」であるときは、「 /vol/vol1/users/unixuser1 」というパスを使用してディレクトリを作成します。
+
++
+/home1' にマウントされた "home1" という名前のボリュームを作成した場合は '/home1/unixuser1 というパスを使用してディレクトリを作成します
+
+. ドライブをマッピングするか、 UNC パスを使用して、ユーザがホームディレクトリ共有に正常に接続できることを確認します。
++
+たとえば、ユーザ mydomain\user1 が UNIX ユーザ unixuser1 にマッピングされ、 SVM vs1 にある手順 10 で作成されたディレクトリに接続する場合、 user1 は UNC パス「 \\vs1_user1 」を使用して接続します。
+
+
+
+次の例のコマンドでは、次の設定を使用してホームディレクトリの設定を作成します。
+
+* 共有名は %w です
+* 相対ホームディレクトリパスは %u です
+* ホーム・ディレクトリ「 /home1 」を含むために使用される検索パスは、 UNIX セキュリティ形式で設定されたボリュームです。
+* 設定は SVM vs1 上に作成されます。
+
+
+ユーザが Windows ホストから、または Windows ホストと UNIX ホストからホームディレクトリにアクセスし、ファイルシステム管理者が UNIX ベースのユーザおよびグループを使用してファイルシステムへのアクセスを制御する場合には、このようなホームディレクトリ設定を使用できます。
+
+[listing]
+----
+cluster::> vserver cifs share create -vserver vs1 -share-name %w -path %u ‑share-properties oplocks,browsable,changenotify,homedirectory
+
+cluster::> vserver cifs share show -vserver vs1 -share-name %u
+
+                      Vserver: vs1
+                        Share: %w
+     CIFS Server NetBIOS Name: VS1
+                         Path: %u
+             Share Properties: oplocks
+                               browsable
+                               changenotify
+                               homedirectory
+           Symlink Properties: enable
+      File Mode Creation Mask: -
+ Directory Mode Creation Mask: -
+                Share Comment: -
+                    Share ACL: Everyone / Full Control
+File Attribute Cache Lifetime: -
+                  Volume Name: -
+                Offline Files: manual
+Vscan File-Operations Profile: standard
+
+cluster::> vserver cifs home-directory search-path add -vserver vs1 ‑path /home1
+
+cluster::> vserver cifs home-directory search-path show -vserver vs1
+Vserver     Position Path
+----------- -------- -----------------
+vs1         1        /home1
+
+cluster::> vserver name-mapping create -vserver vs1 -direction win-unix ‑position 5 -pattern user1 -replacement unixuser1
+
+cluster::> vserver name-mapping show -pattern user1
+Vserver        Direction Position
+-------------- --------- --------
+vs1            win-unix  5        Pattern: user1
+                              Replacement: unixuser1
+----
+* 関連情報 *
+
+xref:create-home-directory-config-w-d-variables-task.adoc[%w 変数と %d 変数を使用したホームディレクトリ設定の作成]
+
+xref:home-directory-config-concept.adoc[追加のホームディレクトリの設定]
+
+xref:display-user-home-directory-path-task.adoc[SMB ユーザのホームディレクトリパスに関する情報を表示する]

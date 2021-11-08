@@ -1,0 +1,69 @@
+---
+permalink: data-protection/make-destination-volume-writeable-task.html 
+sidebar: sidebar 
+keywords: make, destination, volume, writeable 
+summary: デスティネーションボリュームからクライアントにデータを提供する前に、そのボリュームを書き込み可能にする必要があります。snapmirror quiesce コマンドを使用してデスティネーションへのスケジュールされた転送を停止し、 snapmirror abort コマンドを使用して実行中の転送を停止します。 snapmirror break コマンドを使用すると、デスティネーションを書き込み可能にできます。 
+---
+= デスティネーションボリュームを書き込み可能にします
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+デスティネーションボリュームからクライアントにデータを提供する前に、そのボリュームを書き込み可能にする必要があります。「 snapmirror quiesce 」コマンドを使用すると、デスティネーションへのスケジュールされた転送を停止できます。「 snapmirror abort 」コマンドを使用すると、実行中の転送を停止できます。「 snapmirror break 」コマンドを使用すると、デスティネーションを書き込み可能にできます。
+
+この手順はデスティネーション SVM またはデスティネーションクラスタから実行する必要があります。
+
+.手順
+. デスティネーションへのスケジュールされた転送を停止します。
++
+「 snapmirror quiesce - source-path_SVM ： volume | cluster ： // svm / volume_、 ……」 -destination-path SVM ： volume | cluster ： //svm_name / volume_,..."
+
++
+コマンド構文全体については、マニュアルページを参照してください。
+
++
+次の例は 'vm1 のソースボリューム volA' と 'vm_backup' のデスティネーションボリューム volA_dst の間のスケジュールされた転送を停止します
+
++
+[listing]
+----
+cluster_dst::> snapmirror quiesce -source-path svm1:volA -destination-path svm_backup:volA_dst
+----
+. デスティネーションへの実行中の転送を停止します。
++
+「 snapmirror abort - source-path_SVM ： volume_|_cluster ： // svm / volume_、 ……」 -destination-path SVM ： volume_cluster_,...`
+
++
+コマンド構文全体については、マニュアルページを参照してください。
+
++
+[NOTE]
+====
+SnapMirror Synchronous 関係（ ONTAP 9.5 以降でサポート）ではこの手順は必要ありません。
+
+====
++
+次の例は 'vm1 のソースボリューム volA' と 'vm_backup' のデスティネーションボリューム volA_dst の間の実行中の転送を停止します
+
++
+[listing]
+----
+cluster_dst::> snapmirror abort -source-path svm1:volA -destination-path svm_backup:volA_dst
+----
+. SnapMirror DR 関係を解除します。
++
+「 snapmirror break -source-path SVM ： volume_|_cluster ： // SVM/volume_、 ……」 -destination-path SVM ： volume_cluster_,...`
+
++
+コマンド構文全体については、マニュアルページを参照してください。
+
++
+次の例は 'vm1 のソースボリューム volA' と 'vm_backup' のデスティネーションボリューム volA_dst' と 'vm_backup' のデスティネーションボリューム volA_dst' 間の関係を解除します
+
++
+[listing]
+----
+cluster_dst::> snapmirror break -source-path svm1:volA -destination-path svm_backup:volA_dst
+----
+

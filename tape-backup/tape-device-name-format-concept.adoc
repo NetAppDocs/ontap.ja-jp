@@ -1,0 +1,102 @@
+---
+permalink: tape-backup/tape-device-name-format-concept.html 
+sidebar: sidebar 
+keywords: tape, device, name, format, rewind, type, alias, compression 
+summary: 各テープデバイスには、定義された形式で表示される名前が関連付けられています。この形式には、デバイスの種類、巻き戻し形式、エイリアス、および圧縮形式に関する情報が含まれています。 
+---
+= テープデバイス名の形式
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+各テープデバイスには、定義された形式で表示される名前が関連付けられています。この形式には、デバイスの種類、巻き戻し形式、エイリアス、および圧縮形式に関する情報が含まれています。
+
+テープデバイス名の形式は次のとおりです。
+
+「 rewind_type 」「 `t`alias_number 」「 compression_type 」
+
+「 rewind_type 」は巻き戻し形式です。
+
+次に、巻き戻し形式のさまざまな値を示します。
+
+* * R *
++
+ONTAP は、テープファイルの書き込み終了後に、テープを巻き戻します。
+
+* * nr *
++
+ONTAP は、テープファイルの書き込み終了後に、テープを巻き戻しません。同じテープに複数のテープファイルを書き込む場合には、この巻き戻し形式を指定する必要があります。
+
+* * ur *
++
+アンロード / リロード巻き戻し形式です。この巻き戻し形式を使用すると、テープファイルの終わりに達したときにテープライブラリによってテープが取り出され、次のテープがある場合は、そのテープが装填されます。
+
++
+この巻き戻し形式は、次の場合にのみ使用してください。
+
++
+** このデバイスに関連付けられているテープドライブが、テープライブラリに収容されているか、ライブラリモードのメディアチェンジャに収容されている場合
+** このデバイスに関連付けられているテープドライブがストレージシステムに接続されている場合
+** このテープドライブに対して定義されているライブラリテープシーケンス内に、実行中の処理に対応する十分な数のテープがある場合
+
+
+
+
+[NOTE]
+====
+ノーリワインドデバイスを使用してテープに書き込みを行った場合、そのテープを読み取る前にテープを巻き戻す必要があります。
+
+====
+'t' はテープ・ドライブの標準指定です
+
+「 alias_number 」は、 ONTAP がテープ・ドライブに割り当てるエイリアスです。ONTAP ONTAP は、新しいテープドライブを検出すると、そのテープドライブにエイリアスを割り当てます。
+
+「 compression_type 」は、テープ上のデータ密度と圧縮形式を表すドライブ固有のコードです。
+
+次に 'compression_type' のさまざまな値を示します
+
+* * a *
++
+最高密度の圧縮
+
+* * H *
++
+高い圧縮率
+
+* * M *
++
+中密度の圧縮
+
+* *L *
++
+低密度の圧縮
+
+
+
+「 nrst0a 」は、ノーリワインドデバイスで、テープドライブ 0 上にあり、最高密度の圧縮を使用していることを表しています。
+
+次に、 HP Ultrium 2-SCSI に関連付けられたテープデバイスの一覧の例を示します。
+
+[listing]
+----
+
+           Tape drive (fc202_6:2.126L1)  HP      Ultrium 2-SCSI
+    rst0l  -  rewind device,        format is: HP (200GB)
+    nrst0l -  no rewind device,     format is: HP (200GB)
+    urst0l -  unload/reload device, format is: HP (200GB)
+    rst0m  -  rewind device,        format is: HP (200GB)
+    nrst0m -  no rewind device,     format is: HP (200GB)
+    urst0m -  unload/reload device, format is: HP (200GB)
+    rst0h  -  rewind device,        format is: HP (200GB)
+    nrst0h -  no rewind device,     format is: HP (200GB)
+    urst0h -  unload/reload device, format is: HP (200GB)
+    rst0a  -  rewind device,        format is: HP (400GB w/comp)
+    nrst0a -  no rewind device,     format is: HP (400GB w/comp)
+    urst0a -  unload/reload device, format is: HP (400GB w/comp)
+----
+上記の例で使用されている略語の意味は、次のとおりです。
+
+* GB - ギガバイト。テープの容量を示します。
+* w/comp - 圧縮あり。圧縮時のテープ容量を示します。
+

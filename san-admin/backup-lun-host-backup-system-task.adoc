@@ -1,0 +1,58 @@
+---
+permalink: san-admin/backup-lun-host-backup-system-task.html 
+sidebar: sidebar 
+keywords: back up, lun, through, host, backup, system 
+summary: ホストバックアップシステムのソースデータとして、 Snapshot コピー内のクローン LUN を使用できます。 
+---
+= ホストバックアップシステムを介して LUN をバックアップする
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+ホストバックアップシステムのソースデータとして、 Snapshot コピー内のクローン LUN を使用できます。
+
+本番用 LUN が必要です。アプリケーションサーバの WWPN またはイニシエータノード名を含む igroup にマッピングされている必要があります。また、 LUN がフォーマット済みで、ホストにアクセスできる必要があります
+
+.手順
+. ホストファイルシステムバッファの内容をディスクに保存します。
++
+ホストオペレーティングシステムのコマンドを使用するか、 SnapDrive for Windows または SnapDrive for UNIX を使用できます。この手順を SAN バックアップのプリプロセススクリプトに含めることもできます。
+
+. volume snapshot create コマンドを使用して ' 本番 LUN の Snapshot コピーを作成します
++
+volume snapshot create -vserver vs0 -volume vol3 -snapshot vol3_snapshot-comment "Single snapshot" -foreground false
+
+. volume file clone create コマンドを使用して ' 本番 LUN のクローンを作成します
++
+volume file clone create -vserver vs3 -volume vol3 -source-path lun1 -snapshot-name snap_vvol3 -destination-path lun1_clone
+
+. バックアップ・サーバの WWPN を含む igroup を作成するには、 lun igroup create コマンドを使用します。
++
+lun igroup create -vserver vs3 -igroup igroup3 -protocol fc-ostype windows -initiator 10 ： 00 ： 00 ： 00 ： c9 ： 73 ： 5b ： 91'
+
+. 「 lun mapping create 」コマンドを使用して、手順 3 で作成した LUN クローンをバックアップ・ホストにマッピングします。
++
+lun mapping create -vserver vs3 -volume vol3 -LUN lun1_clone lun1_backup -igroup igroup3`
+
++
+この手順を SAN バックアップアプリケーションのポストプロセススクリプトに含めることができます。
+
+. ホストから、新しい LUN を検出し、ファイルシステムをホストで使用できるようにします。
++
+この手順を SAN バックアップアプリケーションのポストプロセススクリプトに含めることができます。
+
+. SAN バックアップアプリケーションを使用して、バックアップホストの LUN クローン内のデータをテープにバックアップします。
+. LUN クローンをオフラインにするには 'lun modify コマンドを使用します
++
+lun modify -vserver vs3 -path /vol/vol3/lun1_clone -backup-state off`
+
+. LUN クローンを削除するには 'lun delete を使用します
++
+lun delete -vserver vs3 -volume vol3 -lun lun1_clone
+
+. volume snapshot delete コマンドを使用して、 Snapshot コピーを削除します。
++
+'volume snapshot delete -vserver vs3 -volume vol3 -snapshot vol3_snapshot
+
+

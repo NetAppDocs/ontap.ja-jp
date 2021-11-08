@@ -1,0 +1,135 @@
+---
+permalink: snaplock/mirror-worm-files-task.html 
+sidebar: sidebar 
+keywords: mirror, worm, file, snapmirror, replicate, volume, compliance, enterprise, snaplock 
+summary: SnapMirror を使用すると、ディザスタリカバリなどの目的で、地理的に離れた別の場所に WORM ファイルをレプリケートできます。ソースボリュームとデスティネーションボリュームの両方が SnapLock 用に設定されていて、両方のボリュームの SnapLock モードが Compliance または Enterprise である必要があります。ボリュームとファイルの主要な SnapLock プロパティがすべてレプリケートされます。 
+---
+= WORM ファイルをミラーリングします
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+SnapMirror を使用すると、ディザスタリカバリなどの目的で、地理的に離れた別の場所に WORM ファイルをレプリケートできます。ソースボリュームとデスティネーションボリュームの両方が SnapLock 用に設定されていて、両方のボリュームの SnapLock モードが Compliance または Enterprise である必要があります。ボリュームとファイルの主要な SnapLock プロパティがすべてレプリケートされます。
+
+ピア SVM を含むピアクラスタにソースボリュームとデスティネーションボリュームを作成する必要があります。詳細については、を参照してください https://docs.netapp.com/us-en/ontap-sm-classic/peering/index.html["クラスタと SVM のピアリング"]。
+
+.このタスクについて
+* ONTAP 9.5 以降では、 WORM ファイルのレプリケーションに DP （データ保護）タイプの関係ではなく XDP （拡張データ保護）タイプの SnapMirror 関係を使用できます。XDP モードは ONTAP のバージョンに依存せず、同じブロックに格納されたファイルを区別できるため、レプリケートされた Compliance モードのボリュームの再同期が大幅に簡単になります。既存の DP タイプの関係を XDP タイプの関係に変換する方法については、を参照してください link:../data-protection/index.html["データ保護"]。
+* Compliance モードのボリュームで DP タイプの SnapMirror 関係を再同期する場合、再同期によってデータが失われると SnapLock で判断されると処理は失敗します。再同期操作が失敗した場合は 'volume clone create コマンドを使用してデスティネーション・ボリュームのクローンを作成できますその後、ソースボリュームをクローンと再同期できます。
+* SnapLock 対応ボリューム間の XDP タイプの SnapMirror 関係では、関係解除後にデスティネーションのデータがソースから変化していても再同期がサポートされます。
++
+再同期時に共通の Snapshot に基づいてソースとデスティネーションの間でデータの相違が検出されると、この相違をキャプチャするためにデスティネーションで新しい Snapshot が作成されます。新しい Snapshot と共通の Snapshot の両方が次の期間ロックされます。
+
++
+** デスティネーションのボリューム有効期限
+** ボリューム有効期限が過ぎているか設定されていない場合、 Snapshot は 30 日間ロックされます
+** デスティネーションにリーガルホールドが設定されている場合、実際のボリューム有効期限はマスクされ、「無期限」と表示されますが、 Snapshot は実際のボリューム有効期限までロックされます。
+
+
+
+
+デスティネーションボリュームの有効期限がソースよりもあとの場合、デスティネーションの有効期限が維持され、再同期後にソースボリュームの有効期限で上書きされることはありません。
+
+デスティネーションにソースと異なるリーガルホールドが設定されている場合は、再同期を実行できません。再同期を試行する前に、ソースとデスティネーションに同じリーガルホールドを設定するか、またはデスティネーションのリーガルホールドをすべて解除する必要があります。
+
+変更されたデータをキャプチャするためにデスティネーションボリュームで作成されたロックされた Snapshot は、「 snapmirror update -s snapshot 」コマンドを実行してソースにコピーできます。コピーした Snapshot はソースでもロックされたままです。
+
+* SVM データ保護関係はサポートされません。
+* 負荷共有データ保護関係はサポートされません。
+
+
+次の図は、 SnapMirror 関係を初期化するための手順を示しています。
+
+image::../media/snapmirror_steps_clustered.png[この図は、 SnapMirror 関係を初期化するための手順を示しています。デスティネーションクラスタを特定しています,creating a destination volume,creating a SnapMirror relationship between the volumes]
+
+.手順
+. デスティネーションクラスタを特定します。
+. デスティネーションクラスタで、 SnapLock ライセンスをインストールし、 ComplianceClock を初期化し、 SnapLock アグリゲートを作成します。
++
+xref:configure-snaplock-concept.adoc[SnapLock を設定します]
+
+. デスティネーションクラスタで、「 D 」タイプの SnapLock デスティネーションボリュームを、ソースボリュームと同じサイズ以上のサイズで作成します。
++
+` * volume create -vserver _svm_name _ -volume_name_-aggregate _aggregate_name -- type dp-size_size_*
+
++
+[NOTE]
+====
+SnapLock モード -- コンプライアンスまたはエンタープライズ -- は ' アグリゲートから継承されますバージョンに依存しないデスティネーションボリュームはサポートされません。デスティネーションボリュームの言語設定とソースボリュームの言語設定が一致している必要があります。
+
+====
++
+次のコマンドは、「 Node01_aggr 」アグリゲートの「 S VM2 」に「 d stvolB 」という名前の 2GB の SnapLock 「 Compliance 」ボリュームを作成します。
+
++
+[listing]
+----
+cluster2::> volume create -vserver SVM2 -volume dstvolB -aggregate node01_aggr -type DP -size 2GB
+----
+. デスティネーション SVM で、 SnapMirror ポリシーを作成します。
++
+`* snapmirror policy create -vserver_svm_name __ policy_policy_policy_name_*`
+
++
+次のコマンドは、 SVM 全体のポリシー「 S VM1-mirror 」を作成します。
+
++
+[listing]
+----
+SVM2::> snapmirror policy create -vserver SVM2 -policy SVM1-mirror
+----
+. デスティネーション SVM で、 SnapMirror スケジュールを作成します。
++
+`* job schedule cron create -name_schedule_name_-dayofweek _dayofweek --hour_hour_-minute _ *`
+
++
+次のコマンドは 'weekendcron' という名前の SnapMirror スケジュールを作成します
+
++
+[listing]
+----
+SVM2::> job schedule cron create -name weekendcron -dayofweek "Saturday, Sunday" -hour 3 -minute 0
+----
+. デスティネーション SVM で、 SnapMirror 関係を作成します。
++
+`* snapmirror create -source-path source_path__ -destination-path destination_path __ type XDP | dp-policy _policy_name_schedule_name_*`
+
++
+次のコマンドは、「 S VM1 」のソースボリューム「 rcvolA 」と「 S VM2 」のデスティネーションボリューム「 d stvolB 」との間に SnapMirror 関係を作成し、ポリシー「 S VM1-mirror 」とスケジュール「 weekendcron 」を割り当てます。
+
++
+[listing]
+----
+SVM2::> snapmirror create -source-path SVM1:srcvolA -destination-path SVM2:dstvolB -type XDP -policy SVM1-mirror -schedule weekendcron
+----
++
+[NOTE]
+====
+XDP タイプは ONTAP 9.5 以降で使用できます。ONTAP 9.4 以前では DP タイプを使用する必要があります。
+
+====
+. デスティネーション SVM で、 SnapMirror 関係を初期化します。
++
+`* snapmirror initialize-ls-set -destination-path *`
+
++
+初期化プロセスでは、デスティネーションボリュームへの _ ベースライン転送 _ が実行されます。SnapMirror はソースボリュームの Snapshot コピーを作成して、そのコピーおよびコピーが参照するすべてのデータブロックをデスティネーションボリュームに転送します。また、ソースボリューム上の他の Snapshot コピーもすべてデスティネーションボリュームに転送します。
+
++
+次のコマンドは、「 VM1 」のソースボリューム「 rcvolA 」と「 `S VM2 」のデスティネーションボリューム「 d stvolB 」間の関係を初期化します。
+
++
+[listing]
+----
+SVM2::> snapmirror initialize -destination-path SVM2:dstvolB
+----
+
+
+* 関連情報 *
+
+https://docs.netapp.com/us-en/ontap-sm-classic/peering/index.html["クラスタと SVM のピアリング"]
+
+https://docs.netapp.com/us-en/ontap-sm-classic/volume-disaster-prep/index.html["ボリュームのディザスタリカバリの準備"]
+
+link:../data-protection/index.html["データ保護"]

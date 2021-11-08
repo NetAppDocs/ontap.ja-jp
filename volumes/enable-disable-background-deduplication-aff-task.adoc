@@ -1,0 +1,58 @@
+---
+permalink: volumes/enable-disable-background-deduplication-aff-task.html 
+sidebar: sidebar 
+keywords: manage, aggregate-level, background, deduplication, aff systems 
+summary: アグリゲートレベルの重複排除は、同じアグリゲートに属するボリューム間で重複するブロックを排除します。ONTAP 9.3 以降では、 AFF システムでアグリゲートレベルの重複排除をバックグラウンドで実行できます。この機能は、新規に作成したすべてのボリューム、およびボリュームのバックグラウンド重複排除をオンにしてアップグレードしたすべてのボリュームに対してデフォルトで有効になります。 
+---
+= AFF システムでアグリゲートレベルのバックグラウンド重複排除を管理します
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+アグリゲートレベルの重複排除は、同じアグリゲートに属するボリューム間で重複するブロックを排除します。ONTAP 9.3 以降では、 AFF システムでアグリゲートレベルの重複排除をバックグラウンドで実行できます。この機能は、新規に作成したすべてのボリューム、およびボリュームのバックグラウンド重複排除をオンにしてアップグレードしたすべてのボリュームに対してデフォルトで有効になります。
+
+この処理は、変更ログがある程度いっぱいになった時点で自動的にトリガーされます。スケジュールもポリシーも関連付けられません。
+
+ONTAP 9.4 以降では、 AFF ユーザがアグリゲートレベルの重複排除スキャンを実行して、アグリゲート内のボリューム間で既存データの重複を排除することもできます。「 storage aggregate efficiency cross-volume -dedupe start 」コマンドで「 -scan-old-data = true 」オプションを指定すると、スキャナを開始できます。
+
+[listing]
+----
+cluster-1::> storage aggregate efficiency cross-volume-dedupe start -aggregate aggr1 -scan-old-data true
+----
+重複排除スキャンには時間がかかる場合があります。この処理はオフピークの時間帯に実行することを推奨します。
+
+[NOTE]
+====
+アグリゲートレベルのバックグラウンド重複排除は、ボリューム間バックグラウンド重複排除とも呼ばれます。
+
+====
+.ステップ
+. AFF システムでアグリゲートレベルのバックグラウンド重複排除を管理します。
++
+[cols="2*"]
+|===
+| 状況 | 使用するコマンド 
+
+
+ a| 
+アグリゲートレベルのバックグラウンド重複排除を有効にする
+ a| 
+volume efficiency modify -vserver <vserver_name\> -volume <vol_name\> -cross-volume-background-dedupe true ’
+
+
+
+ a| 
+アグリゲートレベルのバックグラウンド重複排除を無効にします
+ a| 
+volume efficiency modify -vserver <vserver_name\> -volume <vol_name\> -cross-volume-background-dedupe false です
+
+
+
+ a| 
+アグリゲートレベルのバックグラウンド重複排除のステータスを表示します
+ a| 
+「 aggregate efficiency cross-volume-dedupe show 」を実行します
+
+|===
+

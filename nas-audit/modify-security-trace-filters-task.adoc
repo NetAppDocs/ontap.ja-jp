@@ -1,0 +1,50 @@
+---
+permalink: nas-audit/modify-security-trace-filters-task.html 
+sidebar: sidebar 
+keywords: modify, security trace filters 
+summary: トレースされたアクセスイベントを特定する際に使用するオプションのフィルタパラメータを変更するには、既存のセキュリティトレースフィルタを変更します。 
+---
+= セキュリティトレースフィルタを変更する
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+トレースされたアクセスイベントを特定する際に使用するオプションのフィルタパラメータを変更するには、既存のセキュリティトレースフィルタを変更します。
+
+変更するセキュリティトレースフィルタを特定するには、フィルタを適用した Storage Virtual Machine （ SVM ）の名前とフィルタのインデックス番号を指定します。オプションのフィルタパラメータはすべて変更できます。
+
+.手順
+. セキュリティトレースフィルタを変更します。
++
+vserver security trace filter modify -vserver vserver_name -index index_numberfilter_parameters
+
++
+** 「 vserver_name 」は、セキュリティトレースフィルタを適用する SVM の名前です。
+** 「 index_number 」は、フィルタに適用するインデックス番号です。このパラメータに指定できる値は 1~10 です。
+** 「 filter_parameters 」は、オプションのフィルタパラメータのリストです。
+
+
+. セキュリティトレースフィルタのエントリを確認します。
++
+vserver security trace filter show -vserver vserver_name -index index_number
+
+
+
+次の例は、インデックス番号 1 のセキュリティトレースフィルタを変更します。このフィルタでは、各 IP アドレスから共有パス「 \\server\share1\dir1\dir2\file.txt 」のファイルにアクセスする各ユーザのイベントをトレースします。フィルタは '-path オプションの完全パスを使用します許可イベントと拒否イベントをトレースします。
+
+[listing]
+----
+cluster1::> vserver security trace filter modify -vserver vs1 -index 1 -path /dir1/dir2/file.txt -trace-allow yes
+
+cluster1::> vserver security trace filter show -vserver vs1 -index 1
+                                 Vserver: vs1
+                            Filter Index: 1
+              Client IP Address to Match: -
+                                    Path: /dir1/dir2/file.txt
+                       Windows User Name: -
+                          UNIX User Name: -
+                      Trace Allow Events: yes
+                          Filter Enabled: enabled
+               Minutes Filter is Enabled: 60
+----

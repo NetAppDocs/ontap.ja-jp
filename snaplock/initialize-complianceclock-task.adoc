@@ -1,0 +1,54 @@
+---
+permalink: snaplock/initialize-complianceclock-task.html 
+sidebar: sidebar 
+keywords: snaplock, complianceclock, initialize, worm, retention, period, node 
+summary: SnapLock では、 ComplianceClock を使用して改ざんによる WORM ファイルの保持期間の変更を防止します。SnapLock アグリゲートをホストする各ノードでシステム ComplianceClock を初期化する必要があります。ノードで ComplianceClock を初期化すると、再度初期化することはできません。 
+---
+= ComplianceClock を初期化します
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+SnapLock では、 ComplianceClock を使用して改ざんによる WORM ファイルの保持期間の変更を防止します。SnapLock アグリゲートをホストする各ノードで、 _system ComplianceClock _ を初期化する必要があります。ノードで ComplianceClock を初期化すると、再度初期化することはできません。
+
+.必要なもの
+* このタスクを実行するには、クラスタ管理者である必要があります。
+* ノードに SnapLock ライセンスがインストールされている必要があります。
+
+
+システム ComplianceClock の時間は、ボリューム上の WORM ファイルの保持期間を制御する _volume ComplianceClock _ に継承されます。ボリューム ComplianceClock は、新しい SnapLock ボリュームの作成時に自動的に初期化されます。
+
+[NOTE]
+====
+ComplianceClock の初期設定は現在のシステムクロックに基づきます。そのため、 ComplianceClock を初期化する前に、システム時間とタイムゾーンが正しいことを確認してください。ノードで ComplianceClock を初期化すると、再度初期化することはできません。
+
+====
+.手順
+. システム ComplianceClock を初期化します。
++
+'*SnapLock compliance-clock initialize-NODE_NAME_*'
+
++
+次のコマンドは 'node1 上のシステム ComplianceClock を初期化します
+
++
+[listing]
+----
+cluster1::> snaplock compliance-clock initialize -node node1
+----
+. プロンプトが表示されたら、システムクロックが正しいことと、 ComplianceClock の初期化を確定します。
++
+[listing]
+----
+Warning: You are about to initialize the secure ComplianceClock of
+the node "node1" to the current value of the node's system clock.
+This procedure can be performed only once on a given node, so you
+should ensure that the system time is set correctly before proceeding.
+
+The current node's system clock is: Mon Apr 25 06:04:10 GMT 2016
+
+Do you want to continue? (y|n): y
+----
+. SnapLock アグリゲートをホストする各ノードについて、この手順を繰り返します。
+

@@ -1,0 +1,31 @@
+---
+permalink: san-admin/io-misalignments-properly-aligned-luns-concept.html 
+sidebar: sidebar 
+keywords: i/o misalignments, occur, properly, aligned, luns 
+summary: ONTAP では、適切にアライメントされた LUN における I/O のミスアライメントが報告されることがあります。一般に、このようなミスアライメントの警告は、 LUN が適切にプロビジョニングされていて、パーティションテーブルが適正であることに確信があれば無視してかまいません。 
+---
+= I/O のミスアライメントは、適切にアライメントされた LUN の概要で発生することがあります
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+ONTAP では、適切にアライメントされた LUN における I/O のミスアライメントが報告されることがあります。一般に、このようなミスアライメントの警告は、 LUN が適切にプロビジョニングされていて、パーティションテーブルが適正であることに確信があれば無視してかまいません。
+
+LUN とハードディスクはどちらもストレージをブロックとして提供します。ホスト上のディスクのブロックサイズは 512 バイトなので、 LUN はそのサイズのブロックをホストに提供しますが、実際はよりサイズの大きい 4KB のブロックを使用してデータを格納します。ホストで使用される 512 バイトのデータブロックは論理ブロックと呼ばれ、LUN がデータの格納に使用する 4KB のデータブロックは物理ブロックと呼ばれます。つまり、 4KB の各物理ブロックに 512 バイトの論理ブロックが 8 個あります。
+
+image::../media/bsag-cmode-lbpb.gif[BSAG cmode lbpb]
+
+ホストオペレーティングシステムは、任意の論理ブロックで読み取りまたは書き込みの I/O 処理を開始できます。I/O 処理がアライメントされているとみなされるのは、 I/O 処理が物理ブロック内の最初の論理ブロックで開始される場合のみです。I/O 処理が物理ブロックの最初の論理ブロック以外のブロックで開始される場合は、 I/O がミスアライメントされているとみなされます。ONTAP は、 LUN におけるミスアライメントを自動検出して報告します。ただし、ミスアライメント I/O が検出されたからといって、 LUN もミスアライメントされているとは限りません。適切にアライメントされた LUN でも、ミスアライメント I/O が報告される場合があります。
+
+詳しい調査が必要な場合、テクニカルサポートに依頼し、詳細な I/O アライメントデータを表示する診断用のコマンドを実行してもらえば、深刻な LUN ミスアライメントが発生しているかどうかを確認できます。
+
+アライメントの問題を修正するためのツールの詳細については、 + を参照してください
+
+* https://docs.netapp.com/us-en/ontap-sanhost/hu_wuhu_71.html["Windows Unified Host Utilities 7.1"]
+* https://docs.netapp.com/ontap-9/topic/com.netapp.doc.exp-iscsi-esx-cpg/GUID-7428BD24-A5B4-458D-BD93-2F3ACD72CBBB.html["『 Virtual Storage Console for VMware vSphere インストレーションアドミニストレーションガイド』"]
+
+
+* 関連情報 *
+
+https://kb.netapp.com/Advice_and_Troubleshooting/Data_Storage_Software/Virtual_Storage_Console_for_VMware_vSphere/Guest_VM_file_system_partition%2F%2Fdisk_alignment_for_VMware_vSphere["VMware vSphere 、その他の仮想環境、およびネットアップストレージシステム用のゲスト VM ファイルシステムのパーティションとディスクのアライメント"]

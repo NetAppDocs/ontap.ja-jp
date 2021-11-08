@@ -1,0 +1,70 @@
+---
+permalink: smb-config/create-svms-data-access-task.html 
+sidebar: sidebar 
+keywords: svm, cluster, data, access, smb, client, create, create an svm 
+summary: SMB クライアントへのデータアクセスを提供するための SVM がクラスタ内に 1 つもない場合は、作成する必要があります。 
+---
+= SVM を作成します。
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+SMB クライアントへのデータアクセスを提供するための SVM がクラスタ内に 1 つもない場合は、作成する必要があります。
+
+.手順
+. SVM を作成します。 vserver create -vserver vserver_name -rootvolume root_volume_name -aggregate aggregate_name -rootvolume-security-style ntfs -language C.UTF-8 -ipspace ipspace_name
++
+** -rootvolume-security-style オプションには NTFS 設定を使用します。
+** デフォルトの C.UTF-8 -language オプションを使用します。
+** 「 ipspace 」設定はオプションです。
+
+
+. 新しく作成した SVM の設定とステータスを確認します。 vserver show -vserver vserver_name
++
+Allowed Protocols フィールドには CIFS を含める必要がありますこのリストはあとで編集できます。
+
++
+Vserver Operational State フィールドには 'running] 状態が表示されている必要があります「 initializing 」の状態が表示されている場合、ルートボリュームの作成などの中間処理に失敗したため、 SVM を削除して再作成する必要があります。
+
+
+
+次のコマンドは、データアクセス用の SVM を IPspace ipspaceA 内に作成します。
+
+[listing]
+----
+cluster1::> vserver create -vserver vs1.example.com -rootvolume root_vs1 -aggregate aggr1
+-rootvolume-security-style ntfs -language C.UTF-8 -ipspace ipspaceA
+
+[Job 2059] Job succeeded:
+Vserver creation completed
+----
+次のコマンドは、 SVM が 1GB のルートボリュームで作成され、自動的に起動されて「 running 」状態であることを示しています。ルートボリュームには、ルールを含まないデフォルトのエクスポートポリシーがあるため、ルートボリュームは作成時にエクスポートされません。
+
+[listing]
+----
+cluster1::> vserver show -vserver vs1.example.com
+                                    Vserver: vs1.example.com
+                               Vserver Type: data
+                            Vserver Subtype: default
+                               Vserver UUID: b8375669-19b0-11e5-b9d1-00a0983d9736
+                                Root Volume: root_vs1
+                                  Aggregate: aggr1
+                                 NIS Domain: -
+                 Root Volume Security Style: ntfs
+                                LDAP Client: -
+               Default Volume Language Code: C.UTF-8
+                            Snapshot Policy: default
+                                    Comment:
+                               Quota Policy: default
+                List of Aggregates Assigned: -
+ Limit on Maximum Number of Volumes allowed: unlimited
+                        Vserver Admin State: running
+                  Vserver Operational State: running
+   Vserver Operational State Stopped Reason: -
+                          Allowed Protocols: nfs, cifs, fcp, iscsi, ndmp
+                       Disallowed Protocols: -
+                           QoS Policy Group: -
+                                Config Lock: false
+                               IPspace Name: ipspaceA
+----

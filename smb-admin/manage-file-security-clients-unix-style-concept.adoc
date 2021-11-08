@@ -1,0 +1,41 @@
+---
+permalink: smb-admin/manage-file-security-clients-unix-style-concept.html 
+sidebar: sidebar 
+keywords: present, file, security, smb, client, unix, security-style, data, disabling, disable, presentation, ntfs, acl, client, advantage, setting, business, requirement, manage how file security is presented to smb clients for unix security-style data 
+summary: SMB クライアントへの NTFS ACL の提供を有効または無効にすることによって、 UNIX セキュリティ形式のデータに対するファイルセキュリティの SMB クライアントへの提供方法を選択できます。それぞれの設定には利点があり、ビジネス要件に最適な設定を選択するために理解しておく必要があります。 
+---
+= UNIX セキュリティ形式のデータの概要で、ファイルセキュリティが SMB クライアントにどのように提供されるかを管理します
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+SMB クライアントへの NTFS ACL の提供を有効または無効にすることによって、 UNIX セキュリティ形式のデータに対するファイルセキュリティの SMB クライアントへの提供方法を選択できます。それぞれの設定には利点があり、ビジネス要件に最適な設定を選択するために理解しておく必要があります。
+
+デフォルトでは、 ONTAP は、 UNIX セキュリティ形式のボリュームに対する UNIX アクセス権を NTFS ACL として SMB クライアントに提供します。これは次のような場合に適しています。
+
+* Windows の [ プロパティ ] ボックスの [ セキュリティ *] タブを使用して、 UNIX アクセス権を表示および編集する。
++
+処理が UNIX システムで許可されていない場合、 Windows クライアントからアクセス権を変更することはできません。たとえば、所有していないファイルの所有権を変更することはできません。これは、 UNIX システムではこの処理が許可されていないためです。この制限により、 SMB クライアントは、ファイルやフォルダに対して設定された UNIX アクセス権をバイパスできないようになっています。
+
+* ユーザは、 Microsoft Office などの特定の Windows アプリケーションを使用して UNIX セキュリティ形式のボリューム上でファイルを編集および保存します。 ONTAP では、保存処理中に UNIX アクセス権を保持する必要があります。
+* 使用するファイルの NTFS ACL を読み取ることを想定した特定の Windows アプリケーションが環境にある場合。
+
+
+状況によっては、 NTFS ACL としての UNIX アクセス権の提供を無効にすることもできます。この機能を無効にすると、 ONTAP は UNIX セキュリティ形式のボリュームを FAT ボリュームとして SMB クライアントに提供します。UNIX セキュリティ形式のボリュームを FAT ボリュームとして SMB クライアントに提供するのは、次のような場合です。
+
+* UNIX アクセス権の変更は、マウントを使用して UNIX クライアントでのみ行うことができます。
++
+SMB クライアントで UNIX セキュリティ形式のボリュームがマッピングされている場合は、 Security タブを使用できません。マッピングされたドライブは、ファイル権限がない FAT ファイルシステムでフォーマットされたドライブとして表示されます。
+
+* SMB を使用するアプリケーションでアクセスするファイルやフォルダに NTFS ACL を設定しており、データが UNIX セキュリティ形式のボリュームにあると失敗する可能性がある場合。
++
+ONTAP がボリュームを FAT として報告する場合、アプリケーションは ACL の変更を試みません。
+
+
+
+* 関連情報 *
+
+xref:configure-security-styles-task.adoc[FlexVol でのセキュリティ形式の設定]
+
+xref:configure-security-styles-qtrees-task.adoc[qtree でのセキュリティ形式の設定]

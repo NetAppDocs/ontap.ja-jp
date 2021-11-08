@@ -1,0 +1,103 @@
+---
+permalink: san-admin/restore-single-lun-snapvault-backup-task.html 
+sidebar: sidebar 
+keywords: ontap 9.2, restore, single, lun, snapvault backup 
+summary: 単一の LUN を新しい場所または元の場所にリストアできます。SnapVault セカンダリボリューム内の任意の Snapshot コピーを使用してリストアできます。LUN を元の場所にリストアするには、まず新しい場所にリストアしてから、元の場所にコピーします。 
+---
+= SnapVault バックアップから単一の LUN をリストアする
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+単一の LUN を新しい場所または元の場所にリストアできます。SnapVault セカンダリボリューム内の任意の Snapshot コピーを使用してリストアできます。LUN を元の場所にリストアするには、まず新しい場所にリストアしてから、元の場所にコピーします。
+
+.必要なもの
+* SnapVault 関係が初期化されていて、 SnapVault セカンダリボリュームに、リストアに使用する適切な Snapshot コピーが含まれている必要があります。
+* SnapVault セカンダリボリュームがある Storage Virtual Machine （ SVM ）に、適切な SAN プロトコル対応の LIF が 1 個以上あり、 LUN コピーへのアクセスに使用するホストからこの LIF にアクセスできることが必要です。
+* igroup が SnapVault SVM 上にすでに存在している必要があります。
+
+
+このプロセスでは、 SnapVault セカンダリボリューム内の Snapshot コピーから、読み書き可能なボリュームクローンを作成します。このクローン内の LUN を直接使用することも、必要に応じて LUN の内容を元の LUN の場所にコピーすることもできます。
+
+クローン内の LUN のパスとシリアル番号は、元の LUN のものとは異なります。永続的予約は維持されません。
+
+.手順
+. 「 snapmirror show 」コマンドを実行し、 SnapVault バックアップが格納されたセカンダリ・ボリュームを確認します。
++
+[listing]
+----
+cluster::> snapmirror show
+
+Source         Dest     Mirror  Relation  Total             Last
+Path     Type  Path     State   Status    Progress  Healthy Updated
+-------- ---- --------- ------- --------- --------- ------- -------
+vserverA:srcvolA
+         XDP  vserverB:dstvolB
+                        Snapmirrored
+                                Idle       -         true    -
+----
+. volume snapshot show コマンドを実行し、 LUN のリストア元となる Snapshot コピーを特定します。
++
+[listing]
+----
+cluster::> volume snapshot show
+
+Vserver  Volume  Snapshot               State Size   Total% Used%
+-------- ------- ---------------------- ----- ------ ------ -----
+vserverB
+         dstvolB
+                 snap2.2013-02-10_0010  valid  124KB     0%    0%
+                 snap1.2013-02-10_0015 valid  112KB     0%    0%
+                 snap2.2013-02-11_0010  valid  164KB     0%    0%
+----
+. volume clone create コマンドを実行して、目的の Snapshot コピーから読み書き可能クローンを作成します。
++
+ボリュームクローンは、 SnapVault バックアップと同じアグリゲート内に作成されます。アグリゲート内に、クローンを格納できるだけの十分なスペースが必要です。
+
++
+[listing]
+----
+cluster::> volume clone create -vserver vserverB
+  -flexclone dstvolB_clone -type RW -parent-volume dstvolB
+  -parent-snapshot daily.2013-02-10_0010
+[Job 108] Job succeeded: Successful
+----
+. ボリューム・クローン内の LUN を一覧表示するには 'lun show コマンドを実行します
++
+[listing]
+----
+cluster::> lun show -vserver vserverB -volume dstvolB_clone
+
+Vserver   Path                      State   Mapped   Type
+--------- ------------------------  ------- -------- --------
+vserverB  /vol/dstvolB_clone/lun_A  online  unmapped windows
+vserverB  /vol/dstvolB_clone/lun_B  online  unmapped windows
+vserverB  /vol/dstvolB_clone/lun_C  online  unmapped windows
+
+3 entries were displayed.
+----
+. 目的のホストの igroup が、 SnapVault バックアップがある SVM 内にまだ存在していない場合は、「 igroup create 」コマンドを実行して igroup を作成します。
++
+この例では、 iSCSI プロトコルを使用する Windows ホスト用の igroup を作成しています。
+
++
+[listing]
+----
+cluster::> igroup create -vserver vserverB -igroup temp_igroup
+  -protocol iscsi -ostype windows
+  -initiator iqn.1991-05.com.microsoft:hostA
+----
+. lun mapping create コマンドを実行し、目的の LUN コピーを igroup にマッピングします。
++
+[listing]
+----
+cluster::> lun mapping create -vserver vserverB
+  -path /vol/dstvolB_clone/lun_C -igroup temp_igroup
+----
+. ホストを LUN に接続し、適宜 LUN の内容にアクセスします。
++
+この LUN は読み書き可能であり、元の LUN の代わりに使用できます。LUN のシリアル番号が異なるため、ホストはこの LUN が元の LUN とは別の LUN であると解釈します。
+
+. ホスト上でコピープログラムを使用して、 LUN の内容を元の LUN にコピーします。
+

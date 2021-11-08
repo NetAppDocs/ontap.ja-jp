@@ -1,0 +1,74 @@
+---
+permalink: smb-config/create-server-workgroup-task.html 
+sidebar: sidebar 
+keywords: vserver, cifs, create, command, smb, server, workgroup, create an smb server in a workgroup 
+summary: vserver cifs create コマンドを使用すると、 SVM 上に SMB サーバを作成し、所属先のワークグループを指定できます。 
+---
+= ワークグループ内に SMB サーバを作成
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+vserver cifs create コマンドを使用すると、 SVM 上に SMB サーバを作成し、所属先のワークグループを指定できます。
+
+データ処理に使用している SVM および LIF が、 SMB プロトコルを許可するように設定されている必要があります。LIF は、 SVM で設定されている DNS サーバに接続できる必要があります。
+
+ワークグループモードの SMB サーバでは、次の SMB 機能はサポートされません。
+
+* SMB3 監視プロトコル
+* SMB3 CA 共有
+* SQL over SMB
+* フォルダリダイレクト
+* 移動プロファイル
+* グループポリシーオブジェクト（ GPO ）
+* ボリューム Snapshot サービス（ VSS ）
+
+
+vserver cifs マニュアル・ページには ' オプションの構成パラメータと命名要件が追加されています
+
+.手順
+. クラスタ上で SMB のライセンスが有効であることを確認します。 'system license show -package CIFS
++
+表示されない場合は、営業担当者にお問い合わせください。
+
++
+SMB サーバを認証のみに使用する場合は、 CIFS ライセンスは必要ありません。
+
+. ワークグループ内に SMB サーバを作成します。 vserver cifs create -vserver vserver_name -cifs-server cifs_server_name -workgroup workgroup_name [-comment text]
++
+次のコマンドは ' ワークグループ "workgroup01" 内に SMB サーバ "'smb_server01" を作成します
+
++
+[listing]
+----
+cluster1::> vserver cifs create -vserver vs1.example.com -cifs-server SMB_SERVER01 -workgroup workgroup01
+----
+. vserver cifs show コマンドを使用して、 SMB サーバの設定を確認します。
++
+次の例では、コマンド出力は、ワークグループ「 workgroup01 」内の SVM vs1.example.com 上に「 'smb_server01' 」という名前の SMB サーバが作成されたことを示しています。
+
++
+[listing]
+----
+cluster1::> vserver cifs show -vserver vs0
+
+                                          Vserver: vs1.example.com
+                         CIFS Server NetBIOS Name: SMB_SERVER01
+                    NetBIOS Domain/Workgroup Name: workgroup01
+                      Fully Qualified Domain Name: -
+                              Organizational Unit: -
+Default Site Used by LIFs Without Site Membership: -
+                                   Workgroup Name: workgroup01
+                             Authentication Style: workgroup
+                CIFS Server Administrative Status: up
+                          CIFS Server Description:
+                          List of NetBIOS Aliases: -
+----
+
+
+ワークグループ内の CIFS サーバについては、 SVM 上でローカルユーザ、およびオプションでローカルグループを作成する必要があります。
+
+* 関連情報 *
+
+link:../smb-admin/index.html["SMB の管理"]

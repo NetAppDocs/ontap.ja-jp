@@ -1,0 +1,99 @@
+---
+permalink: system-admin/create-motd-task.html 
+sidebar: sidebar 
+keywords: create, motd, cli, user, clustershell, ssh, session, cluster, access, message, day 
+summary: Message Of The Day （ MOTD ）を作成して、認証された CLI ユーザに情報を提供することができます。MOTD は、ユーザの認証後、クラスタシェルプロンプトが表示される前に、コンソールセッション（クラスタアクセスのみ）または SSH セッション（クラスタアクセスまたは SVM アクセス）に表示されます。 
+---
+= MOTD を作成します。
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+Message Of The Day （ MOTD ）を作成して、認証された CLI ユーザに情報を提供することができます。MOTD は、ユーザの認証後、クラスタシェルプロンプトが表示される前に、コンソールセッション（クラスタアクセスのみ）または SSH セッション（クラスタアクセスまたは SVM アクセス）に表示されます。
+
+.手順
+. 「 securitylogin motd modify 」コマンドを使用して、クラスタまたは SVM の MOTD を作成します。
++
+|===
+| 状況 | 作業 
+
+
+ a| 
+1 行のメッセージを指定します
+ a| 
+テキストを指定するには '-message"" [.code]`text` パラメータを使用します
+
+
+
+ a| 
+改行（ EOL ）を使用する
+ a| 
+対話型モードを起動して MOTD を編集するには、「 -message 」パラメータまたは「 -uri 」パラメータを指定せずにコマンドを使用します。
+
+
+
+ a| 
+MOTD に使用する内容を特定の場所からアップロードします
+ a| 
+コンテンツの FTP または HTTP の場所を指定するには '-uri パラメータを使用します
+
+|===
++
+MOTD の最大サイズは、改行も含めて 2 、 048 バイトまでです。
+
++
+「 securitylogin motd modify 」のマニュアルページには、動的に生成される内容を MOTD に表示するために使用できるエスケープシーケンスが記載されています。
+
++
+「 -uri 」パラメータを使用して作成した MOTD は、静的です。以降にソースコンテンツが変更されても、自動では反映されません。
+
++
+クラスタ用に作成した MOTD は、デフォルトでは、各 SVM に対して個別に作成した SVM レベルの MOTD と一緒に、すべての SVM ログインに対しても表示されます。SVM に対する「 -is-cluster-message-enabled 」パラメータを「 false 」に設定すると、その SVM に対してはクラスタレベルの MOTD が表示されなくなります。
+
+. 「 securitylogin motd show 」コマンドを使用して、作成した MOTD が表示されることを確認します。
++
+「 -message 」パラメータに空の文字列（「」）を指定すると、未設定または内容のない MOTD が表示されます。
+
++
+を参照してください https://docs.netapp.com/ontap-9/topic/com.netapp.doc.dot-cm-cmpr-980/security%5F%5Flogin%5F%5Fmotd%5F%5Fmodify.html["security login motd modify のように変更します"] 動的に生成される内容を MOTD に表示するために使用するパラメータのリストについては、コマンドのマニュアルページを参照してください。ONTAP のバージョンに固有のマニュアルページを確認してください。
+
+
+
+次の例では、非対話型モードを使用して「 cluster1 」クラスタ用の MOTD を作成しています。
+
+[listing]
+----
+cluster1::> security login motd modify -message "Greetings!"
+----
+次の例では、対話型モードを使用して「 `vm1 」 SVM 用の MOTD を作成しています。この MOTD では、エスケープシーケンスを使用して、動的に生成される内容を表示します。
+
+[listing]
+----
+cluster1::> security login motd modify -vserver svm1
+
+Enter the message of the day for Vserver "svm1".
+Max size: 2048. Enter a blank line to terminate input. Press Ctrl-C to abort.
+0        1         2         3         4         5         6         7         8
+12345678901234567890123456789012345678901234567890123456789012345678901234567890
+Welcome to the \n SVM.  Your user ID is '\N'. Your last successful login was \L.
+----
+次の例では、作成した MOTD を表示しています。
+
+[listing]
+----
+cluster1::> security login motd show
+Vserver: cluster1
+Is the Cluster MOTD Displayed?: true
+Message
+-----------------------------------------------------------------------------
+Greetings!
+
+Vserver: svm1
+Is the Cluster MOTD Displayed?: true
+Message
+-----------------------------------------------------------------------------
+Welcome to the \n SVM.  Your user ID is '\N'. Your last successful login was \L.
+
+2 entries were displayed.
+----

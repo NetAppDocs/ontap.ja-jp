@@ -1,0 +1,79 @@
+---
+permalink: smb-admin/display-nfsv4-audit-policies-flexvol-volumes-task.html 
+sidebar: sidebar 
+keywords: display, information, nfsv4, audit, policies, policy, flexvol, volume, ontap, cli, security, style, permission, applied, apply, system, access, control, lists, sacl, result, validate, security, display information about nfsv4 audit policies on flexvol volumes using cli 
+summary: セキュリティ形式と有効なセキュリティ形式、適用されている権限、システムアクセス制御リスト（ SACL ）に関する情報など、 ONTAP CLI を使用して FlexVol の NFSv4 監査ポリシーに関する情報を表示できます。この結果を使用して、セキュリティ設定の検証や、監査に関する問題のトラブルシューティングを行うことができます。 
+---
+= CLI を使用して、 FlexVol の NFSv4 監査ポリシーに関する情報を表示する
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+セキュリティ形式と有効なセキュリティ形式、適用されている権限、システムアクセス制御リスト（ SACL ）に関する情報など、 ONTAP CLI を使用して FlexVol の NFSv4 監査ポリシーに関する情報を表示できます。この結果を使用して、セキュリティ設定の検証や、監査に関する問題のトラブルシューティングを行うことができます。
+
+Storage Virtual Machine （ SVM ）の名前、および監査情報を表示するファイルまたはディレクトリのパスを入力する必要があります。出力は要約形式または詳細なリストで表示できます。
+
+* UNIX セキュリティ形式のボリュームおよび qtree では、監査ポリシーに NFSv4 SACL のみが使用されます。
+* mixed セキュリティ形式のボリュームにある UNIX セキュリティ形式のファイルとディレクトリには、 NFSv4 監査ポリシーを適用できます。
++
+mixed セキュリティ形式のボリュームおよび qtree には、 UNIX ファイル権限、モードビットまたは NFSv4 ACL 、および NTFS ファイル権限を使用する一部のファイルおよびディレクトリを含めることができます。
+
+* mixed セキュリティ形式のボリュームの最上位では、 UNIX または NTFS 対応のセキュリティを有効にすることができ、 NFSv4 SACL が含まれる場合と含まれない場合があります。
+* ACL 出力は、 NTFS または NFSv4 セキュリティが適用されたファイルとフォルダについてのみ表示されます。
++
+このフィールドは、モードビットのアクセス権のみ（ NFSv4 ACL はなし）が適用されている UNIX セキュリティ形式のファイルおよびフォルダでは空になります。
+
+* ACL 出力の所有者とグループの出力フィールドは、 NTFS セキュリティ記述子の場合にのみ適用されます。
+* ストレージレベルのアクセス保護セキュリティは、ボリュームのルートまたは qtree の有効なセキュリティ形式が UNIX であっても、 mixed セキュリティ形式のボリュームまたは qtree で設定できるため、 ストレージレベルのアクセス保護が設定されているボリュームまたは qtree パスの出力には、標準の NFSv4 ファイルおよびディレクトリの SACL とストレージレベルのアクセス保護の NTFS SACL の両方が表示される場合があります。
+* ストレージレベルのアクセス保護セキュリティは、 SVM で CIFS サーバが設定されている場合に UNIX ボリュームまたは qtree でサポートされるので、「 -path 」パラメータで指定されたボリュームまたは qtree に適用されるストレージレベルのアクセス保護セキュリティに関する情報が出力に含まれることがあります。
+
+
+.手順
+. ファイルとディレクトリのセキュリティ設定を必要な詳細レベルで表示します。
++
+|===
+| 表示する情報 | 入力するコマンド 
+
+
+ a| 
+要約形式で表示されます
+ a| 
+vserver security file-directory show -vserver vserver_name -path path
+
+
+
+ a| 
+詳細が表示されます
+ a| 
+vserver security file-directory show -vserver vserver_name -path path -expand-mask true
+
+|===
+
+
+次の例は、 SVM vs1 のパス「 /lab 」に関するセキュリティ情報を表示します。この UNIX セキュリティ形式のパスには NFSv4 SACL が設定されています。
+
+[listing]
+----
+cluster::> vserver security file-directory show -vserver vs1 -path /lab
+
+                Vserver: vs1
+              File Path: /lab
+      File Inode Number: 288
+         Security Style: unix
+        Effective Style: unix
+         DOS Attributes: 11
+ DOS Attributes in Text: ----D--R
+Expanded Dos Attributes: -
+           Unix User Id: 0
+          Unix Group Id: 0
+         Unix Mode Bits: 0
+ Unix Mode Bits in Text: ---------
+                   ACLs: NFSV4 Security Descriptor
+                         Control:0x8014
+                         SACL - ACEs
+                           SUCCESSFUL-S-1-520-0-0xf01ff-SA
+                           FAILED-S-1-520-0-0xf01ff-FA
+                         DACL - ACEs
+                           ALLOW-S-1-520-1-0xf01ff
+----

@@ -1,0 +1,75 @@
+---
+permalink: smb-admin/add-remove-replace-trusted-domains-preferred-lists-task.html 
+sidebar: sidebar 
+keywords: add, remove, trust, domain, prefer, cifs, server, modify, list, configure, bidirectional, multidomain, name, mapping, search, add remove or replace trusted domains in preferred trusted domain list, replace 
+summary: CIFS サーバの信頼できるドメインの優先リストで信頼できるドメインを追加または削除したり、現在のリストを変更したりすることができます。信頼できるドメインの優先リストを設定すると、マルチドメインネームマッピングの検索を実行するときに、検出された双方向の信頼関係にあるドメインの代わりにこのリストが使用されます。 
+---
+= 信頼できるドメインの優先リストに含まれる信頼できるドメインを追加、削除、または置換します
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+CIFS サーバの信頼できるドメインの優先リストで信頼できるドメインを追加または削除したり、現在のリストを変更したりすることができます。信頼できるドメインの優先リストを設定すると、マルチドメインネームマッピングの検索を実行するときに、検出された双方向の信頼関係にあるドメインの代わりにこのリストが使用されます。
+
+.このタスクについて
+* 信頼できるドメインを既存のリストに追加すると、新しいリストが既存のリストにマージされ、新しいエントリが末尾に追加されます信頼できるドメインは、リスト内の順序で検索されます。
+* 信頼できるドメインを既存のリストから削除する際にリストを指定しないと、指定した Storage Virtual Machine （ SVM ）の信頼できるドメインのリスト全体が削除されます。
+* 信頼できるドメインの既存のリストを変更すると、新しいリストで上書きされます。
+
+
+[NOTE]
+====
+信頼できるドメインのリストには、双方向の信頼関係にあるドメインのみを入力してください。アウトバウンドまたはインバウンドの信頼ドメインを優先ドメインリストに入力することはできますが、マルチドメインネームマッピングの検索では使用されません。ONTAP は単方向ドメインのエントリをスキップし、リスト内の次の双方向の信頼関係にあるドメインに移動します。
+
+====
+.ステップ
+. 次のいずれかを実行します。
++
+|===
+| 信頼できるドメインのリストに対して行う操作 | 使用するコマンド 
+
+
+ a| 
+信頼できるドメインをリストに追加します
+ a| 
+「 + vserver cifs domain name-mapping-search add -vserver _vserver_name __ trusted-domains FQDN 、…… +` 」を指定します
+
+
+
+ a| 
+信頼できるドメインをリストから削除します
+ a| 
+「 + vserver cifs domain name-mapping-search remove -vserver _vserver_name _ [-trusted-domains FQDN 、 ...] + 」を指定します
+
+
+
+ a| 
+既存のリストを変更します
+ a| 
+「 + vserver cifs domain name-mapping-search modify -vserver _vserver_name __ trusted-domains FQDN 、…… +` 」を指定します
+
+|===
+
+
+次のコマンドは、 SVM vs1 が使用する信頼できるドメインの優先リストに 2 つの信頼できるドメイン（ cifs1.example.com および cifs2.example.com ）を追加します。
+
+[listing]
+----
+cluster1::> vserver cifs domain name-mapping-search add -vserver vs1 -trusted-domains cifs1.example.com, cifs2.example.com
+----
+次のコマンドを実行すると、 SVM vs1 で使用されるリストから信頼できるドメインが 2 つ削除されます。
+
+[listing]
+----
+cluster1::> vserver cifs domain name-mapping-search remove -vserver vs1 -trusted-domains cifs1.example.com, cifs2.example.com
+----
+次のコマンドは、 SVM vs1 で使用されている信頼できるドメインのリストを変更します。元のリストが新しいリストに置き換えられます。
+
+[listing]
+----
+cluster1::> vserver cifs domain name-mapping-search modify -vserver vs1 -trusted-domains cifs3.example.com
+----
+* 関連情報 *
+
+xref:display-preferred-trusted-domain-list-task.adoc[信頼できるドメインの優先リストに関する情報を表示する]

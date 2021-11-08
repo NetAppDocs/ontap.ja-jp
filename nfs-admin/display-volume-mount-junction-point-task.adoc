@@ -1,0 +1,75 @@
+---
+permalink: nfs-admin/display-volume-mount-junction-point-task.html 
+sidebar: sidebar 
+keywords: display, volume, mount, junction, point, information 
+summary: Storage Virtual Machine （ SVM ）のマウントボリューム、およびボリュームがマウントされているジャンクションポイントに関する情報を表示できます。また、ジャンクションポイントにマウントされていないボリュームを確認することもできます。この情報を使用して、 SVM ネームスペースを理解し、管理することができます。 
+---
+= ボリュームマウントポイントとジャンクションポイントに関する情報を表示します
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+Storage Virtual Machine （ SVM ）のマウントボリューム、およびボリュームがマウントされているジャンクションポイントに関する情報を表示できます。また、ジャンクションポイントにマウントされていないボリュームを確認することもできます。この情報を使用して、 SVM ネームスペースを理解し、管理することができます。
+
+.ステップ
+. 必要な操作を実行します。
++
+[cols="2*"]
+|===
+| 表示する項目 | 入力するコマンド 
+
+
+ a| 
+SVM のマウントされたボリュームとマウントされていないボリュームに関する概要情報
+ a| 
+volume show -vserver_vserver_name __ junction-path
+
+
+
+ a| 
+SVM のマウントされたボリュームとマウントされていないボリュームに関する詳細情報
+ a| 
+'volume show -vserver_name_-volume_name_-instance インスタンス
+
+
+
+ a| 
+SVM のマウントされたボリュームとマウントされていないボリュームに関する特定の情報
+ a| 
+.. 必要に応じて '-fields パラメータの有効なフィールドを表示するには ' volume show -fields ? を使用します
+.. 「 -fields 」パラメータを使用して、必要な情報を表示します。 volume show -vserver vserver_name __ -fields fieldname_,...]
+
+
+|===
+
+
+次の例は、 SVM vs1 のマウントされたボリュームとマウントされていないボリュームの概要を表示します。
+
+[listing]
+----
+cluster1::> volume show -vserver vs1 -junction
+                     Junction                 Junction
+Vserver   Volume     Active   Junction Path   Path Source
+--------- ---------- -------- --------------- -----------
+vs1       data       true     /data           RW_volume
+vs1       home4      true     /eng/home       RW_volume
+vs1       vs1_root   -        /               -
+vs1       sales      true     /sales          RW_volume
+----
+次の例は、 SVM vs2 上に配置されたボリュームの指定したフィールドに関する情報を表示します。
+
+[listing]
+----
+cluster1::> volume show -vserver vs2 -fields vserver,volume,aggregate,size,state,type,security-style,junction-path,junction-parent,node
+vserver volume   aggregate size state  type security-style junction-path junction-parent node
+------- ------   --------- ---- ------ ---- -------------- ------------- --------------- -----
+vs2     data1    aggr3     2GB  online RW   unix           -             -               node3
+vs2     data2    aggr3     1GB  online RW   ntfs           /data2        vs2_root        node3
+vs2     data2_1  aggr3     8GB  online RW   ntfs           /data2/d2_1   data2           node3
+vs2     data2_2  aggr3     8GB  online RW   ntfs           /data2/d2_2   data2           node3
+vs2     pubs     aggr1     1GB  online RW   unix           /publications vs2_root        node1
+vs2     images   aggr3     2TB  online RW   ntfs           /images       vs2_root        node3
+vs2     logs     aggr1     1GB  online RW   unix           /logs         vs2_root        node1
+vs2     vs2_root aggr3     1GB  online RW   ntfs           /             -               node3
+----

@@ -1,0 +1,59 @@
+---
+permalink: data-protection/restore-part-file-snapshot-task.html 
+sidebar: sidebar 
+keywords: restore, part, file, snapshot copy 
+summary: データの開始バイトオフセットとバイト数を把握している場合は、 volume snapshot partial-restore-file コマンドを使用して、 Snapshot コピーから LUN または NFS または CIFS コンテナファイルに一定範囲のデータをリストアできます。このコマンドでは、同じ LUN 内に複数のデータベースを格納するホスト上のいずれかのデータベースをリストアできます。 
+---
+= Snapshot コピーからファイルの一部をリストアします
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+「 volume snapshot partial-restore-file 」コマンドを使用すると、 Snapshot コピーから LUN または NFS または CIFS コンテナファイルに、データの開始バイトオフセットとバイト数を把握している場合に、そのデータ範囲をリストアできます。このコマンドでは、同じ LUN 内に複数のデータベースを格納するホスト上のいずれかのデータベースをリストアできます。
+
+.手順
+. ボリューム内の Snapshot コピーの一覧を表示します。
++
+volume snapshot show -vserver _svm_-volume_`
+
++
+コマンド構文全体については、マニュアルページを参照してください。
+
++
+次に、「 vol1 」内の Snapshot コピーの例を示します。
+
++
+[listing]
+----
+
+clus1::> volume snapshot show -vserver vs1 -volume vol1
+
+Vserver Volume Snapshot                State    Size  Total% Used%
+------- ------ ---------- ----------- ------   -----  ------ -----
+vs1	 vol1   hourly.2013-01-25_0005  valid   224KB     0%    0%
+               daily.2013-01-25_0010   valid   92KB      0%    0%
+               hourly.2013-01-25_0105  valid   228KB     0%    0%
+               hourly.2013-01-25_0205  valid   236KB     0%    0%
+               hourly.2013-01-25_0305  valid   244KB     0%    0%
+               hourly.2013-01-25_0405  valid   244KB     0%    0%
+               hourly.2013-01-25_0505  valid   244KB     0%    0%
+
+7 entries were displayed.
+----
+. Snapshot コピーからファイルの一部をリストアします。
++
+'volume snapshot partial-restore-file-vserver_svm_-volume_-snapshot_snapshot_path_start -byte_start_byte_byte_-byte_count_byte -count_byte_count_`
+
++
+開始バイトオフセットとバイト数は 4 、 096 の倍数でなければなりません。
+
++
+次に、ファイル「 `m yfile.txt` の最初の 4,096 バイトをリストアする例を示します。
+
++
+[listing]
+----
+cluster1::> volume snapshot partial-restore-file -vserver vs0 -volume vol1 -snapshot daily.2013-01-25_0010 -path /myfile.txt -start-byte 0 -byte-count 4096
+----
+

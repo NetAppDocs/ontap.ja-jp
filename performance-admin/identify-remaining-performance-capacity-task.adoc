@@ -1,0 +1,95 @@
+---
+permalink: performance-admin/identify-remaining-performance-capacity-task.html 
+sidebar: sidebar 
+keywords: identify, remaining, performance, capacity 
+summary: パフォーマンス容量（ヘッドルーム）は、リソースのワークロードのパフォーマンスにレイテンシの影響が及ぶ前に、ノードまたはアグリゲートに配置できる作業量を測定します。クラスタで利用可能なパフォーマンス容量を知っておくと、ワークロードのプロビジョニングと分散に役立ちます。 
+---
+= 残りのパフォーマンス容量を特定します
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+パフォーマンス容量（ _headroom_ ）は、リソースのワークロードのパフォーマンスにレイテンシの影響を受ける前にノードまたはアグリゲートに配置できる作業量を測定します。クラスタで利用可能なパフォーマンス容量を知っておくと、ワークロードのプロビジョニングと分散に役立ちます。
+
+このタスクを実行するには、 advanced 権限レベルのコマンドが必要です。
+
+-object' オプションには ' 次の値を使用して ' ヘッドルーム統計を収集および表示できます
+
+* CPU の場合は「 resource_headroom_cpu 」です。
+* アグリゲートの場合は「 resource_headroom_aggr 」です。
+
+
+この作業は、 ONTAP の System Manager および Active IQ Unified Manager でも実行できます。
+
+.手順
+. advanced 権限レベルに切り替えます。
++
+「 advanced 」の権限が必要です
+
+. リアルタイムのヘッドルーム統計の収集を開始します。
++
+統計の開始– object resource_headroom_cpu|aggr
+
++
+コマンド構文全体については、マニュアルページを参照してください。
+
+. リアルタイムのヘッドルーム統計情報を表示します。
++
+統計情報 show -object resource_headroom_cpu|aggr
+
++
+コマンド構文全体については、マニュアルページを参照してください。
+
+. admin 権限に戻ります。
++
+「特権管理者」
+
+
+
+次の例は、クラスタノードの 1 時間あたりの平均ヘッドルーム統計を表示します。
+
+ノードの利用可能なパフォーマンス容量は 'optimal_point_utilization から 'current_utilization を引いて計算できますこの例では 'CPU_sti2520-213' の使用率は -14% （ 72%-86% ）であり ' これは CPU の過去 1 時間の平均使用率が高すぎることを示しています
+
+「 EWMA_DAILY 」、「 EWMA_WEEKLY 」、または「 EWMA_monthly 」を指定すると、同じ情報をより長期間にわたって平均化できます。
+
+[listing]
+----
+sti2520-2131454963690::*> statistics show -object resource_headroom_cpu -raw -counter ewma_hourly
+  (statistics show)
+
+Object: resource_headroom_cpu
+Instance: CPU_sti2520-213
+Start-time: 2/9/2016 16:06:27
+End-time: 2/9/2016 16:06:27
+Scope: sti2520-213
+
+    Counter                                                     Value
+    -------------------------------- --------------------------------
+    ewma_hourly                                                     -
+                         current_ops                             4376
+                     current_latency                            37719
+                 current_utilization                               86
+                   optimal_point_ops                             2573
+               optimal_point_latency                             3589
+           optimal_point_utilization                               72
+     optimal_point_confidence_factor                                1
+
+Object: resource_headroom_cpu
+Instance: CPU_sti2520-214
+Start-time: 2/9/2016 16:06:27
+End-time: 2/9/2016 16:06:27
+Scope: sti2520-214
+
+    Counter                                                     Value
+    -------------------------------- --------------------------------
+    ewma_hourly                                                     -
+                         current_ops                                0
+                     current_latency                                0
+                 current_utilization                                0
+                   optimal_point_ops                                0
+               optimal_point_latency                                0
+           optimal_point_utilization                               71
+     optimal_point_confidence_factor                                1
+2 entries were displayed.
+----

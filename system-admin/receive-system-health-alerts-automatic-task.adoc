@@ -1,0 +1,36 @@
+---
+permalink: system-admin/receive-system-health-alerts-automatic-task.html 
+sidebar: sidebar 
+keywords: receive, system, health, alert, automatically, system, show, command, ems, event, management, monito 
+summary: system health alert show コマンドを使用して、システムヘルスアラートを手動で表示できます。ただし、ヘルスモニタがアラートを生成したときに通知を自動的に受信するには、特定の Event Management System （ EMS ；イベント管理システム）メッセージに登録する必要があります。 
+---
+= システムヘルスアラートを自動的に受信する
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+「 system health alert show 」コマンドを使用して、システムヘルスアラートを手動で表示できます。ただし、ヘルスモニタがアラートを生成したときに通知を自動的に受信するには、特定の Event Management System （ EMS ；イベント管理システム）メッセージに登録する必要があります。
+
+次の手順は、すべての hm.alert.raised メッセージ、およびすべての hm.alert.cleared メッセージに対する通知のセットアップ方法を示しています。
+
+すべての hm.alert.raised メッセージおよび hm.alert.cleared メッセージには SNMP トラップが含まれています。SNMP トラップの名前は、「 HealthMonitorAlertRaised 」と「 HealthMonitorAlertCleared 」です。SNMP トラップについては、 _ ネットワーク管理ガイド _ を参照してください。
+
+.手順
+. event destination create コマンドを使用して、 EMS メッセージの送信先を定義します。
++
+[listing]
+----
+cluster1::> event destination create -name health_alerts -mail admin@example.com
+----
+. 「 event route add-destinations 」コマンドを使用して、「 hm.alert.raised 」メッセージと「 hm.alert.cleared 」メッセージを宛先に送信します。
++
+[listing]
+----
+cluster1::> event route add-destinations -messagename hm.alert* -destinations health_alerts
+----
+
+
+* 関連情報 *
+
+link:../networking/index.html["Network Management の略"]

@@ -1,0 +1,62 @@
+---
+permalink: system-admin/manage-ip-addresses-access-sp-task.html 
+sidebar: sidebar 
+keywords: manage, ip, addresses, access, sp, ssh, connection, node, cluster 
+summary: デフォルトでは、 SP はすべての IP アドレスの管理ホストからの SSH 接続要求を受け付けます。指定した IP アドレスを持つ管理ホストのみからの SSH 接続要求を受け付けるように SP を設定できます。変更内容は、クラスタ内のすべてのノードの SP への SSH アクセスに適用されます。 
+---
+= SP にアクセスできる IP アドレスを管理します
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+デフォルトでは、 SP はすべての IP アドレスの管理ホストからの SSH 接続要求を受け付けます。指定した IP アドレスを持つ管理ホストのみからの SSH 接続要求を受け付けるように SP を設定できます。変更内容は、クラスタ内のすべてのノードの SP への SSH アクセスに適用されます。
+
+.手順
+. 「 -allowed-addresses 」パラメータを指定して「 system service-processor ssh add-allowed-addresses 」コマンドを使用し、指定した IP アドレスのみに SP アクセスを付与します。
++
+** 「 -allowed-addresses 」パラメータの値は、「 address 」「 netmask 」の形式で指定する必要があり、「 address 」と「 netmask 」のペアはカンマで区切る必要があります。たとえば、「 10.98.150.10/24 」、「 fd20 ： 8b1e ： b255 ： c09b ： /64 」のようになります。
++
+「 -allowed-addresses 」パラメータを「 0.0.0.0/0 、 ::/0 」に設定すると、すべての IP アドレスが SP にアクセスできるようになります（デフォルト）。
+
+** 指定した IP アドレスのみに SP アクセスを制限することでデフォルトを変更すると、 ONTAP は、指定した IP アドレスでデフォルト設定「 allow all 」を置き換えることの確認を求めるプロンプトを表示します（「 0.0.0.0/0 、 ::/0` ）。
+** 「 system service-processor ssh show 」コマンドを実行すると、 SP にアクセスできる IP アドレスが表示されます。
+
+
+. 指定した IP アドレスを SP へのアクセスからブロックする場合は、「 -allowed-addresses 」パラメータを指定して「 system service-processor ssh remove-allowed-addresses 」コマンドを使用します。
++
+すべての IP アドレスから SP へのアクセスをブロックすると、管理ホストから SP にアクセスできなくなります。
+
+
+
+次の例は、 SP への SSH アクセスのためのデフォルト設定を示しています。ここでは、指定した IP アドレスのみに SP アクセスを制限することで、デフォルトの設定を変更し、指定した IP アドレスをアクセスリストから削除し、すべての IP アドレスに対する SP アクセスをリストアします。
+
+[listing]
+----
+cluster1::> system service-processor ssh show
+  Allowed Addresses: 0.0.0.0/0, ::/0
+
+cluster1::> system service-processor ssh add-allowed-addresses -allowed-addresses 192.168.1.202/24, 192.168.10.201/24
+
+Warning: The default "allow all" setting (0.0.0.0/0, ::/0) will be replaced
+         with your changes. Do you want to continue? {y|n}: y
+
+cluster1::> system service-processor ssh show
+  Allowed Addresses: 192.168.1.202/24, 192.168.10.201/24
+
+cluster1::> system service-processor ssh remove-allowed-addresses -allowed-addresses 192.168.1.202/24, 192.168.10.201/24
+
+Warning: If all IP addresses are removed from the allowed address list, all IP
+         addresses will be denied access. To restore the "allow all" default,
+         use the "system service-processor ssh add-allowed-addresses
+         -allowed-addresses 0.0.0.0/0, ::/0" command. Do you want to continue?
+          {y|n}: y
+
+cluster1::> system service-processor ssh show
+  Allowed Addresses: -
+
+cluster1::> system service-processor ssh add-allowed-addresses -allowed-addresses 0.0.0.0/0, ::/0
+
+cluster1::> system service-processor ssh show
+  Allowed Addresses: 0.0.0.0/0, ::/0
+----

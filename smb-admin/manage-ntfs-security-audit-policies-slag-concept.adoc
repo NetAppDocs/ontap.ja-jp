@@ -1,0 +1,64 @@
+---
+permalink: smb-admin/manage-ntfs-security-audit-policies-slag-concept.html 
+sidebar: sidebar 
+keywords: manage, ntfs, file, security, ntfs, audit, policies, policy, storage-level, access, guard, storage, virtual, machine, svm, cli, manage ntfs file security, ntfs audit policies, and storage-level access guard on svms using the cli 
+summary: CLI を使用して、 Storage Virtual Machine （ SVM ）の NTFS ファイルセキュリティ、 NTFS 監査ポリシー、ストレージレベルのアクセス保護を管理できます。 
+---
+= CLI の概要を使用して、 SVM の NTFS ファイルセキュリティ、 NTFS 監査ポリシー、ストレージレベルのアクセス保護を管理します
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+CLI を使用して、 Storage Virtual Machine （ SVM ）の NTFS ファイルセキュリティ、 NTFS 監査ポリシー、ストレージレベルのアクセス保護を管理できます。
+
+NTFS ファイルセキュリティと監査ポリシーは、 SMB クライアントから、または CLI を使用して管理できます。ただし、 CLI を使用してファイルセキュリティと監査ポリシーを設定する場合、リモートクライアントを使用せずにファイルセキュリティを管理できます。CLI を使用すると、多数のファイルやフォルダに対してセキュリティを適用する場合でも 1 つのコマンドで実行できるため、所要時間を大幅に短縮できます。
+
+ONTAP から SVM ボリュームに適用されるもう 1 つのセキュリティレイヤであるストレージレベルのアクセス保護を設定できます。ストレージレベルのアクセス保護環境は、すべての NAS プロトコルからストレージレベルのアクセス保護が適用されているストレージオブジェクトへのアクセスを保護します。
+
+ストレージレベルのアクセス保護は ONTAP CLI からのみ設定および管理できます。ストレージレベルのアクセス保護設定を SMB クライアントから管理することはできません。また、 NFS または SMB クライアントからファイルまたはディレクトリのセキュリティ設定を表示した場合、ストレージレベルのアクセス保護のセキュリティは表示されません。システム（ Windows または UNIX ）管理者であっても、ストレージレベルのアクセス保護セキュリティをクライアントから取り消すことはできません。そのため、ストレージレベルのアクセス保護は、ストレージ管理者が独立して設定および管理できるセキュリティレイヤをデータアクセスに追加で提供します。
+
+[NOTE]
+====
+ストレージレベルのアクセス保護では NTFS のアクセス権のみがサポートされます。ただし、ストレージレベルのアクセス保護が適用されているボリューム上のデータへの NFS 経由のアクセスに対しても、そのボリュームを所有する SVM 上の Windows ユーザに UNIX ユーザがマッピングされている場合は、 ONTAP でセキュリティチェックを実行できます。
+
+====
+
+
+== NTFS セキュリティ形式のボリューム
+
+NTFS セキュリティ形式のボリュームや qtree に格納されているファイルやフォルダはすべて、 NTFS 対応のセキュリティが有効になります。vserver security file-directory コマンドファミリーを使用すると、 NTFS セキュリティ形式のボリュームに次の種類のセキュリティを実装できます。
+
+* ボリュームに格納されているファイルとフォルダに対するファイル権限と監査ポリシー
+* ボリュームに対するストレージレベルのアクセス保護セキュリティ
+
+
+
+
+== mixed セキュリティ形式のボリューム
+
+mixed セキュリティ形式のボリュームおよび qtree には、 UNIX 対応のセキュリティを備え、 UNIX ファイルアクセス権を使用する一部のファイルおよびフォルダ、モードビットまたは NFSv4.x ACL と NFSv4.x 監査ポリシー、および NTFS 対応のセキュリティを有効にして NTFS ファイルアクセス権と監査ポリシーを使用する一部のファイルおよびフォルダを含めることができます。「 vserver security file-directory 」コマンドファミリーを使用すると、 mixed セキュリティ形式のデータに次の種類のセキュリティを適用できます。
+
+* mixed 形式のボリュームや qtree での NTFS 対応のセキュリティ形式のファイルおよびフォルダに対するファイル権限と監査ポリシー
+* ストレージレベルのアクセス保護： NTFS 対応または UNIX 対応のセキュリティ形式のボリューム
+
+
+
+
+== UNIX セキュリティ形式のボリューム
+
+UNIX セキュリティ形式のボリュームと qtree には、 UNIX 対応のセキュリティ（モードビットまたは NFSv4.x ACL ）を備えたファイルとフォルダが含まれます。「 vserver security file-directory 」コマンドファミリーを使用して UNIX セキュリティ形式のボリュームにセキュリティを実装する場合、次の点に留意する必要があります。
+
+* vserver security file-directory コマンド・ファミリは、 UNIX セキュリティ形式のボリュームおよび qtree 上で UNIX ファイル・セキュリティおよび監査ポリシーを管理するために使用することはできません。
+* ターゲットボリュームを含む SVM に CIFS サーバが含まれる場合は、「 vserver security file-directory 」コマンドファミリーを使用して UNIX セキュリティ形式のボリュームにストレージレベルのアクセス保護を設定できます。
+
+
+* 関連情報 *
+
+xref:display-file-security-audit-policies-concept.adoc[ファイルセキュリティと監査ポリシーに関する情報を表示する]
+
+xref:configure-apply-file-security-ntfs-files-folders-task.adoc[CLI を使用した NTFS ファイルおよびフォルダに対するファイルセキュリティの設定および適用]
+
+xref:configure-apply-audit-policies-ntfs-files-folders-task.adoc[CLI を使用した NTFS ファイルおよびフォルダに対する監査ポリシーの設定および適用]
+
+xref:secure-file-access-storage-level-access-guard-concept.adoc[ストレージレベルのアクセス保護を使用したファイルアクセスの保護]

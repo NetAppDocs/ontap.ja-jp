@@ -1,0 +1,84 @@
+---
+permalink: nfs-config/configure-dns-host-name-resolution-task.html 
+sidebar: sidebar 
+keywords: enabling, dns host-name, resolution 
+summary: SVM で DNS を有効にし、ホスト名解決に DNS を使用するように設定するには、 vserver services name-service dns コマンドを使用します。ホスト名は外部 DNS サーバを使用して解決されます。 
+---
+= ホスト名解決に使用する DNS を有効にします
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+SVM 上で DNS を有効にし、ホスト名解決に DNS を使用するように設定するには、「 vserver services name-service dns 」コマンドを使用します。ホスト名は外部 DNS サーバを使用して解決されます。
+
+ホスト名を検索するために、サイト規模の DNS サーバが使用可能である必要があります。
+
+単一点障害を回避するには、複数の DNS サーバを設定する必要があります。1 つの DNS サーバ名だけを入力すると 'vserver services name-service dns create コマンドによって警告が表示されます
+
+SVM での動的 DNS の設定については、『ネットワーク管理ガイド』を参照してください。
+
+.手順
+. SVM で DNS を有効にします。
++
+vserver services name-service dns create -vserver_name_-domains_domain_name __ -servers _ip_address __ state enabled
+
++
+次のコマンドは、 SVM vs1 で外部 DNS サーバを有効にします。
+
++
+[listing]
+----
+vserver services name-service dns create -vserver vs1.example.com -domains example.com -name-servers 192.0.2.201,192.0.2.202 -state enabled
+----
++
+[NOTE]
+====
+ONTAP 9.2 以降では、「 vserver services name-service dns create 」コマンドによって設定の自動検証が実行され、 ONTAP がネームサーバに接続できない場合はエラーメッセージが報告されます。
+
+====
+. vserver services name-service dns show コマンドを使用して、 DNS ドメイン設定を表示します。
++
+次のコマンドは、クラスタ内のすべての SVM の DNS 設定を表示します。
+
++
+[listing]
+----
+vserver services name-service dns show
+                                             Name
+Vserver           State     Domains             Servers
+----------------- --------- ------------------- -------------
+cluster1          enabled   example.com         192.0.2.201,
+                                                192.0.2.202
+vs1.example.com   enabled   example.com         192.0.2.201,
+                                                192.0.2.202
+----
++
+次のコマンドは、 SVM vs1 の DNS 設定の詳細を表示します。
+
++
+[listing]
+----
+vserver services name-service dns show -vserver vs1.example.com
+               Vserver: vs1.example.com
+               Domains: example.com
+          Name Servers: 192.0.2.201, 192.0.2.202
+    Enable/Disable DNS: enabled
+        Timeout (secs): 2
+      Maximum Attempts: 1
+----
+. 「 vserver services name-service dns check 」コマンドを使用して、ネームサーバのステータスを検証します。
++
+vserver services name-service dns check コマンドは、 ONTAP 9.2 以降で使用できます。
+
++
+[listing]
+----
+vserver services name-service dns check -vserver vs1.example.com
+
+Vserver           Name Server     Status       Status Details
+----------------  -------------   ----------   --------------------------
+vs1.example.com   10.0.0.50         up         Response time (msec): 2
+vs1.example.com   10.0.0.51         up         Response time (msec): 2
+----
+

@@ -1,0 +1,52 @@
+---
+permalink: smb-config/create-local-groups-task.html 
+sidebar: sidebar 
+keywords: create, local, group, authorize, authorizing, access, data, associate, svm, smb, connection, assign, privilege, define, right, capabilities, capability, member, create local groups 
+summary: SVM に関連付けられたデータへの SMB 接続によるアクセスの許可に使用できるローカルグループを作成できます。また、グループのメンバーに付与するユーザ権限と機能を定義した権限を割り当てることもできます。 
+---
+= ローカルグループを作成します
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+SVM に関連付けられたデータへの SMB 接続によるアクセスの許可に使用できるローカルグループを作成できます。また、グループのメンバーに付与するユーザ権限と機能を定義した権限を割り当てることもできます。
+
+ローカルグループの機能は、 SVM の作成時にデフォルトで有効になります。
+
+ローカルグループを作成するときは、グループの名前を指定する必要があり、グループを関連付ける SVM を指定する必要があります。グループ名を指定する際、ローカルドメイン名は指定してもしなくても構いません。また、オプションで、ローカルグループの概要を指定することもできます。別のローカルグループにローカルグループを追加することはできません。
+
+オプションのパラメータと命名要件の詳細については 'vserver cifs users-and-groups local-group のマニュアルページを参照してください
+
+.手順
+. ローカルグループを作成します。 vserver cifs users-and-groups local-group create -vserver vserver_name -group-name group_name
++
+次のオプションのパラメータが役に立つ場合があります。
+
++
+** 「 - 概要」
++
+ローカルグループの概要。
+
+
+
+. グループが正常に作成されたことを確認します。 vserver cifs users-and-groups local-group show -vserver vserver_name
+
+
+次の例では、 SVM vs1 に関連付けられるローカルグループ「 `s MB_SERVER01\engineering` 」を作成します。
+
+[listing]
+----
+cluster1::> vserver cifs users-and-groups local-group create -vserver vs1.example.com -group-name SMB_SERVER01\engineering
+
+cluster1::> vserver cifs users-and-groups local-group show -vserver vs1.example.com
+Vserver          Group Name                   Description
+---------------- ---------------------------- ----------------------------
+vs1.example.com  BUILTIN\Administrators       Built-in Administrators group
+vs1.example.com  BUILTIN\Backup Operators     Backup Operators group
+vs1.example.com  BUILTIN\Power Users          Restricted administrative privileges
+vs1.example.com  BUILTIN\Users                All users
+vs1.example.com  SMB_SERVER01\engineering
+vs1.example.com  SMB_SERVER01\sales
+----
+新しいグループにメンバーを追加する必要があります。

@@ -1,0 +1,70 @@
+---
+permalink: encryption-at-rest/enable-cluster-fips-compliant-mode-task.html 
+sidebar: sidebar 
+keywords: enabling, cluster-wide, fips-compliant mode, kmip, server, connections 
+summary: security config modify コマンドで is-fips-enabled オプションを使用すると、伝送中のデータに対してクラスタ全体の FIPS 準拠モードを有効にできます。これにより、クラスタが KMIP サーバに接続する際に FIPS モードの OpenSSL が使用されるようになります。 
+---
+= KMIP サーバ接続に対して、クラスタ全体の FIPS 準拠モードを有効にします
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+「 is-ffips -enabled 」オプションを指定して「 securityconfig modify 」コマンドを使用すると、転送中のデータに対してクラスタ全体の FIPS 準拠モードを有効にできます。これにより、クラスタが KMIP サーバに接続する際に FIPS モードの OpenSSL が使用されるようになります。
+
+.必要なもの
+* ストレージコントローラは FIPS 準拠モードで設定する必要があります。
+* すべての KMIP サーバで TLSv1.2 がサポートされている必要がありクラスタ全体の FIPS 準拠モードが有効になっている場合、 KMIP サーバへの接続を完了するために TLSv1.2 が必要になります。
+
+
+クラスタ全体の FIPS 準拠モードを有効にすると、自動的に TLS1.2 と FIPS 認定暗号スイートのみが使用されます。クラスタ全体の FIPS 準拠モードは、デフォルトでは無効になっています。
+
+クラスタ全体のセキュリティの設定を変更した場合は、変更後にクラスタノードを手動でリブートする必要があります。
+
+.手順
+. 権限レベルを advanced に設定します。
++
+「 advanced 」の権限が必要です
+
+. TLSv1.2 がサポートされていることを確認します。
++
+「 securityconfig show -supported-protocols 」
+
++
+コマンド構文全体については、マニュアルページを参照してください。
+
++
+[listing]
+----
+cluster1::> security config show
+          Cluster                                              Cluster Security
+Interface FIPS Mode  Supported Protocols     Supported Ciphers Config Ready
+--------- ---------- ----------------------- ----------------- ----------------
+SSL       false      TLSv1.2, TLSv1.1, TLSv1 ALL:!LOW:         yes
+                                             !aNULL:!EXP:
+                                             !eNULL
+----
+. クラスタ全体の FIPS 準拠モードを有効にします。
++
+「 securityconfig modify -is-fips-enabled true -interface SSL 」を参照してください
+
++
+コマンド構文全体については、マニュアルページを参照してください。
+
+. クラスタノードを手動でリブートします。
+. クラスタ全体の FIPS 準拠モードが有効になっていることを確認します。
++
+「 securityconfig show 」を参照してください
+
++
+[listing]
+----
+cluster1::> security config show
+          Cluster                                              Cluster Security
+Interface FIPS Mode  Supported Protocols     Supported Ciphers Config Ready
+--------- ---------- ----------------------- ----------------- ----------------
+SSL       true       TLSv1.2, TLSv1.1        ALL:!LOW:         yes
+                                             !aNULL:!EXP:
+                                             !eNULL:!RC4
+----
+

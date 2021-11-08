@@ -1,0 +1,95 @@
+---
+permalink: svm-migrate/migrate-svm-task.html 
+sidebar: sidebar 
+keywords: svm, migrate, defaults, cutover, cleanup 
+summary: SVM の移行が完了すると、クライアントがデスティネーションクラスタに自動的にカットオーバーされ、不要な SVM がソースクラスタから削除されます。自動カットオーバーとソースの自動クリーンアップはデフォルトで有効になっています。必要に応じて、カットオーバーの発生前にクライアントの自動カットオーバーを無効にして移行を一時停止することもできます。また、ソース SVM の自動クリーンアップを無効にすることもできます。 
+---
+= SVM を移行する
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+SVM の移行が完了すると、クライアントがデスティネーションクラスタに自動的にカットオーバーされ、不要な SVM がソースクラスタから削除されます。自動カットオーバーとソースの自動クリーンアップはデフォルトで有効になっています。必要に応じて、カットオーバーの発生前にクライアントの自動カットオーバーを無効にして移行を一時停止することもできます。また、ソース SVM の自動クリーンアップを無効にすることもできます。
+
+* 自動クライアント・カットオーバーが正常に行われた場合に移行を中断し ' 後で手動でカットオーバーを実行するには '-auto-cutover false オプションを使用します
++
+xref:manual-client-cutover-task.adoc[SVM 移行後にクライアントを手動でカットオーバーする]
+
+* カットオーバー後にソース SVM の削除を無効にしてから、カットオーバー後にソースクリーンアップを手動でトリガーするには、 advanced 権限の「 -auto-source-cleanup false 」オプションを使用します。
++
+xref:manual-source-removal-task.adoc[カットオーバー後にソース SVM を手動で削除]
+
+
+
+
+
+== 自動カットオーバーを有効にして SVM を移行します
+
+デフォルトでは、移行の完了時にクライアントがデスティネーションクラスタに自動的にカットオーバーされ、不要な SVM がソースクラスタから削除されます。
+
+.手順
+. デスティネーションクラスタから、移行の事前確認を実行します。
++
+`est _cluster>vserver migrate start -vserver <vserver name> -source-cluster <cluster name> -check-only true`
+
+. デスティネーションクラスタから、 SVM 移行を開始します。
++
+`est _cluster>vserver migrate start -vserver <vserver name> -source-cluster <cluster name> 」の形式で指定します
+
+. 移行ステータスを確認します。
++
+`est_cluster>vserver migrate show`
+
++
+SVM の移行が完了すると、ステータスに「 migrate-complete 」と表示されます。
+
+
+
+
+
+== クライアントの自動カットオーバーを無効にして SVM を移行します
+
+自動クライアントカットオーバーが正常に実行されたときに移行を一時停止してから、あとから手動でカットオーバーを実行するには、 -auto-cutover false オプションを使用します。「 SVM 移行後のクライアントの手動カットオーバー」を参照してください。
+
+.手順
+. デスティネーションクラスタから、移行の事前確認を実行します。
++
+`est _cluster>vserver migrate start -vserver <vserver name> -source-cluster <cluster name> -check-only true`
+
+. デスティネーションクラスタから、 SVM 移行を開始します。
++
+「最も前のクラスタ」 vserver migrate start -vserver <vserver name> -source-cluster <cluster name> -auto-cutover false 」を使用します
+
+. 移行ステータスを確認します。
++
+`est_cluster>vserver migrate show`
+
++
+SVM 移行が非同期データ転送を完了し、カットオーバー処理の準備が完了した時点で、ステータスには「カットオーバー準備完了」と表示されます。
+
+
+
+
+
+== ソースのクリーンアップが無効になっている SVM を移行します
+
+カットオーバー後にソース SVM の削除を無効にしてから、カットオーバー後にソースのクリーンアップを手動でトリガーするには、 advanced 権限の -auto-giveback false オプションを使用します。「カットオーバー後のソースの手動クリーンアップ」を参照してください。
+
+.手順
+. デスティネーションクラスタから、移行の事前確認を実行します。
++
+「最もよくあるクラスタ *> vserver migrate start -vserver <vserver name> -source-cluster <cluster name> -check-only true 」
+
+. デスティネーションクラスタから、 SVM 移行を開始します。
++
+「最も多いクラスタ *> vserver migrate start -vserver <vserver name> -source-cluster <cluster name> -auto-source-cleanup false
+
+. 移行ステータスを確認します。
++
+「最も多いクラスタ *>vserver migrate show 」を使用します
+
++
+SVM 移行のカットオーバーが完了し、ソースクラスタの SVM を削除する準備ができている場合は、ステータスに「 ready for -source-cleanup 」と表示されます。
+
+

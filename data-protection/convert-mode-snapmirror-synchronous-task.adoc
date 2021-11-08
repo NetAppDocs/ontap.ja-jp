@@ -1,0 +1,63 @@
+---
+permalink: data-protection/convert-mode-snapmirror-synchronous-task.html 
+sidebar: sidebar 
+keywords: convert, mode, snapmirror, synchronous, relationship 
+summary: ONTAP 9.5 以降では、 SnapMirror Synchronous 関係がサポートされます。SnapMirror Synchronous 関係のモードは StrictSync と Sync の間で相互に変換できます。 
+---
+= SnapMirror Synchronous 関係のモードを変換します
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+ONTAP 9.5 以降では、 SnapMirror Synchronous 関係がサポートされます。SnapMirror Synchronous 関係のモードは StrictSync と Sync の間で相互に変換できます。
+
+SnapMirror Synchronous 関係のポリシーを変更してモードを変換することはできません。
+
+.手順
+. デスティネーションクラスタから、既存の SnapMirror Synchronous 関係を休止します。
++
+「 snapmirror quiesce -destination-path dest_SVM ： dest_volume
+
++
+[listing]
+----
+cluster2::> snapmirror quiesce -destination-path vs1_dr:vol1
+----
+. デスティネーションクラスタから、既存の SnapMirror Synchronous 関係を削除します。
++
+「 snapmirror delete -destination-path dest_SVM ： dest_volume
+
++
+[listing]
+----
+cluster2::> snapmirror delete -destination-path vs1_dr:vol1
+----
+. ソースクラスタから、共通の Snapshot コピーは削除せずに SnapMirror 関係を解放します。
++
+「 snapmirror release-relationship-info -only true -destination-path dest_svm ： dest_volume
+
++
+[listing]
+----
+cluster1::> snapmirror release -relationship-info-only true -destination-path vs1_dr:vol1
+----
+. デスティネーションクラスタから、変換後のモードを指定して SnapMirror Synchronous 関係を作成します。
++
+「 snapmirror create -source-path vs1 」に移動します。 vol1 -destination-path dest_SVM ： dest_volume -policy Sync | StrictSync ’
+
++
+[listing]
+----
+cluster2::> snapmirror create -source-path vs1:vol1 -destination-path vs1_dr:vol1 -policy Sync
+----
+. デスティネーションクラスタから、 SnapMirror 関係を再同期します。
++
+「 snapmirror resync -destination-path dest_SVM ： dest_volume
+
++
+[listing]
+----
+cluster2::> snapmirror resync -destination-path vs1_dr:vol1
+----
+

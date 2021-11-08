@@ -1,0 +1,54 @@
+---
+permalink: nfs-admin/display-statistics-task.html 
+sidebar: sidebar 
+keywords: display, nfs, statistics 
+summary: パフォーマンスを監視して問題を診断するために、ストレージシステム上の Storage Virtual Machine （ SVM ）の NFS 統計を表示することができます。 
+---
+= NFS 統計を表示します
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+パフォーマンスを監視して問題を診断するために、ストレージシステム上の Storage Virtual Machine （ SVM ）の NFS 統計を表示することができます。
+
+.手順
+. データを表示できる NFS オブジェクトを識別するには、 'statistics catalog object show コマンドを使用します。
++
+'statistics catalog object show -object NFS*'
+
+. 1 つまたは複数のオブジェクトからデータサンプルを収集するには、 'statistics start' コマンドとオプションの 'statistics stop' コマンドを使用します。
+. サンプルデータを表示するには、 'statistics show' コマンドを使用します。
+
+
+次の例は、 NFSv3 プロトコルのパフォーマンスデータを表示します。
+
+次のコマンドは、新しいサンプルのデータ収集を開始します。
+
+[listing]
+----
+vs1::> statistics start -object nfsv3 -sample-id nfs_sample
+----
+次のコマンドは、正常に行われた読み取り要求および書き込み要求の数と読み取り要求と書き込み要求の総数を比較するカウンタを指定して、サンプルからデータを表示します。
+
+[listing]
+----
+
+vs1::> statistics show -sample-id nfs_sample -counter read_total|write_total|read_success|write_success
+
+Object: nfsv3
+Instance: vs1
+Start-time: 2/11/2013 15:38:29
+End-time: 2/11/2013 15:38:41
+Cluster: cluster1
+
+    Counter                                           Value
+    --------------------------- ---------------------------
+    read_success                                      40042
+    read_total                                        40042
+    write_success                                   1492052
+    write_total                                     1492052
+----
+* 関連情報 *
+
+link:../performance-config/index.html["パフォーマンス監視のセットアップ"]

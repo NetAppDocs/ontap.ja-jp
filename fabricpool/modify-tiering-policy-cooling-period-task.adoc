@@ -1,0 +1,50 @@
+---
+permalink: fabricpool/modify-tiering-policy-cooling-period-task.html 
+sidebar: sidebar 
+keywords: managing, storage, tiering, modifying, volume, tiering, policy, tiering, minimum, cooling period 
+summary: ボリュームの階層化ポリシーを変更することで、アクセス頻度が低くなったデータ（コールドデータ）をクラウド階層に移動するかどうかを制御できます。階層化ポリシーが snapshot-only または auto のボリュームについては、アクセスされていないユーザデータをクラウド階層に移動するまでの階層化の最小クーリング期間も指定できます。 
+---
+= ボリュームの階層化ポリシーまたは階層化の最小クーリング期間を変更して、ストレージ階層化を管理します
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+ボリュームの階層化ポリシーを変更することで、アクセス頻度が低くなったデータ（ _COM_） をクラウド階層に移動するかどうかを制御できます。「 Snapshot-only 」または「 auto 」階層化ポリシーが設定されたボリュームの場合、ユーザデータがクラウド階層に移動される前に非アクティブのままにしなければならない階層化の最小クーリング期間も指定できます。
+
+ボリュームを「 auto 」階層化ポリシーに変更するか、階層化の最小クーリング期間を変更するには、 ONTAP 9.4 以降が必要です。
+
+ボリュームの階層化ポリシーを変更すると、そのボリュームに対する以降の階層化の動作のみ変更されます。変更前までさかのぼってデータがクラウド階層に移動されることはありません。
+
+階層化ポリシーを変更すると、データがコールドと認識されてクラウド階層に移動されるまでの時間に影響することがあります。
+
+link:tiering-policies-concept.html#what-happens-when-you-modify-the-tiering-policy-of-a-volume-in-fabricpool["FabricPool でボリュームの階層化ポリシーを変更した場合の動作"]
+
+.手順
+. 既存のボリュームの階層化ポリシーを変更するには '-tiering-policy パラメータを指定して volume modify コマンドを使用します
++
+次のいずれかの階層化ポリシーを指定できます。
+
++
+** 'snapshot-only' （デフォルト）
+** 「 auto 」と入力します
+** 「すべて」
+** 「 NONE 」
++
+link:tiering-policies-concept.html#types-of-fabricPool-tiering-policies["FabricPool 階層化ポリシーのタイプ"]
+
+
+
+. ボリュームが「 Snapshot-only 」または「 auto 」階層化ポリシーを使用していて、階層化の最小クーリング期間を変更する場合は、 advanced 権限レベルで volume modify コマンドに「 -tiering-minimum-cooling-days 」オプションパラメータを指定して使用します。
++
+階層化の最小クーリング期間の値は、 2~183 の範囲で指定できます。9.8 より前のバージョンの ONTAP を使用している場合は、階層化の最小クーリング期間に 2~63 の値を指定できます。
+
+
+
+次の例では、 SVM 「 vs1 」内のボリューム「 `m yvol" 」の階層化ポリシーを「 auto 」に変更し、階層化の最小クーリング期間を 45 日に変更します。
+
+[listing]
+----
+cluster1::> volume modify -vserver vs1 -volume myvol
+-tiering-policy auto -tiering-minimum-cooling-days 45
+----

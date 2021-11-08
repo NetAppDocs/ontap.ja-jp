@@ -1,0 +1,112 @@
+---
+permalink: system-admin/troubleshoot-autosupport-messages-not-received-task.html 
+sidebar: sidebar 
+keywords: troubleshoot, autosupport, messagem receive, deliver, generate 
+summary: システムから AutoSupport メッセージが送信されない場合は、 AutoSupport がメッセージを生成できないためであるか、配信できないためであるかを判別できます。 
+---
+= メッセージを受信しない場合は、 AutoSupport のトラブルシューティングを行います
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+システムから AutoSupport メッセージが送信されない場合は、 AutoSupport がメッセージを生成できないためであるか、配信できないためであるかを判別できます。
+
+.手順
+. 「 system node AutoSupport history show 」コマンドを使用して、メッセージの配信ステータスを確認します。
+. ステータスを読みます。
++
+[cols="25,75"]
+|===
+| このステータスです | はい 
+
+
+ a| 
+初期化中です
+ a| 
+収集プロセスが開始しています。この状態が一時的なものであれば問題はありません。ただし、この状態が解消されない場合は、問題が存在します。
+
+
+
+ a| 
+コレクション - 失敗しました
+ a| 
+AutoSupport は、スプールディレクトリに AutoSupport コンテンツを作成できません。AutoSupport が収集しようとしているものを表示するには、「 system node AutoSupport history show -detail 」コマンドを入力します。
+
+
+
+ a| 
+収集を実行中です
+ a| 
+AutoSupport は AutoSupport コンテンツを収集しています。「 system node AutoSupport manifest show 」コマンドを入力すると、収集している AutoSupport を表示できます。
+
+
+
+ a| 
+キューに登録され
+ a| 
+AutoSupport メッセージは配信のためにキューに登録されますが、まだ配信されていません。
+
+
+
+ a| 
+送信中です
+ a| 
+AutoSupport は現在メッセージを配信しています。
+
+
+
+ a| 
+Sent - 成功しました
+ a| 
+AutoSupport がメッセージを正常に配信しました。「 system node AutoSupport history show -delivery 」コマンドを入力すると、 AutoSupport がメッセージを配信した場所を確認できます。
+
+
+
+ a| 
+無視します
+ a| 
+AutoSupport にメッセージの送信先がありません。配信の詳細を表示するには、「 system node AutoSupport history show -delivery 」コマンドを入力します。
+
+
+
+ a| 
+再キューイングされました
+ a| 
+AutoSupport はメッセージの配信を試みましたが、失敗しました。その結果、 AutoSupport は別の試行のためにメッセージを配信キューに戻しました。このエラーを表示するには、「 system node AutoSupport history show 」コマンドを入力します。
+
+
+
+ a| 
+トランスミッション - 不合格
+ a| 
+AutoSupport は、指定された回数メッセージの配信に失敗し、メッセージ配信の試行を停止しました。このエラーを表示するには、「 system node AutoSupport history show 」コマンドを入力します。
+
+
+
+ a| 
+OnDemand - 無視されます
+ a| 
+AutoSupport メッセージは正常に処理されましたが、 AutoSupport OnDemand サービスによって無視されました。
+
+|===
+. 次のいずれかを実行します。
++
+|===
+| をクリックします | 手順 
+
+
+ a| 
+initializing または collection-failed
+ a| 
+AutoSupport でメッセージを生成できないため、テクニカルサポートにお問い合わせください。
+
+
+
+ a| 
+ignore 、 re-queued 、または transmission failed のいずれかです
+ a| 
+AutoSupport はメッセージを配信できないため、 SMTP 、 HTTP 、または HTTPS のデスティネーションが正しく設定されていることを確認します。
+
+|===
+

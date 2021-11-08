@@ -1,0 +1,52 @@
+---
+permalink: element-replication/initialize-replication-relationship-task.html 
+sidebar: sidebar 
+keywords: initialize, replication, relationship 
+summary: すべての関係タイプでは、初期化の際にベースライン転送が実行されます。これにより、ソースボリュームの Snapshot コピーが作成され、そのコピーおよびコピーが参照するすべてのデータブロックがデスティネーションボリュームに転送されます。 
+---
+= レプリケーション関係を初期化
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+すべての関係タイプでは、初期化の際に _baseline transfer_： ソースボリュームの Snapshot コピーが作成され、そのコピーおよびコピーが参照するすべてのデータブロックがデスティネーションボリュームに転送されます。
+
+.作業を開始する前に
+* レプリケートするボリュームを含む Element ノードから ONTAP にアクセスできるようにしておく必要があります。
+* Element ボリュームの SnapMirror レプリケーションを有効にしておく必要があります。
+* 「 me-vault 」ポリシータイプを使用している場合は、 Element Snapshot コピーをレプリケートするように SnapMirror ラベルが設定されている必要があります。
+
+
+Element のソースパスは '_hostip:____LUN/_name_' の形式で指定する必要がありますここで 'lun` は実際の文字列 'lun' であり '_name_' は Element ボリュームの名前です
+
+初期化には時間がかかる場合があります。ベースライン転送はオフピークの時間帯に実行することを推奨します。
+
+[NOTE]
+====
+ONTAP ソースから Element デスティネーションへの関係の初期化に何らかの理由で失敗した場合は、問題（無効な LUN 名など）を修正したあとも初期化が失敗します。回避策は次のとおりです。
+
+. 関係を削除します。
+. Element デスティネーションボリュームを削除します。
+. 新しい Element デスティネーションボリュームを作成
+. ONTAP ソースから Element デスティネーションボリュームへの新しい関係を作成して初期化します。
+
+
+====
+.ステップ
+. レプリケーション関係を初期化します。
++
+「 snapmirror initialize-ls-set initialize-ls-set hostip ： // LUN/ _name __ -destination-path SVM ： volume | cluster ： //SVM/volume_`
+
++
+コマンド構文全体については、マニュアルページを参照してください。
+
++
+次の例は、 IP アドレス 10.0.0.11 のソースボリューム 0005 と 'vm_backup' のデスティネーションボリューム volA_dst の間の関係を初期化します。
+
++
+[listing]
+----
+cluster_dst::> snapmirror initialize -source-path 10.0.0.11:/lun/0005 -destination-path svm_backup:volA_dst
+----
+

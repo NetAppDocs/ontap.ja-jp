@@ -1,0 +1,80 @@
+---
+permalink: data-protection/snapmirror-global-throttling-concept.html 
+sidebar: sidebar 
+keywords: using snapmirror, global, throttling 
+summary: グローバルネットワークスロットルは、ノード単位のすべての SnapMirror および SnapVault 転送で使用できます。 
+---
+= SnapMirror グローバルスロットルを使用します
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+グローバルネットワークスロットルは、ノード単位のすべての SnapMirror および SnapVault 転送で使用できます。
+
+SnapMirror グローバルスロットルは、送受信される SnapMirror 転送および SnapVault 転送で使用する帯域幅を制限します。この制限は、クラスタ内のすべてのノードで適用されます。
+
+たとえば、送信スロットルを 100Mbps に設定した場合は、クラスタ内の各ノードで送信帯域幅が 100Mbps に設定されます。グローバルスロットルを無効にすると、すべてのノードで無効になります。
+
+[NOTE]
+====
+スロットルは 'volume move' 転送や負荷共有ミラー転送には影響しませんデータ転送速度は多くの場合ビット / 秒（ bps ）で表されますが、スロットル値はキロバイト / 秒（ KBps ）で入力する必要があります。
+
+====
+グローバルスロットルは、 SnapMirror 転送および SnapVault 転送の関係ごとのスロットル機能と連動します。関係ごとのスロットルは、関係ごとの転送の帯域幅の合計がグローバルスロットルの値を超えるまで有効で、超えたあとはグローバルスロットルが有効になります。スロットル値「 0 」は、グローバルスロットルが無効になっていることを意味します。
+
+[NOTE]
+====
+SnapMirror グローバルスロットルは、 SnapMirror Synchronous 関係が In-Sync になっている場合は効果がありません。ただし、初期化処理や Out of Sync イベントなどの非同期転送フェーズを実行した場合は、スロットルは SnapMirror Synchronous 関係に影響しません。そのため、 SnapMirror Synchronous 関係でグローバルスロットルを有効にすることは推奨されません。
+
+====
+.手順
+. グローバルスロットルを有効にします。
++
+options -option-name replication.throttle.enable on | off`
+
++
+次の例は 'cluster_dst' 上で SnapMirror グローバルスロットルをイネーブルにする方法を示しています
+
++
+[listing]
+----
+cluster_dst::> options -option-name replication.throttle.enable on
+----
+. 受信転送で使用される総帯域幅について最大値を指定します。
++
+「 options -option-name replication.throttle.incoming.max_kbs _kbps_ 」を入力します
+
++
+推奨される最小スロットル帯域幅は 4KBps で、最大値は 2TBps です。このオプションのデフォルト値は「 unlimited 」です。これは、使用される総帯域幅に制限がないことを意味します。
+
++
+次の例は、受信転送で使用される総帯域幅について最大値を 100Mbps に設定する方法を示しています。
+
++
+[listing]
+----
+cluster_dst::> options -option-name replication.throttle.incoming.max_kbs 12500
+----
++
+[NOTE]
+====
+100 Mbps = 12500 kbps
+
+====
+. 送信転送で使用される総帯域幅について最大値を指定します。
++
+「 options -option-name replication.throttle.outgoing_max_kbs_kbs_` 」を入力します
+
++
+KBps は、 1 秒あたりの最大転送速度です。有効な転送速度の値は 1~125000 です。このオプションのデフォルト値は「 unlimited 」です。これは、使用される総帯域幅に制限がないことを意味します。
+
++
+次の例は、送信転送で使用される総帯域幅について最大値を 100Mbps に設定する方法を示しています。
+
++
+[listing]
+----
+cluster_dst::> options -option-name replication.throttle.outgoing.max_kbs 12500
+----
+

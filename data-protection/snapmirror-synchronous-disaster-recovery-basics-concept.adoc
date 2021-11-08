@@ -1,0 +1,154 @@
+---
+permalink: data-protection/snapmirror-synchronous-disaster-recovery-basics-concept.html 
+sidebar: sidebar 
+keywords: snapMirror, synchronous, disaster, recovery 
+summary: ONTAP 9.5 以降では、 16GB 以上のメモリを搭載したすべての FAS プラットフォームと AFF プラットフォーム、およびすべての ONTAP Select プラットフォームで SnapMirror Synchronous （ SM-S ）テクノロジがサポートされます。SnapMirror Synchronous テクノロジは、ノード単位のライセンスされる機能で、ボリュームレベルの同期データレプリケーションを提供します。 
+---
+= SnapMirror Synchronous ディザスタリカバリの基本
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+ONTAP 9.5 以降では、 16GB 以上のメモリを搭載したすべての FAS プラットフォームと AFF プラットフォーム、およびすべての ONTAP Select プラットフォームで SnapMirror Synchronous （ SM-S ）テクノロジがサポートされます。SnapMirror Synchronous テクノロジは、ノード単位のライセンスされる機能で、ボリュームレベルの同期データレプリケーションを提供します。
+
+この機能は、データ損失ゼロが求められる金融や医療などの業種で、同期レプリケーションに関する規制や国の規定に対応します。
+
+SnapMirror Synchronous レプリケーションの HA ペアあたりの最大処理数は、コントローラのモデルによって異なります。
+
+[cols="3*"]
+|===
+| プラットフォーム | ONTAP 9.9.1 より前のリリースでは、 HA ペアあたりの SnapMirror 同期処理の数が許容されます | ONTAP 9.9.1 以降では、 HA ペアあたりの SnapMirror 同期処理の数が許容されます 
+
+
+ a| 
+AFF
+ a| 
+80
+ a| 
+160
+
+
+
+ a| 
+FAS
+ a| 
+40
+ a| 
+80
+
+
+
+ a| 
+ONTAP Select の場合
+ a| 
+20
+ a| 
+40
+
+|===
+
+
+== サポートされている機能
+
+ONTAP 9.5 以降では、 SnapMirror Synchronous テクノロジは、 NFSv3 、 FC 、および iSCSI の各プロトコルをサポートしており、いずれのネットワークでもレイテンシは 10 ミリ秒以内に抑えられます。
+
+ONTAP 9.7 の SnapMirror Synchronous テクノロジでは、次の機能がサポートされています。
+
+* アプリケーションで作成された Snapshot コピーのレプリケーション
++
+SnapMirror ラベルが Sync ポリシーまたは StrictSync ポリシーに関連付けられたルールに一致する Snapshot コピーのみが対象です。Snapshot ポリシーを使用して作成され、スケジュール設定された Snapshot コピーはレプリケートされません。
+
+* FC-NVMe
+* LUN クローンと NVMe ネームスペースクローン
++
+アプリケーションで作成された Snapshot コピーに基づく LUN クローンもサポートされます。
+
+
+
+ONTAP 9.6 の SnapMirror Synchronous テクノロジでは、次の機能がサポートされます。ただし、ソースクラスタとデスティネーションクラスタのすべてのノードで ONTAP 9.6 が実行されている場合に限ります。
+
+* NFSv4.0 および NFSv4.1
+* SMB 2.0 以降
+* 混在プロトコルアクセス（ NFSv3 と SMB ）
+* SnapMirror Synchronous 関係のプライマリボリュームに対するウィルス対策
+* SnapMirror Synchronous 関係のプライマリボリュームに対するハードクォータまたはソフトクォータ
++
+クォータルールはデスティネーションにレプリケートされないため、クォータデータベースはデスティネーションにレプリケートされません。
+
+* SnapMirror Synchronous 関係のプライマリボリュームに対する FPolicy
+* SnapMirror Synchronous ミラー - ミラーカスケード
++
+SnapMirror Synchronous 関係のデスティネーションボリュームからの関係は非同期 SnapMirror 関係である必要があります。
+
+* NAS のソースボリュームとデスティネーションボリュームの間のタイムスタンプパリティ
++
+ONTAP 9.5 から ONTAP 9.6 にアップグレードした場合、タイムスタンプはソースボリューム内の新規および変更されたファイルについてのみレプリケートされます。ソースボリューム内の既存のファイルのタイムスタンプは同期されません。
+
+* メタデータ処理頻度の上限の削除
+* TLS 1.2 暗号化を使用した機密データ転送時のセキュリティ
+* クローンの自動削除
+
+
+
+
+== サポートされない機能です
+
+Synchronous SnapMirror 関係では、次の機能はサポートされません。
+
+* SVM DR
+* SAN アクセスと NAS アクセスが混在しています
++
+SnapMirror Synchronous 関係のプライマリボリュームが提供できるのは、 NAS データまたは SAN データのどちらか一方です。SnapMirror Synchronous 関係のプライマリボリュームから SAN アクセスと NAS アクセスの両方を行うことはできません。
+
+* SAN アクセスと NVMe アクセスが混在しています
++
+LUN と NVMe ネームスペースは、同じボリュームまたは SVM ではサポートされません。
+
+* SnapLock ボリューム
+* FlexGroup ボリューム
+* FlexCache ボリューム
+* SnapRestore
+* DP_Optimized （ DPO ）システム
+* デスティネーションボリュームでのダンプおよび SMTape を使用したテープバックアップまたはリストア
+* ソースボリュームへのテープベースのリストア
+* ソースボリュームのしきい値の下限（最小 QoS ）
+* ファンアウト構成で確立できる SnapMirror Synchronous 関係は 1 つだけで、ソースボリュームからの残りの関係はすべて非同期 SnapMirror 関係にする必要があります。
+* グローバルスロットル
+
+
+
+
+== 動作モード
+
+SnapMirror Synchronous には、使用する SnapMirror ポリシーに基づいて 2 つの動作モードがあります。
+
+* * 同期モード *
++
+Sync モードでは、最初にプライマリストレージへの I/O がセカンダリストレージにレプリケートされます。その後、プライマリストレージに I/O が書き込まれ、 I/O の発行元のアプリケーションに確認応答が送信されます何らかの理由でセカンダリストレージへの書き込みが完了しない場合、アプリケーションはプライマリストレージへの書き込みを継続できます。エラー状態が解消されると、 SnapMirror Synchronous テクノロジは自動的にセカンダリストレージを再同期し、プライマリストレージからセカンダリストレージへの同期モードでのレプリケーションを再開します。
+
++
+Sync モードでは、セカンダリレプリケーションに障害問題が発生するまで RPO=0 と非常に低い RTO を実現できます。この場合、 RPO と RTO は不確定になりますが、セカンダリレプリケーションが失敗し、再同期が完了するまでの時間と同じになります。
+
+* * StrictSync モード *
++
+SnapMirror Synchronous は、必要に応じて StrictSync モードで実行できます。何らかの理由でセカンダリストレージへの書き込みが完了しない場合、アプリケーション I/O が失敗し、プライマリストレージとセカンダリストレージが同一に保たれます。プライマリへのアプリケーション I/O は、 SnapMirror 関係のステータスが「 InSync 」に戻るまで再開されません。プライマリストレージで障害が発生した場合は、フェイルオーバー後にセカンダリストレージでアプリケーション I/O を再開できます。データ損失は発生しません。
+
++
+StrictSync モードの RPO は常にゼロで、 RTO も非常に低く抑えられます。
+
+
+
+
+
+== 関係のステータス
+
+SnapMirror Synchronous 関係のステータスは、通常の動作中は常に「 InSync 」ステータスになります。何らかの理由で SnapMirror 転送に失敗すると、デスティネーションがソースと同期していない状態になり、ステータスが「 OutofSync 」になります。
+
+SnapMirror Synchronous 関係の場合、システムは一定の間隔で自動的に関係のステータス（「 InSync 」または「 OutofSync 」）をチェックします。関係のステータスが「 OutofSync 」の場合、 ONTAP は自動的に再同期プロセスを開始して、関係を「 InSync 」ステータスに戻します。再同期が実行されるのは、ソースまたはデスティネーションでの計画外のストレージフェイルオーバーやネットワークの停止などによって転送に失敗した場合のみです。「 snapmirror quiesce 」や「 Snapmirror break 」などのユーザが開始した操作では、自動再同期は実行されません。
+
+StrictSync モードでは、 SnapMirror Synchronous 関係のステータスが「 OutofSync 」になると、プライマリボリュームへの I/O 処理がすべて停止します。Sync モードでは SnapMirror Synchronous 関係の OutofSync 状態はプライマリに影響を与えず ' プライマリ・ボリュームでは I/O 処理が許可されます
+
+* 関連情報 *
+
+http://www.netapp.com/us/media/tr-4733.pdf["ネットアップテクニカルレポート 4733 ：『 SnapMirror Synchronous for ONTAP 9.6 』"]

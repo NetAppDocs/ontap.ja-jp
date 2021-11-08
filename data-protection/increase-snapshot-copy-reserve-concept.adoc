@@ -1,0 +1,24 @@
+---
+permalink: data-protection/increase-snapshot-copy-reserve-concept.html 
+sidebar: sidebar 
+keywords: increase, snapshot, copy, reserve 
+summary: Snapshot リザーブを増やすかどうかを判断する際には、 Snapshot コピーには、前回の Snapshot コピー作成後のファイルに対する変更のみが記録されるという点を考慮することが重要です。このコピーによってディスクスペースが消費されるのは、アクティブファイルシステムのブロックが変更または削除された場合のみです。 
+---
+= Snapshot コピーリザーブを増やすタイミング
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+Snapshot リザーブを増やすかどうかを判断する際に重要なのは、 Snapshot コピーには、前回の Snapshot コピー作成後のファイルに対する変更のみが記録されるという点です。このコピーによってディスクスペースが消費されるのは、アクティブファイルシステムのブロックが変更または削除された場合のみです。
+
+つまり、 Snapshot コピーで使用されるディスクスペース容量を決定する際の重要な要素はファイルシステムの変更率です。作成する Snapshot コピーの数にかかわらず、アクティブファイルシステムが変更されていない場合、 Snapshot コピーはディスクスペースを消費しません。
+
+たとえば、データベーストランザクションログを含む FlexVol ボリュームには、変更率の増加に対応するために 20% の Snapshot コピーリザーブが用意されている場合があります。より多くの Snapshot コピーを作成して、データベースに対するより頻繁な更新をキャプチャするだけでなく、 Snapshot コピーリザーブのサイズを拡張して、 Snapshot コピーが消費する追加のディスクスペースを処理することができます。
+
+[TIP]
+====
+Snapshot コピーは、ブロックのコピーではなくブロックへのポインタで構成されています。ポインタはブロック上の「要求」と考えることができます。 ONTAP は、その Snapshot コピーが削除されるまでブロックを保持します。
+
+====
+image::../media/how-snapshots-consume-disk-space.gif[Snapshot によるディスクスペースの使用方法]

@@ -1,0 +1,55 @@
+---
+permalink: disks-aggregates/set-cache-data-retention-policy-flash-pool-task.html 
+sidebar: sidebar 
+keywords: set, cache-retention policy, flash pool 
+summary: Flash Pool アグリゲートに含まれるボリュームにキャッシュ保持ポリシーを割り当てることができます。キャッシュ保持ポリシーが「 high 」に設定されたボリューム内のデータは長期間キャッシュに残り、キャッシュ保持ポリシーが「 low 」に設定されたボリューム内のデータはすぐに削除されます。これにより、優先度の高い情報に長期にわたって高速アクセスできるようにすることで、重要なワークロードのパフォーマンスが向上します。 
+---
+= Flash Pool アグリゲートのキャッシュ保持ポリシーを設定します
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+Flash Pool アグリゲートに含まれるボリュームにキャッシュ保持ポリシーを割り当てることができます。キャッシュ保持ポリシーが「 high 」に設定されたボリューム内のデータは長期間キャッシュに残り、キャッシュ保持ポリシーが「 low 」に設定されたボリューム内のデータはすぐに削除されます。これにより、優先度の高い情報に長期にわたって高速アクセスできるようにすることで、重要なワークロードのパフォーマンスが向上します。
+
+キャッシュ保持ポリシーがデータをキャッシュに保存する期間に影響しないような状況がシステムで発生していないかどうかを把握する必要があります。
+
+このタスクは advanced 権限モードで実行する必要があります。
+
+.手順
+. 権限の設定を advanced に変更します。
++
+「 advanced 」の権限が必要です
+
+. ボリュームのキャッシュ保持ポリシーを確認します。
++
+デフォルトでは ' キャッシュ保持ポリシーは 'normal' です
+
+. キャッシュ保持ポリシーを設定します。
++
+[cols="2*"]
+|===
+| ONTAP バージョン | コマンドを実行します 
+
+
+ a| 
+ONTAP 9.0 、 9.1
+ a| 
+優先度 hybrid -cache set volume_name read-cache= read_cache_value write-cache= write_cache_value cache-retention-priority = cache_retention_policy'
+
+キャッシュに長期間保存するデータの場合は 'cache_retention_policy' を 'high' に設定しますキャッシュからすぐに削除するデータの場合は 'cache_retention_policy' を 'low' に設定します
+
+
+
+ a| 
+ONTAP 9.2 以降
+ a| 
+volume modify -volume volume_name -vserver vserver_name -caching-policy policy_name
+
+|===
+. ボリュームのキャッシュ保持ポリシーが選択したオプションに変更されたことを確認します。
+. 権限の設定を admin に戻します。
++
+「特権管理者」
+
+

@@ -1,0 +1,74 @@
+---
+permalink: flexgroup/increase-capacity-task.html 
+sidebar: sidebar 
+keywords: increase, size, flexgroup, volume 
+summary: FlexGroup ボリュームのサイズを拡張するには、 FlexGroup の既存のコンスティチュエントに容量を追加するか、新しいコンスティチュエントを追加して FlexGroup を拡張します。 
+---
+= FlexGroup ボリュームのサイズを拡張する
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+FlexGroup ボリュームのサイズを拡張するには、 FlexGroup の既存のコンスティチュエントに容量を追加するか、新しいコンスティチュエントを追加して FlexGroup を拡張します。
+
+アグリゲートに十分なスペースが必要です。
+
+スペースをさらに追加するには、 FlexGroup ボリューム全体のサイズを増やします。FlexGroup ボリュームのサイズを増やすと、 FlexGroup ボリュームの既存のコンスティチュエントのサイズが変更されます。
+
+パフォーマンスの向上が必要な場合は、 FlexGroup ボリュームを拡張します。FlexGroup ボリュームを拡張して新しいコンスティチュエントを追加する状況としては、次のような場合があります。
+
+* クラスタに新しいノードが追加された。
+* 既存のノードに新しいアグリゲートが作成された。
+* FlexGroup ボリュームの既存のコンスティチュエントがハードウェアの最大 FlexVol サイズに達しているため、 FlexGroup ボリュームのサイズを変更できません。
+
+
+ONTAP 9.3 よりも前のリリースでは、 SnapMirror 関係が確立されたあとに FlexGroup ボリュームを拡張することはできません。ONTAP 9.3 よりも前のリリースで SnapMirror 関係の解除後にソース FlexGroup を拡張した場合は、デスティネーション FlexGroup ボリュームへのベースライン転送をもう一度実行する必要があります。ONTAP 9.3 以降では、 SnapMirror 関係にある FlexGroup ボリュームを拡張できます。
+
+.ステップ
+. 必要に応じて、 FlexGroup の容量またはパフォーマンスを拡張し、 FlexGroup ボリュームのサイズを拡張します。
++
+[cols="2*"]
+|===
+| 追加する項目 | 操作 
+
+
+ a| 
+FlexGroup ボリュームの容量
+ a| 
+FlexGroup ボリュームのコンスティチュエントのサイズを変更します。 volume modify -vserver vserver_name -volume fg_name -size new_size
+
+
+
+ a| 
+FlexGroup ボリュームのパフォーマンス
+ a| 
+新しいコンスティチュエントを追加して FlexGroup ボリュームを拡張します。 ` + volume expand -vserver vserver_name -volume fg_name -aggr-list aggregate name 、…… [-aggr-list-multiplier constituents _ per _aggr] +`-aggr-list-multiplier パラメータのデフォルト値は 1 です
+
+ONTAP 9.5 で FabricPool の FlexGroup ボリュームを拡張するには、新たに使用するアグリゲートがすべて FabricPool である必要があります。
+
+|===
++
+FlexGroup ボリュームの容量は、可能なかぎり増やす必要があります。FlexGroup ボリュームを拡張する必要がある場合は、一貫したパフォーマンスが得られるように、既存の FlexGroup ボリュームのコンスティチュエント数の倍数となるように追加します。たとえば、既存の FlexGroup にノードごとに 8 つのコンスティチュエントがある 16 個のコンスティチュエントがある場合は、コンスティチュエントを 8 個または 16 個追加して既存の FlexGroup を拡張します。
+
+
+
+* 既存のコンスティチュエントの容量拡張の例 *
+
+次の例は、 FlexGroup ボリューム volX に 20TB のスペースを追加します。
+
+[listing]
+----
+cluster1::> volume modify -vserver svm1 -volume volX -size +20TB
+----
+FlexGroup ボリュームに 16 個のコンスティチュエントがある場合、各コンスティチュエントのスペースが 1.25TB ずつ増えます。
+
+* 新しいコンスティチュエントを追加してパフォーマンスを向上させる例 *
+
+次の例は、 FlexGroup ボリューム volX に 2 つのコンスティチュエントを追加します。
+
+[listing]
+----
+cluster1::> volume expand -vserver vs1 -volume volX -aggr-list aggr1,aggr2
+----
+新しいコンスティチュエントのサイズは、既存のコンスティチュエントと同じです。

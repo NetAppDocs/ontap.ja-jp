@@ -1,0 +1,124 @@
+---
+permalink: nas-audit/display-connections-external-fpolicy-servers-task.html 
+sidebar: sidebar 
+keywords: display, information, connections, external fpolicy servers 
+summary: クラスタまたは指定した Storage Virtual Machine （ SVM ）の外部 FPolicy サーバ（ FPolicy サーバ）への接続に関するステータス情報を表示できます。この情報は、接続されている FPolicy サーバを確認するのに役立ちます。 
+---
+= 外部 FPolicy サーバへの接続に関する情報を表示します
+
+
+[role="lead"]
+クラスタまたは指定した Storage Virtual Machine （ SVM ）の外部 FPolicy サーバ（ FPolicy サーバ）への接続に関するステータス情報を表示できます。この情報は、接続されている FPolicy サーバを確認するのに役立ちます。
+
+いずれのパラメータも指定しない場合、次の情報が表示されます。
+
+* SVM 名
+* ノード名
+* FPolicy ポリシー名
+* FPolicy サーバの IP アドレス
+* FPolicy サーバのステータス
+* FPolicy サーバのタイプ
+
+
+クラスタまたは特定の SVM の FPolicy 接続に関する情報の表示に加え、コマンドパラメータを使用して、他の条件によってコマンドの出力をフィルタリングすることができます。
+
+instance パラメータを指定すると、一覧にあるポリシーに関する詳細情報を表示できます。または、「 -fields 」パラメータを使用して、指定したフィールドのみをコマンド出力に表示することもできます。「 ? 」を入力できます 使用できるフィールドを調べるには、 -fields パラメータのあとに入力します。
+
+.ステップ
+. 適切なコマンドを使用して、ノードと FPolicy サーバの間の接続ステータスに関する情報をフィルタリングして表示します。
++
+[cols="2*"]
+|===
+| 接続ステータス情報を表示する FPolicy サーバ | 入力するコマンド 
+
+
+ a| 
+を指定します
+ a| 
+vserver fpolicy show-engine-server ip_address
+
+
+
+ a| 
+指定した SVM のものです
+ a| 
+vserver fpolicy show-engine -vserver vserver_name ’
+
+
+
+ a| 
+指定したポリシーに関連付けられているもの
+ a| 
+vserver fpolicy show-engine-policy-name policy_name
+
+
+
+ a| 
+指定したサーバステータスを使用します
+ a| 
+「 vserver fpolicy show-engine-server-status 」を参照してください
+
+サーバのステータスは、次のいずれかになります。
+
+** 「 Connected 」になります
+** 「接続されていません」
+** 「接続中」
+** 「接続していません」
+
+
+
+
+ a| 
+を指定します
+ a| 
+vserver fpolicy show-engine-server-type タイプ
+
+FPolicy サーバのタイプとしては、次のいずれかを指定できます。
+
+** 「プライマリ」
+** ' 二次
+
+
+
+
+ a| 
+指定した理由で切断されたもの
+ a| 
+vserver fpolicy show-engine-disconnect -reason text `
+
+切断の理由はさまざまです。切断の一般的な理由は次のとおりです。
+
+** 「 cli. 」から受信した isconnect コマンド
+** FPolicy サーバからの通知応答の解析中にエラーが発生しました
+** FPolicy ハンドシェイクに失敗しました
+** 「 SL ハンドシェイクに失敗しました。
+** FPolicy サーバへの TCP 接続に失敗しました
+** FPolicy サーバから受信したスクリーン・レスポンス・メッセージが無効です
+
+
+|===
+
+
+次の例は、 SVM vs1.example.com 上の FPolicy サーバへの外部エンジン接続に関する情報を表示したものです。
+
+[listing]
+----
+cluster1::> vserver fpolicy show-engine -vserver vs1.example.com
+FPolicy                                              Server-       Server-
+Vserver         Policy    Node         Server        status        type
+--------------- --------- ------------ ------------- ------------- ---------
+vs1.example.com policy1   node1        10.1.1.2      connected     primary
+vs1.example.com policy1   node1        10.1.1.3      disconnected  primary
+vs1.example.com policy1   node2        10.1.1.2      connected     primary
+vs1.example.com policy1   node2        10.1.1.3      disconnected  primary
+----
+この例は、接続されている FPolicy サーバに関する情報のみを表示したものです。
+
+[listing]
+----
+cluster1::> vserver fpolicy show-engine -fields server -server-status connected
+node       vserver         policy-name server
+---------- --------------- ----------- -------
+node1      vs1.example.com policy1     10.1.1.2
+node2      vs1.example.com policy1     10.1.1.2
+----

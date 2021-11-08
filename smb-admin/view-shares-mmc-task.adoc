@@ -1,0 +1,69 @@
+---
+permalink: smb-admin/view-shares-mmc-task.html 
+sidebar: sidebar 
+keywords: information, smb, share, svm, perform, management, task, microsoft, management, console, mmc, view, share, connect, svm, view information about smb shares using the mmc 
+summary: Microsoft 管理コンソール（ MMC ）を使用して SVM の SMB 共有情報を表示し、いくつかの管理タスクを実行できます。共有を表示する前に、 MMC を SVM に接続する必要があります。 
+---
+= MMC を使用して SMB 共有情報を表示します
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+Microsoft 管理コンソール（ MMC ）を使用して SVM の SMB 共有情報を表示し、いくつかの管理タスクを実行できます。共有を表示する前に、 MMC を SVM に接続する必要があります。
+
+MMC を使用すると、 SVM 内の共有に対して次のタスクを実行できます。
+
+* 共有を表示します
+* アクティブなセッションを表示します
+* 開いているファイルを表示します
+* システムのセッション、ファイル、およびツリー接続のリストを列挙します
+* 開いているファイルを閉じます
+* 開いているセッションを閉じます
+* 共有を作成 / 管理します
+
+
+[NOTE]
+====
+上記の機能によって表示されるビューは、クラスタではなくノードに固有のものです。そのため、 MMC を使用して SMB サーバホスト名（ cifs01.domain.local ）に接続すると、 DNS の設定に基づいてクラスタ内の単一の LIF にルーティングされます。
+
+====
+次の機能は、 MMC for ONTAP ではサポートされていません。
+
+* 新しいローカルユーザ / グループを作成しています
+* 既存のローカルユーザ / グループの管理 / 表示
+* イベントまたはパフォーマンスログを表示する
+* ストレージ
+* サービスとアプリケーション
+
+
+操作がサポートされていない場合、「手順コールが失敗しました」エラーが発生することがあります。
+
+https://kb.netapp.com/Advice_and_Troubleshooting/Data_Storage_Software/ONTAP_OS/FAQ%3A_Using_Windows_MMC_with_ONTAP["FAQ ： ONTAP で Windows MMC を使用する"]
+
+.手順
+. 任意の Windows サーバーでコンピュータの管理 MMC を開くには、 [ コントロールパネル ] で、 [ 管理ツール *]>[ コンピュータの管理 *] を選択します。
+. 「 * アクション * > * 別のコンピューターに接続 * 」を選択します。
++
+[ コンピュータの選択 ] ダイアログボックスが表示されます。
+
+. ストレージ・システムの名前を入力するか、または * Browse * をクリックしてストレージ・システムを検索します。
+. [OK] をクリックします。
++
+MMC が SVM に接続します。
+
+. ナビゲーションペインで、 * 共有フォルダ * > * 共有 * をクリックします。
++
+右側の表示ペインに SVM の共有のリストが表示されます。
+
+. 共有の共有プロパティを表示するには、共有をダブルクリックして * プロパティ * ダイアログボックスを開きます。
+. MMC を使用してストレージシステムに接続できない場合は、ストレージシステムで次のいずれかのコマンドを使用して、 BUILTIN\Administrators グループまたは BUILTIN\Power Users グループにユーザを追加できます。
++
+[listing]
+----
+
+cifs users-and-groups local-groups add-members -vserver <vserver_name> -group-name BUILTIN\Administrators -member-names <domainuser>
+
+cifs users-and-groups local-groups add-members -vserver <vserver_name> -group-name "BUILTIN\Power Users" -member-names <domainuser>
+----
+

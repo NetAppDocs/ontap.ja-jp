@@ -1,0 +1,59 @@
+---
+permalink: encryption-at-rest/assign-authentication-keys-seds-onboard-task.html 
+sidebar: sidebar 
+keywords: assign, data, authentication, key, fips, drive, sed, onboard, key, management 
+summary: storage encryption disk modify コマンドを使用して、 FIPS ドライブまたは SED にデータ認証キーを割り当てることができます。このキーは、クラスタノードでドライブのデータにアクセスする際に使用します。 
+---
+= FIPS ドライブまたは SED にデータ認証キーを割り当てる（オンボードキー管理）
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+「 storage encryption disk modify 」コマンドを使用して、 FIPS ドライブまたは SED にデータ認証キーを割り当てることができます。このキーは、クラスタノードでドライブのデータにアクセスする際に使用します。
+
+このタスクを実行するには、クラスタ管理者である必要があります。
+
+自己暗号化ドライブの認証キー ID がデフォルト以外の値に設定されている場合にのみ、不正アクセスから保護されます。Manufacturer Secure ID （ MSID ；メーカーのセキュア ID ）のキー ID が 0x0 になり、 SAS ドライブの標準のデフォルト値になります。NVMe ドライブの場合、標準のデフォルト値は null キーで、空のキー ID として表されます。自己暗号化ドライブのキー ID を割り当てると、認証キー ID がデフォルト以外の値に変更されます。
+
+.手順
+. FIPS ドライブまたは SED にデータ認証キーを割り当てます。
++
+「 storage encryption disk modify -disk disk_id -data-key-id key_ID 」です
+
++
+コマンド構文全体については、コマンドのマニュアルページを参照してください。
+
++
+[NOTE]
+====
+「 securitykey-manager query-key-type NSE-AK 」コマンドを使用すると、キー ID を表示できます。
+
+====
++
+[listing]
+----
+cluster1::> storage encryption disk modify -disk 0.10.* -data-key-id F1CB30AFF1CB30B00101000000000000A68B167F92DD54196297159B5968923C
+
+Info: Starting modify on 14 disks.
+      View the status of the operation by using the
+      storage encryption disk show-status command.
+----
+. 認証キーが割り当てられたことを確認します。
++
+「 storage encryption disk show 」のように表示されます
+
++
+コマンド構文全体については、マニュアルページを参照してください。
+
++
+[listing]
+----
+cluster1::> storage encryption disk show
+Disk    Mode Data Key ID
+-----   ---- ----------------------------------------------------------------
+0.0.0   data F1CB30AFF1CB30B00101000000000000A68B167F92DD54196297159B5968923C
+0.0.1   data F1CB30AFF1CB30B00101000000000000A68B167F92DD54196297159B5968923C
+[...]
+----
+

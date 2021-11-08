@@ -13,13 +13,19 @@ summary: LIF にサービスポリシーを割り当てて、サポートされ�
 
 
 [role="lead"]
-LIF のロールの代わりに、 LIF でサポートされるトラフィックの種類を決定するサービスポリシーを LIF に割り当てることができます。Serv ポリシーは、 LIF でサポートされる一連のネットワークサービスを定義します。ONTAP には、 LIF に関連付けることができる一連の組み込みのサービスポリシーが用意されています。
+LIF のロールの代わりに、 LIF でサポートされるトラフィックの種類を決定するサービスポリシーを LIF に割り当てることができます。サービスポリシーは、 LIF でサポートされる一連のネットワークサービスを定義します。ONTAP には、 LIF に関連付けることができる一連の組み込みのサービスポリシーが用意されています。
+
+サービスポリシーとその詳細を表示するには、「 network interface service-policy show 」コマンドを使用します
 
 
 
 == システム SVM のサービスポリシー
 
-管理 SVM とすべてのシステム SVM には、管理 LIF とクラスタ間 LIF を含む、その SVM の LIF に使用できるサービスポリシーが含まれています。これらのポリシーは、 IPspace の作成時にシステムによって自動的に作成されます。次の表に、システム SVM の LIF の組み込みのポリシーを示します。
+管理 SVM とすべてのシステム SVM には、管理 LIF とクラスタ間 LIF を含む、その SVM の LIF に使用できるサービスポリシーが含まれています。これらのポリシーは、 IPspace の作成時にシステムによって自動的に作成されます。
+
+次の表に、 ONTAP 9.10.1 以降のシステム SVM の LIF の組み込みのポリシーを示します。その他のリリースでは、次のコマンドを使用してサービスポリシーとその詳細を表示します。
+
+「 network interface service-policy show 」を参照してください
 
 [cols="4*"]
 |===
@@ -51,14 +57,14 @@ BGP ピア接続を処理する LIF で使用されます。注： ONTAP 9.5 で
  a| 
 default-management
  a| 
-management-core 、 management-sems 、 management-ssh 、 management-shttps 、 management-autosupport
+management-core 、 management-https 、 management-http 、 management-ssh management-autosupport 、 management-ems 、 management-ntp-client'management-snmp-server ' management-ntp-server ' backup-ndmp-control
  a| 
 ノード管理、またはクラスタ管理
  a| 
-管理要求を処理する LIF で使用します。Management - EMS は、 EMS コンテンツを公開できる LIF を制御します。
+システムを対象とした管理要求を処理する LIF で使用されます。Management - EMS は、 EMS コンテンツを公開できる LIF を制御します。システムを対象とした管理ポリシーは、システム SVM が所有するノードを対象とした管理 LIF とクラスタを対象とした管理 LIF を作成するために使用されます。これらの LIF は、 NTP サーバや DNS サーバへのアウトバウンド接続や、システム全体に代わってアプリケーションが実行されるようにするための追加の接続に使用できます。
 
 |===
-次の表に、システム SVM で使用できる各サービスを LIF のフェイルオーバーポリシーに適用される制限とともに示します。
+次の表に、 ONTAP 9.10.1 以降のシステム SVM で LIF が使用できるサービスを示します。
 
 [cols="3*"]
 |===
@@ -93,6 +99,15 @@ SSH 管理アクセス用のサービス
 
 
  a| 
+Management - http ： //
+ a| 
+-
+ a| 
+HTTP 管理アクセス用のサービス
+
+
+
+ a| 
 管理 - HTTPS
  a| 
 -
@@ -117,12 +132,88 @@ home-port - Only （ホームポートのみ）
  a| 
 BGP ピアのやり取りに関連するサービス
 
+
+
+ a| 
+backup-ndmp-control の実行
+ a| 
+-
+ a| 
+NDMP バックアップ制御のためのサービス
+
+
+
+ a| 
+管理 - EMS
+ a| 
+-
+ a| 
+管理メッセージアクセス用のサービス
+
+
+
+ a| 
+management-ntp-client
+ a| 
+-
+ a| 
+NTP クライアントアクセス用のサービス。
+
+
+
+ a| 
+management-ntp-server
+ a| 
+システムのみ
+ a| 
+NTP サーバ管理アクセス用のサービス
+
+
+
+ a| 
+管理 - portmap
+ a| 
+-
+ a| 
+portmap 管理用のサービス
+
+
+
+ a| 
+management-srsh -server です
+ a| 
+システムのみ
+ a| 
+rsh サーバ管理のためのサービス
+
+
+
+ a| 
+management-snmp-server
+ a| 
+-
+ a| 
+SNMP サーバ管理用のサービス
+
+
+
+ a| 
+management-telnet-server
+ a| 
+システムのみ
+ a| 
+Telnet サーバ管理用のサービス
+
 |===
 
 
 == データ SVM のサービスポリシー
 
-すべてのデータ SVM に、その SVM の LIF で使用できるサービスポリシーが含まれています。次の表に、データ SVM の LIF の組み込みのポリシーを示します。
+すべてのデータ SVM に、その SVM の LIF で使用できるサービスポリシーが含まれています。
+
+次の表に、 ONTAP 9.10.1 以降のデータ SVM の LIF の組み込みのポリシーを示します。その他のリリースでは、次のコマンドを使用してサービスポリシーとその詳細を表示します。
+
+「 network interface service-policy show 」を参照してください
 
 [cols="4*"]
 |===
@@ -132,11 +223,11 @@ BGP ピアのやり取りに関連するサービス
  a| 
 default-management
  a| 
-data-core 、 management-ssh 、 management-https ： //
+data-core 、 management-ssh 、 management-ssh 、 data-dns-server 、 management-http 、 backup-ndmp-control 、 management-snmp-server
  a| 
 なし
  a| 
-管理要求を処理する LIF で使用します
+SVM を対象とした管理を処理する LIF で、データ SVM が所有する SVM 管理 LIF を作成するために使用されます。これらの LIF を使用して、 SVM 管理者に SSH または HTTPS アクセスを提供できます。
 
 
 
@@ -158,20 +249,18 @@ data-core 、 data-nfs 、 data-cifs 、 data-fflexcache 、 data-fpolicy-client
  a| 
 NFS 、 CIFS 、 fcache
  a| 
-ファイルベースの NAS データトラフィックを処理する LIF で使用されます。
+default-data-files ポリシーを使用して、ファイルベースのデータプロトコルをサポートする NAS LIF を作成します。
 
 |===
-次の表に、データ SVM で使用できる各サービスを LIF のフェイルオーバーポリシーに適用される制限とともに示します。
+次の表に、データ SVM で使用できる各サービスを ONTAP 9.10.1 以降の LIF のフェイルオーバーポリシーに適用される制限とともに示します。
 
-[cols="4*"]
+[cols="3*"]
 |===
-| ポリシー | 含まれるサービス | 同等のデータプロトコル | 説明 
+| サービス | フェイルオーバーの制限 | 説明 
 
 
  a| 
 management-ssh
- a| 
--
  a| 
 -
  a| 
@@ -180,9 +269,16 @@ SSH 管理アクセス用のサービス
 
 
  a| 
-管理 - HTTPS
+Management - http ： //
  a| 
 -
+ a| 
+HTTP 管理アクセス用のサービス
+
+
+
+ a| 
+管理 - HTTPS
  a| 
 -
  a| 
@@ -191,11 +287,27 @@ HTTPS 管理アクセス用のサービス
 
 
  a| 
-データコア
+管理 - portmap
  a| 
 -
  a| 
-データのみ
+portmap 管理アクセス用のサービス
+
+
+
+ a| 
+management-snmp-server
+ a| 
+-
+ a| 
+SNMP サーバ管理アクセス用のサービス
+
+
+
+ a| 
+データコア
+ a| 
+-
  a| 
 コアデータサービス
 
@@ -206,9 +318,7 @@ HTTPS 管理アクセス用のサービス
  a| 
 -
  a| 
-データのみ
- a| 
-NFS データサービスに関連するプロトコル
+NFS データサービス
 
 
 
@@ -217,9 +327,7 @@ NFS データサービスに関連するプロトコル
  a| 
 -
  a| 
-データのみ
- a| 
-CIFS データサービスに関連するプロトコル
+CIFS データサービス
 
 
 
@@ -228,9 +336,7 @@ CIFS データサービスに関連するプロトコル
  a| 
 -
  a| 
-データのみ
- a| 
-FlexCache データサービスに関連するプロトコル
+FlexCache データサービス
 
 
 
@@ -239,9 +345,52 @@ FlexCache データサービスに関連するプロトコル
  a| 
 home-port - Only （ホームポートのみ）
  a| 
-データのみ
+iSCSI データサービス
+
+
+
  a| 
-iSCSI データサービスに関連するプロトコル
+backup-ndmp-control の実行
+ a| 
+-
+ a| 
+Backup NDMP はデータサービスを制御します
+
+
+
+ a| 
+data-dns-server
+ a| 
+-
+ a| 
+DNS サーバデータサービス
+
+
+
+ a| 
+data-fpolicy-client
+ a| 
+-
+ a| 
+ファイルスクリーニングポリシーデータサービス
+
+
+
+ a| 
+data-nvme-tcp を選択します
+ a| 
+home-port - Only （ホームポートのみ）
+ a| 
+NVMe TCP データサービス
+
+
+
+ a| 
+data-s3-server のように指定します
+ a| 
+-
+ a| 
+Simple Storage Service （ S3 ）サーバデータサービス
 
 |===
 データ SVM の LIF に対するサービスポリシーの割り当てについて、次の点に注意してください。
@@ -273,3 +422,35 @@ iSCSI データサービスに関連するプロトコル
 
 
 LIF を使用するすべてのアプリケーションが想定どおりに機能するように、コアサービスをポリシーに含めます。ただし、必要に応じて、他の 3 つのサービスは削除できます。
+
+
+
+== クライアント側の LIF サービス
+
+ONTAP 9.10.1 以降の ONTAP は、複数のアプリケーションにクライアント側の LIF サービスを提供します。これらのサービスは、各アプリケーションの代わりにアウトバウンド接続に使用する LIF を制御します。
+
+管理者は、次の新しいサービスを使用して、特定のアプリケーションのソースアドレスとして使用する LIF を制御できます。
+
+[cols="3*"]
+|===
+| サービス | SVM の制限事項 | 説明 
+
+
+ a| 
+management-ntp-client
+ a| 
+システムのみ
+ a| 
+ONTAP 9.10.1 以降の ONTAP は、外部 NTP サーバへのアウトバウンド接続に NTP クライアントサービスを提供します。
+
+
+
+ a| 
+data-fpolicy-client
+ a| 
+データのみ
+ a| 
+ONTAP 9.8 以降では、 ONTAP はアウトバウンド FPolicy 接続のクライアントサービスを提供します。
+
+|===
+新しいサービスはそれぞれ一部の組み込みのサービスポリシーに自動的に含まれますが、管理者はそれらのサービスを組み込みのポリシーから削除するか、カスタムポリシーに追加して、各アプリケーションの代わりにアウトバウンド接続に使用する LIF を制御できます。

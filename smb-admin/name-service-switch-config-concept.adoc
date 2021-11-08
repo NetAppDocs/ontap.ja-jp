@@ -1,0 +1,163 @@
+---
+permalink: smb-admin/name-service-switch-config-concept.html 
+sidebar: sidebar 
+keywords: ontap, store, name, service, configuration, information, table, equivalent, unix, system, appropriate, environment, how ontap name service switch configuration works 
+summary: ONTAP では、 UNIX システムの /etc/nsswitch.conf ファイルに相当するテーブルにネームサービス設定情報が格納されます。このテーブルを環境に応じて適切に設定するためには、その機能と ONTAP でテーブルがどのように使用されるかを理解しておく必要があります。 
+---
+= ONTAP のネームサービススイッチ設定の仕組み
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+ONTAP は 'UNIX システム上の /etc/nsswitch.conf ファイルと同等のテーブルにネーム・サービス構成情報を格納しますこのテーブルを環境に応じて適切に設定するためには、その機能と ONTAP でテーブルがどのように使用されるかを理解しておく必要があります。
+
+ONTAP ネームサービススイッチテーブルは、 ONTAP が特定の種類のネームサービス情報を取得する際にどのネームサービスソースをどの順番で参照するかを決定します。ONTAP では、 SVM ごとに個別のネームサービススイッチテーブルが保持されます。
+
+
+
+== データベースタイプ
+
+テーブルには、次の各データベースタイプについてネームサービスのリストが格納されます。
+
+|===
+| データベースタイプ | ネームサービスソースの用途 | 有効なソース 
+
+
+ a| 
+ホスト
+ a| 
+ホスト名の IP アドレスへの変換
+ a| 
+ファイル、 DNS
+
+
+
+ a| 
+グループ
+ a| 
+ユーザグループ情報を検索しています
+ a| 
+files 、 nis 、 ldap が表示されます
+
+
+
+ a| 
+パスワード
+ a| 
+ユーザ情報を検索しています
+ a| 
+files 、 nis 、 ldap が表示されます
+
+
+
+ a| 
+ネットグループ
+ a| 
+ネットグループ情報の検索
+ a| 
+files 、 nis 、 ldap が表示されます
+
+
+
+ a| 
+namemap
+ a| 
+ユーザ名のマッピング
+ a| 
+ファイル、 LDAP
+
+|===
+
+
+== ソースタイプ
+
+ソースタイプによって、該当する情報を取得するために使用するネームサービスソースが決まります。
+
+|===
+| ソースタイプ | 情報の検索先 | 使用するコマンド 
+
+
+ a| 
+ファイル
+ a| 
+ローカルのソースファイル
+ a| 
+「 vserver services name-service unix-user 」「 vserver services name-service unix-group
+
+vserver services name-service netgroup
+
+「 vserver services name-service dns hosts 」という名前になります
+
+
+
+ a| 
+NIS
+ a| 
+SVM の NIS ドメイン設定で指定された外部の NIS サーバ
+ a| 
+「 vserver services name-service nis-domain 」です
+
+
+
+ a| 
+LDAP
+ a| 
+SVM の LDAP クライアント設定で指定された外部の LDAP サーバ
+ a| 
+vserver services name-service ldap
+
+
+
+ a| 
+DNS
+ a| 
+SVM の DNS 設定で指定された外部の DNS サーバ
+ a| 
+vserver services name-service dns
+
+|===
+データアクセスと SVM 管理者の両方の認証に NIS または LDAP を使用する場合も、 NIS 認証または LDAP 認証が失敗した場合に備え、「 files 」を含め、ローカルユーザをフォールバックとして設定する必要があります。
+
+
+
+== 外部ソースへのアクセスに使用するプロトコル
+
+ONTAP では、外部ソースのサーバへのアクセスに次のプロトコルを使用します。
+
+|===
+| 外部のネームサービスソース | アクセスに使用するプロトコル 
+
+
+| NIS | UDP 
+
+
+| DNS | UDP 
+
+
+| LDAP | TCP 
+|===
+
+
+== 例
+
+次の例は、 SVM 「 vm_1 」のネームサービススイッチ設定を表示します。
+
+[listing]
+----
+cluster1::*> vserver services name-service ns-switch show -vserver svm_1
+                               Source
+Vserver         Database       Order
+--------------- ------------   ---------
+svm_1           hosts          files,
+                               dns
+svm_1           group          files
+svm_1           passwd         files
+svm_1           netgroup       nis,
+                               files
+----
+ユーザまたはグループ情報の検索では、 ONTAP はローカルのソースファイルだけを参照します。結果が返されない場合、検索は失敗します。
+
+ネットグループ情報の検索では、 ONTAP が最初に外部 NIS サーバを参照し、結果が返されない場合は、次にローカルネットグループファイルが照会されます。
+
+SVM svm_1 のテーブルには、ネームマッピング用のネームサービスエントリは含まれていません。そのため、 ONTAP はデフォルトでローカルのソースファイルだけを参照します。

@@ -1,0 +1,45 @@
+---
+permalink: smb-admin/disallow-users-groups-bypass-directory-traverse-task.html 
+sidebar: sidebar 
+keywords: user, traverse, directories, directory, path, file, permission, sechangenotifyprivilege, privilege, local, smb, group, storage, virtual, machine, svm, disallow users or groups from bypassing directory traverse checking 
+summary: トラバースするディレクトリに対する権限がない場合に、ファイルへのパスに含まれるすべてのディレクトリをユーザがトラバースできないようにするには、 Storage Virtual Machine （ SVM ）のローカル SMB ユーザまたはグループから SeChangeNotifyPrivilege 権限を削除します。 
+---
+= ユーザまたはグループに対してディレクトリのトラバースチェックのバイパスを禁止します
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+トラバースするディレクトリに対する権限がユーザにない場合に、ファイルへのパスに含まれるすべてのディレクトリをユーザがトラバースできないようにするには、 Storage Virtual Machine （ SVM ）のローカル SMB ユーザまたはグループから「すべての UNIX ユーザまたはグループ」権限を削除します。
+
+権限を削除する対象となるローカルまたはドメインのユーザまたはグループがすでに存在している必要があります。
+
+ドメインのユーザまたはグループの権限を削除する場合、 ONTAP でそれらのユーザやグループを検証するために、ドメインコントローラに接続することがあります。ONTAP からドメインコントローラに接続できない場合、コマンドが失敗することがあります。
+
+.手順
+. トラバースチェックのバイパスを禁止します。 vserver cifs users-and-groups privilege remove-privilege -vserver vserver_name -user-or-group-name name _--privileges SeChangeNotifyPrivilege
++
+このコマンドを実行すると、「 -user-or-group-name 」パラメータの値で指定したローカルまたはドメインのユーザまたはグループから「 UNIX ユーザまたはドメイングループ」の権限が削除されます。
+
+. 指定したユーザまたはグループに対してトラバースチェックのバイパスが無効になっていることを確認します。 vserver cifs users-and-groups privilege show -vserver vserver_name _-user-or-group-name name _`
+
+
+次のコマンドを実行すると、「 EXAMPLE\eng 」グループに属するユーザに対して、ディレクトリのトラバースチェックのバイパスが禁止されます。
+
+[listing]
+----
+cluster1::> vserver cifs users-and-groups privilege show -vserver vs1
+Vserver   User or Group Name    Privileges
+--------- --------------------- -----------------------
+vs1       EXAMPLE\eng           SeChangeNotifyPrivilege
+
+cluster1::> vserver cifs users-and-groups privilege remove-privilege -vserver vs1 -user-or-group-name EXAMPLE\eng -privileges SeChangeNotifyPrivilege
+
+cluster1::> vserver cifs users-and-groups privilege show -vserver vs1
+Vserver   User or Group Name    Privileges
+--------- --------------------- -----------------------
+vs1       EXAMPLE\eng           -
+----
+* 関連情報 *
+
+xref:allow-users-groups-bypass-directory-traverse-task.adoc[ユーザまたはグループに対するディレクトリのトラバースチェックのバイパスを許可する]

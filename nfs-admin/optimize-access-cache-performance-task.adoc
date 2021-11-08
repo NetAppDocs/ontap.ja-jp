@@ -1,0 +1,67 @@
+---
+permalink: nfs-admin/optimize-access-cache-performance-task.html 
+sidebar: sidebar 
+keywords: optimize, access, cache, performance 
+summary: 複数のパラメータを設定して、アクセスキャッシュを最適化したり、パフォーマンスとアクセスキャッシュに格納される情報の鮮度とのバランスをとったりすることができます。 
+---
+= アクセスキャッシュのパフォーマンスを最適化
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+複数のパラメータを設定して、アクセスキャッシュを最適化したり、パフォーマンスとアクセスキャッシュに格納される情報の鮮度とのバランスをとったりすることができます。
+
+アクセスキャッシュの更新期間を設定するときは、次の点に注意してください。
+
+* 値を大きくすると、アクセスキャッシュ内のエントリの保持期間が長くなります。
++
+長所としては、 ONTAP がアクセスキャッシュエントリの更新時に消費するリソースの減少によるパフォーマンスの向上が挙げられます。短所は、エクスポートポリシールールが変更されてアクセスキャッシュエントリが古くなった場合、エントリの更新にかかる時間が長くなることです。その結果、アクセスできるはずのクライアントが拒否され、拒否されるはずのクライアントがアクセス権を取得する可能性があります。
+
+* 値を小さくすると、 ONTAP によるアクセスキャッシュエントリの更新頻度が高くなります。
++
+長所は、エントリの鮮度が向上し、クライアントに対するアクセスの許可または拒否が正しく行われる可能性が高くなることです。短所としては、 ONTAP がアクセスキャッシュエントリの更新時に消費するリソースの増加によるパフォーマンスの低下が挙げられます。
+
+
+
+.手順
+. 権限レベルを advanced に設定します。
++
+「 advanced 」の権限が必要です
+
+. 必要な操作を実行します。
++
+[cols="2*"]
+|===
+| 変更の対象 | 入力するコマンド 
+
+
+ a| 
+正のエントリの更新期間
+ a| 
+vserver export-policy access-cache config modify-all-vservers -refresh-period-positive timeout_value
+
+
+
+ a| 
+負のエントリの更新期間
+ a| 
+vserver export-policy access-cache config modify-all-vservers -refresh-period-negative timeout_value
+
+
+
+ a| 
+古いエントリのタイムアウト時間
+ a| 
+vserver export-policy access-cache config modify-all-vservers -harvest-timeout timeout_value
+
+|===
+. 新しいパラメータ設定を確認します。
++
+vserver export-policy access-cache config show-all-vservers 」という名前のコマンドを実行します
+
+. admin 権限レベルに戻ります。
++
+「特権管理者」
+
+

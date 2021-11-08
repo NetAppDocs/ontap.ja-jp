@@ -1,0 +1,104 @@
+---
+permalink: data-protection/restore-single-file-lun-task.html 
+sidebar: sidebar 
+keywords: restore, single file, lun, nvme, namespace, snapmirror, destination 
+summary: 単一ファイルまたは LUN 、あるいは一連のファイルまたは LUN を Snapshot コピーからリストアしたり、 NVMe ネームスペースを SnapMirror デスティネーションボリュームからリストアしたりできます。ONTAP 9.7 以降では、 SnapMirror Synchronous デスティネーションから NVMe ネームスペースをリストアすることもできます。ファイルは元のソースボリュームにリストアするか、別のボリュームにリストアできます。 
+---
+= 単一ファイル、 LUN 、または NVMe のネームスペースを SnapMirror デスティネーションからリストアします
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+単一ファイルまたは LUN 、あるいは一連のファイルまたは LUN を Snapshot コピーからリストアしたり、 NVMe ネームスペースを SnapMirror デスティネーションボリュームからリストアしたりできます。ONTAP 9.7 以降では、 SnapMirror Synchronous デスティネーションから NVMe ネームスペースをリストアすることもできます。ファイルは元のソースボリュームにリストアするか、別のボリュームにリストアできます。
+
+ファイルまたは LUN を SnapMirror Synchronous デスティネーション（ ONTAP 9.5 以降でサポート）からリストアするには、先に関係を削除して解放しておく必要があります。
+
+ファイルまたは LUN のリストア先のボリューム（デスティネーションボリューム）は読み書き可能なボリュームである必要があります。
+
+* ソースボリュームとデスティネーションボリュームに共通の Snapshot コピーがある場合（通常、リストア先が元のソースボリュームである場合と同様）、 SnapMirror は _incremental restore_x を実行します。
+* それ以外の場合、 SnapMirror は _ ベースラインリストアを実行します。これにより、指定された Snapshot コピーおよびコピーが参照するすべてのデータブロックがデスティネーションボリュームに転送されます。
+
+
+.手順
+. デスティネーションボリューム内の Snapshot コピーの一覧を表示します。
++
+volume snapshot show -vserver _svm_-volume volume
+
++
+コマンド構文全体については、マニュアルページを参照してください。
+
++
+次に 'vserverB ： secondary1' デスティネーション上の Snapshot コピーを示します
+
++
+[listing]
+----
+
+cluster_dst::> volume snapshot show -vserver vserverB -volume secondary1
+
+Vserver     Volume      Snapshot                State    Size  Total% Used%
+-------     ------      ---------- ----------- ------   -----  ------ -----
+vserverB    secondary1  hourly.2013-01-25_0005  valid   224KB     0%    0%
+                        daily.2013-01-25_0010   valid   92KB      0%    0%
+                        hourly.2013-01-25_0105  valid   228KB     0%    0%
+                        hourly.2013-01-25_0205  valid   236KB     0%    0%
+                        hourly.2013-01-25_0305  valid   244KB     0%    0%
+                        hourly.2013-01-25_0405  valid   244KB     0%    0%
+                        hourly.2013-01-25_0505  valid   244KB     0%    0%
+
+7 entries were displayed.
+----
+. 単一ファイルまたは LUN 、あるいは一連のファイルまたは LUN を、 SnapMirror デスティネーションボリューム内の Snapshot コピーからリストアします。
++
+「 snapmirror restore-source-path_SVM ： volume_|| 」、「 /SVM/volume_」 、「 ... 」 -destination-path SVM ： volume_|_cluster ： // SVM/volume_,... -source-snapshot snapshot-file-list_source_file_path 、 @destination_file_path
+
++
+コマンド構文全体については、マニュアルページを参照してください。
+
++
+[NOTE]
+====
+このコマンドはデスティネーション SVM またはデスティネーションクラスタから実行する必要があります。
+
+====
++
+次のコマンドは ' 元のデスティネーション・ボリューム 'econdary1' の Snapshot コピー 'dIce.2013-01-25_0010' から ' ファイル file1' と file2 を ' 元のソース・ボリューム 'primary1' のアクティブ・ファイル・システムの同じ場所にリストアします
+
++
+[listing]
+----
+
+cluster_dst::> snapmirror restore -source-path vserverB:secondary1 -destination-path vserverA:primary1 -source-snapshot daily.2013-01-25_0010 -file-list /dir1/file1,/dir2/file2
+
+[Job 3479] Job is queued: snapmirror restore for the relationship with destination vserverA:primary1
+----
++
+次のコマンドは ' 元のデスティネーション・ボリューム 'econdary1' の Snapshot コピー 'dILI.2013-01-25_0010' から ' ファイル file1' と file2 を ' 元のソース・ボリューム 'primary1' のアクティブ・ファイル・システムの別の場所にリストアします
+
++
+@ マークに続くパスがデスティネーションファイルのパスで、元のソースボリュームのルートからのパスを指定しています。この例では 'file1' は 'primary1' の /dir1/file1.new' および file2 にリストアされ 'dir2.new/file2 にリストアされます
+
++
+[listing]
+----
+
+cluster_dst::> snapmirror restore -source-path vserverB:secondary1 -destination-path vserverA:primary1 -source-snapshot daily.2013-01-25_0010 -file-list /dir/file1,@/dir1/file1.new,/dir2/file2,@/dir2.new/file2
+
+[Job 3479] Job is queued: snapmirror restore for the relationship with destination vserverA:primary1
+----
++
+次のコマンドは、元のデスティネーションボリューム「 econdary1 」の Snapshot コピー「 daily 2013-01-25_0010 」のファイル「 file1 」と「 file3 」を、元のソースボリューム「 primary1 」のアクティブなファイルシステムの別の場所にリストアし、「 file2 」を「 primary1 」のアクティブなファイルシステムの同じ場所にリストアします。
+
++
+この例では ' ファイル file1' は /dir1/file1.new' にリストアされ 'file3 は '//dir3.new/file3' にリストアされます
+
++
+[listing]
+----
+
+cluster_dst::> snapmirror restore -source-path vserverB:secondary1 -destination-path vserverA:primary1 -source-snapshot daily.2013-01-25_0010 -file-list /dir/file1,@/dir1/file1.new,/dir2/file2,/dir3/file3,@/dir3.new/file3
+
+[Job 3479] Job is queued: snapmirror restore for the relationship with destination vserverA:primary1
+----
+

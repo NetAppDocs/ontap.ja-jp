@@ -1,0 +1,59 @@
+---
+permalink: encryption-at-rest/change-encryption-key-volume-92-earlier-task.html 
+sidebar: sidebar 
+keywords: changing, encryption key, volume, volume move start, command 
+summary: セキュリティのベストプラクティスとして、ボリュームの暗号化キーを定期的に変更することが重要です。暗号化キーを変更するには、 volume move start コマンドを使用します。ONTAP 9.2 以前では、 volume move start を使用する必要があります。ボリュームを移動するアグリゲートは同じアグリゲートでも別のアグリゲートでもかまいません。 
+---
+= volume move start コマンドを使用して、ボリュームの暗号化キーを変更します
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+セキュリティのベストプラクティスとして、ボリュームの暗号化キーを定期的に変更することが重要です。暗号化キーを変更するには 'volume move start コマンドを使用しますONTAP 9.2 以前では 'volume move start' を使用する必要がありますボリュームを移動するアグリゲートは同じアグリゲートでも別のアグリゲートでもかまいません。
+
+このタスクを実行するには、クラスタ管理者であるか、クラスタ管理者から権限を委譲された SVM 管理者である必要があります。
+
+xref:delegate-volume-encryption-svm-administrator-task.adoc[volume move コマンドの実行権限の委譲]
+
+「 volume move start 」を使用して、 SnapLock または FlexGroup ボリュームのキーを変更することはできません。
+
+.手順
+. 既存のボリュームを移動し、暗号化キーを変更します。
++
+volume move start -vserver svm_name -volume volume_name -destination -aggregate aggregate-name -generate-destination-key true
+
++
+コマンド構文全体については、コマンドのマニュアルページを参照してください。
+
++
+次に、「 * vol1 * 」という名前の既存のボリュームをデスティネーションアグリゲート「 * aggr2 * 」に移動し、暗号化キーを変更するコマンドを示します。
+
++
+[listing]
+----
+cluster1::> volume move start -vserver vs1 -volume vol1 -destination-aggregate aggr2 -generate-destination-key true
+----
++
+ボリュームの新しい暗号化キーが作成されます。ボリュームのデータは暗号化されたままです。
+
+. ボリュームで暗号化が有効になっていることを確認します。
++
+volume show -is-encrypted true と表示されます
+
++
+コマンド構文全体については、コマンドのマニュアルページを参照してください。
+
++
+次のコマンドは、「 cluster1 」の暗号化されたボリュームを表示します。
+
++
+[listing]
+----
+cluster1::> volume show -is-encrypted true
+
+Vserver  Volume  Aggregate  State  Type  Size  Available  Used
+-------  ------  ---------  -----  ----  -----  --------- ----
+vs1      vol1    aggr2     online    RW  200GB    160.0GB  20%
+----
+

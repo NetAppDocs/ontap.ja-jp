@@ -1,0 +1,64 @@
+---
+permalink: encryption-at-rest/modify-external-key-server-96-later-task.html 
+sidebar: sidebar 
+keywords: modifying, external key management, server, properties 
+summary: ONTAP 9.6 以降では、 security key-manager external modify -server コマンドを使用して、外部キー管理サーバの I/O タイムアウトとユーザ名を変更できます。 
+---
+= 外部キー管理サーバのプロパティを変更します
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+ONTAP 9.6 以降では、「 securitykey-manager external modify -server 」コマンドを使用して、外部キー管理サーバの I/O タイムアウトとユーザ名を変更できます。
+
+.必要なもの
+* このタスクを実行するには、クラスタ管理者または SVM の管理者である必要があります。
+* このタスクを実行するには advanced 権限が必要です。
+
+
+.手順
+. ストレージシステムで、 advanced 権限レベルに切り替えます。
++
+「 advanced 」の権限が必要です
+
+. クラスタの外部キー管理サーバのプロパティを変更します。
++
+「 security key-manager external modify -server -vserver admin_svm -key_server host_name | ip_address ： port 、……」 -timeout 1 ～ 60 ユーザ名 user_name
+
++
+[NOTE]
+====
+タイムアウト値は秒単位で表されます。ユーザ名を変更すると、新しいパスワードの入力を求められます。クラスタ・ログイン・プロンプトでこのコマンドを実行すると '_admin_svm_name はデフォルトで現在のクラスタの管理 SVM に設定されます外部キー管理サーバのプロパティを変更するには、クラスタ管理者である必要があります。
+
+====
++
+次のコマンドは、デフォルトポート 5696 をリスンしている cluster1 外部キー管理サーバのタイムアウト値を 45 秒に変更します。
+
++
+[listing]
+----
+clusterl::> security key-manager external modify-server -vserver cluster1 -key-server ks1.local -timeout 45
+----
+. SVM の外部キー管理サーバのプロパティを変更します（ NVE のみ）。
++
+「 security key-manager external modify -server -vserver vserver-name -server host_name | ip_address ： port 、……」 -timeout 1 ～ 60 ユーザ名 user_name
+
++
+[NOTE]
+====
+タイムアウト値は秒単位で表されます。ユーザ名を変更すると、新しいパスワードの入力を求められます。このコマンドを SVM のログインプロンプトで実行すると、デフォルトで「 _svm__ 」が現在の SVM に設定されます。外部キー管理サーバのプロパティを変更するには、クラスタ管理者または SVM 管理者である必要があります。
+
+====
++
+次のコマンドは、デフォルトポート 5696 をリスンしている vm1 の外部キー管理サーバのユーザ名とパスワードを変更します。
+
++
+[listing]
+----
+svml::> security key-manager external modify-server -vserver svm11 -key-server ks1.local -username svm1user
+Enter the password:
+Reenter the password:
+----
+. 最後の手順をその他の SVM に対して繰り返します。
+

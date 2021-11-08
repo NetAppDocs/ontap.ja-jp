@@ -1,0 +1,53 @@
+---
+permalink: authentication/setup-ssh-multifactor-authentication-task.html 
+sidebar: sidebar 
+keywords: enable, ssh, multifactor authentication (mfa) 
+summary: ONTAP 9.3 以降では、 security login create コマンドを使用して、管理者に SSH 公開鍵とユーザパスワードの両方を使用した管理 SVM またはデータ SVM へのログインを要求することで、セキュリティを強化できます。 
+---
+= SSH 多要素認証（ MFA ）を有効にする
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+ONTAP 9.3 以降では、「 securitylogin create 」コマンドを使用して、管理者に SSH 公開鍵とユーザパスワードの両方を使用して管理 SVM またはデータ SVM へのログインを要求することで、セキュリティを強化できます。
+
+このタスクを実行するには、クラスタ管理者である必要があります。
+
+.このタスクについて
+* アカウントが SVM にアクセスするためには、アカウントに公開鍵を関連付けておく必要があります。
++
+xref:manage-public-key-authentication-concept.adoc[ユーザアカウントへの公開鍵の関連付け]
+
++
+このタスクは、アカウントアクセスを有効にする前後どちらでも実行できます。
+
+* ログインアカウントに割り当てるアクセス制御ロールが不明な場合は、「 securitylogin modify 」コマンドを使用して後でロールを追加できます。
++
+xref:modify-role-assigned-administrator-task.adoc[管理者に割り当てられているロールの変更]
+
+* ユーザは常に公開鍵認証で認証され、続けてパスワード認証で認証されます。
+
+
+.ステップ
+. ローカル管理者アカウントに対し、 SSH MFA を使用して SVM にアクセスすることを要求します。
++
+「 securitylogin create -vserver vserver-name vserver-name user_name -application ssh-authentication-method password | publickey -role admin second-authentication-method password | publickey
+
++
+次のコマンドでは、 SSH 公開鍵とユーザパスワードの両方を使用して SVM 「 engData1 」にログインするために、事前定義された「 admin 」ロールを持つ SVM 管理者アカウント「 admin2 」が必要です。
+
++
+[listing]
+----
+cluster-1::> security login create -vserver engData1 -user-or-group-name admin2 -application ssh -authentication-method publickey -role admin -second-authentication-method password
+
+Please enter a password for user 'admin2':
+Please enter it again:
+Warning: To use public-key authentication, you must create a public key for user "admin2".
+----
+
+
+管理者アカウントに公開鍵が関連付けられていない場合は、アカウントが SVM にアクセスする前に関連付けておく必要があります。
+
+xref:manage-public-key-authentication-concept.adoc[ユーザアカウントへの公開鍵の関連付け]

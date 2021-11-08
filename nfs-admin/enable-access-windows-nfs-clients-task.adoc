@@ -1,0 +1,37 @@
+---
+permalink: nfs-admin/enable-access-windows-nfs-clients-task.html 
+sidebar: sidebar 
+keywords: enable, access, windows, nfs, clients 
+summary: ONTAP は Windows NFSv3 クライアントからのファイルアクセスをサポートしています。NFSv3 をサポートする Windows オペレーティングシステムを実行しているクライアントから、クラスタの NFSv3 エクスポートのファイルにアクセスできるようになります。この機能を正しく使用するには、 Storage Virtual Machine （ SVM ）を適切に設定し、一定の要件と制限事項に注意する必要があります。 
+---
+= Windows NFS クライアントのアクセスを有効にします
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+ONTAP は Windows NFSv3 クライアントからのファイルアクセスをサポートしています。NFSv3 をサポートする Windows オペレーティングシステムを実行しているクライアントから、クラスタの NFSv3 エクスポートのファイルにアクセスできるようになります。この機能を正しく使用するには、 Storage Virtual Machine （ SVM ）を適切に設定し、一定の要件と制限事項に注意する必要があります。
+
+SVM で NFSv3 が有効になっている必要があります。
+
+デフォルトでは、 Windows NFSv3 クライアントサポートが無効になっています。
+
+Windows NFSv3 クライアントは、 Network Status Monitor （ NSM ；ネットワークステータスモニタ）プロトコルをサポートしていません。そのため、 Windows NFSv3 クライアントセッションでは、ストレージフェイルオーバーやボリューム移動処理の途中で中断が生じることがあります。
+
+.手順
+. Windows NFSv3 クライアントのサポートを有効にします。
++
+vserver nfs modify -vserver vserver_name -v3-ms-dos-client-enabled `
+
+. Windows NFSv3 クライアントをサポートするすべての SVM で、 -enable-ejukebox および -v3-connection-drop パラメータを無効にします。 vserver nfs modify -vserver vserver_name -enable-ejukebox false -v3-connection-drop disabled
++
+これで、 Windows NFSv3 クライアントがストレージシステムにエクスポートをマウントできるようになります。
+
+. -o mtype=hard オプションを指定して、各 Windows NFSv3 クライアントでハードマウントが使用されるようにします。
++
+これは、マウントの信頼性を確保するために必要です。
+
++
+「 mount -o mtype=hard\\10.53.33.10\vol\vol1 z ： \` 」のようになります
+
+

@@ -1,0 +1,123 @@
+---
+permalink: data-protection/replicate-entire-svm-config-task.html 
+sidebar: sidebar 
+keywords: replicate, entire, svm, configuration 
+summary: SVM の設定全体をレプリケートするには、 snapmirror create コマンドの -identity-preserve true オプションを使用します。 
+---
+= SVM の設定全体をレプリケート
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+SVM 構成全体をレプリケートするには、「 snapmirror create 」コマンドの「 -identity-preserve true 」オプションを使用します。
+
+ソースクラスタとデスティネーションクラスタ、および SVM のピア関係が確立されている必要があります。
+
+コマンド構文全体については、マニュアルページを参照してください。
+
+このワークフローでは、デフォルトポリシーまたはカスタムレプリケーションポリシーをすでに使用していることを前提としています。
+
+ONTAP 9.9..1 以降では、ミラーバックアップポリシーを使用する場合に、ソースとデスティネーションの SVM で異なる Snapshot ポリシーを作成でき、デスティネーションの Snapshot コピーがソースの Snapshot コピーで上書きされなくなります。詳細については、を参照してください link:snapmirror-svm-replication-concept.html["SnapMirror SVM レプリケーションの概要"]。
+
+.手順
+. デスティネーション SVM を作成します。
++
+「 vserver create -vserver _svm_name_-subtype dp-destination 」
+
++
+SVM 名はソースクラスタとデスティネーションクラスタの間で一意である必要があります。
+
++
+次の例は、「 VM_backup 」という名前のデスティネーション SVM を作成します。
+
++
+[listing]
+----
+cluster_dst:> vserver create -vserver svm_backup -subtype dp-destination
+----
+. レプリケーションジョブスケジュールを作成
++
+'job schedule cron create -name_job_name__ month_month_month_month_dayofweek _dayof_day_day_day_of_month_-hour _hour_-minute_minute_`
+
++
+「 -month 」、「 -dayofweek 」、「 -hour 」には、「 all 」を指定して、毎月、曜日、および時ごとにジョブを実行できます。
+
++
+次の例は、土曜日の午前 3 時に実行する「 my_weekly 」というジョブスケジュールを作成します。
+
++
+[listing]
+----
+cluster_dst::> job schedule cron create -name my_weekly -dayofweek "Saturday" -hour 3 -minute 0
+----
+. デスティネーション SVM またはデスティネーションクラスタから、レプリケーション関係を作成します。
++
+「 snapmirror create -source-path SVM_name_name___ ： -destination-path _svm_name_： -type DP | xdmpスケ シユル _policy_policy_policy_policy_policy_identity-preserve true 」を指定します
+
++
+[NOTE]
+====
+「 -source-path 」オプションと「 -destination-path 」オプションでは、 SVM 名のあとにコロン（ : ）を入力する必要があります。
+
+====
++
+次の例は、デフォルトの「 MirrorAllSnapshots 」ポリシーを使用して、 SnapMirror DR 関係を作成します。
+
++
+[listing]
+----
+cluster_dst::> snapmirror create -source-path svm1: -destination-path svm_backup: -type XDP -schedule my_daily -policy MirrorAllSnapshots -identity-preserve true
+----
++
+次の例では、デフォルトの「 mirrorsusy' 」ポリシーを使用して、ユニファイドレプリケーション関係を作成します。
+
++
+[listing]
+----
+cluster_dst:> snapmirror create -source-path svm1: -destination-path svm_backup: -type XDP -schedule my_daily -policy MirrorAndVault -identity-preserve true
+----
++
+ポリシータイプが「 async-mirror 」のカスタムポリシーを作成した場合、次の例は SnapMirror DR 関係を作成します。
+
++
+[listing]
+----
+cluster_dst::> snapmirror create -source-path svm1: -destination-path svm_backup: -type XDP -schedule my_daily -policy my_mirrored -identity-preserve true
+----
++
+ポリシータイプが「 mmirror vault 」のカスタムポリシーを作成した場合、次の例ではユニファイドレプリケーション関係を作成します。
+
++
+[listing]
+----
+cluster_dst::> snapmirror create -source-path svm1: -destination-path svm_backup: -type XDP -schedule my_daily -policy my_unified -identity-preserve true
+----
+. デスティネーション SVM を停止します。
++
+「 vserver stop 」
+
++
+「 _SVM 名 _ 」
+
++
+次の例は、 dvs1 という名前のデスティネーション SVM を停止します。
+
++
+[listing]
+----
+cluster_dst::> vserver stop -vserver dvs1
+----
+. デスティネーション SVM またはデスティネーションクラスタから、 SVM レプリケーション関係を初期化します： +
++
+「 snapmirror initialize-ls-set initialize-ls-set svm_name_:-destination-path_svm_name_:`
+
++
+次の例は、ソース SVM 「 vm1 」とデスティネーション SVM 「 vm_backup 」の間の関係を初期化します。
+
++
+[listing]
+----
+cluster_dst::> snapmirror initialize -source-path svm1: -destination-path svm_backup:
+----
+

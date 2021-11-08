@@ -1,0 +1,68 @@
+---
+permalink: smb-admin/configure-guest-unix-user-task.html 
+sidebar: sidebar 
+keywords: configuring, configure, guest, unix, user, untrusted, domain, map, connect, cifs, server, configure the guest unix user 
+summary: ゲスト UNIX ユーザを設定すると、信頼されていないドメインからログインしたユーザがゲスト UNIX ユーザにマッピングされ、 CIFS サーバに接続できるようになります。ただし、信頼されていないドメインのユーザの認証を失敗にする場合は、ゲスト UNIX ユーザを設定しないでください。デフォルトでは、信頼されていないドメインのユーザによる CIFS サーバへの接続は許可されません（ゲスト UNIX アカウントは設定されません）。 
+---
+= ゲスト UNIX ユーザを設定します
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+ゲスト UNIX ユーザを設定すると、信頼されていないドメインからログインしたユーザがゲスト UNIX ユーザにマッピングされ、 CIFS サーバに接続できるようになります。ただし、信頼されていないドメインのユーザの認証を失敗にする場合は、ゲスト UNIX ユーザを設定しないでください。デフォルトでは、信頼されていないドメインのユーザによる CIFS サーバへの接続は許可されません（ゲスト UNIX アカウントは設定されません）。
+
+ゲスト UNIX アカウントを設定する場合は、次の点に注意する必要があります。
+
+* CIFS サーバがホームドメインまたは信頼できるドメインのドメインコントローラ、ローカルデータベースのどちらかに対してユーザを認証できず、このオプションが有効である場合、 CIFS サーバはユーザをゲストユーザとみなし、そのユーザを指定した UNIX ユーザにマッピングします。
+* このオプションを null 文字列に設定すると、ゲスト UNIX ユーザは無効になります。
+* いずれかの Storage Virtual Machine （ SVM ）ネームサービスデータベースで、ゲスト UNIX ユーザとして使用する UNIX ユーザを作成する必要があります。
+* ゲストユーザとしてログインしたユーザは、自動的に CIFS サーバの BUILTIN\guests グループのメンバーになります。
+* 「 homedirs-public 」オプションは、認証されたユーザにのみ適用されます。ゲストユーザとしてログインしたユーザは、ホームディレクトリを持ちません。また、他のユーザのホームディレクトリにアクセスすることはできません。
+
+
+.手順
+. 次のいずれかを実行します。
++
+|===
+| 状況 | 入力するコマンド 
+
+
+ a| 
+ゲスト UNIX ユーザを設定します
+ a| 
+vserver cifs options modify -guest-unix-user_unix_name_`
+
+
+
+ a| 
+ゲスト UNIX ユーザを無効にします
+ a| 
+vserver cifs options modify -guest-unix-user ""
+
+|===
++
+vserver cifs options modify -guest-unix-user pcuser
+
+. ゲスト UNIX ユーザが正しく設定されていることを確認します。 vserver cifs options show -vserver vserver_name _`
++
+次の例では、 SVM vs1 のデフォルト UNIX ユーザとゲスト UNIX ユーザの両方が UNIX ユーザ「 pcuser 」を使用するように設定されています。
+
++
+vserver cifs options show -vserver vs1 ’
+
++
+[listing]
+----
+
+Vserver: vs1
+
+  Client Session Timeout : 900
+  Default Unix Group     : -
+  Default Unix User      : pcuser
+  Guest Unix User        : pcuser
+  Read Grants Exec       : disabled
+  Read Only Delete       : disabled
+  WINS Servers           : -
+----
+

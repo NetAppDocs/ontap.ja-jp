@@ -1,0 +1,61 @@
+---
+permalink: data-protection/restore-contents-volume-snapshot-task.html 
+sidebar: sidebar 
+keywords: restore, contents, volume, snapshot copy 
+summary: Snapshot コピーからボリュームの内容をリストアするには、 volume snapshot restore コマンドを使用します。 
+---
+= Snapshot コピーからボリュームの内容をリストアします
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+volume snapshot restore コマンドを使用すると、 Snapshot コピーからボリュームの内容をリストアできます。
+
+ボリュームに SnapMirror 関係が設定されている場合は、 Snapshot コピーからリストアしたあと、すぐにボリュームのすべてのミラーコピーを手動でレプリケートします。レプリケートしないと、ミラーコピーを使用できなくなり、削除および再作成が必要になることがあります。
+
+.手順
+. ボリューム内の Snapshot コピーの一覧を表示します。
++
+volume snapshot show -vserver _svm_-volume_`
+
++
+コマンド構文全体については、マニュアルページを参照してください。
+
++
+次に、「 vol1 」内の Snapshot コピーの例を示します。
+
++
+[listing]
+----
+
+clus1::> volume snapshot show -vserver vs1 -volume vol1
+
+Vserver Volume Snapshot                State    Size  Total% Used%
+------- ------ ---------- ----------- ------   -----  ------ -----
+vs1	 vol1   hourly.2013-01-25_0005  valid   224KB     0%    0%
+               daily.2013-01-25_0010   valid   92KB      0%    0%
+               hourly.2013-01-25_0105  valid   228KB     0%    0%
+               hourly.2013-01-25_0205  valid   236KB     0%    0%
+               hourly.2013-01-25_0305  valid   244KB     0%    0%
+               hourly.2013-01-25_0405  valid   244KB     0%    0%
+               hourly.2013-01-25_0505  valid   244KB     0%    0%
+
+7 entries were displayed.
+----
+. Snapshot コピーからボリュームの内容をリストアします。
++
+'volume snapshot restore -vserver _svm_-volume_-snapshot_snap_ `
+
++
+コマンド構文全体については、マニュアルページを参照してください。
+
++
+次に 'vol1' の内容をリストアする例を示します
+
++
+[listing]
+----
+cluster1::> volume snapshot restore -vserver vs0 -volume vol1 -snapshot daily.2013-01-25_0010
+----
+

@@ -1,0 +1,53 @@
+---
+permalink: flexgroup/reactivate-original-source-after-disaster-task.html 
+sidebar: sidebar 
+keywords: reactivate, original, source, flexgroup, volume, disaster 
+summary: ソース FlexGroup ボリュームが使用可能になったら、元のソース FlexGroup ボリュームと元のデスティネーション ボリュームを再同期できます。デスティネーション FlexGroup ボリュームの新しいデータはすべて失われます。 
+---
+= 災害発生後に元のソース FlexGroup ボリュームを再アクティブ化します
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+ソース FlexGroup ボリュームが使用可能になったら、元のソース FlexGroup ボリュームと元のデスティネーション ボリュームを再同期できます。デスティネーション FlexGroup ボリュームの新しいデータはすべて失われます。
+
+再同期が実行される前に、デスティネーションボリュームのアクティブなクォータルールは非アクティブ化され、削除されます。
+
+volume quota policy rule create コマンドと volume quota modify コマンドを使用すると ' 再同期操作の完了後にクォータ・ルールを作成し ' 再びアクティブにすることができます
+
+.手順
+. デスティネーションクラスタから、 FlexGroup ボリュームの SnapMirror 関係を再同期します。「 snapmirror resync -destination-path dst_SVM ： dest_flexgroup
+. SnapMirror 関係のステータスを表示します。「 snapmirror show-expand 」
++
+[listing]
+----
+cluster2::> snapmirror show -expand
+                                                                       Progress
+Source            Destination Mirror  Relationship   Total             Last
+Path        Type  Path        State   Status         Progress  Healthy Updated
+----------- ---- ------------ ------- -------------- --------- ------- --------
+vss:s       XDP  vsd:dst        Snapmirrored
+                                      Idle           -         true    -
+vss:s__0001 XDP  vsd:dst__0001  Snapmirrored
+                                      Idle           -         true    -
+vss:s__0002 XDP  vsd:dst__0002  Snapmirrored
+                                      Idle           -         true    -
+vss:s__0003 XDP  vsd:dst__0003  Snapmirrored
+                                      Idle           -         true    -
+vss:s__0004 XDP  vsd:dst__0004  Snapmirrored
+                                      Idle           -         true    -
+vss:s__0005 XDP  vsd:dst__0005  Snapmirrored
+                                      Idle           -         true    -
+vss:s__0006 XDP  vsd:dst__0006  Snapmirrored
+                                      Idle           -         true    -
+vss:s__0007 XDP  vsd:dst__0007  Snapmirrored
+                                      Idle           -         true    -
+vss:s__0008 XDP  vsd:dst__0008  Snapmirrored
+                                      Idle           -         true    -
+...
+----
++
+各コンスティチュエントの SnapMirror 関係のステータスは「 SnapMirro 済み」です。
+
+

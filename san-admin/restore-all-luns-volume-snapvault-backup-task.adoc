@@ -1,0 +1,115 @@
+---
+permalink: san-admin/restore-all-luns-volume-snapvault-backup-task.html 
+sidebar: sidebar 
+keywords: ontap 9.2, restore, luns, in a volume, snapvault, backup 
+summary: ボリューム内の 1 つ以上の LUN を SnapVault バックアップからリストアする必要がある場合は、ボリューム全体をリストアできます。ボリュームをリストアする場合は、ボリューム内のすべての LUN が対象になります。 
+---
+= ボリューム内のすべての LUN を SnapVault バックアップからリストアします
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+ボリューム内の 1 つ以上の LUN を SnapVault バックアップからリストアする必要がある場合は、ボリューム全体をリストアできます。ボリュームをリストアする場合は、ボリューム内のすべての LUN が対象になります。
+
+SnapVault 関係が初期化されていて、 SnapVault セカンダリボリュームに、リストアに使用する適切な Snapshot コピーが含まれている必要があります。
+
+ボリューム全体をリストアすると、ボリュームの状態は、リストアに使用した Snapshot コピーが作成された時点の状態に戻ります。Snapshot コピーの作成後にボリュームに追加された LUN がある場合、その LUN はリストアの過程で削除されます。
+
+ボリュームのリストア後も、 LUN と igroup とのマッピングはリストアの直前と同じ状態が維持されます。LUN のマッピングは、 Snapshot コピー作成時点のマッピングとは異なる場合があります。ホストクラスタによる LUN の永続的予約は維持されます。
+
+.手順
+. ボリューム内のすべての LUN に対する I/O を停止します。
+. 「 snapmirror-show 」コマンドを実行して、 SnapVault セカンダリボリュームがあるセカンダリボリュームを確認します。
++
+[listing]
+----
+cluster::> snapmirror show
+
+Source         Dest     Mirror  Relation  Total             Last
+Path     Type  Path     State   Status    Progress  Healthy Updated
+-------- ---- --------- ------- --------- --------- ------- -------
+vserverA:srcvolA
+         XDP  vserverB:dstvolB
+                        Snapmirrored
+                                Idle       -         true    -
+----
+. volume snapshot show コマンドを実行し、リストア元となる Snapshot コピーを特定します。
++
+[listing]
+----
+cluster::> volume snapshot show
+
+Vserver  Volume  Snapshot               State Size   Total% Used%
+-------- ------- ---------------------- ----- ------ ------ -----
+vserverB
+         dstvolB
+                 snap2.2013-02-10_0010  valid  124KB     0%    0%
+                 snap1.2013-02-10_0015 valid  112KB     0%    0%
+                 snap2.2013-02-11_0010  valid  164KB     0%    0%
+----
+. 「 snapmirror-restore 」コマンドを実行し、「 -source-snapshot 」オプションを指定して、使用する Snapshot コピーを指定します。
++
+リストア先として指定するのは、リストア先の元のボリュームです。
+
++
+[listing]
+----
+cluster::> snapmirror restore -destination-path vserverA:srcvolA
+  -source-path vserverB:dstvolB -source-snapshot daily.2013-02-10_0010
+
+Warning: All data newer than Snapshot copy hourly.2013-02-11_1205 on
+volume vserverA:src_volA will be deleted.
+Do you want to continue? {y|n}: y
+[Job 98] Job is queued: snapmirror restore from source
+"vserverB:dstvolB" for the snapshot daily.2013-02-10_0010.
+----
+. ホストクラスタ間で LUN を共有している場合は、影響を受けるホストから LUN に対する永続的予約をリストアします。
+
+
+
+
+== SnapVault バックアップからのボリュームのリストア
+
+次の例では、 Snapshot コピーの作成後に lun_D という名前の LUN がボリュームに追加されています。Snapshot コピーからボリューム全体をリストアしたあと、 lun_D は表示されなくなります。
+
+「 lun show 」コマンドの出力では、プライマリボリューム srcvolA 内にある LUN と、 SnapVault セカンダリボリューム dstvolB 内にある、これらの LUN の読み取り専用コピーを確認できます。SnapVault バックアップに lun_D のコピーはありません。
+
+[listing]
+----
+cluster::> lun show
+Vserver   Path                State   Mapped   Type          Size
+--------- ------------------  ------- -------- --------      -------
+vserverA  /vol/srcvolA/lun_A  online  mapped   windows  300.0GB
+vserverA  /vol/srcvolA/lun_B  online  mapped   windows  300.0GB
+vserverA  /vol/srcvolA/lun_C  online  mapped   windows  300.0GB
+vserverA  /vol/srcvolA/lun_D  online  mapped   windows  250.0GB
+vserverB  /vol/dstvolB/lun_A  online  unmapped windows  300.0GB
+vserverB  /vol/dstvolB/lun_B  online  unmapped windows  300.0GB
+vserverB  /vol/dstvolB/lun_C  online  unmapped windows  300.0GB
+
+7 entries were displayed.
+
+cluster::>snapmirror restore -destination-path vserverA:srcvolA
+  -source-path vserverB:dstvolB
+  -source-snapshot daily.2013-02-10_0010
+
+Warning: All data newer than Snapshot copy hourly.2013-02-11_1205
+on volume vserverA:src_volA will be deleted.
+Do you want to continue? {y|n}: y
+[Job 98] Job is queued: snapmirror restore from source
+"vserverB:dstvolB" for the snapshot daily.2013-02-10_0010.
+
+cluster::> lun show
+Vserver   Path                State   Mapped   Type          Size
+--------- ------------------  ------- -------- --------      -------
+vserverA  /vol/srcvolA/lun_A  online  mapped   windows  300.0GB
+vserverA  /vol/srcvolA/lun_B  online  mapped   windows  300.0GB
+vserverA  /vol/srcvolA/lun_C  online  mapped   windows  300.0GB
+vserverB  /vol/dstvolB/lun_A  online  unmapped windows  300.0GB
+vserverB  /vol/dstvolB/lun_B  online  unmapped windows  300.0GB
+vserverB  /vol/dstvolB/lun_C  online  unmapped windows  300.0GB
+
+6 entries were displayed.
+----
+ボリュームが SnapVault セカンダリボリュームからリストアされると、ソースボリュームには lun_D が存在しなくなりますリストア後もソースボリューム内の LUN のマッピングは維持されるため、再マッピングする必要はありません。

@@ -1,0 +1,92 @@
+---
+permalink: system-admin/configure-sp-bmc-network-manually-task.html 
+sidebar: sidebar 
+keywords: configure, sp, bmc, network, manually, ip, address 
+summary: SP に自動ネットワーク設定が設定されていない場合は、 IP アドレスを使用して SP にアクセスできるように、ノードの SP ネットワークを手動で設定する必要があります。 
+---
+= SP / BMC ネットワークを手動で設定する
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+SP に自動ネットワーク設定が設定されていない場合、 IP アドレスを使用して SP にアクセスできるように、ノードの SP ネットワークを手動で設定する必要があります。
+
+SP に IPv6 接続を設定する場合、 ONTAP に対して IPv6 が設定済みで、有効になっている必要があります。「 network options ipv6 」コマンドは、 ONTAP の IPv6 設定を管理します。
+
+[NOTE]
+====
+このタスクでは、 SP と BMC の両方を環境に設定します。
+
+====
+SP は、 IPv4 、 IPv6 、またはその両方を使用するように設定できます。SP の IPv4 設定では静的アドレス指定と DHCP アドレス指定をサポートし、 SP の IPv6 設定では静的アドレス指定のみをサポートしています。
+
+SP の自動ネットワーク設定が設定されている場合、個々のノードの SP ネットワークを手動で設定する必要はありません。また、「 system service-processor network modify 」コマンドを使用すると、 SP ネットワークインターフェイスの有効化または無効化のみを行うことができます。
+
+.手順
+. 「 system service-processor network modify 」コマンドを使用して、ノードの SP ネットワークを設定します。
++
+** 「 -address-family 」パラメータには、 SP の IPv4 または IPv6 の設定を変更するかどうかを指定します。
+** -enable パラメータは ' 指定された IP アドレスファミリのネットワーク・インタフェースを有効にします
+** -dhcp' パラメータは、 DHCP サーバからのネットワーク設定を使用するか、指定したネットワークアドレスを使用するかを指定します。
++
+IPv4 を使用している場合にのみ '-dhcp' を v4 に設定して 'DHCP を有効にできますIPv6 設定の場合、 DHCP を有効にすることはできません。
+
+** 「 -ip-address 」パラメータは、 SP のパブリック IP アドレスを指定します。
++
+サブネットに割り当てられているアドレスを使用して SP ネットワークを手動で設定しようとすると、警告メッセージが表示されます。警告を無視して手動でのアドレス割り当てを続行すると、重複するアドレスが割り当てられる可能性があります。
+
+** -netmask パラメータでは 'SP のネットマスクを指定します（ IPv4 を使用している場合）
+** 「 -prefix-length 」パラメータでは、 SP のサブネットマスクのネットワークプレフィックス長を指定します（ IPv6 を使用している場合）。
+** -gateway パラメータには 'SP のゲートウェイ IP アドレスを指定します
+
+
+. 手順 1 を繰り返して、クラスタ内の残りのノードの SP ネットワークを設定します。
+. 「– instance 」または「– field setup-status 」パラメータを指定した「 system service-processor network show 」コマンドを使用して、 SP ネットワーク設定を表示し、 SP のセットアップステータスを確認します。
++
+ノードの SP のセットアップステータスは、次のいずれかになります。
+
++
+** `not-setup -- 未設定
+** 'ucceededed' -- 設定が成功しました
+** in-progress -- 設定中
+** `failed` -- 設定に失敗しました
+
+
+
+
+次の例では、ノードの SP を設定して IPv4 を使用し、 SP を有効化してから SP ネットワーク設定を表示して設定内容を確認します。
+
+[listing]
+----
+
+cluster1::> system service-processor network modify -node local
+-address-family IPv4 -enable true -ip-address 192.168.123.98
+-netmask 255.255.255.0 -gateway 192.168.123.1
+
+cluster1::> system service-processor network show -instance -node local
+
+                               Node: node1
+                       Address Type: IPv4
+                  Interface Enabled: true
+                     Type of Device: SP
+                             Status: online
+                        Link Status: up
+                        DHCP Status: none
+                         IP Address: 192.168.123.98
+                        MAC Address: ab:cd:ef:fe:ed:02
+                            Netmask: 255.255.255.0
+       Prefix Length of Subnet Mask: -
+         Router Assigned IP Address: -
+              Link Local IP Address: -
+                 Gateway IP Address: 192.168.123.1
+                  Time Last Updated: Thu Apr 10 17:02:13 UTC 2014
+                        Subnet Name: -
+Enable IPv6 Router Assigned Address: -
+            SP Network Setup Status: succeeded
+    SP Network Setup Failure Reason: -
+
+1 entries were displayed.
+
+cluster1::>
+----

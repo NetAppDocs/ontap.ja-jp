@@ -1,0 +1,49 @@
+---
+permalink: disks-aggregates/configure-auto-assignment-disk-ownership-task.html 
+sidebar: sidebar 
+keywords: configure, automatic, assignment, disk ownership 
+summary: ディスク所有権をディスクのスタック、シェルフ、またはベイに自動的に割り当てるように ONTAP を設定できます。この設定が完了すると、システムの初期化の 10 分後、および通常のシステム運用中は 5 分ごとにディスク所有権の自動割り当てが行われます。 
+---
+= ディスク所有権の自動割り当てを設定する
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+ディスク所有権をディスクのスタック、シェルフ、またはベイに自動的に割り当てるように ONTAP を設定できます。この設定が完了すると、システムの初期化の 10 分後、および通常のシステム運用中は 5 分ごとにディスク所有権の自動割り当てが行われます。
+
+.必要なもの
+* ディスク所有権の自動割り当ての要件をシステムが満たしている必要があります。
+* 異なる所有権が必要なスタックまたはシェルフが複数ある場合は、それぞれのスタックまたはシェルフで所有権の自動割り当てが機能するように、各スタックまたはシェルフでいずれかのディスクを手動で割り当てておく必要があります。
+* エントリレベルのプラットフォームにのみ 'bay autoassign-policy を使用してください非エントリレベルのプラットフォームに「 bay autoassign-policy 」を使用しようとすると、失敗します。
+
+
+デフォルトの自動割り当てポリシーの動作は、システムモデルによって異なります。エントリレベルモデルの場合、「 default 」ポリシーは「 bay 」ポリシーと同じです。他のすべてのシステムでは 'tack ’ポリシーと同じです
+
+.手順
+. ディスクの自動割り当てを設定します。
++
+「 storage disk option modify -autoassign -policy autoassign_policy _-node _node_name _ 」のように入力します
+
++
+** スタックまたはループ・レベルで自動所有権を設定するには 'autoassign_policy_' として 'tack を使用します
+** シェルフレベルで自動所有権を設定するには、「 _autoassign_policy_」 として「棚」を使用します。
+** ベイ・レベルで自動所有権を設定するには 'bay' を autoassign_policy_' として使用します
+
+
+. ディスクの自動割り当ての設定を確認します。
++
+「 storage disk option show 」をクリックします
+
++
+[listing]
+----
+cluster1::> storage disk option show
+
+Node           BKg. FW. Upd.  Auto Copy     Auto Assign    Auto
+                                                           Assign Policy
+-------------  -------------  ------------  -------------  --------
+cluster1-1     on             on            on             default
+cluster1-2     on             on            on             default
+----
+

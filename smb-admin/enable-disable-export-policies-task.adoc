@@ -1,0 +1,46 @@
+---
+permalink: smb-admin/enable-disable-export-policies-task.html 
+sidebar: sidebar 
+keywords: enable, disable, export, policies, policy, smb, access, storage, virtual, machine, svm, control, resource, enable or disable export policies for smb access 
+summary: Storage Virtual Machine （ SVM ）での SMB アクセスに関するエクスポートポリシーを有効または無効にすることができます。エクスポートポリシーを使用したリソースへの SMB アクセスの制御はオプションです。 
+---
+= SMB アクセスに関するエクスポートポリシーを有効または無効にします
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+Storage Virtual Machine （ SVM ）での SMB アクセスに関するエクスポートポリシーを有効または無効にすることができます。エクスポートポリシーを使用したリソースへの SMB アクセスの制御はオプションです。
+
+SMB のエクスポートポリシーを有効にするための要件は次のとおりです。
+
+* クライアントのエクスポートルールを作成する前に、そのクライアントの「 PTR 」レコードが DNS に登録されている必要があります。
+* SVM が NFS クライアントにアクセスを提供し、 NFS アクセスに使用するホスト名が CIFS サーバ名と異なる場合は、ホスト名に対して「 A 」レコードと「 PTR 」レコードのセットが追加で必要です。
+
+
+SVM に新しい CIFS サーバをセットアップするとき、 SMB アクセスに関するエクスポートポリシーの使用はデフォルトで無効になります。認証プロトコル、クライアント IP アドレス、またはホスト名に基づいてアクセスを制御する場合は、 SMB アクセスのエクスポートポリシーを有効にできます。SMB アクセスに関するエクスポートポリシーはいつでも有効または無効にできます。
+
+.手順
+. 権限レベルを advanced に設定します。「 set -privilege advanced 」
+. エクスポートポリシーを有効または無効にします。
++
+** エクスポートポリシーを有効にします。 vserver cifs options modify -vserver _vserver_name __ is-exportpolicy-enabled true
+** エクスポートポリシーを無効にします。 vserver cifs options modify -vserver _vserver_name __ is-exportpolicy-enabled false
+
+
+. admin 権限レベルに戻ります。「 set -privilege admin 」
+
+
+次の例は、エクスポートポリシーを使用した SVM vs1 上のリソースへの SMB クライアントアクセスの制御を有効にします。
+
+[listing]
+----
+cluster1::> set -privilege advanced
+Warning: These advanced commands are potentially dangerous; use them
+only when directed to do so by technical support personnel.
+Do you wish to continue? (y or n): y
+
+cluster1::*> vserver cifs options modify -vserver vs1 -is-exportpolicy-enabled true
+
+cluster1::*> set -privilege admin
+----

@@ -1,0 +1,44 @@
+---
+permalink: san-admin/create-port-sets-binding-igroups-task.html 
+sidebar: sidebar 
+keywords: create, port, sets, binding, igroups, port sets 
+summary: Selective LUN Map （ SLM ；選択的 LUN マップ）に加えて、ポートセットを作成して igroup にバインドし、イニシエータが LUN へのアクセスに使用する LIF を詳細に制限することができます。ポートセットを igroup にバインドしない場合、 igroup 内のすべてのイニシエータが、 LUN を所有するノードおよび所有者ノードの HA パートナーのすべての LIF からマップ済みの LUN にアクセスできます。 
+---
+= ポートセットを作成し、 igroup をポートセットにバインドします
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+Selective LUN Map （ SLM ；選択的 LUN マップ）に加えて、ポートセットを作成して igroup にバインドし、イニシエータが LUN へのアクセスに使用する LIF を詳細に制限することができます。ポートセットを igroup にバインドしない場合、 igroup 内のすべてのイニシエータが、 LUN を所有するノードおよび所有者ノードの HA パートナーのすべての LIF からマップ済みの LUN にアクセスできます。
+
+少なくとも 1 つの LIF と 1 つの igroup が必要です。
+
+インターフェイスグループを使用しないかぎり、 iSCSI と FC の冗長性を確保するために推奨される LIF の数は 2 個です。インターフェイスグループを使用する場合に推奨される LIF の数は 1 個です。
+
+ノード上に LIF が 3 つ以上あり、特定のイニシエータを一部の LIF に制限する場合は、ポートセットと SLM を併用する方が効果的です。ポートセットを使用しない場合は、 LUN へのアクセス権を持つすべてのイニシエータが、 LUN を所有するノードおよび所有者ノードの HA パートナー経由でノード上のすべてのターゲットにアクセスできます。
+
+.手順
+. 適切な LIF を含むポートセットを作成します。
++
+`portset create -vserver_name_-portset_portset_name__ protocol_protocol_-port-name _port_name_`
+
++
+FC を使用する場合は 'protocol' パラメータを FCP として指定しますiSCSI を使用している場合は 'protocol' パラメータを iSCSI として指定します
+
+. igroup をポートセットにバインドします。
++
+「 lun igroup bind -vserver_name_-igroup igroup_name _ -portset_portset_name_` 」を指定します
+
+. ポートセットと LIF が正しいことを確認します。
++
+`portset show -vserver__name_`
+
++
+[listing]
+----
+Vserver   Portset   Protocol Port Names    Igroups
+--------- --------- -------- ------------- --------
+vs3       portset0  iscsi    lif0,lif1     igroup1
+----
+

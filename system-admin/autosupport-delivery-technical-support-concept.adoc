@@ -1,0 +1,61 @@
+---
+permalink: system-admin/autosupport-delivery-technical-support-concept.html 
+sidebar: sidebar 
+keywords: autosupport, ondemand, delivery, instructions, technical, support 
+summary: AutoSupport OnDemand はテクニカルサポートと定期的に通信し、 AutoSupport メッセージの送信、再送信、拒否に関する配信指示を取得するとともに、ネットアップサポートサイトに大容量ファイルをアップロードします。AutoSupport OnDemand を使用すると、週単位の AutoSupport ジョブの実行を待たずに AutoSupport メッセージをオンデマンドで送信できます。 
+---
+= AutoSupport OnDemand がテクニカルサポートから送信指示を取得する仕組み
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+AutoSupport OnDemand はテクニカルサポートと定期的に通信し、 AutoSupport メッセージの送信、再送信、拒否に関する配信指示を取得するとともに、ネットアップサポートサイトに大容量ファイルをアップロードします。AutoSupport OnDemand を使用すると、週単位の AutoSupport ジョブの実行を待たずに AutoSupport メッセージをオンデマンドで送信できます。
+
+AutoSupport OnDemand は、次のコンポーネントで構成されています。
+
+* 各ノードで稼働する AutoSupport OnDemand クライアント
+* テクニカルサポートで稼働する AutoSupport OnDemand サービス
+
+
+AutoSupport OnDemand クライアントは、 AutoSupport OnDemand サービスを定期的にポーリングし、テクニカルサポートから送信指示を取得します。たとえば、テクニカルサポートは、 AutoSupport OnDemand サービスを使用して、新しい AutoSupport メッセージを生成するよう要求できます。AutoSupport OnDemand クライアントは、 AutoSupport OnDemand サービスをポーリングして、配信指示を取得し、要求に応じて新しい AutoSupport メッセージをオンデマンドで送信します。
+
+AutoSupport OnDemand は、デフォルトで有効になっています。ただし、 AutoSupport OnDemand がテクニカルサポートとの通信を継続するかどうかは、いくつかの AutoSupport 設定によって決まります。次の要件を満たしている場合、 AutoSupport OnDemand はテクニカルサポートと自動的に通信を行います。
+
+* AutoSupport が有効になっている
+* AutoSupport は、テクニカルサポートにメッセージを送信するように設定されています。
+* AutoSupport は、 HTTPS 転送プロトコルを使用するように設定されています。
+
+
+AutoSupport OnDemand クライアントは、 AutoSupport メッセージの送信先と同じ場所のテクニカルサポートに HTTPS 要求を送信します。AutoSupport OnDemand クライアントは、着信接続は受け入れません。
+
+[NOTE]
+====
+AutoSupport OnDemand は、「 AutoSupport 」ユーザーアカウントを使用してテクニカルサポートと通信します。ONTAP では、このアカウントを削除することはできません。
+
+====
+AutoSupport OnDemand を無効にして、 AutoSupport は有効なまま、 HTTPS 転送プロトコルを使用してテクニカルサポートにメッセージを送信するように設定する場合は、テクニカルサポートにお問い合わせください。
+
+次の図は、 AutoSupport OnDemand がテクニカルサポートに HTTPS 要求を送信して送信指示を取得する方法を示しています。
+
+image::../media/autosupport-ondemand.gif[この図には説明が付随しています。]
+
+配信指示には、 AutoSupport が行う処理として、次のようなものがあります。
+
+* 新しい AutoSupport メッセージの生成
++
+テクニカルサポートからは、問題の優先度を選別できるように、新たな AutoSupport メッセージが要求されることが
+
+* コアダンプファイルまたはパフォーマンスアーカイブファイルをネットアップサポートサイトにアップロードする新しい AutoSupport メッセージの生成
++
+問題の優先度を選別できるように、テクニカルサポートからコアダンプファイルまたはパフォーマンスアーカイブファイルを要求されることがあります。
+
+* 以前に生成した AutoSupport メッセージの再送信
++
+この要求は、配信エラーが原因でメッセージが受信されなかった場合に自動的に行われます。
+
+* 特定のトリガーイベントに対する AutoSupport メッセージ配信を無効にします。
++
+テクニカルサポートは、使用されていないデータの配信を無効にすることがあります。
+
+

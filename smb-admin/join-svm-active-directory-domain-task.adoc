@@ -1,0 +1,56 @@
+---
+permalink: smb-admin/join-svm-active-directory-domain-task.html 
+sidebar: sidebar 
+keywords: join, storage, virtual, machine, svm, active, directory, domain, delete, deleting, exist, smb, cifs, server, modify, domain, vserver, cifs, rejoin, join a svm to an active directory domain 
+summary: vserver cifs modify コマンドでドメインを変更すると、既存の SMB サーバを削除することなく Storage Virtual Machine （ SVM ）を Active Directory ドメインに追加することができます。現在のドメインに参加しなおすことも、新しいドメインに参加することもできます。 
+---
+= SVM を Active Directory ドメインに追加します
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+「 vserver cifs modify 」コマンドでドメインを変更すると、既存の SMB サーバを削除することなく Storage Virtual Machine （ SVM ）を Active Directory ドメインに追加することができます。現在のドメインに参加しなおすことも、新しいドメインに参加することもできます。
+
+.作業を開始する前に
+* SVM の DNS 設定が完了している必要があります。
+* SVM の DNS 設定がターゲットドメインを提供できる必要があります。
++
+DNS サーバには、ドメイン LDAP およびドメインコントローラサーバのサービスロケーションレコード（ SRV ）が含まれている必要があります。
+
+
+
+.このタスクについて
+* Active Directory ドメインの変更を続行するには、 CIFS サーバの管理ステータスを「所有」に設定する必要があります。
+* コマンドが正常に完了すると、管理ステータスは自動的に「 up 」に設定されます。
+* ドメインに参加する場合、このコマンドの実行には数分かかることがあります。
+
+
+.手順
+. SVM を CIFS サーバドメインに追加します。「 vserver cifs modify -vserver vserver_name _domain_name __ -status-admin down
++
+詳細については 'vserver cifs modify コマンドのマニュアルページを参照してください新しいドメイン用に DNS を再構成する必要がある場合は 'vserver dns modify コマンドのマニュアルページを参照してください
+
++
+SMB サーバ用の Active Directory マシンアカウントを作成するには '_EXAMPLE_.com ドメイン内の ou=_example_ou' コンテナにコンピュータを追加するための十分な権限を持つ Windows アカウントの名前とパスワードを入力する必要があります
+
++
+ONTAP 9.7 以降では、権限がある Windows アカウントの名前とパスワードの代わりに、 keytab ファイルの URI を AD 管理者から提供される場合があります。URI を受け取った場合は、その URI を「 -keytab-uri 」パラメータで「 vserver cifs 」コマンドに含めます。
+
+. CIFS サーバが目的の Active Directory ドメイン内にあることを確認します。「 vserver cifs show
+
+
+次の例では、 SVM vs1 上にある SMB サーバ「 CIFSSERVER1 」を keytab 認証を使用して example.com ドメインに追加します。
+
+[listing]
+----
+
+cluster1::> vserver cifs modify -vserver vs1 -domain example.com -status-admin down -keytab-uri http://admin.example.com/ontap1.keytab
+
+cluster1::> vserver cifs show
+
+          Server       Status       Domain/Workgroup  Authentication
+Vserver   Name         Admin        Name              Style
+--------- -----------  ---------    ----------------  --------------
+vs1       CIFSSERVER1  up           EXAMPLE          domain
+----

@@ -1,0 +1,124 @@
+---
+permalink: data-protection/example-configure-vault-vault-cascade-task.html 
+sidebar: sidebar 
+keywords: example, configure, vault-vault, cascade 
+summary: レプリケーション関係を一度に 1 ステップずつ設定する方法の具体例を示します。この例で設定するヴォールト - ヴォールトカスケード構成を使用すると、「 my-weekly 」というラベルの付いた 251 個を超える Snapshot コピーを保持できます。 
+---
+= 例：ヴォールト - ヴォールトカスケードを設定します
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+レプリケーション関係を一度に 1 ステップずつ設定する方法の具体例を示します。この例で設定するヴォールト - ヴォールトカスケード構成を使用すると、「 m -weekly 」というラベルの付いた 251 個を超える Snapshot コピーを保持できます。
+
+.必要なもの
+* ソースクラスタとデスティネーションクラスタ、および SVM のピア関係が確立されている必要があります。
+* ONTAP 9.2 以降が実行されている必要があります。それより前のリリースの ONTAP では、ヴォールト - ヴォールトカスケードがサポートされていません。
+
+
+この例では次のことを前提としています。
+
+* SnapMirror ラベルが「 `my-daily`」 、「 `my-weekly` 」、および「 `my-monthly 」の Snapshot コピーをソースクラスタで設定済みである。
+* セカンダリデスティネーションクラスタと 3 番目のデスティネーションクラスタに「 volA 」という名前のデスティネーションボリュームを設定済みである。
+* セカンダリデスティネーションクラスタと 3 番目のデスティネーションクラスタに「 ``y_snapvault` 」というレプリケーションジョブスケジュールを設定しておきます。
+
+
+次の例は、 2 つのカスタムポリシーに基づいてレプリケーション関係を作成する方法を示しています。
+
+* 「 'napvault_secondary' 」ポリシーでは、 7 個の日単位 Snapshot コピー、 52 個の週単位 Snapshot コピー、 180 個の月単位 Snapshot コピーがセカンダリデスティネーションクラスタに保持されています。
+* 「 'napvault_tertiary policy 」は、 250 個の週単位 Snapshot コピーを 3 番目のデスティネーションクラスタに保持しています。
+
+
+.手順
+. セカンダリデスティネーションクラスタで、「 $napvault_secondary 」ポリシーを作成します。
++
+「 cluster_secondary ：： > snapmirror policy create -policy snapvault_secondary-type vault -comment “ Policy on secondary for vault to vault cascade ” -vserver svm_name 」 -vserver svm_name を選択します
+
+. セカンダリデスティネーションクラスタで、ポリシーの「 `my-daily 」ルールを定義します。
++
+「 cluster_secondary ： > snapmirror policy add-rule snapvault_secondary -snapmirror-label my-daily -keep 7 -vserver svm_name 」という名前の SnapMirror ポリシーを追加しました
+
+. セカンダリデスティネーションクラスタで、ポリシーの「 `my-weekly" 」ルールを定義します。
++
+「 cluster_secondary ： > snapmirror policy add-rule snapvault_secondary -snapmirror-label my-weekly -keep 52 -vserver svm_name 」という名前の SnapMirror ポリシーが追加されました
+
+. セカンダリデスティネーションクラスタで、ポリシーの「 my-monthly 」ルールを定義します。
++
+「 cluster_secondary ：： > snapmirror policy add-rule snapvault_secondary-snapmirror-label my-monthly -keep 180 -vserver svm_name 」という名前の SnapMirror ポリシーが追加されました
+
+. セカンダリデスティネーションクラスタで、ポリシーを検証します。
++
+'cluster_secondary:>snapmirror policy show snapvault_secondary-instance'
+
++
+[listing]
+----
+                     Vserver: svm_secondary
+      SnapMirror Policy Name: snapvault_secondary
+      SnapMirror Policy Type: vault
+                Policy Owner: cluster-admin
+                 Tries Limit: 8
+           Transfer Priority: normal
+   Ignore accesstime Enabled: false
+     Transfer Restartability: always
+ Network Compression Enabled: false
+             Create Snapshot: false
+                     Comment: Policy on secondary for vault to vault cascade
+       Total Number of Rules: 3
+                  Total Keep: 239
+                       Rules: SnapMirror Label     Keep  Preserve Warn Schedule Prefix
+                              ----------------     ----  -------- ---- -------- ------
+                              my-daily                7  false       0 -        -
+                              my-weekly              52  false       0 -        -
+                              my-monthly            180  false       0 -        -
+----
+. セカンダリデスティネーションクラスタで、ソースクラスタとの関係を作成します。
++
+'cluster_secondary:>snapmirror create -source-path SVM_primary ： volA -destination-path svm_secondary ： volA -type XDP -schedule my_snapvault_policy snapvault_secondary ’
+
+. セカンダリデスティネーションクラスタで、ソースクラスタとの関係を初期化します。
++
+'cluster_secondary] ： > snapmirror initialize -source-path SVM_primary ： volA -destination-path svm_secondary ： volA
+
+. 3 次デスティネーションクラスタで、「 'napvault_tertiary' 」ポリシーを作成します。
++
+「 cluster_tertiary ：： > snapmirror policy create -policy snapvault_tertiary -type vault -comment “ Policy on tertiary for vault to vault cascade 」 -vserver svm_name -tertiary ’
+
+. 3 次デスティネーションクラスタで、ポリシーの「 `my-weekly] 」ルールを定義します。
++
+「 cluster_tertiary ：： > snapmirror policy add-rule snapvault_tertiary -snapmirror-label my-weekly -keep 250 -vserver svm_name 」という名前の SnapMirror ポリシーを追加しました
+
+. 3 番目のデスティネーションクラスタで、ポリシーを検証します。
++
+「 cluster_tertiary ：： > snapmirror policy show snapvault_tertiary -instance 」と入力します
+
++
+[listing]
+----
+                     Vserver: svm_tertiary
+      SnapMirror Policy Name: snapvault_tertiary
+      SnapMirror Policy Type: vault
+                Policy Owner: cluster-admin
+                 Tries Limit: 8
+           Transfer Priority: normal
+   Ignore accesstime Enabled: false
+     Transfer Restartability: always
+ Network Compression Enabled: false
+             Create Snapshot: false
+                     Comment: Policy on tertiary for vault to vault cascade
+       Total Number of Rules: 1
+                  Total Keep: 250
+                       Rules: SnapMirror Label     Keep  Preserve Warn Schedule Prefix
+                              ----------------     ----  -------- ---- -------- ------
+                              my-weekly             250  false       0 -        -
+----
+. 3 番目のデスティネーションクラスタで、セカンダリクラスタとの関係を作成します。
++
+cluster_tertiary ：： > snapmirror create -source-path SVM_secondary ： volA -destination-path svm_tertiary ： volA -type XDP -schedule my_snapvault -policy snapvault_tertiary ’
+
+. 3 番目のデスティネーションクラスタで、セカンダリクラスタとの関係を初期化します。
++
+cluster_tertiary ::> snapmirror initialize-ls-set svm_secondary ： volA -destination-path svm_tertiary ： volA
+
+

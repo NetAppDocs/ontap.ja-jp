@@ -1,0 +1,75 @@
+---
+permalink: smb-hyper-v-sql/verify-kerberos-ntlmv2-authentication-task.html 
+sidebar: sidebar 
+keywords: nondisruptive, operation, hyper, v, verify, kerberos, ntlmv2, authentication, cifs, server, svm, data 
+summary: Hyper-V over SMB のノンストップオペレーションを実行する場合、データ SVM の CIFS サーバおよび Hyper-V サーバで Kerberos 認証と NTLMv2 認証の両方が許可されていなければなりません。CIFS サーバと Hyper-V サーバの両方について、使用できる認証方法を制御する設定を確認する必要があります。 
+---
+= Kerberos 認証および NTLMv2 認証の両方が許可されていることを確認する（ Hyper-V over SMB 共有）
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+Hyper-V over SMB のノンストップオペレーションを実行する場合、データ SVM の CIFS サーバおよび Hyper-V サーバで Kerberos 認証と NTLMv2 認証の両方が許可されていなければなりません。CIFS サーバと Hyper-V サーバの両方について、使用できる認証方法を制御する設定を確認する必要があります。
+
+Kerberos 認証は、継続的可用性を備えた共有への接続を確立する際に必要になります。また、リモート VSS のプロセスで NTLMv2 認証が使用されます。そのため、 Hyper-V over SMB 構成に対しては、両方の認証方法を使用した接続がサポートされている必要があります。
+
+Kerberos 認証と NTLMv2 認証の両方が許可されるように、次の設定を行う必要があります。
+
+* Storage Virtual Machine （ SVM ）で SMB のエクスポートポリシーが無効になっている必要があります。
+
+
+SVM では、 Kerberos 認証と NTLMv2 認証がどちらも常に有効になりますが、エクスポートポリシーを使用することで認証方法に基づいてアクセスを制限することが可能です。
+
+SMB のエクスポートポリシーは省略可能で、デフォルトでは無効になっています。エクスポートポリシーが無効になっている場合、 CIFS サーバでは Kerberos 認証と NTLMv2 認証の両方がデフォルトで許可されます。
+
+* CIFS サーバと Hyper-V サーバが属するドメインで、 Kerberos 認証と NTLMv2 認証の両方を許可する必要があります。
+
+
+Kerberos 認証は、 Active Directory ドメインではデフォルトで有効になります。ただし、 NTLMv2 認証は、セキュリティポリシーの設定またはグループポリシーで禁止されている場合があります。
+
+.手順
+. 次の手順に従って、 SVM でエクスポートポリシーが無効になっていることを確認します。
++
+.. 権限レベルを advanced に設定します。
++
+「 * set -privilege advanced * 」のように指定します
+
+.. is-exportpolicy-enabled CIFS サーバ・オプションが false に設定されていることを確認します
++
+vserver cifs options show -vserver vserver_name __ -fields vserver 、 is-exportpolicy-enabled *
+
+.. admin 権限レベルに戻ります。
++
+'*set -privilege admin*
+
+
+
+. SMB のエクスポートポリシーが無効になっていない場合は無効にします。
++
+「 * vserver cifs options modify -vserver _vserver_name __ is-exportpolicy-enabled false * 」のように設定します
+
+. ドメインで NTLMv2 認証と Kerberos 認証の両方が許可されていることを確認します。
++
+ドメインで許可されている認証方法を確認する方法については、 Microsoft TechNet ライブラリを参照してください。
+
+. ドメインで NTMLv2 認証が許可されていない場合は、 Microsoft のドキュメントに記載されたいずれかの方法で NTLMv2 認証を有効にします。
+
+
+次に、 SVM vs1 で SMB のエクスポートポリシーが無効になっていることを確認するコマンドの例を示します。
+
+[listing]
+----
+cluster1::> set -privilege advanced
+Warning: These advanced commands are potentially dangerous; use them
+only when directed to do so by technical support personnel.
+Do you wish to continue? (y or n): y
+
+cluster1::*> vserver cifs options show -vserver vs1 -fields vserver,is-exportpolicy-enabled
+
+vserver  is-exportpolicy-enabled
+-------- -----------------------
+vs1      false
+
+cluster1::*> set -privilege admin
+----

@@ -1,0 +1,93 @@
+---
+permalink: smb-admin/monitor-oplock-status-task.html 
+sidebar: sidebar 
+keywords: monitor, display, information, oplock, status, file, state, leasing, lease, determine, manual, monitor oplock status 
+summary: oplock ステータスについて、情報を監視、表示できます。この情報を使用して、 oplock が設定されたファイル、 oplock のレベルや oplock の状態レベル、 oplock リースの使用の有無を確認できます。また、手動での解除が必要となる可能性のあるロックについて、情報を確認することもできます。 
+---
+= oplock ステータスを監視します
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+oplock ステータスについて、情報を監視、表示できます。この情報を使用して、 oplock が設定されたファイル、 oplock のレベルや oplock の状態レベル、 oplock リースの使用の有無を確認できます。また、手動での解除が必要となる可能性のあるロックについて、情報を確認することもできます。
+
+すべての oplock についての情報を要約形式または詳細なリスト形式で表示できます。オプションのパラメータを使用すると、既存のロックの一部について情報を表示することもできます。たとえば、クライアントの IP アドレスやパスを指定して、該当するロックのみを返すように指定できます。
+
+従来の oplock および oplock リースについて、次の情報を表示できます。
+
+* oplock が有効な SVM 、ノード、ボリューム、 LIF
+* ロック UUID
+* oplock が有効なクライアントの IP アドレス
+* oplock が有効なパス
+* ロックのプロトコル（ SMB ）およびロックのタイプ（ oplock ）
+* ロックの状態
+* oplock レベル
+* 接続の状態および SMB の有効期限
+* oplock リースが許可されている場合は、 Open Group ID
+
+
+各パラメータの詳細な概要については 'vserver oplocks show マニュアル・ページを参照してください
+
+.手順
+. vserver locks show コマンドを使用して oplock の状態を表示します。
+
+
+次のコマンドは、すべてのロックに関するデフォルトの情報を表示します。表示されたファイルの oplock には 'read-batch' oplock レベルが与えられます
+
+[listing]
+----
+cluster1::> vserver locks show
+
+Vserver: vs0
+Volume   Object Path        LIF         Protocol  Lock Type   Client
+-------- ------------------ ----------- --------- ----------- ----------
+vol1     /vol1/notes.txt    node1_data1
+                                        cifs      share-level 192.168.1.5
+         Sharelock Mode: read_write-deny_delete
+                                                  op-lock     192.168.1.5
+         Oplock Level: read-batch
+----
+次の例では ' パス /data2/data2_2/intro.pptx のファイルのロックについて ' より詳細な情報を表示しますリース oplock は '10.3.1.3' の IP アドレスを持つクライアントに対して 'batch' oplock レベルでファイルに付与されます
+
+[NOTE]
+====
+詳細情報を表示する場合に、このコマンドを使用すると、 oplock の情報と共有ロックの情報を別々に表示できます。この例では、 oplock の情報のみが表示されています。
+
+====
+[listing]
+----
+cluster1::> vserver lock show -instance -path /data2/data2_2/intro.pptx
+
+                   Vserver: vs1
+                    Volume: data2_2
+         Logical Interface: lif2
+               Object Path: /data2/data2_2/intro.pptx
+                 Lock UUID: ff1cbf29-bfef-4d91-ae06-062bf69212c3
+             Lock Protocol: cifs
+                 Lock Type: op-lock
+   Node Holding Lock State: node3
+                Lock State: granted
+  Bytelock Starting Offset: -
+    Number of Bytes Locked: -
+     Bytelock is Mandatory: -
+     Bytelock is Exclusive: -
+     Bytelock is Superlock: -
+          Bytelock is Soft: -
+              Oplock Level: batch
+   Shared Lock Access Mode: -
+       Shared Lock is Soft: -
+           Delegation Type: -
+            Client Address: 10.3.1.3
+             SMB Open Type: -
+         SMB Connect State: connected
+SMB Expiration Time (Secs): -
+         SMB Open Group ID: 78a90c59d45ae211998100059a3c7a00a007f70da0f8ffffcd445b0300000000
+----
+* 関連情報 *
+
+xref:enable-disable-oplocks-when-creating-shares-task.adoc[SMB 共有の作成時における oplock の有効化と無効化]
+
+xref:enable-disable-oplocks-existing-shares-task.adoc[既存の SMB 共有で oplock を有効または無効にします]
+
+xref:commands-oplocks-volumes-qtrees-reference.adoc[ボリュームおよび qtree で oplock を有効または無効にするためのコマンド]

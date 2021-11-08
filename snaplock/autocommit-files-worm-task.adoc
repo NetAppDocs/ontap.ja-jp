@@ -1,0 +1,108 @@
+---
+permalink: snaplock/autocommit-files-worm-task.html 
+sidebar: sidebar 
+keywords: snaplock, autocommit, commit, files, worm, automatically 
+summary: SnapLock の自動コミット機能を使用して、ファイルを WORM 状態に自動的にコミットできます。 
+---
+= ファイルを WORM 状態に自動コミットします
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+SnapLock の自動コミット機能を使用して、ファイルを WORM 状態に自動的にコミットできます。
+
+.必要なもの
+* 自動コミットするファイルが SnapLock ボリュームに格納されている必要があります。
+* SnapLock ボリュームはオンラインである必要があります。
+* SnapLock ボリュームが読み書き可能ボリュームである必要があります。
+
+
+[NOTE]
+====
+SnapLock の自動コミット機能は、ボリューム内のすべてのファイルをスキャンし、自動コミットの要件を満たすファイルをコミットします。ファイルが自動コミットできる状態になってから、 SnapLock の自動コミットスキャナによって実際にコミットされるまでに、時間が空くことがあります。ただし、ファイルは自動コミットの対象になった時点からファイルシステムによる削除や変更から保護されます。
+
+====
+_autocommit_period _ は、ファイルが自動コミットされるまでに、ファイルに変更がないようにする期間を指定します。この期間が経過する前にファイルが変更された場合、自動コミット期間はもう一度最初からカウントされます。
+
+自動コミット期間に指定できる値は次のとおりです。
+
+|===
+| 価値 | 単位 | 注： 
+
+
+ a| 
+なし
+ a| 
+-
+ a| 
+デフォルト。
+
+
+
+ a| 
+5 ~ 5256000
+ a| 
+分
+ a| 
+-
+
+
+
+ a| 
+1 ~ 87600
+ a| 
+時間
+ a| 
+-
+
+
+
+ a| 
+1 ~ 3650
+ a| 
+日
+ a| 
+-
+
+
+
+ a| 
+1 ~ 120
+ a| 
+月
+ a| 
+-
+
+
+
+ a| 
+1 ~ 10
+ a| 
+年
+ a| 
+-
+
+|===
+[NOTE]
+====
+最小値は 5 分、最大値は 10 年です。
+
+====
+.手順
+. SnapLock ボリュームのファイルを WORM 状態に自動コミットします。
++
+'*volume SnapLock modify -vserver_svm_name_-volume_name_autocommit-period_autocommit_period *
+
++
+すべてのオプションの一覧については、コマンドのマニュアルページを参照してください。
+
++
+次のコマンドは、 5 時間変更がなかった場合に SVM vs1 のボリューム「 vol1 」にあるファイルを自動コミットします。
+
++
+[listing]
+----
+cluster1::>volume snaplock modify -vserver vs1 -volume vol1 -autocommit-period 5hours
+----
+

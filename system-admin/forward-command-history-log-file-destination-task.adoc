@@ -1,0 +1,63 @@
+---
+permalink: system-admin/forward-command-history-log-file-destination-task.html 
+sidebar: sidebar 
+keywords: forward, audit, log, destination, cluster, forwarding, splunk, create, command 
+summary: cluster log-forwarding create コマンドを使用すると、監査ログを指定する最大 10 個の宛て先に転送できます。たとえば、 Splunk や syslog サーバにログを転送し、監視や分析、バックアップなどの目的で使用できます。 
+---
+= 監査ログを転送します
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+監査ログは 'cluster log-forwarding create コマンドを使用して ' 指定する最大 10 の宛て先に転送できますたとえば、 Splunk や syslog サーバにログを転送し、監視や分析、バックアップなどの目的で使用できます。
+
+cluster log-forwarding create コマンドが接続を確認するために宛先ホストに ping を実行できない場合、コマンドはエラーで失敗します。推奨されませんが、コマンドに -force パラメータを指定すると、接続検証が省略されます。
+
+ログファイルを転送するときの転送セキュリティオプションを設定できます。
+
+* 宛先にメッセージを送信するためのプロトコル
++
+次のいずれかの「 -protocol 」値を選択できます。
+
++
+** 'udp-unencrypted' ：セキュリティなしのユーザデータグラムプロトコル（デフォルト）
+** 「 tcp-unencrypted 」：セキュリティを使用しない Transmission Control Protocol
+** 「 tcp-encrypted 」： Transport Layer Security （ TLS ）を使用する Transmission Control Protocol
+
+
+* デスティネーションサーバ ID の検証
++
+-verify-server パラメータを「 true 」に設定すると、ログ転送先の ID は、証明書を検証することによって検証されます。値を「 true 」に設定できるのは、「 -protocol 」フィールドで「 tcp-encrypted 」値を選択した場合のみです。
+
+
+
+.手順
+. 監査ログの転送先ごとに、デスティネーション IP アドレスまたはホスト名、およびセキュリティオプションを指定します。
++
+[listing]
+----
+cluster1::> cluster log-forwarding create -destination 192.168.123.96
+-port 514 -facility user
+
+cluster1::> cluster log-forwarding create -destination 192.168.123.98
+-port 514 -protocol tcp-encrypted -facility user
+----
+. cluster log-forwarding show コマンドを使用して、宛て先のレコードが正しいことを確認します。
++
+[listing]
+----
+cluster1::> cluster log-forwarding show
+
+                                                 Verify Syslog
+Destination Host          Port   Protocol        Server Facility
+------------------------- ------ --------        ------ --------
+192.168.123.96            514    udp-unencrypted false  user
+192.168.123.98            514    tcp-encrypted   true   user
+2 entries were displayed.
+----
+
+
+* 関連情報 *
+
+http://docs.netapp.com/ontap-9/topic/com.netapp.doc.dot-cm-cmpr/GUID-5CB10C70-AC11-41C0-8C16-B4D0DF916E9B.html["ONTAP 9 のコマンド"]

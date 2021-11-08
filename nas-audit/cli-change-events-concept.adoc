@@ -1,0 +1,155 @@
+---
+permalink: nas-audit/cli-change-events-concept.html 
+sidebar: sidebar 
+keywords: cli change events, audited 
+summary: ONTAP は、 CIFS 共有イベント、監査ポリシーイベント、ローカルセキュリティグループイベント、ローカルユーザグループイベント、認証ポリシーイベントなどの CLI 変更イベントを監査できます。どのような変更イベントを監査できるか理解しておくと、イベントログの結果を解釈するときに役立ちます。 
+---
+= 監査可能な CLI 変更イベントの概要
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+ONTAP は、 CIFS 共有イベント、監査ポリシーイベント、ローカルセキュリティグループイベント、ローカルユーザグループイベント、認証ポリシーイベントなどの CLI 変更イベントを監査できます。どのような変更イベントを監査できるか理解しておくと、イベントログの結果を解釈するときに役立ちます。
+
+Storage Virtual Machine （ SVM ）で監査する CLI 変更イベントの管理作業として、手動での監査ログのローテーション、監査の有効化と無効化、監査対象変更イベントに関する情報の表示、監査対象変更イベントの変更、監査対象変更イベントの削除が可能です。
+
+管理者が CIFS 共有、ローカルユーザグループ、ローカルセキュリティグループ、認証ポリシー、および監査ポリシーのイベントに関連する設定を変更するコマンドを実行する場合、 レコードが生成され、対応するイベントが監査されます。
+
+[cols="4*"]
+|===
+| 監査カテゴリ | イベント | イベント IDs | 実行するコマンド 
+
+
+ a| 
+Mhost 監査
+ a| 
+ポリシー変更
+ a| 
+[4719] 監査設定が変更されました
+ a| 
+vserver audit disable | enable | modify
+
+
+
+|   a| 
+ファイル共有
+ a| 
+[5142] ネットワーク共有が追加されました
+ a| 
+「 vserver cifs share create 」
+
+
+
+|  |   a| 
+[5143] ネットワーク共有の変更
+ a| 
+vserver cifs share modify ` vserver cifs share create | modify | delete 」 vserver cifs share add | remove
+
+
+
+|  |   a| 
+[5144] ネットワーク共有が削除されました
+ a| 
+vserver cifs share delete
+
+
+
+ a| 
+監査
+ a| 
+ユーザアカウント
+ a| 
+[4720] ローカルユーザの作成
+ a| 
+vserver cifs users-and-groups local-user create 「 vserver services name-service unix-user create
+
+
+
+|  |   a| 
+[4722] ローカルユーザの有効化
+ a| 
+vserver cifs users-and-groups local-user create | modify
+
+
+
+|  |   a| 
+[4724] ローカルユーザのパスワードのリセット
+ a| 
+vserver cifs users-and-groups local-user set-password
+
+
+
+|  |   a| 
+[4725] ローカルユーザの無効化
+ a| 
+vserver cifs users-and-groups local-user create | modify
+
+
+
+|  |   a| 
+[4726] ローカルユーザの削除
+ a| 
+「 vserver cifs users-and-groups local-user delete 」 vserver services name-service unix-user delete
+
+
+
+|  |   a| 
+[4738] ローカルユーザの変更
+ a| 
+vserver cifs users-and-groups local-user modify vserver services name-service unix-user modify
+
+
+
+|  |   a| 
+[4781] ローカルユーザの名前変更
+ a| 
+vserver cifs users-and-groups local-user rename
+
+
+
+|   a| 
+セキュリティグループ
+ a| 
+[4731] ローカルセキュリティグループが作成されました
+ a| 
+vserver cifs users-and-groups local-group create 「 vserver services name-service unix-group create
+
+
+
+|  |   a| 
+[4734] ローカルセキュリティグループが削除されました
+ a| 
+vserver cifs users-and-groups local-group delete vserver services name-service unix-group delete
+
+
+
+|  |   a| 
+[4735] ローカルセキュリティグループの変更
+ a| 
+vserver cifs users-and-groups local-group rename | modify `vserver services name-service unix-group modify`
+
+
+
+|  |   a| 
+[4732] ローカルグループへのユーザの追加
+ a| 
+vserver cifs users-and-groups local-group add-members 「 vserver services name-service unix-group adduser
+
+
+
+|  |   a| 
+[4733] ローカルグループからユーザが削除されました
+ a| 
+vserver cifs users-and-groups local-group remove-members 「 vserver services name-service unix-group deluser
+
+
+
+|   a| 
+認証ポリシー変更
+ a| 
+[4704] ユーザ権限の割り当て
+ a| 
+vserver cifs users-and-groups privilege add-privilege
+
+|===

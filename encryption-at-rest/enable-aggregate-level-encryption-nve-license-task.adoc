@@ -1,0 +1,100 @@
+---
+permalink: encryption-at-rest/enable-aggregate-level-encryption-nve-license-task.html 
+sidebar: sidebar 
+keywords: enabling, aggregate-level, encryption, nve, license 
+summary: ONTAP 9.7 以降では、 NVE ライセンスでオンボードまたは外部キー管理を使用すれば、新しく作成したアグリゲートとボリュームがデフォルトで暗号化されます。ONTAP 9.6 以降では、アグリゲートレベルの暗号化を使用して、暗号化するボリュームの包含アグリゲートにキーを割り当てることができます。アグリゲートに作成するボリュームはデフォルトで暗号化されます。このデフォルトの設定は、ボリュームを暗号化するときに無効にすることができます。 
+---
+= NVE ライセンスでアグリゲートレベルの暗号化を有効にする
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+ONTAP 9.7 以降では、 NVE ライセンスでオンボードまたは外部キー管理を使用すれば、新しく作成したアグリゲートとボリュームがデフォルトで暗号化されます。ONTAP 9.6 以降では、アグリゲートレベルの暗号化を使用して、暗号化するボリュームの包含アグリゲートにキーを割り当てることができます。アグリゲートに作成するボリュームはデフォルトで暗号化されます。このデフォルトの設定は、ボリュームを暗号化するときに無効にすることができます。
+
+このタスクを実行するには、クラスタ管理者である必要があります。
+
+アグリゲートレベルの重複排除をインラインまたはバックグラウンドで実行する場合は、アグリゲートレベルの暗号化を使用する必要があります。そうしないと、 NVE でアグリゲートレベルの重複排除がサポートされません。
+
+アグリゲートレベルの暗号化が有効になっているアグリゲートは、 _NAE ボリューム（ NetApp Aggregate Encryption の場合）と呼ばれます。NAE アグリゲートではプレーンテキストボリュームがサポートされません。
+
+.手順
+. アグリゲートレベルの暗号化を有効または無効にします。
++
+|===
+| 目的 | 使用するコマンド 
+
+
+ a| 
+ONTAP 9.7 以降で NAE アグリゲートを作成します
+ a| 
+「 storage aggregate create -aggregate aggregate-name -node node_name 」という形式で指定します
+
+
+
+ a| 
+ONTAP 9.6 で NAE アグリゲートを作成します
+ a| 
+「 storage aggregate create -aggregate aggregate_name -node node_name -encrypt-with -aggr-list true 」です
+
+
+
+ a| 
+非 NAE アグリゲートを NAE アグリゲートに変換します
+ a| 
+「 storage aggregate modify -aggregate aggregate_name -node node_name -encrypt-with -aggr-list true 」です
+
+
+
+ a| 
+NAE アグリゲートを非 NAE アグリゲートに変換します
+ a| 
+「 storage aggregate modify -aggregate aggregate_name -node node_name -encrypt-with -aggr-list false 」です
+
+|===
++
+コマンド構文全体については、マニュアルページを参照してください。
+
++
+次のコマンドは 'aggr1 でアグリゲート・レベルの暗号化を有効にします
+
++
+** ONTAP 9.7 以降
++
+[listing]
+----
+cluster1::> storage aggregate create -aggregate aggr1
+----
+** ONTAP 9.6 以前：
++
+[listing]
+----
+cluster1::> storage aggregate create -aggregate aggr1 -encrypt-with-aggr-key true
+----
+
+
+. アグリゲートで暗号化が有効になっていることを確認します。
++
+「 storage aggregate show -fields encrypt-with -aggr-list key 」
+
++
+コマンド構文全体については、マニュアルページを参照してください。
+
++
+次のコマンドは 'aggr1 が暗号化に対応していることを確認します
+
++
+[listing]
+----
+cluster1::> storage aggregate show -fields encrypt-with-aggr-key
+aggregate            encrypt-aggr-key
+-------------------- ----------------
+aggr0_vsim4          false
+aggr1                true
+2 entries were displayed.
+----
+
+
+volume create コマンドを実行して ' 暗号化されたボリュームを作成します
+
+ノードの暗号化キーを保存するために KMIP サーバを使用している場合、ボリュームを暗号化すると、 ONTAP によって暗号化キーがサーバに自動的に「プッシュ」されます。

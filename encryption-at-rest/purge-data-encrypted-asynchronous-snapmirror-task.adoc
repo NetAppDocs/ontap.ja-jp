@@ -1,0 +1,83 @@
+---
+permalink: encryption-at-rest/purge-data-encrypted-asynchronous-snapmirror-task.html 
+sidebar: sidebar 
+keywords: securely, purging, scrub, data, encrypted, volume, nve, netapp, volume encryption, snapmirror, asynchronous 
+summary: ONTAP 9.8 以降では、セキュアパージを使用して、非同期 SnapMirror 関係を持つ NVE 対応ボリューム上のデータを無停止で「スクラビング」できます。 
+---
+= 非同期 SnapMirror 関係によって暗号化されたボリューム上のデータをセキュアにパージします
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+ONTAP 9.8 以降では、非同期 SnapMirror 関係を持つ NVE 対応ボリュームで、システムを停止せずに「 crub 」データをセキュアパージできます。
+
+.必要なもの
+* このタスクを実行するには、クラスタ管理者である必要があります。
+* このタスクを実行するには advanced 権限が必要です。
+
+
+削除されたファイルのデータ量によっては、セキュアパージが完了するまでに数分から数時間かかることがあります。volume encryption secure-purge show コマンドを使用して、処理のステータスを表示できます。volume encryption secure-purge abort コマンドを使用して、処理を終了できます。
+
+[NOTE]
+====
+SAN ホストでセキュアパージを実行するには、パージするファイルを含む LUN 全体を削除するか、パージするファイルに属するブロックの LUN で穴を開ける必要があります。LUN を削除できない場合や、ホストオペレーティングシステムで LUN のパンチ穴がサポートされていない場合は、セキュアパージを実行できません。
+
+====
+.手順
+. ストレージシステムで、 advanced 権限レベルに切り替えます。
++
+「 advanced 」の権限が必要です
+
+. セキュアパージするファイルまたは LUN を削除します。
++
+** NAS クライアントで、セキュアパージするファイルを削除します。
+** SAN ホストで、パージするファイルに属するブロックのために、 LUN から安全にパージまたはパンチ穴を開ける LUN を削除します。
+
+
+. 非同期関係内の vol_a をセキュアにパージするには、次の手順を実行します。
++
+'volume encryption secure-purge start -vserver svm_name -volume volume_name -prepare true
+
++
+非同期 SnapMirror 関係の各ボリュームについて、この手順を繰り返します。
+
+. 安全にパージするファイルがスナップショットにある場合は、スナップショットを削除します。
++
+「 snapshot-delete -vserver SVM_name -volume vol_name -snapshot 」という Snapshot コピーを削除しました
+
+. 安全にパージするファイルがベース Snapshot にある場合は、次の手順を実行します。
++
+.. 非同期 SnapMirror 関係内の vol_a に Snapshot を作成します： +`volume snapshot create -snapshot snapshot_name -vserver SVM_name -volume vol_name ’
+.. SnapMirror を更新してベース Snapshot をフォワードします： +`napmirror update -source-snapshot snapshot_name -destination-path destination_path
++
+非同期 SnapMirror 関係のボリュームごとにこの手順を繰り返します。
+
+.. 手順（ a ）と（ b ）を、ベース Snapshot の数に 1 を加えた数と同じにします。
++
+たとえば、 2 つのベース Snapshot がある場合は、手順（ a ）と（ b ）を 3 回繰り返します。
+
+.. ベース Snapshot が存在することを確認します。 +`Snapshotshow -vserver SVM_name -volume vol_name `
+.. ベース Snapshot を削除します。 +`Snapshotdelete -vserver SVM_name -volume vol_name -snapshot `
+
+
+. 削除したファイルを安全にパージします。
++
+'volume encryption secure-purge start -vserver svm_name -volume volume_name
+
++
+非同期 SnapMirror 関係の各ボリュームについて、この手順を繰り返します。
+
++
+次のコマンドは 'vs1` 上の 'vol1' の削除されたファイルを安全にパージします
+
++
+[listing]
+----
+cluster1::> volume encryption secure-purge start -vserver vs1 -volume vol1
+----
+. セキュアパージ処理のステータスを確認します。
++
+volume encryption secure-purgeshow
+
+

@@ -1,0 +1,94 @@
+---
+permalink: smb-admin/configure-multichannel-performance-task.html 
+sidebar: sidebar 
+keywords: ontap, configure, smb, multichannel, multiple, connection, client, session, throughput, fault, tolerance, configure smb multichannel for performance and redundancy, performance, redundancy 
+summary: ONTAP 9.4 以降では、 SMB マルチチャネルを設定して、 1 つの SMB セッションで ONTAP とクライアントの間に複数の接続を確立することができます。これにより、スループットとフォールトトレランスが向上します。 
+---
+= パフォーマンスと冗長性を高めるために SMB マルチチャネルを設定します
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+ONTAP 9.4 以降では、 SMB マルチチャネルを設定して、 1 つの SMB セッションで ONTAP とクライアントの間に複数の接続を確立することができます。これにより、スループットとフォールトトレランスが向上します。
+
+SMB マルチチャネル機能は、クライアントが SMB 3.0 以降のバージョンでネゴシエートする場合にのみ使用できます。ONTAP SMB サーバでは、 SMB 3.0 以降がデフォルトで有効になっています。
+
+SMB クライアントは、 ONTAP クラスタで適切な設定が見つかると、複数のネットワーク接続を自動的に検出して使用します。
+
+SMB セッションでの同時接続数は、導入している NIC によって異なります。
+
+* * クライアントおよび ONTAP クラスタに 1G NIC を搭載 *
++
+クライアントから確立される接続数は NIC ごとに 1 つで、すべての接続にセッションがバインドされます。
+
+* * クライアントおよび ONTAP クラスタ上の 10G 以上の NIC *
++
+クライアントから確立される接続数は NIC ごとに最大 4 つで、すべての接続にセッションがバインドされます。クライアントは 10G 以上の複数の NIC で接続を確立できます。
+
+
+
+また、次のパラメータを変更することもできます（ advanced 権限）。
+
+* *`-max-connections-per-session`*
++
+各マルチチャネルセッションに許可される最大接続数。デフォルトの接続数は 32 です。
+
++
+デフォルトよりも多くの接続を有効にする場合は、クライアントの設定に対して同等の調整を行う必要があります。これには、デフォルトの接続数は 32 です。
+
+* *`-max-LIFs -per-session`*
++
+各マルチチャネルセッションで通知されるネットワークインターフェイスの最大数。デフォルトのネットワークインターフェイス数は 256 です。
+
+
+
+.手順
+. 権限レベルを advanced に設定します。「 set -privilege advanced 」
+. SMB サーバで SMB マルチチャネルを有効にします。 vserver cifs options modify -vserver vserver_name -is-multichannel-enabled true
+. ONTAP が SMB マルチチャネルセッションを報告していることを確認します。 vserver cifs session show_options_`
+. admin 権限レベルに戻ります。「 set -privilege admin 」
+
+
+次の例は、すべての SMB セッションに関する情報を表示します。 1 つのセッションに対して複数の接続が表示されています。
+
+[listing]
+----
+cluster1::> vserver cifs session show
+Node:    node1
+Vserver: vs1
+Connection Session                                        Open            Idle
+IDs        ID      Workstation      Windows User         Files            Time
+---------- ------- ---------------- ---------------- --------- ---------------
+138683,
+138684,
+138685     1       10.1.1.1         DOMAIN\                   0              4s
+                                    Administrator
+----
+次の例は、セッション ID 1 が割り当てられた SMB セッションに関する詳細情報を表示します。
+
+[listing]
+----
+cluster1::> vserver cifs session show -session-id 1 -instance
+
+Vserver: vs1
+                           Node: node1
+                     Session ID: 1
+                 Connection IDs: 138683,138684,138685
+               Connection Count: 3
+   Incoming Data LIF IP Address: 192.1.1.1
+         Workstation IP Address: 10.1.1.1
+       Authentication Mechanism: NTLMv1
+          User Authenticated as: domain-user
+                   Windows User: DOMAIN\administrator
+                      UNIX User: root
+                    Open Shares: 2
+                     Open Files: 5
+                     Open Other: 0
+                 Connected Time: 5s
+                      Idle Time: 5s
+               Protocol Version: SMB3
+         Continuously Available: No
+              Is Session Signed: false
+                   NetBIOS Name: -
+----

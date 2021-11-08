@@ -1,0 +1,81 @@
+---
+permalink: s3-config/create-modify-bucket-policy-task.html 
+sidebar: sidebar 
+keywords: modify, bucket, policy 
+summary: デフォルトのバケットポリシーにアクセスルールを追加できます。アクセス制御の範囲はコンテナバケットなので、バケットが 1 つしかない場合は最も適しています。 
+---
+= バケットポリシーを変更する
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+デフォルトのバケットポリシーにアクセスルールを追加できます。アクセス制御の範囲はコンテナバケットなので、バケットが 1 つしかない場合は最も適しています。
+
+S3 サーバとバケットを含む S3 対応の SVM がすでに存在している必要があります。
+
+新しいユーザとグループに新しいステートメントを追加したり、既存のステートメントの属性を変更したりできます。その他のオプションについては 'vserver object-store-server バケット policy のマニュアルページを参照してください
+
+.手順
+. バケットポリシーにステートメントを追加します。
++
+「 vserver object-store-server bucket policy add -statement-vserver SVM_name -bucket bucket_name -Effect ｛ allow|deny ｝ -action object_store_actions-principal user_and _group -resource object_store_resources[-sid text] [-index integer]`
+
++
+次のパラメータでアクセス権限を定義します。
+
++
+[cols="2*"]
+|===
+
+
+ a| 
+「効果」
+ a| 
+この文では ' アクセスを許可または拒否できます
+
+
+
+ a| 
+「 -action 」を使用します
+ a| 
+「 * 」を指定すると、すべてのアクションを意味することも、「 GetObject 」、「 PutObject 」、「 DeleteObject 」、「 ListBucket 」、「 GetBucketAcl 」、「 GetObjectAcl 」のうちの 1 つ以上のアクションを意味することもできます。 ListBucketMultipartUploads'`ListMultipartUploadPartUploadParts`
+
+
+
+ a| 
+「 -principal 」
+ a| 
+1 つ以上の S3 ユーザまたはグループのリスト。
+
+** 最大 10 のユーザまたはグループを指定できます。
+** S3 グループを指定する場合は、「 group/group_name . 」の形式で指定する必要があります
+** 「 * 」は、公開アクセスを意味するように指定できます。つまり、 access-key と secret-key を使用せずにアクセスします。
+** プリンシパルを指定しない場合、 SVM 内のすべての S3 ユーザにアクセスが許可されます。
+
+
+
+
+ a| 
+「 -resource 」と入力します
+ a| 
+バケットとバケットに含まれるすべてのオブジェクト。ワイルドカード文字「 * 」および「 ? 」 リソースを指定するための正規表現を形成するために使用できます。
+
+|===
++
+オプションで '-sid` オプションを使用して ' テキスト文字列をコメントとして指定できます
+
+
+
+次の例は、 SVM svm1.example.com および bucket1 にオブジェクトストアサーバのバケットポリシーステートメントを作成し、オブジェクトストアサーバ user1 の readme フォルダへのアクセスを許可するように指定します。
+
+[listing]
+----
+cluster1::> vserver object-store-server bucket policy statement create -vserver svm1.example.com -bucket bucket1 -effect allow -action GetObject,PutObject,DeleteObject,ListBucket -principal user1 -resource bucket1/readme/* -sid "fullAccessToReadmeForUser1"
+----
+次の例は、 SVM svm1.example.com および bucket1 にオブジェクトストアサーバのバケットポリシーステートメントを作成し、オブジェクトストアサーバグループ group1 のすべてのオブジェクトへのアクセスを許可するように指定します。
+
+[listing]
+----
+cluster1::> vserver object-store-server bucket policy statement create -vserver svm1.example.com -bucket bucket1 -effect allow -action GetObject,PutObject,DeleteObject,ListBucket -principal group/group1 -resource bucket1/* -sid "fullAccessForGroup1"
+----

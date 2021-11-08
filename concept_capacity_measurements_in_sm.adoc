@@ -1,23 +1,26 @@
 ---
 sidebar: sidebar 
 permalink: concept_capacity_measurements_in_sm.html 
-keywords: capacity, measurement, physical, logical, storage, used storage, aggregate capacity, block 
-summary: System Manager で測定した値には、システムのストレージ容量が反映されているものがあります。 
+keywords: capacity, measurement, physical, logical, storage, used storage, aggregate capacity, block, capacity concern, issue, add capacity, volume, used capacity, available capacity, total capacity, inactive capacity, explore capacity, capacity explorer, static insights, dynamic insights, snapshot copy, snapshot copies, inactive data, overprovision, overflows, snapshot copy policy, snapshot copy reserves, reserves, policy, top volumes 
+summary: System Manager を使用して、使用されているストレージ容量と、クラスタでまだ使用可能な容量を確認できます。また、 ONTAP 9.10.1 以降のシステムでは、 System Manager を使用して、クラスタの容量に関する履歴データと、今後使用または利用可能になる容量の予測を表示することができます。 
 ---
-= System Manager で測定される容量
-:toc: macro
-:hardbreaks:
-:toclevels: 1
-:toc: 
-:toclevels: 1
-:nofooter: 
-:icons: font
-:linkattrs: 
-:imagesdir: ./media/
-:toc-position: content
+= System Manager で容量を監視
 
 
 [role="lead"]
+System Manager を使用して、使用されているストレージ容量と、クラスタでまだ使用可能な容量を確認できます。また、 ONTAP 9.10.1 以降のシステムでは、 System Manager を使用して、クラスタの容量に関する履歴データと、今後使用または利用可能になる容量に関する予測データを表示することができます。
+
+* <<cap-measurements-sm>>
+* <<measurements-used-cap>>
+* <<measurement-terms>>
+* <<cap-measurement-units>>
+* <<view-cap-measurements>>
+
+
+
+
+== System Manager で測定される容量
+
 システム容量は物理スペースまたは論理スペースとして測定できます。最新バージョンの System Manager では、物理容量と論理容量を測定します。
 
 2 つの測定値の違いについては、次の説明を参照してください。
@@ -37,20 +40,42 @@ NOTE: System Manager では、ルートストレージ階層（アグリゲー�
 
 [cols="30,30,40"]
 |===
+
+
 | System Manager のバージョン | 容量に使用される用語 | 参照される容量のタイプ 
 
 
-| 9.5 および 9.6 （クラシックビュー） | 使用済み | 使用済みの物理スペース 
+ a| 
+9.5 および 9.6 （クラシックビュー）
+ a| 
+使用済み
+ a| 
+使用済みの物理スペース
 
 
-| 9.7 および 9.8 | 使用済み | 使用済みの論理スペース（ Storage Efficiency の設定が有効になっている場合） 
+
+ a| 
+9.7 および 9.8
+ a| 
+使用済み
+ a| 
+使用済みの論理スペース（ Storage Efficiency の設定が有効になっている場合）
 
 
-| 9.9.1 | 使用済みの論理容量 | 使用済みの論理スペース（ Storage Efficiency の設定が有効になっている場合） 
+
+ a| 
+9.9.1 以降
+ a| 
+使用済みの論理容量
+ a| 
+使用済みの論理スペース（ Storage Efficiency の設定が有効になっている場合）
+
 |===
 
 
 == 測定条件
+
+容量の説明では次の用語を使用します。
 
 * * Physical Used * ：ボリュームの物理ブロックで使用されている容量が表示されます。
 * * Physical Used % * ：ボリュームの物理ブロックで使用されている容量のうち、プロビジョニングされたサイズに対する割合が表示されます。
@@ -58,4 +83,98 @@ NOTE: System Manager では、ルートストレージ階層（アグリゲー�
 * * Logical Used % * ：ボリュームの Snapshot リザーブを除く、プロビジョニングサイズに対する現在の使用済み論理容量の割合が表示されます。この値は、ボリューム内での効率化による削減も含まれるため、 100% より大きい値にすることができます。
 
 
-link:https://docs.netapp.com/ontap-9/topic/com.netapp.doc.dot-cm-vsmg/GUID-65C34C6C-29A0-4DB7-A2EE-019BA8EB8A83.html["ボリュームの論理スペースのレポートと適用"] のトピック 
+
+
+== 容量の単位
+
+System Manager は、 1024 （ 2^10^ ）バイトのバイナリ単位に基づいてストレージ容量を計算します。ONTAP 9.10.0 以前では、 System Manager に KB 、 MB 、 GB 、 TB 、 PB として表示されていました。ONTAP 9.10.1 以降の System Manager では、 KiB 、 MiB 、 GiB 、 TiB 、および PiB として表示されます。
+
+
+NOTE: System Manager のスループットに使用される単位は、すべてのリリースの ONTAP について、 KB/ 秒、 MB/ 秒、 GB/ 秒、および PB / 秒です。
+
+[cols="20,20,30,30"]
+|===
+
+
+| ONTAP 9.10.0 以前の System Manager で表示される容量の単位 | ONTAP 9.10.1 の System Manager に表示される容量単位 | 計算 | バイト単位の値 
+
+
+ a| 
+KB
+ a| 
+KiB
+ a| 
+1024
+ a| 
+1024 バイト
+
+
+
+ a| 
+MB
+ a| 
+MIB
+ a| 
+1024 * 1024
+ a| 
+1 、 048 、 576 バイト
+
+
+
+ a| 
+GB
+ a| 
+GIB
+ a| 
+1024 * 1024 * 1024
+ a| 
+1,073,741,824 バイト
+
+
+
+ a| 
+容量
+ a| 
+TiB
+ a| 
+1024 * 1024 * 1024 * 1024
+ a| 
+1 、 099 、 511 、 627 、 776 バイト
+
+
+
+ a| 
+PB
+ a| 
+PIB
+ a| 
+1024 * 1024 * 1024 * 1024 * 1024
+ a| 
+1,125,898,010,834,824 バイト
+
+|===
+link:volumes/logical-space-reporting-enforcement-concept.html["ボリュームの論理スペースのレポートと適用"]
+
+
+
+== クラスタの容量測定値を表示します
+
+クラスタの容量測定値は、 System Manager のダッシュボードで確認できます。
+
+クラウド内の容量に関連するデータを表示するには、 Active IQ デジタルアドバイザのアカウントが必要です。このアカウントが接続されている必要があります。
+
+.手順
+. System Manager で、 * ダッシュボード * をクリックします。
+. 容量 * セクションでは、次の情報を確認できます。
++
+** クラスタの合計使用容量
+** クラスタの使用可能な合計容量
+** 使用済み容量と使用可能容量の割合。
+** データ削減率。
+** クラウドで使用されている容量。
+** 使用容量の履歴。
+** 使用容量の予測
+
+
+. をクリックします image:../media/icon_arrow.gif["右矢印"] をクリックして、クラスタの容量に関する詳細を確認してください。
+

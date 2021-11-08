@@ -1,0 +1,35 @@
+---
+permalink: data-protection/example-snapshot-copies-exceed-reserve-concept.html 
+sidebar: sidebar 
+keywords: delete, protected, files, less file space 
+summary: Snapshot コピーは、ブロックを使用していたファイルを削除したあともそのブロックをポイントします。そのため、 Snapshot コピーリザーブを使い切ると、期待に反した結果を引き起こす可能性があります。つまり、ファイルシステム全体を削除することで、ファイルシステムが占有するスペースよりも、使用可能なスペースが少なくなります。 
+---
+= 保護対象のファイルを削除するとファイルスペースが想定よりも少なくなる可能性があります
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+Snapshot コピーは、ブロックを使用していたファイルを削除したあともそのブロックをポイントします。そのため、 Snapshot コピーリザーブを使い切ると、期待に反した結果を引き起こす可能性があります。つまり、ファイルシステム全体を削除することで、ファイルシステムが占有するスペースよりも、使用可能なスペースが少なくなります。
+
+次の例を考えてみましょう。ファイルを削除する前に、「 df 」コマンドの出力は次のようになります。
+
+[listing]
+----
+
+Filesystem          kbytes  used    avail  capacity
+/vol/vol0/          3000000 3000000 0       100%
+/vol/vol0/.snapshot 1000000 500000  500000   50%
+----
+ファイルシステム全体を削除してボリュームの Snapshot コピーを作成すると、「 f 」コマンドによって次の出力が生成されます。
+
+[listing]
+----
+
+Filesystem          kbytes  used    avail  capacity
+/vol/vol0/          3000000 2500000 500000   83%
+/vol/vol0/.snapshot 1000000 3500000 0       350%
+----
+出力から、削除前の 0.5GB に加えて、アクティブファイルシステムで以前に使用されていた 3GB 全体が Snapshot コピーによって使用されるようになりました。
+
+Snapshot コピーで使用されるディスクスペースは Snapshot コピーリザーブを超えているため、アクティブファイル用にリザーブされたスペースに 2.5GB の「ピル」がオーバーフローします。想定していた 3GB については、ファイル用の 0.5GB の空きスペースが残ります。

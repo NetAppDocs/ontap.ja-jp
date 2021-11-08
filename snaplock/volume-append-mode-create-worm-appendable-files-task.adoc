@@ -1,0 +1,49 @@
+---
+permalink: snaplock/volume-append-mode-create-worm-appendable-files-task.html 
+sidebar: sidebar 
+keywords: volume, append, mode, create, worm, file, vam, rentention, period, data 
+summary: ONTAP 9.3 以降では、 SnapLock のボリュームアペンドモード（ VAM ）機能を使用して、追記可能 WORM ファイルをデフォルトで作成できます。追記可能 WORM ファイルには、ログエントリのように段階的に書き込まれるデータが格納されます。データは 256KB のチャンク単位でファイルに追加されます。チャンクが書き込まれるたびに、前のチャンクが WORM 方式で保護されます。このファイルは保持期間が経過するまで削除できません。 
+---
+= ボリュームアペンドモードを使用して追記可能 WORM ファイルを作成します
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+ONTAP 9.3 以降では、 SnapLock のボリュームアペンドモード（ VAM ）機能を使用して、追記可能 WORM ファイルをデフォルトで作成できます。追記可能 WORM ファイルには、ログエントリのように段階的に書き込まれるデータが格納されます。データは 256KB のチャンク単位でファイルに追加されます。チャンクが書き込まれるたびに、前のチャンクが WORM 方式で保護されます。このファイルは保持期間が経過するまで削除できません。
+
+.必要なもの
+* 追記可能 WORM ファイルは SnapLock ボリュームに格納する必要があります。
+* SnapLock ボリュームは、アンマウントされていて、 Snapshot コピーやユーザが作成したファイルが含まれていない必要があります。
+
+
+データは、アクティブな 256KB のチャンクに順番に書き込まれる必要はありません。ファイルの n * 256KB+1 バイトにデータが書き込まれると、 1 つ前の 256KB セグメントが WORM 方式で保護されます。
+
+ボリュームに自動コミット期間を指定している場合、追記可能 WORM ファイルに変更がなかった期間が自動コミット期間を超えると、そのファイルは WORM 状態にコミットされます。
+
+[NOTE]
+====
+VAM は SnapLock 監査ログボリュームではサポートされません。
+
+====
+.手順
+. VAM を有効にします。
++
+「 * volume SnapLock modify -vserver _svm_name_-is-volume_name_-is-volume-append-mode -enabled true | false * 」
+
++
+すべてのオプションの一覧については、コマンドのマニュアルページを参照してください。
+
++
+次のコマンドは、 SVM 「 vs1 」のボリューム「 vol1 」で VAM を有効にします。
+
++
+[listing]
+----
+cluster1::>volume snaplock modify -vserver vs1 -volume vol1 -is-volume-append-mode-enabled true
+----
+. 適切なコマンドまたはプログラムを使用して、書き込み権限を持つファイルを作成します。
++
+ファイルはデフォルトで追記可能 WORM ファイルになります。
+
+

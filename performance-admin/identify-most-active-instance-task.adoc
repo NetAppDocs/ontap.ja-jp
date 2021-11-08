@@ -1,0 +1,80 @@
+---
+permalink: performance-admin/identify-most-active-instance-task.html 
+sidebar: sidebar 
+keywords: identify, high-traffic, clients files 
+summary: ONTAP の Active Objects テクノロジを使用すると、クラスタのトラフィック量を著しく増大させているクライアントやファイルを特定することができます。この「上位」のクライアントやファイルを特定したら、クラスタワークロードをリバランシングするか、別の手順に従って問題を解決できます。 
+---
+= トラフィックの多いクライアントやファイルを特定
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+ONTAP の Active Objects テクノロジを使用すると、クラスタのトラフィック量を著しく増大させているクライアントやファイルを特定することができます。このような「上位」のクライアントやファイルを特定したら、クラスタワークロードをリバランシングするか、別の手順に従って問題を解決できます。
+
+このタスクを実行するには、クラスタ管理者である必要があります。
+
+.手順
+. クラスタに最もアクセスする上位のクライアントを表示します。
++
+統計トップクライアントのステータス表示 - Node_node_name -- ソート - key_sort_column__ interval _seconds_between _updations_iterations - max_number_of_instances_`
+
++
+コマンド構文全体については、マニュアルページを参照してください。
+
++
+次のコマンドは 'cluster1 にアクセスする上位のクライアントを表示します
+
++
+[listing]
+----
+cluster1::> statistics top client show
+
+cluster1 : 3/23/2016 17:59:10
+
+
+                                               *Total
+        Client Vserver           Node Protocol    Ops
+-------------- ------- -------------- -------- ------
+172.17.180.170     vs4 siderop1-vsim4      nfs    668
+172.17.180.169     vs3 siderop1-vsim3      nfs    337
+172.17.180.171     vs3 siderop1-vsim3      nfs    142
+172.17.180.170     vs3 siderop1-vsim3      nfs    137
+172.17.180.123     vs3 siderop1-vsim3      nfs    137
+172.17.180.171     vs4 siderop1-vsim4      nfs     95
+172.17.180.169     vs4 siderop1-vsim4      nfs     92
+172.17.180.123     vs4 siderop1-vsim4      nfs     92
+172.17.180.153     vs3 siderop1-vsim3      nfs      0
+----
+. クラスタで最も多くアクセスされる上位のファイルを表示します。
++
+統計情報トップファイル show -node _node_name --sort-key_sort_key_sort_column__ interval_seconds_between _updations_iterations -max_number_of_cinances_`
+
++
+コマンド構文全体については、マニュアルページを参照してください。
+
++
+次のコマンドでは 'cluster1 でアクセスされる上位のファイルが表示されます
+
++
+[listing]
+----
+cluster1::> statistics top file show
+
+cluster1 : 3/23/2016 17:59:10
+
+					              *Total
+                    File Volume Vserver          Node    Ops
+------------------------ ------ ------- -------------- ------
+/vol/vol1/vm170-read.dat   vol1     vs4 siderop1-vsim4     22
+/vol/vol1/vm69-write.dat   vol1     vs3 siderop1-vsim3      6
+     /vol/vol2/vm171.dat   vol2     vs3 siderop1-vsim3      2
+     /vol/vol2/vm169.dat   vol2     vs3 siderop1-vsim3      2
+      /vol/vol2/p123.dat   vol2     vs4 siderop1-vsim4      2
+      /vol/vol2/p123.dat   vol2     vs3 siderop1-vsim3      2
+     /vol/vol1/vm171.dat   vol1     vs4 siderop1-vsim4      2
+     /vol/vol1/vm169.dat   vol1     vs4 siderop1-vsim4      2
+     /vol/vol1/vm169.dat   vol1     vs4 siderop1-vsim3      2
+      /vol/vol1/p123.dat   vol1     vs4 siderop1-vsim4      2
+----
+

@@ -1,0 +1,46 @@
+---
+permalink: snaplock/create-snaplock-volume-task.html 
+sidebar: sidebar 
+keywords: snaplock, volume, shanpshot, copy, create, complianceclock, file, worm, compliance, enterprise 
+summary: WORM 状態にコミットするファイルまたは Snapshot コピーに対しては、 SnapLock ボリュームを作成する必要があります。ONTAP 9.10.1 以降では、アグリゲートの種類に関係なく、作成するすべてのボリュームがデフォルトで SnapLock 以外のボリュームとして作成されます。SnapLock ボリュームを明示的に作成するには '-snaplock-type' オプションを使用して 'Compliance または Enterprise のいずれかを SnapLock タイプとして指定する必要がありますデフォルトでは、 SnapLock タイプは「 non-snaplock' 」に設定されています。 
+---
+= SnapLock ボリュームを作成します
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+WORM 状態にコミットするファイルまたは Snapshot コピーに対しては、 SnapLock ボリュームを作成する必要があります。ONTAP 9.10.1 以降では、アグリゲートの種類に関係なく、作成するすべてのボリュームがデフォルトで SnapLock 以外のボリュームとして作成されます。SnapLock ボリュームを明示的に作成するには '-snaplock-type' オプションを使用して 'Compliance または Enterprise のいずれかを SnapLock タイプとして指定する必要がありますデフォルトでは、 SnapLock タイプは「 non-snaplock' 」に設定されています。
+
+.必要なもの
+* SnapLock アグリゲートがオンラインになっている必要があります。
+* ノードに SnapLock ライセンスがインストールされている必要があります。
+* ノードの ComplianceClock を初期化しておく必要があります。
+
+
+適切な SnapLock 権限を使用すれば、いつでも Enterprise ボリュームの削除や名前変更を行うことができます。Compliance ボリュームの削除は保持期間が終了するまでは実行できません。Compliance ボリュームの名前は一切変更できません。
+
+SnapLock ボリュームはクローニングできますが、 SnapLock ボリューム上のファイルはクローニングできません。クローンボリュームの SnapLock タイプは親ボリュームと同じになります。
+
+[NOTE]
+====
+LUN は SnapLock ボリュームではサポートされていません。従来のテクノロジを使用して SnapLock ボリュームに LUN を移動することは可能ですが、サポートされている処理ではなく、 SnapLock ボリューム上の LUN に関するその他の処理も実行できません。
+
+====
+.手順
+. SnapLock ボリュームを作成します。
++
+`* volume create -vserver _svm_name_-volume_name_-aggregate _aggregate-name_*`
+
++
+すべてのオプションの一覧については、コマンドのマニュアルページを参照してください。SnapLock ボリュームには、「 -nvfail 」、「 -atime-update 」、「 -is-autobalance eligible 」、「 -space-mgmt-try-first 」、「 vmalign 」の各オプションはありません。
+
++
+次のコマンドは 'vs1' の aggr1 に 'vol1' という名前の SnapLock Compliance ボリュームを作成します
+
++
+[listing]
+----
+cluster1::> volume create -vserver vs1 -volume vol1 -aggregate aggr1
+----
+

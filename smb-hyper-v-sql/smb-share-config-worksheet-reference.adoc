@@ -1,0 +1,137 @@
+---
+permalink: smb-hyper-v-sql/smb-share-config-worksheet-reference.html 
+sidebar: sidebar 
+keywords: complete, smb, share, configuration, worksheet, information, settings 
+summary: このワークシートを使用して、 SQL Server および Hyper-V over SMB 構成用に継続的可用性を備えた SMB 共有を作成する際に必要となる値を記録してください。 
+---
+= SMB 共有設定ワークシートに記入
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+このワークシートを使用して、 SQL Server および Hyper-V over SMB 構成用に継続的可用性を備えた SMB 共有を作成する際に必要となる値を記録してください。
+
+
+
+== SMB 共有のプロパティおよび設定に関する情報
+
+共有ごとに、次の情報を指定する必要があります。
+
+* Storage Virtual Machine （ SVM ）名
++
+SVM 名はすべての共有で同じです
+
+* 共有名
+* パス
+* 共有プロパティ
++
+次の 2 つの共有プロパティを設定する必要があります。
+
++
+** oplock
+** 「継続的可用性」を参照してください
+
+
+
+
+次の共有プロパティは設定しないでください。
+
+* homedirectory attributecache
+* 「 BranchCache 」
+* 「 access-based-enumeration 」のように指定します
++
+[NOTE]
+====
+変更通知が無効になっていると、 Windows Server 2012 ではエクスプローラウィンドウが更新されないため、ディレクトリの内容が一貫して表示されません。
+
+====
++
+** シンボリックリンクは無効にする必要があります（ '-symlink-properties ' パラメータの値は null["]] でなければなりません）
+
+
+
+
+
+
+== 共有パスに関する情報
+
+リモート VSS を使用して Hyper-V ファイルをバックアップする場合は、 Hyper-V サーバから仮想マシンファイルの格納場所への SMB 接続を確立する際に使用する共有パスの選択が重要になります。共有はネームスペース内の任意のポイントに作成できますが、 Hyper-V サーバで使用される共有のパスに結合されたボリュームを含めることはできません。ジャンクションポイントを含む共有パスでシャドウコピー処理を実行することはできません。
+
+データベースディレクトリ構造を作成する場合、 SQL Server はジャンクションを横断できません。ジャンクションポイントを含む SQL Server の共有パスは作成しないでください。
+
+たとえば、次に示す名前空間を指定すると、仮想マシンファイルまたはデータベースファイルをボリューム「 vol1 」、「 vol2 」、「 vol3 」、および「 vol4 」に格納する場合は、アプリケーションサーバの共有をパス「 /data1/vol1 」、「 /data1/vol2 」、「 /data1/vol4 」、「 /data1/data2 」に作成する必要があります。
+
+[listing]
+----
+
+                     Junction                       Junction
+Vserver Volume       Active   Junction Path         Path Source
+------- ------------ -------- -------------------   -----------
+vs1     data1         true     /data1               RW_volume
+vs1     vol1          true     /data1/vol1          RW_volume
+vs1     vol2          true     /data1/vol2          RW_volume
+vs1     data2         true     /data2               RW_volume
+vs1     vol3          true     /data2/vol3          RW_volume
+vs1     vol4          true     /data2/vol4          RW_volume
+----
+[NOTE]
+====
+管理用に '/data1' および /data2 のパスに共有を作成することはできますが ' データの保存にこれらの共有を使用するようにアプリケーション・サーバを構成しないでください
+
+====
+
+
+== 計画ワークシート
+
+|===
+| 情報の種類 | 値 
+
+
+ a| 
+_ ボリューム 1 ： SMB 共有名およびパス _
+ a| 
+
+
+
+ a| 
+_ ボリューム 2 ： SMB 共有名およびパス _
+ a| 
+
+
+
+ a| 
+_ ボリューム 3 ： SMB 共有名およびパス _
+ a| 
+
+
+
+ a| 
+_ ボリューム 4 ： SMB 共有名およびパス _
+ a| 
+
+
+
+ a| 
+_ ボリューム 5 ： SMB 共有名およびパス _
+ a| 
+
+
+
+ a| 
+_ ボリューム 6 ： SMB 共有名およびパス _
+ a| 
+
+
+
+ a| 
+_ ボリューム 7 ： SMB 共有名およびパス _
+ a| 
+
+
+
+ a| 
+追加ボリューム： SMB 共有名およびパス _
+ a| 
+
+|===

@@ -1,0 +1,45 @@
+---
+permalink: system-admin/rules-specifying-values-concept.html 
+sidebar: sidebar 
+keywords: rules, specifying, values, cli, parameters, required, optional 
+summary: ほとんどのコマンドには、 1 つ以上の必須またはオプションのパラメータが含まれています。多くのパラメータでは、値を指定する必要があります。CLI で値を指定するには、いくつかのルールがあります。 
+---
+= CLI で値を指定する際のルール
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+ほとんどのコマンドには、 1 つ以上の必須またはオプションのパラメータが含まれています。多くのパラメータでは、値を指定する必要があります。CLI で値を指定するには、いくつかのルールがあります。
+
+* 値には、数値、ブール指定子、事前に定義された値の列挙リストからの選択、またはテキスト文字列を指定できます。
++
+一部のパラメータでは、 2 つ以上の値をカンマで区切って指定できます。値をカンマで区切って指定したリストは、引用符（ "" ）で囲む必要はありません。テキスト、スペース、またはクエリ文字（クエリを意図していない場合、または小なり記号または大なり記号で始まるテキスト）を指定する場合は、必ずエンティティを引用符で囲む必要があります。
+
+* CLI は疑問符（ "" ？ "" ）を解釈します。 をコマンドとして使用し、特定のコマンドのヘルプ情報を表示します。
+* コマンド名、パラメータ、特定の値などの CLI に入力するテキストの一部では、大文字と小文字が区別されません。
++
+たとえば、「 vserver cifs 」コマンドのパラメータ値を入力した場合、大文字と小文字の使い分けは無視されます。ただし、ノード、 Storage Virtual Machine （ SVM ）、アグリゲート、ボリューム、論理インターフェイスの名前などのほとんどのパラメータ値は大文字と小文字が区別されます。
+
+* 文字列またはリストをとるパラメータの値をクリアする場合は、空の一連の引用符（ "" ）またはダッシュ（ "-" ）を指定します。
+* ハッシュ記号 ("`#") は、シャープ記号とも呼ばれ、コマンドライン入力のコメントを示します。使用する場合は、コマンドラインの最後のパラメータの後に表示されます。
++
+CLI は行の末尾と "#" の間のテキストを無視します。
+
+
+
+次の例では、テキストコメント付きで SVM が作成されます。次に、 SVM が変更されてコメントが削除されます。
+
+[listing]
+----
+cluster1::> vserver create -vserver vs0 -subtype default -rootvolume root_vs0
+-aggregate aggr1 -rootvolume-security-style unix -language C.UTF-8 -is-repository false -ipspace ipspaceA -comment "My SVM"
+cluster1::> vserver modify -vserver vs0 -comment ""
+----
+次の例では、 "#" 記号を使用したコマンドラインコメントは、コマンドの動作を示しています。
+
+[listing]
+----
+cluster1::> security login create -vserver vs0 -user-or-group-name new-admin
+-application ssh -authmethod password #This command creates a new user account
+----

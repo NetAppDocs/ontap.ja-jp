@@ -1,0 +1,107 @@
+---
+permalink: data-protection/convert-type-snapmirror-task.html 
+sidebar: sidebar 
+keywords: convert, snapmirror, relationship 
+summary: ONTAP 9.5 以降では、 SnapMirror Synchronous がサポートされます。非同期 SnapMirror 関係と SnapMirror Synchronous 関係は、ベースライン転送を実行しなくても相互に変換することができます。 
+---
+= SnapMirror 関係のタイプを変換します
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+ONTAP 9.5 以降では、 SnapMirror Synchronous がサポートされます。非同期 SnapMirror 関係と SnapMirror Synchronous 関係は、ベースライン転送を実行しなくても相互に変換することができます。
+
+SnapMirror ポリシーを変更して非同期 SnapMirror 関係と SnapMirror Synchronous 関係を相互に変換することはできません
+
+.手順
+* * 非同期 SnapMirror 関係から SnapMirror Synchronous 関係への変換 *
++
+.. デスティネーションクラスタから、非同期 SnapMirror 関係を削除します。
++
+「 snapmirror delete -destination-path SVM ： volume_` 」」に移動します
+
++
+[listing]
+----
+cluster2::>snapmirror delete -destination-path vs1_dr:vol1
+----
+.. ソースクラスタから、共通の Snapshot コピーは削除せずに SnapMirror 関係を解放します。
++
+「 snapmirror release-relationship-info-only true -destination-path dest_SVM ： dest_volume_`
+
++
+[listing]
+----
+cluster1::>snapmirror release -relationship-info-only true -destination-path vs1_dr:vol1
+----
+.. デスティネーションクラスタから、 SnapMirror Synchronous 関係を作成します。
++
+「 snapmirror create -source-path src_svm 」： src_volume_-destination-path dest_SVM ： dest_volume_-policy sync-mirror
+
++
+[listing]
+----
+cluster2::>snapmirror create -source-path vs1:vol1 -destination-path vs1_dr:vol1 -policy sync
+----
+.. SnapMirror Synchronous 関係を再同期します。
++
+「 snapmirror resync -destination-path dest_svm ： dest_volume_` 」」を参照してください
+
++
+[listing]
+----
+cluster2::>snapmirror resync -destination-path vs1_dr:vol1
+----
+
+
+* * SnapMirror Synchronous 関係から非同期 SnapMirror 関係への変換 *
++
+.. デスティネーションクラスタから、既存の SnapMirror Synchronous 関係を休止します。
++
+「 snapmirror quiesce -destination-path dest_SVM ： dest_volume
+
++
+[listing]
+----
+cluster2::> snapmirror quiesce -destination-path vs1_dr:vol1
+----
+.. デスティネーションクラスタから、非同期 SnapMirror 関係を削除します。
++
+「 snapmirror delete -destination-path SVM ： volume_` 」」に移動します
+
++
+[listing]
+----
+cluster2::>snapmirror delete -destination-path vs1_dr:vol1
+----
+.. ソースクラスタから、共通の Snapshot コピーは削除せずに SnapMirror 関係を解放します。
++
+「 snapmirror release-relationship-info-only true -destination-path dest_SVM ： dest_volume_`
+
++
+[listing]
+----
+cluster1::>snapmirror release -relationship-info-only true -destination-path vs1_dr:vol1
+----
+.. デスティネーションクラスタから、非同期 SnapMirror 関係を作成します。
++
+「 snapmirror create -source-path src_svm 」： src_volume__ destination-path _dest _dest_SVM ： dest_volume_-policy MirrorAllSnapshots
+
++
+[listing]
+----
+cluster2::>snapmirror create -source-path vs1:vol1 -destination-path vs1_dr:vol1 -policy sync
+----
+.. SnapMirror Synchronous 関係を再同期します。
++
+「 snapmirror resync -destination-path dest_svm ： dest_volume_` 」」を参照してください
+
++
+[listing]
+----
+cluster2::>snapmirror resync -destination-path vs1_dr:vol1
+----
+
+
+

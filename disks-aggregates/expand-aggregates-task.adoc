@@ -1,0 +1,159 @@
+---
+permalink: disks-aggregates/expand-aggregates-task.html 
+sidebar: sidebar 
+keywords: expand, aggregate 
+summary: アグリゲートにディスクを追加することで、関連付けられたボリュームに提供できるストレージを増やすことができます。パーティショニングされたディスクをアグリゲートに追加するための手順は、パーティショニングされていないディスクを追加するための手順と似ています。 
+---
+= アグリゲートを拡張します
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+アグリゲートにディスクを追加することで、関連付けられたボリュームに提供できるストレージを増やすことができます。パーティショニングされたディスクをアグリゲートに追加するための手順は、パーティショニングされていないディスクを追加するための手順と似ています。
+
+ストレージの追加先となるアグリゲートの RAID グループのサイズを確認しておく必要があります。
+
+アグリゲートを拡張する場合は、パーティションディスクとパーティショニングされていないディスクのどちらをアグリゲートに追加するかを確認しておく必要があります。パーティショニングされていないドライブを既存のアグリゲートに追加する場合は、既存の RAID グループのサイズが新しい RAID グループによって継承されます。これにより、必要なパリティディスクの数に影響を及ぼす可能性があります。パーティショニングされたディスクで構成される RAID グループにパーティショニングされていないディスクが追加されると、新しいディスクがパーティショニングされ、未使用のスペアパーティションが残ります。
+
+パーティションをプロビジョニングする場合は、両方のパーティションを含むスペアドライブがノードに存在しない状態を避けてください。両方のパーティションを含むスペアディスクがノードに存在しない場合にノードのコントローラが停止すると、問題に関する有用な情報（コアファイル）をテクニカルサポートが利用できなくなる可能性があります。
+
+[NOTE]
+====
+アグリゲートを拡張する場合は、「 disklist 」コマンドは使用しないでください。原因パーティションのミスアライメントが発生する可能性があります
+
+====
+.手順
+. アグリゲートを所有するシステムで使用可能なスペアストレージを表示します。
++
+「 storage aggregate show-spare-disks -original-owner node_name _ 」という形式で指定します
+
++
+is-disk-shared パラメータを使用して ' パーティショニングされたドライブだけ ' またはパーティショニングされていないドライブだけを表示できます
+
++
+[listing]
+----
+cl1-s2::> storage aggregate show-spare-disks -original-owner cl1-s2 -is-disk-shared true
+
+Original Owner: cl1-s2
+ Pool0
+  Shared HDD Spares
+                                                            Local    Local
+                                                             Data     Root Physical
+ Disk                        Type     RPM Checksum         Usable   Usable     Size Status
+ --------------------------- ----- ------ -------------- -------- -------- -------- --------
+ 1.0.1                       BSAS    7200 block           753.8GB  73.89GB  828.0GB zeroed
+ 1.0.2                       BSAS    7200 block           753.8GB       0B  828.0GB zeroed
+ 1.0.3                       BSAS    7200 block           753.8GB       0B  828.0GB zeroed
+ 1.0.4                       BSAS    7200 block           753.8GB       0B  828.0GB zeroed
+ 1.0.8                       BSAS    7200 block           753.8GB       0B  828.0GB zeroed
+ 1.0.9                       BSAS    7200 block           753.8GB       0B  828.0GB zeroed
+ 1.0.10                      BSAS    7200 block                0B  73.89GB  828.0GB zeroed
+2 entries were displayed.
+----
+. アグリゲートの現在の RAID グループを表示します。
++
+「 storage aggregate show-status _aggr_name _ 」を参照してください
+
++
+[listing]
+----
+cl1-s2::> storage aggregate show-status -aggregate data_1
+
+Owner Node: cl1-s2
+ Aggregate: data_1 (online, raid_dp) (block checksums)
+  Plex: /data_1/plex0 (online, normal, active, pool0)
+   RAID Group /data_1/plex0/rg0 (normal, block checksums)
+                                                              Usable Physical
+     Position Disk                        Pool Type     RPM     Size     Size Status
+     -------- --------------------------- ---- ----- ------ -------- -------- ----------
+     shared   1.0.10                       0   BSAS    7200  753.8GB  828.0GB (normal)
+     shared   1.0.5                        0   BSAS    7200  753.8GB  828.0GB (normal)
+     shared   1.0.6                        0   BSAS    7200  753.8GB  828.0GB (normal)
+     shared   1.0.11                       0   BSAS    7200  753.8GB  828.0GB (normal)
+     shared   1.0.0                        0   BSAS    7200  753.8GB  828.0GB (normal)
+5 entries were displayed.
+----
+. アグリゲートへのストレージの追加をシミュレートします。
++
+「 storage aggregate add-disks -aggregate _aggr_name_-diskcount _number_of_disks_or_partitions 」 - simulate true
+
++
+実際にストレージをプロビジョニングしなくてもストレージの追加結果を確認できます。シミュレートしたコマンドから警告が表示された場合は、コマンドを調整してシミュレーションを繰り返すことができます。
+
++
+[listing]
+----
+cl1-s2::> storage aggregate add-disks data_1 -diskcount 5 -simulate true
+
+Addition of disks would succeed for aggregate "data_1" on node "cl1-s2". The
+following disks would be used to add to the aggregate: 1.0.2, 1.0.3, 1.0.4, 1.0.8, 1.0.9.
+----
+. アグリゲートにストレージを追加します。
++
+「 storage aggregate add-disks -aggregate _aggr_name -- raidgroup new-diskcount _number_of_disks_or_partitions _ 」という名前のアグリゲートが追加されました
+
++
+Flash Pool アグリゲートを作成するときに、アグリゲートとは異なるチェックサムのディスクを追加する場合、またはチェックサムが混在したアグリゲートにディスクを追加する場合は、 -checksumstyle パラメータを使用する必要があります。
+
++
+Flash Pool アグリゲートにディスクを追加する場合は、「 -disktype 」パラメータを使用してディスクタイプを指定する必要があります。
+
++
+-disksize パラメータを使用して ' 追加するディスクのサイズを指定できます指定したサイズに近いディスクだけがアグリゲートへの追加対象として選択されます。
+
++
+[listing]
+----
+cl1-s2::> storage aggregate add-disks -aggregate data_1 -raidgroup new -diskcount 5
+----
+. ストレージが正常に追加されたことを確認します。
++
+「 storage aggregate show-status -aggregate _aggr_name _ 」を参照してください
+
++
+[listing]
+----
+cl1-s2::> storage aggregate show-status -aggregate data_1
+
+Owner Node: cl1-s2
+ Aggregate: data_1 (online, raid_dp) (block checksums)
+  Plex: /data_1/plex0 (online, normal, active, pool0)
+   RAID Group /data_1/plex0/rg0 (normal, block checksums)
+                                                              Usable Physical
+     Position Disk                        Pool Type     RPM     Size     Size Status
+     -------- --------------------------- ---- ----- ------ -------- -------- ----------
+     shared   1.0.10                       0   BSAS    7200  753.8GB  828.0GB (normal)
+     shared   1.0.5                        0   BSAS    7200  753.8GB  828.0GB (normal)
+     shared   1.0.6                        0   BSAS    7200  753.8GB  828.0GB (normal)
+     shared   1.0.11                       0   BSAS    7200  753.8GB  828.0GB (normal)
+     shared   1.0.0                        0   BSAS    7200  753.8GB  828.0GB (normal)
+     shared   1.0.2                        0   BSAS    7200  753.8GB  828.0GB (normal)
+     shared   1.0.3                        0   BSAS    7200  753.8GB  828.0GB (normal)
+     shared   1.0.4                        0   BSAS    7200  753.8GB  828.0GB (normal)
+     shared   1.0.8                        0   BSAS    7200  753.8GB  828.0GB (normal)
+     shared   1.0.9                        0   BSAS    7200  753.8GB  828.0GB (normal)
+10 entries were displayed.
+----
+. ルートパーティションとデータパーティションの両方を含む少なくとも 1 本のスペアドライブがノードに存在することを確認します。
++
+「 storage aggregate show-spare-disks -original-owner node_name _ 」という形式で指定します
+
++
+[listing]
+----
+cl1-s2::> storage aggregate show-spare-disks -original-owner cl1-s2 -is-disk-shared true
+
+Original Owner: cl1-s2
+ Pool0
+  Shared HDD Spares
+                                                            Local    Local
+                                                             Data     Root Physical
+ Disk                        Type     RPM Checksum         Usable   Usable     Size Status
+ --------------------------- ----- ------ -------------- -------- -------- -------- --------
+ 1.0.1                       BSAS    7200 block           753.8GB  73.89GB  828.0GB zeroed
+ 1.0.10                      BSAS    7200 block                0B  73.89GB  828.0GB zeroed
+2 entries were displayed.
+----
+

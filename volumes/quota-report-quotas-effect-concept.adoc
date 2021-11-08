@@ -1,0 +1,120 @@
+---
+permalink: volumes/quota-report-quotas-effect-concept.html 
+sidebar: sidebar 
+keywords: how you can, use, quota report, see, quotas in effect 
+summary: クォータインタラクションはさまざまな方法で行われるため、ユーザが明示的に作成したクォータ以外のクォータも有効になります。有効なクォータを確認するには、クォータレポートを表示します。 
+---
+= クォータレポートを使用して有効なクォータを確認する方法
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+クォータインタラクションはさまざまな方法で行われるため、ユーザが明示的に作成したクォータ以外のクォータも有効になります。有効なクォータを確認するには、クォータレポートを表示します。
+
+次に、 FlexVol ボリューム vol1 と、このボリュームに含まれる qtree q1 に適用されている各種クォータのクォータレポートを表示する例を示します。
+
+この例では、ボリューム vol1 に含まれる qtree q1 が存在します。管理者が 3 つのクォータを作成しました。
+
+* vol1 に対して 400MB のデフォルトツリークォータ制限
+* vol1 に対して 100MB のデフォルトユーザクォータ制限
+* ユーザ jsmith のために vol1 に対して 200MB の明示的ユーザクォータ制限
+
+
+これらのクォータの quotas ファイルは、次の抜粋のようになります。
+
+[listing]
+----
+
+#Quota target type            disk files  thold sdisk  sfile
+#-----------  ----            ---  -----  ----  -----  -----
+*             tree@/vol/vol1  400M
+*             user@/vol/vol1  100M
+jsmith        user@/vol/vol1  200M
+----
+これらのクォータのクォータレポートは、次の抜粋のようになります。
+
+[listing]
+----
+
+cluster1::> volume quota report
+Vserver: vs1
+                                    ----Disk----  ----Files-----   Quota
+Volume   Tree      Type    ID        Used  Limit    Used   Limit   Specifier
+-------  --------  ------  -------  -----  -----  ------  ------   ---------
+vol1     -          tree   *           0B  400MB       0       -   *
+vol1     -          user   *           0B  100MB       0       -   *
+vol1     -          user   corp/jsmith
+                                     150B  200MB       7       -   corp/jsmith
+vol1     q1         tree   1           0B  400MB       6       -   q1
+vol1     q1         user   *           0B  100MB       0       -
+vol1     q1         user   corp/jsmith 0B  100MB       5       -
+vol1     -          user   root        0B   0MB        1       -
+vol1     q1         user   root        0B   0MB        8       -
+----
+クォータレポートの最初の 3 行には、管理者が指定した 3 つのクォータが表示されます。これらのクォータのうちの 2 つはデフォルトクォータであるため、 ONTAP は自動的に派生クォータを作成します。
+
+4 行目には、 vol1 のすべての qtree （この例では q1 のみ）のデフォルトツリークォータから派生するツリークォータが表示されます。
+
+5 行目には、ボリュームのデフォルトユーザクォータと qtree クォータが存在するために qtree に作成される、デフォルトユーザクォータが表示されます。
+
+6 行目には、 jsmith のために qtree に作成される派生ユーザクォータが表示されます。このクォータが作成されるのは、 qtree （ 5 行目）にデフォルトユーザクォータが存在し、ユーザ jsmith がその qtree 上のファイルを所有しているためです。qtree q1 でユーザ jsmith に適用される制限が、明示的ユーザクォータ制限（ 200MB ）で決定されることはありません。これは、明示的ユーザクォータ制限がボリューム上にあるため、 qtree の制限には影響しないためです。qtree の派生ユーザクォータ制限は、その qtree のデフォルトユーザクォータ（ 100MB ）で決定されます。
+
+最後の 2 行には、そのボリュームおよび qtree のデフォルトユーザクォータから派生するその他のユーザクォータが表示されます。root ユーザがボリュームと qtree の両方でファイルを所有しているため、ボリュームと qtree の両方の root ユーザに派生ユーザクォータが作成されました。クォータに関して root ユーザは特別な扱いを受けるため、 root ユーザの派生クォータは追跡クォータのみです。
+
+この例は、管理者が qtree にクォータを 2 つ追加したことを除き、前の例と似ています。
+
+この場合も、ボリューム vol1 と qtree q1 が 1 つ残っています。管理者が次のクォータを作成しました。
+
+* vol1 に対して 400MB のデフォルトツリークォータ制限
+* vol1 に対して 100MB のデフォルトユーザクォータ制限
+* ユーザ jsmith のために vol1 に対して 200MB の明示的ユーザクォータ制限
+* qtree q1 に対して 50MB のデフォルトユーザクォータ制限
+* ユーザ jsmith のために qtree q1 に対して 75MB の明示的ユーザクォータ制限
+
+
+次に、これらのクォータの quotas ファイルの例を示します。
+
+[listing]
+----
+
+#Quota target type             disk files  thold sdisk  sfile
+#-----------  ----             ---  -----  ----  -----  -----
+*             tree@/vol/vol1   400M
+*             user@/vol/vol1   100M
+jsmith        user@/vol/vol1   200M
+*             user@/vol/vol1/q1 50M
+jsmith        user@/vol/vol1/q1 75M
+----
+次に、これらのクォータのクォータレポートの例を示します。
+
+[listing]
+----
+
+cluster1::> volume quota report
+Vserver: vs1
+                                    ----Disk----  ----Files-----   Quota
+Volume   Tree      Type    ID        Used  Limit    Used   Limit   Specifier
+-------  --------  ------  -------  -----  -----  ------  ------   ---------
+vol1     -          tree   *           0B  400MB       0       -   *
+vol1     -          user   *           0B  100MB       0       -   *
+vol1     -          user   corp/jsmith
+                                    2000B  200MB       7       -   corp/jsmith
+vol1     q1         user   *           0B   50MB       0       -   *
+vol1     q1         user   corp/jsmith 0B  75MB        5       -   corp/jsmith
+vol1     q1         tree   1           0B 400MB        6       -   q1
+vol1     -          user   root        0B   0MB        2       -
+vol1     q1         user   root        0B   0MB        1       -
+----
+クォータレポートの最初の 5 行には、管理者が作成した 5 つのクォータが表示されます。これらのクォータのいくつかはデフォルトクォータであるため、 ONTAP は自動的に派生クォータを作成します。
+
+6 行目には、 vol1 のすべての qtree （この例では q1 のみ）のデフォルトツリークォータから派生するツリークォータが表示されます。
+
+最後の 2 行には、そのボリュームおよび qtree のデフォルトユーザクォータから派生するユーザクォータが表示されます。root ユーザがボリュームと qtree の両方でファイルを所有しているため、ボリュームと qtree の両方の root ユーザに派生ユーザクォータが作成されました。クォータに関して root ユーザは特別な扱いを受けるため、 root ユーザの派生クォータは追跡クォータのみです。
+
+次の理由から、ほかのデフォルトクォータや派生クォータは作成されませんでした。
+
+* ユーザ jsmith は、このボリュームと qtree の両方にファイルを所有していますが、両方のレベルですでに明示的クォータが存在するため、このユーザに派生ユーザクォータは作成されませんでした。
+* 他のユーザがボリュームまたは qtree のどちらかにファイルを所有していないため、他のユーザに派生ユーザクォータは作成されませんでした。
+* qtree にはすでにデフォルトユーザクォータが存在するため、このボリュームのデフォルトユーザクォータによって qtree にデフォルトユーザクォータが作成されることはありませんでした。
+

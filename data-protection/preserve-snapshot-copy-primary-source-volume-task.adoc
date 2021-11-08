@@ -1,0 +1,73 @@
+---
+permalink: data-protection/preserve-snapshot-copy-primary-source-volume-task.html 
+sidebar: sidebar 
+keywords: ensure, snapshot, copy, mirror-vault, deployment 
+summary: snapmirror snapshot-owner create コマンドを使用して、ミラーバックアップ構成のセカンダリにラベル付きの Snapshot コピーを保持できます。これにより、バックアップ関係の更新用の共通の Snapshot コピーが確保されます。 
+---
+= ミラー - ヴォールト構成で共通の Snapshot コピーを作成する
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+ミラー・スナップショット所有者の作成コマンドを使用すると ' ミラー・ヴォールト構成のセカンダリ上にラベル付きの Snapshot コピーを保持できますこれにより、バックアップ関係の更新用の共通の Snapshot コピーが確保されます。
+
+ミラー - ヴォールトファンアウト構成またはカスケード構成を組み合わせて使用する場合は、ソースボリュームとデスティネーションボリュームに共通の Snapshot コピーが存在しなければ更新が失敗するという点を考慮する必要があります。
+
+SnapMirror は、更新を実行する前に必ずソースボリュームの Snapshot コピーを作成するため、ミラー - ヴォールトファンアウト構成またはカスケード構成ではミラー関係の問題を使用することはありません。
+
+ただし、バックアップ関係の更新時にソースボリュームの Snapshot コピーが SnapMirror によって作成されないため、 SnapMirror はバックアップ関係の問題になる場合があります。ヴォールト関係のソースとデスティネーションの両方に共通の Snapshot コピーを少なくとも 1 つ確保するには、「スナップショット所有者の作成」を使用する必要があります。
+
+.手順
+. ソースボリュームで、保持するラベル付きの Snapshot コピーに所有者を割り当てます。
++
+「 snapmirror snapshot-owner create - vserver_svm_volume_-snapshot_snapshot_owner_owner_` 」を選択します
+
++
+次の例では 'ApplicationA' を 'nap1' Snapshot コピーの所有者として割り当てます
+
++
+[listing]
+----
+clust1::> snapmirror snapshot-owner create -vserver vs1 -volume vol1
+-snapshot snap1 -owner ApplicationA
+----
+. の説明に従って、ミラー関係を更新します link:update-replication-relationship-manual-task.html["レプリケーション関係を手動で更新する"]。
++
+または、ミラー関係のスケジュールされた更新が行われるまで待つこともできます。
+
+. ラベル付きの Snapshot コピーをヴォールトデスティネーションに転送します。
++
+「 Snapmirror update -source-path SVM ： volume_|| クラスタ： //SVM/volume_、 ……」 -destination-path SVM ： volume_|_cluster ： // SVM/volume_,... -source-snapshot スナップショット
+
++
+コマンド構文全体については、マニュアルページを参照してください。
+
++
+次に、「 SnapMirro 」 Snapshot コピーを転送する例を示します::
++
+--
+[listing]
+----
+clust1::> snapmirror update -vserver vs1 -volume vol1
+-source-snapshot snap1
+----
+ヴォールト関係の更新時にラベル付きの Snapshot コピーが保持されます。
+
+--
+
+
+. ソースボリュームで、ラベル付きの Snapshot コピーから所有者を削除します。
++
+「 snapmirror snapshot-owner delete - vserver_svm_volume_-snapshot_snapshot_owner_owner_` 」を選択します
+
++
+次の例では 'nap1'Snapshot コピーの所有者である 'ApplicationA' を削除します
+
++
+[listing]
+----
+clust1::> snapmirror snapshot-owner delete -vserver vs1 -volume vol1
+-snapshot snap1 -owner ApplicationA
+----
+

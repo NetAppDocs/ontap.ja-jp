@@ -1,0 +1,223 @@
+---
+permalink: nfs-config/examples-export-policies-concept.html 
+sidebar: sidebar 
+keywords: examples, ontap, export, policies, implementation, 7-mode 
+summary: エクスポートポリシーの例を確認すると、 ONTAP でのエクスポートポリシーの動作について理解を深めることができます。 
+---
+= ONTAP エクスポートポリシーの例
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+エクスポートポリシーの例を確認すると、 ONTAP でのエクスポートポリシーの動作について理解を深めることができます。
+
+
+
+== 7-Mode エクスポートの ONTAP 実装例
+
+次に、「 /etc/exports 」ファイルに表示される 7-Mode エクスポートの例を示します。
+
+[listing]
+----
+/vol/vol1 -sec=sys,ro=@readonly_netgroup,rw=@readwrite_netgroup1:
+@readwrite_netgroup2:@rootaccess_netgroup,root=@rootaccess_netgroup
+----
+このエクスポートをクラスタエクスポートポリシーとして再現するには、 3 つのエクスポートルールを含むエクスポートポリシーを作成し、そのエクスポートポリシーをボリューム vol1 に割り当てる必要があります。
+
+|===
+| ルール | 要素（ Element ） | 価値 
+
+
+ a| 
+ルール 1
+ a| 
+`-clientmatch ` （クライアント仕様）
+ a| 
+@readonly_netgroup'
+
+
+
+ a| 
+ruleindex （ルール・リスト内のエクスポート・ルールの位置）
+ a| 
+「 1 」
+
+
+
+ a| 
+「 -protocol 」
+ a| 
+「 nfs 」
+
+
+
+ a| 
+`-rorule ( 読み取り専用アクセスを許可 )
+ a| 
+'sys' （クライアントは AUTH_SYS で認証されます）
+
+
+
+ a| 
+`-rwrule ( 読み取り / 書き込みアクセスを許可 )
+ a| 
+「まったく」ではありません
+
+
+
+ a| 
+`-superuser` ( スーパーユーザアクセスを許可する )
+ a| 
+'none` (root_squashed_to anon)
+
+
+
+ a| 
+ルール 2
+ a| 
+「 -clientmatch 」
+ a| 
+@rootaccess_netgroup'
+
+
+
+ a| 
+`-ruleindex
+ a| 
+2.
+
+
+
+ a| 
+「 -protocol 」
+ a| 
+「 nfs 」
+
+
+
+ a| 
+「 -rorule 」
+ a| 
+「シス」
+
+
+
+ a| 
+`-rwrule `
+ a| 
+「シス」
+
+
+
+ a| 
+` - スーパーユーザ」
+ a| 
+「シス」
+
+
+
+ a| 
+ルール 3
+ a| 
+「 -clientmatch 」
+ a| 
+@readwrite_netgroup1 、 @readwrite_netGroup2
+
+
+
+ a| 
+`-ruleindex
+ a| 
+3.
+
+
+
+ a| 
+「 -protocol 」
+ a| 
+「 nfs 」
+
+
+
+ a| 
+「 -rorule 」
+ a| 
+「シス」
+
+
+
+ a| 
+`-rwrule `
+ a| 
+「シス」
+
+
+
+ a| 
+` - スーパーユーザ」
+ a| 
+「 NONE 」
+
+|===
+. exp_vol1 というエクスポートポリシーを作成します。
++
+vserver export-policy create -vserver NewSVM-policyname exp_vol1
+
+. 基本コマンドに対して、次のパラメータを指定して 3 つのルールを作成します。
++
+** base コマンド： +`vserver export-policy rule create -vserver NewSVM-policyname exp_vol1
+** ルールパラメータ： +`-clientmatch @ readonly_netgroup-ruleindex 1 -protocol nfs -rorule sys -rwrule none -clientmatch @ rootaccess_netgroup-ruleindex 2 -protocol nfs -rwrule sys -superuser sys +`-clientmatch @ readwrite_netgroup1 、 @readwrite_netGroup2 -ruleindex 3 -protocol nfs-rwrule none
+
+
+. ボリューム vol1 にポリシーを割り当てます。
++
+volume modify -vserver NewSVM-volume vol1 -policy exp_vol1
+
+
+
+
+
+== 7-Mode エクスポートの統合の例
+
+次の例は、 7-Mode の「 /etc/exports 」ファイルを示しています。このファイルには、 10 個の qtree ごとに 1 行ずつが含まれています。
+
+[listing]
+----
+
+/vol/vol1/q_1472 -sec=sys,rw=host1519s,root=host1519s
+/vol/vol1/q_1471 -sec=sys,rw=host1519s,root=host1519s
+/vol/vol1/q_1473 -sec=sys,rw=host1519s,root=host1519s
+/vol/vol1/q_1570 -sec=sys,rw=host1519s,root=host1519s
+/vol/vol1/q_1571 -sec=sys,rw=host1519s,root=host1519s
+/vol/vol1/q_2237 -sec=sys,rw=host2057s,root=host2057s
+/vol/vol1/q_2238 -sec=sys,rw=host2057s,root=host2057s
+/vol/vol1/q_2239 -sec=sys,rw=host2057s,root=host2057s
+/vol/vol1/q_2240 -sec=sys,rw=host2057s,root=host2057s
+/vol/vol1/q_2241 -sec=sys,rw=host2057s,root=host2057s
+----
+ONTAP では、 qtree ごとに、「 -clientmatch host1519s 」を含むルールが設定されたポリシー、または「 -clientmatch host2057s 」を含むルールが設定されたポリシーのいずれかが必要です。
+
+. exp_vol1q1 と exp_vol1q2 という 2 つのエクスポートポリシーを作成します。
++
+** vserver export-policy create -vserver NewSVM-policyname exp_vol1q1'
+** vserver export-policy create -vserver NewSVM-policyname exp_vol1q2`
+
+
+. 各ポリシーのルールを作成します。
++
+** vserver export-policy rule create -vserver NewSVM-policyname exp_vol1q1 -clientmatch host1519s -rwrule sys-superuser sys`
+** vserver export-policy rule create -vserver NewSVM-policyname exp_vol1q2 -clientmatch host1519s-rwrule sys-superuser sys`
+
+
+. ポリシーを qtree に適用します。
++
+** volume qtree modify -vserver NewSVM-qtree-path /vol/vol1/q_1472 -export-policy exp_vol1q1'
+** [ 続く 4 つの qtree ...]
+** volume qtree modify -vserver NewSVM-qtree-path /vol/vol1/q_2237-export-policy exp_vol1q2`
+** [ 続く 4 つの qtree ...]
+
+
+
+
+これらのホスト用に qtree をあとから追加する必要がある場合は、同じエクスポートポリシーを使用します。

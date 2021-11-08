@@ -1,0 +1,84 @@
+---
+permalink: system-admin/requirements-autosupport-reference.html 
+sidebar: sidebar 
+keywords: requirements, autosupport, messages, http, smtp, https, configuration, support, protocols 
+summary: セキュリティを確保し、 AutoSupport の最新機能をすべてサポートするには、 HTTPS を使用して AutoSupport メッセージを配信する必要があります。AutoSupport では AutoSupport メッセージの配信用に HTTP と SMTP がサポートされていますが、 HTTPS が推奨されます。 
+---
+= AutoSupport を使用するための要件
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+セキュリティを確保し、 AutoSupport の最新機能をすべてサポートするには、 HTTPS を使用して AutoSupport メッセージを配信する必要があります。AutoSupport では AutoSupport メッセージの配信用に HTTP と SMTP がサポートされていますが、 HTTPS が推奨されます。
+
+
+
+== サポートされているプロトコル
+
+これらのプロトコルはいずれも、名前が解決されるアドレスファミリーに応じて IPv4 または IPv6 で実行されます。
+
+|===
+| プロトコルとポート | 説明 
+
+
+ a| 
+ポート 443 で HTTPS を使用します
+ a| 
+これがデフォルトのプロトコルです。できるだけこのプロトコルを使用することを推奨します。
+
+このプロトコルでは、 AutoSupport OnDemand と大容量ファイルのアップロードがサポートされます。
+
+検証を無効にしないかぎり、リモートサーバからの証明書がルート証明書に照らして検証されます。
+
+配信には HTTP PUT 要求が使用されます。PUT では、要求の転送中にエラーが発生した場合に、停止した場所から要求が再開されます。要求を受信したサーバで PUT がサポートされていない場合は、 HTTP POST 要求が使用されます。
+
+
+
+ a| 
+ポート 80 の HTTP
+ a| 
+このプロトコルは SMTP よりも推奨されます。
+
+このプロトコルでは、大容量ファイルのアップロードがサポートされますが、 AutoSupport OnDemand はサポートされません。
+
+配信には HTTP PUT 要求が使用されます。PUT では、要求の転送中にエラーが発生した場合に、停止した場所から要求が再開されます。要求を受信したサーバで PUT がサポートされていない場合は、 HTTP POST 要求が使用されます。
+
+
+
+ a| 
+SMTP ：ポート 25 または別のポート
+ a| 
+このプロトコルを使用するのは、ネットワーク接続で HTTPS または HTTP を使用できない場合だけにしてください。
+
+デフォルトのポート値は 25 ですが、別のポートを使用するように AutoSupport を設定できます。
+
+SMTP を使用する場合は、次の制限事項に注意してください。
+
+* AutoSupport OnDemand と大容量ファイルのアップロードはサポートされません。
+* データは暗号化されません。
++
+SMTP ではデータがクリアテキストで送信されるため、 AutoSupport メッセージ内のテキストの傍受や読み取りが容易になります。
+
+* メッセージの長さや行の長さの制限が生じることがあります。
+
+
+|===
+AutoSupport に社内のサポート部門またはサポートパートナーの E メールアドレスを指定した場合、それらのメッセージは常に SMTP で送信されます。
+
+たとえば、推奨されるプロトコルを使用してテクニカルサポートにメッセージを送信し、同時に社内のサポート部門にもメッセージを送信する場合は、それぞれ HTTPS と SMTP を使用して転送されます。
+
+AutoSupport では、プロトコルごとに最大ファイルサイズが制限されます。HTTP および HTTPS 転送のデフォルト設定は 25MB です。SMTP 転送のデフォルト設定は 5MB です。AutoSupport メッセージのサイズが設定された上限を超えると、 AutoSupport はできるだけ多くのメッセージを配信します。最大サイズは、 AutoSupport の設定を変更することで編集できます。詳細については、「 system node AutoSupport modify 」のマニュアルページを参照してください。
+
+[NOTE]
+====
+コアダンプファイルやパフォーマンスアーカイブファイルをネットアップサポートサイトや指定の URI にアップロードする AutoSupport メッセージを生成して送信すると、 HTTPS プロトコルと HTTP プロトコルの最大ファイルサイズの上限は自動的に無視されます。 AutoSupport自動オーバーライドは、「 system node AutoSupport invoke-core-upload 」コマンドまたは「 system node AutoSupport invoke-performance-archive 」コマンドを使用してファイルをアップロードする場合にのみ適用されます。
+
+====
+
+
+== 設定要件
+
+ネットワークの設定によっては、 HTTP プロトコルまたは HTTPS プロトコルを使用するためにプロキシ URL の設定が必要になる場合があります。HTTP または HTTPS を使用したテクニカルサポートへの AutoSupport メッセージの送信でプロキシを使用する場合は、プロキシの URL を指定する必要があります。プロキシがデフォルトのポート（ 3128 ）以外のポートを使用する場合は、そのプロキシのポートを指定できます。プロキシ認証のユーザ名とパスワードを指定することもできます。
+
+SMTP を使用して社内のサポート部門やテクニカルサポートに AutoSupport メッセージを送信する場合は、外部のメールサーバを設定する必要があります。ストレージシステムはメールサーバとしては機能しないため、メール送信用に外部のメールサーバが別途必要になります。このメールサーバを SMTP ポート（ 25 ）または別のポートを監視するホストにして、 8 ビットの Multipurpose Internet Mail Extensions （ MIME ）エンコーディングを送受信するように設定する必要があります。メール・ホストの例としては 'sendmail プログラムなどの SMTP サーバを実行する UNIX ホストと 'Microsoft Exchange サーバを実行する Windows サーバがありますメールホストは 1 つでも複数でもかまいません。

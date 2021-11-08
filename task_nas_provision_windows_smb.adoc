@@ -1,10 +1,10 @@
 ---
 sidebar: sidebar 
 permalink: task_nas_provision_windows_smb.html 
-keywords: netapp, ontap, provisioning, nas, windows, servers, provision, smb, cifs, SMB/CIFS, share name 
-summary: SMB / CIFS プロトコルを使用して Windows サーバにストレージを提供するボリュームを作成します。 
+keywords: netapp, ontap, provisioning, nas, windows, servers, provision, smb, cifs, SMB, share name,shares, share access permissions, share access properties, hyper-v over smb, sql server over smb, continuously available shares 
+summary: SMB プロトコルを使用して Windows サーバにストレージを提供するボリュームを作成します。 
 ---
-= SMB / CIFS を使用して Windows サーバ用の NAS ストレージをプロビジョニングする
+= SMB を使用して Windows サーバ用の NAS ストレージをプロビジョニングする
 :toc: macro
 :hardbreaks:
 :toclevels: 1
@@ -18,9 +18,9 @@ summary: SMB / CIFS プロトコルを使用して Windows サーバにストレ
 
 
 [role="lead"]
-SMB / CIFS プロトコルを使用して Windows サーバにストレージを提供するボリュームを作成します。
+SMB プロトコルを使用して Windows サーバにストレージを提供するボリュームを作成します。
 
-この手順は、に新しいボリュームを作成します link:task_nas_enable_windows_smb.html["SMB 対応の既存の Storage VM"]。ボリュームの構成時にシステムのデフォルトをそのまま使用することも、カスタム構成を指定することもできます。
+この手順は、に新しいボリュームを作成します link:task_nas_enable_windows_smb.html["SMB 対応の既存の Storage VM"] およびは、ボリュームのルート（ / ）ディレクトリ用の共有を作成します。ボリュームの構成時にシステムのデフォルトをそのまま使用することも、カスタム構成を指定することもできます。SMB の初期設定後に、追加の共有を作成したりプロパティを変更したりすることもできます。
 
 FlexVol ボリュームを作成することも、高いパフォーマンスが求められる大規模なファイルシステムには FlexGroup ボリュームを作成することもできます。も参照してください link:task_nas_provision_flexgroup.html["FlexGroup を使用して大規模ファイルシステム用の NAS ストレージをプロビジョニング"]。
 
@@ -49,11 +49,80 @@ SMB プロトコルが設定されている Storage VM のみが表示されま�
 
 
 
-アクセスを確認したら、を実行できます link:task_nas_provision_export_policies.html["共有 ACL によるクライアントアクセスを制限します"] マッピングされたドライブに必要なセキュリティプロパティを設定します。
+アクセスを確認したら、共有 ACL によってクライアントアクセスを制限し、マッピングされたドライブに必要なセキュリティプロパティを設定できます。を参照してください xref:smb-config/create-share-task.html[SMB 共有を作成] を参照してください。
+
+
+
+== 共有を追加または変更する
+
+SMB の初期設定後に共有を追加することができます。共有は、選択したデフォルト値とプロパティを使用して作成されます。これらは後で変更できます。
+
+共有の設定時に次の共有プロパティを設定できます。
+
+* アクセス権限
+* 共有プロパティ
++
+** Hyper-V over SMB および SQL Server over SMB データを含む共有（ ONTAP 9.10.1 以降）の継続的可用性を有効にします。次も参照してください。
++
+*** xref:smb-hyper-v-sql/continuously-available-share-hyper-v-concept.html[Hyper-V over SMB での継続的な可用性を備えた共有の要件]
+*** xref:smb-hyper-v-sql/continuously-available-share-sql-concept.html[SQL Server over SMB での継続的な可用性を備えた共有の要件]
+
+
+** この共有へのアクセス時に SMB 3.0 でデータを暗号化する。
+
+
+
+
+初期設定後に、次のプロパティを変更することもできます。
+
+* シンボリックリンク
++
+** シンボリックリンクとワイドリンクを有効または無効にします
+
+
+* 共有プロパティ
++
+** クライアントに Snapshot コピーディレクトリへのアクセスを許可します。
+** oplock を有効にして、クライアントがファイルをロックしてコンテンツをローカルにキャッシュできるようにします（デフォルト）。
+** Access-Based Enumeration （ ABE ；アクセスベースの列挙）を有効にすると、ユーザのアクセス権限に基づいて共有リソースが表示されます。
+
+
+
+
+SMB 対応ボリュームに新しい共有を追加するには、 [** ストレージ ] 、 [ 共有 **] の順にクリックし、 [** 追加 ] をクリックして [** 共有 **] を選択します。
+
+既存の共有を変更するには、 [** ストレージ ] 、 [ 共有 ] の順にクリックし、をクリックします image:icon_kabob.gif["3 ドット veritcal kabob アイコン"] をクリックして、 [** 編集 ] を選択します
 
 
 
 == ボリュームの設定をカスタマイズする
+
+システムのデフォルトを受け入れる代わりに、ボリュームを追加するときにボリューム構成をカスタマイズできます。
+
+[ * その他のオプション * ] をクリックした後、必要な機能を選択し、必要な値を入力します。
+
+* リモートボリュームのキャッシュ。
+* パフォーマンスサービスレベル（サービス品質、 QoS ）：
++
+ONTAP 9.8 以降では、デフォルト値の選択に加えて、カスタム QoS ポリシーを指定したり、 QoS を無効にしたりできます。
+
++
+** QoS を無効にするには、「 * Custom * 」、「 * Existing * 」、「 * none * 」の順に選択します。
+** 「 * Custom * 」を選択し、既存のサービスレベルを指定すると、ローカル階層が自動的に選択されます。
+** ONTAP 9.9..1 以降では、カスタムパフォーマンスサービスレベルを作成する場合、 System Manager を使用して、作成するボリュームを配置するローカル階層（ * 手動配置 * ）を手動で選択できます。
++
+このオプションは、リモートキャッシュまたは FlexGroup ボリュームのオプションを選択した場合は使用できません。
+
+
+
+* FlexGroup ボリューム（ * ボリュームデータをクラスタ全体に分散 * を選択）。
++
+このオプションは、パフォーマンスサービスレベル * で手動配置 * を選択した場合は使用できません。そうしないと、追加するボリュームはデフォルトで FlexVol ボリュームになります。
+
++
+* このオプションは、パフォーマンスサービスレベル * で手動配置 * を選択した場合は使用できません。そうしないと、追加するボリュームはデフォルトで FlexVol ボリュームになります。* ボリュームが設定されているプロトコルに対するアクセス権限。* SnapMirror によるデータ保護（ローカルまたはリモート）をプルダウンリストからデスティネーションクラスタの保護ポリシーと設定を指定します。* 「保存」をクリックしてボリュームを作成し、クラスタと Storage VM に追加します。
+
+
 
 システムのデフォルトを受け入れる代わりに、ボリュームを追加するときにボリューム構成をカスタマイズできます。
 
@@ -83,4 +152,21 @@ ONTAP 9.8 以降では、デフォルト値の選択に加えて、カスタム 
 
 
 
-NOTE: ボリュームを保存したら、に戻ります <<step2>> SMB / CIFS を使用した Windows サーバのプロビジョニングの完了
+NOTE: ボリュームを保存したら、に戻ります <<step2>> SMB を使用した Windows サーバのプロビジョニングの完了
+
+
+
+== ONTAP でこれを行うその他の方法
+
+ここでは、 System Manager （ ONTAP 9.7 以降）を使用した SMB ストレージのプロビジョニングについて説明します。
+
+[cols="2"]
+|===
+| 実行するタスク | 参照するコンテンツ 
+
+
+| System Manager Classic （ ONTAP 9.7 以前 | link:https://docs.netapp.com/us-en/ontap-sm-classic/smb-config/index.html["SMB 設定の概要"^] 
+
+
+| コマンドラインインターフェイス | link:smb-config/index.html["CLI を使用した SMB の設定の概要"] 
+|===

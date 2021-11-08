@@ -1,0 +1,97 @@
+---
+sidebar: sidebar 
+permalink: s3-snapmirror/index.html 
+keywords: snapmirror, s3 snapmirror, mirroring and backup, buckets, data protection bundle 
+summary: ONTAP 9.10.1 以降では、使い慣れた SnapMirror ミラーリングとバックアップ機能を使用して ONTAP S3 オブジェクトストア内のバケットを保護できます 
+---
+= S3 SnapMirror の概要
+:toc: macro
+:hardbreaks:
+:toclevels: 1
+:toc: 
+:toclevels: 1
+:nofooter: 
+:icons: font
+:linkattrs: 
+:imagesdir: ../media/
+:toc-position: content
+
+
+[role="lead"]
+ONTAP 9.10.1 以降では、使い慣れた SnapMirror ミラーリングとバックアップ機能を使用して ONTAP S3 オブジェクトストア内のバケットを保護できます。また、標準の SnapMirror とは異なり、 S3 SnapMirror にはネットアップ以外のデスティネーションを設定できます。
+
+S3 SnapMirror は、 ONTAP S3 バケットから次のデスティネーションへのアクティブなミラー階層とバックアップ階層をサポートしています。
+
+[cols="50,25,25"]
+|===
+| ターゲット | アクティブなミラーとテイクオーバーをサポートしているか | バックアップとリストアをサポートするかどうか 
+
+
+ a| 
+ONTAP S3
+
+* 同じ SVM 内のバケット
+* 同一クラスタ上の異なる SVM にあるバケット
+* 異なるクラスタの SVM のバケット
+
+| image:status-enabled-perf-config.gif["チェックマーク"] | image:status-enabled-perf-config.gif["チェックマーク"] 
+
+
+| StorageGRID Webscale の略 |  | image:status-enabled-perf-config.gif["チェックマーク"] 
+
+
+| AWS S3 |  | image:status-enabled-perf-config.gif["チェックマーク"] 
+|===
+ONTAP S3 サーバ上の既存のバケットを保護することも、データ保護をすぐに有効にして新しいバケットを作成することもできます。
+
+S3 SnapMirror は、ファンアウト関係とカスケード関係をサポートしています。概要については、を参照してください link:../data-protection/supported-deployment-config-concept.html["ファンアウト構成およびカスケード構成のデータ保護"]。
+
+
+
+== S3 SnapMirror の要件
+
+* ONTAP バージョン ONTAP 9.10.1 以降がソースとデスティネーションのクラスタを実行している必要があります。
+* ONTAP ソースシステムとデスティネーションシステムには、次のライセンスバンドルのライセンスが必要です。
++
+** ONTAP S3 プロトコルおよびストレージ向けの Core Bundle 。
+** S3 SnapMirror 向けデータ保護バンドル。ネットアップの他のオブジェクトストアターゲット（ ONTAP S3 、 StorageGRID 、 Cloud Volumes ONTAP ）を対象としたバンドルです。
+** サードパーティのオブジェクトストア（ AWS S3 ）を対象とした、 S3 SnapMirror 向けのデータ保護バンドルとハイブリッドクラウドバンドル。
+
+
+* ONTAP S3
++
+** ONTAP S3 サーバでソースとデスティネーションの SVM が実行されている必要があります。
+** TLS アクセス用の証明書を S3 サーバにインストールすることを推奨しますが、必須ではありません。システムで生成された証明書や外部の機関の証明書を使用することができます。
+
+
+* ピアリング（ ONTAP S3 ターゲット用）
++
+** クラスタ間 LIF が設定されている必要があります（リモート ONTAP ターゲット用）。
+** ソースクラスタとデスティネーションクラスタ間にピア関係が設定されている（リモート ONTAP ターゲットの場合）。
+** ソースとデスティネーションの Storage VM 間にピア関係が設定されている（すべての ONTAP ターゲット用）。
+
+
+* SnapMirror ポリシー S3 固有の SnapMirror ポリシーはすべての S3 SnapMirror 関係に必要ですが、複数の関係に同じポリシーを使用することができます。
+* S3 SnapMirror 関係には root ユーザキー Storage VM root ユーザアクセスキーが必要です。 ONTAP ではデフォルトでこのユーザアクセスキーが割り当てられません。S3 SnapMirror 関係の初回作成時には、ソースとデスティネーションの Storage VM にキーが存在することを確認し、存在しない場合は再生成する必要があります。割り当てが完了すると、再生成されないようにしてください。そうしないと、 S3 の既存の SnapMirror 関係が失敗します。
+
+
+S3 サーバの設定については、次のトピックを参照してください。
+
+* link:../task_object_provision_enable_s3_server.html["Storage VM で S3 サーバを有効にする（ System Manager ）"]
+* link:../s3-config/index.html["S3 の設定プロセスについて（ CLI ）"]
+
+
+クラスタと Storage VM のピアリングについては、次のトピックを参照してください。
+
+* link:../task_dp_prepare_mirror.html["ミラーとバックアップの準備（ System Manager 、手順 1~6 ）"]
+* link:../peering/index.html["クラスタと SVM のピアリング（ CLI ）"]
+
+
+
+
+== S3 SnapMirror に関する考慮事項と制限事項
+
+現在の S3 SnapMirror リリースでは、次の標準の SnapMirror 機能はサポートされていません。
+
+* ファンイン構成（複数のソースバケットと 1 つのデスティネーションバケット間のデータ保護関係）の S3 SnapMirror では、複数のクラスタから単一のセカンダリクラスタへの複数のバケットミラーをサポートできますが、各ソースバケットにはセカンダリクラスタ上に独自のデスティネーションバケットが必要です。
+

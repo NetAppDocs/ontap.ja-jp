@@ -1,0 +1,55 @@
+---
+permalink: disks-aggregates/manual-assign-ownership-root-data-task.html 
+sidebar: sidebar 
+keywords: manual, assign, disks, root-data partitioning 
+summary: ルート / データパーティショニングでは、 HA ペアがまとめて所有する所有権の 3 つのエンティティ（コンテナディスクと 2 つのパーティション）があります。 
+---
+= ルート / データパーティショニングでディスクを手動で割り当てます
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+ルート / データパーティショニングでは、 HA ペアがまとめて所有する所有権の 3 つのエンティティ（コンテナディスクと 2 つのパーティション）があります。
+
+コンテナディスクと 2 つのパーティションが HA ペアの一方のノードに所有されていれば、それらがすべて同じ HA ペアの同じノードに所有されている必要はありません。ただし、アグリゲートでパーティションを使用する場合は、そのパーティションがアグリゲートの所有者であるノードに所有されている必要があります。
+
+.手順
+. パーティショニングされたディスクの現在の所有権を表示します。
++
+「 storage disk show -disk disk_name -partition-ownership 」を参照してください
+
+. CLI の権限レベルを advanced に設定します。
++
+「 advanced 」の権限が必要です
+
+. 所有権を割り当てる所有権のエンティティに応じて、適切なコマンドを入力します。
++
+[cols="2*"]
+|===
+| 所有権を割り当てる所有権のエンティティ | 使用するコマンド 
+
+
+ a| 
+コンテナディスク
+ a| 
+「 storage disk assign -disk disk_name -owner owner_name 」という形式です
+
+
+
+ a| 
+データパーティション
+ a| 
+「 storage disk assign -disk disk_name -owner owner_name -datatrue 」という形式です
+
+
+
+ a| 
+ルートパーティション
+ a| 
+「 storage disk assign -disk disk_name -owner owner_name -root true 」という形式です
+
+|===
+
+
+所有権エンティティのいずれかがすでに所有されている場合は '-force オプションを含める必要があります

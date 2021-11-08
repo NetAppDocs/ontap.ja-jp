@@ -1,0 +1,246 @@
+---
+permalink: system-admin/commands-manage-sp-from-ontap-reference.html 
+sidebar: sidebar 
+keywords: command, manage, sp, ontap, network, configuration, firmware, image, ssh 
+summary: ONTAP には、 SP ネットワーク設定、 SP ファームウェアイメージ、 SP への SSH アクセス、一般的な SP の管理など、 SP を管理するためのコマンドが用意されています。 
+---
+= ONTAP から SP を管理するためのコマンド
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+ONTAP には、 SP ネットワーク設定、 SP ファームウェアイメージ、 SP への SSH アクセス、一般的な SP の管理など、 SP を管理するためのコマンドが用意されています。
+
+
+
+== SP ネットワーク設定の管理用コマンド
+
+|===
+| 状況 | 実行する ONTAP コマンド 
+
+
+ a| 
+SP の自動ネットワーク設定を有効にして、指定されたサブネットの IPv4 または IPv6 アドレスファミリーを使用します
+ a| 
+「システムサービスプロセッサネットワーク自動設定有効」
+
+
+
+ a| 
+指定されたサブネットの IPv4 または IPv6 アドレスファミリーを使用する、 SP の自動ネットワーク設定を無効にする
+ a| 
+「システムサービスプロセッサネットワーク自動設定無効」
+
+
+
+ a| 
+SP の自動ネットワーク設定を表示する
+ a| 
+「 system service-processor network auto-configuration show 」を参照してください
+
+
+
+ a| 
+ノードの SP ネットワークについて、次の項目を手動で設定する
+
+* IP アドレスファミリー（ IPv4 または IPv6 ）
+* 指定した IP アドレスファミリーのネットワークインターフェイスを有効にするかどうか
+* IPv4 を使用している場合に、 DHCP サーバのネットワーク設定と、指定したネットワークアドレスのどちらを使用するか
+* SP のパブリック IP アドレス
+* SP のネットマスク（ IPv4 を使用している場合）
+* SP のサブネットマスクのネットワークプレフィックス長（ IPv6 を使用している場合）
+* SP のゲートウェイ IP アドレス
+
+ a| 
+「 system service-processor network modify 」を参照してください
+
+
+
+ a| 
+次のような SP ネットワーク設定を表示する
+
+* 設定されているアドレスファミリー（ IPv4 または IPv6 ）、およびそれが有効かどうか
+* リモート管理デバイスのタイプ
+* 現在の SP のステータスとリンクのステータス
+* IP アドレス、 MAC アドレス、ネットマスク、サブネットマスクのプレフィックス長、ルータによって割り当てられた IP アドレス、リンクローカル IP アドレス、ゲートウェイ IP アドレスなどのネットワーク設定
+* SP が最後に更新された時刻
+* SP の自動設定に使用するサブネットの名前
+* ルータによって割り当てられた IPv6 IP アドレスが有効かどうか
+* SP ネットワークのセットアップステータス
+* SP ネットワークのセットアップが失敗した理由
+
+ a| 
+「 system service-processor network show 」を参照してください
+
+SP ネットワークの詳細をすべて表示するには '-instance パラメータが必要です
+
+
+
+ a| 
+次の SP API サービス設定を変更する
+
+* SP API サービスで使用されるポートの変更
+* SP API サービスを有効または無効にします
+
+ a| 
+「 system service-processor api-service modify 」
+
+（ advanced 権限レベル）
+
+
+
+ a| 
+SP API サービス設定を表示する
+ a| 
+「 system service-processor api-service show 」を参照してください
+
+（ advanced 権限レベル）
+
+
+
+ a| 
+SP API サービスの内部通信に使用される SSL 証明書および SSH 証明書を更新する
+ a| 
+* ONTAP 9.5 以降の場合：「 system service-processor api-service renew-internal-certificates 」
+* ONTAP 9.4 以前の場合：「 system service-processor api-service renew-certificates 」
++
+（ advanced 権限レベル）
+
+
+
+|===
+
+
+== SP ファームウェアイメージの管理用コマンド
+
+|===
+| 状況 | 実行する ONTAP コマンド 
+
+
+ a| 
+現在インストールされている SP ファームウェアイメージの次のような詳細を表示する
+
+* リモート管理デバイスのタイプ
+* SP がブートされるイメージ（プライマリまたはバックアップ）とそのステータス、およびファームウェアバージョン
+* ファームウェアの自動更新が有効かどうかと、最新の更新ステータス
+
+ a| 
+「 system service-processor image show 」を参照してください
+
+「 -is-current 」パラメータは、インストールされているファームウェアのバージョンが最新かどうかではなく、 SP が現在ブートされているイメージ（プライマリまたはバックアップ）を示します。
+
+
+
+ a| 
+SP の自動ファームウェア更新を有効または無効にします
+ a| 
+「システムサービス - プロセッサイメージの変更」
+
+デフォルトでは、 SP ファームウェアは、 ONTAP の更新時、または SP ファームウェアの新しいバージョンを手動でダウンロードしたときに、自動で更新されます。自動更新を無効にすると、 ONTAP イメージと SP ファームウェアイメージの組み合わせが最適でなくなる、または無効になる場合があるため、無効にしないことを推奨します。
+
+
+
+ a| 
+ノードに SP ファームウェアイメージを手動でダウンロードする
+ a| 
+「システムノードイメージ取得」
+
+[NOTE]
+====
+「 system node image 」コマンドを実行する前に、権限レベルを advanced （「 set -privilege advanced 」）に設定し、続行するよう求められたら「 * y * 」と入力する必要があります。
+
+====
+SP ファームウェアイメージは ONTAP に同梱されています。ONTAP に同梱されている SP ファームウェアとは異なるバージョンを使用する場合を除き、 SP ファームウェアを手動でダウンロードする必要はありません。
+
+
+
+ a| 
+ONTAP からトリガーされた最新の SP ファームウェア更新に関し、以下を含むステータスを表示する
+
+* 最新の SP ファームウェア更新の開始時刻と終了時刻
+* 更新が進行中かどうかと、進行状況
+
+ a| 
+「 system service-processor image update-progress show 」を参照してください
+
+|===
+
+
+== SP への SSH アクセスを管理するためのコマンド
+
+|===
+| 状況 | 実行する ONTAP コマンド 
+
+
+ a| 
+指定した IP アドレスにのみ SP へのアクセスを許可します
+ a| 
+「 system service-processor ssh add-allowed-addresses 」のように指定します
+
+
+
+ a| 
+指定した IP アドレスに対して SP へのアクセスを禁止します
+ a| 
+「 system service-processor ssh remove-allowed-addresses 」のようになりました
+
+
+
+ a| 
+SP にアクセスできる IP アドレスを表示する
+ a| 
+「 system service-processor ssh show 」を参照してください
+
+|===
+
+
+== 一般的な SP 管理用コマンド
+
+|===
+| 状況 | 実行する ONTAP コマンド 
+
+
+ a| 
+次のような SP の一般情報を表示する
+
+* リモート管理デバイスのタイプ
+* 現在の SP のステータス
+* SP ネットワークが設定されているかどうか
+* パブリック IP アドレスや MAC アドレスなどのネットワーク情報
+* SP ファームウェアのバージョンと Intelligent Platform Management Interface （ IPMI ）のバージョン
+* SP ファームウェアの自動更新が有効になっているかどうか
+
+ a| 
+'system service-processor show' 完全な SP 情報の表示には '-instance パラメータが必要です
+
+
+
+ a| 
+ノードで SP をリブートし、使用する SP ファームウェアイメージ（プライマリまたはバックアップ）を必要に応じて指定する
+ a| 
+「 system service-processor reboot-sp 」を参照してください
+
+[NOTE]
+====
+SP をバックアップイメージからブートすることは避けてください。バックアップイメージからのブートは、トラブルシューティングとリカバリの目的でのみ使用します。SP の自動ファームウェア更新の無効化が必要になる場合があるため、推奨される設定ではありません。SP をバックアップイメージからブートする前に、テクニカルサポートにお問い合わせください。
+
+====
+
+
+ a| 
+指定したノードから収集された SP ログファイルを含む AutoSupport メッセージを生成して送信します
+ a| 
+'system node AutoSupport invoke-splog'
+
+
+
+ a| 
+収集元の各ノードにある SP ログファイルのシーケンス番号など、クラスタ内で収集された SP ログファイルの割り当てマップを表示する
+ a| 
+「 system service-processor log show-allocations 」
+
+|===
+* 関連情報 *
+
+http://docs.netapp.com/ontap-9/topic/com.netapp.doc.dot-cm-cmpr/GUID-5CB10C70-AC11-41C0-8C16-B4D0DF916E9B.html["ONTAP 9 のコマンド"]

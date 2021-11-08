@@ -1,0 +1,310 @@
+---
+permalink: smb-admin/supported-gpos-concept.html 
+sidebar: sidebar 
+keywords: group, policy, object, gpo, applicable, cifs-enabled, storage, virtual, machine, svm, recognize, process, relevant, set, supported gpos 
+summary: すべてのグループポリシーオブジェクト（ GPO ）を CIFS 対応の Storage Virtual Machine （ SVM ）に適用できるわけではありませんが、 SVM では関連する GPO を認識して処理することができます。 
+---
+= サポートされる GPO
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+すべてのグループポリシーオブジェクト（ GPO ）を CIFS 対応の Storage Virtual Machine （ SVM ）に適用できるわけではありませんが、 SVM では関連する GPO を認識して処理することができます。
+
+SVM で現在サポートされている GPO は次のとおりです。
+
+* 高度な監査ポリシー設定：
++
+オブジェクトへのアクセス：集約型アクセスポリシーのステージング
+
++
+次の設定を含む集約型アクセスポリシー（ CAP ）のステージングで監査対象となるイベントのタイプを指定します。
+
++
+** 監査しないでください
+** 成功イベントのみ監査
+** 失敗イベントのみ監査
+** 成功イベントと失敗イベントの両方を監査します
+
+
++
+[NOTE]
+====
+3 つの監査オプション（成功イベントのみ監査、失敗イベントのみ監査、成功イベントと失敗イベントの両方を監査）のいずれかが設定されている場合、 ONTAP は成功イベントと失敗イベントの両方を監査します。
+
+====
++
+Advanced Audit Policy Configuration/Audit Policies/Object Access GPO の Audit Central Access Policy Staging 設定を使用して設定します。
+
++
+[NOTE]
+====
+高度な監査ポリシー構成 GPO 設定を使用するには、その設定を適用する CIFS 対応の SVM 上で監査を構成する必要があります。SVM で監査が構成されていない場合、 GPO 設定は適用されず、破棄されます。
+
+====
+* レジストリ設定：
++
+** CIFS 対応の SVM のグループポリシーの更新間隔
++
+Registry GPO を使用して設定します。
+
+** グループポリシーの更新間隔のランダムオフセット
++
+Registry GPO を使用して設定します。
+
+** BranchCache のハッシュの発行
++
+BranchCache のハッシュの発行 GPO は、 BranchCache の動作モードに対応します。次の 3 つの動作モードがサポートされています。
+
++
+*** 共有ごと
+*** all-shares
+*** Disabled - レジストリ GPO を使用して設定します
+
+
+** BranchCache のハッシュバージョンサポート
++
+次の 3 つのハッシュバージョン設定がサポートされています。
+
++
+*** BranchCache バージョン 1.7
+*** BranchCache バージョン 1.7
+*** BranchCache バージョン 1 および 2 は 'Registry' GPO を使用して設定されます
+
+
+
+
++
+[NOTE]
+====
+BranchCache GPO 設定を使用するには、その設定を適用する CIFS 対応の SVM 上で BranchCache を構成する必要があります。SVM で BranchCache が構成されていない場合、 GPO 設定は適用されず、破棄されます。
+
+====
+* セキュリティ設定
++
+** 監査ポリシーとイベントログ
++
+*** ログオンイベントを監査します
++
+次の設定を含む監査対象となるログオンイベントの種類を指定します。
+
++
+**** 監査しないでください
+**** 成功イベントのみ監査
+**** 障害イベントの監査
+**** Local Policies/Audit Policy GPO の Audit logon events 設定を使用して、成功イベントと失敗イベントの両方を監査します。
+
+
++
+[NOTE]
+====
+3 つの監査オプション（成功イベントのみ監査、失敗イベントのみ監査、成功イベントと失敗イベントの両方を監査）のいずれかが設定されている場合、 ONTAP は成功イベントと失敗イベントの両方を監査します。
+
+====
+*** オブジェクトへのアクセスを監査する
++
+次の設定を含む監査対象となるオブジェクトアクセスの種類を指定します。
+
++
+**** 監査しないでください
+**** 成功イベントのみ監査
+**** 障害イベントの監査
+**** 「 Local Policies/Audit Policy 」 GPO の「 Audit object access 」設定を使用して、成功イベントと失敗イベントの両方を監査します。
+
+
++
+[NOTE]
+====
+3 つの監査オプション（成功イベントのみ監査、失敗イベントのみ監査、成功イベントと失敗イベントの両方を監査）のいずれかが設定されている場合、 ONTAP は成功イベントと失敗イベントの両方を監査します。
+
+====
+*** ログの保持方法
++
+次の設定を含む監査ログの保持方法を指定します。
+
++
+**** ログファイルのサイズが最大ログサイズを超えたら、イベントログを上書きします
+**** イベント・ログ GPO 内の Retention method for security log 設定を使用して ' イベント・ログ（手動でクリア・ログ）を上書きしないでください
+
+
+*** 最大ログサイズ
++
+監査ログの最大サイズを指定します。
+
++
+「イベントログ」 GPO の「最大セキュリティログサイズ」設定を使用して設定します。
+
+
+
++
+[NOTE]
+====
+監査ポリシーとイベントログ GPO 設定を使用するには、その設定を適用する CIFS 対応の SVM 上で監査を構成する必要があります。SVM で監査が構成されていない場合、 GPO 設定は適用されず、破棄されます。
+
+====
+** ファイルシステムのセキュリティ
++
+GPO を通してファイルセキュリティを適用するファイルまたはディレクトリのリストを指定します。
+
++
+File System GPO を使用して設定します。
+
++
+[NOTE]
+====
+SVM 内にファイルシステムセキュリティ GPO を構成するボリュームパスが存在している必要があります。
+
+====
+** Kerberos ポリシー
++
+*** 最大クロックスキュー
++
+コンピュータクロック同期の最大許容誤差を分単位で指定します。
+
++
+「 Account Policies/Kerberos Policy 」 GPO の「 Maximum tolerance for computer clock synchronization 」設定を使用して設定します。
+
+*** チケットの有効期間
++
+ユーザチケットの最大有効期間を時間単位で指定します。
+
++
+「 Account Policies/Kerberos Policy 」 GPO の「 Maximum lifetime for user ticket 」設定を使用して設定します。
+
+*** チケットの更新の有効期間
++
+ユーザチケットの更新の最大有効期間を日単位で指定します。
+
++
+「 Account Policies/Kerberos Policy 」 GPO の「 Maximum lifetime for user ticket renewal 」設定を使用して設定します。
+
+
+
+** ユーザ権限の割り当て（権限）
++
+*** 所有権を取得します
++
+セキュリティ保護が可能なオブジェクトの所有権を持つユーザとグループのリストを指定します。
+
++
+Local Policies/User Rights Assignment GPO の Take ownership of files or other objects 設定を使用して設定します。
+
+*** セキュリティ権限
++
+ファイル、フォルダ、 Active Directory オブジェクトなどの個々のリソースへのオブジェクトアクセスの監査オプションを指定できるユーザとグループのリストを指定します。
+
++
+「 Local Policies/User Rights Assignment 」 GPO の「 M anage auditing and security log 」設定を使用して設定します。
+
+*** 通知権限の変更（トラバースチェックのバイパス）
++
+ユーザとグループがトラバースするディレクトリに対する権限を持っていなくても、ディレクトリツリーをトラバースできるユーザとグループのリストを指定します。
+
++
+ファイルやディレクトリの変更通知を受け取るユーザにも同じ権限が必要です。Local Policies/User Rights Assignment GPO の Bypass traverse checking 設定を使用して設定します。
+
+
+
+** レジストリ値
++
+*** 署名要求設定
++
+SMB 署名要求が有効になっているか無効になっているかを示します。
+
++
+「セキュリティオプション」 GPO の「 Microsoft ネットワークサーバー : 常に通信にデジタル署名を行う」設定を使用して設定します。
+
+
+
+** restrict anonymous （匿名の制限
++
+匿名ユーザの制限内容に次の 3 つの GPO 設定を指定します。
+
++
+*** Security Account Manager （ SAM ）アカウントを列挙しない：
++
+このセキュリティ設定は、コンピュータへの匿名接続に付与される追加の権限を決定します。このオプションが有効になっている場合、 ONTAP では「 no-enumeration 」と表示されます。
+
++
+Network access: Do not allow anonymous enumeration of SAM accounts 設定を使用して設定します
+
+*** SAM アカウントと共有は列挙しません
++
+このセキュリティ設定で、匿名による SAM アカウントと共有の列挙を許可するかどうかを決定します。このオプションが有効になっている場合、 ONTAP では「 no-enumeration 」と表示されます。
+
++
+Network access: Do not allow anonymous enumeration of SAM accounts and shares GPO 内の Local Policies/Security Options 設定を使用して設定します。
+
+*** 共有と名前付きパイプへの匿名アクセスを制限します
++
+共有とパイプへの匿名アクセスを制限します。このオプションが有効になっている場合、 ONTAP では「 no-access 」と表示されます。
+
++
+Network access: Restrict anonymous access to Named Pipes and Shares GPO 内の Local Policies/Security Options 設定を使用して設定します。
+
+
+
+
+
++
+定義済みおよび適用されているグループポリシーについての情報を表示すると ' 匿名ユーザーに対する結果的な制限の出力フィールドに '3 つの匿名制限 GPO 設定の結果として生じる制限に関する情報が表示されます表示される可能性がある制限結果は、次のとおりです。
+
++
+** 「 no-access 」と入力します
++
+匿名ユーザは、指定された共有と名前付きパイプへのアクセスを拒否され、 SAM アカウントと共有を列挙できません。この制限結果が表示されるのは、 Network access: Restrict anonymous access to Named Pipes and Shares GPO が有効な場合です。
+
+** 「 no-enumeration 」のように表示されます
++
+匿名ユーザは、指定された共有と名前付きパイプにアクセスできますが、 SAM アカウントと共有は列挙できません。この制限は、次の両方の条件に該当する場合に適用されます。
+
++
+*** Network access: Restrict anonymous access to Named Pipes and Shares GPO は無効です。
+*** Network access: Do not allow anonymous enumeration of SAM accounts または Network access: Do not allow anonymous enumeration of SAM accounts and shares GPO が有効
+
+
+** 「無制限」
++
+匿名ユーザにはフルアクセスが付与され、列挙できます。この制限は、次の両方の条件に該当する場合に適用されます。
+
++
+*** Network access: Restrict anonymous access to Named Pipes and Shares GPO は無効です。
+*** どちらの場合も 'Network access: Do not allow anonymous enumeration of SAM accounts および Network access: Do not allow anonymous enumeration of SAM accounts and shares GPO は無効です
++
+**** 制限されたグループ
++
+制限されたグループを設定して、組み込みまたはユーザ定義のグループのメンバーシップを一元管理することができます。グループポリシーを通して制限されたグループを適用する場合、 CIFS サーバローカルグループのメンバーシップは、適用されるグループポリシーで定義されているメンバーリスト設定に一致するように自動的に設定されます。
+
++
+「 Restricted Groups 」 GPO を使用して設定します。
+
+
+
+
+
+
+
+* 集約型アクセスポリシーの設定
++
+集約型アクセスポリシーのリストを指定します。集約型アクセスポリシーと関連付けられた集約型アクセスポリシールールによって、 SVM 上の複数のファイルに対するアクセス権限が決定されます。
+
+
+
+* 関連情報 *
+
+xref:enable-disable-gpo-support-task.adoc[CIFS サーバ上で GPO サポートを有効または無効にします]
+
+xref:secure-file-access-dynamic-access-control-concept.adoc[DAC （ダイナミックアクセス制御）を使用したファイルアクセスの保護]
+
+link:../nas-audit/index.html["SMB および NFS の監査とセキュリティトレース"]
+
+xref:modify-server-kerberos-security-settings-task.adoc[CIFS サーバの Kerberos セキュリティ設定の変更]
+
+xref:branchcache-cache-share-content-branch-office-concept.adoc[BranchCache を使用したブランチオフィスでの SMB 共有のコンテンツのキャッシュ]
+
+xref:signing-enhance-network-security-concept.adoc[SMB 署名を使用したネットワークセキュリティの強化]
+
+xref:configure-bypass-traverse-checking-concept.adoc[トラバースチェックのバイパスの設定]
+
+xref:configure-access-restrictions-anonymous-users-task.adoc[匿名ユーザのアクセス制限を設定します]

@@ -1,0 +1,55 @@
+---
+permalink: nfs-config/load-netgroups-svms-task.html 
+sidebar: sidebar 
+keywords: load, netgroups, svms 
+summary: エクスポートポリシールールでクライアントの照合に使用できる方法の 1 つは、ネットグループにリストされているホストを使用することです。ネットグループは、外部ネームサーバに格納されているネットグループを使用する（ vserver services name-service netgroup load ）代わりに、 Uniform Resource Identifier （ URI ）を使用して SVM にロードすることもできます。 
+---
+= ネットグループを SVM にロードする
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+エクスポートポリシールールでクライアントの照合に使用できる方法の 1 つは、ネットグループにリストされているホストを使用することです。ネットグループは、外部ネームサーバ（「 vserver services name-service netgroup load 」）に格納されているネットグループを使用する代わりに、 Uniform Resource Identifier （ URI ）を使用して SVM にロードすることもできます。
+
+ネットグループファイルは、 SVM にロードする前に、次の要件を満たしている必要があります。
+
+* ファイルは、 NIS の設定に使用されるのと同じ適切なネットグループテキストファイル形式を使用する必要があります。
++
+ONTAP は、ロードを行う前にネットグループテキストファイル形式をチェックします。ファイルにエラーが含まれている場合、ファイルはロードされず、ファイルで実行する必要のある修正を示すメッセージが表示されます。エラーを修正後に、ネットグループファイルを指定した SVM に再ロードできます。
+
+* ネットグループファイル内のホスト名に含まれる英文字は、すべて小文字にする必要があります。
+* サポートされる最大ファイルサイズは 5MB です。
+* ネットグループでサポートされる最大ネストレベルは 1000 です。
+* ネットグループファイルでホスト名を定義する際に使用できるのは、プライマリ DNS ホスト名のみです。
++
+エクスポートへのアクセスに関する問題を回避するために、ホスト名の定義には DNS CNAME やラウンドロビンレコードを使用しないでください。
+
+* ネットグループファイル内の 3 つの値のうちユーザおよびドメインの部分は、 ONTAP でサポートされていないので空にしておく必要があります。
++
+ホスト / IP の部分のみがサポートされます。
+
+
+
+ONTAP は、ローカルネットグループファイルを対象としたホスト単位のネットグループ検索をサポートしています。ネットグループファイルをロードしたあと、ホスト単位のネットグループ検索を有効にするために netgroup.byhost マップが ONTAP によって自動的に作成されます。これにより、エクスポートポリシールールを処理してクライアントアクセスを評価する際のローカルネットグループ検索にかかる時間が大幅に短縮されます。
+
+.ステップ
+. URI から SVM にネットグループをロードします。
++
+「 vserver services name-service netgroup load -vserver vserver_name __ source ｛ ftp|http|ftps|https ｝ ： // uri _
+
++
+ネットグループファイルのロードと netgroup.byhost マップの構築には、数分かかる場合があります。
+
++
+ネットグループの更新が必要な場合は、ネットグループファイルを編集し、更新されたファイルを SVM にロードすることができます。
+
+
+
+次のコマンドは、 HTTP URL 「 + http://intranet/downloads/corp-netgroup+`: 」から、ネットグループの定義を vs1 という SVM にロードします
+
+[listing]
+----
+vs1::> vserver services name-service netgroup load -vserver vs1
+-source http://intranet/downloads/corp-netgroup
+----

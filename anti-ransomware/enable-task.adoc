@@ -1,0 +1,99 @@
+---
+sidebar: sidebar 
+permalink: anti-ransomware/enable-task.html 
+keywords: anti-ransomware overview, ransomware, security, introduce, protection, detection, threat, attack, suspect, what ontap anti-ransomware detects, entropy, abnormal volume activity, extension conformity, how to recover data in after a ransomware attack, ransomware protection strategy 
+summary: ランサムウェア対策は、新規または既存のボリュームで有効にできます。学習モードでは、まずアンチランサムウェアを有効にします。学習モードでは、システムがワークロードを分析して通常の動作をキャラクタライズし、次にアクティブモードに切り替えます。このモードでは、異常なアクティビティが評価用にフラグ付けされます。 
+---
+= ランサムウェア対策を実現
+:toc: macro
+:hardbreaks:
+:toclevels: 1
+:toc: 
+:toclevels: 1
+:nofooter: 
+:icons: font
+:linkattrs: 
+:imagesdir: ./media/
+:toc-position: content
+
+
+[role="lead"]
+ランサムウェア対策は、新規または既存のボリュームで有効にできます。学習モードでは、まずアンチランサムウェアを有効にします。学習モードでは、システムがワークロードを分析して通常の動作をキャラクタライズし、次にアクティブモードに切り替えます。このモードでは、異常なアクティビティが評価用にフラグ付けされます。
+
+.必要なもの
+* NFS または SMB （あるいはその両方）が有効になっている Storage VM 。
+* セキュリティおよびコンプライアンスバンドルからインストールされた Multi-tenant Encryption Key Management （ MT_EK_MGMT ）ライセンス。
+* クライアントが設定されている NAS ワークロード。
+* 保護するボリュームにアクティブなジャンクションパスが必要です。
+* オプションですが推奨されます。 EMS システムは、 E メール通知を送信するように設定されており、ランサムウェア対策のアクティビティに関する通知が含まれます。詳細については、を参照してください link:../error-messages/configure-ems-events-send-email-task.html["E メール通知を送信するように EMS イベントを設定します"]。
+
+
+ネットアップのアンチランサムウェア機能には、初期の学習期間（「リハーサル」とも呼ばれます）が含まれています。この期間中、 ONTAP システムはどのファイル拡張子が有効であるかを学習し、分析されたデータを使用してアラートプロファイルを開発します。学習モードでランサムウェア対策を実行し、ワークロードの特性を評価するのに十分な時間が経過したら、アクティブモードに切り替えてデータの保護を開始できます。アンチランサムウェアは、引き続きデータの収集と分析を行い、アラートプロファイルを調整します。
+
+学習期間中、システムは設定されたボリュームのワークロード特性を自動的に学習し、特別な観察とパターン分析を実行します。
+
+学習期間は 30 日間にすることをお勧めします。学習モードからアクティブモードに切り替えることはできますが、早期に切り替えると誤検知が多すぎる可能性があります。
+
+ONTAP CLI では、 security antomware volume workload -dBehavior show コマンドを使用して、現在までに検出されたファイル拡張子を表示できます。ただし、このツールを使用して学習期間を短縮することはお勧めしません。
+
+既存のボリュームでランサムウェア攻撃からの保護を有効にしたり、新しいボリュームを作成してランサムウェアからの保護を有効にしたりできます。
+
+
+NOTE: 既存のボリュームでは、学習モードとアクティブモードが適用されるのは新しく書き込まれたデータのみで、ボリューム内の既存のデータには適用されません。以前の通常のデータトラフィックの特性は、ボリュームでランサムウェア対策機能を有効にしたあとの新しいデータに基づいているとみなされるため、既存のデータはスキャンおよび分析されません。
+
+ONTAP の CLI では、「セキュリティアンチランサムウェアボリューム」という機能を管理するための新しいコマンドファミリーが導入されました。volume modify コマンドに -anti-ansomware パラメータを指定すると ' この機能を管理することもできます
+
+
+
+== System Manager の手順の略
+
+. [* ストレージ ] 、 [ ボリューム ] の順にクリックし、保護するボリュームを選択します。
+. ボリュームの概要のセキュリティタブで、 * ステータス * をクリックして、ランサムウェア対策ボックスの学習モードで無効から有効に切り替えます。
+. 学習期間が終了したら、ランサムウェア対策をアクティブモードに切り替えます。
++
+.. [* ストレージ ] 、 [ ボリューム ] の順にクリックし、アクティブモードにするボリュームを選択します。
+.. ボリュームの概要のセキュリティタブで、ランサムウェア対策ボックスの * アクティブモードに切り替える * をクリックします。
+
+
+. ランサムウェア対策ボックスでは、いつでもボリュームのランサムウェア対策の状態を確認できます。すべてのボリュームのランサムウェア対策のステータスを表示するには、 Volumes （ボリューム）ペインで * Show/Hide * （表示 / 非表示）をクリックし、ランサムウェア対策のステータスがチェックされていることを確認します。
+
+
+
+
+== CLI 手順の略
+
+. 既存のボリュームを変更して、学習モードでランサムウェアからの保護を有効にします。
++
+「 Security anti-Ransomware volume dry-run -volume vol_name 」 -vserver_svm_name_`
+
++
+volume modify コマンドを使用してランサムウェアをイネーブルにすることもできます。
+
++
+volume modify -volume _vol_name -vserver_svm_name_-antansomware -state dry-run
+
++
+CLI では、データのプロビジョニング前にランサムウェア対策保護を有効にした新しいボリュームを作成することもできます。
+
++
+volume create -volume _vol_name - vserver_svm_name_-aggregate-size_size_nn_ -antansome-state dry-run-junction-path /_path_name_`
+
++
+
+NOTE: ランサムウェアは、最初はリハーサル状態で常に有効にする必要があります。アクティブ状態から始めた場合、過剰な誤検出レポートが生成される可能性があります。
+
+. 学習期間が終了したら、保護ボリュームを変更してアクティブモードに切り替えます。
++
+「 Security anti-Ransomware volume enable -volume_vol_name - vserver_svm_name_` 」のように指定します
+
++
+volume modify コマンドを使用して、アクティブモードに切り替えることもできます。
+
++
+volume modify -volume _vol_name -vserver_svm_name_-anti-ラン サムウェア対策ステートアクティブ `
+
+. ボリュームのアンチランサムウェア状態を確認します。
++
+「 Security anti-ラン サムウェア volume show 」を参照してください
+
+

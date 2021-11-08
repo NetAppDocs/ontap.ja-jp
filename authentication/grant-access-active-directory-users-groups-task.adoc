@@ -1,0 +1,70 @@
+---
+permalink: authentication/grant-access-active-directory-users-groups-task.html 
+sidebar: sidebar 
+keywords: enable, active directory, account access 
+summary: Active Directory （ AD ）のユーザアカウントまたはグループアカウントが管理またはデータ SVM にアクセスできるようにするには、 security login create コマンドを使用します。AD グループのすべてのユーザは、グループに割り当てられたロールを使用して SVM にアクセスできます。 
+---
+= Active Directory アカウントアクセスを有効にします
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+「 securitylogin create 」コマンドを使用すると、 Active Directory （ AD ）ユーザまたはグループアカウントが管理またはデータ SVM にアクセスできるようになります。AD グループのすべてのユーザは、グループに割り当てられたロールを使用して SVM にアクセスできます。
+
+.必要なもの
+* クラスタ時間と AD ドメインコントローラの時刻を、誤差が 5 分以内となるように同期する必要があります。
+* このタスクを実行するには、クラスタ管理者である必要があります。
+
+
+.このタスクについて
+* アカウントが SVM にアクセスするためには、 AD ドメインコントローラからクラスタまたは SVM へのアクセスを設定しておく必要があります。
++
+xref:enable-ad-users-groups-access-cluster-svm-task.adoc[Active Directory ドメインコントローラアクセスを設定しています]
+
++
+このタスクは、アカウントアクセスを有効にする前後どちらでも実行できます。
+
+* ログインアカウントに割り当てるアクセス制御ロールが不明な場合は、「 securitylogin modify 」コマンドを使用して後でロールを追加できます。
++
+xref:modify-role-assigned-administrator-task.adoc[管理者に割り当てられているロールの変更]
+
+
+
+[NOTE]
+====
+AD グループアカウントへのアクセスは、「 S SH 」および「 ontapi 」アプリケーションでのみサポートされます。
+
+====
+.ステップ
+. AD のユーザまたはグループ管理者アカウントが SVM にアクセスできるようにします。
++
+「 securitylogin create -vserver SVM_name -user-or-group-name user_name -application -application -authmethod domain -role role -comment
+
++
+コマンド構文全体については、を参照してください link:config-worksheets-reference.html["ワークシート"]。
+
++
+link:config-worksheets-reference.html["ログインアカウントを作成または変更する"]
+
++
+次のコマンドは、事前に定義された「 backup 」ロールを持つ AD クラスタ管理者アカウント「 DMAIN1\guest1 」が、管理 SVM 「 engCluster 」にアクセスできるようにします。
+
++
+[listing]
+----
+cluster1::>security login create -vserver engCluster -user-or-group-name DOMAIN1\guest1 -application ssh -authmethod domain -role backup
+----
++
+次のコマンドは、事前定義された「 vsadmin-volume 」ロールが割り当てられた AD グループアカウント「 D OMAIN1\adgroup 」の SVM 管理者アカウントが、 SVM 「 engData 」にアクセスできるようにします。
+
++
+[listing]
+----
+cluster1::>security login create -vserver engData -user-or-group-name DOMAIN1\adgroup -application ssh -authmethod domain -role vsadmin-volume
+----
+
+
+AD ドメインコントローラからクラスタまたは SVM へのアクセスを設定していない場合は、アカウントが SVM にアクセスする前に設定しておく必要があります。
+
+xref:enable-ad-users-groups-access-cluster-svm-task.adoc[Active Directory ドメインコントローラアクセスを設定しています]

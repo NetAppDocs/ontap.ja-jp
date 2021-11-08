@@ -1,0 +1,114 @@
+---
+permalink: system-admin/verify-digital-certificates-valid-ocsp-task.html 
+sidebar: sidebar 
+keywords: verfiy, digital, certificate, valid, ocsp, online, status, protocol, transport, layer, security, tls, enable, disable 
+summary: ONTAP 9.2 以降では、 Online Certificate Status Protocol （ OCSP ）を有効にすることで、 Transport Layer Security （ TLS ）通信を使用する ONTAP アプリケーションでデジタル証明書のステータスを受信できます。OCSP による証明書のステータスチェックは、特定のアプリケーションに対していつでも有効または無効にできます。デフォルトでは、 OCSP による証明書のステータスチェックは無効になっています。 
+---
+= OCSP を使用してデジタル証明書が有効であることを確認します
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+ONTAP 9.2 以降では、 Online Certificate Status Protocol （ OCSP ）を有効にすることで、 Transport Layer Security （ TLS ）通信を使用する ONTAP アプリケーションでデジタル証明書のステータスを受信できます。OCSP による証明書のステータスチェックは、特定のアプリケーションに対していつでも有効または無効にできます。デフォルトでは、 OCSP による証明書のステータスチェックは無効になっています。
+
+これらのコマンドは advanced 権限レベルで実行する必要があります。
+
+OCSP は、次のアプリケーションをサポートしています。
+
+* AutoSupport
+* イベント管理システム（ EMS ）
+* LDAP over TLS
+* Key Management Interoperability Protocol （ KMIP ）
+* 監査ログ
+* FabricPool
+
+
+.手順
+. 権限レベルを advanced に設定します。「 set -privilege advanced 」
+. 特定の ONTAP アプリケーションで OCSP による証明書のステータスチェックを有効または無効にするには、次の該当するコマンドを使用します。
++
+|===
+| 一部のアプリケーションで OCSP による証明書のステータスチェックを有効または無効にする場合 | 使用するコマンド 
+
+
+ a| 
+有効
+ a| 
+「 securityconfig ocsp enable-app 」を参照してください
+
+「 APP 名」
+
+
+
+ a| 
+無効
+ a| 
+「 securityconfig ocsp disable-app 」を参照してください
+
+「 APP 名」
+
+|===
++
+次のコマンドは、 AutoSupport および EMS の OCSP サポートを有効にします。
+
++
+[listing]
+----
+cluster::*> security config ocsp enable -app asup,ems
+----
++
+OCSP を有効にすると、アプリケーションは次のいずれかの応答を受信します。
+
++
+** Good - 証明書は有効で、通信可能な状態です。
+** Revoked - 証明書は発行元の認証局によって永続的に信頼できないと判断されており、通信不可能な状態です。
+** Unknown - サーバが証明書に関するステータス情報を持っていないため、通信不可能な状態です。
+** OCSP server information is missing in the certificate - TLS 通信は続行していますが、サーバで OCSP が無効であると判断されているため、ステータスチェックは実行されません。
+** No response from OCSP server - アプリケーションを実行できない状態です。
+
+
+. TLS を使用するすべてのアプリケーションで OCSP による証明書のステータスチェックを有効または無効にするには、次の該当するコマンドを使用します。
++
+|===
+| すべてのアプリケーションで OCSP による証明書のステータスチェックを有効または無効にする場合 | 使用するコマンド 
+
+
+ a| 
+有効
+ a| 
+「 securityconfig ocsp enable 」を参照してください
+
+「 -app all 」と入力します
+
+
+
+ a| 
+無効
+ a| 
+「 securityconfig ocsp disable 」を指定します
+
+「 -app all 」と入力します
+
+|===
++
+有効にすると、指定した証明書が「有効」、「失効」、「不明」のいずれであるかを示す署名済みの応答が、すべてのアプリケーションに送信されます。証明書のステータスが revoked の場合は、アプリケーションは実行できません。アプリケーションが OCSP サーバから応答を受信できない場合、または OCSP サーバにアクセスできない場合、アプリケーションは続行できません。
+
+. OCSP をサポートするすべてのアプリケーションとそのサポートステータスを表示するには、「 securityconfig ocsp show 」コマンドを使用します。
++
+[listing]
+----
+cluster::*> security config ocsp show
+         Application                        OCSP Enabled?
+         --------------------               ---------------------
+         autosupport                        false
+         audit_log                          false
+         fabricpool                         false
+         ems                                false
+         kmip                               false
+         ldap_ad                            true
+         ldap_nis_namemap                   true
+
+         7 entries were displayed.
+----
+

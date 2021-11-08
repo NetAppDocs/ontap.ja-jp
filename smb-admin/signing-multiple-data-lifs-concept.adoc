@@ -1,0 +1,30 @@
+---
+permalink: smb-admin/signing-multiple-data-lifs-concept.html 
+sidebar: sidebar 
+keywords: enable, disable, require, smb, sign, server, guideline, lifs, configuration, svm, guidelines for smb signing when multiple data lifs are configured 
+summary: SMB サーバで SMB 署名要求を有効または無効にするときは、 SVM に複数のデータ LIF が設定されている場合のガイドラインに注意する必要があります。 
+---
+= 複数のデータ LIF が設定されている場合の SMB 署名に関するガイドライン
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+SMB サーバで SMB 署名要求を有効または無効にするときは、 SVM に複数のデータ LIF が設定されている場合のガイドラインに注意する必要があります。
+
+SMB サーバを設定する際に、複数のデータ LIF が設定されていることがあります。その場合、 DNS サーバには、 CIFS サーバに対する複数の「 A 」レコードエントリが含まれ、すべて同じ SMB サーバホスト名が使用されますが、各エントリには一意の IP アドレスが割り当てられます。たとえば、 2 つのデータ LIF が設定されている SMB サーバには、次のような「 A 」レコードエントリがあります。
+
+[listing]
+----
+10.1.1.128 A VS1.IEPUB.LOCAL VS1
+10.1.1.129 A VS1.IEPUB.LOCAL VS1
+----
+通常の動作では、 SMB 署名要求の設定を変更すると、クライアントからの新しい接続だけが SMB 署名の設定変更の影響を受けます。ただし、この動作には例外があります。クライアントに共有への既存の接続がある場合、設定の変更後、クライアントは元の接続を維持しながら同じ共有への新しい接続を作成します。この場合、新規と既存の SMB 接続の両方で新しい SMB 署名の要件が適用されます。
+
+次の例を考えてみましょう。
+
+. Client1 は、パス「 O ： \ 」を使用して、 SMB 署名を必要とせずに共有に接続しています。
+. ストレージ管理者が、 SMB 署名を要求するように SMB サーバの設定を変更したとします。
+. Client1 は、パス「 S ： \ 」を使用して、 SMB 署名を使って同じ共有に接続します（パス「 O ： \ 」を使用して接続を維持します）。
+. 結果として、 SMB 署名は「 O ： \ 」ドライブと「 S ： \ 」ドライブの両方でデータにアクセスするときに使用されます。
+

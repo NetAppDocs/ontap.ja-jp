@@ -1,0 +1,55 @@
+---
+permalink: system-admin/accessg-node-log-core-dump-mib-files-task.html 
+sidebar: sidebar 
+keywords: service, processor, infrastructure, spi, web, service, node, log, core, dump, mib, file, browser 
+summary: サービスプロセッサインフラストラクチャ（ spi ） Web サービスはデフォルトで有効になり、クラスタ内のノードのログファイル、コアダンプファイル、 MIB ファイルに Web ブラウザでアクセスできます。ノードが停止した場合でも、パートナーにテイクオーバーされていれば、ファイルにアクセスできます。 
+---
+= Web ブラウザを使用して、ノードのログファイル、コアダンプファイル、および MIB ファイルにアクセスします
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+サービスプロセッサインフラストラクチャ（「 PI 」） Web サービスはデフォルトで有効になっており、 Web ブラウザはクラスタ内のノードのログファイル、コアダンプファイル、 MIB ファイルにアクセスできます。ノードが停止した場合でも、パートナーにテイクオーバーされていれば、ファイルにアクセスできます。
+
+.必要なもの
+* クラスタ管理 LIF が起動している必要があります。
++
+クラスタまたはノードの管理 LIF を使用して 'spi-web サービスにアクセスできますただし、クラスタ管理 LIF を使用することを推奨します。
+
++
+network interface show コマンドを実行すると、クラスタ内のすべての LIF のステータスが表示されます。
+
+* ユーザアカウントに「 admin 」ロール ( デフォルトでは「 PI 」 Web サービスへのアクセス権があります ) がない場合、アクセス制御ロールには「 PI 」 Web サービスへのアクセス権が付与されている必要があります。
++
+vserver services web access show コマンドを実行すると、どのロールにどの Web サービスへのアクセスが許可されているかが表示されます。
+
+* 「 admin 」ユーザアカウント ( デフォルトでは「 http 」アクセス方法を含む ) を使用していない場合、ユーザアカウントには「 http 」アクセス方法を設定する必要があります。
++
+「 securitylogin show 」コマンドを実行すると、ユーザアカウントのアクセス方法、ログイン方法、およびアクセス制御ロールが表示されます。
+
+* セキュアな Web アクセスのために HTTPS を使用する場合は、 SSL を有効にし、デジタル証明書をインストールする必要があります。
++
+「 system services web show 」コマンドは、クラスタレベルの Web プロトコルエンジンの設定を表示します。
+
+
+
+「 spi 」 Web サービスはデフォルトで有効になっており、手動で無効にすることができます（「 vserver services web modify -vserver * -name spi -enabled false 」）。
+
+「 admin 」ロールにはデフォルトで「 sPI 」 Web サービスへのアクセス権が付与されており、アクセスを手動で無効にできます（「サービス web access delete -vserver _cluster_name_-name spi-role admin 」）。
+
+.手順
+. Web ブラウザで 'spi-web service URL を次のいずれかの形式で指定します
++
+** http://_cluster-mgmt-LIF_/spi/`
+** https://_cluster-mgmt-LIF_/spi/`
++
+「 cluster-mgmt-lif 」には、クラスタ管理 LIF の IP アドレスを指定します。
+
+
+
+. ブラウザにプロンプトが表示されたら、ユーザアカウントとパスワードを入力します。
++
+アカウントが認証されると、ブラウザには、クラスタ内の各ノードの /mroot/etc/log/ 、 /mroot/etc/crash/ 、および /mroot/etc/mib/ のディレクトリへのリンクが表示されます。
+
+

@@ -1,0 +1,86 @@
+---
+permalink: antivirus/apply-scanner-policies-disaster-recovery-mcc-task.html 
+sidebar: sidebar 
+keywords: apply, scanner policies, metrocluster, configurations 
+summary: スキャナポリシーは、スキャナプールがアクティブかどうかを決定します。MetroCluster 構成では、各クラスタのプライマリとセカンダリのスキャナプールにスキャナポリシーを適用する必要があります。 
+---
+= MetroCluster 構成でスキャナポリシーを適用
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+スキャナポリシーは、スキャナプールがアクティブかどうかを決定します。MetroCluster 構成では、各クラスタのプライマリとセカンダリのスキャナプールにスキャナポリシーを適用する必要があります。
+
+.このタスクについて
+* 1 つのスキャナプールに適用できるスキャナポリシーは 1 つだけです。
+* クラスタ内のすべての SVM 用のスキャナプールを作成した場合は、各 SVM にスキャナポリシーを個別に適用する必要があります。
+
+
+.手順
+. スキャナポリシーを適用します。
++
+「 vserver vscan scanner-pool apply-policy -vserver data_svm -scanner-pool scanner-pool scanner-pool scanner-policy primary | secondary | idle-cluster cluster_to _apply_policy_on 」の順に選択します
+
++
+スキャナポリシーには次のいずれかの値が設定されます。
+
++
+** 「 Primary 」は、スキャナプールがアクティブであることを示します。
+** 'econdary' は ' プライマリ・スキャナ・プール内のどの Vscan サーバも接続されていない場合にのみ ' スキャナ・プールをアクティブにすることを指定します
+** 「 Idle 」は、スキャナプールが非アクティブであることを示します。
+
+
++
+[NOTE]
+====
+スキャナポリシーの適用は、すべてプライマリ SVM を含むクラスタから実行する必要があります。
+
+====
++
+次のコマンドは、 MetroCluster 構成の各クラスタのプライマリとセカンダリのスキャナプールにスキャナポリシーを適用します。
+
++
+[listing]
+----
+cluster1::>vserver vscan scanner-pool apply-policy -vserver cifssvm1
+-scanner-pool pool1_for_site1 -scanner-policy primary -cluster cluster1
+
+cluster1::>vserver vscan scanner-pool apply-policy -vserver cifssvm1
+-scanner-pool pool2_for_site1 -scanner-policy secondary -cluster cluster1
+
+cluster1::>vserver vscan scanner-pool apply-policy -vserver cifssvm1
+-scanner-pool pool1_for_site2 -scanner-policy secondary -cluster cluster2
+
+cluster1::>vserver vscan scanner-pool apply-policy -vserver cifssvm1
+-scanner-pool pool2_for_site2 -scanner-policy primary -cluster cluster2
+----
+. スキャナプールがアクティブであることを確認します。
++
+vserver vscan scanner-pool show -vserver data_svm | cluster_admin_svm -scanner-pool scanner-pool scanner-pool scanner-pool scanner-pool scanner-pool scanner_pool 」というコマンドを使用します
+
++
+すべてのオプションの一覧については、コマンドのマニュアルページを参照してください。
+
++
+次のコマンドは、スキャナプール「 pool1 」の詳細を表示します。
+
++
+[listing]
+----
+cluster1::> vserver vscan scanner-pool show -vserver cifssvm1 -scanner-pool pool1_for_site1
+
+                                    Vserver: cifssvm1
+                               Scanner Pool: pool1_for_site1
+                             Applied Policy: primary
+                             Current Status: on
+         Cluster on Which Policy Is Applied: cluster1
+                  Scanner Pool Config Owner: vserver
+       List of IPs of Allowed Vscan Servers:
+List of Host Names of Allowed Vscan Servers: scan1
+                   List of Privileged Users: cifs\u1,cifs\u2
+----
++
+vserver vscan scanner-pool show-active コマンドを使用して、 SVM のアクティブなスキャナプールを表示することができます。コマンド構文全体については、コマンドのマニュアルページを参照してください。
+
+

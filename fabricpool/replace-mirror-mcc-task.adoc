@@ -1,0 +1,77 @@
+---
+permalink: fabricpool/replace-mirror-mcc-task.html 
+sidebar: sidebar 
+keywords: replacing, fabricpool, mirror, metrocluster, configuration 
+summary: MetroCluster ミラーのオブジェクトストアの 1 つが破棄された場合、または FabricPool 構成で完全に使用できなくなった場合、オブジェクトストアがまだミラーでない場合はミラーにして、破損したオブジェクトストアを FabricPool ミラーから削除します。 次に、新しいオブジェクトストアミラーを FabricPool に追加します。 
+---
+= MetroCluster 構成の FabricPool ミラーを交換します
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+MetroCluster ミラーのオブジェクトストアの 1 つが破棄された場合、または FabricPool 構成で完全に使用できなくなった場合、オブジェクトストアがまだミラーでない場合はミラーにして、破損したオブジェクトストアを FabricPool ミラーから削除します。 次に、新しいオブジェクトストアミラーを FabricPool に追加します。
+
+.手順
+. 破損したオブジェクトストアがまだミラーでない場合は、「 storage aggregate object-store modify 」コマンドを使用してオブジェクトストアをミラーにしてください。
++
+[listing]
+----
+storage aggregate object-store modify -aggregate -aggregate fp_aggr1_A01 -name mcc1_ostore1 -mirror-type mirror
+----
+. 「 storage aggregate object-store unmirror 」コマンドを使用して、 FabricPool からオブジェクトストアミラーを削除します。
++
+[listing]
+----
+storage aggregate object-store unmirror -aggregate <aggregate name> -name mcc1_ostore1
+----
+. 「 storage aggregate object-store modify 」に「 -force-tiering-on-metrocluster true 」オプションを指定すると、ミラーデータストアを削除したあとでプライマリデータストアで階層化を強制的に再開できます。
++
+ミラーがないと、 MetroCluster 構成のレプリケーション要件が満たされません。
+
++
+[listing]
+----
+storage aggregate object-store modify -aggregate <aggregate name> -name mcc1_ostore1 -force-tiering-on-metrocluster true
+----
+. 「 storage aggregate object-store config create 」コマンドを使用して、置き換え用のオブジェクトストアを作成します。
++
+[listing]
+----
+storage aggregate object-store config create -object-store-name mcc1_ostore3 -cluster clusterA -provider-type SGWS -server <SGWS-server-1> -container-name <SGWS-bucket-1> -access-key <key> -secret-password <password> -encrypt <true|false> -provider <provider-type> -is-ssl-enabled <true|false> ipspace <IPSpace>
+----
+. 「 storage aggregate object-store mirror 」コマンドを使用して、 FabricPool ミラーにオブジェクトストアミラーを追加します。
++
+[listing]
+----
+storage aggregate object-store mirror -aggregate aggr1 -name mcc1_ostore3-mc
+----
+. 「 storage aggregate object-store show 」コマンドを使用して、オブジェクトストアの情報を表示します。
++
+[listing]
+----
+storage aggregate object-store show -fields mirror-type,is-mirror-degraded
+----
++
+[listing]
+----
+aggregate      object-store-name mirror-type     is-mirror-degraded
+-------------- ----------------- ------------- ------------------
+aggr1          mcc1_ostore1-mc    primary           -
+               mcc1_ostore3-mc    mirror          true
+----
+. 「 storage aggregate object-store show-resync-status 」コマンドを使用して、ミラー再同期ステータスを監視します。
++
+[listing]
+----
+storage aggregate object-store show-resync-status -aggregate aggr1
+----
++
+[listing]
+----
+                                                  Complete
+      Aggregate    Primary        Mirror          Percentage
+      ---------    -----------    ----------      ----------
+      aggr1        mcc1_ostore1-mc mcc1_ostore3-mc   40%
+----
+

@@ -1,0 +1,43 @@
+---
+permalink: nfs-rdma/configure-lifs-task.html 
+sidebar: sidebar 
+keywords: networking, LIF, NFS over RDMA, NVIDIA, NFS, RDMA, ROCE 
+summary: この記事では、 LIF を RDMA 対応に設定する方法について説明します。 
+---
+= NFS over RDMA 用に LIF を設定します
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+NFS over RDMA を利用するには、 RDMA 互換性を確保するように LIF を設定する必要があります。LIF とそのフェイルオーバーペアは RDMA 対応である必要があります。
+
+ONTAP 9.10.1 以降では、ネットワークインターフェイスのコマンドに新たに rdma_protocols パラメータが追加され、サポートを設定し、適切なサービスポリシーを設定できるようになりました。
+
+.手順をクリックして新しい LIF を作成します
+. LIF を作成します。
++
+「 network interface create -vserver _vserver_name -lif_lif_name_service-policy_policy_policy_service_policy_name_home-node_name -home-node node_name _-home-port port_name _{-address _ip_address _netmask_address_|-subnet-name _subnet_name _} -firewall-policy _dma_policy -rdma ’ ｛ auto-revert ｛ auto_policy ｝ -auto-protocols.false
+
++
+.. サービスポリシーには、 default-data-files または dataNFS-NFS ネットワークインターフェイスサービスを含むカスタムポリシーを指定する必要があります。
+.. -rdma-protocols パラメータは ' デフォルトで空になっているリストを受け取りますRoCE を値として追加すると、 RoCE オフロードをサポートするポート上でのみ LIF を設定でき、ボット LIF の移行やフェイルオーバーに影響します。
+
+
+
+
+.手順を使用して LIF を変更する
+. LIF のステータスは、「 network interface show 」コマンドで確認できます。サービスポリシーに data-nfs ネットワークインターフェイスサービスを含める必要があります。-rdma-protocols リストには 'RoCE が含まれている必要があります上記のいずれかの条件に該当しない場合は、 LIF を変更します。
+. LIF を変更するには、次のコマンドを実行します。
++
+「 network interface modify vserver_vserver_name -lif_lif_name_service-policy_policy_policy_service_policy_name_home-node_name -home-node node_name _-home-port port_name _{-address _ip_address _netmask_address_value _|-subnet-name _subnet_name _RoCE -firewall-policy rdma {0/} -auto-protocols{0/} 」 {0/}
+
+
+
+特定のオフロードプロトコルを必要とするように LIF を変更すると、そのプロトコルをサポートするポートにその LIF が割り当てられていない場合にエラーになります。
+
+* 詳細情報 *
+
+xref:../networking/create_a_lif.adoc[LIF を作成]
+
+xref:../networking/what_lifs_are.html[LIF とは]

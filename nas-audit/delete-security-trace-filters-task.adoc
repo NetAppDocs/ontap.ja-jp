@@ -1,0 +1,60 @@
+---
+permalink: nas-audit/delete-security-trace-filters-task.html 
+sidebar: sidebar 
+keywords: delete, security trace filters 
+summary: セキュリティトレースフィルタエントリが不要になった場合は削除できます。セキュリティトレースフィルタは Storage Virtual Machine （ SVM ）ごとに 10 個までしか使用できないので、上限に達した場合は、不要なフィルタを削除すると、新しいフィルタを作成できます。 
+---
+= セキュリティトレースフィルタを削除します
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+セキュリティトレースフィルタエントリが不要になった場合は削除できます。セキュリティトレースフィルタは Storage Virtual Machine （ SVM ）ごとに 10 個までしか使用できないので、上限に達した場合は、不要なフィルタを削除すると、新しいフィルタを作成できます。
+
+削除するセキュリティトレースフィルタを一意に識別するには、次の項目を指定する必要があります。
+
+* トレースフィルタが適用されている SVM の名前
+* トレースフィルタのフィルタインデックス番号
+
+
+.手順
+. 削除するセキュリティトレースフィルタエントリのフィルタインデックス番号を確認します。
++
+vserver security trace filter show -vserver vserver_name
+
++
+vserver security trace filter show -vserver vs1
+
++
+[listing]
+----
+
+Vserver  Index   Client-IP            Path            Trace-Allow  Windows-Name
+-------- -----  -----------  ----------------------   -----------  -------------
+vs1        1    -            /dir1/dir2/file.txt          yes      -
+vs1        2    -            /dir3/dir4/                  no       mydomain\joe
+----
+. 前の手順で確認したフィルタインデックス番号を使用して、フィルタエントリを削除します。
++
+vserver security trace filter delete -vserver vserver_name -index index_number
+
++
+vserver security trace filter delete -vserver vs1 -index 1'
+
+. セキュリティトレースフィルタエントリが削除されたことを確認します。
++
+vserver security trace filter show -vserver vserver_name
+
++
+vserver security trace filter show -vserver vs1
+
++
+[listing]
+----
+
+Vserver  Index   Client-IP            Path            Trace-Allow   Windows-Name
+-------- -----  -----------  ----------------------   -----------   -------------
+vs1        2    -            /dir3/dir4/                  no        mydomain\joe
+----
+

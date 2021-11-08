@@ -1,0 +1,167 @@
+---
+permalink: snaplock/set-default-retention-period-task.html 
+sidebar: sidebar 
+keywords: snaplock, volume, command, modify, retention, period, file, set, default 
+summary: volume SnapLock modify コマンドを使用して、 SnapLock ボリューム上のファイルにデフォルトの保持期間を設定できます。 
+---
+= デフォルトの保持期間を設定
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+volume SnapLock modify コマンドを使用すると、 SnapLock ボリューム上のファイルのデフォルトの保存期間を設定できます。
+
+SnapLock ボリュームはオンラインである必要があります。
+
+次の表に、デフォルトの保持期間に指定できる値を示します。
+
+[NOTE]
+====
+デフォルトの保持期間は、最小保持期間以上、最大保持期間以下にする必要があります。
+
+====
+|===
+| 価値 | 単位 | 注： 
+
+
+ a| 
+0 ~ 65535
+ a| 
+秒
+ a| 
+
+
+
+ a| 
+0 ~ 24
+ a| 
+時間
+ a| 
+
+
+
+ a| 
+0 ~ 365
+ a| 
+日
+ a| 
+
+
+
+ a| 
+0 ~ 12
+ a| 
+月
+ a| 
+
+
+
+ a| 
+0 ~ 70
+ a| 
+年
+ a| 
+
+
+
+ a| 
+最大
+ a| 
+-
+ a| 
+最大保持期間を使用します。
+
+
+
+ a| 
+最小
+ a| 
+-
+ a| 
+最小保持期間を使用します。
+
+
+
+ a| 
+制限なし
+ a| 
+-
+ a| 
+ファイルを無期限に保持します。
+
+
+
+ a| 
+未指定
+ a| 
+-
+ a| 
+絶対保持期間が設定されるまでファイルを保持します。
+
+|===
+最大保持期間と最小保持期間の値と範囲は同じですが、「最大保持期間」と「最小保持期間」は適用されません。このタスクの詳細については、を参照してください link:set-retention-period-task.html["保持期限の概要を設定"]。
+
+volume SnapLock show コマンドを使用して ' ボリュームの保存期間設定を表示できます詳細については、コマンドのマニュアルページを参照してください。
+
+[NOTE]
+====
+ファイルが WORM 状態にコミットされたあとは、保持期間を延長することはできますが短縮することはできません。
+
+====
+.手順
+. SnapLock ボリューム上のファイルにデフォルトの保持期間を設定します。
++
+` * volume SnapLock modify -vserver _svm_name _ -volume_name_-default-retention-period_default_retention_period_ -minimum-retention-period_min_retention_period_ -maximum-retention_period_ *
+
++
+すべてのオプションの一覧については、コマンドのマニュアルページを参照してください。
+
++
+[NOTE]
+====
+次の例は、最小保持期間と最大保持期間が過去に変更されていないことを前提としています。
+
+====
++
+次のコマンドは、 Compliance ボリュームまたは Enterprise ボリュームのデフォルトの保持期間を 20 日に設定します。
+
++
+[listing]
+----
+cluster1::> volume snaplock modify -vserver vs1 -volume vol1 -default-retention-period 20days
+----
++
+次のコマンドは、 Compliance ボリュームのデフォルトの保持期間を 70 年に設定します。
+
++
+[listing]
+----
+cluster1::> volume snaplock modify -vserver vs1 -volume vol1 -maximum-retention-period 70years
+----
++
+次のコマンドは、 Enterprise ボリュームのデフォルトの保持期間を 10 年に設定します。
+
++
+[listing]
+----
+cluster1::> volume snaplock modify -vserver vs1 -volume vol1 -default-retention-period max -maximum-retention-period 10years
+----
++
+次のコマンドは、 Enterprise ボリュームのデフォルトの保持期間を 10 日に設定します。
+
++
+[listing]
+----
+cluster1::> volume snaplock modify -vserver vs1 -volume vol1 -minimum-retention-period 10days
+cluster1::> volume snaplock modify -vserver vs1 -volume vol1 -default-retention-period min
+----
++
+次のコマンドは、 Compliance ボリュームのデフォルトの保持期間を無期限に設定します。
+
++
+[listing]
+----
+cluster1::> volume snaplock modify -vserver vs1 -volume vol1 -default-retention-period infinite -maximum-retention-period infinite
+----
+

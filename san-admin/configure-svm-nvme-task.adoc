@@ -1,0 +1,124 @@
+---
+permalink: san-admin/configure-svm-nvme-task.html 
+sidebar: sidebar 
+keywords: configure, svm, nvme 
+summary: ノードで NVMe プロトコルを使用する場合は、 SVM を NVMe 専用に設定する必要があります。 
+---
+= NVMe 用に SVM を設定します
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+ノードで NVMe プロトコルを使用する場合は、 SVM を NVMe 専用に設定する必要があります。
+
+FC アダプタまたはイーサネットアダプタで NVMe がサポートされている必要があります。サポートされるアダプタの一覧については、を参照してください https://hwu.netapp.com["NetApp Hardware Universe の略"]。
+
+.手順
+. 既存の SVM を使用しない場合は、作成します。
++
+「 vserver create -vserver_svm_name_` 」のように指定します
+
++
+.. SVM が作成されたことを確認します。
++
+「 vserver show 」
+
+
+
+. クラスタに NVMe または TCP 対応アダプタがインストールされていることを確認します。
++
+NVMe の場合：「 network fcp adapter show -data-protocol supported fc-nvme 」です
+
++
+TCP の場合：「 network port show 」
+
+. ONTAP 9.7 以前を実行している場合は、 SVM からすべてのプロトコルを削除します。
++
+「 vserver remove-protocols -vserver _svm_name 」プロトコル iscsi 、 fcp 、 nfs 、 cifs 、 ndmp
+
++
+ONTAP 9.8 以降では、 NVMe を追加するときに他のプロトコルを削除する必要はありません。
+
+. SVM に NVMe プロトコルを追加します。
++
+「 vserver add-protocols -vserver _svm_name_-protocols nvme 」を参照してください
+
+. ONTAP 9.7 以前を実行している場合は、 SVM で許可されているプロトコルが NVMe だけであることを確認します。
++
+「 vserver show -vserver _svm_name 」 - fields allowed-protocols 」を指定します
+
++
+NVMe は、「 Allowed protocols 」列に表示される唯一のプロトコルである必要があります。
+
+. NVMe サービスを作成します。
++
+「 vserver nvme create -vserver _svm_name_` 」です
+
+. NVMe サービスが作成されたことを確認します。
++
+「 vserver nvme show -vserver _svm_name 」を参照してください
+
++
+SVM の「 Administrative Status 」が「 up 」になっている必要があります。
+
+. NVMe/FC LIF を作成します。
++
+[cols="3*"]
+|===
+| ONTAP バージョン | 適用されるプロトコル | コマンドを実行します 
+
+
+ a| 
+ONTAP 9.9.1 以前
+ a| 
+FC
+ a| 
+「 network interface create -vserver SVM_name -lif LIF_name -role data -data-protocol fc -nvme-home-node home_node -home-port home_port 」のようになります
+
+
+
+ a| 
+ONTAP 9.10.1
+ a| 
+FC または TCP
+ a| 
+「 network interface create -vserver SVM_name -lif LIF_name -service ｛ default-data-nvme-tcp | default-data-nvme-fc ｝ -home-node home_node -home-port home_port -status admin up-failover-policy disabled -firewall-policy data -auto-revert false-failover-group failover_group-is-service-is false 」 -update-enabled
+
+|===
+. HA パートナーノードに NVMe/FC LIF を作成します。
++
+[cols="3*"]
+|===
+| ONTAP バージョン | 適用されるプロトコル | コマンドを実行します 
+
+
+ a| 
+ONTAP 9.9.1 以前
+ a| 
+FC
+ a| 
+「 network interface create -vserver _svm_name _ -lif lif_name _ -role data -data-protocol fc -nvme -home-node _home_node_name -home-port home_port_` 」を使用します
+
+
+
+ a| 
+ONTAP 9.10.1 以降
+ a| 
+FC または TCP
+ a| 
+「 network interface create -vserver SVM_name -lif LIF_name -service ｛ default-data-nvme-tcp | default-data-nvme-fc ｝ -home-node home_node -home-port home_port -status admin up-failover-policy disabled -firewall-policy data -auto-revert false-failover-group failover_group-is-service-is false 」 -update-enabled
+
+|===
+. NVMe/FC LIF が作成されたことを確認します。
++
+「 network interface show -vserver _svm_name 」をクリックします
+
+. LIF と同じノードにボリュームを作成します。
++
+vol create -vserver_svm_name_-volume_name_-aggregate-aggregate-aggregate-aggregate-aggregate-name _-size_volume_size_`
+
++
+自動効率化ポリシーに関する警告メッセージが表示された場合は無視してかまいません。
+
+

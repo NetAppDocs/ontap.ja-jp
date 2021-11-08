@@ -1,0 +1,37 @@
+---
+permalink: smb-admin/choosing-hash-store-location-concept.html 
+sidebar: sidebar 
+keywords: configuring, configure, branchcache, store, hash, size, guideline, cids-enabled, svm, guidelines for choosing the hash store location 
+summary: BranchCache を設定する場合は、ハッシュを格納する場所とハッシュストアのサイズを選択します。ハッシュストアの場所とサイズの選択に関するガイドラインについて理解しておくと、 CIFS 対応の SVM で BranchCache の設定を計画するのに役立ちます。 
+---
+= ハッシュストアの場所の選択に関するガイドライン
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+BranchCache を設定する場合は、ハッシュを格納する場所とハッシュストアのサイズを選択します。ハッシュストアの場所とサイズの選択に関するガイドラインについて理解しておくと、 CIFS 対応の SVM で BranchCache の設定を計画するのに役立ちます。
+
+* ハッシュストアは、 atime アップデートが許可されるボリューム上に配置する必要があります。
++
+ハッシュストアでは、ハッシュファイルへのアクセス時間を使用して、アクセス頻度の高いファイルを管理します。atime アップデートが無効になっている場合、作成時間がこの目的に使用されます。使用頻度の高いファイルを追跡するために atime を使用することを推奨します。
+
+* SnapMirror デスティネーションや SnapLock ボリュームなどの読み取り専用のファイルシステムにはハッシュを格納できません。
+* ハッシュストアが最大サイズに達すると、新しいハッシュを格納するスペースを確保するために古いハッシュがフラッシュされます。
++
+ハッシュストアの最大サイズを増やすと、キャッシュからフラッシュされるハッシュの量を減らすことができます。
+
+* ハッシュを格納するボリュームが使用できないか、いっぱいである場合、またはクラスタ内通信に BranchCache サービスがハッシュ情報を取得できない問題がある場合、 BranchCache サービスは使用できません。
++
+ボリュームは、オフラインであるため、またはストレージ管理者がハッシュストアの新しい場所を指定したために、使用できないことがあります。
+
++
+これは、ファイルアクセスに関する原因の問題ではありません。ハッシュストアに正常にアクセスできない場合は、 ONTAP からクライアントに Microsoft 定義のエラーが返され、クライアントは通常の SMB 読み取り要求を使用してファイルを要求します。
+
+
+
+* 関連情報 *
+
+xref:configure-branchcache-task.adoc[CIFS サーバで BranchCache を設定しています]
+
+xref:manage-monitor-branchcache-config-concept.adoc[BranchCache の設定を管理および監視する]

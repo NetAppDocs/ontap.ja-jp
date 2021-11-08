@@ -1,0 +1,56 @@
+---
+permalink: smb-admin/delete-local-group-task.html 
+sidebar: sidebar 
+keywords: delete, local, group, storage, virtual, machine, svm, determine, determining, access, right, data, associate, assign, user, privilege, member, delete a local group 
+summary: Storage Virtual Machine （ SVM ）に関連付けられたデータへのアクセス権を決定するのに必要なくなった場合や、 SVM ユーザ権限をグループメンバーに割り当てるのに必要なくなった場合は、 SVM からローカルグループを削除できます。 
+---
+= ローカルグループを削除します
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+Storage Virtual Machine （ SVM ）に関連付けられたデータへのアクセス権を決定するのに必要なくなった場合や、 SVM ユーザ権限をグループメンバーに割り当てるのに必要なくなった場合は、 SVM からローカルグループを削除できます。
+
+ローカルグループを削除する場合は、次の点に注意してください。
+
+* ファイルシステムは変更されません。
++
+このグループを参照するファイルやディレクトリに対する Windows セキュリティ記述子は調整されません。
+
+* グループが存在しない場合は、エラーが返されます。
+* special_every_group は削除できません。
+* BUILTIN \ Administrators _BUILTIN\Users_ などの組み込みのグループは削除できません。
+
+
+.手順
+. SVM 上のローカルグループの一覧を表示して、削除するローカルグループの名前を確認します。 vserver cifs users-and-groups local-group show -vserver vserver_name
+. ローカルグループを削除します。 vserver cifs users-and-groups local-group delete -vserver _vserver_name _‑ group-name _group_name
+. グループが削除されたことを確認します。 vserver cifs users-and-groups local-user show -vserver _vserver_name _`
+
+
+次の例は、 SVM vs1 に関連付けられたローカルグループ「 CIFS_SERVER\sales 」を削除します。
+
+[listing]
+----
+cluster1::> vserver cifs users-and-groups local-group show -vserver vs1
+Vserver   Group Name                   Description
+--------- ---------------------------- ----------------------------
+vs1       BUILTIN\Administrators       Built-in Administrators group
+vs1       BUILTIN\Backup Operators     Backup Operators group
+vs1       BUILTIN\Power Users          Restricted administrative privileges
+vs1       BUILTIN\Users                All users
+vs1       CIFS_SERVER\engineering
+vs1       CIFS_SERVER\sales
+
+cluster1::> vserver cifs users-and-groups local-group delete -vserver vs1 -group-name CIFS_SERVER\sales
+
+cluster1::> vserver cifs users-and-groups local-group show -vserver vs1
+Vserver   Group Name                   Description
+--------- ---------------------------- ----------------------------
+vs1       BUILTIN\Administrators       Built-in Administrators group
+vs1       BUILTIN\Backup Operators     Backup Operators group
+vs1       BUILTIN\Power Users          Restricted administrative privileges
+vs1       BUILTIN\Users                All users
+vs1       CIFS_SERVER\engineering
+----

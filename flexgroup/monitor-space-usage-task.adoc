@@ -1,0 +1,59 @@
+---
+permalink: flexgroup/monitor-space-usage-task.html 
+sidebar: sidebar 
+keywords: monitor, space, flexgroup, volume 
+summary: FlexGroup とそのコンスティチュエントを表示して、 FlexGroup ボリュームで使用されているスペースを監視することができます。 
+---
+= FlexGroup ボリュームのスペース使用量を監視します
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+FlexGroup とそのコンスティチュエントを表示して、 FlexGroup ボリュームで使用されているスペースを監視することができます。
+
+ONTAP 9.6 以降では、エラスティックサイジングがサポートされます。FlexGroup ボリュームのコンスティチュエントがスペース不足になると、空きスペースがある FlexGroup ボリュームの他のコンスティチュエントを同じ量だけ縮小することで、 ONTAP によって自動的に拡張されます。エラスティックサイジングを使用すると、 1 つ以上の FlexGroup コンスティチュエントボリュームのスペース不足が原因で発生するスペース不足エラーを回避できます。
+
+[NOTE]
+====
+ONTAP 9.9.9 以降では、 FlexGroup ボリュームの論理スペースのレポートおよび適用も可能になりました。詳細については、を参照してください https://docs.netapp.com/ontap-9/topic/com.netapp.doc.dot-cm-vsmg/GUID-65C34C6C-29A0-4DB7-A2EE-019BA8EB8A83.html["ボリュームの論理スペースのレポートと適用"]。
+
+====
+.ステップ
+. FlexGroup ボリュームとそのコンスティチュエントで使用されているスペースを表示します。 volume show -vserver vserver_name -volume -style -extended [FlexGroup | flexgroup constituent]`
++
+[listing]
+----
+cluster-2::> volume show -vserver vs1 -volume-style-extended flexgroup
+Vserver   Volume       Aggregate    State      Type       Size  Available Used%
+--------- ------------ ------------ ---------- ---- ---------- ---------- -----
+vs1       fg1          -            online     RW        500GB    207.5GB   56%
+----
++
+[listing]
+----
+ccluster-2::> volume show -vserver vs1 -volume-style-extended flexgroup-constituent
+Vserver   Volume       Aggregate    State      Type       Size  Available Used%
+--------- ------------ ------------ ---------- ---- ---------- ---------- -----
+vs1       fg1__0001    aggr3        online     RW      31.25GB    12.97GB   56%
+vs1       fg1__0002    aggr1        online     RW      31.25GB    12.98GB   56%
+vs1       fg1__0003    aggr1        online     RW      31.25GB    13.00GB   56%
+vs1       fg1__0004    aggr3        online     RW      31.25GB    12.88GB   56%
+vs1       fg1__0005    aggr1        online     RW      31.25GB    13.00GB   56%
+vs1       fg1__0006    aggr3        online     RW      31.25GB    12.97GB   56%
+vs1       fg1__0007    aggr1        online     RW      31.25GB    13.01GB   56%
+vs1       fg1__0008    aggr1        online     RW      31.25GB    13.01GB   56%
+vs1       fg1__0009    aggr3        online     RW      31.25GB    12.88GB   56%
+vs1       fg1__0010    aggr1        online     RW      31.25GB    13.01GB   56%
+vs1       fg1__0011    aggr3        online     RW      31.25GB    12.97GB   56%
+vs1       fg1__0012    aggr1        online     RW      31.25GB    13.01GB   56%
+vs1       fg1__0013    aggr3        online     RW      31.25GB    12.95GB   56%
+vs1       fg1__0014    aggr3        online     RW      31.25GB    12.97GB   56%
+vs1       fg1__0015    aggr3        online     RW      31.25GB    12.88GB   56%
+vs1       fg1__0016    aggr1        online     RW      31.25GB    13.01GB   56%
+16 entries were displayed.
+----
++
+使用可能なスペースと使用済みスペースの割合の情報を使用して、 FlexGroup ボリュームのスペース使用量を監視できます。
+
+

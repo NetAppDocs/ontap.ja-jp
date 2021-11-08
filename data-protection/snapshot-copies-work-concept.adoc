@@ -1,0 +1,37 @@
+---
+permalink: data-protection/snapshot-copies-work-concept.html 
+sidebar: sidebar 
+keywords: restore, file, snapshot copy, nfs, cifs, client 
+summary: NFS クライアントまたは CIFS クライアント上のユーザは、 Snapshot コピーからファイルを直接リストアできます。ストレージシステム管理者の操作は必要ありません。 
+---
+= NFS クライアントまたは CIFS クライアント上の Snapshot コピーからファイルをリストアします
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+NFS クライアントまたは CIFS クライアント上のユーザは、 Snapshot コピーからファイルを直接リストアできます。ストレージシステム管理者の操作は必要ありません。
+
+ファイル・システム内のすべてのディレクトリには '.snapshot という名前のサブディレクトリがあり 'NFS ユーザーと CIFS ユーザーがアクセスできます「 .snapshot 」サブディレクトリには、ボリュームの Snapshot コピーに対応するサブディレクトリが含まれています。
+
+....
+$ ls .snapshot
+daily.2017-05-14_0013/              hourly.2017-05-15_1106/
+daily.2017-05-15_0012/              hourly.2017-05-15_1206/
+hourly.2017-05-15_1006/             hourly.2017-05-15_1306/
+....
+各サブディレクトリには、 Snapshot コピーが参照するファイルが含まれています。ユーザが誤ってファイルを削除または上書きした場合、 Snapshot サブディレクトリから読み書き可能なディレクトリにファイルをコピーすることで、親の読み書き可能ディレクトリにファイルをリストアできます。
+
+....
+$ ls my.txt
+ls: my.txt: No such file or directory
+$ ls .snapshot
+daily.2017-05-14_0013/              hourly.2017-05-15_1106/
+daily.2017-05-15_0012/              hourly.2017-05-15_1206/
+hourly.2017-05-15_1006/             hourly.2017-05-15_1306/
+$ ls .snapshot/hourly.2017-05-15_1306/my.txt
+my.txt
+$ cp .snapshot/hourly.2017-05-15_1306/my.txt .
+$ ls my.txt
+my.txt
+....

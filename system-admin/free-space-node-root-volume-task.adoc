@@ -1,0 +1,76 @@
+---
+permalink: system-admin/free-space-node-root-volume-task.html 
+sidebar: sidebar 
+keywords: free, space, node, root, volume, full, delete, file, core, dump 
+summary: ノードのルートボリュームがいっぱい、またはほぼいっぱいになると、警告メッセージが表示されます。ルートボリュームがいっぱいになると、ノードは正常に動作できません。コアダンプファイル、パケットトレースファイル、およびルートボリュームの Snapshot コピーを削除することにより、ノードのルートボリュームのスペースを解放できます。 
+---
+= ノードのルートボリュームにスペースを確保します
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+ノードのルートボリュームがいっぱい、またはほぼいっぱいになると、警告メッセージが表示されます。ルートボリュームがいっぱいになると、ノードは正常に動作できません。コアダンプファイル、パケットトレースファイル、およびルートボリュームの Snapshot コピーを削除することにより、ノードのルートボリュームのスペースを解放できます。
+
+.手順
+. 「 system node coredump show 」コマンドを使用して、ノードのコアダンプファイルとその名前を表示します。
+. 「 system node coredump delete 」コマンドを使用して、不要なコアダンプファイルをノードから削除します。
+. ノードシェルにアクセスします。
++
+*system node run -node nodename _*
+
++
+`_nodename_` は解放するルートボリュームスペースがあるノードの名前である。
+
+. ノードシェルからノードシェルの advanced 権限レベルに切り替えます。
++
+「 * priv set advanced * 」と入力します
+
+. ノードのパケットトレースファイルは、次のようにノードシェルから表示、削除を行います。
++
+.. ノードのルートボリュームにあるすべてのファイルを表示します。
++
+「 * 1s/etc * 」
+
+.. ノードのルートボリュームにパケットトレースファイル（「 *.trc 」）がある場合は、それらを個別に削除します。
++
+`*rm /etc/ log/packet_ctraces/_file_name .trc_*`
+
+
+
+. ノードのルートボリュームの Snapshot コピーは、次のようにノードシェルから特定、および削除を行います。
++
+.. ルートボリューム名を特定します。
++
+「 *vol status *` 」
+
++
+ルート・ボリュームは、 vol status コマンド出力の「 Options 」列に「 root 」という単語で示されます。
+
++
+次の例では、ルートボリュームは「 vol0 」です。
+
++
+[listing]
+----
+node1*> vol status
+
+         Volume State           Status            Options
+           vol0 online          raid_dp, flex     root, nvfail=on
+                                64-bit
+----
+.. ルートボリュームの Snapshot コピーを表示します。
++
+'*snap list root_vol_name *
+
+.. 不要なルートボリュームの Snapshot コピーを削除します。
++
+`*snap delete root_vol_namesnapshot_name *`
+
+
+
+. ノードシェルを終了してクラスタシェルに戻ります。
++
+「 * exit *
+
+

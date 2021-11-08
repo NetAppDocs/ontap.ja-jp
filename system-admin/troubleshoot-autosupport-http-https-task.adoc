@@ -1,0 +1,77 @@
+---
+permalink: system-admin/troubleshoot-autosupport-http-https-task.html 
+sidebar: sidebar 
+keywords: troubleshoot, autosupport, message, delivery, http, https, chekc, settings, resolve, problem 
+summary: HTTP または HTTPS を使用していて、想定される AutoSupport メッセージが送信されない場合は、いくつかの設定を確認することで問題を解決できます。 
+---
+= HTTP または HTTPS を使用した AutoSupport メッセージ配信のトラブルシューティング
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+HTTP または HTTPS を使用していて、想定される AutoSupport メッセージが送信されない場合は、いくつかの設定を確認することで問題を解決できます。
+
+基本的なネットワーク接続と DNS ルックアップについて、以下の点を確認しておきます。
+
+* ノード管理 LIF の動作ステータスおよび管理ステータスが up になっている。
+* 同じサブネット上の機能しているホストに、（ノード上の LIF ではなく）クラスタ管理 LIF から ping を実行できる。
+* サブネットの外部の機能しているホストに、クラスタ管理 LIF から ping を実行できる。
+* サブネットの外部の機能しているホストに、（ IP アドレスではなく）ホストの名前を使用してクラスタ管理 LIF から ping を実行できる。
+
+
+以下の手順は、 AutoSupport でメッセージを生成できているが、 HTTP または HTTPS 経由でメッセージを配信できていないと判断した場合に実行します。
+
+エラーが発生したり、この手順の手順を完了できない場合は、問題を特定し、対処してから次の手順に進んでください。
+
+.手順
+. 「 system node AutoSupport check show-sdetails 」コマンドを実行して、 AutoSupport サブシステムの詳細なステータスを表示します。たとえば、テストメッセージを送信して AutoSupport デスティネーションへの接続を検証したり、 AutoSupport の設定で発生する可能性のあるエラーのリストを指定したりします。
+. ノード管理 LIF のステータスを確認します。
++
+`* network interface show -home-node local -role node-mgmt -fields vserver 、 lif 、 status-oper 、 status-admin 、 address 、 role * '
+
++
+「 tatus-oper 」フィールドと「 tatus-admin 」フィールドは「 up 」を返す必要があります。
+
+. あとで使用できるように、 SVM 名、 LIF 名、および LIF の IP アドレスを書き留めておきます。
+. DNS が有効になっていて正しく設定されていることを確認します
++
+*vserver services name-service dns show *
+
+. AutoSupport メッセージからエラーが返された場合は、対処します。
++
+*system node AutoSupport history show -node * -fields node 、 seq-num 、 destination 、 last-update 、 status 、 error *
+
++
+デジタル証明書に問題があることを示すエラーの場合は、テクニカルサポートにお問い合わせください。
+
+. クラスタが必要なサーバとインターネットの両方に正常にアクセスできることを確認します。
++
+.. `* network traceroute -lif node-management_lif-destination DNS サーバ *`
+.. `* network traceroute -lif node-management_lif -destination support.netapp.com*`
++
+[NOTE]
+====
+アドレス「 upport.netapp.com` 」自体は ping や traceroute に応答しませんが、ホップ単位の情報は貴重です。
+
+====
+.. *system node AutoSupport show -fields proxy-url*'
+.. `* network traceroute -node node_name -destination proxy_url *`
+
+
++
+これらのルートのいずれかが機能していない場合は、ほとんどのサードパーティ製ネットワーククライアントで検出された「 traceroute 」または「 tracert 」ユーティリティを使用して、クラスタと同じサブネット上の機能しているホストから同じルートを試してください。これにより、問題がネットワーク構成とクラスタ構成のどちらに含まれているかを判断できます。
+
+. AutoSupport 転送プロトコルに HTTPS を使用する場合は、 HTTPS トラフィックがネットワークから送信可能であることを確認します。
++
+.. クラスタ管理 LIF と同じサブネットに Web クライアントを設定します。
++
+プロキシサーバ、ユーザ名、パスワード、ポートを含む、すべての設定パラメータの値が AutoSupport の設定と同じであることを確認します。
+
+.. Web クライアントから「 + https://support.netapp.com+` 」にアクセスします。
+
+
++
+アクセスが成功します。成功しない場合は、 HTTPS トラフィックと DNS トラフィックを許可するようにすべてのファイアウォールが設定されていること、およびプロキシサーバが正しく設定されていることを確認します。support.netapp.com の静的な名前解決を設定する方法の詳細については、記事を参照してください https://kb.netapp.com/Advice_and_Troubleshooting/Data_Storage_Software/ONTAP_OS/How_would_a_HOST_entry_be_added_in_ONTAP_for_support.netapp.com%3F["ONTAP for support.netapp.com? でホストエントリを追加する方法を説明します"]。
+
+

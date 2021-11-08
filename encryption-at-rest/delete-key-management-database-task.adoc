@@ -1,0 +1,65 @@
+---
+permalink: encryption-at-rest/delete-key-management-database-task.html 
+sidebar: sidebar 
+keywords: transitioning, onboard key management, external key management 
+summary: 外部キー管理からオンボードキー管理に切り替える場合は、オンボードキー管理を有効にする前に外部キー管理の設定を削除する必要があります。 
+---
+= 外部キー管理からオンボードキー管理に移行します
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+外部キー管理からオンボードキー管理に切り替える場合は、オンボードキー管理を有効にする前に外部キー管理の設定を削除する必要があります。
+
+.必要なもの
+* ハードウェアベースの暗号化の場合は、すべての FIPS ドライブまたは SED のデータキーをデフォルト値にリセットする必要があります。
++
+xref:return-seds-unprotected-mode-task.adoc[FIPS ドライブまたは SED を非保護モードに戻します]
+
+* すべての外部キー管理ツールの接続を削除しておく必要があります。
++
+xref:remove-external-key-server-93-later-task.adoc[外部キー管理ツールの接続を削除しています]
+
+* このタスクを実行するには、クラスタ管理者である必要があります。
+
+
+.手順
+. クラスタの外部キー管理の設定を削除します。
++
+「 securitykey manager delete -kmip-config 」を参照してください
+
++
+|===
+| ONTAP バージョン | 使用するコマンド 
+
+
+ a| 
+ONTAP 9.6 以降
+ a| 
+「 securitykey-manager external disable -vserver admin_svm 」
+
+
+
+ a| 
+ONTAP 9.5 以前
+ a| 
+「 securitykey manager delete -kmip-config 」を参照してください
+
+|===
++
+[NOTE]
+====
+コマンド構文全体については、マニュアルページを参照してください。ONTAP 9.6 バージョンのコマンドには、 advanced 権限レベルが必要です。
+
+====
++
+ONTAP 9.6 の次のコマンドは 'cluster1 の外部キー管理構成を削除します
+
++
+[listing]
+----
+cluster1::> set -privilege advanced
+cluster1::> security key-manager external disable
+----
+

@@ -1,0 +1,139 @@
+---
+permalink: fabricpool/monitor-space-utilization-task.html 
+sidebar: sidebar 
+keywords: monitoring, space, utilization, fabricpool 
+summary: FabricPool のパフォーマンス階層とクラウド階層に格納されているデータ量を把握しておく必要があります。この情報は、ボリュームの階層化ポリシーの変更、 FabricPool ライセンスで許可された使用量の制限の拡張、またはクラウド階層のストレージスペースの拡張が必要かどうかを確認するのに役立ちます。 
+---
+= FabricPool のスペース使用量を監視します
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+FabricPool のパフォーマンス階層とクラウド階層に格納されているデータ量を把握しておく必要があります。この情報は、ボリュームの階層化ポリシーの変更、 FabricPool ライセンスで許可された使用量の制限の拡張、またはクラウド階層のストレージスペースの拡張が必要かどうかを確認するのに役立ちます。
+
+.手順
+. 次のいずれかのコマンドを使用して情報を表示し、 FabricPool 対応アグリゲートのスペース使用量を監視します。
++
+|===
+| 表示する項目 | 使用するコマンド 
+
+
+ a| 
+アグリゲートのクラウド階層の使用済みサイズ
+ a| 
+「 storage aggregate show 」に「 -instance 」パラメータを指定します
+
+
+
+ a| 
+オブジェクトストアの参照容量を含む、アグリゲート内のスペース使用量の詳細
+ a| 
+「 -instance 」パラメータを指定した「 storage aggregate show-space 」
+
+
+
+ a| 
+アグリゲートに接続されているオブジェクトストアのスペース使用率。ライセンススペースの使用量も含まれます
+ a| 
+「 storage aggregate object-store show-space 」を参照してください
+
+
+
+ a| 
+アグリゲート内のボリュームおよびそのデータとメタデータの容量のリスト
+ a| 
+volume show-footprint （ボリューム・ショー・フットプリント
+
+|===
++
+CLI コマンドに加え、 Active IQ Unified Manager （旧 OnCommand Unified Manager ）と FabricPool Advisor （ ONTAP 9.4 以降のクラスタでサポート）または ONTAP System Manager を使用してスペース使用量を監視することもできます。
+
++
+次の例は、 FabricPool のスペース使用量と関連情報を表示する方法を示しています。
+
++
+[listing]
+----
+cluster1::> storage aggregate show-space -instance
+
+                                  Aggregate: MyFabricPool
+                                         ...
+                     Aggregate Display Name: MyFabricPool
+                                         ...
+Object Store Referenced Capacity Percentage: -
+                      Object Store Metadata: -
+              Object Store Metadata Percent: -
+                    Total Unreclaimed Space: -
+  Object Store Unreclaimed Space Percentage: -
+                          Object Store Size: -
+----
++
+[listing]
+----
+cluster1::> storage aggregate show -instance
+
+                           Aggregate: MyFabricPool
+                           ...
+                           Composite: true
+                           Capacity Tier Used Size:
+                           ...
+----
++
+[listing]
+----
+cluster1::> volume show-footprint
+
+Vserver : vs1
+Volume : rootvol
+
+Feature                          Used       Used%
+-------------------------------- ---------- -----
+Volume Footprint                 KB          %
+Volume Guarantee                 MB          %
+Flexible Volume Metadata         KB          %
+Delayed Frees                    KB          %
+Total Footprint                  MB          %
+
+Vserver : vs1
+Volume : vol
+
+Feature                          Used       Used%
+-------------------------------- ---------- -----
+Volume Footprint                 KB          %
+Footprint in Performance Tier    KB          %
+Footprint in Amazon01            KB          %
+Flexible Volume Metadata         MB          %
+Delayed Frees                    KB          %
+Total Footprint                  MB          %
+...
+----
+. 必要に応じて、次のいずれかの操作を実行します。
++
+|===
+| 状況 | 作業 
+
+
+ a| 
+ボリュームの階層化ポリシーを変更する
+ a| 
+の手順に従います link:modify-tiering-policy-cooling-period-task.html["ボリュームの階層化ポリシーや階層化の最小クーリング期間を変更してストレージ階層化を管理する"]。
+
+
+
+ a| 
+FabricPool ライセンスの使用量の上限を引き上げます
+ a| 
+ネットアップまたはパートナーの営業担当者にお問い合わせください。
+
+https://mysupport.netapp.com/site/global/dashboard["ネットアップサポート"]
+
+
+
+ a| 
+クラウド階層のストレージスペースを拡張する
+ a| 
+クラウド階層として使用するオブジェクトストアのプロバイダにお問い合わせください。
+
+|===
+

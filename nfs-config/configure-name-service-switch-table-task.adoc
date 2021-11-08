@@ -1,0 +1,47 @@
+---
+permalink: nfs-config/configure-name-service-switch-table-task.html 
+sidebar: sidebar 
+keywords: configue, name, service, switch, table 
+summary: ONTAP がローカルまたは外部のネームサービスに問い合わせてホスト、ユーザ、グループ、ネットグループ、またはネームマッピングの情報を取得できるようにするには、ネームサービススイッチテーブルを正しく設定する必要があります。 
+---
+= ネームサービススイッチテーブルを設定します
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+ONTAP がローカルまたは外部のネームサービスに問い合わせてホスト、ユーザ、グループ、ネットグループ、またはネームマッピングの情報を取得できるようにするには、ネームサービススイッチテーブルを正しく設定する必要があります。
+
+ホスト、ユーザ、グループ、ネットグループ、またはネームマッピングで現在の環境に該当するように使用するネームサービスを決定しておく必要があります。
+
+ネットグループの使用を計画する場合、ネットグループ内に指定されているすべての IPv6 アドレスは、 RFC 5952 での指定どおりに短縮および圧縮されている必要があります。
+
+使用されていない情報ソースは含めないでください。たとえば 'NIS が環境で使用されていない場合は '-sources nis' オプションを指定しないでください
+
+.手順
+. ネームサービススイッチテーブルに必要なエントリを追加します。
++
+「 vserver services name-service ns-switch create -vserver vserver_name __ database-database-database_name __ -sources_source_names_`
+
+. ネームサービススイッチテーブルに想定されるエントリが適切な順序で格納されていることを確認します。
++
+vserver services name-service ns-switch show -vserver _vserver_name _`
+
++
+修正を加える場合は、「 vserver services name-service ns-switch modify 」または「 vserver services name-service ns-switch delete 」コマンドを使用する必要があります。
+
+
+
+次の例は、 SVM vs1 がローカルネットグループファイルを使用し、外部 NIS サーバがネットグループ情報をこの順序で検索するように、ネームサービススイッチテーブルに新しいエントリを作成します。
+
+[listing]
+----
+cluster::> vserver services name-service ns-switch create -vserver vs1 -database netgroup -sources files,nis
+----
+.完了後
+* データアクセスを提供するには、 SVM 用に指定したネームサービスを設定する必要があります。
+* SVM 用のネームサービスを削除する場合は、ネームサービススイッチテーブルからも削除する必要があります。
++
+ネームサービススイッチテーブルからネームサービスを削除しないと、ストレージシステムへのクライアントアクセスが想定どおりに機能しない場合があります。
+
+

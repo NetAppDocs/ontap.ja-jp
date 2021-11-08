@@ -1,0 +1,75 @@
+---
+permalink: smb-admin/enable-disable-aes-encryption-kerberos-task.html 
+sidebar: sidebar 
+keywords: advantage, security, kerberos-based, communication, aes-256, aes-128, aes, encryption, active, directory, ad, kdc, cifs, disable, enable or disable aes encryption for kerberos-based communication 
+summary: Kerberos ベースの通信で最大限のセキュリティを確保するには、 CIFS サーバで AES-256 および AES-128 暗号化を有効にします。CIFS サーバで Active Directory （ AD ） KDC との Kerberos ベースの通信に AES 暗号化タイプを選択しないようにするには、 AES 暗号化を無効にします。デフォルトでは、 AES 暗号化は無効になっています。 
+---
+= Kerberos ベースの通信用の AES 暗号化を有効または無効にします
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+Kerberos ベースの通信で最大限のセキュリティを確保するには、 CIFS サーバで AES-256 および AES-128 暗号化を有効にします。CIFS サーバで Active Directory （ AD ） KDC との Kerberos ベースの通信に AES 暗号化タイプを選択しないようにするには、 AES 暗号化を無効にします。デフォルトでは、 AES 暗号化は無効になっています。
+
+セキュリティを強化するため、 Storage Virtual Machine （ SVM ）は AES セキュリティオプションが変更されるたびに、 AD 内のマシンアカウントのパスワードを変更します。パスワードの変更には、マシンアカウントが含まれる組織単位（ OU ）の管理 AD クレデンシャルが必要になることがあります。
+
+SVM が、 ID が保持されないディザスタリカバリデスティネーションとして設定されている場合（ SnapMirror 構成で「 -identity-preserve 」オプションが「 false 」に設定されている場合）、 CIFS サーバのデフォルト以外のセキュリティ設定はデスティネーションにレプリケートされません。ソース SVM で AES 暗号化を有効にしている場合は、デスティネーションが読み取り / 書き込み可能になったあとで（ SnapMirror 関係が解除されたあとで）、デスティネーション SVM で AES 暗号化を手動で有効にする必要があります。
+
+.手順
+. 次のいずれかを実行します。
++
+|===
+| Kerberos 通信の AES 暗号化タイプの設定 | 入力するコマンド 
+
+
+ a| 
+有効
+ a| 
+vserver cifs security modify -vserver vserver_name -is-aes-encryption-enabled true
+
+
+
+ a| 
+無効
+ a| 
+vserver cifs security modify -vserver vserver_name -is-aes-encryption-enabled false
+
+|===
+. AES 暗号化が必要に応じて有効または無効になっていることを確認します。 vserver cifs security show -vserver vserver_name -fields is-aes-encryption-enabled
++
+[is-aes-encryption-enabled] フィールドには、 AES 暗号化が有効になっている場合は「 true 」が、無効になっている場合は「 false 」が表示されます。
+
+
+
+次の例は、 SVM vs1 の CIFS サーバで AES 暗号化タイプを有効にします。
+
+[listing]
+----
+cluster1::> vserver cifs security modify -vserver vs1 -is-aes-encryption-enabled true
+
+cluster1::> vserver cifs security show -vserver vs1 -fields is-aes-encryption-enabled
+vserver  is-aes-encryption-enabled
+-------- -------------------------
+vs1      true
+----
+次の例は、 SVM vs2 の CIFS サーバで AES 暗号化タイプを有効にします。管理者は、 CIFS サーバが所属する OU の管理 AD クレデンシャルを入力するように求められます。
+
+[listing]
+----
+cluster1::> vserver cifs security modify -vserver vs2 -is-aes-encryption-enabled true
+
+Info: In order to enable CIFS AES encryption, the password for the CIFS server
+machine account must be reset. Enter the username and password for the
+CIFS domain "EXAMPLE.COM".
+
+Enter your user ID: administrator
+
+Enter your password:
+
+
+cluster1::> vserver cifs security show -vserver vs2 -fields is-aes-encryption-enabled
+vserver  is-aes-encryption-enabled
+-------- -------------------------
+vs2      true
+----

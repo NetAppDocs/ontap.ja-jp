@@ -1,0 +1,146 @@
+---
+permalink: smb-admin/monitor-signed-session-statistics-task.html 
+sidebar: sidebar 
+keywords: monitor, smb, session, statistic, establish, sign, monitor smb signed session statistics 
+summary: SMB セッションの統計を監視し、確立されたセッションのうち、署名されたセッションと署名されていないセッションを区別できます。 
+---
+= SMB 署名済みセッションの統計を監視します
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+SMB セッションの統計を監視し、確立されたセッションのうち、署名されたセッションと署名されていないセッションを区別できます。
+
+advanced 権限レベルの「 statistics 」コマンドでは、署名済み SMB セッションの数を監視するために使用できる「署名付きセッション」カウンタが提供されます。「署名付きセッション」カウンタには、次の統計オブジェクトを指定できます。
+
+* CIFS では ' すべての SMB セッションの SMB 署名を監視できます
+* 「 smb1 」を使用すると、 SMB 1.0 セッションの SMB 署名を監視できます。
+* 「 smb2 」を使用すると、 SMB 2.x セッションと SMB 3.0 セッションの SMB 署名を監視できます。
++
+[NOTE]
+====
+SMB 3.0 の統計は 'smb2` オブジェクトの出力に含まれます
+
+====
+
+
+署名されたセッションの数をセッションの合計数と比較する場合は ' 署名されたセッションのカウンタの出力を established_sessions カウンタの出力と比較します
+
+データを取得して表示するには、統計サンプルの収集を開始する必要があります。データ収集を停止しなければ、サンプルからデータを表示できます。データ収集を停止すると、サンプルが固定された状態になります。データ収集を停止しないと、以前のクエリとの比較に使用できる更新されたデータを取得できます。この比較は、傾向を確認するのに役立ちます。
+
+.手順
+. 権限レベルを advanced に設定します。「 set -privilege advanced 」
+. データ収集を開始します。 'statistics start -object ｛ cifs|smb1|smb2 ｝ -instance instance -sample-id _sample_ID_[-node_name_]'`
++
+「 -sample-id 」パラメータを指定しない場合、コマンドはサンプル ID を生成し、このサンプルを CLI セッションのデフォルトサンプルとして定義します。「 -sample-id 」の値はテキスト文字列です。同じ CLI セッションでこのコマンドを実行し、「 -sample-id 」パラメータを指定しない場合、コマンドは以前のデフォルトサンプルを上書きします。
+
++
+必要に応じて、統計を収集するノードを指定できます。ノードを指定しない場合、サンプルは、クラスタ内のすべてのノードについて統計情報を収集します。
+
+. サンプルのデータ収集を停止するには、 'statistics stop' コマンドを使用します。
+. SMB 署名統計情報を表示します。
++
+|===
+| 表示する情報 | 入力するコマンド 
+
+
+ a| 
+署名されたセッション
+ a| 
+'ser-sample-id sample_ID -counter signed_sessions | _node_name [-node _node_name _]'`
+
+
+
+ a| 
+署名されたセッションと確立されたセッション
+ a| 
+'ser-sample_id_counter signed_sessions | established_sessions | _node_name [-node node_name ]] のようになります
+
+|===
++
+単一ノードの情報のみを表示する場合は ' オプションの -node' パラメータを指定します
+
+. admin 権限レベルに戻ります。「 set -privilege admin 」
+
+
+次の例では、「 vs1 」という Storage Virtual Machine （ SVM ）について、 SMB 2.x と SMB 3.0 のそれぞれの署名統計情報を監視する方法を示します。
+
+次のコマンドは、 advanced 権限レベルへの変更を行います。
+
+[listing]
+----
+cluster1::> set -privilege advanced
+
+Warning: These advanced commands are potentially dangerous; use them only when directed to do so by support personnel.
+Do you want to continue? {y|n}: y
+----
+次のコマンドは、新しいサンプルのデータ収集を開始します。
+
+[listing]
+----
+cluster1::*> statistics start -object smb2 -sample-id smbsigning_sample -vserver vs1
+Statistics collection is being started for Sample-id: smbsigning_sample
+----
+次のコマンドは、サンプルのデータ収集を停止します。
+
+[listing]
+----
+cluster1::*> statistics stop -sample-id smbsigning_sample
+Statistics collection is being stopped for Sample-id: smbsigning_sample
+----
+次のコマンドは、ノードが署名した SMB セッションと確立されたセッションをサンプルから表示します。
+
+[listing]
+----
+cluster1::*> statistics show -sample-id smbsigning_sample -counter signed_sessions|established_sessions|node_name
+
+Object: smb2
+Instance: vs1
+Start-time: 2/6/2013 01:00:00
+End-time: 2/6/2013 01:03:04
+Cluster: cluster1
+
+    Counter                                              Value
+    -------------------------------- -------------------------
+    established_sessions                                     0
+    node_name                                           node1
+    signed_sessions                                          0
+    established_sessions                                     1
+    node_name                                           node2
+    signed_sessions                                          1
+    established_sessions                                     0
+    node_name                                           node3
+    signed_sessions                                          0
+    established_sessions                                     0
+    node_name                                           node4
+    signed_sessions                                          0
+----
+次のコマンドでは、ノード 2 が署名した SMB セッションをサンプルから表示します。
+
+[listing]
+----
+cluster1::*> statistics show -sample-id smbsigning_sample -counter signed_sessions|node_name -node node2
+
+Object: smb2
+Instance: vs1
+Start-time: 2/6/2013 01:00:00
+End-time: 2/6/2013 01:22:43
+Cluster: cluster1
+
+    Counter                                              Value
+    -------------------------------- -------------------------
+    node_name                                            node2
+    signed_sessions                                          1
+----
+次のコマンドは、 admin 権限レベルに戻ります。
+
+[listing]
+----
+cluster1::*> set -privilege admin
+----
+* 関連情報 *
+
+xref:determine-sessions-signed-task.adoc[SMB セッションが署名されているかどうかの確認]
+
+link:../performance-config/index.html["パフォーマンス監視の簡単なセットアップ"]

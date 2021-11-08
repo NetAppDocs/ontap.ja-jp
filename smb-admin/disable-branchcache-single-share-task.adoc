@@ -1,0 +1,68 @@
+---
+permalink: smb-admin/disable-branchcache-single-share-task.html 
+sidebar: sidebar 
+keywords: offer, caching, service, certain, share, offer, cache, disable, branchcache, exist, smb, disable branchcache on a single smb share 
+summary: キャッシュコンテンツを使用できるようにしていた特定の共有でキャッシュサービスを提供する必要がなくなった場合は、既存の SMB 共有で BranchCache を無効にすることができます。 
+---
+= 単一の SMB 共有で BranchCache を無効にします
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+キャッシュコンテンツを使用できるようにしていた特定の共有でキャッシュサービスを提供する必要がなくなった場合は、既存の SMB 共有で BranchCache を無効にすることができます。
+
+.ステップ
+. 次のコマンドを入力します。 vserver cifs share properties remove -vserver vserver_name -share-name share_name -share-properties branchcache
++
+BranchCache 共有プロパティが削除されます。適用されているその他の共有プロパティは有効なままです。
+
+
+
+次のコマンドは、「 `d ata2` 」という名前の既存の SMB 共有で BranchCache を無効にします。
+
+[listing]
+----
+cluster1::> vserver cifs share show -vserver vs1 -share-name data2
+
+                      Vserver: vs1
+                        Share: data2
+     CIFS Server NetBIOS Name: VS1
+                         Path: /data2
+             Share Properties: oplocks
+                               browsable
+                               changenotify
+                               attributecache
+                               branchcache
+           Symlink Properties: -
+      File Mode Creation Mask: -
+ Directory Mode Creation Mask: -
+                Share Comment: -
+                    Share ACL: Everyone / Full Control
+File Attribute Cache Lifetime: 10s
+                  Volume Name: -
+                Offline Files: manual
+Vscan File-Operations Profile: standard
+
+cluster1::> vserver cifs share properties remove -vserver vs1 -share-name data2 -share-properties branchcache
+
+cluster1::> vserver cifs share show -vserver vs1 -share-name data2
+
+                      Vserver: vs1
+                        Share: data2
+     CIFS Server NetBIOS Name: VS1
+                         Path: /data2
+             Share Properties: oplocks
+                               browsable
+                               changenotify
+                               attributecache
+           Symlink Properties: -
+      File Mode Creation Mask: -
+ Directory Mode Creation Mask: -
+                Share Comment: -
+                    Share ACL: Everyone / Full Control
+File Attribute Cache Lifetime: 10s
+                  Volume Name: -
+                Offline Files: manual
+Vscan File-Operations Profile: standard
+----

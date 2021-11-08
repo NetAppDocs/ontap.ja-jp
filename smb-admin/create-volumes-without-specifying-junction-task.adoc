@@ -1,0 +1,43 @@
+---
+permalink: smb-admin/create-volumes-without-specifying-junction-task.html 
+sidebar: sidebar 
+keywords: create, data, volume, junction, point, resultant, automatic, mount, nas, access, configure, smb, share, nfs, create data volumes without specifying junction points 
+summary: ジャンクションポイントを指定せずにデータボリュームを作成できます。作成したボリュームは自動的にはマウントされず、 NAS アクセス用の設定に使用することはできません。ボリュームの SMB 共有または NFS エクスポートを設定する前に、ボリュームをマウントする必要があります。 
+---
+= ジャンクションポイントを指定せずにデータボリュームを作成
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+ジャンクションポイントを指定せずにデータボリュームを作成できます。作成したボリュームは自動的にはマウントされず、 NAS アクセス用の設定に使用することはできません。ボリュームの SMB 共有または NFS エクスポートを設定する前に、ボリュームをマウントする必要があります。
+
+ボリュームを作成するアグリゲートがすでに存在している必要があります。
+
+.手順
+. 次のコマンドを使用して、ジャンクションポイントが設定されていないボリュームを作成します。 ` volume create -vserver _vserver_name __ volume_volume_name aggregate-aggregate_name _size ｛ integer [KB|MB|GB|TB|PB] ｝ -security-style ｛ ntfs|unix|mixed ｝ `
++
+ボリュームのセキュリティ形式の指定は任意です。セキュリティ形式を指定しない場合、 ONTAP は、 Storage Virtual Machine （ SVM ）のルートボリュームに適用されている形式と同じセキュリティ形式を使用してボリュームを作成します。ただし、ルートボリュームのセキュリティ形式が、データボリュームには適切でないセキュリティ形式である場合もあります。トラブルシューティングが困難なファイルアクセスの問題を最小限に抑えるため、ボリュームの作成時にセキュリティ形式を指定することを推奨します。
+
++
+データボリュームのカスタマイズに使用できるオプションのパラメータが多数用意されています。これらの詳細については 'volume create コマンドのマニュアル・ページを参照してください
+
+. ジャンクションポイントが設定されていないボリュームが作成されたことを確認します。 volume show -vserver _vserver_name __ volume_name_-junction-path
+
+
+次の例は、ジャンクションポイントにマウントされない「 sales 」という名前のボリュームを SVM vs1 上に作成します。
+
+[listing]
+----
+cluster1::> volume create -vserver vs1 -volume sales -aggregate aggr3 -size 20GB
+[Job 3406] Job succeeded: Successful
+
+cluster1::> volume show -vserver vs1 -junction
+                     Junction                 Junction
+Vserver   Volume     Active   Junction Path   Path Source
+--------- ---------- -------- --------------- -----------
+vs1       data       true     /data           RW_volume
+vs1       home4      true     /eng/home       RW_volume
+vs1       vs1_root   -        /               -
+vs1       sales      -        -               -
+----

@@ -1,0 +1,71 @@
+---
+permalink: antivirus/create-on-demand-task-task.html 
+sidebar: sidebar 
+keywords: create, on-demand, task 
+summary: オンデマンドタスクは、オンデマンドスキャンの範囲を定義します。スキャンするファイルの最大サイズ、スキャン対象に含めるファイルの拡張子とパス、およびスキャン対象から除外するファイルの拡張子とパスを指定できます。デフォルトでは、サブディレクトリ内のファイルがスキャンされます。 
+---
+= オンデマンドタスクを作成する
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+オンデマンドタスクは、オンデマンドスキャンの範囲を定義します。スキャンするファイルの最大サイズ、スキャン対象に含めるファイルの拡張子とパス、およびスキャン対象から除外するファイルの拡張子とパスを指定できます。デフォルトでは、サブディレクトリ内のファイルがスキャンされます。
+
+.手順
+. オンデマンドタスクを作成します。
++
+vserver vscan on-demand task create -vserver data_svm -task -name task_name -scan-old-data paths paths_of_files_To-scan -report -directory report_path-expiry-time expiration_time_for _report -schedule cron_desx-max-file-size max_file_size -file-ext-to-exclude -file-extensions-to-exclude -file-ext-to-exclude -file-extensions-to-exclude -file-ext-to-exclude -file-ext-to-exclude file -exclude_file-ext-to-exclude -file-ext-to-exclude -file-ext-to-exclude -file-ext-to-exclude -file-extensions-to-include true -file-extensions-to-exclude file -file-extensions-to-exclude true
+
++
+** -file-ext-to-exclude 設定は '-file-ext-to-include' 設定よりも優先されます
+** 拡張子のないファイルをスキャンするには '-scan-files-with-no-ext' を true に設定しますすべてのオプションの一覧については、コマンドのマニュアルページを参照してください。
+
+
++
+次のコマンドは 'vs1 ’ S VM に 'Task1' という名前のオンアクセスタスクを作成します
+
++
+[listing]
+----
+cluster1::> vserver vscan on-demand-task create -vserver vs1 -task-name Task1 -scan-paths "/vol1/","/vol2/cifs/" -report-directory "/report" -schedule daily -max-file-size 5GB -paths-to-exclude "/vol1/cold-files/" -file-ext-to-include "vmdk?","mp*" -file-ext-to-exclude "mp3","mp4" -scan-files-with-no-ext false
+[Job 126]: Vscan On-Demand job is queued. Use the "job show -id 126" command to view the status.
+----
++
+[NOTE]
+====
+ジョブのステータスを表示するには、 job show コマンドを使用します。ジョブを一時停止して再開するには 'job pause コマンドと job resume コマンドを ' ジョブを終了するには job stop コマンドを使用します
+
+====
+. オンデマンドタスクが作成されたことを確認します。 vserver vscan on-demand task show -instance data_svm -task-name task_name
++
+すべてのオプションの一覧については、コマンドのマニュアルページを参照してください。
+
++
+次のコマンドは 'Task1' タスクの詳細を表示します
+
++
+[listing]
+----
+cluster1::> vserver vscan on-demand-task show -instance vs1 -task-name Task1
+
+                           Vserver: vs1
+                         Task Name: Task1
+                List of Scan Paths: /vol1/, /vol2/cifs/
+             Report Directory Path: /report
+                      Job Schedule: daily
+Max File Size Allowed for Scanning: 5GB
+            File Paths Not to Scan: /vol1/cold-files/
+       File Extensions Not to Scan: mp3, mp4
+           File Extensions to Scan: vmdk?, mp*
+      Scan Files with No Extension: false
+           Request Service Timeout: 5m
+                    Cross Junction: true
+               Directory Recursion: true
+                     Scan Priority: low
+                  Report Log Level: info
+        Expiration Time for Report: -
+----
+
+
+タスクの実行をスケジュールする前に、 SVM でスキャンを有効にする必要があります。

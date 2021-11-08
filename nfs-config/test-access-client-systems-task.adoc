@@ -1,0 +1,75 @@
+---
+permalink: nfs-config/test-access-client-systems-task.html 
+sidebar: sidebar 
+keywords: testing, nfs, access, client, systems 
+summary: 新しいストレージオブジェクトに対する NFS アクセスの確認が完了したら、設定をテストする必要があります。設定をテストするには、 NFS 管理ホストにログインし、 SVM に対するデータの読み取りと書き込みが可能かどうかを確認します。その後、 root 以外のユーザとしてクライアントシステム上で処理を繰り返します。 
+---
+= クライアントシステムからの NFS アクセスをテストします
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+新しいストレージオブジェクトに対する NFS アクセスの確認が完了したら、設定をテストする必要があります。設定をテストするには、 NFS 管理ホストにログインし、 SVM に対するデータの読み取りと書き込みが可能かどうかを確認します。その後、 root 以外のユーザとしてクライアントシステム上で処理を繰り返します。
+
+.必要なもの
+* クライアントシステムに、前に指定したエクスポートルールで許可されている IP アドレスが割り当てられている必要があります。
+* root ユーザのログイン情報が必要です。
+
+
+.手順
+. クラスタで、新しいボリュームをホストしている LIF の IP アドレスを確認します。
++
+「 network interface show – vserver_svm_name_` 」のように指定します
+
+. 管理ホストクライアントシステムに root ユーザとしてログインします。
+. ディレクトリをマウントフォルダに変更します。
++
+「 cd /mnt/ 」と入力します
+
+. 新しいフォルダを作成し、 SVM の IP アドレスを使用してマウントします。
++
+.. 新しいフォルダ「 +`m kdir /mnt/_folder_` 」を作成します
+.. 新しいボリュームを次の新しいディレクトリにマウントします： +`m ount-t nfs -o hard_IPAddress_： //_volume_name_/mnt/folder_`
+.. ディレクトリを新しいフォルダ +`CD_folder_` に変更します
++
+次のコマンドでは、 test1 という名前のフォルダを作成し、 IP アドレス 192.0.2.130 のボリューム vol1 をマウントフォルダ test1 にマウントして、ディレクトリを新しい test1 に変更しています。
+
++
+[listing]
+----
+host# mkdir /mnt/test1
+host# mount -t nfs -o hard 192.0.2.130:/vol1 /mnt/test1
+host# cd /mnt/test1
+----
+
+
+. 新しいファイルを作成し、そのファイルが存在することを確認して、テキストを書き込みます。
++
+.. テストファイル +`touch_filename_` を作成します
+.. ファイルが存在することを確認します :+`ls -l _filename_`
+.. 「 +`cat>_filename_` 」と入力します
++
+テキストを入力してから Ctrl+D を押してテストファイルにテキストを書き込みます。
+
+.. テストファイルの内容を表示します。+`cat_filename_`
+.. テストファイル +`rm_filename_` を削除します
+.. 親ディレクトリ +`cd... に戻ります
++
+[listing]
+----
+host# touch myfile1
+host# ls -l myfile1
+-rw-r--r-- 1 root root 0 Sep 18 15:58 myfile1
+host# cat >myfile1
+This text inside the first file
+host# cat myfile1
+This text inside the first file
+host# rm -r myfile1
+host# cd ..
+----
+
+
+. root として、マウントされたボリュームに対する必要な UNIX の所有権と権限を設定します。
+. エクスポートルールで特定されている UNIX クライアントシステムで、新しいボリュームへのアクセス権を持つ許可されたユーザとしてログインし、手順 3 ~ 5 を繰り返して、ボリュームのマウントとファイルの作成が可能なことを確認します。
+

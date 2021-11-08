@@ -1,0 +1,48 @@
+---
+permalink: smb-admin/delete-local-user-accounts-task.html 
+sidebar: sidebar 
+keywords: delete, local, user, account, storage, virtual, machine, svm, smb, authentication, cifs, determining, determine, data, contain, delete local user accounts 
+summary: CIFS サーバに対するローカル SMB 認証や、 SVM に格納されたデータへのアクセス権の定義に使用するローカルユーザアカウントが不要になった場合は、 Storage Virtual Machine （ SVM ）から削除することができます。 
+---
+= ローカルユーザアカウントを削除します
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+CIFS サーバに対するローカル SMB 認証や、 SVM に格納されたデータへのアクセス権の定義に使用するローカルユーザアカウントが不要になった場合は、 Storage Virtual Machine （ SVM ）から削除することができます。
+
+ローカルユーザを削除する場合は、次の点に注意してください。
+
+* ファイルシステムは変更されません。
++
+このユーザを参照するファイルやディレクトリに対する Windows セキュリティ記述子は調整されません。
+
+* ローカルユーザへのすべての参照がメンバーシップおよび権限のデータベースから削除されます。
+* Administrator などの標準的な既知のユーザは削除できません。
+
+
+.手順
+. 削除するローカルユーザアカウントの名前を確認します。 vserver cifs users-and-groups local-user show -vserver vserver_name _ `
+. ローカルユーザ「 vserver cifs users-and-groups local-user delete -vserver _vserver_name _‑ user-name _username_name_` 」を削除します
+. ユーザアカウントが削除されたことを確認します。 vserver cifs users-and-groups local-user show -vserver _vserver_name_`
+
+
+次の例は、 SVM vs1 に関連付けられたローカルユーザ「 `CIFS_SERVER\su` 」を削除します。
+
+[listing]
+----
+cluster1::> vserver cifs users-and-groups local-user show -vserver vs1
+Vserver  User Name                   Full Name      Description
+-------- --------------------------- -------------- -------------
+vs1      CIFS_SERVER\Administrator   James Smith    Built-in administrator account
+vs1      CIFS_SERVER\sue             Sue   Jones
+
+
+cluster1::> vserver cifs users-and-groups local-user delete -vserver vs1 -user-name CIFS_SERVER\sue
+
+cluster1::> vserver cifs users-and-groups local-user show -vserver vs1
+Vserver      User Name                   Full Name      Description
+-------- --------------------------- -------------- -------------
+vs1      CIFS_SERVER\Administrator   James Smith    Built-in administrator account
+----

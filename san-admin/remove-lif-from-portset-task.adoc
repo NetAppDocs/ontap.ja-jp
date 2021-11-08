@@ -1,0 +1,32 @@
+---
+permalink: san-admin/remove-lif-from-portset-task.html 
+sidebar: sidebar 
+keywords: remove, san, lif, port, set 
+summary: 削除または移動する LIF がポートセットに含まれている場合、 LIF を削除または移動する前に、ポートセットから LIF を削除する必要があります。 
+---
+= ポートセットから SAN LIF を削除する
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+削除または移動する LIF がポートセットに含まれている場合、 LIF を削除または移動する前に、ポートセットから LIF を削除する必要があります。
+
+次の手順の手順 1 は、 LIF が 1 つだけポートセットにある場合にのみ実行する必要があります。ポートセットがイニシエータグループにバインドされている場合、そのポートセット内の最後の LIF は削除できません。複数の LIF がポートセットにある場合は、手順 2 から開始できます。
+
+.手順
+. ポートセットにある LIF が 1 つだけの場合は、「 lun igroup unbind 」コマンドを使用して、イニシエータグループからポートセットのバインドを解除します。
++
+[NOTE]
+====
+イニシエータグループとポートセットのバインドを解除すると、イニシエータグループ内のすべてのイニシエータは、すべてのネットワークインターフェイス上の、そのイニシエータグループにマッピングされたすべてのターゲット LUN にアクセスできるようになります。
+
+====
++
+'cluster1 ：：： > lun igroup unbind -vserver vs1 -igroup ig1'
+
+. 「 lun portset remove 」コマンドを使用して、ポートセットから LIF を削除します。
++
+'cluster1 ：： > port set remove -vserver vs1 -portset ps1 -port-name lif1
+
+

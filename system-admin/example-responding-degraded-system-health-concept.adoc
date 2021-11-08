@@ -1,0 +1,96 @@
+---
+permalink: system-admin/example-responding-degraded-system-health-concept.html 
+sidebar: sidebar 
+keywords: respond, degraded, system, health, node, cli 
+summary: ノードへの 2 つのパスが不足しているシェルフが原因でデグレードしたシステムヘルスの特定の例を使用して、アラートに対応するときに CLI に表示される内容を確認します。 
+---
+= デグレードしたシステムヘルスへの対応の例
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+ノードへの 2 つのパスが不足しているシェルフが原因でデグレードしたシステムヘルスの特定の例を使用して、アラートに対応するときに CLI に表示される内容を確認します。
+
+ONTAP を起動したあと、システムヘルスを確認すると、ステータスがデグレードしていることがわかります。
+
+[listing]
+----
+
+      cluster1::>system health status show
+        Status
+        ---------------
+        degraded
+----
+アラートを表示して、問題箇所を見つけ、シェルフ 2 にノード 1 へのパスが 2 つないことを確認します。
+
+[listing]
+----
+
+      cluster1::>system health alert show
+               Node: node1
+           Resource: Shelf ID 2
+           Severity: Major
+	   Indication Time: Mon Nov 10 16:48:12 2013
+     Probable Cause: Disk shelf 2 does not have two paths to controller
+                     node1.
+    Possible Effect: Access to disk shelf 2 via controller node1 will be
+                     lost with a single hardware component failure (e.g.
+                     cable, HBA, or IOM failure).
+ Corrective Actions: 1. Halt controller node1 and all controllers attached to disk shelf 2.
+                     2. Connect disk shelf 2 to controller node1 via two paths following the rules in the Universal SAS and ACP Cabling Guide.
+                     3. Reboot the halted controllers.
+                     4. Contact support personnel if the alert persists.
+----
+アラートの詳細を表示して、アラート ID などの詳細情報を取得します。
+
+[listing]
+----
+
+      cluster1::>system health alert show -monitor node-connect -alert-id DualPathToDiskShelf_Alert -instance
+                  Node: node1
+               Monitor: node-connect
+              Alert ID: DualPathToDiskShelf_Alert
+     Alerting Resource: 50:05:0c:c1:02:00:0f:02
+             Subsystem: SAS-connect
+       Indication Time: Mon Mar 21 10:26:38 2011
+    Perceived Severity: Major
+        Probable Cause: Connection_establishment_error
+           Description: Disk shelf 2 does not have two paths to controller node1.
+    Corrective Actions: 1. Halt controller node1 and all controllers attached to disk shelf 2.
+                        2. Connect disk shelf 2 to controller node1 via two paths following the rules in the Universal SAS and ACP Cabling Guide.
+                        3. Reboot the halted controllers.
+                        4. Contact support personnel if the alert persists.
+       Possible Effect: Access to disk shelf 2 via controller node1 will be lost with a single
+ hardware component failure (e.g. cable, HBA, or IOM failure).
+           Acknowledge: false
+              Suppress: false
+                Policy: DualPathToDiskShelf_Policy
+          Acknowledger: -
+            Suppressor: -
+Additional Information: Shelf uuid: 50:05:0c:c1:02:00:0f:02
+                        Shelf id: 2
+                        Shelf Name: 4d.shelf2
+                        Number of Paths: 1
+                        Number of Disks: 6
+                        Adapter connected to IOMA:
+                        Adapter connected to IOMB: 4d
+Alerting Resource Name: Shelf ID 2
+----
+アラートを確認して対応中であることを示します。
+
+[listing]
+----
+
+      cluster1::>system health alert modify -node node1 -alert-id DualPathToDiskShelf_Alert -acknowledge true
+----
+シェルフ 2 とノード 1 との間のケーブルを修正してから、システムをリブートします。次に、システムヘルスを再度確認し、ステータスが「 OK 」であることを確認します。
+
+[listing]
+----
+
+      cluster1::>system health status show
+        Status
+        ---------------
+        OK
+----

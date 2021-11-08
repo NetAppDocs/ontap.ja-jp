@@ -1,0 +1,25 @@
+---
+permalink: volumes/create-flexclone-snapmirror-concept.html 
+sidebar: sidebar 
+keywords: considerations, creating, flexclone volume, from snapmirror, source, destination, volume 
+summary: 既存の Volume SnapMirror 関係にあるソースボリュームまたはデスティネーションボリュームから FlexClone ボリュームを作成できます。ただし、これを行うと、以降に行う SnapMirror のレプリケーション処理が正常に完了しないことがあります。 
+---
+= SnapMirror のソースボリュームまたはデスティネーションボリュームから FlexClone ボリュームを作成する際の考慮事項
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+既存の Volume SnapMirror 関係にあるソースボリュームまたはデスティネーションボリュームから FlexClone ボリュームを作成できます。ただし、これを行うと、以降に行う SnapMirror のレプリケーション処理が正常に完了しないことがあります。
+
+FlexClone ボリュームを作成すると、 SnapMirror によって使用される Snapshot コピーがロックされる可能性があるため、レプリケーションが機能しないことがあります。この場合、 FlexClone ボリュームが削除されるか、親ボリュームからスプリットされるまで、 SnapMirror はデスティネーションボリュームへのレプリケーションを停止します。この問題には、次の 2 つの方法で対処できます。
+
+* FlexClone ボリュームが一時的に必要で、 SnapMirror レプリケーションが一時的に停止されても構わない場合は、 FlexClone ボリュームを作成し、可能となった時点で削除するか親からスプリットします。
++
+FlexClone ボリュームが削除されるか親からスプリットされた時点で、 SnapMirror レプリケーションが正常に続行されます。
+
+* SnapMirror レプリケーションの一時的な停止を許容できない場合は、 SnapMirror ソースボリュームで Snapshot コピーを作成し、その Snapshot コピーを使用して FlexClone ボリュームを作成します。（ FlexClone ボリュームをデスティネーションボリュームから作成している場合、 Snapshot コピーが SnapMirror デスティネーションボリュームにレプリケートされるまで待機する必要があります）。
++
+この方法で SnapMirror ソースボリューム内に Snapshot コピーを作成すると、 SnapMirror によって使用されている Snapshot コピーをロックすることなくクローンを作成できます。
+
+

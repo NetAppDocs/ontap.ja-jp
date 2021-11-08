@@ -1,0 +1,101 @@
+---
+permalink: disks-aggregates/correct-misaligned-spare-partitions-task.html 
+sidebar: sidebar 
+keywords: correct, misaligned, partition 
+summary: パーティショニングされたディスクをアグリゲートに追加する場合は、各ノードについて、使用可能なルートパーティションとデータパーティションの両方を含むディスクをスペアとして残しておく必要があります。スペアディスクがない状態でノードが停止すると、 ONTAP はスペアデータパーティションにコアをダンプできません。 
+---
+= ミスアライメントのあるスペアパーティションを修正します
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+パーティショニングされたディスクをアグリゲートに追加する場合は、各ノードについて、使用可能なルートパーティションとデータパーティションの両方を含むディスクをスペアとして残しておく必要があります。スペアディスクがない状態でノードが停止すると、 ONTAP はスペアデータパーティションにコアをダンプできません。
+
+同じノードが所有する同じタイプのディスクには、スペアデータパーティションとスペアルートパーティションの両方が必要です。
+
+.手順
+. ノードのスペアパーティションを表示します。
++
+「 storage aggregate show-spare-disks -original-owner node_name _ 」という形式で指定します
+
++
+どのディスクにスペアデータパーティション（ spare_data ）とスペアルートパーティション（ spare_root ）があるかに注意してください。スペア・パーティションの [ ローカル・データ使用可能 ] 列または [ ローカル・ルート使用可能 ] 列には ' ゼロ以外の値が表示されます
+
+. スペアデータパーティションを含むディスクを、スペアルートパーティションを含むディスクと交換します。
++
+「 storage disk replace -disk spare_data 」 -replacement _spare_root _ -action start
+
++
+どちらの方向にもデータをコピーできますが、ルートパーティションのコピーは完了までの時間が短くなります。
+
+. ディスク交換の進捗を監視します。
++
+「 storage aggregate show-status -aggregate _aggr_name _ 」を参照してください
+
+. 交換処理が完了したら、もう一度スペアを表示して、スペアディスクが存在することを確認します。
++
+「 storage aggregate show-spare-disks -original-owner node_name _ 」という形式で指定します
+
++
+「 Local Data Usable 」と「 Local Root Usable 」の下に、使用可能なスペースを持つスペアディスクが表示されます。
+
+
+
+ノード c1-01 のスペアパーティションを表示して、スペアパーティションがアライメントされていないことを確認します。
+
+[listing]
+----
+c1::> storage aggregate show-spare-disks -original-owner c1-01
+
+Original Owner: c1-01
+ Pool0
+  Shared HDD Spares
+                                                            Local    Local
+                                                             Data     Root Physical
+ Disk                        Type     RPM Checksum         Usable   Usable     Size
+ --------------------------- ----- ------ -------------- -------- -------- --------
+ 1.0.1                       BSAS    7200 block           753.8GB       0B  828.0GB
+ 1.0.10                      BSAS    7200 block                0B  73.89GB  828.0GB
+----
+ディスク交換ジョブを開始します。
+
+[listing]
+----
+c1::> storage disk replace -disk 1.0.1 -replacement 1.0.10 -action start
+----
+交換処理が完了するのを待っている間に、処理の進捗を表示します。
+
+[listing]
+----
+c1::> storage aggregate show-status -aggregate aggr0_1
+
+Owner Node: c1-01
+ Aggregate: aggr0_1 (online, raid_dp) (block checksums)
+  Plex: /aggr0_1/plex0 (online, normal, active, pool0)
+   RAID Group /aggr0_1/plex0/rg0 (normal, block checksums)
+                                                              Usable Physical
+     Position Disk                        Pool Type     RPM     Size     Size Status
+     -------- --------------------------- ---- ----- ------ -------- -------- ----------
+     shared   1.0.1                        0   BSAS    7200  73.89GB  828.0GB (replacing, copy in progress)
+     shared   1.0.10                       0   BSAS    7200  73.89GB  828.0GB (copy 63% completed)
+     shared   1.0.0                        0   BSAS    7200  73.89GB  828.0GB (normal)
+     shared   1.0.11                       0   BSAS    7200  73.89GB  828.0GB (normal)
+     shared   1.0.6                        0   BSAS    7200  73.89GB  828.0GB (normal)
+     shared   1.0.5                        0   BSAS    7200  73.89GB  828.0GB (normal)
+----
+交換処理が完了したら、スペアディスクが存在することを確認します。
+
+[listing]
+----
+ie2220::> storage aggregate show-spare-disks -original-owner c1-01
+
+Original Owner: c1-01
+ Pool0
+  Shared HDD Spares
+                                                            Local    Local
+                                                             Data     Root Physical
+ Disk                        Type     RPM Checksum         Usable   Usable     Size
+ --------------------------- ----- ------ -------------- -------- -------- --------
+ 1.0.1                       BSAS    7200 block           753.8GB  73.89GB  828.0GB
+----

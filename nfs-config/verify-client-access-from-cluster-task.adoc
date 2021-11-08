@@ -1,0 +1,38 @@
+---
+permalink: nfs-config/verify-client-access-from-cluster-task.html 
+sidebar: sidebar 
+keywords: verify, nfs, client, access, cluster 
+summary: UNIX 管理ホストで UNIX ファイル権限を設定することにより、選択したクライアントに共有へのアクセスを許可できます。vserver export-policy check-access コマンドを使用してクライアントアクセスをチェックし、必要に応じてエクスポートルールを調整できます。 
+---
+= クラスタからの NFS クライアントアクセスを確認
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+UNIX 管理ホストで UNIX ファイル権限を設定することにより、選択したクライアントに共有へのアクセスを許可できます。「 vserver export-policy check-access 」コマンドを使用してクライアントアクセスをチェックし、必要に応じてエクスポートルールを調整できます。
+
+.手順
+. クラスタで、「 vserver export-policy check-access 」コマンドを使用して、エクスポートへのクライアントアクセスをチェックします。
++
+次のコマンドは、 IP アドレスが 1.2.3.4 の NFSv3 クライアントによるボリューム home2 への読み取り / 書き込みアクセスをチェックします。コマンド出力には、ボリュームがエクスポートポリシー「 exp-home-dir 」を使用しており、アクセスが拒否されていることが示されています。
+
++
+[listing]
+----
+cluster1::> vserver export-policy check-access -vserver vs1 -client-ip 1.2.3.4 -volume home2 -authentication-method sys -protocol nfs3 -access-type read-write
+                                      Policy    Policy     Rule
+Path                    Policy        Owner     Owner Type Index  Access
+----------------------- ------------- --------- ---------- ------ ----------
+/                       default       vs1_root  volume          1 read
+/eng                    default       vs1_root  volume          1 read
+/eng/home2              exp-home-dir  home2     volume          1 denied
+
+3 entries were displayed.
+----
+. 出力を確認して、エクスポートポリシーが意図したとおりに機能してクライアントアクセスが想定どおりに動作しているかどうかを判断します。
++
+具体的には、ボリュームまたは qtree によって使用されたエクスポートポリシーと、結果としてクライアントが行ったアクセスのタイプを確認する必要があります。
+
+. 必要に応じて、エクスポートポリシールールを再設定します。
+

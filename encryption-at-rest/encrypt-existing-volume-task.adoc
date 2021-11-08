@@ -1,0 +1,158 @@
+---
+permalink: encryption-at-rest/encrypt-existing-volume-task.html 
+sidebar: sidebar 
+keywords: enabling, encryption, existing, volume, volume move start, command 
+summary: volume move start コマンドを使用して、既存のボリュームを移動して暗号化を有効にできます。ONTAP 9.2 以前では、 volume move start を使用する必要があります。使用するアグリゲートは同じアグリゲートでも別のアグリゲートでもかまいません。 
+---
+= volume move start コマンドを使用して、既存のボリュームの暗号化を有効にします
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+volume move start コマンドを使用して ' 既存のボリュームを移動して暗号化を有効にできますONTAP 9.2 以前では 'volume move start' を使用する必要があります使用するアグリゲートは同じアグリゲートでも別のアグリゲートでもかまいません。
+
+このタスクを実行するには、クラスタ管理者であるか、クラスタ管理者から権限を委譲された SVM 管理者である必要があります。
+
+xref:delegate-volume-encryption-svm-administrator-task.adoc[volume move コマンドの実行権限の委譲]
+
+ボリューム移動の開始を使用して SnapLock または FlexGroup ボリュームで暗号化を有効にすることはできません
+
+ONTAP 9.4 以降では ' オンボード・キー・マネージャを設定するときに cc-mode] を有効にした場合 'volume move start コマンドで作成したボリュームは自動的に暗号化されます-encrypt-destination true を指定する必要はありません。
+
+ONTAP 9.6 以降では、アグリゲートレベルの暗号化を使用して、移動するボリュームの包含アグリゲートにキーを割り当てることができます。一意のキーで暗号化されたボリュームを、 _NVE ボリューム _ と呼びます。アグリゲートレベルのキーで暗号化されたボリュームは、 _NAE ボリューム（ NetApp Aggregate Encryption の場合）と呼ばれます。NAE アグリゲートではプレーンテキストボリュームがサポートされません。
+
+.手順
+. 既存のボリュームを移動し、そのボリュームで暗号化を有効にするかどうかを指定します。
++
+|===
+| 変換対象 | 使用するコマンド 
+
+
+ a| 
+プレーンテキストボリュームから NVE ボリューム
+ a| 
+volume move start -vserver svm_name -volume volume_name -destination aggregate-aggregate aggregate-name -encrypt-destination true
+
+
+
+ a| 
+NVE ボリュームまたはプレーンテキストボリュームから NAE ボリューム（デスティネーションでアグリゲートレベルの暗号化が有効になっている場合）
+ a| 
+volume move start -vserver svm_name -volume volume_name -destination -aggregate aggregate_name -encrypt-with -aggr-list true ’
+
+
+
+ a| 
+NAE ボリュームから NVE ボリューム
+ a| 
+volume move start -vserver svm_name -volume volume_name -destination -aggregate aggregate_name -encrypt-with -aggr-list false です
+
+
+
+ a| 
+NAE ボリュームからプレーンテキストボリューム
+ a| 
+volume move start -vserver svm_name -volume volume_name -destination aggregate-aggregate aggregate_name -encrypt-destination false-encrypt-destination false-encrypt-with -aggr-list false
+
+
+
+ a| 
+NVE ボリュームからプレーンテキストボリューム
+ a| 
+volume move start -vserver svm_name -volume volume_name -destination aggregate-aggregate aggregate-name -encrypt-destination false
+
+|===
++
+コマンド構文全体については、コマンドのマニュアルページを参照してください。
+
++
+次のコマンドは、「 vol1 」という名前のプレーンテキストボリュームを NVE ボリュームに変換します。
+
++
+[listing]
+----
+cluster1::> volume move start -vserver vs1 -volume vol1 -destination-aggregate aggr2 -encrypt-destination true
+----
++
+次のコマンドは、デスティネーションでアグリゲートレベルの暗号化が有効になっている場合に、「 vol1 」という名前の NVE ボリュームまたはプレーンテキストボリュームを NAE ボリュームに変換します。
+
++
+[listing]
+----
+cluster1::> volume move start -vserver vs1 -volume vol1 -destination-aggregate aggr2 -encrypt-with-aggr-key true
+----
++
+次のコマンドは、「 vol2 」という名前の NAE ボリュームを NVE ボリュームに変換します。
+
++
+[listing]
+----
+cluster1::> volume move start -vserver vs1 -volume vol2 -destination-aggregate aggr2 -encrypt-with-aggr-key false
+----
++
+次のコマンドは、「 vol2 」という名前の NAE ボリュームをプレーンテキストボリュームに変換します。
+
++
+[listing]
+----
+cluster1::> volume move start -vserver vs1 -volume vol2 -destination-aggregate aggr2 -encrypt-destination false -encrypt-with-aggr-key false
+----
++
+次のコマンドは、「 vol2 」という名前の NVE ボリュームをプレーンテキストボリュームに変換します。
+
++
+[listing]
+----
+cluster1::> volume move start -vserver vs1 -volume vol2 -destination-aggregate aggr2 -encrypt-destination false
+----
+. クラスタボリュームの暗号化タイプを表示します。
++
+volume show -fields encryption-type none|volume|aggregate'
+
++
+「 encryption-type 」フィールドは ONTAP 9.6 以降で使用できます。
+
++
+コマンド構文全体については、コマンドのマニュアルページを参照してください。
+
++
+次のコマンドは 'cluster2' のボリュームの暗号化タイプを表示します
+
++
+[listing]
+----
+cluster2::> volume show -fields encryption-type
+
+vserver  volume  encryption-type
+-------  ------  ---------------
+vs1      vol1    none
+vs2      vol2    volume
+vs3      vol3    aggregate
+----
+. ボリュームで暗号化が有効になっていることを確認します。
++
+volume show -is-encrypted true と表示されます
+
++
+コマンド構文全体については、コマンドのマニュアルページを参照してください。
+
++
+次のコマンドは 'cluster2' 上の暗号化されたボリュームを表示します
+
++
+[listing]
+----
+cluster2::> volume show -is-encrypted true
+
+Vserver  Volume  Aggregate  State  Type  Size  Available  Used
+-------  ------  ---------  -----  ----  -----  --------- ----
+vs1      vol1    aggr2     online    RW  200GB    160.0GB  20%
+----
+
+
+
+
+== 結果
+
+ノードの暗号化キーを保存するために KMIP サーバを使用している場合、ボリュームを暗号化すると、 ONTAP によって暗号化キーがサーバに自動的に「プッシュ」されます。

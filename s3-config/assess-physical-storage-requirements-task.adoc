@@ -1,0 +1,54 @@
+---
+permalink: s3-config/assess-physical-storage-requirements-task.html 
+sidebar: sidebar 
+keywords: assess, physical, storage, requirements 
+summary: クライアントの S3 ストレージをプロビジョニングする前に、既存のアグリゲート内に新しいオブジェクトストア用の十分なスペースがあることを確認する必要があります。十分なスペースがない場合は、既存のアグリゲートにディスクを追加するか、必要なタイプの新しいアグリゲートを作成することができます。 
+---
+= 物理ストレージ要件を評価
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+クライアントの S3 ストレージをプロビジョニングする前に、既存のアグリゲート内に新しいオブジェクトストア用の十分なスペースがあることを確認する必要があります。十分なスペースがない場合は、既存のアグリゲートにディスクを追加するか、必要なタイプの新しいアグリゲートを作成することができます。
+
+S3 対応 SVM で S3 バケットを作成すると、バケットをサポートする FlexGroup ボリュームが自動的に作成されます。基盤となるアグリゲートや FlexGroup コンポーネントを ONTAP Select で自動的に（デフォルト）選択するか、基盤となるアグリゲートや FlexGroup コンポーネントを手動で選択することができます。
+
+アグリゲートと FlexGroup コンポーネントを指定する場合は、たとえば基盤となるディスクに固有のパフォーマンス要件がある場合などに、アグリゲートの構成が FlexGroup ボリュームのプロビジョニングに関するベストプラクティスのガイドラインに従っていることを確認する必要があります。
+
+link:../flexgroup/index.html["FlexGroup ボリューム管理"]
+
+https://www.netapp.com/pdf.html?item=/media/17251-tr4571apdf.pdf["ネットアップテクニカルレポート 4571-A ：『 NetApp ONTAP FlexGroup Volume Top Best Practices 』"]
+
+ONTAP S3 サーバを使用して、ローカルの FabricPool 大容量階層、つまり高パフォーマンス階層と同じクラスタに作成できます。これは、 SSD ディスクが 1 つの HA ペアに接続されている状況で、別の HA ペアの HDD ディスクに階層化 _cold_data を設定する場合などに便利です。このユースケースでは、 S3 サーバとローカルの大容量階層を含むバケットを、パフォーマンス階層とは別の HA ペアに配置する必要があります。ローカル階層化は、 1 ノードクラスタと 2 ノードクラスタではサポートされていません。
+
+.手順
+. 既存のアグリゲート内の使用可能なスペースを表示します。
++
+「 storage aggregate show
+
++
+十分なスペースを備えたアグリゲートがある場合は、 S3 構成用のアグリゲートの名前を記録します。
+
++
+[listing]
+----
+cluster-1::> storage aggregate show
+Aggregate     Size Available Used% State   #Vols  Nodes  RAID Status
+--------- -------- --------- ----- ------- ------ ------ -----------
+aggr_0     239.0GB   11.13GB   95% online       1 node1  raid_dp,
+                                                         normal
+aggr_1     239.0GB   11.13GB   95% online       1 node1  raid_dp,
+                                                         normal
+aggr_2     239.0GB   11.13GB   95% online       1 node2  raid_dp,
+                                                         normal
+aggr_3     239.0GB   11.13GB   95% online       1 node2  raid_dp,
+                                                         normal
+aggr_4     239.0GB   238.9GB   95% online       5 node3  raid_dp,
+                                                         normal
+aggr_5     239.0GB   239.0GB   95% online       4 node4  raid_dp,
+                                                         normal
+6 entries were displayed.
+----
+. 十分なスペースを備えたアグリゲートがない場合は、「 storage aggregate add-disks 」コマンドを使用して既存のアグリゲートにディスクを追加するか、「 storage aggregate create 」コマンドを使用して新しいアグリゲートを作成します。
+

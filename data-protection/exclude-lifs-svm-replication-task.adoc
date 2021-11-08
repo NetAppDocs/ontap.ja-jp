@@ -1,0 +1,133 @@
+---
+permalink: data-protection/exclude-lifs-svm-replication-task.html 
+sidebar: sidebar 
+keywords: lifs, network, settings, svm, replication 
+summary: ソースとデスティネーションの SVM が異なるサブネットにある場合は、 snapmirror policy create コマンドの -discard-configs network オプションを使用して、 LIF と関連ネットワークの設定を SVM レプリケーション対象から除外できます。 
+---
+= SVM レプリケーション対象から LIF と関連ネットワークの設定を除外
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+ソースとデスティネーションの SVM が異なるサブネットにある場合は、「 snapmirror policy create 」コマンドの「 -discard-configs network 」オプションを使用して、 LIF と関連ネットワークの設定を SVM レプリケーション対象から除外できます。
+
+ソースクラスタとデスティネーションクラスタ、および SVM のピア関係が確立されている必要があります。
+
+SVM レプリケーション関係を作成するときは 'snapmirror create コマンドの -identity-preserve オプションを true に設定する必要があります
+
+コマンド構文全体については、マニュアルページを参照してください。
+
+.手順
+. デスティネーション SVM を作成します。
++
+「 vserver create -vserver_svm__subtype dp-destination 」に指定します
+
++
+SVM 名はソースクラスタとデスティネーションクラスタの間で一意である必要があります。
+
++
+次の例は、「 VM_backup 」という名前のデスティネーション SVM を作成します。
+
++
+[listing]
+----
+cluster_dst:> vserver create -vserver svm_backup -subtype dp-destination
+----
+. ジョブスケジュールを作成します。
++
+'job schedule cron create -name_job_name__ month_month_month_month_dayofweek _dayof_day_day_day_of_month_-hour _hour_-minute_minute_`
+
++
+「 -month 」、「 -dayofweek 」、「 -hour 」には、「 all 」を指定して、毎月、曜日、および時ごとにジョブを実行できます。
+
++
+次の例は、土曜日の午前 3 時に実行する「 my_weekly 」というジョブスケジュールを作成します。
+
++
+[listing]
+----
+cluster_dst::> job schedule cron create -name my_weekly -dayofweek "Saturday" -hour 3 -minute 0
+----
+. カスタムレプリケーションポリシーを作成します。
++
+「 napmirror policy create -vserver _SVM_policy_policy_type async-mirror mirror | vault | mirror-vault -vault-comment_comment __ tries transfer_tries-transfer-priority low | normal-is-network-compression-enabled true | false-discard-configs network 」に設定されています
+
++
+コマンド構文全体については、マニュアルページを参照してください。
+
++
+次の例は、 LIF を除外する SnapMirror DR 用のカスタムレプリケーションポリシーを作成します。
+
++
+[listing]
+----
+cluster_dst::> snapmirror policy create -vserver svm1 -policy DR_exclude_LIFs -type async-mirror -discard-configs network
+----
++
+次の例は、 LIF を除外するユニファイドレプリケーション用のカスタムレプリケーションポリシーを作成します。
+
++
+[listing]
+----
+cluster_dst::> snapmirror policy create -vserver svm1 -policy unified_exclude_LIFs -type mirror-vault -discard-configs network
+----
+. デスティネーション SVM またはデスティネーションクラスタから次のコマンドを実行して、レプリケーション関係を作成します。
++
+「 snapmirror create -source-path SVM_： -destination-path svm_ ： -type DP | xdmp-schedule _policy_policy_policy_policy_identity-preserve true | false 」を指定します
+
++
+[NOTE]
+====
+「 -source-path 」オプションと「 -destination-path 」オプションでは、 SVM 名のあとにコロン（ : ）を入力する必要があります。以下の例を参照してください。
+
+====
++
+次の例は、 LIF を除外する SnapMirror DR 関係を作成します。
+
++
+[listing]
+----
+cluster_dst::> snapmirror create -source-path svm1: -destination-path svm_backup: -type XDP -schedule my_daily -policy DR_exclude_LIFs -identity-preserve true
+----
++
+次の例は、 LIF を除外する SnapMirror ユニファイドレプリケーション関係を作成します。
+
++
+[listing]
+----
+cluster_dst::> snapmirror create -source-path svm1: -destination-path svm_backup: -type XDP -schedule my_daily -policy unified_exclude_LIFs -identity-preserve true
+----
+. デスティネーション SVM を停止します。
++
+「 vserver stop 」
+
++
+「 _SVM 名 _ 」
+
++
+次の例は、 dvs1 という名前のデスティネーション SVM を停止します。
+
++
+[listing]
+----
+cluster_dst::> vserver stop -vserver dvs1
+----
+. デスティネーション SVM またはデスティネーションクラスタから、レプリケーション関係を初期化します。
++
+「 snapmirror initialize-ls-set initialize-ls-set _svm_:-destination -destination-path svm_:` 」のように設定します
+
++
+コマンド構文全体については、マニュアルページを参照してください。
+
++
+次に、ソース「 vm1 」とデスティネーション「 vm_backup 」の関係を初期化する例を示します。
+
++
+[listing]
+----
+cluster_dst::> snapmirror initialize -source-path svm1: -destination-path svm_backup:
+----
+
+
+災害発生時のデータアクセス用に、デスティネーション SVM でネットワークとプロトコルを設定する必要があります。

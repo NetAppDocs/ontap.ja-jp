@@ -1,0 +1,81 @@
+---
+permalink: s3-config/create-svm-s3-task.html 
+sidebar: sidebar 
+keywords: create, svm, s3 
+summary: S3 は SVM 内に他のプロトコルと共存できますが、新しい SVM を作成してネームスペースとワークロードを分離することもできます。 
+---
+= S3 用の SVM を作成します
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+S3 は SVM 内に他のプロトコルと共存できますが、新しい SVM を作成してネームスペースとワークロードを分離することもできます。
+
+この SVM から S3 オブジェクトストレージのみを提供する場合、 S3 サーバに DNS 設定は必要ありません。ただし、他のプロトコルを使用する場合は、 SVM に DNS を設定できます。
+
+.手順
+. クラスタ上で S3 のライセンスが有効であることを確認します。
++
+'system license show -package s3`
+
++
+表示されない場合は、営業担当者にお問い合わせください。
+
+. SVM を作成します。
++
+vserver create -vserver SVM_name -rootvolume root_volume_name -aggregate aggregate_name -rootvolume-security-style unix -language C.UTF-8 -ipspace ipspace_name です
+
++
+** -rootvolume-security-style オプションには UNIX 設定を使用します。
+** デフォルトの C.UTF-8 -language オプションを使用します。
+** 「 ipspace 」設定はオプションです。
+
+
+. 新しく作成した SVM の設定とステータスを確認します。
++
+vserver show -vserversvm_name'
+
++
+Vserver Operational State フィールドには 'running] 状態が表示されている必要があります「 initializing 」の状態が表示されている場合、ルートボリュームの作成などの中間処理に失敗したため、 SVM を削除して再作成する必要があります。
+
+
+
+次のコマンドは、データアクセス用の SVM を IPspace ipspaceA 内に作成します。
+
+[listing]
+----
+cluster-1::> vserver create -vserver svm1.example.com -rootvolume root_svm1 -aggregate aggr1 -rootvolume-security-style unix -language C.UTF-8 -ipspace ipspaceA
+
+[Job 2059] Job succeeded:
+Vserver creation completed
+----
+次のコマンドは、 SVM が 1GB のルートボリュームで作成され、自動的に起動されて「 running 」状態であることを示しています。ルートボリュームには、ルールを含まないデフォルトのエクスポートポリシーがあるため、ルートボリュームは作成時にエクスポートされません。デフォルトでは、 vsadmin ユーザアカウントが作成され、「 locked 」状態になります。vsadmin ロールがデフォルトの vsadmin ユーザアカウントに割り当てられます。
+
+[listing]
+----
+cluster-1::> vserver show -vserver svm1.example.com
+                                    Vserver: svm1.example.com
+                               Vserver Type: data
+                            Vserver Subtype: default
+                               Vserver UUID: b8375669-19b0-11e5-b9d1-00a0983d9736
+                                Root Volume: root_svm1
+                                  Aggregate: aggr1
+                                 NIS Domain: -
+                 Root Volume Security Style: unix
+                                LDAP Client: -
+               Default Volume Language Code: C.UTF-8
+                            Snapshot Policy: default
+                                    Comment:
+                               Quota Policy: default
+                List of Aggregates Assigned: -
+ Limit on Maximum Number of Volumes allowed: unlimited
+                        Vserver Admin State: running
+                  Vserver Operational State: running
+   Vserver Operational State Stopped Reason: -
+                          Allowed Protocols: nfs, cifs
+                       Disallowed Protocols: -
+                           QoS Policy Group: -
+                                Config Lock: false
+                               IPspace Name: ipspaceA
+----

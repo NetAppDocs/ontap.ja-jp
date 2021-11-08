@@ -1,0 +1,118 @@
+---
+permalink: nfs-admin/modify-ports-used-nfsv3-services-task.html 
+sidebar: sidebar 
+keywords: modify, port, nfsv3, service 
+summary: ストレージシステム上の NFS サーバは、マウントデーモンや Network Lock Manager などのサービスを使用して、特定のデフォルトネットワークポート経由で NFS クライアントと通信します。デフォルトポートは、ほとんどの NFS 環境で正しく機能するので変更する必要はありませんが、別の NFS ネットワークポートを NFSv3 環境で使用する場合はそうすることができます。 
+---
+= NFSv3 サービスで使用されるポートを変更します
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+ストレージシステム上の NFS サーバは、マウントデーモンや Network Lock Manager などのサービスを使用して、特定のデフォルトネットワークポート経由で NFS クライアントと通信します。デフォルトポートは、ほとんどの NFS 環境で正しく機能するので変更する必要はありませんが、別の NFS ネットワークポートを NFSv3 環境で使用する場合はそうすることができます。
+
+ストレージシステムで NFS ポートを変更するには、すべての NFS クライアントがシステムに再接続する必要があるため、変更に先立ってこの情報をユーザに伝えておく必要があります。
+
+NFS マウントデーモン、 Network Lock Manager （ NLM ；ネットワークロックマネージャ）、 Network Status Monitor （ NSM ；ネットワークステータスモニタ）、および NFS クォータデーモンの各サービスで使用されるポートを Storage Virtual Machine （ SVM ）ごとに設定できます。ポート番号の変更は、 TCP と UDP の両方でデータにアクセスする NFS クライアントに影響します。
+
+NFSv4 および NFSv4.1 のポートは変更できません。
+
+.手順
+. 権限レベルを advanced に設定します。
++
+「 advanced 」の権限が必要です
+
+. NFS へのアクセスを無効にします。
++
+vserver nfs modify -vserver vserver_name -access false
+
+. 特定の NFS サービスの NFS ポートを設定します。
++
+「 vserver nfs modify -vserver vserver_name enfs_port_parameterport_number 」のように指定します
+
++
+[cols="3*"]
+|===
+| NFS ポートのパラメータ | 説明 | デフォルトのポート 
+
+
+ a| 
+「 -mountd - port 」のように指定します
+ a| 
+NFS マウントデーモン
+ a| 
+635
+
+
+
+ a| 
+「 -nlm - port 」を参照してください
+ a| 
+Network Lock Manager の略
+ a| 
+4045
+
+
+
+ a| 
+「 -sm - port 」のように表示されます
+ a| 
+Network Status Monitor サービスの略
+ a| 
+4046
+
+
+
+ a| 
+「 -rquotad-port 」
+ a| 
+NFS クォータデーモン
+ a| 
+4049
+
+|===
++
+デフォルトポートに加えて、 1 、 024~65 、 535 の範囲のポート番号を使用できます。各 NFS サービスは一意のポートを使用する必要があります。
+
+. NFS へのアクセスを有効にします。
++
+「 vserver nfs modify -vserver vserver_name -access true 」のようになります
+
+. 「 network connections listening show 」コマンドを使用して、ポート番号の変更を確認します。
+. admin 権限レベルに戻ります。
++
+「特権管理者」
+
+
+
+次のコマンドは、 vs1 という SVM で NFS マウントデーモンのポートを 1113 に設定します。
+
+[listing]
+----
+vs1::> set -privilege advanced
+Warning: These advanced commands are potentially dangerous; use
+         them only when directed to do so by NetApp personnel.
+Do you want to continue? {y|n}: y
+
+vs1::*> vserver nfs modify -vserver vs1 -access false
+
+vs1::*> vserver nfs modify -vserver vs1 -mountd-port 1113
+
+vs1::*> vserver nfs modify -vserver vs1 -access true
+
+vs1::*> network connections listening show
+Vserver Name     Interface Name:Local Port        Protocol/Service
+---------------- -------------------------------  ----------------
+Node: cluster1-01
+Cluster          cluster1-01_clus_1:7700          TCP/ctlopcp
+vs1              data1:4046                       TCP/sm
+vs1              data1:4046                       UDP/sm
+vs1              data1:4045                       TCP/nlm-v4
+vs1              data1:4045                       UDP/nlm-v4
+vs1              data1:1113                       TCP/mount
+vs1              data1:1113                       UDP/mount
+....
+
+vs1::*> set -privilege admin
+----

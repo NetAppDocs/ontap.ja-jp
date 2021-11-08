@@ -1,0 +1,155 @@
+---
+permalink: system-admin/when-where-autosupport-messages-sent-concept.html 
+sidebar: sidebar 
+keywords: active, iq, autosupport, messages, email, manual, scheduled, event, triggered 
+summary: AutoSupport は、メッセージの種類に応じた宛先にメッセージを送信します。AutoSupport がメッセージを送信するタイミングと場所を知ると、 E メールで受信するメッセージまたは Active IQ （旧 My AutoSupport ） Web サイトに表示されるメッセージを把握するのに役立ちます。 
+---
+= AutoSupport メッセージが送信されるタイミングおよび場所
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+AutoSupport は、メッセージの種類に応じた宛先にメッセージを送信します。AutoSupport がメッセージを送信するタイミングと場所を知ると、 E メールで受信するメッセージまたは Active IQ （旧 My AutoSupport ） Web サイトに表示されるメッセージを把握するのに役立ちます。
+
+特に指定がない限り、次の表に示す設定は、「 system node AutoSupport modify 」コマンドのパラメータです。
+
+
+
+== イベントトリガー型メッセージ
+
+修正措置を必要とするシステムでイベントが発生した場合には、 AutoSupport からイベントトリガー型メッセージが自動的に送信されます。
+
+|===
+| メッセージが送信されたとき | メッセージの送信先 
+
+
+ a| 
+AutoSupport は、 EMS のトリガーイベントに応答します
+ a| 
+「 -to 」と「 -noteto 」で指定されているアドレス（送信されるのはサービスに影響する重要なイベントのみ）。
+
+「 -partner-address 」に指定したアドレス
+
+「 -support 」が「 enable 」に設定されている場合は、テクニカル・サポート
+
+|===
+
+
+== スケジュールされたメッセージ
+
+AutoSupport は、定期的に複数のメッセージを自動的に送信します。
+
+|===
+| メッセージが送信されたとき | メッセージの送信先 
+
+
+ a| 
+毎日（デフォルトでは、午前 12 時からチェックする必要がありますログメッセージとして送信される）
+ a| 
+「 -partner-address 」に指定したアドレス
+
+「 -support 」が「 enable 」に設定されている場合は、テクニカル・サポート
+
+
+
+ a| 
+毎日（デフォルトでは、午前 12 時からチェックする必要がありますパフォーマンス・メッセージとして '-sperf パラメータが true に設定されている場合は 'true' になります
+ a| 
+partner-address で指定されているアドレス
+
+「 -support 」が「 enable 」に設定されている場合は、テクニカル・サポート
+
+
+
+ a| 
+毎週（デフォルトでは、日曜日の午前 0 時から午前 1 時までの間に送信されます）
+ a| 
+「 -partner-address 」に指定したアドレス
+
+「 -support 」が「 enable 」に設定されている場合は、テクニカル・サポート
+
+|===
+
+
+== 手動でトリガーされるメッセージ
+
+AutoSupport メッセージは、手動で送信または再送信できます。
+
+|===
+| メッセージが送信されたとき | メッセージの送信先 
+
+
+ a| 
+「 system node AutoSupport invoke 」コマンドを使用して、手動でメッセージを送信したとき
+ a| 
+「 system node AutoSupport invoke 」コマンドで「 -uri 」パラメータを使用して URI を指定すると、その にメッセージが送信されます。
+
+「 -uri 」を省略すると、メッセージは「 -to 」と「 -partner-address 」で指定したアドレスに送信されます。「 -support 」が「 enable 」に設定されている場合、メッセージはテクニカル・サポートにも送信されます。
+
+
+
+ a| 
+「 system node AutoSupport invoke-core-upload 」コマンドを使用して、手動でメッセージを送信したとき
+ a| 
+「 system node AutoSupport invoke-core-upload 」コマンドで「 -uri 」パラメータを使用して URI を指定すると、その にメッセージが送信され、コアダンプファイルが URI にアップロードされます。
+
+「 system node AutoSupport invoke-core-upload 」コマンドで「 -uri 」を省略すると、テクニカルサポートにメッセージが送信され、テクニカルサポートサイトにコアダンプファイルがアップロードされます。
+
+どちらのシナリオでも '-support' が enable に設定され '-transport が https または http に設定されている必要があります
+
+コア・ダンプ・ファイルのサイズが大きいため ' メッセージは '-to パラメータと -partner-addresses パラメータで指定したアドレスには送信されません
+
+
+
+ a| 
+「 system node AutoSupport invoke-performance-archive 」コマンドを使用して、手動でメッセージを送信したとき
+ a| 
+「 system node AutoSupport invoke-performance-archive 」コマンドで「 -uri 」パラメータを使用して URI を指定すると、その にメッセージが送信され、パフォーマンスアーカイブファイルが URI にアップロードされます。
+
+「システム・ノード AutoSupport invoke-performance-archive 」で「 -uri 」を省略すると、テクニカル・サポートにメッセージが送信され、テクニカル・サポート・サイトにパフォーマンス・アーカイブ・ファイルがアップロードされます。
+
+どちらのシナリオでも '-support' が enable に設定され '-transport が https または http に設定されている必要があります
+
+パフォーマンス・アーカイブ・ファイルのサイズが大きいため ' メッセージは '-to パラメータと -partner-addresses パラメータで指定したアドレスには送信されません
+
+
+
+ a| 
+「 system node AutoSupport history retransmit 」コマンドを使用して、過去のメッセージを手動で再送信します
+ a| 
+「 system node AutoSupport history retransmit 」コマンドの「 -uri 」パラメータで指定した URI だけに送信されます
+
+|===
+
+
+== テクニカルサポートによってトリガーされるメッセージです
+
+テクニカルサポートは、 AutoSupport OnDemand 機能を使用して、 AutoSupport からのメッセージを要求できます。
+
+|===
+| メッセージが送信されたとき | メッセージの送信先 
+
+
+ a| 
+AutoSupport が新しい AutoSupport メッセージを生成するという送信指示を取得したとき
+ a| 
+「 -partner-address 」に指定したアドレス
+
+「 -support 」が「 enable 」に設定され、「 -transport 」が「 https 」に設定されている場合、テクニカルサポート
+
+
+
+ a| 
+過去の AutoSupport メッセージを再送信するという送信指示を AutoSupport が受け取ったとき
+ a| 
+「 -support 」が「 enable 」に設定され、「 -transport 」が「 https 」に設定されている場合、テクニカルサポート
+
+
+
+ a| 
+コアダンプファイルまたはパフォーマンスアーカイブファイルをアップロードする新しい AutoSupport メッセージを生成するという送信指示を AutoSupport が受け取ったとき
+ a| 
+「 -support 」が「 enable 」に設定され、「 -transport 」が「 https 」に設定されている場合、テクニカルサポート。テクニカルサポートサイトにコアダンプファイルまたはパフォーマンスアーカイブファイルがアップロードされます。
+
+|===

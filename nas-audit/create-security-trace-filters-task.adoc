@@ -1,0 +1,141 @@
+---
+permalink: nas-audit/create-security-trace-filters-task.html 
+sidebar: sidebar 
+keywords: create, security trace filters 
+summary: Storage Virtual Machine （ SVM ）で SMB および NFS のクライアント処理を検出し、フィルタに一致するすべてのアクセスチェックをトレースするセキュリティトレースフィルタを作成できます。セキュリティトレースの結果を使用して、構成の検証や、アクセスに関する問題のトラブルシューティングを行うことができます。 
+---
+= セキュリティトレースフィルタを作成します
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+Storage Virtual Machine （ SVM ）で SMB および NFS のクライアント処理を検出し、フィルタに一致するすべてのアクセスチェックをトレースするセキュリティトレースフィルタを作成できます。セキュリティトレースの結果を使用して、構成の検証や、アクセスに関する問題のトラブルシューティングを行うことができます。
+
+vserver security trace filter create コマンドには 2 つの必須パラメータがあります。
+
+[cols="2*"]
+|===
+| 必須パラメータ | 説明 
+
+
+ a| 
+「 -vserver `vserver_name` 」
+ a| 
+SVM 名 _
+
+セキュリティトレースフィルタを適用するファイルやフォルダが格納されている SVM の名前。
+
+
+
+ a| 
+「 -index 」「 index_number 」を指定します
+ a| 
+フィルタインデックス番号 _
+
+フィルタに適用するインデックス番号。トレースフィルタは SVM ごとに 10 個まで使用できます。このパラメータに指定できる値は 1~10 です。
+
+|===
+さまざまなオプションのフィルタパラメータでセキュリティトレースフィルタをカスタマイズして、セキュリティトレースによって生成された結果を絞り込むことができます。
+
+[cols="2*"]
+|===
+| フィルタパラメータ | 説明 
+
+
+ a| 
+「 -client-ip 」「 IP_Address 」のようになります
+ a| 
+IP アドレスを指定します。この IP アドレスから SVM にアクセスしているユーザが対象となります。
+
+
+
+ a| 
+「 -path 」「 path 」
+ a| 
+パーミッショントレースフィルタを適用するパスを指定します。「 -path 」の値には、次のいずれかの形式を使用できます。
+
+* 共有またはエクスポートのルートから始まる完全なパス
+* 共有のルートに対する相対パス
+
+
+パス値では、 NFS 形式のディレクトリ UNIX 形式のディレクトリ区切り文字を使用する必要があります。
+
+
+
+ a| 
+`-windows-name`win_user_name` または `-unix-name`unix_user_name
+ a| 
+アクセス要求をトレースする対象の Windows ユーザ名または UNIX ユーザ名を指定できます。ユーザ名変数では大文字と小文字は区別されません。同じフィルタで Windows ユーザ名と UNIX ユーザ名の両方を指定することはできません。
+
+[NOTE]
+====
+トレースできるのは SMB と NFS のアクセスイベントだけですが、 mixed セキュリティ形式または UNIX セキュリティ形式のデータに対してアクセスチェックを実行するときに、マッピングされた UNIX ユーザおよび UNIX グループが使用されることがあります。
+
+====
+
+
+ a| 
+--trace - {`yes|`no`} を許可します
+ a| 
+セキュリティトレースフィルタでは、拒否イベントのトレースは常に有効です。必要に応じて、許可イベントをトレースすることもできます。許可イベントをトレースするには ' このパラメータを yes に設定します
+
+
+
+ a| 
+「 - 有効」「 ｛ ' 有効」「無効」 ｝
+ a| 
+セキュリティトレースフィルタを有効または無効にすることができます。デフォルトでは、セキュリティトレースフィルタは有効になっています。
+
+
+
+ a| 
+「 -time -enabled 」の「 integer 」
+ a| 
+フィルタのタイムアウトを指定できます。指定した時間が経過すると、フィルタは無効になります。
+
+|===
+.手順
+. セキュリティトレースフィルタを作成します。
++
+vserver security trace filter create -vserver vserver_name -index index_numberfilter_parameters
+
++
+「 filter_parameters 」は、オプションのフィルタパラメータのリストです。
+
++
+詳細については、コマンドのマニュアルページを参照してください。
+
+. セキュリティトレースフィルタのエントリを確認します。
++
+vserver security trace filter show -vserver vserver_name -index index_number
+
+
+
+次のコマンドでは、 IP アドレス 10.10.10.7 から共有パス「 \\server\share1\dir1\dir2\file.txt 」のファイルにアクセスしているすべてのユーザを対象とするセキュリティトレースフィルタを作成します。フィルタは '-path オプションの完全パスを使用しますデータへのアクセスに使用されるクライアントの IP アドレスは 10.10.10.7 です。フィルタは 30 分後にタイムアウトします。
+
+[listing]
+----
+cluster1::> vserver security trace filter create -vserver vs1 -index 1 -path /dir1/dir2/file.txt -time-enabled 30 -client-ip 10.10.10.7
+cluster1::> vserver security trace filter show -index 1
+Vserver  Index   Client-IP            Path            Trace-Allow  Windows-Name
+-------- -----  -----------  ----------------------   -----------  -------------
+vs1        1    10.10.10.7   /dir1/dir2/file.txt          no       -
+----
+次のコマンドは '-path オプションに相対パスを使用してセキュリティ・トレース・フィルタを作成しますこのフィルタは、「 joe 」という名前の Windows ユーザのアクセスをトレースします。joe は共有パス「 \\server\share1\dir1\dir2\file.txt 」のファイルにアクセスしています。許可イベントと拒否イベントをトレースします。
+
+[listing]
+----
+cluster1::> vserver security trace filter create -vserver vs1 -index 2 -path /dir1/dir2/file.txt -trace-allow yes -windows-name mydomain\joe
+
+cluster1::> vserver security trace filter show -vserver vs1 -index 2
+                                 Vserver: vs1
+                            Filter Index: 2
+              Client IP Address to Match: -
+                                    Path: /dir1/dir2/file.txt
+                       Windows User Name: mydomain\joe
+                          UNIX User Name: -
+                      Trace Allow Events: yes
+                          Filter Enabled: enabled
+               Minutes Filter is Enabled: 60
+----

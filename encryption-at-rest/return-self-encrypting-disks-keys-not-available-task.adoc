@@ -1,0 +1,61 @@
+---
+permalink: encryption-at-rest/return-self-encrypting-disks-keys-not-available-task.html 
+sidebar: sidebar 
+keywords: returning, fips, drive, sed, service, authentication, keys, lost 
+summary: FIPS ドライブまたは SED の認証キーが永久に失われ、 KMIP サーバから取得できない場合、 FIPS ドライブまたは SED は破損しているとみなされます。ディスク上のデータにアクセスしたりリカバリしたりすることはできませんが、 SED の未使用スペースを再びデータに使用できるようにすることができます。 
+---
+= 認証キーが失われた場合に FIPS ドライブまたは SED を使用可能な状態に戻します
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+FIPS ドライブまたは SED の認証キーが永久に失われ、 KMIP サーバから取得できない場合、 FIPS ドライブまたは SED は破損しているとみなされます。ディスクのデータにアクセスしたりリカバリしたりすることはできませんが、 SED の未使用スペースをデータに再び使用できるようにすることができます。
+
+このタスクを実行するには、クラスタ管理者である必要があります。
+
+このプロセスは、 FIPS ドライブまたは SED の認証キーが永久に失われてリカバリできないことが確実である場合にのみ使用してください。
+
+.手順
+. FIPS ドライブまたは SED を使用可能な状態に戻します。
++
+|===
+| SED の状況 | 実行する手順 
+
+
+ a| 
+FIPS 準拠モードでないか、 FIPS 準拠モードで FIPS キーを使用できます
+ a| 
+.. 破損ディスクを完全消去します。「 storage encryption disk sanitize -disk disk_id 」
+.. 権限レベルを advanced に設定します。 + 「 set -privilege advanced 」
+.. 完全消去したディスクの障害状態を解除します。 +'storage disk unfail -spare true -disk disk_id
+.. ディスクの所有者が「 storage disk show -disk disk_id 」であるかどうかを確認します
+.. ディスクの所有者が設定されていない場合は、所有者を割り当ててから、もう一度ディスクの障害状態を解除します。 +'storage disk assign -owner node -disk disk_id
++
+「 storage disk unfail -spare true -disk disk_id 」というエラーが表示されます
+
+.. ディスクがスペアとしてアグリゲートで再び使用できる状態になったことを確認します。 +'storage disk show -disk disk_id
+
+
+
+
+ a| 
+FIPS 準拠モードであるが FIPS キーは使用できず、 SED の PSID がラベルに印刷されている
+ a| 
+.. ディスクの PSID をディスクラベルで確認します。
+.. 権限レベルを advanced に設定します。 + 「 set -privilege advanced 」
+.. ディスクを工場出荷時の設定にリセットします。「 storage encryption disk revert-to-original-state -disk disk_id -psid disk_physical_secure_id 」
+.. 完全消去したディスクの障害状態を解除します。 +'storage disk unfail -spare true -disk disk_id
+.. ディスクの所有者が「 storage disk show -disk disk_id 」であるかどうかを確認します
+.. ディスクの所有者が設定されていない場合は、所有者を割り当ててから、もう一度ディスクの障害状態を解除します。 +'storage disk assign -owner node -disk disk_id
++
+「 storage disk unfail -spare true -disk disk_id 」というエラーが表示されます
+
+.. ディスクがスペアとしてアグリゲートで再び使用できる状態になったことを確認します。 +'storage disk show -disk disk_id
+
+
+|===
++
+コマンド構文全体については、マニュアルページを参照してください。
+
+

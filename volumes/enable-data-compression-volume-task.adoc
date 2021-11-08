@@ -1,0 +1,98 @@
+---
+permalink: volumes/enable-data-compression-volume-task.html 
+sidebar: sidebar 
+keywords: enable, data, compression, on a volume 
+summary: volume efficiency modify コマンドを使用してボリュームのデータ圧縮を有効にすることで、スペースを削減できます。FlexVol でデータ圧縮を有効にしてスペースを削減するには、 volume efficiency modify コマンドを使用します。デフォルトの圧縮形式が適していない場合は、ボリュームに圧縮形式を割り当てることもできます。 
+---
+= ボリュームでデータ圧縮を有効にします
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+volume efficiency modify コマンドを使用すると ' ボリューム上のデータ圧縮を有効にして ' スペースを節約できますvolume efficiency modify コマンドを使用すると、 FlexVol ボリュームのデータ圧縮を有効にして、スペースを節約できます。デフォルトの圧縮形式が適していない場合は、ボリュームに圧縮形式を割り当てることもできます。
+
+ボリュームの重複排除を有効にしておく必要があります。
+
+[NOTE]
+====
+* 重複排除は有効にさえなっていれば、実行されている必要はありません。
+* AFF プラットフォーム内のボリューム上の既存のデータは、圧縮スキャナを使用して圧縮する必要があります。
+
+
+====
+link:enable-deduplication-volume-task.html["ボリュームの重複排除を有効にする"]
+
+.このタスクについて
+* HDD アグリゲートと Flash Pool アグリゲートのボリュームでは、インライン圧縮とポストプロセス圧縮の両方を有効にするか、ポストプロセス圧縮のみを有効にすることができます。
++
+両方を有効にする場合は、ポストプロセス圧縮を有効にしてからインライン圧縮を有効にする必要があります。
+
+* AFF プラットフォームでは、インライン圧縮のみがサポートされます。
++
+ボリュームのインライン圧縮を有効にする前にポストプロセス圧縮を有効にしておく必要があります。ただし、 AFF プラットフォームではポストプロセス圧縮がサポートされないため、ボリュームではポストプロセス圧縮は実行されず、ポストプロセス圧縮がスキップされたことを通知する EMS メッセージが生成されます。
+
+* ONTAP 9.8 では、温度に敏感なストレージ効率が導入されています。この機能では、データがホットかコールドかに応じてストレージ効率が適用されます。コールドデータの場合、大容量のデータブロックが圧縮されます。ホットデータの場合、より頻繁に上書きされるデータブロックの場合、小さいデータブロックが圧縮されるため、プロセスの効率が向上します。新しく作成されたシンプロビジョニング AFF ボリュームでは、温度に影響されるストレージ効率が自動的に有効になります。
+* 圧縮形式は、アグリゲートのプラットフォームに基づいて自動的に割り当てられます。
++
+[cols="2*"]
+|===
+| プラットフォーム / アグリゲート | 圧縮形式 
+
+
+ a| 
+AFF
+ a| 
+適応圧縮
+
+
+
+ a| 
+Flash Pool アグリゲート
+ a| 
+適応圧縮
+
+
+
+ a| 
+HDD アグリゲート
+ a| 
+二次圧縮
+
+|===
+
+
+.選択肢
+* デフォルトの圧縮形式でデータ圧縮を有効にするには 'volume efficiency modify' コマンドを使用します
++
+次のコマンドは、 SVM vs1 のボリューム VolA でポストプロセス圧縮を有効にします。
+
++
+volume efficiency modify -vserver vs1 -volume VolA -compression true
+
++
+次のコマンドは、 SVM vs1 のボリューム VolA でポストプロセス圧縮とインライン圧縮の両方を有効にします。
+
++
+volume efficiency modify -vserver vs1 -volume VolA -compression true -inline-compression true
+
+* 特定の圧縮形式でデータ圧縮を有効にするには、 advanced 権限レベルで volume efficiency modify コマンドを使用します。
++
+.. 「 set -privilege advanced 」コマンドを使用して、権限レベルを advanced に変更します。
+.. volume efficiency modify コマンドを使用して ' ボリュームに圧縮形式を割り当てます
++
+次のコマンドは、 SVM vs1 のボリューム VolA でポストプロセス圧縮を有効にして、適応圧縮形式を割り当てます。
+
++
+volume efficiency modify -vserver vs1 -volume VolA -compression true -compression -type adaptive ’
+
++
+次のコマンドは、 SVM vs1 のボリューム VolA でポストプロセス圧縮とインライン圧縮の両方を有効にして、適応圧縮形式を割り当てます。
+
++
+volume efficiency modify -vserver vs1 -volume VolA -compression true -compression -type adaptive -inline-compression true を使用します
+
+.. 特権レベルを admin に変更するには 'set -privilege admin コマンドを使用します
+
+
+

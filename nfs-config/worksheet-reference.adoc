@@ -1,0 +1,1006 @@
+---
+permalink: nfs-config/worksheet-reference.html 
+sidebar: sidebar 
+keywords: worksheet, gathering, nfs, configuration, information, access, svm, name, service, information, add, storage, capacity 
+summary: NFS 設定ワークシートを使用すると、クライアントの NFS アクセスを設定するために必要な情報を収集できます。 
+---
+= NFS 設定情報を収集するためのワークシート
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+NFS 設定ワークシートを使用すると、クライアントの NFS アクセスを設定するために必要な情報を収集できます。
+
+ストレージをプロビジョニングする場所に関する決定に応じて、ワークシートのいずれかまたは両方のセクションを完了する必要があります。
+
+* SVM に対する NFS アクセスを設定する場合は、両方のセクションを完了する必要があります。
++
+link:worksheet-reference.html#configuring-nfs-access-to-an-svm["SVM への NFS アクセスを設定する"]
+
++
+link:worksheet-reference.html#adding-storage-capacity-to-an-nfs-enabled-svm["NFS 対応 SVM へのストレージ容量の追加"]
+
+* NFS 対応 SVM にストレージ容量を追加する場合は、 2 番目のセクションのみを完了する必要があります。
++
+link:worksheet-reference.html#adding-storage-capacity-to-an-nfs-enabled-svm["NFS 対応 SVM へのストレージ容量の追加"]
+
+
+
+パラメータの詳細については、コマンドのマニュアルページを参照してください。
+
+
+
+== SVM への NFS アクセスを設定
+
+* SVM を作成するためのパラメータ *
+
+新しい SVM を作成する場合は、「 vserver create 」コマンドで次の値を指定します。
+
+|===
+| フィールド | 説明 | あなたの価値 
+
+
+ a| 
+「 -vserver 」
+ a| 
+新しい SVM の名前を指定します。完全修飾ドメイン名（ FQDN ）を指定するか、クラスタ内で一意の SVM 名を適用する別の命名規則に従います。
+ a| 
+
+
+
+ a| 
+「 -aggregate 」を選択します
+ a| 
+新しい NFS ストレージ容量に対応できる十分なスペースを持つクラスタ内のアグリゲートの名前を指定します。
+ a| 
+
+
+
+ a| 
+「 -rootvolume-」 と入力します
+ a| 
+SVM ルートボリュームの一意の名前を指定します。
+ a| 
+
+
+
+ a| 
+「 -rootvolume-security-style 」
+ a| 
+SVM の UNIX セキュリティ形式を使用します。
+ a| 
+「 UNIX 」
+
+
+
+ a| 
+「 -language 」
+ a| 
+このワークフローではデフォルトの言語設定を使用します。
+ a| 
+「 C.UTF-8 」
+
+
+
+ a| 
+「 ipspace 」
+ a| 
+IPspace は、 Storage Virtual Machine （ SVM ）が属する個別の IP アドレススペースです。
+ a| 
+
+|===
+* NFS サーバ作成用のパラメータ *
+
+新しい NFS サーバを作成し、サポートされている NFS バージョンを指定する場合は、「 vserver nfs create 」コマンドでこれらの値を指定します。
+
+NFSv4 以降を有効にする場合は、セキュリティを強化するために LDAP を使用する必要があります。
+
+|===
+| フィールド | 説明 | あなたの価値 
+
+
+ a| 
+「 -v3` 」、「 -v4.0 」、「 -v4.1 」、「 -v4.1-pnfs 」
+ a| 
+必要に応じて NFS バージョンを有効にします。
+
+[NOTE]
+====
+v4.2 は、「 v4.1 」が有効になっている ONTAP 9.8 以降でもサポートされています。
+
+==== a| 
+
+
+
+ a| 
+「 -v4-id-domain 」を指定します
+ a| 
+ID マッピングのドメイン名を指定します。
+ a| 
+
+
+
+ a| 
+「 -v4-numeric-ids 」を参照してください
+ a| 
+所有者 ID 番号のサポート（有効または無効）。
+ a| 
+
+|===
+* LIF 作成用のパラメータ *
+
+これらの値は、 LIF を作成するときに「 network interface create 」コマンドで指定します。
+
+Kerberos を使用する場合は、複数の LIF で Kerberos を有効にする必要があります。
+
+|===
+| フィールド | 説明 | あなたの価値 
+
+
+ a| 
+「 -lif 」
+ a| 
+新しい LIF の名前を指定します。
+ a| 
+
+
+
+ a| 
+「 -role 」を選択します
+ a| 
+このワークフローではデータ LIF のロールを使用します。
+ a| 
+「データ」
+
+
+
+ a| 
+「 -data-protocol 」
+ a| 
+このワークフローでは NFS プロトコルのみを使用します。
+ a| 
+「 nfs 」
+
+
+
+ a| 
+「 -home-node 」
+ a| 
+「 network interface revert 」コマンドを LIF で実行したときに、 LIF が戻るノードを指定します。
+ a| 
+
+
+
+ a| 
+「 -home-port 」を指定します
+ a| 
+「 network interface revert 」コマンドを LIF で実行したときに、 LIF が戻るポートまたはインターフェイスグループを指定します。
+ a| 
+
+
+
+ a| 
+「 -address 」と入力します
+ a| 
+新しい LIF によるデータアクセスに使用されるクラスタ上の IPv4 または IPv6 アドレスを指定します。
+ a| 
+
+
+
+ a| 
+「 - ネットマスク」
+ a| 
+LIF のネットワークマスクとゲートウェイを指定します。
+ a| 
+
+
+
+ a| 
+「 -subnet 」と入力します
+ a| 
+IP アドレスのプール。アドレスとネットマスクを自動的に割り当てるには '-address と -netmask の代わりに使用します
+ a| 
+
+
+
+ a| 
+「 -firewall-policy 」を指定します
+ a| 
+このワークフローではデフォルトのデータファイアウォールポリシーを使用します。
+ a| 
+「データ」
+
+|===
+* DNS ホスト名解決のパラメータ *
+
+DNS を設定するときは、「 vserver services name-service dns create 」コマンドでこれらの値を指定します。
+
+|===
+| フィールド | 説明 | あなたの価値 
+
+
+ a| 
+「 -domains 」のように指定します
+ a| 
+最大 5 つの DNS ドメイン名。
+ a| 
+
+
+
+ a| 
+「 -name-servers 」と入力します
+ a| 
+DNS ネームサーバごとに最大 3 つの IP アドレスを指定します。
+ a| 
+
+|===
+
+
+== ネームサービス情報
+
+* ローカルユーザー作成用のパラメータ *
+
+ローカルユーザを作成する場合は、「 vserver services name-service unix-user create 」コマンドを使用して、次の値を指定します。Uniform Resource Identifier （ URI ）から UNIX ユーザを含むファイルをロードすることによってローカルユーザを設定する場合は、これらの値を手動で指定する必要はありません。
+
+|===
+|  | ユーザ名 (-user | ユーザー ID`(id)` | グループ ID （ -primary-gid | フルネーム（ -full-name 
+
+
+ a| 
+例
+ a| 
+johnm
+ a| 
+123
+ a| 
+100
+ a| 
+ジョンミラー
+
+
+
+ a| 
+1.
+ a| 
+ a| 
+ a| 
+ a| 
+
+
+
+ a| 
+2.
+ a| 
+ a| 
+ a| 
+ a| 
+
+
+
+ a| 
+3.
+ a| 
+ a| 
+ a| 
+ a| 
+
+
+
+ a| 
+...
+ a| 
+ a| 
+ a| 
+ a| 
+
+
+
+ a| 
+N
+ a| 
+ a| 
+ a| 
+ a| 
+
+|===
+* ローカルグループを作成するためのパラメータ *
+
+ローカルグループを作成する場合は、「 vserver services name-service unix-group create 」コマンドを使用して、これらの値を指定します。URI から UNIX グループを含むファイルをロードすることによってローカルグループを設定する場合は、これらの値を手動で指定する必要はありません。
+
+|===
+|  | グループ名 (`-name') | グループ ID (`id`) 
+
+
+ a| 
+例
+ a| 
+エンジニアリング
+ a| 
+100
+
+
+
+ a| 
+1.
+ a| 
+ a| 
+
+
+
+ a| 
+2.
+ a| 
+ a| 
+
+
+
+ a| 
+3.
+ a| 
+ a| 
+
+
+
+ a| 
+...
+ a| 
+ a| 
+
+
+
+ a| 
+N
+ a| 
+ a| 
+
+|===
+* NIS のパラメータ *
+
+これらの値は 'vserver services name-service nis-domain create コマンドで指定します
+
+[NOTE]
+====
+ONTAP 9.2 以降では、フィールド「 -nis-servers 」が「 -servers 」に置き換えられています。この新しいフィールドには、 NIS サーバのホスト名または IP アドレスを指定できます。
+
+====
+|===
+| フィールド | 説明 | あなたの価値 
+
+
+ a| 
+「 -domain 」を指定します
+ a| 
+SVM で名前検索に使用される NIS ドメインを指定します。
+ a| 
+
+
+
+ a| 
+「 - active 」
+ a| 
+アクティブな NIS ドメインサーバを指定します。
+ a| 
+「 true 」または「 false 」
+
+
+
+ a| 
+「 -servers 」
+ a| 
+ONTAP 9.0 、 9.1 ： NIS ドメイン設定で使用される NIS サーバの 1 つ以上の IP アドレスを指定します。
+ a| 
+
+
+
+ a| 
+「 -nis-servers 」
+ a| 
+ONTAP 9.2 ：ドメイン設定で使用される NIS サーバの IP アドレスおよびホスト名をカンマで区切って指定します。
+ a| 
+
+|===
+* LDAP のパラメータ *
+
+これらの値は 'vserver services name-service ldap client create コマンドで指定します
+
+自己署名されたルート CA 証明書 '.pem' ファイルも必要です
+
+[NOTE]
+====
+ONTAP 9.2 以降では '-servers' フィールドが -ldap-servers フィールドに置き換えられていますこの新しいフィールドには、 LDAP サーバのホスト名または IP アドレスを指定できます。
+
+====
+|===
+| フィールド | 説明 | あなたの価値 
+
+
+ a| 
+「 -vserver 」
+ a| 
+LDAP クライアント設定を作成する SVM の名前を指定します。
+ a| 
+
+
+
+ a| 
+「 -client-config 」を参照してください
+ a| 
+新しい LDAP クライアント設定に割り当てる名前。
+ a| 
+
+
+
+ a| 
+「 -servers 」
+ a| 
+ONTAP 9.0 、 9.1 ： 1 つ以上の LDAP サーバの IP アドレスをカンマで区切って指定します。
+ a| 
+
+
+
+ a| 
+「 -ldap-servers 」
+ a| 
+ONTAP 9.2 ： LDAP サーバの IP アドレスおよびホスト名をカンマで区切って指定します。
+ a| 
+
+
+
+ a| 
+`-query-timeout`
+ a| 
+このワークフローにはデフォルトの 3 秒を使用します
+ a| 
+3.
+
+
+
+ a| 
+「 -min-bind-level 」を指定します
+ a| 
+最小バインド認証レベルを指定します。デフォルトは「 anonymous 」です。署名と封印が設定されている場合は、「 ASL 」に設定する必要があります。
+ a| 
+
+
+
+ a| 
+「 -preferred-ad-servers 」
+ a| 
+カンマで区切った IP アドレスのリストによって、優先される Active Directory サーバを指定します。
+ a| 
+
+
+
+ a| 
+「 -ad-domain 」を指定します
+ a| 
+Active Directory ドメインを指定します。
+ a| 
+
+
+
+ a| 
+「 -schema' 」と入力します
+ a| 
+使用するスキーマテンプレート。デフォルトまたはカスタムのスキーマを使用できます。
+ a| 
+
+
+
+ a| 
+「 -port 」
+ a| 
+このワークフローには ' デフォルトの LDAP サーバポート 389 を使用します
+ a| 
+「 389 」
+
+
+
+ a| 
+「 -bind-dn 」
+ a| 
+バインドユーザの識別名を指定します。
+ a| 
+
+
+
+ a| 
+「 -base-dn 」のように指定します
+ a| 
+ベース識別名。デフォルトは "" （ root ）です。
+ a| 
+
+
+
+ a| 
+「 -base-scope 」のように指定します
+ a| 
+このワークフローには ' デフォルトのベース検索範囲 'ubnet' を使用します
+ a| 
+「サブネット」
+
+
+
+ a| 
+「 -session-security 」を参照してください
+ a| 
+LDAP 署名または署名と封印を有効にします。デフォルトは「 NONE 」です。
+ a| 
+
+
+
+ a| 
+-use-start-tls`
+ a| 
+LDAP over TLS を有効にします。デフォルトは「 false 」です。
+ a| 
+
+|===
+* Kerberos 認証のパラメータ *
+
+これらの値は 'vserver nfs kerberos realm create コマンドで指定しますMicrosoft Active Directory をキー配布センター（ KDC ）サーバとして使用するか、 MIT やその他の UNIX KDC サーバとして使用するかによって、一部の値が異なります。
+
+|===
+| フィールド | 説明 | あなたの価値 
+
+
+ a| 
+「 -vserver 」
+ a| 
+KDC と通信する SVM を指定します。
+ a| 
+
+
+
+ a| 
+「 -realm 」と入力します
+ a| 
+Kerberos Realm を指定します。
+ a| 
+
+
+
+ a| 
+「 -clock-skew 」を参照してください
+ a| 
+クライアントとサーバ間で許可されているクロックスキューを指定します
+ a| 
+
+
+
+ a| 
+「 -kdc-ip 」と入力します
+ a| 
+KDC の IP アドレスを指定します。
+ a| 
+
+
+
+ a| 
+「 -kdc-port 」と入力します
+ a| 
+KDC のポート番号を指定します。
+ a| 
+
+
+
+ a| 
+「 -adserver-name 」のようになります
+ a| 
+Microsoft KDC のみ： AD サーバ名を指定します。
+ a| 
+
+
+
+ a| 
+「 -adserver-ip 」を参照してください
+ a| 
+Microsoft KDC のみ： AD サーバの IP アドレスを指定します。
+ a| 
+
+
+
+ a| 
+「 -adminserver-ip 」を参照してください
+ a| 
+UNIX KDC のみ：管理サーバの IP アドレスを指定します。
+ a| 
+
+
+
+ a| 
+-adminserver-port
+ a| 
+UNIX KDC のみ：管理サーバのポート番号を指定します。
+ a| 
+
+
+
+ a| 
+'-passwordserver-ip'
+ a| 
+UNIX KDC のみ：パスワードサーバの IP アドレスを指定します。
+ a| 
+
+
+
+ a| 
+'-passwordserver-port'
+ a| 
+UNIX KDC のみ：パスワードサーバのポートを指定します。
+ a| 
+
+
+
+ a| 
+「 -kdc-vendor 」と入力します
+ a| 
+KDC ベンダーを指定します。
+ a| 
+{`M icrosoft`|`other`}
+
+
+
+ a| 
+「 -comment` 」
+ a| 
+必要なコメントを指定します。
+ a| 
+
+|===
+これらの値は 'vserver nfs kerberos interface enable コマンドで指定します
+
+|===
+| フィールド | 説明 | あなたの価値 
+
+
+ a| 
+「 -vserver 」
+ a| 
+Kerberos 設定を作成する SVM の名前を指定します。
+ a| 
+
+
+
+ a| 
+「 -lif 」
+ a| 
+Kerberos を有効にするデータ LIF を指定します。Kerberos は複数の LIF で有効にすることができます。
+ a| 
+
+
+
+ a| 
+「 - SPN 」
+ a| 
+サービスプリンシパル名（ SPN ）を指定します。
+ a| 
+
+
+
+ a| 
+「 -permitted-enc-types 」
+ a| 
+Kerberos over NFS で許可される暗号化タイプを指定しますクライアントの機能に応じて 'aes-256' を使用することをお勧めします
+ a| 
+
+
+
+ a| 
+「 -admin-username 」
+ a| 
+KDC から SPN シークレットキーを直接取得するための KDC 管理者のクレデンシャルを指定します。パスワードは必須です
+ a| 
+
+
+
+ a| 
+「 -keytab-uri 」を実行します
+ a| 
+KDC 管理者のクレデンシャルを持っていない場合は、 SPN キーが含まれている KDC の keytab ファイルを指定します。
+ a| 
+
+
+
+ a| 
+「 -ou` 」
+ a| 
+Microsoft KDC の Realm を使用して Kerberos を有効にしたときに Microsoft Active Directory サーバアカウントが作成される組織単位（ OU ）を指定します。
+ a| 
+
+|===
+
+
+== NFS 対応 SVM へのストレージ容量の追加
+
+* エクスポートポリシーおよびルールを作成するためのパラメータ *
+
+これらの値は、「 vserver export-policy create 」コマンドで指定します。
+
+|===
+| フィールド | 説明 | あなたの価値 
+
+
+ a| 
+「 -vserver 」
+ a| 
+新しいボリュームをホストする SVM の名前を指定します。
+ a| 
+
+
+
+ a| 
+「 -policyname 」と入力します
+ a| 
+新しいエクスポートポリシーの名前を指定します。
+ a| 
+
+|===
+vserver export-policy rule create コマンドには、各ルールに対して次の値を指定します。
+
+|===
+| フィールド | 説明 | あなたの価値 
+
+
+ a| 
+「 -clientmatch 」
+ a| 
+クライアント一致条件
+ a| 
+
+
+
+ a| 
+`-ruleindex
+ a| 
+ルールのリスト内でのエクスポートルールの位置。
+ a| 
+
+
+
+ a| 
+「 -protocol 」
+ a| 
+このワークフローでは NFS を使用します。
+ a| 
+「 nfs 」
+
+
+
+ a| 
+「 -rorule 」
+ a| 
+読み取り専用アクセスの認証方式を指定します。
+ a| 
+
+
+
+ a| 
+`-rwrule `
+ a| 
+読み取り / 書き込みアクセスの認証方式を指定します。
+ a| 
+
+
+
+ a| 
+` - スーパーユーザ」
+ a| 
+スーパーユーザアクセスの認証方式を指定します。
+ a| 
+
+
+
+ a| 
+-anon`
+ a| 
+匿名ユーザをマッピングするユーザ ID を指定します。
+ a| 
+
+|===
+エクスポートポリシーごとにルールを 1 つ以上作成する必要があります。
+
+|===
+| `*-ruleindex *` | '*-clientmatch * | `*-rorule *` | '*-rwrule * | `*- スーパーユーザ *` | '*-anon*` 
+
+
+ a| 
+例
+ a| 
+0.0.0.0/0 、 @rootaccess_netgroup
+ a| 
+任意
+ a| 
+krb5
+ a| 
+システム
+ a| 
+65534
+
+
+
+ a| 
+1.
+ a| 
+ a| 
+ a| 
+ a| 
+ a| 
+
+
+
+ a| 
+2.
+ a| 
+ a| 
+ a| 
+ a| 
+ a| 
+
+
+
+ a| 
+3.
+ a| 
+ a| 
+ a| 
+ a| 
+ a| 
+
+
+
+ a| 
+...
+ a| 
+ a| 
+ a| 
+ a| 
+ a| 
+
+
+
+ a| 
+N
+ a| 
+ a| 
+ a| 
+ a| 
+ a| 
+
+|===
+* ボリュームを作成するためのパラメータ *
+
+qtree の代わりにボリュームを作成する場合は、 volume create コマンドでこれらの値を指定します。
+
+|===
+| フィールド | 説明 | あなたの価値 
+
+
+ a| 
+「 -vserver 」
+ a| 
+新しいボリュームをホストする新規または既存の SVM の名前を指定します。
+ a| 
+
+
+
+ a| 
+「 -volume 」と入力します
+ a| 
+新しいボリュームに対して、一意のわかりやすい名前を指定します。
+ a| 
+
+
+
+ a| 
+「 -aggregate 」を選択します
+ a| 
+新しい NFS ボリュームに対応できる十分なスペースを持つクラスタ内のアグリゲートの名前を指定します。
+ a| 
+
+
+
+ a| 
+「 -size. 」のようになります
+ a| 
+新しいボリュームのサイズとして任意の整数を指定します。
+ a| 
+
+
+
+ a| 
+「 -user 」のように指定します
+ a| 
+ボリュームのルートの所有者に設定するユーザの名前または ID を指定します。
+ a| 
+
+
+
+ a| 
+「 -group 」のようになります
+ a| 
+ボリュームのルートの所有者に設定するグループの名前または ID を指定します。
+ a| 
+
+
+
+ a| 
+「 -- セキュリティスタイル」
+ a| 
+このワークフローには UNIX セキュリティ形式を使用します。
+ a| 
+「 UNIX 」
+
+
+
+ a| 
+「 -junction-path 」
+ a| 
+新しいボリュームをマウントするルート（ / ）の下の場所を指定します。
+ a| 
+
+
+
+ a| 
+`-export-policy`
+ a| 
+既存のエクスポートポリシーを使用する場合は、ボリュームの作成時に名前を入力できます。
+ a| 
+
+|===
+* qtree を作成するためのパラメータ *
+
+ボリュームの代わりに qtree を作成する場合は、 volume qtree create コマンドでこれらの値を指定します。
+
+|===
+| フィールド | 説明 | あなたの価値 
+
+
+ a| 
+「 -vserver 」
+ a| 
+qtree を含むボリュームが配置されている SVM の名前。
+ a| 
+
+
+
+ a| 
+「 -volume 」と入力します
+ a| 
+新しい qtree を格納するボリュームの名前を指定します。
+ a| 
+
+
+
+ a| 
+「 qtree 」
+ a| 
+新しい qtree に対して、一意のわかりやすい名前を 64 文字以内で指定します。
+ a| 
+
+
+
+ a| 
+「 -qtree-path 」のように指定します
+ a| 
+ボリュームと qtree を別々の引数として指定する代わりに、 qtree パスを「 /vol/ volume_name / qtree_name 」の形式で指定できます。
+ a| 
+
+
+
+ a| 
+「 -unix-permissions 」と入力します
+ a| 
+オプション： qtree の UNIX 権限を指定します。
+ a| 
+
+
+
+ a| 
+`-export-policy`
+ a| 
+既存のエクスポートポリシーを使用する場合は、 qtree の作成時に名前を入力できます。
+ a| 
+
+|===

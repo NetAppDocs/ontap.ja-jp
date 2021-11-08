@@ -1,0 +1,51 @@
+---
+permalink: flexgroup/create-snapmirror-cascade-fanout-reference.html 
+sidebar: sidebar 
+keywords: consider, create, snapmirror, cascade, fanout, relationship, flexgroup 
+summary: FlexGroup の SnapMirror カスケード関係とファンアウト関係を作成する場合は、サポートに関する考慮事項と制限事項に注意する必要があります。 
+---
+= FlexGroup の SnapMirror カスケード関係とファンアウト関係の作成に関する考慮事項
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+FlexGroup の SnapMirror カスケード関係とファンアウト関係を作成する場合は、サポートに関する考慮事項と制限事項に注意する必要があります。
+
+
+
+== カスケード関係の作成に関する考慮事項
+
+* 各関係は、クラスタ間関係またはクラスタ内関係のどちらかになります。
+* 両方の関係で、 async-mirror 、 mirror-vault 、バックアップなどのすべての非同期ポリシータイプがサポートされます。
+* サポートされる非同期ミラーポリシーは「 MirrorAllSnapshots 」のみで、「 MirrorLatest 」はサポートされません。
+* カスケードされた XDP 関係の同時更新がサポートされます。
+* A から B へ、 B から C への再同期、または C から A への再同期をサポートします
+* また、すべてのノードで ONTAP 9.9.1 以降を実行している場合は、 A と B の FlexGroup ボリュームでもファンアウトがサポートされます。
+* B または C の FlexGroup ボリュームからのリストア処理がサポートされます。
+* デスティネーションがリストア関係のソースである間は、 FlexGroup 関係の転送はサポートされません。
+* FlexGroup リストアのデスティネーションを他の FlexGroup 関係のデスティネーションにすることはできません。
+* FlexGroup ファイルのリストア処理には、通常の FlexGroup リストア処理と同じ制限事項があります。
+* B および C の FlexGroup ボリュームが配置されているクラスタ内のすべてのノードで、 ONTAP 9.9 以降が実行されている必要があります。
+* すべての拡張機能と自動拡張機能がサポートされています。
+* A から B 、 C へのカスケード構成で、 A から B 、 B から C へのコンスティチュエント SnapMirror 関係の数が異なる場合、ソースから C への SnapMirror 関係の中止はサポートされません。
+* ONTAP 9.9..1 では、 System Manager でカスケード関係がサポートされません。
+* A から B への FlexVol 関係の C セットを FlexGroup 関係に変換する場合は、まず B を C ホップに変換する必要があります。
+* REST でサポートされるポリシータイプを使用する関係の FlexGroup カスケード構成は、カスケード FlexGroup 構成の REST API でもサポートされます。
+* FlexVol 関係と同様に、 FlexGroup カスケードは「 Snapmirror protect 」コマンドではサポートされません。
+
+
+
+
+== ファンアウト関係の作成に関する考慮事項
+
+* 2 つ以上の FlexGroup ファンアウト関係がサポートされます。たとえば、 A ~ B 、 A ~ C 、最大 8 つのファンアウトレッグがあります。
+* それぞれの関係は、クラスタ間でもクラスタ内でもかまいません。
+* この 2 つの関係については、同時更新がサポートされています。
+* すべての拡張機能と自動拡張機能がサポートされています。
+* 関係のファンアウト脚でコンスティチュエント SnapMirror 関係の数が異なる場合は、 A から B 、および A から C の関係に対してソースから中止処理を実行することはできません。
+* ソースとデスティネーションの FlexGroup が配置されているクラスタ内のすべてのノードで ONTAP 9.9 以降が実行されている必要があります。
+* 現在 FlexGroup SnapMirror でサポートされているすべての非同期ポリシータイプが、ファンアウト関係でサポートされています。
+* B から C の FlexGroup へのリストア処理を実行できます。
+* FlexGroup ファンアウト構成で REST API でも、ポリシータイプのファンアウト構成をサポートしています。
+

@@ -1,0 +1,79 @@
+---
+sidebar: sidebar 
+permalink: anti-ransomware/index.html 
+keywords: anti-ransomware overview, ransomware, security, introduce, protection, detection, threat, attack, suspect, what ontap anti-ransomware detects, entropy, abnormal volume activity, extension conformity, how to recover data in after a ransomware attack, ransomware protection strategy 
+summary: ONTAP 9.10.1 以降、アンチランサムウェア機能は NAS （ NFS および SMB ）環境でワークロード分析を使用して、ランサムウェア攻撃を示す可能性のある異常なアクティビティをプロアクティブに検出して警告します。 
+---
+= ランサムウェア対策の概要
+:toc: macro
+:hardbreaks:
+:toclevels: 1
+:toc: 
+:toclevels: 1
+:nofooter: 
+:icons: font
+:linkattrs: 
+:imagesdir: ./media/
+:toc-position: content
+
+
+[role="lead"]
+ONTAP 9.10.1 以降、アンチランサムウェア機能は NAS （ NFS および SMB ）環境でワークロード分析を使用して、ランサムウェア攻撃を示す可能性のある異常なアクティビティをプロアクティブに検出して警告します。
+
+攻撃の疑いがある場合は、スケジュールされた Snapshot コピーによる既存の保護に加えて、ランサムウェア対策によって新しい Snapshot バックアップが作成されます。
+
+アンチランサムウェア機能を使用するには、 Multi-tenant Encryption Key Management （ MT_EK_MGMT ）ライセンスが必要です。このライセンスは、セキュリティとコンプライアンスのバンドルで入手できます。
+
+
+
+== ONTAP ランサムウェア攻撃からの保護戦略
+
+ランサムウェアの効果的な検出戦略には、複数の保護レイヤを含める必要があります。
+
+例えは、車両の安全機能です。シートベルトなどの単一の機能を使用して、事故時に完全に保護することは望まれません。エアバッグ、アンチロックブレーキ、および前方衝突警告はすべて、より良い結果をもたらす追加の安全機能です。ランサムウェア攻撃からの保護は、同様の方法で確認する必要があります。
+
+ONTAP には、ランサムウェアからの保護を支援する FPolicy 、 Snapshot コピー、 SnapLock 、 Active IQ デジタルアドバイザなどの機能が含まれていますが、このコンテンツの中心は、機械学習機能を備えた ONTAP ランサムウェア対策オンボックス機能です。
+
+ONTAP のランサムウェア対策機能の詳細については、以下を参照してください。 https://www.netapp.com/media/7334-tr4572.pdf["TR-4572 ：『 NetApp 解決策 for Ransomware 』"^]
+
+
+
+== ONTAP ランサムウェア対策が検出するもの
+
+ランサムウェア攻撃には次の 2 種類があります。
+
+. データを暗号化することによる、ファイルへのサービス拒否。攻撃者は、身代金が支払われない限り、このデータへのアクセスを妨害します。
+. 機密専有データの盗難。攻撃者は、身代金が支払われない限り、このデータをパブリックドメインにリリースする可能性があります。
+
+
+ONTAP ランサムウェア攻撃からの保護は、ランサムウェア対策の検出メカニズムをベースにした第 1 のタイプに対応しています。
+
+. 受信データを暗号化データまたはプレーンテキストとして識別する。
+. 検出する分析
++
+** High data_entropy_( ファイル内のデータのランダム性の評価 )
+** データ暗号化による異常なボリュームアクティビティが急増している
+** 通常の内線タイプに準拠していない内線番号
+
+
+
+
+
+NOTE: ランサムウェア攻撃の安全性を完全に保証できるランサムウェア検出や防御システムはありません。攻撃が検出されない可能性はありますが、ネットアップのランサムウェア保護は、ウィルス対策ソフトウェアが侵入を検出できなかった場合の重要な追加防御レイヤとして機能します。ランサムウェア対策は、少数のファイルのみが暗号化された後、ランサムウェア攻撃の多くを検出し、自動的にデータを保護するためのアクションを実行し、攻撃の疑いがある場合はアラートを送信します。
+
+
+
+== ランサムウェア攻撃のあとに ONTAP でデータをリカバリする方法
+
+攻撃の疑いがある場合、システムはその時点でボリュームの Snapshot コピーを作成し、そのコピーをロックします。攻撃が後で確認された場合は、ボリュームをこのスナップショットに復元して、データ損失を最小限に抑えることができます。
+
+ロックされた Snapshot コピーは、通常の方法で削除できません。ただし、後で攻撃をフォールスポジティブとしてマークする場合、ロックされたコピーは削除されます。
+
+影響を受けるファイルと攻撃時間に関する知識を持つことで、ボリューム全体をスナップショットの 1 つに戻すだけでなく、さまざまな Snapshot コピーから影響を受けるファイルを選択的にリカバリできます。
+
+アンチランサムウェアは、実績のある ONTAP データ保護とディザスタリカバリテクノロジを基盤として、ランサムウェア攻撃に対応しています。データのリカバリの詳細については、次のトピックを参照してください。
+
+* link:../task_dp_recover_snapshot.html["Snapshot コピーからのリカバリ（ System Manager ）"]
+* link:../data-protection/restore-contents-volume-snapshot-task.html["Snapshot コピーからのファイルのリストア（ CLI ）"]
+* link:https://www.netapp.com/blog/smart-ransomware-recovery["スマートなランサムウェアリカバリ"^]
+

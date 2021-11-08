@@ -1,0 +1,51 @@
+---
+permalink: nfs-config/create-nis-domain-config-task.html 
+sidebar: sidebar 
+keywords: create, nis, domain, configuration 
+summary: 環境でネームサービス用に Network Information Service （ NIS ）が使用されている場合は、 vserver services name-service nis-domain create コマンドを使用して、 SVM 用の NIS ドメイン設定を作成する必要があります。 
+---
+= NIS ドメイン設定を作成します
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+Network Information Service （ NIS ；ネットワーク情報サービス）がネームサービス用に使用されている環境では、「 vserver services name-service nis-domain create 」コマンドを使用して、 SVM 用の NIS ドメイン設定を作成する必要があります。
+
+SVM に NIS ドメインを設定するためには、設定済みのすべての NIS サーバが使用可能でアクセスできる状態になっている必要があります。
+
+ディレクトリ検索での NIS の使用を予定している場合、 NIS サーバ内のマップに 1 、 024 文字を超えるエントリを持たせることはできません。この制限に従っていない NIS サーバを指定しないでください。そうしないと、 NIS エントリに依存したクライアントアクセスに失敗する可能性があります。
+
+複数の NIS ドメインを作成できます。ただし、使用できるのは「 active 」に設定されているものだけです。
+
+NIS データベースに netgroup.byhost マップが含まれている場合、 ONTAP はこのマップを使用して検索を高速化できます。ディレクトリ内の 'netgroup.host' マップと 'netgroup' マップは、クライアントアクセスに関する問題を避けるために、常に同期しておく必要があります。ONTAP 9.7 以降では 'vserver services name-service nis-domain netgroup-domain' コマンドを使用して 'nis`netgroup-byhost` エントリをキャッシュできます
+
+NIS をホスト名解決に使用することはサポートされていません。
+
+.手順
+. NIS ドメイン設定を作成します。
++
+「 vserver services name-service nis-domain create -vserver vs1 -domain_domain_name 」 -active true -servers IP_address 」を指定します
+
++
+最大 10 台の NIS サーバを指定できます。
+
++
+[NOTE]
+====
+ONTAP 9.2 以降では、フィールド「 -nis-servers 」が「 -servers 」に置き換えられています。この新しいフィールドには、 NIS サーバのホスト名または IP アドレスを指定できます。
+
+====
+. ドメインが作成されたことを確認します。
++
+vserver services name-service nis-domain show
+
+
+
+次のコマンドは、 IP アドレス 192.0.2.180 の NIS サーバを使用して、 vs1 という名前の SVM に、 nisdomain という NIS ドメインのアクティブな NIS ドメイン設定を作成します。
+
+[listing]
+----
+vs1::> vserver services name-service nis-domain create -vserver vs1
+-domain nisdomain -active true -nis-servers 192.0.2.180
+----

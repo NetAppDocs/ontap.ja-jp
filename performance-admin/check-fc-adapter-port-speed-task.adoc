@@ -1,0 +1,45 @@
+---
+permalink: performance-admin/check-fc-adapter-port-speed-task.html 
+sidebar: sidebar 
+keywords: check, fc, adapter, port, speed 
+summary: パフォーマンスを最適化するには、アダプタのターゲットポートの速度を接続先デバイスの速度と同じにします。ポートに自動ネゴシエーションが設定されている場合、ギブバックやテイクオーバーなどの中断後の再接続に時間がかかる可能性があります。 
+---
+= FC アダプタのポート速度を確認します
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+パフォーマンスを最適化するには、アダプタのターゲットポートの速度を接続先デバイスの速度と同じにします。ポートに自動ネゴシエーションが設定されている場合、ギブバックやテイクオーバーなどの中断後の再接続に時間がかかる可能性があります。
+
+このアダプタをホームポートとして使用しているすべての LIF をオフラインにする必要があります。
+
+.手順
+. アダプタをオフラインにします。
++
+「 network fcp adapter modify -node _nodename 」 -adapter_adapter_adapter --state_down_`
+
+. ポートアダプタの最大速度を確認します。
++
+「 fcp adapter show -instance 」のように表示されます
+
+. 必要に応じてポート速度を変更します。
++
+'network fcp adapter modify -node _nodename --adapter_adapter_adapter __ speed ｛ 1 | 2 | 4 | 8 | 10 | 16 | auto ｝ '
+
+. アダプタをオンラインにします。
++
+「 network fcp adapter modify -node _nodename 」 -adapter_adapter --state up 」のようになります
+
+. アダプタのすべての LIF をオンラインにします。
++
+network interface modify -vserver * -lif * ｛ -home-node node1 -home-port e0c ｝ -status-admin up
+
+
+
+次の例では 'node1 上のアダプタ 0d のポート速度を 2 Gbps に変更します
+
+[listing]
+----
+cluster1::> network fcp adapter modify -node node1 -adapter 0d -speed 2
+----

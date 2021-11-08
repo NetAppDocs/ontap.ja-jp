@@ -1,0 +1,59 @@
+---
+permalink: smb-admin/enable-disable-encryption-incoming-traffic-task.html 
+sidebar: sidebar 
+keywords: require, smb, encryption, traffic, enable, cifs, server, share, level, default, enable or disable required smb encyrption for incoming smb traffic 
+summary: 受信 SMB トラフィックに SMB 暗号化を必須にする場合は、 CIFS サーバ上または共有レベルで有効にすることができます。デフォルトでは、 SMB 暗号化は必須ではありません。 
+---
+= 受信 SMB トラフィックの SMB 暗号化要求を有効または無効にします
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+受信 SMB トラフィックに SMB 暗号化を必須にする場合は、 CIFS サーバ上または共有レベルで有効にすることができます。デフォルトでは、 SMB 暗号化は必須ではありません。
+
+CIFS サーバ上で SMB 暗号化を有効にすることができます。この場合、 CIFS サーバ上のすべての共有が環境によって暗号化されます。CIFS サーバ上のすべての共有で SMB 暗号化要求を有効にしない場合、または受信 SMB トラフィックの SMB 暗号化要求を共有ごとに有効にする場合は、 CIFS サーバ上で SMB 暗号化要求を無効にすることができます。
+
+Storage Virtual Machine （ SVM ）ディザスタリカバリ関係をセットアップするときに、「 snapmirror-create 」コマンドの「 -identity-preserve 」オプションに指定する値によって、デスティネーション SVM にレプリケートされる設定の詳細が決まります。
+
+「 -identity-preserve 」オプションを「 true 」（ ID-preserve ）に設定すると、 SMB 暗号化のセキュリティ設定がデスティネーションにレプリケートされます。
+
+「 -identity-preserve 」オプションを「 false 」（ ID 保持なし）に設定した場合、 SMB 暗号化のセキュリティ設定はデスティネーションに複製されません。この場合、デスティネーションの CIFS サーバセキュリティ設定はデフォルト値に設定されます。ソース SVM で SMB 暗号化を有効にしている場合は、デスティネーションで CIFS サーバの SMB 暗号化を手動で有効にする必要があります。
+
+.手順
+. 次のいずれかを実行します。
++
+|===
+| CIFS サーバでの受信 SMB トラフィックの SMB 暗号化要求の設定 | 入力するコマンド 
+
+
+ a| 
+有効
+ a| 
+「 vserver cifs security modify -vserver _vserver_name __ is-smb-encryption-required true 」
+
+
+
+ a| 
+無効
+ a| 
+「 vserver cifs security modify -vserver _vserver_name __ is-smb-encryption-required false 」の形式になります
+
+|===
+. CIFS サーバでの SMB 暗号化要求が有効または無効になっていることを確認します。 vserver cifs security show -vserver vserver_name -fields is-smb-encryption-required`
++
+CIFS サーバで SMB 暗号化要求が有効になっている場合は 'is-smb-encryption-required` フィールドには 'true' が表示されますが ' 無効になっている場合は 'false' が表示されます
+
+
+
+次の例は、 SVM vs1 で CIFS サーバの受信 SMB トラフィックの SMB 暗号化要求を有効にします。
+
+[listing]
+----
+cluster1::> vserver cifs security modify -vserver vs1 -is-smb-encryption-required true
+
+cluster1::> vserver cifs security show -vserver vs1 -fields is-smb-encryption-required
+vserver  is-smb-encryption-required
+-------- -------------------------
+vs1      true
+----

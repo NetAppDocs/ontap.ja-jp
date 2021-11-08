@@ -1,0 +1,247 @@
+---
+permalink: element-replication/index.html 
+sidebar: sidebar 
+keywords: decide, replication, netapp element software, ontap, business continuity, element, system, snapmirror, replicate, snapshot, copies, volume 
+summary: このコンテンツでは、 SnapMirror を使用して Element ボリュームの Snapshot コピーを ONTAP デスティネーションにレプリケートし、 Element システムでビジネスの継続性を確保する方法について説明します。 
+---
+= NetApp Element ソフトウェアと ONTAP 間のレプリケーションの概要
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+このコンテンツでは、 SnapMirror を使用して Element ボリュームの Snapshot コピーを ONTAP デスティネーションにレプリケートし、 Element システムでビジネスの継続性を確保する方法について説明します。これにより、 Element サイトで災害が発生した場合でも、 ONTAP システムからクライアントに引き続きデータを提供し、サービスのリストア後に Element システムを再アクティブ化することができます。
+
+ONTAP 9.4 以降では、 ONTAP ノードで作成した LUN の Snapshot コピーを Element システムにレプリケートして戻すことができます。これは、 Element サイトの停止中に LUN を作成した場合や、 LUN を使用して ONTAP から Element ソフトウェアにデータを移行する場合に便利です。
+
+このコンテンツは、 Element から ONTAP へのバックアップを次のように操作する場合に使用します。
+
+* すべての選択肢について検討するのではなく、ベストプラクティスに従う。
+* 背景にある概念について詳しく確認する必要はありません。
+* ONTAP System Manager や自動スクリプトツールではなく、 ONTAP コマンドラインインターフェイス（ CLI ）を使用する必要がある。
+* iSCSI を使用してクライアントにデータを提供している。
+
+
+構成または概念の詳細な情報が必要な場合は、次のドキュメントを参照してください。
+
+* Element の設定
++
+https://docs.netapp.com/us-en/element-software/index.html["NetApp Element ソフトウェアのドキュメント"^]
+
+* SnapMirror の概念と設定
++
+link:../data-protection/index.html["データ保護の概要"]
+
+
+
+
+
+== Element と ONTAP 間のレプリケーションについて
+
+ONTAP 9.3 以降では、 SnapMirror を使用して Element ボリュームの Snapshot コピーを ONTAP デスティネーションにレプリケートできます。これにより、 Element サイトで災害が発生した場合でも、 ONTAP システムからクライアントに引き続きデータを提供し、サービスのリストア後に Element ソースボリュームを再アクティブ化することができます。
+
+ONTAP 9.4 以降では、 ONTAP ノードで作成した LUN の Snapshot コピーを Element システムにレプリケートして戻すことができます。これは、 Element サイトの停止中に LUN を作成した場合や、 LUN を使用して ONTAP から Element ソフトウェアにデータを移行する場合に便利です。
+
+
+
+=== データ保護関係のタイプ
+
+SnapMirror には 2 種類のデータ保護関係があります。どちらのタイプでも、 SnapMirror は関係を初期化または更新する前に Element ソースボリュームの Snapshot コピーを作成します。
+
+* a_disaster recovery （ DR ；ディザスタリカバリ） _data 保護関係では、 SnapMirror で作成された Snapshot コピーのみがデスティネーションボリュームに格納されます。この Snapshot コピーから、プライマリサイトで災害が発生した場合にデータの提供を継続できます。
+* 長期保持のデータ保護関係では、 Element ソフトウェアで作成されたポイントインタイムの Snapshot コピーと SnapMirror で作成された Snapshot コピーがデスティネーションボリュームに格納されます。たとえば、 20 年にわたって毎月の Snapshot コピーを保持することができます。
+
+
+
+
+=== デフォルトポリシー
+
+SnapMirror を初めて起動すると、ソース・ボリュームからデスティネーション・ボリュームへの _ ベースライン転送 _ が実行されます。SnapMirror ポリシー _ は、ベースラインおよび更新の内容を定義します。
+
+データ保護関係を作成するときに、デフォルトまたはカスタムのポリシーを使用できます。ポリシータイプは、対象となる Snapshot コピーおよび保持するコピー数を決定します。
+
+次の表は、デフォルトのポリシーを示しています。「最新」ポリシーを使用して、従来の DR 関係を作成します。「 M irrormまったく 新規」または「 Unified7year 」ポリシーを使用して、同じデスティネーションボリュームに DR と長期保持を設定するユニファイドレプリケーション関係を作成します。
+
+[cols="25,25,50"]
+|===
+| ポリシー | ポリシータイプ | 動作を更新します 
+
+
+ a| 
+MirrorLatest
+ a| 
+非同期ミラー
+ a| 
+SnapMirror で作成された Snapshot コピーが転送されます。
+
+
+
+ a| 
+MirrorAndVault の場合
+ a| 
+ミラー - バックアップ
+ a| 
+SnapMirror で作成された Snapshot コピーと、前回の更新後に作成された Snapshot コピーの SnapMirror ラベルが「毎日」または「毎週」の場合はそれよりも古い Snapshot コピーが転送されます。
+
+
+
+ a| 
+Unified7year
+ a| 
+ミラー - バックアップ
+ a| 
+SnapMirror で作成された Snapshot コピーと、前回の更新後に作成された Snapshot コピーのうち SnapMirror ラベルが「毎日」、「毎週」、または「毎月」の Snapshot コピーが転送されます。
+
+|===
+[NOTE]
+====
+SnapMirror ポリシーの詳細な背景情報と使用するポリシーのガイダンスについては、を参照してください link:../data-protection/index.html["データ保護"]。
+
+====
+
+
+=== SnapMirror ラベルの概要
+
+ポリシータイプが「 `m mirror -vault` 」のすべてのポリシーには、レプリケートする Snapshot コピーを指定するルールが必要です。たとえば、「毎日」というルールは、「毎日」という SnapMirror ラベルが割り当てられた Snapshot コピーだけを複製する必要があることを示します。SnapMirror ラベルは、 Element Snapshot コピーの設定時に割り当てます。
+
+
+
+=== Element ソースクラスタから ONTAP デスティネーションクラスタへのレプリケーション
+
+SnapMirror を使用して、 Element ボリュームの Snapshot コピーを ONTAP デスティネーションシステムにレプリケートできます。これにより、 Element サイトで災害が発生した場合でも、 ONTAP システムからクライアントに引き続きデータを提供し、サービスのリストア後に Element ソースボリュームを再アクティブ化することができます。
+
+Element ボリュームは ONTAP LUN とほぼ同じです。SnapMirror は、 Element ソフトウェアと ONTAP の間のデータ保護関係の初期化時に、 Element ボリュームの名前を使用して LUN を作成します。Element から ONTAP へのレプリケーションの要件を満たす既存の LUN がある場合は、その LUN にデータがレプリケートされます。
+
+レプリケーションルールは次のとおりです。
+
+* ONTAP ボリュームに格納できるのは、 1 つの Element ボリュームのデータのみです。
+* 1 つの ONTAP から複数の Element ボリュームにデータをレプリケートすることはできません。
+
+
+
+
+=== ONTAP ソースクラスタから Element デスティネーションクラスタへのレプリケーション
+
+ONTAP 9.4 以降では、 ONTAP システムで作成した LUN の Snapshot コピーを Element ボリュームにレプリケートして戻すことができます。
+
+* Element ソースと ONTAP デスティネーションの間にすでに SnapMirror 関係がある場合は、デスティネーションからデータを提供している間に作成された LUN はソースが再アクティブ化されたときに自動的にレプリケートされます。
+* SnapMirror 関係がない場合は、 ONTAP ソースクラスタと Element デスティネーションクラスタの間に SnapMirror 関係を作成して初期化する必要があります。
+
+
+レプリケーションルールは次のとおりです。
+
+* レプリケーション関係には「 async 」タイプのポリシーが必要です。
++
+「ミラー - ヴォールト」タイプのポリシーはサポートされていません。
+
+* iSCSI LUN のみがサポートされます。
+* ONTAP ボリュームから Element ボリュームに複数の LUN をレプリケートすることはできません。
+* ONTAP ボリュームから複数の Element ボリュームに LUN をレプリケートすることはできません。
+
+
+
+
+=== 前提条件
+
+Element と ONTAP の間にデータ保護関係を設定するには、次の作業を完了しておく必要があります。
+
+* Element クラスタで NetApp Element ソフトウェアバージョン 10.1 以降が実行されている必要があります。
+* ONTAP クラスタで ONTAP 9.3 以降が実行されている必要があります。
+* ONTAP クラスタで SnapMirror のライセンスが有効になっている必要があります。
+* Element クラスタと ONTAP クラスタに、予想されるデータ転送を処理できる十分な容量のボリュームを設定しておく必要があります。
+* 「 me-vault 」ポリシータイプを使用している場合は、 Element Snapshot コピーをレプリケートするように SnapMirror ラベルが設定されている必要があります。
++
+[NOTE]
+====
+このタスクは、 Element ソフトウェアの Web UI でのみ実行できます。詳細については、を参照してください link:https://docs.netapp.com/us-en/element-software/index.html["NetApp Element ソフトウェアのドキュメント"]
+
+====
+* ポート 5010 を使用できることを確認しておく必要があります。
+* デスティネーションボリュームの移動が必要となることが予想される場合は、ソースとデスティネーションの間にフルメッシュ接続が確立されていることを確認しておく必要があります。Element ソースクラスタ上のすべてのノードが、 ONTAP デスティネーションクラスタ上のすべてのノードと通信できる必要があります。
+
+
+
+
+=== サポートの詳細
+
+次の表に、 Element から ONTAP へのバックアップのサポートの詳細を示します。
+
+[cols="25,75"]
+|===
+| リソースまたは機能 | サポートの詳細 
+
+
+ a| 
+SnapMirror
+ a| 
+* SnapMirror のリストア機能はサポートされません。
+* 「すべてのスナップショット」および「 XDPDefault 」ポリシーはサポートされていません。
+* 「 vault 」ポリシータイプはサポートされていません。
+* システム定義のルール「 all_source_snapshots 」はサポートされていません。
+* 「 mirror vault 」ポリシータイプは、 Element ソフトウェアから ONTAP へのレプリケーションでのみサポートされます。ONTAP から Element ソフトウェアへのレプリケーションには「 async 」を使用します。
+* 「 napmirror policy add-rule 」の「 -schedule 」オプションと「 -prefix 」オプションはサポートされません。
+* 「 napmirror resync 」の「 -preserve 」オプションと「 -quick-resync 」オプションはサポートされていません。
+* ストレージ効率は維持されません。
+* ファンアウト構成およびカスケード構成のデータ保護はサポートされません。
+
+
+
+
+ a| 
+ONTAP
+ a| 
+* ONTAP Select は、 ONTAP 9.4 および Element 10.3 以降でサポートされます。
+* Cloud Volumes ONTAP は、 ONTAP 9.5 および Element 11.0 以降でサポートされます。
+
+
+
+
+ a| 
+要素（ Element ）
+ a| 
+* ボリュームサイズの上限は 8TiB です。
+* ボリュームのブロックサイズは 512 バイトにする必要があります。4K バイトのブロックサイズはサポートされません。
+* ボリュームサイズは 1MiB の倍数にする必要があります。
+* ボリューム属性は維持されません。
+* レプリケートされる Snapshot コピーの最大数は 30 です。
+
+
+
+
+ a| 
+ネットワーク
+ a| 
+* 転送ごとに 1 つの TCP 接続を使用できます。
+* Element ノードは IP アドレスとして指定する必要があります。DNS ホスト名検索はサポートされません。
+* IPspace はサポートされません。
+
+
+
+
+ a| 
+SnapLock
+ a| 
+SnapLock ボリュームはサポートされません。
+
+
+
+ a| 
+FlexGroup
+ a| 
+FlexGroup ボリュームはサポートされません。
+
+
+
+ a| 
+SVM DR
+ a| 
+SVM DR 構成の ONTAP はサポートされません。
+
+
+
+ a| 
+MetroCluster
+ a| 
+MetroCluster 構成の ONTAP はサポートされません。
+
+|===

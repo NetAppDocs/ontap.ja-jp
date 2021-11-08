@@ -1,0 +1,42 @@
+---
+permalink: authentication/configure-nis-server-access-task.html 
+sidebar: sidebar 
+keywords: configure, nis server, access 
+summary: NIS アカウントが SVM にアクセスするためには、 NIS サーバから SVM へのアクセスを設定しておく必要があります。SVM に NIS ドメイン設定を作成するには、 vserver services name-service nis-domain create コマンドを使用します。 
+---
+= NIS サーバアクセスの設定
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+NIS アカウントが SVM にアクセスするためには、 NIS サーバから SVM へのアクセスを設定しておく必要があります。vserver services name-service nis-domain create コマンドを使用して、 SVM 上に NIS ドメイン設定を作成できます。
+
+.必要なもの
+* SVM に NIS ドメインを設定するためには、設定済みのすべてのサーバが使用可能でアクセスできる状態になっている必要があります。
+* このタスクを実行するには、クラスタ管理者または SVM の管理者である必要があります。
+
+
+複数の NIS ドメインを作成できます。一度に「 active 」に設定できる NIS ドメインは 1 つだけです。
+
+.ステップ
+. SVM に NIS ドメイン設定を作成します。 vserver services name-service nis-domain create -vserver SVM_name -domain client_configuration active true | false -nis-servers NIS_server_IPs
++
+コマンド構文全体については、を参照してください link:config-worksheets-reference.html["ワークシート"]。
+
++
+[NOTE]
+====
+ONTAP 9.2 以降では、フィールド「 -nis-servers 」が「 -servers 」に置き換えられています。この新しいフィールドには、 NIS サーバのホスト名または IP アドレスを指定できます。
+
+====
++
+次のコマンドは、 SVM 「 engData 」に NIS ドメイン設定を作成します。NIS ドメイン「 nisdomain 」は作成時にアクティブになり、 IP アドレス「 192.0.2.180 」の NIS サーバと通信します。
+
++
+[listing]
+----
+cluster1::>vserver services name-service nis-domain create
+-vserver engData -domain nisdomain -active true -nis-servers 192.0.2.180
+----
+

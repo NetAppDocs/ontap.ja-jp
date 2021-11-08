@@ -1,0 +1,96 @@
+---
+permalink: nfs-config/create-server-task.html 
+sidebar: sidebar 
+keywords: create, nfs, server 
+summary: クラスタ上で NFS のライセンスが有効であることを確認したら、 vserver nfs create コマンドを使用して SVM 上に NFS サーバを作成し、サポートする NFS のバージョンを指定できます。 
+---
+= NFS サーバを作成します
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+クラスタ上で NFS のライセンスが有効であることを確認したら、「 vserver nfs create 」コマンドを使用して SVM 上に NFS サーバを作成し、サポートする NFS のバージョンを指定できます。
+
+SVM を、 NFS プロトコルを許可するように設定しておく必要があります。
+
+SVM は、 NFS の 1 つ以上のバージョンをサポートするように設定できます。NFSv4 以降をサポートする場合は、次の点に注意してください。
+
+* NFSv4 ユーザ ID マッピングドメイン名が、 NFSv4 サーバとターゲットクライアントで同じである必要があります。
++
+NFSv4 サーバとクライアントで同じ名前が使用されていれば、 LDAP または NIS のドメイン名と同じにする必要はありません。
+
+* ターゲットクライアントで NFSv4 数値 ID 設定がサポートされている必要があります。
+* セキュリティ上の理由から、 NFSv4 環境では、 LDAP をネームサービスに使用する必要があります。
+
+
+.手順
+. クラスタ上で NFS のライセンスが有効であることを確認します。
++
+「 system license show -package nfs 」を参照してください
+
++
+表示されない場合は、営業担当者にお問い合わせください。
+
+. NFS サーバを作成します。
++
+「 vserver nfs create -vserver _vserver_name _v3 ｛ enabled | disabled ｝ -v4.0-id -domain_vnfsv4_domain_v4 - numeric-ids ｛ enabled | disabled ｝ -v4.1-pnfs ｛ enabled | disabled ｝ -v4.1-pnfs ｛ enabled | disabled ｝ -v4.1-pnfs ｛ enabled | disabled ｝ -v4.1-pnfs ｛ enabled | disabled ｝ 」に設定されています
+
++
+NFS バージョンは任意の組み合わせで有効にすることができます。pNFS をサポートするには、「 -v4.1 」オプションと「 -v4.1-pnfs 」オプションの両方を有効にする必要があります。
+
++
+v4 以降を有効にする場合は、次のオプションが正しく設定されていることも確認する必要があります。
+
++
+** 「 -v4-id-domain 」を指定します
++
+（オプション）このパラメータは、 NFSv4 プロトコルの定義に応じて、ユーザ名およびグループ名の文字列形式のドメイン部分を指定します。デフォルト ONTAP では、 NIS ドメインが設定されている場合は NIS ドメインを、設定されていない場合は DNS ドメインが使用されます。ターゲットクライアントで使用されているドメイン名に一致する値を指定する必要があります。
+
+** 「 -v4-numeric-ids 」を参照してください
++
+（オプション）このパラメータは、 NFSv4 所有者属性で数値文字列識別子のサポートを有効にするかどうかを指定します。デフォルト設定は enabled ですが、ターゲットクライアントがこの設定をサポートすることを確認する必要があります。
+
+
+
++
+追加の NFS 機能は、あとで「 vserver nfs modify 」コマンドを使用して有効にすることができます。
+
+. NFS が実行されていることを確認します。
++
+「 vserver nfs status -vserver _vserver_name _ 」のように入力します
+
+. NFS が必要に応じて設定されていることを確認します。
++
+「 vserver nfs show -vserver _vserver_name _ 」のように表示されます
+
+
+
+次のコマンドは、 NFSv3 と NFSv4.0 が有効な vs1 という名前の SVM 上に NFS サーバを作成します。
+
+[listing]
+----
+vs1::> vserver nfs create -vserver vs1 -v3 enabled -v4.0 enabled -v4-id-domain my_domain.com
+----
+次のコマンドは、 vs1 という名前の新しい NFS サーバのステータスと設定値を確認します。
+
+[listing]
+----
+vs1::> vserver nfs status -vserver vs1
+The NFS server is running on Vserver "vs1".
+
+vs1::> vserver nfs show -vserver vs1
+
+                            Vserver: vs1
+                 General NFS Access: true
+                             NFS v3: enabled
+                           NFS v4.0: enabled
+                       UDP Protocol: enabled
+                       TCP Protocol: enabled
+               Default Windows User: -
+                NFSv4.0 ACL Support: disabled
+    NFSv4.0 Read Delegation Support: disabled
+   NFSv4.0 Write Delegation Support: disabled
+            NFSv4 ID Mapping Domain: my_domain.com
+...
+----

@@ -1,0 +1,91 @@
+---
+permalink: ndmp/configure-lifs-node-scoped-task.html 
+sidebar: sidebar 
+keywords: configure, lif 
+summary: ノードとバックアップアプリケーションの間のデータ接続と制御接続の確立に使用される LIF を特定する必要があります。LIF を特定したら、その LIF に対してファイアウォールポリシーとフェイルオーバーポリシーが設定されていることを確認する必要があります。 
+---
+= LIF を設定
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+ノードとバックアップアプリケーションの間のデータ接続と制御接続の確立に使用される LIF を特定する必要があります。LIF を特定したら、その LIF に対してファイアウォールポリシーとフェイルオーバーポリシーが設定されていることを確認する必要があります。
+
+.手順
+. 「 network interface show 」コマンドで「 -role 」パラメータを指定して、ノードでホストされているクラスタ間 LIF を特定します。
++
+[listing]
+----
+cluster1::> network interface show -role intercluster
+
+            Logical    Status     Network            Current       Current Is
+Vserver     Interface  Admin/Oper Address/Mask       Node          Port    Home
+----------- ---------- ---------- ------------------ ------------- ------- ----
+cluster1    IC1        up/up      192.0.2.65/24      cluster1-1    e0a     true
+cluster1    IC2        up/up      192.0.2.68/24      cluster1-2    e0b     true
+----
+. クラスタ間 LIF で NDMP に対してファイアウォールポリシーが有効になっていることを確認します。
++
+.. 「 system services firewall policy show 」コマンドを使用して、 NDMP に対してファイアウォールポリシーが有効になっていることを確認します。
++
+次のコマンドは、クラスタ間 LIF のファイアウォールポリシーを表示します。
+
++
+[listing]
+----
+cluster1::> system services firewall policy show -policy intercluster
+
+Vserver     Policy       Service    Allowed
+-------     ------------ ---------- -------------------
+cluster1    intercluster dns        -
+                         http       -
+                         https      -
+                         **ndmp       0.0.0.0/0, ::/0**
+                         ndmps      -
+                         ntp        -
+                         rsh        -
+                         ssh        -
+                         telnet     -
+9 entries were displayed.
+----
+.. ファイアウォールポリシーが有効になっていない場合は、「 -service 」パラメータを指定して「 system services firewall policy modify 」コマンドを使用してファイアウォールポリシーを有効にします。
++
+次のコマンドは、クラスタ間 LIF のファイアウォールポリシーを有効にします。
+
++
+[listing]
+----
+cluster1::> system services firewall policy modify -vserver cluster1 -policy intercluster -service ndmp 0.0.0.0/0
+----
+
+
+. クラスタ間 LIF のフェイルオーバーポリシーが適切に設定されていることを確認します。
++
+.. 「 network interface show -failover 」コマンドを使用して、インタークラスタ LIF のフェイルオーバーポリシーが「 local-only 」に設定されていることを確認します。
++
+[listing]
+----
+cluster1::> network interface show -failover
+            Logical          Home              Failover     Failover
+Vserver     Interface        Node:Port         Policy       Group
+--------    ---------------  ----------------- ------------ --------
+cluster1    **IC1               cluster1-1:e0a    local-only   Default**
+                                                    Failover Targets:
+                                                    .......
+            **IC2               cluster1-2:e0b    local-only   Default**
+                                                    Failover Targets:
+                                                    .......
+cluster1-1  cluster1-1_mgmt1 cluster1-1:e0m    local-only    Default
+                                                    Failover Targets:
+                                                    .......
+----
+.. フェイルオーバー・ポリシーが適切に設定されていない場合は 'network interface modify コマンドに -failover-policy パラメータを使用してフェイルオーバー・ポリシーを変更します
++
+[listing]
+----
+cluster1::> network interface modify -vserver cluster1 -lif IC1 -failover-policy local-only
+----
+
+
+

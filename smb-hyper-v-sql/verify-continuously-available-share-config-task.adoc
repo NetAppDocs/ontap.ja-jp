@@ -1,0 +1,76 @@
+---
+permalink: smb-hyper-v-sql/verify-continuously-available-share-config-task.html 
+sidebar: sidebar 
+keywords: verify, continuously, available, smb, share, configuration, hyper, v, sql, server, nondisruptive, application 
+summary: ノンストップオペレーションをサポートするには、 Hyper-V および SQL Server の SMB 共有が継続的可用性を備えた共有として設定されている必要があります。また、それ以外にも、いくつかの共有設定について確認が必要になります。計画的または計画外の停止が発生する状況でアプリケーションサーバのノンストップオペレーションをシームレスに実行できるように、共有が適切に設定されていることを確認してください。 
+---
+= 継続的可用性を備えた SMB 共有の設定を確認します
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+ノンストップオペレーションをサポートするには、 Hyper-V および SQL Server の SMB 共有が継続的可用性を備えた共有として設定されている必要があります。また、それ以外にも、いくつかの共有設定について確認が必要になります。計画的または計画外の停止が発生する状況でアプリケーションサーバのノンストップオペレーションをシームレスに実行できるように、共有が適切に設定されていることを確認してください。
+
+次の 2 つの共有パラメータが正しく設定されていることを確認する必要があります。
+
+* offline-files' パラメータは '`manual ( デフォルト ) または 'none` に設定されます
+* シンボリックリンクは無効にする必要があります。
+
+
+ノンストップオペレーションが適切に実行されるようにするには、次の共有プロパティを設定する必要があります。
+
+* 「継続的可用性」を参照してください
+* oplock
+
+
+次の共有プロパティは設定しないでください。
+
+* 「 homedirectory 」
+* 「 attributecache 」
+* 「 BranchCache 」
+* 「 access-based-enumeration 」のように指定します
+
+
+.手順
+. オフラインファイルが「 manual 」または「 disabled 」に設定されていること、およびシンボリックリンクが無効になっていることを確認します。
++
+「 * vserver cifs shares show -vserver vserver_name _ * 」のようになります
+
+. SMB 共有が継続的可用性を確保するように設定されていることを確認します。
++
+「 * vserver cifs shares properties show -vserver _vserver_name _ * 」のように表示されます
+
+
+
+次の例は、 Storage Virtual Machine （ SVM 、旧 Vserver ） vs1 上の「 share1 」という名前の共有の共有設定を表示します。オフラインファイルは「手動」に設定され、シンボリックリンクは無効になっています（「 S ymlink Properties 」フィールドの出力ではハイフンで示されます）。
+
+[listing]
+----
+cluster1::> vserver cifs share show -vserver vs1 -share-name share1
+                      Vserver: vs1
+                        Share: share1
+     CIFS Server NetBIOS Name: VS1
+                         Path: /data/share1
+             Share Properties: oplocks
+                               continuously-available
+           Symlink Properties: -
+      File Mode Creation Mask: -
+ Directory Mode Creation Mask: -
+                Share Comment: -
+                    Share ACL: Everyone / Full Control
+File Attribute Cache Lifetime: -
+                  Volume Name: -
+                Offline Files: manual
+Vscan File-Operations Profile: standard
+----
+次の例は、 SVM vs1 上の「 share1 」という名前の共有の共有プロパティを表示します。
+
+[listing]
+----
+cluster1::> vserver cifs share properties show -vserver vs1 -share-name share1
+Vserver    Share   Properties
+---------  ------  ----------
+vs1        share1  oplocks
+                   continuously-available
+----

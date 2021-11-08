@@ -1,0 +1,83 @@
+---
+permalink: system-admin/positional-parameters-concept.html 
+sidebar: sidebar 
+keywords: understand, positional, parameters, cli, command, input, query 
+summary: ONTAP CLI の位置指定パラメータ機能を活用して、効率的にコマンドを入力することができます。あるコマンドの位置指定パラメータは、そのコマンドのヘルプで特定できます。 
+---
+= 位置指定パラメータについて
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+ONTAP CLI の位置指定パラメータ機能を活用して、効率的にコマンドを入力することができます。あるコマンドの位置指定パラメータは、そのコマンドのヘルプで特定できます。
+
+
+
+== 位置指定パラメータとは何ですか
+
+* 位置指定パラメータは、値を指定する前にパラメータ名を指定する必要のないパラメータです。
+* コマンド入力には、位置指定パラメータとそれ以外のパラメータを組み合わせて指定できます。ただし、コマンド内の他の位置指定パラメータとの相対的な順序が、「 * _ command_name ？ _ * 」の出力に従っている場合に限ります。
+* 位置指定パラメータは、必須パラメータの場合とオプションパラメータの場合があります。
+* あるパラメータが 1 つのコマンドでは位置指定パラメータで、別のコマンドでは位置指定パラメータでない場合もあります。
+
+
+[NOTE]
+====
+位置指定パラメータ機能をスクリプトで使用することは、特に位置指定パラメータがオプションパラメータである場合や、位置指定パラメータの前にオプションパラメータを指定する場合には推奨されません。
+
+====
+
+
+== 位置指定パラメータを特定します
+
+位置指定パラメータは '*_command_name?_*' コマンド出力で識別できます位置指定パラメータは、次のいずれかの形式で、パラメータ名が角かっこで囲まれています。
+
+* [`__ parameter_name_`]`_parameter_value_` は ' 必須の位置指定パラメータです
+* [[`__ parameter_name_`]`_parameter_value_`] には、位置指定であるオプションのパラメータが表示されます。
+
+
+たとえば '*_command_name?_*' の出力に次のように表示される場合 ' パラメータは ' 表示されるコマンドの位置指定パラメータです
+
+* `[-lif ]<lif-name>`
+* [[-LIF] <lif-name>]
+
+
+ただし、次の出力では、パラメータは該当するコマンドの位置指定パラメータではありません。
+
+* `-lif <lif-name>`
+* `[-lif <lif-name>]
+
+
+
+
+== 位置指定パラメータの使用例
+
+次の例では '*_volume create ?_*' 出力は ' -volume'`-aggregate'-size' という 3 つのパラメータがコマンドの位置指定パラメータであることを示しています
+
+[listing]
+----
+cluster1::> volume create ?
+   -vserver <vserver name>                Vserver Name
+   [-volume] <volume name>                Volume Name
+   [-aggregate] <aggregate name>          Aggregate Name
+  [[-size] {<integer>[KB|MB|GB|TB|PB]}]   Volume Size
+  [ -state {online|restricted|offline|force-online|force-offline|mixed} ]
+                                          Volume State (default: online)
+  [ -type {RW|DP|DC} ]                    Volume Type (default: RW)
+  [ -policy <text> ]                      Export Policy
+  [ -user <user name> ]                   User ID
+  ...
+  [ -space-guarantee|-s {none|volume} ]   Space Guarantee Style (default: volume)
+  [ -percent-snapshot-space <percent> ]   Space Reserved for Snapshot Copies
+  ...
+----
+次の例では ' 位置指定パラメータ機能を使用せずに volume create コマンドを指定しています
+
+cluster1 ：： > volume create -vserver svm1 -volume vol1 -aggregate * aggr1 -size 1g * -percent-snapshot-space 0
+
+次の例では、位置指定パラメータ機能を使用して効率的にコマンドを入力しています。位置指定パラメータとそれ以外のパラメータを組み合わせて volume create コマンドを実行し、位置指定パラメータの値はパラメータ名なしで指定されています。位置指定パラメータは、「 * volume create ？ * 」の出力と同じ順序で指定します。つまり '-volume' の値は '-size' の前に指定された -aggregate' の値よりも前に指定されます
+
+cluster1 ：： > volume create * vol2 * aggr1 * * 1g * -vserver svm1 -percent-snapshot-space 0 ｝
+
+cluster1 ：： > volume create -vserver svm1 * vol3 * -snapshot-policy default * aggr1 * -nvfail off * 1g * -space-guarantee none

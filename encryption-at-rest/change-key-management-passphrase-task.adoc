@@ -1,0 +1,79 @@
+---
+permalink: encryption-at-rest/change-key-management-passphrase-task.html 
+sidebar: sidebar 
+keywords: changing, onboard, key, management, passphrase 
+summary: セキュリティのベストプラクティスとして、オンボードキー管理のパスフレーズを定期的に変更することが重要です。あとで使用できるように、ストレージシステムの外部の安全な場所にオンボードキー管理の新しいパスフレーズをコピーしておく必要があります。 
+---
+= オンボードキー管理のパスフレーズを変更します
+
+
+[role="lead"]
+セキュリティのベストプラクティスとして、オンボードキー管理のパスフレーズを定期的に変更することが重要です。あとで使用できるように、ストレージシステムの外部の安全な場所にオンボードキー管理の新しいパスフレーズをコピーしておく必要があります。
+
+.必要なもの
+* このタスクを実行するには、クラスタ管理者または SVM の管理者である必要があります。
+* このタスクを実行するには advanced 権限が必要です。
+
+
+.手順
+. advanced 権限レベルに切り替えます。
++
+「 advanced 」の権限が必要です
+
+. オンボードキー管理のパスフレーズを変更します。
++
+|===
+| ONTAP バージョン | 使用するコマンド 
+
+
+ a| 
+ONTAP 9.6 以降
+ a| 
+「 securitykey-manager onboard update-passphrase 」を選択します
+
+
+
+ a| 
+ONTAP 9.5 以前
+ a| 
+「 securitykey-manager update-passphrase 」
+
+|===
++
+コマンド構文全体については、マニュアルページを参照してください。
+
++
+次の ONTAP 9.6 コマンドでは 'cluster1 のオンボード・キー管理のパスフレーズを変更できます
+
++
+[listing]
+----
+clusterl::> security key-manager onboard update-passphrase
+Warning: This command will reconfigure the cluster passphrase for onboard key management for Vserver "cluster1".
+Do you want to continue? {y|n}: y
+Enter current passphrase:
+Enter new passphrase:
+----
+. プロンプトで「 y 」と入力して、オンボード・キー管理のパスフレーズを変更します。
+. 現在のパスフレーズのプロンプトで現在のパスフレーズを入力します。
+. 新しいパスフレーズのプロンプトで 32 ～ 256 文字のパスフレーズを入力します。または、 64 ～ 256 文字のパスフレーズを「 cc-mode] 」に入力します。
++
+[NOTE]
+====
+指定された "cc-mode" パスフレーズが 64 文字未満の場合、キー管理ツールセットアップウィザードがパスフレーズプロンプトを再表示するまでに 5 秒間の遅延が発生します。
+
+====
+. パスフレーズの確認のプロンプトでパスフレーズをもう一度入力します。
+
+
+MetroCluster 環境では、パートナークラスタでパスフレーズを更新する必要があります。
+
+* ONTAP 9.5 以前では、パートナークラスタで同じパスフレーズを使用して「 securitykey-manager update-passphrase 」を実行する必要があります。
+* ONTAP 9.6 以降では、パートナークラスタ上で同じパスフレーズを使用して「 securitykey-manager onboard sync 」を実行するように求められます。
+
+
+あとで使用できるように、ストレージシステムの外部の安全な場所にオンボードキー管理のパスフレーズをコピーしておく必要があります。
+
+オンボードキー管理のパスフレーズを変更するときは、キー管理情報を手動でバックアップしておく必要があります。
+
+xref:backup-key-management-information-manual-task.adoc[オンボードキー管理情報の手動でのバックアップ]

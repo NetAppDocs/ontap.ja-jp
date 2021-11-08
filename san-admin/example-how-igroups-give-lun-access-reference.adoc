@@ -1,0 +1,88 @@
+---
+permalink: san-admin/example-how-igroups-give-lun-access-reference.html 
+sidebar: sidebar 
+keywords: ontap 9.2, example, how, igroups, give, lun, access 
+summary: 複数の igroup を作成して、ホストで利用できる LUN を定義することができます。たとえば、ホストクラスタを使用している場合、いくつかの igroup を使用して、クラスタ内の 1 つのホストだけ、またはすべてのホストに特定の LUN が認識されるように設定できます。 
+---
+= igroup による LUN アクセスの提供例
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+複数の igroup を作成して、ホストで利用できる LUN を定義することができます。たとえば、ホストクラスタを使用している場合、いくつかの igroup を使用して、クラスタ内の 1 つのホストだけ、またはすべてのホストに特定の LUN が認識されるように設定できます。
+
+次の表に、ストレージシステムにアクセスする 4 つのホストについて、 4 つの igroup によって LUN にアクセスできるようにする方法を示します。クラスタ化したホスト（ Host3 および Host4 ）は、両方とも同一 igroup （ group3 ）のメンバーであり、この igroup にマッピングされている LUN にアクセスできます。group4 という igroup には Host4 の WWPN が含まれ、パートナーには表示されないローカルな情報が格納されます。
+
+[cols="4*"]
+|===
+| HBA WWPN 、 IQN 、または EUI のホスト | igroup 数 | igroup に追加されている WWPN 、 IQN 、 EUI | igroup にマッピングされている LUN 
+
+
+ a| 
+Host1 、シングルパス（ iSCSI ソフトウェアイニシエータ）
+
+iqn.1991-05.com.microsoft:host1
+ a| 
+グループ 1
+ a| 
+iqn.1991-05.com.microsoft:host1
+ a| 
+「 /vol/vol2/lun1 」
+
+
+
+ a| 
+Host2 、マルチパス（ HBA × 2 ）
+
+10 ： 00 ： 00 ： 00 ： c9 ： 2b ： 6b ： 3c
+
+10 ： 00 ： 00 ： 00 ： c9 ： 2b ： 02 ： 3c
+ a| 
+group2
+ a| 
+10 ： 00 ： 00 ： 00 ： c9 ： 2b ： 6b ： 3c
+
+10 ： 00 ： 00 ： 00 ： c9 ： 2b ： 02 ： 3c
+ a| 
+「 /vol/vol2/lun2 」
+
+
+
+ a| 
+Host3 、マルチパス、ホスト 4 でクラスタ構成
+
+10 ： 00 ： 00 ： 00 ： c9 ： 2b ： 32 ： 1b
+
+10 ： 00 ： 00 ： 00 ： c9 ： 2b ： 41 ： 02
+ a| 
+グループ 3
+ a| 
+10 ： 00 ： 00 ： 00 ： c9 ： 2b ： 32 ： 1b
+
+10 ： 00 ： 00 ： 00 ： c9 ： 2b ： 41 ： 02
+
+10 ： 00 ： 00 ： 00 ： c9 ： 2b ： 51 ： 2c
+
+10 ： 00 ： 00 ： 00 ： c9 ： 2b ： 47 ： A2
+ a| 
+/vol/vol2/qtree1/lun3`
+
+
+
+ a| 
+Host4 、マルチパス、クラスタ構成（ Host3 には認識されない）
+
+10 ： 00 ： 00 ： 00 ： c9 ： 2b ： 51 ： 2c
+
+10 ： 00 ： 00 ： 00 ： c9 ： 2b ： 47 ： A2
+ a| 
+グループ 4
+ a| 
+10 ： 00 ： 00 ： 00 ： c9 ： 2b ： 51 ： 2c
+
+10 ： 00 ： 00 ： 00 ： c9 ： 2b ： 47 ： A2
+ a| 
+/vol/vol2/qtree2 /lun4`/vol/vol2/qtree1/lun5`
+
+|===

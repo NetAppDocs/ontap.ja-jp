@@ -1,0 +1,45 @@
+---
+permalink: data-protection/initialize-replication-relationship-task.html 
+sidebar: sidebar 
+keywords: initialize, replication, relationship 
+summary: すべての関係タイプでは、初期化の際にベースライン転送が実行されます。これにより、ソースボリュームの Snapshot コピーが作成され、そのコピーおよびコピーが参照するすべてのデータブロックがデスティネーションボリュームに転送されます。それ以外の転送の内容はポリシーによって異なります。 
+---
+= レプリケーション関係を初期化
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+すべての関係タイプでは、初期化の際に _baseline transfer_： ソースボリュームの Snapshot コピーが作成され、そのコピーおよびコピーが参照するすべてのデータブロックがデスティネーションボリュームに転送されます。それ以外の転送の内容はポリシーによって異なります。
+
+ソースクラスタとデスティネーションクラスタ、および SVM のピア関係が確立されている必要があります。
+
+link:../peering/index.html["クラスタと SVM のピアリング"]
+
+初期化には時間がかかる場合があります。ベースライン転送はオフピークの時間帯に実行することを推奨します。
+
+ONTAP 9.5 以降では、 SnapMirror Synchronous 関係がサポートされます。
+
+.ステップ
+. レプリケーション関係を初期化します。
++
+「 snapmirror initialize-ls-set initialize-ls-set ： volume_|| 」： // SVM/volume_、 ... -destination-path SVM ： volume_cluster_,...`
+
++
+コマンド構文全体については、マニュアルページを参照してください。
+
++
+[NOTE]
+====
+このコマンドはデスティネーション SVM またはデスティネーションクラスタから実行する必要があります。
+
+====
++
+次の例は 'vm1 のソースボリューム volA' と 'vm_backup' のデスティネーションボリューム volA_dst の間の関係を初期化します
+
++
+[listing]
+----
+cluster_dst::> snapmirror initialize -source-path svm1:volA -destination-path svm_backup:volA_dst
+----
+

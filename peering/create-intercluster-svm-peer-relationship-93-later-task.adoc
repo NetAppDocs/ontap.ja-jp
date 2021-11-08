@@ -1,0 +1,69 @@
+---
+permalink: peering/create-intercluster-svm-peer-relationship-93-later-task.html 
+sidebar: sidebar 
+keywords: create, intercluster, svm, peer, relationship 
+summary: vserver peer create コマンドを使用すると、ローカルクラスタとリモートクラスタ上の SVM 間にピア関係を作成できます。 
+---
+= クラスタ間 SVM ピア関係を作成する（ ONTAP 9.3 以降）
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+「 vserver peer create 」コマンドを使用すると、ローカルクラスタとリモートクラスタの SVM 間にピア関係を作成できます。
+
+.必要なもの
+* ソースクラスタとデスティネーションクラスタのピア関係が確立されている必要があります。
+* クラスタで ONTAP 9.3 が実行されている必要があります。
+* リモートクラスタの SVM について、「事前承認」されたピア関係が必要です。
++
+詳細については、を参照してください xref:create-cluster-relationship-93-later-task.adoc[クラスタピア関係の作成（ ONTAP 9.3 以降）]。
+
+
+
+ONTAP の以前のリリースでは、一度に 1 つの SVM のピア関係しか承認できず、保留中の SVM ピア関係を承認するたびに、「 vserver peer accept 」コマンドを実行する必要がありました。
+
+ONTAP 9.3 以降では、クラスタピア関係の作成時に -initial-allowed-vserver オプションに SVM を指定することで、複数の SVM のピア関係を「事前承認」できます。詳細については、を参照してください xref:create-cluster-relationship-93-later-task.adoc[クラスタピア関係の作成（ ONTAP 9.3 以降）]。
+
+.手順
+. データ保護のデスティネーションクラスタで、ピアリング対象として事前承認された SVM を表示します。
++
+vserver peer permission show
+
++
+[listing]
+----
+cluster02::> vserver peer permission show
+Peer Cluster         Vserver               Applications
+-------------------  --------------------  --------------------
+cluster02            vs1,vs2               snapmirror
+----
+. データ保護のソースクラスタで、データ保護のデスティネーションクラスタ上の事前承認された SVM とのピア関係を作成します。
++
+「 vserver peer create -vserver _local_svm __ -peer-vserver_remote_SVM_` 」のように指定します
+
++
+コマンド構文全体については、マニュアルページを参照してください。
+
++
+次の例では、ローカル SVM 「 pvs1 」と事前承認されたリモート SVM 「 vs1 」の間にピア関係を作成します。
+
++
+[listing]
+----
+cluster01::> vserver peer create -vserver pvs1 -peer-vserver vs1
+----
+. SVM ピア関係を確認します。
++
+vserver peer show
+
++
+[listing]
+----
+cluster01::> vserver peer show
+            Peer        Peer                           Peering        Remote
+Vserver     Vserver     State        Peer Cluster      Applications   Vserver
+----------- ----------- ------------ ----------------- -------------- ---------
+pvs1        vs1         peered       cluster02         snapmirror     vs1
+----
+

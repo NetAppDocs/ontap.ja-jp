@@ -1,0 +1,51 @@
+---
+permalink: ndmp/enable-svm-scoped-ndmp-cluster-task.html 
+sidebar: sidebar 
+keywords: enable, svm, scope, ndmp, cluster 
+summary: クラスタで SVM を対象とした NDMP を設定するには、クラスタ（管理 SVM ）で SVM を対象とした NDMP モードと NDMP サービスを有効にします。 
+---
+= クラスタで SVM を対象とした NDMP を有効化
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+クラスタで SVM を対象とした NDMP を設定するには、クラスタ（管理 SVM ）で SVM を対象とした NDMP モードと NDMP サービスを有効にします。
+
+ノードを対象とした NDMP モードをオフにすると、クラスタで SVM を対象とした NDMP モードが有効になります。
+
+.手順
+. 「 node-scope-mode 」パラメータを使用して「 system services ndmp 」コマンドを実行し、 SVM を対象とした NDMP モードを有効にします。
++
+[listing]
+----
+cluster1::> system services ndmp node-scope-mode off
+NDMP node-scope-mode is disabled.
+----
+. 「 vserver services ndmp on 」コマンドを使用して、管理 SVM で NDMP サービスを有効にします。
++
+[listing]
+----
+cluster1::> vserver services ndmp on -vserver cluster1
+----
++
+認証タイプはデフォルトで「 challenge 」に設定され、プレーンテキスト認証は無効になっています。
+
++
+[NOTE]
+====
+セキュアな通信のために、プレーンテキスト認証は無効にしておく必要があります。
+
+====
+. vserver services ndmp show コマンドを使用して、 NDMP サービスが有効になっていることを確認します。
++
+[listing]
+----
+cluster1::> vserver services ndmp show
+
+Vserver       Enabled   Authentication type
+------------- --------- -------------------
+cluster1      true      challenge
+vs1           false     challenge
+----
+

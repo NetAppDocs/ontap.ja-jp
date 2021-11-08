@@ -1,0 +1,102 @@
+---
+permalink: smb-hyper-v-sql/verify-lif-status-task.html 
+sidebar: sidebar 
+keywords: verify, lif, status, storage, virtual, machine, hyper, v, sql, server, smb, configuration, cluster 
+summary: Hyper-V および SQL Server over SMB 構成の Storage Virtual Machine （ SVM ）がクラスタ内の各ノードに LIF を配置するように設定しても、日々の業務を行っているうちに、一部の LIF が他のノードのポートに移動してしまうことがあります。LIF のステータスを確認して、必要な措置を講じる必要があります。 
+---
+= LIF のステータスを確認
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+Hyper-V および SQL Server over SMB 構成の Storage Virtual Machine （ SVM ）がクラスタ内の各ノードに LIF を配置するように設定しても、日々の業務を行っているうちに、一部の LIF が他のノードのポートに移動してしまうことがあります。LIF のステータスを確認して、必要な措置を講じる必要があります。
+
+シームレスなノンストップオペレーションの運用支援を提供するには、クラスタ内の各ノードの SVM に少なくとも 1 つの LIF を配置し、すべての LIF をホームポートに関連付ける必要があります。設定されている LIF の中に現在ホームポートに関連付けられていないものがある場合は、ポートの問題を修正してから、対応するホームポートに LIF をリバートする必要があります。
+
+.手順
+. 設定されている SVM の LIF に関する情報を表示します。
++
+「 * network interface show -vserver vserver_name _ * 」のように表示されます
+
++
+この例では、「 lif1 」はホームポートに配置されていません。
+
++
+「 network interface show -vserver vs1 」のように表示されます
+
++
+[listing]
+----
+
+            Logical    Status     Network          Current    Current Is
+Vserver     Interface  Admin/Oper Address/Mask     Node       Port    Home
+----------- ---------- ---------- ---------------- ---------- ------- ----
+vs1
+            lif1         up/up    10.0.0.128/24    node2      e0d     false
+            lif2         up/up    10.0.0.129/24    node2      e0d     true
+----
+. 対応するホームポートに関連付けられていない LIF がある場合は、次の手順を実行します。
++
+.. それぞれの LIF について、 LIF のホームポートを確認します。
++
+`* network interface show -vserver vserver_name __ -lif lif_name -- fields home-node 、 home-port *
+
++
+「 * network interface show -vserver vs1 -lif lif1 -fields home-node 、 home-port *
+
++
+[listing]
+----
+
+vserver lif  home-node  home-port
+------- ---- ---------- ---------
+vs1     lif1 node1      e0d
+----
+.. それぞれの LIF について、 LIF のホームポートが up 状態になっているかどうかを確認します。
++
+`* network port show -node node_name --port_port_port_ -fields port, link *`
+
++
+network port show -node node1 -port e0d -fields port, link
+
++
+[listing]
+----
+
+node       port link
+---------- ---- ----
+node1      e0d  up
+----
++
+この例では 'lif1 をホームポート 'node1 ： e0d に戻す必要があります
+
+
+
+. LIF を関連付けるホームポートのネットワークインターフェイスが「 up 」状態でない場合は、問題を解決して up 状態にします。
+. 必要に応じて、ホームポートに LIF をリバートします。
++
+`* network interface revert -vserver _vserver_name -- lif_lif_name_*`
+
++
+「 * network interface revert -vserver vs1 -lif lif1 * 」のようになります
+
+. クラスタ内の各ノードにアクティブな SVM の LIF があることを確認します。
++
+「 * network interface show -vserver vserver_name _ * 」のように表示されます
+
++
+「 * network interface show -vserver vs1 * 」のように表示されます
+
++
+[listing]
+----
+
+            Logical    Status     Network          Current    Current Is
+Vserver     Interface  Admin/Oper Address/Mask     Node       Port    Home
+----------- ---------- ---------- ---------------- ---------- ------- ----
+vs1
+            lif1         up/up    10.0.0.128/24    node1      e0d     true
+            lif2         up/up    10.0.0.129/24    node2      e0d     true
+----
+

@@ -1,0 +1,72 @@
+---
+permalink: nfs-config/create-kerberos-config-task.html 
+sidebar: sidebar 
+keywords: enable, kerberos, data, lif 
+summary: vserver nfs kerberos interface enable コマンドを使用すると、データ LIF で Kerberos を有効にできます。これにより、 SVM で NFS の Kerberos セキュリティサービスを使用できます。 
+---
+= データ LIF で Kerberos を有効にします
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+「 vserver nfs kerberos interface enable 」コマンドを使用すると、データ LIF で Kerberos を有効にできます。これにより、 SVM で NFS の Kerberos セキュリティサービスを使用できます。
+
+Active Directory KDC を使用する場合、使用される SPN の最初の 15 文字は Realm またはドメイン内の SVM 間で一意である必要があります。
+
+.手順
+. NFS Kerberos 設定を作成します。
++
+「 vserver nfs kerberos interface enable -vserver vserver_name _ -lif logical_interface _ -spN_service_principal_name _
+
++
+ONTAP で Kerberos インターフェイスを有効にするには、 KDC の SPN 用のシークレットキーが必要です。
+
++
+Microsoft KDC の場合、 KDC に接続があると、シークレットキーを取得するためのユーザ名とパスワードのプロンプトが CLI で発行されます。Kerberos レルムの異なる OU で SPN を作成する必要がある場合は ' オプションの -ou' パラメータを指定できます
+
++
+Microsoft 以外の KDC の場合は、次の 2 つのうちいずれかの方法を使用してシークレットキーを取得できます。
+
++
+|===
+| 状況 | コマンドとともに含める必要のあるパラメータ 
+
+
+ a| 
+KDC からキーを直接取得するための KDC 管理者のクレデンシャルが必要です
+ a| 
+-admin-username `_kDC_admin_username_`
+
+
+
+ a| 
+KDC 管理者のクレデンシャルはないが、キーが含まれている、 KDC の keytab ファイルはある
+ a| 
+`-keytab-uri { ftp|http}://`_uri_`
+
+|===
+. LIF で Kerberos が有効になっていることを確認します。
++
+「 vserver nfs kerberos-config show 」を参照してください
+
+. 複数の LIF で Kerberos を有効にするには、手順 1 と 2 を繰り返します。
+
+
+次のコマンドは、 vs1 という SVM の NFS Kerberos 設定を、 OU lab2ou 内の SPN nfs/ves03-d1.lab.example.com@TEST.LAB.EXAMPLE.COM を使用して、 ves03-d1 という論理インターフェイス ves03-d1 に対して作成して検証します。
+
+[listing]
+----
+vs1::> vserver nfs kerberos interface enable -lif ves03-d1 -vserver vs2
+-spn nfs/ves03-d1.lab.example.com@TEST.LAB.EXAMPLE.COM -ou "ou=lab2ou"
+
+vs1::>vserver nfs kerberos-config show
+        Logical
+Vserver Interface Address       Kerberos  SPN
+------- --------- -------       --------- -------------------------------
+vs0     ves01-a1
+                  10.10.10.30   disabled  -
+vs2     ves01-d1
+                  10.10.10.40   enabled   nfs/ves03-d1.lab.example.com@TEST.LAB.EXAMPLE.COM
+2 entries were displayed.
+----

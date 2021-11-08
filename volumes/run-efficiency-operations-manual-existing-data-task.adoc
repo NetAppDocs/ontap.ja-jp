@@ -1,0 +1,34 @@
+---
+permalink: volumes/run-efficiency-operations-manual-existing-data-task.html 
+sidebar: sidebar 
+keywords: run, efficiency, operations, manually, existing, data 
+summary: 重複排除、データ圧縮、データコンパクションを有効にする前に、ボリューム上のデータに効率化処理を手動で実行できます。これらの処理は、 volume efficiency start -scan-old-data コマンドを使用して実行できます。 
+---
+= 既存データに対して効率化処理を手動で実行します
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+重複排除、データ圧縮、データコンパクションを有効にする前に、ボリューム上のデータに効率化処理を手動で実行できます。これらの操作は 'volume efficiency start -scan-old-data コマンドを使用して実行できます
+
+ボリュームで重複排除のみを有効にすると、データに対して重複排除が実行されます。ボリュームで重複排除、データ圧縮、データコンパクションを有効にすると、データ圧縮が先に実行され、そのあとに重複排除とデータコンパクションが実行されます。
+
+既存データにデータ圧縮を実行する場合、デフォルトでは、重複排除によって共有されているデータブロックと Snapshot コピーによってロックされているデータブロックがスキップされます。共有ブロックに対してデータ圧縮を実行することを選択した場合、最適化が無効になり、フィンガープリント情報が取得されて再度共有するために使用されます。既存データを圧縮する際には、データ圧縮のデフォルトの動作を変更できます。
+
+ノードあたり最大 8 つの重複排除、データ圧縮、データコンパクション処理を同時に実行できます。残りの処理はキューに登録されます。
+
+[NOTE]
+====
+AFF プラットフォームではポストプロセス圧縮が実行されません。この処理がスキップされたことを通知する EMS メッセージが生成されます。
+
+====
+.ステップ
+. volume efficiency start -scan-old-data コマンドを使用して、既存データに対して重複排除、データ圧縮、またはデータコンパクションを手動で実行します。
++
+次のコマンドは、これらの処理をボリューム VolA の既存データに対して手動で実行します。
+
++
+volume efficiency start -vserver vs1 -volume VolA -scan-old-data true [-compression | -dedupe | -compression] true
+
+

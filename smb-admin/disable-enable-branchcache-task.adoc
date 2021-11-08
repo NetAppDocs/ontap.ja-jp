@@ -1,0 +1,59 @@
+---
+permalink: smb-admin/disable-enable-branchcache-task.html 
+sidebar: sidebar 
+keywords: disable, branchcache, storage, virtual, machine, svm, changing, change, operating, mode, disable, operate, per-share, automatic, disable or enable branchcache 
+summary: Storage Virtual Machine （ SVM ）で BranchCache を無効にするには、 BranchCache の動作モードを disabled に変更します。BranchCache サービスを共有単位で提供するか、すべての共有で自動的に提供するように動作モードを変更すると、いつでも BranchCache を有効にすることができます。 
+---
+= BranchCache を有効または無効にします
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+Storage Virtual Machine （ SVM ）で BranchCache を無効にするには、 BranchCache の動作モードを「 disabled 」に変更します。BranchCache サービスを共有単位で提供するか、すべての共有で自動的に提供するように動作モードを変更すると、いつでも BranchCache を有効にすることができます。
+
+.手順
+. 該当するコマンドを実行します。
++
+|===
+| 状況 | 入力するコマンド 
+
+
+ a| 
+BranchCache を無効にする
+ a| 
+vserver cifs branchcache modify -vserver vserver_name -operating-mode disable`
+
+
+
+ a| 
+共有ごとに BranchCache を有効にします
+ a| 
+vserver cifs branchcache modify -vserver vserver_name -operating-mode per-share ’
+
+
+
+ a| 
+すべての共有で BranchCache を有効にします
+ a| 
+vserver cifs branchcache modify -vserver vserver_name -operating-mode all-shares
+
+|===
+. BranchCache の動作モードが適切な設定になっていることを確認します。 vserver cifs branchcache show -vserver vserver_name
+
+
+次の例は、 SVM vs1 で BranchCache を無効にします。
+
+[listing]
+----
+cluster1::> vserver cifs branchcache modify -vserver vs1 -operating-mode disable
+
+cluster1::> vserver cifs branchcache show -vserver vs1
+
+                                 Vserver: vs1
+          Supported BranchCache Versions: enable_all
+                      Path to Hash Store: /hash_data
+          Maximum Size of the Hash Store: 20GB
+Encryption Key Used to Secure the Hashes: -
+        CIFS BranchCache Operating Modes: disable
+----

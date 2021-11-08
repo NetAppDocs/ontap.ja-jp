@@ -1,0 +1,53 @@
+---
+permalink: smb-hyper-v-sql/create-ntfs-data-volumes-task.html 
+sidebar: sidebar 
+keywords: create, ntfs, data, volume, storage, virutal, machine, svm, smb, application, server, volume, configuration 
+summary: Hyper-V over SMB または SQL Server over SMB アプリケーションサーバで使用する継続的可用性を備えた共有を設定する前に、 Storage Virtual Machine （ SVM ）上に NTFS データボリュームを作成する必要があります。ボリューム構成ワークシートを使用して、データボリュームを作成します。 
+---
+= NTFS データボリュームを作成
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+Hyper-V over SMB または SQL Server over SMB アプリケーションサーバで使用する継続的可用性を備えた共有を設定する前に、 Storage Virtual Machine （ SVM ）上に NTFS データボリュームを作成する必要があります。ボリューム構成ワークシートを使用して、データボリュームを作成します。
+
+データボリュームのカスタマイズに使用できるオプションのパラメータが用意されています。ボリュームのカスタマイズの詳細については、を参照してください link:link:../volumes/index.html["論理ストレージ管理"]。
+
+データボリュームの作成時に、次の項目を含むボリューム内にはジャンクションポイントを作成しないでください。
+
+* ONTAP によってシャドウコピーが生成される Hyper-V ファイル
+* SQL Server を使用してバックアップされる SQL Server データベースファイル
+
+
+[NOTE]
+====
+mixed セキュリティ形式または UNIX セキュリティ形式を使用するボリュームを誤って作成した場合、そのボリュームを NTFS セキュリティ形式のボリュームに変更して、ノンストップオペレーション用の継続的可用性を備えた共有の作成に直接使用することはできません。Hyper-V over SMB および SQL Server over SMB のノンストップオペレーションが正しく機能しないのは、この構成で使用するボリュームを NTFS セキュリティ形式のボリュームとして作成した場合だけです。ボリュームを削除し、 NTFS セキュリティ形式でボリュームを再作成する必要があります。 または、 Windows ホストでボリュームをマッピングし、ボリュームの最上位に ACL を適用して、ボリューム内のすべてのファイルとフォルダに ACL を適用することもできます。
+
+====
+.手順
+. 適切なコマンドを入力して、データボリュームを作成します。
++
+[cols="1, 4"]
+|===
+| ボリュームを作成する SVM のルートボリュームのセキュリティ形式 | 入力するコマンド 
+
+
+ a| 
+NTFS
+ a| 
+`* volume create -vserver_name_-volume_name_-aggregate_aggregate_name -aggregate-size integer [KB ｛ vbar ｝ MB ｛ vbar ｝ GB ｛ vbar ｝ TB ｛ vbar ｝ pb] -junction-path _ *
+
+
+
+ a| 
+NTFS ではありません
+ a| 
+`* volume create -vserver_name_-volume_name_-aggregate-aggregate_name integer [KB ｛ vbar ｝ MB ｛ vbar ｝ GB ｛ vbar ｝ TB ｛ vbar ｝ pb] -security-style ntfs -junction-path パス *]
+
+|===
+. ボリュームの設定が正しいことを確認します。
++
+`* volume show -vserver_name_-volume_name_*`
+
+

@@ -1,0 +1,223 @@
+---
+permalink: flexgroup/supported-unsupported-config-concept.html 
+sidebar: sidebar 
+keywords: support, unsupported, configuration, flexgroup, volumes 
+summary: ONTAP 9 の FlexGroup でサポートされる ONTAP 機能とサポートされない機能を確認しておく必要があります。 
+---
+= FlexGroup ボリュームでサポートされる構成とされない構成
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+ONTAP 9 の FlexGroup でサポートされる ONTAP 機能とサポートされない機能を確認しておく必要があります。
+
+
+
+== ONTAP 9.10.1 以降でサポートされる機能
+
+* SVM-DR ソースで FlexVol ボリュームを FlexGroup ボリュームに変換します
+* 既存の FlexGroup ボリュームから FlexClone ボリュームを作成
++
+xref:../volumes/create-flexclone-task.adoc[FlexClone ボリュームの作成に関する詳細情報]
+
+
+
+
+
+== ONTAP 9.9.1 以降でサポートされる機能
+
+* SVM ディザスタリカバリ
+* 2 つ以上（ A から B 、 A から C ）の SnapMirror ファンアウト関係。ファンアウト関係の最大数は 8 です。
++
+xref:create-snapmirror-cascade-fanout-reference.adoc[FlexGroup の SnapMirror カスケード関係とファンアウト関係の作成に関する考慮事項]
+
+* 最大 2 つのレベル（ A ~ B ~ C ）の SnapMirror カスケード関係
++
+xref:create-snapmirror-cascade-fanout-reference.adoc[FlexGroup の SnapMirror カスケード関係とファンアウト関係の作成に関する考慮事項]
+
+
+
+
+
+== ONTAP 9.8 以降でサポートされている機能
+
+* FlexGroup の SnapMirror バックアップまたは UDP デスティネーションからの単一ファイルのリストア
++
+** 任意の形状の FlexGroup ボリュームから任意の形状の FlexGroup ボリュームへのリストアが可能です
+** リストア処理ごとに 1 つのファイルのみがサポートされます
+
+
+* 7-Mode システムから FlexGroup ボリュームに移行したボリュームの変換
++
+移行したボリュームを FlexGroup ボリュームに変換するには診断モードが必要です。このモードはネットアップサポートの指示があった場合にのみ実行してください。変換プロセスを進める前に、ネットアップサポートに問い合わせることを推奨します。
+
+* NFSv4.2
+* ファイルとディレクトリの非同期削除
+* FSA （ファイルシステム分析）
+* VMware vSphere データストアとしての FlexGroup
+* 「変換前」の Snapshot コピーを FlexGroup ボリュームにリストアする
++
+変換前の Snapshot コピーは、 FlexVol ボリュームを FlexGroup ボリュームに変換する前に作成された Snapshot コピーです。
+
+* NDMP を使用したテープバックアップおよびリストアのサポートが追加されました。次の機能が含まれます。
++
+** NDMP の Restartable Backup Extension （ RBE ）および Snapshot Management Extension （ SSME ）
+** 環境変数 EXCLUDE および MULTI_SUBTREE_NAMES は FlexGroup バックアップをサポートします
+** FlexGroup バックアップ用の IGNORE_CTH_mtime 環境変数が導入されました
+** 拡張機能 0x2050 ダンプセッションとリストアセッションの一部である NDMP_SNAP_RECOVER メッセージを使用した FlexGroup 内の個々のファイルのリカバリは、アップグレードまたはリバート中に中止されます。
+
+
+
+
+
+
+== ONTAP 9.7 以降でサポートされる機能
+
+* FlexClone ボリューム
+* NFSv4 および NFSv4.1
+* pNFS
+* NDMP を使用したテープバックアップおよびリストア
++
+FlexGroup ボリュームでの NDMP のサポートについては、次の点に注意する必要があります。
+
++
+** 拡張クラス 0x2050 の NDMP_SNAP_RECOVER メッセージは、 FlexGroup ボリューム全体のリカバリにのみ使用できます。
++
+FlexGroup ボリューム内の個々のファイルはリカバリできません。
+
+** FlexGroup ボリュームでは、 NDMP の Restartable Backup Extension （ RBE ）はサポートされません。
+** 環境変数 EXCLUDE および MULTI_SUBTREE_NAMES は、 FlexGroup ボリュームではサポートされません。
+** ndmpcopy コマンドは、 FlexVol ボリュームと FlexGroup ボリューム間のデータ転送に対応しています。
++
+Data ONTAP 9.7 から以前のバージョンにリバートした場合、以前の転送の差分転送情報は保持されないため、リバート後にベースラインコピーを実行する必要があります。
+
+
+
+* VMware vStorage APIs for Array Integration （ VAAI ）
+* FlexVol ボリュームから FlexGroup ボリュームへの変換
+* FlexGroup ボリュームを FlexCache の元のボリュームとして使用する
+
+
+
+
+== ONTAP 9.6 以降でサポートされる機能
+
+* 継続的可用性を備えた SMB 共有
+* MetroCluster 構成
+* FlexGroup ボリューム名の変更（ volume rename コマンド）
+* FlexGroup ボリュームのサイズの縮小（ volume size コマンド）
+* エラスティックサイジング
+* NetApp Aggregate Encryption （ NAE ）
+* Cloud Volumes ONTAP
+
+
+
+
+== ONTAP 9.5 以降でサポートされる機能
+
+* ODX コピーオフロード
+* ストレージレベルのアクセス保護
+* SMB 共有の変更通知の機能拡張
++
+ChangeNotify 通知は 'changenotify プロパティが設定された親ディレクトリに対する変更と ' その親ディレクトリ内のすべてのサブディレクトリに対する変更について送信されます
+
+* FabricPool
+* クォータの適用
+* qtree の統計
+* FlexGroup ボリューム内のファイルに対するアダプティブ QoS
+* FlexCache （キャッシュのみ。 ONTAP 9.7 では FlexGroup が送信元としてサポートされます）
+
+
+
+
+== ONTAP 9.4 以降でサポートされる機能
+
+* FPolicy の
+* ファイル監査
+* FlexGroup ボリュームのスループットの下限（最小 QoS ）とアダプティブ QoS
+* FlexGroup ボリューム内のファイルに対するスループットの上限（最大 QoS ）と下限（最小 QoS ）
++
+ファイルに関連付けられた QoS ポリシーグループを管理するには、 volume file modify コマンドを使用します。
+
+* SnapMirror の制限を緩和
+* SMB 3.x マルチチャネル
+
+
+
+
+== ONTAP 9.3 以降でサポートされる機能
+
+* ウィルス対策の設定
+* SMB 共有の変更通知
++
+通知は、 changenotify プロパティが設定された親ディレクトリに対する変更についてのみ送信されます。親ディレクトリのサブディレクトリに対する変更については送信されません。
+
+* qtree
+* スループットの上限（最大 QoS ）
+* SnapMirror 関係にあるソース FlexGroup ボリュームとデスティネーション FlexGroup ボリュームを拡張します
+* SnapVault のバックアップとリストア
+* 一元化されたデータ保護関係
+* 自動拡張オプションと自動縮小オプション
+* 取り込みで考慮される inode 数
+
+
+
+
+== ONTAP 9.2 以降でサポートされる機能です
+
+* ボリューム暗号化
+* アグリゲートインライン重複排除（ボリューム間重複排除）
+* NetApp Volume Encryption （ NVE ）
+
+
+
+
+== ONTAP 9.1 以降でサポートされる機能
+
+FlexGroup ボリュームは ONTAP 9.1 で導入された機能で、 ONTAP のいくつかの機能がサポートされます。
+
+* SnapMirror テクノロジ
+* Snapshot コピー
+* Active IQ
+* インラインアダプティブ圧縮
+* インライン重複排除
+* インラインデータコンパクション
+* AFF
+* クォータレポート
+* NetApp Snapshot テクノロジ
+* SnapRestore ソフトウェア（ FlexGroup レベル）
+* ハイブリッドアグリゲート
+* コンスティチュエントまたはメンバーボリュームの移動
+* ポストプロセスの重複排除
+* NetApp RAID-TEC テクノロジ
+* アグリゲートごとの整合ポイント
+* 同じ SVM 内の FlexVol ボリュームと FlexGroup を共有する
+
+
+
+
+== ONTAP 9 でサポートされない構成です
+
+[cols="3*"]
+|===
+| サポート対象外のプロトコルです | サポートされていないデータ保護機能です | サポートされないその他の ONTAP 機能 
+
+
+ a| 
+* pNFS （ ONTAP 9.0 から 9.6 ）
+* SMB 1.0
+* SMB 透過的フェイルオーバー（ ONTAP 9.0 から 9.5 ）
+* SAN
+
+ a| 
+* SnapLock ボリューム
+* SMTape の場合
+
+ a| 
+リモートの Volume Shadow Copy Service （ VSS ；ボリュームシャドウコピーサービス）
+
+|===
+* 関連情報 *
+
+https://docs.netapp.com/ontap-9/index.jsp["ONTAP 9 ドキュメンテーション・センター"]

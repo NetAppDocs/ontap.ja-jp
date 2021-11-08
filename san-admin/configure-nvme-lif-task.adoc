@@ -1,0 +1,49 @@
+---
+permalink: san-admin/configure-nvme-lif-task.html 
+sidebar: sidebar 
+keywords: configure, nvme, lif 
+summary: NVMe LIF を設定するときは、特定の要件を満たす必要があります。 
+---
+= NVMe LIF を設定します
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+NVMe LIF を設定するときは、特定の要件を満たす必要があります。
+
+LIF を作成する FC アダプタで NVMe がサポートされている必要があります。サポートされるアダプタの一覧については、 Hardware Universe を参照してください。
+
+https://hwu.netapp.com["NetApp Hardware Universe の略"]
+
+NVMe LIF を作成するときのルールは次のとおりです。
+
+* データ LIF で使用できるデータプロトコルは NVMe のみです。
+* SAN をサポートする SVM ごとに管理 LIF を 1 つ設定する必要があります。
+* ONTAP 9.5 以降：
++
+** 設定できる NVMe LIF はノードごとに 2 つだけで、ノード数は最大 4 つです。
+** NVMe LIF はネームスペースを含むノードとその HA パートナーに設定する必要があります。
+
+
+* ONTAP 9.4 のみ：
++
+** NVMe の LIF とネームスペースは、同じノードでホストする必要があります。
+** 設定できる NVMe データ LIF は SVM ごとに 1 つだけです。
+
+
+
+
+.手順
+. LIF を作成します。
++
+「 network interface create -vserver _svm_name 」 -lif_lif_name_-role data -protocol fc-nvme-home-node-home_node_-home-port
+
++
+「 _HOME_PORT_` 」と入力します
+
+. LIF が作成されたことを確認します。
++
+「 network interface show -vserver _svm_name 」をクリックします
+
+

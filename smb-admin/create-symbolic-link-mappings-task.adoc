@@ -1,0 +1,50 @@
+---
+permalink: smb-admin/create-symbolic-link-mappings-task.html 
+sidebar: sidebar 
+keywords: create, mapping, unix, symbolic, link, smb, share, relative, symbol, refer, file, folder, relative, parent, absolute, create symbolic link mappings for smb shares 
+summary: SMB 共有に対する UNIX シンボリックリンクのマッピングを作成できます。親フォルダに対して相対的なファイルまたはフォルダを参照する相対シンボリックリンクを作成することも、絶対パスを使用してファイルまたはフォルダを参照する絶対シンボリックリンクを作成することもできます。 
+---
+= SMB 共有のシンボリックリンクマッピングを作成します
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+SMB 共有に対する UNIX シンボリックリンクのマッピングを作成できます。親フォルダに対して相対的なファイルまたはフォルダを参照する相対シンボリックリンクを作成することも、絶対パスを使用してファイルまたはフォルダを参照する絶対シンボリックリンクを作成することもできます。
+
+SMB 2.x を使用している場合、 Mac OS X クライアントからワイドリンクにアクセスすることはできませんMac OS X クライアントからワイドリンクを使用して共有に接続しようとすると、接続に失敗します。ただし、 SMB 1 を使用している場合は、 Mac OS X クライアントでワイドリンクを使用できます。
+
+.手順
+. SMB 共有のシンボリックリンクマッピングを作成するには、「 vserver cifs symlink create -vserver virtual_server_name -unix-path path -share-name share_name -cifs-path path [-cifs-server server_name] [-locality ｛ local|free|widelink ｝ ] [-home-directory ｛ true|false ｝ ] 」を使用します
++
+「 -vserver `virtual_server_name 」には、 Storage Virtual Machine （ SVM ）名を指定します。
+
++
+「 -unix-path 」には、 UNIX パスを指定します。UNIX パスはスラッシュ (`/`) で始まり ' スラッシュ (`/`) で終わる必要があります
+
++
+「 -share-name 」には、マッピングする SMB 共有の名前を指定します。
+
++
+`-cifs-path `path` は CIFS パスを指定しますCIFS パスはスラッシュ（「 / 」）で始まり、スラッシュ（「 / 」）で終わる必要があります。
+
++
+`-cifs-server ``server_name' は、 CIFS サーバ名を指定します。CIFS サーバ名は、 DNS 名（ mynetwork.cifs.server.com など）、 IP アドレス、または NetBIOS 名として指定できます。NetBIOS 名は 'vserver cifs show コマンドを使用して確認できますこのオプションパラメータを指定しない場合、デフォルト値のローカル CIFS サーバの NetBIOS 名が使用されます。
+
++
+`-locality { `local`|`free`|`widelink } は、ローカルリンク、フリーリンク、ワイドシンボリックリンクのどれを作成するかを指定します。ローカルシンボリックリンクはローカル SMB 共有にマッピングされます。フリーシンボリックリンクはローカル SMB サーバ上の任意の場所にマッピングできます。ワイドシンボリックリンクはネットワーク上の任意の SMB 共有にマッピングされます。このオプションパラメータを指定しない場合、デフォルト値は「 local 」です。
+
++
+「 -home-directory '{`true`|`false`} 」は、ターゲットの共有がホームディレクトリであるかどうかを指定します。このパラメータは省略可能ですが、ターゲットの共有をホーム・ディレクトリとして設定する場合は、このパラメータを「 true 」に設定する必要があります。デフォルトは「 false 」です。
+
+
+
+次のコマンドは、 vs1 という名前の SVM 上にシンボリックリンクマッピングを作成します。このマッピングは、 UNIX パスが「 /src/ 」、 SMB 共有名が「ソース」、 CIFS パスが「 /mycompany/source/ 」、 CIFS サーバの IP アドレスが 123.123.123.123 で、ワイドリンクです。
+
+[listing]
+----
+cluster1::> vserver cifs symlink create -vserver vs1 -unix-path /src/ -share-name SOURCE -cifs-path "/mycompany/source/" -cifs-server 123.123.123.123 -locality widelink
+----
+* 関連情報 *
+
+xref:configure-unix-symbolic-link-support-shares-task.adoc[SMB 共有での UNIX シンボリックリンクサポートの設定]

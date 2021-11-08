@@ -1,0 +1,104 @@
+---
+permalink: data-protection/snapmirror-disaster-recovery-concept.html 
+sidebar: sidebar 
+keywords: asynchronous, snapmirror, disaster, recovery basics 
+summary: SnapMirror は、地理的に離れたサイトのプライマリストレージからセカンダリストレージへのフェイルオーバー用に設計されたディザスタリカバリテクノロジです。名前のとおり、 SnapMirror はセカンダリストレージに作業データのレプリカ（ミラー）を作成します。プライマリサイトで災害が発生した場合でも、セカンダリストレージからデータを引き続き提供できます。 
+---
+= 非同期 SnapMirror ディザスタリカバリの基本
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+SnapMirror は、地理的に離れたサイトのプライマリストレージからセカンダリストレージへのフェイルオーバー用に設計されたディザスタリカバリテクノロジです。名前が示すように、 SnapMirror はセカンダリストレージに作業データのレプリカ（ _mirror ）を作成します。このデータから、プライマリサイトで災害が発生した場合にもデータの提供を継続できます。
+
+プライマリサイトから引き続きデータを提供できる場合は、必要なデータをプライマリサイトに戻すことができます。ミラーからクライアントを提供することはありません。フェイルオーバーの事例で示すように、ミラーリングされたストレージからデータを効率的に提供するには、セカンダリシステム上のコントローラがプライマリシステム上のコントローラと同じであるか、ほぼ同じである必要があります。
+
+
+
+== データ保護関係
+
+データのミラーリングはボリュームレベルで行われます。プライマリストレージのソースボリュームとセカンダリストレージのデスティネーションボリュームの関係は、 _data 保護関係と呼ばれます。 _ ボリュームが存在するクラスタと、ボリュームからデータを提供する SVM は _peered になります。 _a ピア関係を設定することで、クラスタと SVM の交換が可能になります データをセキュアに保護
+
+https://docs.netapp.com/us-en/ontap-sm-classic/peering/index.html["クラスタと SVM のピアリング"]
+
+次の図は、 SnapMirror データ保護関係を示しています。
+
+image::../media/snapmirror-for-dp-pg.gif[SnapMirror - DP ページ]
+
+
+
+== データ保護関係の範囲
+
+ボリューム間またはボリュームを所有する SVM 間で直接データ保護関係を作成できます。SVM のデータ保護関係では、 SVM のすべてまたは一部の設定が NFS エクスポートおよび SMB 共有から RBAC にレプリケートされます。また、 SVM が所有するボリューム内のデータもレプリケートされます。
+
+SnapMirror は、次に示す 2 つの特殊なデータ保護アプリケーションにも使用できます。
+
+* SVM ルートボリュームの負荷共有ミラーコピーを作成すると、ノードに障害やフェイルオーバーが発生したときに引き続きデータにアクセスできます。
+* SnapLock ボリューム間のデータ保護関係： WORM ファイルをセカンダリストレージにレプリケートできます。
++
+link:../snaplock/index.html["SnapLock テクノロジを使用したアーカイブとコンプライアンス"]
+
+
+
+
+
+== SnapMirror データ保護関係を初期化する方法
+
+SnapMirror を初めて起動すると、ソース・ボリュームからデスティネーション・ボリュームへの _ ベースライン転送 _ が実行されます。関係の _SnapMirror ポリシー _ は、ベースラインおよび更新の内容を定義します。
+
+デフォルトの SnapMirror ポリシー「 MirrorAllSnapshots 」に基づくベースライン転送では、次の手順を実行します。
+
+* ソースボリュームの Snapshot コピーを作成します。
+* Snapshot コピーおよびコピーが参照するすべてのデータブロックをデスティネーションボリュームに転送します。
+* 「アクティブ」ミラーが破損した場合に備えて、ソースボリューム上の最新ではない残りの Snapshot コピーをデスティネーションボリュームに転送します。
+
+
+
+
+== SnapMirror データ保護関係を更新する方法
+
+更新は、設定したスケジュールに従って非同期に行われます。保持処理によって、ソース上の Snapshot ポリシーがミラーリングされます。
+
+「 MirrorAllSnapshots 」ポリシーに基づく各更新では、 SnapMirror がソースボリュームの Snapshot コピーを作成し、その Snapshot コピーと前回の更新後に作成されたすべての Snapshot コピーを転送します。「 MirrorAllSnapshots 」ポリシーに対する「 snapmirror-policy show 」コマンドの出力を次に示します。次の点に注意してください。
+
+* Create Snapshot は「 true 」です。これは、 SnapMirror が関係を更新するときに「 M irrorAllSnapshots 」によって Snapshot コピーが作成されることを示します。
+* 「 mirrorAllSnapshots 」には「 ``s_created" 」と「 all_source_snapshots 」というルールがあります。これは、 SnapMirror が関係を更新するときに、 SnapMirror で作成された Snapshot コピーと前回の更新後に作成された Snapshot コピーの両方が転送されることを示します。
+
+
+[listing]
+----
+cluster_dst::> snapmirror policy show -policy MirrorAllSnapshots -instance
+
+                     Vserver: vs0
+      SnapMirror Policy Name: MirrorAllSnapshots
+      SnapMirror Policy Type: async-mirror
+                Policy Owner: cluster-admin
+                 Tries Limit: 8
+           Transfer Priority: normal
+   Ignore accesstime Enabled: false
+     Transfer Restartability: always
+ Network Compression Enabled: false
+             Create Snapshot: true
+                     Comment: Asynchronous SnapMirror policy for mirroring all snapshots
+                              and the latest active file system.
+       Total Number of Rules: 2
+                  Total Keep: 2
+                       Rules: SnapMirror Label     Keep  Preserve Warn Schedule Prefix
+                              ----------------     ----  -------- ---- -------- ------
+                              sm_created              1  false       0 -        -
+                              all_source_snapshots    1  false       0 -        -
+----
+
+
+== MirrorLatest ポリシー
+
+事前設定された「最新」ポリシーは、「 MirrorAllSnapshots 」とまったく同じように機能します。ただし、初期化および更新の際に転送されるのは、 SnapMirror で作成された Snapshot コピーのみです。
+
+[listing]
+----
+
+                       Rules: SnapMirror Label     Keep  Preserve Warn Schedule Prefix
+                              ----------------     ----  -------- ---- -------- ------
+                              sm_created              1  false       0 -        -
+----

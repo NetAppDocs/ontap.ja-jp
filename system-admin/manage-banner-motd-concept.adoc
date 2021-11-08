@@ -1,0 +1,92 @@
+---
+permalink: system-admin/manage-banner-motd-concept.html 
+sidebar: sidebar 
+keywords: manage, banner, motd, clu, user, svm, storage, virtual, machine, cluster 
+summary: ONTAP では、ログインバナーまたは Message Of The Day （ MOTD ）を設定して、クラスタまたは Storage Virtual Machine （ SVM ）の CLI ユーザに管理情報を提供できます。 
+---
+= バナーと MOTD の概要を管理します
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+ONTAP では、ログインバナーまたは Message Of The Day （ MOTD ）を設定して、クラスタまたは Storage Virtual Machine （ SVM ）の CLI ユーザに管理情報を提供できます。
+
+バナーは、ユーザにパスワードなどの認証を要求する前に、コンソールセッション（クラスタアクセスのみ）または SSH セッション（クラスタアクセスまたは SVM アクセス）に表示されます。たとえば、バナーを使用して、システムへのログインを試行したユーザに次のような警告メッセージを表示することができます。
+
+[listing]
+----
+$ ssh admin@cluster1-01
+
+This system is for authorized users only. Your IP Address has been logged.
+
+Password:
+
+----
+MOTD は、ユーザの認証後、クラスタシェルプロンプトが表示される前に、コンソールセッション（クラスタアクセスのみ）または SSH セッション（クラスタアクセスまたは SVM アクセス）に表示されます。たとえば、 MOTD を使用して、認証されたユーザに次のような情報メッセージを表示することができます。
+
+[listing]
+----
+$ ssh admin@cluster1-01
+
+Password:
+
+Greetings. This system is running ONTAP 9.0.
+Your user name is 'admin'. Your last login was Wed Apr 08 16:46:53 2015 from 10.72.137.28.
+
+----
+バナーまたは MOTD の内容は、それぞれ「 securitylogin banner modify 」コマンドまたは「 securitylogin motd modify 」コマンドを使用して作成または変更できます。
+
+* CLI の対話型モードまたは非対話型モードを使用して、バナーまたは MOTD に使用するテキストを指定できます。
++
+対話型モードは '-message-または '-uri' パラメータを指定せずにコマンドを使用すると起動され ' メッセージ内で改行（ EOL ）を使用できるようになります
+
++
+非対話型モードでは '-message パラメータを使用してメッセージ文字列を指定しますが ' このモードでは改行はサポートされません
+
+* バナーまたは MOTD に使用する内容を FTP または HTTP からアップロードできます。
+* 動的な内容を表示するように MOTD を設定できます。
++
+MOTD には、たとえば次のような情報を動的に表示することができます。
+
++
+** クラスタ名、ノード名、または SVM 名
+** クラスタの日付と時刻
+** ログインしているユーザの名前
+** ユーザによるクラスタのノードへの前回のログイン
+** ログインしたデバイスの名前または IP アドレス
+** オペレーティングシステムの名前
+** ソフトウェアリリースバージョン
+** 有効なクラスタバージョン文字列「 securitylogin motd modify 」のマニュアルページに、動的に生成される内容を MOTD に表示するためのエスケープシーケンスが記載されています。
+
+
++
+バナーでは動的な内容はサポートされていません。
+
+
+
+バナーと MOTD はクラスタレベルまたは SVM レベルで管理できます。
+
+* バナーには次の特徴があります。
++
+** クラスタ用に設定したバナーは、バナーメッセージが定義されていない SVM に対しても表示されます。
+** SVM ごとに SVM レベルのバナーを設定できます。
++
+このバナーが設定された SVM では、クラスタレベルのバナーが設定されていても、 SVM レベルのバナーだけが表示されます。
+
+
+
+* MOTD には次の特徴があります。
++
+** クラスタ用に設定した MOTD は、デフォルトですべての SVM に対しても有効になります。
+** また、 SVM ごとに SVM レベルの MOTD を設定できます。
++
+この場合、 SVM にログインしたユーザには、クラスタレベルと SVM レベルの 2 つの MOTD が表示されます。
+
+** クラスタレベルの MOTD を有効にするか無効にするかは、クラスタ管理者が SVM 単位で設定できます。
++
+クラスタ管理者が SVM でクラスタレベルの MOTD を無効にした場合、その SVM にログインしたユーザにはクラスタレベルの MOTD は表示されません。
+
+
+
+

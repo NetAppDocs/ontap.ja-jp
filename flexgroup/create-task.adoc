@@ -1,0 +1,117 @@
+---
+permalink: flexgroup/create-task.html 
+sidebar: sidebar 
+keywords: create, flexgroup, volume 
+summary: FlexGroup ボリュームを作成するアグリゲートを手動で選択し、各アグリゲートのコンスティチュエントの数を指定して、 FlexGroup ボリュームを作成することができます。 
+---
+= FlexGroup ボリュームを作成します
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+FlexGroup ボリュームを作成するアグリゲートを手動で選択し、各アグリゲートのコンスティチュエントの数を指定して、 FlexGroup ボリュームを作成することができます。
+
+FlexGroup ボリュームを作成するためにアグリゲート内に必要なスペースを把握しておく必要があります。
+
+xref:aggregate-space-requirements-concept.adoc[FlexGroup ボリュームをプロビジョニングする際のアグリゲートスペースに関するガイドライン]
+
+また、 FlexGroup ボリュームのプロビジョニングでアグリゲートを選択する際の考慮事項と要件を確認しておく必要があります。
+
+FlexGroup ボリュームで最適なパフォーマンスを実現するには、 FlexGroup ボリュームを作成する際に次のガイドラインを考慮する必要があります。
+
+* FlexGroup ボリュームは、同一のハードウェアシステム上にあるアグリゲートでのみ構成される必要があります。
++
+同一のハードウェアシステムを使用することで、 FlexGroup ボリューム全体のパフォーマンスを予測できるようになります。
+
+* FlexGroup ボリュームは、同じディスクタイプおよび RAID グループ構成のアグリゲートで構成される必要があります。
++
+安定したパフォーマンスを実現するには、すべてのアグリゲートがオール SSD 、オール HDD 、またはオールハイブリッドアグリゲートであることが必要です。また、 FlexGroup ボリュームを構成するすべてのアグリゲートでドライブ数と RAID グループ数が同じであることが必要です。
+
+* FlexGroup ボリュームは、クラスタの一部でのみ構成することができます。
++
+FlexGroup ボリュームをクラスタ全体にまたがるように設定する必要はありませんが、そのように設定すると、使用可能なハードウェアリソースをより有効に活用できます。
+
+* FlexGroup ボリュームを作成する場合は、次の特性を持つアグリゲートに FlexGroup ボリュームを導入することを推奨します。
++
+** シンプロビジョニングを使用する場合は特に、複数のアグリゲート間でほぼ同じ量の空きスペースを使用できます。
+** FlexGroup ボリュームの作成後に、空きスペースの約 3% がアグリゲートメタデータ用に確保される。
+
+
+* FAS システムの場合は、ノードごとに 2 つのアグリゲートを用意し、 AFF システムの場合は、 FlexGroup ボリュームのノードごとに 1 つのアグリゲートを用意することを推奨します。
+* FlexGroup ボリュームごとに少なくとも 8 つのコンスティチュエントを作成して、 FAS システムの場合は 2 つ以上のアグリゲートに、 AFF システムの場合は 1 つ以上のアグリゲートに分散させる必要があります。
+
+
+.手順
+. FlexGroup ボリュームを作成します。 volume create -vserver SVM_name -volume flexgroup aggr-list aggr1 、 aggr2 。-aggr-list -multiplier constituents _per_aggr-size fg_size [ – encrypt true ] [-qos-policy-group qos_policy_group_name]]
++
+** aggr-list パラメータには、 FlexGroup ボリューム・コンスティチュエントに使用するアグリゲートのリストを指定します。
++
+指定したエントリごとに、そのアグリゲート上にコンスティチュエントが 1 つ作成されます。同じアグリゲートを複数回指定すると、そのアグリゲート上に複数のコンスティチュエントを作成できます。
+
++
+FlexGroup 全体で一貫したパフォーマンスが得られるように、すべてのアグリゲートで同じディスクタイプと RAID グループ構成を使用する必要があります。
+
+** 「 -aggr-list 」パラメータでは、 FlexGroup ボリュームの作成時に「 -aggr-list 」パラメータで指定したアグリゲートを繰り返す回数を指定します。
++
+「 -aggr-list-multiplier 」パラメータのデフォルト値は 4 です。
+
+** 「 size 」パラメータは、 FlexGroup ボリュームのサイズを KB 、 MB 、 GB 、 TB 、 PB 単位で指定します。
+** ONTAP 9.5 以降では、オール SSD アグリゲートのみを使用する FabricPool 用の FlexGroup ボリュームを作成できます。
++
+FabricPool 用の FlexGroup ボリュームを作成するには、「 -aggr-list 」パラメータで指定するすべてのアグリゲートが FabricPool である必要があります。FabricPool のボリューム・ギャランティは ' 常に none に設定する必要がありますFlexGroup ボリュームには、階層化ポリシーと階層化の最小クーリング期間も指定できます。
+
++
+xref:../disks-aggregates/index.html[ディスクおよびアグリゲートの管理]
+
+** ONTAP 9.4 以降では、 FlexGroup ボリュームにスループットの下限（最小 QoS ）とアダプティブ QoS を指定できます。
++
+link:../performance-admin/index.html["パフォーマンス管理"]
+
+** ONTAP 9.3 以降では、 FlexGroup にスループットの上限（最大 QoS ）を指定して、 FlexGroup ボリュームが消費するパフォーマンスリソースを制限できます。
+** ONTAP 9.2 以降では、 FlexGroup ボリュームで暗号化を有効にする場合、 -encrypt パラメータを true に設定できます。
++
+暗号化されたボリュームを作成するには、ボリューム暗号化ライセンスとキー管理ツールをインストールしておく必要があります。
+
++
+[NOTE]
+====
+暗号化は FlexGroup の作成時に有効にする必要があります。既存の FlexGroup ボリュームで暗号化を有効にすることはできません。
+
+====
++
+link:../encryption-at-rest/index.html["保存データの暗号化"]
+
+
+
++
+[listing]
+----
+cluster-1::> volume create -vserver vs0 -volume fg2 -aggr-list aggr1,aggr2,aggr3,aggr1 -aggr-list-multiplier 2 -size 500TB
+
+Warning: A FlexGroup "fg2" will be created with the following number of constituents of size 62.50TB: 8.
+Do you want to continue? {y|n}: y
+
+[Job 43] Job succeeded: Successful
+----
+
+
+この例の場合、 FabricPool 用の FlexGroup ボリュームを作成するには、すべてのアグリゲート（ aggr1 、 aggr2 、 aggr3 ）が FabricPool 内のアグリゲートである必要があります。。FlexGroup ボリュームをジャンクションパス「 volume mount -vserver vserver_name -volume vol_name -junction-path junction-path 」でマウントします
+
+[listing]
+----
+cluster1::> volume mount -vserver vs0 -volume fg2 -junction-path /fg
+----
+クライアントから FlexGroup ボリュームをマウントする必要があります。
+
+ONTAP 9.6 以前を実行していて、 Storage Virtual Machine （ SVM ）で NFSv3 と NFSv4 の両方が設定されている場合、クライアントからの FlexGroup ボリュームのマウントが失敗することがあります。このような場合は、クライアントから FlexGroup ボリュームをマウントするときに、 NFS バージョンを明示的に指定する必要があります。
+
+[listing]
+----
+# mount -t nfs -o vers=3 192.53.19.64:/fg /mnt/fg2
+# ls /mnt/fg2
+file1  file2
+----
+* 関連情報 *
+
+http://www.netapp.com/us/media/tr-4571.pdf["ネットアップテクニカルレポート 4571 ：『 NetApp FlexGroup Best Practices and Implementation Guide 』"]

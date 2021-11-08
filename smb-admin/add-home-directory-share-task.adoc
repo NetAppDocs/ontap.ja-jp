@@ -1,0 +1,74 @@
+---
+permalink: smb-admin/add-home-directory-share-task.html 
+sidebar: sidebar 
+keywords: smb, home, directory, feature, add, property, share, properties, property, add a home directory share 
+summary: SMB ホームディレクトリ機能を使用する場合、共有プロパティにホームディレクトリプロパティを含む共有を少なくとも 1 つ追加する必要があります。 
+---
+= ホームディレクトリ共有を追加します
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+SMB ホームディレクトリ機能を使用する場合、共有プロパティにホームディレクトリプロパティを含む共有を少なくとも 1 つ追加する必要があります。
+
+ホーム・ディレクトリ共有は、「 vserver cifs share create 」コマンドを使用して作成するか、「 vserver cifs share modify 」コマンドを使用して、いつでもホーム・ディレクトリ共有に変更できます。
+
+ホーム・ディレクトリ共有を作成するには ' 共有を作成または変更するときに '-share-properties オプションに homedirectory を指定する必要があります共有名と共有パスは変数を使用して指定できます。変数はユーザがそれぞれのホームディレクトリに接続するときに動的に変換されます。パスで使用できる変数は '%w ' %d' および %u ですこれらの変数は 'Windows のユーザ名 ' ドメイン ' マッピングされた UNIX のユーザ名にそれぞれ対応しています
+
+.手順
+. ホームディレクトリ共有を追加します。 +`vserver cifs share create -vserver vserver_name __ -share-name share_name -path path_to_share -share-properties homedirectory [,...]
++
+「 -vserver `vserver 」には、検索パスを追加する CIFS 対応の Storage Virtual Machine （ SVM ）を指定します。
+
++
+`-share-name share_name には、ホーム・ディレクトリの共有名を指定します。
+
++
+必須の変数に加えて、共有名にリテラル文字列「 %w 」、「 %u 」、または「 %d 」が含まれている場合、リテラル文字列の前に % （パーセント）文字を付けて、 ONTAP がリテラル文字列を変数として処理しないようにする必要があります（例：「 %%w 」）。
+
++
+** 共有名には '%w または %u のいずれかの変数を使用する必要があります
+** 共有名には '%d' 変数 ( 例 : %d'`%w ') または固定部分 ( 例 : home1_`%w ````') を含めることもできます
+** 管理者が、他のユーザのホームディレクトリに接続するために、またはユーザが他のユーザのホームディレクトリに接続するのを許可するために共有を使用する場合は、動的な共有名のパターンの先頭にチルダ（ ~ ）を付ける必要があります。
++
+「 vserver cifs home-directory modify 」は、「 -is-home-dirs-access-for-admin-enabled 」オプションを「 true 」に設定するか、 advanced オプション「 -is-home-dirs-access-for-public-enabled 」を「 true 」に設定することで、このアクセスを有効にするために使用します。
+
+
+
++
+「 -path 」には、ホーム・ディレクトリへの相対パスを指定します。
+
+
+
+`-share-properties homedirectory [,...] には、その共有の共有プロパティを指定します。homedirectory の値を指定する必要があります追加の共有プロパティをカンマで区切って指定できます。
+
+. 「 vserver cifs share show 」コマンドを使用して、ホームディレクトリ共有が正常に追加されたことを確認します。
+
+
+次のコマンドでは '%w という名前のホーム・ディレクトリ共有が作成されます「 oplocks 」、「 browsable 」、および「 changenotify 」の各共有プロパティは、「 homedirectory 」共有プロパティの設定に加えて設定されています。
+
+[NOTE]
+====
+この例で表示されているのは、 SVM の共有の出力の一部です。出力は省略されています。
+
+====
+[listing]
+----
+cluster1::> vserver cifs share create -vserver vs1 -share-name %w -path %w -share-properties oplocks,browsable,changenotify,homedirectory
+
+vs1::> vserver cifs share show -vserver vs1
+Vserver    Share    Path         Properties     Comment  ACL
+---------- -------- ------------ -------------- -------- -----------
+vs1        %w       %w           oplocks        -        Everyone / Full Control
+                                 browsable
+                                 changenotify
+                                 homedirectory
+----
+* 関連情報 *
+
+xref:add-home-directory-search-path-task.adoc[ホームディレクトリ検索パスを追加しています]
+
+xref:requirements-automatic-node-referrals-concept.adoc[自動ノードリファーラルの使用に関する要件とガイドライン]
+
+xref:manage-accessibility-users-home-directories-task.adoc[ユーザのホームディレクトリへのアクセスの管理]

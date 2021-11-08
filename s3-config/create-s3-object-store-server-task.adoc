@@ -1,0 +1,68 @@
+---
+permalink: s3-config/create-s3-object-store-server-task.html 
+sidebar: sidebar 
+keywords: create, s3 object, store, server 
+summary: ONTAP オブジェクトストアサーバは、 ONTAP NAS サーバおよび SAN サーバが提供するファイルストレージまたはブロックストレージではなく、データを S3 オブジェクトとして管理します。 
+---
+= S3 オブジェクトストアサーバを作成します
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+ONTAP オブジェクトストアサーバは、 ONTAP NAS サーバおよび SAN サーバが提供するファイルストレージまたはブロックストレージではなく、データを S3 オブジェクトとして管理します。
+
+自己署名 CA 証明書（前の手順で作成）または外部 CA ベンダーが署名した証明書が必要です。IP トラフィックがクラスタ LIF のみを経由するローカル階層化の場合、 CA 証明書は必要ありません。
+
+オブジェクトストアサーバを作成すると、 UID 0 の root ユーザが作成されます。この root ユーザに対してアクセスキーもシークレットキーも生成されません。ONTAP 管理者は 'object-store-server users regenering-keys' コマンドを実行して ' このユーザのアクセス・キーとシークレット・キーを設定する必要があります
+
+[NOTE]
+====
+ネットアップのベストプラクティスとして、この root ユーザは使用しないでください。root ユーザのアクセスキーまたはシークレットキーを使用するクライアントアプリケーションは、オブジェクトストア内のすべてのバケットとオブジェクトにフルアクセスできます。
+
+====
+その他の設定および表示オプションについては 'vserver object-store-server のマニュアルページを参照してください
+
+.手順
+. S3 サーバを作成します。
++
+vserver object-store-server create -vserver svm_name -object-store-server s3_server_name -certificate-name ca_cert_name -comment text [additional _options]'
+
++
+S3 サーバの作成時またはあとからいつでも追加のオプションを指定できます。
+
++
+** ローカル階層化を設定する場合、 SVM 名はデータ SVM または「 Cluster 」（システム SVM 名）にできます。
+** HTTPS は、ポート 443 でデフォルトで有効になっています。ポート番号は '-secure-listener-port オプションを使用して変更できます
++
+HTTPS を有効にすると、 SSL/TLS との適切な統合に CA 証明書が必要になります。
+
+** HTTP はデフォルトではディセーブルです。イネーブルにすると、サーバはポート 80 をリッスンします。IS-IS -http-enabled オプションを使用してこれをイネーブルにするか、または --listener-port オプションを使用してポート番号を変更できます。
++
+HTTP が有効な場合は、すべての要求と応答がクリアテキストでネットワーク経由で送信されます。
+
+
+
+. S3 が必要に応じて設定されていることを確認します。
++
+「 vserver object-store-server show 」のように表示されます
+
+
+
+次のコマンドは、すべてのオブジェクトストレージサーバの設定値を検証します。
+
+[listing]
+----
+cluster1::> vserver object-store-server show
+
+            Vserver: vs1
+
+                      Object Store Server Name: s3.example.com
+                          Administrative State: up
+                        Listener Port For HTTP: 80
+                Secure Listener Port For HTTPS: 443
+                                  HTTP Enabled: false
+                                 HTTPS Enabled: true
+             Certificate for HTTPS Connections: svm1_ca
+                                       Comment: Server comment
+----

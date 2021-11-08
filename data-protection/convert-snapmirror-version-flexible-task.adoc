@@ -1,0 +1,143 @@
+---
+permalink: data-protection/convert-snapmirror-version-flexible-task.html 
+sidebar: sidebar 
+keywords: convert, exist, dp-type, relationship, xdp 
+summary: 既存の DP タイプの関係を簡単に XDP に変換して、バージョンに依存しない SnapMirror を活用できます。 
+---
+= 既存の DP タイプの関係を XDP に変換します
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+既存の DP タイプの関係を簡単に XDP に変換して、バージョンに依存しない SnapMirror を活用できます。
+
+SnapMirror では、既存の DP タイプの関係を XDP に自動的に変換しません。関係を変換するには、既存の関係を解除して削除し、新しい XDP 関係を作成して関係を再同期する必要があります。背景情報については、を参照してください link:version-flexible-snapmirror-default-concept.html["XDP は、 DP を SnapMirror のデフォルトとして置き換えます"]。
+
+[NOTE]
+====
+SnapMirror 関係のタイプを DP から XDP に変換すると、オートサイズやスペースギャランティなどのスペース関連の設定はデスティネーションにレプリケートされなくなります。
+
+====
+.手順
+. 既存の DP タイプの関係を休止します。
++
+「 snapmirror quiesce - source_path_SVM ： volume_|_cluster ： //SVM/volume_、 ……」 -destination-path SVM ： volume_cluster_,...`
+
++
+コマンド構文全体については、マニュアルページを参照してください。
+
++
+[NOTE]
+====
+このコマンドはデスティネーション SVM またはデスティネーションクラスタから実行する必要があります。
+
+====
++
+次の例では 'vm1 のソースボリューム volA' と 'vm_backup' のデスティネーションボリューム volA_dst の間の関係を休止します
+
++
+[listing]
+----
+cluster_dst::> snapmirror quiesce -source-path svm1:volA -destination-path svm_backup:volA_dst
+----
+. 既存の DP タイプの関係を解除します。
++
+「 snapmirror break -source-path SVM ： volume_|_cluster ： // SVM/volume_、 ……」 -destination-path SVM ： volume_cluster_,...`
+
++
+コマンド構文全体については、マニュアルページを参照してください。
+
++
+[NOTE]
+====
+このコマンドはデスティネーション SVM またはデスティネーションクラスタから実行する必要があります。
+
+====
++
+次の例では 'vm1 のソースボリューム volA' と 'vm_backup' のデスティネーションボリューム volA_dst の間の関係を解除します
+
++
+[listing]
+----
+cluster_dst::> snapmirror break -source-path svm1:volA -destination-path svm_backup:volA_dst
+----
+. デスティネーションボリュームで Snapshot コピーの自動削除を無効にします。
++
+volume snapshot autodelete modify -vserver_svm_-volume _-enabled false
+
++
+次の例は、デスティネーションボリューム volA_dst で Snapshot コピーの自動削除を無効にします。
+
++
+[listing]
+----
+cluster_dst::> volume snapshot autodelete modify -vserver svm_backup -volume volA_dst -enabled false
+----
+. 既存の DP タイプの関係を削除します。
++
+「 snapmirror delete -source-path SVM ： volume_|_cluster ： // svm / volume_、 ……」 -destination-path SVM ： volume_cluster_,...`
+
++
+コマンド構文全体については、マニュアルページを参照してください。
+
++
+[NOTE]
+====
+このコマンドはデスティネーション SVM またはデスティネーションクラスタから実行する必要があります。
+
+====
++
+次の例は 'vm1 のソースボリューム volA' と 'vm_backup' のデスティネーションボリューム volA_dst の間の関係を削除します
+
++
+[listing]
+----
+cluster_dst::> snapmirror delete -source-path svm1:volA -destination-path svm_backup:volA_dst
+----
+. 新しい XDP タイプの関係を作成します。
++
+「 Snapmirror create -source-path SVM ： volume_|| クラスタ： //SVM/volume_、 ... 」 -destination-path SVM ： volume_|_cluster ： // SVM/volume_,... -type XDP -schedule --policy_policy_policy_`
+
++
+新しい関係では、同じソースボリュームとデスティネーションボリュームを使用する必要があります。コマンド構文全体については、マニュアルページを参照してください。
+
++
+[NOTE]
+====
+このコマンドはデスティネーション SVM またはデスティネーションクラスタから実行する必要があります。
+
+====
++
+次の例は、デフォルトの「 irrorAllSnapshots 」ポリシーを使用して、「 vm1 」上のソースボリューム「 volA' 」と「 vm_backup 」上のデスティネーションボリューム「 volA_dst 」との間に SnapMirror DR 関係を作成します。
+
++
+[listing]
+----
+cluster_dst::> snapmirror create -source-path svm1:volA -destination-path svm_backup:volA_dst
+-type XDP -schedule my_daily -policy MirrorAllSnapshots
+----
+. ソースボリュームとデスティネーションボリュームを再同期します。
++
+「 snapmirror resync -source-path_SVM ： volume_|| 」： // SVM /volume_,... -destination-path SVM ： volume_cluster_,...`
+
++
+コマンド構文全体については、マニュアルページを参照してください。
+
++
+[NOTE]
+====
+このコマンドはデスティネーション SVM またはデスティネーションクラスタから実行する必要があります。再同期の際にベースライン転送は不要ですが、再同期には時間がかかる場合があります。再同期はオフピークの時間帯に実行することを推奨します。
+
+====
++
+次の例は 'vm1 のソースボリューム volA' と 'vm_backup' のデスティネーションボリューム volA_dst の間の関係を再同期します
+
++
+[listing]
+----
+cluster_dst::> snapmirror resync -source-path svm1:volA -destination-path svm_backup:volA_dst
+----
+
+
+「 snapmirror show 」コマンドを使用して、 SnapMirror 関係が作成されたことを確認します。コマンド構文全体については、マニュアルページを参照してください。

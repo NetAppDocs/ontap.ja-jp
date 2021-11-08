@@ -1,0 +1,82 @@
+---
+permalink: flexgroup/convert-flexvol-svm-dr-relationship-task.html 
+sidebar: sidebar 
+keywords: convert, flexvol, flexgroup, svm-dr 
+summary: ONTAP 9.10.1 以降では、 FlexVol ボリュームを SVM-DR ソース上の FlexGroup ボリュームに変換できます。 
+---
+= FlexGroup ボリュームを SVM-DR 関係内で FlexVol ボリュームに変換します
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+ONTAP 9.10.1 以降では、 FlexVol ボリュームを SVM-DR ソース上の FlexGroup ボリュームに変換できます。
+
+.必要なもの
+* 変換する FlexVol がオンラインになっている必要があります。
+* FlexVol ボリュームの処理と設定が変換プロセスに対応している必要があります。
++
+FlexVol ボリュームに互換性の問題があり、ボリューム変換がキャンセルされた場合は、エラーメッセージが生成されます。対処方法を実行し、変換を再試行できます。詳細については、を参照してください xref:convert-flexvol-concept.html#considerations-for-converting-flexvol-volumes-to-flexgroup-volumes [FlexVol ボリュームを FlexGroup ボリュームに変換する際の考慮事項]
+
+
+
+.手順
+. デスティネーションから、 SVM-DR 関係を更新します。
++
+`* snapmirror update -destination-path destination_svm_name ： -source-path source_SVM_name:*`
+
+. SVM-DR 関係が SnapMirrored 状態であり、かつ切断されていないことを確認します。
++
+「 * snapmirror show * 」
+
+. デスティネーション SVM から、 FlexVol ボリュームで変換の準備が完了していることを確認します。
++
+` * volume conversion start -vserver svm_name -volume vol_name -check-only true * 」という名前になります
+
+. デスティネーションから、 SVM-DR 関係の転送を無効にします。
++
+`* snapmirror quiesce -destination-path dest_SVM:*`
+
+. 変換を開始します。
++
+` * volume conversion start -vserver svm_name -volume vol_name *`
+
+. 変換が正常に完了したことを確認します。
++
+`* volume show vol_name -fields -volume-style-extended 、 state *`
+
++
+[listing]
+----
+cluster-1::*> volume show my_volume -fields volume-style-extended,state
+
+vserver   volume     state    volume-style-extended
+-------       ---------     ------    ---------------------
+vs0     my_volume  online  flexgroup
+----
+. デスティネーションクラスタから、関係の転送を再開します。
++
+「 * snapmirror resume -destination-path dest_svm ： * 」
+
+. デスティネーションクラスタから更新を実行して、変換をデスティネーションに伝播します。
++
+「 * snapmirror update -destination-path dest_svm ： * 」を参照してください
+
+. SVM-DR 関係が SnapMirrored 状態であり、かつ切断されていないことを確認します。
++
+「 * snapmirror show * 」
+
+. 変換がデスティネーションで行われたことを確認します。
++
+`* volume show vol_name -fields -volume-style-extended 、 state *`
+
++
+[listing]
+----
+cluster-2::*> volume show my_volume -fields volume-style-extended,state
+
+vserver    volume       state     volume-style-extended
+-------       -------           ------     ---------------------
+vs0_dst   my_volume  online  flexgroup
+----
+

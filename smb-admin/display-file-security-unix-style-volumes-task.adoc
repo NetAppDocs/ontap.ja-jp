@@ -1,0 +1,103 @@
+---
+permalink: smb-admin/display-file-security-unix-style-volumes-task.html 
+sidebar: sidebar 
+keywords: display, information, file, directory, security, unix, security-style, volume, style, effective, permission, applied, apply, owner, group, result, validate, configuration, troubleshoot, access, issues, display information about file security on unix security-style volumes 
+summary: セキュリティ形式と有効なセキュリティ形式、適用されている権限、 UNIX の所有者とグループに関する情報など、 UNIX セキュリティ形式のボリューム上にあるファイルやディレクトリのセキュリティに関する情報を表示できます。この結果を使用して、セキュリティ設定の検証や、ファイルアクセスに関する問題のトラブルシューティングを行うことができます。 
+---
+= UNIX セキュリティ形式のボリューム上のファイルセキュリティに関する情報を表示します
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+セキュリティ形式と有効なセキュリティ形式、適用されている権限、 UNIX の所有者とグループに関する情報など、 UNIX セキュリティ形式のボリューム上にあるファイルやディレクトリのセキュリティに関する情報を表示できます。この結果を使用して、セキュリティ設定の検証や、ファイルアクセスに関する問題のトラブルシューティングを行うことができます。
+
+Storage Virtual Machine （ SVM ）の名前、およびファイルまたはディレクトリのセキュリティ情報を表示するデータのパスを入力する必要があります。出力は要約形式または詳細なリストで表示できます。
+
+* UNIX セキュリティ形式のボリュームおよび qtree では、ファイルアクセス権の決定時に、 UNIX ファイルアクセス権のみが使用されます。モードビットまたは NFSv4 ACL です。
+* ACL 出力は、 NFSv4 セキュリティが適用されたファイルとフォルダについてのみ表示されます。
++
+このフィールドは、モードビットのアクセス権のみ（ NFSv4 ACL はなし）が適用されている UNIX セキュリティ形式のファイルおよびディレクトリでは空になります。
+
+* ACL 出力の所有者とグループの出力フィールドは、 NFSv4 セキュリティ記述子には該当しません。
++
+これらのフィールドが意味があるのは、 NTFS セキュリティ記述子の場合のみです。
+
+* ストレージレベルのアクセス保護セキュリティは、 SVM で CIFS サーバが設定されている場合に UNIX ボリュームまたは qtree でサポートされるので、「 -path 」パラメータで指定されたボリュームまたは qtree に適用されるストレージレベルのアクセス保護セキュリティに関する情報が出力に含まれることがあります。
+
+
+.ステップ
+. ファイルとディレクトリのセキュリティ設定を必要な詳細レベルで表示します。
++
+|===
+| 表示する情報 | 入力するコマンド 
+
+
+ a| 
+要約形式で表示されます
+ a| 
+vserver security file-directory show -vserver vserver_name -path_path_`
+
+
+
+ a| 
+詳細が表示されます
+ a| 
+vserver security file-directory show -vserver_vserver_name __ path_path_-expand-mask true
+
+|===
+
+
+次の例は、 SVM vs1 のパス「 /home 」に関するセキュリティ情報を表示します。
+
+[listing]
+----
+cluster1::> vserver security file-directory show -vserver vs1 -path /home
+
+                                  Vserver: vs1
+                                File Path: /home
+                        File Inode Number: 9590
+                           Security Style: unix
+                          Effective Style: unix
+                           DOS Attributes: 10
+                   DOS Attributes in Text: ----D---
+                  Expanded Dos Attributes: -
+                             Unix User Id: 0
+                            Unix Group Id: 1
+                           Unix Mode Bits: 700
+                   Unix Mode Bits in Text: rwx------
+                                     ACLs: -
+----
+次の例は、マスクを展開した形式で、 SVM vs1 のパス「 /home 」に関するセキュリティ情報を表示します。
+
+[listing]
+----
+cluster1::> vserver security file-directory show -vserver vs1 -path /home -expand-mask true
+
+                                 Vserver: vs1
+                               File Path: /home
+                       File Inode Number: 9590
+                          Security Style: unix
+                         Effective Style: unix
+                          DOS Attributes: 10
+                  DOS Attributes in Text: ----D---
+                 Expanded Dos Attributes: 0x10
+                      ...0 .... .... .... = Offline
+                      .... ..0. .... .... = Sparse
+                      .... .... 0... .... = Normal
+                      .... .... ..0. .... = Archive
+                      .... .... ...1 .... = Directory
+                      .... .... .... .0.. = System
+                      .... .... .... ..0. = Hidden
+                      .... .... .... ...0 = Read Only
+                            Unix User Id: 0
+                           Unix Group Id: 1
+                          Unix Mode Bits: 700
+                  Unix Mode Bits in Text: rwx------
+                                    ACLs: -
+----
+* 関連情報 *
+
+xref:display-file-security-ntfs-style-volumes-task.adoc[NTFS セキュリティ形式のボリュームのファイルセキュリティに関する情報を表示する]
+
+xref:display-file-security-mixed-style-volumes-task.adoc[mixed セキュリティ形式のボリュームのファイルセキュリティに関する情報を表示する]

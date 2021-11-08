@@ -1,0 +1,123 @@
+---
+permalink: encryption-at-rest/enable-onboard-key-management-96-later-nse-task.html 
+sidebar: sidebar 
+keywords: enabling, onboard key management, ontap 9.6, later 
+summary: オンボードキーマネージャを使用して、暗号化されたデータにアクセスする際にクラスタで使用するキーを安全に保管できます。オンボードキーマネージャは、暗号化されたボリュームや自己暗号化ディスクにアクセスする各クラスタで有効にする必要があります。 
+---
+= ONTAP 9.6 以降ではオンボードキー管理を有効にしてください
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+オンボードキーマネージャを使用して、クラスタノードを FIPS ドライブまたは SED に対して認証できます。オンボードキーマネージャは組み込みのツールで、データと同じストレージシステムからノードに認証キーを提供します。オンボードキーマネージャは FIPS-140-2 レベル 1 に準拠しています。
+
+オンボードキーマネージャを使用して、暗号化されたデータにアクセスする際にクラスタで使用するキーを安全に保管できます。オンボードキーマネージャは、暗号化されたボリュームや自己暗号化ディスクにアクセスする各クラスタで有効にする必要があります。
+
+.必要なもの
+* NSE で外部キー管理（ KMIP ）サーバを使用している場合は、外部キー管理ツールのデータベースを削除しておく必要があります。
++
+xref:delete-key-management-database-task.adoc[外部キー管理からオンボードキー管理への移行]
+
+* このタスクを実行するには、クラスタ管理者である必要があります。
+* オンボードキーマネージャを設定する前に、 MetroCluster 環境を設定する必要があります。
+
+
+クラスタにノードを追加するたびに 'securitykey-manager onboard enable コマンドを実行する必要がありますMetroCluster 構成では、まずローカルクラスタで「 securitykey-manager onboard enable 」を実行してから、リモートクラスタで「 securitykey-manager onboard sync 」を実行し、それぞれで同じパスフレーズを使用する必要があります。
+
+デフォルトでは、ノードのリブート時にキー管理ツールのパスフレーズを入力する必要はありません。MetroCluster 以外では 'cc-mode-enabled=yes オプションを使用して ' 再起動後にユーザーにパスフレーズの入力を要求できます
+
+[NOTE]
+====
+Common Criteria モード (`cc-mode-enabled=yes') で Onboard Key Manager がイネーブルになっている場合、システムの動作は次のように変更されます。
+
+* Common Criteria モードで動作している場合、クラスタパスフレーズの試行に連続して失敗したかどうかが監視されます。
++
+NetApp Storage Encryption （ NSE ）が有効になっている場合に、ブート時に正しいクラスタパスフレーズを入力しないと、システムはドライブを認証できず、自動的にリブートされます。これを修正するには、ブートプロンプトで正しいクラスタパスフレーズを入力する必要があります。ブート後、パラメータとしてクラスタパスフレーズを必要とするコマンドに対して、最大 5 回連続してクラスタパスフレーズを 24 時間以内に入力することができます。制限に達した場合（たとえば、クラスタのパスフレーズを 5 回連続して正しく入力できなかった場合など）は、 24 時間のタイムアウトが経過するまで待つか、ノードをリブートして制限をリセットする必要があります。
+
+* システムイメージの更新では、 NetApp RSA-3072 コード署名証明書と SHA-384 コード署名ダイジェストを使用して、通常の NetApp RSA-2048 コード署名証明書および SHA-256 コード署名ダイジェストではなく、イメージの整合性をチェックします。
++
+upgrade コマンドは、さまざまなデジタル署名をチェックして、イメージの内容が変更されていないか、壊れていないかを確認します。検証に成功した場合は、イメージの更新プロセスが次の手順に進みます。成功しなかった場合は、イメージの更新が失敗します。システムの更新については ' cluster image マニュアル・ページを参照してください
+
+
+
+====
+[NOTE]
+====
+オンボードキーマネージャは、揮発性メモリにキーを格納します。揮発性メモリの内容は、システムのリブート時または停止時にクリアされます。通常の動作条件下では、システムが停止すると 30 秒以内に揮発性メモリの内容がクリアされます。
+
+====
+.手順
+. キー管理ツールの setup コマンドを開始します。
++
+「 securitykey manager onboard enable-cc-mode-enabled yes|no` 」を入力します
+
++
+[NOTE]
+====
+再起動後にユーザにキー管理ツールのパスフレーズの入力を要求するには、「 cc-mode-enabled=yes 」を設定します。MetroCluster 構成では '-cc-mode-enabled' オプションはサポートされていません「 securitykey-manager onboard enable 」コマンドは、「 securitykey-manager setup 」コマンドに代わるコマンドです。
+
+====
++
+次の例では、リブートのたびにパスフレーズの入力を求めずに、 cluster1 でキー管理ツールの setup コマンドを開始します。
+
++
+[listing]
+----
+cluster1::> security key-manager onboard enable
+
+Enter the cluster-wide passphrase for onboard key management in Vserver "cluster1"::    <32..256 ASCII characters long text>
+Reenter the cluster-wide passphrase:    <32..256 ASCII characters long text>
+----
+. パスフレーズのプロンプトで 32 ～ 256 文字のパスフレーズを入力します。または、 64 ～ 256 文字のパスフレーズを「 cc-mode] 」に入力します。
++
+[NOTE]
+====
+指定された "cc-mode" パスフレーズが 64 文字未満の場合、キー管理ツールセットアップウィザードがパスフレーズプロンプトを再表示するまでに 5 秒間の遅延が発生します。
+
+====
+. パスフレーズの確認のプロンプトでパスフレーズをもう一度入力します。
+. 認証キーが作成されたことを確認します。
++
+「 securitykey manager key query -node node 」を参照してください
+
++
+[NOTE]
+====
+「 securitykey-manager key query 」コマンドは、「 securitykey-manager query key 」コマンドに代わるコマンドです。コマンド構文全体については、マニュアルページを参照してください。
+
+====
++
+次の例では、「 cluster1 」の認証キーが作成されたことを確認します。
+
++
+[listing]
+----
+cluster1::> security key-manager key query
+       Vserver: cluster1
+   Key Manager: onboard
+          Node: node1
+
+Key Tag                               Key Type  Restored
+------------------------------------  --------  --------
+node1                                 NSE-AK    yes
+    Key ID: 000000000000000002000000000001000c11b3863f78c2273343d7ec5a67762e0000000000000000
+node1                                 NSE-AK    yes
+    Key ID: 000000000000000002000000000001006f4e2513353a674305872a4c9f3bf7970000000000000000
+
+       Vserver: cluster1
+   Key Manager: onboard
+          Node: node2
+
+Key Tag                               Key Type  Restored
+------------------------------------  --------  --------
+node1                                 NSE-AK    yes
+    Key ID: 000000000000000002000000000001000c11b3863f78c2273343d7ec5a67762e0000000000000000
+node2                                 NSE-AK    yes
+    Key ID: 000000000000000002000000000001006f4e2513353a674305872a4c9f3bf7970000000000000000
+----
+
+
+あとで使用できるように、ストレージシステムの外部の安全な場所にパスフレーズをコピーしておきます。
+
+キー管理情報は、クラスタの Replicated Database （ RDB ；複製データベース）にすべて自動的にバックアップされます。災害時に備えて、情報を手動でもバックアップしておく必要があります。

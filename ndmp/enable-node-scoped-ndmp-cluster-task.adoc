@@ -1,0 +1,62 @@
+---
+permalink: ndmp/enable-node-scoped-ndmp-cluster-task.html 
+sidebar: sidebar 
+keywords: enable, node, scope, ndmp, cluster 
+summary: ノードを対象とした NDMP を設定するには、クラスタでノードを対象とした NDMP を有効にし、クラスタのすべてのノードで NDMP サービスを有効にします。NDMP サービスを有効にするときに、 NDMP の root ユーザも設定する必要があります。 
+---
+= クラスタでノードを対象とした NDMP を有効にします
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+ノードでホストされているボリュームをバックアップするには、ノードを対象とした NDMP を有効にし、 root ユーザのパスワードを設定し、データ接続と制御接続に使用する LIF を設定します。
+
+ノードを対象とした NDMP を設定するには、クラスタでノードを対象とした NDMP を有効にし、クラスタのすべてのノードで NDMP サービスを有効にします。NDMP サービスを有効にするときは 'root' ユーザも NDMP 用に設定する必要があります
+
+.手順
+. 「 node-scope-mode 」パラメータを指定して「 system services ndmp 」コマンドを実行し、ノードを対象とした NDMP モードを有効にします。
++
+[listing]
+----
+cluster1::> system services ndmp node-scope-mode on
+NDMP node-scope-mode is enabled.
+----
+. 「 system services ndmp on 」コマンドを使用して、クラスタ内のすべてのノードで NDMP サービスを有効にします。
++
+ワイルドカード「 * 」を使用すると、すべてのノードで NDMP サービスが同時に有効になります。
+
++
+バックアップアプリケーションによる NDMP 接続の認証でパスワードを指定する必要があります。
+
++
+[listing]
+----
+cluster1::> system services ndmp on -node *
+
+Please enter password:
+Confirm password:
+2 entries were modified.
+----
+. 'system services ndmp modify' コマンドを使用して 'NDMP パスワードの安全な通信のための -clear-text オプションを無効にします
++
+ワイルドカード "`*`" を使用すると ' すべてのノードで同時に -clear-text オプションが無効になります
+
++
+[listing]
+----
+cluster1::> system services ndmp modify -node * -clear-text false
+2 entries were modified.
+----
+. 「 system services ndmp show 」コマンドを使用して、 NDMP サービスが有効であり、「 -clear-text 」オプションが無効になっていることを確認します。
++
+[listing]
+----
+cluster1::> system services ndmp show
+Node                  Enabled   Clear text  User Id
+--------------------- --------- ----------- ---------
+cluster1-1            true      false        root
+cluster1-2            true      false        root
+2 entries were displayed.
+----
+

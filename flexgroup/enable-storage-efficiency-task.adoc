@@ -1,0 +1,57 @@
+---
+permalink: flexgroup/enable-storage-efficiency-task.html 
+sidebar: sidebar 
+keywords: enable, storage, efficiency, flexgroup, volume 
+summary: FlexGroup に重複排除とデータ圧縮を一緒に、または個別に実行して、最善のスペース削減効果を得ることができます。 
+---
+= FlexGroup ボリュームで Storage Efficiency を有効にします
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+FlexGroup に重複排除とデータ圧縮を一緒に、または個別に実行して、最善のスペース削減効果を得ることができます。
+
+FlexGroup はオンラインである必要があります。
+
+.手順
+. FlexGroup ボリュームで Storage Efficiency を有効にします。 'volume efficiency on -vserver SVM_name -volume volume_name '
++
+Storage Efficiency 処理は、 FlexGroup のすべてのコンスティチュエントで有効になります。
+
++
+ボリュームで Storage Efficiency を有効にしたあとに FlexGroup ボリュームを拡張した場合は、新しいコンスティチュエントでも Storage Efficiency が自動的に有効になります。
+
+. volume efficiency modify コマンドを使用して、 FlexGroup ボリュームで必要な Storage Efficiency 処理を有効にします。
++
+FlexGroup ボリュームでは、インライン重複排除、ポストプロセス重複排除、インライン圧縮、およびポストプロセス圧縮を有効にすることができます。FlexGroup ボリュームに対して圧縮形式（二次圧縮またはアダプティブ圧縮）を設定し、スケジュールや効率化ポリシーを指定することもできます。
+
+. Storage Efficiency 処理の実行にスケジュールや効率化ポリシーを使用していない場合は、効率化処理を開始します。 volume efficiency start -vserver SVM_name -volume volume_name
++
+重複排除とデータ圧縮が有効になっている場合は、最初にデータ圧縮が実行され、続けて重複排除が実行されます。FlexGroup ボリュームですでにいずれかの効率化処理がアクティブになっている場合、このコマンドは失敗します。
+
+. FlexGroup ボリュームで有効になっている効率化処理を確認します。 volume efficiency show -vserver SVM_name -volume volume_name
++
+[listing]
+----
+cluster1::> volume efficiency show -vserver vs1 -volume fg1
+             Vserver Name: vs1
+              Volume Name: fg1
+              Volume Path: /vol/fg1
+                    State: Enabled
+                   Status: Idle
+                 Progress: Idle for 17:07:25
+                     Type: Regular
+                 Schedule: sun-sat@0
+
+...
+
+             Compression: true
+      Inline Compression: true
+Incompressible Data Detection: false
+      Constituent Volume: false
+Compression Quick Check File Size: 524288000
+           Inline Dedupe: true
+         Data Compaction: false
+----
+

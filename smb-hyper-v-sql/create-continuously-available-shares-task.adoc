@@ -1,0 +1,67 @@
+---
+permalink: smb-hyper-v-sql/create-continuously-available-shares-task.html 
+sidebar: sidebar 
+keywords: create, continuous, smb, available, share, sql, database, file, server, hyper, v, virtual, machine 
+summary: データボリュームを作成したら、アプリケーションサーバが Hyper-V 仮想マシンおよび構成ファイルと SQL Server データベースファイルにアクセスするために使用する継続的可用性を備えた共有を作成できます。SMB 共有を作成する場合と同様に、共有設定ワークシートを使用する必要があります。 
+---
+= 継続的可用性を備えた SMB 共有を作成
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+データボリュームを作成したら、アプリケーションサーバが Hyper-V 仮想マシンおよび構成ファイルと SQL Server データベースファイルにアクセスするために使用する継続的可用性を備えた共有を作成できます。SMB 共有を作成する場合と同様に、共有設定ワークシートを使用する必要があります。
+
+.手順
+. 既存のデータボリュームとそのジャンクションパスに関する情報を表示します。
++
+`* volume show -vserver vserver_name __ junction *`
+
+. 継続的可用性を備えた SMB 共有を作成します。
++
+`* vserver cifs share create -vserver vserver_name __ -share-name share_name -share-properties oplocks 、 continuously-available -symlink "" [-comment text]*`
+
++
+** 必要に応じて、コメントを共有設定に追加することもできます。
+** デフォルトでは、オフラインファイル共有プロパティは共有に設定され、「手動」に設定されます。
+** ONTAP は、 Windows のデフォルトの共有権限である「 Everyone 」 / 「 Full Control 」を使用して共有を作成します。
+
+
+. 共有設定ワークシートのすべての共有について同じ手順を繰り返します。
+. vserver cifs share show コマンドを使用して、設定が正しいことを確認します。
+. 継続的な可用性が確保された共有に NTFS ファイル権限を設定するには、各共有にドライブをマッピングし、 Windows のプロパティ * ウィンドウを使用してファイル権限を設定します。
+
+
+次のコマンドを実行すると、 Storage Virtual Machine （ SVM 、旧 Vserver ） vs1 上に「 `d ata2` 」という名前の継続的可用性を備えた共有が作成されます。シンボリックリンクを無効にするには '-symlink パラメータを "" に設定します
+
+[listing]
+----
+cluster1::> volume show -vserver vs1 -junction
+                      Junction                  Junction
+Vserver   Volume      Active   Junction Path    Path Source
+--------- ----------- -------- ---------------- ------------
+vs1       data        true     /data            RW_volume
+vs1       data1       true     /data/data1      RW_volume
+vs1       data2       true     /data/data2      RW_volume
+vs1       vs1_root    -        /                -
+
+cluster1::> vserver cifs share create -vserver vs1 -share-name data2 -path /data/data2 -share-properties oplocks,continuously-available -symlink ""
+
+cluster1::> vserver cifs share show -vserver vs1 -share-name data2
+
+                      Vserver: vs1
+                        Share: data2
+     CIFS Server NetBIOS Name: VS1
+                         Path: /data/data2
+             Share Properties: oplocks
+                               continuously-available
+           Symlink Properties: -
+      File Mode Creation Mask: -
+ Directory Mode Creation Mask: -
+                Share Comment: -
+                    Share ACL: Everyone / Full Control
+File Attribute Cache Lifetime: -
+                  Volume Name: -
+                Offline Files: manual
+Vscan File-Operations Profile: standard
+----

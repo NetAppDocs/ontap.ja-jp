@@ -1,0 +1,70 @@
+---
+permalink: data-protection/restore-svm-root-volume-promote-mirror-task.html 
+sidebar: sidebar 
+keywords: promote, load-sharing, mirror 
+summary: ルートボリュームが完全に使用できなくなった場合は、負荷共有ミラー（ LSM ）ボリュームを昇格して、ルートボリュームのデータへの書き込みアクセスを提供できます。 
+---
+= 負荷共有ミラーを昇格
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+ルートボリュームが完全に使用できなくなった場合は、負荷共有ミラー（ LSM ）ボリュームを昇格して、ルートボリュームのデータへの書き込みアクセスを提供できます。
+
+このタスクを実行するには、 advanced 権限レベルのコマンドを使用する必要があります。
+
+.手順
+. advanced 権限レベルに切り替えます。
++
+「 advanced 」の権限が必要です
+
+. LSM ボリュームを昇格します。
++
+「 snapmirror promote - destination-path 」： volume_|| クラスタ： //SVM/volume_`
+
++
+コマンド構文全体については、マニュアルページを参照してください。
+
++
+次の例は、ボリューム「 vm1 」を新しい SVM ルートボリュームとして昇格します。
+
++
+[listing]
+----
+cluster_src::*> snapmirror promote -destination-path svm1:svm1_m2
+
+Warning: Promote will delete the offline read-write volume
+         cluster_src://svm1/svm1_root and replace it with
+         cluster_src://svm1/svm1_m2. Because the volume is offline,
+         it is not possible to determine whether this promote will
+         affect other relationships associated with this source.
+Do you want to continue? {y|n}: y
+----
++
+「 y 」と入力します。ONTAP によって LSM ボリュームが読み取り / 書き込み可能になり、アクセス可能な場合は元のルートボリュームが削除されます。
+
++
+[NOTE]
+====
+最後の更新が最近行われていない場合は、昇格されたルートボリュームに元のルートボリュームのデータがすべて含まれているとは限りません。
+
+====
+. admin 権限レベルに戻ります。
++
+「特権管理者」
+
+. ルートボリュームに使用した命名規則に従って、昇格されたボリュームの名前を変更します。
++
+'volume rename -vserver_svm_-volume_-newname_new_name_`
+
++
+次に、昇格されたボリューム「 vm1 」の名前を「 vm1 _root 」という名前に変更する例を示します。
+
++
+[listing]
+----
+cluster_src::> volume rename -vserver svm11 -volume svm1_m2 -newname svm1_root
+----
+. 手順の説明に従って、名前を変更したルートボリュームを保護します link:create-load-sharing-mirror-task.html#steps["3."] からを参照してください  インチ 。
+

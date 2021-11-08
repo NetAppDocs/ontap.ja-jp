@@ -1,0 +1,83 @@
+---
+permalink: data-protection/create-load-sharing-mirror-task.html 
+sidebar: sidebar 
+keywords: create, initialize, load-sharing, mirror, relationship 
+summary: クラスタ内のそれぞれのルートボリュームについて、 Load-Sharing Mirror （ LSM ；負荷共有ミラー）を作成する必要があります。LSM は、ルートボリュームが含まれているノード（ HA ペアのパートナーノードなど）以外のノード、または別の HA ペアに作成できます。2 ノードクラスタの場合は、ルートボリュームがあるノードのパートナーに LSM を作成する必要があります。 
+---
+= 負荷共有ミラー関係を作成して初期化
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+クラスタ内のそれぞれのルートボリュームについて、 Load-Sharing Mirror （ LSM ；負荷共有ミラー）を作成する必要があります。LSM は、ルートボリュームが含まれているノード（ HA ペアのパートナーノードなど）以外のノード、または別の HA ペアに作成できます。2 ノードクラスタの場合は、ルートボリュームがあるノードのパートナーに LSM を作成する必要があります。
+
+同じノードで LSM を作成したあとで HA ペアのディスクが失われた場合は、単一点障害が存在します。また、データのリカバリに使用するもう 1 つのコピーはありません。ただし、ルートボリュームを含むノード以外のノードや別の HA ペアに LSM を作成しても、停止してもデータにアクセスできます。
+
+たとえば、 4 ノードクラスタの 3 つのノードにルートボリュームがある場合、次のようになります。
+
+* HA 1 のノード 1 のルートボリュームについて、 HA 2 のノード 1 または HA 2 のノード 2 に LSM を作成します。
+* HA 1 のノード 2 のルートボリュームについて、 HA 2 のノード 1 または HA 2 のノード 2 に LSM を作成します。
+* HA 2 のノード 1 のルートボリュームについて、 HA 1 のノード 1 または HA 1 のノード 2 に LSM を作成します。
+
+
+.手順
+. LSM のデスティネーションボリュームを作成します。
++
+「 volume create -vserver _svm_-volume aggregate-aggregate_aggregate_type DP -size size 」を入力します
+
++
+デスティネーションボリュームのサイズは、ルートボリュームと同じかそれ以上である必要があります。
+
++
+ルートボリュームとデスティネーションボリュームには、「 _root 」や「 _M1 」などのサフィックスを付けることを推奨します。
+
++
+コマンド構文全体については、マニュアルページを参照してください。
+
++
+次に、 cluster_src にルート・ボリューム 'vm1 _root' の負荷共有ミラー・ボリュームを作成する例を示します。
+
++
+[listing]
+----
+cluster_src:> volume create -vserver svm1 -volume svm1_m1 -aggregate aggr_1 -size 1gb -state online -type DP
+----
+. の説明に従って、レプリケーションジョブスケジュールを作成します link:create-replication-job-schedule-task.html["レプリケーションジョブスケジュールを作成します"]。
+. SVM ルートボリュームと LSM のデスティネーションボリュームの間に負荷共有ミラー関係を作成します。
++
+「 snapmirror create -source-path _ SVM ： volume_|| 」： //SVM/volume_destination-path_SVM ： volume_|| cluster ： //SVM/volume__type LS -schedule _
+
++
+コマンド構文全体については、マニュアルページを参照してください。
+
++
+次の例では、ルートボリューム「 vm1 _root 」と負荷共有ミラーボリューム「 vm1 _m1' 」の間に負荷共有ミラー関係を作成します。
+
++
+[listing]
+----
+cluster_src::> snapmirror create -source-path svm1:svm1_root -destination-path svm1:svm1_m1 -type LS -schedule hourly
+----
++
+負荷共有ミラーの type 属性は '`D P` から 'LS' に変わります
+
+. 負荷共有ミラーを初期化します。
++
+「 snapmirror initialize-ls-set -source-path_SVM ： volume_|| 」： //SVM/volume_`
+
++
+初期化には時間がかかる場合があります。ベースライン転送はオフピークの時間帯に実行することを推奨します。
+
++
+コマンド構文全体については、マニュアルページを参照してください。
+
++
+次の例は、ルートボリューム「 vm1 _root 」の負荷共有ミラーを初期化します。
+
++
+[listing]
+----
+cluster_src::> snapmirror initialize-ls-set -source-path svm1:svm1_root
+----
+

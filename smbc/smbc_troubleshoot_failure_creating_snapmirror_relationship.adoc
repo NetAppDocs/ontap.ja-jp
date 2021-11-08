@@ -15,8 +15,27 @@ summary: SnapMirror 関係の作成と整合グループの初期化が失敗す
 [role="lead"]
 SnapMirror 関係の作成と整合グループの初期化が失敗する。
 
-....
-command failed: The number of SnapMirror Synchronous Consistency Group
-relationships in a cluster cannot exceed 5
-....
-構成内の整合グループ数が 5 つ以下であることを確認します。を参照してください link:smbc_plan_additional_restrictions_and_limitations.html["その他の制約事項および制限事項"]。
+ONTAP 9.8 または 9.9 を使用している場合。構成内の整合グループ数が 5 つ以下であることを確認します。ONTAP 9.10.1 以降、制限は 20 です。を参照してください link:smbc_plan_additional_restrictions_and_limitations.html["その他の制約事項および制限事項"]。
+
+整合グループの初期化が停止した場合は、 ONTAP REST API 、 System Manager 、またはコマンド「 show -expand 」を使用して、整合グループの初期化のステータスを確認します。
+
+整合グループの初期化に失敗した場合は、 SM-BC 関係を削除し、整合グループを削除してから、関係を再作成して初期化してください。このワークフローは、使用する ONTAP のバージョンによって異なります。
+
+|===
+
+
+| ONTAP 9.8 ～ 9.9 を使用している場合 | ONTAP 9.10.1 を使用している場合 
+
+
+ a| 
+. xref:smbc_admin_removing_an_smbc_configuration.adoc[SM-BC 設定を削除します]
+. xref:smbc_install_creating_a_consistency_group_relationship.adoc[整合グループ関係を作成する]
+. xref:smbc_install_initializing_a_consistency_group.doc[整合グループ関係を初期化します]
+
+ a| 
+. [* Protection] > [Relationships] で、コンシステンシグループの SM-BC 関係を探します。選択するオプション image:../media/icon_kabob.gif["3 つの縦の点を重ねたアイコン"]をクリックし、 * Delete * をクリックして SM-BC 関係を削除します。
+. xref:../consistency-groups/delete-task.adoc[整合グループを削除します]
+. xref:../consistency-groups/configure-task.adoc[整合グループを設定します]
+
+
+|===

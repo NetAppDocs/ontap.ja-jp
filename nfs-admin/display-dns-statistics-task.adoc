@@ -1,0 +1,80 @@
+---
+permalink: nfs-admin/display-dns-statistics-task.html 
+sidebar: sidebar 
+keywords: display, dns, statistics 
+summary: パフォーマンスを監視して問題を診断するために、ストレージシステム上の Storage Virtual Machine （ SVM ）の DNS 統計を表示することができます。 
+---
+= DNS 統計を表示します
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+パフォーマンスを監視して問題を診断するために、ストレージシステム上の Storage Virtual Machine （ SVM ）の DNS 統計を表示することができます。
+
+.手順
+. データを表示できる DNS オブジェクトを識別するには、 'statistics catalog object show コマンドを使用します。
++
+'statistics catalog object show -object external_service_op *
+
+. 1 つまたは複数のオブジェクトからデータサンプルを収集するには、 'statistics start' および 'statistics stop' コマンドを使用します。
+. サンプルデータを表示するには、 'statistics show' コマンドを使用します。
+
+
+
+
+== DNS 統計を監視しています
+
+次の例は、 DNS クエリのパフォーマンスデータを表示します。次のコマンドは、新しいサンプルのデータ収集を開始します。
+
+[listing]
+----
+vs1::*> statistics start -object external_service_op -sample-id dns_sample1
+vs1::*> statistics start -object external_service_op_error -sample-id dns_sample2
+----
+次のコマンドは、送信した DNS クエリの数と、受信した / 失敗した / タイムアウトになった DNS クエリの数を比較するカウンタを指定して、サンプルからデータを表示します。
+
+[listing]
+----
+vs1::*> statistics show -sample-id dns_sample1 -counter num_requests_sent|num_responses_received|num_successful_responses|num_timeouts|num_request_failures|num_not_found_responses
+
+Object: external_service_op
+Instance: vs1:DNS:Query:10.72.219.109
+Start-time: 3/8/2016 11:15:21
+End-time: 3/8/2016 11:16:52
+Elapsed-time: 91s
+Scope: vs1
+
+    Counter                                                     Value
+    -------------------------------- --------------------------------
+    num_not_found_responses                                         0
+    num_request_failures                                            0
+    num_requests_sent                                               1
+    num_responses_received                                          1
+    num_successful_responses                                        1
+    num_timeouts                                                    0
+6 entries were displayed.
+----
+次のコマンドは、特定のサーバの DNS クエリに対して特定のエラーを受信した回数を示すカウンタを指定して、サンプルからデータを表示します。
+
+[listing]
+----
+vs1::*> statistics show -sample-id dns_sample2 -counter server_ip_address|error_string|count
+
+Object: external_service_op_error
+Instance: vs1:DNS:Query:NXDOMAIN:10.72.219.109
+Start-time: 3/8/2016 11:23:21
+End-time: 3/8/2016 11:24:25
+Elapsed-time: 64s
+Scope: vs1
+
+    Counter                                                     Value
+    -------------------------------- --------------------------------
+    count                                                           1
+    error_string                                             NXDOMAIN
+    server_ip_address                                   10.72.219.109
+3 entries were displayed.
+----
+* 関連情報 *
+
+link:../performance-config/index.html["パフォーマンス監視のセットアップ"]

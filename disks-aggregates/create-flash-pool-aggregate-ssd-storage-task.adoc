@@ -1,0 +1,80 @@
+---
+permalink: disks-aggregates/create-flash-pool-aggregate-ssd-storage-task.html 
+sidebar: sidebar 
+keywords: create, flash pool, aggregate, ssd, storage pool, allocation units 
+summary: SSD ストレージプールから既存の HDD アグリゲートに 1 つ以上の割り当て単位を追加することで、 Flash Pool アグリゲートを設定できます。 
+---
+= SSD ストレージプールの割り当て単位を使用して Flash Pool アグリゲートを作成します
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+SSD ストレージプールから既存の HDD アグリゲートに 1 つ以上の割り当て単位を追加することで、 Flash Pool アグリゲートを設定できます。
+
+.必要なもの
+* Flash Pool アグリゲートに変換する、 HDD で構成された有効なアグリゲートを特定しておく必要があります。
+* アグリゲートに関連付けられたボリュームが書き込みキャッシュに対応しているかどうかを確認し、対応していない場合は必要な手順を実行して問題を解決しておく必要があります。
+* この Flash Pool アグリゲートに SSD キャッシュを提供するための SSD ストレージプールを作成しておく必要があります。
++
+使用するストレージプールのすべての割り当て単位が、 Flash Pool アグリゲートの所有者であるノードに所有されている必要があります。
+
+* アグリゲートに追加するキャッシュの容量を決めておく必要があります。
++
+アグリゲートにキャッシュを追加するには、割り当て単位を使用します。ストレージプールに余裕がある場合は、ストレージプールに SSD を追加することで割り当て単位のサイズをあとから拡張できます。
+
+* SSD キャッシュで使用する RAID タイプを決めておく必要があります。
++
+SSD ストレージプールからアグリゲートにキャッシュを追加したあとで、キャッシュ RAID グループの RAID タイプを変更することはできません。
+
+* システムの最大キャッシュサイズを決めて、アグリゲートに SSD キャッシュを追加してもそのサイズを超える原因は作成されないことを確認しておく必要があります。
++
+「 storage pool show 」コマンドを使用して、合計キャッシュサイズに追加されるキャッシュの容量を確認できます。
+
+* Flash Pool アグリゲートの構成要件を確認しておく必要があります。
+
+
+キャッシュの RAID タイプを HDD RAID グループと異なるタイプにする場合は、 SSD の容量を追加するときにキャッシュの RAID タイプを指定する必要があります。アグリゲートに SSD の容量を追加したあとで、キャッシュの RAID タイプを変更することはできません。
+
+アグリゲートに SSD キャッシュを追加して Flash Pool アグリゲートを作成したあとで、 SSD キャッシュを削除してアグリゲートを元の構成に戻すことはできません。
+
+.手順
+. アグリゲートを Flash Pool アグリゲートとして使用できるように指定します。
++
+「 storage aggregate modify -aggregate _aggr_name --hybrid-enabled true 」という名前になります
+
++
+この手順が正常に完了しない場合は、ターゲットアグリゲートが書き込みキャッシュに対応しているかどうかを確認してください。
+
+. 使用可能な SSD ストレージプールの割り当て単位を表示します。
++
+「 storage pool show -available-capacity 」を参照してください
+
+. アグリゲートに SSD の容量を追加します。
++
+「 storage aggregate add_aggr_name __ -storage-pool_sp_name __ allocation-units_number_of_units
+
++
+キャッシュの RAID タイプを HDD RAID グループと異なるタイプにするには 'raidtype パラメータを使用してこのコマンドを入力するときに ' キャッシュタイプを変更する必要があります
+
++
+新しい RAID グループを指定する必要はありません。 ONTAP では、 HDD RAID グループとは別の RAID グループに SSD キャッシュが自動的に配置されます。
+
++
+キャッシュの RAID グループサイズを設定することはできません。このサイズは、ストレージプール内の SSD の数によって決まります。
+
++
+キャッシュがアグリゲートに追加され、アグリゲートが Flash Pool アグリゲートになります。アグリゲートに追加された各割り当て単位は独自の RAID グループになります。
+
+. SSD キャッシュが存在すること、およびそのサイズを確認します。
++
+「 storage aggregate show_aggr_name_` 」
+
++
+キャッシュのサイズは、 [Total Hybrid Cache Size] の下に表示されます。
+
+
+
+* 関連情報 *
+
+http://www.netapp.com/us/media/tr-4070.pdf["ネットアップテクニカルレポート 4070 ：『 Flash Pool Design and Implementation Guide 』"]

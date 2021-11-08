@@ -1,0 +1,42 @@
+---
+permalink: fabricpool/setup-storagegrid-cloud-tier-task.html 
+sidebar: sidebar 
+keywords: setting up, storagegrid, cloud tier 
+summary: ONTAP 9.2 以降を実行している場合は、 StorageGRID を FabricPool のクラウド階層としてセットアップできます。 
+---
+= StorageGRID の設定情報を指定します
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+ONTAP 9.2 以降を実行している場合は、 StorageGRID を FabricPool のクラウド階層としてセットアップできます。SAN プロトコルがアクセスするデータを階層化する場合は、接続に関する考慮事項があるため、 StorageGRID などのプライベートクラウドを使用することを推奨します。
+
+ONTAP 9.8 以降では、 ONTAP S3 サーバのロードバランシングが有効になっています。サーバのホスト名が複数の IP アドレスに解決される場合、 ONTAP は、返されるすべての IP アドレス（最大 16 個の IP アドレス）とのクライアント接続を確立します。接続が確立されると、 IP アドレスはラウンドロビン方式でピックアップされます。
+
+.手順
+. 「 -provider-type `s gws 」パラメータを指定して「 storage aggregate object-store config create 」コマンドを使用し、 StorageGRID の設定情報を指定します。
++
+** 指定された情報で ONTAP から StorageGRID にアクセスできない場合、「 storage aggregate object-store config create 」コマンドが失敗します。
+** access-key' パラメータを使用して、 StorageGRID オブジェクトストアへの要求を認証するためのアクセスキーを指定します。
+** 「 -secret-password 」パラメータを使用して、 StorageGRID オブジェクトストアへの要求を認証するためのパスワード（シークレットアクセスキー）を指定します。
+** StorageGRID パスワードが変更された場合は、 ONTAP に格納されている対応するパスワードをただちに更新する必要があります。
++
+これにより、 ONTAP は引き続き StorageGRID 内のデータにアクセスできます。
+
+** is-certificate-validation-enabled パラメータを「 false 」に設定すると、 StorageGRID の証明書チェックが無効になります。
+
+
++
+[listing]
+----
+cluster1::> storage aggregate object-store config create
+-object-store-name mySGWS -provider-type SGWS -server mySGWSserver
+-container-name mySGWScontainer -access-key mySGWSkey
+-secret-password mySGWSpass
+----
+. 「 storage aggregate object-store config show 」コマンドを使用して、 StorageGRID の設定情報を表示して確認します。
++
+「 storage aggregate object-store config modify 」コマンドを使用すると、 FabricPool の StorageGRID 設定情報を変更できます。
+
+

@@ -1,0 +1,55 @@
+---
+permalink: encryption-at-rest/remove-external-key-server-93-later-task.html 
+sidebar: sidebar 
+keywords: deleting, external key manager, connection 
+summary: KMIP サーバが不要になったときはノードから切断できます。たとえば、ボリューム暗号化に移行する場合は KMIP サーバを切断できます。 
+---
+= 外部キー管理ツールの接続を削除します
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+KMIP サーバが不要になったときはノードから切断できます。たとえば、ボリューム暗号化に移行する場合は KMIP サーバを切断できます。
+
+このタスクを実行するには、クラスタ管理者または SVM の管理者である必要があります。
+
+HA ペアのいずれかのノードから KMIP サーバを切断すると、自動的にすべてのクラスタノードからサーバが切断されます。
+
+[NOTE]
+====
+KMIP サーバを切断したあとも外部キー管理を引き続き使用する場合は、別の KMIP サーバから認証キーを提供できることを確認してください。
+
+====
+.ステップ
+. 現在のノードから KMIP サーバを切断します。
++
+|===
+| ONTAP バージョン | 使用するコマンド 
+
+
+ a| 
+ONTAP 9.6 以降
+ a| 
+「 securitykey-manager external remove-servers -vserver SVM-key-servers host_name | ip_address ： port 、…」のように設定します
+
+
+
+ a| 
+ONTAP 9.5 以前
+ a| 
+「 securitykey manager delete -address key_management_server_ipaddress
+
+|===
++
+コマンド構文全体については、マニュアルページを参照してください。
+
++
+次の ONTAP 9.6 コマンドは、「 cluster1 」の 2 つの外部キー管理サーバへの接続を無効にします。このサーバは、最初の「 KS1 」という名前で、デフォルトポート 5696 をリスンし、 2 番目のサーバは IP アドレス 10.0.0.20 、ポート 24482 をリスンしています。
+
++
+[listing]
+----
+clusterl::> security key-manager external remove-servers -vserver cluster-1 -key-servers ks1,10.0.0.20:24482
+----
+

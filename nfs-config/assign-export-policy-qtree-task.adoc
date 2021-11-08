@@ -1,0 +1,42 @@
+---
+permalink: nfs-config/assign-export-policy-qtree-task.html 
+sidebar: sidebar 
+keywords: assign, export, policy, qtree 
+summary: ボリューム全体をエクスポートする代わりに、ボリュームの特定の qtree をエクスポートしてクライアントから直接アクセスできるようにすることもできます。qtree をエクスポートするには、 qtree にエクスポートポリシーを割り当てます。エクスポートポリシーの割り当ては、新しい qtree の作成時に行うことも、既存の qtree の変更によって行うこともできます。 
+---
+= エクスポートポリシーを qtree に割り当てます
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+ボリューム全体をエクスポートする代わりに、ボリュームの特定の qtree をエクスポートしてクライアントから直接アクセスできるようにすることもできます。qtree をエクスポートするには、 qtree にエクスポートポリシーを割り当てます。エクスポートポリシーの割り当ては、新しい qtree の作成時に行うことも、既存の qtree の変更によって行うこともできます。
+
+エクスポートポリシーが存在している必要があります。
+
+qtree では、作成時に指定しなかった場合、格納先ボリュームの親のエクスポートポリシーがデフォルトで継承されます。
+
+エクスポートポリシーは、 qtree の作成時、または qtree の作成後にいつでも、 qtree に関連付けることができます。1 つの qtree に関連付けることができるのは 1 つのエクスポートポリシーだけですが、 1 つのポリシーを多数の qtree と関連付けることができます。
+
+.手順
+. qtree の作成時にエクスポートポリシーを指定しなかった場合は、 qtree にエクスポートポリシーを割り当てます。
++
+'volume qtree modify -vserver _vserver_name __ qtree-path /vol/ volume_name / qtree_name_-export-policy_policy_name_name_`
+
+. ポリシーが qtree に割り当てられたことを確認します。
++
+volume qtree show -qtree_qtree_name_-- fields export-policy'
+
+
+
+次のコマンドは、エクスポートポリシー nfs_policy を vs1 という SVM 上の qtree qt1 に割り当てて、割り当てを確認します。
+
+[listing]
+----
+cluster::> volume modify -v1server vs1 -qtree-path /vol/vol1/qt1 -policy nfs_policy
+
+cluster::>volume qtree show -volume vol1 -fields export-policy
+vserver volume qtree export-policy
+------- ------ ----- -------------
+vs1     data1  qt01  nfs_policy
+----

@@ -1,0 +1,62 @@
+---
+permalink: data-protection/path-name-pattern-matching-concept.html 
+sidebar: sidebar 
+keywords: path, pattern, matching 
+summary: パターンマッチングを使用すると、 snapmirror コマンドでソースパスとデスティネーションパスを指定できます。 
+---
+= パス名のパターンマッチングを使用します
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+パターンマッチングを使用すると、「 snapmirror 」コマンドでソースパスとデスティネーションパスを指定できます。
+
+「 'napmirror' 」コマンドでは、「 vserver ： volume 」の形式で完全修飾パス名を使用します。SVM 名を入力せずにパス名を省略できます。省略した場合、「 snapmirror 」コマンドではユーザのローカル SVM コンテキストが使用されます。
+
+SVM の名前が「 vserver1 」で、ボリュームの名前が「 vol1 」であるとすると、完全修飾パス名は「 vserver1 ： vol1 」になります。
+
+パス名にアスタリスク（ * ）をワイルドカードとして使用すると、一致する完全修飾パス名を選択できます。次の表に、ワイルドカードを使用して特定範囲のボリュームを選択する例を示します。
+
+[cols="2*"]
+|===
+
+
+ a| 
+「 * 」
+ a| 
+すべてのパスに一致します。
+
+
+
+ a| 
+「 vs * 」
+ a| 
+SVM 名の先頭が「 vs 」であるすべての SVM およびボリュームが一致します。
+
+
+
+ a| 
+`*:*src*`
+ a| 
+ボリューム名に「 rc 」というテキストが含まれているすべての SVM が一致します。
+
+
+
+ a| 
+`*:vol*`
+ a| 
+ボリューム名の先頭が「 vol 」であるすべての SVM が一致します。
+
+|===
+[listing]
+----
+vs1::> snapmirror show -destination-path *:*dest*
+                                                                                Progress
+Source              Destination  Mirror        Relationship  Total              Last
+Path          Type  Path         State         Status        Progress   Healthy Updated
+------------- ---- ------------ ------------- -------------- ---------- ------- --------
+vs1:sm_src2
+              DP   vs2:sm_dest1
+                                Snapmirrored  Idle           -          true    -
+----

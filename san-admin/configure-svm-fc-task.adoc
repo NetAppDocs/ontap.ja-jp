@@ -1,0 +1,43 @@
+---
+permalink: san-admin/configure-svm-fc-task.html 
+sidebar: sidebar 
+keywords: configure, svm, for fc 
+summary: FC 用に Storage Virtual Machine （ SVM ）を設定するには、 SVM 用の LIF を作成し、それらの LIF に FC プロトコルを割り当てる必要があります。 
+---
+= FC 用に SVM を設定
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+FC 用に Storage Virtual Machine （ SVM ）を設定するには、 SVM 用の LIF を作成し、それらの LIF に FC プロトコルを割り当てる必要があります。
+
+FC ライセンスが必要です。また、そのライセンスを有効にする必要があります。FC ライセンスが有効になっていない場合、 LIF と SVM はオンラインとして表示されますが、動作ステータスは「所有」になります。LIF と SVM を動作状態にするには、 FC サービスを有効にする必要があります。イニシエータをホストするには、 SVM 内のすべての FC LIF で単一イニシエータゾーニングを使用する必要があります。
+
+ネットアップでは、 FC プロトコルを使用してデータを提供するそれぞれの SVM について、各ノードに少なくとも 1 つの FC LIF をサポートしています。ノードごとに 1 つの LIF を接続した構成では、ノードごとに 2 つの LIF と 2 つのファブリックを使用する必要があります。これにより、ノードレイヤとファブリックで冗長性が確保されます。
+
+.手順
+. SVM で FC サービスを有効にします。
++
+「 vserver fcp create -vserver_vserver_name __ status-admin up 」の形式になります
+
+. FC を提供する各ノードの SVM 用に 2 つの LIF を作成します。
++
+'network interface create -vserver _vserver_name -- lif_lif_name_-role data -data-protocol fcp -home-node _node_name にホームポート名になります
+
++
+「 -role 」パラメータは「 data 」にし、「 data -protocol 」パラメータは「 fcp 」にする必要があります。
+
+. LIF が作成され、動作ステータスが「 online 」になっていることを確認します。
++
+「 network interface show -vserver_vserver_name __ lif_name_` 」のように表示されます
+
+
+
+* 関連情報 *
+
+https://mysupport.netapp.com/site/global/dashboard["ネットアップサポート"]
+
+https://mysupport.netapp.com/matrix["NetApp Interoperability Matrix Tool で確認できます"]
+
+xref:life-cluster-concept.adoc[クラスタ SAN 環境での LIF に関する注意事項]

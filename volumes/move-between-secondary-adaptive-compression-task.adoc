@@ -1,0 +1,92 @@
+---
+permalink: volumes/move-between-secondary-adaptive-compression-task.html 
+sidebar: sidebar 
+keywords: move, secondary compression, adaptive compression 
+summary: データの読み取り量に応じて、二次圧縮と適応圧縮を切り替えることができます。ランダムリードの量が多く、高いパフォーマンスが要求されるシステムには、適応圧縮が適しています。データがシーケンシャルに書き込まれ、圧縮で多くの量を削減することが要求される場合は、二次圧縮が適しています。 
+---
+= 二次圧縮と適応圧縮を切り替えます
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+データの読み取り量に応じて、二次圧縮と適応圧縮を切り替えることができます。ランダムリードの量が多く、高いパフォーマンスが要求されるシステムには、適応圧縮が適しています。データがシーケンシャルに書き込まれ、圧縮で多くの量を削減することが要求される場合は、二次圧縮が適しています。
+
+デフォルトの圧縮形式は、使用するアグリゲートとプラットフォームに基づいて選択されます。
+
+.手順
+. ボリュームのデータ圧縮を無効にします。
++
+'volume efficiency modify' を実行します
+
++
+次のコマンドは、ボリューム vol1 のデータ圧縮を無効にします。
+
++
+volume efficiency modify -compression false -inline-compression false -volume vol1'
+
+. advanced 権限レベルに切り替えます。
++
+「 advanced 」の権限が必要です
+
+. 圧縮データを解凍します。
++
+「 volume efficiency undo 」と入力します
+
++
+次のコマンドは、ボリューム vol1 上の圧縮データを解凍します。
+
++
+volume efficiency undo -vserver vs1 -volume vol1 -compression true
+
++
+[NOTE]
+====
+圧縮データを格納するための十分なスペースがボリュームにあることを確認する必要があります。
+
+====
+. 処理のステータスがアイドルであることを確認します。
++
+volume efficiency show
+
++
+次のコマンドは、ボリューム vol1 の効率化処理のステータスを表示します。
+
++
+volume efficiency show -vserver vs1 -volume vol1'
+
+. データ圧縮を有効にして、圧縮形式を設定します。
++
+'volume efficiency modify' を実行します
+
++
+次のコマンドは、ボリューム vol1 でデータ圧縮を有効にして、圧縮形式を二次圧縮に設定します。
+
++
+volume efficiency modify -vserver vs1 -volume vol1 -compression true -compression -type secondary ’
+
++
+[NOTE]
+====
+この手順では、ボリュームで二次圧縮が有効になるだけで、ボリューム上のデータは圧縮されません。
+
+** AFF システムで既存のデータを圧縮するには、バックグラウンド圧縮スキャナを実行する必要があります。
+** Flash Pool アグリゲートまたは HDD アグリゲートで既存のデータを圧縮するには、バックグラウンド圧縮を実行する必要があります。
+
+
+====
+. admin 権限レベルに切り替えます。
++
+「特権管理者」
+
+. オプション：インライン圧縮を有効にします。
++
+'volume efficiency modify' を実行します
+
++
+次のコマンドは、ボリューム vol1 のインライン圧縮を有効にします。
+
++
+volume efficiency modify -vserver vs1 -volume vol1 -inline-compression true
+
+

@@ -1,0 +1,65 @@
+---
+permalink: nfs-admin/verify-name-service-connections-task.html 
+sidebar: sidebar 
+keywords: verify, name, service, connection 
+summary: ONTAP 9.2 以降では、 DNS ネームサーバと LDAP ネームサーバが ONTAP に接続されているかどうかを確認できます。これらのコマンドは admin 権限レベルで使用できます。 
+---
+= ネームサービスの接続を確認
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+ONTAP 9.2 以降では、 DNS ネームサーバと LDAP ネームサーバが ONTAP に接続されているかどうかを確認できます。これらのコマンドは admin 権限レベルで使用できます。
+
+DNS または LDAP ネームサービスの設定が有効かどうかは、必要に応じてネームサービス設定チェックを使用して確認できます。この検証チェックは、コマンドラインまたは System Manager で実行できます。
+
+DNS 設定の場合、すべてのサーバがテストされ、設定が有効とみなされるためにはすべてのサーバが動作している必要があります。LDAP 設定の場合は、いずれかのサーバが稼働していれば設定は有効です。ネームサービスコマンドは 'ip-config -validation' フィールドが true でない限り ' 構成チェックを適用します ( デフォルトは false)
+
+.ステップ
+. 適切なコマンドを使用して、ネームサービスの設定を確認します。設定されているサーバのステータスが UI に表示されます。
++
+[cols="2*"]
+|===
+| 確認する項目 | 使用するコマンド 
+
+
+ a| 
+DNS の設定ステータス
+ a| 
+「 vserver services name-service dns check 」のようになります
+
+
+
+ a| 
+LDAP の設定ステータス
+ a| 
+「 vserver services name-service ldap check 」のようになります
+
+|===
++
+[listing]
+----
+cluster1::> vserver services name-service dns check -vserver vs0
+
+Vserver         Name Server     Status  Status Details
+--------------  --------------- ------- -------------------------
+ vs0            10.11.12.13     up      Response time (msec): 55
+ vs0            10.11.12.14     up      Response time (msec): 70
+ vs0            10.11.12.15     down    Connection refused.
++---------------------------------------------------------------+
+----
++
+[listing]
+----
+cluster1::> vserver services name-service ldap check -vserver vs0
+
+| Vserver: vs0                                                |
+| Client Configuration Name: c1                               |
+| LDAP Status: up                                             |
+| LDAP Status Details: Successfully connected to LDAP server "10.11.12.13".                                              |
+----
++
+設定されているサーバ（ name-servers/ldap-servers ）の少なくとも 1 つが到達可能でサービスを提供していれば、設定の検証は成功です。到達不能なサーバがある場合は、警告が表示されます。
+
+

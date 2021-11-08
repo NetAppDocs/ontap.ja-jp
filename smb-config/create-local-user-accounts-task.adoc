@@ -1,0 +1,62 @@
+---
+permalink: smb-config/create-local-user-accounts-task.html 
+sidebar: sidebar 
+keywords: create, local, user, account, authorize, access, data, contain, svm, sb, connection, local, user, authentication, create local user accounts 
+summary: SVM に格納されたデータへの SMB 接続によるアクセスの許可に使用できるローカルユーザアカウントを作成できます。ローカルユーザアカウントは、 SMB セッションを作成する際の認証にも使用できます。 
+---
+= ローカルユーザアカウントを作成します
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+SVM に格納されたデータへの SMB 接続によるアクセスの許可に使用できるローカルユーザアカウントを作成できます。ローカルユーザアカウントは、 SMB セッションを作成する際の認証にも使用できます。
+
+ローカルユーザの機能は、 SVM の作成時にデフォルトで有効になります。
+
+ローカルユーザアカウントを作成するときは、ユーザ名を指定する必要があり、アカウントを関連付ける SVM を指定する必要があります。
+
+vserver cifs users-and-groups local-user のマニュアル・ページには、オプションのパラメータと命名要件に関する詳細が記載されています。
+
+.手順
+. ローカルユーザ「 vserver cifs users-and-groups local-user create -vserver vserver_name user-name user_name optional_parameters 」を作成します
++
+次のオプションのパラメータが役に立つ場合があります。
+
++
+** 「 -full-name 」
++
+ユーザのフルネーム。
+
+** 「 - 概要」
++
+ローカルユーザの概要。
+
+** `-is-account-disabled {true|false}`
++
+ユーザアカウントが有効になっているか無効になっているかを示します。このパラメータを指定しない場合、ユーザアカウントはデフォルトで有効になります。
+
+
+
++
+ローカルユーザのパスワードを入力するように求められます。
+
+. ローカルユーザのパスワードを入力し、確認のためにもう一度入力します。
+. ユーザが正常に作成されたことを確認します。 vserver cifs users-and-groups local-user show -vserver vserver_name
+
+
+次の例では、 SVM vs1.example.com に関連付けられた「 `S MB_SERVER1\Sue` 」という完全な名前のローカルユーザ「 `S ue Chang-」 を作成します。
+
+[listing]
+----
+cluster1::> vserver cifs users-and-groups local-user create -vserver vs1.example.com ‑user-name SMB_SERVER01\sue -full-name "Sue Chang"
+
+Enter the password:
+Confirm the password:
+
+cluster1::> vserver cifs users-and-groups local-user show
+Vserver  User Name                  Full Name  Description
+-------- -------------------------- ---------- -------------
+vs1      SMB_SERVER01\Administrator            Built-in administrator account
+vs1      SMB_SERVER01\sue            Sue Chang
+----

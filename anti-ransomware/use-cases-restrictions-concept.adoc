@@ -1,0 +1,84 @@
+---
+sidebar: sidebar 
+permalink: anti-ransomware/use-cases-restrictions-concept.html 
+keywords: anti-ransomware use cases and restrictions, anti-ransomware performance and frequency considerations, anti-ransomware workloads, anti-ransomware volume requirements, anti-ransomware performance, volumes, anti-ransomware encryption, anti-ransomware system configurations 
+summary: 現在のリリースでは、ランサムウェア攻撃からの保護が NAS 環境に最も適しています。その他の環境は、今後のリリースでサポートされる予定です。 
+---
+= ランサムウェア対策のユースケースと制約事項
+:toc: macro
+:hardbreaks:
+:toclevels: 1
+:toc: 
+:toclevels: 1
+:nofooter: 
+:icons: font
+:linkattrs: 
+:imagesdir: ./media/
+:toc-position: content
+
+
+[role="lead"]
+現在のリリースでは、ランサムウェア攻撃からの保護が NAS 環境に最も適しています。その他の環境は、今後のリリースでサポートされる予定です。
+
+適切なワークロード：
+
+* NFS ストレージ上のデータベース
+* Windows または Linux のホームディレクトリ
++
+ユーザーは、学習期間内に検出されなかった拡張子を持つファイルを作成できるため、このワークロードで誤検出が発生する可能性が高くなります。
+
+* 画像とビデオ
++
+たとえば、医療記録や Electronic Design Automation （ EDA ）データなどです。
+
+
+
+不適切なワークロード：
+
+* ファイルの作成または削除の頻度が高いワークロード（テスト / 開発ワークロードなど、数秒で数十万個のファイルを削除）
+* ランサムウェア対策機能は、ファイルの作成や削除のアクティビティが異常に急増していることを認識できるかどうかに依存します。アプリケーション自体がファイルアクティビティのソースである場合、ランサムウェアのアクティビティと効果的に区別することはできません
+* アプリケーションやホストがデータを暗号化するワークロードには、ランサムウェア対策機能が、受信データを暗号化データまたは暗号化されていないデータとして区別する必要があります。アプリケーション自体がデータを暗号化している場合は、機能の有効性が低下します。ただし、この機能は、ファイルアクティビティ（作成、削除、および上書き）およびファイルタイプに基づいて動作します。
+
+
+サポートされないシステム構成：
+
+* SAN 環境
+* ONTAP S3 環境
+* NFS 上の VMDK です
+* Cloud Volumes ONTAP
+* AWS および Google Cloud 向けのクラウドボリュームサービス
+* Azure NetApp Files の特長
+* ONTAP 対応の Amazon FSX
+
+
+ボリューム要件：
+
+* 100% 未満
+* ジャンクションパスがアクティブである必要があります
+
+
+サポートされないボリュームタイプ：
+
+* ボリュームをオフラインにします
+* 制限されたボリューム
+* SnapLock ボリューム
+* SnapLock ボリューム
+* FlexGroup ボリューム
+* FlexCache ボリューム
+* SAN-only ボリューム
+* 停止している Storage VM のボリューム
+* Storage VM のルートボリューム
+* データ保護ボリューム
+
+
+
+
+== ランサムウェア対策のパフォーマンスと頻度に関する考慮事項
+
+ランサムウェア対策機能は、スループットやピーク IOPS で測定されるシステムパフォーマンスへの影響を最小限に抑えます。ランサムウェア対策機能が及ぼす影響は、ボリュームワークロードによって大きく異なります。一般的なワークロードまたは一般的なワークロードについては、以下の構成の制限が推奨されます。
+
+* 負荷が高い場合やデータを圧縮できる場合、ノードあたりのボリューム数は 50 以下です。
+* ワークロードが書き込み中心でデータを圧縮できない場合、ノードあたりのボリューム数は 20 以下です。
+
+
+ランサムウェア対策分析は優先度の高い順に実行されており、保護対象ボリュームの数が増えるにつれて、各ボリュームで分析が実行される頻度は低下します。

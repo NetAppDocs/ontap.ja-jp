@@ -1,0 +1,134 @@
+---
+sidebar: sidebar 
+permalink: anti-ransomware/respond-abnormal-task.html 
+keywords: Respond to abnormal activity, anti-ransomware abnormal activity, data entropy, unusual file extensions, potential ransomware attack, false positive, suspected ransomware attack, abnormal activity notification, security, ransomware alert message, detected abnormal volume, suspected file types, attack report, anti-ransomware attack 
+summary: 保護されたボリュームでアンチランサムウェアが異常なアクティビティを検出すると、警告が表示されます。通知を評価して、アクティビティが予想され、受け入れ可能かどうか、または攻撃が進行中かどうかを判断する必要があります。 
+---
+= 異常な活動に対応する。
+:toc: macro
+:hardbreaks:
+:toclevels: 1
+:toc: 
+:toclevels: 1
+:nofooter: 
+:icons: font
+:linkattrs: 
+:imagesdir: ./media/
+:toc-position: content
+
+
+[role="lead"]
+保護されたボリュームでアンチランサムウェアが異常なアクティビティを検出すると、警告が表示されます。通知を評価して、アクティビティが予想され、受け入れ可能かどうか、または攻撃が進行中かどうかを判断する必要があります。
+
+.必要なもの
+* アンチランサムウェアはアクティブモードで実行されています。
+
+
+アンチランサムウェアは、高データエントロピー、データ暗号化による異常なボリュームアクティビティ、および異常なファイル拡張子の組み合わせを検出すると、疑わしいファイルのリストを表示します。
+
+警告が発行されると、次の 2 つの方法のいずれかでファイルアクティビティにマークを付けることによって応答できます。
+
+* 誤検出
++
+特定されたファイルタイプはワークロードに想定されているため、無視してかまいません。
+
+* ランサムウェア攻撃の可能性
++
+特定されたファイルタイプは、ワークロード内で予期せぬものであり、攻撃の可能性として扱う必要があります。
+
+
+
+どちらの場合も、通知の更新とクリア後に通常の監視が再開されます。ランサムウェア対策によって評価が記録され、ログは新しいファイルタイプで更新され、今後の分析に使用されます。ただし、攻撃の疑いがある場合は、攻撃であるかどうかを判断し、攻撃がある場合はそれに対応し、通知をクリアする前に保護されたデータを復元する必要があります。詳細については、を参照してください link:index.html#how-to-recover-data-in-ontap-after-a-ransomware-attack["ランサムウェア攻撃から回復する方法"]。
+
+
+
+== System Manager の手順の略
+
+. 「異常な活動」通知を受信したら、リンクをクリックするか、「 * Volumes * 」概要の「 * Security * 」タブに移動します。
++
+警告は、 [ イベント ] ウィンドウの [ 概要 ] ペインに表示されます。
+
+. 「 Detected Abnormal volume activity （異常ボリュームアクティビティの検出）」というメッセージが表示されたら、疑わしいファイルを確認します。
++
+[ * セキュリティ * ] タブで、 [ 表示 * 疑わしいファイルの種類 * ] をクリックします。
+
+. [ 疑わしいファイルの種類 * ] ダイアログボックスで、各ファイルの種類を調べて、「 False Positive 」または「 Potential Ransomware Attack 」としてマークします。
+
+
+[cols="25,75"]
+|===
+| 選択した値 | 対処方法 
+
+
+| 誤検出 | [*Update*] と [*Clear Suspect File Types] をクリックして、決定を記録し、通常のランサムウェア対策モニタリングを再開します。 
+
+
+| 潜在的なランサムウェア攻撃 | 攻撃に対応し、保護されたデータを復元します。次に、 [*Update*] および [Clear Suspect File Types] をクリックして、決定を記録し、通常のランサムウェア対策モニタリングを再開します。 
+|===
+
+
+== CLI 手順の略
+
+. ランサムウェア攻撃の疑いがある場合は、攻撃の時間と重大度を確認します。
++
+「 Security anti-Ransomware volume show -vserver _svm_name_-volume_name_` 」を実行します
+
++
+出力例：
+
++
+....
+Vserver Name: vs0
+Volume Name: vol1
+State: enabled
+Attack Probability: moderate
+Attack Timeline: 9/14/2021 01:03:23
+Number of Attacks: 1
+....
++
+EMS メッセージを確認することもできます。
+
++
+event log show-message-name callhome.arw.activity.seen`
+
+. 攻撃レポートを生成し、出力先をメモします。
++
+「セキュリティランサムウェア対策ボリューム攻撃 generate -report-volume_name_-dest-path_file_name 」になります
+
++
+出力例：
+
++
+「 report" report_file_s01_vol1_14-09-2021 」をパス「 vs0 ： vol1/" 」で利用可能にします
+
+. 管理クライアントシステムのレポートを表示します。例：
++
+....
+[root@rhel8 mnt]# cat report_file_vs0_vol1_14-09-2021_01-21-08
+
+19  "9/14/2021 01:03:23"   test_dir_1/test_file_1.jpg.lckd
+20  "9/14/2021 01:03:46"   test_dir_2/test_file_2.jpg.lckd
+21  "9/14/2021 01:03:46"   test_dir_3/test_file_3.png.lckd`
+....
+. ファイル拡張子の評価に基づいて、次のいずれかの操作を実行します。
++
+** 誤検出
++
+次のコマンドを入力して、意思決定を記録します。新しい拡張子を許可するもののリストに追加し、通常のランサムウェア対策の監視を再開します。「 anti-ransomware volume attack clear -suspect -vserver _svm_name _-volume vol_name _[_extension identifiers_]] -false-positive true 」
+
++
+次のいずれかのパラメータを使用して ' 拡張子を識別します [-seq-no_integer_]'Suspect リスト内のファイルのシーケンス番号`[-extension_text_,… ] 「ファイル拡張子」 [-start-time_date_time__ -end-time_date_time_]` 消去するファイル範囲の開始時刻と終了時刻。形式は「 MM/DD/YYYY HH ： MM ： SS 」です。
+
+** ランサムウェア攻撃の可能性
++
+攻撃に対応し、データを復元します。次に、次のコマンドを入力して決定を記録し、通常のランサムウェア対策モニタリングを再開します。
+
++
+「アンチランサムウェアボリューム攻撃 clear -suspect -vserver _svm_name_-volume_name_[_extension identifiers_] -false-positive false 」のように設定します
+
++
+次のいずれかのパラメータを使用して ' 拡張子を識別します [-seq-no_integer_]'Suspect リスト内のファイルのシーケンス番号 [-extension_text_, … ]`File 拡張子 [--start-time_date_time__ -end-time-date_time_]` 消去するファイル範囲の開始時刻と終了時刻を "MM/DD/YYYY HH:mm:SS" 形式で指定します
+
+
+
+

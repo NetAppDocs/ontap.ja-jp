@@ -1,0 +1,306 @@
+---
+permalink: nfs-config/add-rule-export-policy-task.html 
+sidebar: sidebar 
+keywords: add, rule, export, policy 
+summary: エクスポートポリシーにルールが含まれていないと、クライアントはデータにアクセスできません。新しいエクスポートルールを作成するには、クライアントを特定してクライアント照合形式を選択し、アクセスとセキュリティの種類を選択し、匿名ユーザ ID マッピングを指定し、ルールインデックス番号を選択して、アクセスプロトコルを選択する必要があります。その後、 vserver export-policy rule create コマンドを使用して、新しいルールをエクスポートポリシーに追加できます。 
+---
+= エクスポートポリシーにルールを追加する
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+エクスポートポリシーにルールが含まれていないと、クライアントはデータにアクセスできません。新しいエクスポートルールを作成するには、クライアントを特定してクライアント照合形式を選択し、アクセスとセキュリティの種類を選択し、匿名ユーザ ID マッピングを指定し、ルールインデックス番号を選択して、アクセスプロトコルを選択する必要があります。そのあと、「 vserver export-policy rule create 」コマンドを使用して、新しいルールをエクスポートポリシーに追加できます。
+
+.必要なもの
+* エクスポートルールを追加するエクスポートポリシーを用意しておく必要があります。
+* データ SVM で DNS が正しく設定されている必要があり、 DNS サーバに NFS クライアント用の正しいエントリが存在する必要があります。
++
+その理由は、特定のクライアント照合形式で ONTAP がデータ SVM の DNS 設定を使用して DNS ルックアップを実行することと、エクスポートポリシールールの照合が失敗するとクライアントがデータにアクセスできなくなる可能性があることです。
+
+* Kerberos で認証する場合は、 NFS クライアントで次のうちどのセキュリティ方式が使用されているかを特定しておく必要があります。
++
+** `krb5` (Kerberos v5 プロトコル )
+** krb5i （チェックサムを使用した整合性チェックを備えた Kerberos v5 プロトコル）
+** krb5p （ Kerberos v5 プロトコルにプライバシーサービスを加えたバージョン）
+
+
+
+
+エクスポートポリシーの既存のルールがクライアント照合とアクセスの要件を満たしている場合は、新しいルールを作成する必要はありません。
+
+Kerberos で認証する場合、 SVM のすべてのボリュームが Kerberos 経由でアクセス可能であれば、ルートボリュームのエクスポートルールオプションである -rorule 、 -rwrule 、および -superuser を、 krb5 、 krb5i 、または krb5p に設定できます。
+
+.手順
+. クライアントと、新しいルールのクライアント照合形式を特定します。
++
+-clientmatch オプションは、ルールを適用するクライアントを指定します。クライアント照合の値は 1 つまたは複数指定できます。複数の値を指定する場合はカンマで区切る必要があります。次のいずれかの形式で指定できます。
+
++
+|===
+| クライアント照合形式 | 例 
+
+
+ a| 
+先頭に文字が付いたドメイン名
+ a| 
+「 .example.com 」または「 + .example.com,.example.net,...+` 」
+
+
+
+ a| 
+ホスト名
+ a| 
+'host1' または '+host1' ホスト 2'...+
+
+
+
+ a| 
+IPv4 アドレス
+ a| 
+「 10.1.12.24 」または「 +10.1.12.24 、 10.1.12.25 、…… +`
+
+
+
+ a| 
+サブネットマスクをビット数で表した IPv4 アドレス
+ a| 
+「 10.1.1.12.10/4` 」または「 +10.1.12.10/4,10.1.12.11/4 」、「 ...+` 」
+
+
+
+ a| 
+IPv4 アドレスとネットワークマスク
+ a| 
+「 10.1.16.0/255.255.255.0 」または「 +10.1.16.0/255.255.255.0 」、「 10.1.17.0/255.255.255.0 」、「 ...+` 」
+
+
+
+ a| 
+ピリオド区切りの形式の IPv6 アドレス
+ a| 
+'::1.2.3.4' または '+::1.2.3.4 、 ::1.2.3.5 、 ...+`
+
+
+
+ a| 
+サブネットマスクをビット数で表した IPv6 アドレス
+ a| 
+ff:00 / 32 または +ff:00 / 32 、 ff :01/32 、 ...+`
+
+
+
+ a| 
+ネットグループ名の前に @ 文字を付けた単一のネットグループ
+ a| 
+@netgroup1 または `+@netgroup1 、 @netgroup2 、 ...+`
+
+|===
++
+クライアント定義のタイプを組み合わせることもできます ( 例 : .example.com,@netgroup1` )
+
++
+IP アドレスを指定する場合は、次の点に注意してください。
+
++
+** 10.1.12.10-10.1.12.70 のように、 IP アドレスの範囲を入力することはできません。
++
+この形式のエントリはテキスト文字列と解釈され、ホスト名として扱われます。
+
+** クライアントアクセスのきめ細かな管理のためにエクスポートルールで個々の IP アドレスを指定する際には、動的（ DHCP など）または一時的（ IPv6 など）に割り当てられている IP アドレスを指定しないでください。
++
+そうしないと、 IP アドレスが変更されるとクライアントはアクセスを失います。
+
+** ff ： 12/ff ： 00 のように、 IPv6 アドレスとネットワークマスクを入力することはできません。
+
+
+. クライアント照合のアクセスタイプとセキュリティタイプを選択します。
++
+指定したセキュリティタイプで認証するクライアントに対して、次のアクセスモードを 1 つ以上指定できます。
+
++
+** `-rorule ( 読み取り専用アクセス )
+** `-rwrule ( 読み取り / 書き込みアクセス )
+** `-superuser` ( ルートアクセス )
++
+[NOTE]
+====
+特定のセキュリティタイプに対する読み取り / 書き込みアクセスは、エクスポートルールでそのセキュリティタイプに対する読み取り専用アクセスも許可した場合にのみ許可されます。読み取り専用パラメータで読み取り / 書き込みパラメータよりも限定的なセキュリティタイプを指定した場合、クライアントに対して読み取り / 書き込みアクセスが許可されない可能性があります。スーパーユーザアクセスの場合も同様です。
+
+====
++
+カンマ区切りの形式を使用して、 1 つのルールに対して複数のセキュリティタイプを指定できます。セキュリティタイプを「 any 」または「 never 」に指定する場合、他のセキュリティタイプは指定しないでください。次の有効なセキュリティタイプから選択してください。
+
++
+|===
+| セキュリティタイプの設定 | 一致するクライアントからエクスポートされたデータへのアクセス 
+
+
+ a| 
+「任意」
+ a| 
+受信セキュリティタイプに関係なく、常に実行されます。
+
+
+
+ a| 
+「 NONE 」
+ a| 
+単独で指定した場合、どのセキュリティタイプのクライアントにも匿名アクセスが許可されます。他のセキュリティタイプと一緒に指定した場合、指定したセキュリティタイプのクライアントにアクセスが許可され、それ以外のセキュリティタイプのクライアントには匿名アクセスが許可されます。
+
+
+
+ a| 
+「まったく」ではありません
+ a| 
+受信セキュリティタイプに関係なく、絶対に使用しないでください。
+
+
+
+ a| 
+「 krb5 」
+ a| 
+Kerberos 5 によって認証されます。認証のみ：各要求および応答のヘッダーが署名されます。
+
+
+
+ a| 
+「 krb5i
+ a| 
+Kerberos 5i によって認証されます。認証および整合性：各要求および応答のヘッダーと本文が署名されます。
+
+
+
+ a| 
+「 krb5p
+ a| 
+Kerberos 5p によって認証されます。認証、整合性、およびプライバシー：各要求および応答のヘッダーと本文が署名され、 NFS データペイロードが暗号化されます。
+
+
+
+ a| 
+「 NTLM 」
+ a| 
+CIFS NTLM によって認証されます。
+
+
+
+ a| 
+「シス」
+ a| 
+NFS AUTH_SYS によって認証されます。
+
+|===
++
+推奨されるセキュリティ・タイプは 'sys'Kerberos を使用する場合は 'krb5`'krb5p です
+
+
+
++
+NFSv3 で Kerberos を使用している場合、エクスポートポリシールールでは、「 krb5 」に加えて「 -rorule 」および「 -rwrule 」のアクセスを「 sys 」に許可する必要があります。これは、 Network Lock Manager （ NLM ；ネットワークロックマネージャ）にエクスポートへのアクセスを許可する必要があるためです。
+
+. 匿名ユーザ ID マッピングを指定します。
++
+-anon` オプションは ' ユーザ ID が 0 ( ゼロ ) で到着するクライアント要求にマップされる UNIX ユーザ ID またはユーザ名を指定します通常はユーザ名 root と関連付けられていますデフォルト値は「 65534 」です。NFS クライアントは通常、ユーザ ID 65534 をユーザ名 nobody と関連付けます（ _root squashing_） 。ONTAP では、このユーザ ID が pcuser というユーザに関連付けられています。ユーザ ID が 0 のクライアントからのアクセスをすべて無効にするには、値「 65535 」を指定します。
+
+. ルールインデックスの順序を選択します。
++
+-ruleindex オプション：ルールのインデックス番号を指定します。ルールはインデックス番号のリストの順序に従って評価され、インデックス番号の小さいルールが最初に評価されます。たとえば、インデックス番号が 1 のルールは、インデックス番号が 2 のルールよりも先に評価されます。
+
++
+|===
+| 追加対象 | 作業 
+
+
+ a| 
+最初のルールをエクスポートポリシーに追加します
+ a| 
+「 1 」と入力します。
+
+
+
+ a| 
+追加のルールをエクスポートポリシーに追加
+ a| 
+.. 「 vserver export-policy rule show -instance -policyname _Your_policy_` 」というポリシーの既存のルールを表示します
+.. 評価する順序に応じて、新しいルールのインデックス番号を選択します。
+
+
+|===
+. 適切な NFS アクセス値 {`nfs`|`nfs3`nfs4`} を選択します
++
+「 nfs 」はどのバージョンとも一致します。「 nfs3 」と「 nfs4 」は、特定のバージョンだけに一致します。
+
+. エクスポートルールを作成して既存のエクスポートポリシーに追加します。
++
+vserver export-policy rule create -vserver _vserver_name -policyname _policy_name -ruleindex integer _protocol ｛ nfs | nfs3 | nfs4 ｝ -clientmatch ｛ text | _" text 、 text 、…… "_}-->-rorule security_type_-rwrule security_type_-superuser _ security_type_-anon_user_id_`-anon_user_ID_`````````.
+
+. エクスポートポリシーのルールを表示して新しいルールが存在することを確認します。
++
+「 vserver export-policy rule show -policyname _policy_name_` 」という形式で指定します
+
++
+このコマンドにより、エクスポートポリシーに適用されるルールの一覧を含む、エクスポートポリシーの概要が表示されます。ONTAP では、各ルールにルールインデックス番号が割り当てられます。ルールインデックス番号を確認したあと、その番号を使用して、指定したエクスポートルールの詳細情報を表示できます。
+
+. エクスポートポリシーに適用されたルールが正しく設定されていることを確認します。
++
+vserver export-policy rule show -policyname _policy_name_-vserver_vserver_name _ruleindex -ruleindex integer _`
+
+
+
+次のコマンドは、 rs1 というエクスポートポリシーで、 vs1 という名前の SVM 上のエクスポートルールを作成し、作成を確認します。ルールのインデックス番号は 1 です。このルールは、ドメイン eng.company.com およびネットグループ @netgroup1 内のどのクライアントとも一致します。すべての NFS アクセスを有効にしています。AUTH_SYS で認証されたユーザに対する読み取り専用および読み取り / 書き込みアクセスを有効にしています。UNIX ユーザ ID が 0 （ゼロ）のクライアントは、 Kerberos 以外で認証すると匿名化されます。
+
+[listing]
+----
+vs1::> vserver export-policy rule create -vserver vs1 -policyname exp1 -ruleindex 1 -protocol nfs
+-clientmatch eng.company.com,@netgoup1 -rorule sys -rwrule sys -anon 65534 -superuser krb5
+
+vs1::> vserver export-policy rule show -policyname nfs_policy
+Virtual      Policy         Rule    Access    Client           RO
+Server       Name           Index   Protocol  Match            Rule
+------------ -------------- ------  --------  ---------------- ------
+vs1          exp1           1       nfs       eng.company.com, sys
+                                              @netgroup1
+
+vs1::> vserver export-policy rule show -policyname exp1 -vserver vs1 -ruleindex 1
+
+                                    Vserver: vs1
+                                Policy Name: exp1
+                                 Rule Index: 1
+                            Access Protocol: nfs
+Client Match Hostname, IP Address, Netgroup, or Domain: eng.company.com,@netgroup1
+                             RO Access Rule: sys
+                             RW Access Rule: sys
+User ID To Which Anonymous Users Are Mapped: 65534
+                   Superuser Security Types: krb5
+               Honor SetUID Bits in SETATTR: true
+                  Allow Creation of Devices: true
+----
+次のコマンドは、 expol2 というエクスポートポリシーで vs2 という SVM に対するエクスポートルールを作成し、作成を確認します。ルールのインデックス番号は 21 です。このルールは、クライアントをネットグループ dev_netgroup_main のメンバーと照合します。すべての NFS アクセスを有効にしています。AUTH_SYS によって認証されたユーザの読み取り専用アクセスを有効にし、読み取り / 書き込みおよびルートアクセスについては Kerberos 認証を要求します。UNIX ユーザ ID が 0 （ゼロ）のクライアントは、 Kerberos 以外で認証するとルートアクセスを拒否されます。
+
+[listing]
+----
+vs2::> vserver export-policy rule create -vserver vs2 -policyname expol2 -ruleindex 21 -protocol nfs
+-clientmatch @dev_netgroup_main -rorule sys -rwrule krb5 -anon 65535 -superuser krb5
+
+vs2::> vserver export-policy rule show -policyname nfs_policy
+Virtual  Policy       Rule    Access    Client              RO
+Server   Name         Index   Protocol  Match               Rule
+-------- ------------ ------  --------  ------------------  ------
+vs2      expol2       21       nfs      @dev_netgroup_main  sys
+
+vs2::> vserver export-policy rule show -policyname expol2 -vserver vs1 -ruleindex 21
+
+                                    Vserver: vs2
+                                Policy Name: expol2
+                                 Rule Index: 21
+                            Access Protocol: nfs
+Client Match Hostname, IP Address, Netgroup, or Domain:
+                                             @dev_netgroup_main
+                             RO Access Rule: sys
+                             RW Access Rule: krb5
+User ID To Which Anonymous Users Are Mapped: 65535
+                   Superuser Security Types: krb5
+               Honor SetUID Bits in SETATTR: true
+                  Allow Creation of Devices: true
+----

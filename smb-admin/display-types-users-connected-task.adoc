@@ -1,0 +1,65 @@
+---
+permalink: smb-admin/display-types-users-connected-task.html 
+sidebar: sidebar 
+keywords: display, information, type, connect, smb, session, appropriate, type, storage, virtual, machine, svm 
+summary: SMB セッションを介して接続しているユーザのタイプに関する情報を表示できます。これは、適切なタイプのユーザのみが Storage Virtual Machine （ SVM ）上の SMB セッションを介して接続していることを確認するのに役立ちます。 
+---
+= SMB セッションを介して接続しているユーザのタイプに関する情報を表示します
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+SMB セッションを介して接続しているユーザのタイプに関する情報を表示できます。これは、適切なタイプのユーザのみが Storage Virtual Machine （ SVM ）上の SMB セッションを介して接続していることを確認するのに役立ちます。
+
+SMB セッションを介して接続できるユーザのタイプは次のとおりです。
+
+* 「 local-user 」のことです
++
+ローカル CIFS ユーザとして認証されている
+
+* 「ドメインユーザ」
++
+ドメインユーザとして（ CIFS サーバのホームドメインまたは信頼できるドメインから）認証されている
+
+* 「 guest-user 」
++
+ゲストユーザとして認証されています
+
+* 「 anonymous-user 」の名前を使用します
++
+匿名ユーザまたは null ユーザとして認証されています
+
+
+
+.手順
+. SMB セッションを介して接続しているユーザのタイプを確認します。 vserver cifs session show -vserver vserver_name __ -windows-user_windows_user_name - fields windows-user 、 address 、 lif-address 、 user-type
++
+|===
+| 確立されたセッションのユーザタイプ情報を表示する対象 | 入力するコマンド 
+
+
+ a| 
+指定したユーザタイプのすべてのセッション
+ a| 
+「 vserver cifs session show -vserver _vserver_name __ user-type ｛ local-user | domain-user | guest-user | anonymous-user ｝ 」
+
+
+
+ a| 
+特定のユーザの場合
+ a| 
+vserver cifs session show -vserver vserver_name -- windows-user_windows_user_name -- fields windows-user 、 address 、 lif-address 、 user-type
+
+|===
+
+
+次のコマンドを実行すると、ユーザ「 iepubs\user1 」によって確立された SVM vs1 上のセッションのユーザタイプに関するセッション情報が表示されます。
+
+[listing]
+----
+cluster1::> vserver cifs session show -vserver pub1 -windows-user iepubs\user1 -fields windows-user,address,lif-address,user-type
+node      vserver session-id connection-id lif-address  address       windows-user         user-type
+--------- ------- ---------- ------------- ------------ ------------- -------------------- -----------
+pub1node1 pub1    1          3439441860    10.0.0.1     10.1.1.1      IEPUBS\user1         domain-user
+----

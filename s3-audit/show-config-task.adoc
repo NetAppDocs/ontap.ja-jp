@@ -1,0 +1,116 @@
+---
+permalink: s3-audit/show-config-task.html 
+sidebar: sidebar 
+keywords: s3 audit, show, display 
+summary: このタスクでは、 CLI を使用して s3 の監査に関する情報を表示する方法について説明します。 
+---
+= S3 監査の設定を表示します
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+監査の設定が完了したら、監査が適切に設定されて有効になっていることを確認できます。また、クラスタ内のすべてのオブジェクトストアの監査の設定に関する情報を表示することもできます。
+
+バケットと SVM の監査の設定に関する情報を表示できます。
+
+* バケット–「 vserver object-store-server audit event-selector show 」コマンドを使用します
++
+パラメータを何も指定しないと、オブジェクトストアの監査設定があるクラスタ内のすべての SVM 内のバケットに関する次の情報が表示されます。
+
++
+** SVM 名
+** バケット名
+** アクセスと権限の値
+
+
+* SVM – vserver object-store-server audit show コマンドを使用します
++
+パラメータを何も指定しないと、オブジェクトストアの監査の設定があるクラスタ内のすべての SVM に関する次の情報が表示されます。
+
++
+** SVM 名
+** 監査の状態
+** ターゲットディレクトリ
+
+
+
+
+fields パラメータを指定すると ' 表示する監査構成情報を指定できます
+
+S3 監査の設定に関する情報を表示します。
+
+[cols="2,4"]
+|===
+| 設定を変更する対象 | 入力するコマンド 
+
+
+| バケット | vserver object-store-server audit event-selector show [-vserver_svm_name _][_parameters_]] 
+
+
+| SVM  a| 
+vserver object-store-server audit show [-vserver_svm_name _][_parameters_]]
+
+|===
+次の例は、単一のバケットの情報を表示します。
+
+[listing]
+----
+cluster1::> vserver object-store-server audit event-selector show -vserver vs1 -bucket test-bucket
+     Vserver     Bucket     Access          Permission
+     ----------- ---------- --------------- ----------
+     vs1         bucket1    read-only       allow-only
+----
+次の例は、 SVM 上のすべてのバケットに関する情報を表示します。
+
+[listing]
+----
+cluster1::> vserver object-store-server audit event-selector show -vserver vs1
+
+     Vserver           :vs1
+     Bucket            :test-bucket
+     Access            :all
+     Permission        :all
+----
+次の例は、すべての SVM の名前、監査の状態、イベントの種類、ログ形式、およびターゲットディレクトリを表示します。
+
+[listing]
+----
+cluster1::> vserver object-store-server audit show
+
+Vserver     State  Event Types Log Format Target Directory
+----------- ------ ----------- ---------- --------------------
+vs1         false  data        json       /audit_log
+----
+次の例は、すべての SVM の SVM 名および監査ログに関する詳細を表示します。
+
+[listing]
+----
+cluster1::> vserver object-store-server audit show -log-save-details
+
+                  Rotation                           Rotation
+      Vserver     File Size Rotation Schedule        Limit
+      ----------- --------- ------------------------ --------
+      vs1         100MB     -                        0
+----
+次の例は、すべての SVM に関するすべての監査設定情報をリスト形式で表示したものです。
+
+[listing]
+----
+cluster1::> vserver object-store-server audit show -instance
+
+                             Vserver: vs1
+                      Auditing state: true
+                Log Destination Path: /audit_log
+       Categories of Events to Audit: data
+                          Log Format: json
+                 Log File Size Limit: 100MB
+        Log Rotation Schedule: Month: -
+  Log Rotation Schedule: Day of Week: -
+          Log Rotation Schedule: Day: -
+         Log Rotation Schedule: Hour: -
+       Log Rotation Schedule: Minute: -
+                  Rotation Schedules: -
+            Log Files Rotation Limit: 0
+                  Log Retention Time: 0s
+----

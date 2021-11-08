@@ -1,0 +1,100 @@
+---
+permalink: data-protection/create-replication-relationship-one-step-task.html 
+sidebar: sidebar 
+keywords: configure, replication, relationship, one step 
+summary: ONTAP 9.3 以降では、 snapmirror protect コマンドを使用して、データ保護関係をワンステップで設定できます。レプリケートするボリュームのリスト、デスティネーションクラスタ上の SVM 、ジョブスケジュール、および SnapMirror ポリシーを指定します。SnapMirror 保護によってその他の処理が実行されます。 
+---
+= レプリケーション関係をワンステップで設定します
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+ONTAP 9.3 以降では、「管理者保護」コマンドを使用してデータ保護関係をワンステップで設定できます。レプリケートするボリュームのリスト、デスティネーションクラスタ上の SVM 、ジョブスケジュール、および SnapMirror ポリシーを指定します。「ミラー保護」を選択すると、残りの作業が実行されます。
+
+.必要なもの
+* ソースクラスタとデスティネーションクラスタ、および SVM のピア関係が確立されている必要があります。
++
+https://docs.netapp.com/us-en/ontap-sm-classic/peering/index.html["クラスタと SVM のピアリング"]
+
+* デスティネーションボリューム上の言語は、ソースボリューム上の言語と同じである必要があります。
+
+
+「 snapmirror-protect 」コマンドを使用すると、指定した SVM に関連付けられているアグリゲートが選択されます。SVM にアグリゲートが関連付けられていない場合は、クラスタ内のすべてのアグリゲートから選択されます。アグリゲートの選択は、空きスペースの量とアグリゲート上のボリュームの数に基づいて行われます。
+
+次に 'napmirror protect コマンドは ' 次の手順を実行します
+
+* レプリケートするボリュームのリスト内の各ボリュームについて、適切なタイプとリザーブされたスペースを持つデスティネーションボリュームを作成します。
+* 指定したポリシーに適したレプリケーション関係を設定します。
+* 関係を初期化します。
+
+
+デスティネーションボリュームの名前の形式は、「 _source_volume_name_dst_` です。既存の名前と競合する場合は、コマンドによってボリューム名に数字が追加されます。コマンドオプションでは、プレフィックスまたはサフィックスを指定できます。このサフィックスは、システムで指定された「 st 」サフィックスの代わりに使用されます。
+
+ONTAP 9.3 以前では、デスティネーションボリュームに格納できる Snapshot コピーは最大 251 個です。ONTAP 9.4 以降では、デスティネーションボリュームに格納できる Snapshot コピーは最大 1019 個です。
+
+[NOTE]
+====
+初期化には時間がかかる場合があります。「 Snapmirror protect 」は、ジョブが完了するまで初期化が完了するのを待たずに、ジョブを終了します。そのため、初期化が完了するタイミングを判断するには、「 job show 」コマンドではなく、「 napmirror show 」コマンドを使用する必要があります。
+
+====
+ONTAP 9.5 以降では、「 snapmirror protect 」コマンドを使用して、 SnapMirror Synchronous 関係を作成できます。
+
+.ステップ
+. レプリケーション関係をワンステップで作成して初期化します。
++
+「 Snapmirror protion-path-list_SVM ： volume_|_cluster ： // SVM/volume_、 …」 destination-vserver_destination_svm_SVM_policy_schedule_auto-initialize true | false-destination-volume-prefix_prefix__ destination-volume-sufsuffix_ `
+
++
+[NOTE]
+====
+このコマンドはデスティネーション SVM またはデスティネーションクラスタから実行する必要があります。--auto-initialize` オプションのデフォルトは "true" です。
+
+====
++
+次の例は、デフォルトの「 MirrorAllSnapshots 」ポリシーを使用して、 SnapMirror DR 関係を作成して初期化します。
+
++
+[listing]
+----
+cluster_dst::> snapmirror protect -path-list svm1:volA, svm1:volB -destination-vserver svm_backup -policy MirrorAllSnapshots -schedule replication_daily
+----
++
+[NOTE]
+====
+必要に応じて、カスタムポリシーを使用できます。詳細については、を参照してください link:create-custom-replication-policy-concept.html["カスタムレプリケーションポリシーを作成する"]。
+
+====
++
+次の例では、デフォルトの「 XDPDefault 」ポリシーを使用して、 SnapVault 関係を作成して初期化します。
+
++
+[listing]
+----
+cluster_dst::> snapmirror protect -path-list svm1:volA, svm1:volB -destination-vserver svm_backup -policy XDPDefault -schedule replication_daily
+----
++
+次の例では、デフォルトの「 irrorNewes 」ポリシーを使用して、ユニファイドレプリケーション関係を作成して初期化します。
+
++
+[listing]
+----
+cluster_dst::> snapmirror protect -path-list svm1:volA, svm1:volB -destination-vserver svm_backup -policy MirrorAndVault
+----
++
+次の例は、デフォルトの「 Sync 」ポリシーを使用して、 SnapMirror Synchronous 関係を作成して初期化します。
+
++
+[listing]
+----
+cluster_dst::> snapmirror protect -path-list svm1:volA, svm1:volB -destination-vserver svm_sync -policy Sync
+----
++
+[NOTE]
+====
+SnapVault ポリシーとユニファイドレプリケーションポリシーの場合は、デスティネーションで最後に転送された Snapshot コピーのコピーを作成するスケジュールを定義すると便利です。詳細については、を参照してください link:define-schedule-create-local-copy-destination-task.html["デスティネーションでローカルコピーを作成するスケジュールを定義します"]。
+
+====
+
+
+「 snapmirror show 」コマンドを使用して、 SnapMirror 関係が作成されたことを確認します。コマンド構文全体については、マニュアルページを参照してください。

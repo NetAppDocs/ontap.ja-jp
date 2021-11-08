@@ -1,0 +1,81 @@
+---
+permalink: data-protection/convert-volume-svm-replication-task.html 
+sidebar: sidebar 
+keywords: convert, volume, replication, relationships, svm 
+summary: ソース上の各ボリューム（ルートボリュームを除く）がレプリケートされている場合は、ボリューム間のレプリケーション関係を、そのボリュームを所有する Storage Virtual Machine （ SVM ）間のレプリケーション関係に変換できます。 また、ソースの各ボリューム（ルートボリュームを含む）の名前は、デスティネーションのボリュームと同じになります。 
+---
+= ボリュームのレプリケーション関係を SVM のレプリケーション関係に変換します
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+ソース上の各ボリューム（ルートボリュームを除く）がレプリケートされている場合は、ボリューム間のレプリケーション関係を、そのボリュームを所有する Storage Virtual Machine （ SVM ）間のレプリケーション関係に変換できます。 また、ソースの各ボリューム（ルートボリュームを含む）の名前は、デスティネーションのボリュームと同じになります。
+
+SnapMirror 関係がアイドル状態のときに volume rename コマンドを使用すると、必要に応じてデスティネーション・ボリュームの名前を変更できます。
+
+.手順
+. デスティネーション SVM またはデスティネーションクラスタから次のコマンドを実行して、ソースとデスティネーションのボリュームを再同期します。
++
+「 snapmirror resync -source-path _ SVM ： volume_destination-path_SVM ： volume_type DP | xdmp-schedule _policy_policy_policy_policy_`
+
++
+コマンド構文全体については、マニュアルページを参照してください。
+
++
+[NOTE]
+====
+再同期の際にベースライン転送は不要ですが、再同期には時間がかかる場合があります。再同期はオフピークの時間帯に実行することを推奨します。
+
+====
++
+次の例では 'vm1 のソースボリューム volA' と 'vm_backup' のデスティネーションボリューム volA' の関係を再同期します
+
++
+[listing]
+----
+cluster_dst::> snapmirror resync -source-path svm1:volA -destination-path svm_backup:volA
+----
+. の説明に従って、ソースとデスティネーションの SVM 間に SVM レプリケーション関係を作成します link:replicate-svm-config-task.html["SVM 設定のレプリケート"]。
++
+レプリケーション関係を作成するときは 'snapmirror create コマンドの -identity-preserve true オプションを使用する必要があります
+
+. デスティネーション SVM を停止します。
++
+「 vserver stop -vserver _svm _ 」のように指定します
+
++
+コマンド構文全体については、マニュアルページを参照してください。
+
++
+次の例は、デスティネーション SVM の vm-backup を停止します。
+
++
+[listing]
+----
+cluster_dst::> vserver stop svm_backup
+----
+. デスティネーション SVM またはデスティネーションクラスタから次のコマンドを実行して、ソースとデスティネーションの SVM を再同期します。
++
+「 snapmirror resync -source-path _svm_:-destination-path 」： -type DP | xdmp-schedule _policy_policy_policy_policy_` 」を指定します
+
++
+コマンド構文全体については、マニュアルページを参照してください。
+
++
+[NOTE]
+====
+「 -source-path 」オプションと「 -destination-path 」オプションでは、 SVM 名のあとにコロン（ : ）を入力する必要があります。以下の例を参照してください。
+
+再同期の際にベースライン転送は不要ですが、再同期には時間がかかる場合があります。再同期はオフピークの時間帯に実行することを推奨します。
+
+====
++
+次の例は、ソース SVM 「 vm1 」とデスティネーション SVM 「 vm_backup 」の間の関係を再同期します。
+
++
+[listing]
+----
+cluster_dst::> snapmirror resync -source-path svm1: -destination-path svm_backup:
+----
+

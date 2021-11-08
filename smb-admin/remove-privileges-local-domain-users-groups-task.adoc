@@ -1,0 +1,47 @@
+---
+permalink: smb-admin/remove-privileges-local-domain-users-groups-task.html 
+sidebar: sidebar 
+keywords: manage, user, right, local, domain, group, removing, remove, privilege, enhance, security, allow, customize, maximum, remove privileges from local or domain users or groups 
+summary: ローカルまたはドメインのユーザやグループのユーザ権限を管理するには、権限を削除します。これにより、ユーザとグループに付与される最大権限をカスタマイズして、セキュリティを強化できます。 
+---
+= ローカルまたはドメインのユーザまたはグループから権限を削除します
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+ローカルまたはドメインのユーザやグループのユーザ権限を管理するには、権限を削除します。これにより、ユーザとグループに付与される最大権限をカスタマイズして、セキュリティを強化できます。
+
+権限を削除する対象となるローカルまたはドメインのユーザまたはグループがすでに存在している必要があります。
+
+ローカルまたはドメインのユーザやグループの権限を削除するときは、次の点に注意してください。
+
+* 1 つ以上の権限を削除できます。
+* ドメインのユーザまたはグループの権限を削除する場合、 ONTAP でそれらのユーザやグループを検証するために、ドメインコントローラに接続することがあります。
++
+ONTAP からドメインコントローラに接続できない場合、コマンドが失敗することがあります。
+
+
+
+.手順
+. ローカルまたはドメインのユーザまたはグループから 1 つ以上の権限を削除します。「 + vserver cifs users-and-groups privilege remove-privilege -vserver vserver_name __ user-or-group-name -user-or-group-name name _-privileges _privilege _[,...] +
+. 指定した権限がオブジェクトから削除されたことを確認します。 vserver cifs users-and-groups privilege show -vserver vserver_name -user-or-group-name name _`
+
+
+次の例は、 Storage Virtual Machine （ SVM 、旧 Vserver ） vs1 上のユーザ「 CIFS_SERVER\suueo 」から「 `s eTcbPrivilege 」および「 `s eTakeOwnershipPrivilege 」権限を削除します。
+
+[listing]
+----
+cluster1::> vserver cifs users-and-groups privilege show -vserver vs1
+Vserver   User or Group Name    Privileges
+--------- --------------------- ---------------
+vs1       CIFS_SERVER\sue       SeTcbPrivilege
+                                SeTakeOwnershipPrivilege
+
+cluster1::> vserver cifs users-and-groups privilege remove-privilege -vserver vs1 -user-or-group-name CIFS_SERVER\sue -privileges SeTcbPrivilege,SeTakeOwnershipPrivilege
+
+cluster1::> vserver cifs users-and-groups privilege show -vserver vs1
+Vserver   User or Group Name    Privileges
+--------- --------------------- -------------------
+vs1       CIFS_SERVER\sue       -
+----

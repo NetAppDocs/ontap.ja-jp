@@ -1,0 +1,35 @@
+---
+permalink: element-replication/resynchronize-data-protection-relationship-task.html 
+sidebar: sidebar 
+keywords: resynchronize, replication, relationship 
+summary: デスティネーションボリュームを書き込み可能にしたあと、ソースボリュームとデスティネーションボリュームに共通の Snapshot コピーが存在しないために更新が失敗したあと、または関係のレプリケーションポリシーを変更した場合には、レプリケーション関係の再同期が必要です。 
+---
+= レプリケーション関係を再同期
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+デスティネーションボリュームを書き込み可能にしたあと、ソースボリュームとデスティネーションボリュームに共通の Snapshot コピーが存在しないために更新が失敗したあと、または関係のレプリケーションポリシーを変更した場合には、レプリケーション関係の再同期が必要です。
+
+再同期の際にベースライン転送は不要ですが、再同期には時間がかかる場合があります。再同期はオフピークの時間帯に実行することを推奨します。
+
+Element のソースパスは '_hostip:____LUN/_name_' の形式で指定する必要がありますここで 'lun` は実際の文字列 "LUN`" で 'name' は Element ボリュームの名前です
+
+.ステップ
+. ソースボリュームとデスティネーションボリュームを再同期します。
++
+「 napmirror resync -source-path _hostip ： //LUN/ _name_ -destination-path SVM ： volume_|| cluster ： //SVM/volume__type XDP -schedule _ -policy_`
+
++
+コマンド構文全体については、マニュアルページを参照してください。
+
++
+次の例は ' ソース・ボリューム '0005' （ IP アドレス 10.0.0.11 ）とデスティネーション・ボリューム 'volA_dst' （ 'vm_backup' ）の間の関係を再同期します
+
++
+[listing]
+----
+cluster_dst::> snapmirror resync -source-path 10.0.0.11:/lun/0005 -policy MirrorLatest -destination-path svm_backup:volA_dst
+----
+

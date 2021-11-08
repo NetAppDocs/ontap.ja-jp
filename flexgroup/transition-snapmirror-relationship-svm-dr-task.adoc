@@ -1,0 +1,53 @@
+---
+permalink: flexgroup/transition-snapmirror-relationship-svm-dr-task.html 
+sidebar: sidebar 
+keywords: transition, flexgroup, snapmirror, relationship, svm, dr 
+summary: FlexGroup SVM DR 関係を作成するには、既存の FlexGroup Volume SnapMirror 関係を移行します。 
+---
+= 既存の FlexGroup SnapMirror 関係を SVM DR に移行します
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+FlexGroup SVM DR 関係を作成するには、既存の FlexGroup Volume SnapMirror 関係を移行します。
+
+.必要なもの
+* FlexGroup Volume SnapMirror 関係は正常な状態です。
+* ソース FlexGroup ボリュームとデスティネーション ボリュームの名前が同じです。
+
+
+.手順
+. SnapMirror デスティネーションから、 FlexGroup レベルの SnapMirror 関係「 snapmirror resync 」を再同期します
+. FlexGroup SVM DR SnapMirror 関係を作成します。「 snapmirror create -policy DPDefault -identity-preserve true -destination-path dest_SVM ： dest_flexgroup -source-path src_svm ： src_flexgroup
+. 関係が解除されたことを確認します。「 snapmirror show -destination-path dest_SVM ： dest_flexgroup -source-path src_svm ： src_flexgroup 」
++
+[listing]
+----
+snapmirror show -destination-path fg_vs_renamed: -source-path fg_vs:
+
+                                                                       Progress
+Source            Destination Mirror  Relationship   Total             Last
+Path        Type  Path        State   Status         Progress  Healthy Updated
+----------- ---- ------------ ------- -------------- --------- ------- --------
+fg_vs:        XDP  fg_vs1_renamed:     Broken-off
+                                      Idle           -         true   -
+----
+. デスティネーション SVM を停止します。 vserver stop -vserver vs_name
++
+[listing]
+----
+vserver stop -vserver fg_vs_renamed
+[Job 245] Job is queued: Vserver Stop fg_vs_renamed.
+[Job 245] Done
+----
+. SVM の SnapMirror 関係を再同期します。「 snapmirror resync -destination-path dest_SVM ： dest_flexgroup -source-path src_SVM ： src_flexgroup
++
+[listing]
+----
+snapmirror resync -destination-path fg_vs_renamed: -source-path fg_vs:
+Warning: This Vserver has volumes which are the destination of FlexVol or FlexGroup SnapMirror relationships. A resync on the Vserver SnapMirror relationship will cause disruptions in data access
+----
+. SVM DR レベルの SnapMirror 関係が正常なアイドル状態に達したことを確認します。「 snapmirror show-expand 」
+. FlexGroup の SnapMirror 関係が「 SnapMirro show 」の状態であることを確認します
+

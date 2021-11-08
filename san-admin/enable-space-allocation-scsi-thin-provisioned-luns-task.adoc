@@ -1,0 +1,35 @@
+---
+permalink: san-admin/enable-space-allocation-scsi-thin-provisioned-luns-task.html 
+sidebar: sidebar 
+keywords: enable, space, allocation, scsi, thinly, provisioned luns 
+summary: space-allocation オプションを enabled に設定すると、ボリュームがスペース不足になってボリューム内の LUN にデータを書き込めなくなった時点で、 ONTAP からホストに通知が届きます。また、このオプションで ONTAP 、ホストでデータが削除された時点での自動スペース再生も有効になります。 
+---
+= SCSI シンプロビジョニング LUN のスペース割り当てを有効にします
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+「 pace -allocation 」オプションを「 enabled 」に設定すると、ボリュームのスペースが不足し、ボリューム内の LUN への書き込みを受け付けられなくなったときに、 ONTAP からホストに通知されます。また、このオプションで ONTAP 、ホストでデータが削除された時点での自動スペース再生も有効になります。
+
+「 pace -allocation 」オプションはデフォルトで「 disabled 」に設定されています。スペース割り当てを有効にするには、 LUN をオフラインにする必要があります。スペース割り当てを有効にしたあと、ホストがスペース割り当てが有効になったことを認識するには、ホストで検出を実行する必要があります。
+
+.手順
+. LUN をオフラインにします。
++
+lun modify -vserver_name_-volume_name_-lun_lun_name -- 状態オフライン
+
+. 「 -space-allocation 」パラメータを「 enabled 」に設定します。
++
+lun modify -vserver_name_-volume_name_-lun-lun_name --lun_lun_name --space-allocation enabled`
+
+. スペース割り当てが有効になっていることを確認します。
++
+lun show -vserver_name_-volume_name_-fields space-allocation `
+
+. LUN をオンラインにします。
++
+lun modify -vserver_name_-volume_name_-lun_lun_name --state online `
+
+. ホスト上で ' すべてのディスクを再スキャンして '-space-allocation オプションへの変更が正しく検出されていることを確認します
+

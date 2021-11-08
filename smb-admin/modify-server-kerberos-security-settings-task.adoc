@@ -1,0 +1,81 @@
+---
+permalink: smb-admin/modify-server-kerberos-security-settings-task.html 
+sidebar: sidebar 
+keywords: modify, cifs, server, kerberos, security, setting, clock, slew, time, ticket, lifetime, renewal, modify the cifs server kerberos security ticket settings 
+summary: 許容される Kerberos クロックスルータイムの最大数、 Kerberos チケットの有効期間、チケットの更新日の最大数など、特定の CIFS サーバの Kerberos セキュリティ設定を変更できます。 
+---
+= CIFS サーバの Kerberos セキュリティ設定を変更します
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+許容される Kerberos クロックスルータイムの最大数、 Kerberos チケットの有効期間、チケットの更新日の最大数など、特定の CIFS サーバの Kerberos セキュリティ設定を変更できます。
+
+「 vserver cifs security modify 」コマンドを使用して CIFS サーバの Kerberos 設定を変更すると、「 -vserver 」パラメータで指定した単一の Storage Virtual Machine （ SVM ）の設定のみが変更されます。Active Directory の Group Policy Object （ GPO ；グループポリシーオブジェクト）を使用すると、同一の Active Directory ドメインに属するクラスタ上の SVM すべてについて、 Kerberos セキュリティ設定を集中管理できます。
+
+.手順
+. 次の操作を 1 つ以上実行します。
++
+|===
+| 状況 | 入力するコマンド 
+
+
+ a| 
+Kerberos クロックスキューの許容最大時間を分で指定します
+ a| 
+vserver cifs security modify -vserver _vserver_name --kerberos-clock-sk-integer_in_dminutes _ デフォルトの設定は 5 分です
+
+
+
+ a| 
+Kerberos チケットの有効期間を時間で指定します
+ a| 
+「 vserver cifs security modify -vserver _vserver_name __ kerberos-ticket-age integer_in_chours 」デフォルト設定は 10 時間です。
+
+
+
+ a| 
+チケットの更新日の最大数を指定します
+ a| 
+「 vserver cifs security modify -vserver _vserver_name __ kerberos-renew-age_integer_in_days 」デフォルト設定は 7 日です。
+
+
+
+ a| 
+KDC のソケットのタイムアウトを指定します。この時間を過ぎるとすべての KDC が到達不能とマークされます
+ a| 
+「 vserver cifs security modify -vserver _vserver_name __ kerberos-kdc-timeout_integer_in_dseconds _ 」デフォルト設定は 3 秒です。
+
+|===
+. Kerberos セキュリティ設定を確認します。 vserver cifs security show -vserver vserver_name _ ’
+
+
+次の例では、 Kerberos セキュリティに次の変更を加えます。「 Kerberos Clock Skew 」は「 3`minutes 」に、「 Kerberos Ticket Age 」は「 8`hours 」に設定されています。
+
+[listing]
+----
+cluster1::> vserver cifs security modify -vserver vs1 -kerberos-clock-skew 3 -kerberos-ticket-age 8
+
+cluster1::> vserver cifs security show -vserver vs1
+
+Vserver: vs1
+
+                    Kerberos Clock Skew:                   3 minutes
+                    Kerberos Ticket Age:                   8 hours
+                   Kerberos Renewal Age:                   7 days
+                   Kerberos KDC Timeout:                   3 seconds
+                    Is Signing Required:               false
+        Is Password Complexity Required:                true
+   Use start_tls For AD LDAP connection:               false
+              Is AES Encryption Enabled:               false
+                 LM Compatibility Level:  lm-ntlm-ntlmv2-krb
+             Is SMB Encryption Required:               false
+----
+* 関連情報 *
+
+xref:display-server-security-settings-task.adoc[CIFS サーバのセキュリティ設定に関する情報を表示する]
+
+xref:supported-gpos-concept.adoc[サポートされる GPO]
+
+xref:applying-group-policy-objects-concept.adoc[CIFS サーバへのグループポリシーオブジェクトの適用]

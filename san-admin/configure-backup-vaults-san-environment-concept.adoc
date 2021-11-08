@@ -1,0 +1,43 @@
+---
+permalink: san-admin/configure-backup-vaults-san-environment-concept.html 
+sidebar: sidebar 
+keywords: configure, using, snapvault, backups, san, environment 
+summary: SAN 環境で SnapVault を設定して使用する方法は、 NAS 環境の場合とほぼ同じですが、 SAN 環境で LUN をリストアする場合は、いくつか特別な手順を踏む必要があります。 
+---
+= SAN 環境での SnapVault バックアップの構成と使用の概要
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+SAN 環境で SnapVault を設定して使用する方法は、 NAS 環境の場合とほぼ同じですが、 SAN 環境で LUN をリストアする場合は、いくつか特別な手順を踏む必要があります。
+
+SnapVault バックアップには、ソースボリュームの読み取り専用コピーのセットが含まれています。SAN 環境では、必ず、個々の LUN ではなくボリューム全体を SnapVault のセカンダリボリュームにバックアップします。
+
+LUN を含むプライマリボリュームと、 SnapVault バックアップとして動作するセカンダリボリュームの間に SnapVault 関係を作成して初期化する手順は、ファイルプロトコルに使用される FlexVol ボリュームで使用される手順と同じです。この手順の詳細については、を参照してください link:../data-protection/index.html["データ保護"]。
+
+link:../data-protection/index.html["データ保護"]
+
+Snapshot コピーを作成して SnapVault セカンダリボリュームにコピーする前に、 LUN がバックアップされ、一貫した状態であることを確認することが重要です。Snapshot コピーの作成を SnapManager for Microsoft SQL Server などの製品を使用して自動化すると、バックアップされた LUN が確実に過不足なく、元のアプリケーションで使用可能な状態になります。
+
+SnapVault セカンダリボリュームから LUN をリストアする場合には、 3 つの基本の選択肢があります。
+
+* SnapVault セカンダリボリュームから LUN を直接マッピングし、ホストを LUN に接続して LUN の内容にアクセスできます。
++
+この LUN は読み取り専用であり、 SnapVault バックアップ内の最新の Snapshot コピーからのみマッピングできます。永続的予約およびその他の LUN のメタデータは失われます。必要に応じて、元の LUN に引き続きアクセス可能であれば、ホスト上でコピープログラムを使用して LUN の内容を元の LUN にコピーすることができます。
+
++
+LUN のシリアル番号がソース LUN のものと異なります。
+
+* SnapVault セカンダリボリューム内の任意の Snapshot コピーを、新しい読み書き可能ボリュームにクローニングします。
++
+その後、ボリューム内の任意の LUN をマッピングし、ホストを LUN に接続して LUN の内容にアクセスできます。必要に応じて、元の LUN に引き続きアクセス可能であれば、ホスト上でコピープログラムを使用して LUN の内容を元の LUN にコピーすることができます。
+
+* SnapVault セカンダリボリューム内の任意の Snapshot コピーから、 LUN が含まれているボリューム全体をリストアできます。
++
+ボリューム全体をリストアすると、ボリューム内のすべての LUN とすべてのファイルが置き換えられます。Snapshot コピーの作成後に作成された新しい LUN はすべて失われます。
+
++
+LUN では、マッピング、シリアル番号、 UUID 、永続的予約が維持されます。
+
+

@@ -1,0 +1,69 @@
+---
+permalink: encryption-at-rest/restore-external-encryption-keys-93-later-task.html 
+sidebar: sidebar 
+keywords: restoring, external key management, encryption keys 
+summary: 外部キー管理の暗号化キーを手動でリストアし、別のノードにプッシュすることができます。この処理は、クラスタのキーの作成時に一時的に停止していたノードを再起動する場合などに実行します。 
+---
+= 外部キー管理の暗号化キーをリストアします
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+外部キー管理の暗号化キーを手動でリストアし ' 別のノードにプッシュすることができますこの処理は、クラスタのキーの作成時に一時的に停止していたノードを再起動する場合などに実行します。
+
+このタスクを実行するには、クラスタ管理者または SVM の管理者である必要があります。
+
+ONTAP 9.6 以降では、「 securitykey-manager key query -node node_name 」コマンドを使用して、キーのリストアが必要かどうかを確認できます。
+
+ONTAP 9.5 以前では、「 securitykey-manager key show 」コマンドを使用して、キーのリストアが必要かどうかを確認できます。
+
+.手順
+. ONTAP 9.8 以降を実行していて、ルートボリュームが暗号化されている場合は、次の手順を実行します。
++
+ONTAP 9.7 以前を実行している場合、または ONTAP 9.8 以降を実行していて、ルートボリュームが暗号化されていない場合は、この手順を省略してください。
+
++
+.. bootargs を設定します。 +``setenv kmip.init.ipaddr <ip-address>`+`````setenv kmip.init.netmask <netmask>`+`````````````````setenv kmip.init.gateway kmip.init.interface e0m +`boot_ontap
+.. ノードをブート・メニューで起動し ' オプション（ 11 ） Configure node for external key management を選択します
+.. プロンプトに従って管理証明書を入力します。
++
+管理証明書の情報をすべて入力すると、システムがブートメニューに戻ります。
+
+.. ブート・メニューから ' オプション (1) Normal Boot を選択します
+
+
+. キーをリストアします。
++
+|===
+| ONTAP バージョン | 使用するコマンド 
+
+
+ a| 
+ONTAP 9.6 以降
+ a| 
+「 security key-manager external restore -vserver svm -node node -key -server host_name | ip_address ： port-key-id key_id -key_tag key_tag
+
+
+
+ a| 
+ONTAP 9.5 以前
+ a| 
+「 securitykey manager restore -node node -address IP_address -key_address -key-id key_id
+
+|===
++
+[NOTE]
+====
+デフォルトでは 'node' はすべてのノードに設定されますコマンド構文全体については、マニュアルページを参照してください。このコマンドは、オンボードキー管理が有効な場合はサポートされません。
+
+====
++
+次の ONTAP 9.6 のコマンドは、「 cluster1 」のすべてのノードに外部キー管理の認証キーをリストアします。
+
++
+[listing]
+----
+clusterl::> security key-manager external restore
+----
+

@@ -1,0 +1,78 @@
+---
+permalink: nfs-admin/ldaps-concept.html 
+sidebar: sidebar 
+keywords: ldaps, concept 
+summary: ONTAP での LDAP 通信の保護方法に関する用語や概念を理解しておく必要があります。ONTAP は、 Active Directory 統合 LDAP サーバ間または UNIX ベース LDAP サーバ間の認証されたセッションの設定に Start TLS または LDAPS を使用できます。 
+---
+= LDAPS の概念
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+ONTAP での LDAP 通信の保護方法に関する用語や概念を理解しておく必要があります。ONTAP は、 Active Directory 統合 LDAP サーバ間または UNIX ベース LDAP サーバ間の認証されたセッションの設定に Start TLS または LDAPS を使用できます。
+
+
+
+== 用語集
+
+ONTAP での LDAP 通信の保護に LDAPS を使用する方法に関して理解しておくべき用語があります。
+
+* * LDAP *
++
+（ Lightweight Directory Access Protocol ）情報ディレクトリにアクセスして管理するためのプロトコルです。LDAP は、ユーザ、グループ、ネットグループなどのオブジェクトを格納するための情報ディレクトリとして使用されます。LDAP は、これらのオブジェクトを管理したり LDAP クライアントからの要求を満たしたりするディレクトリサービスも提供します。
+
+* *SSL*
++
+（ Secure Sockets Layer ）インターネット上で情報を安全に送信するために開発されたプロトコルです。TLS の導入に伴い廃止されました。ONTAP 9.0~9.4 では SSL はサポートされません。
+
+* * tls *
++
+（ Transport Layer Security ）従来の SSL 仕様に基づいた IETF 標準の追跡プロトコルです。SSL の後継にあたります。
+
+* * LDAPS （ LDAP over SSL または TLS ） *
++
+TLS または SSL を使用して LDAP クライアントと LDAP サーバ間の通信を保護するプロトコル。「 _LDAP over SSL/TLS 」と「 _LDAP over TLS_ 」の 2 種類の用語が同じ意味で使用される場合があります。 ONTAP 9 以降では、 ONTAP 9.5 以降で SSL がサポートされています。
+
++
+** ONTAP 9.5-9.8 では、 LDAPS はポート 636 でのみ有効にできます。そのためには、「 vserver cifs security modify 」コマンドで「 -use-ldaps-for-ad-ldap 」パラメータを使用します。
+** ONTAP 9.9.9..1 以降では、ポート 636 がデフォルトのままであるにもかかわらず、 LDAPS を任意のポートで有効にできます。これを行うには 'ldaps-enabled' パラメータを 'true' に設定し ' 希望する `-port パラメータを指定します詳細については 'vserver services name-service ldap client create マニュアル・ページを参照してください
+
+
++
+[NOTE]
+====
+ネットアップでは、 LDAPS ではなく Start TLS を使用することを推奨します。
+
+====
+* * TLS を開始 *
++
+（ _START_TLS_,_STARTTLS 、 _StartTLS_ とも呼ばれます）。 TLS プロトコルを使用してセキュアな通信を提供するメカニズムです。
+
++
+ONTAP では、 LDAP 通信を保護するために STARTTLS を使用し、デフォルトの LDAP ポート（ 389 ）を使用して LDAP サーバと通信します。LDAP サーバは、 LDAP ポート 389 経由の接続を許可するように設定する必要があります。そうしないと、 SVM から LDAP サーバへの LDAP TLS 接続が失敗します。
+
+
+
+
+
+== ONTAP での LDAPS の使用方法
+
+ONTAP は TLS サーバ認証をサポートしています。この認証により、 SVM の LDAP クライアントは、バインド操作時に LDAP サーバの ID を確認できます。TLS に対応した LDAP クライアントは、公開鍵暗号化の標準的な技法を使用して、サーバの証明書および公開 ID が有効であり、かつクライアントの信頼できる Certificate Authority （ CA ；認証局）のリストにある CA によって発行されたものであるかどうかをチェックできます。
+
+LDAP では、 TLS を使用した通信の暗号化方法として STARTTLS がサポートさSTARTTLS は標準の LDAP ポート（ 389 ）経由でプレーンテキスト接続として開始され、その後 TLS 接続にアップグレードされます。
+
+ONTAP では次の機能がサポートされます
+
+* Active Directory 統合 LDAP サーバと SVM の間の SMB 関連トラフィックに使用する LDAPS
+* LDAPS ：ネームマッピングやその他の UNIX 情報で使用する LDAP トラフィックに使用します
++
+Active Directory 統合 LDAP サーバまたは UNIX ベース LDAP サーバのいずれかを使用して、 LDAP ネームマッピングおよびユーザ、グループ、ネットグループなどのその他の UNIX 情報の格納に使用できます。
+
+* 自己署名ルート CA 証明書
++
+Active-Directory 統合 LDAP を使用している場合は、 Windows Server 証明書サービスがドメインにインストールされていると自己署名ルート証明書が生成されます。UNIX ベースの LDAP サーバを LDAP ネームマッピングに使用している場合は、該当する LDAP アプリケーションに適切な手段を使用して、自己署名ルート証明書の生成と保存が行われます。
+
+
+
+デフォルトでは、 LDAPS は無効になっています。

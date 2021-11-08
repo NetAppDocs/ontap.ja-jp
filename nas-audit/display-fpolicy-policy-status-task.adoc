@@ -1,0 +1,86 @@
+---
+permalink: nas-audit/display-fpolicy-policy-status-task.html 
+sidebar: sidebar 
+keywords: display, information, fpolicy, policy status 
+summary: FPolicy ポリシーのステータスに関する情報を表示して、ポリシーが有効になっているかどうか、使用するように設定されている外部エンジン、ポリシーのシーケンス番号、および FPolicy ポリシーが関連付けられている Storage Virtual Machine （ SVM ）を確認できます。 
+---
+= FPolicy ポリシーのステータスに関する情報を表示します
+
+
+[role="lead"]
+FPolicy ポリシーのステータスに関する情報を表示して、ポリシーが有効になっているかどうか、使用するように設定されている外部エンジン、ポリシーのシーケンス番号、および FPolicy ポリシーが関連付けられている Storage Virtual Machine （ SVM ）を確認できます。
+
+いずれのパラメータも指定しない場合、次の情報が表示されます。
+
+* SVM 名
+* ポリシー名
+* ポリシーのシーケンス番号
+* ポリシーのステータス
+
+
+クラスタまたは特定の SVM で設定されている FPolicy ポリシーのステータスに関する情報の表示に加え、コマンドパラメータを使用して、他の条件によってコマンドの出力をフィルタリングすることができます。
+
+instance パラメータを指定すると、一覧にあるポリシーに関する詳細情報を表示できます。また '-fields パラメータを使用して ' コマンド出力の指定されたフィールドのみを表示したり '-fields ？を表示したりすることもできます 使用できるフィールドを確認します。
+
+.ステップ
+. 適切なコマンドを使用して、 FPolicy ポリシーのステータスに関する情報をフィルタリングして表示します。
++
+[cols="2*"]
+|===
+| ステータス情報を表示するポリシー | 入力するコマンド 
+
+
+ a| 
+クラスタのポリシーを確認してください
+ a| 
+「 vserver fpolicy show 」のように表示されます
+
+
+
+ a| 
+指定したステータスのポリシーを適用します
+ a| 
+vserver fpolicy show-status ｛ on | off ｝
+
+
+
+ a| 
+指定した SVM のポリシーを適用します
+ a| 
+「 vserver fpolicy show -vserver vserver_name 」のようになります
+
+
+
+ a| 
+指定したポリシー名のポリシーを使用します
+ a| 
+vserver fpolicy show-policy-name policy_name
+
+
+
+ a| 
+指定した外部エンジンを使用するポリシーを定義します
+ a| 
+「 vserver fpolicy show -engine engine_name 」
+
+|===
+
+
+次の例は、クラスタの FPolicy ポリシーに関する情報を表示します。
+
+[listing]
+----
+
+cluster1::> vserver fpolicy show
+                                        Sequence
+Vserver             Policy Name           Number  Status      Engine
+------------------- ------------------- --------  ---------   ---------
+FPolicy             cserver_policy      -         off         eng1
+vs1.example.com     v1p1                -         off         eng2
+vs1.example.com     v1p2                -         off         native
+vs1.example.com     v1p3                -         off         native
+vs1.example.com     cserver_policy      -         off         eng1
+vs2.example.com     v1p1                3         on          native
+vs2.example.com     v1p2                1         on          eng3
+vs2.example.com     cserver_policy      2         on          eng1
+----

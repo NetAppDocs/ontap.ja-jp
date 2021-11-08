@@ -1,0 +1,87 @@
+---
+permalink: data-protection/snapmirror-unified-replication-concept.html 
+sidebar: sidebar 
+keywords: snapmirror, unified, replication 
+summary: SnapMirror ユニファイドレプリケーションを使用すると、同じデスティネーションボリュームでディザスタリカバリとアーカイブを設定できます。ユニファイドレプリケーションが適している場合は、必要なセカンダリストレージの量を減らし、ベースライン転送の回数を制限して、ネットワークトラフィックを減らすことができます。 
+---
+= SnapMirror ユニファイドレプリケーションの基本
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+SnapMirror_unified replication _ は、同じデスティネーションボリュームでディザスタリカバリとアーカイブを設定できます。ユニファイドレプリケーションが適している場合は、必要なセカンダリストレージの量を減らし、ベースライン転送の回数を制限して、ネットワークトラフィックを減らすことができます。
+
+
+
+== 一元化されたデータ保護関係を初期化する方法
+
+SnapMirror と同様に、一元化されたデータ保護機能の初回起動時に、ベースライン転送が実行されます。関係の SnapMirror ポリシーでは、ベースラインおよび更新の内容を定義します。
+
+デフォルトの一元化されたデータ保護ポリシー「 MirrorAllSnapshots 」に基づくベースライン転送では、ソースボリュームの Snapshot コピーが作成され、そのコピーおよびコピーが参照するデータブロックがデスティネーションボリュームに転送されます。バックアップのアーカイブと同様に、一元化されたデータ保護にはベースラインの古い Snapshot コピーは含まれません。
+
+
+
+== 一元化されたデータ保護関係を更新する方法
+
+「 MirrorAllSnapshots 」ポリシーに基づく各更新では、 SnapMirror はソースボリュームの Snapshot コピーを作成し、その Snapshot コピーと前回の更新以降に作成されたすべての Snapshot コピーを転送します。ただし、 Snapshot ポリシーのルールで定義されたラベルと一致するラベルがあることが条件となります。「 M irorsmoorts 」ポリシーの「 napmirror policy show 」コマンドの出力を次に示します。注意する必要があるのは次のとおりです。
+
+* Create Snapshot は「 true 」です。これは、 SnapMirror が関係を更新するときに、「 M irrorfecrates 」によって Snapshot コピーが作成されることを示します。
+* 「 MirrorAllSnapshots 」には「 ``````s_created" 」、「 `daily 」、および「 weekly 」というルールがあります。これは、 SnapMirror が関係を更新するときに、 SnapMirror で作成された Snapshot コピーとソース上のラベルが一致する Snapshot コピーの両方が転送されることを示します。
+
+
+[listing]
+----
+cluster_dst::> snapmirror policy show -policy MirrorAndVault -instance
+
+                     Vserver: vs0
+      SnapMirror Policy Name: MirrorAndVault
+      SnapMirror Policy Type: mirror-vault
+                Policy Owner: cluster-admin
+                 Tries Limit: 8
+           Transfer Priority: normal
+   Ignore accesstime Enabled: false
+     Transfer Restartability: always
+ Network Compression Enabled: false
+             Create Snapshot: true
+                     Comment: A unified Synchronous SnapMirror and SnapVault policy for
+                              mirroring the latest file system and daily and weekly snapshots.
+       Total Number of Rules: 3
+                  Total Keep: 59
+                       Rules: SnapMirror Label     Keep  Preserve Warn Schedule Prefix
+                              ----------------     ----  -------- ---- -------- ------
+                              sm_created              1  false       0 -        -
+                              daily                   7  false       0 -        -
+                              weekly                 52  false       0 -        -
+----
+
+
+== Unified7year ポリシー
+
+事前設定された「 Unified7year 」ポリシーは、「 M irrorFourly 」とまったく同じように機能します。ただし、 4 番目のルールは、月単位の Snapshot コピーを転送し、 7 年間保持します。
+
+[listing]
+----
+
+                       Rules: SnapMirror Label     Keep  Preserve Warn Schedule Prefix
+                              ----------------     ----  -------- ---- -------- ------
+                              sm_created              1  false       0 -        -
+                              daily                   7  false       0 -        -
+                              weekly                 52  false       0 -        -
+                              monthly                84  false       0 -        -
+----
+
+
+== データ破損の可能性をなくします
+
+ユニファイドレプリケーションは、ベースライン転送の内容を、初期化時に SnapMirror で作成された Snapshot コピーに制限します。各更新で、 SnapMirror はソースの Snapshot コピーをもう 1 つ作成して、その Snapshot コピーおよび Snapshot ポリシーのルールで定義されたラベルと一致するラベルを持つ新しいすべての Snapshot コピーを転送します。
+
+最後に転送された Snapshot コピーのコピーをデスティネーションで作成することにより、更新した Snapshot コピーが破損する可能性を防ぐことができます。この「ローカル・コピー」はソース上の保持ルールに関係なく保持されるため、元は SnapMirror によって転送された Snapshot がソースで使用できなくなった場合でも、そのコピーをデスティネーションで使用できます。
+
+
+
+== ユニファイドデータレプリケーションを使用する状況
+
+完全なミラーリングを維持するメリットと、セカンダリストレージの量を削減し、ベースライン転送の数を減らし、ネットワークトラフィックを減らすユニファイドレプリケーションのメリットをどちらかと比較する必要があります。
+
+ユニファイドレプリケーションの妥当性を判断する際の重要な要素は、アクティブファイルシステムの変更率です。たとえば、データベーストランザクションログの時間単位 Snapshot コピーを保持するボリュームには、従来のミラーの方が適している場合があります。

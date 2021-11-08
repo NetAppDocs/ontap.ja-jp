@@ -1,0 +1,63 @@
+---
+permalink: authentication/define-custom-roles-task.html 
+sidebar: sidebar 
+keywords: define, custom roles 
+summary: security login role create コマンドを使用して、カスタムロールを定義できます。このコマンドを必要な回数だけ実行して、ロールに関連付ける機能の正確な組み合わせを実現できます。 
+---
+= カスタムロールを定義する
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+「 securitylogin role create 」コマンドを使用して、カスタムロールを定義できます。このコマンドを必要な回数だけ実行して、ロールに関連付ける機能の正確な組み合わせを実現できます。
+
+このタスクを実行するには、クラスタ管理者である必要があります。
+
+.このタスクについて
+* 事前定義かカスタムかにかかわらず、ロールは ONTAP コマンドまたはコマンドディレクトリへのアクセスを許可または拒否します。
++
+コマンド・ディレクトリ（ volume など）は ' 関連するコマンドとコマンド・サブディレクトリのグループですこの手順で説明されている場合を除き、コマンドディレクトリへのアクセスを許可または拒否すると、ディレクトリとそのサブディレクトリに含まれる各コマンドへのアクセスが許可または拒否されます。
+
+* 特定のコマンドまたはサブディレクトリへのアクセスは、親ディレクトリへのアクセスよりも優先されます。
++
+あるロールにコマンドディレクトリを定義し、そのあとに親ディレクトリの特定のコマンドまたはサブディレクトリに対して異なるアクセスレベルを定義した場合、そのコマンドまたはサブディレクトリに指定したアクセスレベルが親のアクセスレベルよりも優先されます。
+
+
+
+[NOTE]
+====
+「 admin 」クラスタ管理者のみが使用できるコマンドまたはコマンド・ディレクトリにアクセスできるロール（「 security」 コマンド・ディレクトリなど）は、 SVM 管理者に割り当てることはできません。
+
+====
+.ステップ
+. カスタムロールを定義します。
++
+「 security login role create -vserver svm_name -role role -cmddirname command_or_directory-level -query
+
++
+コマンド構文全体については、を参照してください link:config-worksheets-reference.html["ワークシート"]。
+
++
+次のコマンドは 'vol_role-role ロールに 'volume コマンド・ディレクトリ内のコマンドへのフル・アクセス権と 'volume snapshot' サブディレクトリ内のコマンドへの読み取り専用アクセス権を付与します
+
++
+[listing]
+----
+cluster1::>security login role create -role vol_role -cmddirname "volume" -access all
+
+cluster1::>security login role create -role vol_role -cmddirname "volume snapshot" -access readonly
+----
++
+次のコマンドは、「 storage 」コマンドディレクトリ内のコマンドへの「 vm_storage 」ロールの読み取り専用アクセスを許可し、「 storage encryption 」サブディレクトリ内のコマンドへのアクセスは許可せず、「 storage aggregate plex offline 」非組み込みコマンドへのフルアクセスを許可します。
+
++
+[listing]
+----
+cluster1::>security login role create -role SVM_storage -cmddirname "storage" -access readonly
+
+cluster1::>security login role create -role SVM_storage -cmddirname "storage encryption" -access none
+
+cluster1::>security login role create -role SVM_storage -cmddirname "storage aggregate plex offline" -access all
+----
+

@@ -1,0 +1,75 @@
+---
+permalink: smb-admin/configure-default-unix-user-task.html 
+sidebar: sidebar 
+keywords: configure, unix, user, map, fail, individual, windows, authentication, non-mapped, configure the default unix user 
+summary: ユーザに対する他のマッピングの試行がすべて失敗した場合や、 UNIX と Windows の間で個々のユーザをマッピングしないようにする場合に使用するデフォルトの UNIX ユーザを設定できます。ただし、マッピングされていないユーザの認証を失敗にする必要がある場合は、デフォルト UNIX ユーザを設定しないでください。 
+---
+= デフォルトの UNIX ユーザを設定する
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+ユーザに対する他のマッピングの試行がすべて失敗した場合や、 UNIX と Windows の間で個々のユーザをマッピングしないようにする場合に使用するデフォルトの UNIX ユーザを設定できます。ただし、マッピングされていないユーザの認証を失敗にする必要がある場合は、デフォルト UNIX ユーザを設定しないでください。
+
+デフォルトでは、デフォルト UNIX ユーザの名前は「 pcuser 」です。これは、デフォルトで、デフォルト UNIX ユーザへのユーザマッピングが有効になっていることを意味します。デフォルトの UNIX ユーザとして使用する別の名前を指定することもできます。指定する名前は、 Storage Virtual Machine （ SVM ）用に設定されているネームサービスデータベース内に存在する必要があります。このオプションを null 文字列に設定すると、どのユーザも UNIX デフォルトユーザとして CIFS サーバにアクセスできません。つまり、 CIFS サーバにアクセスするためには、各ユーザがパスワードデータベースにアカウントを持つ必要があります。
+
+ユーザがデフォルトの UNIX ユーザアカウントを使用して CIFS サーバに接続するには、次の前提条件を満たす必要があります。
+
+* ユーザが認証されていること。
+* ユーザが、 CIFS サーバのローカル Windows ユーザデータベース、 CIFS サーバのホームドメイン、信頼できるドメイン（ CIFS サーバでマルチドメインネームマッピング検索が有効な場合）のいずれかにあること
+* ユーザ名が明示的に null 文字列にマッピングされることはありません。
+
+
+.手順
+. デフォルトの UNIX ユーザを設定します。
++
+|===
+| 状況 | 入力するコマンド 
+
+
+ a| 
+デフォルトの UNIX ユーザ「 pcuser 」を使用する
+ a| 
+vserver cifs options modify -default-unix-user pcuser ’
+
+
+
+ a| 
+別の UNIX ユーザアカウントをデフォルトユーザとして使用します
+ a| 
+vserver cifs options modify -default-unix-user user_name _`
+
+
+
+ a| 
+デフォルトの UNIX ユーザを無効にします
+ a| 
+vserver cifs options modify -default-unix-user ""
+
+|===
++
+vserver cifs options modify -default-unix-user pcuser ’
+
+. デフォルトの UNIX ユーザが正しく設定されていることを確認します。 vserver cifs options show -vserver vserver_name _`
++
+次の例では、 SVM vs1 のデフォルト UNIX ユーザとゲスト UNIX ユーザの両方が UNIX ユーザ「 pcuser 」を使用するように設定されています。
+
++
+vserver cifs options show -vserver vs1 ’
+
++
+[listing]
+----
+
+Vserver: vs1
+
+  Client Session Timeout : 900
+  Default Unix Group     : -
+  Default Unix User      : pcuser
+  Guest Unix User        : pcuser
+  Read Grants Exec       : disabled
+  Read Only Delete       : disabled
+  WINS Servers           : -
+----
+

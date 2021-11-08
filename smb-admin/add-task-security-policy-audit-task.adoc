@@ -1,0 +1,78 @@
+---
+permalink: smb-admin/add-task-security-policy-audit-task.html 
+sidebar: sidebar 
+keywords: create, creating, add, policy, task, security, configuring, configure, apply, acl, file, svm, associate, task, entries, add a task to the security policy 
+summary: ACL を設定し、 SVM 内のファイルやフォルダへ適用する 4 番目のステップでは、ポリシータスクを作成してセキュリティポリシーに追加します。ポリシータスクを作成するときに、セキュリティポリシーとタスクを関連付けます。セキュリティポリシーには、 1 つ以上のタスクエントリを追加できます。 
+---
+= セキュリティポリシーにタスクを追加します
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+ACL を設定し、 SVM 内のファイルやフォルダへ適用する 4 番目のステップでは、ポリシータスクを作成してセキュリティポリシーに追加します。ポリシータスクを作成するときに、セキュリティポリシーとタスクを関連付けます。セキュリティポリシーには、 1 つ以上のタスクエントリを追加できます。
+
+セキュリティポリシーはタスクのコンテナです。タスクとは、 NTFS または mixed セキュリティが設定されたファイルまたはフォルダ（ストレージレベルのアクセス保護を設定する場合はボリュームオブジェクト）へのセキュリティポリシーによって実行できる単一の処理を指します。
+
+タスクには次の 2 つのタイプがあります。
+
+* ファイルとディレクトリのタスク
++
+指定されたファイルやフォルダにセキュリティ記述子を適用するタスクの指定に使用します。ファイルとディレクトリのタスクによって適用される ACL は、 SMB クライアントまたは ONTAP CLI で管理できます。
+
+* ストレージレベルのアクセス保護タスク
++
+指定されたボリュームにストレージレベルのアクセス保護のセキュリティ記述子を適用するタスクの指定に使用します。ストレージレベルのアクセス保護タスクで適用される ACL は ONTAP CLI からのみ管理できます。
+
+
+
+タスクには、ファイル（またはフォルダ）やファイルセット（またはフォルダセット）のセキュリティ構成の定義が含まれています。ポリシー内のすべてのタスクは、一意のパスによって識別されます。1 つのポリシー内の 1 つのパスに含められるのは 1 つのタスクだけです。ポリシーに重複するタスクエントリを含めることはできません。
+
+ポリシーへのタスクの追加に関するガイドラインを次に示します。
+
+* ポリシーあたりのタスクエントリは最大 10 、 000 個です。
+* ポリシーには 1 つ以上のタスクを含めることができます。
++
+ポリシーには複数のタスクを含めることができますが、ポリシーにファイルとディレクトリのタスクとストレージレベルのアクセス保護タスクの両方を含めることはできません。ポリシーに含めるタスクは、すべてストレージレベルのアクセス保護タスクにするか、すべてファイルとディレクトリのタスクにする必要があります。
+
+* ストレージレベルのアクセス保護は、権限の制限に使用します。
++
+アクセス権限は付与されません。
+
+
+
+次のオプションのパラメータを使用して、セキュリティ記述子の設定をカスタマイズできます。
+
+* セキュリティタイプ
+* プロパゲーションモード
+* インデックス位置
+* アクセス制御の種類
+
+
+オプションのパラメータの値はストレージレベルのアクセス保護では無視されます。詳細については、マニュアルページを参照してください。
+
+.手順
+. セキュリティポリシーに関連付けられたセキュリティ記述子を含むタスクを追加します。 vserver security file-directory policy-task add -vserver vserver_name -policy-name policy_name -path path -ntfs-sd SD_nameoptional_parameters
++
+「 file-directory 」は、「 -access-control 」パラメータのデフォルト値です。ファイルとディレクトリのアクセスタスクを設定する場合、アクセス制御の種類の指定は任意です。
+
++
+vserver security file-directory policy task add -vserver vs1 -policy-name policy1 -path /home/dir1-security-type ntfs -ntfs-sd sd2 -index-num 1 -access-control file-directory を指定します
+
+. ポリシータスクの設定を確認します。 vserver security file-directory policy task show -vserver vserver_name -policy-name policy_name -path path
++
+vserver security file-directory policy task show
+
++
+[listing]
+----
+
+Vserver: vs1
+Policy: policy1
+
+Index    File/Folder    Access           Security   NTFS       NTFS Security
+         Path           Control          Type       Mode       Descriptor Name
+-----    --------       -----------      --------   ------     ----------------
+1        /home/dir1     file-directory   ntfs       propagate  sd2
+----
+

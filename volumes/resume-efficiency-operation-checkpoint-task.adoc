@@ -1,0 +1,35 @@
+---
+permalink: volumes/resume-efficiency-operation-checkpoint-task.html 
+sidebar: sidebar 
+keywords: resume, halted, efficiency, operation 
+summary: システムの停止やリブートのために効率化処理が停止した場合は、 volume efficiency start コマンドでチェックポイントオプションを使用して、同じポイントから効率化処理を再開できます。これにより、効率化処理を最初からやり直す必要がなくなるため、時間とリソースを節約できます。 
+---
+= 停止した効率化処理を再開します
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+システムの停止、システムの中断、またはリブートのために効率化処理が停止した場合は、 volume efficiency start コマンドにチェックポイントオプションを指定して、同じポイントから効率化処理を再開できます。これにより、効率化処理を最初からやり直す必要がなくなるため、時間とリソースを節約できます。
+
+ボリュームで重複排除のみを有効にした場合は、データに対して重複排除が実行されます。ボリュームで重複排除とデータ圧縮の両方を有効にした場合は、データ圧縮が先に実行され、そのあとに重複排除が実行されます。
+
+volume efficiency show コマンドを使用すると、ボリュームのチェックポイントの詳細を表示できます。
+
+デフォルトでは、効率化処理はチェックポイントから再開されます。ただし、前回の効率化処理（ volume efficiency start `-scan-old-data コマンドが実行されるフェーズ）に対応するチェックポイントが 24 時間を超過している場合、効率化処理は前回のチェックポイントから自動的には再開されません。この場合、効率化処理は最初から開始されます。ただし、前回のスキャン以降にボリュームで重要な変更が行われていないことがわかっている場合は、「 -use-checkpoint 」オプションを使用して、強制的に前回のチェックポイントから続行できます。
+
+.ステップ
+. 効率化処理を再開するには '-use-checkpoint オプションを指定して volume efficiency start コマンドを使用します
++
+次のコマンドは、ボリューム VolA 上の新しいデータに対して効率化処理を再開します。
+
++
+volume efficiency start -vserver vs1 -volume VolA -use-checkpoint true
+
++
+次のコマンドは、ボリューム VolA 上の既存データに対して効率化処理を再開します。
+
++
+volume efficiency start -vserver vs1 -volume VolA -scan-old-data true -use-checkpoint true
+
+

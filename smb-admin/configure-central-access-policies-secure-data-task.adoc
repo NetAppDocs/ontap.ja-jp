@@ -1,0 +1,147 @@
+---
+permalink: smb-admin/configure-central-access-policies-secure-data-task.html 
+sidebar: sidebar 
+keywords: secure, access, data, cifs, server, central, access, policies, policy, dynamic, access, control, dac, gpo, configure central access policies to secure data on cifs servers 
+summary: 集約型アクセスポリシーを使用した CIFS サーバ上のデータへのアクセスを保護するためには、 CIFS サーバでの Dynamic Access Control （ DAC ；ダイナミックアクセス制御）の有効化、 Active Directory での集約型アクセスポリシーの設定、 GPO を使用した Active Directory コンテナへの集約型アクセスポリシーの適用、 CIFS サーバで GPO を有効にします。 
+---
+= CIFS サーバ上のデータを保護する集約型アクセスポリシーを設定します
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+集約型アクセスポリシーを使用した CIFS サーバ上のデータへのアクセスを保護するためには、 CIFS サーバでの Dynamic Access Control （ DAC ；ダイナミックアクセス制御）の有効化、 Active Directory での集約型アクセスポリシーの設定、 GPO を使用した Active Directory コンテナへの集約型アクセスポリシーの適用、 CIFS サーバで GPO を有効にします。
+
+.作業を開始する前に
+* 集約型アクセスポリシーを使用するには、 Active Directory を設定する必要があります。
+* 集約型アクセスポリシーを作成し、 CIFS サーバを含むコンテナに GPO の作成と適用を行うには、 Active Directory ドメインコントローラに対して十分なアクセスが必要です。
+* 必要なコマンドを実行するためには、 Storage Virtual Machine （ SVM ）で十分な管理アクセスが必要です。
+
+
+集約型アクセスポリシーは、 Active Directory のグループポリシーオブジェクト（ GPO ）に対して定義および適用されます。集約型アクセスポリシーと GPO の設定については、 Microsoft TechNet ライブラリを参照してください。
+
+http://technet.microsoft.com/library/["Microsoft TechNet ライブラリ"]
+
+.手順
+. SVM でダイナミックアクセス制御がまだ有効になっていない場合は、「 vserver cifs options modify 」コマンドを使用して有効にします。
++
+「 vserver cifs options modify -vserver vs1 -is-DAC -enabled true 」というエラーが表示されます
+
+. vserver cifs group-policy modify コマンドを使用して CIFS サーバのグループポリシーオブジェクト（ GPO ）を有効化していない場合は、有効化します。
++
+「 vserver cifs group-policy modify -vserver vs1 -status enabled 」
+
+. Active Directory で集約型アクセスルールと集約型アクセスポリシーを作成します。
+. グループポリシーオブジェクト（ GPO ）を作成して Active Directory に集約型アクセスポリシーを導入します。
+. CIFS サーバコンピュータアカウントが存在するコンテナに GPO を適用します。
+. vserver cifs group-policy update コマンドを使用して、 CIFS サーバに適用された GPO を手動で更新します。
++
+「 vserver cifs group-policy update -vserver vs1 」
+
+. vserver cifs group-policy show-applied コマンドを使用して、 GPO 集約型アクセスポリシーが CIFS サーバのリソースに適用されていることを確認します。
++
+次の例は、デフォルトのドメインポリシーに、 CIFS サーバに適用される 2 つの集約型アクセスポリシーがあることを示しています。
+
++
+「 vserver cifs group-policy show-applied 」のように表示されています
+
++
+[listing]
+----
+Vserver: vs1
+-----------------------------
+    GPO Name: Default Domain Policy
+       Level: Domain
+      Status: enabled
+  Advanced Audit Settings:
+      Object Access:
+          Central Access Policy Staging: failure
+  Registry Settings:
+      Refresh Time Interval: 22
+      Refresh Random Offset: 8
+      Hash Publication Mode for BranchCache: per-share
+      Hash Version Support for BranchCache: all-versions
+  Security Settings:
+      Event Audit and Event Log:
+          Audit Logon Events: none
+          Audit Object Access: success
+          Log Retention Method: overwrite-as-needed
+          Max Log Size: 16384
+      File Security:
+          /vol1/home
+          /vol1/dir1
+      Kerberos:
+          Max Clock Skew: 5
+          Max Ticket Age: 10
+          Max Renew Age:  7
+      Privilege Rights:
+          Take Ownership: usr1, usr2
+          Security Privilege: usr1, usr2
+          Change Notify: usr1, usr2
+      Registry Values:
+          Signing Required: false
+      Restrict Anonymous:
+          No enumeration of SAM accounts: true
+          No enumeration of SAM accounts and shares: false
+          Restrict anonymous access to shares and named pipes: true
+          Combined restriction for anonymous user: no-access
+      Restricted Groups:
+          gpr1
+          gpr2
+  Central Access Policy Settings:
+      Policies: cap1
+                cap2
+
+    GPO Name: Resultant Set of Policy
+       Level: RSOP
+  Advanced Audit Settings:
+      Object Access:
+          Central Access Policy Staging: failure
+  Registry Settings:
+      Refresh Time Interval: 22
+      Refresh Random Offset: 8
+      Hash Publication Mode for BranchCache: per-share
+      Hash Version Support for BranchCache: all-versions
+  Security Settings:
+      Event Audit and Event Log:
+          Audit Logon Events: none
+          Audit Object Access: success
+          Log Retention Method: overwrite-as-needed
+          Max Log Size: 16384
+      File Security:
+          /vol1/home
+          /vol1/dir1
+      Kerberos:
+          Max Clock Skew: 5
+          Max Ticket Age: 10
+          Max Renew Age:  7
+      Privilege Rights:
+          Take Ownership: usr1, usr2
+          Security Privilege: usr1, usr2
+          Change Notify: usr1, usr2
+      Registry Values:
+          Signing Required: false
+      Restrict Anonymous:
+          No enumeration of SAM accounts: true
+          No enumeration of SAM accounts and shares: false
+          Restrict anonymous access to shares and named pipes: true
+          Combined restriction for anonymous user: no-access
+      Restricted Groups:
+          gpr1
+          gpr2
+  Central Access Policy Settings:
+      Policies: cap1
+                cap2
+2 entries were displayed.
+----
+
+
+* 関連情報 *
+
+xref:display-gpo-config-task.adoc[GPO 設定に関する情報を表示します]
+
+xref:display-central-access-policies-task.adoc[集約型アクセスポリシーに関する情報を表示します]
+
+xref:display-central-access-policy-rules-task.adoc[集約型アクセスポリシールールに関する情報を表示します]
+
+xref:enable-disable-dynamic-access-control-task.adoc[ダイナミックアクセス制御の有効化と無効化]

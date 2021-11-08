@@ -1,0 +1,57 @@
+---
+permalink: san-admin/register-svm-isns-server-task.html 
+sidebar: sidebar 
+keywords: register, svm, isns, server 
+summary: iSNS サーバに登録するように Storage Virtual Machine （ SVM ）を設定するには、 vserver iscsi isns コマンドを使用します。 
+---
+= SVM を iSNS サーバに登録する
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+iSNS サーバに登録するように Storage Virtual Machine （ SVM ）を設定するには、「 vserver iscsi isns 」コマンドを使用します。
+
+vserver iscsi isns create コマンドは、 SVM を iSNS サーバに登録します。SVM には、 iSNS サーバの設定や管理を行うコマンドはありません。iSNS サーバを管理するには、 iSNS サーバのベンダーが提供するサーバ管理ツールまたはインターフェイスを使用します。
+
+.手順
+. iSNS サーバで、 iSNS サービスが開始しており、サービスを提供可能な状態であることを確認します。
+. データポートに SVM 管理 LIF を作成します。
++
+「 network interface create -vserver _svm_name _ -lif lif_name _ -role data -data-protocol none -home-node _home_node_name _ -home-port home_port_IP_address _-netmask network_mask_ 」のようになります
+
+. SVM に iSCSI サービスがない場合は作成します。
++
+「 vserver iscsi create -vserver_svm_name_` 」のように指定します
+
+. iSCSI サービスが正常に作成されたことを確認します。
++
+iscsi show -vserver_svm_name_`
+
+. SVM のデフォルトルートが存在していることを確認します。
++
+「 network route show -vserver _svm_name 」をクリックします
+
+. SVM のデフォルトルートが存在しない場合は、デフォルトルートを作成します。
++
+「 network route create -vserver _svm_name 」 -destination_destination_-gateway_`
+
+. iSNS サービスに登録するように SVM を設定します。
++
+vserver iscsi isns create -vserver _svm_name -address_ip_address _`
+
++
+IPv4 アドレスファミリーと IPv6 アドレスファミリーの両方がサポートされています。iSNS サーバのアドレスファミリーは、 SVM 管理 LIF のアドレスファミリーと同じである必要があります。
+
++
+たとえば、 IPv4 アドレスを使用する SVM 管理 LIF を、 IPv6 アドレスを使用する iSNS サーバに接続することはできません。
+
+. iSNS サービスが実行されていることを確認します。
++
+vserver iscsi isns show -vserver_svm_name_`
+
+. iSNS サービスが実行されていない場合は、 iSNS サービスを開始します。
++
+「 vserver iscsi isns start -vserver _svm_name _ 」という名前になります
+
+

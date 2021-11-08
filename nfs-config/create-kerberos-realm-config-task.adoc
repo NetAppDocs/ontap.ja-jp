@@ -1,0 +1,44 @@
+---
+permalink: nfs-config/create-kerberos-realm-config-task.html 
+sidebar: sidebar 
+keywords: create, nfs, kerberos, realm, configuration 
+summary: 環境で ONTAP から外部 Kerberos サーバにアクセスする場合は、まず既存の Kerberos Realm を使用するように SVM を設定する必要があります。そのためには、 Kerberos KDC サーバの設定値を収集する必要があります。その後、 vserver nfs kerberos realm create コマンドを使用して、 SVM 上で Kerberos Realm 設定を作成します。 
+---
+= NFS Kerberos Realm の設定を作成します
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+環境で ONTAP から外部 Kerberos サーバにアクセスする場合は、まず既存の Kerberos Realm を使用するように SVM を設定する必要があります。そのためには、 Kerberos KDC サーバの設定値を収集する必要があります。次に、「 vserver nfs kerberos realm create 」コマンドを使用して、 SVM 上で Kerberos Realm 設定を作成します。
+
+認証の問題を回避するために、クラスタ管理者はストレージシステム、クライアント、および KDC サーバ上で NTP を設定しておく必要があります。クライアントとサーバの時間差（クロックスキュー）は、認証エラーの一般的な原因です。
+
+.手順
+. Kerberos 管理者に問い合わせて 'vserver nfs kerberos realm create コマンドで指定する適切な設定値を決定します
+. SVM で Kerberos Realm の設定を作成します。
++
+「 vserver nfs kerberos realm create -vserver _name_realm_realm_name__ ｛ AD_KDC_server_values | AD_KDC_server_values ｝ 」 -comment "_text_"
+
+. Kerberos Realm 設定が正常に作成されたことを確認します。
++
+vserver nfs kerberos realm show
+
+
+
+次のコマンドは、 Microsoft Active Directory サーバを KDC サーバとして使用する NFS Kerberos Realm 設定を SVM vs1 で作成します。Kerberos Realm は AUTH.EXAMPLE.COM です。Active Directory サーバの名前は ad-1 で、 IP アドレスは 10.10.8.14 です。許容されるクロックスキューは 300 秒（デフォルト）です。KDC サーバの IP アドレスは 10.10.8.14 で、ポート番号は 88 （デフォルト）です。「 Microsoft Kerberos config 」はコメントです。
+
+[listing]
+----
+vs1::> vserver nfs kerberos realm create -vserver vs1 -realm AUTH.EXAMPLE.COM -adserver-name ad-1
+-adserver-ip 10.10.8.14 -clock-skew 300 -kdc-ip 10.10.8.14 -kdc-port 88 -kdc-vendor Microsoft
+-comment "Microsoft Kerberos config"
+----
+次のコマンドは、 MIT KDC を使用する NFS Kerberos Realm 設定を SVM vs1 で作成します。Kerberos Realm は SECURITY.EXAMPLE.COM です。許容されるクロックスキューは 300 秒です。KDC サーバの IP アドレスは 10.10.9.1 で、ポート番号は 88 です。KDC ベンダーは UNIX ベンダーを示す Other です。管理サーバの IP アドレスは 10.10.9.1 で、ポート番号は 749 （デフォルト）です。パスワードサーバの IP アドレスは 10.10.9.1 で、ポート番号は 464 （デフォルト）です。「 UNIX Kerberos config 」はコメントです。
+
+[listing]
+----
+vs1::> vserver nfs kerberos realm create -vserver vs1 -realm SECURITY.EXAMPLE.COM. -clock-skew 300
+-kdc-ip 10.10.9.1 -kdc-port 88 -kdc-vendor Other -adminserver-ip 10.10.9.1 -adminserver-port 749
+-passwordserver-ip 10.10.9.1 -passwordserver-port 464 -comment "UNIX Kerberos config"
+----

@@ -1,0 +1,186 @@
+---
+permalink: nfs-config/create-ldap-client-config-task.html 
+sidebar: sidebar 
+keywords: create, ldap, client, configuration 
+summary: 環境で ONTAP から外部 LDAP サーバにアクセスする場合は、まずストレージシステム上で LDAP クライアントを設定する必要があります。 
+---
+= LDAP クライアント設定を作成します
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+環境で ONTAP から外部 LDAP サーバにアクセスする場合は、まずストレージシステム上で LDAP クライアントを設定する必要があります。
+
+AD ドメイン解決リストの最初の 3 台のサーバのうち 1 台が起動していて、データを提供している必要があります。そうしないと、このタスクは失敗します。
+
+[NOTE]
+====
+複数のサーバがあり、どの時点でもそのうち 3 台以上のサーバが停止している状態です。
+
+====
+.手順
+. LDAP 管理者に問い合わせて 'vserver services name-service ldap client create コマンドの適切な設定値を決定します
++
+.. LDAP サーバへのドメインベースまたはアドレスベースの接続を指定します。
++
+「 -ad-domain 」オプションと「 -servers 」オプションは、相互に排他的です。
+
++
+*** Active Directory ドメインで LDAP サーバの検出を有効にするには、「 -ad-domain 」オプションを使用します。
++
+1 つまたは複数の優先 Active Directory サーバをカンマで区切って IP アドレスで指定するには、「 preferred-ad-servers 」オプションを使用します。クライアントが作成されたら、「 vserver services name-service ldap client modify 」コマンドを使用して、このリストを変更できます。
+
+*** カンマ区切りリストの IP アドレスで 1 つ以上の LDAP サーバ (AD または UNIX) を指定するには '-servers オプションを使用します
++
+[NOTE]
+====
+「 -servers 」オプションは ONTAP 9.2 で廃止されました。ONTAP 9.2 以降では、「 -servers 」フィールドが「 -servers 」フィールドに置き換えられています。この新しいフィールドには、 LDAP サーバのホスト名または IP アドレスを指定できます。
+
+====
+
+
+.. デフォルトまたはカスタムの LDAP スキーマを指定します。
++
+ほとんどの LDAP サーバでは、 ONTAP が提供するデフォルトの読み取り専用スキーマを使用できます。他のスキーマを使用する必要がある場合を除き、デフォルトのスキーマを使用することを推奨します。その場合は、デフォルトスキーマ（読み取り専用）をコピーし、コピーを変更することによって、独自のスキーマを作成できます。
+
++
+デフォルトのスキーマ：
+
++
+*** MS-AD-BIS を参照してください
++
+RFC 2307bis に基づいて、ほとんどの標準的な Windows 2012 以降の LDAP 環境で優先される LDAP スキーマです。
+
+*** 「 AD-IDMU 」
++
+Active Directory Identity Management for UNIX に基づいて、このスキーマは Windows Server 2008 、 Windows Server 2012 、およびそれ以降のほとんどの AD サーバに適しています。
+
+*** 「 AD-SFU 」のようになります
++
+Active Directory Services for UNIX に基づいて、このスキーマは Windows 2003 以前のほとんどの AD サーバに適しています。
+
+*** 「 RFC-2307 」
++
+RFC-2307 （ネットワーク情報サービスとして LDAP を使用するためのアプローチ）に基づいて、このスキーマはほとんどの UNIX AD サーバに適しています。
+
+
+
+.. バインド値を選択します。
++
+*** `-min-bind-level ｛ anonymous | simple | sasl ｝ ’は、最小バインド認証レベルを指定します。
++
+デフォルト値は「 * anonymous * 」です。
+
+*** `-bind-dn LDAP_DN_` は、バインドユーザを指定します。
++
+Active Directory サーバの場合は、アカウント（ DOMAIN\user ）またはプリンシパル（ user@domain.com ）の形式でユーザを指定する必要があります。それ以外の場合は、識別名（ CN=user 、 DC=domain 、 DC=com ）の形式でユーザを指定する必要があります。
+
+*** 「 -bind-password_password _ 」は、バインドパスワードを指定します。
+
+
+.. 必要に応じて、セッションセキュリティオプションを選択します。
++
+LDAP サーバで必要な場合は、 LDAP の署名と封印または LDAP over TLS を有効にすることができます。
+
++
+*** `--session-security { none|sign|seal }`
++
+署名 ( 「署名」、データの完全性 ) 、署名と封印 ( 「封印」、データの整合性と暗号化 ) 、またはどちらも有効にできません ( 「なし」、署名も封印もなし ) 。デフォルト値は「 NONE 」です。
+
++
+署名と封印のバインドが失敗した場合には、バインド認証を「 * anonymous * 」または「 * simple * 」に戻す場合を除き、「 -min-bind-level 」 {`ASL `} も設定する必要があります。
+
+*** `-use-start-tls'{`true|`false`}
++
+「 * true * 」に設定した場合、 LDAP サーバでサポートされていれば、 LDAP クライアントはサーバへの暗号化された TLS 接続を使用します。デフォルト値は '*false*' ですこのオプションを使用するには、 LDAP サーバの自己署名ルート CA 証明書をインストールする必要があります。
+
++
+[NOTE]
+====
+SVM に CIFS サーバがドメインに追加されており、 LDAP サーバが CIFS サーバのホームドメインのドメインコントローラの 1 つである場合、「 vserver cifs security modify 」コマンドを使用して「 -session-security-for-ad-ldap」 オプションを変更できます。
+
+====
+
+
+.. ポート、クエリ、およびベースの値を選択します。
++
+デフォルト値を推奨しますが、実際の環境に適しているかどうかを LDAP 管理者に確認する必要があります。
+
++
+*** 「 -port_port_」 には、 LDAP サーバポートを指定します。
++
+デフォルト値は「 389 」です。
+
++
+Start TLS を使用した LDAP 接続の保護を予定している場合は、デフォルトのポート 389 を使用する必要があります。Start TLS は LDAP のデフォルトポート 389 経由でプレーンテキスト接続として開始され、その後 TLS 接続にアップグレードされます。ポートを変更すると、 Start TLS は失敗します。
+
+*** `-query-timeout_integer_' クエリのタイムアウトを秒単位で指定します
++
+指定できる範囲は 1~10 秒です。デフォルト値は「 3 」秒です。
+
+*** `-base-dn_ldap_dN_DN_` は、ベース DN を指定します。
++
+必要に応じて複数の値を入力できます（ LDAP リファーラル追跡を有効にした場合など）。デフォルト値は "" （ root ）です。
+
+*** 「 -base-scope 」 {`base`|`onelevel `|`ubtree` ｝ は、ベース検索範囲を指定します。
++
+デフォルト値は 'ubtree' です
+
+*** --referral-enabled `{`true|`false`} は、 LDAP リファーラル追跡を有効にするかどうかを指定します。
++
+ONTAP 9.5 以降では、 LDAP リファーラル追跡を有効にすると、必要なレコードが他の LDAP サーバにあることを示す LDAP リファーラル応答がプライマリ LDAP サーバから返された場合に、 ONTAP LDAP クライアントがそれらの LDAP サーバに対してルックアップ要求を実行することができます。デフォルト値は '*false*' です
+
++
+参照された LDAP サーバにあるレコードを検索するには、参照されたレコードのベース DN を LDAP クライアント設定の一部としてベース DN に追加する必要があります。
+
+
+
+
+
+. SVM に LDAP クライアント設定を作成します。
++
+「 vserver services name-service ldap client create -vserver_name_-client-config _client_config_name _{-servers _ldap_server_list_|-ad-domain_domain_preferred-ad-servers _preferred_ad_server_list_schema_port 389 -query-timeout 3-min-bind-dn | subtree -min-bind-<0 -min-bind-<0 -mind <0 -mind <0 <0 -password> ｛ 0 ｝ -mind <domain> ｛
+
++
+[NOTE]
+====
+LDAP クライアント設定を作成するときは、 SVM 名を指定する必要があります。
+
+====
+. LDAP クライアント設定が正常に作成されたことを確認します。
++
+vserver services name-service ldap client show -client-config client_config_name です
+
+
+
+次のコマンドでは、 LDAP の Active Directory サーバと連携するために、 SVM vs1 で ldap1 という名前の新しい LDAP クライアント設定を作成します。
+
+[listing]
+----
+cluster1::> vserver services name-service ldap client create -vserver vs1 -client-config ldapclient1 –ad-domain addomain.example.com -schema AD-SFU -port 389 -query-timeout 3 -min-bind-level simple -base-dn DC=addomain,DC=example,DC=com -base-scope subtree -preferred-ad-servers 172.17.32.100
+----
+次のコマンドでは、署名と封印が必要な LDAP の Active Directory サーバと連携するために、 SVM vs1 で ldap1 という名前の新しい LDAP クライアント設定を作成します。
+
+[listing]
+----
+cluster1::> vserver services name-service ldap client create -vserver vs1 -client-config ldapclient1 –ad-domain addomain.example.com -schema AD-SFU -port 389 -query-timeout 3 -min-bind-level sasl -base-dn DC=addomain,DC=example,DC=com -base-scope subtree -preferred-ad-servers 172.17.32.100 -session-security seal
+----
+次のコマンドでは、 LDAP リファーラル追跡が必要な LDAP の Active Directory サーバと連携するために、 SVM vs1 に ldap1 という名前の新しい LDAP クライアント設定を作成します。
+
+[listing]
+----
+cluster1::> vserver services name-service ldap client create -vserver vs1 -client-config ldapclient1 –ad-domain addomain.example.com -schema AD-SFU -port 389 -query-timeout 3 -min-bind-level sasl -base-dn "DC=adbasedomain,DC=example1,DC=com; DC=adrefdomain,DC=example2,DC=com" -base-scope subtree -preferred-ad-servers 172.17.32.100 -referral-enabled true
+----
+次のコマンドでは、ベース DN を指定することで、 SVM vs1 で ldap1 という名前の LDAP クライアント設定を変更します。
+
+[listing]
+----
+cluster1::> vserver services name-service ldap client modify -vserver vs1 -client-config ldap1 -base-dn CN=Users,DC=addomain,DC=example,DC=com
+----
+次のコマンドでは、リファーラル追跡を有効にすることで、 SVM vs1 の ldap1 という名前の LDAP クライアント設定を変更します。
+
+[listing]
+----
+cluster1::> vserver services name-service ldap client modify -vserver vs1 -client-config ldap1 -base-dn "DC=adbasedomain,DC=example1,DC=com; DC=adrefdomain,DC=example2,DC=com"  -referral-enabled true
+----

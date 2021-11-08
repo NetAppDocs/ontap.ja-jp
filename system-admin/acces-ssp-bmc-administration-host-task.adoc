@@ -1,0 +1,65 @@
+---
+permalink: system-admin/acces-ssp-bmc-administration-host-task.html 
+sidebar: sidebar 
+keywords: access, sp, bmc, administration, host, node, management 
+summary: 管理ホストからノードの SP にログインして、ノードの管理タスクをリモートから実行できます。 
+---
+= 管理ホストから SP / BMC にアクセスします
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+管理ホストからノードの SP にログインして、ノードの管理タスクをリモートから実行できます。
+
+次の条件を満たす必要があります。
+
+* SP へのアクセスに使用する管理ホストでは SSHv2 がサポートされている必要がある。
+* SP へのアクセス用にユーザアカウントがすでにセットアップされている必要があります。
++
+SP にアクセスするには、「 securitylogin create 」コマンドの「 -application 」パラメータを「 service-processor 」に、「 -authmethod 」パラメータを「 password 」に設定してユーザアカウントを作成しておく必要があります。
+
+
+
+[NOTE]
+====
+このタスクでは、 SP と BMC の両方を環境に設定します。
+
+====
+SP が IPv4 または IPv6 アドレスを使用するように設定されていて、ホストからの SSH ログイン試行が 10 分以内に連続 5 回失敗した場合には、 SP は SSH ログイン要求を拒否し、ホストの IP アドレスとの通信を 15 分間中断します。通信は 15 分後に再開され、 SP へのログインを再度試行できるようになります。
+
+ONTAP では、システム用に予約されている名前（「 root 」や「 naroot 」など）をクラスタまたは SP にアクセスする目的で作成または使用することはできません。
+
+.手順
+. 管理ホストから、 SP にログインします。
++
+`*ssh username @ SP_IP_address *`
+
+. プロンプトが表示されたら、「 username 」のパスワードを入力します。
++
+SP プロンプトが表示され、 SP CLI にアクセスしていることが示されます。
+
+
+
+次の例は 'SP にアクセスするために設定されている 'joe' というユーザー・アカウントを使用して SP にログインする方法を示しています
+
+[listing]
+----
+[admin_host]$ ssh joe@192.168.123.98
+joe@192.168.123.98's password:
+SP>
+----
+次の例は、 IPv6 グローバルアドレスまたは IPv6 ルータ通知アドレスを使用して、 IPv6 に対して SSH が設定されかつ SP が設定されているノードの SP にログインする方法を示しています。
+
+[listing]
+----
+[admin_host]$ ssh joe@fd22:8b1e:b255:202::1234
+joe@fd22:8b1e:b255:202::1234's password:
+SP>
+----
+[listing]
+----
+[admin_host]$ ssh joe@fd22:8b1e:b255:202:2a0:98ff:fe01:7d5b
+joe@fd22:8b1e:b255:202:2a0:98ff:fe01:7d5b's password:
+SP>
+----

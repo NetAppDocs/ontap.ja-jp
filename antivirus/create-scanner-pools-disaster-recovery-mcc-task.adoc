@@ -1,0 +1,99 @@
+---
+permalink: antivirus/create-scanner-pools-disaster-recovery-mcc-task.html 
+sidebar: sidebar 
+keywords: create, scanner pools, metrocluster, configurations 
+summary: MetroCluster 構成の各クラスタには、クラスタのプライマリとセカンダリの SVM に対応するプライマリとセカンダリのスキャナプールを作成する必要があります。 
+---
+= MetroCluster 構成でスキャナプールを作成
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+MetroCluster 構成の各クラスタには、クラスタのプライマリとセカンダリの SVM に対応するプライマリとセカンダリのスキャナプールを作成する必要があります。
+
+.必要なもの
+* SVM と Vscan サーバは同じドメインに属しているか、信頼されたドメインに属している必要があります。
+* 個々の SVM 用のスキャナプールを定義する場合は、 SVM 管理 LIF または SVM データ LIF に ONTAP Antivirus Connector を設定しておく必要があります。
+* クラスタ内のすべての SVM 用のスキャナプールを定義する場合は、クラスタ管理 LIF に ONTAP Antivirus Connector を設定しておく必要があります。
+
+
+MetroCluster 構成は、物理的に分離された 2 つのミラークラスタを実装することでデータを保護します。各クラスタが、もう一方のクラスタのデータおよび SVM 設定を同期的にレプリケートします。クラスタがオンラインのときは、ローカルクラスタのプライマリ SVM がデータを提供します。リモートクラスタがオフラインのときは、ローカルクラスタのセカンダリ SVM がデータを提供します。
+
+つまり、 MetroCluster 構成の各クラスタには、クラスタのプライマリとセカンダリの SVM に対応するプライマリとセカンダリのスキャナプールを作成する必要があります。セカンダリ SVM がデータの提供を開始すると、セカンダリプールがアクティブになります。次の図は、一般的な MetroCluster 構成を示しています。
+
+image::../media/metrocluster-av-config.gif[MetroCluster AV の設定]
+
+[NOTE]
+====
+特権ユーザのリストには、 Vscan サーバが SVM への接続に使用するドメインユーザアカウントが含まれている必要があります。
+
+====
+.手順
+. スキャナプールを作成します。
++
+「 vserver vscan scanner-pool create -vserver data_SVM | cluster_admin_svm -scanner-pool scanner-pool scanner-pool scanner-pool scanner-pool scanner-pool scanner-pool scanner-pool scanner-pool scanner-pool scanner-pool scanner-pool VScan サーバのホスト名 -privileged-users privileged-users privileged-users 」という形式の 2 つのコマンドを入力します
+
++
+** 個々の SVM 用のプールの場合はデータ SVM 、クラスタ内のすべての SVM 用のプールの場合はクラスタ管理 SVM を指定します。
+** 各 Vscan サーバのホスト名には IP アドレスまたは FQDN を指定します。
+** 各特権ユーザのドメイン名とユーザ名を指定します。
+
+
++
+[NOTE]
+====
+スキャナプールの作成は、すべてプライマリ SVM を含むクラスタから実行する必要があります。
+
+====
++
+すべてのオプションの一覧については、コマンドのマニュアルページを参照してください。
+
++
+次のコマンドは、 MetroCluster 構成の各クラスタにプライマリとセカンダリのスキャナプールを作成します。
+
++
+[listing]
+----
+cluster1::> vserver vscan scanner-pool create -vserver cifssvm1 -
+scanner-pool pool1_for_site1 -hostnames scan1 -privileged-users cifs
+\u1,cifs\u2
+
+cluster1::> vserver vscan scanner-pool create -vserver cifssvm1 -
+scanner-pool pool1_for_site2 -hostnames scan1 -privileged-users cifs
+\u1,cifs\u2
+
+cluster1::> vserver vscan scanner-pool create -vserver cifssvm1 -
+scanner-pool pool2_for_site1 -hostnames scan2 -privileged-users cifs
+\u1,cifs\u2
+
+cluster1::> vserver vscan scanner-pool create -vserver cifssvm1 -
+scanner-pool pool2_for_site2 -hostnames scan2 -privileged-users cifs
+\u1,cifs\u2
+----
+. スキャナプールが作成されたことを確認します。 vserver vscan scanner-pool show -vserver data_svm | cluster_admin_svm -scanner-pool scanner-pool scanner-pool scanner-pool scanner-pool scanner_pool
++
+すべてのオプションの一覧については、コマンドのマニュアルページを参照してください。
+
++
+次のコマンドは、スキャナプール「 pool1 」の詳細を表示します。
+
++
+[listing]
+----
+cluster1::> vserver vscan scanner-pool show -vserver cifssvm1 -scanner-pool pool1_for_site1
+
+                                    Vserver: cifssvm1
+                               Scanner Pool: pool1_for_site1
+                             Applied Policy: idle
+                             Current Status: off
+         Cluster on Which Policy Is Applied: -
+                  Scanner Pool Config Owner: vserver
+       List of IPs of Allowed Vscan Servers:
+List of Host Names of Allowed Vscan Servers: scan1
+                   List of Privileged Users: cifs\u1,cifs\u2
+----
++
+vserver vscan scanner-pool show コマンドを使用して、 SVM 上のすべてのスキャナプールを表示することもできます。コマンド構文全体については、コマンドのマニュアルページを参照してください。
+
+

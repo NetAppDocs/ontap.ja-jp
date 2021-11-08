@@ -1,0 +1,74 @@
+---
+permalink: antivirus/apply-scanner-policy-pool-task.html 
+sidebar: sidebar 
+keywords: apply, scanner policy, single, cluster 
+summary: スキャナポリシーは、スキャナプールがアクティブかどうかを決定します。スキャナプールに定義されている Vscan サーバが SVM に接続できるようにするには、スキャナプールをアクティブにする必要があります。 
+---
+= 単一のクラスタにスキャナポリシーを適用する
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+スキャナポリシーは、スキャナプールがアクティブかどうかを決定します。スキャナプールに定義されている Vscan サーバが SVM に接続できるようにするには、スキャナプールをアクティブにする必要があります。
+
+.このタスクについて
+* 1 つのスキャナプールに適用できるスキャナポリシーは 1 つだけです。
+* クラスタ内のすべての SVM 用のスキャナプールを作成した場合は、各 SVM にスキャナポリシーを個別に適用する必要があります。
+* ディザスタリカバリ構成および MetroCluster 構成では、ローカルクラスタとパートナークラスタのスキャナプールにスキャナポリシーを適用する必要があります。
++
+ローカルクラスタ用に作成するポリシーでは 'cluster' パラメータにローカルクラスタを指定する必要がありますパートナー・クラスタ用に作成するポリシーでは 'cluster' パラメータにパートナー・クラスタを指定する必要があります災害が発生した場合は、パートナークラスタがウィルススキャン処理をテイクオーバーできます。
+
+
+
+.手順
+. スキャナポリシーを適用します。
++
+「 vserver vscan scanner-pool apply-policy -vserver data_svm -scanner-pool scanner-pool scanner-pool scanner-policy primary | secondary | idle-cluster cluster_to _apply_policy_on 」の順に選択します
+
++
+スキャナポリシーには次のいずれかの値が設定されます。
+
++
+** 「 Primary 」は、スキャナプールがアクティブであることを示します。
+** 'econdary' は ' プライマリ・スキャナ・プール内のどの Vscan サーバも接続されていない場合にのみ ' スキャナ・プールをアクティブにすることを指定します
+** 「 Idle 」は、スキャナプールが非アクティブであることを示します。
+
+
++
+次に、「 vs1 」 SVM 上の「 S 」という名前のスキャナプールがアクティブになっている例を示します。
+
++
+[listing]
+----
+cluster1::> vserver vscan scanner-pool apply-policy -vserver vs1 -scanner-pool SP  -scanner-policy primary
+----
+. スキャナプールがアクティブであることを確認します。
++
+vserver vscan scanner-pool show -vserver data_svm | cluster_admin_svm -scanner-pool scanner-pool scanner-pool scanner-pool scanner-pool scanner-pool scanner_pool 」というコマンドを使用します
+
++
+すべてのオプションの一覧については、コマンドのマニュアルページを参照してください。
+
++
+次のコマンドは、「スキャナプール」の詳細を表示します。
+
++
+[listing]
+----
+cluster1::> vserver vscan scanner-pool show -vserver vs1 -scanner-pool SP
+
+                                    Vserver: vs1
+                               Scanner Pool: SP
+                             Applied Policy: primary
+                             Current Status: on
+         Cluster on Which Policy Is Applied: cluster1
+                  Scanner Pool Config Owner: vserver
+       List of IPs of Allowed Vscan Servers: 1.1.1.1, 10.72.204.27
+List of Host Names of Allowed Vscan Servers: 1.1.1.1, vmwin204-27.fsct.nb
+                   List of Privileged Users: cifs\u1, cifs\u2
+----
++
+vserver vscan scanner-pool show-active コマンドを使用して、 SVM のアクティブなスキャナプールを表示することができます。コマンド構文全体については、コマンドのマニュアルページを参照してください。
+
+

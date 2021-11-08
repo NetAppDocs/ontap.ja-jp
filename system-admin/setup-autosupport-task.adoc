@@ -1,0 +1,162 @@
+---
+permalink: system-admin/setup-autosupport-task.html 
+sidebar: sidebar 
+keywords: set, up, autosupport, technical, support, organization, internal, configuration, test 
+summary: テクニカルサポートまたは社内のサポート部門に AutoSupport 情報を送信するかどうかおよびその方法を管理し、その設定が正しいことをテストできます。 
+---
+= AutoSupport をセットアップする
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+テクニカルサポートまたは社内のサポート部門に AutoSupport 情報を送信するかどうかおよびその方法を管理し、その設定が正しいことをテストできます。
+
+ONTAP 9.5 以降のリリースでは、クラスタのすべてのノードで AutoSupport を有効にし、その設定を同時に変更できます。新しいノードがクラスタに追加されると、そのノードは AutoSupport クラスタ設定を自動的に継承します。各ノードの設定を個別に更新する必要はありません。
+
+[NOTE]
+====
+ONTAP 9.5 以降では、「 system node AutoSupport modify 」コマンドの範囲はクラスタ全体に適用されます。AutoSupport 構成は '-node オプションを指定しても ' クラスタ内のすべてのノードで変更されますこのオプションは無視されますが、 CLI の下位互換性を維持するために保持されています。
+
+ONTAP 9.4 以前のリリースでは、「 system node AutoSupport modify 」コマンドの範囲はノードに固有です。クラスタ内の各ノードで AutoSupport 設定を変更する必要があります。
+
+====
+デフォルトでは、各ノードで AutoSupport が有効になっており、 HTTPS 転送プロトコルを使用してテクニカルサポートにメッセージを送信できます。
+
+.手順
+. 次のコマンドを使用して、 AutoSupport が有効になっていることを確認します。
++
+[listing]
+----
+system node autosupport modify -state enable
+----
+. テクニカルサポートに AutoSupport メッセージを送信するには、次のコマンドを使用します。
++
+[listing]
+----
+system node autosupport modify -support enable
+----
++
+AutoSupport を AutoSupport OnDemand と連携できるようにする場合、またはコアダンプファイルやパフォーマンスアーカイブファイルなどの大容量ファイルをテクニカルサポートまたは指定の URL にアップロードする場合は、このオプションを有効にする必要があります。
+
+. テクニカルサポートが AutoSupport メッセージを受信できるようになっている場合は、メッセージに使用する転送プロトコルを指定します。
++
+次のオプションから選択できます。
+
++
+|===
+| 状況 | 次に ' システム・ノード AutoSupport modify コマンドの次のパラメータを設定します 
+
+
+ a| 
+デフォルトの HTTPS プロトコルを使用します
+ a| 
+.. 「 -transport 」を「 https 」に設定します。
+.. プロキシを使用する場合は '-proxy-url' をプロキシの URL に設定しますこの設定では、 AutoSupport OnDemand との通信および大容量ファイルのアップロードがサポートされます。
+
+
+
+
+ a| 
+SMTP よりも推奨される HTTP を使用します
+ a| 
+.. 「 -transport 」を「 http 」に設定します。
+.. プロキシを使用する場合は '-proxy-url' をプロキシの URL に設定しますこの設定では、大容量ファイルのアップロードがサポートされますが、 AutoSupport OnDemand はサポートされません。
+
+
+
+
+ a| 
+SMTP を使用する
+ a| 
+「 -transport 」を「 mtp 」に設定します。
+
+この設定では、 AutoSupport OnDemand や大容量ファイルのアップロードはサポートされません。
+
+|===
+. 社内のサポート部門またはサポートパートナーに AutoSupport メッセージを送信するには、次の操作を実行します。
++
+.. 「 system node AutoSupport modify 」コマンドの次のパラメータを設定して、組織内の受信者を特定します。
++
+|===
+| 設定するパラメータ | パラメータの値 
+
+
+ a| 
+「 - 」から「」へ
+ a| 
+重要な AutoSupport メッセージを受け取る社内サポート部門の、カンマで区切った 5 つまでの個別 E メールアドレスまたは配信リスト
+
+
+
+ a| 
+「 -noteto 」を参照してください
+ a| 
+重要な AutoSupport メッセージの携帯電話やその他のモバイルデバイス用の短縮版を受け取る社内サポート部門の、カンマで区切った 5 つまでの個別 E メールアドレスまたは配信リスト
+
+
+
+ a| 
+「 -partner-address 」の形式で指定します
+ a| 
+すべての AutoSupport メッセージを受け取るサポートパートナー部門の、カンマで区切った 5 つまでの個別 E メールアドレスまたは配信リスト
+
+|===
+.. 「 system node AutoSupport destinations show 」コマンドを使用して送信先を表示し、アドレスが正しく設定されていることを確認します。
+
+
+. メッセージを社内のサポート部門に送信するか、テクニカルサポートへのメッセージに SMTP 転送を選択する場合は、「 system node AutoSupport modify 」コマンドの次のパラメータを設定して SMTP を設定します。
++
+** 「 -mail-hosts 」には、 1 つ以上のメールホストをカンマで区切って設定します。
++
+最大 5 つのを設定できます。
+
++
+メールホスト名のあとにコロンとポート番号を指定することにより、各メールホストのポート値を設定できます。たとえば、「 ymailhost.example.com:5678` 」と指定します。 5678 はメールホストのポートです。
+
+** 「 - from 」を、 AutoSupport メッセージを送信する電子メールアドレスに設定します。
+
+
+. DNS を設定します。
+. オプション：特定の設定を変更する場合は、コマンドオプションを追加します。
++
+|===
+| 実行する処理 | 次に ' システム・ノード AutoSupport modify コマンドの次のパラメータを設定します 
+
+
+ a| 
+メッセージ内の機密データを削除、マスキング、またはエンコードすることによって、プライベートデータを非表示にします
+ a| 
+「 -remove-private-data 」を「 true 」に設定します。「 false 」から「 true 」に変更すると、すべての AutoSupport 履歴と関連ファイルが削除されます。
+
+
+
+ a| 
+定期的な AutoSupport メッセージでのパフォーマンスデータの送信を停止します
+ a| 
+--perf' を 'false' に設定します
+
+|===
+. 「 -node 」パラメータを指定して「 system node AutoSupport show 」コマンドを使用し、全体的な設定を確認します。
+. 「 system node AutoSupport check show 」コマンドを使用して、 AutoSupport の動作を確認します。
++
+問題が報告された場合は、「 system node AutoSupport check show-sdetails 」コマンドを使用して詳細を表示します。
+
+. AutoSupport メッセージが送受信されていることをテストします。
++
+.. 「 -type 」パラメータを「 test 」に設定した「 system node AutoSupport invoke 」コマンドを使用します。
++
+[listing]
+----
+cluster1::> system node autosupport invoke -type test -node node1
+----
+.. ネットアップが AutoSupport メッセージを受信していることを確認します。
++
+ system node autosupport history -node local
++
+最新の発信 AutoSupport メッセージのステータスは、適切なすべてのプロトコル宛先の最終的には「 ent-successful 」に変わります。
+
+.. オプション：「 system node AutoSupport modify 」コマンドの「 -to 」、「 -noteto 」、または「 -partner-address 」パラメータに設定したアドレスの E メールを確認して、 AutoSupport メッセージが社内のサポート組織またはサポートパートナーに送信されていることを確認します。
+
+
+

@@ -1,0 +1,65 @@
+---
+permalink: element-replication/make-destination-volume-writeable-task.html 
+sidebar: sidebar 
+keywords: make, destination, volume, write 
+summary: デスティネーションボリュームからクライアントにデータを提供する前に、そのボリュームを書き込み可能にする必要があります。snapmirror quiesce コマンドを使用してデスティネーションへのスケジュールされた転送を停止し、 snapmirror abort コマンドを使用して実行中の転送を停止します。 snapmirror break コマンドを使用すると、デスティネーションを書き込み可能にできます。 
+---
+= デスティネーションボリュームを書き込み可能にします
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+災害によって SnapMirror DR 関係のプライマリサイトが機能しなくなった場合は、システム停止を最小限に抑えてデスティネーションボリュームからデータを提供できます。プライマリサイトでサービスが復旧したら、ソースボリュームを再アクティブ化できます。
+
+デスティネーションボリュームからクライアントにデータを提供する前に、そのボリュームを書き込み可能にする必要があります。「 snapmirror quiesce 」コマンドを使用すると、デスティネーションへのスケジュールされた転送を停止できます。「 snapmirror abort 」コマンドを使用すると、実行中の転送を停止できます。「 snapmirror break 」コマンドを使用すると、デスティネーションを書き込み可能にできます。
+
+Element のソースパスは '_hostip:____LUN/_name_' の形式で指定する必要がありますここで 'lun` は実際の文字列 "LUN`" で 'name' は Element ボリュームの名前です
+
+.手順
+. デスティネーションへのスケジュールされた転送を停止します。
++
+「 snapmirror quiesce -source-path _hostip ： //LUN/ _name_-destination-path SVM ： volume_|| cluster ： //SVM/volume_`
+
++
+コマンド構文全体については、マニュアルページを参照してください。
+
++
+次の例は、 IP アドレス 10.0.0.11 のソースボリューム 0005 と 'vm_backup' のデスティネーションボリューム volA_dst の間のスケジュールされた転送を停止します。
+
++
+[listing]
+----
+cluster_dst::> snapmirror quiesce -source-path 10.0.0.11:/lun/0005 -destination-path svm_backup:volA_dst
+----
+. デスティネーションへの実行中の転送を停止します。
++
+「 napmirror abort -source-path _hostip ： //LUN/ _name_ -destination-path SVM ： volume_|| cluster ： //SVM/volume_`
+
++
+コマンド構文全体については、マニュアルページを参照してください。
+
++
+次の例は、 IP アドレス 10.0.0.11 のソースボリューム 0005 と 'vm_backup' のデスティネーションボリューム volA_dst の間の実行中の転送を停止します。
+
++
+[listing]
+----
+cluster_dst::> snapmirror abort -source-path 10.0.0.11:/lun/0005 -destination-path svm_backup:volA_dst
+----
+. SnapMirror DR 関係を解除します。
++
+「 snapmirror break -source-path _hostip ： //LUN/ _name_-destination-path SVM ： volume_|| cluster ： //SVM/volume_'
+
++
+コマンド構文全体については、マニュアルページを参照してください。
+
++
+次の例は、 IP アドレス 10.0.0.11 のソースボリューム 0005 と、 'vm_backup' のデスティネーションボリューム 'volA_dst' と 'vm_backup' のデスティネーションボリューム 'volA_dst' 間の関係を解除します。
+
++
+[listing]
+----
+cluster_dst::> snapmirror break -source-path 10.0.0.11:/lun/0005 -destination-path svm_backup:volA_dst
+----
+

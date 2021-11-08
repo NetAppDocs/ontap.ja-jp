@@ -1,0 +1,173 @@
+---
+permalink: smb-admin/configure-branchcache-task.html 
+sidebar: sidebar 
+keywords: configure, branchcache, service, per-share, basis, smb, share, configure branchcache on the cifs server 
+summary: BranchCache サービスを共有ごとに提供するように BranchCache を設定できます。また、すべての SMB 共有でキャッシュを自動的に有効にするように BranchCache を設定することもできます。 
+---
+= CIFS サーバで BranchCache を設定します
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+BranchCache サービスを共有ごとに提供するように BranchCache を設定できます。また、すべての SMB 共有でキャッシュを自動的に有効にするように BranchCache を設定することもできます。
+
+BranchCache は SVM で設定できます。
+
+* CIFS サーバ上のすべての SMB 共有に格納されたすべてのコンテンツに対してキャッシュサービスを提供する場合は、すべての共有の BranchCache 設定を作成できます。
+* CIFS サーバ上の選択した SMB 共有に格納されたコンテンツに対してキャッシュサービスを提供する場合は、共有ごとの BranchCache 設定を作成できます。
+
+
+BranchCache の設定時には、次のパラメータを指定する必要があります。
+
+|===
+| 必須パラメータ | 説明 
+
+
+ a| 
+SVM 名 _
+ a| 
+BranchCache は SVM ごとに設定します。BranchCache サービスを設定する CIFS 対応の SVM を指定する必要があります。
+
+
+
+ a| 
+ハッシュストアへのパス _
+ a| 
+BranchCache ハッシュは SVM ボリューム上の通常のファイルに格納されます。ONTAP にハッシュデータを格納する既存のディレクトリのパスを指定する必要があります。 BranchCache ハッシュパスは読み取り / 書き込み可能である必要があります。Snapshot ディレクトリなどの読み取り専用パスは指定できません。他のデータが格納されているボリュームにハッシュデータを格納するか、ハッシュデータを格納するための別のボリュームを作成することができます。
+
+SVM が SVM ディザスタリカバリソースである場合、ハッシュパスをルートボリューム上にすることはできません。これは、ルートボリュームがディザスタリカバリデスティネーションにレプリケートされないためです。
+
+ハッシュパスには、ファイル名に使用できる文字と空白を含めることができます。
+
+|===
+必要に応じて、次のパラメータを指定できます。
+
+|===
+| オプションのパラメータ | 説明 
+
+
+ a| 
+サポートされているバージョン _
+ a| 
+ONTAP では BranchCache 1 および 2 がサポートされています。バージョン 1 、バージョン 2 、または両方のバージョンを有効にできます。デフォルトでは、両方のバージョンが有効になります。
+
+
+
+ a| 
+_ ハッシュストアの最大サイズ _
+ a| 
+ハッシュデータストアに使用するサイズを指定できます。ハッシュデータがこの値を超えると、 ONTAP は古いハッシュを削除し、新しいハッシュを格納するスペースを確保します。ハッシュストアのデフォルトサイズは 1GB です。ハッシュが過剰に破棄されない方が、 BranchCache のパフォーマンスは向上します。ハッシュストアがいっぱいになるのが原因でハッシュが頻繁に破棄されていると判断した場合は、 BranchCache の設定を変更して、ハッシュストアのサイズを大きくすることができます。
+
+
+
+ a| 
+_ サーバキー _
+ a| 
+クライアントが BranchCache サーバを偽装できないようにするために BranchCache サービスによって使用されるサーバキーを指定できます。指定しない場合、サーバキーは BranchCache の設定の作成時にランダムに生成されます。サーバキーを特定の値に設定すると、複数のサーバが同じファイルの BranchCache データを提供している場合に、クライアントがその同じサーバキーを使用してサーバのハッシュを使用できるようになります。サーバキーにスペースを含める場合は、サーバキーを引用符で囲む必要があります。
+
+
+
+ a| 
+オペレーティングモード _
+ a| 
+デフォルトでは、 BranchCache は共有ごとに有効になります。
+
+* BranchCache を共有ごとに有効にする BranchCache の設定を作成するには、このオプションパラメータを指定しないか、「 per-share 」を指定します。
+* すべての共有で BranchCache を自動的に有効にするには、動作モードを「 all-shares 」に設定する必要があります。
+
+
+|===
+.手順
+. 必要に応じて SMB 2.1 および 3.0 を有効にします。
++
+.. 権限レベルを advanced に設定します。「 set -privilege advanced 」
+.. 設定された SVM の SMB 設定を確認し、必要なすべてのバージョンの SMB が有効になっているかどうかを判断します。 vserver cifs options show -vserver vserver_name
+.. 必要に応じて SMB 2.1 を有効にします。 vserver cifs options modify -vserver vserver_name -smb2-enabled true
++
+このコマンドを実行すると、 SMB 2.0 と SMB 2.1 の両方が有効になります。
+
+.. 必要に応じて SMB 3.0 を有効にします。 vserver cifs options modify -vserver vserver_name -smb3-enabled true
+.. admin 権限レベルに戻ります。「 set -privilege admin 」
+
+
+. BranchCache を設定します。 vserver cifs branchcache create -vserver vserver_name -hash-store-path path [-hash-store-max-size ｛ integer [KB|MB|GB|TB|PB] ｝ ] [-versions ｛ v1-enable|v2-enable|enable-all] [-server-key text] -operating-mode ｛ per-share|all-shares ｝
++
+指定したハッシュストレージのパスが存在し、 SVM によって管理されているボリューム上にある必要があります。また、パスは読み取り / 書き込み可能なボリュームにある必要があります。パスが読み取り専用であるか、または存在しない場合、コマンドは失敗します。
+
++
+SVM BranchCache の追加設定で同じサーバキーを使用する場合は、サーバキーとして入力した値を記録しておきます。BranchCache の設定に関する情報を表示するときに、サーバキーは表示されません。
+
+. BranchCache の設定が正しいことを確認します。「 vserver cifs branchcache show -vserver vserver_name 」
+
+
+次のコマンドを実行すると、 SMB 2.1 と 3.0 の両方が有効になっていることが確認され、 SVM vs1 上のすべての SMB 共有でキャッシュを自動的に有効にするように BranchCache が設定されます。
+
+[listing]
+----
+cluster1::> set -privilege advanced
+Warning: These advanced commands are potentially dangerous; use them
+only when directed to do so by technical support personnel.
+Do you wish to continue? (y or n): y
+
+cluster1::*> vserver cifs options show -vserver vs1 -fields smb2-enabled,smb3-enabled
+vserver smb2-enabled smb3-enabled
+------- ------------ ------------
+vs1     true         true
+
+
+cluster1::*> set -privilege admin
+
+cluster1::> vserver cifs branchcache create -vserver vs1 -hash-store-path /hash_data -hash-store-max-size 20GB -versions enable-all -server-key "my server key" -operating-mode all-shares
+
+cluster1::> vserver cifs branchcache show -vserver vs1
+
+                                 Vserver: vs1
+          Supported BranchCache Versions: enable_all
+                      Path to Hash Store: /hash_data
+          Maximum Size of the Hash Store: 20GB
+Encryption Key Used to Secure the Hashes: -
+        CIFS BranchCache Operating Modes: all_shares
+----
+次のコマンドを実行すると、 SMB 2.1 と 3.0 の両方が有効になっていることが確認され、 SVM vs1 上の共有ごとにキャッシュを有効にするように BranchCache が設定されて、 BranchCache の設定が確認されます。
+
+[listing]
+----
+cluster1::> set -privilege advanced
+Warning: These advanced commands are potentially dangerous; use them
+only when directed to do so by technical support personnel.
+Do you wish to continue? (y or n): y
+
+cluster1::*> vserver cifs options show -vserver vs1 -fields smb2-enabled,smb3-enabled
+vserver smb2-enabled smb3-enabled
+------- ------------ ------------
+vs1     true         true
+
+cluster1::*> set -privilege admin
+
+cluster1::> vserver cifs branchcache create -vserver vs1 -hash-store-path /hash_data -hash-store-max-size 20GB -versions enable-all -server-key "my server key"
+
+cluster1::> vserver cifs branchcache show -vserver vs1
+
+                                 Vserver: vs1
+          Supported BranchCache Versions: enable_all
+                      Path to Hash Store: /hash_data
+          Maximum Size of the Hash Store: 20GB
+Encryption Key Used to Secure the Hashes: -
+        CIFS BranchCache Operating Modes: per_share
+----
+* 関連情報 *
+
+xref:requirements-guidelines-concept.adoc[要件とガイドライン]
+
+xref:configure-branchcache-remote-office-concept.adoc[リモートオフィスでの BranchCache の設定に関する情報の参照先を指定します]
+
+xref:create-branchcache-enabled-share-task.adoc[BranchCache が有効な SMB 共有を作成する]
+
+xref:enable-branchcache-existing-share-task.adoc[既存の SMB 共有での BranchCache の有効化]
+
+xref:manage-monitor-branchcache-config-concept.adoc[BranchCache の設定を管理および監視する]
+
+xref:disable-enable-branchcache-svm-concept.adoc[SVM で BranchCache を無効または有効にします]
+
+xref:delete-branchcache-config-svms-concept.adoc[SVM の BranchCache 設定を削除します]

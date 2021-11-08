@@ -1,0 +1,56 @@
+---
+permalink: san-admin/restore-all-luns-volume-snapshot-copy-task.html 
+sidebar: sidebar 
+keywords: restore, all, luns in a volume, from, snapshot copy 
+summary: Snapshot コピーから、指定されたボリューム内のすべての LUN をリストアするには、 volume snapshot restore コマンドを使用します。 
+---
+= Snapshot コピーからボリューム内のすべての LUN をリストアします
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+「 volume snapshot restore 」コマンドを使用すると、 Snapshot コピーから、指定したボリューム内のすべての LUN をリストアできます。
+
+.手順
+. ホストから、 LUN へのホストアクセスをすべて停止します。
++
+SnapRestore を使用している場合は、ボリューム内の LUN へのすべてのホストアクセスを停止しないと、原因によるデータの破損やシステムエラーが発生する可能性があります
+
+. ホスト上の LUN をアンマウントして、ホストが LUN にアクセスできないようにします。
+. LUN のマッピングを解除します。
++
+「 lun mapping delete -vserver _vserver_name _ -volume_name_-lun_lun_name -igroup_igroup_name _ 」
+
+. ボリュームのリストア先にする Snapshot コピーを決定します。
++
+'volume snapshot show -vserver_name_-volume_name_`
+
+. 権限の設定を advanced に変更します。
++
+「 advanced 」の権限が必要です
+
+. データをリストアします。
++
+'volume snapshot restore -vserver_name_-volume_name_-snapshot_snapshot_name_`
+
+. 画面の指示に従います。
+. LUN を再マッピングします。
++
+lun mapping create -vserver_name_-volume_name_-lun_lun_name -igroup_igroup_name _ -igroup_igroup_name _
+
+. LUN がオンラインであることを確認します。
++
+lun show -vserver_name_-path_lun_path -- fields state`
+
+. LUN がオンラインになっていない場合は、オンラインにします。
++
+lun modify -vserver_name_-path_lun_path --state online
+
+. 権限の設定を admin に変更します。
++
+「特権管理者」
+
+. ホストから、 LUN を再マウントします。
+. ホストから、 LUN へのアクセスを再開します。
+

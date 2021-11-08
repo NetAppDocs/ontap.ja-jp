@@ -1,0 +1,67 @@
+---
+permalink: volumes/manage-aggregate-level-deduplication-aff-task.html 
+sidebar: sidebar 
+keywords: manage, aggregate-level, inline, deduplication, aff systems 
+summary: アグリゲートレベルの重複排除は、同じアグリゲートに属するボリューム間で重複するブロックを排除します。ONTAP 9.2 以降の AFF システムでは、アグリゲートレベルの重複排除をインラインで実行できます。この機能は、新規に作成したすべてのボリューム、およびボリュームのインライン重複排除をオンにしてアップグレードしたすべてのボリュームに対してデフォルトで有効になります。 
+---
+= AFF システムでアグリゲートレベルのインライン重複排除を管理します
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+アグリゲートレベルの重複排除は、同じアグリゲートに属するボリューム間で重複するブロックを排除します。ONTAP 9.2 以降の AFF システムでは、アグリゲートレベルの重複排除をインラインで実行できます。この機能は、新規に作成したすべてのボリューム、およびボリュームのインライン重複排除をオンにしてアップグレードしたすべてのボリュームに対してデフォルトで有効になります。
+
+重複排除処理は、データがディスクに書き込まれる前に重複するブロックを排除します。'pace guarantee が 'none' に設定されているボリュームだけが ' アグリゲート・レベルのインライン重複排除に参加できますこれは、 AFF システムのデフォルト設定です。
+
+[NOTE]
+====
+アグリゲートレベルのインライン重複排除は、ボリューム間インライン重複排除とも呼ばれます。
+
+====
+.ステップ
+. AFF システムでアグリゲートレベルのインライン重複排除を管理します。
++
+[cols="2*"]
+|===
+| 状況 | 使用するコマンド 
+
+
+ a| 
+アグリゲートレベルのインライン重複排除を有効にします
+ a| 
+volume efficiency modify -vserver vserver_name -volume vol_name -cross-volume-inline-dedupe true
+
+
+
+ a| 
+アグリゲートレベルのインライン重複排除を無効にします
+ a| 
+volume efficiency modify -vserver vserver_name -volume vol_name -cross-volume-inline-dedupe false
+
+
+
+ a| 
+アグリゲートレベルのインライン重複排除のステータスを表示します
+ a| 
+'volume efficiency config -volume vol_name
+
+|===
+
+
+次のコマンドは、アグリゲートレベルのインライン重複排除のステータスを表示します。
+
+[listing]
+----
+
+wfit-8020-03-04::> volume efficiency config -volume choke0_wfit_8020_03_0
+Vserver:                                      vs0
+Volume:                                       choke0_wfit_8020_03_0
+Schedule:                                     -
+Policy:                                       choke_VE_policy
+Compression:                                  true
+Inline Compression:                           true
+Inline Dedupe:                                true
+Data Compaction:                              true
+Cross Volume Inline Deduplication:            false
+----

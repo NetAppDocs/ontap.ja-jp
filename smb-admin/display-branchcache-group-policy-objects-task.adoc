@@ -1,0 +1,100 @@
+---
+permalink: smb-admin/display-branchcache-group-policy-objects-task.html 
+sidebar: sidebar 
+keywords: display, information, cifs, server, group, policy, object, gpo, configuration, branchcache, define, domain, server, display information about branchcache group policy objects 
+summary: CIFS サーバの Group Policy Object （ GPO ；グループポリシーオブジェクト）設定に関する情報を表示して、 CIFS サーバが属しているドメインに対して BranchCache GPO が定義されているかどうか、定義されている場合は許可されている設定を確認できます。また、 BranchCache GPO 設定が CIFS サーバに適用されているかどうかも確認できます。 
+---
+= BranchCache グループポリシーオブジェクトに関する情報を表示します
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+CIFS サーバの Group Policy Object （ GPO ；グループポリシーオブジェクト）設定に関する情報を表示して、 CIFS サーバが属しているドメインで BranchCache GPO が定義されているかどうか、定義されている場合は許可されている設定を確認できます。また、 BranchCache GPO 設定が CIFS サーバに適用されているかどうかも確認できます。
+
+CIFS サーバが属しているドメイン内で GPO 設定が定義されていても、 CIFS 対応の Storage Virtual Machine （ SVM ）が含まれる Organizational Unit （ OU ；組織単位）に適用されているとはかぎりません。適用される GPO 設定は、 CIFS 対応の SVM に適用されているすべての定義済み GPO の一部です。GPO を介して適用された BranchCache 設定は、 CLI を介して適用された設定よりも優先さ
+
+.手順
+. 「 vserver cifs group-policy show-defined 」コマンドを使用して、 Active Directory ドメインで定義されている BranchCache GPO 設定を表示します。
++
+[NOTE]
+====
+この例で表示されているのは、コマンドで出力されるフィールドの一部です。出力は省略されています。
+
+====
++
+[listing]
+----
+cluster1::> vserver cifs group-policy show-defined -vserver vs1
+
+Vserver: vs1
+-----------------------------
+       GPO Name: Default Domain Policy
+       Level: Domain
+      Status: enabled
+  Advanced Audit Settings:
+      Object Access:
+          Central Access Policy Staging: failure
+  Registry Settings:
+      Refresh Time Interval: 22
+      Refresh Random Offset: 8
+      Hash Publication Mode for BranchCache: per-share
+      Hash Version Support for BranchCache: version1
+  [...]
+
+    GPO Name: Resultant Set of Policy
+      Status: enabled
+  Advanced Audit Settings:
+      Object Access:
+          Central Access Policy Staging: failure
+  Registry Settings:
+      Refresh Time Interval: 22
+      Refresh Random Offset: 8
+      Hash Publication for Mode BranchCache: per-share
+      Hash Version Support for BranchCache: version1
+  [...]
+----
+. vserver cifs group-policy show-applied コマンドを使用して、 CIFS サーバに適用されている BranchCache GPO 設定を表示します。`
++
+[NOTE]
+====
+この例で表示されているのは、コマンドで出力されるフィールドの一部です。出力は省略されています。
+
+====
++
+[listing]
+----
+cluster1::> vserver cifs group-policy show-applied -vserver vs1
+
+Vserver: vs1
+-----------------------------
+     GPO Name: Default Domain Policy
+       Level: Domain
+      Status: enabled
+  Advanced Audit Settings:
+      Object Access:
+          Central Access Policy Staging: failure
+  Registry Settings:
+      Refresh Time Interval: 22
+      Refresh Random Offset: 8
+      Hash Publication Mode for BranchCache: per-share
+      Hash Version Support for BranchCache: version1
+  [...]
+
+    GPO Name: Resultant Set of Policy
+       Level: RSOP
+  Advanced Audit Settings:
+      Object Access:
+          Central Access Policy Staging: failure
+  Registry Settings:
+      Refresh Time Interval: 22
+      Refresh Random Offset: 8
+      Hash Publication Mode for BranchCache: per-share
+      Hash Version Support for BranchCache: version1
+ [...]
+----
+
+
+* 関連情報 *
+
+xref:enable-disable-gpo-support-task.adoc[CIFS サーバ上で GPO サポートを有効または無効にします]

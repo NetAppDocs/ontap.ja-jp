@@ -1,0 +1,44 @@
+---
+permalink: smb-admin/allow-users-groups-bypass-directory-traverse-task.html 
+sidebar: sidebar 
+keywords: traverse, directories, directory, path, file, permission, sechangenotifyprivilege, privilege, local, smb, user, svm, bypass, traverse, check, allow users or groups to bypass directory traverse checking 
+summary: トラバースするディレクトリに対する権限がない場合でも、ファイルへのパスに含まれるすべてのディレクトリをユーザがトラバースできるようにするには、 Storage Virtual Machine （ SVM ）のローカル SMB ユーザまたはグループに SeChangeNotifyPrivilege 権限を追加します。デフォルトでは、ユーザはディレクトリのトラバースチェックをバイパスできます。 
+---
+= ユーザまたはグループにディレクトリのトラバースチェックのバイパスを許可する
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+トラバースするディレクトリに対する権限がない場合でも、ファイルへのパスに含まれるすべてのディレクトリをユーザがトラバースできるようにするには、 Storage Virtual Machine （ SVM ）のローカル SMB ユーザまたはグループに「ショート」権限を追加します。デフォルトでは、ユーザはディレクトリのトラバースチェックをバイパスできます。
+
+.作業を開始する前に
+* SVM 上に CIFS サーバが存在している必要があります。
+* ローカルユーザとローカルグループの CIFS サーバオプションが有効になっている必要があります。
+* 「ユーザー・グループ」権限を追加するローカルまたはドメインのユーザーまたはグループがすでに存在している必要があります。
+
+
+ドメインユーザまたはグループへの権限の追加時、 ONTAP では、ドメインコントローラに接続してそのドメインユーザまたはグループを検証することがあります。ONTAP からドメインコントローラに接続できない場合、コマンドが失敗することがあります。
+
+.手順
+. 「特権ユーザ」権限をローカルまたはドメインユーザまたはグループに追加して、トラバースチェックのバイパスを有効にします。「 vserver cifs users-and-groups privilege add-privilege -vserver vserver_name -user-or-group-name -user-or-group-name name _-privileges SeChangeNotifyPrivilege
++
+'-user-' または -group-name' パラメータの値は ' ローカル・ユーザまたはグループ ' あるいはドメイン・ユーザまたはグループです
+
+. 指定したユーザまたはグループに対してトラバースチェックのバイパスが有効になっていることを確認します。 vserver cifs users-and-groups privilege show -vserver vserver_name _-user-or-group-name name _`
+
+
+次のコマンドでは、 "EXAMPLE\eng" グループに属するユーザが、グループに "S eStrong" 権限を追加することで、ディレクトリのトラバースチェックをバイパスできるようにします。
+
+[listing]
+----
+cluster1::> vserver cifs users-and-groups privilege add-privilege -vserver vs1 -user-or-group-name EXAMPLE\eng -privileges SeChangeNotifyPrivilege
+
+cluster1::> vserver cifs users-and-groups privilege show -vserver vs1
+Vserver   User or Group Name    Privileges
+--------- --------------------- ---------------
+vs1       EXAMPLE\eng           SeChangeNotifyPrivilege
+----
+* 関連情報 *
+
+xref:disallow-users-groups-bypass-directory-traverse-task.adoc[ユーザまたはグループに対するディレクトリのトラバースチェックのバイパスを禁止する]

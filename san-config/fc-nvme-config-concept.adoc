@@ -1,0 +1,69 @@
+---
+permalink: san-config/fc-nvme-config-concept.html 
+sidebar: sidebar 
+keywords: considerations, fc-nvme, configurations 
+summary: ONTAP 9.4 以降では、 NVMe （ Non-Volatile Memory Express ）プロトコルを SAN 環境で使用できます。FC-NVMe を使用すると、 AFF システムで既存の FC ネットワークを介して NVMe を実行できます。NVMe で使用される物理的なセットアップとゾーニングの手法は従来の FC ネットワークと同じですが、 NVMe は FC-SCSI と比べて帯域幅が広く、 IOPS が高く、レイテンシも低減されます。 
+---
+= FC-NVMe 構成に関する考慮事項
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+ONTAP 9.4 以降では、 NVMe （ Non-Volatile Memory Express ）プロトコルを SAN 環境で使用できます。FC-NVMe を使用すると、 AFF システムで既存の FC ネットワークを介して NVMe を実行できます。NVMe で使用される物理的なセットアップとゾーニングの手法は従来の FC ネットワークと同じですが、 NVMe は FC-SCSI と比べて帯域幅が広く、 IOPS が高く、レイテンシも低減されます。
+
+* ONTAP 9.6 以降では、ネームスペースがマッピングされたボリュームの移動がサポートされます。
++
+ネームスペースがマッピングされたボリュームの移動は、 ONTAP 9.5 または 9.4 ではサポートされていません。
+
+* ONTAP 9.6 以降では、ネームスペースで 512 バイトブロックと 4096 バイトブロックがサポートされます。
++
+デフォルト値は 4096 です。ホストオペレーティングシステムで 4096 バイトブロックがサポートされていない場合のみ、 512 を使用してください。
+
+* FC-NVMe 構成は、単一ファブリックまたはマルチファブリックを使用してシングルノードまたは HA ペアで構成できます。
+* NVMe は、 32G FC ポートを備えた AFF プラットフォームでサポートされます。
+* ONTAP 9.5 以降では、マルチパス HA ペアのフェイルオーバー / ギブバックが NVMe 構成でサポートされます。
++
+ONTAP 9.4 では、パスのフェイルオーバー / ギブバックがサポートされません。
+
+* NVMe は Storage Virtual Machine （ SVM ）の唯一のデータプロトコルにすることができます。
+* データ LIF で使用できるデータプロトコルは FC-NVMe のみです。
+* LUN とネームスペースを同じボリュームに混在させることはできません。
+* SAN をサポートする SVM ごとに管理 LIF を 1 つ設定する必要があります。
+* 異機種混在の FC スイッチファブリックの使用は、組み込みのブレードスイッチ以外はサポートされていません。
++
+個別の例外については、 Interoperability Matrix を参照してください。
+
+* カスケードファブリック、部分メッシュファブリック、フルメッシュファブリック、コアエッジファブリック、およびディレクタファブリックは、 FC スイッチをファブリックに接続する業界標準の方法であり、いずれもサポートされます。
++
+ファブリックは 1 つまたは複数のスイッチで構成できます。また、ストレージコントローラは複数のスイッチに接続することができます。
+
+
+
+次の説明は、 ONTAP 9.4 を実行しているノードのみに該当します。
+
+* NVMe の LIF とネームスペースは、同じノードでホストする必要があります。
+* NVMe LIF を作成する前に、 NVMe サービスを作成する必要があります。
+
+
+ONTAP の次の機能は、 NVMe 構成ではサポートされません。
+
+* NVMe ネームスペースを移動しました
+* NVMe ネームスペース（オンデマンドコピー）
+* Data ONTAP 7-Mode から移行されたボリュームでのネームスペースの作成
+* 同期
+* Virtual Storage Console の略
+* アプリケーション対応（ AppDM / 分散配置）
+
+
+Hardware Universe の制限の一覧については、 _ NVMe _ を参照してください。
+
+* 関連情報 *
+
+https://kb.netapp.com/Advice_and_Troubleshooting/Flash_Storage/AFF_Series/How_to_configure_and_Connect_SUSE_Enterprise_Linux_to_ONTAP_NVMe%2F%2FFC_namespaces["SUSE Enterprise Linux を構成して ONTAP NVMe/FC ネームスペースに接続する方法"]
+
+https://kb.netapp.com/Advice_and_Troubleshooting/Data_Storage_Software/ONTAP_OS/Licensing_information_for_NVMe_protocol_on_ONTAP["ONTAP の NVMe プロトコルのライセンス情報"]
+
+http://www.netapp.com/us/media/tr-4684.pdf["ネットアップテクニカルレポート 4684 ：『 Implementing and Configuring Modern SANs with NVMe/FC 』"]
+
+https://hwu.netapp.com["NetApp Hardware Universe の略"]

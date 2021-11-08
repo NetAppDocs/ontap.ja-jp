@@ -1,0 +1,77 @@
+---
+permalink: data-protection/create-smb-server-task.html 
+sidebar: sidebar 
+keywords: cifs, create, server 
+summary: ソース SVM で CIFS 構成を使用しており、 identity-preserve を false に設定した場合は、デスティネーション SVM 用の CIFS サーバを作成する必要があります。SnapMirror 関係の初期化の際は、共有などの一部の CIFS 構成で CIFS サーバが必要です。 
+---
+= CIFS のみ： CIFS サーバを作成
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+ソース SVM で CIFS 構成を使用しており、「 identity-preserve 」を「 false 」に設定した場合は、デスティネーション SVM 用の CIFS サーバを作成する必要があります。SnapMirror 関係の初期化の際は、共有などの一部の CIFS 構成で CIFS サーバが必要です。
+
+.手順
+. vserver start コマンドを使用して、デスティネーション SVM を起動します。
++
+[listing]
+----
+destination_cluster::> vserver start -vserver dvs1
+[Job 30] Job succeeded: DONE
+----
+. 「 vserver show 」コマンドを使用して、デスティネーション SVM の状態が「 running 」であること、およびサブタイプが「 d-destination 」であることを確認します。
++
+[listing]
+----
+destination_cluster::> vserver show
+                                   Admin      Operational Root
+Vserver  Type    Subtype           State      State       Volume     Aggregate
+-------- ------- ----------       ---------- ----------- ---------- ----------
+dvs1     data    dp-destination    running    running       -         -
+----
+. network interface create コマンドを使用して、 LIF を作成します。
++
+[listing]
+----
+destination_cluster::>network interface create -vserver dvs1 -lif NAS1 -role data -data-protocol cifs -home-node destination_cluster-01 -home-port a0a-101  -address 192.0.2.128 -netmask 255.255.255.128
+----
+. 「 network route create 」コマンドを使用してルートを作成します。
++
+[listing]
+----
+destination_cluster::>network route create -vserver dvs1 -destination 0.0.0.0/0
+-gateway 192.0.2.1
+----
++
+link:../networking/index.html["Network Management の略"]
+
+. vserver services dns create コマンドを使用して、 DNS を設定します。
++
+[listing]
+----
+destination_cluster::>vserver services dns create -domains mydomain.example.com -vserver
+dvs1 -name-servers 192.0.2.128 -state enabled
+----
+. 「 vserver cifs domain preferred-dc add 」コマンドを使用して、優先ドメインコントローラを追加します。
++
+[listing]
+----
+destination_cluster::>vserver cifs domain preferred-dc add -vserver dvs1 -preferred-dc
+192.0.2.128 -domain mydomain.example.com
+----
+. vserver cifs create コマンドを使用して、 CIFS サーバを作成します。
++
+[listing]
+----
+destination_cluster::>vserver cifs create -vserver dvs1 -domain mydomain.example.com
+-cifs-server CIFS1
+----
+. vserver stop コマンドを使用して、デスティネーション SVM を停止します。
++
+[listing]
+----
+destination_cluster::> vserver stop -vserver dvs1
+[Job 46] Job succeeded: DONE
+----
+

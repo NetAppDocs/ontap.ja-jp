@@ -1,0 +1,98 @@
+---
+permalink: smb-admin/precompute-branchcache-hashes-specified-paths-task.html 
+sidebar: sidebar 
+keywords: configure, branchcache, service, pre-compute, hash, file, directory, structure, compute, branchcache-enabled share non-peak hours, pre-compute branchcache hashes on specified paths 
+summary: 単一のファイル、ディレクトリ、またはディレクトリ構造内のすべてのファイルのハッシュを事前に計算するように BranchCache サービスを設定できます。これは、 BranchCache 対応の共有にあるデータのハッシュをピーク以外の時間帯に計算するのに役立ちます。 
+---
+= 指定したパスの BranchCache ハッシュを事前に計算します
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+単一のファイル、ディレクトリ、またはディレクトリ構造内のすべてのファイルのハッシュを事前に計算するように BranchCache サービスを設定できます。これは、 BranchCache 対応の共有にあるデータのハッシュをピーク以外の時間帯に計算するのに役立ちます。
+
+ハッシュ統計を表示する前にデータサンプルを収集する場合は、 'statistics start' およびオプションの 'statistics stop' コマンドを使用する必要があります。
+
+* ハッシュを事前に計算する対象の Storage Virtual Machine （ SVM ）とパスを指定する必要があります。
+* また、ハッシュを再帰的に計算するかどうかも指定する必要があります。
+* ハッシュを再帰的に計算する場合、 BranchCache サービスでは、指定されたパスの下のディレクトリツリー全体を参照し、対象となる各オブジェクトのハッシュを計算します。
+
+
+.手順
+. 必要に応じてハッシュを事前に計算します。
++
+|===
+| ハッシュを事前に計算する対象 | 入力するコマンド 
+
+
+ a| 
+単一のファイルまたはディレクトリ
+ a| 
+「 vserver cifs branchcache hash-create -vserver vserver_name -path path -recurse false 」
+
+
+
+ a| 
+ディレクトリ構造内のすべてのファイルを再帰的に処理します
+ a| 
+vserver cifs branchcache hash-create -vserver vserver_name -path absolute_path -recurse true
+
+|===
+. 「 statistics 」コマンドを使用して、ハッシュが計算されていることを確認します。
++
+.. 目的の SVM インスタンスの「 hashd 」オブジェクトの統計を表示します。「 statistics show -object hashd -instance vserver_name 」
+.. コマンドを繰り返し実行して、作成済みのハッシュの数が増加していることを確認します。
+
+
+
+
+次に、パス「 /data 」および SVM vs1 に格納されているすべてのファイルとサブディレクトリを対象にハッシュを作成する例を示します。
+
+[listing]
+----
+cluster1::> vserver cifs branchcache hash-create -vserver vs1 -path /data -recurse true
+
+cluster1::> statistics show -object hashd -instance vs1
+Object: hashd
+Instance: vs1
+Start-time: 9/6/2012 19:09:54
+End-time: 9/6/2012 19:11:15
+Cluster: cluster1
+
+    Counter                                                     Value
+    -------------------------------- --------------------------------
+    branchcache_hash_created                                       85
+    branchcache_hash_files_replaced                                 0
+    branchcache_hash_rejected                                       0
+    branchcache_hash_store_bytes                                    0
+    branchcache_hash_store_size                                     0
+    instance_name                                                vs1
+    node_name                                                  node1
+    node_uuid
+                                11111111-1111-1111-1111-111111111111
+    process_name                                                   -
+
+cluster1::> statistics show -object hashd -instance vs1
+Object: hashd
+Instance: vs1
+Start-time: 9/6/2012 19:09:54
+End-time: 9/6/2012 19:11:15
+Cluster: cluster1
+
+    Counter                                                     Value
+    -------------------------------- --------------------------------
+    branchcache_hash_created                                       92
+    branchcache_hash_files_replaced                                 0
+    branchcache_hash_rejected                                       0
+    branchcache_hash_store_bytes                                    0
+    branchcache_hash_store_size                                     0
+    instance_name                                                vs1
+    node_name                                                  node1
+    node_uuid
+                                11111111-1111-1111-1111-111111111111
+    process_name                                                   -
+----
+* 関連情報 *
+
+link:../performance-config/index.html["パフォーマンス監視のセットアップ"]

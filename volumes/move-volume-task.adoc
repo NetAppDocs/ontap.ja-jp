@@ -1,0 +1,69 @@
+---
+permalink: volumes/move-volume-task.html 
+sidebar: sidebar 
+keywords: move, volume 
+summary: ストレージ容量に不均衡があるときは、 FlexVol ボリュームを同じ Storage Virtual Machine （ SVM ）内で別のアグリゲート、ノード、またはその両方に移動してストレージ容量のバランスを調整することができます。 
+---
+= ボリュームを移動する
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+ストレージ容量に不均衡があるときは、 FlexVol ボリュームを同じ Storage Virtual Machine （ SVM ）内で別のアグリゲート、ノード、またはその両方に移動してストレージ容量のバランスを調整することができます。
+
+デフォルトでは、カットオーバー処理が 30 秒以内に完了しないと再試行されます。デフォルトの動作を調整するには '-cutover-window' パラメータと -cutover-action パラメータを使用しますどちらのパラメータにも advanced 権限レベルのアクセスが必要です詳細については 'volume move start のマニュアル・ページを参照してください
+
+.手順
+. データ保護ミラーを移動する際、ミラー関係を初期化していない場合は、「 snapmirror initialize 」コマンドを使用してミラー関係を初期化します。
++
+ボリュームを移動するには、データ保護のミラー関係を初期化する必要があります。
+
+. volume move target-aggr show コマンドを使用して、ボリュームの移動先として使用できるアグリゲートを判別します。
++
+ボリュームに使用できるスペースが十分にあるアグリゲート、つまり利用可能なサイズが移動するボリュームよりも大きいアグリゲートを選択する必要があります。
+
++
+次の例では、表示されたどのアグリゲートにも vs2 ボリュームを移動できます。
+
++
+[listing]
+----
+cluster1::> volume move target-aggr show -vserver vs2 -volume user_max
+Aggregate Name   Available Size   Storage Type
+--------------   --------------   ------------
+aggr2            467.9GB          hdd
+node12a_aggr3    10.34GB          hdd
+node12a_aggr2    10.36GB          hdd
+node12a_aggr1    10.36GB          hdd
+node12a_aggr4    10.36GB          hdd
+5 entries were displayed.
+----
+. volume move start -perform-validation-only コマンドを使用して検証チェックを実行し、目的のアグリゲートにボリュームを移動できることを確認します。
+. volume move start コマンドを使用してボリュームを移動します
++
+SVM vs2 上の user_max ボリュームを node12a_aggr3 アグリゲートに移動するコマンドを次に示します。移動はバックグラウンドプロセスとして実行されます。
+
++
+[listing]
+----
+cluster1::> volume move start -vserver vs2 -volume user_max
+-destination-aggregate node12a_aggr3
+----
+. volume move show コマンドを使用して、ボリューム移動処理のステータスを確認します。
++
+次の例は、レプリケーションフェーズを完了し、カットオーバーフェーズにあるボリューム移動の状態を示しています。
+
++
+[listing]
+----
+
+cluster1::> volume move show
+Vserver   Volume     State    Move Phase  Percent-Complete Time-To-Complete
+--------- ---------- -------- ----------  ---------------- ----------------
+vs2       user_max   healthy  cutover     -                -
+----
++
+volume move show コマンドの出力にボリューム移動が表示されなくなると、ボリューム移動は完了します。
+
+

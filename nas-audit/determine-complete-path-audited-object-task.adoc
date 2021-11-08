@@ -1,0 +1,47 @@
+---
+permalink: nas-audit/determine-complete-path-audited-object-task.html 
+sidebar: sidebar 
+keywords: determine, complete path, audited object 
+summary: 監査レコードの <ObjectName> タグに記録されているオブジェクトパスには、ボリュームの名前（かっこ内）と格納先ボリュームのルートを起点とする相対パスが格納されます。ジャンクションパスを含む監査対象オブジェクトの完全パスを決定する場合には、実行する必要がある特定の手順があります。 
+---
+= 監査対象オブジェクトへの完全なパスを決定します
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+監査レコードの <ObjectName> タグに記録されているオブジェクトパスには、ボリュームの名前（かっこ内）と格納先ボリュームのルートを起点とする相対パスが格納されます。ジャンクションパスを含む監査対象オブジェクトの完全パスを決定する場合には、実行する必要がある特定の手順があります。
+
+.手順
+. 監査イベントの <ObjectName> タグを調べて、ボリューム名と監査対象オブジェクトへの相対パスを確認します。
++
+この例では、ボリューム名は「 `data1' 」で、ファイルへの相対パスは「 /dir1/file.txt 」です。
+
++
+「 <Data Name="ObjectName">`(Data1); /dir1/file.txt `</Data>`
+
+. 前の手順で確認したボリューム名を使用して、監査対象オブジェクトが含まれているボリュームのジャンクションパスを確認します。
++
+この例では、ボリューム名は「 `data1' 」で、監査対象オブジェクトが含まれているボリュームのジャンクションパスは「 /data/data/data/data/data1 」です。
+
++
+volume show -junction-path volume data1
+
++
+[listing]
+----
+
+                                Junction                    Junction
+Vserver   Volume       Language Active    Junction Path     Path Source
+--------- ------------ -------- --------  ----------------- -----------
+vs1       data1        en_US.UTF-8
+                                true      /data/data1       RW_volume
+----
+. ObjectName> タグにあった相対パスをボリュームのジャンクションパスのあとに追加して、監査対象オブジェクトへの完全パスを決定します。
++
+この例では、ボリュームのジャンクションパスは次のようになります。
+
++
+/data/data/data/data1/dir1/file.txt
+
+

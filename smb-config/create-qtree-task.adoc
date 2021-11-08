@@ -1,0 +1,48 @@
+---
+permalink: smb-config/create-qtree-task.html 
+sidebar: sidebar 
+keywords: create, qtree, contain, data, specify, properties, property, volume, command, create a qtree 
+summary: volume qtree create コマンドを使用して、データを格納する qtree を作成し、そのプロパティを指定できます。 
+---
+= qtree を作成します
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+volume qtree create コマンドを使用すると、データを格納する qtree を作成し、そのプロパティを指定できます。
+
+.作業を開始する前に
+* SVM と新しい qtree を格納するボリュームがすでに存在している必要があります。
+* SVM のセキュリティ形式は NTFS である必要があります。また、 SMB が設定されて実行されている必要があります。
+
+
+.手順
+. qtree を作成します。 volume qtree create -vserver vserver_name ｛ -volume volume_name -qtree qtree_name | -qtree-path qtree path ｝ -security-style ntfs ’
++
+ボリュームと qtree を別々の引数として指定するか、 qtree パスの引数を「 /vol/ volume_name / _qtree_name 」の形式で指定できます。
+
+. qtree が、目的のジャンクションパス「 volume qtree show -vserver vserver_name ｛ -volume volume_name -qtree qtree_name | -qtree-path qtree path ｝ 」で作成されていることを確認します
+
+
+次の例では、ジャンクションパスが「 /vol/ data1 」である SVM vs1.example.com 上に、 qt01 という名前の qtree を作成します。
+
+[listing]
+----
+cluster1::> volume qtree create -vserver vs1.example.com -qtree-path /vol/data1/qt01 -security-style ntfs
+[Job 1642] Job succeeded: Successful
+
+cluster1::> volume qtree show -vserver vs1.example.com -qtree-path /vol/data1/qt01
+
+                      Vserver Name: vs1.example.com
+                       Volume Name: data1
+                        Qtree Name: qt01
+  Actual (Non-Junction) Qtree Path: /vol/data1/qt01
+                    Security Style: ntfs
+                       Oplock Mode: enable
+                  Unix Permissions: ---rwxr-xr-x
+                          Qtree Id: 2
+                      Qtree Status: normal
+                     Export Policy: default
+        Is Export Policy Inherited: true
+----

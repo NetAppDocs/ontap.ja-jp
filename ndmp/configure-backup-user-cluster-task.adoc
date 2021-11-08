@@ -1,0 +1,47 @@
+---
+permalink: ndmp/configure-backup-user-cluster-task.html 
+sidebar: sidebar 
+keywords: configure, backup, user, cluster 
+summary: バックアップアプリケーションから NDMP を認証するには、ローカルバックアップユーザか、 admin または backup ロールを持つクラスタの NIS または LDAP ユーザを作成し、バックアップユーザの NDMP パスワードを生成する必要があります。 
+---
+= クラスタのバックアップユーザを設定
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+バックアップアプリケーションから NDMP を認証するには、ローカルバックアップユーザか、 admin または backup ロールを持つクラスタの NIS または LDAP ユーザを作成し、バックアップユーザの NDMP パスワードを生成する必要があります。
+
+NIS または LDAP ユーザを使用する場合は、それぞれのサーバでユーザを作成する必要があります。Active Directory ユーザは使用できません。
+
+.手順
+. 「 securitylogin create 」コマンドを使用して、「 admin 」または「 backup 」ロールを持つバックアップ・ユーザを作成します。
++
+-user-or-group-name パラメータには ' ローカル・バックアップ・ユーザ名 ' または NIS または LDAP ユーザ名を指定できます
+
++
+次のコマンドは 'backup' ロールを持つバックアップ・ユーザ backup_admin1 を作成します
+
++
+[listing]
+----
+cluster1::> security login create -user-or-group-name backup_admin1 -application ssh
+-authmethod password -role backup
+
+Please enter a password for user 'backup_admin1':
+Please enter it again:
+----
+. 「 vserver services ndmp generate password 」コマンドを使用して、管理 SVM のパスワードを生成します。
++
+生成されたパスワードは、バックアップアプリケーションによる NDMP 接続の認証で必要になります。
+
++
+[listing]
+----
+cluster1::> vserver services ndmp generate-password -vserver cluster1 -user backup_admin1
+
+ Vserver: cluster1
+    User: backup_admin1
+Password: qG5CqQHYxw7tE57g
+----
+

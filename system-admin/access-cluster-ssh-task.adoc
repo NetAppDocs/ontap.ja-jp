@@ -1,0 +1,131 @@
+---
+permalink: system-admin/access-cluster-ssh-task.html 
+sidebar: sidebar 
+keywords: access, ssh, cluster, administrative, task 
+summary: 管理タスクを実行するために、クラスタへの問題 SSH 要求を行うことができます。SSH はデフォルトでは有効になっています。 
+---
+= SSH を使用してクラスタにアクセスします
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+管理タスクを実行するために、クラスタへの問題 SSH 要求を行うことができます。SSH はデフォルトでは有効になっています。
+
+.必要なもの
+* アクセス方法として 'sh' を使用するように構成されたユーザー・アカウントを持っている必要があります
++
+「 securitylogin 」コマンドの「 -application 」パラメータでは、ユーザアカウントのアクセス方法を指定します。「 securitylogin 」のマニュアル・ページには、追加情報が含まれています。
+
+* Active Directory （ AD ）のドメインユーザアカウントを使用してクラスタにアクセスする場合は、 CIFS 対応の Storage Virtual Machine （ SVM ）でクラスタの認証トンネルが設定されている必要があります。 また、 AD ドメインのユーザアカウントも、アクセス方法として「 ssh 」、認証方式として「 domain ain 」を使用してクラスタに追加されている必要があります。
+* IPv6 接続を使用する場合は、クラスタで IPv6 が設定されて有効になっている必要があります。また、ファイアウォールポリシーに IPv6 アドレスが設定されている必要があります。
++
+「 network options ipv6 show 」コマンドは、 IPv6 が有効になっているかどうかを表示します。「 system services firewall policy show 」コマンドは、ファイアウォールポリシーを表示します。
+
+
+
+.このタスクについて
+* OpenSSH 5.7 以降のクライアントを使用する必要があります。
+* サポートされているプロトコルは SSH v2 だけです。 SSH v1 はサポートされていません。
+* ONTAP では、 1 つのノードについて同時に最大 64 の SSH セッションがサポートされています。
++
+クラスタ管理 LIF がノード上に存在する場合、クラスタ管理 LIF はこの制限をノード管理 LIF と共有します。
+
++
+着信接続の速度が 1 秒あたり 10 を超えると、サービスは一時的に 60 秒間無効になります。
+
+* ONTAP は、 SSH に対して AES および 3DES 暗号化アルゴリズム（ _cipher_ とも呼ばれる）のみをサポートしています。
++
+AES では、 128 ビット、 192 ビット、 256 ビットのキー長がサポートされます。3DES のキーの長さは DES 同様に 56 ビットですが、 3 回繰り返されます。
+
+* FIPS モードが有効な場合、 SSH クライアントを接続するには、 Elliptic Curve Digital Signature Algorithm （ ECDSA ）公開鍵アルゴリズムとネゴシエートする必要があります。
+* ONTAP CLI に Windows ホストからアクセスする場合は、 PuTTY などのサードパーティのユーティリティを使用できます。
+* Windows AD ユーザ名を使用して ONTAP にログインする場合、 ONTAP で AD ユーザ名とドメイン名が作成されたときと同じように大文字と小文字を区別する必要があります。
++
+AD のユーザ名とドメイン名では、大文字と小文字は区別されませんが、ただし、 ONTAP のユーザ名では大文字と小文字が区別されます。ONTAP で作成されたユーザ名と、 AD で作成されたユーザ名の大文字小文字表記が違うと、ログインに失敗します。
+
+* ONTAP 9.3 以降では、ローカル管理者アカウントに対して SSH 多要素認証を有効にすることができます。
++
+SSH 多要素認証が有効な場合は、公開鍵とパスワードを使用してユーザが認証されます。
+
+* ONTAP 9.4 以降では、 LDAP および NIS のリモートユーザに対して SSH 多要素認証を有効にすることができます。
+
+
+.手順
+. 管理ホストから 'sh' コマンドを次のいずれかの形式で入力します
++
+** '*ssh_username@hostname_or_IP_[_command_]*
+** `*ssh-l _username HOSTNAME_OR_IP_[_ command_]*`
+
+
+
+
+AD ドメイン・ユーザ・アカウントを使用している場合は '_domainname\\AD_accountname_ の形式で '_username_ を指定する必要があります（ドメイン名のあとにバックスラッシュ 2 つ）または '_domainname\AD_accountname_' （二重引用符で囲み、ドメイン名のあとにバックスラッシュ 1 つ）
+
+`_hostname_or_IP_` は、クラスタ管理 LIF またはノード管理 LIF のホスト名または IP アドレスです。クラスタ管理 LIF を使用することを推奨します。IPv4 または IPv6 アドレスを使用できます。
+
+SSH インタラクティブ・セッションには '_command_' は必要ありません
+
+次の例は、「 joe 」という名前のユーザアカウントで、クラスタ管理 LIF が 10.72.137.28 のクラスタにアクセスする SSH 要求を問題で実行する方法を示しています。
+
+[listing]
+----
+$ ssh joe@10.72.137.28
+Password:
+cluster1::> cluster show
+Node                  Health  Eligibility
+--------------------- ------- ------------
+node1                 true    true
+node2                 true    true
+2 entries were displayed.
+----
+[listing]
+----
+$ ssh -l joe 10.72.137.28 cluster show
+Password:
+Node                  Health  Eligibility
+--------------------- ------- ------------
+node1                 true    true
+node2                 true    true
+2 entries were displayed.
+----
+次の例は、「 `DOMAIN1' 」という名前のドメインの「 John 」という名前のユーザアカウントが、クラスタ管理 LIF が 10.72.137.28 であるクラスタにアクセスするための SSH 要求を問題で できることを示しています。
+
+[listing]
+----
+$ ssh DOMAIN1\\john@10.72.137.28
+Password:
+cluster1::> cluster show
+Node                  Health  Eligibility
+--------------------- ------- ------------
+node1                 true    true
+node2                 true    true
+2 entries were displayed.
+----
+[listing]
+----
+$ ssh -l "DOMAIN1\john" 10.72.137.28 cluster show
+Password:
+Node                  Health  Eligibility
+--------------------- ------- ------------
+node1                 true    true
+node2                 true    true
+2 entries were displayed.
+----
+次の例は、「 joe 」という名前のユーザアカウントで SSH MFA 要求を問題で実行し、クラスタ管理 LIF が 10.72.137.32 のクラスタにアクセスする方法を示しています。
+
+[listing]
+----
+$ ssh joe@10.72.137.32
+Authenticated with partial success.
+Password:
+cluster1::> cluster show
+Node                  Health  Eligibility
+--------------------- ------- ------------
+node1                 true    true
+node2                 true    true
+2 entries were displayed.
+----
+* 関連情報 *
+
+link:../authentication/index.html["管理者認証と RBAC"]

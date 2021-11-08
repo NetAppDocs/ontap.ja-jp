@@ -1,0 +1,88 @@
+---
+permalink: smb-admin/add-remove-share-properties-eexisting-share-task.html 
+sidebar: sidebar 
+keywords: customize, exist, smb, share, add, remove, removing, properties, useful, configuration, changing, change, requirement, environment, add or remove share properties on an existing smb share 
+summary: 共有プロパティを追加または削除することで、既存の SMB 共有をカスタマイズできます。この方法は、環境内での要件の変化に合わせて共有の設定を変更する場合に便利です。 
+---
+= 既存の SMB 共有に対する共有プロパティを追加または削除します
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+共有プロパティを追加または削除することで、既存の SMB 共有をカスタマイズできます。この方法は、環境内での要件の変化に合わせて共有の設定を変更する場合に便利です。
+
+プロパティを変更する共有が存在している必要があります。
+
+共有プロパティの追加に関するガイドラインは次のとおりです。
+
+* カンマで区切って指定することで、 1 つ以上の共有プロパティを追加できます。
+* 以前に指定した共有プロパティは有効なままです。
++
+新しく追加したプロパティは、共有プロパティの既存のリストに追加されます。
+
+* 共有にすでに適用されている共有プロパティに新しい値を指定した場合は、元の値が新たに指定した値に置き換えられます。
+* vserver cifs share properties add コマンドでは共有プロパティを削除できません。
++
+共有プロパティを削除するには、「 vserver cifs share properties remove 」コマンドを使用します。
+
+
+
+共有プロパティの削除に関するガイドラインは次のとおりです。
+
+* カンマで区切って指定することで、 1 つ以上の共有プロパティを削除できます。
+* 以前に指定した共有プロパティは、削除しないかぎり有効なままです。
+
+
+.手順
+. 適切なコマンドを入力します。
++
+|===
+| 状況 | 入力するコマンド 
+
+
+ a| 
+共有プロパティを追加します
+ a| 
+「 + vserver cifs share properties add -vserver _vserver_name __ -share-name share_name -share-properties _properties_ 、 ...+` 」の形式で指定します
+
+
+
+ a| 
+共有プロパティを削除します
+ a| 
+「 + vserver cifs share properties remove -vserver _vserver_name __ -share-name share_name -share-properties _properties_ 、 ...+` 」を指定します
+
+|===
+. 共有プロパティの設定を確認します。 vserver cifs share show -vserver vserver_name -share-name share_name
+
+
+次のコマンドは、 SVM vs1 上の「 share1 」という名前の共有に「 howsnapshot 」共有プロパティを追加します。
+
+[listing]
+----
+cluster1::> vserver cifs share properties add -vserver vs1 -share-name share1 -share-properties showsnapshot
+
+cluster1::> vserver cifs share show -vserver vs1
+Vserver    Share   Path      Properties   Comment    ACL
+---------  ------  --------  ----------   --------   -----------
+vs1        share1  /share1   oplocks      -          Everyone / Full Control
+                             browsable
+                             changenotify
+                             showsnapshot
+----
+次のコマンドでは、 SVM vs1 上の「 share1 」という名前の共有から「 browsable 」共有プロパティを削除します。
+
+[listing]
+----
+cluster1::> vserver cifs share properties remove -vserver vs1 -share-name share2 -share-properties browsable
+
+cluster1::> vserver cifs share show -vserver vs1
+Vserver    Share   Path      Properties   Comment    ACL
+---------  ------  --------  ----------   --------   -----------
+vs1        share2  /share2   oplocks      -          Everyone / Full Control
+                             changenotify
+----
+* 関連情報 *
+
+xref:commands-manage-shares-reference.adoc[SMB 共有の管理用コマンド]

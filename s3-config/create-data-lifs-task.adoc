@@ -1,0 +1,121 @@
+---
+permalink: s3-config/create-data-lifs-task.html 
+sidebar: sidebar 
+keywords: create, data, lifs 
+summary: 新しい SVM を作成した場合、 S3 アクセス用に作成する専用の LIF はデータ LIF です。 
+---
+= データ LIF を作成します。
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+新しい SVM を作成した場合、 S3 アクセス用に作成する専用の LIF はデータ LIF です。
+
+.必要なもの
+* 基になる物理または論理ネットワークポートは ' 管理ステータス up に設定されている必要があります
+* サブネット名を使用して LIF の IP アドレスとネットワークマスク値を割り当てる場合は、そのサブネットがすでに存在している必要があります。
++
+サブネットには、同じレイヤ 3 サブネットに属する IP アドレスのプールが含まれています。これらは 'network subnet create コマンドを使用して作成されます
+
+* LIF サービスポリシーがすでに存在している必要があります。
+
+
+.このタスクについて
+* 同じネットワークポート上に IPv4 と IPv6 の両方の LIF を作成できます。
+* クラスタ内に多数の LIF がある場合、クラスタでサポートされる LIF の最大数は、「 network interface capacity show 」コマンドで確認できます。各ノードでサポートされる LIF の最大数は、「 network interface capacity details show 」コマンドで確認できます （ advanced 権限レベル）。
+* リモートの FabricPool 容量（クラウド）階層化を有効にする場合は、クラスタ間 LIF も設定する必要があります。
+
+
+.手順
+. LIF を作成します。
++
+「 network interface create -vserver svm_name -lif lif_name -service-policy SERVICE_policy_names -home-node node_name -home-port port_name ｛ -address ip_address -netmask ip_address | -subnet_name ｝ -firewall-policy data -auto-revert ｛ true | false ｝
+
++
+** 「 -home-node 」は、「 network interface revert 」コマンドを LIF で実行したときに LIF が戻るノードです。
++
+auto-revert オプションを使用して、 LIF をホームノードおよびホームポートに自動的にリバートするかどうかを指定することもできます。
+
+** 「 -home-port 」は、「 network interface revert 」コマンドを LIF で実行したときに、 LIF が戻る物理ポートまたは論理ポートです。
+** IP アドレスを '-address オプションと -netmask オプションで指定するか '-subnet_name オプションを使用してサブネットからの割り当てを有効にします
+** サブネットを使用して IP アドレスとネットワークマスクを指定した場合、サブネットにゲートウェイが定義されていると、そのサブネットを使用して LIF を作成するときにゲートウェイへのデフォルトルートが SVM に自動的に追加されます。
+** サブネットを使用せずに手動で IP アドレスを割り当てると、クライアントまたはドメインコントローラが別の IP サブネットにある場合にゲートウェイへのデフォルトルートの設定が必要になることがあります。network route create のマニュアル・ページには、 SVM 内での静的ルートの作成に関する情報が含まれています。
+** 「 -firewall-policy 」オプションには、 LIF のロールと同じデフォルトの「 data 」を使用します。
++
+必要に応じて、カスタムファイアウォールポリシーをあとから作成して追加できます。
+
+** 「 -auto-revert 」を使用すると、起動時、管理データベースのステータスの変更時、ネットワーク接続の確立時など、データ LIF をホームノードに自動的にリバートするかどうかを指定できます。デフォルトの設定は 'false' ですが ' 環境内のネットワーク管理ポリシーに応じて 'false' に設定できます
+** 「 -service-policy 」オプションでは、作成したデータおよび管理サービスポリシー、および必要なその他のポリシーを指定します。
+
+
+. 「 -address 」オプションで IPv6 アドレスを割り当てる場合は、次の手順を実行します。
++
+.. 各種インターフェイスで学習された RA プレフィックスのリストを表示するには、「 network ndp prefix show 」コマンドを使用します。
++
+network ndp prefix show コマンドは、 advanced 権限レベルで使用できます。
+
+.. IPv6 アドレスを手動で構築するには 'prefix::id' の形式を使用します
++
+「 prefix 」は、さまざまなインターフェイスで学習されたプレフィックスです。
+
++
+「 id` 」を生成する場合は、ランダムな 64 ビットの 16 進数を選択します。
+
+
+
+. network interface show コマンドを使用して、 LIF が正常に作成されたことを確認します。
+. 設定した IP アドレスに到達できることを確認します。
++
+[cols="2*"]
+|===
+| 対象 | 使用 
+
+
+ a| 
+IPv4 アドレス
+ a| 
+「ネットワーク ping 」
+
+
+
+ a| 
+IPv6 アドレス
+ a| 
+「 network ping6 」
+
+|===
+
+
+次に、「 my-s3-policy 」サービスポリシーが割り当てられた S3 データ LIF を作成するコマンドの例を示します。
+
+[listing]
+----
+network interface create -vserver svm1.example.com -lif lif2 -home-node node2 -homeport e0d -service-policy my-S3-policy -subnet-name ipspace1
+----
+次のコマンドは、 cluster-1 内のすべての LIF を表示します。datalif1 および datalif3 というデータ LIF には IPv4 アドレスを設定しています。一方、 datalif4 には IPv6 アドレスを設定しています。
+
+[listing]
+----
+cluster-1::> network interface show
+
+            Logical    Status     Network          Current      Current Is
+Vserver     Interface  Admin/Oper Address/Mask     Node         Port    Home
+----------- ---------- ---------- ---------------- ------------ ------- ----
+cluster-1
+            cluster_mgmt up/up    192.0.2.3/24     node-1       e1a     true
+node-1
+            clus1        up/up    192.0.2.12/24    node-1       e0a     true
+            clus2        up/up    192.0.2.13/24    node-1       e0b     true
+            mgmt1        up/up    192.0.2.68/24    node-1       e1a     true
+node-2
+            clus1        up/up    192.0.2.14/24    node-2       e0a     true
+            clus2        up/up    192.0.2.15/24    node-2       e0b     true
+            mgmt1        up/up    192.0.2.69/24    node-2       e1a     true
+vs1.example.com
+            datalif1     up/down  192.0.2.145/30   node-1       e1c     true
+vs3.example.com
+            datalif3     up/up    192.0.2.146/30   node-2       e0c     true
+            datalif4     up/up    2001::2/64       node-2       e0c     true
+5 entries were displayed.
+----

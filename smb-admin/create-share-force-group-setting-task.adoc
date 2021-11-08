@@ -1,0 +1,31 @@
+---
+permalink: smb-admin/create-share-force-group-setting-task.html 
+sidebar: sidebar 
+keywords: create, smb, share, force-group, setting, user, access, data, volume, qtree, unix, file, security, regard, ontap, belong, group, create an smb share with the force-group share setting 
+summary: UNIX ファイルセキュリティ形式のボリュームや qtree にあるデータにアクセスする SMB ユーザが、同じ UNIX グループに属していると ONTAP でみなされるようにするには、 force-group 共有設定を使用して SMB 共有を作成します。 
+---
+= force-group 共有設定を使用して SMB 共有を作成します
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+UNIX ファイルセキュリティ形式のボリュームや qtree にあるデータにアクセスする SMB ユーザが、同じ UNIX グループに属していると ONTAP でみなされるようにするには、 force-group 共有設定を使用して SMB 共有を作成します。
+
+.ステップ
+. SMB 共有を作成します。 vserver cifs share create -vserver vserver_name __ -share-name share_name -path path -force-group-for-create _UNIX_group_name _`
++
+共有の UNC パス (`\\servername\sharename\filepath') に 256 文字を超える (UNC パスの初期 "`\\```") が含まれている場合、 Windows の [ プロパティ ] ボックスの *Security* タブは使用できません。これは、 ONTAP 問題ではなく Windows クライアント問題です。この問題を回避するには、 UNC パスが 256 文字を超える共有を作成しないでください。
+
++
+共有の作成後に force-group を削除する場合は、「 -force-group-for-create 」パラメータの値に空の文字列（ "" ）を指定して共有を変更します。共有を変更して force-group を削除した場合、この共有への既存のすべての接続には、引き続き以前に設定された force-group がプライマリ GID として使用されます。
+
+
+
+次のコマンドでは、 Web でアクセス可能な「 webpages 」共有を「 /corp/companyinfo 」ディレクトリに作成します。 SMB ユーザがこのディレクトリ内に作成するすべてのファイルは、 webgroup1 グループに割り当てられます。
+
+「 vserver cifs share create -vserver vs1 -share-name webpages -path /corp/companyinfo -force-group-for-create webgroup1
+
+* 関連情報 *
+
+xref:optimize-user-access-force-group-share-concept.adoc[force-group 共有設定を使用して、 SMB ユーザアクセスを最適化します]

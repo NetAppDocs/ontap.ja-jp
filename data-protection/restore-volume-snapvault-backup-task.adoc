@@ -1,0 +1,92 @@
+---
+permalink: data-protection/restore-volume-snapvault-backup-task.html 
+sidebar: sidebar 
+keywords: restore, content, volume, snapmirror, destination 
+summary: SnapMirror デスティネーションボリューム内の Snapshot コピーからボリューム全体の内容をリストアできます。ボリュームの内容は元のソースボリュームにリストアするか、別のボリュームにリストアできます。 
+---
+= SnapMirror デスティネーションからボリュームの内容をリストアします
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+SnapMirror デスティネーションボリューム内の Snapshot コピーからボリューム全体の内容をリストアできます。ボリュームの内容は元のソースボリュームにリストアするか、別のボリュームにリストアできます。
+
+ボリュームを SnapMirror Synchronous デスティネーション（ ONTAP 9.5 以降でサポート）からリストアするには、先に関係を削除して解放しておく必要があります。
+
+リストア処理のデスティネーションボリュームは次のいずれかにする必要があります。
+
+* 読み書き可能なボリューム。このケースでは、ソースボリュームとデスティネーションボリュームに共通の Snapshot コピーがある（通常、リストア先が元のソースボリュームである）場合、 SnapMirror は _incremental restore_x を実行します。
++
+[NOTE]
+====
+共通の Snapshot コピーがない場合、コマンドは失敗します。空の読み書き可能なボリュームにボリュームの内容をリストアすることはできません。
+
+====
+* 空のデータ保護ボリューム。このケースでは、 SnapMirror は _ ベースラインリストア _ を実行します。これにより、指定された Snapshot コピーおよびコピーが参照するすべてのデータブロックがソースボリュームに転送されます。
+
+
+ボリュームの内容のリストアはシステム停止を伴う処理です。リストア処理の実行中は、 SnapVault プライマリボリュームで CIFS トラフィックを実行しないでください。
+
+リストア処理のデスティネーションボリュームで圧縮が有効になっていて、ソースボリュームで圧縮が有効になっていない場合は、デスティネーションボリュームで圧縮を無効にします。リストア処理の完了後に、圧縮を再度有効にする必要があります。
+
+デスティネーションボリュームに対して定義されたクォータルールは、リストアの実行前に非アクティブ化されます。volume quota modify コマンドを使用すると ' リストア処理の完了後にクォータ・ルールを再アクティブ化できます
+
+.手順
+. デスティネーションボリューム内の Snapshot コピーの一覧を表示します。
++
+volume snapshot show -vserver _svm_-volume_`
+
++
+コマンド構文全体については、マニュアルページを参照してください。
+
++
+次に 'vserverB ： secondary1' デスティネーション上の Snapshot コピーを示します
+
++
+[listing]
+----
+
+cluster_dst::> volume snapshot show -vserver vserverB -volume secondary1
+
+Vserver     Volume      Snapshot                State    Size  Total% Used%
+-------     ------      ---------- ----------- ------   -----  ------ -----
+vserverB    secondary1  hourly.2013-01-25_0005  valid   224KB     0%    0%
+                        daily.2013-01-25_0010   valid   92KB      0%    0%
+                        hourly.2013-01-25_0105  valid   228KB     0%    0%
+                        hourly.2013-01-25_0205  valid   236KB     0%    0%
+                        hourly.2013-01-25_0305  valid   244KB     0%    0%
+                        hourly.2013-01-25_0405  valid   244KB     0%    0%
+                        hourly.2013-01-25_0505  valid   244KB     0%    0%
+
+7 entries were displayed.
+----
+. SnapMirror デスティネーションボリューム内の Snapshot コピーからボリュームの内容をリストアします。
++
+「 snapmirror restore-source-path_SVM ： volume_|| 」、「 /SVM/volume_」 、「 ... 」 -destination-path SVM ： volume_|_cluster ： // SVM/volume_,... -source-snapshot_snapshot_`
+
++
+コマンド構文全体については、マニュアルページを参照してください。
+
++
+[NOTE]
+====
+このコマンドはデスティネーション SVM またはデスティネーションクラスタから実行する必要があります。
+
+====
++
+次のコマンドは、元のデスティネーションボリューム「 econdary1 」の Snapshot コピー「毎日」から元のソースボリューム「 primary1 」の内容をリストアします。 2013-01-25_0010
+
++
+[listing]
+----
+cluster_dst::> snapmirror restore -source-path vserverB:secondary1 -destination-path vserverA:primary1 -source-snapshot daily.2013-01-25_0010
+
+Warning: All data newer than Snapshot copy daily.2013-01-25_0010 on volume vserverA:primary1 will be deleted.
+
+Do you want to continue? {y|n}: y
+
+[Job 34] Job is queued: snapmirror restore from source vserverB:secondary1 for the snapshot daily.2013-01-25_0010.
+----
+. リストアしたボリュームを再マウントし、ボリュームを使用するすべてのアプリケーションを再起動します。
+

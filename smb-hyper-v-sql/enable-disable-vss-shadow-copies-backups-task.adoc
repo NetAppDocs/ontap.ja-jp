@@ -1,0 +1,59 @@
+---
+permalink: smb-hyper-v-sql/enable-disable-vss-shadow-copies-backups-task.html 
+sidebar: sidebar 
+keywords: enable, disable, vss, aware, backup, hyper, v, virtual, machine, files, smb, shares, shadow, copy 
+summary: VSS 対応バックアップアプリケーションを使用して、 SMB 共有に格納された Hyper-V 仮想マシンファイルをバックアップする場合は、 VSS シャドウコピーを有効にする必要があります。VSS 対応バックアップアプリケーションを使用しない場合は、 VSS シャドウコピーを無効にできます。デフォルトでは、 VSS シャドウコピーは有効になっています。 
+---
+= Hyper-V over SMB バックアップで VSS シャドウコピーを有効または無効にします
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+VSS 対応バックアップアプリケーションを使用して、 SMB 共有に格納された Hyper-V 仮想マシンファイルをバックアップする場合は、 VSS シャドウコピーを有効にする必要があります。VSS 対応バックアップアプリケーションを使用しない場合は、 VSS シャドウコピーを無効にできます。デフォルトでは、 VSS シャドウコピーは有効になっています。
+
+VSS シャドウコピーはいつでも有効または無効にできます。
+
+.手順
+. 権限レベルを advanced に設定します。
++
+「 * set -privilege advanced * 」のように指定します
+
+. 次のいずれかを実行します。
++
+|===
+| VSS シャドウコピーの設定 | 入力するコマンド 
+
+
+ a| 
+有効
+ a| 
+「 * vserver cifs options modify -vserver _vserver_name -shadowcopy-enabled true * 」という形式です
+
+
+
+ a| 
+無効
+ a| 
+「 * vserver cifs options modify -vserver _vserver_name -shadowcopy-enabled false * 」という形式です
+
+|===
+. admin 権限レベルに戻ります。
++
+'*set -privilege admin*
+
+
+
+次のコマンドを実行すると、 SVM vs1 で VSS シャドウコピーが有効になります。
+
+[listing]
+----
+cluster1::> set -privilege advanced
+Warning: These advanced commands are potentially dangerous; use them
+only when directed to do so by technical support personnel.
+Do you wish to continue? (y or n): y
+
+cluster1::*> vserver cifs options modify -vserver vs1 -shadowcopy-enabled true
+
+cluster1::*> set -privilege admin
+----

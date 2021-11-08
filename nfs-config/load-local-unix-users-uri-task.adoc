@@ -1,0 +1,56 @@
+---
+permalink: nfs-config/load-local-unix-users-uri-task.html 
+sidebar: sidebar 
+keywords: load, local, unix, users, uri 
+summary: SVM で個々のローカル UNIX ユーザを手動で作成する別の方法として、 vserver services name-service unix-user load-from-uri コマンドを使用して、ローカル UNIX ユーザのリストを Uniform Resource Identifier （ URI ）から SVM にロードすることができます。 
+---
+= URI からローカル UNIX ユーザをロードします
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+SVM で個々のローカル UNIX ユーザを手動で作成する別の方法として、 vserver services name-service unix-user load-from-uri コマンドを使用して、ローカル UNIX ユーザのリストを Uniform Resource Identifier （ URI ）から SVM にロードすることができます。
+
+.手順
+. ロードするローカル UNIX ユーザのリストが含まれているファイルを作成します。
++
+ファイルには 'unix`/etc/passwd 形式でユーザー情報が含まれている必要があります
+
++
+`_user_name : パスワード :user_ID: group_ID : full_name_`
+
++
+このコマンドにより '_password_' フィールドの値と '_full_name_` フィールド (`_home_directory_` と `_shell_`) の後のフィールドの値が破棄されます
+
++
+サポートされる最大ファイルサイズは 2.5MB です。
+
+. リストに重複した情報が含まれていないことを確認します。
++
+リストに重複したエントリが含まれている場合、リストのロードは失敗し、エラーメッセージが表示されます。
+
+. ファイルをサーバにコピーします。
++
+サーバには、 HTTP 、 HTTPS 、 FTP 、または FTPS 経由でストレージシステムから到達できる必要があります。
+
+. ファイルの URI を確認します。
++
+この URI は、ファイルの場所を示すためにストレージシステムに指定するアドレスです。
+
+. ローカル UNIX ユーザのリストが含まれているファイルを、 URI から SVM にロードします。
++
+vserver services name-service unix-user load-from-uri -vserver _vserver_name URI ｛ ftp|http|ftps|https ｝ ： // uri _ -overwrite ｛ true|false ｝
+
++
+--overwrite '{`true|`false'} は、エントリを上書きするかどうかを指定します。デフォルトは「 false 」です。
+
+
+
+次のコマンドは、ローカル UNIX ユーザのリストを ftp://ftp.example.com/passwd+` という URI から vs1 という SVM 内にロードします。URI を使用してロードした情報によって SVM 内の既存のユーザが上書きされることはありません。
+
+[listing]
+----
+node::> vserver services name-service unix-user load-from-uri -vserver vs1
+-uri ftp://ftp.example.com/passwd -overwrite false
+----

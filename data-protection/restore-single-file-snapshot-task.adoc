@@ -1,0 +1,63 @@
+---
+permalink: data-protection/restore-single-file-snapshot-task.html 
+sidebar: sidebar 
+keywords: restore, single file, snapshot copy 
+summary: Snapshot コピーから単一のファイルまたは LUN をリストアするには、 volume snapshot restore-file コマンドを使用します。既存のファイルを置き換えない場合は、読み書き可能な親ボリュームの別の場所にファイルをリストアできます。 
+---
+= Snapshot コピーから単一のファイルをリストアします
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+volume snapshot restore-file コマンドを使用すると、 Snapshot コピーから単一のファイルまたは LUN をリストアできます。既存のファイルを置き換えない場合は、読み書き可能な親ボリュームの別の場所にファイルをリストアできます。
+
+既存の LUN をリストアする場合は、 LUN クローンが作成され、 Snapshot コピーの形でバックアップされます。リストア処理中に、 LUN に対して読み書きを実行できます。
+
+デフォルトでは、ストリームを含むファイルがリストアされます。
+
+.手順
+. ボリューム内の Snapshot コピーの一覧を表示します。
++
+volume snapshot show -vserver _svm_-volume_`
+
++
+コマンド構文全体については、マニュアルページを参照してください。
+
++
+次に、「 vol1 」内の Snapshot コピーの例を示します。
+
++
+[listing]
+----
+
+clus1::> volume snapshot show -vserver vs1 -volume vol1
+
+Vserver Volume Snapshot                State    Size  Total% Used%
+------- ------ ---------- ----------- ------   -----  ------ -----
+vs1	 vol1   hourly.2013-01-25_0005  valid   224KB     0%    0%
+               daily.2013-01-25_0010   valid   92KB      0%    0%
+               hourly.2013-01-25_0105  valid   228KB     0%    0%
+               hourly.2013-01-25_0205  valid   236KB     0%    0%
+               hourly.2013-01-25_0305  valid   244KB     0%    0%
+               hourly.2013-01-25_0405  valid   244KB     0%    0%
+               hourly.2013-01-25_0505  valid   244KB     0%    0%
+
+7 entries were displayed.
+----
+. Snapshot コピーからファイルをリストアします。
++
+'volume snapshot restore-file -vserver_svm_-volume_-snapshot_snapshot_path_file_path -restore-path_destination_path _`
+
++
+コマンド構文全体については、マニュアルページを参照してください。
+
++
+次の例では '`m yfile.txt` ファイルをリストアします
+
++
+[listing]
+----
+cluster1::> volume snapshot restore-file -vserver vs0 -volume vol1 -snapshot daily.2013-01-25_0010 -path /myfile.txt
+----
+

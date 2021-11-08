@@ -1,0 +1,86 @@
+---
+permalink: smb-admin/enable-disable-access-based-enumeration-task.html 
+sidebar: sidebar 
+keywords: enable, disable, access-based, enumeration, abe, smb, allow, prevent, user, permission, access, enable or disable access-based enumeration on smb shares 
+summary: SMB 共有で Access-Based Enumeration を有効または無効にすると、ユーザがアクセス権のない共有リソースを表示することを許可または禁止できます。 
+---
+= SMB 共有でのアクセスベースの列挙を有効または無効にします
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+SMB 共有で Access-Based Enumeration を有効または無効にすると、ユーザがアクセス権のない共有リソースを表示することを許可または禁止できます。
+
+デフォルトでは、 ABE は無効になっています。
+
+.手順
+. 次のいずれかを実行します。
++
+|===
+| 状況 | 入力するコマンド 
+
+
+ a| 
+新しい共有で ABE を有効にします
+ a| 
+vserver cifs share create -vserver vserver_name -share-name share_name -path path -share-properties access-based-enumeration SMB 共有を作成する際に、追加のオプションの共有設定や追加の共有プロパティを指定できます。詳細については 'vserver cifs share create コマンドのマニュアルページを参照してください
+
+
+
+ a| 
+既存の共有で ABE を有効にします
+ a| 
+vserver cifs share properties add -vserver vserver_name -share-name share_name -share-properties access-based-enumeration 既存の共有プロパティは維持されます。ABE 共有プロパティは既存の共有プロパティリストに追加されます。
+
+
+
+ a| 
+既存の共有で ABE を無効にします
+ a| 
+vserver cifs share properties remove -vserver vserver_name -share-name share_name -share-properties access-based-enumeration その他の共有プロパティは維持されます。ABE 共有プロパティのみが共有プロパティリストから削除されます。
+
+|===
+. vserver cifs share show コマンドを使用して、共有設定が正しいことを確認します。
+
+
+次の例は、 SVM vs1 上で「 /sales 」というパスを使用して「 Sales 」という名前の ABE SMB 共有を作成します。共有は、「 access-based-enumeration 」を共有プロパティとして使用して作成されます。
+
+[listing]
+----
+cluster1::> vserver cifs share create -vserver vs1 -share-name sales -path /sales  -share-properties access-based-enumeration,oplocks,browsable,changenotify
+
+cluster1::> vserver cifs share show -vserver vs1 -share-name sales
+
+                      Vserver: vs1
+                        Share: sales
+     CIFS Server NetBIOS Name: VS1
+                         Path: /sales
+             Share Properties: access-based-enumeration
+                               oplocks
+                               browsable
+                               changenotify
+           Symlink Properties: enable
+      File Mode Creation Mask: -
+ Directory Mode Creation Mask: -
+                Share Comment: -
+                    Share ACL: Everyone / Full Control
+File Attribute Cache Lifetime: -
+                  Volume Name: -
+                Offline Files: manual
+Vscan File-Operations Profile: standard
+----
+次に、「 access-based-enumeration 」共有プロパティを「 `d ata2` 」という名前の SMB 共有に追加する例を示します。
+
+[listing]
+----
+cluster1::> vserver cifs share properties add -vserver vs1 -share-name data2 -share-properties access-based-enumeration
+
+cluster1::> vserver cifs share show -vserver vs1 -share-name data2 -fields share-name,share-properties
+server  share-name share-properties
+------- ---------- -------------------------------------------------------
+vs1     data2      oplocks,browsable,changenotify,access-based-enumeration
+----
+* 関連情報 *
+
+xref:add-remove-share-properties-eexisting-share-task.adoc[既存の SMB 共有に対する共有プロパティの追加または削除]

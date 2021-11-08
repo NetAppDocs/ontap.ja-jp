@@ -1,0 +1,79 @@
+---
+permalink: smb-admin/modify-branchcache-config-task.html 
+sidebar: sidebar 
+keywords: modify, configuration, branchcache, service, svm, store, directory, path, hash, maximum, size, operating, mode, version, modify branchcache configurations 
+summary: SVM 上の BranchCache サービスの設定では、ハッシュストアディレクトリのパス、最大サイズ、動作モード、サポートする BranchCachet のバージョンなどの設定を変更できます。ハッシュストアを含めるボリュームのサイズを拡張することもできます。 
+---
+= BranchCache 設定を変更
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+SVM 上の BranchCache サービスの設定では、ハッシュストアディレクトリのパス、最大サイズ、動作モード、サポートする BranchCachet のバージョンなどの設定を変更できます。ハッシュストアを含めるボリュームのサイズを拡張することもできます。
+
+.手順
+. 適切な操作を実行します。
++
+|===
+| 状況 | 入力するコマンド 
+
+
+ a| 
+ハッシュストアディレクトリのサイズを変更する
+ a| 
+vserver cifs branchcache modify -vserver vserver_name -hash-store-max-size ｛ integer [KB|MB|GB|TB|PB] ｝ `
+
+
+
+ a| 
+ハッシュストアを含めるボリュームのサイズを増やします
+ a| 
+'volume size -vserver vserver_name -volume volume_name -new-size new_size [k|m|g|t] ハッシュ・ストアを含むボリュームがいっぱいになると、ボリューム・サイズを拡張できる場合があります。新しいボリュームサイズは、数字と単位で指定できます。
+
+を参照してください link:../volumes/index.html["論理ストレージ管理"] ボリュームサイズの拡張の詳細については、を参照してください。
+
+
+
+ a| 
+ハッシュストアディレクトリのパスを変更します
+ a| 
+vserver cifs branchcache modify -vserver vserver_name -hash-store-path path-flush-hashes ｛ true | false ｝ SVM が SVM ディザスタリカバリソースの場合、ハッシュパスをルートボリューム上にすることはできません。これは、ルートボリュームがディザスタリカバリデスティネーションにレプリケートされないためです。
+
+BranchCache ハッシュパスには、ファイル名に使用できる文字と空白を含めることができます。
+
+ハッシュ・パスを変更 ONTAP する場合 '-flush-hashes は必須パラメータであり ' 元のハッシュ・ストアの場所からハッシュを削除するかどうかを指定します-flush-hashes パラメータには ' 次の値を設定できます
+
+** 「 true 」を指定すると、 ONTAP は元の場所にあるハッシュを削除し、 BranchCache 対応クライアントが新しいリクエストを行うときに新しい場所に新しいハッシュを作成します。
+** 「 false 」を指定すると、ハッシュはフラッシュされません。
++
+この場合、後でハッシュストアパスを元の場所に戻して、既存のハッシュを再利用することができます。
+
+
+
+
+
+ a| 
+動作モードを変更します
+ a| 
+vserver cifs branchcache modify -vserver vserver_name -operating-mode ｛ per-share|all-shares | disable ｝ `
+
+[NOTE]
+====
+動作モードを変更するときは、次の点に注意してください。 - ONTAP は、 SMB セッションのセットアップ時に共有の BranchCache サポートを通知します。- BranchCache が有効なときにすでにセッションを確立しているクライアントは、キャッシュされているコンテンツをこの共有で使用するために、いったん切断してから再接続する必要があります。
+
+====
+
+
+ a| 
+サポートする BranchCache バージョンを変更します
+ a| 
+vserver cifs branchcache modify -vserver vserver_name -versions ｛ v1-enable | v2-enable | enable-all ｝ `
+
+|===
+. vserver cifs branchcache show コマンドを使用して、設定の変更を確認します。
+
+
+* 関連情報 *
+
+link:../volumes/index.html["論理ストレージ管理ガイド』を参照してください"]

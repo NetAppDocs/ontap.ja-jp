@@ -1,0 +1,54 @@
+---
+permalink: system-admin/configure-access-web-services-task.html 
+sidebar: sidebar 
+keywords: configure, access, web, services, http, https, svm 
+summary: Web サービスへのアクセスを設定することで、許可されたユーザが、 HTTP または HTTPS を使用してクラスタまたは Storage Virtual Machine （ SVM ）のサービスコンテンツにアクセスできるようになります。 
+---
+= Web サービスへのアクセスを設定する
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+Web サービスへのアクセスを設定することで、許可されたユーザが、 HTTP または HTTPS を使用してクラスタまたは Storage Virtual Machine （ SVM ）のサービスコンテンツにアクセスできるようになります。
+
+.手順
+. ファイアウォールが有効になっている場合は、 Web サービスで使用される LIF のファイアウォールポリシーで HTTP または HTTPS のアクセスがセットアップされていることを確認してください。
++
+[NOTE]
+====
+ファイアウォールが有効になっているかどうかを確認するには、「 system services firewall show 」コマンドを使用します。
+
+====
++
+.. ファイアウォールポリシーに HTTP または HTTPS が設定されていることを確認するには、「 system services firewall policy show 」コマンドを使用します。
++
+「 system services firewall policy create 」コマンドの「 -service 」パラメータを「 http 」または「 https 」に設定して、ポリシーが Web アクセスをサポートできるようにします。
+
+.. HTTP または HTTPS をサポートしているファイアウォールポリシーが、 Web サービスを提供する LIF と関連付けられていることを確認するには、「 -firewall-policy 」パラメータを指定して network interface show コマンドを使用します。
++
+LIF に対してファイアウォールポリシーを有効にするには、「 -firewall-policy 」パラメータを指定して network interface modify コマンドを使用します。
+
+
+
+. クラスタレベルの Web プロトコルエンジンを設定し、 Web サービスのコンテンツにアクセスできるようにするには、「 system services web modify 」コマンドを使用します。
+. セキュアな Web サービス（ HTTPS ）を使用する場合は、 SSL を有効にし、「 securityssl modify 」コマンドを使用して、クラスタまたは SVM のデジタル証明書情報を入力します。
+. クラスタまたは SVM の Web サービスを有効にするには、「 vserver services web modify 」コマンドを使用します。
++
+この手順は、クラスタまたは SVM に対して有効にする各サービスについて繰り返す必要があります。
+
+. 特定のロールに対して、クラスタまたは SVM の Web サービスへのアクセスを許可するには、「 vserver services web access create 」コマンドを使用します。
++
+アクセスを許可するロールはすでに存在している必要があります。「 securitylogin role show 」コマンドを使用して既存のロールを表示したり、「 securitylogin role create 」コマンドを使用して新しいロールを作成したりできます。
+
+. Web サービスへのアクセスが許可されているロールについては、「 securitylogin show 」コマンドの出力を確認して、ユーザにも正しいアクセス方法が設定されていることを確認してください。
++
+ONTAP API Web サービス (`ontapi-') にアクセスするには 'ontapi-access メソッドを使用してユーザを設定する必要がありますその他のすべての Web サービスにアクセスするには、ユーザに「 http 」アクセス方法が設定されている必要があります。
+
++
+[NOTE]
+====
+ユーザのアクセス方法を追加するには 'securitylogin create コマンドを使用します
+
+====
+

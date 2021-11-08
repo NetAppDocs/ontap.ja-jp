@@ -1,0 +1,42 @@
+---
+permalink: smb-admin/reset-rediscovering-servers-task.html 
+sidebar: sidebar 
+keywords: reset, discover, rediscover, server, cifs, server, discard, store, information, ldap, domain, controller, information, external, respond, reset and rediscover servers 
+summary: CIFS サーバでサーバのリセットと再検出を行うと、 LDAP サーバおよびドメインコントローラに格納されている情報が CIFS サーバに破棄されます。サーバの情報が破棄されたあと、それらの外部サーバに関する最新の情報が再取得されます。これは、接続されているサーバが適切に応答しない場合に役立ちます。 
+---
+= サーバをリセットおよび再検出します
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+CIFS サーバでサーバのリセットと再検出を行うと、 LDAP サーバおよびドメインコントローラに格納されている情報が CIFS サーバに破棄されます。サーバの情報が破棄されたあと、それらの外部サーバに関する最新の情報が再取得されます。これは、接続されているサーバが適切に応答しない場合に役立ちます。
+
+.手順
+. 次のコマンドを入力します。 vserver cifs domain discovered-servers reset-servers -vserver _vserver_name _`
+. 再検出されたサーバに関する新しい情報を表示します。 vserver cifs domain discovered-servers show -vserver vserver_name _`
+
+
+次の例は、 Storage Virtual Machine （ SVM 、旧 Vserver ） vs1 のサーバをリセットして再検出します。
+
+[listing]
+----
+cluster1::> vserver cifs domain discovered-servers reset-servers -vserver vs1
+
+cluster1::> vserver cifs domain discovered-servers show
+
+Node: node1
+Vserver: vs1
+
+Domain Name     Type     Preference DC-Name     DC-Address    Status
+--------------- -------- ---------- ----------- ------------- -------
+example.com     MS-LDAP  adequate   DC-1        1.1.3.4       OK
+example.com     MS-LDAP  adequate   DC-2        1.1.3.5       OK
+example.com     MS-DC    adequate   DC-1        1.1.3.4       OK
+example.com     MS-DC    adequate   DC-2        1.1.3.5       OK
+----
+* 関連情報 *
+
+xref:display-discovered-servers-task.adoc[検出されたサーバに関する情報を表示する]
+
+xref:stop-start-server-task.adoc[CIFS サーバを停止または起動しています]

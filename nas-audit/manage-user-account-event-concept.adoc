@@ -1,0 +1,65 @@
+---
+permalink: nas-audit/manage-user-account-event-concept.html 
+sidebar: sidebar 
+keywords: manage, user-account, event 
+summary: Storage Virtual Machine （ SVM ）に対してユーザアカウントイベントが設定されている場合、監査を有効にしたときに、それらについての監査イベントが生成されます。 
+---
+= ユーザアカウントイベントを管理します
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+Storage Virtual Machine （ SVM ）に対してユーザアカウントイベントが設定されている場合、監査を有効にしたときに、それらについての監査イベントが生成されます。
+
+ユーザアカウントイベント。イベント ID は 4720 、 4722 、 4724 、 4725 、 4726 、 4738 および 4781 は、システムでローカル CIFS または NFS ユーザが作成または削除され、ローカルユーザアカウントが有効化、無効化または変更され、ローカル CIFS ユーザのパスワードがリセットまたは変更された場合に生成されます。ユーザアカウントイベントは、「 vserver cifs users-and-groups <local user> 」コマンドと「 vserver services name-service <UNIX user> 」コマンドを使用してユーザアカウントが変更されたときに生成されます。
+
+次の例では、ローカル CIFS ユーザが作成され、 ID 4720 のユーザアカウントイベントが生成されています。
+
+[listing]
+----
+netapp-clus1::*> vserver cifs users-and-groups local-user create -user-name testuser -is-account-disabled false -vserver vserver_1
+Enter the password:
+Confirm the password:
+
+- System
+  - Provider
+   [ Name]  NetApp-Security-Auditing
+   [ Guid]  {3CB2A168-FE19-4A4E-BDAD-DCF422F13473}
+   EventID 4720
+   EventName Local Cifs User Created
+   ...
+   ...
+  TargetUserName testuser
+  TargetDomainName NETAPP-CLUS1
+  TargetSid S-1-5-21-2447422786-1297661003-4197201688-1003
+  TargetType CIFS
+  DisplayName testuser
+  PasswordLastSet 1472662216
+  AccountExpires NO
+  PrimaryGroupId 513
+  UserAccountControl %%0200
+  SidHistory ~
+  PrivilegeList ~
+----
+次の例では、上記の例で作成されたローカル CIFS ユーザの名前が変更され、 ID 4781 のユーザアカウントイベントが生成されています。
+
+[listing]
+----
+ netapp-clus1::*> vserver cifs users-and-groups local-user rename -user-name testuser -new-user-name testuser1
+- System
+  - Provider
+   [ Name]  NetApp-Security-Auditing
+   [ Guid]  {3CB2A168-FE19-4A4E-BDAD-DCF422F13473}
+   EventID 4781
+   EventName Local Cifs User Renamed
+   ...
+   ...
+  OldTargetUserName testuser
+  NewTargetUserName testuser1
+  TargetDomainName NETAPP-CLUS1
+  TargetSid S-1-5-21-2447422786-1297661003-4197201688-1000
+  TargetType CIFS
+  SidHistory ~
+  PrivilegeList ~
+----

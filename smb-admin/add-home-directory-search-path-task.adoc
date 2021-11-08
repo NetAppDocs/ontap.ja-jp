@@ -1,0 +1,46 @@
+---
+permalink: smb-admin/add-home-directory-search-path-task.html 
+sidebar: sidebar 
+keywords: ontap, smb, directories, directory, add, path, add a home directory search path 
+summary: ONTAP の SMB ホームディレクトリを使用する場合は、ホームディレクトリ検索パスを少なくとも 1 つ追加する必要があります。 
+---
+= ホームディレクトリ検索パスを追加します
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+ONTAP の SMB ホームディレクトリを使用する場合は、ホームディレクトリ検索パスを少なくとも 1 つ追加する必要があります。
+
+ホーム・ディレクトリ検索パスを追加するには、「 vserver cifs home-directory search-path add 」コマンドを使用します。
+
+vserver cifs home-directory search-path add コマンドは、コマンドの実行時に '-path' オプションで指定されたパスをチェックします。指定したパスが存在しない場合は、続行するかどうかを確認するメッセージが表示されます。「 y 」または「 n 」を選択します。「 y 」を選択して続行すると、 ONTAP によって検索パスが作成されます。ただし、ホームディレクトリ設定で検索パスを使用するには、あらかじめディレクトリ構造を作成しておく必要があります。続行しない場合、コマンドは失敗し、検索パスは作成されません。その場合は ' パス・ディレクトリ構造を作成し ' vserver cifs home-directory search-path add コマンドを再実行できます
+
+.手順
+. ホームディレクトリ検索パス「 vserver cifs home-directory search-path add -vserver vserver -path path 」を追加します
+. vserver cifs home-directory search-path show コマンドを使用して、検索パスが正常に追加されたことを確認します。
+
+
+次の例は、 SVM vs1 のホームディレクトリ設定にパス「 /home1 」を追加します。
+
+[listing]
+----
+cluster::> vserver cifs home-directory search-path add -vserver vs1 -path /home1
+
+vs1::> vserver cifs home-directory search-path show
+Vserver     Position Path
+----------- -------- -----------------
+vs1         1        /home1
+----
+次の例では、 SVM vs1 上のホームディレクトリ設定にパス「 /home2 」を追加することを試みます。パスが存在しません。続行しないように選択します。
+
+[listing]
+----
+cluster::> vserver cifs home-directory search-path add -vserver vs1 -path /home2
+Warning: The specified path "/home2" does not exist in the namespace
+         belonging to Vserver "vs1".
+Do you want to continue? {y|n}: n
+----
+* 関連情報 *
+
+xref:add-home-directory-share-task.adoc[ホームディレクトリ共有の追加]

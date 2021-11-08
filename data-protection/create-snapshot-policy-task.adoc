@@ -1,0 +1,40 @@
+---
+permalink: data-protection/create-snapshot-policy-task.html 
+sidebar: sidebar 
+keywords: create, snapshot, policy 
+summary: Snapshot ポリシーは、 Snapshot コピーを作成するタイミング、保持するコピーの数、および Snapshot コピーに名前を付ける方法を指定します。たとえば、毎日午前 12 時 10 分に 1 つの Snapshot コピーを作成し、直近の 2 つのコピーを保持して、「 daily. timestamp 」という名前を付けることができます。 Snapshot ポリシーには最大 5 つのジョブスケジュールを含めることができます。 
+---
+= Snapshot ポリシーを作成します
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+Snapshot ポリシーは、 Snapshot コピーを作成するタイミング、保持するコピーの数、および Snapshot コピーに名前を付ける方法を指定します。たとえば、毎日午前 12 時 10 分に Snapshot コピーを 1 つ作成し、最新のコピーを 2 つ保持して、「毎日」という名前を付けることができます。 Snapshot ポリシーには最大 5 つのジョブスケジュールを含めることができます。
+
+デフォルトでは、 ONTAP が Snapshot コピーの名前を作成する際には、ジョブスケジュール名にタイムスタンプを追加します。
+
+[listing]
+----
+daily.2017-05-14_0013/              hourly.2017-05-15_1106/
+daily.2017-05-15_0012/              hourly.2017-05-15_1206/
+hourly.2017-05-15_1006/             hourly.2017-05-15_1306/
+----
+必要に応じて、プレフィックスをジョブスケジュール名に置き換えることができます。
+
+「 Snapmirror -label 」オプションは、 SnapMirror レプリケーション用です。詳細については、を参照してください link:define-rule-policy-task.html["ポリシーのルールを定義する"]。
+
+.ステップ
+. Snapshot ポリシーを作成します
++
+'volume snapshot policy create -vserver_svm_policy_name_enabled true | false -schedul1_schedule1_name_count1_copies _on_retain_-prefix1_snapmirror-label1_snapshot_label_… -scheduled1_schedule5_name _-count5_dCopies _To_retain_prefix5_snapshot_prefix_ -snapmirror-label5_snapshot_label_`
+
++
+次の例は、「毎日」のスケジュールで実行する「 snap _policy_daily 」という名前の Snapshot ポリシーを作成します。このポリシーには、最大 5 つの Snapshot コピーがあります。各 Snapshot コピーの名前は「毎日」です。
+
++
+[listing]
+----
+cluster1::> volume snapshot policy create -vserver vs0 -policy snap_policy_daily -schedule1 daily -count1 5 -snapmirror-label1 daily
+----
+

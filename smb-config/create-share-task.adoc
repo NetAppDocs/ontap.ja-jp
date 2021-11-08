@@ -1,0 +1,42 @@
+---
+permalink: smb-config/create-share-task.html 
+sidebar: sidebar 
+keywords: create, smb, share, data, server, client, properties, home, directory, designate, designating, customize, configure, configuring, optional, setting, create an smb share 
+summary: SMB サーバのデータを SMB クライアントと共有するには、 SMB 共有を作成する必要があります。共有を作成するときは、共有をホームディレクトリとして指定するなど、共有プロパティを設定できます。オプションの設定により、共有をカスタマイズすることもできます。 
+---
+= SMB 共有を作成
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+SMB サーバのデータを SMB クライアントと共有するには、 SMB 共有を作成する必要があります。共有を作成するときは、共有をホームディレクトリとして指定するなど、共有プロパティを設定できます。オプションの設定により、共有をカスタマイズすることもできます。
+
+共有を作成する前に、ボリュームまたは qtree のディレクトリパスが SVM ネームスペース内に存在している必要があります。
+
+共有を作成するとき、デフォルトの共有 ACL （デフォルトの共有権限）は「 Everyone / Full Control 」です。共有へのアクセスをテストしたら、デフォルトの共有 ACL を削除し、より安全な方法で置き換える必要があります。
+
+.手順
+. 必要に応じて、共有のディレクトリパス構造を作成します。
++
+「 vserver cifs share create 」コマンドは、共有作成時に「 -path 」オプションで指定されたパスをチェックします。指定したパスが存在しない場合、コマンドは失敗します。
+
+. 指定した SVM に関連付けられている SMB 共有を作成します。 `+ vserver cifs share create -vserver vserver_name -share-name share_name -path path [-share-properties share_properties 、 ...] [other_attributes] [-comment text] +`
+. 共有が作成されたことを確認します。「 vserver cifs share show -share-name share_name 」
+
+
+次のコマンドを実行すると、 SVM 「 vs1.example.com 」に「 `S hARE1' 」という名前の SMB 共有が作成されます。ディレクトリパスは '/users' であり ' デフォルトのプロパティで作成されます
+
+[listing]
+----
+cluster1::> vserver cifs share create -vserver vs1.example.com -share-name SHARE1 -path /users
+
+cluster1::> vserver cifs share show -share-name SHARE1
+
+Vserver          Share    Path     Properties Comment  ACL
+---------------  -------- -------- ---------- -------- -----------
+vs1.example.com  SHARE1   /users   oplocks    -        Everyone / Full Control
+                                   browsable
+                                   changenotify
+                                   show-previous-versions
+----

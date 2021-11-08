@@ -1,0 +1,50 @@
+---
+permalink: san-config/change-fc-adapter-speed-task.html 
+sidebar: sidebar 
+keywords: change, fc adapter, speed 
+summary: 自動ネゴシエーションを使わずに、アダプタのターゲットポートの速度を接続先デバイスの速度と同じにすることを推奨します。自動ネゴシエーションを設定したポートの方が、ギブバックやテイクオーバーなどの中断後の再接続に時間がかかる可能性があります。 
+---
+= FC アダプタの速度を変更します
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+自動ネゴシエーションを使わずに、アダプタのターゲットポートの速度を接続先デバイスの速度と同じにすることを推奨します。自動ネゴシエーションを設定したポートの方が、ギブバックやテイクオーバーなどの中断後の再接続に時間がかかる可能性があります。
+
+このアダプタをホームポートとして使用しているすべての LIF をオフラインにする必要があります。
+
+この処理ではクラスタ内のすべての SVM と LIF が対象となるため、「 -home-port 」および「 -home-lif 」パラメータを使用して、処理範囲を限定する必要があります。これらのパラメータを使用しないと、処理環境によってクラスタ内のすべての LIF が処理によって使用されなくなる可能性があります。
+
+.手順
+. アダプタのすべての LIF をオフラインにします。
++
+network interface modify -vserver * -lif * ｛ -home-node node1 -home-port 0c ｝ -status-admin down ’
+
+. アダプタをオフラインにします。
++
+network fcp adapter modify -node node1 -adapter 0c -state down
+
++
+アダプタがオフラインにならない場合は、システムの該当するアダプタポートからケーブルを取り外すこともできます。
+
+. ポートアダプタの最大速度を確認します。
++
+「 fcp adapter show -instance 」のように表示されます
+
++
+アダプタ速度を最大速度よりも速くすることはできません。
+
+. アダプタ速度を変更します。
++
+network fcp adapter modify -node node1 -adapter 0c -speed 16`
+
+. アダプタをオンラインにします。
++
+「 network fcp adapter modify -node node1 -adapter 0c -state up 」のように表示されます
+
+. アダプタのすべての LIF をオンラインにします。
++
+network interface modify -vserver * -lif * ｛ -home-node node1 -home-port 0c ｝ -status-admin up
+
+

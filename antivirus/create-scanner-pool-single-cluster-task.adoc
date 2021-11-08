@@ -1,0 +1,67 @@
+---
+permalink: antivirus/create-scanner-pool-single-cluster-task.html 
+sidebar: sidebar 
+keywords: create, scanner pool, single cluster 
+summary: スキャナプールは、 SVM に接続できる Vscan サーバと特権ユーザを定義します。個々の SVM 用またはクラスタ内のすべての SVM 用のスキャナプールを作成できます。 
+---
+= 単一クラスタにスキャナプールを作成する
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+スキャナプールは、 SVM に接続できる Vscan サーバと特権ユーザを定義します。個々の SVM 用またはクラスタ内のすべての SVM 用のスキャナプールを作成できます。
+
+.必要なもの
+* SVM と Vscan サーバは同じドメインに属しているか、信頼されたドメインに属している必要があります。
+* 個々の SVM 用のスキャナプールを定義する場合は、 SVM 管理 LIF または SVM データ LIF に ONTAP Antivirus Connector を設定しておく必要があります。
+* クラスタ内のすべての SVM 用のスキャナプールを定義する場合は、クラスタ管理 LIF に ONTAP Antivirus Connector を設定しておく必要があります。
+
+
+特権ユーザのリストには、 Vscan サーバが SVM への接続に使用するドメインユーザアカウントが含まれている必要があります。
+
+.手順
+. スキャナプールを作成します。
++
+「 vserver vscan scanner-pool create -vserver data_SVM | cluster_admin_svm -scanner-pool scanner-pool scanner-pool scanner-pool scanner-pool scanner-pool scanner-pool scanner-pool scanner-pool scanner-pool scanner-pool scanner-pool VScan サーバのホスト名 -privileged-users privileged-users privileged-users 」という形式の 2 つのコマンドを入力します
+
++
+** 個々の SVM 用のプールの場合はデータ SVM 、クラスタ内のすべての SVM 用のプールの場合はクラスタ管理 SVM を指定します。
+** 各 Vscan サーバのホスト名には IP アドレスまたは FQDN を指定します。
+** 各特権ユーザのドメイン名とユーザ名を指定します。すべてのオプションの一覧については、コマンドのマニュアルページを参照してください。
+
+
++
+次のコマンドでは、「 vs1 」の VM に「 P 」という名前のスキャナプールを作成します。
+
++
+[listing]
+----
+cluster1::> vserver vscan scanner-pool create -vserver vs1 -scanner-pool SP -hostnames 1.1.1.1,vmwin204-27.fsct.nb -privileged-users cifs\u1,cifs\u2
+----
+. スキャナプールが作成されたことを確認します。 vserver vscan scanner-pool show -vserver data_svm | cluster_admin_svm -scanner-pool scanner-pool scanner-pool scanner-pool scanner-pool scanner-pool scanner-pool
++
+すべてのオプションの一覧については、コマンドのマニュアルページを参照してください。
+
++
+次のコマンドは、「スキャナプール」の詳細を表示します。
+
++
+[listing]
+----
+cluster1::> vserver vscan scanner-pool show -vserver vs1 -scanner-pool SP
+
+                                    Vserver: vs1
+                               Scanner Pool: SP
+                             Applied Policy: idle
+                             Current Status: off
+         Cluster on Which Policy Is Applied: -
+                  Scanner Pool Config Owner: vserver
+       List of IPs of Allowed Vscan Servers: 1.1.1.1, 10.72.204.27
+List of Host Names of Allowed Vscan Servers: 1.1.1.1, vmwin204-27.fsct.nb
+                   List of Privileged Users: cifs\u1, cifs\u2
+----
++
+vserver vscan scanner-pool show コマンドを使用して、 SVM 上のすべてのスキャナプールを表示することもできます。コマンド構文全体については、コマンドのマニュアルページを参照してください。
+
+

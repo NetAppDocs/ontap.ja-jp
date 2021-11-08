@@ -1,0 +1,89 @@
+---
+permalink: nas-audit/audit-alternate-ntfs-data-streams-concept.html 
+sidebar: sidebar 
+keywords: considerations, audit, alternate, ntfs data streams 
+summary: NTFS 代替データストリームを持つファイルを監査する場合は、一定の考慮事項に注意する必要があります。 
+---
+= 代替 NTFS データストリームを監査する際の考慮事項
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+NTFS 代替データストリームを持つファイルを監査する場合は、一定の考慮事項に注意する必要があります。
+
+監査されるオブジェクトの場所は '2 つのタグ 'ObjectName タグ ( パス ) と HandleID タグ ( ハンドル ) を使用してイベント・レコードに記録されますログに記録されるストリーム要求を適切に識別するには、 NTFS 代替データストリームでこれらのフィールドに記録される ONTAP レコードを把握しておく必要があります。
+
+* EVTX ID ： 4656 のイベント（オープンおよび作成の監査イベント）
++
+** 代替データ・ストリームのパスは 'ObjectName タグに記録されます
+** 代替データ・ストリームのハンドルは 'HandleID タグに記録されます
+
+
+* EVTX ID ： 4663 のイベント（読み取り、書き込み、属性の取得など、その他すべての監査イベント）
++
+** 代替データ・ストリームではなく ' ベース・ファイルのパスは ObjectName タグに記録されます
+** 代替データ・ストリームのハンドルは 'HandleID タグに記録されます
+
+
+
+
+次の例は、 `HandleID ’タグを使用して代替データストリームの EVTX ID ： 4663 イベントを特定する方法を示しています。読み取りの監査イベントで記録された `ObjectName タグ ( パス ) はベースファイルのパスに対するものですが 'HandleID タグを使用すると ' 代替データストリームの監査レコードとしてイベントを特定できます
+
+ストリーム・ファイル名の形式は 'base_file_name ： stream_name' ですこの例では、「 dIR1 」ディレクトリには、次のパスを持つ代替データストリームを持つベースファイルが含まれています。
+
+[listing]
+----
+
+/dir1/file1.txt
+/dir1/file1.txt:stream1
+----
+[NOTE]
+====
+次のイベント例の出力はご覧のように省略されています。この出力にはイベントで使用可能なすべての出力タグが表示されているわけではありません。
+
+====
+EVTX ID 4656 （オープンの監査イベント）の場合、代替データストリームの監査レコード出力で代替データストリーム名が ObjectName タグに記録されています。
+
+[listing]
+----
+
+- <Event>
+- <System>
+  <Provider Name="Netapp-Security-Auditing" />
+  <EventID>4656</EventID>
+  <EventName>Open Object</EventName>
+  [...]
+  </System>
+- <EventData>
+  [...]
+  **<Data Name="ObjectType"\>Stream</Data\>
+  <Data Name="HandleID"\>00000000000401;00;000001e4;00176767</Data\>
+  <Data Name="ObjectName"\>\(data1\);/dir1/file1.txt:stream1</Data\>          **
+  [...]
+  </EventData>
+  </Event>
+- <Event>
+----
+EVTX ID 4663 （読み取りの監査イベント）の場合、同じ代替データストリームの監査レコード出力でベースファイル名が ObjectName タグに記録されます。 ただし 'HandleID タグのハンドルは代替データ・ストリームのハンドルであり ' このイベントと代替データ・ストリームを関連付けるために使用できます
+
+[listing]
+----
+
+- <Event>
+- <System>
+  <Provider Name="Netapp-Security-Auditing" />
+  <EventID>4663</EventID>
+  <EventName>Read Object</EventName>
+  [...]
+  </System>
+- <EventData>
+  [...]
+  **<Data Name="ObjectType"\>Stream</Data\>
+  <Data Name="HandleID"\>00000000000401;00;000001e4;00176767</Data\>
+  <Data Name="ObjectName"\>\(data1\);/dir1/file1.txt</Data\> **
+  [...]
+  </EventData>
+  </Event>
+- <Event>
+----

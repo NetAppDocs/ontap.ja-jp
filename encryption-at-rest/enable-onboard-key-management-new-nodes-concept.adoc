@@ -1,0 +1,35 @@
+---
+permalink: encryption-at-rest/enable-onboard-key-management-new-nodes-concept.html 
+sidebar: sidebar 
+keywords: onboard key management, onboard new nodes 
+summary: オンボードキーマネージャを使用して、暗号化されたデータにアクセスする際にクラスタで使用するキーを安全に保管できます。オンボードキーマネージャは、暗号化されたボリュームや自己暗号化ディスクにアクセスする各クラスタで有効にする必要があります。 
+---
+= 新しく追加したノードでオンボードキー管理を有効にします
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+オンボードキーマネージャを使用して、暗号化されたデータにアクセスする際にクラスタで使用するキーを安全に保管できます。オンボードキーマネージャは、暗号化されたボリュームや自己暗号化ディスクにアクセスする各クラスタで有効にする必要があります。
+
+[NOTE]
+====
+クラスタにノードを追加するたびに 'securitykey-manager setup コマンドを実行する必要がありますオンボードキー管理が設定されているクラスタにノードを追加した場合は、このコマンドを実行して不足しているキーを更新します。
+
+====
+MetroCluster 構成を使用する場合は、次のガイドラインを確認してください。
+
+* ONTAP 9.6 以降では、まずローカルクラスタで「 securitykey-manager onboard enable 」を実行してから、リモートクラスタで「 securitykey-manager onboard sync 」を実行し、それぞれで同じパスフレーズを使用する必要があります。
+* ONTAP 9.5 では、ローカルクラスタで「 securitykey-manager setup 」を実行し、リモートクラスタで「 securitykey-manager setup -sync-metrocluster-config yes 」を実行する必要があります。その際に、それぞれで同じパスフレーズを使用します。
+* ONTAP 9.5 よりも前のバージョンでは、ローカルクラスタで「 securitykey-manager setup 」を実行し、約 20 秒待ってから、リモートクラスタで「 securitykey-manager setup 」を実行し、それぞれで同じパスフレーズを使用する必要があります。
+
+
+デフォルトでは、ノードのリブート時にキー管理ツールのパスフレーズを入力する必要はありません。ONTAP 9.4 以降では '-enable-cc-mode yes オプションを使用して ' 再起動後にユーザーにパスフレーズの入力を要求できます
+
+NVE の場合 '-enable-cc-mode yes を設定すると 'volume create コマンドと volume move start コマンドで作成したボリュームは自動的に暗号化されます'volume create' の場合 '-encrypt true' を指定する必要はありません'volume move start' には '-encrypt-destination true' を指定する必要はありません
+
+[NOTE]
+====
+パスフレーズの試行に失敗した場合は、ノードを再起動する必要があります。
+
+====

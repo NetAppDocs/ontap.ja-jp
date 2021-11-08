@@ -1,0 +1,34 @@
+---
+permalink: volumes/determine-space-used-flexclone-task.html 
+sidebar: sidebar 
+keywords: determine, space, used by a flexclone volume 
+summary: FlexClone ボリュームの使用スペースを公称サイズおよび親 FlexVol と共有しているスペースに基づいて判断できます。作成された FlexClone ボリュームは、そのすべてのデータを親ボリュームと共有します。したがって、 FlexVol の公称サイズは親と同じですが、アグリゲートの空きスペースはわずかしか使用しません。 
+---
+= FlexClone ボリュームが使用しているスペースを確認します
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+FlexClone ボリュームの使用スペースを公称サイズおよび親 FlexVol と共有しているスペースに基づいて判断できます。作成された FlexClone ボリュームは、そのすべてのデータを親ボリュームと共有します。したがって、 FlexVol の公称サイズは親と同じですが、アグリゲートの空きスペースはわずかしか使用しません。
+
+新たに作成された FlexClone ボリュームが使用する空きスペースは、その公称サイズの約 0.5% です。このスペースは FlexClone ボリュームのメタデータの保存に使用されます。
+
+親または FlexClone ボリュームのいずれかに書き込まれた新しいデータは、ボリューム間で共有されません。FlexClone ボリュームに書き込まれる新しいデータが増えるにつれて、 FlexClone ボリュームがその包含アグリゲートから使用するスペースも増えます。
+
+.ステップ
+. volume show コマンドを使用して、 FlexClone ボリュームが実際に使用している物理スペースを確認します。
++
+次の例は、 FlexClone ボリュームの使用済みの物理スペースの合計を示しています。
+
++
+[listing]
+----
+
+cluster1::> volume show -vserver vs01 -volume clone_vol1 -fields size,used,available,
+percent-used,physical-used,physical-used-percent
+vserver    volume     size  available  used   percent-used   physical-used     physical-used-percent
+-------   ----------  ----  ---------  -----  ------------    -------------   ---------------------
+vs01     clone_vol1   20MB   18.45MB   564KB       7%             196KB               1%
+----
+

@@ -1,0 +1,53 @@
+---
+permalink: disks-aggregates/determine-modify-caching-policy-flash-pool-task.html 
+sidebar: sidebar 
+keywords: determine, modify, cache, policy, flash pool, aggregates 
+summary: Flash Pool アグリゲートに含まれるボリュームにキャッシュ保持ポリシーを割り当てて、ボリュームデータを Flash Pool キャッシュに保存する期間を決定することができます。ただし、キャッシュ保持ポリシーを変更しても、ボリュームのデータがキャッシュに保存される時間に影響しない場合があります。 
+---
+= Flash Pool アグリゲートの概要のキャッシングポリシーを変更するかどうかを確認します
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+Flash Pool アグリゲートに含まれるボリュームにキャッシュ保持ポリシーを割り当てて、ボリュームデータを Flash Pool キャッシュに保存する期間を決定することができます。ただし、キャッシュ保持ポリシーを変更しても、ボリュームのデータがキャッシュに保存される時間に影響を及ぼさない場合があります。
+
+データが次のいずれかの条件に当てはまる場合は、キャッシュ保持ポリシーを変更しても影響がない可能性があります。
+
+* ワークロードがシーケンシャルである。
+* ソリッドステートドライブ（ SSD ）にキャッシュされたランダムなブロックがワークロードによって再度読み取られない。
+* ボリュームのキャッシュサイズが小さすぎます。
+
+
+これらの条件を確認するには、次の手順を実行します。このタスクは advanced 権限モードで実行する必要があります。
+
+.手順
+. ワークロードのボリュームを表示します。
++
+'statistics start -object workload _volume
+
+. ボリュームのワークロードのパターンを確認します。
++
+統計の場合は、 -object workload _volume -instance -workload --counter sequential_reads を使用します
+
+. ボリュームのヒット率を確認します。
++
+統計情報： object wafl_hya_vvol-instance_volume_-counter read_ops _replaced_pwerc|wc_write_blks_Overwritted_percent
+
+. ボリュームの「キャッシュ可能な読み取り」と「プロジェクトキャッシュ割り当て」を決定します。
++
+「 system node run -node node_name WAFL awa start_aggr_name_` 」
+
+. AWA の概要を表示します。
++
+「 system node run -node node_name WAFL awa print_aggr_name_` 」
+
+. ボリュームのヒット率をキャッシュ可能な Read と比較します
++
+ボリュームのヒット率が「キャッシュ可能な読み取り」よりも高い場合、ワークロードは SSD にキャッシュされたランダムなブロックを再読み込みしません。
+
+. ボリュームの現在のキャッシュ・サイズを Project Cache Alloc と比較します
++
+ボリュームの現在のキャッシュ・サイズが Project Cache Alloc より大きい場合 ' ボリューム・キャッシュのサイズが小さすぎます
+
+

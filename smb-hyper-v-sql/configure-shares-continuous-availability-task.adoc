@@ -1,0 +1,128 @@
+---
+permalink: smb-hyper-v-sql/configure-shares-continuous-availability-task.html 
+sidebar: sidebar 
+keywords: configure, shares, continuous, availability, hyper, v, sql, server, virutal, machine, database, file 
+summary: 既存の共有を変更して、継続的な可用性が確保された共有にすることができます。この共有は、 Hyper-V および SQL Server アプリケーションサーバが Hyper-V 仮想マシンおよび構成ファイルや SQL Server データベースファイルに無停止でアクセスするために使用します。 
+---
+= 既存の共有を継続的な可用性を確保するように設定し
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+既存の共有を変更して、継続的な可用性が確保された共有にすることができます。この共有は、 Hyper-V および SQL Server アプリケーションサーバが Hyper-V 仮想マシンおよび構成ファイルや SQL Server データベースファイルに無停止でアクセスするために使用します。
+
+既存の共有に次のような特徴がある場合、 SMB を介したアプリケーションサーバでその共有をノンストップオペレーション用の継続的可用性を備えた共有として使用することはできません。
+
+* その共有に homedirectory 共有プロパティが設定されている場合
+* 共有に有効なシンボリックリンクまたはワイドリンクが含まれている場合
+* 共有のルート配下にジャンクションボリュームが含まれている場合
+
+
+次の 2 つの共有パラメータが正しく設定されていることを確認する必要があります。
+
+* offline-files' パラメータは '`manual ( デフォルト ) または 'none` に設定されます
+* シンボリックリンクは無効にする必要があります。
+
+
+次の共有プロパティを設定する必要があります。
+
+* 「継続的可用性」を参照してください
+* oplock
+
+
+次の共有プロパティは設定しないでください。現在の共有プロパティのリストに含まれている場合は、継続的可用性を備えた共有から削除する必要があります。
+
+* 「 attributecache 」
+* 「 BranchCache 」
+* 「 access-based-enumeration 」のように指定します
+
+
+.手順
+. 現在の共有パラメータの設定と、設定済みの共有プロパティの現在のリストを表示します。
++
+「 * vserver cifs share show -vserver vserver_name __ -share-name share_name _*` 」のように指定します
+
+. 必要に応じて、「 vserver cifs share properties modify 」コマンドを使用して、共有パラメータを変更し、シンボリックリンクを無効にし、オフラインファイルを manual に設定します。
++
+シンボリックリンクを無効にするには '-symlink パラメータの値を "" に設定します
+
++
+** シンボリックリンクを無効にするには '-symlink パラメータの値を "" に設定します
+** 「 -offline-files 」パラメータを正しい設定に設定するには、「 manual 」を指定します。
+
+
+. 「 continuously-available 」共有プロパティを追加し、必要に応じて「 oplocks 」共有プロパティを追加します。
++
+`* vserver cifs share properties add -vserver _vserver_name __ -share-name share_name -share-properties continuously-available[ 、 oplock]*`
+
++
+oplocks 共有プロパティがまだ設定されていない場合は 'continuously-available 共有プロパティと一緒に追加する必要があります
+
+. 継続的な可用性が確保された共有でサポートされていない共有プロパティを削除します。
++
+`* vserver cifs share properties remove -vserver _vserver_name __ -share-name share_name -share-properties properties [,...] *
+
++
+共有プロパティをカンマで区切って指定して、 1 つ以上の共有プロパティを削除することができます。
+
+. 「 -symlink 」パラメータと「 -offline-files 」パラメータが正しく設定されていることを確認します。
++
+`* vserver cifs share show -vserver vserver_name __ -share-name share_name __ -fields symlink-properties 、 offline-files*`
+
+. 設定済みの共有プロパティのリストが正しいことを確認します。
++
+「 * vserver cifs shares properties show -vserver vserver_name __ -share-name share_name * 。
+
+
+
+次の例は、 Storage Virtual Machine （ SVM ） vs1 上の「 share1 」という名前の既存の共有を SMB を介したアプリケーションサーバでの NDO 用に設定する方法を示しています。
+
+* symlinks パラメータを "" に設定すると、共有上でシンボリックリンクが無効になります。
+* offline-file' パラメータが変更され '`manual に設定されます
+* 共有には 'continuously-available 共有プロパティが追加されます
+* 共有プロパティのリストには 'oplocks' 共有プロパティがすでに含まれているため ' 追加する必要はありません
+* 「 attributecache 」共有プロパティを共有から削除します。
+* 「 browsable 」共有プロパティは、 SMB を介したアプリケーションサーバでの NDO に使用される継続的な可用性が確保された共有では省略可能であり、共有プロパティの 1 つとして保持されます。
+
+
+[listing]
+----
+cluster1::> vserver cifs share show -vserver vs1 -share-name share1
+
+                      Vserver: vs1
+                        Share: share1
+     CIFS Server NetBIOS Name: vs1
+                         Path: /data
+             Share Properties: oplocks
+                               browsable
+                               attributecache
+           Symlink Properties: enable
+      File Mode Creation Mask: -
+ Directory Mode Creation Mask: -
+                Share Comment: -
+                    Share ACL: Everyone / Full Control
+File Attribute Cache Lifetime: 10s
+                  Volume Name: data
+                Offline Files: documents
+Vscan File-Operations Profile: standard
+
+cluster1::> vserver cifs share modify -vserver vs1 -share-name share1 -offline-file manual -symlink ""
+
+cluster1::> vserver cifs share properties add -vserver vs1 -share-name share1 -share-properties continuously-available
+
+cluster1::> vserver cifs share properties remove -vserver vs1 -share-name share1 -share-properties attributecache
+
+cluster1::> vserver cifs share show -vserver vs1 -share-name share1 -fields symlink-properties,offline-files
+vserver  share-name symlink-properties offline-files
+-------- ---------- ------------------ -------------
+vs1      share1    -                  manual
+
+cluster1::> vserver cifs share properties show -vserver vs1 -share-name share1
+
+         Vserver: vs1
+           Share: share1
+Share Properties: oplocks
+                  browsable
+                  continuously-available
+----

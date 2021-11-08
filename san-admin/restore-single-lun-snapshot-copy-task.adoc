@@ -1,0 +1,67 @@
+---
+permalink: san-admin/restore-single-lun-snapshot-copy-task.html 
+sidebar: sidebar 
+keywords: restore, single lun, snapshot copy 
+summary: ボリューム全体をリストアすることなく、ボリューム内の単一 LUN のみを Snapshot コピーからリストアできます。LUN は、元の場所またはボリューム内の新しいパスにリストアできます。この処理では、ボリューム内の他のファイルまたは LUN に影響を与えることなく、単一の LUN だけがリストアされます。ファイルは、ストリームを使用してリストアすることもできます。 
+---
+= Snapshot コピーから単一の LUN をリストアします
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+ボリューム全体をリストアすることなく、ボリューム内の単一 LUN のみを Snapshot コピーからリストアできます。LUN は、元の場所またはボリューム内の新しいパスにリストアできます。この処理では、ボリューム内の他のファイルまたは LUN に影響を与えることなく、単一の LUN だけがリストアされます。ファイルは、ストリームを使用してリストアすることもできます。
+
+.必要なもの
+* リストア処理を完了するには、ボリュームに十分なスペースが必要です。
++
+** フラクショナルリザーブが 0% のスペースリザーブ LUN をリストアする場合、リストアする LUN と同じサイズのスペースが必要です。
+** フラクショナルリザーブが 100% のスペースリザーブ LUN をリストアする場合、リストアする LUN の 2 倍のサイズのスペースが必要です。
+** スペースリザーブなしの LUN をリストアする場合、リストアする LUN が実際に使用しているスペースのみが必要です。
+
+
+* デスティネーション LUN の Snapshot コピーを作成しておく必要があります。
++
+リストア処理が失敗すると、デスティネーション LUN が切り捨てられる可能性があります。このような場合は、 Snapshot コピーを使用してデータ損失を防ぐことができます。
+
+* ソース LUN の Snapshot コピーを作成しておく必要があります。
++
+まれに、 LUN のリストアに失敗したときに、ソース LUN が使用不能になることがあります。この場合、 Snapshot コピーを使用して、リストアを試みる直前の状態に LUN を復帰させることができます。
+
+* デスティネーション LUN とソース LUN の OS タイプが同じである必要があります。
++
+デスティネーション LUN の OS タイプがソース LUN の OS タイプと異なる場合は、リストア処理後、ホストからデスティネーション LUN へのデータアクセスが失われる可能性があります。
+
+
+
+.手順
+. ホストから、 LUN へのホストアクセスをすべて停止します。
+. ホスト上の LUN をアンマウントして、ホストが LUN にアクセスできないようにします。
+. LUN のマッピングを解除します。
++
+「 lun mapping delete -vserver _vserver_name _ -volume_name_-lun_lun_name -igroup_igroup_name _ 」
+
+. LUN のリストア先にする Snapshot コピーを決定します。
++
+'volume snapshot show -vserver_name_-volume_name_`
+
+. LUN をリストアする前に、 LUN の Snapshot コピーを作成します。
++
+'volume snapshot create -vserver_name_-volume_name_-snapshot_snapshot_name_`
+
+. ボリューム内の指定した LUN をリストアします。
++
+'volume snapshot restore-file -vserver_name_-volume_name_-snapshot_snapshot_name __ path_lun_path です
+
+. 画面の手順に従います。
+. 必要に応じて、 LUN をオンラインにします。
++
+lun modify -vserver_name_-path_lun_path --state online
+
+. 必要に応じて、 LUN を再マッピングします。
++
+lun mapping create -vserver_name_-volume_name_-lun_lun_name -igroup_igroup_name _ -igroup_igroup_name _
+
+. ホストから、 LUN を再マウントします。
+. ホストから、 LUN へのアクセスを再開します。
+

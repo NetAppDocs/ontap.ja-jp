@@ -1,0 +1,59 @@
+---
+permalink: nfs-admin/create-volumes-specified-junction-task.html 
+sidebar: sidebar 
+keywords: create, data, volume, specify, junction, point 
+summary: ジャンクションポイントはデータボリュームの作成時に指定できます。作成したボリュームは、ジャンクションポイントに自動的にマウントされ、 NAS アクセス用の設定にすぐに使用できます。 
+---
+= ジャンクションポイントを指定してデータボリュームを作成します
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+ジャンクションポイントはデータボリュームの作成時に指定できます。作成したボリュームは、ジャンクションポイントに自動的にマウントされ、 NAS アクセス用の設定にすぐに使用できます。
+
+ボリュームを作成するアグリゲートがすでに存在している必要があります。
+
+[NOTE]
+====
+ジャンクションパスに次の文字を使用することはできません。 * # <> < | ？\
+
+また、ジャンクションパスの長さは 255 文字以下にする必要があります。
+
+====
+.手順
+. ジャンクションポイントを指定してボリュームを作成します。
++
+`volume create -vserver_name_-volume_name_-aggregate-aggregate_name _size ｛ integer [KB|MB|GB|TB|PB] ｝ -security-style ｛ ntfs|unix|mixed ｝ -junction-path junction_path_`
+
++
+ジャンクションパスはルート（ / ）で始まる必要があり、ディレクトリおよび結合されたボリュームを含むことができます。ジャンクションパスにボリュームの名前を含める必要はありません。ジャンクションパスはボリューム名に依存しません。
+
++
+ボリュームのセキュリティ形式の指定は任意です。セキュリティ形式を指定しない場合、 ONTAP は、 Storage Virtual Machine （ SVM ）のルートボリュームに適用されている形式と同じセキュリティ形式を使用してボリュームを作成します。ただし、ルートボリュームのセキュリティ形式が、作成するデータボリュームには適切でないセキュリティ形式である場合もあります。トラブルシューティングが困難なファイルアクセスの問題を最小限に抑えるため、ボリュームの作成時にセキュリティ形式を指定することを推奨します。
+
++
+ジャンクションパスは大文字と小文字が区別されません。「 /ENG 」は「 /eng 」と同じです。CIFS 共有を作成する場合、 Windows では、ジャンクションパスがあたかも大文字と小文字の区別があるかのように扱われます。たとえば、ジャンクションが「 /ENG 」の場合、 CIFS 共有のパスは「 /eng 」ではなく「 /ENG 」で始まっている必要があります。
+
++
+データボリュームのカスタマイズに使用できるオプションのパラメータが多数用意されています。これらの詳細については 'volume create コマンドのマニュアル・ページを参照してください
+
+. 目的のジャンクションポイントでボリュームが作成されたことを確認します。
++
+volume show -vserver_name_-volume_name_-junction-path です
+
+
+
+次の例は、ジャンクションパスが「 /eng/home 」である「 home4` 」という名前のボリュームを SVM vs1 上に作成します。
+
+[listing]
+----
+cluster1::> volume create -vserver vs1 -volume home4 -aggregate aggr1 -size 1g -junction-path /eng/home
+[Job 1642] Job succeeded: Successful
+
+cluster1::> volume show -vserver vs1 -volume home4 -junction
+                  Junction                 Junction
+Vserver   Volume  Active   Junction Path   Path Source
+--------- ------- -------- --------------- -----------
+vs1       home4   true     /eng/home       RW_volume
+----

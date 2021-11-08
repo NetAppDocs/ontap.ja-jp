@@ -1,0 +1,82 @@
+---
+permalink: smb-admin/modify-servers-task.html 
+sidebar: sidebar 
+keywords: move, smb, server, workgroup, active, directory, domain, vserver, cifs, modify, command, modify smb servers 
+summary: ワークグループから Active Directory ドメインへ、ワークグループから別のワークグループへ、または Active Directory ドメインからワークグループへ SMB サーバを移動するには、 vserver cifs modify コマンドを使用します。 
+---
+= SMB サーバを変更
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+「 vserver cifs modify 」コマンドを使用すると、ワークグループから Active Directory ドメインへ、ワークグループから別のワークグループへ、または Active Directory ドメインからワークグループへ SMB サーバを移動できます。
+
+SMB サーバ名や管理ステータスなど、 SMB サーバのその他の属性を変更することもできます。詳細については、のマニュアルページを参照してください。
+
+.選択肢
+* ワークグループから Active Directory ドメインに SMB サーバを移動するには、次の手順を実行します。
++
+.. SMB サーバの管理ステータスを「所有」に設定します。
++
+[listing]
+----
+Cluster1::>vserver cifs modify -vserver vs1 -status-admin down
+----
+.. ワークグループから Active Directory ドメインに SMB サーバを移動します。「 vsserver cifs modify -vserver vserver_name -domain_domain_name _ 」
++
+[listing]
+----
+Cluster1::>vserver cifs modify -vserver vs1 -domain example.com
+----
++
+SMB サーバ用の Active Directory マシンアカウントを作成するには '_EXAMPLE_.com ドメイン内の ou=_example_ou' コンテナにコンピュータを追加するための十分な権限を持つ Windows アカウントの名前とパスワードを入力する必要があります
+
++
+ONTAP 9.7 以降では、権限がある Windows アカウントの名前とパスワードの代わりに、 keytab ファイルの URI を AD 管理者から提供される場合があります。URI を受け取った場合は、その URI を「 -keytab-uri 」パラメータで「 vserver cifs 」コマンドに含めます。
+
+
+
+* ワークグループから別のワークグループに SMB サーバを移動します。
++
+.. SMB サーバの管理ステータスを「所有」に設定します。
++
+[listing]
+----
+Cluster1::>vserver cifs modify -vserver vs1 -status-admin down
+----
+.. SMB サーバのワークグループを変更します： vserver cifs modify -vserver vserver_name -workgroup _new_workgroup_name _`
++
+[listing]
+----
+Cluster1::>vserver cifs modify -vserver vs1 -workgroup workgroup2
+----
+
+
+* Active Directory ドメインからワークグループに SMB サーバを移動するには、次の手順を実行します。
++
+.. SMB サーバの管理ステータスを「所有」に設定します。
++
+[listing]
+----
+Cluster1::>vserver cifs modify -vserver vs1 -status-admin down
+----
+.. SMB サーバを Active Directory ドメインからワークグループに移動します： vserver cifs modify -vserver vserver_name -workgroup _workgroup _name_`
++
+[listing]
+----
+cluster1::> vserver cifs modify -vserver vs1 -workgroup workgroup1
+----
++
+[NOTE]
+====
+ワークグループモードに切り替えるには、継続的可用性を備えた共有、シャドウコピー、 AES など、ドメインベースの機能をすべて無効にし、該当する設定がシステムによって自動的に削除されるようにする必要があります。ただし、「 EXAMPLE.COM\userName" 」などのドメインで設定された共有 ACL は正しく機能しませんが、 ONTAP で削除することはできません。このような共有 ACL は、コマンドの完了後できるだけ早く外部ツールを使用して削除してください。AES が有効になっている場合は、「 example.com 」ドメインで AES を無効にするための十分な権限を持つ Windows アカウントの名前とパスワードの入力を求められることがあります。
+
+====
++
+*** その他の属性を変更するには 'vserver cifs modify コマンドの適切なパラメータを使用します
+
+
+
+
+

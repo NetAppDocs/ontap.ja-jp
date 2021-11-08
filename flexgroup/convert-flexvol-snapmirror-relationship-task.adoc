@@ -1,0 +1,101 @@
+---
+permalink: flexgroup/convert-flexvol-snapmirror-relationship-task.html 
+sidebar: sidebar 
+keywords: convert, flexvol, volume, snapmirror, relation, flexgroup 
+summary: FlexVol Volume SnapMirror 関係を ONTAP で FlexGroup Volume SnapMirror 関係に変換するには、まずデスティネーション FlexVol ボリュームを変換し、そのあとにソース FlexVol ボリュームを変換する必要があります。 
+---
+= FlexVol Volume SnapMirror 関係を FlexGroup Volume SnapMirror 関係に変換します
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+FlexVol Volume SnapMirror 関係を ONTAP で FlexGroup Volume SnapMirror 関係に変換するには、まずデスティネーション FlexVol ボリュームを変換し、そのあとにソース FlexVol ボリュームを変換する必要があります。
+
+.必要なもの
+* 変換する FlexVol がオンラインになっている必要があります。
+* SnapMirror 関係のソース FlexVol を複数の SnapMirror 関係のソースボリュームにすることはできません。
++
+ファンアウト SnapMirror 関係は、 FlexGroup ではサポートされません。
+
+* FlexVol ボリュームの処理と設定が変換プロセスに対応している必要があります。
++
+FlexVol ボリュームに互換性の問題があり、ボリュームの変換が中止された場合、エラーメッセージが生成されます。対処方法を実行し、変換を再試行できます。
+
+
+
+FlexGroup 変換は、非同期 SnapMirror 関係でのみサポートされます。
+
+.手順
+. SnapMirror 関係が正常であることを確認します。「 snapmirror show 」
++
+変換できるのは XDP タイプのミラー関係のみです。
+
++
+[listing]
+----
+cluster2::> snapmirror show
+                                                                       Progress
+Source            Destination Mirror  Relationship   Total             Last
+Path        Type  Path        State   Status         Progress  Healthy Updated
+----------- ---- ------------ ------- -------------- --------- ------- --------
+vs0:src_dpv DP   vs2:dst_dpv  Snapmirrored
+                                      Idle           -         true    -
+vs0:src_xdp XDP  vs2:dst_xdp  Snapmirrored
+                                      Idle           -         true    -
+----
+. ソースボリュームが変換に対応しているかどうかを確認します。
++
+.. advanced 権限モードにログインします。「 set -privilege advanced
+.. 変換プロセスを確認します。 volume conversion start -vserver vs1 -volume src_vol-check-only true
++
+ボリュームを変換する前に、すべてのエラーを修正する必要があります。
+
+
+
+. デスティネーション FlexVol ボリュームを FlexGroup ボリュームに変換します。
++
+.. FlexVol SnapMirror 関係を休止します。「 snapmirror quiesce -destination-path dest_SVM ： dest_volume
++
+[listing]
+----
+cluster2::> snapmirror quiesce -destination-path vs2:dst_xdp
+----
+.. 変換を開始します。 volume conversion start -vserver dest_svm -volume dest_volume
++
+[listing]
+----
+cluster-1::> volume conversion start -vserver vs2 -volume dst_xdp
+
+Warning: After the volume is converted to a FlexGroup, it will not be possible
+to change it back to a flexible volume.
+Do you want to continue? {y|n}: y
+
+[Job 510] Job succeeded: SnapMirror destination volume "dst_xdp" has been successfully converted to a FlexGroup volume.
+You must now convert the relationship's source volume, "vs0:src_xdp", to a FlexGroup.
+Then, re-establish the SnapMirror relationship using the "snapmirror resync" command.
+----
+
+
+. ソース FlexVol ボリュームを FlexGroup ボリュームに変換します。 volume conversion start -vserver src_svm_name -volume src_vol_name `
++
+[listing]
+----
+cluster-1::> volume conversion start -vserver vs0 -volume src_xdp
+
+Warning: Converting flexible volume "src_xdp" in Vserver "vs0" to a FlexGroup
+         will cause the state of all Snapshot copies from the volume to be set
+         to "pre-conversion". Pre-conversion Snapshot copies cannot be
+         restored.
+Do you want to continue? {y|n}: y
+[Job 57] Job succeeded: success
+----
+. 関係を再同期します。「 snapmirror resync -destination-path dest_svm_name ： dest_volume
++
+[listing]
+----
+cluster2::> snapmirror resync -destination-path vs2:dst_xdp
+----
+
+
+ソース FlexGroup ボリュームを拡張してコンスティチュエントを追加した場合は、デスティネーションボリュームも拡張する必要があります。

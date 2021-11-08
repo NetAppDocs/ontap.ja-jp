@@ -1,0 +1,119 @@
+---
+permalink: nfs-config/verify-permissions-kerberos-config-task.html 
+sidebar: sidebar 
+keywords: verify, permissions, kerberos, configuration 
+summary: Kerberos では、特定の UNIX 権限が SVM ルートボリューム用およびローカルのユーザおよびグループ用に設定されている必要があります。 
+---
+= Kerberos 設定の権限を確認します
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+Kerberos では、特定の UNIX 権限が SVM ルートボリューム用およびローカルのユーザおよびグループ用に設定されている必要があります。
+
+.手順
+. SVM ルートボリュームについて、関連する権限を表示します。
++
+volume show -volume _root_vol_name -- fields user, group, unix-permissions ( ボリューム show -volume_root_vol_name -- フィールドユーザー , グループ , UNIX アクセス権
+
++
+SVM のルートボリュームを次のように設定しておく必要があります。
+
++
+|===
+| 名前 | 設定 
+
+
+ a| 
+UID
+ a| 
+root または ID 0
+
+
+
+ a| 
+GID
+ a| 
+root または ID 0
+
+
+
+ a| 
+UNIX 権限
+ a| 
+755
+
+|===
++
+これらの値が表示されていない場合は 'volume modify コマンドを使用して更新します
+
+. ローカル UNIX ユーザを表示します。
++
+vserver services name-service unix-user show -vserver vserver_name _ `
+
++
+SVM で次の UNIX ユーザを設定しておく必要があります。
+
++
+|===
+| ユーザ名 | ユーザ ID | プライマリグループ ID | コメント（ Comment ） 
+
+
+ a| 
+NFS
+ a| 
+500
+ a| 
+0
+ a| 
+GSS INIT フェーズで必要。
+
+NFS クライアントユーザの SPN の最初のコンポーネントがユーザとして使用されます。
+
+NFS クライアントユーザの SPN に対する Kerberos-UNIX ネームマッピングがある場合は、 nfs ユーザは必要ありません。
+
+
+
+ a| 
+ルート
+ a| 
+0
+ a| 
+0
+ a| 
+マウントに必要。
+
+|===
++
+これらの値が表示されていない場合は、「 vserver services name-service unix-user modify 」コマンドを使用して、値を更新できます。
+
+. ローカル UNIX グループを表示します。
++
+vserver services name-service unix-group show -vserver vserver_name
+
++
+SVM で次の UNIX グループを設定しておく必要があります。
+
++
+|===
+| グループ名 | グループ ID 
+
+
+ a| 
+デーモン
+ a| 
+1.
+
+
+
+ a| 
+ルート
+ a| 
+0
+
+|===
++
+これらの値が表示されていない場合は、「 vserver services name-service unix-group modify 」コマンドを使用して、値を更新できます。
+
+

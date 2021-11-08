@@ -1,0 +1,79 @@
+---
+permalink: nas-audit/create-auditing-config-task.html 
+sidebar: sidebar 
+keywords: create, audit, configuration 
+summary: ファイルおよびディレクトリイベントの監査を開始する前に、監査の設定を Storage Virtual Machine （ SVM ）で作成する必要があります。 
+---
+= 監査の設定を作成します
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+Storage Virtual Machine （ SVM ）上でファイルとディレクトリの監査の設定を作成する作業には、使用可能な設定オプションの理解、設定の計画、設定の実行および有効化が含まれます。その後、監査の設定に関する情報を表示して、設定した内容が適切であることを確認できます。
+
+ファイルおよびディレクトリイベントの監査を開始する前に、監査の設定を Storage Virtual Machine （ SVM ）で作成する必要があります。
+
+集約型アクセスポリシーステージングの監査の設定を作成する予定がある場合は、 SVM に CIFS サーバが存在している必要があります。
+
+[NOTE]
+====
+* CIFS サーバでダイナミックアクセス制御を有効にせずに、監査設定で集約型アクセスポリシーのステージングを有効にすることはできますが、集約型アクセスポリシーのステージングイベントが生成されるのは、ダイナミックアクセス制御が有効になっている場合だけです。
++
+ダイナミックアクセス制御は、 CIFS サーバオプションを使用して有効にします。デフォルトでは有効になっていません。
+
+* コマンド内のフィールドの引数が無効な場合、たとえばフィールドの無効なエントリ、重複するエントリ、存在しないエントリなどが考えられます。その場合、監査フェーズの前にコマンドが失敗します。
++
+この場合、監査レコードは生成されません。
+
+
+
+====
+SVM が SVM ディザスタリカバリソースである場合、デスティネーションパスをルートボリューム上にすることはできません。
+
+.ステップ
+. 計画ワークシートの情報を使用して、ログサイズまたはスケジュールに基づいて監査ログのローテーションを行うための監査の設定を作成します。
++
+[cols="2*"]
+|===
+| 監査ログのローテーションの基準 | 入力するコマンド 
+
+
+ a| 
+ログサイズ
+ a| 
+vserver audit create -vserver vserver_name -destination path -events [ ｛ file-ops | cifs-logon-logoff | cap-staging | file-change | user-account | security-group | authorization-policy -policy-change ｝ ] [-format ｛ xml | evtx] [-rotate-limit integer ] [-rotate-size ｛ gb | binteger
+
+
+
+ a| 
+スケジュール
+ a| 
+vserver audit create -vserver vserver_name -destination path -events [ ｛ file-ops | cifs-logon-logoff | cap-staging ｝ ] [-format ｛ xml | evtx ｝ ] [-rotate-limit integer ] [--rotate-schedule-month chron_month] [--rotate-schedule-dayofweek chron_month] [-rotate-hour] chron-hour [ -dayofweek chron -hour chron -hour
+
+[NOTE]
+====
+時間ベースの監査ログローテーションを設定する場合は '-rotate-schedule-minute パラメータが必要です
+
+====
+|===
+
+
+次の例は、サイズに基づくローテーションを使用してファイル操作と CIFS ログオンおよびログオフイベント（デフォルト）を監査する監査の設定を作成します。ログ形式は「 EVTX 」（デフォルト）です。ログは '/audit_log' ディレクトリに保存されますログ・ファイルのサイズの上限は 200 MB ですログのサイズが 200MB になると、ログのローテーションが実行されます。
+
+[listing]
+----
+cluster1::> vserver audit create -vserver vs1 -destination /audit_log -rotate-size 200MB
+----
+次の例は、サイズに基づくローテーションを使用してファイル操作と CIFS ログオンおよびログオフイベント（デフォルト）を監査する監査の設定を作成します。ログ形式は「 EVTX 」（デフォルト）です。ログ・ファイルのサイズの上限は '100 MB' （デフォルト）で ' ログのローテーションの上限は 5 です
+
+[listing]
+----
+cluster1::> vserver audit create -vserver vs1 -destination /audit_log -rotate-limit 5
+----
+次の例は、時間に基づくローテーションを使用してファイル操作、 CIFS ログオンおよびログオフイベント、集約型アクセスポリシーのステージングイベントを監査する監査の設定を作成します。ログ形式は「 EVTX 」（デフォルト）です。監査ログのローテーションが毎月、午後 12 時 30 分に実行されますそして毎日、午後 12 ： 30 に実行されます。ログのローテーション回数の上限は「 5 」です。
+
+[listing]
+----
+cluster1::> vserver audit create -vserver vs1 -destination /audit_log -events file-ops,cifs-logon-logoff,file-share,audit-policy-change,user-account,security-group,authorization-policy-change,cap-staging -rotate-schedule-month all -rotate-schedule-dayofweek all -rotate-schedule-hour 12 -rotate-schedule-minute 30 -rotate-limit 5
+----

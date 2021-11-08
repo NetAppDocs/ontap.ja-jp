@@ -1,0 +1,155 @@
+---
+permalink: peering/create-cluster-relationship-93-later-task.html 
+sidebar: sidebar 
+keywords: create, cluster, peer, relationship 
+summary: cluster peer create コマンドを使用すると、ローカルクラスタとリモートクラスタ間のピア関係を作成できます。ピア関係が作成されたら、リモートクラスタで cluster peer create を実行して、ローカルクラスタに対してピア関係を認証できます。 
+---
+= クラスタピア関係を作成する（ ONTAP 9.3 以降）
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+cluster peer create コマンドを使用すると、ローカルクラスタとリモートクラスタ間にピア関係を作成できます。ピア関係が作成されたら ' リモート・クラスタ上で cluster peer create を実行して ' ローカル・クラスタに対してピア関係を認証できます
+
+.必要なもの
+* ピア関係にあるクラスタ内の各ノードでクラスタ間 LIF を作成しておく必要があります。
+* クラスタで ONTAP 9.3 が実行されている必要があります。
+
+
+.手順
+. デスティネーションクラスタで、ソースクラスタとのピア関係を作成します。
++
+「 cluster peer create -generate-passphrase -offer-expiration_mm/dd/YYYY HH ： MM ： SS_|1...7days | 1...168 時間 -peer-addrs_peer-addrs_initial-allowed-vserver -peers_svm_name_,.| * -ipspace_ipspace_name
+
++
+「 -generate-passphrase 」と「 -peer-addrs 」の両方を指定した場合、生成されたパスワードを使用できるのは、「 -peer-addrs 」にクラスタ間 LIF が指定されているクラスタだけです。
+
++
+カスタム IPspace を使用しない場合は、 -ipspace オプションを無視してかまいません。コマンド構文全体については、マニュアルページを参照してください。
+
++
+ONTAP 9.6 以降でピア関係を作成する場合に、クラスタ間ピアリング通信を暗号化しないようにするには、「 -encryption-protocol-proposed none 」オプションを使用して暗号化を無効にします。
+
++
+次の例は、リモートクラスタを指定せずにクラスタピア関係を作成し、ローカルクラスタの SVM 「 vs1 」および「 vs2 」とのピア関係を事前承認します。
+
++
+[listing]
+----
+cluster02::> cluster peer create -generate-passphrase -offer-expiration 2days -initial-allowed-vserver-peers vs1,vs2
+
+                     Passphrase: UCa+6lRVICXeL/gq1WrK7ShR
+                Expiration Time: 6/7/2017 08:16:10 EST
+  Initial Allowed Vserver Peers: vs1,vs2
+            Intercluster LIF IP: 192.140.112.101
+              Peer Cluster Name: Clus_7ShR (temporary generated)
+
+Warning: make a note of the passphrase - it cannot be displayed again.
+----
++
+次の例は、クラスタ間 LIF の IP アドレス 192.140.112.103 および 192.140.112.104 でリモートクラスタとのクラスタピア関係を作成し、ローカルクラスタのすべての SVM とのピア関係を事前承認します。
+
++
+[listing]
+----
+cluster02::> cluster peer create -generate-passphrase -peer-addrs 192.140.112.103,192.140.112.104 -offer-expiration 2days -initial-allowed-vserver-peers *
+
+                     Passphrase: UCa+6lRVICXeL/gq1WrK7ShR
+                Expiration Time: 6/7/2017 08:16:10 EST
+  Initial Allowed Vserver Peers: vs1,vs2
+            Intercluster LIF IP: 192.140.112.101,192.140.112.102
+              Peer Cluster Name: Clus_7ShR (temporary generated)
+
+Warning: make a note of the passphrase - it cannot be displayed again.
+----
++
+次の例は、リモートクラスタを指定せずにクラスタピア関係を作成し、ローカルクラスタの SVM 「 vs1 」および「 vs2 」とのピア関係を事前承認します。
+
++
+[listing]
+----
+cluster02::> cluster peer create -generate-passphrase -offer-expiration 2days -initial-allowed-vserver-peers vs1,vs2
+
+                     Passphrase: UCa+6lRVICXeL/gq1WrK7ShR
+                Expiration Time: 6/7/2017 08:16:10 EST
+  Initial Allowed Vserver Peers: vs1,vs2
+            Intercluster LIF IP: 192.140.112.101
+              Peer Cluster Name: Clus_7ShR (temporary generated)
+
+Warning: make a note of the passphrase - it cannot be displayed again.
+----
+. ソースクラスタで、ソースクラスタをデスティネーションクラスタに対して認証します。
++
+'cluster peer create -peer-addrs_peer_lif_ips_-ipspace ips'
+
++
+コマンド構文全体については、マニュアルページを参照してください。
+
++
+次の例は、クラスタ間 LIF の IP アドレス 192.140.112.101 および 192.140.112.102 でローカルクラスタをリモートクラスタに対して認証します。
+
++
+[listing]
+----
+cluster01::> cluster peer create -peer-addrs 192.140.112.101,192.140.112.102
+
+Notice: Use a generated passphrase or choose a passphrase of 8 or more characters.
+        To ensure the authenticity of the peering relationship, use a phrase or sequence of characters that would be hard to guess.
+
+Enter the passphrase:
+Confirm the passphrase:
+
+Clusters cluster02 and cluster01 are peered.
+----
++
+プロンプトが表示されたら、ピア関係のパスフレーズを入力します。
+
+. クラスタピア関係が作成されたことを確認します。
++
+「 cluster peer show -instance 」のように表示されます
+
++
+[listing]
+----
+cluster01::> cluster peer show -instance
+
+                               Peer Cluster Name: cluster02
+                   Remote Intercluster Addresses: 192.140.112.101, 192.140.112.102
+              Availability of the Remote Cluster: Available
+                             Remote Cluster Name: cluster2
+                             Active IP Addresses: 192.140.112.101, 192.140.112.102
+                           Cluster Serial Number: 1-80-123456
+                  Address Family of Relationship: ipv4
+            Authentication Status Administrative: no-authentication
+               Authentication Status Operational: absent
+                                Last Update Time: 02/05 21:05:41
+                    IPspace for the Relationship: Default
+----
+. ピア関係にあるノードの接続状態とステータスを確認します。
++
+cluster peer health show
+
++
+[listing]
+----
+cluster01::> cluster peer health show
+Node       cluster-Name                Node-Name
+             Ping-Status               RDB-Health Cluster-Health  Avail…
+---------- --------------------------- ---------  --------------- --------
+cluster01-01
+           cluster02                   cluster02-01
+             Data: interface_reachable
+             ICMP: interface_reachable true       true            true
+                                       cluster02-02
+             Data: interface_reachable
+             ICMP: interface_reachable true       true            true
+cluster01-02
+           cluster02                   cluster02-01
+             Data: interface_reachable
+             ICMP: interface_reachable true       true            true
+                                       cluster02-02
+             Data: interface_reachable
+             ICMP: interface_reachable true       true            true
+----
+

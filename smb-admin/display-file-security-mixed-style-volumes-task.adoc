@@ -1,0 +1,147 @@
+---
+permalink: smb-admin/display-file-security-mixed-style-volumes-task.html 
+sidebar: sidebar 
+keywords: display, information, file, directory, security, mix, security-style, volume, style, unix, owner, group, result, troubleshoot, display information about file security, on mixed security-style volumes 
+summary: セキュリティ形式と有効なセキュリティ形式、適用されている権限、 UNIX の所有者とグループに関する情報など、 mixed セキュリティ形式のボリューム上にあるファイルやディレクトリのセキュリティに関する情報を表示できます。この結果を使用して、セキュリティ設定の検証や、ファイルアクセスに関する問題のトラブルシューティングを行うことができます。 
+---
+= mixed セキュリティ形式のボリューム上のファイルセキュリティに関する情報を表示します
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+セキュリティ形式と有効なセキュリティ形式、適用されている権限、 UNIX の所有者とグループに関する情報など、 mixed セキュリティ形式のボリューム上にあるファイルやディレクトリのセキュリティに関する情報を表示できます。この結果を使用して、セキュリティ設定の検証や、ファイルアクセスに関する問題のトラブルシューティングを行うことができます。
+
+Storage Virtual Machine （ SVM ）の名前、およびファイルまたはフォルダのセキュリティ情報を表示するデータのパスを入力する必要があります。出力は要約形式または詳細なリストで表示できます。
+
+* mixed セキュリティ形式のボリュームおよび qtree には、 UNIX ファイル権限、モードビットまたは NFSv4 ACL 、および NTFS ファイル権限を使用する一部のファイルおよびディレクトリを含めることができます。
+* mixed セキュリティ形式のボリュームの最上位には、 UNIX 対応のセキュリティまたは NTFS 対応のセキュリティを設定できます。
+* ACL 出力は、 NTFS または NFSv4 セキュリティが適用されたファイルとフォルダについてのみ表示されます。
++
+このフィールドは、モードビットのアクセス権のみ（ NFSv4 ACL はなし）が適用されている UNIX セキュリティ形式のファイルおよびディレクトリでは空になります。
+
+* ACL 出力の所有者とグループの出力フィールドは、 NTFS セキュリティ記述子の場合にのみ適用されます。
+* ストレージレベルのアクセス保護セキュリティは、ボリュームのルートまたは qtree の有効なセキュリティ形式が UNIX であっても、 mixed セキュリティ形式のボリュームまたは qtree で設定できるため、 ストレージレベルのアクセス保護が設定されているボリュームまたは qtree パスの出力には、 UNIX ファイル権限とストレージレベルのアクセス保護 ACL の両方が表示されることがあります。
+* コマンドで入力したパスが、 NTFS 対応のセキュリティを使用するデータへのパスである場合、そのファイルまたはディレクトリパスにダイナミックアクセス制御が設定されていれば、ダイナミックアクセス制御 ACE に関する情報も出力に表示されます。
+
+
+.ステップ
+. ファイルとディレクトリのセキュリティ設定を必要な詳細レベルで表示します。
++
+|===
+| 表示する情報 | 入力するコマンド 
+
+
+ a| 
+要約形式で表示されます
+ a| 
+vserver security file-directory show -vserver vserver_name -path path
+
+
+
+ a| 
+詳細が表示されます
+ a| 
+vserver security file-directory show -vserver vserver_name -path path -expand-mask true
+
+|===
+
+
+次の例は、マスクを展開した形式で、 SVM vs1 のパス「 /projects 」に関するセキュリティ情報を表示します。この mixed セキュリティ形式のパスには、 UNIX 対応のセキュリティが設定されています。
+
+[listing]
+----
+cluster1::> vserver security file-directory show -vserver vs1 -path /projects -expand-mask true
+
+                Vserver: vs1
+              File Path: /projects
+      File Inode Number: 78
+         Security Style: mixed
+        Effective Style: unix
+         DOS Attributes: 10
+ DOS Attributes in Text: ----D---
+Expanded Dos Attributes: 0x10
+     ...0 .... .... .... = Offline
+     .... ..0. .... .... = Sparse
+     .... .... 0... .... = Normal
+     .... .... ..0. .... = Archive
+     .... .... ...1 .... = Directory
+     .... .... .... .0.. = System
+     .... .... .... ..0. = Hidden
+     .... .... .... ...0 = Read Only
+           Unix User Id: 0
+          Unix Group Id: 1
+         Unix Mode Bits: 700
+ Unix Mode Bits in Text: rwx------
+                   ACLs: -
+----
+次の例は、 SVM vs1 のパス「 /data 」に関するセキュリティ情報を表示します。この mixed セキュリティ形式のパスには、 NTFS 対応のセキュリティが設定されています。
+
+[listing]
+----
+cluster1::> vserver security file-directory show -vserver vs1 -path /data
+
+                                 Vserver: vs1
+                               File Path: /data
+                       File Inode Number: 544
+                          Security Style: mixed
+                         Effective Style: ntfs
+                          DOS Attributes: 10
+                  DOS Attributes in Text: ----D---
+                 Expanded Dos Attributes: -
+                            Unix User Id: 0
+                           Unix Group Id: 0
+                          Unix Mode Bits: 777
+                  Unix Mode Bits in Text: rwxrwxrwx
+                                    ACLs: NTFS Security Descriptor
+                                          Control:0x8004
+                                          Owner:BUILTIN\Administrators
+                                          Group:BUILTIN\Administrators
+                                          DACL - ACEs
+                                            ALLOW-Everyone-0x1f01ff
+                                            ALLOW-Everyone-0x10000000-OI|CI|IO
+----
+次の例は、 SVM vs1 のパス「 /datavol5 」にあるボリュームに関するセキュリティ情報を表示します。この mixed セキュリティ形式のボリュームの最上位には、 UNIX 対応のセキュリティが設定されています。ボリュームにはストレージレベルのアクセス保護セキュリティが設定されています。
+
+[listing]
+----
+cluster1::> vserver security file-directory show -vserver vs1 -path /datavol5
+                Vserver: vs1
+              File Path: /datavol5
+      File Inode Number: 3374
+         Security Style: mixed
+        Effective Style: unix
+         DOS Attributes: 10
+ DOS Attributes in Text: ----D---
+Expanded Dos Attributes: -
+           Unix User Id: 0
+          Unix Group Id: 0
+         Unix Mode Bits: 755
+ Unix Mode Bits in Text: rwxr-xr-x
+                   ACLs: Storage-Level Access Guard security
+                         SACL (Applies to Directories):
+                           AUDIT-EXAMPLE\Domain Users-0x120089-FA
+                           AUDIT-EXAMPLE\engineering-0x1f01ff-SA
+                           AUDIT-EXAMPLE\market-0x1f01ff-SA
+                         DACL (Applies to Directories):
+                           ALLOW-BUILTIN\Administrators-0x1f01ff
+                           ALLOW-CREATOR OWNER-0x1f01ff
+                           ALLOW-EXAMPLE\Domain Users-0x120089
+                           ALLOW-EXAMPLE\engineering-0x1f01ff
+                           ALLOW-EXAMPLE\market-0x1f01ff
+                         SACL (Applies to Files):
+                           AUDIT-EXAMPLE\Domain Users-0x120089-FA
+                           AUDIT-EXAMPLE\engineering-0x1f01ff-SA
+                           AUDIT-EXAMPLE\market-0x1f01ff-SA
+                         DACL (Applies to Files):
+                           ALLOW-BUILTIN\Administrators-0x1f01ff
+                           ALLOW-CREATOR OWNER-0x1f01ff
+                           ALLOW-EXAMPLE\Domain Users-0x120089
+                           ALLOW-EXAMPLE\engineering-0x1f01ff
+                           ALLOW-EXAMPLE\market-0x1f01ff
+----
+* 関連情報 *
+
+xref:display-file-security-ntfs-style-volumes-task.adoc[NTFS セキュリティ形式のボリュームのファイルセキュリティに関する情報を表示する]
+
+xref:display-file-security-unix-style-volumes-task.adoc[UNIX セキュリティ形式のボリュームのファイルセキュリティに関する情報を表示する]

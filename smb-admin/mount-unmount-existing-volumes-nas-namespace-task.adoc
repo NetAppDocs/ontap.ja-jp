@@ -1,0 +1,75 @@
+---
+permalink: smb-admin/mount-unmount-existing-volumes-nas-namespace-task.html 
+sidebar: sidebar 
+keywords: volume, mount, nas, namespace, configure, client, access, data, contain, storage, virtual, machine, svm, junction, point, mount, unmount, mount or unmount existing volumes in the nas namespace 
+summary: Storage Virtual Machine （ SVM ）ボリュームに格納されたデータへの NAS クライアントアクセスを設定するには、ボリュームが NAS ネームスペースにマウントされている必要があります。現在マウントされていないボリュームは、ジャンクションポイントにマウントできます。ボリュームはアンマウントすることもできます。 
+---
+= NAS ネームスペース内の既存のボリュームをマウントまたはアンマウントします
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+Storage Virtual Machine （ SVM ）ボリュームに格納されたデータへの NAS クライアントアクセスを設定するには、ボリュームが NAS ネームスペースにマウントされている必要があります。現在マウントされていないボリュームは、ジャンクションポイントにマウントできます。ボリュームはアンマウントすることもできます。
+
+ボリュームをアンマウントしてオフラインにすると、アンマウントしたボリュームのネームスペース内に含まれたジャンクションポイントのあるボリューム内のデータも含め、ジャンクションポイント内のすべてのデータに NAS クライアントからアクセスできなくなります。
+
+[NOTE]
+====
+NAS クライアントからのボリュームへのアクセスを中止するには、ボリュームを単純にアンマウントするだけでは不十分です。ボリュームをオフラインにするか、クライアント側のファイルハンドルのキャッシュが無効になるように他の手順を実行する必要があります。詳細については、次のナレッジベースの記事を参照してください。 https://kb.netapp.com/Advice_and_Troubleshooting/Data_Storage_Software/ONTAP_OS/NFSv3_clients_still_have_access_to_a_volume_after_being_removed_from_the_namespace_in_ONTAP[NFSv3 clients still have access to a volume after being removed from the namespace in ONTAP ]
+
+====
+ボリュームをアンマウントしてオフラインにしても、そのボリューム内のデータは失われません。また、既存のボリュームエクスポートポリシーおよびボリュームまたはディレクトリ上に作成された SMB 共有、およびアンマウントされたボリューム内のジャンクションポイントは保持されます。アンマウントしたボリュームを再マウントすれば、 NAS クライアントは既存のエクスポートポリシーと SMB 共有を使用してボリューム内のデータにアクセスできるようになります。
+
+.手順
+. 必要な操作を実行します。
++
+|===
+| 状況 | 入力するコマンド 
+
+
+ a| 
+ボリュームをマウント
+ a| 
+volume mount -vserver_svm_name_-volume_name_-junction-path -junction-path path_`
+
+
+
+ a| 
+ボリュームをアンマウントします
+ a| 
+'volume unmount -vserver_svm_name _-volume _volume_name _volume offline -vserver _svm_name _-volume _volume_name _ `
+
+|===
+. ボリュームが次のようなマウント状態になっていることを確認します。 volume show -vserver vserver_name __ -volume volume_name _-fields state 、 junction-path 、 junction-path 、 junction-path
+
+
+次に、 SVM vs1 上の「 `sales 」という名前のボリュームをジャンクションポイント「 /sales 」にマウントする例を示します。
+
+[listing]
+----
+cluster1::> volume mount -vserver vs1 -volume sales -junction-path /sales
+
+cluster1::> volume show -vserver vs1 state,junction-path,junction-active
+
+vserver   volume     state     junction-path   junction-active
+--------- ---------- -------- --------------- ----------------
+vs1       data       online    /data           true
+vs1       home4      online    /eng/home       true
+vs1       sales      online    /sales          true
+----
+次の例は、 SVM vs1 にある「 `d ATA` 」という名前のボリュームをアンマウントしてオフラインにします。
+
+[listing]
+----
+cluster1::> volume unmount -vserver vs1 -volume data
+cluster1::> volume offline -vserver vs1 -volume data
+
+cluster1::> volume show -vserver vs1 -fields state,junction-path,junction-active
+
+vserver   volume     state     junction-path   junction-active
+--------- ---------- --------- --------------- ---------------
+vs1       data       offline   -               -
+vs1       home4      online    /eng/home       true
+vs1       sales      online    /sales          true
+----

@@ -1,0 +1,70 @@
+---
+permalink: system-admin/shut-down-node-task.html 
+sidebar: sidebar 
+keywords: shut, down, node, unresponsive, support, personnel, direct, troubleshoot 
+summary: ノードが応答しなくなった場合や、サポート担当者からトラブルシューティング対応の一環として実行するように指示された場合は、ノードをシャットダウンできます。 
+---
+= ノードをシャットダウン
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+ノードが応答しなくなった場合や、サポート担当者からトラブルシューティング対応の一環として実行するように指示された場合は、ノードをシャットダウンできます。
+
+.手順
+. クラスタのノード数が 4 つ以上の場合は、シャットダウンするノードにイプシロンが設定されていないことを確認します。
++
+.. 権限レベルを advanced に設定します。
++
+「 * set -privilege advanced * 」のように指定します
+
+.. イプシロンが設定されているノードを特定します。
++
+*cluster show *
+
++
+次の例では 'node1 にイプシロンが設定されています
+
++
+[listing]
+----
+cluster1::*> cluster show
+Node                 Health  Eligibility   Epsilon
+-------------------- ------- ------------  ------------
+node1                true    true          true
+node2                true    true          false
+node3                true    true          false
+node4                true    true          false
+4 entries were displayed.
+----
+.. シャットダウンするノードにイプシロンが設定されている場合は、そのノードからイプシロンを削除します。
++
+'*cluster modify -node _node_name -- epsilon false *
+
+.. 稼働したままにする別のノードにイプシロンを割り当てます。
++
+'*cluster modify -node_name -- epsilon true *
+
+.. admin 権限レベルに戻ります。
++
+'*set -privilege admin*
+
+
+
+. 「 system node halt 」コマンドを使用して、ノードをシャットダウンします。
++
+skip-lif-migration パラメータを指定しなかった場合は、シャットダウンの前に、別のノードへのデータおよびクラスタ管理 LIF の同期的移行が試行されます。LIF の移行が失敗した場合、またはタイムアウトになった場合、シャットダウンプロセスは中止され、 ONTAP に LIF の移行の失敗を示すエラーが表示されます。
+
++
+シャットダウン時にコア・ダンプを手動でトリガーするには '-dump' パラメータを両方使用します
+
++
+次の例は、ハードウェアのメンテナンスのために「 node1 」という名前のノードをシャットダウンします。
+
++
+[listing]
+----
+cluster1::> system node halt -node node1 -reason 'hardware maintenance'
+----
+

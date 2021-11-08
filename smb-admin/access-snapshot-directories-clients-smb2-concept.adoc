@@ -1,0 +1,51 @@
+---
+permalink: smb-admin/access-snapshot-directories-clients-smb2-concept.html 
+sidebar: sidebar 
+keywords: method, access, snapshot, directory, windows, client, smb, data, store, copies, copy, how to access the snapshot directory from windows clients using smb 2.x 
+summary: SMB 2.x を使用する Windows クライアントからの ~snapshot ディレクトリへのアクセスに使用する方法は、 SMB 1.0 の場合に使用する方法とは異なります。SMB 2.x 接続を使用して Snapshot コピーに格納されたデータに正常にアクセスするために ~snapshot ディレクトリにアクセスする方法について理解しておく必要があります。 
+---
+= SMB 2.x を使用する Windows クライアントから ~snapshot ディレクトリにアクセスします
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+SMB 2.x を使用する Windows クライアントからの「 ~snapshot 」ディレクトリへのアクセスに使用する方法は、 SMB 1.0 で使用する方法とは異なります。SMB 2.x 接続を使用して Snapshot コピーに格納されたデータに正常にアクセスするには '~snapshot ディレクトリにアクセスする方法について理解しておく必要があります
+
+SVM 管理者は、 vserver cifs share properties ファミリーのコマンドを使用して SVM の「 ~snapshot 」共有プロパティを有効または無効にすることで、 Windows クライアントのユーザが共有上の「 ~snapshot 」ディレクトリを表示してアクセスできるかどうかを制御します。
+
+'howsnapshot' 共有プロパティが無効になっている場合、 SMB 2.x を使用する Windows クライアント上のユーザーは '~snapshot ディレクトリを表示できず、 '~snapshot ' ディレクトリへのパスを手動で入力したり、ディレクトリ内の特定の Snapshot コピーにアクセスしたりすることもできません。
+
+「 howsnapshot 」共有プロパティが有効になっている場合、 SMB 2.x を使用する Windows クライアントのユーザは、共有のルート、または共有のルートより下のジャンクションまたはディレクトリのいずれかで「 ~snapshot 」ディレクトリを表示できません。ただし、共有に接続した後、共有パスの末尾に「 \~snapshot 」を手動で追加することにより、非表示の「 ~snapshot 」ディレクトリにアクセスできます。非表示の「 ~snapshot 」ディレクトリには、 2 つのエントリポイントからアクセスできます。
+
+* を共有のルートに追加します
+* を共有スペースのすべてのジャンクションポイントでクリックします
+
+
+非表示の「 ~snapshot 」ディレクトリには、共有内のジャンクション以外のサブディレクトリからはアクセスできません。
+
+次の例の構成では、「 eng 」共有への SMB 2.x 接続を持つ Windows クライアント上のユーザは、共有のルートにある共有パスとパスのすべてのジャンクションポイントに「 \~snapshot 」を手動で追加することで、「 ~snapshot 」ディレクトリにアクセスできます。非表示の「 ~snapshot 」ディレクトリには、次の 3 つのパスからアクセスできます。
+
+* '\\vs1_en\~snapshot'
+* 「 \\vs1_en\projects1\~snapshot 」という名前のプロジェクトがあります
+* '\\vs1_en\projects2\~snapshot
+
+
+[listing]
+----
+cluster1::> volume show -vserver vs1 -fields volume,junction-path
+vserver volume       junction-path
+------- ------------ ----------------------------------------
+vs1     vs1_root      /
+vs1     vs1_vol1      /eng
+vs1     vs1_vol2      /eng/projects1
+vs1     vs1_vol3      /eng/projects2
+
+cluster1::> vserver cifs share show
+Vserver  Share   Path     Properties    Comment  ACL
+-------- ------  -------  ----------    -------- ----------
+vs1      eng     /eng     oplocks       -        Everyone / Full Control
+                          changenotify
+                          browsable
+                          showsnapshot
+----

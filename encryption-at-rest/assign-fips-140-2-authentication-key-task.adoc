@@ -1,0 +1,51 @@
+---
+permalink: encryption-at-rest/assign-fips-140-2-authentication-key-task.html 
+sidebar: sidebar 
+keywords: assigning, fips 140-2, authentication key, fips drive 
+summary: storage encryption disk modify コマンドで -fips-key-id オプションを使用して、 FIPS ドライブに FIPS 140-2 認証キーを割り当てることができます。このキーは、ドライブに対する DoS 攻撃を防止するなど、データアクセス以外のドライブ処理に使用されます。 
+---
+= FIPS ドライブに FIPS 140-2 認証キーを割り当てます
+
+
+[role="lead"]
+「 storage encryption disk modify 」コマンドで「 -fips-key-id 」オプションを使用して、 FIPS ドライブに FIPS 140-2 認証キーを割り当てることができます。このキーは、ドライブに対する DoS 攻撃を防止するなど、データアクセス以外のドライブ処理に使用されます。
+
+ドライブファームウェアで FIPS 140-2 準拠がサポートされている必要があります。。 https://mysupport.netapp.com/matrix["NetApp Interoperability Matrix Tool で確認できます"] サポートされているドライブファームウェアのバージョンに関する情報が含まれます。
+
+セキュリティの設定によっては、データ認証と FIPS 140-2 認証に異なるキーを使用する必要がある場合があります。そうでない場合は、 FIPS 準拠の認証キーをデータアクセスにも使用できます。
+
+.手順
+. SED に FIPS 140-2 認証キーを割り当てます。
++
+「 storage encryption disk modify -disk disk_id -fips-key-id fips_authentication_key_id 」
+
++
+「 securitykey-manager query 」コマンドを使用すると、キー ID を表示できます。
+
++
+[listing]
+----
+cluster1::> storage encryption disk modify -disk 2.10.* -fips-key-id 6A1E21D80000000001000000000000005A1FB4EE8F62FD6D8AE6754C9019F35A
+
+Info: Starting modify on 14 disks.
+      View the status of the operation by using the
+      storage encryption disk show-status command.
+----
+. 認証キーが割り当てられたことを確認します。
++
+「 storage encryption disk show -fips 」
+
++
+コマンド構文全体については、マニュアルページを参照してください。
+
++
+[listing]
+----
+cluster1::> storage encryption disk show -fips
+Disk    Mode FIPS-Compliance Key ID
+------  ---- ----------------------------------------------------------------
+2.10.0  full 6A1E21D80000000001000000000000005A1FB4EE8F62FD6D8AE6754C9019F35A
+2.10.1  full 6A1E21D80000000001000000000000005A1FB4EE8F62FD6D8AE6754C9019F35A
+[...]
+----
+

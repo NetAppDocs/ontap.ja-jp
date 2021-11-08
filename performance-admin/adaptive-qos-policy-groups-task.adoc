@@ -1,0 +1,137 @@
+---
+permalink: performance-admin/adaptive-qos-policy-groups-task.html 
+sidebar: sidebar 
+keywords: use, adaptive, qos, policy, groups 
+summary: アダプティブ QoS ポリシーグループを使用すると、ボリュームサイズの変更に合わせてスループットの上限や下限を自動的に調整し、 TB または GB あたりの IOPS を一定に保つことができます。これは、何百何千という数のワークロードを管理する大規模な環境では大きなメリットです。 
+---
+= アダプティブ QoS ポリシーグループを使用する
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+アダプティブ QoS ポリシーグループを使用すると、ボリュームサイズの変更に合わせてスループットの上限や下限を自動的に調整し、 TB または GB あたりの IOPS を一定に保つことができます。これは、何百何千という数のワークロードを管理する大規模な環境では大きなメリットです。
+
+.必要なもの
+* ONTAP 9.3 を実行している必要があります。アダプティブ QoS ポリシーグループは ONTAP 9.3 以降で使用できます。
+* ポリシーグループを作成するには、クラスタ管理者である必要があります。
+
+
+ストレージオブジェクトは、アダプティブまたは非アダプティブどちらかのポリシーグループのメンバーにすることができますが、両方のメンバーにすることはできません。SVM はストレージオブジェクトとポリシーで同じである必要があります。ストレージオブジェクトはオンラインである必要があります。
+
+アダプティブ QoS ポリシーグループは常に非共有です。定義されているスループットの上限または下限の環境各メンバーワークロードを個別に定義します。
+
+ストレージオブジェクトサイズに対するスループット制限の比率は、以下に示すフィールドの組み合わせによって決まります。
+
+* 「 expected-iops 」は、割り当てられた TB|GB あたりの最小想定 IOPS です。
++
+[NOTE]
+====
+「 expected-iops 」は AFF プラットフォームでのみ保証されます。「 expected-iops 」は、階層化ポリシーが「 none 」に設定され、クラウドにブロックがない場合にのみ FabricPool に対して保証されます。「 expected-iops 」は、 SnapMirror 同期関係にないボリュームで保証されます。
+
+====
+* 「 peak-iops` 」は、割り当てられるか、または使用される TB|GB あたりの最大 IOPS です。
+* 「 expected-iops-allocation 」は、割り当て済みスペース（デフォルト）と使用済みスペースのどちらを expected-iops に使用するかを示します。
++
+[NOTE]
+====
+「 expected-iops-allocation 」は ONTAP 9.5 以降で使用できます。ONTAP 9.4 以前ではサポートされません。
+
+====
+* 「 peak-iops-allocation 」は、「 peak-iops 」に割り当てスペースと使用スペース（デフォルト）のどちらを使用するかを指定します。
+* 「 absolute-min-iops 」は、絶対最小 IOPS です。このフィールドは非常に小さいストレージオブジェクトで使用します。「 absolute-min-iops 」が「 expected-iops 」の計算値より大きい場合は、「 peak-iops` と「 expected-iops 」の両方が優先されます。
++
+たとえば 'expected-iops' を 1,000 IOPS/TB に設定し ' ボリューム・サイズが 1 GB 未満の場合 ' 計算された 'expected-IOPS' はフラクショナル IOP になります計算された「 peak-iops 」は、さらに小さくなります。これを回避するには、「 absolute-min-iops 」を現実的な値に設定します。
+
+* 「 block-size 」は、アプリケーションの I/O ブロック・サイズを指定します。デフォルトは 32K です。有効な値は、 8K 、 16K 、 32K 、 64K 、 ANY です。ANY は、ブロックサイズが適用されないことを意味します。
+
+
+次の表に示す 3 種類のアダプティブ QoS ポリシーグループがデフォルトで用意されています。これらのポリシーグループはボリュームに直接適用することができます。
+
+|===
+| デフォルトのポリシーグループ | 想定 IOPS/TB | 最大 IOPS/TB | 絶対最小 IOPS 
+
+
+ a| 
+「エクストリーム」
+ a| 
+6,144
+ a| 
+12,288
+ a| 
+1000
+
+
+
+ a| 
+「パフォーマンス」
+ a| 
+2 、 048
+ a| 
+4,096
+ a| 
+500
+
+
+
+ a| 
+「値」
+ a| 
+128
+ a| 
+512
+ a| 
+75
+
+|===
+.手順
+. アダプティブ QoS ポリシーグループを作成します。
++
+「 qos adaptive-policy-group create -policy group_policy_group_ -vserver_svm_s_expected-iops_number of _iops_/TB|GB-expected-iops -expected-iops -expected-iops -expected-iops -allocation -space-allocation | used-space-allocated-iops-allocation space | used-space-16K -space-alloc | abse-size -minblock_size | 32K abs~abs|abs|abs~n | abs~n | abse-size
+
++
+コマンド構文全体については、マニュアルページを参照してください。
+
++
+[NOTE]
+====
+「 -expected-iops-allocation 」および「 -block-size 」は、 ONTAP 9.5 以降で使用できます。ONTAP 9.4 以前ではこれらのオプションがサポートされません。
+
+====
++
+次のコマンドは、 adpg-app1 というアダプティブ QoS ポリシーグループを作成し、 -expected-iops を 300 IOPS/TB 、「 -peak-iops 」を 1,000 IOPS/TB 、「 -peak-iops-allocation を「 used-space 」に、「 -absolute-min-iops 」を 50 IOPS に設定します。
+
++
+[listing]
+----
+cluster1::> qos adaptive-policy-group create -policy group adpg-app1 -vserver vs2 -expected-iops 300iops/tb -peak-iops 1000iops/TB -peak-iops-allocation used-space -absolute-min-iops 50iops
+----
+. アダプティブ QoS ポリシーグループをボリュームに適用します。
++
+「 volume create -vserver svm_name -volume 」 -aggregate_aggregate-size_number of _tb|GB-qos-adaptive-policy-group_group _ 」を実行します
+
++
+コマンド構文全体については、マニュアルページを参照してください。
+
++
+次のコマンドは、アダプティブ QoS ポリシーグループ adpg-app1 をボリューム app1 に適用します。
+
++
+[listing]
+----
+cluster1::> volume create -vserver vs1 -volume app1 -aggregate aggr1 -size 2TB -qos-adaptive-policy-group adpg-app1
+----
++
+次のコマンドは、デフォルトのアダプティブ QoS ポリシーグループ「 extreme 」を新しいボリューム「 app4 」と既存のボリューム「 app5 」に適用します。ポリシーグループ環境ボリューム app4' および app5' 個別に定義されたスループットの上限：
+
++
+[listing]
+----
+cluster1::> volume create -vserver vs4 -volume app4 -aggregate aggr4 -size 2TB -qos-adaptive-policy-group extreme
+----
++
+[listing]
+----
+cluster1::> volume modify -vserver vs5 -volume app5 -qos-adaptive-policy-group extreme
+----
+

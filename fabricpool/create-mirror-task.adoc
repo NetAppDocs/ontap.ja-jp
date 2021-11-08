@@ -1,0 +1,60 @@
+---
+permalink: fabricpool/create-mirror-task.html 
+sidebar: sidebar 
+keywords: creating, fabricpool, mirror 
+summary: FabricPool ミラーを作成するには、 2 つのオブジェクトストアを 1 つの FabricPool に接続します。FabricPool ミラーを作成するには、既存の単一のオブジェクトストア FabricPool 構成に 2 つ目のオブジェクトストアを接続するか、新しい単一のオブジェクトストア FabricPool 構成を作成してから 2 つ目のオブジェクトストアを接続します。MetroCluster 構成上に FabricPool ミラーを作成することもできます。 
+---
+= FabricPool ミラーを作成します
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+FabricPool ミラーを作成するには、 2 つのオブジェクトストアを 1 つの FabricPool に接続します。FabricPool ミラーを作成するには、既存の単一のオブジェクトストア FabricPool 構成に 2 つ目のオブジェクトストアを接続するか、新しい単一のオブジェクトストア FabricPool 構成を作成してから 2 つ目のオブジェクトストアを接続します。MetroCluster 構成上に FabricPool ミラーを作成することもできます。
+
+.必要なもの
+* 「 storage aggregate object-store config 」コマンドを使用して、 2 つのオブジェクトストアを作成しておく必要があります。
+* MetroCluster 構成上に FabricPool ミラーを作成する場合の要件は次のとおりです。
++
+** MetroCluster のセットアップと設定が完了している必要があります
+** 選択したクラスタにオブジェクトストア設定を作成しておく必要があります。
++
+MetroCluster 構成の両方のクラスタに FabricPool ミラーを作成する場合は、両方のクラスタにオブジェクトストア設定を作成しておく必要があります。
+
+** MetroCluster 構成にオンプレミスのオブジェクトストアを使用しない場合は、次のいずれかのシナリオに該当する必要があります。
++
+*** オブジェクトストアは異なるアベイラビリティゾーンにあります
+*** オブジェクトストアは、複数のアベイラビリティゾーンにオブジェクトのコピーを保持するように設定されます
++
+link:setup-object-stores-mcc-task.html["MetroCluster 構成での FabricPool 用オブジェクトストアのセットアップ"]
+
+
+
+
+
+
+
+FabricPool ミラーには、プライマリオブジェクトストアとは別のオブジェクトストアを使用する必要があります。
+
+FabricPool ミラーを作成する手順は、 MetroCluster 構成と MetroCluster 以外の構成で同じです。
+
+.手順
+. 既存の FabricPool 設定を使用しない場合は、「 storage aggregate object-store attach 」コマンドを使用してオブジェクトストアをアグリゲートに接続し、新しい 設定を作成してください。
++
+この例では、オブジェクトストアをアグリゲートに接続して新しい FabricPool を作成します。
+
++
+[listing]
+----
+cluster1::> storage aggregate object-store attach -aggregate aggr1 -name my-store-1
+----
+. 「 storage aggregate object-store mirror 」コマンドを使用して、 2 つ目のオブジェクトストアをアグリゲートに接続します。
++
+この例では、 2 つ目のオブジェクトストアをアグリゲートに接続して FabricPool ミラーを作成します。
+
++
+[listing]
+----
+cluster1::> storage aggregate object-store mirror -aggregate aggr1 -name my-store-2
+----
+

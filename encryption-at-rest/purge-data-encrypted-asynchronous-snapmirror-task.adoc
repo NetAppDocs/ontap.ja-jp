@@ -35,30 +35,36 @@ SAN ホストでセキュアパージを実行するには、パージするフ�
 ** SAN ホストで、パージするファイルに属するブロックのために、 LUN から安全にパージまたはパンチ穴を開ける LUN を削除します。
 
 
-. 非同期関係内の vol_a をセキュアにパージするには、次の手順を実行します。
+. 非同期関係のデスティネーションボリュームを安全にパージするように準備します。
 +
 'volume encryption secure-purge start -vserver svm_name -volume volume_name -prepare true
 
 +
 非同期 SnapMirror 関係の各ボリュームについて、この手順を繰り返します。
 
-. 安全にパージするファイルがスナップショットにある場合は、スナップショットを削除します。
+. セキュアにパージするファイルが Snapshot コピーにある場合は、 Snapshot コピーを削除します。
 +
 「 snapshot-delete -vserver SVM_name -volume vol_name -snapshot 」という Snapshot コピーを削除しました
 
-. 安全にパージするファイルがベース Snapshot にある場合は、次の手順を実行します。
+. セキュアパージの対象となるファイルがベース Snapshot コピー内にある場合は、次の手順を実行します。
 +
-.. 非同期 SnapMirror 関係内の vol_a に Snapshot を作成します： +`volume snapshot create -snapshot snapshot_name -vserver SVM_name -volume vol_name ’
-.. SnapMirror を更新してベース Snapshot をフォワードします： +`napmirror update -source-snapshot snapshot_name -destination-path destination_path
+.. 非同期 SnapMirror 関係のデスティネーションボリュームに Snapshot コピーを作成します。
++
+volume snapshot create -snapshot snapshot_name -vserver SVM_name -volume vol_name 」という 2 つのオプションがあります
+
+.. SnapMirror を更新してベースの Snapshot コピーをフォワードします。
++
+「 snapmirror update -source-path destination_path 」を指定します
+
 +
 非同期 SnapMirror 関係のボリュームごとにこの手順を繰り返します。
 
-.. 手順（ a ）と（ b ）を、ベース Snapshot の数に 1 を加えた数と同じにします。
+.. ベース Snapshot コピーの数に 1 を加えた値と同じ手順（ a ）および（ b ）を繰り返します。
 +
-たとえば、 2 つのベース Snapshot がある場合は、手順（ a ）と（ b ）を 3 回繰り返します。
+たとえば、 2 つのベース Snapshot コピーがある場合は、手順（ a ）と（ b ）を 3 回繰り返します。
 
-.. ベース Snapshot が存在することを確認します。 +`Snapshotshow -vserver SVM_name -volume vol_name `
-.. ベース Snapshot を削除します。 +`Snapshotdelete -vserver SVM_name -volume vol_name -snapshot `
+.. ベースの Snapshot コピーが存在することを確認します。 +`Snapshotshow -vserver SVM_name -volume vol_name `
+.. ベースの Snapshot コピーを削除します。 +`Snapshotdelete -vserver SVM_name -volume vol_name -snapshot `
 
 
 . 削除したファイルを安全にパージします。
@@ -69,7 +75,7 @@ SAN ホストでセキュアパージを実行するには、パージするフ�
 非同期 SnapMirror 関係の各ボリュームについて、この手順を繰り返します。
 
 +
-次のコマンドは 'vs1` 上の 'vol1' の削除されたファイルを安全にパージします
+次のコマンドは、 SVM 「 vs1 」上の「 vol1 」にある削除済みファイルを安全にパージします。
 
 +
 [listing]

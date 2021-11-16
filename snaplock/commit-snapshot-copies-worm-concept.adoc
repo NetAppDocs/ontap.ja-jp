@@ -69,13 +69,31 @@ SnapLock モードである Compliance または Enterprise は、アグリゲ�
 ----
 cluster2::> volume create -vserver SVM2 -volume dstvolB -aggregate node01_aggr -type DP -size 2GB
 ----
-. デスティネーションクラスタで、デフォルトの保持期間を設定します。手順については、を参照してください xref:set-default-retention-period-task.adoc[デフォルトの保持期間を設定]。
-. デスティネーション SVM で、 SnapVault 関係を初期化します。
+. デスティネーションクラスタで、デフォルトの保持期間を設定します。手順については、を参照してください xref:set-default-retention-period-task.adoc[デフォルトの保持期間を設定]。=
+
+
+====
+バックアップデスティネーションである SnapLock には、デフォルトの保持期間が割り当てられます。この期間の値は、 SnapLock Enterprise ボリュームの場合は最初に 0 年以上、 SnapLock Compliance ボリュームの場合は 30 年以下に設定されます。各 NetApp Snapshot コピーは、最初にこのデフォルトの保持期間でコミットされます。保持期間は、必要に応じてあとから延長できます。詳細については、を参照してください xref:set-retention-period-task.adoc[保持期限の設定の概要を確認します]。
+
+====
+. xref:../data-protection/create-replication-relationship-task.adoc[新しいレプリケーション関係を作成] SnapLock 以外のソースと、手順 3 で作成した新しい SnapLock デスティネーションの間。
 +
-`* snapmirror initialize-ls-set -destination-path *`
+次の例では、「 XDPDefault 」というポリシーを使用して、デスティネーション SnapLock ボリューム「 stvolB 」との新しい SnapMirror 関係を作成します。これにより、 1 時間ごとのスケジュールで daily および weekly というラベルの Snapshot コピーをバックアップできます。
 
 +
-初期化プロセスでは、デスティネーションボリュームへの _ ベースライン転送 _ が実行されます。SnapMirror はソースボリュームの Snapshot コピーを作成して、そのコピーおよびコピーが参照するすべてのデータブロックをデスティネーションボリュームに転送します。
+[listing]
+----
+cluster2::> snapmirror create -source-path SVM1:srcvolA -destination-path SVM2:dstvolB -vserver SVM2 -policy XDPDefault -schedule hourly
+----
++
+[NOTE]
+====
+xref:../data-protection/create-custom-replication-policy-concept.adoc[カスタムレプリケーションポリシーを作成する] または xref:/data-protection/create-replication-job-schedule-task.adoc[カスタムスケジュール] 使用可能なデフォルト設定が適切でない場合。
+
+====
+. デスティネーション SVM で、手順 5 で作成した SnapVault 関係を初期化します。
++
+`* snapmirror initialize-ls-set -destination-path *`
 
 +
 次のコマンドは、「 VM1 」のソースボリューム「 rcvolA 」と「 `S VM2 」のデスティネーションボリューム「 d stvolB 」間の関係を初期化します。
@@ -83,7 +101,16 @@ cluster2::> volume create -vserver SVM2 -volume dstvolB -aggregate node01_aggr -
 +
 [listing]
 ----
-SVM2::> snapmirror initialize -destination-path SVM2:dstvolB
+cluster2::> snapmirror initialize -destination-path SVM2:dstvolB
+----
+. 関係が初期化されてアイドル状態になったら、デスティネーションで「 snapshot-show 」コマンドを使用して、レプリケートされた Snapshot コピーに適用される SnapLock 有効期限を確認します。
++
+次の例は、 SnapMirror ラベルと SnapLock の有効期限が設定されたボリューム「 stvolB 」上の Snapshot コピーを表示します。
+
++
+[listing]
+----
+cluster2::> snapshot show -vserver SVM2 -volume dstvolB -fields snapmirror-label, snaplock-expiry-time
 ----
 
 

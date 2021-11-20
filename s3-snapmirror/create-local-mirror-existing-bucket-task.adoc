@@ -1,0 +1,171 @@
+---
+sidebar: sidebar 
+permalink: s3-snapmirror/create-local-mirror-existing-bucket-task.html 
+keywords: snapmirror, create local, new bucket, create a mirror relationship for an existing bucket 
+summary: 同じクラスタ上の既存の S3 バケットの保護はいつでも開始できます。たとえば、 S3 設定を ONTAP 9.10.1 より前のリリースからアップグレードした場合などです。データは、別の Storage VM のバケットまたはソースと同じ Storage VM にミラーリングできます。 
+---
+= 既存のバケットのミラー関係を作成する（ローカルクラスタ）
+:toc: macro
+:hardbreaks:
+:toclevels: 1
+:toc: 
+:toclevels: 1
+:nofooter: 
+:icons: font
+:linkattrs: 
+:imagesdir: ./media/
+:toc-position: content
+
+
+[role="lead"]
+同じクラスタ上の既存の S3 バケットの保護はいつでも開始できます。たとえば、 S3 設定を ONTAP 9.10.1 より前のリリースからアップグレードした場合などです。データは、別の Storage VM のバケットまたはソースと同じ Storage VM にミラーリングできます。
+
+.必要なもの
+* ONTAP のバージョン、ライセンス、 S3 サーバの設定に関する要件を満たしている必要があります。
+* ソース Storage VM とデスティネーション Storage VM の間にピア関係が存在します。
+* CA 証明書は、ソース VM とデスティネーション VM に必要です。自己署名 CA 証明書または外部 CA ベンダーが署名した証明書を使用できます。
+
+
+
+
+== System Manager の手順の略
+
+. この Storage VM の最初の S3 SnapMirror 関係である場合は、ソースとデスティネーションの Storage VM の両方に root ユーザキーが存在することを確認し、存在しない場合は再生成します。
++
+.. Storage > Storage VM* をクリックし、 Storage VM を選択します。
+.. [ * 設定 * ] タブで、をクリックします image:icon_pencil.gif["編集アイコン"] を * S3 * タイルに追加します。
+.. [*Users*] タブで、 root ユーザのアクセスキーがあることを確認します。
+.. 表示されていない場合は、をクリックします image:icon_kabob.gif["[ 詳細 ] アイコン"] [*root*] の横にある [*Regenerate Key] をクリックします。キーがすでに存在する場合は、キーを再生成しないでください
+
+
+. ソースとデスティネーションの Storage VM 両方でユーザおよびグループのアクセスが正しいことを確認します。
++
+** Storage > Storage VM* の順にクリックし、 Storage VM をクリックして、 * Settings * をクリックし、をクリックします image:icon_pencil.gif["編集アイコン"] S3 の下。
++
+を参照してください link:../task_object_provision_add_s3_users_groups.html["S3 ユーザとグループを追加"] を参照してください。
+
+
+
+. S3 SnapMirror ポリシーを作成します。これは、既存のポリシーがなく、デフォルトポリシーを使用しない場合に行います。
++
+.. [* 保護 ] 、 [ 概要 *] の順にクリックし、 [ ローカルポリシーの設定 *] をクリックします。
+.. をクリックします image:../media/icon_arrow.gif["右矢印"] [* 保護ポリシー * ] の横にある [* 追加 ] をクリックします。
++
+*** ポリシー名と概要を入力します。
+*** ポリシーのスコープとして、クラスタまたは SVM を選択します
+*** S3 SnapMirror 関係には「 * Continuous * 」を選択します。
+*** スロットル値および * 目標復旧時点 * 値を入力します。
+
+
+
+
+. 既存のバケットのバケットアクセスポリシーが引き続きニーズを満たしていることを確認します。
++
+.. [ * ストレージ ] 、 [ バケット ] の順にクリックし、保護するバケットを選択します。
+.. [* アクセス許可 *] タブで、をクリックします image:icon_pencil.gif["編集アイコン"] * 編集 * をクリックし、 * 権限 * の下の * 追加 * をクリックします。
++
+*** * Principal * および * Effect * - ユーザグループの設定に対応する値を選択するか、デフォルト値をそのまま使用します。
+*** * Actions * - 「 GetObject 」、「 PutObject 」、「 DeleteObject 」、「 ListBucket 」、「 GetBucketAcl 」、「 GetObjectAcl 」、「 ListBucketMultipartUploads 」、「 ListMultipartUploadParts 」の値が表示されていることを確認します
+*** * Resources * - 必要なその他の値、デフォルトの「 _ 」（ bucketname 、 bucketname / * ） _ を使用します。
++
+を参照してください link:../task_object_provision_manage_bucket_access.html["バケットへのユーザアクセスを管理します"] これらのフィールドの詳細については、を参照してください。
+
+
+
+
+
+. S3 SnapMirror を使用して既存のバケットを保護します。
++
+.. [* Storage * > * Buckets] をクリックして、保護するバケットを選択します。
+.. [*Protect] をクリックして、次の値を入力します。
++
+*** 宛先
++
+**** * ターゲット * ： ONTAP システム
+**** * cluster * ：ローカルクラスタを選択します。
+**** *STProtect をクリックし、 ORAGE VM* ：同じ Storage VM または異なる Storage VM を選択します。
+**** * S3 サーバ CA 証明書 * ： _source_certificate の内容をコピーして貼り付けます。
+
+
+*** ソース
++
+**** * S3 サーバ CA 証明書 * ： _destination_certificate の内容をコピーして貼り付けます。
+
+
+
+
+
+
+
+
+チェック * 外部 CA ベンダーが署名した証明書を使用している場合は、宛先で同じ証明書を使用します。
+
+[* Destination Settings] をクリックすると、バケット名、容量、およびパフォーマンスサービスレベルのデフォルト値の代わりに独自の値を入力することもできます。
+
+[Save] をクリックすると、既存のバケットがデスティネーション Storage VM の新しいバケットにミラーリングされます。
+
+
+
+== CLI 手順の略
+
+. この SVM の最初の S3 SnapMirror 関係の場合は、ソースとデスティネーションの SVM の両方に root ユーザキーが存在することを確認し、存在しない場合は再生成します。「 vserver object-store-server user show 」
++
+root ユーザのアクセスキーがあることを確認します。表示されない場合は、「 vserver object-store-server user regenerate keys -vserver _svm_name __ user_root_ 」と入力します
+
++
+キーがすでに存在する場合は、キーを再生成しないでください。
+
+. ミラーターゲットにするバケットをデスティネーション SVM 上に作成します。
++
+「 vserver object-store-server bucket create -vserver _svm_name _-bucket_dest_bucket_name_[-size_integer_[KB|MB|GB|TB|PB] 」 [-comment_text_][_additional _options_]] 」という形式になります
+
+. ソースとデスティネーションの両方の SVM で、デフォルトのバケットポリシーに対するアクセスルールが正しいことを確認します。
++
+「 vserver object-store-server bucket policy add-statement-vserver_svm_name_-bucket_bucket_name __ Effect ｛ allow|deny ｝ -action _object_store_actions_ -principal_user_ore_nams_-resource_object_store_resources_[-sid_text_][-index_integer_]```````
+
++
+.例
+[listing]
+----
+clusterA::> vserver object-store-server bucket policy add-statement -bucket test-bucket -effect allow -action GetObject,PutObject,DeleteObject,ListBucket,GetBucketAcl,GetObjectAcl,ListBucketMultipartUploads,ListMultipartUploadParts -principal - -resource test-bucket, test-bucket /*
+----
+. S3 SnapMirror ポリシーを作成します。これは、既存のポリシーがなく、デフォルトポリシーを使用しない場合に行います。
++
+「 napmirror policy create -vserver_svm_name __ policy_policy_name -type continuous [-rpm_integer_][-sthrottle_type_][-comment text][_additional _options_]" 」というメッセージが表示されます
+
++
+パラメータ
+
++
+** 「 continuous 」– S3 SnapMirror 関係の唯一のポリシータイプです（必須）。
+** `-rpC' –リカバリ・ポイントの目標時間を秒単位で指定します（オプション）
+** -throttle` –スループット / 帯域幅の上限をキロバイト / 秒単位で指定します（オプション）。
++
+.例
+[listing]
+----
+clusterA::> snapmirror policy create -vserver vs0 -type continuous -rpo 0 -policy test-policy
+----
+
+
+. ソースとデスティネーションの SVM の CA サーバ証明書をインストールします。
++
+.. source_svm の _destination_svm にある S3 サーバ証明書をインストールします。「 security certificate install -type server-ca -vserver _src_svm _cert-name_dest_server_certificate_`
+.. デスティネーション SVM の _source_SVM から S3 サーバ証明書をインストールします。「 securitycertificate install -type server-ca -vserver dest_svm_-cert-name_src_server_certificate_`+ 外部の CA ベンダーが署名した証明書を使用している場合は、ソース SVM とデスティネーション SVM に同じ証明書を入力します。
++
+詳細については 'securitycertificate install マニュアル・ページを参照してください
+
+
+
+. S3 SnapMirror 関係を作成します。「 snapmirror create -source-path src_src_src_src_src_src_SVM_name_name_： /buckets_name_destination-path_dest_peer_svm_name _ ： /buckets/_bucket_name _ 、…… ｝ [-policy policy_name]`
++
+作成したポリシーを使用することも、デフォルトのポリシーをそのまま使用することもできます。
+
++
+.例
+[listing]
+----
+src_cluster::> snapmirror create -source-path vs0-src:/bucket/test-bucket -destination-path vs1-dest:/bucket/test-bucket-mirror -policy test-policy
+----
+. ミラーリングがアクティブであることを確認します。「 snapmirror show -policy type continuous -fields status 」
+

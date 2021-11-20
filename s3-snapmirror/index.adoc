@@ -1,7 +1,7 @@
 ---
 sidebar: sidebar 
 permalink: s3-snapmirror/index.html 
-keywords: snapmirror, s3 snapmirror, mirroring and backup, buckets, data protection bundle 
+keywords: s3 snapmirror overview, snapmirror, s3 snapmirror, s3 snapmirror mirroring and backup, s3 snapmirror requirments, s3 snapmirror buckets, snapmirror buckets SVM, s3 snapmirror new buckets, s3 snapmirror buckets with data protection, s3 snapmirror data protection bundle, s3 snapmirror data protection bundle and hybrid cloud bundle, s3 snapmirror relationship, VM peering, cluster and storage VM peering, s3 SnapMirror considerations and restrictions, Fan-in deployments, data protection relationships, s3 snapmirror policy, peering 
 summary: ONTAP 9.10.1 以降では、使い慣れた SnapMirror ミラーリングとバックアップ機能を使用して ONTAP S3 オブジェクトストア内のバケットを保護できます 
 ---
 = S3 SnapMirror の概要
@@ -13,7 +13,7 @@ summary: ONTAP 9.10.1 以降では、使い慣れた SnapMirror ミラーリン�
 :nofooter: 
 :icons: font
 :linkattrs: 
-:imagesdir: ../media/
+:imagesdir: ./media/
 :toc-position: content
 
 
@@ -37,14 +37,14 @@ ONTAP S3
 | image:status-enabled-perf-config.gif["チェックマーク"] | image:status-enabled-perf-config.gif["チェックマーク"] 
 
 
-| StorageGRID Webscale の略 |  | image:status-enabled-perf-config.gif["チェックマーク"] 
+| StorageGRID |  | image:status-enabled-perf-config.gif["チェックマーク"] 
 
 
 | AWS S3 |  | image:status-enabled-perf-config.gif["チェックマーク"] 
 |===
 ONTAP S3 サーバ上の既存のバケットを保護することも、データ保護をすぐに有効にして新しいバケットを作成することもできます。
 
-S3 SnapMirror は、ファンアウト関係とカスケード関係をサポートしています。概要については、を参照してください link:../data-protection/supported-deployment-config-concept.html["ファンアウト構成およびカスケード構成のデータ保護"]。
+S3 SnapMirror は、ファンアウト関係とカスケード関係をサポートしています。概要については、を参照してください link:..data-protection/supported-deployment-config-concept.html["ファンアウト構成およびカスケード構成のデータ保護"]。
 
 
 
@@ -60,8 +60,8 @@ S3 SnapMirror は、ファンアウト関係とカスケード関係をサポー
 
 * ONTAP S3
 +
-** ONTAP S3 サーバでソースとデスティネーションの SVM が実行されている必要があります。
-** TLS アクセス用の証明書を S3 サーバにインストールすることを推奨しますが、必須ではありません。システムで生成された証明書や外部の機関の証明書を使用することができます。
+** TLS アクセス用にインストールされた証明書を使用する ONTAP S3 サーバで、ソースとデスティネーションの SVM が実行されている必要があります。
+** TLS アクセス用の CA 証明書は、 S3 サーバをホストする Storage VM にインストールすることを推奨しますが、必須ではありません。自己署名 CA 証明書、または外部 CA ベンダーが署名した証明書を使用できます。
 
 
 * ピアリング（ ONTAP S3 ターゲット用）
@@ -71,13 +71,23 @@ S3 SnapMirror は、ファンアウト関係とカスケード関係をサポー
 ** ソースとデスティネーションの Storage VM 間にピア関係が設定されている（すべての ONTAP ターゲット用）。
 
 
-* SnapMirror ポリシー S3 固有の SnapMirror ポリシーはすべての S3 SnapMirror 関係に必要ですが、複数の関係に同じポリシーを使用することができます。
-* S3 SnapMirror 関係には root ユーザキー Storage VM root ユーザアクセスキーが必要です。 ONTAP ではデフォルトでこのユーザアクセスキーが割り当てられません。S3 SnapMirror 関係の初回作成時には、ソースとデスティネーションの Storage VM にキーが存在することを確認し、存在しない場合は再生成する必要があります。割り当てが完了すると、再生成されないようにしてください。そうしないと、 S3 の既存の SnapMirror 関係が失敗します。
+* SnapMirror ポリシー
++
+** S3 固有の SnapMirror ポリシーはすべての S3 SnapMirror 関係に必要ですが、複数の関係に同じポリシーを使用することができます。
+** 独自のポリシーを作成するか、次の値を含むデフォルトの * Continuous * ポリシーをそのまま使用できます。
++
+*** スロットル（スループット / 帯域幅の上限） - 無制限
+*** 目標復旧時点までの時間： 1 時間（ 3600 秒）
+
+
+
+
+* S3 SnapMirror 関係には root ユーザキー Storage VM root ユーザアクセスキーが必要です。 ONTAP ではデフォルトでこのユーザアクセスキーが割り当てられません。S3 SnapMirror 関係を初めて作成するときは、ソースとデスティネーションの Storage VM の両方にキーが存在することを確認し、存在しない場合は再生成する必要があります。再生成する必要がある場合は、アクセスキーとシークレットキーのペアを使用するすべてのクライアントおよび SnapMirror オブジェクトストアのすべての設定が新しいキーで更新されていることを確認する必要があります。
 
 
 S3 サーバの設定については、次のトピックを参照してください。
 
-* link:../task_object_provision_enable_s3_server.html["Storage VM で S3 サーバを有効にする（ System Manager ）"]
+* link:../task_object_provision_enable_s3_server.html["Storage VM で S3 サーバを有効にします"]
 * link:../s3-config/index.html["S3 の設定プロセスについて（ CLI ）"]
 
 
@@ -91,7 +101,17 @@ S3 サーバの設定については、次のトピックを参照してくだ�
 
 == S3 SnapMirror に関する考慮事項と制限事項
 
+新しいバケットを作成するときは、ユーザとグループを作成してアクセスを制御できます。詳細については、次のトピックを参照してください。
+
+* link:../task_object_provision_add_s3_users_groups.html["S3 ユーザとグループの追加（ System Manager ）"]
+* link:../s3-config/create-s3-user-task.html["S3 ユーザを作成（ CLI ）"]
+* link:../s3-config/create-modify-groups-task.html["S3 グループの作成または変更（ CLI ）"]
+
+
 現在の S3 SnapMirror リリースでは、次の標準の SnapMirror 機能はサポートされていません。
 
-* ファンイン構成（複数のソースバケットと 1 つのデスティネーションバケット間のデータ保護関係）の S3 SnapMirror では、複数のクラスタから単一のセカンダリクラスタへの複数のバケットミラーをサポートできますが、各ソースバケットにはセカンダリクラスタ上に独自のデスティネーションバケットが必要です。
+* ファンイン構成（複数のソースバケットと 1 つのデスティネーションバケット間のデータ保護関係）
++
+S3 SnapMirror では、複数のクラスタから単一のセカンダリクラスタへの複数のバケットミラーをサポートできますが、各ソースバケットにはセカンダリクラスタ上に独自のデスティネーションバケットが必要です。
+
 

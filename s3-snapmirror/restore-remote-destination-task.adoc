@@ -1,0 +1,71 @@
+---
+sidebar: sidebar 
+permalink: s3-snapmirror/restore-remote-destination-task.html 
+keywords: restore a bucket from the destination storage VM remote cluster, source bucket data lost or corrupt, snapmirror restore, restore data, restore to destination bucket, remote cluster, snapmirror restore back up, snapmirror, bucket, restore to new bucket, storage vm, snapmirror data loss 
+summary: ソースバケットのデータが失われた場合や破損した場合は、デスティネーションバケットからリストアしてデータを再取り込みします。 
+---
+= デスティネーション Storage VM （リモートクラスタ）からバケットをリストアする
+:toc: macro
+:hardbreaks:
+:toclevels: 1
+:toc: 
+:toclevels: 1
+:nofooter: 
+:icons: font
+:linkattrs: 
+:imagesdir: ./media/
+:toc-position: content
+
+
+[role="lead"]
+ソースバケットのデータが失われた場合や破損した場合は、デスティネーションバケットからリストアしてデータを再取り込みします。
+
+デスティネーションバケットは既存のバケットまたは新しいバケットにリストアできます。リストア処理のターゲットバケットは、デスティネーションバケットの使用済み論理スペースよりも大きくする必要があります。
+
+既存のバケットを使用する場合は、リストア処理の開始時に空にする必要があります。Restore は、あるバケットを「ロールバック」するのではなく、空のバケットに以前の内容を取り込みます。
+
+リストア処理はリモートクラスタから開始する必要があります。
+
+
+
+== System Manager の手順の略
+
+バックアップデータをリストアします。
+
+. 保護 > 関係 * をクリックし、 * S3 SnapMirror * を選択します。
+. をクリックします image:icon_kabob.gif["[ 詳細 ] アイコン"] 次に、 [* Restore] を選択します。
+. 「 * ソース * 」で、「 * 既存バケット」（デフォルト）または「 * 新規バケット」を選択します。
++
+** 既存の Bucket * （デフォルト）にリストアするには、次の操作を実行します。
++
+*** 既存のバケットを検索するクラスタと Storage VM を選択します。
+*** 既存のバケットを選択します。
+*** destination_S3 サーバ CA 証明書の内容をコピーして貼り付けます。
+
+
+** 新しいバケットへのリストアを実行するには、次の値を入力します。
++
+*** 新しいバケットをホストするクラスタと Storage VM 。
+*** 新しいバケットの名前、容量、およびパフォーマンスサービスレベル。を参照してください link:../s3-config/storage-service-definitions-reference.html["ストレージサービスレベル"] を参照してください。
+*** destination_S3 サーバ CA 証明書の内容。
+
+
+
+
+. 「 * Destination * 」の下にある _source_S3 サーバ CA 証明書の内容をコピーして貼り付けます。
+. [ 保護 ] 、 [ 関係 ] の順にクリックして、復元の進行状況を監視します。
+
+
+
+
+== CLI 手順の略
+
+. 新しいバケットにリストアする場合は、新しいバケットを作成します。詳細については、を参照してください link:create-cloud-backup-new-bucket-task.html["新しいバケットのバックアップ関係の作成（クラウドターゲット）"]。
+. デスティネーションバケットのリストア処理を開始します。「 snapmirror restore -source-path SVM_name___ ： /buckets/_bucket_name _ -destination-path_svm_name _ ： /buckets/_bucket_name _
+
+
+.例
+[listing]
+----
+dest_cluster::> snapmirror restore -source-path src_vs1:/bucket/test-bucket -destination-path dest_vs1:/bucket/test-bucket-mirror
+----

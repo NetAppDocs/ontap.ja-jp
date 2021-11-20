@@ -16,9 +16,9 @@ ONTAP 9.5 以降では、 16GB 以上のメモリを搭載したすべての FAS
 
 SnapMirror Synchronous レプリケーションの HA ペアあたりの最大処理数は、コントローラのモデルによって異なります。
 
-[cols="3*"]
+[cols="4*"]
 |===
-| プラットフォーム | ONTAP 9.9.1 より前のリリースでは、 HA ペアあたりの SnapMirror 同期処理の数が許容されます | ONTAP 9.9.1 以降では、 HA ペアあたりの SnapMirror 同期処理の数が許容されます 
+| プラットフォーム | ONTAP 9.9.1 より前のリリースでは、 HA ペアあたりの SnapMirror 同期処理の数が許容されます | ONTAP 9.9.1 の HA ペアあたりの最大 SnapMirror 同期処理数 | ONTAP 9.10.1 で HA ペアあたり許可される SnapMirror 同期処理の数 
 
 
  a| 
@@ -27,6 +27,8 @@ AFF
 80
  a| 
 160
+ a| 
+200
 
 
 
@@ -34,6 +36,8 @@ AFF
 FAS
  a| 
 40
+ a| 
+80
  a| 
 80
 
@@ -45,11 +49,18 @@ ONTAP Select の場合
 20
  a| 
 40
+ a| 
+40
 
 |===
 
 
 == サポートされている機能
+
+ONTAP 9.10.1 では、次の機能が SnapMirror Synchronous テクノロジでサポートされます。ただし、ソースとデスティネーションのクラスタのすべてのノードで ONTAP 9.10.1 が実行されている必要があります。
+
+* NFSv4.2
+
 
 ONTAP 9.5 以降では、 SnapMirror Synchronous テクノロジは、 NFSv3 、 FC 、および iSCSI の各プロトコルをサポートしており、いずれのネットワークでもレイテンシは 10 ミリ秒以内に抑えられます。
 
@@ -67,6 +78,19 @@ SnapMirror ラベルが Sync ポリシーまたは StrictSync ポリシーに関
 
 
 ONTAP 9.6 の SnapMirror Synchronous テクノロジでは、次の機能がサポートされます。ただし、ソースクラスタとデスティネーションクラスタのすべてのノードで ONTAP 9.6 が実行されている場合に限ります。
+
+* SVM DR
++
+** SnapMirror Synchronous ソースは SVM DR ソースにすることもできます。たとえば、 SM-S を 1 つに、 SVM DR をもう 1 つにしたファンアウト構成などです。
+** SM-S は DP ソースのカスケードをサポートしていないため、 SnapMirror Synchronous ソースを SVM DR デスティネーションにすることはできません。
++
+デスティネーションクラスタで SVM DR のフリップ再同期を実行する前に、同期関係を解放する必要があります。
+
+** SVM DR は DP ボリュームのレプリケーションをサポートしていないため、 SnapMirror Synchronous デスティネーションを SVM DR ソースにすることはできません。
++
+同期ソースの再同期を逆に行うと、 SVM DR にデスティネーションクラスタの DP ボリュームが含まれなくなります。
+
+
 
 * NFSv4.0 および NFSv4.1
 * SMB 2.0 以降
@@ -96,7 +120,11 @@ ONTAP 9.5 から ONTAP 9.6 にアップグレードした場合、タイムス�
 
 Synchronous SnapMirror 関係では、次の機能はサポートされません。
 
-* SVM DR
+* MCC
+* SFMoD
+* SFCoD
+* VVol
+* AppDM の使用
 * SAN アクセスと NAS アクセスが混在しています
 +
 SnapMirror Synchronous 関係のプライマリボリュームが提供できるのは、 NAS データまたは SAN データのどちらか一方です。SnapMirror Synchronous 関係のプライマリボリュームから SAN アクセスと NAS アクセスの両方を行うことはできません。

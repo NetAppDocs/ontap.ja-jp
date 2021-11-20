@@ -1,0 +1,139 @@
+---
+sidebar: sidebar 
+permalink: s3-snapmirror/create-cloud-backup-new-bucket-task.html 
+keywords: create a backup relationship for a new bucket 
+summary: 新しい S3 バケットを作成すると、オブジェクトストアプロバイダの S3 SnapMirror ターゲットバケットにそのバケットをすぐにバックアップできます。バケットは、 StorageGRID システムでも AWS S3 環境でもかまいません。 
+---
+= 新しいバケットのバックアップ関係の作成（クラウドターゲット）
+:toc: macro
+:hardbreaks:
+:toclevels: 1
+:toc: 
+:toclevels: 1
+:nofooter: 
+:icons: font
+:linkattrs: 
+:imagesdir: ./media/
+:toc-position: content
+
+
+[role="lead"]
+新しい S3 バケットを作成すると、オブジェクトストアプロバイダの S3 SnapMirror ターゲットバケットにそのバケットをすぐにバックアップできます。バケットは、 StorageGRID システムでも AWS S3 環境でもかまいません。
+
+.必要なもの
+* オブジェクトストアプロバイダの有効なアカウントクレデンシャルと設定情報が必要です。
+* ソースシステムにクラスタ間ネットワークインターフェイスと IPspace が設定されている。
+* •ソース Storage VM の DNS 設定でターゲットの FQDN を解決できる必要があります。
+
+
+
+
+== System Manager の手順の略
+
+. Storage VM を編集してユーザを追加し、グループにユーザを追加します。
++
+.. Storage > Storage VM* の順にクリックし、 Storage VM をクリックして、 * Settings * をクリックし、をクリックします image:icon_pencil.gif["編集アイコン"] * S3 の下 * 。
++
+を参照してください link:../task_object_provision_add_s3_users_groups.html["S3 ユーザとグループを追加"] を参照してください。
+
+
+
+. ソースシステムに Cloud Object Store を追加します。
++
+.. [ 保護（ Protection ） ] > [ 概要（ Overview ） ] * をクリックし、 [ クラウドオブジェクトストア（ Cloud Object Stores ） ] を
+.. [ * 追加 ] をクリックし、 [* Amazon S3 * ] または [ * StorageGRID * ] を選択します。
+.. 次の値を入力します。
++
+*** クラウドオブジェクトストアの名前
+*** URL 形式（パスまたは仮想ホスト）
+*** Storage VM （ S3 に対して有効）
+*** オブジェクトストアサーバ名（ FQDN ）
+*** オブジェクトストアの証明書
+*** アクセスキー
+*** シークレットキー
+*** コンテナ（バケット）名
+
+
+
+
+. S3 SnapMirror ポリシーを作成します。これは、既存のポリシーがなく、デフォルトポリシーを使用しない場合に行います。
++
+.. [* 保護 ] 、 [ 概要 *] の順にクリックし、 [ ローカルポリシーの設定 *] をクリックします。
+.. をクリックします image:../media/icon_arrow.gif["右矢印"] [* 保護ポリシー * ] の横にある [* 追加 ] をクリックします。
++
+*** ポリシー名と概要を入力します。
+*** ポリシーのスコープとして、クラスタまたは SVM を選択します
+*** S3 SnapMirror 関係には「 * Continuous * 」を選択します。
+*** スロットル値および * 目標復旧時点 * 値を入力します。
+
+
+
+
+. SnapMirror 保護を使用してバケットを作成します。
++
+.. [ * ストレージ ] 、 [ バケット ] の順にクリックし、 [ * 追加 ] をクリックします。
+.. 名前を入力し、 Storage VM を選択してサイズを入力し、 * その他のオプション * をクリックします。
+.. [*Permissions*] で、 [*Add*] をクリックします。権限の確認は任意ですが、推奨されます。
++
+*** * Principal * および * Effect * - ユーザグループの設定に対応する値を選択するか、デフォルト値をそのまま使用します。
+*** * Actions * - 「 GetObject 」、「 PutObject 」、「 DeleteObject 」、「 ListBucket 」、「 GetBucketAcl 」、「 GetObjectAcl 」、「 ListBucketMultipartUploads 」、「 ListMultipartUploadParts 」の値が表示されていることを確認します
+*** * Resources * - 必要なその他の値をデフォルトの「 _ 」（ bucketname 、 bucketname/* ）または使用します。
++
+を参照してください link:../task_object_provision_manage_bucket_access.html["バケットへのユーザアクセスを管理します"] これらのフィールドの詳細については、を参照してください。
+
+
+
+.. [ * 保護 * ] で、 [ * SnapMirror （ ONTAP またはクラウド）を有効にする * ] をオンにし、 [ * クラウドストレージ * ] を選択して、 [ * クラウドオブジェクトストア * ] を選択します。
+
+
+
+
+[Save] をクリックすると、ソース Storage VM に新しいバケットが作成され、クラウドオブジェクトストアにバックアップされます。
+
+
+
+== CLI 手順の略
+
+. この SVM の最初の S3 SnapMirror 関係の場合は、ソースとデスティネーションの SVM の両方に root ユーザキーが存在することを確認し、存在しない場合は再生成します。「 vserver object-store-server user show 」 + root ユーザのアクセスキーがあることを確認します。表示されていない場合は、「 vserver object-store-server user regenerate -key_keys -vserver SVM_name -user_root_`+ 」と入力し、すでにキーが存在する場合は再生成しません
+. ソース SVM にバケットを作成します。「 vserver object-store-server bucket create -vserver _svm_name _bucket_name_[-size_integer_[KB|MB|GB|TB|PB] [-comment_text_][_additional _options_]] 」
+. デフォルトのバケットポリシーにアクセスルールを追加します。 vserver object-store-server bucket policy add-statement-vserver _svm_name -bucket_bucket_name_Effect ｛ allow|deny ｝ -action _object_store_actions_ -principal_user_names _ -resource_store_resources_[-sid_text_index] -integer
++
+....
+clusterA::> vserver object-store-server bucket policy add-statement -bucket test-bucket -effect allow -action GetObject,PutObject,DeleteObject,ListBucket,GetBucketAcl,GetObjectAcl,ListBucketMultipartUploads,ListMultipartUploadParts -principal - -resource test-bucket, test-bucket /*
+....
+. 既存のポリシーがなく、デフォルトポリシーを使用しない場合は、 S3 SnapMirror ポリシーを作成します。「 snapmirror policy create -vserver SVM_name -policy policy_name -type continuous [-rpc_integer_] [-throttle_type] [-comment_text_] [_adding_options_]] 」
++
+パラメータ
+
++
+** type 'continuous ' – S3 SnapMirror 関係の唯一のポリシー・タイプ（必須）
+** `-rpC' –リカバリ・ポイントの目標時間を秒単位で指定します（オプション）
+** -throttle` –スループット / 帯域幅の上限をキロバイト / 秒単位で指定します（オプション）。
++
+....
+clusterA::> snapmirror policy create -vserver vs0 -type continuous -rpo 0 -policy test-policy
+....
+
+
+. ターゲットが StorageGRID システムの場合は、ソースシステムに StorageGRID CA サーバ証明書をインストールします。「 security certificate install -type server-ca -vserver _src_svm _cert-name_storage_grid_server_certificate_`
++
+詳細については 'securitycertificate install マニュアル・ページを参照してください
+
+. S3 SnapMirror デスティネーションオブジェクトストアを定義します。「 snapmirror object-store config create -source-path -vserver _svm_name _object-store-name _target_store_name_name_usage data-provider-type ｛ AWS_S3 | sgws ｝ -server-name_target_fqdn_container-name _remote_bucket_name_IS-IS -ssl_target_key -secret_target_target_password-target_target_key true
++
+....
+src_cluster::> snapmirror object-store config create -vserver vs0 -object-store-name sgws-store -usage data -provider-type SGWS -server sgws.example.com -container-name target-test-bucket -is-ssl-enabled true -port 443 -access-key abc123 -secret-password xyz890
+....
+. S3 SnapMirror 関係を作成します。「 Snapmirror create -source-path SVM_name_name_： /bucket_name_ -destination-path_server_FQDN_： //_bucket_name _policy_name_
++
+`-destination-path ` –完全修飾ドメイン名とバケット名
+
++
+作成したポリシーを使用することも、デフォルトのポリシーをそのまま使用することもできます。
+
++
+....
+src_cluster::> snapmirror create -source-path vs0:/bucket/buck-evp -destination-path sgws.example.com:/sgws-store -policy test-policy
+....
+. ミラーリングがアクティブであることを確認します。「 snapmirror show -policy type continuous -fields status 」
+

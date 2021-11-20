@@ -21,46 +21,66 @@ MetroCluster 環境で SAN 構成を使用する際の注意事項は次のと�
 古いポートがオフラインになり、新しいポートがオンラインになったときの重複を避けるには、次の手順に従ってフロントエンドスイッチを設定します。
 
 +
-[cols="2*"]
+[cols="20,80"]
 |===
+
+
 | 方法 | 次の手順を実行します。 
 
 
  a| 
 Cisco スイッチ
  a| 
-手順 1.スイッチに接続してログインします。
-
-手順 2コンフィギュレーションモードを開始します。
-
+.. スイッチに接続してログインします。
+.. コンフィギュレーションモードを開始します。
++
 [listing]
 ----
 switch# config t
 switch(config)#
 ----
-手順 3ネームサーバデータベースの最初のデバイスエントリを新しいデバイスで上書きします。
-
+.. ネームサーバデータベースの最初のデバイスエントリを新しいデバイスで上書きします。
++
 [listing]
 ----
 switch(config)# no fcns reject-duplicate-pwwn vsan 1
 ----
+.. NX-OS 8.x を実行しているスイッチで、 flogi quiesce タイムアウトが 0 に設定されていることを確認します。
++
+... 休止期間を表示します。
++
+'Switch (config)# show flogi interval info | I quiesce ’
+
++
+....
+Stats:  fs flogi quiesce timerval:  0
+....
+... 前の手順の出力で時刻がゼロであることが示されない場合は、 0 に設定します。
++
+'Switch (config)# flogi scale enable`
+
++
+'Switch (config)# flogi quiesce timeout 0`
+
+
+
+
+
 
 
  a| 
 Brocade スイッチ
  a| 
-手順 1.スイッチに接続してログインします。
-
-手順 2「 witchDisable 」コマンドを入力します。
-
-手順 3configure コマンドを入力し ' プロンプトで y を押します
-
+.. スイッチに接続してログインします。
+.. 「 witchDisable 」コマンドを入力します。
+.. configure コマンドを入力し ' プロンプトで y を押します
++
 [listing]
 ----
 F-Port login parameters (yes, y, no, n): [no] y
 ----
-手順 4設定 1 を選択：
-
+.. 設定 1 を選択：
++
 [listing]
 ----
 - 0: First login take precedence over the second login (default)
@@ -68,9 +88,9 @@ F-Port login parameters (yes, y, no, n): [no] y
 - 2: the port type determines the behavior
 Enforce FLOGI/FDISC login: (0..2) [0] 1
 ----
-手順 5残りのプロンプトに応答するか、 * Ctrl+D* を押します。
+.. 残りのプロンプトに応答するか、 * Ctrl+D* を押します。
+.. 「 witchEnable 」コマンドを入力します。
 
-手順 6「 witchEnable 」コマンドを入力します。
 
 |===
 
@@ -80,7 +100,5 @@ MetroCluster 固有のホスト情報の詳細については、ネットアッ�
 https://kb.netapp.com/Advice_and_Troubleshooting/Data_Protection_and_Security/MetroCluster/What_are_AIX_Host_support_considerations_in_a_MetroCluster_configuration%3F["MetroCluster 構成での AIX ホストのサポートに関する考慮事項"]
 
 https://kb.netapp.com/Advice_and_Troubleshooting/Data_Protection_and_Security/MetroCluster/Solaris_host_support_considerations_in_a_MetroCluster_configuration["MetroCluster 構成での Solaris ホストのサポートに関する考慮事項"]
-
-* 関連情報 *
 
 https://mysupport.netapp.com/matrix["NetApp Interoperability Matrix Tool で確認できます"]

@@ -115,7 +115,7 @@ clusterA::> snapmirror policy create -vserver vs0 -type continuous -rpo 0 -polic
 ....
 
 
-. ターゲットが StorageGRID システムの場合は、ソースシステムに StorageGRID CA サーバ証明書をインストールします。「 security certificate install -type server-ca -vserver _src_svm _cert-name_storage_grid_server_certificate_`
+. ターゲットが StorageGRID システムの場合は、ソースクラスタの管理 SVM に StorageGRID CA サーバ証明書をインストールします。「 security certificate install -type server-ca -vserver _src_admin_svm_name -cert-name _storage_grid_server_certificate_`
 +
 詳細については 'securitycertificate install マニュアル・ページを参照してください
 
@@ -124,16 +124,16 @@ clusterA::> snapmirror policy create -vserver vs0 -type continuous -rpo 0 -polic
 ....
 src_cluster::> snapmirror object-store config create -vserver vs0 -object-store-name sgws-store -usage data -provider-type SGWS -server sgws.example.com -container-name target-test-bucket -is-ssl-enabled true -port 443 -access-key abc123 -secret-password xyz890
 ....
-. S3 SnapMirror 関係を作成します。「 Snapmirror create -source-path SVM_name_name_： /bucket_name_ -destination-path_server_FQDN_： //_bucket_name _policy_name_
+. S3 SnapMirror 関係を作成します。「 snapmirror create -source-path_svm_name _ ： /bucket/_bucket_name __ destination-path _object_store_name_： /objstore-policy_name_name_
 +
-`-destination-path ` –完全修飾ドメイン名とバケット名
+--destination-path` - 前のステップで作成したオブジェクトストア名と 'objstore' のフィックスを指定します
 
 +
 作成したポリシーを使用することも、デフォルトのポリシーをそのまま使用することもできます。
 
 +
 ....
-src_cluster::> snapmirror create -source-path vs0:/bucket/buck-evp -destination-path sgws.example.com:/sgws-store -policy test-policy
+src_cluster::> snapmirror create -source-path vs0:/bucket/buck-evp -destination-path sgws-store:/objstore -policy test-policy
 ....
 . ミラーリングがアクティブであることを確認します。「 snapmirror show -policy type continuous -fields status 」
 

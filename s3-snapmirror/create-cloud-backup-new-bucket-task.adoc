@@ -119,21 +119,28 @@ clusterA::> snapmirror policy create -vserver vs0 -type continuous -rpo 0 -polic
 +
 詳細については 'securitycertificate install マニュアル・ページを参照してください
 
-. S3 SnapMirror デスティネーションオブジェクトストアを定義します。「 snapmirror object-store config create -source-path -vserver _svm_name _object-store-name _target_store_name_name_usage data-provider-type ｛ AWS_S3 | sgws ｝ -server-name_target_fqdn_container-name _remote_bucket_name_IS-IS -ssl_target_key -secret_target_target_password-target_target_key true
-+
+. S3 SnapMirror デスティネーションオブジェクトストアを定義します。「 snapmirror object-store config create -vserver _svm_name _object-store-name_target_store_name_usage data-provider-type ｛ AWS_S3 | sgws ｝ -server-name_target_fqdn_-container-name _remote_bucket_name_-is-ssl-enabled true_port_secret_target_target_password-target_target_key -secret_target_target_password-key -secret_target_target_target_password-key
+
+
+パラメータ :*`-object store-name' –ローカル ONTAP システム上のオブジェクトストアターゲットの名前*`-usage` - このワークフローには「 data 」を使用します。*-provider-type –「 AWS_S3 」および「 S GWS 」（ StorageGRID ）ターゲットがサポートされています。*`-server` ：ターゲットサーバの FQDN または IP アドレス。*`-is-sssl-enabled – SSL の有効化はオプションですが、推奨されます。
+
+詳細については '`napmirror object-store config create` のマニュアルページを参照してください
+
+[+]
+
 ....
 src_cluster::> snapmirror object-store config create -vserver vs0 -object-store-name sgws-store -usage data -provider-type SGWS -server sgws.example.com -container-name target-test-bucket -is-ssl-enabled true -port 443 -access-key abc123 -secret-password xyz890
 ....
 . S3 SnapMirror 関係を作成します。「 snapmirror create -source-path_svm_name _ ： /bucket/_bucket_name __ destination-path _object_store_name_： /objstore-policy_name_name_
 +
---destination-path` - 前のステップで作成したオブジェクトストア名と 'objstore' のフィックスを指定します
+--destination-path` - 前のステップで作成したオブジェクトストア名と ' 固定値 objstor` 。
 
 +
 作成したポリシーを使用することも、デフォルトのポリシーをそのまま使用することもできます。
 
 +
 ....
-src_cluster::> snapmirror create -source-path vs0:/bucket/buck-evp -destination-path sgws-store:/objstore -policy test-policy
+src_cluster::> snapmirror create -source-path vs0:/bucket/test-bucket -destination-path sgws-store:/objstore -policy test-policy
 ....
 . ミラーリングがアクティブであることを確認します。「 snapmirror show -policy type continuous -fields status 」
 

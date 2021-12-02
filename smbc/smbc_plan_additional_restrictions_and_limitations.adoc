@@ -1,7 +1,7 @@
 ---
 sidebar: sidebar 
 permalink: smbc/smbc_plan_additional_restrictions_and_limitations.html 
-keywords: SM-BC, SMBC, restrictions, limitations, consistency group, volume 
+keywords: SM-BC, SMBC, restrictions, limitations, consistency group, volume, solaris 
 summary: SnapMirror Business Continuity 解決策を使用する場合は、いくつかの制限事項もあります。 
 ---
 = その他の制約事項および制限事項
@@ -77,6 +77,39 @@ NOTE: 関係の数ではなく、エンドポイントの数を上限として�
 |===
 
 
-=== NTFS セキュリティ形式
+=== NTFS セキュリティ形式です
 
 NTFS セキュリティ形式は、 SM-BC ボリュームではサポートされません。
+
+
+
+=== SM-BC 構成での Solaris ホスト設定の推奨事項
+
+ONTAP 9.10.1 以降、 SM-BC は Solaris 11.4 をサポートします。SM-BC 環境で計画外のサイト・フェイルオーバー・スイッチオーバーが発生したときに Solaris クライアントアプリケーションが無停止で動作するようにするには ' 次の設定を Solaris 11.4 ホストで構成する必要がありますこの設定は、矛盾を検出するコードパスが実行されないように、フェールオーバーモジュール「 f_tpgs 」をオーバーライドします。
+
+指示に従って、オーバーライドパラメータを設定します。
+
+. ホストに接続されている NetApp ストレージ・タイプについて ' 次のようなエントリを持つ構成ファイル /etc/driver/drv/scsi_vhci.conf を作成します
++
+[listing]
+----
+scsi-vhci-failover-override =
+"NETAPP  LUN","f_tpgs"
+----
+. オーバーライドが正常に適用されたことを確認するには、「 devprop` 」および「 `db 」コマンドを使用します。
++
+[listing]
+----
+root@host-A:~# devprop -v -n /scsi_vhci scsi-vhci-failover-override scsi-vhci-failover-override=NETAPP  LUN + f_tpgs
+root@host-A:~# echo "*scsi_vhci_dip::print -x struct dev_info devi_child | ::list struct dev_info devi_sibling| ::print struct dev_info devi_mdi_client| ::print mdi_client_t ct_vprivate| ::print struct scsi_vhci_lun svl_lun_wwn svl_fops_name"| mdb -k`
+----
++
+[listing]
+----
+svl_lun_wwn = 0xa002a1c8960 "600a098038313477543f524539787938"
+svl_fops_name = 0xa00298d69e0 "conf f_tpgs"
+----
+
+
+
+NOTE: 「 csi-vhci-failover-override 」が適用されている場合、「 conf 」が「 vl_fs_name 」に追加されます。追加情報およびデフォルト設定への推奨される変更については、ネットアップの技術情報アーティクルを参照してください https://kb.netapp.com/Advice_and_Troubleshooting/Data_Protection_and_Security/SnapMirror/Solaris_Host_support_recommended_settings_in_SnapMirror_Business_Continuity_(SM-BC)_configuration["Solaris ホストでは、 SnapMirror Business Continuity （ SM-BC ）構成での推奨設定がサポートされます"]。

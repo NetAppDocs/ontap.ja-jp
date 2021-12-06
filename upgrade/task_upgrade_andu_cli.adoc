@@ -1,7 +1,7 @@
 ---
 sidebar: sidebar 
 permalink: upgrade/task_upgrade_andu_cli.html 
-keywords: netapp, ontap, upgrade, nondisruptive, nondisruptively, non-disruptive update, nondisruptive upgrade, upgrade a cluster, shift workload between clusters, hardware platform, configuration, software image, update, update ONTAP, update software, ndu 
+keywords: netapp, ontap, automate, automatic, automated, upgrade, nondisruptive, nondisruptively, non-disruptive update, nondisruptive upgrade, upgrade a cluster, shift workload between clusters, hardware platform, configuration, software image, update, update ONTAP, update software, ndu 
 summary: クラスタの ONTAP のバージョンは無停止で更新できます。 
 ---
 = CLI を使用した自動無停止アップグレード
@@ -20,7 +20,15 @@ summary: クラスタの ONTAP のバージョンは無停止で更新できま�
 [role="lead"]
 コマンドラインインターフェイス（ CLI ）を使用して、クラスタを無停止でアップグレードできることを確認し、各ノードにターゲット ONTAP イメージをインストールし、その後バックグラウンドでアップグレードを実行することができます。
 
-アップグレードプロセスの進捗状況を監視しない場合は、を推奨します xref:task_requesting_notification_of_issues_encountered_in_nondisruptive_upgrades.html[手動操作が必要なエラーに関する EMS 通知を要求します]。
+アップグレードプロセスの進捗状況を監視しない場合は、を推奨します link:task_requesting_notification_of_issues_encountered_in_nondisruptive_upgrades.html["手動操作が必要なエラーに関する EMS 通知を要求します"]。
+
+.作業を開始する前に
+* Active IQ デジタルアドバイザを起動する必要があります。
++
+Active I の Upgrade Advisor コンポーネントDigital Advisor は、アップグレードを成功させるための計画を支援します。
+
++
+SupportEdge Digital Advisor から得られるデータ主体の分析情報と推奨事項は、 Active IQ * 契約を締結しているネットアップのすべてのお客様に提供されます（機能は製品やサポートレベルによって異なります）。
 
 * アップグレード前の必要な準備作業を完了しておく必要があります。
 * HA ペアごとに、 1 つ以上のポートが各ノードの同じブロードキャストドメインに必要です。
@@ -36,7 +44,7 @@ cluster image validate コマンドは、クラスタコンポーネントをチ
 
 NOTE: 自動無停止アップグレード（ ANDU ）の開始前に storage failover modify -auto-giveback コマンドオプションの設定を変更しても、アップグレードプロセスには影響しません。ANDU プロセスは、更新に必要なテイクオーバー / ギブバックの実行時に、このオプションに設定されている値を無視します。たとえば、 ANDU を開始する前に -autogiveback を false に設定しても、ギブバックの前に自動アップグレードは中断されません。
 
-. 以前の ONTAP ソフトウェア・パッケージを削除します :`cluster image package delete -version previous_ONTAP_Version`
+. 以前の ONTAP ソフトウェア・パッケージを削除します： cluster image package delete -version previous_ONTAP_Version
 . ターゲットの ONTAP ソフトウェアパッケージをダウンロードします。「 cluster image package get -url location 」
 +
 
@@ -83,7 +91,7 @@ WARNING: There are additional manual upgrade validation checks that must be perf
 +
 ** ONTAP 9.3 から 9.7 にアップグレードする場合は、上記のコマンドで 9.7 の package_version_number を使用します。
 ** ONTAP 9.5 から 9.1.1 にアップグレードする場合は、上記のコマンドで 9.9.1 package_version_number を使用します。
-** 2 ノード MetroCluster システムを除くすべての MetroCluster 構成では、ユーザが確認を入力すると、両方のクラスタ（ディザスタリカバリクラスタと本番用クラスタ）でアップグレードプロセスが同時に開始されます。2 ノード MetroCluster システムの場合は、最初にディザスタリカバリサイト、つまりアップグレードが開始されないサイトで更新が開始されます。ディザスタリカバリサイトでの更新が完了すると、アップグレードは本番用サイトで開始されます。
+** 2 ノード MetroCluster システムを除く MetroCluster 構成では、ユーザが開始してコマンドラインで確認を行うと、 ONTAP のアップグレードプロセスが両方のサイト（ローカルサイトとディザスタリカバリサイト）の HA ペアで同時に開始されます。2 ノード MetroCluster システムの場合は、最初にディザスタリカバリサイト、つまりアップグレードが開始されないサイトで更新が開始されます。ディザスタリカバリサイトで更新が完了すると、ローカルサイトでアップグレードが開始されます。
 ** クラスタが 2~6 つのノードで構成されている場合は、ローリングアップグレードが実行されます。クラスタが 8 つ以上のノードで構成されている場合は、バッチアップグレードがデフォルトで実行されます。必要に応じて、 -force-rolling パラメータを使用して、代わりにローリングアップグレードを行うように指定できます。
 ** テイクオーバーとギブバックがそれぞれ完了したら、テイクオーバーとギブバックの際に発生する I/O の中断からクライアントアプリケーションが回復できるように 8 分間待機します。クライアントが安定するために必要な時間を調整する必要がある場合は、 -stabilize-minutes パラメータを使用して待機時間を変更できます。
 +

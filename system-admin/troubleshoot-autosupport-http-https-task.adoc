@@ -1,7 +1,7 @@
 ---
 permalink: system-admin/troubleshoot-autosupport-http-https-task.html 
 sidebar: sidebar 
-keywords: troubleshoot, autosupport, message, delivery, http, https, chekc, settings, resolve, problem 
+keywords: troubleshoot, autosupport, message, delivery, http, https, check, settings, resolve, problem 
 summary: HTTP または HTTPS を使用していて、想定される AutoSupport メッセージが送信されない場合は、いくつかの設定を確認することで問題を解決できます。 
 ---
 = HTTP または HTTPS を使用した AutoSupport メッセージ配信のトラブルシューティング
@@ -10,7 +10,7 @@ summary: HTTP または HTTPS を使用していて、想定される AutoSuppor
 
 
 [role="lead"]
-HTTP または HTTPS を使用していて、想定される AutoSupport メッセージが送信されない場合は、いくつかの設定を確認することで問題を解決できます。
+HTTP または HTTPS を使用していて、想定される AutoSupport メッセージが送信されない場合や自動更新機能が動作しない場合は、いくつかの設定を確認することで問題を解決できます。
 
 基本的なネットワーク接続と DNS ルックアップについて、以下の点を確認しておきます。
 
@@ -25,10 +25,16 @@ HTTP または HTTPS を使用していて、想定される AutoSupport メッ�
 エラーが発生したり、この手順の手順を完了できない場合は、問題を特定し、対処してから次の手順に進んでください。
 
 .手順
-. 「 system node AutoSupport check show-sdetails 」コマンドを実行して、 AutoSupport サブシステムの詳細なステータスを表示します。たとえば、テストメッセージを送信して AutoSupport デスティネーションへの接続を検証したり、 AutoSupport の設定で発生する可能性のあるエラーのリストを指定したりします。
+. AutoSupport サブシステムの詳細なステータスを表示します。
++
+「 system node AutoSupport check show-details 」というエラーが表示されます
+
++
+たとえば、テストメッセージを送信して AutoSupport デスティネーションへの接続を検証したり、 AutoSupport の設定で発生する可能性のあるエラーのリストを指定したりします。
+
 . ノード管理 LIF のステータスを確認します。
 +
-`* network interface show -home-node local -role node-mgmt -fields vserver 、 lif 、 status-oper 、 status-admin 、 address 、 role * '
+'network interface show -home-node local -role node-mgmt -fields vserver 、 lif 、 status-oper 、 status-admin 、 address 、 role '
 
 +
 「 tatus-oper 」フィールドと「 tatus-admin 」フィールドは「 up 」を返す必要があります。
@@ -36,27 +42,27 @@ HTTP または HTTPS を使用していて、想定される AutoSupport メッ�
 . あとで使用できるように、 SVM 名、 LIF 名、および LIF の IP アドレスを書き留めておきます。
 . DNS が有効になっていて正しく設定されていることを確認します
 +
-*vserver services name-service dns show *
+vserver services name-service dns show
 
 . AutoSupport メッセージからエラーが返された場合は、対処します。
 +
-*system node AutoSupport history show -node * -fields node 、 seq-num 、 destination 、 last-update 、 status 、 error *
+「 system node AutoSupport history show -node * -fields node 、 seq-num 、 destination 、 last-update 、 status 、 error 」というメッセージが表示されます
 
 +
 デジタル証明書に問題があることを示すエラーの場合は、テクニカルサポートにお問い合わせください。
 
 . クラスタが必要なサーバとインターネットの両方に正常にアクセスできることを確認します。
 +
-.. `* network traceroute -lif node-management_lif-destination DNS サーバ *`
-.. `* network traceroute -lif node-management_lif -destination support.netapp.com*`
+.. 「 network traceroute -lif node-management_lif-destination dns server 」というパスに移動します
+.. 「 network traceroute -lif node_name -destination support.netapp.com` 」を参照してください
 +
 [NOTE]
 ====
 アドレス「 upport.netapp.com` 」自体は ping や traceroute に応答しませんが、ホップ単位の情報は貴重です。
 
 ====
-.. *system node AutoSupport show -fields proxy-url*'
-.. `* network traceroute -node node_name -destination proxy_url *`
+.. 「 system node AutoSupport show -fields proxy-url 」の略
+.. 'network traceroute -node node_name -destination proxy_url'
 
 
 +
@@ -69,9 +75,16 @@ HTTP または HTTPS を使用していて、想定される AutoSupport メッ�
 プロキシサーバ、ユーザ名、パスワード、ポートを含む、すべての設定パラメータの値が AutoSupport の設定と同じであることを確認します。
 
 .. Web クライアントから「 + https://support.netapp.com+` 」にアクセスします。
-
-
 +
 アクセスが成功します。成功しない場合は、 HTTPS トラフィックと DNS トラフィックを許可するようにすべてのファイアウォールが設定されていること、およびプロキシサーバが正しく設定されていることを確認します。support.netapp.com の静的な名前解決を設定する方法の詳細については、記事を参照してください https://kb.netapp.com/Advice_and_Troubleshooting/Data_Storage_Software/ONTAP_OS/How_would_a_HOST_entry_be_added_in_ONTAP_for_support.netapp.com%3F["ONTAP for support.netapp.com? でホストエントリを追加する方法を説明します"]。
+
+
+
+. ONTAP 9.10.1 以降では、自動更新機能を有効にした場合、次の URL への HTTPS 接続が確立されていることを確認してください。
++
+** \ https://support-sg-emea.netapp.com
+** \ https://support-sg-naeast.netapp.com
+** \ https://support-sg-nawest.netapp.com
+
 
 

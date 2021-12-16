@@ -15,9 +15,10 @@ summary: 自動ギブバックコマンド
 [role="lead"]
 状況によっては、 ONTAP コマンドを使用して自動ギブバックの設定を管理しなければならないことがあります。
 
-[cols="2*"]
 |===
-| * | * 使用するコマンド 
+
+
+| 状況 | 使用するコマンド 
 
 
  a| 
@@ -25,9 +26,7 @@ summary: 自動ギブバックコマンド
 
 デフォルト設定は true です。
  a| 
-storage failover modify ‑ nodename_nodename _
-
-‑ auto-giveback true
+「 storage failover modify ‑ nodename_‑ autogivebacktrue
 
 
 
@@ -36,27 +35,21 @@ storage failover modify ‑ nodename_nodename _
 
 * 注意： * このパラメータを false に設定しても、パニック時のテイクオーバー後の自動ギブバックは無効になりません。パニック時のテイクオーバー後の自動ギブバックは、「‑ auto-giveback-after-panic 」パラメータを false に設定して無効にする必要があります。
  a| 
-storage failover modify ‑ nodename_nodename _
-
-‑ auto-giveback false
+「 storage failover modify ‑ nodename_‑ autogivebackfalse
 
 
 
  a| 
 パニック時のテイクオーバーのあとに実行される自動ギブバックを無効にします（この設定はデフォルトで有効になります）。
  a| 
-storage failover modify ‑ nodename_nodename _
-
-‑ auto-giveback‑ after-panic false （‑自動ギブバック‑パニック後）
+「 storage failover modify ‑ nodename_‑ auto-giveback ‑ after ‑ panic false 」というメッセージが表示されます
 
 
 
  a| 
 自動ギブバックが開始されるまでの待機時間（秒）を設定します（デフォルトは 600 秒）。このオプションで指定した待機時間が経過するまでは、自動ギブバックは実行されません。
  a| 
-storage failover modify ‑ nodename_nodename _
-
-‑ delay ‑ seconds_seconds_
+「 storage failover modify ‑ nodename_‑ delay ‑ seconds_seconds_` 」
 
 |===
 
@@ -67,42 +60,44 @@ storage failover modify ‑ nodename_nodename _
 
 次の表に、パニック時以外でテイクオーバーが発生した場合に適用される storage failover modify コマンドのパラメータを示します。
 
-[cols="2*"]
 |===
-| * パラメータ * | * デフォルト設定 * 
+
+
+| パラメータ | デフォルト設定です 
 
 
  a| 
--auto-giveback true | _false
+auto-giveback_true_|_false_`
  a| 
-真 _
+「 _TRUE_ 」
 
 
 
  a| 
--delay-seconds_integer_ （秒）
+`-delay-seconds_integer_(seconds)`
  a| 
 600
 
 
 
  a| 
--onreboot_true_|_false_
+`-onreboot_true_|_false_`
  a| 
-真 _
+「 _TRUE_ 」
 
 |===
 次の表に '-onreboot' パラメータと -auto-giveback' パラメータの組み合わせが ' パニックによるものではないテイクオーバー・イベントの自動ギブバックにどのように影響するかを示します
 
-[cols="3*"]
 |===
-| * storage failover modify のパラメータに * を使用します | * テイクオーバーの原因 * | * 自動ギブバックは実行されますか？ * 
+
+
+| 「 storage failover modify 」パラメータが使用されます | テイクオーバーの原因 | 自動ギブバックの実行 
 
 
  a| 
--onreboot_true_
+-onreboot_true_`
 
--auto-giveback true
+auto-giveback_true_`
 | reboot コマンド | はい。 
 
 
@@ -110,9 +105,9 @@ storage failover modify ‑ nodename_nodename _
 
 
  a| 
--onreboot_true_
+-onreboot_true_`
 
--auto-giveback を実行します
+auto-giveback_false_`
 | reboot コマンド | いいえ 
 
 
@@ -120,9 +115,9 @@ storage failover modify ‑ nodename_nodename _
 
 
  a| 
--onreboot_false_
+「 -onreboot_false_`. 」のように指定します
 
--auto-giveback true
+auto-giveback_true_`
 | reboot コマンド | 該当しない場合はテイクオーバーは実行されません 
 
 
@@ -130,16 +125,16 @@ storage failover modify ‑ nodename_nodename _
 
 
  a| 
--onreboot_false_
+「 -onreboot_false_`. 」のように指定します
 
--auto-giveback を実行します
+auto-giveback_false_`
 | reboot コマンド | いいえ 
 
 
 | halt コマンド、またはサービスプロセッサからの電源再投入 | いいえ 
 |===
 
-NOTE: auto-giveback' パラメータはパニックおよびその他すべての自動テイクオーバー後のギブバックを制御します-onreboot' パラメータが true に設定されていて ' 再起動によってテイクオーバーが発生した場合 '-auto-giveback パラメータが true に設定されているかどうかに関係なく ' 常に自動ギブバックが実行されます
+NOTE: auto-giveback' パラメータはパニックおよびその他すべての自動テイクオーバー後のギブバックを制御します-onreboot' パラメータが true' に設定されていて ' 再起動によってテイクオーバーが発生した場合 '-auto-giveback パラメータが 'true' に設定されているかどうかに関係なく ' 常に自動ギブバックが実行されます
 
 環境が再起動し ' ONTAP から発行された halt コマンドが '-onreboot' パラメータによって実行されます-onreboot' パラメータが false に設定されている場合 ' ノードがリブートされてもテイクオーバーは実行されませんしたがって ' 自動ギブバックは '-auto-giveback' パラメータが true に設定されているかどうかに関係なく実行できませんクライアントのアクセスが中断します。
 
@@ -149,61 +144,74 @@ NOTE: auto-giveback' パラメータはパニックおよびその他すべて�
 
 次の表に、パニック時に適用される「 storage failover modify 」コマンドのパラメータを示します。
 
-[cols="2*"]
 |===
-| * パラメータ * | * デフォルト設定 * 
+
+
+| パラメータ | デフォルト設定です 
 
 
  a| 
--onpanic _true | false_
-| 真 _ 
+「 -onpanic _true | false_` 」を選択します
+ a| 
+「 _TRUE_ 」
+
 
 
  a| 
--auto-giveback -auto-giveback-after-panic_true | false
+auto-giveback-after-panic_true|false_`
 
 （権限： advanced ）
-| 真 _ 
+ a| 
+「 _TRUE_ 」
 
 
-| -auto-giveback true | false  a| 
-真 _
+
+ a| 
+auto-giveback_true|false_`
+ a| 
+「 _TRUE_ 」
 
 |===
 次の表に、「 storage failover modify 」コマンドのパラメータの各組み合わせについて、パニック時の自動ギブバックの処理を示します。
 
 
-NOTE: テイクオーバーは、ノードがパニック状態になった場合に他の理由で発生する可能性があります。たとえば、ノードでパニックが発生した場合にパートナーにパニックパケットが届かないと、パートナーでハートビート損失テイクオーバーが実行される可能性があります。この場合、 auto-giveback-after-panic パラメータで制御されることはなく、 -onfailure パラメータで制御されます。
+NOTE: テイクオーバーは、ノードがパニック状態になった場合に他の理由で発生する可能性があります。たとえば、ノードでパニックが発生した場合にパートナーにパニックパケットが届かないと、パートナーでハートビート損失テイクオーバーが実行される可能性があります。この場合 ' ギブバックは 'auto-giveback-after-panic パラメータで制御されることはありませんが '-onfailure' パラメータで制御されます
 
-[cols="2*"]
+[cols="60,40"]
 |===
-| storage failover のパラメータを指定します | パニック発生後の自動ギブバックの実行 
 
 
-| -onpanic 'true'-auto-giveback`true'-auto-giveback-after-panic 'true | はい。 
+| 「 storage failover 」パラメータを使用します | パニック発生後の自動ギブバックの実行 
 
 
-| -onpanic 'true'-auto-giveback`true'-auto-giveback-after-panic 'false | いいえ 
+| 「 -onpanic true 」 -auto-giveback true 「 -auto-giveback-after-panic true 」のように設定されています | はい。 
 
 
-| -onpanic 'true'-auto-giveback`false'auto-giveback-after-panic 'true | はい。 
+| 「 -onpanic true 」 -auto-giveback true `-auto-giveback-after-panic false | いいえ 
 
 
-| -onpanic 'true'-auto-giveback'false' -auto-giveback-after-panic 'false | いいえ 
+| 「 -onpanic true 」 -auto-giveback false --auto-giveback-after-panic true | はい。 
 
 
-| -onpanic が「 false 」に設定されている場合、 -auto-giveback や -auto-giveback を実行しても、 -auto-giveback や -auto-giveback のパニック時の値には関係なく、テイクオーバーやギブバックは実行されません | いいえ 
+| 「 -onpanic true 」 -auto-giveback false --auto-giveback-after-panic false | いいえ 
+
+
+| 「 -onpanic false 」が「 false 」に設定されている場合、「 -auto-giveback 」または「 -auto-giveback -auto-giveback-after-panic 」に設定された値に関係なく、テイクオーバー / ギブバックは実行されません | いいえ 
 |===
 [NOTE]
 ====
-デフォルトの設定を変更すると、パニック時のパラメータによって自動ギブバックが無効になる場合があります。上記の表を参照してください。* onpanic パラメータを「 true 」に設定した場合、 -auto-giveback パラメータと -auto-giveback パラメータのデフォルト設定を変更しないかぎり、パニックが発生したときは常に自動ギブバックが実行されます。これらのパラメータの両方をデフォルトの設定（ true 、）から false に変更した場合、 -onpanic パラメータが「 true 」に設定されていても、自動ギブバックはパニック後には実行されません。* onpanic パラメータが false に設定されている場合は ' テイクオーバーは実行されず ' クライアントは ONTAP データ・サービスを中断しますそのため、 auto-giveback-after-panic パラメータが「 true 」に設定されていても自動ギブバックは実行されません。
+デフォルトの設定を変更すると ' 前述の表に示すように '-onpanic パラメータによって自動ギブバックが上書きされます
+
+* onpanic パラメータが「 true 」に設定されている場合 'auto-giveback' パラメータおよび auto-giveback-after-panic パラメータのデフォルト設定を変更しないかぎり ' パニックが発生した場合は常に自動ギブバックが実行されますこれらのパラメータの両方をデフォルト (`true') から false に変更した場合 '-onpanic パラメータが「 true 」に設定されていても ' パニック後に自動ギブバックは実行されません
+* onpanic パラメータが false に設定されている場合 ' テイクオーバーは実行されず ' クライアントは ONTAP データ・サービスを中断しますそのため ' auto-giveback-after-panic パラメータが true に設定されていても ' 自動ギブバックは実行されません
+
 
 ====
 [NOTE]
 ====
-* ノードのパニック時にその他の理由でテイクオーバーが発生する可能性があります。このような場合、自動ギブバックのパニック時の設定ではギブバックは制御されません。
-* onpanic パラメータを「 true 」に設定した場合、 -auto-giveback パラメータと -auto-giveback パラメータのデフォルト設定を変更しないかぎり、パニックが発生すると常に自動ギブバックが実行されます。これらのパラメータの両方をデフォルト (`true', ) から false に変更すると '-onpanic パラメータが「 true 」に設定されていても ' パニック後に自動ギブバックは実行されません
-* onpanic パラメータを false に設定した場合は、テイクオーバーが実行されません。そのため、 PANIC パラメータの設定が true になっていても、自動ギブバックは実行されません。クライアントのアクセスが中断します。
+* ノードのパニック時にその他の理由でテイクオーバーが発生する可能性があります。このような場合 ' ギブバックは 'auto-giveback-after-panic 設定によって制御されません
+* onpanic パラメータが「 true 」に設定されている場合 'auto-giveback' パラメータおよび auto-giveback-after-panic パラメータのデフォルト設定を変更しないかぎり ' パニックが発生した場合は常に自動ギブバックが実行されますこれらのパラメータの両方をデフォルト (`true') から false に変更した場合 '-onpanic パラメータが「 true 」に設定されていても ' パニック後に自動ギブバックは実行されません
+* -onpanic パラメータが false に設定されている場合 ' テイクオーバーは実行されませんそのため ' auto-giveback-after-panic パラメータが true に設定されていても ' 自動ギブバックは実行されませんクライアントのアクセスが中断します。
 
 
 ====

@@ -4,7 +4,7 @@ sidebar: sidebar
 keywords: i/o misalignments, occur, properly, aligned, luns 
 summary: ONTAP では、適切にアライメントされた LUN における I/O のミスアライメントが報告されることがあります。一般に、このようなミスアライメントの警告は、 LUN が適切にプロビジョニングされていて、パーティションテーブルが適正であることに確信があれば無視してかまいません。 
 ---
-= I/O のミスアライメントは、適切にアライメントされた LUN の概要で発生することがあります
+= 適切にアライメントされた LUN における I/O のミスアライメントの概要
 :icons: font
 :imagesdir: ../media/
 
@@ -25,5 +25,156 @@ image::../media/bsag-cmode-lbpb.gif[BSAG cmode lbpb]
 * https://docs.netapp.com/us-en/ontap-sanhost/hu_wuhu_71.html["Windows Unified Host Utilities 7.1"]
 * https://docs.netapp.com/ontap-9/topic/com.netapp.doc.exp-iscsi-esx-cpg/GUID-7428BD24-A5B4-458D-BD93-2F3ACD72CBBB.html["『 Virtual Storage Console for VMware vSphere インストレーションアドミニストレーションガイド』"]
 
+
+
+
+== LUN の OS タイプを使用して I/O アライメントを実行する
+
+OS のパーティショニングスキームを使用して I/O アライメントを実行するには、お使いのオペレーティングシステムに最も近い、推奨される ONTAP LUN 「 ostype 」値を使用する必要があります。
+
+ホスト OS で採用されるパーティションスキームは I/O のミスアライメントの大きな要因です。一部の ONTAP LUN の ostype 値では ' プレフィックスと呼ばれる特殊なオフセットを使用して ' ホスト・オペレーティング・システムがアライメントするデフォルト・パーティション方式を有効にします
+
+[NOTE]
+====
+場合によっては、 I/O アライメントを実行するためにカスタムパーティションテーブルが必要になることがあります。ただし '`prefix-value が `0` より大きい 'ostype 値の場合 ' カスタム・パーティションはミスアライメントされた I/O を作成することがあります
+
+====
+オペレーティング・システムに基づいて、次の表に示す LUN の ostype 値を使用してください。
+
+[cols="4*"]
+|===
+| LUN の ostype | プレフィックス（バイト数） | プレフィックス（セクター数） | オペレーティングシステム 
+
+
+ a| 
+「 windows 」
+ a| 
+32,256
+ a| 
+63
+ a| 
+Windows 2000 、 2003 （ MBR フォーマット）
+
+
+
+ a| 
+「 windows_gpt 」と入力します
+ a| 
+17,408
+ a| 
+34
+ a| 
+Windows 2003 （ GPT フォーマット）
+
+
+
+ a| 
+「 Windows_2008` 」
+ a| 
+0
+ a| 
+0
+ a| 
+Windows 2008 以降
+
+
+
+ a| 
+「 linux 」
+ a| 
+0
+ a| 
+0
+ a| 
+すべての Linux ディストリビューション
+
+
+
+ a| 
+「 Xen 」と入力します
+ a| 
+0
+ a| 
+0
+ a| 
+Citrix XenServer
+
+
+
+ a| 
+「 vmware 」
+ a| 
+0
+ a| 
+0
+ a| 
+VMware ESX
+
+
+
+ a| 
+「モラリス」
+ a| 
+1MB
+ a| 
+2 、 048
+ a| 
+Solaris の場合
+
+
+
+ a| 
+'olaris _efin`
+ a| 
+17,408
+ a| 
+34
+ a| 
+Solaris の場合
+
+
+
+ a| 
+「 hpux 」
+ a| 
+0
+ a| 
+0
+ a| 
+HP-UX
+
+
+
+ a| 
+「 AIX 」
+ a| 
+0
+ a| 
+0
+ a| 
+AIX の場合
+
+|===
+
+
+== Linux 固有の I/O アライメントに関する注意事項があります
+
+Linux ディストリビューションでは、データベース、各種ボリュームマネージャ、ファイルシステム用の raw デバイスなど、さまざまな方法で LUN を使用できます。raw デバイスまたは論理ボリューム内の物理ボリュームとして使用する場合、 LUN にパーティションを作成する必要はありません。
+
+RHEL 5 以前および SLES 10 以前の場合、ボリュームマネージャを使用せずに LUN を使用する場合は、 LUN をパーティショニングして、アライメントされたオフセットから始まる 1 つのパーティションを設定する必要があります。これは、 8 つの論理ブロックの偶数の倍数であるセクターです。
+
+
+
+== Solaris LUN 固有の I/O アライメントに関する注意事項があります
+
+「 'olaris 」の ostype と「 olaris _efi 」の ostype のどちらを使用すべきかを判断する際には、さまざまな要因を考慮する必要があります。
+
+を参照してください http://mysupport.netapp.com/documentation/productlibrary/index.html?productID=61343["『 Solaris Host Utilities Installation and Administration Guide 』"] を参照してください。
+
+
+
+== ESX ブート LUN はミスアライメントとしてレポートされます
+
+ESX ブート LUN として使用される LUN は通常、ミスアライメントとして ONTAP から報告されます。ESX は、ブート LUN 上に複数のパーティションを作成するため、アライメントが非常に困難です。ミスアライメント I/O の合計容量は小さいため、ミスアライメントされた ESX ブート LUN は通常、パフォーマンス上の問題を生じません。LUN が VMware の ostype を使用して正しくプロビジョニングされていれば、特に対処は必要ありません。
 
 https://kb.netapp.com/Advice_and_Troubleshooting/Data_Storage_Software/Virtual_Storage_Console_for_VMware_vSphere/Guest_VM_file_system_partition%2F%2Fdisk_alignment_for_VMware_vSphere["VMware vSphere 、その他の仮想環境、およびネットアップストレージシステム用のゲスト VM ファイルシステムのパーティションとディスクのアライメント"]

@@ -19,7 +19,7 @@
   <meta http-equiv="nss-subtype" content="User Guide"/>
   
   <meta name="description" content="ONTAP 9.6 以降では、メンテナンスモードでディスク完全消去を実行できます。これにより、運用を終了したシステムや動作していないシステムにおいて、 1 本または一連のディスクからデータを削除し、データをリカバリ不能にできます。">
-  <meta name="keywords" content=" sanitize, disk, maintenance mode">
+  <meta name="keywords" content=" sanitize, disk, maintenance mode, nodeshell">
   
   
 
@@ -15683,6 +15683,34 @@
 
 
 
+
+
+          
+        </li>
+      </ul>
+    
+
+  
+
+
+
+    
+      <ul class="subfolders" style="display:none;">
+        <li class="pdf-ux-container">
+          <a target="_blank" 
+            
+              href="/ja-jp/ontap/pdfs/sidebar/廃止された_EMS_イベントマッピングを更新します.pdf" 
+            
+          >
+            <img src="/ja-jp/ontap/images/pdf.png" width="16" height="16"/>
+            廃止された EMS イベントマッピングを更新します
+          </a>
+          
+
+
+
+
+
           
         </li>
       </ul>
@@ -21891,6 +21919,15 @@
         syslog サーバに通知を転送するように EMS イベントを設定します
       </a></li><li class=" "><a class="na-navbar-padding" href="/ja-jp/ontap/error-messages/configure-snmp-traphosts-event-notifications-task.html">
         SNMP トラップホストでイベント通知を受信するように設定します
+      </a></li><li class=" "><a class="na-navbar-padding" href="/ja-jp/ontap/error-messages/configure-webhooks-event-notifications-task.html">
+        重要な EMS イベントについて、通知を REST API サーバに転送するように設定します
+      </a></li></ul></li><li class="subfolders "><a href="#">
+        <div class="na-navbar-padding"> 廃止された EMS イベントマッピングを更新します</div>
+      </a>
+      <ul><li class=" "><a class="na-navbar-padding" href="/ja-jp/ontap/error-messages/ems-routing-notifications-models-concept.html">
+        EMS イベントのマッピングモデル
+      </a></li><li class=" "><a class="na-navbar-padding" href="/ja-jp/ontap/error-messages/convert-ems-routing-to-notifications-task.html">
+        廃止された ONTAP コマンドから EMS イベントマッピングを更新します
       </a></li></ul></li></ul></li></ul></li><li class=" "><a class="na-navbar-padding" href="/ja-jp/ontap/reference_legal_notices.html">
         法的通知
       </a></li></ul>
@@ -21950,11 +21987,19 @@
 <p class="page-details">
   
     
-    <time datetime="2022-01-18 03:54:51 +0000">01/18/2022</time>
+    <time datetime="2022-01-19 05:18:01 +0000">01/19/2022</time>
     
   
 
 <span>寄稿者
+  <a target="_blank" href="https://github.com/netapp-forry">
+    <img  class="avatar avatar-small"
+          alt="netapp-forry"
+          width="20" height="20"
+          src="https://avatars.githubusercontent.com/u/51911827?v=4"
+          style="border-radius: 50%;"/>
+  </a>
+  
   <a target="_blank" href="https://github.com/netapp-thomi">
     <img  class="avatar avatar-small"
           alt="netapp-thomi"
@@ -21974,10 +22019,23 @@
 <div class="paragraph lead">
 <p>ディスクを完全消去すると、運用を終了したシステムや動作していないシステムのディスクやディスクのセットからデータを削除し、データをリカバリできないようにすることができます。</p>
 </div>
+<div class="paragraph">
+<p>ディスクを完全消去する方法は 2 つあります。</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>ONTAP 9.6 以降のリリースでメンテナンスモードのコマンドを使用する。</p>
+</li>
+<li>
+<p>ONTAP 9 のすべてのリリースでノードシェルコマンドを使用する。</p>
+</li>
+</ul>
+</div>
 </div>
 </div>
 <div class="sect1">
-<h2 id="ontap-9-6-以降">ONTAP 9.6 以降</h2>
+<h2 id="保守モードの方法">保守モードの方法</h2>
 <div class="sectionbody">
 <div class="paragraph">
 <p>ONTAP 9.6 以降では、メンテナンスモードでディスク完全消去を実行できます。</p>
@@ -22060,16 +22118,28 @@
 </div>
 </div>
 <div class="sect1">
-<h2 id="ontap-9-5-以前">ONTAP 9.5 以前</h2>
+<h2 id="ノードシェルメソッド">ノードシェルメソッド</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>ディスク完全消去を有効にすると、一部の Data ONTAP コマンドが無効になります。ノードで有効にしたディスク完全消去を無効にすることはできません。</p>
+<p>ノードシェルコマンドを使用してディスク完全消去を有効にすると、下位レベルの ONTAP コマンドがいくつか無効になります。ノードで有効にしたディスク完全消去を無効にすることはできません。</p>
 </div>
 <div class="ulist">
 <div class="title">必要なもの</div>
 <ul>
 <li>
-<p>ディスクはスペアディスクである必要があります。ノードに所有されており、アグリゲートで使用されていないディスクを指定する必要があります。+ ディスクがパーティショニングされている場合、パーティションをアグリゲートで使用することはできません。</p>
+<p>ディスクはスペアディスクである必要があります。ノードに所有されており、アグリゲートで使用されていないディスクを指定する必要があります。</p>
+<div class="paragraph">
+<p>ディスクがパーティショニングされている場合、パーティションをアグリゲートで使用することはできません。</p>
+</div>
+</li>
+<li>
+<p>自己暗号化ディスク（ SED ）を使用することはできません。</p>
+<div class="paragraph">
+<p>SED を完全消去するには、「 storage encryption disk sanitize 」コマンドを使用する必要があります。</p>
+</div>
+<div class="paragraph">
+<p><a href="../encryption-at-rest/index.html">"保存データの暗号化"</a></p>
+</div>
 </li>
 <li>
 <p>ストレージプールの一部であるディスクを使用することはできません。</p>

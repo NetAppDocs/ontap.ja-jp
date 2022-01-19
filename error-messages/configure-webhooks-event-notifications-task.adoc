@@ -1,0 +1,102 @@
+---
+permalink: error-messages/configure-webhooks-event-notifications-task.html 
+sidebar: sidebar 
+keywords: configure, important, ems, events, receive, email, notifications, forward, rest, api, webhook 
+summary: REST API サーバでイベント通知を受信するには、 REST API webhook サポートを設定する必要があります。 
+---
+= 重要な EMS イベントについて、通知を REST API サーバに転送するように設定します
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+REST API サーバでイベント通知を受信するには、 REST API webhook サポートを設定する必要があります。
+
+.作業を開始する前に
+* EMS イベントを受信できる REST API / webhook サポートを備えたサーバが必要です。
+* REST API サーバでは、サーバ側またはクライアント側のセキュリティ証明書を利用できます。
+* 証明書の設定は、デスティネーションによって決定されます。宛先に基づく証明書構成の概要については、次を参照してください。
++
+** * http * ： - 証明書が含まれていません
+** * https * ： - サーバ証明書は ONTAP システムで検証されます。必要に応じて、サーバを検証するために ONTAP システムから送信されるクライアント証明書を設定できます。
+
+
+* クライアント側の証明書には、ソース ONTAP システムにインストールできる秘密鍵と証明書の両方が必要です。
+
+
+
+NOTE: クライアント証明書とサーバ証明書 REST API フォワードの両方を設定する場合は、クライアント側の証明書を使用するためにサーバ側の証明書が必要です。そのため、クライアント側の手順に従って両方の認証方法を使用する必要があります。
+
+
+
+== HTTP REST API 転送の設定
+
+このタスクは、クラスタの実行中であれば、 ONTAP コマンドラインでコマンドを入力していつでも実行できます。
+
+.手順
+. 「 important-events 」フィルタの新しい宛先「 restapi-ems 」を作成します。
++
+イベント通知の宛先 create -name restapi-ems-rest-api-url\http://<url_to_rest_api_server>`
+
+. 「 important-events 」フィルタを新しい「 restapi-ems 」デスティネーションにリンクする通知を作成します。
++
+event notification create -filter-name important-events -destinations restapi-ems`
+
+
+
+
+
+== サーバ証明書の設定 HTTPS REST API 転送
+
+この手順では、以前にサーバ側の秘密鍵とパブリック証明書を生成していることを前提としています。また、 ONTAP にインストールできるルート証明書があることも前提としています。
+
+.手順
+. 適切なサーバ秘密鍵とパブリック証明書を REST API サーバにインストールします。
++
+
+NOTE: 具体的な手順はサーバによって異なります。
+
+. ONTAP にサーバのルート証明書をインストールします。
++
+「 security certificate install-type server-ca 」を入力します
+
++
+コマンドでパブリック証明書を照会します。
+
+. 「 important-events 」フィルタの「 restapi-ems 」デスティネーションを作成します。
++
+サーバ側の証明書を使用するには、 HTTPS 方式を使用する必要があります。
+
++
+イベント通知の宛先 create -name restapi-ems-rest-api-url\https://<url_to_rest_api_server>`
+
+. 「 important-events 」フィルタと新しい「 restapi-ems 」宛先をリンクする通知を作成します。
++
+event notification create -filter-name important-events -destinations restapi-ems`
+
+
+
+
+
+== クライアント証明書の HTTPS REST API 転送の設定
+
+クライアント証明書の使用は任意であり、サーバによるクライアント認証が必要な場合にのみ必要です。この手順では、クライアントの秘密鍵とパブリック証明書を以前に生成していることを前提としています。
+
+.手順
+. 適切なルート証明書と中間証明書を REST API サーバにインストールして、クライアント証明書を検証します。
+. ONTAP にクライアント証明書をインストールします。
++
+「 security certificate install -type client 」を参照してください
+
++
+コマンドは、秘密鍵とパブリック証明書を照会します。
+
+. 「 important-events 」フィルタの「 restapi-ems 」デスティネーションを作成します。
++
+イベント通知の宛先 create -name restapi-ems-rest-api-url https://<url_to_rest_api_server>[] -certificate-authority <issuer of the client certificate-serial <serial of the client certificate>`
+
+. 「 important-events 」フィルタを新しい「 restapi-ems 」宛先にリンクする通知を作成します。
++
+event notification create -filter-name important-events -destinations restapi-ems`
+
+

@@ -21995,11 +21995,19 @@
 <p class="page-details">
   
     
-    <time datetime="2022-01-20 20:07:40 +0000">01/20/2022</time>
+    <time datetime="2022-01-22 01:04:37 +0000">01/22/2022</time>
     
   
 
 <span>寄稿者
+  <a target="_blank" href="https://github.com/netapp-forry">
+    <img  class="avatar avatar-small"
+          alt="netapp-forry"
+          width="20" height="20"
+          src="https://avatars.githubusercontent.com/u/51911827?v=4"
+          style="border-radius: 50%;"/>
+  </a>
+  
   <a target="_blank" href="https://github.com/netapp-thomi">
     <img  class="avatar avatar-small"
           alt="netapp-thomi"
@@ -22014,35 +22022,99 @@
 </p>
 
 
+<div id="preamble">
+<div class="sectionbody">
 <div class="paragraph lead">
-<p>場合によっては、オンボードキー管理の暗号化キーのリストアが必要になることがあります。キーのリストアが必要であることを確認したら、オンボードキーマネージャをセットアップしてキーをリストアできます。</p>
-</div>
-<div class="paragraph">
-<p>[+]<a href="delete-key-management-database-task.html">"外部キー管理からオンボードキー管理への移行"</a></p>
+<p>オンボードキー管理の暗号化キーをリストアする必要がある場合は、最初にキーのリストアが必要であることを確認してから、オンボードキーマネージャをセットアップしてキーをリストアできます。</p>
 </div>
 <div class="ulist">
+<div class="title">必要なもの</div>
 <ul>
+<li>
+<p>NSE で外部キー管理（ KMIP ）サーバを使用している場合は、外部キー管理ツールのデータベースを削除しておく必要があります。</p>
+<div class="paragraph">
+<p><a href="delete-key-management-database-task.html">"外部キー管理からオンボードキー管理への移行"</a></p>
+</div>
+</li>
 <li>
 <p>このタスクを実行するには、クラスタ管理者である必要があります。</p>
 </li>
 </ul>
 </div>
-<div class="paragraph">
-<p>ONTAP 9.6 以降では、「 securitykey-manager key query -node node 」コマンドを使用して、キーのリストアが必要かどうかを確認できます。</p>
 </div>
-<div class="paragraph">
-<p>ONTAP 9.5 以前では、「 securitykey-manager key show 」コマンドを使用して、キーのリストアが必要かどうかを確認できます。</p>
 </div>
+<div class="sect1">
+<h2 id="ontap-9-6-以降での手順">ONTAP 9.6 以降での手順</h2>
+<div class="sectionbody">
 <div class="olist arabic">
-<div class="title">手順</div>
 <ol class="arabic">
+<li>
+<p>キーを復元する必要があることを確認します +<code>security key-manager key query -node-node_</code></p>
+</li>
+<li>
+<p>ONTAP 9.8 以降を実行していて、ルート・ボリュームが暗号化されている場合は、を実行します <a href="#root_volume_encrypted">[root_volume_encrypted]</a>。</p>
+<div class="paragraph">
+<p>ONTAP 9.6 または 9.7 を実行している場合、または ONTAP 9.8 以降を実行していて、ルートボリュームが暗号化されていない場合は、この手順を省略してください。</p>
+</div>
+</li>
+<li>
+<p>キーを復元します :+<code>security key-manager onboard sync</code></p>
+<div class="paragraph">
+<p>コマンド構文全体については、マニュアルページを参照してください。</p>
+</div>
+<div class="paragraph">
+<p>ONTAP 9.6 の次のコマンドを使用して、オンボードキー階層のキーを同期します。</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>cluster1::&gt; security key-manager onboard sync
+
+Enter the cluster-wide passphrase for onboard key management in Vserver "cluster1"::    &lt;32..256 ASCII characters long text&gt;</pre>
+</div>
+</div>
+</li>
+<li>
+<p>パスフレーズのプロンプトで、クラスタのオンボードキー管理のパスフレーズを入力します。</p>
+</li>
+</ol>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="ontap-9-5-以前での手順">ONTAP 9.5 以前での手順</h2>
+<div class="sectionbody">
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>キーを復元する必要があることを確認します +`security key-manager key show</p>
+</li>
 <li>
 <p>ONTAP 9.8 以降を実行していて、ルート・ボリュームが暗号化されている場合は、次の手順を実行します。</p>
 <div class="paragraph">
-<p>ONTAP 9.7 以前を実行している場合、または ONTAP 9.8 以降を実行していて、ルートボリュームが暗号化されていない場合は、この手順を省略してください。</p>
+<p>ONTAP 9.6 または 9.7 を実行している場合、または ONTAP 9.8 以降を実行していて、ルートボリュームが暗号化されていない場合は、この手順を省略してください。</p>
 </div>
-<div class="olist loweralpha">
-<ol class="loweralpha" type="a">
+</li>
+<li>
+<p>キーを復元します :+<code>security key-manager setup -node _node-</code></p>
+<div class="paragraph">
+<p>コマンド構文全体については、マニュアルページを参照してください。</p>
+</div>
+</li>
+<li>
+<p>パスフレーズのプロンプトで、クラスタのオンボードキー管理のパスフレーズを入力します。</p>
+</li>
+</ol>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="ルートボリュームが暗号化されている場合の手順">ルートボリュームが暗号化されている場合の手順</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>ONTAP 9.8 以降を実行していて、ルートボリュームが暗号化されている場合は、ブートメニューを使用してオンボードキー管理のリカバリパスフレーズを設定する必要があります。</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
 <li>
 <p>ノードをブート・メニューで '(10) Set onboard key management recovery secrets オプションを選択します</p>
 </li>
@@ -22063,55 +22135,7 @@
 </li>
 </ol>
 </div>
-</li>
-<li>
-<p>キーをリストアします。</p>
-<table class="tableblock frame-all grid-all stretch">
-<colgroup>
-<col style="width: 35%;">
-<col style="width: 65%;">
-</colgroup>
-<tbody>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">ONTAP バージョン</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">使用するコマンド</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
-<p>ONTAP 9.6 以降</p>
-</div></div></td>
-<td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
-<p>「セキュリティキーマネージャオンボード同期」</p>
-</div></div></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
-<p>ONTAP 9.5 以前</p>
-</div></div></td>
-<td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
-<p>「 securitykey manager setup -node node 」を参照してください</p>
-</div></div></td>
-</tr>
-</tbody>
-</table>
-<div class="paragraph">
-<p>コマンド構文全体については、マニュアルページを参照してください。</p>
 </div>
-<div class="paragraph">
-<p>ONTAP 9.6 の次のコマンドを使用して、オンボードキー階層のキーを同期します。</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre>cluster1::&gt; security key-manager onboard sync
-
-Enter the cluster-wide passphrase for onboard key management in Vserver "cluster1"::    &lt;32..256 ASCII characters long text&gt;</pre>
-</div>
-</div>
-</li>
-<li>
-<p>パスフレーズのプロンプトで、クラスタのオンボードキー管理のパスフレーズを入力します。</p>
-</li>
-</ol>
 </div>
 
     </article>

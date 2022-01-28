@@ -331,7 +331,7 @@
 <div class="ie-main">
   <!-- Sidebar Column -->
   
-  <div class="col-md-3" >
+  <div class="col-md-3" id="sidebar-height">
       <div class="n-pdf-header">
   <a id="toggleButtonPdf" class="n-pdf-button" type="button">
     <img src="/ja-jp/ontap/images/pdf.png" width="16" height="16"/>利用可能なPDF<span>
@@ -21977,6 +21977,13 @@
         法的通知
       </a></li></ul>
 </div>
+<script>
+  window.onscroll = () => {
+    const value = -40 - (document.body.scrollHeight - (window.innerHeight + document.scrollingElement.scrollTop));
+    
+    document.getElementById("sidebar-height").style.bottom = Math.max(0,value) + "px";
+};
+</script>
 <!-- this highlights the active parent class in the navgoco sidebar. this is critical so that the parent expands when you're viewing a page. This must appear below the sidebar code above. Otherwise, if placed inside customscripts.js, the script runs before the sidebar code runs and the class never gets inserted.-->
 <script>$("li.active").parents('li').toggleClass("active");</script>
 
@@ -22032,7 +22039,7 @@
 <p class="page-details">
   
     
-    <time datetime="2022-01-27 20:06:10 +0000">01/27/2022</time>
+    <time datetime="2022-01-28 14:52:50 +0000">01/28/2022</time>
     
   
 
@@ -22045,6 +22052,9 @@
 
 <div class="paragraph lead">
 <p>FIPS ドライブまたは SED は、ノードの認証キー ID がデフォルト以外の値に設定されている場合にのみ不正アクセスから保護されます。FIPS ドライブまたは SED を非保護モードに戻すには、「 storage encryption disk modify 」コマンドを使用してキー ID をデフォルトの値に設定します。</p>
+</div>
+<div class="paragraph">
+<p>HA ペアで暗号化 SAS ドライブまたは NVMe ドライブ（ SED 、 NSE 、 FIPS ）を使用している場合は、システムを初期化する前に、 HA ペア内のすべてのドライブでこのプロセスに従う必要があります（ブートオプション 4 または 9 ）。そうしないと、ドライブを転用した場合にデータが失われる可能性があります。</p>
 </div>
 <div class="paragraph">
 <p>このタスクを実行するには、クラスタ管理者である必要があります。</p>
@@ -22061,7 +22071,7 @@
 <li>
 <p>FIPS ドライブが FIPS 準拠モードの場合は、ノードの FIPS 認証キー ID をデフォルトの MSID である 0x0 に戻します。</p>
 <div class="paragraph">
-<p>「 storage encryption disk modify -disk disk_id -fips-key-id 0x0 」です</p>
+<p>storage encryption disk modify -disk disk_id&#8201;&#8212;&#8201;fips-key-id 0x0</p>
 </div>
 <div class="paragraph">
 <p>「 securitykey-manager query 」コマンドを使用すると、キー ID を表示できます。</p>
@@ -22075,11 +22085,31 @@ Info: Starting modify on 14 disks.
       storage encryption disk show-status command.</pre>
 </div>
 </div>
+<div class="paragraph">
+<p>次のコマンドで、処理が成功したことを確認します。</p>
+</div>
+<div class="paragraph">
+<p>「 storage encryption disk show-status 」を参照してください</p>
+</div>
+<div class="paragraph">
+<p>番号が同じになるまで、 show -status コマンドを繰り返します。処理が完了するのは、「ディスクの開始」と「ディスクの終了」の番号が同じ場合です。</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>cluster1:: storage encryption disk show-status
+
+            FIPS    Latest   Start               Execution   Disks   Disks Disks
+Node        Support Request  Timestamp           Time (sec)  Begun   Done  Successful
+-------     ------- -------- ------------------  ---------- ------ ------  ----------
+cluster1    true    modify   1/18/2022 15:29:38    3           14     5         5
+1 entry was displayed.</pre>
+</div>
+</div>
 </li>
 <li>
 <p>ノードのデータ認証キー ID をデフォルトの MSID である 0x0 に戻します。</p>
 <div class="paragraph">
-<p>「 storage encryption disk modify -disk disk_id -data-key-id 0x0 」です</p>
+<p>storage encryption disk modify -disk disk_id__ -data-key-id 0x0</p>
 </div>
 <div class="paragraph">
 <p>-data-key-id' の値は 'SAS ドライブと NVMe ドライブのどちらを非保護モードに戻すかに応じて 0x0 に設定する必要があります</p>
@@ -22095,6 +22125,15 @@ Info: Starting modify on 14 disks.
       View the status of the operation by using the
       storage encryption disk show-status command.</pre>
 </div>
+</div>
+<div class="paragraph">
+<p>次のコマンドで、処理が成功したことを確認します。</p>
+</div>
+<div class="paragraph">
+<p>「 storage encryption disk show-status 」を参照してください</p>
+</div>
+<div class="paragraph">
+<p>番号が同じになるまで、 show -status コマンドを繰り返します。処理が完了するのは、「ディスクの開始」と「ディスクの終了」の番号が同じ場合です。</p>
 </div>
 </li>
 </ol>

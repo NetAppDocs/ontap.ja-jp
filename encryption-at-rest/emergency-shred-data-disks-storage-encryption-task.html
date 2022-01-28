@@ -19,7 +19,7 @@
   <meta http-equiv="nss-subtype" content="User Guide"/>
   
   <meta name="description" content="セキュリティに関する緊急事態が発生した場合は、ストレージシステムまたは KMIP サーバへの給電が遮断されていても、 FIPS ドライブまたは SED へのアクセスをただちに禁止できます。">
-  <meta name="keywords" content=" emergency, shredding, data, fips, drive, sed">
+  <meta name="keywords" content=" emergency, shred, data, fips, drive, sed, disk encrypt sanitize, disk encrypt destroy">
   
   
 
@@ -331,7 +331,7 @@
 <div class="ie-main">
   <!-- Sidebar Column -->
   
-  <div class="col-md-3" >
+  <div class="col-md-3" id="sidebar-height">
       <div class="n-pdf-header">
   <a id="toggleButtonPdf" class="n-pdf-button" type="button">
     <img src="/ja-jp/ontap/images/pdf.png" width="16" height="16"/>利用可能なPDF<span>
@@ -21977,6 +21977,13 @@
         法的通知
       </a></li></ul>
 </div>
+<script>
+  window.onscroll = () => {
+    const value = -40 - (document.body.scrollHeight - (window.innerHeight + document.scrollingElement.scrollTop));
+    
+    document.getElementById("sidebar-height").style.bottom = Math.max(0,value) + "px";
+};
+</script>
 <!-- this highlights the active parent class in the navgoco sidebar. this is critical so that the parent expands when you're viewing a page. This must appear below the sidebar code above. Otherwise, if placed inside customscripts.js, the script runs before the sidebar code runs and the class never gets inserted.-->
 <script>$("li.active").parents('li').toggleClass("active");</script>
 
@@ -22032,11 +22039,19 @@
 <p class="page-details">
   
     
-    <time datetime="2022-01-27 20:06:10 +0000">01/27/2022</time>
+    <time datetime="2022-01-28 14:52:50 +0000">01/28/2022</time>
     
   
 
 <span>寄稿者
+  <a target="_blank" href="https://github.com/netapp-ahibbard">
+    <img  class="avatar avatar-small"
+          alt="netapp-ahibbard"
+          width="20" height="20"
+          src="https://avatars.githubusercontent.com/u/85892662?v=4"
+          style="border-radius: 50%;"/>
+  </a>
+  
   <a target="_blank" href="https://github.com/netapp-thomi">
     <img  class="avatar avatar-small"
           alt="netapp-thomi"
@@ -22058,7 +22073,7 @@
 <div class="title">必要なもの</div>
 <ul>
 <li>
-<p>KMIP サーバを使用している必要があり、 KMIP サーバで簡単に破棄できる認証アイテム（スマートカードや USB ドライブなど）が設定されている必要があります。</p>
+<p>使用可能な電力がない KMIP サーバを使用している場合は、 KMIP サーバで簡単に破棄できる認証アイテム（スマートカードや USB ドライブなど）が設定されている必要があります。</p>
 </li>
 <li>
 <p>このタスクを実行するには、クラスタ管理者である必要があります。</p>
@@ -22072,13 +22087,14 @@
 <p>FIPS ドライブまたは SED のデータの緊急時のシュレッディングを実行します。</p>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
-<col style="width: 30%;">
-<col style="width: 70%;">
+<col style="width: 33.3333%;">
+<col style="width: 33.3333%;">
+<col style="width: 33.3334%;">
 </colgroup>
 <tbody>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">状況</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">作業</p></td>
+<td class="tableblock halign-left valign-top" colspan="2"><p class="tableblock">作業</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
@@ -22136,33 +22152,60 @@
 </li>
 </ol>
 </div></div></td>
-</tr>
-<tr>
 <td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
 <p>ストレージシステムに給電されており、データをただちにシュレッディングする必要があります</p>
 </div></div></td>
+</tr>
+<tr>
 <td class="tableblock halign-left valign-top"><div class="content"><div class="olist loweralpha">
 <ol class="loweralpha" type="a">
+<li>
+<p>* ディスク上のデータにアクセスできない状態にし、ディスクを再利用する場合は、ディスクを完全消去します。 *</p>
+</li>
 <li>
 <p>ストレージシステムが HA ペアとして構成されている場合は、テイクオーバーを無効にします。</p>
 </li>
 <li>
-<p>権限レベルを advanced に設定します。 + 「 set -privilege advanced 」</p>
+<p>権限レベルを advanced に設定します。</p>
+<div class="paragraph">
+<p>「 advanced 」の権限が必要です</p>
+</div>
 </li>
 <li>
-<p>ディスクを完全消去するか破棄します。</p>
-<div class="ulist">
-<ul>
-<li>
-<p>ディスクのデータにアクセスできない状態にして、ディスクを再利用できるようにする場合は、次のディスクを完全消去します。 +'storage encryption disk sanitize -disk * -force-all-states true</p>
+<p>ドライブが FIPS 準拠モードの場合は、ノードの FIPS 認証キー ID をデフォルトの MSID に戻します。</p>
+<div class="paragraph">
+<p>storage encryption disk modify -disk * -fips-key-id 0x0</p>
+</div>
 </li>
 <li>
-<p>ディスクのデータにアクセスできない状態にしてディスクを保存する必要もない場合は、ディスクを破棄します。 +'storage encryption disk destroy -disk * -force-all-state true ストレージシステムがパニック状態になり、システムは永続的に無効な状態になり、すべてのデータが消去されます。システムを再度使用するには、再設定する必要があります。</p>
-</li>
-</ul>
+<p>ディスクを完全消去します。</p>
+<div class="paragraph">
+<p>storage encryption disk sanitize -disk * -force-all-states true</p>
 </div>
 </li>
 </ol>
+</div></div></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="olist loweralpha">
+<ol class="loweralpha" type="a">
+<li>
+<p>* ディスク上のデータにアクセスできない状態にし、ディスクを保存する必要もない場合は、ディスクを破棄してください： *</p>
+</li>
+<li>
+<p>ストレージシステムが HA ペアとして構成されている場合は、テイクオーバーを無効にします。</p>
+</li>
+<li>
+<p>権限レベルを advanced に設定します。</p>
+<div class="paragraph">
+<p>「 advanced 」の権限が必要です</p>
+</div>
+</li>
+<li>
+<p>ディスクを破棄します： storage encryption disk destroy -disk * -force-all-states true</p>
+</li>
+</ol>
+</div></div></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
+<p>ストレージシステムがパニック状態になります。これで、システムは永続的に無効な状態になり、すべてのデータが消去されます。システムを再度使用するには、再設定する必要があります。</p>
 </div></div></td>
 </tr>
 <tr>
@@ -22179,13 +22222,8 @@
 </li>
 </ol>
 </div></div></td>
-</tr>
-<tr>
 <td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
 <p>KMIP サーバまたはストレージシステムに給電されていない</p>
-</div></div></td>
-<td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
-<p>KMIP サーバ用の認証アイテム（スマートカードなど）を破棄します。これにより、ストレージシステムからディスク暗号化キーにアクセスできなくなります。</p>
 </div></div></td>
 </tr>
 </tbody>

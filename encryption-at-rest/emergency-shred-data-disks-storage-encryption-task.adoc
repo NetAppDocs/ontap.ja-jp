@@ -1,7 +1,7 @@
 ---
 permalink: encryption-at-rest/emergency-shred-data-disks-storage-encryption-task.html 
 sidebar: sidebar 
-keywords: emergency, shredding, data, fips, drive, sed 
+keywords: emergency, shred, data, fips, drive, sed, disk encrypt sanitize, disk encrypt destroy 
 summary: セキュリティに関する緊急事態が発生した場合は、ストレージシステムまたは KMIP サーバへの給電が遮断されていても、 FIPS ドライブまたは SED へのアクセスをただちに禁止できます。 
 ---
 = FIPS ドライブまたは SED のデータの緊急時のシュレッディング
@@ -13,18 +13,17 @@ summary: セキュリティに関する緊急事態が発生した場合は、�
 セキュリティに関する緊急事態が発生した場合は、ストレージシステムまたは KMIP サーバへの給電が遮断されていても、 FIPS ドライブまたは SED へのアクセスをただちに禁止できます。
 
 .必要なもの
-* KMIP サーバを使用している必要があり、 KMIP サーバで簡単に破棄できる認証アイテム（スマートカードや USB ドライブなど）が設定されている必要があります。
+* 使用可能な電力がない KMIP サーバを使用している場合は、 KMIP サーバで簡単に破棄できる認証アイテム（スマートカードや USB ドライブなど）が設定されている必要があります。
 * このタスクを実行するには、クラスタ管理者である必要があります。
 
 
 .ステップ
 . FIPS ドライブまたは SED のデータの緊急時のシュレッディングを実行します。
 +
-[cols="30,70"]
 |===
 
 
-| 状況 | 作業 
+| 状況 2+| 作業 
 
 
  a| 
@@ -56,15 +55,35 @@ summary: セキュリティに関する緊急事態が発生した場合は、�
  a| 
 ストレージシステムに給電されており、データをただちにシュレッディングする必要があります
  a| 
+.. * ディスク上のデータにアクセスできない状態にし、ディスクを再利用する場合は、ディスクを完全消去します。 *
 .. ストレージシステムが HA ペアとして構成されている場合は、テイクオーバーを無効にします。
-.. 権限レベルを advanced に設定します。 + 「 set -privilege advanced 」
-.. ディスクを完全消去するか破棄します。
+.. 権限レベルを advanced に設定します。
 +
-*** ディスクのデータにアクセスできない状態にして、ディスクを再利用できるようにする場合は、次のディスクを完全消去します。 +'storage encryption disk sanitize -disk * -force-all-states true
-*** ディスクのデータにアクセスできない状態にしてディスクを保存する必要もない場合は、ディスクを破棄します。 +'storage encryption disk destroy -disk * -force-all-state true ストレージシステムがパニック状態になり、システムは永続的に無効な状態になり、すべてのデータが消去されます。システムを再度使用するには、再設定する必要があります。
+「 advanced 」の権限が必要です
+
+.. ドライブが FIPS 準拠モードの場合は、ノードの FIPS 認証キー ID をデフォルトの MSID に戻します。
++
+storage encryption disk modify -disk * -fips-key-id 0x0
+
+.. ディスクを完全消去します。
++
+storage encryption disk sanitize -disk * -force-all-states true
+
+
+ a| 
+.. * ディスク上のデータにアクセスできない状態にし、ディスクを保存する必要もない場合は、ディスクを破棄してください： *
+.. ストレージシステムが HA ペアとして構成されている場合は、テイクオーバーを無効にします。
+.. 権限レベルを advanced に設定します。
++
+「 advanced 」の権限が必要です
+
+.. ディスクを破棄します： storage encryption disk destroy -disk * -force-all-states true
 
 
 
+
+ a| 
+ストレージシステムがパニック状態になります。これで、システムは永続的に無効な状態になり、すべてのデータが消去されます。システムを再度使用するには、再設定する必要があります。
 
 
 

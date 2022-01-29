@@ -12981,6 +12981,8 @@
 
 
 
+
+
           
         </li>
       </ul>
@@ -13204,6 +13206,8 @@
             Snapshot コピーリザーブを管理します
           </a>
           
+
+
 
 
 
@@ -20850,8 +20854,10 @@
         デスティネーションからデータを提供
       </a></li><li class=" "><a class="na-navbar-padding" href="/ja-jp/ontap/task_dp_restore_from_destination.html">
         保護関係を再同期する
-      </a></li><li class=" "><a class="na-navbar-padding" href="/ja-jp/ontap/task_dp_recover_snapshot.html">
+      </a></li><li class=" "><a class="na-navbar-padding" href="/ja-jp/ontap/task_dp_restore_from_vault.html">
         以前の Snapshot コピーからボリュームをリストアします
+      </a></li><li class=" "><a class="na-navbar-padding" href="/ja-jp/ontap/task_dp_recover_snapshot.html">
+        Snapshot コピーからリカバリします
       </a></li><li class=" "><a class="na-navbar-padding" href="/ja-jp/ontap/task_dp_restore_to_new_volume.html">
         新しいボリュームにリストアします
       </a></li><li class=" "><a class="na-navbar-padding" href="/ja-jp/ontap/task_dp_reverse_resynch_a_destination_vm.html">
@@ -20943,6 +20949,8 @@
         保護対象のファイルを削除するとファイルスペースが想定よりも少なくなる可能性があります
       </a></li><li class=" "><a class="na-navbar-padding" href="/ja-jp/ontap/data-protection/monitor-snapshot-copy-disk-consumption-task.html">
         Snapshot コピーのディスク使用状況を監視します
+      </a></li><li class=" "><a class="na-navbar-padding" href="/ja-jp/ontap/data-protection/check-available-snapshot-reserve.html">
+        ボリュームで利用可能な Snapshot コピーリザーブを確認します
       </a></li><li class=" "><a class="na-navbar-padding" href="/ja-jp/ontap/data-protection/modify-snapshot-copy-reserve-task.html">
         Snapshot コピーリザーブを変更します
       </a></li><li class=" "><a class="na-navbar-padding" href="/ja-jp/ontap/data-protection/autodelete-snapshot-copies-task.html">
@@ -22039,11 +22047,35 @@
 <p class="page-details">
   
     
-    <time datetime="2022-01-28 14:52:50 +0000">01/28/2022</time>
+    <time datetime="2022-01-28 22:33:05 +0000">01/28/2022</time>
     
   
 
 <span>寄稿者
+  <a target="_blank" href="https://github.com/netapp-ahibbard">
+    <img  class="avatar avatar-small"
+          alt="netapp-ahibbard"
+          width="20" height="20"
+          src="https://avatars.githubusercontent.com/u/85892662?v=4"
+          style="border-radius: 50%;"/>
+  </a>
+  
+  <a target="_blank" href="https://github.com/netapp-thomi">
+    <img  class="avatar avatar-small"
+          alt="netapp-thomi"
+          width="20" height="20"
+          src="https://avatars.githubusercontent.com/u/54111336?v=4"
+          style="border-radius: 50%;"/>
+  </a>
+  
+  <a target="_blank" href="https://github.com/netapp-lenida">
+    <img  class="avatar avatar-small"
+          alt="netapp-lenida"
+          width="20" height="20"
+          src="https://avatars.githubusercontent.com/u/54081920?v=4"
+          style="border-radius: 50%;"/>
+  </a>
+  
 </span>
 
 
@@ -22053,8 +22085,17 @@
 <div class="paragraph lead">
 <p>ボリュームを追加または削除して整合グループの構成を変更する場合は、最初に元の関係を削除してから、新しい構成で整合グループを作成し直す必要があります。</p>
 </div>
-<div class="paragraph">
-<p>このワークフローは環境 ONTAP 9.8 および 9.9 です。ONTAP 9.10.1 以降では、を管理することを推奨します <a href="../consistency-groups/index.html">整合グループ</a> System Manager または ONTAP REST API を使用</p>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<img src="/us-en/ontap/images/note.svg" alt="注記">
+</td>
+<td class="content">
+このワークフローは環境 ONTAP 9.8 および 9.8.1 です。ONTAP 9.10.1 以降では、を管理することを推奨します <a href="../consistency-groups/index.html">"整合グループ"</a> System Manager または ONTAP REST API を使用
+</td>
+</tr>
+</table>
 </div>
 <div class="ulist">
 <div class="title">このタスクについて</div>
@@ -22067,8 +22108,17 @@
 </li>
 </ul>
 </div>
-<div class="paragraph">
-<p>整合性グループを拡張するために追加する新しいボリュームには、ソースボリュームとデスティネーションボリュームの間に共通の Snapshot コピーのペアが必要です。</p>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<img src="/us-en/ontap/images/note.svg" alt="注記">
+</td>
+<td class="content">
+整合性グループを拡張するために追加する新しいボリュームには、ソースボリュームとデスティネーションボリュームの間に共通の Snapshot コピーのペアが必要です。
+</td>
+</tr>
+</table>
 </div>
 <div class="paragraph">
 <p>この手順では、エンドポイント vs1_src ： /cc/cg_src と vs1_dst ： /cc/cg_dst の間の整合グループ関係に、 vol_src1 と vol_src2 のボリュームマッピングがあることを前提としています。</p>
@@ -22105,7 +22155,19 @@
 <li>
 <p>LUN のマッピングを解除し、既存の整合グループ関係を削除します。</p>
 <div class="paragraph">
-<p>「デスティネーション」：： &gt; lun mapping delete -vserver vs1_dst-path &lt;lun_path &gt; -igroup &lt;igroup_name&gt;` 注：デスティネーション LUN はマッピング解除されていますが、プライマリコピー上の LUN はホスト I/O を処理し続けます</p>
+<p>デスティネーション：：： &gt; lun mapping delete -vserver vs1_dst-path &lt;lun_path &gt; -igroup &lt;igroup_name&gt;`</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<img src="/us-en/ontap/images/note.svg" alt="注記">
+</td>
+<td class="content">
+デスティネーション LUN はマッピング解除されますが、プライマリコピー上の LUN はホスト I/O を処理し続けます
+</td>
+</tr>
+</table>
 </div>
 <div class="paragraph">
 <p>「デスティネーション」：： &gt; snapmirror delete -destination-path vs1_dst ： /cg /cg_dst</p>

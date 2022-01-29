@@ -12990,6 +12990,8 @@
 
 
 
+
+
           
         </li>
       </ul>
@@ -13213,6 +13215,8 @@
             Snapshot コピーリザーブを管理します
           </a>
           
+
+
 
 
 
@@ -20850,8 +20854,10 @@
         デスティネーションからデータを提供
       </a></li><li class=" "><a class="na-navbar-padding" href="/ja-jp/ontap/task_dp_restore_from_destination.html">
         保護関係を再同期する
-      </a></li><li class=" "><a class="na-navbar-padding" href="/ja-jp/ontap/task_dp_recover_snapshot.html">
+      </a></li><li class=" "><a class="na-navbar-padding" href="/ja-jp/ontap/task_dp_restore_from_vault.html">
         以前の Snapshot コピーからボリュームをリストアします
+      </a></li><li class=" "><a class="na-navbar-padding" href="/ja-jp/ontap/task_dp_recover_snapshot.html">
+        Snapshot コピーからリカバリします
       </a></li><li class=" "><a class="na-navbar-padding" href="/ja-jp/ontap/task_dp_restore_to_new_volume.html">
         新しいボリュームにリストアします
       </a></li><li class=" "><a class="na-navbar-padding" href="/ja-jp/ontap/task_dp_reverse_resynch_a_destination_vm.html">
@@ -20943,6 +20949,8 @@
         保護対象のファイルを削除するとファイルスペースが想定よりも少なくなる可能性があります
       </a></li><li class=" "><a class="na-navbar-padding" href="/ja-jp/ontap/data-protection/monitor-snapshot-copy-disk-consumption-task.html">
         Snapshot コピーのディスク使用状況を監視します
+      </a></li><li class=" "><a class="na-navbar-padding" href="/ja-jp/ontap/data-protection/check-available-snapshot-reserve.html">
+        ボリュームで利用可能な Snapshot コピーリザーブを確認します
       </a></li><li class=" "><a class="na-navbar-padding" href="/ja-jp/ontap/data-protection/modify-snapshot-copy-reserve-task.html">
         Snapshot コピーリザーブを変更します
       </a></li><li class=" "><a class="na-navbar-padding" href="/ja-jp/ontap/data-protection/autodelete-snapshot-copies-task.html">
@@ -22039,11 +22047,19 @@
 <p class="page-details">
   
     
-    <time datetime="2022-01-28 14:52:50 +0000">01/28/2022</time>
+    <time datetime="2022-01-28 22:33:05 +0000">01/28/2022</time>
     
   
 
 <span>寄稿者
+  <a target="_blank" href="https://github.com/netapp-thomi">
+    <img  class="avatar avatar-small"
+          alt="netapp-thomi"
+          width="20" height="20"
+          src="https://avatars.githubusercontent.com/u/54111336?v=4"
+          style="border-radius: 50%;"/>
+  </a>
+  
   <a target="_blank" href="https://github.com/netapp-ahibbard">
     <img  class="avatar avatar-small"
           alt="netapp-ahibbard"
@@ -22058,11 +22074,13 @@
 </p>
 
 
+<div id="preamble">
+<div class="sectionbody">
 <div class="paragraph lead">
 <p>ONTAP 9.10.1 以降では、グローバルファイルロックを適用して、関連するキャッシュファイルすべての読み取りを防止できます。</p>
 </div>
 <div class="paragraph">
-<p>デフォルトでは、 FlexCache ボリュームは整合性よりも可用性が優先されます。グローバルファイルロックが有効でない場合、送信元に対する変更は FlexCache ボリュームに配布されますが、同時に更新されることはありません。グローバルファイルロックは、ボリューム間の整合性を可用性よりも優先します。グローバルファイルロックを有効にすると、すべての FlexCache ボリュームがオンラインになるまで元のボリュームに対する変更は中断されます。</p>
+<p>デフォルトでは、 FlexCache ボリュームは整合性よりも可用性が優先されます。グローバルファイルロックが有効でない場合、元のボリュームに対する変更は FlexCache に分散されますが、同時に更新されない可能性があります。グローバルファイルロックは、ボリューム間の整合性を可用性よりも優先します。グローバルファイルロックを有効にすると、すべての FlexCache ボリュームがオンラインになるまで元のボリュームに対する変更は中断されます。</p>
 </div>
 <div class="admonitionblock note">
 <table>
@@ -22077,13 +22095,31 @@
 </table>
 </div>
 <div class="paragraph">
-<p>グローバルファイルロックを使用するには、元のクラスタとすべての関連キャッシュが ONTAP 9.9 以降を実行している必要があります。グローバルファイルロックは、新規または既存の FlexCache ボリュームで有効にできます。このコマンドは 1 つのボリュームに対して実行でき、関連付けられているすべてのボリュームに適用されます。グローバルファイルロックを有効にするには、 advanced 権限レベルが必要です。</p>
+<p>グローバルファイルロックを使用するには、元のクラスタとすべての関連キャッシュを含むクラスタで ONTAP 9.9.1 以降が実行されている必要があります。グローバルファイルロックは、新規または既存の FlexCache ボリュームで有効にできます。このコマンドは 1 つのボリュームに対して実行でき、関連付けられているすべてのボリュームに適用されます。</p>
 </div>
 <div class="paragraph">
-<p>グローバルファイルロックを有効にするプロセスは、送信元に既存のキャッシュがあるかどうかによって異なります。</p>
+<p>グローバルファイルロックを有効にするには、 advanced 権限レベルが必要です。</p>
 </div>
+<div class="paragraph">
+<p>グローバルファイルロックを有効にするプロセスは、元のキャッシュが既存のキャッシュにあるかどうかによって異なります。</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="#enable-gfl-new">[enable-gfl-new]</a></p>
+</li>
+<li>
+<p><a href="#enable-gfl-existing">[enable-gfl-existing]</a></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="新しい-flexcache-ボリュームでグローバルファイルロックを有効にします">新しい FlexCache ボリュームでグローバルファイルロックを有効にします</h2>
+<div class="sectionbody">
 <div class="olist arabic">
-<div class="title">新しい FlexCache ボリュームでグローバルファイルロックを有効にする手順：</div>
+<div class="title">手順</div>
 <ol class="arabic">
 <li>
 <p>「 -is-global-file-locking 」を true に設定して、 FlexCache ボリュームを作成します。</p>
@@ -22091,13 +22127,18 @@
 <p>'volume FlexCache create volume_name_-is-global-file-locking-enabled true</p>
 </div>
 <div class="paragraph">
-<p>デフォルト値の「 -is-global-file-locking 」は false です。それ以降の volume FlexCache create コマンドをボリューム上で実行する場合は '-is-global-file-locking enabled を true に設定して渡す必要があります</p>
+<p>デフォルト値の「 -is-global-file-locking 」は「 false 」です。それ以降の volume FlexCache create コマンドがボリューム上で実行される場合は '-is-global-file-locking enabled を "true" に設定して渡す必要があります</p>
 </div>
 </li>
 </ol>
 </div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="既存の-flexcache-ボリュームでグローバルファイルロックを有効にします">既存の FlexCache ボリュームでグローバルファイルロックを有効にします</h2>
+<div class="sectionbody">
 <div class="olist arabic">
-<div class="title">手順を使用して、既存の FlexCache ボリュームでグローバルファイルロックを有効にします</div>
+<div class="title">手順</div>
 <ol class="arabic">
 <li>
 <p>グローバルファイルロックは元のボリュームから設定する必要があります。</p>
@@ -22108,7 +22149,7 @@
 <p>volume FlexCache connection-status show</p>
 </div>
 <div class="paragraph">
-<p>表示されたすべてのボリュームのステータスが「 Connected 」と表示されます。 詳細については、を参照してください <a href="flexcache\view-connection-status-origin-task.html">FlexCache 関係のステータスの表示</a> または <a href="synchronize-properties-origin-volume-task.html">元のボリュームからの FlexCache ボリュームのプロパティの同期</a>。</p>
+<p>表示されたすべてのボリュームのステータスは「 Connected 」と表示されます。 詳細については、を参照してください <a href="flexcache\view-connection-status-origin-task.html">"FlexCache 関係のステータスの表示"</a> または 。</p>
 </div>
 </li>
 <li>
@@ -22120,7 +22161,12 @@
 </ol>
 </div>
 <div class="paragraph">
-<p>9.9 より前のバージョンの ONTAP にリバートする場合は、最初に送信元および関連するキャッシュでグローバルファイルロックを無効にする必要があります。これを管理するには 'volume FlexCache prepare-to-downgrade -disable-feature-set 9.10.0' を実行します</p>
+<p>9.9..1 より前のバージョンの ONTAP にリバートする場合は、最初に元のキャッシュと関連付けられているキャッシュでグローバルファイルロックを無効にする必要があります。これは次のコマンドで管理できます。</p>
+</div>
+<div class="paragraph">
+<p>volume FlexCache prepare-to-downgrade -disable-feature-set 9.10.0</p>
+</div>
+</div>
 </div>
 
     </article>

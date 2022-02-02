@@ -1,0 +1,61 @@
+= 
+
+
+[role="lead"]
+1 つ以上の KMIP サーバを使用して、暗号化されたデータにアクセスする際にクラスタで使用するキーを安全に保管できます。1 つのノードに最大 4 つの KMIP サーバを接続できます。冗長性とディザスタリカバリのために、少なくとも 2 台のサーバを使用することを推奨します。
+
+.必要なもの
+* KMIP SSL クライアント証明書とサーバ証明書をインストールしておく必要があります。
+* このタスクを実行するには、クラスタ管理者である必要があります。
+* 外部キー管理ツールを設定する前に、 MetroCluster 環境を設定する必要があります。
+
+
+ONTAP は、クラスタ内のすべてのノードについて KMIP サーバの接続を設定します。
+
+.手順
+. クラスタノードのキー管理ツールの接続を設定します。
++
+「セキュリティキーマネージャの設定」
+
++
+キー管理ツールのセットアップが開始されます。
+
+. 各プロンプトで適切な応答を入力します。
+. KMIP サーバを追加します。
++
+「 securitykey manager add -address key_management_server_ipaddress
+
++
+[listing]
+----
+clusterl::> security key-manager add -address 20.1.1.1
+----
+. 冗長性を確保するために KMIP サーバをもう 1 つ追加します。
++
+「 securitykey manager add -address key_management_server_ipaddress
+
++
+[listing]
+----
+clusterl::> security key-manager add -address 20.1.1.2
+----
+. 設定したすべての KMIP サーバが接続されていることを確認します。
++
+「 securitykey-manager show -status 」
+
++
+コマンド構文全体については、マニュアルページを参照してください。
+
++
+[listing]
+----
+cluster1::> security key-manager show -status
+
+Node            Port      Registered Key Manager  Status
+--------------  ----      ----------------------  ---------------
+cluster1-01     5696      20.1.1.1                available
+cluster1-01     5696      20.1.1.2                available
+cluster1-02     5696      20.1.1.1                available
+cluster1-02     5696      20.1.1.2                available
+----
+

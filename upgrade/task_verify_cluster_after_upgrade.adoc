@@ -12,6 +12,10 @@ summary: アップグレード後にクラスタを確認する必要があり�
 [role="lead"]
 アップグレード後に、クラスタのバージョン、クラスタの健全性、ストレージの健全性を確認する必要があります。
 
+.作業を開始する前に
+
+NOTE: MetroCluster FC 構成を使用している場合は、クラスタで自動計画外スイッチオーバーが有効になっていることも確認する必要があります。
+
 
 
 == クラスタのバージョンを確認
@@ -20,8 +24,14 @@ summary: アップグレード後にクラスタを確認する必要があり�
 
 クラスタのバージョンは、クラスタ内のいずれかのノードで実行されている ONTAP の最下位のバージョンです。クラスタのバージョンがターゲットの ONTAP リリースになっていない場合は、クラスタをアップグレードできます。
 
-. クラスタのバージョンがターゲットの ONTAP リリース「バージョン」であることを確認します
-. クラスタのバージョンがターゲットの ONTAP リリースになっていない場合は、すべてのノードのアップグレードステータスを確認できます。「 system node upgrade-revert show
+. クラスタのバージョンがターゲットの ONTAP リリースになっていることを確認します。
++
+「バージョン」
+
+. クラスタのバージョンがターゲットの ONTAP リリースになっていない場合は、すべてのノードのアップグレードステータスを確認します。
++
+system node upgrade-revert show
+
 
 
 
@@ -31,7 +41,10 @@ summary: アップグレード後にクラスタを確認する必要があり�
 [role="lead"]
 クラスタをアップグレードしたら、ノードが正常に機能していてクラスタに追加するための条件を満たしていること、およびクラスタがクォーラムにあることを確認する必要があります。
 
-. クラスタ内のノードがオンラインであり ' クラスタに参加できることを確認します cluster show
+. クラスタ内のノードがオンラインで、クラスタに追加するための条件を満たしていることを確認します。
++
+「 cluster show 」を参照してください
+
 +
 [listing]
 ----
@@ -44,8 +57,11 @@ node1                 true    true
 +
 正常に機能していないノードや条件を満たしていないノードがある場合は、 EMS ログでエラーを確認して適切に修正します。
 
-. 権限レベルを advanced に設定します。「 set -privilege advanced 」
-. 「 y 」と入力して続行します。
+. 権限レベルを advanced に設定します。
++
+「 advanced 」の権限が必要です
+
+. 続行するには、「 y 」と入力します。
 . 各 RDB プロセスの構成の詳細を確認します。
 +
 ** リレーショナルデータベースのエポックとデータベースのエポックが各ノードで一致すること。
@@ -55,6 +71,8 @@ node1                 true    true
 
 +
 |===
+
+
 | 表示する RDB プロセス | 入力するコマンド 
 
 
@@ -102,7 +120,10 @@ node2     vldb     154      154      14847    node0     secondary
 node3     vldb     154      154      14847    node0     secondary
 4 entries were displayed.
 ----
-. SAN 環境を使用している場合は、各ノードが SAN クォーラムにあることを確認します。「 event log show -messagename scsiblade. * 」
+. SAN 環境を使用している場合は、各ノードが SAN クォーラムにあることを確認します。
++
+event log show -messagename scsiblade. *
+
 +
 各ノードの最新の scsiblade イベントメッセージに、 SCSI ブレードがクォーラムにあることが示されます。
 
@@ -115,10 +136,43 @@ Time                Node             Severity      Event
 MM/DD/YYYY TIME  node0            INFORMATIONAL scsiblade.in.quorum: The scsi-blade ...
 MM/DD/YYYY TIME  node1            INFORMATIONAL scsiblade.in.quorum: The scsi-blade ...
 ----
-. admin 権限レベルに戻ります。「 set -privilege admin 」
+. admin 権限レベルに戻ります。
++
+「特権管理者」
+
 
 
 link:../system-admin/index.html["システム管理"]
+
+
+
+== 自動計画外スイッチオーバーが有効になっていることを確認します
+
+クラスタをアップグレードしたら、自動計画外スイッチオーバーが有効になっていることを確認する必要があります。
+
+.このタスクについて
+
+NOTE: この手順 は、 MetroCluster FC 構成に対してのみ実行されます。MetroCluster IP 構成を使用している場合は、この手順 を省略してください。
+
+.手順
+. 自動計画外スイッチオーバーが有効かどうかを確認します。
++
+「 MetroCluster show 」
+
++
+自動計画外スイッチオーバーが有効な場合、コマンド出力に次のステートメントが表示されます。
+
++
+[listing]
+----
+AUSO Failure Domain  auso-on-cluster-disaster
+----
+. ステートメントが表示されない場合は、自動計画外スイッチオーバーを有効にします。
++
+MetroCluster modify-auto-switchover-failure-domain auso-on-cluster-disaster
+
+. 手順 1 を繰り返して、自動計画外スイッチオーバーが有効になっていることを確認します。
+
 
 
 
@@ -129,13 +183,18 @@ link:../system-admin/index.html["システム管理"]
 . ディスクのステータスを確認します。
 +
 |===
+
+
 | 確認する項目 | 手順 
 
 
  a| 
 破損ディスク
  a| 
-.. 破損ディスクを表示します。「 storage disk show -state broken 」
+.. 破損ディスクを表示します。
++
+「 storage disk show -state broken 」のように表示されます
+
 .. 破損ディスクを取り外すか交換します。
 
 
@@ -144,12 +203,18 @@ link:../system-admin/index.html["システム管理"]
  a| 
 メンテナンス中または再構築中のディスク
  a| 
-.. 「 storage disk show -state maintenance|pending|reconstructing 」の状態のディスクを表示します
+.. 保守、保留、または再構築の状態のディスクを表示します。
++
+storage disk show -state maintenance|pending|reconstruct`
+
 .. メンテナンスまたは再構築の処理が完了するまで待ってから次に進みます。
 
 
 |===
-. ストレージアグリゲート「 storage aggregate show -state ！ online 」を含む物理ストレージと論理ストレージの状態を表示して、すべてのアグリゲートがオンラインであることを確認します
+. ストレージアグリゲートを含む物理ストレージと論理ストレージの状態を表示して、すべてのアグリゲートがオンラインであることを確認します。
++
+「 storage aggregate show-state ！ online 」と入力します
+
 +
 このコマンドを実行すると、オンラインでないアグリゲートが表示されます。メジャーアップグレードまたはリバートの実行前と実行後には、すべてのアグリゲートがオンラインになっている必要があります。
 
@@ -159,7 +224,10 @@ link:../system-admin/index.html["システム管理"]
 cluster1::> storage aggregate show -state !online
 There are no entries matching your query.
 ----
-. すべてのボリュームがオンラインであることを確認するには 'volume show -state ！ online ' のようなボリュームを表示します
+. 次のコマンドを実行して、すべてのボリュームがオンラインであることを確認します。 _not_online
++
+volume show -state ！ online
+
 +
 メジャーアップグレードまたはリバートの実行前と実行後には、すべてのボリュームがオンラインになっている必要があります。
 
@@ -169,9 +237,12 @@ There are no entries matching your query.
 cluster1::> volume show -state !online
 There are no entries matching your query.
 ----
-. 整合性のないボリュームがないことを確認します。 volume show -is-inconsistent true
+. 整合性のないボリュームがないことを確認します。
 +
-整合性のないボリュームが返された場合は、アップグレードを実行する前にネットアップサポートにお問い合わせください。
+volume show -is-inconsistent true
+
++
+整合性のないボリュームが返された場合は、アップグレードを実行する前にテクニカルサポートにお問い合わせください。
 
 
 

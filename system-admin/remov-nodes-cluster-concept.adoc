@@ -12,19 +12,36 @@ summary: クラスタから不要なノードを一度に 1 つずつ削除で�
 [role="lead"]
 クラスタから不要なノードを一度に 1 つずつ削除できます。ノードを削除したら、フェイルオーバーパートナーも削除する必要があります。ノードを削除すると、そのノードのデータはアクセスできなくなるか、消去されます。
 
-.必要なもの
+クラスタからノードを削除するには、次の条件を満たしている必要があります。
+
 * クラスタ内のノードのうち半数を上回るノードが正常である必要があります。
 * 削除するノード上のすべてのデータを退避しておく必要があります。
-* すべてのクラスタ間 LIF を削除しておく必要があります。
 +
-[NOTE]
-====
-クラスタ間 LIF を削除するときに表示される警告は無視してかまいません。
+** これには、などが含まれます link:../encryption-at-rest/secure-purge-data-encrypted-volume-concept.html["暗号化されたボリュームからのデータのパージ"]。
 
-自動 ONTAP アップグレードの実行中は 'cluster remove-node' 'cluster unjoin ' および node rename などの操作を実行しないでください
 
-====
+* すべてのボリュームが削除されています link:../volumes/move-volume-task.html["移動しました"] または  ノードが所有するアグリゲートから作成します。
+* すべてのアグリゲートが完了しました link:../disks-aggregates/commands-manage-aggregates-reference.html["削除済み"] をクリックします。
+* ノードが Federal Information Processing Standard （ FIPS ；連邦情報処理標準）ディスクまたは Self-Encrypting Disk （ SED ；自己暗号化ディスク）を所有している場合は、 link:../encryption-at-rest/return-seds-unprotected-mode-task.html["ディスク暗号化が削除されました"] ディスクを非保護モードに戻します。
++
+** 必要に応じて、を実行することもできます link:../encryption-at-rest/sanitize-fips-drive-sed-task.html["FIPS ドライブまたは SED を完全消去します"]。
 
+
+* データ LIF が作成されました link:../networking/delete_a_lif.html["削除済み"] または  をクリックします。
+* クラスタ管理 LIF が作成されました link:../networking/migrate_a_lif.html["再配置済み"] ノードから、ホームポートが変更されました。
+* すべてのクラスタ間 LIF を確認しておきます link:../networking/delete_a_lif.html["削除されました"]。
++
+** クラスタ間 LIF を削除するときに表示される警告は無視してかまいません。
+
+
+* ストレージフェイルオーバーは実行されています link:../high-availability/ha_commands_for_enabling_and_disabling_storage_failover.html["無効"] をクリックします。
+* すべての LIF フェイルオーバールールが適用されていることを確認し link:../networking/commands_for_managing_failover_groups_and_policies.html["変更されました"] をクリックしてノードのポートを削除します。
+* ノードのすべての VLAN を設定しておきます link:../networking/configure_vlans_over_physical_ports.html#delete-a-vlan["削除済み"]。
+
+
+ノードを削除中であることをネットアップテクニカルサポートに通知する AutoSupport メッセージを問題 で送信することを推奨します。
+
+* 注：自動 ONTAP アップグレードの実行中は 'cluster remove-node' 'cluster unjoin ' および 'node rename などの操作を実行しないでください
 
 バージョンが混在したクラスタを実行している場合は、 ONTAP 9.3 以降の advanced 権限のコマンドのいずれかを使用して、バージョンが低い最後のノードを削除できます。
 
@@ -32,42 +49,12 @@ summary: クラスタから不要なノードを一度に 1 つずつ削除で�
 * ONTAP 9.4 以降： cluster remove-node-skip-last-low-version-node-check
 
 
-[NOTE]
-====
-ノードをクラスタから削除する前に、ノードに接続されたディスクのすべてのシステムデータとユーザデータにユーザがアクセスできないようにする必要があります。クラスタからノードを削除したあとにそのノードを同じクラスタに戻す必要がある場合は、テクニカルサポートにデータのリストア方法を問い合わせてください。
+* 注： * ノードをクラスタから削除する前に、ノードに接続されたディスクのすべてのシステムデータとユーザデータにユーザがアクセスできないようにする必要があります。クラスタからノードを削除したあとにそのノードを同じクラスタに戻す必要がある場合は、テクニカルサポートにデータのリストア方法を問い合わせてください。
 
-====
 .手順
 . 権限レベルを advanced に変更します。
 +
 「 * set -privilege advanced * 」のように指定します
-
-. クラスタでストレージ暗号化が有効になっていて自己暗号化ディスク（ SED ）を使用している場合は、 data-id-key を 0x0 に設定する必要があります。
-+
-.. data-id-key を 0x0 に設定します。
-+
-'*storage encryption disk modify -disk \[_disk_path_name_\]-data-key-id 0x0 *`
-
-.. オプション：ストレージ暗号化が有効になっていて、 SED を Federal Information Processing Standard （ FIPS ）準拠モードで使用している場合は、 data-id-key の設定に加え、 FIPS 準拠モードを無効にする必要があります。
-+
-これにより、ノードに接続されているディスクを、クラスタからノードを削除したあとで完全消去して転用できます。
-
-+
-*** 現在 FIPS 準拠モードになっている SED を表示します。
-+
-「 * storage encryption disk show -fips* 」と入力します
-
-*** FIPS 準拠モードを無効にします。
-+
-'*storage encryption disk modify disk [_disk_path_name_]-fips-key-id 0x0 *`
-
-*** 変更した SED が FIPS 準拠モードになっていないことを確認します。
-+
-「 * storage encryption disk show -fips* 」と入力します
-
-
-
-
 
 . 削除するノードが現在のマスターノードである場合は、マスターノードのクラスタ資格を「 false 」に変更して、クラスタ内の別のノードでマスターノードとして選出できるようにします。
 +

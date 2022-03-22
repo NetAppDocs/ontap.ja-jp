@@ -1,8 +1,8 @@
 ---
 permalink: smb-admin/modify-server-kerberos-security-settings-task.html 
 sidebar: sidebar 
-keywords: modify, cifs, server, kerberos, security, setting, clock, slew, time, ticket, lifetime, renewal, modify the cifs server kerberos security ticket settings 
-summary: 許容される Kerberos クロックスルータイムの最大数、 Kerberos チケットの有効期間、チケットの更新日の最大数など、特定の CIFS サーバの Kerberos セキュリティ設定を変更できます。 
+keywords: modify, cifs, server, kerberos, security, setting, clock, skew, time, ticket, lifetime, renewal, modify the cifs server kerberos security ticket settings 
+summary: Kerberos クロックスキュー時間の許容最大値、 Kerberos チケットの有効期間、チケットの更新日の最大数など、 CIFS サーバの Kerberos セキュリティ設定の一部を変更できます。 
 ---
 = CIFS サーバの Kerberos セキュリティ設定を変更します
 :icons: font
@@ -10,7 +10,7 @@ summary: 許容される Kerberos クロックスルータイムの最大数、 
 
 
 [role="lead"]
-許容される Kerberos クロックスルータイムの最大数、 Kerberos チケットの有効期間、チケットの更新日の最大数など、特定の CIFS サーバの Kerberos セキュリティ設定を変更できます。
+Kerberos クロックスキュー時間の許容最大値、 Kerberos チケットの有効期間、チケットの更新日の最大数など、 CIFS サーバの Kerberos セキュリティ設定の一部を変更できます。
 
 「 vserver cifs security modify 」コマンドを使用して CIFS サーバの Kerberos 設定を変更すると、「 -vserver 」パラメータで指定した単一の Storage Virtual Machine （ SVM ）の設定のみが変更されます。Active Directory の Group Policy Object （ GPO ；グループポリシーオブジェクト）を使用すると、同一の Active Directory ドメインに属するクラスタ上の SVM すべてについて、 Kerberos セキュリティ設定を集中管理できます。
 
@@ -18,40 +18,53 @@ summary: 許容される Kerberos クロックスルータイムの最大数、 
 . 次の操作を 1 つ以上実行します。
 +
 |===
+
+
 | 状況 | 入力するコマンド 
 
 
  a| 
-Kerberos クロックスキューの許容最大時間を分で指定します
+Kerberos クロックスキューの許容最大時間を分で指定します。
  a| 
-vserver cifs security modify -vserver _vserver_name --kerberos-clock-sk-integer_in_dminutes _ デフォルトの設定は 5 分です
+vserver cifs security modify -vserver _vserver_name -- kerberos-clock-sk-integer_in_minutes_ `
 
-
-
- a| 
-Kerberos チケットの有効期間を時間で指定します
- a| 
-「 vserver cifs security modify -vserver _vserver_name __ kerberos-ticket-age integer_in_chours 」デフォルト設定は 10 時間です。
+デフォルトの設定は 5 分です。
 
 
 
  a| 
-チケットの更新日の最大数を指定します
+Kerberos チケットの有効期間を時間で指定します。
  a| 
-「 vserver cifs security modify -vserver _vserver_name __ kerberos-renew-age_integer_in_days 」デフォルト設定は 7 日です。
+「 vserver cifs security modify -vserver _vserver_name __ kerberos-ticket-age integer _in_chours 」の形式で指定します
+
+デフォルトの設定は 10 時間です。
 
 
 
  a| 
-KDC のソケットのタイムアウトを指定します。この時間を過ぎるとすべての KDC が到達不能とマークされます
+チケットの更新日の最大数を指定します。
  a| 
-「 vserver cifs security modify -vserver _vserver_name __ kerberos-kdc-timeout_integer_in_dseconds _ 」デフォルト設定は 3 秒です。
+「 vserver cifs security modify -vserver _vserver_name _ -kerberos-renew-age_integer_in_days _ 」
+
+デフォルトの設定は 7 日です。
+
+
+
+ a| 
+KDC のソケットのタイムアウトを指定します。この時間を過ぎるとすべての KDC が到達不能とマークされます。
+ a| 
+「 vserver cifs security modify -vserver _vserver_name __ kerberos-kdc-timeout_integer_in_dseconds _ 」の形式で指定します
+
+デフォルトの設定は 3 秒です。
 
 |===
-. Kerberos セキュリティ設定を確認します。 vserver cifs security show -vserver vserver_name _ ’
+. Kerberos セキュリティ設定を確認します。
++
+「 vserver cifs security show -vserver _vserver_name _ 」のように表示されます
 
 
-次の例では、 Kerberos セキュリティに次の変更を加えます。「 Kerberos Clock Skew 」は「 3`minutes 」に、「 Kerberos Ticket Age 」は「 8`hours 」に設定されています。
+
+次の例では、 SVM vs1 の Kerberos セキュリティ設定を「 Kerberos Clock Skew 」に 3 分、「 Kerberos Ticket Age 」に 8 時間に変更しています。
 
 [listing]
 ----
@@ -72,8 +85,8 @@ Vserver: vs1
                  LM Compatibility Level:  lm-ntlm-ntlmv2-krb
              Is SMB Encryption Required:               false
 ----
-xref:display-server-security-settings-task.adoc[CIFS サーバのセキュリティ設定に関する情報を表示する]
+link:display-server-security-settings-task.html["CIFS サーバのセキュリティ設定に関する情報を表示する"]
 
-xref:supported-gpos-concept.adoc[サポートされる GPO]
+link:supported-gpos-concept.html["サポートされる GPO"]
 
-xref:applying-group-policy-objects-concept.adoc[CIFS サーバへのグループポリシーオブジェクトの適用]
+link:applying-group-policy-objects-concept.html["CIFS サーバへのグループポリシーオブジェクトの適用"]

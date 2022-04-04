@@ -1,7 +1,7 @@
 ---
 sidebar: sidebar 
 permalink: smbc/smbc_troubleshoot_link_between_site_a_and_mediator_down.html 
-keywords: SM-BC, SMBC, troubleshooting, link down, Mediator 
+keywords: SM-BC, SMBC, troubleshooting, connectivity, consensus 
 summary: サイト A とメディエーターが停止し、サイト B が停止している場合のトラブルシューティングリンク。 
 ---
 = サイト A とメディエーターの間のリンクが停止し、サイト B が停止しています
@@ -13,7 +13,9 @@ summary: サイト A とメディエーターが停止し、サイト B が停�
 
 
 [role="lead"]
-サイト A からメディエーターのステータスを確認します
+SM-BC を使用している場合は、メディエーターまたはピアクラスタ間の接続が失われる可能性があります。問題 を診断するには、 SM-BC 関係のさまざまな部分の接続、可用性、合意状態を確認してから、接続を強制的に再開します。
+
+snapmirror mediator show コマンドを使用して ' サイト A からのメディエーターのステータスを確認します
 
 ....
 C1_cluster::*> snapmirror mediator show
@@ -28,7 +30,7 @@ Path         Type  Path         Status Progress   Updated      Id
 ----------- ----- ------------ ------- --------- ------------ ---------------
 vs0:/cg/src_cg_1  XDP   vs1:/cg/dst_cg_1  OutOfSync  -         -            bba7d354-06f6-11eb-9138-005056acec19
 ....
-サイト B の接続を確認します。
+cluster peer show コマンドを使用して ' サイト B の接続を確認します
 
 ....
 C1_sti78-vsim-ucs188a_cluster::*> cluster peer show
@@ -36,7 +38,7 @@ Peer Cluster Name         Cluster Serial Number Availability   Authentication
 ------------------------- --------------------- -------------- --------------
 C2_cluster                1-80-000011           Unavailable    ok
 ....
-SM-BC ボリュームでコンセンサスステータスを確認します。
+コマンド 'volume show_volume_name_-fields SMBC-コンセンサス を使用して、 SM-BC ボリュームのコンセンサスステータスを確認します。
 
 ....
 C1_cluster::*> volume show zrto_cg_894191_188b_RW1 -fields smbc-consensus
@@ -47,7 +49,7 @@ vs0     zrto_cg_894191_188b_RW1 Awaiting-consensus
 SM-BC 合意を無効にし、サイト A で I/O を強制的に再開するには、次の手順を実行します。
 
 . サイト A の LUN のマッピングを解除します
-. 問題サイト A の「 -force 」オプションと「 override-smpe--sコンセンサス 」オプションを使用して snapmirror release コマンドを実行します
+. サイト A の「 -force 」オプションと「 override-sc -sitコンセンサス 」オプションを使用して、「 snapmirror release 」コマンドを問題 します
 . LUN を再マッピングします。
 . まずメディエーターを起動し、サイト B のノードを起動します。
 . 「 snapmirror resync 」を使用して整合グループ関係を再同期します。

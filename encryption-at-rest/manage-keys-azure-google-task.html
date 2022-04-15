@@ -23533,7 +23533,7 @@
 <p class="page-details">
   
     
-    <time datetime="2022-04-04 15:02:11 +0000">04/04/2022</time>
+    <time datetime="2022-04-15 14:31:16 +0000">04/15/2022</time>
     
   
 
@@ -23590,27 +23590,57 @@
 <div class="sect1">
 <h2 id="cli-を使用して外部キー管理を有効にします">CLI を使用して外部キー管理を有効にします</h2>
 <div class="sectionbody">
+<div class="paragraph">
+<p>外部キー管理を有効にする方法は、使用するキー管理ツールによって異なります。Cloud Volumes ONTAP で AKV を有効にする場合は、別の手順 が存在することに注意してください。ニーズに合わせてキー管理ツールと環境のタブを選択します。</p>
+</div>
 <div class="exampleblock tabbed-block">
 <div class="content">
 <div class="openblock">
-<div class="title">Azure</div>
+<div class="title">Azure for ONTAP の略</div>
 <div class="content">
 <div class="olist arabic">
-<div class="title">CLI を使用して AKV を有効にします</div>
+<div class="title">ONTAP 用 Azure Key Vault を有効にします</div>
 <ol class="arabic">
 <li>
-<p>作業を開始する前に、クライアントシークレットまたは証明書のいずれかで、 Azure アカウントから適切な認証クレデンシャルを取得する必要があります。</p>
-<div class="paragraph">
-<p>また、クラスタ内のすべてのノードが正常であることを確認する必要があります。これは 'cluster show コマンドで確認できます</p>
-</div>
+<p>作業を開始する前に、クライアントシークレットまたは証明書のいずれかで、 Azure アカウントから適切な認証クレデンシャルを取得する必要があります。また、クラスタ内のすべてのノードが正常であることを確認する必要があります。これは 'cluster show コマンドで確認できます</p>
 </li>
 <li>
 <p>特権レベルを advanced に設定します（ set -priv advanced</p>
 </li>
 <li>
-<p>SVM 「 security key-manager external Azure enable -client-id_client_id_ -stenant -id_tenant_id _ -name -key_id_id_ -authentication-method ｛ certificate | client-secret ｝ 」で AKV を有効にします</p>
-<div class="paragraph">
-<p>プロンプトが表示されたら、 Azure アカウントからクライアント証明書またはクライアントシークレットを入力します。</p>
+<p>SVM 「 security key-manager external Azure enable -client-id_client_id_ -stenant -id_ttenant_id _ -name -key_id_ -authentication-method ｛ certificate | client-secret ｝ 」で AKV を有効にするか、プロンプトが表示されたら Azure アカウントからクライアント証明書またはクライアントシークレットを入力します。</p>
+</li>
+<li>
+<p>AKV が正しく有効になっていることを確認します。「 security key-manager external Azure show vserver_vserver_name _ 」サービスの到達可能性に問題がない場合は、データ SVM LIF を介して AKV キー管理サービスへの接続を確立します。</p>
+</li>
+</ol>
+</div>
+</div>
+</div>
+<div class="openblock">
+<div class="title">Azure for Cloud Volumes ONTAP の略</div>
+<div class="content">
+<div class="olist arabic">
+<div class="title">Cloud Volumes ONTAP 用 Azure Key Vault を有効にします</div>
+<ol class="arabic">
+<li>
+<p>作業を開始する前に、クライアントシークレットまたは証明書のいずれかで、 Azure アカウントから適切な認証クレデンシャルを取得する必要があります。また、クラスタ内のすべてのノードが正常であることを確認する必要があります。これは 'cluster show コマンドで確認できます</p>
+</li>
+<li>
+<p>特権レベルを advanced に設定します（ set -priv advanced</p>
+</li>
+<li>
+<p>SVM 「 security key-manager external Azure enable -client-id_client_id_ -stenant -id_ttenant_id _ -name -key_id_ -authentication-method ｛ certificate | client-secret ｝ 」で AKV を有効にするか、プロンプトが表示されたら Azure アカウントからクライアント証明書またはクライアントシークレットを入力します。</p>
+</li>
+<li>
+<p>データ SVM の DNS を設定します。「 dns create -domains_domain_name <em>name -name-servers_server_address</em>-vserver_vserver_name _</p>
+</li>
+<li>
+<p>Azure ポータルで、キーヴォールトを含むサブスクリプションに移動します。[<strong> アクセスポリシー </strong> ] メニューを選択します。アプリケーションにキーの権限、シークレットの権限、および証明書の権限を付与してから保存します。</p>
+<div class="imageblock">
+<div class="content">
+<img src="../media/azure-key-vault-access-policies.png" alt="Azure アクセスポリシーのメニューに、指定する必要がある権限のフィールドが表示されます">
+</div>
 </div>
 </li>
 <li>
@@ -23621,25 +23651,19 @@
 </div>
 </div>
 <div class="openblock">
-<div class="title">Google Cloud</div>
+<div class="title">Google Cloud for ONTAP の略</div>
 <div class="content">
 <div class="olist arabic">
-<div class="title">CLI を使用して Cloud KMS を有効にします</div>
+<div class="title">ONTAP の CLI を使用して Cloud KMS を有効にします</div>
 <ol class="arabic">
 <li>
-<p>作業を開始する前に、 Google Cloud KMS アカウントキーファイルの秘密鍵を JSON 形式で取得する必要があります。これは GCP アカウントにあります。</p>
-<div class="paragraph">
-<p>また、クラスタ内のすべてのノードが正常であることを確認する必要があります。これは 'cluster show コマンドで確認できます</p>
-</div>
+<p>作業を開始する前に、 Google Cloud KMS アカウントキーファイルの秘密鍵を JSON 形式で取得する必要があります。これは GCP アカウントにあります。また、クラスタ内のすべてのノードが正常であることを確認する必要があります。これは 'cluster show コマンドで確認できます</p>
 </li>
 <li>
 <p>特権レベルを advanced に設定します（ set -priv advanced</p>
 </li>
 <li>
-<p>SVM の security key-manager external GCP enable -vserver_data_svm_name_id_ -project-id_project_id _ -key-ring-name <em>key_ring_name _ -key-ring -key-ring-location_key_ring_location _ -key-name_key_name_key_name</em>` で、 Cloud KMS を有効にします</p>
-<div class="paragraph">
-<p>プロンプトが表示されたら、サービスアカウントの秘密鍵を使用して JSON ファイルの内容を入力します</p>
-</div>
+<p>SVM の「 security key-manager external GCP enable -vserver <em>data_SVM_name_id</em> -project-id_key_ring_id_ -key-ring-name _key_ring_name 」で Cloud KMS を有効にするかどうかを確認するメッセージが表示されたら、 JSON ファイルの内容をプライベートアカウントで入力します</p>
 </li>
 <li>
 <p>Cloud KMS が正しいパラメータで構成されていることを確認します。「 security key-manager external GCP show vserver_vserver_name _ 」暗号化されたボリュームが作成されていない場合、「 kms ラップされた鍵のステータス」は「不明」になります。サービスの到達可能性が OK でない場合は、データ Vserver LIF を介して GCP キー管理サービスへの接続を確立します。</p>

@@ -30,3 +30,38 @@ ONTAP System Manager には次のような機能が xref:../concept_cluster_perf
 * SVM の保護関係 *
 
 保護関係にある SVM を含むボリュームでファイルシステム分析を有効にしている場合、分析データはデスティネーション SVM にレプリケートされません。リカバリ処理でソース SVM を再同期する必要がある場合は、リカバリ後に目的のボリュームの分析を手動で再度有効にする必要があります。
+
+
+
+== RBAC
+
+System Manager または ONTAP REST API を使用している場合 xref:../concepts/administrator-authentication-rbac-concept.html[RBAC] ONTAP の設定では、ファイルシステム分析のアクティビティ追跡へのアクセスを中程度にするために、専用の役割を作成する必要があります。
+
+高レベル 1 。「 volume file show-disk-usage 」コマンドディレクトリ 2 を使用して、すべてのアクセス権を持つロールを作成します。新しいロール 3 の Web アクセスを作成します。新しいロール 4 を持つユーザを作成します。System Manager にログインするか、新しいユーザを使用して REST 呼び出しを実行します
+
+.アクティビティトラッキングへのアクセスを制御します
+. すべての機能にアクセスできるようにデフォルトのロールを作成します。この作業は ' ロールがアクティビティの追跡のみに限定されるようにするために ' 制限的なロールを作成する前に実行する必要があります
++
+「 security login role create -cmddirname default-access all-role storageadmin 」を実行します
+
+. 制限付きロールを作成します。
++
+「 security login role create -cmddirname 」 volume file show -disk -usage 」 -access none -role storageadmin
+
+. ロールに SVM の Web サービスへのアクセスを許可します。
++
+** REST API コール用の 'rest'
+** パスワード保護のための「セキュリティ」
+** System Manager へのアクセス用の sysmgr
++
+====
+vserver services web access create -vserver _svm -name _name rest-role storageadmin + vserver services web access create -vserver _svm -name security -role storageadmin + vserver services web access create -vserver _svm -name sysmgr -role storageadmin
+
+====
+
+
+. ユーザを作成します。ユーザに適用するアプリケーションごとに個別の create コマンドを問題 に設定する必要があります。同じユーザで create を複数回呼び出すと、すべてのアプリケーションがそのユーザに適用されるだけで、毎回新しいユーザが作成されることはありません。アプリケーション・タイプの 'http' パラメータは、 ONTAP REST API および System Manager に適用されます。
++
+「 security login create -user-or -group-name storageUser-authentication-method password -application http-role storageadmin 」を参照してください
+
+

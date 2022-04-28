@@ -292,13 +292,13 @@
           <ul class="n-menu__list">
             <li class="n-menu__list-column">
               <ul class="n-menu__list"><li class="n-menu__list-item n-menu__list-item--level-1">
-                  <a href="https://docs.netapp.com/ja-jp/ontap/file-system-analytics/considerations-concept.html" class="n-menu__header-text"><span translate="no" class="notranslate">日本語</span></a>
-                </li><li class="n-menu__list-item n-menu__list-item--level-1">
                   <a href="https://docs.netapp.com/us-en/ontap/file-system-analytics/considerations-concept.html" class="n-menu__header-text"><span translate="no" class="notranslate">English</span></a>
                 </li><li class="n-menu__list-item n-menu__list-item--level-1">
-                  <a href="https://docs.netapp.com/zh-cn/ontap/file-system-analytics/considerations-concept.html" class="n-menu__header-text"><span translate="no" class="notranslate">简体中文</span></a>
+                  <a href="https://docs.netapp.com/ja-jp/ontap/file-system-analytics/considerations-concept.html" class="n-menu__header-text"><span translate="no" class="notranslate">日本語</span></a>
                 </li><li class="n-menu__list-item n-menu__list-item--level-1">
                   <a href="https://docs.netapp.com/ko-kr/ontap/file-system-analytics/considerations-concept.html" class="n-menu__header-text"><span translate="no" class="notranslate">한국어</span></a>
+                </li><li class="n-menu__list-item n-menu__list-item--level-1">
+                  <a href="https://docs.netapp.com/zh-cn/ontap/file-system-analytics/considerations-concept.html" class="n-menu__header-text"><span translate="no" class="notranslate">简体中文</span></a>
                 </li></ul>
             </li>
           </ul>
@@ -23497,7 +23497,7 @@
 <p class="page-details">
   
     
-    <time datetime="2022-04-15 14:31:16 +0000">04/15/2022</time>
+    <time datetime="2022-04-27 21:36:42 +0000">04/27/2022</time>
     
   
 
@@ -23537,6 +23537,63 @@
 </div>
 <div class="paragraph">
 <p>保護関係にある SVM を含むボリュームでファイルシステム分析を有効にしている場合、分析データはデスティネーション SVM にレプリケートされません。リカバリ処理でソース SVM を再同期する必要がある場合は、リカバリ後に目的のボリュームの分析を手動で再度有効にする必要があります。</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="rbac">RBAC</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>System Manager または ONTAP REST API を使用している場合 <a href="../concepts/administrator-authentication-rbac-concept.html">RBAC</a> ONTAP の設定では、ファイルシステム分析のアクティビティ追跡へのアクセスを中程度にするために、専用の役割を作成する必要があります。</p>
+</div>
+<div class="paragraph">
+<p>高レベル 1 。「 volume file show-disk-usage 」コマンドディレクトリ 2 を使用して、すべてのアクセス権を持つロールを作成します。新しいロール 3 の Web アクセスを作成します。新しいロール 4 を持つユーザを作成します。System Manager にログインするか、新しいユーザを使用して REST 呼び出しを実行します</p>
+</div>
+<div class="olist arabic">
+<div class="title">アクティビティトラッキングへのアクセスを制御します</div>
+<ol class="arabic">
+<li>
+<p>すべての機能にアクセスできるようにデフォルトのロールを作成します。この作業は ' ロールがアクティビティの追跡のみに限定されるようにするために ' 制限的なロールを作成する前に実行する必要があります</p>
+<div class="paragraph">
+<p>「 security login role create -cmddirname default-access all-role storageadmin 」を実行します</p>
+</div>
+</li>
+<li>
+<p>制限付きロールを作成します。</p>
+<div class="paragraph">
+<p>「 security login role create -cmddirname 」 volume file show -disk -usage 」 -access none -role storageadmin</p>
+</div>
+</li>
+<li>
+<p>ロールに SVM の Web サービスへのアクセスを許可します。</p>
+<div class="ulist">
+<ul>
+<li>
+<p>REST API コール用の 'rest'</p>
+</li>
+<li>
+<p>パスワード保護のための「セキュリティ」</p>
+</li>
+<li>
+<p>System Manager へのアクセス用の sysmgr</p>
+<div class="exampleblock">
+<div class="content">
+<div class="paragraph">
+<p>vserver services web access create -vserver _svm -name _name rest-role storageadmin + vserver services web access create -vserver _svm -name security -role storageadmin + vserver services web access create -vserver _svm -name sysmgr -role storageadmin</p>
+</div>
+</div>
+</div>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>ユーザを作成します。ユーザに適用するアプリケーションごとに個別の create コマンドを問題 に設定する必要があります。同じユーザで create を複数回呼び出すと、すべてのアプリケーションがそのユーザに適用されるだけで、毎回新しいユーザが作成されることはありません。アプリケーション・タイプの 'http' パラメータは、 ONTAP REST API および System Manager に適用されます。</p>
+<div class="paragraph">
+<p>「 security login create -user-or -group-name storageUser-authentication-method password -application http-role storageadmin 」を参照してください</p>
+</div>
+</li>
+</ol>
 </div>
 </div>
 </div>

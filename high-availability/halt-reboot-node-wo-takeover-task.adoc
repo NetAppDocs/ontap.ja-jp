@@ -1,0 +1,50 @@
+---
+sidebar: sidebar 
+permalink: high-availability/halt-reboot-node-wo-takeover-task.html 
+keywords: high availability pair, hair, inhibit-takeover, reboot, epsilon, HA 
+summary: inhibit-takeover パラメータを「 true 」に設定すると、特定の設定を変更しないかぎり、 HA クラスタの両方のノードでデータ処理が停止します。 
+---
+= 2 ノードクラスタでテイクオーバーを開始せずにノードを停止またはリブートします
+:hardbreaks:
+:allow-uri-read: 
+:nofooter: 
+:icons: font
+:linkattrs: 
+:imagesdir: ../media/
+
+
+[role="lead"]
+2 ノードクラスタでは、クラスタハイアベイラビリティ（ HA ）によって、一方のノードで障害が発生してもクラスタが無効になることはありません。「 -inhibit-takeover 」パラメータを「 true 」に設定してテイクオーバーを実行せずに 2 ノードクラスタのノードを停止またはリブートする場合は、特定の構成設定を変更しないかぎり、両方のノードでデータ処理が停止します。
+
+クラスタ HA 構成のノードを -inhibit-takeover true パラメータを使用して停止またはリブートする場合は、実行前にクラスタ HA を無効にし、オンラインのままにするノードにイプシロンを割り当てておく必要があります。
+
+.ノードを停止またはリブートします
+. クラスタ HA を無効にする : cluster ha modify -configured false この操作ではストレージフェイルオーバーは無効になりません
+. クラスタ HA を無効にすると 2 つのノードのどちらかに自動的にイプシロンが割り当てられるため、どちらのノードに設定されたかを確認し、必要に応じてオンラインのままにするノードに再割り当てします。
++
+.. 権限レベルを advanced に設定します。 set -privilege advanced Confirm ：続行するように求められたら、advanced モードのプロンプトが表示されます（ * > ）。
+.. 次のコマンドを使用して、イプシロンが設定されているノードを特定します。 cluster show 次の例では、 Node1 にイプシロンが設定されています。
++
+[listing]
+----
+cluster::*> cluster show
+Node         Health  Eligibility   Epsilon
+------------ ------- ------------  ------------
+Node1        true    true          true
+Node2        true    true          false
+----
++
+停止またはリブートするノードにイプシロンが設定されていない場合は、ステップ 3 に進みます。
+
+.. 停止またはリブートするノードにイプシロンが設定されている場合は、そのノードから削除する必要があります。「 cluster modify -node Node1 -epsilon false 」この時点で、どちらのノードにもイプシロンが設定されていません。
+.. オンラインのままにするノード（この例では Node2 ）にイプシロンを割り当てます。 cluster modify -node Node2 -epsilon true
+
+
+. 次のいずれかの該当するコマンドを使用して、イプシロンが設定されていないノード（この例では Node2 ）をテイクオーバーなしで停止またはリブートします。 system node halt -node Node2 -inhibit-takeover true `system node reboot -node Node2 -inhibit-takeover true
+. 停止またはリブートしたノードがオンラインに戻ったら ' 次のコマンドを使用してクラスタ HA を有効にする必要があります cluster ha modify -configured true cluster ha を有効にすると ' 両方のノードから自動的にイプシロンが削除されます
+. admin 権限レベルに戻ります。「 set -privilege admin 」
+
+
+.関連情報
+* link:https://kb.netapp.com/Advice_and_Troubleshooting/Data_Storage_Software/ONTAP_OS/How_to_halt_a_single_node_without_takeover_in_a_two-node__ONTAP_cluster["2 ノード ONTAP クラスタでテイクオーバーを発生させずに 1 つのノードを停止する方法"^]
+

@@ -1,0 +1,107 @@
+---
+permalink: flexgroup/manage-client-async-dir-delete-task.html 
+sidebar: sidebar 
+keywords: perform, directory, enable, delete, files, asynchronous, client rights, SMB, NFS, share, flexvol, flex vol, flexgroup, flex group 
+summary: ONTAP 9.11.1以降、ストレージ管理者はボリュームに対する権限を付与して、NFSクライアントとSMBクライアントが低レイテンシの高速ディレクトリ削除操作を実行できるようにすることができます。async deleteが有効になっている場合、NFSクライアントは「mv」コマンドを使用でき、SMBクライアントは「rename」コマンドを使用して、指定したボリューム上のディレクトリを削除し、デフォルトで.ontaptrashbinという名前の非表示ディレクトリにディレクトリを移動できます。 
+---
+= ディレクトリを迅速に削除するためのクライアント権限を管理します
+:allow-uri-read: 
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+ONTAP 9.11.1以降、ストレージ管理者はボリュームに対する権限を付与して、NFSクライアントとSMBクライアントが自身で低レイテンシの高速ディレクトリ削除操作を実行できるようにすることができます。クラスタで非同期削除を有効にすると、Linuxクライアントユーザは「mv」コマンドを使用して、Windowsクライアントユーザは「rename」コマンドを使用して、デフォルトで.ontaptrashbinという非表示のディレクトリにディレクトリを移動することにより、指定されたボリューム上でディレクトリを迅速に削除できます。
+
+
+
+== クライアントの非同期ディレクトリ削除を有効にします
+
+.手順
+. クラスタCLIから、advanced権限モードに入ります。「-privilege advanced」と入力します
+. クライアントの非同期削除を有効にし、必要に応じてtrashbinディレクトリに別の名前を指定します。
++
+volume file async -delete client enable volume_volname_vserverName_trashbinname_name_`
+
++
+デフォルトのごみ箱名を使用する例：
+
++
+[listing]
+----
+cluster1::*> volume file async-delete client enable -volume v1 -vserver  vs0
+
+Info: Async directory delete from the client has been enabled on volume "v1" in
+      Vserver "vs0".
+----
++
+代替ごみ箱名の指定例：
+
++
+[listing]
+----
+cluster1::*> volume file async-delete client enable -volume test -trashbin ntaptrash -vserver vs1
+
+Success: Async directory delete from the client is enabled on volume "v1" in
+      Vserver "vs0".
+----
+. クライアントの非同期削除が有効であることを確認します。
++
+volume file async -delete client show
+
++
+例
+
++
+[listing]
+----
+cluster1::*> volume file async-delete client show
+
+Vserver Volume      async-delete client TrashBinName
+------------ ------------ ----------------------- -------------
+vs1          vol1         Enabled          .ntaptrash
+vs2          vol2         Disabled          -
+
+2 entries were displayed.
+----
+
+
+
+
+== クライアントの非同期ディレクトリの削除を無効にします
+
+.手順
+. クラスタCLIで、クライアントの非同期ディレクトリ削除を無効にします。
++
+volume file async -delete client disable volume_volname_vserverName_`
+
++
+例
+
++
+[listing]
+----
+cluster1::*> volume file async-delete client disable -volume vol1 -vserver vs1
+
+       Success: Asynchronous directory delete client disabled successfully on volume.
+----
+. クライアントの非同期削除が無効になっていることを確認する。
++
+volume file async -delete client show
+
++
+例
+
++
+[listing]
+----
+cluster1::*> volume file async-delete client show
+
+Vserver      Volume      async-delete client      TrashBinName
+------------ ------------ ----------------------- -------------
+vs1          vol1         Disabled                -
+vs2          vol2         Disabled                -
+
+2 entries were displayed.
+----
+

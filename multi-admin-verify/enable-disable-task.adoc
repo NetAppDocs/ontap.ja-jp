@@ -1,0 +1,165 @@
+---
+sidebar: sidebar 
+permalink: multi-admin-verify/enable-disable-task.html 
+keywords: ontap, mav, multi, admin, verification, administrator, enable, disable, approval, groups, cli, system manager 
+summary: Multi-admin Verification（MAV；マルチ管理者検証）は明示的に有効にする必要があります。マルチ管理者検証を有効にした後は、MAV承認グループ（MAV管理者）の管理者による承認が必要になります。 
+---
+= マルチ管理者検証を有効または無効にします
+:allow-uri-read: 
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+Multi-admin Verification（MAV；マルチ管理者検証）は明示的に有効にする必要があります。マルチ管理者検証を有効にした後は、MAV承認グループ（MAV管理者）の管理者による承認が必要になります。
+
+MAVを有効にすると、MAVを変更または無効にするには、MAV管理者の承認が必要になります。
+
+
+NOTE: MAVの管理者の承認なしでマルチ管理者検証機能を無効にする必要がある場合は、ネットアップサポートに連絡して、次の技術情報アーティクルを記載します。 https://kb.netapp.com/Advice_and_Troubleshooting/Data_Storage_Software/ONTAP_OS/How_to_disable_Multi-Admin_Verification_if_MAV_admin_is_unavailable["MAV管理者が利用できない場合にマルチ管理者検証を無効にする方法"^]。
+
+MAVをイネーブルにすると、次のパラメータをグローバルに指定できます。
+
+承認グループ:: グローバル承認グループのリスト。MAV機能を有効にするには、少なくとも1つのグループが必要です。
+必須の承認者:: 保護された操作を実行するために必要な承認者の数。デフォルトの最小数は1です。
++
+--
+*注意：*必要な承認者数は、デフォルトの承認グループの一意の承認者の合計数よりも少なくなければなりません。
+
+--
+承認の有効期限（時間、分、秒）:: MAV管理者が承認要求に応答する必要がある期間。デフォルト値は1時間（1h）、サポートされる最小値は1秒（1s）、サポートされる最大値は14日（14d）です。
+実行の有効期限（時間、分、秒）:: 要求元の管理者が::operationを完了する必要がある期間。デフォルト値は1時間（1h）、サポートされる最小値は1秒（1s）、サポートされる最大値は14日（14d）です。
+
+
+特定のパラメータについて、これらのパラメータを上書きすることもできます link:manage-rules-task.html["操作ルール。"]
+
+
+
+== System Manager の手順の略
+
+. 管理者による検証を受ける管理者を特定します。
++
+.. [*Cluster]>[Settings.*]をクリックします
+.. をクリックします image:icon_arrow.gif["青の矢印アイコン"] をクリックします
+.. をクリックします image:icon_add.gif["追加アイコン"] [*Users.*]の下にあります
+.. 必要に応じて名簿を変更します。
++
+詳細については、を参照してください link:../task_security_administrator_access.html["管理者アクセスの制御"]
+
+
+
+. 少なくとも1つの承認グループを作成し、少なくとも1つのルールを追加して、マルチ管理者検証を有効にします。
++
+.. [*Cluster]>[Settings.*]をクリックします
+.. をクリックします image:icon_gear.gif["歯車アイコン"] 「セキュリティ」セクションの「*マルチ管理者承認」の横。
+.. をクリックします image:icon_add.gif["追加アイコン"] 1つ以上の承認グループを追加します。
++
+*** 名前–グループ名を入力します。
+*** 承認者–ユーザーのリストから承認者を選択します。
+*** Eメールアドレス–Eメールアドレスを入力します。
+*** デフォルトグループ–グループを選択します。
+
+
+.. ルールを少なくとも1つ追加してください。
++
+*** operation–サポートされているコマンドをリストから選択します。
+*** Query–必要なコマンドオプションと値を入力します。
+*** オプションのパラメータ。グローバル設定を適用する場合は空白のままにします。グローバル設定を上書きする場合は、特定のルールに別の値を割り当てます。
++
+**** 必要な承認者の数
+**** 承認グループ
+
+
+
+
+.. [詳細設定*]をクリックして、デフォルトを表示または変更します。
++
+*** 必要な承認者数（デフォルト：1）
+*** 実行要求の有効期限（デフォルト：1時間）
+*** 承認リクエストの有効期限（デフォルト：1時間）
+*** メールサーバ*
+*** 送信元Eメールアドレス*
++
+*これらは、「通知管理」で管理されている電子メール設定を更新します。まだ設定されていない場合は、設定を求めるプロンプトが表示されます。
+
+
+
+.. Enable（有効）*をクリックしてMAV初期設定を完了します。
+
+
+
+
+初期設定後、現在のMAVステータスが* Multi-Admin Approval *（マルチ管理者承認）タイルに表示されます。
+
+* ステータス（有効または無効）
+* 承認が必要なアクティブな操作
+* 保留状態のオープン要求の数
+
+
+をクリックすると、既存の設定を表示できます image:icon_arrow.gif["青の矢印アイコン"]。既存の構成を編集するにはMAV承認が必要です。
+
+マルチ管理者検証を無効にする場合：
+
+. [*Cluster]>[Settings.*]をクリックします
+. をクリックします image:icon_gear.gif["歯車アイコン"] 「セキュリティ」セクションの「*マルチ管理者承認」の横。
+. [有効]トグルボタンをクリックします。
++
+この操作を完了するにはMAV承認が必要です。
+
+
+
+
+
+== CLI 手順の略
+
+CLIでMAV機能をイネーブルにする前に、少なくとも1つ link:manage-groups-task.html["MAV管理者グループ"] を作成しておく必要があります。
+
+[cols="50,50"]
+|===
+| 実行する処理 | 入力するコマンド 
+
+
+ a| 
+MAV機能を有効にします
+ a| 
+security multi-admin-verify modify -approval -groups_group1_[,_group2_...] [-required-pprover-nn_]-enabled true [-execution -expiry [_nn _h][_nn__m][_nn_s_s][-approval -expiry [_nn_h][__ nn__m][_nn_m_m][_nn_s_s][_nn_s_s][_nn_nn_s]
+
+*例*：次のコマンドは、MAVを1つの承認グループ、2つの必須承認者、およびデフォルトの有効期限で有効にします。
+
+[listing]
+----
+cluster-1::> security multi-admin-verify modify -approval-groups mav-grp1 -required-approvers 2 -enabled true
+----
+1つ以上を追加して初期設定を完了します link:manage-rules-task.html["操作ルール。"]
+
+
+
+ a| 
+MAV設定の変更（MAVの承認が必要）
+ a| 
+security multi-admin-verify approval -group modify [-approval -groups_group1_[,_group2_...] [-required-papprover-nn_][-execution -expiry [_nn_h][_nn_m][__ approval -expiry [_nn_h][_nn_m][_nn_m][_nn_s_s][_nn_s_s]
+
+
+
+ a| 
+MAV機能を確認します
+ a| 
+「security multi-admin-verify show」のように表示されます
+
+* 例： *
+
+....
+cluster-1::> security multi-admin-verify show
+Is      Required  Execution Approval Approval
+Enabled Approvers Expiry    Expiry   Groups
+------- --------- --------- -------- ----------
+true    2         1h        1h       mav-grp1
+....
+
+
+ a| 
+MAV機能を無効にする（MAVの承認が必要）
+ a| 
+security multi-admin-verify modify -enabled false
+
+|===

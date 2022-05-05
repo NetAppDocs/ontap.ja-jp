@@ -1,23 +1,29 @@
 ---
 permalink: flexgroup/fast-directory-delete-asynchronous-task.html 
 sidebar: sidebar 
-keywords: perform, directory, delete, files, asynchronous, share, flexvol, flex vol, flexgroup, flex group 
-summary: ディレクトリを削除するには、 REST API を使用する必要があります。ONTAP 9.8 以降では、 volume file async -delete コマンドを使用して、 Linux および Windows のクライアント共有からバックグラウンドでファイルとディレクトリを削除することもできます。非同期削除は、 FlexVol ボリュームと FlexGroup ボリュームの両方で実行できます。 
+keywords: perform, directory, delete, files, asynchronous, share, flexvol, flex vol, flexgroup, flex group, cancel 
+summary: ONTAP 9.8以降では、volume file async -deleteコマンドを使用して、LinuxおよびWindowsのクライアント共有からバックグラウンドでファイルとディレクトリを削除できます。非同期削除は、 FlexVol ボリュームと FlexGroup ボリュームの両方で実行できます。 
 ---
-= ファイルとディレクトリを非同期で削除することにより、高速ディレクトリ削除を実行します
+= クラスタ上のファイルとディレクトリを迅速に削除できます
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-ディレクトリを削除するには、 REST API を使用する必要があります。ONTAP 9.8 以降では 'volume file async -delete' コマンドを使用して 'Linux および Windows のクライアント共有からバックグラウンドでファイルとディレクトリを削除することもできます非同期削除は、 FlexVol ボリュームと FlexGroup ボリュームの両方で実行できます。
+ONTAP 9.8以降では、低レイテンシの高速ディレクトリ削除機能を使用して、LinuxおよびWindowsクライアント共有から非同期（つまりバックグラウンド）でファイルとディレクトリを削除できます。クラスタ管理者およびSVM管理者は、FlexVol とFlexGroup の両方のボリュームに対して非同期削除処理を実行できます。
 
-advanced 権限モードを使用するには、クラスタ管理者または SVM 管理者である必要があります。
+ONTAP 9.11.1よりも前のバージョンのONTAP を使用している場合は、クラスタ管理者またはadvanced権限モードを使用するSVM管理者である必要があります。
 
-ONTAP 9.9..1 以降では、 System Manager を使用してディレクトリの高速削除を実行することもできます。詳細については、を参照してください https://docs.netapp.com/us-en/ontap/task_nas_file_system_analytics_take_corrective_action.html["分析に基づいて修正措置を講じる"]。
+ONTAP 9.11.1以降、ストレージ管理者はボリュームに対する権限を付与して、NFSクライアントとSMBクライアントに非同期削除処理を実行させることができます。詳細については、を参照してください xref:manage-client-async-dir-delete-task.adoc[ディレクトリを迅速に削除するためのクライアント権限を管理します]。
 
-.手順
+ONTAP 9.8以降では、ONTAP CLIを使用して、高速ディレクトリ削除機能を使用できます。ONTAP 9.9.9..1以降では、この機能をSystem Managerで使用できます。このプロセスの詳細については、を参照してください https://docs.netapp.com/us-en/ontap/task_nas_file_system_analytics_take_corrective_action.html["分析に基づいて修正措置を講じる"]。
+
+[role="tabbed-block"]
+====
+.CLI の使用
+--
+.CLIを使用して高速ディレクトリ削除を実行します。
 . advanced 権限モードに切り替えます :`-privilege adv`
 . FlexVol または FlexGroup ボリューム上のファイルまたはディレクトリを削除します。 volume file async -delete start -vserver vserver_name -volume volume_name -path file_name -path file_path throttle`
 +
@@ -44,3 +50,29 @@ Time                 Node             Severity      Event
 MM/DD/YYYY 00:11:11  cluster-vsim     INFORMATIONAL asyncDelete.message.success: Async delete job on path d1/d2 of volume (MSID: 2162149232) was completed.
 ----
 
+
+.ディレクトリ削除ジョブをキャンセルする
+. advanced 権限モードに切り替えます。
++
+「 -privilege advanced 」のようになります
+
+. ディレクトリの削除が実行中であることを確認します。
++
+volume file async -delete show
+
++
+ディレクトリの SVM 、ボリューム、ジョブ ID 、およびパスが表示された場合は、ジョブをキャンセルできます。
+
+. ディレクトリの削除をキャンセルします。
++
+volume file async -delete cancel -vserver svm_name -volume volume_name -jobid job_id
+
+
+
+--
+.System Manager の略
+--
+詳細については、を参照してください https://docs.netapp.com/us-en/ontap/task_nas_file_system_analytics_take_corrective_action.html["分析に基づいて修正措置を講じる"]。
+
+--
+====

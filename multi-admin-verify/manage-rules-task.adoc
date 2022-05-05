@@ -1,0 +1,158 @@
+---
+sidebar: sidebar 
+permalink: multi-admin-verify/manage-rules-task.html 
+keywords: ontap, mav, multi, admin, verification, administrator, protected, operation, rules, manage 
+summary: MAV（Multi-admin Verification）ルールを作成して、承認が必要な操作を指定します。操作が開始されるたびに、保護された操作が妨害され、承認の要求が生成されます 
+---
+= 保護された操作ルールを管理します
+:allow-uri-read: 
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+MAV（Multi-admin Verification）ルールを作成して、承認が必要な操作を指定します。操作が開始されるたびに、保護された操作が妨害され、承認の要求が生成されます。
+
+ルールは任意の管理者が適切なRBAC機能を使用してMAVを有効にする前に作成できますが、MAVを有効にすると、ルールセットを変更するにはMAV承認が必要になります。
+
+ONTAP 9.11.1では、次のコマンドのルールを作成できます。
+
+[cols="2*"]
+|===
+
+
+ a| 
+「cluster peer delete」と入力します
+
+'event config modify
+
+'securitylogin create （セキュリティログインの作成
+
+「セキュリティログイン削除」
+
+「セキュリティログインの変更」
+
+「system node run」のように指定します
+
+システム・ノード・システムシェル
+
+volume delete
+
+'volume FlexCache deleted'のように表示されます
+ a| 
+volume snapshot autodelete modifyを実行します
+
+volume snapshot delete
+
+volume snapshot policy add-schedule
+
+'volume snapshot policy create
+
+volume snapshot policy delete
+
+'volume snapshot policy modify'を実行します
+
+volume snapshot policy modify-schedule
+
+volume snapshot policy remove-schedule
+
+ボリューム・スナップショット・リストア
+
+「vserver peer delete」
+
+|===
+また、MAVがイネーブルになっている場合、次のコマンドはデフォルトで保護されますが、これらのコマンドの保護を解除するためにルールを変更することもできます。
+
+* 「セキュリティログインパスワード」
+* 「security login unlock」のように表示されます
+* 「セット」
+
+
+MAV system-defaultコマンドのルール（security multi-admin-verifyコマンド）は変更できません。
+
+ルールを作成するときに'-query'オプションを指定して'要求をコマンド機能のサブセットに制限することもできますたとえば'デフォルトのsetコマンドでは'-query'は'-privilege diagに設定されていますつまり'-privilege diagが指定されている場合にのみsetコマンドに対して要求が生成されます
+
+[listing]
+----
+smci-vsim20::> security multi-admin-verify rule show
+                                               Required  Approval
+Vserver Operation                              Approvers Groups
+------- -------------------------------------- --------- -------------
+vs01    set                                    -         -
+          Query: -privilege diagnostic
+----
+デフォルトでは、規則は、対応する「security multi-admin-verify request create _"protected_operation"_」コマンドが、保護された操作が入力されると自動的に生成されるように指定します。このデフォルトを変更して'request createコマンドを別個に入力する必要があります
+
+デフォルトでは、ルール固有の例外を指定できますが、ルールは次のグローバルMAV設定を継承します。
+
+* 承認者の必要数
+* 承認グループ
+* 承認の有効期限
+* 実行の有効期限
+
+
+
+
+== System Manager の手順の略
+
+保護された処理ルールを初めて追加する場合は、System Managerの手順 を参照してください link:enable-disable-task.html#system-manager-procedure["マルチ管理者検証を有効にします。"]
+
+既存のルールセットを変更するには：
+
+. [*Cluster] > [Settings*] の順にクリックします。
+. をクリックします image:icon_gear.gif["歯車アイコン"] 「セキュリティ」セクションの「*マルチ管理者承認」の横。
+. をクリックします image:icon_add.gif["追加アイコン"] ルールを追加するには、既存のルールを変更または削除することもできます。
++
+** operation–サポートされているコマンドをリストから選択します。
+** Query–必要なコマンドオプションと値を入力します。
+** オプションのパラメータ–グローバル設定を適用する場合は空欄のままにします。グローバル設定を上書きする場合は、特定のルールに別の値を割り当てます。
++
+*** 必要な承認者数–L
+*** 承認グループ
+
+
+
+
+
+
+
+
+== CLI 手順の略
+
+
+NOTE: security multi-admin-verify ruleコマンドはすべて'security multi-admin-verify rule showを除く実行前にMAV管理者の承認を必要とします
+
+[cols="50,50"]
+|===
+| 実行する処理 | 入力するコマンド 
+
+
+| ルールを作成します  a| 
+security multi-admin-verify rule create-operation_"protected_operation"_[-query_operation_subset_][_parameters_]'
+
+
+
+| 現在の管理者のクレデンシャルの変更  a| 
+'security login modify_<parameters>_’
+
+*例*：次のルールでは、ルートボリュームの削除が承認されている必要があります。
+
+security multi-admin-verify rule create -operation "volume delete"-query"-vserver vs0
+
+
+
+| ルールを変更します  a| 
+security multi-admin-verify rule modify -operation_"protected_operation"_[_parameters_]'
+
+
+
+| ルールを削除します  a| 
+「security multi-admin-verify rule delete-operation_"protected_operation"_"」
+
+
+
+| ルールを表示します  a| 
+「security multi-admin-verify rule show」のように表示されます
+
+|===
+コマンド構文の詳細については'security multi-admin-verify ruleのマニュアル・ページを参照してください

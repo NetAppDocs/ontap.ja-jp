@@ -1,0 +1,44 @@
+---
+sidebar: sidebar 
+permalink: anti-ransomware/modify-automatic-shapshot-options-task.html 
+keywords: anti-ransomware, automatic Snapshot copy, suspected attack, vserver options command 
+summary: ONTAP 9.11.1以降では、ランサムウェアの攻撃が疑われる場合に自動的に生成されるアンチランサムウェア（ARW）Snapshotコピーの数と保持期間を制御できます。 
+---
+= 自動Snapshotコピーのオプションを変更します
+:toc: macro
+:hardbreaks:
+:toclevels: 1
+:allow-uri-read: 
+:toc: 
+:toclevels: 1
+:nofooter: 
+:icons: font
+:linkattrs: 
+:imagesdir: ./media/
+:toc-position: content
+
+
+[role="lead"]
+ONTAP 9.11.1以降では、ランサムウェアの攻撃が疑われる場合に自動的に生成されるアンチランサムウェア（ARW）Snapshotコピーの数と保持期間を制御できます。
+
+*注：「vserver options」コマンドは非表示のコマンドです。マニュアル・ページを表示するには、ONTAP CLIで「man vserver options」と入力します。
+
+自動Snapshotコピーの次のオプションを変更できます。
+
+ARW.SNAP_maxカウント:: 任意の時点で1つのボリューム内に存在できるARW Snapshotコピーの最大数を指定します。ARW Snapshotコピーの総数がこの指定した制限内に収まるように、古いコピーが削除されます。
+arw.snap.create.interval.hours:: ARW Snapshotコピーの間隔（時間）を指定します。攻撃の疑いがあり、以前に作成されたコピーが指定した間隔よりも古い場合に、新しいSnapshotコピーが作成されます。
+arw.snap.normal.retain.interval.hours:: ARW Snapshotコピーを保持する期間（時間）を指定します。ARW Snapshotコピーがこの古いものになると、その日数に達するために最新のコピーよりも前に作成されたARW Snapshotコピーはすべて削除されます。この期間を経過したARW Snapshotコピーは存在しません。
+arw.snap.max.retain.interval.days:: ARW Snapshotコピーを保持できる最長期間（日数）を指定します。この期間を経過したARW Snapshotコピーは、ボリュームに対する攻撃が報告されていない場合は削除されます。
+arw.snap.create.interval.hours.post.max.count:: ボリュームにすでに最大数のARW Snapshotコピーが含まれている場合に、ARW Snapshotコピーの間隔（時間）を指定します。最大数に達すると、ARW Snapshotコピーが削除され、新しいコピー用のスペースが確保されます。このオプションを使用すると、新しいARW Snapshotコピーの作成速度を下げて古いコピーを保持することができます。ボリュームにすでに最大数のARW Snapshotコピーが含まれている場合、このオプションで指定した間隔が、arw.snap.create.interval.hoursではなく、次のARW Snapshotコピー作成に使用されます。
+arw.surge.snap.interval.days:: ARWサージSnapshotコピーの間隔（日数）を指定します。IOトラフィックが急増し、最後に作成されたARW Snapshotコピーが指定した間隔よりも古い場合、新しいARW Snapshotサージコピーが作成されます。このオプションは、ARWサージSnapshotコピーを保持する期間（日数）も指定します。
+
+
+
+
+== CLI 手順の略
+
+現在のARW Snapshotコピーの設定をすべて表示するには、「vserver options -vserver _svm_name _ARW *」と入力します
+
+選択した現在のARW Snapshotコピーの設定を表示するには、「vserver options -vserver _svm_name_-option -name_ARW_Setting_name_」と入力します
+
+ARW Snapshotコピーの設定を変更するには、「vserver options -vserver _svm_name _-option-name _ARW_Setting_name _-option-value_ARW_Setting_value_`」と入力します

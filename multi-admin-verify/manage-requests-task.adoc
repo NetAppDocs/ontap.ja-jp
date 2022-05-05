@@ -1,0 +1,168 @@
+---
+sidebar: sidebar 
+permalink: multi-admin-verify/manage-requests-task.html 
+keywords: ontap, mav, multi, admin, verification, administrator, protected, operation, rules, request, cluster, approve, rbac, manage, cli, system, manager 
+summary: MAV承認グループ（MAV管理者）の管理者に保留中の操作実行要求が通知された場合、一定の期間（承認期限）内に承認または拒否のメッセージで応答する必要があります。 
+---
+= 保護された操作要求を管理します
+:allow-uri-read: 
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+MAV承認グループ（MAV管理者）の管理者に保留中の操作実行要求が通知された場合、一定の期間（承認期限）内に承認または拒否のメッセージで応答する必要があります。十分な数の承認が得られない場合、リクエスト者はリクエストを削除して、別のリクエストを作成する必要があります。
+
+承認リクエストはインデックス番号で識別されます。インデックス番号は電子メールメッセージに含まれ、リクエストキューの表示にも含まれます。
+
+要求キューからは、次の情報を表示できます。
+
+操作:: 要求が作成される保護された操作。
+クエリ:: ユーザーが操作を適用するオブジェクト。
+状態:: リクエストの現在の状態（保留中、承認済み、却下済み、期限切れ） 実行済み。リクエストが1人の承認者によって却下された場合、それ以上のアクションは実行できません。
+必須の承認者:: リクエストを承認するために必要なMAV管理者の数。ユーザは、操作ルールのrequired-approversパラメータを設定できます。ユーザーが必須承認者をルールに設定していない場合は、グローバル設定の必須承認者が適用されます。
+保留中の承認者:: リクエストを承認済みとしてマークするためにリクエストを承認する必要があるMAV管理者の数。
+承認の有効期限:: MAV管理者が承認要求に応答する必要がある期間。許可されたユーザーは、操作ルールの承認期限を設定できます。承認期限がルールに設定されていない場合は、グローバル設定の承認期限が適用されます。
+実行の有効期限:: 要求元の管理者が処理を完了する必要のある期間。許可された任意のユーザーは、操作ルールの実行有効期限を設定できます。実行有効期限がルールに設定されていない場合は、グローバル設定の実行有効期限が適用されます。
+ユーザーが承認しました:: リクエストを承認したMAV管理者。
+ユーザが拒否しました:: リクエストを拒否したMAV管理者。
+Storage VM（SVM）:: 要求が関連付けられているSVM。このリリースでは、管理SVMのみがサポートされます。
+ユーザが要求しました:: 要求を作成したユーザのユーザ名。
+作成時刻:: リクエストが作成された時刻。
+承認された時間:: リクエストの状態が承認済みに変更された時刻。
+コメント（ Comment ）:: リクエストに関連付けられているコメント。
+ユーザが許可されました:: リクエストが承認された保護された操作の実行を許可されているユーザーのリスト。「user-permitted」が空の場合は、適切な権限を持つユーザーが操作を実行できます。
+
+
+期限切れの要求または実行された要求は、制限が1000件に達したとき、または期限切れの要求が8時間を超えたときにすべて削除されます。拒否された要求は、期限切れとしてマークされると削除されます。
+
+
+
+== System Manager の手順の略
+
+MAV管理者は、承認リクエストの詳細、リクエストの有効期限、リクエストを承認または却下するためのリンクが記載された電子メールメッセージを受信します。承認ダイアログにアクセスするには、Eメール内のリンクをクリックするか、System Managerで* Events & Jobs > Requests *（イベントとジョブ>要求）に移動します。
+
+[*Requests]ウィンドウは、マルチ管理者検証がイネーブルの場合に使用でき、ユーザのログインIDおよびMAVロール（アプルーバまたはそれ以外）に基づいて保留中の要求が表示されます。
+
+* 操作
+* インデックス（数値）
+* ステータス（［保留中］、［承認済み］、［却下済み］、［実行済み］、または［期限切れ］）
++
+リクエストが1人の承認者によって却下された場合、それ以上のアクションは実行できません。
+
+* query（要求された処理のパラメータまたは値）
+* ユーザーを要求しています
+* 要求の有効期限はです
+* （の数）保留中の承認者
+* （数）承認者の候補
+
+
+MAV管理者は、この画面に追加のコントロールを設定できます。管理者は、個々の操作または操作の選択したグループを承認、拒否、または削除できます。ただし、MAV管理者が要求元ユーザである場合は、独自の要求を承認、拒否、または削除することはできません。
+
+
+
+== CLI 手順の略
+
+. 保留中のリクエストが電子メールで通知された場合は、リクエストのインデックス番号と承認期限をメモします。インデックス番号は、以下の* show *または* show-pending *オプションを使用して表示することもできます。
+. 要求を承認または拒否します。
++
+[cols="50,50"]
+|===
+| 実行する処理 | 入力するコマンド 
+
+
+ a| 
+リクエストを承認します
+ a| 
+「security multi-admin-verify request approvery_nn_`」と入力します
+
+
+
+ a| 
+要求を拒否します
+ a| 
+「security multi-admin-verify request」拒否_nn_`
+
+
+
+ a| 
+すべての要求、保留中の要求、または単一の要求を表示します
+ a| 
+'security multi-admin-verify request { show | show-pending }[_nn_]{-fields 1_[,_field2_...] |[-instance ]}`
+
+キュー内のすべての要求を表示することも、保留中の要求だけを表示することもできます。インデックス番号を入力すると、そのの情報のみが表示されます。特定のフィールドに関する情報を表示するには（「-fields」パラメータを使用）、またはすべてのフィールドに関する情報を表示するには（「-instance」パラメータを使用）ことができます。
+
+
+
+ a| 
+リクエストを削除します
+ a| 
+「security multi-admin-verify request delete_nn_`」と入力します
+
+|===
+
+
+次のシーケンスでは、MAV管理者がインデックス番号3のリクエストメールを受信した後、リクエストが承認されます。これはすでに1つの承認を持っています。
+
+[listing]
+----
+          cluster1::> security multi-admin-verify request show-pending
+                                   Pending
+Index Operation      Query State   Approvers Requestor
+----- -------------- ----- ------- --------- ---------
+    3 volume delete  -     pending 1         julia
+
+
+cluster-1::> security multi-admin-verify request approve 3
+
+cluster-1::> security multi-admin-verify request show 3
+
+     Request Index: 3
+         Operation: volume delete
+             Query: -
+             State: approved
+Required Approvers: 2
+ Pending Approvers: 0
+   Approval Expiry: 2/25/2022 14:32:03
+  Execution Expiry: 2/25/2022 14:35:36
+         Approvals: mav-admin2
+       User Vetoed: -
+           Vserver: cluster-1
+    User Requested: julia
+      Time Created: 2/25/2022 13:32:03
+     Time Approved: 2/25/2022 13:35:36
+           Comment: -
+   Users Permitted: -
+----
+次のシーケンスは、MAV管理者がインデックス番号3の要求メールを受信した後、すでに1つの承認がある要求を拒否します。
+
+[listing]
+----
+      cluster1::> security multi-admin-verify request show-pending
+                                   Pending
+Index Operation      Query State   Approvers Requestor
+----- -------------- ----- ------- --------- ---------
+    3 volume delete  -     pending 1         pavan
+
+
+cluster-1::> security multi-admin-verify request veto 3
+
+cluster-1::> security multi-admin-verify request show 3
+
+     Request Index: 3
+         Operation: volume delete
+             Query: -
+             State: vetoed
+Required Approvers: 2
+ Pending Approvers: 0
+   Approval Expiry: 2/25/2022 14:32:03
+  Execution Expiry: 2/25/2022 14:35:36
+         Approvals: mav-admin1
+       User Vetoed: mav-admin2
+           Vserver: cluster-1
+    User Requested: pavan
+      Time Created: 2/25/2022 13:32:03
+     Time Approved: 2/25/2022 13:35:36
+           Comment: -
+   Users Permitted: -
+----

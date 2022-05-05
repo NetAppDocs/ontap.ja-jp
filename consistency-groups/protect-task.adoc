@@ -1,10 +1,11 @@
 ---
 permalink: consistency-groups/protect-task.html 
 sidebar: sidebar 
-keywords: consistency groups, consistency group, application protection, parent, child, configure 
+keywords: consistency groups, consistency group, application protection, parent, child, configure, two-phase commit, 2 phase 
 summary: 整合性グループの保護ポリシーを設定して、ローカルの Snapshot ポリシーまたはリモートの SM-BC 保護を使用したアプリケーションのバックアップを有効にします 
 ---
 = 整合グループを保護する
+:hardbreaks:
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
@@ -13,7 +14,7 @@ summary: 整合性グループの保護ポリシーを設定して、ローカ�
 [role="lead"]
 整合グループを使用すると、複数のボリュームにまたがる SAN 、 NAS 、 NVMe のアプリケーションに対して、ローカルとリモートで簡単に保護することができます。
 
-整合性グループを作成しても、保護は自動的に有効になりません。ローカル保護ポリシーとリモート保護ポリシーは、作成時または整合グループ作成後に設定できます。保護ポリシーには、ローカルの Snapshot コピーや SnapMirror によるビジネス継続性（ SM-BC ）によるリモートの SnapMirror 保護を含めることができます。ネストされた整合グループを使用している場合は、個々のボリュームに別々の保護ポリシーを設定できます。
+整合性グループを作成しても、保護は自動的に有効になりません。ローカル保護ポリシーとリモート保護ポリシーは、作成時または整合グループ作成後に設定できます。保護ポリシーには、ローカルの Snapshot コピーや SnapMirror によるビジネス継続性（ SM-BC ）によるリモートの SnapMirror 保護を含めることができます。ネストされた整合グループを使用している場合は、個々のボリュームに別々の保護ポリシーを設定できます。ONTAP 9.11.1以降では、整合グループによって提供されています <<two-phase,2フェーズの整合グループSnapshotの作成>>。
 
 リモートの SM-BC 保護を使用する場合は、整合グループで作成された整合グループの Snapshot コピーがデスティネーションに確実にコピーされるように、ソースクラスタとデスティネーションクラスタのポリシーラベルが一致している必要があります。SnapMirror ラベルが定義済みの AutomatedFailOver ポリシーに SnapMirror ラベルのルールを追加し、そのラベルで Snapshot コピーを作成しないかぎり、 SM-BC はデフォルトで Snapshot コピーをレプリケートしません。このプロセスの詳細については、を参照してください link:../task_san_configure_protection_for_business_continuity.html["ビジネス継続性の保護を構成します"]。
 
@@ -40,7 +41,8 @@ ONTAP 9.10.1 以降の System Manager では、 * Protection > Relationships * �
 
 .手順
 . SM-BC を使用するための前提条件を満たしていることを確認します。を参照してください link:../smbc/smbc_plan_prerequisites.html["SM-BC の前提条件"]
-+
+
+
 
 NOTE: NAS アクセス用にマウントされたボリュームでは、 SM-BC 関係を確立できません。
 
@@ -52,4 +54,42 @@ NOTE: NAS アクセス用にマウントされたボリュームでは、 SM-BC 
 . 整合グループの初期化と同期が必要になります。これが完了すると、 *SnapMirror (Remote) * のステータスはの横に「 Protected 」と表示されます image:../media/icon_shield.png["Alt = 緑の盾アイコン"]。
 
 
-link:../task_dp_configure_snapshot.html["Snapshot コピーを設定します"] [+]link:../task_dp_create_custom_data_protection_policies.html["カスタムのデータ保護ポリシーを作成する"] [+]link:../task_dp_recover_snapshot.html["Snapshot コピーからリカバリします"] [+]link:../task_dp_restore_from_vault.html["以前の Snapshot コピーからボリュームをリストアします"]
+
+
+== 2段階のCG Snapshot作成
+
+ONTAP 9.11.1以降では、整合グループが2つのフェーズのコミットを整合グループ（CG）のSnapshot作成でサポートします。この機能は、ONTAP REST APIでのみ使用できます。二段階的なCG Snapshot作成はSnapshot作成にのみ使用でき、整合グループのプロビジョニングや整合グループのリストアには使用できません。
+
+二段階CG Snapshotの作成により、POST要求によって呼び出されたSnapshot作成プロセスが、「/application/consistency -groups/{consistency _group_uuid}/snapshots」エンドポイントに分割され、2段階のシーケンスになります。POST要求で開始された最初のフェーズでは、APIが事前確認を実行し、Snapshotの作成をトリガーして、指定された間隔のタイマーを開始します。フェーズ1のPOST要求が201ステータスコードで完了した場合、最初のフェーズから指定した間隔で第2フェーズを呼び出し、Snapshotを適切なエンドポイントにコミットできます。
+
+2フェーズCG Snapshot作成を使用するには、クラスタ内のすべてのノードでONTAP 9.11.1が実行されている必要があります。二相CGスナップショット作成は'action=start'パラメータを指定して呼び出すことができますまた'action_timeout'パラメータを使用して'スナップショット作成プロセスが実行できる最大秒数を指定することもできます'action_timeout'パラメータは'5～120の整数に設定できますデフォルト値の'action_timeout'は7です
+
+整合性グループSnapshot作成処理のアクティブな呼び出しは、単一フェーズか2フェーズかにかかわらず、一度に1回のみサポートされます。別のSnapshotの作成処理の実行中にSnapshotを作成しようとすると、エラーが発生します。
+
+ONTAP REST APIの詳細については、を参照してください link:https://docs.netapp.com/us-en/ontap-automation/reference/api_reference.html["API リファレンス"^] または、を参照してください link:https://devnet.netapp.com/restapi.php["ONTAP REST APIページ"^] APIエンドポイントの完全なリストについては、NetApp Developer Networkを参照してください。
+
+.2段階のコミットを作成します
+. 'action=start'パラメータを使用して'整合グループのエンドポイントに対するPOST要求を使用してスナップショットを作成します
++
+[source, curl]
+----
+curl -k -X POST 'https://<IP_address>/application/consistency-groups/<cg-uuid>/snapshots?action=start&action_timeout=7' -H "accept: application/hal+json" -H "content-type: application/json" -d '
+{
+  "name": "name_of_this_snapshot",
+  "consistency_type": "crash",
+  "comment": "<comment>",
+  "snapmirror_label": "<snap_mirror label>"
+}'
+----
+. POST要求が成功した場合は、Snapshot UUIDが出力に含まれます。その情報を使用して、Snapshotをコミットするようにパッチ要求を送信します。
++
+[source, curl]
+----
+curl -k -X PATCH 'https://<IP_address>/application/consistency-groups/<cg_uuid>/snapshots/<snapshot_id>?action=commit' -H "accept: application/hal+json" -H "content-type: application/json"
+----
+
+
+link:../task_dp_configure_snapshot.html["Snapshot コピーを設定します"]
+link:../task_dp_create_custom_data_protection_policies.html["カスタムのデータ保護ポリシーを作成する"]
+link:../task_dp_recover_snapshot.html["Snapshot コピーからリカバリします"]
+link:../task_dp_restore_from_vault.html["以前の Snapshot コピーからボリュームをリストアします"]

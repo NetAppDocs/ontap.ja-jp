@@ -24,7 +24,7 @@ LIF のロールの代わりに、 LIF でサポートされるトラフィッ�
 
 管理 SVM とすべてのシステム SVM には、管理 LIF とクラスタ間 LIF を含む、その SVM の LIF に使用できるサービスポリシーが含まれています。これらのポリシーは、 IPspace の作成時にシステムによって自動的に作成されます。
 
-次の表に、 ONTAP 9.10.1 以降のシステム SVM の LIF の組み込みのポリシーを示します。その他のリリースでは、次のコマンドを使用してサービスポリシーとその詳細を表示します。
+次の表に、ONTAP 9.11.1以降の、システムSVMのLIFの組み込みのポリシーを示します。その他のリリースでは、次のコマンドを使用してサービスポリシーとその詳細を表示します。
 
 「 network interface service-policy show 」を参照してください
 
@@ -60,14 +60,14 @@ BGP ピア接続を処理する LIF で使用されます。注： ONTAP 9.5 で
  a| 
 default-management
  a| 
-management-core 、 management-https 、 management-http 、 management-ssh management-autosupport 、 management-ems 、 management-ntp-client'management-snmp-server ' management-ntp-server ' backup-ndmp-control
+management-core、management-https、management-http、management-ssh、management-autosupport、 management-ems、management-dns-client、management-ad-client, management-ldap-client, management-nis-client, management-ntp-client
  a| 
 ノード管理、またはクラスタ管理
  a| 
-システムを対象とした管理要求を処理する LIF で使用されます。Management - EMS は、 EMS コンテンツを公開できる LIF を制御します。システムを対象とした管理ポリシーは、システム SVM が所有するノードを対象とした管理 LIF とクラスタを対象とした管理 LIF を作成するために使用されます。これらの LIF は、 NTP サーバや DNS サーバへのアウトバウンド接続や、システム全体に代わってアプリケーションが実行されるようにするための追加の接続に使用できます。
+システムを対象としたこの管理ポリシーを使用して、システムSVMが所有するノードとクラスタを対象とした管理LIFを作成します。これらのLIFは、DNS、AD、LDAP、またはNISサーバへのアウトバウンド接続や、システム全体に代わって実行されるアプリケーションをサポートするための追加の接続に使用できます。
 
 |===
-次の表に、 ONTAP 9.10.1 以降のシステム SVM で LIF が使用できるサービスを示します。
+次の表は、ONTAP 9.11.1以降、システムSVM上でLIFが使用できるサービスを示しています。
 
 [cols="25,25,50"]
 |===
@@ -162,16 +162,16 @@ management-ntp-client
  a| 
 -
  a| 
-NTP クライアントアクセス用のサービス。
+ONTAP 9.10.1で導入されました。NTP クライアントアクセス用のサービス。
 
 
 
  a| 
 management-ntp-server
  a| 
-システムのみ
+-
  a| 
-NTP サーバ管理アクセス用のサービス
+ONTAP 9.11.1で導入されました。NTP サーバ管理アクセス用のサービス
 
 
 
@@ -187,7 +187,7 @@ portmap 管理用のサービス
  a| 
 management-srsh -server です
  a| 
-システムのみ
+-
  a| 
 rsh サーバ管理のためのサービス
 
@@ -205,7 +205,7 @@ SNMP サーバ管理用のサービス
  a| 
 management-telnet-server
  a| 
-システムのみ
+-
  a| 
 Telnet サーバ管理用のサービス
 
@@ -216,7 +216,7 @@ Telnet サーバ管理用のサービス
 
 すべてのデータ SVM に、その SVM の LIF で使用できるサービスポリシーが含まれています。
 
-次の表に、 ONTAP 9.10.1 以降のデータ SVM の LIF の組み込みのポリシーを示します。その他のリリースでは、次のコマンドを使用してサービスポリシーとその詳細を表示します。
+次の表に、ONTAP 9.11.1以降の、データSVMのLIFの組み込みのポリシーを示します。その他のリリースでは、次のコマンドを使用してサービスポリシーとその詳細を表示します。
 
 「 network interface service-policy show 」を参照してください
 
@@ -230,11 +230,11 @@ Telnet サーバ管理用のサービス
  a| 
 default-management
  a| 
-data-core 、 management-ssh 、 management-ssh 、 data-dns-server 、 management-http 、 backup-ndmp-control 、 management-snmp-server
+management-https、management-http、management-ssh、management-dns-client, management-ad-client, management-ldap-client、management-nis-client
  a| 
 なし
  a| 
-SVM を対象とした管理を処理する LIF で、データ SVM が所有する SVM 管理 LIF を作成するために使用されます。これらの LIF を使用して、 SVM 管理者に SSH または HTTPS アクセスを提供できます。
+このSVMを対象とした管理ポリシーを使用して、データSVMが所有するSVM管理LIFを作成します。これらの LIF を使用して、 SVM 管理者に SSH または HTTPS アクセスを提供できます。これらのLIFは、必要に応じて、外部DNSサーバ、ADサーバ、LDAPサーバ、またはNISサーバへのアウトバウンド接続に使用できます。
 
 
 
@@ -245,21 +245,43 @@ default-data-blocks （デフォルトデータブロック）
  a| 
 iSCSI
  a| 
-ブロックベースの SAN データトラフィックを処理する LIF で使用されます
+ブロックベースのSANデータトラフィックを処理するLIFで使用されます。ONTAP 9.10.1以降、「default-data-blocks」ポリシーは廃止されました。代わりに「default-data-iscsi」サービスポリシーを使用します。
 
 
 
  a| 
 default-data-files の形式で指定します
  a| 
-data-core 、 data-nfs 、 data-cifs 、 data-fflexcache 、 data-fpolicy-client
+data-filc-client, data-dns-server , data-fflexcache , data-cifs , data-nfs , management-dns-client、management-ad-client, management-ldap-client, management-nis-client
  a| 
 NFS 、 CIFS 、 fcache
  a| 
-default-data-files ポリシーを使用して、ファイルベースのデータプロトコルをサポートする NAS LIF を作成します。
+default-data-filesポリシーを使用して、ファイルベースのデータプロトコルをサポートするNAS LIFを作成します。SVMにLIFが1つしかないことがあるため、このポリシーでは、外部のDNS、AD、LDAP、またはNISサーバへのアウトバウンド接続にLIFを使用することができます。これらの接続で管理LIFのみを使用する場合は、このポリシーからこれらのサービスを削除できます。
+
+
+
+ a| 
+default-data-iscsi
+ a| 
+データコア、データ - iSCSI
+ a| 
+iSCSI
+ a| 
+iSCSIデータトラフィックを処理するLIFで使用されます。
+
+
+
+ a| 
+default-data-nvme-tcpです
+ a| 
+データコア、データNVMe - TCP
+ a| 
+nvme-tcpが表示されます
+ a| 
+NVMe/FCデータトラフィックを処理するLIFで使用します。
 
 |===
-次の表に、データ SVM で使用できる各サービスを ONTAP 9.10.1 以降の LIF のフェイルオーバーポリシーに適用される制限とともに示します。
+次の表に、データSVMで使用できる各サービスをONTAP 9.11.1以降でLIFのフェイルオーバーポリシーに適用される制限とともに示します。
 
 [cols="25,25,50"]
 |===
@@ -282,7 +304,7 @@ Management - http ： //
  a| 
 -
  a| 
-HTTP 管理アクセス用のサービス
+ONTAP 9.10.1 Services for HTTP管理アクセスで導入されました
 
 
 
@@ -309,7 +331,7 @@ management-snmp-server
  a| 
 -
  a| 
-SNMP サーバ管理アクセス用のサービス
+SNMPサーバ管理アクセス用のONTAP 9.10.1サービスで導入されました
 
 
 
@@ -363,7 +385,7 @@ backup-ndmp-control の実行
  a| 
 -
  a| 
-Backup NDMP はデータサービスを制御します
+ONTAP 9.10.1 Backup NDMPでデータサービスの制御が導入されました
 
 
 
@@ -372,7 +394,7 @@ data-dns-server
  a| 
 -
  a| 
-DNS サーバデータサービス
+ONTAP 9.10.1で導入されたDNSサーバデータサービス
 
 
 
@@ -390,7 +412,7 @@ data-nvme-tcp を選択します
  a| 
 home-port - Only （ホームポートのみ）
  a| 
-NVMe TCP データサービス
+ONTAP 9.10.1でNVMe TCPデータサービスが導入されました
 
 
 
@@ -407,12 +429,10 @@ Simple Storage Service （ S3 ）サーバデータサービス
 * データサービスのリストを指定してデータ SVM を作成した場合、その SVM には、指定したサービスを使用して組み込みの「 default-data-files 」サービスポリシーと「 default-data-blocks 」サービスポリシーが作成されます。
 * データサービスのリストを指定せずにデータ SVM を作成した場合、その SVM にはデフォルトのデータサービスのリストを使用して組み込みの「 default-data-files 」サービスポリシーと「 default-data-blocks 」サービスポリシーが作成されます。
 +
-デフォルトのデータサービスのリストには、 iSCSI 、 NFS 、 SMB 、 FlexCache の各サービスが含まれます。
+デフォルトのデータサービスのリストには、iSCSI、NFS、NVMe、SMB、FlexCache の各サービスが含まれます。
 
 * データプロトコルのリストを指定して LIF を作成した場合、指定したデータプロトコルと同等のサービスポリシーが LIF に割り当てられます。
-+
-同等のサービスポリシーが存在しない場合は、カスタムサービスポリシーが作成されます。
-
+* 同等のサービスポリシーが存在しない場合は、カスタムサービスポリシーが作成されます。
 * サービスポリシーやデータプロトコルのリストを指定せずに LIF を作成した場合、デフォルトで default-data-files サービスポリシーが LIF に割り当てられます。
 
 
@@ -445,6 +465,36 @@ ONTAP 9.10.1 以降の ONTAP は、複数のアプリケーションにクライ
 
 
 | サービス | SVM の制限事項 | 説明 
+
+
+ a| 
+management-ad-client
+ a| 
+-
+ a| 
+ONTAP 9.11.1以降では、ONTAP は外部ADサーバへのアウトバウンド接続にActive Directoryクライアントサービスを提供します。
+
+
+
+| management-dns-client  a| 
+-
+ a| 
+ONTAP 9.11.1以降では、ONTAP は外部DNSサーバへのアウトバウンド接続にDNSクライアントサービスを提供します。
+
+
+
+| management-ldap-clientの場合  a| 
+-
+ a| 
+ONTAP 9.11.1以降では、ONTAP は外部LDAPサーバへのアウトバウンド接続にLDAPクライアントサービスを提供します。
+
+
+
+| management-nis-client  a| 
+-
+ a| 
+ONTAP 9.11.1以降では、ONTAP は外部NISサーバへのアウトバウンド接続にNISクライアントサービスを提供します。
+
 
 
  a| 

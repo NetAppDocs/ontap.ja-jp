@@ -1,0 +1,66 @@
+---
+permalink: /nfs-admin/ldap-fast-bind-nsswitch-authentication-task.html 
+sidebar: sidebar 
+keywords: use, ldap, fast, bind, authentication, configure 
+summary: ONTAP 9.11.1以降では、ldap_fast bind_fルキノ ウ（_コンカレントbind_とも呼ばれます）を利用して、クライアント認証要求を迅速かつ簡単に行うことができます。この機能を使用するには、LDAPサーバが高速バインド機能をサポートしている必要があります 
+---
+= nsswitch認証にLDAP高速バインドを使用できます
+:allow-uri-read: 
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+ONTAP 9.11.1以降では、ldap_fast bind_fルキノ ウ（_コンカレントbind_とも呼ばれます）を利用して、クライアント認証要求を迅速かつ簡単に行うことができます。この機能を使用するには、LDAPサーバが高速バインド機能をサポートしている必要があります。
+
+高速バインドを使用しない場合、ONTAP はLDAP簡易バインドを使用して、LDAPサーバで管理ユーザを認証します。この認証方式では、ONTAP がユーザまたはグループの名前をLDAPサーバに送信し、保存されているハッシュパスワードを受信して、サーバのハッシュコードをユーザパスワードからローカルに生成されたハッシュパスコードと比較します。同一の場合、ONTAP はログイン権限を付与します。
+
+高速バインド機能を使用すると、ONTAP はセキュアな接続を介してLDAPサーバにユーザクレデンシャル（ユーザ名とパスワード）のみを送信します。LDAPサーバはこれらのクレデンシャルを検証し、ONTAP にログイン権限を付与するように指示します。
+
+高速バインドの利点の1つは、LDAPサーバでサポートされるすべての新しいハッシュアルゴリズムをONTAP でサポートする必要がないことです。パスワードハッシュはLDAPサーバによって実行されるためです。
+
+link:https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-adts/dc4eb502-fb94-470c-9ab8-ad09fa720ea6["高速バインドの使用方法について説明します。"^]
+
+LDAP高速バインドには、既存のLDAPクライアント設定を使用できます。ただし、LDAPクライアントがTLSまたはLDAPS用に設定されていることを強く推奨します。設定されていない場合は、パスワードがプレーンテキストでネットワーク経由で送信されます。
+
+ONTAP 環境でLDAP高速バインドを有効にするには、次の要件を満たす必要があります。
+
+* ONTAP 管理者ユーザは、高速バインドをサポートするLDAPサーバで設定する必要があります。
+* ネームサービススイッチ（nsswitch）データベースにLDAP用にONTAP SVMが設定されている必要があります。
+* 高速バインドを使用してnsswitch認証を行うには、ONTAP 管理者ユーザアカウントとグループアカウントを設定する必要があります。
+
+
+.手順
+. LDAPサーバでLDAP高速バインドがサポートされていることをLDAP管理者に確認してください。
+. ONTAP 管理者ユーザクレデンシャルがLDAPサーバで設定されていることを確認します。
+. 管理SVMまたはデータSVMにLDAP高速バインドが正しく設定されていることを確認します。
++
+.. LDAP高速バインドサーバがLDAPクライアント設定にリストされていることを確認するには、次のように入力します。
++
+vserver services name-service ldap client show
+
++
+link:https://docs.netapp.com/us-en/ontap/nfs-config/create-ldap-client-config-task.html["LDAPクライアント設定について説明します。"]
+
+.. 「ldap」がnsswitch passwd」データベースに設定されたソースの1つであることを確認するには、次のように入力します。
++
+vserver services name-service ns-switch show
+
++
+link:https://docs.netapp.com/us-en/ontap/nfs-config/configure-name-service-switch-table-task.html["nsswitch設定の詳細は、こちらをご覧ください。"]
+
+
+
+. 管理ユーザがnsswitchで認証されていること、およびアカウントでLDAP高速バインド認証が有効になっていることを確認します。
++
+** 既存のユーザの場合は'security login modify'と入力し'次のパラメータ設定を確認します
++
+「-authentication-method nsswitch」を指定します
+
++
+`-is-ldap-fastbind true
+
+** 新しい管理者ユーザについては、を参照してください link:https://docs.netapp.com/us-en/ontap/authentication/grant-access-nis-ldap-user-accounts-task.html["LDAPまたはNISアカウントアクセスを有効にします。"]
+
+
+

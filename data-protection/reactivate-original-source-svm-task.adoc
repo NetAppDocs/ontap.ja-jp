@@ -1,7 +1,7 @@
 ---
 permalink: data-protection/reactivate-original-source-svm-task.html 
 sidebar: sidebar 
-keywords: reactivate, original, source, svm 
+keywords: reactivate, original, source, svm, quick resync, resynchronize, reverse resync 
 summary: デスティネーションからデータを提供する必要がなくなった場合は、ソース SVM とデスティネーション SVM 間で元のデータ保護関係を再確立できます。手順は、 1 つの例外を除いて、ボリュームレプリケーション用の手順とほとんど同じです。ソース SVM を再アクティブ化するには、デスティネーション SVM を停止する必要があります。 
 ---
 = 元のソース SVM を再アクティブ化する
@@ -16,6 +16,11 @@ summary: デスティネーションからデータを提供する必要がな�
 デスティネーションボリュームからデータを提供している間にそのサイズを拡張した場合は、ソースボリュームを再アクティブ化する前に、元のソースボリュームを十分拡張できるように max-autosize を手動で増やす必要があります。
 
 link:destination-volume-grows-automatically-concept.html["デスティネーションボリュームが自動的に拡張される状況"]
+
+ONTAP 9.11.1以降では'snapmirror resyncコマンドの-quick-resync trueオプションを使用してSVM DR関係の逆再同期を実行することにより'災害復旧のリハーサル中の再同期時間を短縮できます迅速な再同期により、Data Warehouseの再構築およびリストア処理をバイパスすることで、本番環境に戻るまでの時間を短縮できます。
+
+
+NOTE: クイック再同期では、デスティネーションボリュームのストレージ効率は維持されません。クイック再同期を有効にすると、デスティネーションボリュームで使用されるボリュームスペースが増加する可能性があります。
 
 この手順は、元のソースボリュームにあるベースラインが損なわれていないことを前提としています。ベースラインが損なわれている場合は、手順を実行する前に、データの提供元のボリュームと元のソースボリュームの間の関係を作成して初期化する必要があります。
 
@@ -66,6 +71,14 @@ cluster_src::> snapmirror create -source-path svm_backup: -destination-path svm1
 [listing]
 ----
 cluster_src::> snapmirror resync -source-path svm_backup: -destination-path svm1:
+----
++
+quick-resyncオプションの使用例：
+
++
+[listing]
+----
+cluster_src::> snapmirror resync -source-path svm_backup: -destination-path svm1: -quick-resync true
 ----
 . 元のソース SVM へのデータアクセスを再確立する準備ができたら、元のデスティネーション SVM を停止して、元のデスティネーション SVM に現在接続されているクライアントをすべて切断します。
 +

@@ -5,6 +5,7 @@ keywords: troubleshoot, name, service, issue
 summary: ネームサービスの問題でクライアントでアクセスエラーが発生した場合は、 vserver services name-service getxxbyyy コマンドファミリーを使用して、さまざまなネームサービス検索を手動で実行したり、検索の詳細や結果を調べたりして、トラブルシューティングに役立てることができます。 
 ---
 = ネームサービスの問題をトラブルシューティングする
+:hardbreaks:
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
@@ -32,53 +33,79 @@ summary: ネームサービスの問題でクライアントでアクセスエ�
 
 .手順
 . 次のいずれかを実行します。
-+
-....
-[cols="2*",options="header"]
+
+
 |===
-| To retrieve the...| Use the command...
-a|
-IP address of a host name
-a|
-`vserver services name-service getxxbyyy getaddrinfo`     `vserver services name-service getxxbyyy gethostbyname` (IPv4 addresses only)
-a|
-Members of a group by group ID
-a|
-`vserver services name-service getxxbyyy getgrbygid`
-a|
-Members of a group by group name
-a|
-`vserver services name-service getxxbyyy getgrbyname`
-a|
-List of groups a user belongs to
-a|
-`vserver services name-service getxxbyyy getgrlist`
-a|
-Host name of an IP address
-a|
-`vserver services name-service getxxbyyy getnameinfo`     `vserver services name-service getxxbyyy gethostbyaddr` (IPv4 addresses only)
-a|
-User information by user name
-a|
-`vserver services name-service getxxbyyy getpwbyname`     You can test name resolution of RBAC users by specifying the `-use-rbac` parameter as `true`.
-a|
-User information by user ID
-a|
-`vserver services name-service getxxbyyy getpwbyuid`
-....
-+
-....
-You can test name resolution of RBAC users by specifying the `-use-rbac` parameter as `true`.
-a|
-Netgroup membership of a client
-a|
-`vserver services name-service getxxbyyy netgrp`
-a|
-Netgroup membership of a client using netgroup-by-host search
-a|
-`vserver services name-service getxxbyyy netgrpbyhost`
+
+
+| 取得する情報 | 使用するコマンド 
+
+
+ a| 
+ホスト名のIPアドレス
+ a| 
+vserver services name-service getxxbyyy getaddrinfo `vserver services name-service getxxbyyy gethostbyname (IPv4アドレス専用)
+
+
+
+ a| 
+グループIDごとのグループのメンバー
+ a| 
+vserver services name-service getxxbyyy getgrbygid
+
+
+
+ a| 
+グループ名ごとのグループのメンバー
+ a| 
+「vserver services name-service getxxbyyy getgrbyname」です
+
+
+
+ a| 
+ユーザが属しているグループのリスト
+ a| 
+「vserver services name-service getxxbyyy getgrlist」
+
+
+
+ a| 
+IPアドレスのホスト名
+ a| 
+vserver services name-service getxxbyyy getnameinfo `vserver services name-service getxxbyyy gethostbyaddr`（IPv4アドレスのみ）
+
+
+
+ a| 
+ユーザ名別のユーザ情報
+ a| 
+vserver services name-service getxxbyyy getpwbyname RBACユーザの名前解決をテストするには'use-rbacパラメータを「true」に指定します
+
+
+
+ a| 
+ユーザIDごとのユーザ情報
+ a| 
+vserver services name-service getxxbyyy getpwbyuid 'RBACユーザの名前解決は'use-rbacパラメータをtrueに指定することでテストできます
+
+
+
+ a| 
+クライアントのネットグループメンバーシップ
+ a| 
+vserver services name-service getxxbyyy netgrp
+
+
+
+ a| 
+ホスト単位のネットグループ検索を使用したクライアントのネットグループメンバーシップ
+ a| 
+「vserver services name-service getxxbyyy netgrpbyhost」のようになります
+
 |===
-The following example shows a DNS lookup test for the SVM vs1 by attempting to obtain the IP address for the host acast1.eng.example.com:
+次の例は、ホストacast1.eng.example.comのIPアドレスの取得を試みることでSVM vs1のDNSルックアップをテストします。
+
+[listing]
 ----
 cluster1::*> vserver services name-service getxxbyyy getaddrinfo -vserver vs1 -hostname acast1.eng.example.com -address-family all -show-source true
 Source used for lookup: DNS
@@ -86,10 +113,9 @@ Host name: acast1.eng.example.com
 Canonical Name: acast1.eng.example.com
 IPv4: 10.72.8.29
 ----
-....
-+
-....
-The following example shows a NIS lookup test for the SVM vs1 by attempting to retrieve user information for a user with the UID 501768:
+次の例は、501768というUIDを持つユーザのユーザ情報の取得を試みることでSVM vs1のNIS検索をテストします。
+
+[listing]
 ----
 cluster1::*> vserver services name-service getxxbyyy getpwbyuid -vserver vs1 -userID 501768 -show-source true
 Source used for lookup: NIS
@@ -101,10 +127,9 @@ pw_gecos:
 pw_dir: /home/jsmith
 pw_shell: /bin/bash
 ----
-The following example shows an LDAP lookup test for the SVM vs1 by attempting to retrieve user information for a user with the name ldap1:
-....
-+
-....
+次の例は、ldap1というユーザのユーザ情報の取得を試みることでSVM vs1のLDAP検索をテストします。
+
+[listing]
 ----
 cluster1::*> vserver services name-service getxxbyyy getpwbyname -vserver vs1 -username ldap1 -use-rbac false -show-source true
 Source used for lookup: LDAP
@@ -116,21 +141,20 @@ pw_gecos: ldap1 user
 pw_dir: /u/ldap1
 pw_shell: /bin/csh
 ----
-....
-+
- The following example shows a netgroup lookup test for the SVM vs1 by attempting to find out whether the client dnshost0 is a member of the netgroup lnetgroup136:
-+
-....
+次の例は、クライアントdnshost0がネットグループlnetgroup136のメンバーであるかどうかを調べることでSVM vs1のネットグループ検索をテストします。
+
+[listing]
 ----
 cluster1::*> vserver services name-service getxxbyyy netgrp -vserver vs1 -netgroup lnetgroup136 -client dnshost0 -show-source true
 Source used for lookup: LDAP
 dnshost0 is a member of lnetgroup136
 ----
-....
 . 実行したテストの結果を分析し、必要な措置を取ります。
-+
-[cols="2*"]
+
+
 |===
+
+
 | 状況 | を確認します 
 
 
@@ -160,9 +184,7 @@ DNS の設定
  a| 
 ホスト名の検索に失敗したかタイムアウトになり、 DNS の短縮名（例： host1 ）が DNS サーバで解決されない
  a| 
-トップレベル・ドメイン (TLD) クエリの DNS 設定ドメイン名サービス dns modify コマンドの '-is-tld-query-enabled false' オプションを使用して 'TLD クエリを無効にすることができます
+Top-Level Domain（TLD；最上位レベルのドメイン）クエリのDNS設定。TLDクエリを無効にするには'vserver services name-service dns modifyコマンドの-is-tld-query-enabled falseオプションを使用します
 
 |===
-
-
-https://www.netapp.com/pdf.html?item=/media/16328-tr-4668pdf.pdf["ネットアップテクニカルレポート 4668 ：『 Name Services Best Practices Guide 』"]
+https://www.netapp.com/pdf.html?item=/media/16328-tr-4668pdf.pdf["ネットアップテクニカルレポート 4668 ：『 Name Services Best Practices Guide 』"^]

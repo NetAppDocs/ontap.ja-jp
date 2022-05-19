@@ -2,42 +2,93 @@
 permalink: error-messages/configure-webhooks-event-notifications-task.html 
 sidebar: sidebar 
 keywords: configure, important, ems, events, receive, email, notifications, forward, rest, api, webhook 
-summary: REST API サーバでイベント通知を受信するには、 REST API webhook サポートを設定する必要があります。 
+summary: 重要なイベント通知をwebhookアプリケーションに転送するようにONTAP を設定できます。必要な設定手順は、選択したセキュリティのレベルによって異なります。 
 ---
-= 重要な EMS イベントについて、通知を REST API サーバに転送するように設定します
+= 重要なEMSイベントについて、通知をWebフックアプリケーションに転送するように設定します
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-REST API サーバでイベント通知を受信するには、 REST API webhook サポートを設定する必要があります。
-
-.作業を開始する前に
-* EMS イベントを受信できる REST API / webhook サポートを備えたサーバが必要です。
-* REST API サーバでは、サーバ側またはクライアント側のセキュリティ証明書を利用できます。
-* 証明書の設定は、デスティネーションによって決定されます。宛先に基づく証明書構成の概要については、次を参照してください。
-+
-** * http * ： - 証明書が含まれていません
-** * https * ： - サーバ証明書は ONTAP システムで検証されます。必要に応じて、サーバを検証するために ONTAP システムから送信されるクライアント証明書を設定できます。
-
-
-* クライアント側の証明書には、ソース ONTAP システムにインストールできる秘密鍵と証明書の両方が必要です。
+重要なイベント通知をwebhookアプリケーションに転送するようにONTAP を設定できます。必要な設定手順は、選択したセキュリティのレベルによって異なります。
 
 
 
-NOTE: クライアント証明書とサーバ証明書 REST API フォワードの両方を設定する場合は、クライアント側の証明書を使用するためにサーバ側の証明書が必要です。そのため、クライアント側の手順に従って両方の認証方法を使用する必要があります。
+== EMSイベント転送を設定するための準備をします
+
+イベント通知をWebフックアプリケーションに転送するようにONTAP を設定する前に、いくつかの概念と要件を考慮する必要があります。
 
 
 
-== HTTP REST API 転送の設定
+=== Webhookアプリケーション
 
-このタスクは、クラスタの実行中であれば、 ONTAP コマンドラインでコマンドを入力していつでも実行できます。
+ONTAP イベント通知を受信できるWebフックアプリケーションが必要です。webhookは、実行するリモートアプリケーションまたはサーバの機能を拡張するユーザ定義のコールバックルーチンです。webhookは、宛先URLにHTTP要求を送信することによって、クライアント（この場合はONTAP ）によって呼び出されるか、アクティブになります。具体的には、ONTAP は、webhookアプリケーションをホストするサーバにHTTP POST要求を送信し、イベント通知の詳細をXML形式で送信します。
+
+
+
+=== セキュリティオプション
+
+Transport Layer Security（TLS）プロトコルの使用方法に応じて、いくつかのセキュリティオプションがあります。選択するオプションによって、必要なONTAP 設定が決まります。
+
+
+NOTE: TLSは、インターネットで広く使用されている暗号化プロトコルです。1つ以上の公開鍵証明書を使用して、プライバシー、データの整合性、および認証を実現します。証明書は、信頼された認証局によって発行されます。
+
+HTTP:: HTTPを使用してイベント通知を転送できます。この設定では、接続はセキュアではありません。ONTAP クライアントおよびWebフックアプリケーションのIDは検証されません。さらに、ネットワークトラフィックは暗号化も保護もされません。を参照してください link:configure-webhooks-event-notifications-task.html#configure-a-webhook-destination-to-use-http["HTTPを使用するようにwebhookの宛先を設定します"] をクリックして設定の詳細を確認します
+HTTPS:: セキュリティを強化するために、webhookルーチンをホストするサーバーに証明書をインストールできます。HTTPSプロトコルは、ONTAP によって、WebフックアプリケーションサーバのIDおよびネットワークトラフィックのプライバシーと整合性を確保するために、両当事者によって使用されます。を参照してください link:configure-webhooks-event-notifications-task.html#configure-a-webhook-destination-to-use-https["HTTPSを使用するようにwebhookの宛先を設定します"] をクリックして設定の詳細を確認します
+HTTPSを相互認証で使用:: Webブック要求を発行するONTAP システムにクライアント証明書をインストールすると、HTTPSセキュリティをさらに強化できます。ONTAP がWebフックアプリケーションサーバのIDを検証し、ネットワークトラフィックを保護することに加えて、webhookアプリケーションはONTAP クライアントのIDを確認します。この双方向ピア認証は、_Mutual TLS_と呼ばれています。を参照してください link:configure-webhooks-event-notifications-task.html#configure-a-webhook-destination-to-use-https-with-mutual-authentication["相互認証でHTTPSを使用するようにwebhookの宛先を設定します"] をクリックして設定の詳細を確認します
+
+
+.関連情報
+* https://www.rfc-editor.org/info/rfc8446["Transport Layer Security（TLS）プロトコルバージョン1.3"^]
+
+
+
+
+== HTTPを使用するようにwebhookの宛先を設定します
+
+HTTPを使用してイベント通知をWebフックアプリケーションに転送するようにONTAP を設定できます。これは最も安全性の低いオプションですが、設定が最も簡単です。
 
 .手順
-. 「 important-events 」フィルタの新しい宛先「 restapi-ems 」を作成します。
+. イベントを受信する新しい宛先「restapi-ems」を作成します。
 +
-イベント通知の宛先 create -name restapi-ems-rest-api-url\http://<url_to_rest_api_server>`
+イベント通知の宛先create -name restapi-ems-rest-api-url\http://<webhook-application>`
+
++
+上記のコマンドでは、デスティネーションに* HTTP *スキームを使用する必要があります。
+
+. 「important-events」フィルタと「restapi-ems」デスティネーションをリンクする通知を作成します。
++
+event notification create -filter-name important-events -destinations restapi-ems`
+
+
+
+
+
+== HTTPSを使用するようにwebhookの宛先を設定します
+
+HTTPSを使用してイベント通知をWebhookアプリケーションに転送するようにONTAP を設定できます。ONTAP は、サーバ証明書を使用して、WebフックアプリケーションのIDを確認し、ネットワークトラフィックを保護します。
+
+.作業を開始する前に
+* webhookアプリケーションサーバの秘密鍵と証明書を生成します
+* ルート証明書をONTAP にインストールできるようにします
+
+
+.手順
+. webhookアプリケーションをホストしているサーバに、適切なサーバ秘密鍵と証明書をインストールします。具体的な設定手順は、サーバによって異なります。
+. サーバのルート証明書をONTAP にインストールします。
++
+「 security certificate install-type server-ca 」を入力します
+
++
+このコマンドでは証明書を要求します。
+
+. イベントを受信するために'restapi-ems'宛先を作成します
++
+イベント通知の宛先create -name restapi-ems-rest-api-url\https://<webhook-application>`
+
++
+上記のコマンドでは、デスティネーションに* HTTPS *スキームを使用する必要があります。
 
 . 「 important-events 」フィルタを新しい「 restapi-ems 」デスティネーションにリンクする通知を作成します。
 +
@@ -47,56 +98,35 @@ event notification create -filter-name important-events -destinations restapi-em
 
 
 
-== サーバ証明書の設定 HTTPS REST API 転送
+== 相互認証でHTTPSを使用するようにwebhookの宛先を設定します
 
-この手順では、以前にサーバ側の秘密鍵とパブリック証明書を生成していることを前提としています。また、 ONTAP にインストールできるルート証明書があることも前提としています。
+相互認証を使用したHTTPSを使用してイベント通知をWebhookアプリケーションに転送するようにONTAP を設定できます。この構成では、2つの証明書があります。ONTAP は、サーバ証明書を使用して、WebフックアプリケーションのIDを確認し、ネットワークトラフィックを保護します。また、webhookをホストするアプリケーションは、クライアント証明書を使用してONTAP クライアントのIDを確認します。
+
+ONTAP を設定する前に、次の作業を実行する必要があります。
+
+* webhookアプリケーションサーバの秘密鍵と証明書を生成します
+* ルート証明書をONTAP にインストールできるようにします
+* ONTAP クライアントの秘密鍵と証明書を生成します
+
 
 .手順
-. 適切なサーバ秘密鍵とパブリック証明書を REST API サーバにインストールします。
-+
-
-NOTE: 具体的な手順はサーバによって異なります。
-
-. ONTAP にサーバのルート証明書をインストールします。
-+
-「 security certificate install-type server-ca 」を入力します
-
-+
-コマンドでパブリック証明書を照会します。
-
-. 「 important-events 」フィルタの「 restapi-ems 」デスティネーションを作成します。
-+
-サーバ側の証明書を使用するには、 HTTPS 方式を使用する必要があります。
-
-+
-イベント通知の宛先 create -name restapi-ems-rest-api-url\https://<url_to_rest_api_server>`
-
-. 「 important-events 」フィルタと新しい「 restapi-ems 」宛先をリンクする通知を作成します。
-+
-event notification create -filter-name important-events -destinations restapi-ems`
-
-
-
-
-
-== クライアント証明書の HTTPS REST API 転送の設定
-
-クライアント証明書の使用は任意であり、サーバによるクライアント認証が必要な場合にのみ必要です。この手順では、クライアントの秘密鍵とパブリック証明書を以前に生成していることを前提としています。
-
-.手順
-. 適切なルート証明書と中間証明書を REST API サーバにインストールして、クライアント証明書を検証します。
+. タスクの最初の2つの手順を実行します link:configure-webhooks-event-notifications-task.html#configure-a-webhook-destination-to-use-https["HTTPSを使用するようにwebhookの宛先を設定します"] ONTAP がサーバの識別情報を確認できるようにサーバ証明書をインストールする。
+. 適切なルート証明書と中間証明書をwebhookアプリケーションにインストールして、クライアント証明書を検証します。
 . ONTAP にクライアント証明書をインストールします。
 +
 「 security certificate install -type client 」を参照してください
 
 +
-コマンドは、秘密鍵とパブリック証明書を照会します。
+秘密鍵と証明書を入力するよう求められます。
 
-. 「 important-events 」フィルタの「 restapi-ems 」デスティネーションを作成します。
+. イベントを受信するために'restapi-ems'宛先を作成します
 +
-イベント通知の宛先 create -name restapi-ems-rest-api-url https://<url_to_rest_api_server>[] -certificate-authority <issuer of the client certificate-serial <serial of the client certificate>`
+'event notification destination create -name restapi-ems-rest-api-url\https://<webhook-application>-certificate-authority <issuer of the client certificate-serial <serial of the client certificate>`
 
-. 「 important-events 」フィルタを新しい「 restapi-ems 」宛先にリンクする通知を作成します。
++
+上記のコマンドでは、デスティネーションに* HTTPS *スキームを使用する必要があります。
+
+. 「 important-events 」フィルタを新しい「 restapi-ems 」デスティネーションにリンクする通知を作成します。
 +
 event notification create -filter-name important-events -destinations restapi-ems`
 

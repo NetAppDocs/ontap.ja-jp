@@ -17,11 +17,9 @@ S3 サーバとバケットを含む S3 対応の SVM がすでに存在して�
 
 オブジェクトストレージサーバグループにデフォルトまたはカスタムのポリシーを指定することで、 SVM レベルでアクセスポリシーを有効にすることができます。ポリシーは、グループ定義で指定されるまで有効になりません。
 
-[NOTE]
-====
-オブジェクトストレージサーバのポリシーを使用する場合は、ポリシー自体ではなく、グループ定義でプリンシパル（ユーザとグループ）を指定します。
 
-====
+NOTE: オブジェクトストレージサーバのポリシーを使用する場合は、ポリシー自体ではなく、グループ定義でプリンシパル（ユーザとグループ）を指定します。
+
 ONTAP S3 リソースへのアクセスに使用する読み取り専用のデフォルトポリシーは 3 つあります。
 
 * フルアクセス
@@ -29,16 +27,22 @@ ONTAP S3 リソースへのアクセスに使用する読み取り専用のデ�
 * ReadOnlyAccess の略
 
 
-また、新しいカスタムポリシーを作成し、新しいユーザとグループに新しいステートメントを追加したり、既存のステートメントの属性を変更したりすることもできます。その他のオプションについては 'vserver object-store-server policy のマニュアルページを参照してください
+また、新しいカスタムポリシーを作成し、新しいユーザとグループに新しいステートメントを追加したり、既存のステートメントの属性を変更したりすることもできます。その他のオプションについては、「vserver object-store-server policy」を参照してください link:https://docs.netapp.com/us-en/ontap-cli-9111/index.html["コマンドリファレンス"^]。
 
+ONTAP 9.9.1以降のリリースでは、ONTAP S3サーバでAWSクライアントオブジェクトのタグ付け機能をサポートする場合、バケットまたはグループポリシーを使用して「GetObjectTagging」、「PutObjectTagging」、「DeleteObjectTagging」の各アクションを許可する必要があります。
+
+[role="tabbed-block"]
+====
+.CLI の使用
+--
 .手順
 . オブジェクトストレージサーバポリシーを作成します。
 +
-vserver object-store-server policy create -vserver svm_name -policy policy_name [-comment text]
+「vserver object-store-server policy create -vserver _svm_name __ policy_policy_policy_name_[-comment_text_]]」
 
 . ポリシーのステートメントを作成します。
 +
-「 vserver object-store-server policy statement create -vserver SVM_name -policy policy_name -Effect ｛ allow|deny ｝ -action object_store_actionsresource [-sid text]
+「vserver object-store-server policy statement create -vserver _svm_name _-policy_policy_name __ Effect｛allow | deny｝-action _object_store_actions_-resource_store_resources_[-sid]`
 
 +
 次のパラメータでアクセス権限を定義します。
@@ -75,3 +79,36 @@ vserver object-store-server policy create -vserver svm_name -policy policy_name 
 デフォルトでは、新しいステートメントはステートメントのリストの末尾に追加され、順番に処理されます。後で文を追加または変更するときに ' 処理順序を変更するために文の -index' 設定を変更するオプションがあります
 
 
+
+--
+.System Manager の略
+--
+.手順
+. Storage VM を編集します。 * Storage > Storage VM* をクリックし、 Storage VM をクリックして * Settings * をクリックし、をクリックします image:icon_pencil.gif["鉛筆のアイコン"] S3 の下。
+. ユーザーの追加： [* ポリシー ] をクリックし、 [ * 追加 ] をクリックします。
++
+.. ポリシー名を入力し、グループのリストから選択します。
+.. 既存のデフォルトポリシーを選択するか、新しいポリシーを追加します。
++
+グループポリシーを追加または変更する際には、次のパラメータを指定できます。
+
++
+*** グループ：アクセス権が付与されるグループ。
+*** Effect ： 1 つ以上のグループへのアクセスを許可または拒否します。
+*** アクション：特定のグループの 1 つ以上のバケットで許可されるアクション。
+*** リソース：アクセスが許可または拒否されるバケット内のオブジェクトのパスと名前。例：
++
+**** *** は、 Storage VM 内のすべてのバケットへのアクセスを許可します。
+**** * bucketname * および * bucketname / ** は、特定のバケット内のすべてのオブジェクトへのアクセスを許可します。
+**** * bucketname/readme.txt * を指定すると、特定のバケット内のオブジェクトへのアクセスが許可されます。
+
+
+
+
+.. 必要に応じて、既存のポリシーにステートメントを追加します。
+
+
+
+
+--
+====

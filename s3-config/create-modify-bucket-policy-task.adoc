@@ -15,18 +15,28 @@ summary: デフォルトのバケットポリシーにアクセスルールを�
 
 S3 サーバとバケットを含む S3 対応の SVM がすでに存在している必要があります。
 
+権限を付与するには、事前にユーザまたはグループを作成しておく必要があります。
+
 新しいユーザとグループに新しいステートメントを追加したり、既存のステートメントの属性を変更したりできます。その他のオプションについては 'vserver object-store-server バケット policy のマニュアルページを参照してください
 
+ユーザとグループの権限は、バケットの作成時または必要に応じてあとから付与できます。バケットの容量と QoS ポリシーグループの割り当てを変更することもできます。
+
+ONTAP 9.9.1以降のリリースでは、ONTAP S3サーバでAWSクライアントオブジェクトのタグ付け機能をサポートする場合、バケットまたはグループポリシーを使用して「GetObjectTagging」、「PutObjectTagging」、「DeleteObjectTagging」の各アクションを許可する必要があります。
+
+[role="tabbed-block"]
+====
+.CLI の使用
+--
 .手順
 . バケットポリシーにステートメントを追加します。
 +
-「 vserver object-store-server bucket policy add -statement-vserver SVM_name -bucket bucket_name -Effect ｛ allow|deny ｝ -action object_store_actions-principal user_and _group -resource object_store_resources[-sid text] [-index integer]`
+「vserver object-store-server bucket policy add-statement-vserver_svm_name_-bucket_bucket_name __ Effect｛allow|deny｝-action _object_store_actions_-principal_user_names _-resource_store_resources_[-sid text][-index integer]」
 
 +
 次のパラメータでアクセス権限を定義します。
 
 +
-[cols="2*"]
+[cols="1,3"]
 |===
 
 
@@ -80,3 +90,23 @@ cluster1::> vserver object-store-server bucket policy statement create -vserver 
 ----
 cluster1::> vserver object-store-server bucket policy statement create -vserver svm1.example.com -bucket bucket1 -effect allow -action GetObject,PutObject,DeleteObject,ListBucket -principal group/group1 -resource bucket1/* -sid "fullAccessForGroup1"
 ----
+--
+.System Manager の略
+--
+.手順
+. バケットを編集します。 * Storage > Bucket* をクリックし、目的のバケットをクリックして * Edit * をクリックします。権限を追加または変更するときに、次のパラメータを指定できます。
++
+** プリンシパル：アクセスが許可されるユーザまたはグループ。
+** 影響：ユーザまたはグループへのアクセスを許可または拒否します。
+** アクション：特定のユーザまたはグループのバケットで許可されるアクション。
+** リソース：アクセスが許可または拒否されるバケット内のオブジェクトのパスと名前。
++
+デフォルトの * _bucketname_* および * _bketname / * _ * は、バケット内のすべてのオブジェクトへのアクセスを許可します。また、単一のオブジェクトへのアクセスを許可することもできます。たとえば、 *_bketname/_*_readme.txt * と指定します。
+
+** 条件（オプション）：アクセス試行時に評価される式。たとえば、アクセスを許可または拒否する IP アドレスを指定できます。
+
+
+
+
+--
+====

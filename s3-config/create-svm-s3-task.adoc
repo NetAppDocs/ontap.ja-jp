@@ -15,7 +15,17 @@ S3 は SVM 内に他のプロトコルと共存できますが、新しい SVM �
 
 この SVM から S3 オブジェクトストレージのみを提供する場合、 S3 サーバに DNS 設定は必要ありません。ただし、他のプロトコルを使用する場合は、 SVM に DNS を設定できます。
 
+System Managerを使用して新規または既存のStorage VMへのS3アクセスを設定すると、証明書およびネットワーク情報の入力を求められ、S3オブジェクトストレージサーバが1回の操作で作成されます。
+
+インターフェイスロールデータ用に、 S3 サーバ名（ FQDN ）と IP アドレスを入力できるように準備しておく必要があります。
+
+外部 CA 署名証明書を使用している場合は、この手順中に証明書の入力を求められます。システムで生成された証明書を使用することもできます。
+
+[role="tabbed-block"]
 .手順
+====
+.CLI の使用
+--
 . クラスタ上で S3 のライセンスが有効であることを確認します。
 +
 'system license show -package s3`
@@ -25,7 +35,7 @@ S3 は SVM 内に他のプロトコルと共存できますが、新しい SVM �
 
 . SVM を作成します。
 +
-vserver create -vserver SVM_name -rootvolume root_volume_name -aggregate aggregate_name -rootvolume-security-style unix -language C.UTF-8 -ipspace ipspace_name です
+「vserver create -vserver _svm_name_-rootvolume-root_volume_name」-aggregate-aggregate_name _-rootvolume-security-style unix -language C.UTF-8 -ipspace_ipspace_name _」
 
 +
 ** -rootvolume-security-style オプションには UNIX 設定を使用します。
@@ -35,7 +45,7 @@ vserver create -vserver SVM_name -rootvolume root_volume_name -aggregate aggrega
 
 . 新しく作成した SVM の設定とステータスを確認します。
 +
-vserver show -vserversvm_name'
+「vserver show -vserver _svm_name_`」のように指定します
 
 +
 Vserver Operational State フィールドには 'running] 状態が表示されている必要があります「 initializing 」の状態が表示されている場合、ルートボリュームの作成などの中間処理に失敗したため、 SVM を削除して再作成する必要があります。
@@ -80,3 +90,36 @@ cluster-1::> vserver show -vserver svm1.example.com
                                 Config Lock: false
                                IPspace Name: ipspaceA
 ----
+--
+.System Manager の略
+--
+. Storage VM で S3 を有効にします。
++
+.. 新しい Storage VM を追加します。 [ * Storage （ストレージ） ] > [Storage VMs] をクリックし、 [ * Add （追加） ] をクリックします。
++
+既存の Storage VM がない新しいシステムの場合は、 * ダッシュボード > プロトコルの設定 * をクリックします。
+
++
+S3 サーバを既存の Storage VM に追加する場合は、 * Storage > Storage VM* をクリックし、 Storage VM を選択して * Settings * をクリックし、をクリックします image:icon_gear.gif["設定アイコン"] * S3 の下 * 。
+
+.. Enable S3 * をクリックし、 S3 Server Name を入力します。
++
+これは、クライアントが使用する完全修飾ドメイン名（ FQDN ）になります。
+
+.. 証明書のタイプを選択します。
++
+システムで生成された証明書と独自の証明書のどちらを選択した場合も、クライアントアクセスには証明書が必要です。
+
+.. ネットワークインターフェイスを入力してください。
+
+
+. システムで生成された証明書を選択した場合は、新しい Storage VM の作成を確認すると証明書情報が表示されます。[ ダウンロード ] をクリックし、クライアントアクセス用に保存します。
++
+** シークレットキーは今後表示されません。
+** 証明書情報が再度必要な場合は、 [* ストレージ ] 、 [Storage VMs] の順にクリックし、 Storage VM を選択して、 [* 設定 ] をクリックします。
+
+
+
+
+--
+====

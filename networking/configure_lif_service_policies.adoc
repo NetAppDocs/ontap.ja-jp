@@ -22,6 +22,8 @@ LIF のサービスポリシーを設定して、 LIF を使用する単一の�
 
 LIF のサービスポリシーを作成することができます。1 つ以上の LIF にサービスポリシーを割り当てることで、 1 つまたは一連のサービスのトラフィックの処理を LIF に許可することができます。
 
+「network interface service-policy create」コマンドを実行するには、高度な権限が必要です。
+
 データ SVM とシステム SVM の両方でデータトラフィックと管理トラフィックの管理に使用できる組み込みのサービスとサービスポリシーを用意しています。ほとんどのユースケースでは、カスタムサービスポリシーを作成するのではなく、組み込みのサービスポリシーを使用して対応できます。
 
 これらの組み込みのサービスポリシーは必要に応じて変更できます。
@@ -40,7 +42,8 @@ network interface service show
 
 +
 ....
-network interface service show
+cluster1::> network interface service show
+
 Service                     Protocol:Ports
 -------                     --------------
 cluster-core                -
@@ -57,41 +60,11 @@ management-https            tcp:443
 management-ssh              tcp:22
 12 entries were displayed.
 ....
-. サービスポリシーを作成します。
+. クラスタに存在するサービスポリシーを表示します。
 +
 ....
-network interface service-policy create -vserver <svm_name> -policy <service_policy_name> -services <service_name> -allowed-addresses <IP_address/mask,...>
-....
-+
-** 「 SERVICE_NAME 」は、ポリシーに含めるサービスのリストを指定します。
-** 「 ip_address /mask 」には、サービスポリシー内のサービスへのアクセスを許可するアドレスのサブネットマスクのリストを指定します。デフォルトでは、指定されたすべてのサービスがデフォルトの許可アドレスリスト 0.0.0.0/0 で追加され、すべてのサブネットからのトラフィックが許可されます。デフォルト以外の許可アドレスリストを指定した場合、そのポリシーを使用する LIF は、指定したマスクと一致しないソースアドレスを使用するすべての要求をブロックするように設定されます。
-+
-次の例は、 NFS サービスと SMB サービスを含む SVM のデータサービスポリシー svm1_data_policy を作成する方法を示しています。
+cluster1::> network interface service-policy show
 
-+
-....
-network interface service-policy create -vserver svm1 -policy svm1_data_policy -services data-nfs,data-cifs,data-core -allowed-addresses 10.1.0.0/16
-....
-+
-次の例は、クラスタ間サービスポリシーを作成する方法を示しています。
-
-+
-....
-network interface service-policy create -vserver cluster1 -policy intercluster1 -services intercluster-core -allowed-addresses 10.1.0.0/16
-....
-
-
-. サービスポリシーが作成されたことを確認します。
-+
-....
-network interface service-policy show
-....
-+
-次の出力は、使用可能なサービスポリシーを示しています。
-
-+
-....
-network interface service-policy show
 Vserver   Policy                     Service: Allowed Addresses
 --------- -------------------------- ----------------------------------------
 cluster1
@@ -122,6 +95,91 @@ vs0
                                      management-https: 0.0.0.0/0
 
 7 entries were displayed.
+....
+. サービスポリシーを作成します。
++
+....
+cluster1::> set -privilege advanced
+Warning: These advanced commands are potentially dangerous; use them only when directed to do so by technical support.
+Do you wish to continue? (y or n): y
+
+cluster1::> network interface service-policy create -vserver <svm_name> -policy <service_policy_name> -services <service_name> -allowed-addresses <IP_address/mask,...>
+....
++
+** 「 SERVICE_NAME 」は、ポリシーに含めるサービスのリストを指定します。
+** 「 ip_address /mask 」には、サービスポリシー内のサービスへのアクセスを許可するアドレスのサブネットマスクのリストを指定します。デフォルトでは、指定されたすべてのサービスがデフォルトの許可アドレスリスト 0.0.0.0/0 で追加され、すべてのサブネットからのトラフィックが許可されます。デフォルト以外の許可アドレスリストを指定した場合、そのポリシーを使用する LIF は、指定したマスクと一致しないソースアドレスを使用するすべての要求をブロックするように設定されます。
++
+次の例は、_nfs_or_SMB_servicesを含むSVM用のデータサービスポリシーsvm1_data_policy__を作成する方法を示しています。
+
++
+....
+cluster1::> set -privilege advanced
+Warning: These advanced commands are potentially dangerous; use them only when directed to do so by technical support.
+Do you wish to continue? (y or n): y
+
+cluster1::> network interface service-policy create -vserver svm1 -policy svm1_data_policy -services data-nfs,data-cifs,data-core
+....
++
+次の例は、クラスタ間サービスポリシーを作成する方法を示しています。
+
++
+....
+cluster1::> set -privilege advanced
+Warning: These advanced commands are potentially dangerous; use them only when directed to do so by technical support.
+Do you wish to continue? (y or n): y
+
+cluster1::> network interface service-policy create -vserver cluster1 -policy intercluster1 -services intercluster-core
+....
+
+
+. サービスポリシーが作成されたことを確認します。
++
+....
+cluster1::> network interface service-policy show
+....
++
+次の出力は、使用可能なサービスポリシーを示しています。
+
++
+....
+cluster1::> network interface service-policy show
+
+Vserver   Policy                     Service: Allowed Addresses
+--------- -------------------------- ----------------------------------------
+cluster1
+          default-intercluster       intercluster-core: 0.0.0.0/0
+                                     management-https: 0.0.0.0/0
+
+          intercluster1              intercluster-core: 0.0.0.0/0
+
+          default-management         management-core: 0.0.0.0/0
+                                     management-autosupport: 0.0.0.0/0
+                                     management-ssh: 0.0.0.0/0
+                                     management-https: 0.0.0.0/0
+
+          default-route-announce     management-bgp: 0.0.0.0/0
+
+Cluster
+          default-cluster            cluster-core: 0.0.0.0/0
+
+vs0
+          default-data-blocks        data-core: 0.0.0.0/0
+                                     data-iscsi: 0.0.0.0/0
+
+          default-data-files         data-core: 0.0.0.0/0
+                                     data-nfs: 0.0.0.0/0
+                                     data-cifs: 0.0.0.0/0
+                                     data-flexcache: 0.0.0.0/0
+
+          default-management         data-core: 0.0.0.0/0
+                                     management-ssh: 0.0.0.0/0
+                                     management-https: 0.0.0.0/0
+
+          svm1_data_policy           data-core: 0.0.0.0/0
+                                     data-nfs: 0.0.0.0/0
+                                     data-cifs: 0.0.0.0/0
+
+9 entries were displayed.
 ....
 
 
@@ -159,7 +217,7 @@ NOTE: サービスポリシーは、サービスポリシーの作成時に指�
 次の例は、 LIF のサービスポリシーを default-management に変更する方法を示しています。
 
 ....
-network interface modify -vserver cluster1 -lif lif1 -service-policy default-management
+cluster1::> network interface modify -vserver cluster1 -lif lif1 -service-policy default-management
 ....
 
 
@@ -174,56 +232,56 @@ LIF のサービス・ポリシーを管理するには 'network interface servi
 
 
  a| 
-サービスポリシーを作成する
+サービスポリシーを作成する（advanced権限が必要）
  a| 
 「 network interface service-policy create 」を参照してください
 
 
 
  a| 
-既存のサービスポリシーにサービスエントリを追加します
+既存のサービスポリシーにサービスエントリを追加する（advanced権限が必要）
  a| 
 「 network interface service-policy add-service 」
 
 
 
  a| 
-既存のサービスポリシーをクローニングする
+既存のサービスポリシーのクローンを作成する（advanced権限が必要）
  a| 
 「 network interface service-policy clone 」と入力します
 
 
 
  a| 
-既存のサービスポリシーのサービスエントリを変更する
+既存のサービスポリシーのサービスエントリを変更する（advanced権限が必要）
  a| 
 「 network interface service-policy modify-service 」
 
 
 
  a| 
-既存のサービスポリシーからサービスエントリを削除します
+既存のサービスポリシーからサービスエントリを削除する（advanced権限が必要）
  a| 
 「 network interface service-policy remove-service 」と入力します
 
 
 
  a| 
-既存のサービスポリシーの名前を変更します
+既存のサービスポリシーの名前を変更する（advanced権限が必要）
  a| 
 「 network interface service-policy rename 」を参照してください
 
 
 
  a| 
-既存のサービスポリシーを削除する
+既存のサービスポリシーを削除する（advanced権限が必要）
  a| 
 「 network interface service-policy delete 」
 
 
 
  a| 
-組み込みのサービスポリシーを元の状態にリストアします
+組み込みのサービスポリシーを元の状態にリストアする（advanced権限が必要）
  a| 
 「 network interface service-policy restore -defaults 」を指定します
 

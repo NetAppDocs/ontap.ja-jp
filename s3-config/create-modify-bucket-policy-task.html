@@ -11942,48 +11942,11 @@
           
           <a target="_blank" 
             
-              href="/ja-jp/ontap/pdfs/sidebar/System_Manager_を使用した_S3_の設定.pdf" 
+              href="/ja-jp/ontap/pdfs/sidebar/S3_の設定.pdf" 
             
           >
             <img src="/ja-jp/ontap/images/pdf.png" width="16" height="16"/>
-            System Manager を使用した S3 の設定
-          </a>
-          
-
-
-
-
-
-
-
-
-
-
-
-
-
-          
-        </li>
-      </ul>
-    
-
-  
-
-
-
-    
-      <ul class="subfolders" style="display:none;">
-        <li class="pdf-ux-container">
-          
-          
-          
-          <a target="_blank" 
-            
-              href="/ja-jp/ontap/pdfs/sidebar/CLI_を使用した_S3_の設定.pdf" 
-            
-          >
-            <img src="/ja-jp/ontap/images/pdf.png" width="16" height="16"/>
-            CLI を使用した S3 の設定
+            S3 の設定
           </a>
           
 
@@ -21606,22 +21569,7 @@
         <div class="na-navbar-padding"> S3 オブジェクトストレージの管理</div>
       </a>
       <ul><li class="subfolders "><a href="#">
-        <div class="na-navbar-padding"> System Manager を使用した S3 の設定</div>
-      </a>
-      <ul><li class=" "><a class="na-navbar-padding" href="/ja-jp/ontap/concept_object_provision_overview.html">
-        オブジェクトストレージの概要
-      </a></li><li class=" "><a class="na-navbar-padding" href="/ja-jp/ontap/task_object_provision_enable_s3_server.html">
-        S3 サーバを有効にします
-      </a></li><li class=" "><a class="na-navbar-padding" href="/ja-jp/ontap/task_object_provision_buckets.html">
-        バケットをプロビジョニングする
-      </a></li><li class=" "><a class="na-navbar-padding" href="/ja-jp/ontap/task_object_provision_add_s3_users_groups.html">
-        S3 ユーザとグループを追加
-      </a></li><li class=" "><a class="na-navbar-padding" href="/ja-jp/ontap/task_object_provision_manage_bucket_access.html">
-        バケットへのアクセスを管理
-      </a></li><li class=" "><a class="na-navbar-padding" href="/ja-jp/ontap/task_object_provision_manage_svm_access.html">
-        Storage VM アクセスを管理します
-      </a></li></ul></li><li class="subfolders "><a href="#">
-        <div class="na-navbar-padding"> CLI を使用した S3 の設定</div>
+        <div class="na-navbar-padding"> S3 の設定</div>
       </a>
       <ul><li class=" "><a class="na-navbar-padding" href="/ja-jp/ontap/s3-config/index.html">
         概要
@@ -23595,7 +23543,7 @@
 <p class="page-details">
   
     
-    <time datetime="2022-04-15 14:31:16 +0000">04/15/2022</time>
+    <time datetime="2022-05-27 00:02:27 +0000">05/27/2022</time>
     
   
 
@@ -23609,23 +23557,37 @@
 <p>S3 サーバとバケットを含む S3 対応の SVM がすでに存在している必要があります。</p>
 </div>
 <div class="paragraph">
+<p>権限を付与するには、事前にユーザまたはグループを作成しておく必要があります。</p>
+</div>
+<div class="paragraph">
 <p>新しいユーザとグループに新しいステートメントを追加したり、既存のステートメントの属性を変更したりできます。その他のオプションについては 'vserver object-store-server バケット policy のマニュアルページを参照してください</p>
 </div>
+<div class="paragraph">
+<p>ユーザとグループの権限は、バケットの作成時または必要に応じてあとから付与できます。バケットの容量と QoS ポリシーグループの割り当てを変更することもできます。</p>
+</div>
+<div class="paragraph">
+<p>ONTAP 9.9.1以降のリリースでは、ONTAP S3サーバでAWSクライアントオブジェクトのタグ付け機能をサポートする場合、バケットまたはグループポリシーを使用して「GetObjectTagging」、「PutObjectTagging」、「DeleteObjectTagging」の各アクションを許可する必要があります。</p>
+</div>
+<div class="exampleblock tabbed-block">
+<div class="content">
+<div class="openblock">
+<div class="title">CLI の使用</div>
+<div class="content">
 <div class="olist arabic">
 <div class="title">手順</div>
 <ol class="arabic">
 <li>
 <p>バケットポリシーにステートメントを追加します。</p>
 <div class="paragraph">
-<p>「 vserver object-store-server bucket policy add -statement-vserver SVM_name -bucket bucket_name -Effect ｛ allow|deny ｝ -action object_store_actions-principal user_and _group -resource object_store_resources[-sid text] [-index integer]`</p>
+<p>「vserver object-store-server bucket policy add-statement-vserver_svm_name_-bucket_bucket_name <em>_ Effect｛allow|deny｝-action _object_store_actions</em>-principal_user_names <em>-resource_store_resources</em>[-sid text][-index integer]」</p>
 </div>
 <div class="paragraph">
 <p>次のパラメータでアクセス権限を定義します。</p>
 </div>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
-<col style="width: 50%;">
-<col style="width: 50%;">
+<col style="width: 25%;">
+<col style="width: 75%;">
 </colgroup>
 <tbody>
 <tr>
@@ -23698,6 +23660,45 @@
 <div class="listingblock">
 <div class="content">
 <pre>cluster1::&gt; vserver object-store-server bucket policy statement create -vserver svm1.example.com -bucket bucket1 -effect allow -action GetObject,PutObject,DeleteObject,ListBucket -principal group/group1 -resource bucket1/* -sid "fullAccessForGroup1"</pre>
+</div>
+</div>
+</div>
+</div>
+<div class="openblock">
+<div class="title">System Manager の略</div>
+<div class="content">
+<div class="olist arabic">
+<div class="title">手順</div>
+<ol class="arabic">
+<li>
+<p>バケットを編集します。 * Storage &gt; Bucket* をクリックし、目的のバケットをクリックして * Edit * をクリックします。権限を追加または変更するときに、次のパラメータを指定できます。</p>
+<div class="ulist">
+<ul>
+<li>
+<p>プリンシパル：アクセスが許可されるユーザまたはグループ。</p>
+</li>
+<li>
+<p>影響：ユーザまたはグループへのアクセスを許可または拒否します。</p>
+</li>
+<li>
+<p>アクション：特定のユーザまたはグループのバケットで許可されるアクション。</p>
+</li>
+<li>
+<p>リソース：アクセスが許可または拒否されるバケット内のオブジェクトのパスと名前。</p>
+<div class="paragraph">
+<p>デフォルトの * <em>bucketname</em>* および * <em>bketname / * _ * は、バケット内のすべてのオブジェクトへのアクセスを許可します。また、単一のオブジェクトへのアクセスを許可することもできます。たとえば、 *_bketname/</em>*_readme.txt * と指定します。</p>
+</div>
+</li>
+<li>
+<p>条件（オプション）：アクセス試行時に評価される式。たとえば、アクセスを許可または拒否する IP アドレスを指定できます。</p>
+</li>
+</ul>
+</div>
+</li>
+</ol>
+</div>
+</div>
+</div>
 </div>
 </div>
 

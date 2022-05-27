@@ -11951,48 +11951,11 @@
           
           <a target="_blank" 
             
-              href="/ja-jp/ontap/pdfs/sidebar/System_Manager_を使用した_S3_の設定.pdf" 
+              href="/ja-jp/ontap/pdfs/sidebar/S3_の設定.pdf" 
             
           >
             <img src="/ja-jp/ontap/images/pdf.png" width="16" height="16"/>
-            System Manager を使用した S3 の設定
-          </a>
-          
-
-
-
-
-
-
-
-
-
-
-
-
-
-          
-        </li>
-      </ul>
-    
-
-  
-
-
-
-    
-      <ul class="subfolders" style="display:none;">
-        <li class="pdf-ux-container">
-          
-          
-          
-          <a target="_blank" 
-            
-              href="/ja-jp/ontap/pdfs/sidebar/CLI_を使用した_S3_の設定.pdf" 
-            
-          >
-            <img src="/ja-jp/ontap/images/pdf.png" width="16" height="16"/>
-            CLI を使用した S3 の設定
+            S3 の設定
           </a>
           
 
@@ -21606,22 +21569,7 @@
         <div class="na-navbar-padding"> S3 オブジェクトストレージの管理</div>
       </a>
       <ul><li class="subfolders "><a href="#">
-        <div class="na-navbar-padding"> System Manager を使用した S3 の設定</div>
-      </a>
-      <ul><li class=" "><a class="na-navbar-padding" href="/ja-jp/ontap/concept_object_provision_overview.html">
-        オブジェクトストレージの概要
-      </a></li><li class=" "><a class="na-navbar-padding" href="/ja-jp/ontap/task_object_provision_enable_s3_server.html">
-        S3 サーバを有効にします
-      </a></li><li class=" "><a class="na-navbar-padding" href="/ja-jp/ontap/task_object_provision_buckets.html">
-        バケットをプロビジョニングする
-      </a></li><li class=" "><a class="na-navbar-padding" href="/ja-jp/ontap/task_object_provision_add_s3_users_groups.html">
-        S3 ユーザとグループを追加
-      </a></li><li class=" "><a class="na-navbar-padding" href="/ja-jp/ontap/task_object_provision_manage_bucket_access.html">
-        バケットへのアクセスを管理
-      </a></li><li class=" "><a class="na-navbar-padding" href="/ja-jp/ontap/task_object_provision_manage_svm_access.html">
-        Storage VM アクセスを管理します
-      </a></li></ul></li><li class="subfolders "><a href="#">
-        <div class="na-navbar-padding"> CLI を使用した S3 の設定</div>
+        <div class="na-navbar-padding"> S3 の設定</div>
       </a>
       <ul><li class=" "><a class="na-navbar-padding" href="/ja-jp/ontap/s3-config/index.html">
         概要
@@ -23595,7 +23543,7 @@
 <p class="page-details">
   
     
-    <time datetime="2022-04-15 14:31:16 +0000">04/15/2022</time>
+    <time datetime="2022-05-27 00:02:27 +0000">05/27/2022</time>
     
   
 
@@ -23614,6 +23562,9 @@
 <div class="sectionbody">
 <div class="paragraph">
 <p>LIF のサービスポリシーを作成することができます。1 つ以上の LIF にサービスポリシーを割り当てることで、 1 つまたは一連のサービスのトラフィックの処理を LIF に許可することができます。</p>
+</div>
+<div class="paragraph">
+<p>「network interface service-policy create」コマンドを実行するには、高度な権限が必要です。</p>
 </div>
 <div class="paragraph">
 <p>データ SVM とシステム SVM の両方でデータトラフィックと管理トラフィックの管理に使用できる組み込みのサービスとサービスポリシーを用意しています。ほとんどのユースケースでは、カスタムサービスポリシーを作成するのではなく、組み込みのサービスポリシーを使用して対応できます。</p>
@@ -23639,7 +23590,8 @@
 </div>
 <div class="literalblock">
 <div class="content">
-<pre>network interface service show
+<pre>cluster1::&gt; network interface service show
+
 Service                     Protocol:Ports
 -------                     --------------
 cluster-core                -
@@ -23659,52 +23611,11 @@ management-ssh              tcp:22
 </div>
 </li>
 <li>
-<p>サービスポリシーを作成します。</p>
+<p>クラスタに存在するサービスポリシーを表示します。</p>
 <div class="literalblock">
 <div class="content">
-<pre>network interface service-policy create -vserver &lt;svm_name&gt; -policy &lt;service_policy_name&gt; -services &lt;service_name&gt; -allowed-addresses &lt;IP_address/mask,...&gt;</pre>
-</div>
-</div>
-<div class="ulist">
-<ul>
-<li>
-<p>「 SERVICE_NAME 」は、ポリシーに含めるサービスのリストを指定します。</p>
-</li>
-<li>
-<p>「 ip_address /mask 」には、サービスポリシー内のサービスへのアクセスを許可するアドレスのサブネットマスクのリストを指定します。デフォルトでは、指定されたすべてのサービスがデフォルトの許可アドレスリスト 0.0.0.0/0 で追加され、すべてのサブネットからのトラフィックが許可されます。デフォルト以外の許可アドレスリストを指定した場合、そのポリシーを使用する LIF は、指定したマスクと一致しないソースアドレスを使用するすべての要求をブロックするように設定されます。</p>
-<div class="paragraph">
-<p>次の例は、 NFS サービスと SMB サービスを含む SVM のデータサービスポリシー svm1_data_policy を作成する方法を示しています。</p>
-</div>
-<div class="literalblock">
-<div class="content">
-<pre>network interface service-policy create -vserver svm1 -policy svm1_data_policy -services data-nfs,data-cifs,data-core -allowed-addresses 10.1.0.0/16</pre>
-</div>
-</div>
-<div class="paragraph">
-<p>次の例は、クラスタ間サービスポリシーを作成する方法を示しています。</p>
-</div>
-</li>
-</ul>
-</div>
-<div class="literalblock">
-<div class="content">
-<pre>network interface service-policy create -vserver cluster1 -policy intercluster1 -services intercluster-core -allowed-addresses 10.1.0.0/16</pre>
-</div>
-</div>
-</li>
-<li>
-<p>サービスポリシーが作成されたことを確認します。</p>
-<div class="literalblock">
-<div class="content">
-<pre>network interface service-policy show</pre>
-</div>
-</div>
-<div class="paragraph">
-<p>次の出力は、使用可能なサービスポリシーを示しています。</p>
-</div>
-<div class="literalblock">
-<div class="content">
-<pre>network interface service-policy show
+<pre>cluster1::&gt; network interface service-policy show
+
 Vserver   Policy                     Service: Allowed Addresses
 --------- -------------------------- ----------------------------------------
 cluster1
@@ -23735,6 +23646,105 @@ vs0
                                      management-https: 0.0.0.0/0
 
 7 entries were displayed.</pre>
+</div>
+</div>
+</li>
+<li>
+<p>サービスポリシーを作成します。</p>
+<div class="literalblock">
+<div class="content">
+<pre>cluster1::&gt; set -privilege advanced
+Warning: These advanced commands are potentially dangerous; use them only when directed to do so by technical support.
+Do you wish to continue? (y or n): y
+
+cluster1::&gt; network interface service-policy create -vserver &lt;svm_name&gt; -policy &lt;service_policy_name&gt; -services &lt;service_name&gt; -allowed-addresses &lt;IP_address/mask,...&gt;</pre>
+</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>「 SERVICE_NAME 」は、ポリシーに含めるサービスのリストを指定します。</p>
+</li>
+<li>
+<p>「 ip_address /mask 」には、サービスポリシー内のサービスへのアクセスを許可するアドレスのサブネットマスクのリストを指定します。デフォルトでは、指定されたすべてのサービスがデフォルトの許可アドレスリスト 0.0.0.0/0 で追加され、すべてのサブネットからのトラフィックが許可されます。デフォルト以外の許可アドレスリストを指定した場合、そのポリシーを使用する LIF は、指定したマスクと一致しないソースアドレスを使用するすべての要求をブロックするように設定されます。</p>
+<div class="paragraph">
+<p>次の例は、_nfs_or_SMB_servicesを含むSVM用のデータサービスポリシーsvm1_data_policy__を作成する方法を示しています。</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>cluster1::&gt; set -privilege advanced
+Warning: These advanced commands are potentially dangerous; use them only when directed to do so by technical support.
+Do you wish to continue? (y or n): y
+
+cluster1::&gt; network interface service-policy create -vserver svm1 -policy svm1_data_policy -services data-nfs,data-cifs,data-core</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>次の例は、クラスタ間サービスポリシーを作成する方法を示しています。</p>
+</div>
+</li>
+</ul>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>cluster1::&gt; set -privilege advanced
+Warning: These advanced commands are potentially dangerous; use them only when directed to do so by technical support.
+Do you wish to continue? (y or n): y
+
+cluster1::&gt; network interface service-policy create -vserver cluster1 -policy intercluster1 -services intercluster-core</pre>
+</div>
+</div>
+</li>
+<li>
+<p>サービスポリシーが作成されたことを確認します。</p>
+<div class="literalblock">
+<div class="content">
+<pre>cluster1::&gt; network interface service-policy show</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>次の出力は、使用可能なサービスポリシーを示しています。</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>cluster1::&gt; network interface service-policy show
+
+Vserver   Policy                     Service: Allowed Addresses
+--------- -------------------------- ----------------------------------------
+cluster1
+          default-intercluster       intercluster-core: 0.0.0.0/0
+                                     management-https: 0.0.0.0/0
+
+          intercluster1              intercluster-core: 0.0.0.0/0
+
+          default-management         management-core: 0.0.0.0/0
+                                     management-autosupport: 0.0.0.0/0
+                                     management-ssh: 0.0.0.0/0
+                                     management-https: 0.0.0.0/0
+
+          default-route-announce     management-bgp: 0.0.0.0/0
+
+Cluster
+          default-cluster            cluster-core: 0.0.0.0/0
+
+vs0
+          default-data-blocks        data-core: 0.0.0.0/0
+                                     data-iscsi: 0.0.0.0/0
+
+          default-data-files         data-core: 0.0.0.0/0
+                                     data-nfs: 0.0.0.0/0
+                                     data-cifs: 0.0.0.0/0
+                                     data-flexcache: 0.0.0.0/0
+
+          default-management         data-core: 0.0.0.0/0
+                                     management-ssh: 0.0.0.0/0
+                                     management-https: 0.0.0.0/0
+
+          svm1_data_policy           data-core: 0.0.0.0/0
+                                     data-nfs: 0.0.0.0/0
+                                     data-cifs: 0.0.0.0/0
+
+9 entries were displayed.</pre>
 </div>
 </div>
 </li>
@@ -23801,7 +23811,7 @@ vs0
 </div>
 <div class="literalblock">
 <div class="content">
-<pre>network interface modify -vserver cluster1 -lif lif1 -service-policy default-management</pre>
+<pre>cluster1::&gt; network interface modify -vserver cluster1 -lif lif1 -service-policy default-management</pre>
 </div>
 </div>
 </div>
@@ -23825,7 +23835,7 @@ vs0
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
-<p>サービスポリシーを作成する</p>
+<p>サービスポリシーを作成する（advanced権限が必要）</p>
 </div></div></td>
 <td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
 <p>「 network interface service-policy create 」を参照してください</p>
@@ -23833,7 +23843,7 @@ vs0
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
-<p>既存のサービスポリシーにサービスエントリを追加します</p>
+<p>既存のサービスポリシーにサービスエントリを追加する（advanced権限が必要）</p>
 </div></div></td>
 <td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
 <p>「 network interface service-policy add-service 」</p>
@@ -23841,7 +23851,7 @@ vs0
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
-<p>既存のサービスポリシーをクローニングする</p>
+<p>既存のサービスポリシーのクローンを作成する（advanced権限が必要）</p>
 </div></div></td>
 <td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
 <p>「 network interface service-policy clone 」と入力します</p>
@@ -23849,7 +23859,7 @@ vs0
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
-<p>既存のサービスポリシーのサービスエントリを変更する</p>
+<p>既存のサービスポリシーのサービスエントリを変更する（advanced権限が必要）</p>
 </div></div></td>
 <td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
 <p>「 network interface service-policy modify-service 」</p>
@@ -23857,7 +23867,7 @@ vs0
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
-<p>既存のサービスポリシーからサービスエントリを削除します</p>
+<p>既存のサービスポリシーからサービスエントリを削除する（advanced権限が必要）</p>
 </div></div></td>
 <td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
 <p>「 network interface service-policy remove-service 」と入力します</p>
@@ -23865,7 +23875,7 @@ vs0
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
-<p>既存のサービスポリシーの名前を変更します</p>
+<p>既存のサービスポリシーの名前を変更する（advanced権限が必要）</p>
 </div></div></td>
 <td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
 <p>「 network interface service-policy rename 」を参照してください</p>
@@ -23873,7 +23883,7 @@ vs0
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
-<p>既存のサービスポリシーを削除する</p>
+<p>既存のサービスポリシーを削除する（advanced権限が必要）</p>
 </div></div></td>
 <td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
 <p>「 network interface service-policy delete 」</p>
@@ -23881,7 +23891,7 @@ vs0
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
-<p>組み込みのサービスポリシーを元の状態にリストアします</p>
+<p>組み込みのサービスポリシーを元の状態にリストアする（advanced権限が必要）</p>
 </div></div></td>
 <td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
 <p>「 network interface service-policy restore -defaults 」を指定します</p>

@@ -9,14 +9,14 @@
   <meta property="og:title" content="S3構成の概要" />
 	<meta property="og:type" content="website" />
 	<meta property="og:url" content="https://docs.netapp.com/ja-jp/ontap/s3-config/index.html" />
-	<meta property="og:description" content="ONTAP 9 の CLI コマンドを使用して、 SVM のバケットに格納されているオブジェクトへの S3 クライアントアクセスを設定できます。" />
+	<meta property="og:description" content="ONTAP 9.8 以降では、 ONTAP クラスタ内で ONTAP Simple Storage Service （ S3 ）オブジェクトストレージサーバを有効にすることができます。" />
   <meta property="og:image" content="https://docs.netapp.com/ja-jp/ontap/images/logo-tophat-social.png" />
   <meta property="og:image:alt" content="NetApp Logo" />
   <meta name="format-detection" content="telephone=no">
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
   <meta http-equiv="encoding" content="utf-8">
   <meta http-equiv="nss-type" content="Product Documentation"/>
-  <meta http-equiv="nss-subtype" content="User Guide"/><meta name="description" content="ONTAP 9 の CLI コマンドを使用して、 SVM のバケットに格納されているオブジェクトへの S3 クライアントアクセスを設定できます。">
+  <meta http-equiv="nss-subtype" content="User Guide"/><meta name="description" content="ONTAP 9.8 以降では、 ONTAP クラスタ内で ONTAP Simple Storage Service （ S3 ）オブジェクトストレージサーバを有効にすることができます。">
   <meta name="keywords" content=" decide, s3, configuration, client, access, configure, object, bucket, svm"><!-- Icons -->
   <link rel="icon" href="/ja-jp/ontap/images/favicon.ico" type="image/x-icon">
 
@@ -23549,7 +23549,20 @@
 <div id="preamble">
 <div class="sectionbody">
 <div class="paragraph lead">
-<p>ONTAP 9.8 以降では、 ONTAP クラスタ内で ONTAP Simple Storage Service （ S3 ）オブジェクトストレージサーバを有効にすることができます。詳細については、を参照してください <a href="s3-support-concept.html">ONTAP 9 での S3 のサポート</a>。</p>
+<p>ONTAP 9.8 以降では、 ONTAP クラスタ内で ONTAP Simple Storage Service （ S3 ）オブジェクトストレージサーバを有効にすることができます。</p>
+</div>
+<div class="paragraph">
+<p>ONTAP では、S3オブジェクトストレージを提供するオンプレミスのユースケースを2つサポートしています。</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>FabricPool 階層をローカルクラスタ（ローカルバケットへの階層）またはリモートクラスタ（クラウド階層）のバケットに配置します。</p>
+</li>
+<li>
+<p>S3 クライアントアプリケーションからローカルクラスタまたはリモートクラスタのバケットへのアクセス。</p>
+</li>
+</ul>
 </div>
 <div class="paragraph">
 <p>S3 オブジェクトストレージを設定する場合は、次の手順を実行する必要があります。</p>
@@ -23576,23 +23589,7 @@
 <p>ONTAP S3は、System ManagerおよびONTAP CLIを使用して設定および管理できます。System Managerを使用してS3を有効にしてバケットを作成する際、ONTAP では、シンプルな設定を実現するためのデフォルトのベストプラクティスが選択されます。設定パラメータを指定する必要がある場合は、ONTAP CLIを使用できます。CLIからS3サーバとバケットを設定した場合は、必要に応じてSystem Managerで管理することもできます。逆も同様です。</p>
 </div>
 <div class="paragraph">
-<p>System Manager では、 S3 オブジェクトストレージを提供するオンプレミスのユースケースを 2 つサポートしています。</p>
-</div>
-<div class="ulist">
-<ul>
-<li>
-<p>FabricPool 階層をローカルクラスタ（ローカルバケットへの階層）またはリモートクラスタ（クラウド階層）のバケットに配置します。</p>
-</li>
-<li>
-<p>S3 クライアントアプリケーションからローカルクラスタまたはリモートクラスタのバケットへのアクセス。</p>
-</li>
-</ul>
-</div>
-<div class="paragraph">
 <p>System Manager を使用して S3 バケットを作成すると、 ONTAP によって、システムで最も使用可能なパフォーマンスサービスレベルがデフォルトで設定されます。たとえば、 AFF システムでは、デフォルト設定は * Extreme * になります。パフォーマンスサービスレベルは、事前定義されたアダプティブ QoS ポリシーグループです。カスタムの QoS ポリシーグループを指定する場合は、デフォルトのサービスレベルのいずれかを指定する代わりに、ポリシーグループを指定しなくてもかまいません。</p>
-</div>
-<div class="paragraph">
-<p>FabricPool の階層化の詳細については、を参照してください <a href="../concept_cloud_overview.html">System Manager による FabricPool 階層の管理の概要</a>。</p>
 </div>
 <div class="paragraph">
 <p>事前定義されたアダプティブ QoS ポリシーグループは次のとおりです。</p>
@@ -23622,12 +23619,8 @@
 <div class="paragraph">
 <p>ONTAP は、選択したサービスレベルを満たす最も適切なディスクを含むローカル階層でこのバケットをプロビジョニングしようとします。ただし、バケットに含めるディスクを指定する必要がある場合は、 CLI でローカル階層（アグリゲート）を指定して S3 オブジェクトストレージを設定することを検討してください。CLI から S3 サーバを設定した場合も、必要に応じて System Manager で管理できます。</p>
 </div>
-<div class="ulist">
-<ul>
-<li>
+<div class="paragraph">
 <p>バケットに使用するアグリゲートを指定できるようにするには、 CLI を使用する必要があります。</p>
-</li>
-</ul>
 </div>
 </div>
 </div>

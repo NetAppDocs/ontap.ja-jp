@@ -13,23 +13,23 @@ summary: Azure Key Vault （ AKV ）を使用すると、 ONTAP 暗号化キー�
 
 ONTAP 9.10.1 以降では、を使用できます link:https://docs.microsoft.com/en-us/azure/key-vault/general/basic-concepts["Azure キーボールト（ AKV ）"^] および link:https://cloud.google.com/kms/docs["Google Cloud Platform のキー管理サービス（ Cloud KMS ）"^] Azure または Google Cloud Platform 導入アプリケーションで ONTAP 暗号化キーを保護します。
 
-AKV と Cloud KMS を使用して保護することができます link:configure-netapp-volume-encryption-concept.html["NetApp Volume Encryption （ NVE ）キー"] データ SVM の場合のみ。
+AKV と Cloud KMS を使用して保護することができます link:configure-netapp-volume-encryption-concept.html["NetApp Volume Encryption （ NVE ）キー"] データSVMの場合のみ。
 
 AKV または Cloud KMS を使用したキー管理は、 CLI または ONTAP REST API を使用して有効にすることができます。
 
-AKV または Cloud KMS を使用する際は、デフォルトでデータ SVM LIF がクラウドキー管理エンドポイントとの通信に使用されることに注意してください。ノード管理ネットワークは、クラウドプロバイダの認証サービス（ login.microsoftonline.com for Azure ； oauth2.googleapis.com for Cloud KMS ）との通信に使用されます。クラスタネットワークが正しく設定されていないと、クラスタでキー管理サービスが適切に利用されません。
+AKVまたはCloud KMSを使用する際は、デフォルトでデータSVM LIFがクラウドキー管理エンドポイントとの通信に使用されることに注意してください。ノード管理ネットワークは、クラウドプロバイダの認証サービス（ login.microsoftonline.com for Azure ； oauth2.googleapis.com for Cloud KMS ）との通信に使用されます。クラスタネットワークが正しく設定されていないと、クラスタでキー管理サービスが適切に利用されません。
 
 .前提条件
 * ONTAP クラスタのノードで NVE がサポートされている必要があります
 * Volume Encryption （ VE ）ライセンスがインストールされている
 * Multi-tenant Encryption Key Management （ MTEKM ）ライセンスがインストールされています
-* クラスタ管理者または SVM 管理者である必要があります
+* クラスタ管理者またはSVMの管理者である必要があります
 
 
 .制限
 * AKV および Cloud KMS は NSE および NAE には利用できません。 link:enable-external-key-management-96-later-nve-task.html["外部 KMIP"] 代わりに使用できます
 * AKV および Cloud KMS は、 MetroCluster 構成では利用できません。
-* AKV と Cloud KMS はデータ SVM でのみ設定できます
+* AKVとCloud KMSはデータSVMでのみ設定できます
 
 
 
@@ -40,40 +40,25 @@ AKV または Cloud KMS を使用する際は、デフォルトでデータ SVM 
 
 [role="tabbed-block"]
 ====
-.Azure for ONTAP の略
+.Azure
 --
 .ONTAP 用 Azure Key Vault を有効にします
 . 作業を開始する前に、クライアントシークレットまたは証明書のいずれかで、 Azure アカウントから適切な認証クレデンシャルを取得する必要があります。また、クラスタ内のすべてのノードが正常であることを確認する必要があります。これは 'cluster show コマンドで確認できます
 . 特権レベルを advanced に設定します（ set -priv advanced
 . SVM 「 security key-manager external Azure enable -client-id_client_id_ -stenant -id_ttenant_id _ -name -key_id_ -authentication-method ｛ certificate | client-secret ｝ 」で AKV を有効にするか、プロンプトが表示されたら Azure アカウントからクライアント証明書またはクライアントシークレットを入力します。
-. AKV が正しく有効になっていることを確認します。「 security key-manager external Azure show vserver_vserver_name _ 」サービスの到達可能性に問題がない場合は、データ SVM LIF を介して AKV キー管理サービスへの接続を確立します。
+. AKVが正しく有効になっていることを確認します。「security key-manager external Azure show vserver_svm_name_`サービスの到達可能性が問題でない場合は、データSVM LIFを介してAKVキー管理サービスへの接続を確立します。
 
 
 --
-.Azure for Cloud Volumes ONTAP の略
---
-.Cloud Volumes ONTAP 用 Azure Key Vault を有効にします
-. 作業を開始する前に、クライアントシークレットまたは証明書のいずれかで、 Azure アカウントから適切な認証クレデンシャルを取得する必要があります。また、クラスタ内のすべてのノードが正常であることを確認する必要があります。これは 'cluster show コマンドで確認できます
-. 特権レベルを advanced に設定します（ set -priv advanced
-. SVM 「 security key-manager external Azure enable -client-id_client_id_ -stenant -id_ttenant_id _ -name -key_id_ -authentication-method ｛ certificate | client-secret ｝ 」で AKV を有効にするか、プロンプトが表示されたら Azure アカウントからクライアント証明書またはクライアントシークレットを入力します。
-. データ SVM の DNS を設定します。「 dns create -domains_domain_name _name -name-servers_server_address_-vserver_vserver_name _
-. Azure ポータルで、キーヴォールトを含むサブスクリプションに移動します。[** アクセスポリシー ** ] メニューを選択します。アプリケーションにキーの権限、シークレットの権限、および証明書の権限を付与してから保存します。
-+
-image::azure-key-vault-access-policies.png[Azure アクセスポリシーのメニューに、指定する必要がある権限のフィールドが表示されます]
-
-. AKV が正しく有効になっていることを確認します。「 security key-manager external Azure show vserver_vserver_name _ 」サービスの到達可能性に問題がない場合は、データ SVM LIF を介して AKV キー管理サービスへの接続を確立します。
-
-
---
-.Google Cloud for ONTAP の略
+.Google Cloud
 --
 .ONTAP の CLI を使用して Cloud KMS を有効にします
 . 作業を開始する前に、 Google Cloud KMS アカウントキーファイルの秘密鍵を JSON 形式で取得する必要があります。これは GCP アカウントにあります。また、クラスタ内のすべてのノードが正常であることを確認する必要があります。これは 'cluster show コマンドで確認できます
 . 特権レベルを advanced に設定します（ set -priv advanced
 . SVM の「 security key-manager external GCP enable -vserver _data_SVM_name_id_ -project-id_key_ring_id_ -key-ring-name _key_ring_name 」で Cloud KMS を有効にするかどうかを確認するメッセージが表示されたら、 JSON ファイルの内容をプライベートアカウントで入力します
-. Cloud KMS が正しいパラメータで構成されていることを確認します。「 security key-manager external GCP show vserver_vserver_name _ 」暗号化されたボリュームが作成されていない場合、「 kms ラップされた鍵のステータス」は「不明」になります。サービスの到達可能性が OK でない場合は、データ Vserver LIF を介して GCP キー管理サービスへの接続を確立します。
+. Cloud KMSが正しいパラメータで構成されていることを確認します。「security key-manager external GCP show vserver_svm_name_`暗号化されたボリュームが作成されていない場合、「kmsラップされた鍵のステータス」は「不明」になります。サービスへの到達可能性がOKでない場合は、データSVM LIFを介してGCPキー管理サービスへの接続を確立します。
 
 
 --
 ====
-データ SVM 用にすでに暗号化されたボリュームが 1 つ以上設定され、対応する NVE キーが管理 SVM オンボードキーマネージャによって管理されている場合は、それらのキーを外部キー管理サービスに移行する必要があります。CLI でこの操作を行うには、「 security key-manager key migrate-from -Vserver_admin_vserver__ -to-Vserver_data_vserver_ 」データ SVM の NVE キーがすべて移行されるまで、テナントのデータ SVM 用に新しい暗号化ボリュームを作成することはできません。
+データSVM用にすでに暗号化されたボリュームが1つ以上設定され、管理SVMのオンボードキーマネージャで対応するNVEキーが管理されている場合は、それらのキーを外部キー管理サービスに移行する必要があります。CLIでこの操作を行うには、次のコマンドを実行します。security key-manager key migrate-from -Vserver_admin_svm_name -to-Vserver_data_SVM_`データSVMのNVEキーがすべて移行されるまで、テナントのデータSVM用に新しい暗号化ボリュームを作成することはできません。

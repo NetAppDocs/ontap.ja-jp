@@ -1,8 +1,75 @@
 ---
 permalink: san-admin/asa-iscsi-lif-fo-task.html 
-redirect: ontap/san-admin/index.html 
+sidebar: sidebar 
+keywords: failover, iscsi, all san array, cli, system manager, auto-revert, revert network interface 
+summary: iSCSI LIFフェイルオーバー機能は、オールSANアレイプラットフォームでONTAP 9.11.1から使用でき、ホームノードが停止する前に停止するノードからHAパートナーにiSCSI LIFを移行できます。 
 ---
-= 
+= ASA プラットフォームのiSCSI LIFのフェイルオーバー
 :allow-uri-read: 
+:icons: font
+:imagesdir: ../media/
 
 
+[role="lead"]
+iSCSI論理インターフェイス（LIF）フェイルオーバー機能は、All SAN Array（ASA ）プラットフォームのONTAP 9.11.1から使用でき、ホームノードが停止する前にHAパートナーに停止するノードからiSCSI LIFを移行できます。iSCSI LIFフェイルオーバー機能を有効にできるのは、ONTAP クラスタ全体がONTAP 9.11.1以降である場合のみです。
+
+次に、この機能の動作について説明します。
+
+* 「data-iscsi」サービスポリシーを使用するLIFの場合、failover-policyは「sfo-partner-only」、「local-only」、および「disabled」に制限されます
+* iSCSI LIFは、フェイルオーバーポリシーが「sfo-partner-only」に設定されている場合にのみHAパートナーにフェイルオーバーできます
+* ギブバックは、ギブバック・ポリシーが「auto-revert true」に設定され、ノードがクォーラムに戻った場合に実行されます
+* 計画的または計画外のノードテイクオーバーがある場合、テイクオーバーされたノードのiSCSI LIFがHAパートナーにフェイルオーバーされます。LIFのフェイルオーバー先のポートは、VIF Managerで決定されます
+* フェイルオーバーが完了すると、iSCSI LIFが正常に動作します
+* ギブバックが開始されると、iSCSI LIFがホームノードとホームポートに戻ります
+
+
+
+
+== System Manager の手順の略
+
+ONTAP 9.11.1以降では、System Managerを使用して、ホームノードが停止する前にHAパートナーに停止するASA プラットフォームからiSCSI LIFを移行できます。ASA プラットフォームでは、移行とリバートの機能がデフォルトで有効になっています。
+
+
+
+=== フェイルオーバー
+
+.手順
+. System Managerで、* Network > Overview > Network Interfaces *の順にクリックします
+. 移行するLIFを選択し、をクリックします image:icon_kabob.gif["Kabob アイコン"]をクリックし、*マイグレート*をクリックします。
+. インターフェイスの移行*ダイアログボックスで、HAパートナーの移行先のノードとポートを選択します。
+. [* Migrate （移行） ] をクリックします
+
+
+
+
+=== ギブバック
+
+.手順
+. System Managerで、* Network > Overview > Network Interfaces *の順にクリックします。
+. リバートするLIFを選択し、をクリックします image:icon_kabob.gif["Kabob アイコン"] [ネットワークインターフェイスを元に戻す*]をクリックします。
+. [ネットワークインターフェイスの復帰*]ダイアログボックスで、[復帰*]をクリックします。
+
+
+
+
+== CLI 手順の略
+
+ONTAP 9.11.1以降では、ASA プラットフォームで次のコマンドを使用して、iSCSI LIFを作成および管理します。フェイルオーバーと自動リバートの機能はデフォルトで有効になっています。_
+
+|===
+
+
+| 状況 | 使用するコマンド 
+
+
+| iSCSI LIFを作成 | 「network interface create -vserver _svm_name」-lif_iscsi_lif_service-policy default-data-blocks -data -protocol iscsi -home-node node_name _-home-port port_name _’ 
+
+
+| LIFが正常に作成されたことを確認します | 「network interface show -vserver _svm_name」- fields failover-policy、failover-policy、failover-group、auto-revert、is-fhome 
+
+
+| iSCSI LIFでデフォルトの自動リバートを無視できるかどうかを確認します | 「network interface modify -vserver _svm_name_-lif iscsi_lif-auto-revert false」というエラーが表示されます。「Error：command failed：auto-revert cannot be disabled on SAN LIFs」 
+
+
+| iSCSI LIFでストレージフェイルオーバーを実行します | 「storage failover takeover -ofnode _node_name -- option normal」というメッセージが表示されます。「テイクオーバーが開始されます。パートナーノードがリブートすると、ギブバックが自動的に開始されます。続行しますか？{y/n}:'a `y'応答はHAパートナーからのテイクオーバー・メッセージを表示します 
+|===

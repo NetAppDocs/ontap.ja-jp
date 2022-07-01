@@ -20,8 +20,14 @@ FlexGroup SVM DR 関係を作成するには、既存の FlexGroup Volume SnapMi
 
 .手順
 . SnapMirror デスティネーションから、 FlexGroup レベルの SnapMirror 関係「 snapmirror resync 」を再同期します
-. FlexGroup SVM DR SnapMirror 関係を作成します。「 snapmirror create -policy DPDefault -identity-preserve true -destination-path dest_SVM ： dest_flexgroup -source-path src_svm ： src_flexgroup
-. 関係が解除されたことを確認します。「 snapmirror show -destination-path dest_SVM ： dest_flexgroup -source-path src_svm ： src_flexgroup 」
+. FlexGroup SVM DRのSnapMirror関係を作成FlexGroup ボリュームのSnapMirror関係に設定されているものと同じSnapMirrorポリシーを使用します。snapmirror create -destination-path dest_svm：-source-path src_svm：-identity-preserve true -policy MirrorAllSnapshots
+
+
+====
+レプリケーション関係を作成するときは 'snapmirror create コマンドの -identity-preserve true オプションを使用する必要があります
+
+====
+. 関係が解除されたことを確認します。snapmirror show -destination-path dest_svm：-source-path src_svm：`
 +
 [listing]
 ----
@@ -42,7 +48,7 @@ vserver stop -vserver fg_vs_renamed
 [Job 245] Job is queued: Vserver Stop fg_vs_renamed.
 [Job 245] Done
 ----
-. SVM の SnapMirror 関係を再同期します。「 snapmirror resync -destination-path dest_SVM ： dest_flexgroup -source-path src_SVM ： src_flexgroup
+. SVMのSnapMirror関係を再同期します。snapmirror resync -destination-path dest_svm：-source-path src_svm：`
 +
 [listing]
 ----

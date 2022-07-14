@@ -16,47 +16,17 @@ summary: サイト A とメディエーターが停止し、サイト B が停�
 [role="lead"]
 SM-BC を使用している場合は、メディエーターまたはピアクラスタ間の接続が失われる可能性があります。問題 を診断するには、 SM-BC 関係のさまざまな部分の接続、可用性、合意状態を確認してから、接続を強制的に再開します。
 
-snapmirror mediator show コマンドを使用して ' サイト A からのメディエーターのステータスを確認します
-
-....
-C1_cluster::*> snapmirror mediator show
-Mediator Address Peer Cluster     Connection Status Quorum Status
----------------- ---------------- ----------------- -------------
-10.237.86.17     C2_cluster       unreachable       true
-
-C1_cluster::*> snapmirror list-destinations
-                                                  Progress
-Source             Destination         Transfer   Last         Relationship
-Path         Type  Path         Status Progress   Updated      Id
------------ ----- ------------ ------- --------- ------------ ---------------
-vs0:/cg/src_cg_1  XDP   vs1:/cg/dst_cg_1  OutOfSync  -         -            bba7d354-06f6-11eb-9138-005056acec19
-....
-cluster peer show コマンドを使用して ' サイト B の接続を確認します
-
-....
-C1_sti78-vsim-ucs188a_cluster::*> cluster peer show
-Peer Cluster Name         Cluster Serial Number Availability   Authentication
-------------------------- --------------------- -------------- --------------
-C2_cluster                1-80-000011           Unavailable    ok
-....
-コマンド 'volume show_volume_name_-fields SMBC-コンセンサス を使用して、 SM-BC ボリュームのコンセンサスステータスを確認します。
-
-....
-C1_cluster::*> volume show zrto_cg_894191_188b_RW1 -fields smbc-consensus
-vserver volume                  smbc-consensus
-------- ----------------------- ------------------
-vs0     zrto_cg_894191_188b_RW1 Awaiting-consensus
-....
-SM-BC 合意を無効にし、サイト A で I/O を強制的に再開するには、次の手順を実行します。
+[cols="3"]
+|===
+| 確認事項 | CLI コマンド | インジケータ 
 
 
-NOTE: この解決策 では 'diag' レベルのコマンドを使用していますが ' このコマンドを使用するにはネットアップサポートに問い合わせる必要があります
+| サイトAのメディエーター | 「 napmirror mediator show 」のように表示されます | 接続ステータスは「到達不能」になります 
 
-. サイト A の LUN のマッピングを解除します
-. サイト A の「 -force 」オプションと「 override-sc -sitコンセンサス 」オプションを使用して、「 snapmirror release 」コマンドを問題 します
-. LUN を再マッピングします。
-. まずメディエーターを起動し、サイト B のノードを起動します。
-. 「 snapmirror resync 」を使用して整合グループ関係を再同期します。
-. サイト B が稼働したら、整合グループ関係が稼働し、同期されていることを確認します。
-. ホストで LUN を再スキャンし、 LUN へのすべてのパスをリストアします。
 
+| サイトBへの接続 | cluster peer show | 可用性は「利用不可」になります 
+
+
+| SM-BCボリュームのコンセンサスステータス | volume show_volume_name_-fields SMBC-コンセンサス | 「sm-bcコンセンサス」フィールドには「Awaiting -コンセンサス」と表示されます 
+|===
+この問題 の診断と解決に関する追加情報 については、サポート技術情報アーティクルを参照してください link:https://kb.netapp.com/Advice_and_Troubleshooting/Data_Protection_and_Security/SnapMirror/Link_between_Site_A_and_Mediator_down_and_Site_B_down_when_using_SM-BC["SM-BCを使用している場合、サイトAとメディエーターが停止し、サイトBが停止した場合のリンク"^]。

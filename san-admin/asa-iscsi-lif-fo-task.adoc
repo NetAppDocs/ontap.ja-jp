@@ -1,8 +1,162 @@
 ---
 permalink: san-admin/asa-iscsi-lif-fo-task.html 
-redirect: ontap/san-admin/index.html 
+sidebar: sidebar 
+keywords: failover, iscsi, all san array, cli, system manager, auto-revert, revert network interface 
+summary: オールSANアレイ（ASA ）プラットフォームでONTAP 9.11.1以降、iSCSI LIFフェイルオーバー機能により、SFOパートナーフェイルオーバー（iSCSI LIFがホームノード/ポートからHAパートナーノード/ポートに移動して再び移動した場合）およびローカルフェイルオーバーでiSCSI LIFの自動移行と手動移行がサポートされます （iSCSI LIFが正常でないポートから現在のホームノードの正常なポートに移動し、再び戻った場合）。この機能により、iSCSIで実行されているSANワークロードのI/Oを迅速に再開できます。 
 ---
-= 
+= ASA プラットフォームのiSCSI LIFのフェイルオーバー
 :allow-uri-read: 
+:icons: font
+:imagesdir: ../media/
 
 
+[role="lead"]
+オールSANアレイ（ASA ）プラットフォームでONTAP 9.11.1以降、iSCSI LIFフェイルオーバー機能により、SFOパートナーフェイルオーバー（iSCSI LIFがホームノード/ポートからHAパートナーノード/ポートに移動して再び移動した場合）およびローカルフェイルオーバーでiSCSI LIFの自動移行と手動移行がサポートされます （iSCSI LIFが正常でないポートから現在のホームノードの正常なポートに移動し、再び戻った場合）。この機能により、iSCSIで実行されているSANワークロードのI/Oを迅速に再開できます。
+
+
+
+== iSCSI LIFフェイルオーバーの有効化について
+
+[role="Lead"]
+ここでは、iSCSI LIFのフェイルオーバーが自動的に有効になる状況と、新しく作成したiSCSI LIFや既存のiSCSI LIFにどのような影響があるかなど、LIFを手動で有効にする必要がある場合について説明します。
+
+* iSCSI LIFの自動移行はLIFのフェイルオーバーと自動リバートであり、計画的フェイルオーバーと計画外フェイルオーバー、物理イーサネットリンクの停止、レプリケートされたデータベース（RDB）クォーラムのノードの停止など、特定のイベントでトリガーされます。
++
+** ASA HAペアをONTAP 9.11.1にアップグレードすると、指定したStorage VMにiSCSI LIFが存在しない場合や、指定したStorage VMの既存のすべてのiSCSI LIFでiSCSI LIFフェイルオーバーがすでに有効になっている場合に、新しく作成したiSCSI LIFでこの機能が自動的に有効になります。
+** ONTAP 9.11.1にアップグレードする前に作成されたiSCSI LIFでiSCSI LIFフェイルオーバー機能を使用するには、ONTAP CLIを使用してLIFを有効にする必要があります。（フェールオーバー機能と自動リバート機能をイネーブルにすることは、フェールオーバーポリシーを「sfo-partner-only」に変更し、自動リバート値を「true」に指定することを意味します）。
++
+<<Manage iSCSI LIFs using the ONTAP CLI>>
+
++
+既存のiSCSI LIFでiSCSI LIFフェイルオーバーを有効にしないと、フェイルオーバーイベントが発生してもiSCSI LIFはフェイルオーバーしません。
+
++
+また、ONTAP 9.11.1以降へのアップグレード後に、iSCSI LIFフェイルオーバー機能が有効になっていないStorage VM内の既存のiSCSI LIFがある場合に、同じStorage VMに新しいiSCSI LIFを作成すると、 新しいiSCSI LIFは、Storage VM内の既存のiSCSI LIFと同じフェイルオーバーポリシー（「disabled」）を継承します。
+
+
+
+* iSCSI LIFの手動移行はLIFの移行とリバートであり、クラスタ管理者がONTAP CLIまたはSystem Managerを使用して開始します。
++
+<<Migrate and revert an iSCSI LIF>>
+
++
+iSCSI LIFは、次の状況で手動で移行およびリバートします。
+
++
+** 予定されたメンテナンスまたは交換が必要な場合。
+** iSCSI LIFがすでに存在する場合、HAペアをONTAP 9.11.1以降にアップグレードする前にiSCSI LIFが作成されており、LIFでiSCSI LIFフェイルオーバー機能が有効になっていません。
+
+
+
+
+
+
+== iSCSI LIFのフェイルオーバーの仕組み
+
+[role="Lead"]
+iSCSI LIFのフェイルオーバーが有効になっているLIF（自動または手動）には、次のような処理が適用されます。
+
+* 「data-iscsi」サービスポリシーを使用するLIFの場合、failover-policyは「sfo-partner-only」、「local-only」、および「disabled」に制限されます。
+* iSCSI LIFは、フェイルオーバーポリシーが「sfo-partner-only」に設定されている場合にのみHAパートナーにフェイルオーバーできます。
+* LIFの自動リバートは、自動リバートが「true」に設定されている場合や、LIFのホームポートが正常に機能していてLIFをホストできる場合に実行されます。
+* 計画的または計画外のノードのテイクオーバーでは、テイクオーバーされるノードのiSCSI LIFがHAパートナーにフェイルオーバーされます。LIFのフェイルオーバー先のポートは、VIF Managerで決定されます。
+* フェイルオーバーが完了すると、iSCSI LIFが正常に動作します。
+* ギブバックが開始されると、自動リバートが「true」に設定されている場合、iSCSI LIFはホームノードとポートに戻ります。
+* 1つ以上のiSCSI LIFをホストしているポートでイーサネットリンクが停止すると、VIF ManagerはLIFを停止したポートから同じブロードキャストドメイン内の別のポートに移行します。新しいポートは、同じノードまたはそのHAパートナーに配置できます。リンクがリストアされ、auto-revertが「true」に設定されている場合、VIF ManagerはiSCSI LIFをホームノードおよびホームポートに戻します。
+* ノードがレプリケートされたデータベース（RDB）クォーラムのメンバーでなくなると、VIF ManagerはiSCSI LIFをクォーラムのメンバーでないノードからHAパートナーに移行します。ノードが再びクォーラムメンバーに戻り、auto-revertを「true」に設定すると、iSCSI LIFがホームノードおよびホームポートに戻されます。
+
+
+
+
+== iSCSI LIFを移行してリバートする
+
+[role="Lead"]
+System ManagerまたはONTAP CLIを使用して、iSCSI LIFを同じノードの別のポートやHAパートナーの別のポートに手動で移行したあと、LIFをホームノードおよびホームポートにリバートすることができます。
+
+
+
+=== System Managerを使用してiSCSI LIFを移行してリバートします
+
+[role="Lead"]
+System Managerを使用して、1つ以上のiSCSI LIF（ネットワークインターフェイス）を手動で移行し、同じノードの別のポートやHAパートナーのポートにリバートすることができます。
+
+ASA プラットフォームHAペアが必要です。また、ONTAP 9.11.1以降が実行されている必要があります。
+
+
+
+==== LIF を移行
+
+.手順
+. System Managerで、* Network > Overview > Network Interfaces *の順にクリックします
+. 移行するLIFを選択し、をクリックします image:icon_kabob.gif["Kabob アイコン"]をクリックし、*マイグレート*をクリックします。
+. インターフェイスの移行*ダイアログボックスで、HAパートナーの移行先のノードとポートを選択します。
++
+
+NOTE: このチェックボックスをオンにすると、iSCSI LIFを完全に移行できます。iSCSI LIFを完全に移行する前にオフラインにする必要があることを理解します。また、iSCSI LIFが完全に移行されたあとは、元に戻すことはできません。リバートオプションはありません。
+
+. [* Migrate （移行） ] をクリックします
+
+
+
+
+==== LIFをリバートする
+
+.手順
+. System Managerで、* Network > Overview > Network Interfaces *の順にクリックします。
+. リバートするLIFを選択し、をクリックします image:icon_kabob.gif["Kabob アイコン"] [ネットワークインターフェイスを元に戻す*]をクリックします。
+. [ネットワークインターフェイスの復帰*]ダイアログボックスで、[復帰*]をクリックします。
+
+
+
+
+=== ONTAP CLIを使用してiSCSI LIFを移行してリバートします
+
+[role="Lead"]
+ONTAP CLIを使用すると、1つ以上のiSCSI LIFを手動で移行して、同じノードの別のポートやHAパートナーのポートにリバートできます。
+
+ASA プラットフォームHAペアが必要です。また、ONTAP 9.11.1以降が実行されている必要があります。
+
+|===
+
+
+| 状況 | 使用するコマンド 
+
+
+| iSCSI LIFを別のノード/ポートに移行する | を参照してください link:../networking/migrate_a_lif.html["LIF を移行"] をクリックします。 
+
+
+| iSCSI LIFをホームノード/ポートにリバートします | を参照してください link:../networking/revert_a_lif_to_its_home_port.html["LIF をホームポートにリバートする"] をクリックします。 
+|===
+
+
+== ONTAP CLIを使用してiSCSI LIFを管理します
+
+ONTAP CLIを使用して、iSCSI LIFを管理できます。これには、新しいiSCSI LIFの作成や、既存のLIFに対するiSCSI LIFフェイルオーバー機能の有効化などが含まれます。
+
+ASA プラットフォームHAペアが必要です。また、ONTAP 9.11.1以降が実行されている必要があります。
+
+を参照してください https://docs.netapp.com/us-en/ontap-cli-9111/index.html["ONTAP 9.11.1コマンドリファレンス"^] ネットワーク・インターフェイスのコマンドの完全なリストを表示します。
+
+|===
+
+
+| 状況 | 使用するコマンド 
+
+
+| iSCSI LIFを作成 | 「network interface create -vserver vserver_name -lif_iscsi_lif_service-policy default-data-blocks -data -protocol iscsi -home-node node_name _-home-port port_name _-address _ip_address _-netmask netmask_value_`」必要に応じて、を参照してください link:../networking/create_a_lif.html["LIF を作成"] を参照してください。 
+
+
+| LIFが正常に作成されたことを確認します | 'network interface show -vserver_vserver_name __-fields failover-policy failover-policy、failover-group、auto-revert、is-home 
+
+
+| iSCSI LIFでデフォルトの自動リバートを無視できるかどうかを確認します | 「network interface modify -vserver _vserver_name --lif_iscsi_lif__ auto-revert false」の略 
+
+
+| iSCSI LIFでストレージフェイルオーバーを実行します | 「storage failover takeover -ofnode _node_name -- option normal」という警告が表示されます。テイクオーバーが開始されます。パートナーノードがリブートすると、ギブバックが自動的に開始されます。続行しますか？{y/n}:'y'応答はHAパートナーからのテイクオーバー・メッセージを表示します 
+
+
+| 既存のLIFに対してiSCSI LIFフェイルオーバー機能を有効にします | クラスタをONTAP 9.11.1以降にアップグレードする前に作成されたiSCSI LIFについては、iSCSI LIFフェイルオーバー機能を有効にできます（フェイルオーバーポリシーを「sfo-partner-only」に変更し、自動リバート機能を「true」に変更します）。 「network interface modify -vserver vserver_name -lif_iscsi_lif_–failover-policy sfo-partner-only -auto-revert true」このコマンドは、「-lif *」を指定して、その他のすべてのパラメータを同じ状態にして、Storage VM内のすべてのiSCSI LIF上で実行できます。 
+
+
+| 既存のLIFに対してiSCSI LIFフェイルオーバー機能を無効にします | クラスタをONTAP 9.11.1以降にアップグレードする前に作成したiSCSI LIFについては、iSCSI LIFのフェイルオーバー機能と自動リバート機能を無効にすることができます。 「network interface modify -vserver vserver_name -lif_iscsi_lif_–failover-policy disabled -auto-revert false」このコマンドは、「-lif *」を指定して、その他のすべてのパラメータを同じにして、Storage VM内のすべてのiSCSI LIFに対して実行できます。 
+|===

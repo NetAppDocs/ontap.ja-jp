@@ -13,6 +13,8 @@ summary: ONTAP オブジェクトストアサーバは、 ONTAP NAS サーバお
 [role="lead"]
 ONTAP オブジェクトストアサーバは、 ONTAP NAS サーバおよび SAN サーバが提供するファイルストレージまたはブロックストレージではなく、データを S3 オブジェクトとして管理します。
 
+S3サーバ名を完全修飾ドメイン名（FQDN）として入力できるようにして、クライアントがS3アクセスに使用できるようにしておく必要があります。バケット名の先頭にFQDNを使用することはできません。
+
 自己署名 CA 証明書（前の手順で作成）または外部 CA ベンダーが署名した証明書が必要です。IP トラフィックがクラスタ LIF のみを経由するローカル階層化の場合、 CA 証明書は必要ありません。
 
 オブジェクトストアサーバを作成すると、 UID 0 の root ユーザが作成されます。この root ユーザに対してアクセスキーもシークレットキーも生成されません。ONTAP 管理者は 'object-store-server users regenering-keys' コマンドを実行して ' このユーザのアクセス・キーとシークレット・キーを設定する必要があります
@@ -24,10 +26,14 @@ ONTAP オブジェクトストアサーバは、 ONTAP NAS サーバおよび SA
 ====
 その他の設定および表示オプションについては 'vserver object-store-server のマニュアルページを参照してください
 
+[role="tabbed-block"]
 .手順
+====
+.CLI の使用
+--
 . S3 サーバを作成します。
 +
-「vserver object-store -server create -vserver _svm_name __ object-store -server_s3 _server_name _-certificate-name_ca_cert_name _-comment_text_[追加オプション]
+「vserver object-store -server create -vserver _svm_name __ object-store -server_s3 _server_fqdn _-certificate-name_ca_cert_name _-comment_text_[追加オプション]
 
 +
 S3 サーバの作成時またはあとからいつでも追加のオプションを指定できます。
@@ -67,3 +73,31 @@ cluster1::> vserver object-store-server show
              Certificate for HTTPS Connections: svm1_ca
                                        Comment: Server comment
 ----
+--
+.System Manager の略
+--
+既存のStorage VMにS3サーバを追加する場合は、この手順 を使用します。新しいStorage VMにS3サーバを追加する方法については、を参照してください link:create-svm-s3-task.html["S3用のストレージSVMを作成します"]。
+
+インターフェイスロールデータ用のIPアドレスを入力する準備をしておく必要があります。
+
+. 既存のStorage VMでS3を有効にします。
++
+.. Storage VMを選択します。* Storage > Storage VM*をクリックし、Storage VMを選択して* Settings *をクリックし、をクリックします image:icon_gear.gif["設定アイコン"] * S3 の下 * 。
+.. Enable S3 * をクリックし、 S3 Server Name を入力します。
+.. 証明書のタイプを選択します。
++
+システムで生成された証明書と独自の証明書のどちらを選択した場合も、クライアントアクセスには証明書が必要です。
+
+.. ネットワークインターフェイスを入力してください。
+
+
+. システムで生成された証明書を選択した場合は、新しい Storage VM の作成を確認すると証明書情報が表示されます。[ ダウンロード ] をクリックし、クライアントアクセス用に保存します。
++
+** シークレットキーは今後表示されません。
+** 証明書情報が再度必要な場合は、 [* ストレージ ] 、 [Storage VMs] の順にクリックし、 Storage VM を選択して、 [* 設定 ] をクリックします。
+
+
+
+
+--
+====

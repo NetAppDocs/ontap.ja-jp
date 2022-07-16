@@ -22573,7 +22573,7 @@
 <p class="page-details">
   
     
-    <time datetime="2022-05-27 00:02:27 +0000">05/27/2022</time>
+    <time datetime="2022-07-15 21:39:23 +0000">07/15/2022</time>
     
   
 
@@ -22582,6 +22582,9 @@
 
 <div class="paragraph lead">
 <p>ONTAP オブジェクトストアサーバは、 ONTAP NAS サーバおよび SAN サーバが提供するファイルストレージまたはブロックストレージではなく、データを S3 オブジェクトとして管理します。</p>
+</div>
+<div class="paragraph">
+<p>S3サーバ名を完全修飾ドメイン名（FQDN）として入力できるようにして、クライアントがS3アクセスに使用できるようにしておく必要があります。バケット名の先頭にFQDNを使用することはできません。</p>
 </div>
 <div class="paragraph">
 <p>自己署名 CA 証明書（前の手順で作成）または外部 CA ベンダーが署名した証明書が必要です。IP トラフィックがクラスタ LIF のみを経由するローカル階層化の場合、 CA 証明書は必要ありません。</p>
@@ -22606,13 +22609,18 @@
 <div class="paragraph">
 <p>その他の設定および表示オプションについては 'vserver object-store-server のマニュアルページを参照してください</p>
 </div>
+<div class="exampleblock tabbed-block">
+<div class="title">例 1. 手順</div>
+<div class="content">
+<div class="openblock">
+<div class="title">CLI の使用</div>
+<div class="content">
 <div class="olist arabic">
-<div class="title">手順</div>
 <ol class="arabic">
 <li>
 <p>S3 サーバを作成します。</p>
 <div class="paragraph">
-<p>「vserver object-store -server create -vserver <em>svm_name _</em> object-store -server_s3 <em>server_name _-certificate-name_ca_cert_name _-comment_text</em>[追加オプション]</p>
+<p>「vserver object-store -server create -vserver <em>svm_name _</em> object-store -server_s3 <em>server_fqdn _-certificate-name_ca_cert_name _-comment_text</em>[追加オプション]</p>
 </div>
 <div class="paragraph">
 <p>S3 サーバの作成時またはあとからいつでも追加のオプションを指定できます。</p>
@@ -22662,6 +22670,60 @@
                                  HTTPS Enabled: true
              Certificate for HTTPS Connections: svm1_ca
                                        Comment: Server comment</pre>
+</div>
+</div>
+</div>
+</div>
+<div class="openblock">
+<div class="title">System Manager の略</div>
+<div class="content">
+<div class="paragraph">
+<p>既存のStorage VMにS3サーバを追加する場合は、この手順 を使用します。新しいStorage VMにS3サーバを追加する方法については、を参照してください <a href="create-svm-s3-task.html">"S3用のストレージSVMを作成します"</a>。</p>
+</div>
+<div class="paragraph">
+<p>インターフェイスロールデータ用のIPアドレスを入力する準備をしておく必要があります。</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>既存のStorage VMでS3を有効にします。</p>
+<div class="olist loweralpha">
+<ol class="loweralpha" type="a">
+<li>
+<p>Storage VMを選択します。* Storage &gt; Storage VM*をクリックし、Storage VMを選択して* Settings *をクリックし、をクリックします <span class="image"><img src="../media/icon_gear.gif" alt="設定アイコン"></span> * S3 の下 * 。</p>
+</li>
+<li>
+<p>Enable S3 * をクリックし、 S3 Server Name を入力します。</p>
+</li>
+<li>
+<p>証明書のタイプを選択します。</p>
+<div class="paragraph">
+<p>システムで生成された証明書と独自の証明書のどちらを選択した場合も、クライアントアクセスには証明書が必要です。</p>
+</div>
+</li>
+<li>
+<p>ネットワークインターフェイスを入力してください。</p>
+</li>
+</ol>
+</div>
+</li>
+<li>
+<p>システムで生成された証明書を選択した場合は、新しい Storage VM の作成を確認すると証明書情報が表示されます。[ ダウンロード ] をクリックし、クライアントアクセス用に保存します。</p>
+<div class="ulist">
+<ul>
+<li>
+<p>シークレットキーは今後表示されません。</p>
+</li>
+<li>
+<p>証明書情報が再度必要な場合は、 [* ストレージ ] 、 [Storage VMs] の順にクリックし、 Storage VM を選択して、 [* 設定 ] をクリックします。</p>
+</li>
+</ul>
+</div>
+</li>
+</ol>
+</div>
+</div>
+</div>
 </div>
 </div>
 

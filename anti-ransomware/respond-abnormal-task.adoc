@@ -1,8 +1,8 @@
 ---
 sidebar: sidebar 
 permalink: anti-ransomware/respond-abnormal-task.html 
-keywords: Respond to abnormal activity, anti-ransomware abnormal activity, data entropy, unusual file extensions, potential ransomware attack, false positive, suspected ransomware attack, abnormal activity notification, security, ransomware alert message, detected abnormal volume, suspected file types, attack report, anti-ransomware attack 
-summary: 保護されたボリュームでアンチランサムウェアが異常なアクティビティを検出すると、警告が表示されます。通知を評価して、アクティビティが予想され、受け入れ可能かどうか、または攻撃が進行中かどうかを判断する必要があります。 
+keywords: Respond to abnormal activity, anti-ransomware abnormal activity, data entropy, unusual file extensions, potential ransomware attack, false positive, suspected ransomware attack, abnormal activity notification, security, ransomware alert message, detected abnormal volume, suspected file types, attack report, anti-ransomware attack, autonomous, ransomware, protection, arp 
+summary: Autonomous Ransomware Protection（ARP）は、保護されたボリュームで異常なアクティビティを検出すると、警告を発行します。通知を評価して、アクティビティが予想され、受け入れ可能かどうか、または攻撃が進行中かどうかを判断する必要があります。 
 ---
 = 異常な活動に対応する。
 :toc: macro
@@ -19,13 +19,13 @@ summary: 保護されたボリュームでアンチランサムウェアが異�
 
 
 [role="lead"]
-保護されたボリュームでアンチランサムウェアが異常なアクティビティを検出すると、警告が表示されます。通知を評価して、アクティビティが予想され、受け入れ可能かどうか、または攻撃が進行中かどうかを判断する必要があります。
+Autonomous Ransomware Protection（ARP）は、保護されたボリュームで異常なアクティビティを検出すると、警告を発行します。通知を評価して、アクティビティが予想され、受け入れ可能かどうか、または攻撃が進行中かどうかを判断する必要があります。
 
 .必要なもの
-* アンチランサムウェアはアクティブモードで実行されています。
+* ARPはアクティブモードで実行されています。
 
 
-アンチランサムウェアは、高データエントロピー、データ暗号化による異常なボリュームアクティビティ、および異常なファイル拡張子の組み合わせを検出すると、疑わしいファイルのリストを表示します。
+ARPは、高データエントロピー、データ暗号化による異常なボリュームアクティビティ、および異常なファイル拡張子の組み合わせを検出すると、疑わしいファイルのリストを表示します。
 
 警告が発行されると、次の 2 つの方法のいずれかでファイルアクティビティにマークを付けることによって応答できます。
 
@@ -39,15 +39,16 @@ summary: 保護されたボリュームでアンチランサムウェアが異�
 
 
 
-どちらの場合も、通知の更新とクリア後に通常の監視が再開されます。ランサムウェア対策によって評価が記録され、ログは新しいファイルタイプで更新され、今後の分析に使用されます。ただし、攻撃の疑いがある場合は、攻撃であるかどうかを判断し、攻撃がある場合はそれに対応し、通知をクリアする前に保護されたデータを復元する必要があります。詳細については、を参照してください link:index.html#how-to-recover-data-in-ontap-after-a-ransomware-attack["ランサムウェア攻撃から回復する方法"]。
+どちらの場合も、通知の更新とクリア後に通常の監視が再開されます。ARPは評価を記録し、ログは新しいファイルタイプで更新され、今後の分析に使用されます。ただし、攻撃の疑いがある場合は、攻撃であるかどうかを判断し、攻撃がある場合はそれに対応し、通知をクリアする前に保護されたデータを復元する必要があります。 link:index.html#how-to-recover-hdata-in-ontap-after-a-ransomware-attack["ランサムウェア攻撃から回復する方法の詳細をご覧ください"]。
 
 
 NOTE: ボリューム全体をリストアした場合にクリアされる通知はありません。
 
-
-
-== System Manager の手順の略
-
+[role="tabbed-block"]
+.手順
+====
+.System Manager の略
+--
 . 「異常な活動」通知を受信したら、リンクをクリックするか、「 * Volumes * 」概要の「 * Security * 」タブに移動します。
 +
 警告は、 [ イベント ] ウィンドウの [ 概要 ] ペインに表示されます。
@@ -69,12 +70,11 @@ NOTE: ボリューム全体をリストアした場合にクリアされる通�
 | 誤検出 | [*Update*] と [*Clear Suspect File Types] をクリックして、決定を記録し、通常のランサムウェア対策モニタリングを再開します。 
 
 
-| 潜在的なランサムウェア攻撃 | 攻撃に対応し、保護されたデータを復元します。次に、 [*Update*] および [Clear Suspect File Types] をクリックして、決定を記録し、通常のランサムウェア対策モニタリングを再開します。+ボリューム全体をリストアした場合、クリアされる疑わしいファイルタイプは存在しません。 
+| 潜在的なランサムウェア攻撃 | 攻撃に対応し、保護されたデータを復元します。次に、[*Update*]および[*Clear suspect File Types]をクリックして決定を記録し、通常のARPモニタリングを再開します。+ボリューム全体をリストアした場合、クリアされる疑わしいファイルタイプは存在しません。 
 |===
-
-
-== CLI 手順の略
-
+--
+.CLI の使用
+--
 . ランサムウェア攻撃の疑いがある場合は、攻撃の時間と重大度を確認します。
 +
 「 Security anti-Ransomware volume show -vserver _svm_name_-volume_name_` 」を実行します
@@ -127,7 +127,7 @@ event log show-message-name callhome.arw.activity.seen`
 
 ** ランサムウェア攻撃の可能性
 +
-攻撃に対応し、データを復元します。次に、次のコマンドを入力して決定を記録し、通常のランサムウェア対策モニタリングを再開します。
+攻撃に対応し、データを復元します。次に、次のコマンドを入力して決定を記録し、通常のARPモニタリングを再開します。
 
 +
 「アンチランサムウェアボリューム攻撃 clear -suspect -vserver _svm_name_-volume_name_[_extension identifiers_] -false-positive false 」のように設定します
@@ -141,3 +141,6 @@ event log show-message-name callhome.arw.activity.seen`
 
 
 
+
+--
+====

@@ -1,10 +1,10 @@
 ---
 sidebar: sidebar 
 permalink: anti-ransomware/index.html 
-keywords: anti-ransomware overview, ransomware, security, introduce, protection, detect, detection, threat, attack, suspect, what ontap anti-ransomware detects, entropy, abnormal volume activity, ransomware, antiransomware, extension conformity, recover data after a ransomware attack, ransomware protection strategy 
-summary: ONTAP 9.10.1 以降、アンチランサムウェア機能は NAS （ NFS および SMB ）環境でワークロード分析を使用して、ランサムウェア攻撃を示す可能性のある異常なアクティビティをプロアクティブに検出して警告します。 
+keywords: anti-ransomware overview, ransomware, security, introduce, autonomous, protection, arp, detect, detection, threat, attack, suspect, what ontap anti-ransomware detects, entropy, abnormal volume activity, ransomware, antiransomware, extension conformity, recover data after a ransomware attack, ransomware protection strategy 
+summary: ONTAP 9.10.1以降のAutonomous RansProtection（ARP）機能では、NAS（NFSおよびSMB）環境のワークロード分析を使用して、ランサムウェア攻撃を示す可能性のある異常なアクティビティをプロアクティブに検出して警告します。 
 ---
-= ランサムウェア対策の概要
+= 『Autonomous Ransomware Protection Overview』
 :toc: macro
 :hardbreaks:
 :toclevels: 1
@@ -19,11 +19,11 @@ summary: ONTAP 9.10.1 以降、アンチランサムウェア機能は NAS （ N
 
 
 [role="lead"]
-ONTAP 9.10.1 以降、アンチランサムウェア機能は NAS （ NFS および SMB ）環境でワークロード分析を使用して、ランサムウェア攻撃を示す可能性のある異常なアクティビティをプロアクティブに検出して警告します。
+ONTAP 9.10.1以降のAutonomous RansProtection（ARP）機能では、NAS（NFSおよびSMB）環境のワークロード分析を使用して、ランサムウェア攻撃を示す可能性のある異常なアクティビティをプロアクティブに検出して警告します。
 
-攻撃の疑いがある場合、スケジュールされたSnapshotコピーからの既存の保護に加えて、ランサムウェア対策によって新しいSnapshotコピーも作成されます。
+攻撃の疑いがある場合、ARPは、スケジュールされたSnapshotコピーからの既存の保護に加えて、新しいSnapshotコピーも作成します。
 
-ランサムウェア対策機能は、次のライセンスで有効になっています。
+ARP機能は、次のライセンスでイネーブルになっています。
 
 [cols="2*"]
 |===
@@ -43,11 +43,11 @@ ONTAP 9.10.1
 MT_EK_MGMT（マルチテナントキー管理）
 
 |===
-* ONTAP 9.11.1以降にアップグレードする場合、ランサムウェア対策による保護がすでにシステムで設定されていれば、新しいアンチランサムウェアライセンスを購入する必要はありません。新しいランサムウェア対策構成には、新しいライセンスが必要です。
-* ONTAP 9.11.1以降からONTAP 9.10.1にリバートする際に、ランサムウェア対策ライセンスでランサムウェア対策保護を有効にしていると、警告メッセージが表示され、ランサムウェア対策の再設定が必要になる場合があります。 link:../revert/anti-ransomware-license-task.html["ランサムウェア対策による保護のリバートの詳細をご確認ください"]。
+* ONTAP 9.11.1以降にアップグレードしていて、ARPがすでにシステムに設定されている場合は、新しいアンチランサムウェアライセンスを購入する必要はありません。新しいARP設定の場合、新しいライセンスが必要です。
+* ONTAP 9.11.1以降からONTAP 9.10.1にリバートする際に、ランサムウェア対策ライセンスでARPを有効にしていると、警告メッセージが表示され、ARPの再設定が必要になる場合があります。 link:../revert/anti-ransomware-license-task.html["ARPのリバートについて説明します"]。
 
 
-ONTAP システムマネージャまたは ONTAP コマンドラインインターフェイス（ CLI ）を使用すると、ランサムウェア対策による保護をボリューム単位で設定できます。
+ARPは、ONTAP システムマネージャまたはONTAP コマンドラインインターフェイス（CLI）を使用して、ボリューム単位で設定できます。
 
 
 
@@ -57,13 +57,13 @@ ONTAP システムマネージャまたは ONTAP コマンドラインインタ�
 
 例えは、車両の安全機能です。シートベルトなどの単一の機能を使用して、事故時に完全に保護することは望まれません。エアバッグ、アンチロックブレーキ、および前方衝突警告はすべて、より良い結果をもたらす追加の安全機能です。ランサムウェア攻撃からの保護は、同様の方法で確認する必要があります。
 
-ONTAP には、ランサムウェアからの保護を支援する FPolicy 、 Snapshot コピー、 SnapLock 、 Active IQ Digital Advisor などの機能が含まれていますが、次の情報は、機械学習機能を備えた ONTAP のランサムウェア対策オンボックス機能に焦点を当てています。
+ONTAP には、ランサムウェアからの保護を支援するFPolicy、Snapshotコピー、SnapLock 、Active IQ Digital Advisorなどの機能が含まれていますが、次の情報は、機械学習機能を備えたONTAP ARPオンボックス機能に焦点を当てています。
 
 ONTAP のランサムウェア対策機能の詳細については、以下を参照してください。 https://www.netapp.com/media/7334-tr4572.pdf["TR-4572 ：『 NetApp 解決策 for Ransomware 』"^]
 
 
 
-== ONTAP ランサムウェア対策が検出するもの
+== ONTAP ARPが検出するもの
 
 ランサムウェア攻撃には次の 2 種類があります。
 
@@ -71,7 +71,7 @@ ONTAP のランサムウェア対策機能の詳細については、以下を�
 . 機密専有データの盗難。攻撃者は、身代金が支払われない限り、このデータをパブリックドメインにリリースする可能性があります。
 
 
-ONTAP ランサムウェア攻撃からの保護は、ランサムウェア対策の検出メカニズムをベースにした第 1 のタイプに対応しています。
+ONTAP ARPは、ランサムウェア対策の検出メカニズムをベースにした、最初のタイプに対応しています。
 
 . 受信データを暗号化データまたはプレーンテキストとして識別する。
 . 検出する分析
@@ -84,7 +84,7 @@ ONTAP ランサムウェア攻撃からの保護は、ランサムウェア対�
 
 
 
-NOTE: ランサムウェア攻撃の安全性を完全に保証できるランサムウェア検出や防御システムはありません。攻撃が検出されない可能性はありますが、ネットアップのランサムウェア保護は、ウィルス対策ソフトウェアが侵入を検出できなかった場合の重要な追加防御レイヤとして機能します。ランサムウェア対策は、少数のファイルのみが暗号化された後、ランサムウェア攻撃の多くを検出し、自動的にデータを保護するためのアクションを実行し、攻撃の疑いがある場合はアラートを送信します。
+NOTE: ランサムウェア攻撃の安全性を完全に保証できるランサムウェア検出や防御システムはありません。攻撃が検出されない可能性はありますが、NetApp ARPは、ウィルス対策ソフトウェアが侵入を検出できなかった場合の重要な追加防御レイヤとして機能します。ARPは、少数のファイルのみが暗号化された後、ほとんどのランサムウェア攻撃の拡散を検出し、データを保護するためのアクションを自動的に実行し、攻撃の疑いがあることを警告します。
 
 
 
@@ -96,7 +96,7 @@ NOTE: ランサムウェア攻撃の安全性を完全に保証できるラン�
 
 影響を受けるファイルと攻撃時間に関する知識を持つことで、ボリューム全体をスナップショットの 1 つに戻すだけでなく、さまざまな Snapshot コピーから影響を受けるファイルを選択的にリカバリできます。
 
-アンチランサムウェアは、実績のある ONTAP データ保護とディザスタリカバリテクノロジを基盤として、ランサムウェア攻撃に対応しています。データのリカバリの詳細については、次のトピックを参照してください。
+ARPは、実績のあるONTAP データ保護とディザスタリカバリテクノロジを基盤として、ランサムウェア攻撃に対応しています。データのリカバリの詳細については、次のトピックを参照してください。
 
 * link:../task_dp_recover_snapshot.html["Snapshot コピーからのリカバリ（ System Manager ）"]
 * link:../data-protection/restore-contents-volume-snapshot-task.html["Snapshot コピーからのファイルのリストア（ CLI ）"]

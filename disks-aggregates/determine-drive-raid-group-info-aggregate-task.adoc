@@ -1,22 +1,22 @@
 ---
 permalink: disks-aggregates/determine-drive-raid-group-info-aggregate-task.html 
 sidebar: sidebar 
-keywords: determine, drive, raid group, information, aggregate 
-summary: 一部のアグリゲート管理作業を行うには、アグリゲートを構成するドライブのタイプ、サイズ、チェックサム、ステータス、ドライブを他のアグリゲートと共有するかどうか、および RAID グループのサイズと構成を確認しておく必要があります。 
+keywords: determine, drive, raid group, information, aggregate, local tier 
+summary: 一部のローカル階層（アグリゲート）管理タスクでは、ローカル階層を構成するドライブのタイプ、サイズ、チェックサム、ステータス、ドライブを他のアグリゲートと共有するかどうか、およびRAIDグループのサイズと構成を確認しておく必要があります。 
 ---
-= アグリゲートのドライブと RAID グループの情報を確認します
+= ローカル階層（アグリゲート）のドライブおよびRAIDグループの情報を確認する
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-一部のアグリゲート管理作業を行うには、アグリゲートを構成するドライブのタイプ、サイズ、チェックサム、ステータス、ドライブを他のアグリゲートと共有するかどうか、および RAID グループのサイズと構成を確認しておく必要があります。
+一部のローカル階層（アグリゲート）管理タスクでは、ローカル階層を構成するドライブのタイプ、サイズ、チェックサム、ステータス、ドライブを他のローカル階層と共有するかどうか、およびRAIDグループのサイズと構成を確認しておく必要があります。
 
 .ステップ
 . アグリゲートのドライブを RAID グループ別に表示します。
 +
-storage aggregate show-status -aggregate _name_`
+「 storage aggregate show-status _aggr_name _ 」を参照してください
 
 +
 アグリゲート内の各 RAID グループのドライブが表示されます。
@@ -26,30 +26,32 @@ storage aggregate show-status -aggregate _name_`
 
 
 
-.例： SSD ストレージプールとデータパーティションを使用する Flash Pool アグリゲート
-[listing]
-----
+....
 cluster1::> storage aggregate show-status nodeA_fp_1
 
 Owner Node: cluster1-a
  Aggregate: nodeA_fp_1 (online, mixed_raid_type, hybrid) (block checksums)
   Plex: /nodeA_fp_1/plex0 (online, normal, active, pool0)
    RAID Group /nodeA_fp_1/plex0/rg0 (normal, block checksums, raid_dp)
-                                                              Usable Physical
-     Position Disk                        Pool Type     RPM     Size     Size Status
-     -------- --------------------------- ---- ----- ------ -------- -------- -------
-     shared   2.0.1                        0   SAS    10000  472.9GB  547.1GB (normal)
-     shared   2.0.3                        0   SAS    10000  472.9GB  547.1GB (normal)
-     shared   2.0.5                        0   SAS    10000  472.9GB  547.1GB (normal)
-     shared   2.0.7                        0   SAS    10000  472.9GB  547.1GB (normal)
-     shared   2.0.9                        0   SAS    10000  472.9GB  547.1GB (normal)
-     shared   2.0.11                       0   SAS    10000  472.9GB  547.1GB (normal)
 
-   RAID Group /nodeA_flashpool_1/plex0/rg1 (normal, block checksums, raid4) (Storage Pool: SmallSP)
-                                                              Usable Physical
-     Position Disk                        Pool Type     RPM     Size     Size Status
-     -------- --------------------------- ---- ----- ------ -------- -------- -------
-     shared   2.0.13                       0   SSD        -  186.2GB  745.2GB (normal)
-     shared   2.0.12                       0   SSD        -  186.2GB  745.2GB (normal)
+                                             Usable Physical
+     Position Disk       Pool Type     RPM     Size     Size Status
+     -------- ---------- ---- ----- ------ -------- -------- -------
+     shared   2.0.1       0   SAS    10000  472.9GB  547.1GB (normal)
+     shared   2.0.3       0   SAS    10000  472.9GB  547.1GB (normal)
+     shared   2.0.5       0   SAS    10000  472.9GB  547.1GB (normal)
+     shared   2.0.7       0   SAS    10000  472.9GB  547.1GB (normal)
+     shared   2.0.9       0   SAS    10000  472.9GB  547.1GB (normal)
+     shared   2.0.11      0   SAS    10000  472.9GB  547.1GB (normal)
+
+   RAID Group /nodeA_flashpool_1/plex0/rg1
+   (normal, block checksums, raid4) (Storage Pool: SmallSP)
+
+                                             Usable Physical
+     Position Disk       Pool Type     RPM     Size     Size Status
+     -------- ---------- ---- ----- ------ -------- -------- -------
+     shared   2.0.13      0   SSD        -  186.2GB  745.2GB (normal)
+     shared   2.0.12      0   SSD        -  186.2GB  745.2GB (normal)
+
 8 entries were displayed.
-----
+....

@@ -23,8 +23,28 @@ S3 サーバとバケットを含む S3 対応の SVM がすでに存在して�
 
 ONTAP 9.9.1以降のリリースでは、ONTAP S3サーバでAWSクライアントオブジェクトのタグ付け機能をサポートする場合、バケットまたはグループポリシーを使用して「GetObjectTagging」、「PutObjectTagging」、「DeleteObjectTagging」の各アクションを許可する必要があります。
 
+実行する手順 は、System ManagerまたはCLIを使用するインターフェイスによって異なります。
+
 [role="tabbed-block"]
 ====
+.System Manager の略
+--
+.手順
+. バケットを編集します。 * Storage > Bucket* をクリックし、目的のバケットをクリックして * Edit * をクリックします。権限を追加または変更するときに、次のパラメータを指定できます。
++
+** * Principal *：アクセス権を付与するユーザまたはグループ。
+** *影響*：ユーザまたはグループへのアクセスを許可または拒否します。
+** * Actions *：特定のユーザまたはグループに対してバケットで許可されているアクション。
+** * Resources *：アクセスが許可または拒否されているバケット内のオブジェクトのパスと名前。
++
+デフォルトの * _bucketname_* および * _bketname / * _ * は、バケット内のすべてのオブジェクトへのアクセスを許可します。また、単一のオブジェクトへのアクセスを許可することもできます。たとえば、 *_bketname/_*_readme.txt * と指定します。
+
+** * Conditions *（オプション）：アクセス試行時に評価される式。たとえば、アクセスを許可または拒否する IP アドレスを指定できます。
+
+
+
+
+--
 .CLI の使用
 --
 .手順
@@ -90,23 +110,5 @@ cluster1::> vserver object-store-server bucket policy statement create -vserver 
 ----
 cluster1::> vserver object-store-server bucket policy statement create -vserver svm1.example.com -bucket bucket1 -effect allow -action GetObject,PutObject,DeleteObject,ListBucket -principal group/group1 -resource bucket1/* -sid "fullAccessForGroup1"
 ----
---
-.System Manager の略
---
-.手順
-. バケットを編集します。 * Storage > Bucket* をクリックし、目的のバケットをクリックして * Edit * をクリックします。権限を追加または変更するときに、次のパラメータを指定できます。
-+
-** プリンシパル：アクセスが許可されるユーザまたはグループ。
-** 影響：ユーザまたはグループへのアクセスを許可または拒否します。
-** アクション：特定のユーザまたはグループのバケットで許可されるアクション。
-** リソース：アクセスが許可または拒否されるバケット内のオブジェクトのパスと名前。
-+
-デフォルトの * _bucketname_* および * _bketname / * _ * は、バケット内のすべてのオブジェクトへのアクセスを許可します。また、単一のオブジェクトへのアクセスを許可することもできます。たとえば、 *_bketname/_*_readme.txt * と指定します。
-
-** 条件（オプション）：アクセス試行時に評価される式。たとえば、アクセスを許可または拒否する IP アドレスを指定できます。
-
-
-
-
 --
 ====

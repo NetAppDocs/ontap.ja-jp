@@ -1,0 +1,96 @@
+---
+permalink: san-admin/resize-lun-task.html 
+sidebar: sidebar 
+keywords: decrease, increase, resize, size, modify, change, lun 
+summary: LUNのサイズは増やすことも減らすこともできます。 
+---
+= LUNのサイズを変更します
+:allow-uri-read: 
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+LUNのサイズは増やすことも減らすこともできます。
+
+[NOTE]
+====
+Solaris LUN のサイズは変更できません。
+
+====
+
+
+== LUN のサイズを拡張する
+
+LUN の拡張後のサイズは、 ONTAP のバージョンによって異なります。
+
+[cols="2"]
+|===
+| ONTAP バージョン | LUN の最大サイズ 
+
+
+| ONTAP 9.8 以降  a| 
+* すべての SAN アレイ（ ASA ）で 128 TB
+* ASA 以外の場合は 16TB
+
+
+
+
+| ONTAP 9.5 、 9.6 、 9.7 | 16TB 
+
+
+| ONTAP 9.4 以前 | 元のLUNサイズの10倍ですが、最大LUNサイズである16TBを超えることはありません。たとえば、100GBで作成したLUNは1、000GBまでしか拡張できません。LUNの実際の最大サイズが正確に16TBであるとは限りません。ONTAP では、制限値の端数が切り捨てられます。 
+|===
+サイズを拡張するときに、 LUN をオフラインにする必要はありません。ただし、サイズを拡張したあとでホストがサイズの変更を認識するには、ホスト上の LUN を再スキャンする必要があります。
+
+LUN のサイズ変更の詳細については 'lun resize コマンドのコマンド・リファレンスのページを参照してください
+
+[role="tabbed-block"]
+.手順
+====
+.System Manager の略
+--
+ONTAP System Managerを使用してLUNのサイズを拡張する（9.7以降）。
+
+. System Manager で、 * Storage > LUNs * をクリックします。
+. をクリックします image:icon_kabob.gif["Kabob アイコン"] をクリックし、 * Edit * を選択します。
+. Storage and Optimization *では、LUNのサイズが拡張され、* Save *が表示されます。
+
+
+--
+.CLI の使用
+--
+ONTAP CLIを使用してLUNのサイズを拡張する。
+
+. LUN のサイズを拡張します。
++
+「 lun resize -vserver _vserver_name _ -volume_name_-lun_lun_name -size_lun_size_` 」を指定します
+
+. 拡張した LUN のサイズを確認します。
++
+「 lun show -vserver vserver_name _ 」のように表示されます
+
++
+[NOTE]
+====
+ONTAP の処理では、 LUN の実際の最大サイズが端数を切り捨てられるため、想定値よりも少し小さくなります。また、 LUN の実際のサイズは、 LUN の OS タイプによって多少異なります。サイズの正確な値を取得するには、 advanced モードで次のコマンドを実行します。
+
++`set-unit B`
+
++`lun show -fields max-resize -size-size -volume_name_-lun_lun_name_`
+
+====
+. ホスト上の LUN を再スキャンします。
+. ホストのマニュアルに従って、新しく作成した LUN のサイズをホストファイルシステムに認識させます。
+
+
+--
+====
+
+
+== LUN のサイズを縮小します
+
+[role="lead"]
+LUN のサイズを縮小する前に、ホストが LUN データを含むブロックを小さい LUN サイズの境界に移行する必要があります。LUN データを含むブロックを切り捨てずに LUN のサイズを適切に縮小するには、 SnapDrive for Windows などのツールを使用してください。LUN のサイズを手動で縮小することは推奨されません。
+
+LUN のサイズを縮小すると、サイズが縮小されたことが ONTAP からイニシエータに自動的に通知されます。ただし、ホストが新しい LUN サイズを認識するには、ホストで追加の手順が必要になる場合があります。ホストのファイル構造のサイズの縮小に固有の情報については、ホストのマニュアルを参照してください。

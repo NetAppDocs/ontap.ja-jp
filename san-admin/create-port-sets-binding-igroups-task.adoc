@@ -1,25 +1,49 @@
 ---
 permalink: san-admin/create-port-sets-binding-igroups-task.html 
 sidebar: sidebar 
-keywords: create, port, sets, binding, igroups, port sets 
-summary: Selective LUN Map （ SLM ；選択的 LUN マップ）に加えて、ポートセットを作成して igroup にバインドし、イニシエータが LUN へのアクセスに使用する LIF を詳細に制限することができます。ポートセットを igroup にバインドしない場合、 igroup 内のすべてのイニシエータが、 LUN を所有するノードおよび所有者ノードの HA パートナーのすべての LIF からマップ済みの LUN にアクセスできます。 
+keywords: create, port, sets, binding, igroups, portsets,portset 
+summary: Selective LUN Map（SLM；選択的LUNマップ）に加えて、ポートセットを作成してigroupにバインドし、イニシエータがLUNへのアクセスに使用するLIFを詳細に制限することができます。ポートセットをigroupにバインドしない場合、igroup内のすべてのイニシエータが、LUNを所有するノードおよび所有者ノードのHAパートナーのすべてのLIFからマップ済みのLUNにアクセスできます。 
 ---
-= ポートセットを作成し、 igroup をポートセットにバインドします
+= ポートセットを作成してigroupにバインドします
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-Selective LUN Map （ SLM ；選択的 LUN マップ）に加えて、ポートセットを作成して igroup にバインドし、イニシエータが LUN へのアクセスに使用する LIF を詳細に制限することができます。ポートセットを igroup にバインドしない場合、 igroup 内のすべてのイニシエータが、 LUN を所有するノードおよび所有者ノードの HA パートナーのすべての LIF からマップ済みの LUN にアクセスできます。
+の使用に加えて、を使用します link:selective-lun-map-concept.html["センタクテキ LUN マツフ SLM"]では、ポートセットを作成し、ポートセットをigroupにバインドして、イニシエータがLUNへのアクセスに使用するLIFをさらに制限できます。
+
+ポートセットをigroupにバインドしない場合、igroup内のすべてのイニシエータが、LUNを所有するノードおよび所有者ノードのHAパートナーのすべてのLIFからマップ済みのLUNにアクセスできます。
 
 少なくとも 1 つの LIF と 1 つの igroup が必要です。
 
 インターフェイスグループを使用しないかぎり、 iSCSI と FC の冗長性を確保するために推奨される LIF の数は 2 個です。インターフェイスグループを使用する場合に推奨される LIF の数は 1 個です。
 
-ノード上に LIF が 3 つ以上あり、特定のイニシエータを一部の LIF に制限する場合は、ポートセットと SLM を併用する方が効果的です。ポートセットを使用しない場合は、 LUN へのアクセス権を持つすべてのイニシエータが、 LUN を所有するノードおよび所有者ノードの HA パートナー経由でノード上のすべてのターゲットにアクセスできます。
+ノード上にLIFが3つ以上あり、特定のイニシエータを一部のLIFに制限する場合は、ポートセットとSLMを併用する方が効果的です。ポートセットを使用しない場合は、LUNへのアクセス権を持つすべてのイニシエータが、LUNを所有するノードおよび所有者ノードのHAパートナー経由でノード上のすべてのターゲットにアクセスできます。
 
+[role="tabbed-block"]
 .手順
+====
+.System Manager の略
+--
+ONTAP 9.10.1 以降の System Manager を使用して、ポートセットを作成し、 igroup にバインドできます。
+
+ONTAP 9.10.1より前のリリースでポートセットを作成してigroupにバインドする必要がある場合は、ONTAP CLI手順 を使用する必要があります。
+
+. System Manager で、 * Network > Overview > portsets * をクリックし、 * Add * をクリックします。
+. 新しいポートセットの情報を入力し、 * Add * をクリックします。
+. [*Hosts] ＞ [SAN Initiator Groups] をクリックします
+. ポートセットを新しい igroup にバインドするには、 * Add * をクリックします。
++
+ポートセットを既存の igroup にバインドするには、 igroup を選択し、をクリックします image:icon_kabob.gif["Kabob アイコン"]をクリックし、 * イニシエータグループの編集 * をクリックします。
+
+
+
+link:manage-san-initiators-task.html["イニシエータとigroupを表示および管理します"]
+
+--
+.CLI の使用
+--
 . 適切な LIF を含むポートセットを作成します。
 +
 `portset create -vserver_name_-portset_portset_name__ protocol_protocol_-port-name _port_name_`
@@ -43,3 +67,6 @@ Vserver   Portset   Protocol Port Names    Igroups
 vs3       portset0  iscsi    lif0,lif1     igroup1
 ----
 
+
+--
+====

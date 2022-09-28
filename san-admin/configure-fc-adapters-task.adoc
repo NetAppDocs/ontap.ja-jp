@@ -1,0 +1,86 @@
+---
+permalink: san-admin/configure-fc-adapters-task.html 
+sidebar: sidebar 
+keywords: configure, fc, adapters, target, initiator, mode 
+summary: オンボードの FC ポートは、それぞれイニシエータまたはターゲットとして個別に構成できます。一部の FC アダプタのポートについては、オンボードの FC ポートと同様に、それぞれターゲットポートまたはイニシエータポートとして個別に構成することもできます。 
+---
+= FCアダプタを設定
+:allow-uri-read: 
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+オンボードの FC ポートは、それぞれイニシエータまたはターゲットとして個別に構成できます。一部の FC アダプタのポートについては、オンボードの FC ポートと同様に、それぞれターゲットポートまたはイニシエータポートとして個別に構成することもできます。ターゲットモードに設定できるアダプタのリストは、で確認できます link:https://hwu.netapp.com["NetApp Hardware Universe の略"^]。
+
+ターゲットモードは、ポートを FC イニシエータに接続するために使用します。イニシエータモードは、テープドライブやテープライブラリへのポートの接続、または FlexArray 仮想化や Foreign LUN Import （ FLI ）を使用するサードパーティストレージへのポートの接続に使用されます。
+
+FC アダプタを構成する手順は、 FC プロトコルでも FC-NVMe プロトコルでも同じです。ただし、 FC-NVMe をサポートする FC アダプタは限られています。を参照してください link:https://hwu.netapp.com["NetApp Hardware Universe の略"^] FC-NVMe プロトコルをサポートするアダプタの一覧が表示されます。
+
+
+
+== FC アダプタをターゲットモードに設定します
+
+.手順
+. アダプタをオフラインにします。
++
+'node run -node node_name _storage disable adapter_adapter_adapter_adapter_adapter_name_`
+
++
+アダプタがオフラインにならない場合は、システムの該当するアダプタポートからケーブルを取り外すこともできます。
+
+. アダプタをイニシエータからターゲットに変更します。
++
+system hardware unified-connect modify -t target-node_name _adapter_adapter_adapter_adapter_name _ `
+
+. 変更したアダプタをホストしているノードをリブートします。
+. ターゲットポートの設定が正しいことを確認します。
++
+「 network fcp adapter show -node-node_name _ 」のように指定します
+
+. アダプタをオンラインにします。
++
+「 network fcp adapter modify -node node_name --adapter_adapter_adapter_adapter_port __ -state up 」の形式で指定します
+
+
+
+
+
+== FC アダプタをイニシエータモードに設定します
+
+.必要なもの
+* アダプタの LIF を、メンバーとして属するすべてのポートセットから削除する必要があります。
+* 物理ポートのパーソナリティをターゲットからイニシエータに変更する前に、変更する物理ポートを使用するすべての Storage Virtual Machine （ SVM ）のすべての LIF を、移行するか破棄する必要があります。
+
+
+[NOTE]
+====
+NVMe/FC ではイニシエータモードがサポートされます。
+
+====
+.手順
+. アダプタからすべての LIF を削除します。
++
+「 network interface delete -vserver _svm_name_-lif_lif_name 、 lif_name_` 」を指定します
+
+. アダプタをオフラインにします。
++
+「 network fcp adapter modify -node node_name --adapter_adapter_adapter_adapter_port --status -admin down
+
++
+アダプタがオフラインにならない場合は、システムの該当するアダプタポートからケーブルを取り外すこともできます。
+
+. アダプタをターゲットからイニシエータに変更します。
++
+「 system hardware unified-connect modify -t initiator_adapter_port _ 」
+
+. 変更したアダプタをホストしているノードをリブートします。
+. 構成に対して FC ポートが正しい状態で設定されていることを確認します。
++
+「 system hardware unified-connect show 」を参照してください
+
+. アダプタをオンラインに戻します。
++
+'node run -node node_name _storage enable adapter_adapter_adapter_adapter_port_`
+
+

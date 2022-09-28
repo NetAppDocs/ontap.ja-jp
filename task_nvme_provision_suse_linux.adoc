@@ -23,17 +23,18 @@ NVMe プロトコルを使用して SUSE Linux サーバにストレージを提
 
 この手順は、既存の Storage VM に新しいネームスペースを作成します。Storage VM が NVMe 用に設定され、 FC または TCP 転送がすでにセットアップされている必要があります。
 
-image:workflow_nvme_provision_suse_linux_update.png["SUSE Linux 用の NVMe をプロビジョニングするワークフロー図"]
+ONTAP 9.8 以降では、ストレージをプロビジョニングすると QoS がデフォルトで有効になります。QoS を無効にするか、プロビジョニングプロセス中またはあとからカスタムの QoS ポリシーを選択できます。
 
-
-NOTE: ONTAP 9.8 以降では、ストレージをプロビジョニングすると QoS がデフォルトで有効になります。QoS を無効にするか、プロビジョニングプロセス中またはあとからカスタムの QoS ポリシーを選択できます。
-
+[role="tabbed-block"]
 .手順
+====
+.System Manager の略
+--
+ONTAP System Manager（9.7以降）でNVMeプロトコルを使用してストレージを提供するネームスペースを作成します。
+
 . System Manager で、 * Storage > NVMe 名前空間 * をクリックし、 * Add * をクリックします。
 +
-新しいサブシステムを作成する必要がある場合は、 * その他のオプション * をクリックします。
-
-+
+.. 新しいサブシステムを作成する必要がある場合は、 * その他のオプション * をクリックします。
 .. ONTAP 9.8 以降を実行していて、 QoS を無効にする場合やカスタムの QoS ポリシーを選択する場合は、「その他のオプション」をクリックし、「 * ストレージおよび最適化 * 」で「 * パフォーマンスサービスレベル * 」を選択します。
 
 
@@ -44,3 +45,59 @@ NOTE: ONTAP 9.8 以降では、ストレージをプロビジョニングする�
 . ネームスペースを初期化し、ファイルシステムでフォーマットします。
 . Linux サーバがネームスペースに対してデータの書き込みと読み取りを実行できることを確認する。
 
+
+--
+.CLI の使用
+--
+ONTAP CLIでNVMeプロトコルを使用してストレージを提供するネームスペースを作成します。
+
+NVMe プロトコルを使用するシステムでは、 NVMe のネームスペースとサブシステムを 1 つ以上作成する必要があります。各ネームスペースを NVMe サブシステムにマッピングして、ホストシステムからのデータアクセスを許可することができます。
+
+SVM が NVMe 用にすでに設定されている必要があります。
+
+.手順
+. SVM が NVMe 用に設定されていることを確認します。
++
+「 vserver show -vserver _svm_name 」 - fields allowed-protocols 」を指定します
+
++
+「 nvme 」が「 allowed-protocols 」列に表示される必要があります。
+
+. NVMe ネームスペースを作成します。
++
+'vserver nvme namespace create -vserver_svm_name_-path_path_size_OF_namespace_-ostype _os_type_`
+
+. NVMe サブシステムを作成します。
++
+「 vserver nvme subsystem create -vserver _svm_name 」 -subsystem _name_OF_subsystem _ -ostype _os_type _ 」という名前のコマンドを入力します
+
+. サブシステムが作成されたことを確認します。
++
+「 vserver nvme subsystem show -vserver _svm_name 」というエラーが表示されます
+
++
+「 nvme 」サブシステムは「 'subsystem' 」列に表示されている必要があります。
+
+. ホストから NQN を取得します。
+. ホストの NQN をサブシステムに追加します。
++
+「 vserver nvme サブシステム host add -vserver _svm_name_subsystem _subsystem _name_-host-nqN_Host_NQN ： subsystem ._subsystem _name_`
+
+. ネームスペースをサブシステムにマッピングします。
++
+「 vserver nvme subsystem map add -vserver _svm_name 」 subsystem _subsystem _name _path_path_`
+
++
+ネームスペースは、 1 つのサブシステムにのみマッピングできます。
+
+. ネームスペースがサブシステムにマッピングされていることを確認します。
++
+「 vserver nvme namespace show -vserver _svm_name_-instance 」を参照してください
+
++
+サブシステムは「 Attached subsystem 」として表示されている必要があります。
+
+
+
+--
+====

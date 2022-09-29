@@ -1,21 +1,36 @@
 ---
-permalink: san-admin/index.html 
 sidebar: sidebar 
-keywords: decide, san, administration, host, provisioning, iscsi, fc, nvme 
-summary: ここでは、 SAN ホストプロビジョニングの基本について説明します。 
+permalink: san-admin/index.html 
+keywords: netapp, ontap, SAN, provision, provisioning, overview, iSCSI protocol, FC protocol, FCP, storage, LUN, initiator group, igroup, FC host WWp, host node name, FC switch, host-side adapter, world-wide port name, Ethernet network adapter, NIC, TCP offload engine, TOE card, software initiator, converged network adapter, CNA, HBA, host bust adapter, iSCSI qualified name, IQN 
+summary: System Manager を使用して SAN 環境にストレージを提供するには、 iSCSI プロトコルと FC プロトコルを使用します。 
 ---
-= CLI による SAN の管理の概要
+= SANの管理の概要
+:toc: macro
+:hardbreaks:
+:toclevels: 1
 :allow-uri-read: 
+:toc: 
+:toclevels: 1
+:nofooter: 
 :icons: font
-:imagesdir: ../media/
+:linkattrs: 
+:imagesdir: ./media/
+:toc-position: content
 
 
 [role="lead"]
-SAN ホストの基本的なプロビジョニングを実行するには、次の手順に従います。iSCSI および FC プロトコルを使用して LUN 、 igroup 、ターゲットを設定および管理したり、 NVMe/FC プロトコルを使用してネームスペースとサブシステムを設定および管理したりできます。
+このセクションの内容では、ONTAP 9.7以降のリリースのONTAP コマンドラインインターフェイス（CLI）およびSystem Managerを使用してSAN環境を構成および管理する方法を説明します。
 
-これらの手順は、次のような状況で使用する必要があります。
+従来の System Manager （ ONTAP 9.7 以前でのみ使用可能）を使用している場合は、次のトピックを参照してください。
 
-* ONTAP SAN ホストのプロビジョニング機能の範囲について理解する。
-* SAN の基本的な設定ではなく、あまり一般的でない設定およびメンテナンス作業を行う。
-* System Manager や自動スクリプトツールではなく、コマンドラインインターフェイス（ CLI ）を使用する必要がある。
+* https://docs.netapp.com/us-en/ontap-sm-classic/online-help-96-97/concept_iscsi_protocol.html["iSCSI プロトコル"^]
+* https://docs.netapp.com/us-en/ontap-sm-classic/online-help-96-97/concept_fc_fcoe_protocol.html["FC/FCoE プロトコル"^]
 
+
+iSCSI プロトコルと FC プロトコルを使用して、 SAN 環境にストレージを提供できます。
+
+image:conceptual_overview_san.gif["概念の概要図"]
+
+iSCSI および FC では、ストレージターゲットは LUN （論理ユニット）と呼ばれ、標準のブロックデバイスとしてホストに提示されます。LUN を作成して、イニシエータグループ（ igroup ）にマッピングします。イニシエータグループは、 FC ホスト WWPS と iSCSI ホストノード名の表であり、どのイニシエータがどの LUN にアクセスできるかを制御します。
+
+FC ターゲットは FC スイッチおよびホスト側アダプタを介してネットワークに接続され、 World Wide Port Name （ WWPN ；ワールドワイドポート名）で識別されます。iSCSI ターゲットは、標準のイーサネットネットワークアダプタ（ NIC ）、ソフトウェアイニシエータを搭載した TOE カード、 CNA 、または専用の HBA を使用してネットワークに接続され、 iSCSI Qualified Name （ IQN ）で識別されます。

@@ -19,31 +19,45 @@ summary: ファイルシステム分析は、 FlexGroup または FlexVol ボリ
 
 
 [role="lead"]
-ONTAP 9.8 以降で利用可能となるファイルシステム分析（ FSA ）は、 ONTAP FlexGroup または FlexVol ボリュームの内容に関する重要なデータポイントを収集して視覚化するためのフレームワークです。FSA は ' データの保存 ' ストレージの消費 ' ストレージの最適化 ' データ保護に関する組織のデータに関する課題を解決しますデータ使用状況をリアルタイムで把握できるため、スループットの変化やボリュームの別のコントローラやアグリゲートへの移動など、効果的なデータ管理や運用に関する意思決定が容易になります。
+ONTAP 9.8で初めてFSA（ファイルシステム分析）が導入され、ONTAP FlexGroup またはFlexVol ボリューム内のファイル使用状況やストレージ容量の傾向をリアルタイムで可視化できるようになりました。この標準搭載の機能により、外部ツールが不要になり、ストレージの利用状況や、ビジネスニーズに合わせてストレージを最適化できるかどうかに関する重要な分析情報を得ることができます。
 
-FSA は ' ボリュームのファイル・システム階層の各レベルで詳細情報を提供し ' 次のことを可能にします
+FSAを使用すると'NASのボリュームのファイル・システム階層のすべてのレベルを表示できますたとえば、Storage VM（SVM）、ボリューム、ディレクトリ、ファイルの各レベルで使用状況と容量を分析できます。FSAを使用して回答 に関する次のような質問をすることができます
 
-* link:task_nas_file_system_analytics_view.html["容量の使用状況と傾向を評価"]
-* link:task_nas_file_system_analytics_view.html["ファイルとディレクトリの数を監視します"]
-* link:./file-system-analytics/activity-tracking-task.html["ファイルのアクティビティと履歴を評価する"]
-* link:task_nas_file_system_analytics_view.html["アクセス頻度の低いデータに関する情報を収集"]
-* link:task_nas_file_system_analytics_take_corrective_action.html["インサイトに基づいて修正措置を講じる（ ONTAP 9..1 以降）"]
-* link:./file-system-analytics/activity-tracking-task.html["高トラフィックおよび高スループットアクティビティに関する情報の分析およびダウンロード（ ONTAP 9.10.1 以降）"]
+* ストレージがいっぱいになっているのは何ですか？また、別のストレージに移動できる大きなファイルはありますか？
+* 最もアクティブなボリューム、ディレクトリ、およびファイルはどれですか？ストレージのパフォーマンスはユーザのニーズに合わせて最適化されていますか？
+* 先月に追加されたデータの量
+* 最もアクティブなストレージユーザと最もアクティブでないストレージユーザのどちらを探していますか？
+* プライマリストレージには、どのくらいの非アクティブデータまたは休止データがありますか？そのデータを低コストのコールド階層に移動できますか。
+* 計画したサービス品質の変更は、重要で頻繁にアクセスされるファイルへのアクセスに悪影響を及ぼしますか？
 
 
-File System Analytics では、データのリストとグラフィックビューが提供されます。グラフィックビューでは、可変サイズのブロックとカラーシェーディングによってディレクトリがグラフィカルに表示されます。以下のリストビューでは、各ディレクトリが使用するスペースの量、変更履歴、アクセス履歴を数値形式で表示したり、各ディレクトリの対話型グラフで確認できます。
+ファイルシステム分析は、ONTAP システムマネージャに統合されています。System Managerには次の機能があります。
 
-image::fsa-listview.png[FSA リストビューの画面キャプチャ4 つのディレクトリがデータ使用率の降順に表示されます。各ディレクトリのアニメーションが表示され、 2 つの折れ線グラフにそれぞれのアクセス権と変更履歴が表示されます。]
+* リアルタイムで可視化できるため、効果的なデータ管理と運用が可能です
+* リアルタイムのデータ収集と集約
+* サブディレクトリとファイルのサイズと数、および関連付けられているパフォーマンスプロファイル
+* 変更履歴およびアクセス履歴のファイル経過時間ヒストグラム
 
-ファイルシステム分析のデータは、 ONTAP システムマネージャを使用して表示されます。ONTAP REST API を使用して、プログラムからデータにアクセスすることもできます。
 
-* リリース別の機能 *
+image:flexgroup1.png["FlexGroup 分析"]
+
+
+
+== サポートされているボリュームタイプ
+
+ファイルシステム分析は、 FlexCache キャッシュと SnapMirror デスティネーションボリュームを除き、アクティブな NAS データがあるボリュームで可視化を実現するように設計されています。
+
+
+
+== ファイルシステム分析機能の可用性
+
+ONTAP の各リリースでは、ファイルシステム分析の分析範囲が拡張されています。
 
 [cols="3,1,1,1,1"]
 |===
 
 
-|  | ONTAP 9.8 | ONTAP 9.9.1 | ONTAP 9.10.1 | ONTAP 9.11.1 
+|  | ONTAP 9.11.1 | ONTAP 9.10.1 | ONTAP 9.9.1 | ONTAP 9.8 
 
 
 | System Manager での表示 | X | X | X | X 
@@ -52,28 +66,25 @@ image::fsa-listview.png[FSA リストビューの画面キャプチャ4 つの�
 | 容量分析 | X | X | X | X 
 
 
-| Inactive Data の情報 | X | X | X | X 
+| アクセス頻度の低いデータの情報 | X | X | X | X 
 
 
-| 7-Mode システムから移行したボリュームの可用性 |  | X | X | X 
+| Data ONTAP 7-Modeから移行されたボリュームのサポート | X | X | X |  
 
 
-| System Manager で非アクティブ期間を変更するオプション |  | X | X | X 
+| System Managerで非アクティブ期間をカスタマイズできます | X | X | X |  
 
 
-| アクティビティ追跡（ボリュームレベル） |  |  | X | X 
+| ボリュームレベルのアクティビティトラッキング | X | X |  |  
 
 
-| CSVにダウンロード（アクティビティトラッキング、ボリュームレベル） |  |  | X | X 
+| アクティビティトラッキングデータをCSVにダウンロードします | X | X |  |  
 
 
-| アクティビティの追跡（SVMレベル） |  |  |  | X 
+| SVMレベルのアクティビティ追跡 | X |  |  |  
 
 
-| CSVにダウンロード（アクティビティトラッキング、SVMレベル） |  |  |  | X 
-
-
-| タイムライン |  |  |  | X 
+| タイムライン | X |  |  |  
 |===
 
 
@@ -82,5 +93,5 @@ image::fsa-listview.png[FSA リストビューの画面キャプチャ4 つの�
 video::0oRHfZIYurk[youtube,width=848,height=480]
 .詳細はこちら
 * link:https://www.netapp.com/media/20707-tr-4867.pdf["TR-4687 ：『 Best Practices guidelines for ONTAP File System Analytics 』"^]
-* link:https://kb.netapp.com/Advice_and_Troubleshooting/Data_Storage_Software/ONTAP_OS/High_or_fluctuating_latency_after_turning_on_NetApp_ONTAP_File_System_Analytics["ナレッジベース：NetApp ONTAP ファイルシステム分析をオンにしたあとにレイテンシが大きく変動する、または変動する"^]。
+* link:https://kb.netapp.com/Advice_and_Troubleshooting/Data_Storage_Software/ONTAP_OS/High_or_fluctuating_latency_after_turning_on_NetApp_ONTAP_File_System_Analytics["ナレッジベース：NetApp ONTAP ファイルシステム分析をオンにしたあとにレイテンシが大きく変動する、または変動する"^]
 

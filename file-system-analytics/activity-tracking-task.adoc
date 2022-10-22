@@ -27,24 +27,21 @@ ONTAP 9.10.1以降のファイルシステム分析には、ホットオブジ�
 
 System Managerでボリュームレベルでアクティビティ追跡を表示している場合は、展開されたボリュームのメニューだけがアクティブに更新されます。ボリュームのビューが縮小されている場合、ボリュームの表示が展開されるまで表示は更新されません。更新を停止するには、 * 更新を一時停止 * ボタンを使用します。アクティビティデータは CSV 形式でダウンロードでき、選択したボリュームについて収集されたすべてのポイントインタイムデータが表示されます。
 
-タイムライン機能を使用できるONTAP 9.11.1以降では、ボリュームまたはSVM上のホットスポットアクティビティの記録を保持し、約5秒ごとに継続的に更新し、過去5分間のデータを保持できます。タイムラインデータは、ページの表示領域にあるフィールドに対してのみ保持されます。追跡カテゴリを折りたたむかスクロールしてタイムラインが表示されないようにすると、タイムラインはデータの収集を停止します。デフォルトでは、タイムラインは無効になっており、[アクティビティ]タブから移動すると自動的に無効になります
+タイムライン機能を使用できるONTAP 9.11.1以降では、ボリュームまたはSVM上のホットスポットアクティビティの記録を保持し、約5秒ごとに継続的に更新し、過去5分間のデータを保持できます。タイムラインデータは、ページの表示領域にあるフィールドに対してのみ保持されます。追跡カテゴリを折りたたむかスクロールしてタイムラインが表示されないようにすると、タイムラインはデータの収集を停止します。デフォルトでは、タイムラインは無効になっており、[アクティビティ]タブから移動すると自動的に無効になります。
 
 
 
-== ボリュームのアクティビティ追跡を有効にします
+== 1つのボリュームのアクティビティトラッキングを有効にします
 
-ONTAP REST API または System Manager で RBAC を使用する場合は、アクティビティ追跡へのアクセスを管理するためのカスタムロールを作成する必要があります。を参照してください xref:considerations-concept.html#RBAC[ファイルシステム分析に関する考慮事項] をクリックしてください。
+アクティビティ追跡は、ONTAP システムマネージャまたはONTAP CLIを使用して有効にできます。
 
-
-
-== の手順
-
-アクティビティ追跡は、 ONTAP システムマネージャ、 ONTAP CLI 、または ONTAP REST API を使用して有効にできます。
+ONTAP REST API または System Manager で RBAC を使用する場合は、アクティビティ追跡へのアクセスを管理するためのカスタムロールを作成する必要があります。を参照してください  access control (RBAC) and Activity Tracking をクリックしてください。
 
 [role="tabbed-block"]
 ====
 .System Manager の略
 --
+.手順
 . Storage > Volumes （ストレージ）を選択します。目的のボリュームを選択します。個々のボリュームメニューから、ファイルシステムを選択し、アクティビティタブを選択します。
 . 上位のディレクトリ、ファイル、クライアント、およびユーザに関する個々のレポートを表示するには、 * Activity Tracking * をオンにします。
 . 更新を行わずにデータをより詳細に分析するには、 * 更新を一時停止 * を選択します。データをダウンロードして、レポートの CSV レコードを取得することもできます。
@@ -53,8 +50,15 @@ ONTAP REST API または System Manager で RBAC を使用する場合は、ア�
 --
 .CLI の使用
 --
-. アクティビティトラッキングを有効にする :+`volume activity - tracking on -vsverver_svm_name_-volume_name_`
-. ボリュームのアクティビティ追跡状態がオンになっているかオフになっているかを確認するには、次のコマンドを使用します。 +`volume activity -tracking show -vsverver_svm_name_-volume_name_-state `
+.手順
+. アクティビティトラッキングを有効にする：
++
+'volume activity tracking on -vsverver_svm_name_-volume_name_`
+
+. ボリュームのアクティビティ追跡状態がオンであるかオフであるかは、コマンドを使用して確認できます。
++
+volume activity -tracking show -vsverver_svm_name -- volume_volume_name --state`
+
 . 有効にしたら、 ONTAP システムマネージャまたは ONTAP REST API を使用してアクティビティ追跡データを表示します。
 
 
@@ -64,23 +68,72 @@ ONTAP REST API または System Manager で RBAC を使用する場合は、ア�
 
 == 複数のボリュームのアクティビティ追跡を有効にします
 
-System ManagerまたはONTAP REST APIを使用して、複数のボリュームのアクティビティ追跡を一度に有効にすることができます。
+System Managerを使用して、複数のボリュームのアクティビティ追跡を一度に有効にすることができます。
+
+ONTAP REST API または System Manager で RBAC を使用する場合は、アクティビティ追跡へのアクセスを管理するためのカスタムロールを作成する必要があります。を参照してください  access control (RBAC) and Activity Tracking をクリックしてください。
 
 [role="tabbed-block"]
 ====
 .特定のボリューム用のコマンドです
 --
+.手順
 . Storage > Volumes （ストレージ）を選択します。目的のボリュームを選択します。個々のボリュームメニューから、ファイルシステムを選択し、アクティビティタブを選択します。
-. アクティビティトラッキングを有効にするボリュームを選択します。ボリューム・リストの上部で、[**その他のオプション**]ボタンを選択します。[**アクティビティ追跡を有効にする**]を選択します。
-. SVMレベルでアクティビティの追跡を表示するには、**Storage> Volumes]から、表示するSVMを選択します。[ファイルシステム]タブに移動して[アクティビティ]を選択すると、アクティビティ追跡が有効になっているボリュームのデータが表示されます。
+. アクティビティトラッキングを有効にするボリュームを選択します。ボリュームリストの上部で、*その他のオプション*ボタンを選択します。［*アクティビティトラッキングを有効にする*］を選択します。
+. SVMレベルでアクティビティの追跡を表示するには、表示するSVMを* Storage > Volumes *から選択します。[ファイルシステム]タブに移動して[アクティビティ]を選択すると、アクティビティ追跡が有効になっているボリュームのデータが表示されます。
 
 
 --
 .SVM内のすべてのボリューム
 --
-. [**ストレージ]>[ボリューム]を選択します。メニューからSVMを選択します。
-. **File System**タブに移動し、**More **タブを選択して、SVM内のすべてのボリュームでアクティビティの追跡を有効にします。
+.手順
+. Storage > Volumes （ストレージ）を選択します。メニューからSVMを選択します。
+. 「* File System *」タブに移動し、「* More *」タブを選択して、SVM内のすべてのボリュームでアクティビティの追跡を有効にします。
 
 
 --
 ====
+
+
+== ロールベースアクセス制御（RBAC）とアクティビティトラッキング
+
+を使用する場合 xref:../concepts/administrator-authentication-rbac-concept.html[ロールベースアクセス制御] （RBAC）System ManagerまたはONTAP REST APIで、ファイルシステム分析のアクティビティ追跡に中程度のアクセスを許可する専用のロールを作成する必要があります。
+
+.手順
+. すべての機能にアクセスできるようにデフォルトのロールを作成します。
++
+この作業は ' ロールがアクティビティの追跡のみに限定されるようにするために ' 制限的なロールを作成する前に実行する必要があります
+
++
+「 security login role create -cmddirname default-access all-role storageadmin 」を実行します
+
+. 制限付きロールを作成します。
++
+「 security login role create -cmddirname 」 volume file show -disk -usage 」 -access none -role storageadmin
+
+. ロールに SVM の Web サービスへのアクセスを許可します。
++
+** REST API コール用の 'rest'
+** パスワード保護のための「セキュリティ」
+** System Manager へのアクセス用の sysmgr
++
+「vserver services web access create -vserver_SVM-name __-name rest-role storageadmin
+
++
+「vserver services web access create -vserver_SVM-name security-role storageadmin」という名前になります
+
++
+vserver services web access create -vserver_SVM-name sysmgr -role storageadminです
+
+
+
+. ユーザを作成します。
++
+ユーザに適用するアプリケーションごとに個別の create コマンドを問題 に設定する必要があります。同じユーザで create を複数回呼び出すと、すべてのアプリケーションがそのユーザに適用されるだけで、毎回新しいユーザが作成されることはありません。アプリケーション・タイプの 'http' パラメータは、 ONTAP REST API および System Manager に適用されます。
+
++
+「 security login create -user-or -group-name storageUser-authentication-method password -application http-role storageadmin 」を参照してください
+
+. 新しいユーザクレデンシャルを使用して、System Managerにログインするか、ONTAP REST APIを使用してファイルシステム分析データにアクセスできるようになりました。
+
+
+link:https://docs.netapp.com/us-en/ontap-automation/rest/rbac_overview.html["RBACロールとONTAP REST APIの詳細については、こちらをご覧ください"^]

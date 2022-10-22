@@ -1,7 +1,7 @@
 ---
 sidebar: sidebar 
 permalink: file-system-analytics/considerations-concept.html 
-keywords: file system analytics, performance, 7-mode 
+keywords: file system analytics, performance, SVM 
 summary: ファイルシステム分析は、アクティブな NAS データを含むボリュームを可視化するように設計されています。使用には制限事項と制限事項があります。 
 ---
 = ファイルシステム分析に関する考慮事項
@@ -15,54 +15,14 @@ summary: ファイルシステム分析は、アクティブな NAS データを
 
 
 
-== サポートされているボリュームタイプ
-
-ファイルシステム分析は、 FlexCache キャッシュと SnapMirror デスティネーションボリュームを除き、アクティブな NAS データがあるボリュームで可視化を実現するように設計されています。
-
-
-
-== パフォーマンスに関する考慮事項
-
-ファイルシステム分析を有効にすると、メタデータの初回収集時にパフォーマンスが低下する可能性があります。使用率が最大のシステムでは分析を有効にしないでください。
-
-ONTAP System Manager には次のような機能が xref:../concept_cluster_performance_overview.adoc[パフォーマンス監視ツール] クラスタの健常性と指標を管理するために使用します。
-
-レイテンシが著しく増加している場合は、ナレッジベースの記事を参照してください link:https://kb.netapp.com/Advice_and_Troubleshooting/Data_Storage_Software/ONTAP_OS/High_or_fluctuating_latency_after_turning_on_NetApp_ONTAP_File_System_Analytics["NetApp ONTAP ファイルシステム分析を有効にしたあとにレイテンシが増減する"^]。
-
-* SVM の保護関係 *
+== SVMで保護されている関係
 
 保護関係にある SVM を含むボリュームでファイルシステム分析を有効にしている場合、分析データはデスティネーション SVM にレプリケートされません。リカバリ処理でソース SVM を再同期する必要がある場合は、リカバリ後に目的のボリュームの分析を手動で再度有効にする必要があります。
 
 
 
-== ロールベースアクセス制御（RBAC）
+== パフォーマンスに関する考慮事項
 
-を使用する場合 xref:../concepts/administrator-authentication-rbac-concept.html[ロールベースアクセス制御] （RBAC）System ManagerまたはONTAP REST APIで、ファイルシステム分析のアクティビティ追跡に中程度のアクセスを許可する専用のロールを作成する必要があります。
+場合によっては、File System Analyticsを有効にすると、メタデータの初回収集時のパフォーマンスに悪影響を及ぼすことがあります。この状況は、通常、使用率が最大のシステムで発生します。このようなシステムでは、分析を有効にしないように、ONTAP System Managerのパフォーマンス監視ツールを使用できます。
 
-.アクティビティトラッキングへのアクセスを制御します
-. すべての機能にアクセスできるようにデフォルトのロールを作成します。この作業は ' ロールがアクティビティの追跡のみに限定されるようにするために ' 制限的なロールを作成する前に実行する必要があります
-+
-「 security login role create -cmddirname default-access all-role storageadmin 」を実行します
-
-. 制限付きロールを作成します。
-+
-「 security login role create -cmddirname 」 volume file show -disk -usage 」 -access none -role storageadmin
-
-. ロールに SVM の Web サービスへのアクセスを許可します。
-+
-** REST API コール用の 'rest'
-** パスワード保護のための「セキュリティ」
-** System Manager へのアクセス用の sysmgr
-+
-====
-vserver services web access create -vserver _SVM-name rest -role storageadmin vserver services web access create -vserver _SVM-name user_name security -role storageadmin vserver services web access create -vserver vserver_name -name sysmgr -role storageadmin vserver services web access create -vserver vserver_name -name sysmgr -role storageadmin
-
-====
-
-
-. ユーザを作成します。ユーザに適用するアプリケーションごとに個別の create コマンドを問題 に設定する必要があります。同じユーザで create を複数回呼び出すと、すべてのアプリケーションがそのユーザに適用されるだけで、毎回新しいユーザが作成されることはありません。アプリケーション・タイプの 'http' パラメータは、 ONTAP REST API および System Manager に適用されます。
-+
-「 security login create -user-or -group-name storageUser-authentication-method password -application http-role storageadmin 」を参照してください
-
-. 新しいユーザクレデンシャルを使用して、System Managerにログインするか、ONTAP REST APIを使用してファイルシステム分析データにアクセスできるようになりました。
-
+レイテンシが著しく増加している場合は、ナレッジベースの記事を参照してください link:https://kb.netapp.com/Advice_and_Troubleshooting/Data_Storage_Software/ONTAP_OS/High_or_fluctuating_latency_after_turning_on_NetApp_ONTAP_File_System_Analytics["NetApp ONTAP ファイルシステム分析を有効にしたあとにレイテンシが増減する"^]。

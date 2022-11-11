@@ -37,25 +37,6 @@ ONTAP 9.10.1 以降の System Manager では、 * Protection > Relationships * �
 
 
 
-== リモートの SM-BC ポリシーを設定します
-
-.手順
-. SM-BC を使用するための前提条件を満たしていることを確認します。を参照してください link:../smbc/smbc_plan_prerequisites.html["SM-BC の前提条件"]
-
-
-
-NOTE: NAS アクセス用にマウントされたボリュームでは、 SM-BC 関係を確立できません。
-
-. コンシステンシ・グループ・メニューから ' 作成したコンシステンシ・グループを選択します
-. 概要ページの右上で、 [ * その他 * ] 、 [ * 保護 * ] の順に選択します。
-. ソース側の情報は、ページの左側に自動的に入力されます。
-. デスティネーションに適したクラスタと Storage VM を選択します。保護ポリシーを選択します。「関係の初期化」がオンになっていることを確認します。
-. [ 保存（ Save ） ] をクリックします。
-. 整合グループの初期化と同期が必要になります。これが完了すると、 *SnapMirror (Remote) * のステータスはの横に「 Protected 」と表示されます image:../media/icon_shield.png["Alt = 緑の盾アイコン"]。
-
-
-
-
 == 2段階のCG Snapshot作成
 
 ONTAP 9.11.1以降では、整合グループが2つのフェーズのコミットを整合グループ（CG）のSnapshot作成でサポートします。この機能は、ONTAP REST APIでのみ使用できます。二段階的なCG Snapshot作成はSnapshot作成にのみ使用でき、整合グループのプロビジョニングや整合グループのリストアには使用できません。
@@ -75,10 +56,10 @@ ONTAP REST APIの詳細については、を参照してください link:https:
 ----
 curl -k -X POST 'https://<IP_address>/application/consistency-groups/<cg-uuid>/snapshots?action=start&action_timeout=7' -H "accept: application/hal+json" -H "content-type: application/json" -d '
 {
-  "name": "name_of_this_snapshot",
+  "name": "<snapshot_name>",
   "consistency_type": "crash",
   "comment": "<comment>",
-  "snapmirror_label": "<snap_mirror label>"
+  "snapmirror_label": "<SnapMirror_label>"
 }'
 ----
 . POST要求が成功した場合は、Snapshot UUIDが出力に含まれます。その情報を使用して、Snapshotをコミットするようにパッチ要求を送信します。
@@ -89,7 +70,30 @@ curl -k -X PATCH 'https://<IP_address>/application/consistency-groups/<cg_uuid>/
 ----
 
 
+
+
+== リモートの SM-BC ポリシーを設定します
+
+.手順
+. SM-BC を使用するための前提条件を満たしていることを確認します。を参照してください link:../smbc/smbc_plan_prerequisites.html["SM-BC の前提条件"]
+
+
+
+NOTE: NAS アクセス用にマウントされたボリュームでは、 SM-BC 関係を確立できません。
+
+. コンシステンシ・グループ・メニューから ' 作成したコンシステンシ・グループを選択します
+. 概要ページの右上で、 [ * その他 * ] 、 [ * 保護 * ] の順に選択します。
+. ソース側の情報は、ページの左側に自動的に入力されます。
+. デスティネーションに適したクラスタと Storage VM を選択します。保護ポリシーを選択します。「関係の初期化」がオンになっていることを確認します。
+. [ 保存（ Save ） ] をクリックします。
+. 整合グループの初期化と同期が必要になります。これが完了すると、 *SnapMirror (Remote) * のステータスはの横に「 Protected 」と表示されます image:../media/icon_shield.png["Alt = 緑の盾アイコン"]。
+
+
+SM-BCの詳細については、を参照してください link:../smbc/index.html["SM-BCの概要"]。
+
+link:clone-task.html["整合グループをクローニングする"]
 link:../task_dp_configure_snapshot.html["Snapshot コピーを設定します"]
 link:../task_dp_create_custom_data_protection_policies.html["カスタムのデータ保護ポリシーを作成する"]
 link:../task_dp_recover_snapshot.html["Snapshot コピーからリカバリします"]
 link:../task_dp_restore_from_vault.html["以前の Snapshot コピーからボリュームをリストアします"]
+link:../smbc/index.html["SM-BCの概要"]

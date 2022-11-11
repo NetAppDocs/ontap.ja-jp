@@ -1,7 +1,7 @@
 ---
 permalink: nfs-rdma/configure-nics-task.html 
 sidebar: sidebar 
-keywords: networking, NICs, NFS over RDMA, NVIDIA, NFS 
+keywords: networking, NICs, NFS over RDMA, NVIDIA, NFS, system manager, ports, ethernet ports 
 summary: この資料では、 ONTAP で RDMA 上の NFS を利用するための、クライアントシステムとストレージプラットフォームの構成プロセスと NIC の要件について説明します。 
 ---
 = NFS over RDMA 用に NIC を設定します
@@ -31,25 +31,42 @@ ONTAP 9.10.1 以降では、「 network port show -dma-protocols RoCE 」コマ�
 
 この設定を確認したら、 NFS をマウントできます。
 
-.手順
+[role="tabbed-block"]
+====
+.System Manager の略
+--
+System Managerを使用してRDMA経由のNFSでネットワークインターフェイスを設定するには、ONTAP 9.12.1以降を使用している必要があります。.手順.RDMAがサポートされるかどうかを確認します。[Network]>[Ethernet Ports]に移動し、グループビューで適切なノードを選択します。ノードを拡張する際には、所定のポートについて* rdma protocols *フィールドを確認します。値* RoCE *はRDMAがサポートされていることを示し、ダッシュ（*-*）はサポートされていないことを示します。。VLANを追加するには、*+VLAN*を選択します。適切なノードを選択します。RDMAをサポートしているポートは、「* Port *」ドロップダウンメニューに「* RoCE Enabled *」というテキストが表示されます。RDMAをサポートしていないポートについては、テキストは表示されません。。のワークフローに従ってください xref:../task_nas_enable_linux_nfs.html[NFS を使用して Linux サーバ用の NAS ストレージを有効にします] 新しいNFSサーバを設定します。
+
++ネットワークインターフェイスを追加する場合は、「* RoCEポートを使用*」を選択できます。RDMA経由のNFSを使用するすべてのネットワークインターフェイスで、このオプションを選択します。
+
+--
+.CLI の使用
+--
 . 次のコマンドを使用して、 NFS サーバで RDMA アクセスが有効になっているかどうかを確認します。
 +
-「 vserver nfs show -vserver _vserver_name _ 」のように表示されます
+`vserver nfs show-vserver _SVM_name_`
 
 +
 デフォルトでは '-rdma を有効にする必要がありますサポートされていない場合は、 NFS サーバで RDMA アクセスを有効にします。
 
 +
-「 vserver nfs modify -vserver vserver_name _dmardma enabled 」という形式です
+`vserver nfs modify -vserver _SVM_name_ -rdma enabled`
 
 . クライアントを RDMA 経由で NFSv4.0 にマウントします。
 +
-.. proto パラメータの入力は、サーバの IP プロトコルのバージョンによって異なります。v4 の場合は 'proto=rdma' を使用しますV6 の場合は 'proto=rdma6` を使用します
-.. NFS ターゲットポートは、標準ポート 2049 ではなく、「 PORT = 20049 」で指定します。
+.. proto パラメータの入力は、サーバの IP プロトコルのバージョンによって異なります。IPv4の場合は、を使用します `proto=rdma`。IPv6の場合は、を使用します `proto=rdma6`。
+.. NFSターゲットポートをと指定します `port=20049` 標準ポート2049ではなく、次の手順を実行します。
 +
 `m ount-o vers=4,minorversion=0 、 proto=rdma, port=20049_Server_IP_address_://_volume_path_mount_point_`
 
 
 
 . * オプション *: クライアントをアンマウントする必要がある場合は 'unmount _mount_path_' コマンドを実行してください
+
+
+--
+====
+.詳細情報
+* xref:../nfs-config/create-server-task.html[NFS サーバを作成します]
+* xref:../task_nas_enable_linux_nfs.html[NFS を使用して Linux サーバ用の NAS ストレージを有効にします]
 

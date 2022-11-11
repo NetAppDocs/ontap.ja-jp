@@ -1,0 +1,257 @@
+---
+permalink: flexgroup/manage-flexgroup-rebalance-task.html 
+sidebar: sidebar 
+keywords: enable, storage, rebalance, modify, stop, status, flexgroup, volume 
+summary: ONTAP 9.12.1以降では、FlexGroup 内のコンスティチュエント間でファイルを無停止で移動することにより、FlexGroup ボリュームをリバランシングできます。 
+---
+= FlexGroup ボリュームのリバランシング
+:allow-uri-read: 
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+ONTAP 9.12.1以降では、FlexGroup 内のコンスティチュエント間でファイルを無停止で移動することにより、FlexGroup ボリュームをリバランシングできます。
+
+FlexGroup のリバランシングは、新しいファイルの追加やファイルの拡張によって不均衡が時間の経過とともに生じた場合に容量を再配分するのに役立ちます。リバランシング処理を手動で開始すると、ONTAP はファイルを選択し、システムを停止せずに自動的に移動します。
+
+自動リバランシングは、クラスタ内のすべてのノードでONTAP 9.12.1以降のリリースが実行されている場合にのみ使用できます。リバランシング処理を実行するFlexGroup ボリュームでは、マルチパートinodeの詳細データ機能を有効にする必要があります。この機能を有効にすると、FlexGroup を削除して以前のバージョンをリストアしないかぎり、以前のバージョンのONTAP にリバートできません。
+
+
+
+== FlexGroup のリバランシングに関する考慮事項
+
+FlexGroup のリバランシングの仕組みと他のONTAP 機能との連携について理解しておく必要があります。
+
+* FlexVol からFlexGroup への変換
++
+FlexVol からFlexGroup への変換後は、FlexGroup の自動リバランシングを使用しないことを推奨します。代わりに、ONTAP 9.10.1以降で使用可能なシステム停止を伴う逆アクティブファイル移動機能を使用するには、を入力します `volume rebalance file-move` コマンドを実行しますコマンド構文については、を参照してください `volume rebalance file-move start` のマニュアルページ。
+
+* ファイルの最小サイズと最大サイズ
++
+LIFの自動リバランシングで選択されるファイルは、保存されたブロックに基づいています。リバランシングに考慮される最小ファイルサイズはデフォルトで100MBで（次に示すmin-file-sizeパラメータを使用して4KBの値として設定可能）、最大ファイルサイズは100GBです。
+
+* Snapshotコピー内のファイル
++
+FlexGroup のリバランシングを設定して、Snapshotコピーに現在存在しないファイルのみを移動することができます。リバランシングが開始されると、リバランシング処理中にいつでもSnapshotコピー処理がスケジュールされているかどうかが通知されます。
+
++
+ファイルの移動中で、デスティネーションでフレーミングが実行されている場合、Snapshotコピーは制限されます。ファイルのリバランシングが実行中の場合、Snapshotコピーのリストア処理は実行できません。
+
+* SnapMirror 処理
++
+FlexGroup のリバランシングは、スケジュールされたSnapMirror処理の間に行う必要があります。SnapMirror処理の開始前にファイルを再配置している場合、そのファイルの移動が24分間のSnapMirror再試行期間内に完了しないと、SnapMirror処理が失敗することがあります。SnapMirror転送の開始後に開始される新しいファイルの再配置は失敗しません。
+
+* ファイルベースの圧縮のストレージ効率化
++
+ファイルベースの圧縮によるストレージ効率化では、ファイルはデスティネーションに移動する前に解凍されるため、圧縮による削減が失われます。リバランシング後に手動で開始したバックグラウンドスキャナをFlexGroup で実行した場合、圧縮による削減効果が再び得られます。ただし、いずれかのボリューム上のSnapshotコピーに関連付けられたファイルは、圧縮の対象として無視されます。
+
+* 重複排除
++
+重複排除されたファイルを移動すると、原因 でFlexGroup ボリュームの全体的な使用量が増加する可能性がファイルのリバランシング時には、一意のブロックのみがデスティネーションに移動され、ソースの容量が解放されます。共有ブロックはソースに保持され、デスティネーションにコピーされます。このため、ほぼフルのソースコンスティチュエントで使用済み容量を減らすことは目標ですが、新しいデスティネーションに共有ブロックがコピーされるため、FlexGroup ボリューム全体の使用量が増加することもあります。また、Snapshotコピーの一部であるファイルを移動する場合にも使用できます。Snapshotコピースケジュールがリサイクルされるまでスペース削減は完全には認識されず、Snapshotコピー内のファイルのコピーも削除されます。
+
+* FlexClone ボリューム
++
+FlexCloneボリュームの作成時にファイルのリバランシングが実行中の場合、FlexCloneボリュームではリバランシングは実行されません。FlexCloneボリュームでのリバランシングは、FlexCloneボリュームの作成後に実行する必要があります。
+
+* ファイル移動
++
+FlexGroup のリバランシング処理中にファイルが移動されると、ソースとデスティネーションの両方のコンスティチュエントについて、クォータアカウンティングの一部としてファイルサイズが報告されます。移動が完了すると、クォータアカウンティングは通常に戻り、ファイルサイズは新しいデスティネーションでのみ報告されます。
+
+
+
+
+
+== FlexGroup のリバランシングを有効にする
+
+ONTAP 9.12.1以降では、無停止FlexGroup ボリュームの自動リバランシングを有効にして、FlexGroup コンスティチュエント間でファイルを再配分できます。
+
+を有効にしておく必要があります `granular-data` FlexGroup のリバランシングを有効にする前にFlexGroup ボリュームのオプションを選択します。有効にするには、次のいずれかの方法を使用します。
+
+* を使用してFlexGroup ボリュームを作成する場合 `volume create` コマンドを実行します
+* を使用して、既存のFlexGroup ボリュームを変更して設定を有効にします `volume modify` コマンドを実行します
+* を使用してFlexGroup のリバランシングを開始した場合に自動的に設定されます `volume rebalance` コマンドを実行します
+
+
+FlexGroup のリバランシングは、ONTAP のSystem ManagerまたはONTAP のCLIを使用して管理できます。
+
+[role="tabbed-block"]
+====
+.System Manager の略
+--
+.手順
+. [ストレージ]>[ボリューム]に移動し、再バランスするFlexGroup ボリュームを探します。
+. をクリックします image:icon_dropdown_arrow.gif["詳細アイコンを表示します"] をクリックしてボリュームの詳細を確認してください。
+. 「*バランス調整*」をクリックします。
+
+
+--
+.CLI の使用
+--
+.手順
+. 自動リバランシングを開始します。 `volume rebalance start -vserver _SVM_name_ -volume _volume_name_`
++
+必要に応じて、次のオプションを指定できます。[-max-runtime]<time interval>] Maximum Runtime [-max-threshold <percent>] Maximum inバランスThreshold per constituent[-min-threshold <percent>] Minimum不均衡しきい値[-max-file-Moves <integer>] Maximum Concurrent File Moves per constituent構成 要素[-min-file-size {<KB|EXCLUDE MB][min-min-min-min-file|file
+
++
+例
+
++
+[listing]
+----
+volume rebalance start -vserver vs0 -volume fg1
+----
+. 必要に応じて、* Rebalance Volume *ウィンドウでデフォルト設定を変更します。
+. *保存*をクリックして、デフォルト設定を受け入れます。
+
+
+--
+====
+
+
+== FlexGroup のリバランシング設定を変更します
+
+FlexGroup のリバランシング設定を変更して、不均衡しきい値、同時ファイルの移動数の最小ファイルサイズ、最大実行時間、およびSnapshotコピーを追加または除外することができます。
+
+[role="tabbed-block"]
+====
+.System Manager の略
+--
+.手順
+. [ストレージ]>[ボリューム]に移動し、再バランスするFlexGroup ボリュームを探します。
+. をクリックします image:icon_dropdown_arrow.gif["詳細アイコンを表示します"] をクリックしてボリュームの詳細を確認してください。
+. 「*バランス調整*」をクリックします。
+. 「* Rebalance Volume *」（ボリュームの再バランス）ウィンドウで、必要に応じてデフォルト設定を変更します。
+. [ 保存（ Save ） ] をクリックします。
+
+
+--
+.CLI の使用
+--
+.ステップ
+. 自動リバランシングを変更します。 `volume rebalance modify -vserver _SVM_name_ -volume _volume_name_`
++
+次のオプションを1つ以上指定できます。[-max-runtime]<time interval>] Maximum Runtime [-max-threshold <percent>] Maximum Runtime Threshold per constituent[-min-threshold <percent>] Minimum不均衡Threshold per constituent[-max-file-Moves <integer>] Maximum Concurrent File Moves per constituent[-min-file-size {bmin]| kb-exclude file }
+
+
+
+--
+====
+
+
+== FlexGroup のリバランシングを停止します
+
+FlexGroup のリバランシングを有効にしたあとは、いつでも停止できます。
+
+[role="tabbed-block"]
+====
+.System Manager の略
+--
+.手順
+. [ストレージ]>[ボリューム]の順に選択し、FlexGroup ボリュームを探します。
+. をクリックします image:icon_dropdown_arrow.gif["詳細アイコンを表示します"] をクリックしてボリュームの詳細を確認してください。
+. 「*バランスの再調整を停止*」をクリックします。
+
+
+--
+.CLI の使用
+--
+.ステップ
+. FlexGroup のリバランシングを停止します。 `volume rebalance stop -vserver _SVM_name_ -volume _volume_name_`
+
+
+--
+====
+
+
+== FlexGroup のリバランシングステータスを確認します
+
+FlexGroup のリバランシング処理、FlexGroup のリバランシング設定、リバランシング処理の時間、およびリバランシングインスタンスの詳細に関するステータスを表示できます。
+
+[role="tabbed-block"]
+====
+.System Manager の略
+--
+.手順
+. [ストレージ]>[ボリューム]の順に選択し、FlexGroup ボリュームを探します。
+. をクリックします image:icon_dropdown_arrow.gif["詳細アイコンを表示します"] をクリックしてFlexGroup の詳細を確認してください。
+. * FlexGroup Balance Status *は、詳細ペインの下部に表示されます。
+. 最後の再バランス操作に関する情報を表示するには、*最後のボリューム再バランスステータス*をクリックします。
+
+
+--
+.CLI の使用
+--
+.ステップ
+. FlexGroup のリバランシング処理のステータスを表示します。 `volume rebalance show`
++
+再バランス状態の例：
+
++
+[listing]
+----
+> volume rebalance show
+Vserver: vs0
+                                                        Target     Imbalance
+Volume       State                  Total      Used     Used       Size     %
+------------ ------------------ --------- --------- --------- --------- -----
+fg1          idle                     4GB   115.3MB         -       8KB    0%
+----
++
+設定のリバランシングの例：
+
++
+[listing]
+----
+> volume rebalance show -config
+Vserver: vs0
+                    Max            Threshold         Max          Min          Exclude
+Volume              Runtime        Min     Max       File Moves   File Size    Snapshot
+---------------     ------------   -----   -----     ----------   ---------    ---------
+fg1                 6h0m0s         5%      20%          25          4KB          true
+----
++
+リバランシング時間の詳細の例：
+
++
+[listing]
+----
+> volume rebalance show -time
+Vserver: vs0
+Volume               Start Time                    Runtime        Max Runtime
+----------------     -------------------------     -----------    -----------
+fg1                  Wed Jul 20 16:06:11 2022      0h1m16s        6h0m0s
+----
++
+インスタンスの再バランスの詳細の例：
+
++
+[listing]
+----
+    > volume rebalance show -instance
+    Vserver Name: vs0
+    Volume Name: fg1
+    Is Constituent: false
+    Rebalance State: idle
+    Rebalance Notice Messages: -
+    Total Size: 4GB
+    AFS Used Size: 115.3MB
+    Constituent Target Used Size: -
+    Imbalance Size: 8KB
+    Imbalance Percentage: 0%
+    Moved Data Size: -
+    Maximum Constituent Imbalance Percentage: 1%
+    Rebalance Start Time: Wed Jul 20 16:06:11 2022
+    Rebalance Stop Time: -
+    Rebalance Runtime: 0h1m32s
+    Rebalance Maximum Runtime: 6h0m0s
+    Maximum Imbalance Threshold per Constituent: 20%
+    Minimum Imbalance Threshold per Constituent: 5%
+    Maximum Concurrent File Moves per Constituent: 25
+    Minimum File Size: 4KB
+    Exclude Files Stuck in Snapshot Copies: true
+----
+
+
+--
+====

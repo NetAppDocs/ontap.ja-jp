@@ -1,0 +1,108 @@
+---
+permalink: s3-multiprotocol/enable-access-nas-data-task.html 
+sidebar: sidebar 
+keywords: s3, svm, nfs, smb, dns, authentication, protocol, configuration, nas, certificate, authority, installation, lifs 
+summary: S3プロトコルアクセスを有効にするには、NAS対応のSVMがS3対応サーバと同じ要件を満たしていることを確認する（オブジェクトストアサーバの追加、ネットワークと認証の要件の確認を含む）ことが必要です。 
+---
+= NASデータへのS3プロトコルアクセスを有効にします
+:allow-uri-read: 
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+S3プロトコルアクセスを有効にするには、NAS対応のSVMがS3対応サーバと同じ要件を満たしていることを確認する（オブジェクトストアサーバの追加、ネットワークと認証の要件の確認を含む）ことが必要です。
+
+ONTAP を新規にインストールする場合は、クライアントにNASデータを提供するようにSVMを設定したあとに、SVMへのS3プロトコルアクセスを有効にすることを推奨します。NASプロトコルの設定については、以下を参照してください。
+
+* link:../nfs-config/index.html["NFS の設定"]
+* link:../smb-config/index.html["SMB の設定"]
+
+
+S3プロトコルを有効にする前に、次の項目を設定する必要があります。
+
+* S3プロトコルおよび目的のNASプロトコル（NFS、SMB、またはその両方）のライセンスが設定されている。
+* SVMが目的のNASプロトコル用に設定されている。
+* NFSサーバとSMBサーバが存在します。
+* DNSおよびその他の必要なサービスが設定されていること。
+* NASデータをクライアントシステムにエクスポートまたは共有しています。
+
+
+S3 クライアントから S3 対応 SVM への HTTPS トラフィックを有効にするには、認証局（ CA ）証明書が必要です。次の3つのソースのCA証明書を使用できます。
+
+* 新しいONTAP 自己署名証明書をSVMに作成します。
+* 既存のONTAP 自己署名証明書がSVMに存在している。
+* サードパーティの証明書。
+
+
+NASデータの提供に使用するS3 / NASバケットにも同じデータLIFを使用できます。特定のIPアドレスが必要な場合は、を参照してください link:../s3-config/create-data-lifs-task.html["データ LIF を作成します。"]。S3データトラフィックをLIFで有効にするには、S3サービスデータポリシーが必要です。SVMの既存のサービスポリシーを変更して、S3を含めることができます。
+
+S3オブジェクトサーバを作成するときは、クライアントがS3アクセスに使用する完全修飾ドメイン名（FQDN）としてS3サーバ名を入力できるように準備しておく必要があります。S3サーバのFQDNの先頭をバケット名にすることはできません。
+
+[role="tabbed-block"]
+====
+.System Manager の略
+--
+. NASプロトコルが設定されているStorage VMでS3を有効にします。
++
+.. Storage > Storage VM*の順にクリックし、NAS対応のStorage VMを選択して、Settings（設定）をクリックし、をクリックします image:icon_gear.gif["アイコンギア（Icon Gear）"] S3 の下。
+.. 証明書のタイプを選択します。システムで生成された証明書と独自の証明書のどちらを選択した場合も、クライアントアクセスには証明書が必要です。
+.. ネットワークインターフェイスを入力してください。
+
+
+. システムで生成された証明書を選択した場合は、新しい Storage VM の作成を確認すると証明書情報が表示されます。[ ダウンロード ] をクリックし、クライアントアクセス用に保存します。
++
+** シークレットキーは今後表示されません。
+** 証明書情報が再度必要な場合は、 [* ストレージ ] 、 [Storage VMs] の順にクリックし、 Storage VM を選択して、 [* 設定 ] をクリックします。
+
+
+
+
+--
+.CLI の使用
+--
+. SVMでS3プロトコルが許可されていることを確認します。+
+`vserver show -fields allowed-protocols`
+. このSVMの公開鍵証明書を記録します。+新しいONTAP 自己署名証明書が必要な場合は、を参照してください link:../s3-config/create-install-ca-certificate-svm-task.html["CA 証明書を作成して SVM にインストールします"]。
+. サービスデータポリシーを更新します
++
+.. SVMのサービスデータポリシーを表示します。+
+`network interface service-policy show -vserver _svm_name_`
+.. を追加します `data-core` および `data-s3-server services` 表示されない場合は、[+]
+`network interface service-policy add-service -vserver _svm_name_ -policy _policy_name_ -services data-core,data-s3-server`
+
+
+. SVMのデータLIFが要件を満たしていることを確認します。+
+`network interface show -vserver _svm_name_`
+. S3サーバを作成します：+
+`vserver object-store-server create -vserver _svm_name_ -object-store-server _s3_server_fqdn_ -certificate-name _ca_cert_name_ -comment text [additional_options]`
+
+
+S3 サーバの作成時またはあとからいつでも追加のオプションを指定できます。
+
+* HTTPS は、ポート 443 でデフォルトで有効になっています。ポート番号は、-secure-listener-portオプションを使用して変更できます。+ HTTPSを有効にすると、SSL/TLSとの適切な統合にCA証明書が必要になります。
+* HTTP はデフォルトではディセーブルです。イネーブルにすると、サーバはポート 80 をリッスンします。is-http-enabledオプションを指定して有効にするか、-listener-portオプションを使用してポート番号を変更できます。+ HTTPを有効にすると、すべての要求と応答がクリアテキストでネットワーク経由で送信されます。
+
+
+. S3が必要に応じて設定されていることを確認します。+
+`vserver object-store-server show`
+
+
+*例*+次のコマンドは、すべてのオブジェクトストレージサーバの構成値を検証します：+
+`cluster1::> vserver object-store-server show`
+
+[listing]
+----
+Vserver: vs1
+
+                      Object Store Server Name: s3.example.com
+                          Administrative State: up
+                        Listener Port For HTTP: 80
+                Secure Listener Port For HTTPS: 443
+                                  HTTP Enabled: false
+                                 HTTPS Enabled: true
+             Certificate for HTTPS Connections: svm1_ca
+                                       Comment: Server comment
+----
+--
+====

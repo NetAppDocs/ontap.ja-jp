@@ -1,0 +1,92 @@
+---
+permalink: s3-multiprotocol/enable-client-users-task.html 
+sidebar: sidebar 
+keywords: s3, nas, vserver, configuration, nas, certificate, linux, unix, installation 
+summary: S3クライアントユーザがNASデータにアクセスできるようにするには、S3ユーザ名を対応するNASユーザにマッピングし、バケットサービスポリシーを使用してNASデータへのアクセス権を付与する必要があります。 
+---
+= S3クライアントユーザを有効にします
+:allow-uri-read: 
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+S3クライアントユーザがNASデータにアクセスできるようにするには、S3ユーザ名を対応するNASユーザにマッピングし、バケットサービスポリシーを使用してNASデータへのアクセス権を付与する必要があります。
+
+クライアントアクセス用のユーザ名（Linux/UNIX、Windows、S3クライアントユーザ）がすでに存在している必要があります。
+
+S3ユーザ名を対応するLinux/UNIXまたはWindowsユーザにマッピングすると、NASファイルに対する許可チェックがS3クライアントからアクセスされたときに実施されます。S3からNASへのマッピングは、単一の名前またはPOSIXの正規表現で指定できるS3ユーザ名_Pattern_、およびLinux/UNIXまたはWindowsのユーザ名_Replacement _を指定して指定します。
+
+ネームマッピングがない場合は、デフォルトのネームマッピングが使用され、S3ユーザ名自体がUNIXユーザ名およびWindowsユーザ名として使用されます。UNIXおよびWindowsのデフォルトのユーザ名マッピングは、を使用して変更できます `vserver object-store-server modify` コマンドを実行します
+
+ローカルのネームマッピング構成のみがサポートされます。LDAPはサポートされません。
+
+S3ユーザをNASユーザにマッピングすると、ユーザにアクセスを許可するリソース（ディレクトリとファイル）と、ユーザがアクセスを許可された操作、または許可されなかった操作を指定する権限を付与できます。
+
+[role="tabbed-block"]
+====
+.System Manager の略
+--
+. UNIXまたはWindowsクライアント（あるいはその両方）のローカルネームマッピングを作成します。
++
+.. Storage > Buckets *をクリックし、S3 / NAS対応のStorage VMを選択します。
+.. 「* Settings（*設定）」を選択し、をクリックします image:../media/icon_arrow.gif["右矢印"] *ネームマッピング*（*ホストユーザーおよびグループ*の下）で検索します。
+.. S3からWindows *または* S3からUNIX *へのタイル（またはその両方）で、* Add *をクリックし、目的の* Pattern *（S3）および* Replacement *（NAS）ユーザ名を入力します。
+
+
+. クライアントアクセスを許可するバケットポリシーを作成します。
++
+.. [*ストレージ]、[バケット]の順にクリックし、をクリックします image:../media/icon_kabob.gif["kebab アイコン"] 目的のS3バケットの横にある* Edit *をクリックします。
+.. [*追加（Add）]をクリックし、必要な値を入力する。
++
+*** * Principal *- S3ユーザ名を指定するか、デフォルト（すべてのユーザ）を使用します。
+*** * eEffect *-「* Allow *」または「* Deny /*」を選択します
+*** *アクション*-これらのユーザーとリソースのアクションを入力します。オブジェクトストアサーバで現在S3 NASバケットに対してサポートされているリソース処理のセットは、GetObject、PutObject、DeleteObject、ListBucket、GetBucketAclです。 GetObjectAcl、GetObjectTagging、PutObjectTagging、DeleteObjectTagging、GetBucketLocation、 GetBucketVersioning、PutBucketVersioning、ListBucketVersionsの各メソッドに対応しています。このパラメータではワイルドカードを使用できます。
+*** * Resources *-アクションを許可または拒否するフォルダまたはファイルのパスを入力するか、デフォルト（バケットのルートディレクトリ）を使用します。
+
+
+
+
+
+
+--
+.CLI の使用
+--
+. UNIXまたはWindowsクライアント（あるいはその両方）のローカルネームマッピングを作成します。[+]
+`vserver name-mapping create -vserver svm_name> -direction {s3-win|s3-unix} -position _integer_ -pattern _s3_user_name_ -replacement _nas_user_name_`
++
+** `-position` -マッピング評価の優先順位番号。1または2を入力します。
+** `-pattern` - S3ユーザ名または正規表現
+** `-replacement` - WindowsまたはUNIXのユーザ名
+
+
+
+
+例+
+`vserver name-mapping create -direction s3-win -position 1 -pattern s3_user_1 -replacement win_user_1
+vserver name-mapping create -direction s3-unix -position 2 -pattern s3_user_1 -replacement unix_user_1`
+
+. クライアントアクセスを許可するバケットポリシーを作成します。[+]
+`vserver object-store-server bucket policy add-statement -vserver svm_name -bucket bucket_name -effect {deny|allow}  -action list_of_actions -principal list_of_users_or_groups -resource [-sid alphanumeric_text]`
++
+** `-effect {deny|allow}` -ユーザがアクションを要求したときにアクセスを許可するか拒否するかを指定します。
+** `-action <Action>, ...` -許可または拒否されるリソース操作を指定しますオブジェクトストアサーバで現在S3 NASバケットに対してサポートされているリソース処理のセットは、GetObject、PutObject、DeleteObject、ListBucket、GetBucketAclです。 GetObjectAcl、GetObjectTagging、PutObjectTagging、DeleteObjectTagging、GetBucketLocation、 GetBucketVersioning、PutBucketVersioning、ListBucketVersionsの各メソッドに対応しています。このパラメータではワイルドカードを使用できます。
+** `-principal <Objectstore Principal>, ...` -オブジェクトストアサーバのユーザまたはグループに対してアクセスを要求するユーザを検証します。
++
+*** オブジェクトストアサーバグループは、グループ名にプレフィックスグループ/を追加することによって指定します。
+*** `-principal` -（ハイフン文字）は、すべてのユーザにアクセスを許可します。
+
+
+** `-resource <text>, ...` -許可または拒否の権限を設定するバケット、フォルダ、またはオブジェクトを指定します。このパラメータではワイルドカードを使用できます。
+** `[-sid <SID>]` -オブジェクトストアサーバのバケットポリシーステートメントのオプションのテキストコメントを指定します。
+
+
+
+
+例+
+`cluster1::> vserver object-store-server bucket policy add-statement -bucket testbucket -effect allow -action  GetObject,PutObject,DeleteObject,ListBucket,GetBucketAcl,GetObjectAcl, GetBucketLocation,GetBucketPolicy,PutBucketPolicy,DeleteBucketPolicy -principal user1 -resource testbucket,testbucket/* sid "FullAccessForUser1"`
+
+`cluster1::> vserver object-store-server bucket policy statement create -vserver vs1 -bucket bucket1 -effect allow -action GetObject -principal - -resource bucket1/readme/* -sid "ReadAccessToReadmeForAllUsers"`
+
+--
+====

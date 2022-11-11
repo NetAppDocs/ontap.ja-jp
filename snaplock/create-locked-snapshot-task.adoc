@@ -1,0 +1,78 @@
+---
+permalink: snaplock/create-locked-snapshot-task.html 
+sidebar: sidebar 
+keywords: snaplock, snapshot copy, lock, tamperproof, enable, retention, policy 
+summary: ONTAP 9.12.1以降では、Snapshotコピーポリシーを作成してSnapshotコピーの保持期間を適用し、そのポリシーをボリュームに適用して、指定した期間Snapshotコピーをロックできます。保持期間を手動で設定して、Snapshotコピーをロックすることもできます。 
+---
+= ロックされたSnapshotコピーを作成します
+:allow-uri-read: 
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+ONTAP 9.12.1以降では、Snapshotコピーポリシーを作成してSnapshotコピーの保持期間を適用し、そのポリシーをボリュームに適用して、指定した期間Snapshotコピーをロックできます。保持期間を手動で設定して、Snapshotコピーをロックすることもできます。
+
+
+
+== Snapshotコピーのロックポリシーを作成します
+
+. Snapshotコピーポリシーを作成するには、次のコマンドを入力します。
++
+`volume snapshot policy create -policy policy_name -enabled true -schedule1 _schedule1_name_ -count1 _maximum_Snapshot_copies -retention-period1 _retention_period_`
+
++
+次のコマンドは、Snapshotコピーロックポリシーを作成します。
+
++
+[listing]
+----
+cluster1> volume snapshot policy create -policy policy_name -enabled true -schedule1 5min -count1 5 -retention-period1 "1 months"
+----
+
+
+
+
+== ボリュームにロックポリシーを適用します
+
+. 既存のボリュームにSnapshotコピーロックポリシーを適用するには、次のコマンドを入力します。
++
+`volume modify -volume volume_name -vserver vserver_name -snapshot-policy policy_name`
+
+
+
+
+
+== 手動でのSnapshotコピーの作成時に保持期間を適用
+
+. Snapshotコピーを手動で作成し、ロック保持期間を適用するには、次のコマンドを入力します。
++
+`volume snapshot create -volume _volume_name_ -snapshot _snapshot_copy_name_ -expiry-time _expiration_date_time_`
+
++
+次のコマンドでは、新しいSnapshotコピーを作成して保持期間を設定します。
+
++
+[listing]
+----
+cluster1> volume snapshot create -vserver vs1 -volume vol1 -snapshot snap1 -snaplock-expiry-time "11/10/2022 09:00:00"
+----
+
+
+
+
+== 既存のSnapshotコピーに保持期間を適用します
+
+. 既存のSnapshotコピーに保持期間を手動で適用するには、次のコマンドを入力します。
++
+`volume snapshot modify-snaplock-expiry-time -volume _volume_name_ -snapshot _snapshot_copy_name_ -expiry-time _expiration_date_time_`
+
++
+次の例は、既存のSnapshotコピーに保持期間を適用します。
+
++
+[listing]
+----
+cluster1> volume snapshot modify-snaplock-expiry-time -volume vol1 -snapshot snap2 -expiry-time "11/10/2022 09:00:00"
+----
+

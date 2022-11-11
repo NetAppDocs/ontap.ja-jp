@@ -1,0 +1,68 @@
+---
+permalink: snaplock/snapshot-lock-concept.html 
+sidebar: sidebar 
+keywords: snaplock, snapshot copy, lock, tamperproof 
+summary: ONTAP 9.12.1以降では、SnapLock以外のボリューム上のSnapshotコピーをロックして、ランサムウェア攻撃から保護できます。Snapshotコピーをロックすることで、誤って削除したり、悪意を持って削除したりすることがなくなります。 
+---
+= 改ざん防止Snapshotコピーロックの概要
+:allow-uri-read: 
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+ONTAP 9.12.1以降では、SnapLock以外のボリューム上のSnapshotコピーをロックして、ランサムウェア攻撃から保護できます。Snapshotコピーをロックすることで、誤って削除したり、悪意を持って削除したりすることがなくなります。
+
+SnapLock コンプライアンスクロック機能を使用すると、指定した期間Snapshotコピーをロックして、有効期限に達するまでSnapshotコピーを削除できないようにすることができます。Snapshotコピーをロックすると、改ざんを防止し、ランサムウェアの脅威から保護します。ロックされたSnapshotコピーを使用すると、ボリュームがランサムウェア攻撃によって危険にさらされた場合にデータをリカバリできます。
+
+
+
+== 改ざん防止機能を備えたSnapshotコピーの要件と考慮事項
+
+* クラスタ内のすべてのノードでONTAP 9.12.1以降が実行されている必要があります。
+* クラスタにSnapLock ライセンスがインストールされている必要があります。
++
+詳細については、を参照してください link:https://docs.netapp.com/us-en/ontap/snaplock/install-license-task.html["SnapLock ライセンスをインストールする"]
+
+* クラスタのコンプライアンスクロックを初期化する必要があります。
++
+詳細については、を参照してください link:https://docs.netapp.com/us-en/ontap/snaplock/initialize-complianceclock-task.html["コンプライアンスクロックを初期化します"]
+
+* ボリュームでSnapshotロックが有効になっている場合、クラスタをONTAP 9.12.1以降のバージョンのONTAP にアップグレードできます。 ただし、ロックされたすべてのSnapshotコピーが有効期限に達して削除され、Snapshotコピーのロックが無効になるまで、以前のバージョンのONTAP にはリバートできません。
+* Snapshotがロックされている場合、ボリューム有効期限はSnapshotコピーの有効期限に設定されます。複数のSnapshotコピーがロックされている場合、ボリューム有効期限はすべてのSnapshotコピーの最大有効期限を反映します。
+* ロックされたSnapshotコピーの保持期間はSnapshotコピーの保持数よりも優先されます。つまり、ロックされたSnapshotコピーの保持期間が期限切れになっていない場合、保持数の制限は考慮されません。
+* SnapMirror関係では、mirror-vaultポリシールールに保持期間を設定できます。デスティネーションボリュームでSnapshotコピーロックが有効になっている場合は、デスティネーションにレプリケートされるSnapshotコピーに保持期間が適用されます。保持期間は保持数よりも優先されます。たとえば、保持数を超えた場合でも、保持期限を過ぎていないSnapshotコピーは保持されます。
+* SnapLock以外のボリューム上のSnapshotコピーの名前は変更できます。SnapMirror関係のプライマリボリュームでのSnapshotの名前変更処理は、ポリシーがMirrorAllSnapshotsの場合にのみセカンダリボリュームに反映されます。他のタイプのポリシーでは、名前を変更したSnapshotコピーは更新時に反映されません。
+* では、ロックされたSnapshotコピーをリストアできます `volume snapshot restore` ロックされたSnapshotコピーが最新のものである場合のみ、コマンドを実行できます。リストア対象のSnapshotコピーよりもあとに期限切れ前のSnapshotコピーがあると、Snapshotコピーのリストア処理は失敗します。
+
+
+
+
+== タンパープルーフSnapshotコピーでサポートされる機能
+
+* FlexGroup ボリューム
++
+FlexGroup ボリュームでは、Snapshotコピーのロックがサポートされます。Snapshotロックは、ルートコンスティチュエントSnapshotコピーでのみ発生します。FlexGroup ボリュームを削除できるのは、ルートコンスティチュエントの有効期限を過ぎた場合のみです。
+
+* FlexVol からFlexGroup への変換
++
+ロックされたSnapshotコピーがあるFlexVol をFlexGroup ボリュームに変換できます。変換後もSnapshotコピーはロックされたままです。
+
+* FabricPool
++
+FabricPool ボリュームでは、ボリュームにクラウドに階層化されたブロックがなく、階層化ポリシーが「none」に設定されている場合にのみ、Snapshotコピーのロックがサポートされます。Snapshotコピーのロック機能が有効になっている場合、ボリュームの階層化ポリシーを「none」以外のポリシーに設定することはできません。
+
+
+
+
+
+== サポートされない機能です
+
+現在、タンパープルーフSnapshotコピーでは、次の機能はサポートされていません。
+
+* 整合グループ
+* FlexCache ボリューム
+* SMTapeの場合
+* SnapMirror のビジネス継続性（ SM-BC ）
+* SnapMirror Synchronous
+

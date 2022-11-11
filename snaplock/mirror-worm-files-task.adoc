@@ -34,7 +34,7 @@ SnapMirror を使用すると、ディザスタリカバリなどの目的で、
 
 デスティネーションにソースと異なるリーガルホールドが設定されている場合は、再同期を実行できません。再同期を試行する前に、ソースとデスティネーションに同じリーガルホールドを設定するか、またはデスティネーションのリーガルホールドをすべて解除する必要があります。
 
-変更されたデータをキャプチャするためにデスティネーションボリュームで作成されたロックされた Snapshot は、「 snapmirror update -s snapshot 」コマンドを実行してソースにコピーできます。コピーした Snapshot はソースでもロックされたままです。
+変更されたデータをキャプチャするためにデスティネーションボリュームで作成され、ロックされたSnapshotコピーは、のCLIを使用してソースにコピーできます `snapmirror update -s snapshot` コマンドを実行しますコピーした Snapshot はソースでもロックされたままです。
 
 * SVM データ保護関係はサポートされません。
 * 負荷共有データ保護関係はサポートされません。
@@ -44,7 +44,31 @@ SnapMirror を使用すると、ディザスタリカバリなどの目的で、
 
 image::../media/snapmirror_steps_clustered.png[この図は、 SnapMirror 関係を初期化するための手順を示しています。デスティネーションクラスタを特定しています,creating a destination volume,creating a SnapMirror relationship between the volumes]
 
+[role="tabbed-block"]
+====
+.System Manager の略
+--
+ONTAP 9.12.1以降では、System Managerを使用してWORMファイルのSnapMirrorレプリケーションを設定できます。
+
 .手順
+. [ストレージ]>[ボリューム]に移動します。
+. *表示/非表示*をクリックし、* SnapLock タイプ*を選択して、*ボリューム*ウィンドウに列を表示します。
+. SnapLock ボリュームを見つけます。
+. をクリックします image:icon_kabob.gif["Alt = メニューオプション"] をクリックし、* Protect *を選択します。
+. デスティネーションクラスタとデスティネーションStorage VMを選択してください。
+. [ * その他のオプション * ] をクリックします。
+. [Show legacy policies*]を選択し、[*DPDefault (legacy)*]を選択します。
+. 「*接続先設定の詳細*」セクションで「*転送スケジュールの上書き」を選択し、「*時間単位*」を選択します。
+. [ 保存（ Save ） ] をクリックします。
+. ソースボリューム名の左側にある矢印をクリックしてボリュームの詳細を展開し、ページの右側でリモートSnapMirror保護の詳細を確認します。
+. リモートクラスタで、「*保護関係*」に移動します。
+. 関係を探し、デスティネーションボリューム名をクリックして関係の詳細を確認します。
+. デスティネーションボリュームのSnapLock タイプおよびその他のSnapLock 情報を確認します。
+
+
+--
+.CLI の使用
+--
 . デスティネーションクラスタを特定します。
 . デスティネーションクラスタで、SnapLock ライセンスをインストールし、ComplianceClockを初期化します。9.10.1よりも前のONTAP リリースを使用している場合は、SnapLock アグリゲートを作成します。
 . デスティネーションクラスタで、「 D 」タイプの SnapLock デスティネーションボリュームを、ソースボリュームと同じサイズ以上のサイズで作成します。
@@ -52,11 +76,9 @@ image::../media/snapmirror_steps_clustered.png[この図は、 SnapMirror 関係
 `* volume create -vserver _svm_name _-volume _volume_name _-aggregate_aggregate_name _-snaplock-type compliance | enterprise-type-type dp-size_size_*」のようになります
 
 +
-[NOTE]
-====
-ONTAP 9.10.1 以降では、 SnapLock ボリュームと非 SnapLock ボリュームを同じアグリゲート上に配置できるため、 ONTAP 9.10.1 を使用している場合に別の SnapLock アグリゲートを作成する必要がなくなりました。ComplianceまたはEnterprise SnapLock のボリュームタイプを指定するには、volume-snaplock-typeオプションを使用します。ONTAP 9.10.1より前のONTAP リリースでは、SnapLock モード（ComplianceモードまたはEnterpriseモード）がアグリゲートから継承されます。バージョンに依存しないデスティネーションボリュームはサポートされません。デスティネーションボリュームの言語設定とソースボリュームの言語設定が一致している必要があります。
 
-====
+NOTE: ONTAP 9.10.1 以降では、 SnapLock ボリュームと非 SnapLock ボリュームを同じアグリゲート上に配置できるため、 ONTAP 9.10.1 を使用している場合に別の SnapLock アグリゲートを作成する必要がなくなりました。ComplianceまたはEnterprise SnapLock のボリュームタイプを指定するには、volume-snaplock-typeオプションを使用します。ONTAP 9.10.1より前のONTAP リリースでは、SnapLock モード（ComplianceモードまたはEnterpriseモード）がアグリゲートから継承されます。バージョンに依存しないデスティネーションボリュームはサポートされません。デスティネーションボリュームの言語設定とソースボリュームの言語設定が一致している必要があります。
+
 +
 次のコマンドは、「 Node01_aggr 」アグリゲートの「 S VM2 」に「 d stvolB 」という名前の 2GB の SnapLock 「 Compliance 」ボリュームを作成します。
 
@@ -102,11 +124,9 @@ SVM2::> job schedule cron create -name weekendcron -dayofweek "Saturday, Sunday"
 SVM2::> snapmirror create -source-path SVM1:srcvolA -destination-path SVM2:dstvolB -type XDP -policy SVM1-mirror -schedule weekendcron
 ----
 +
-[NOTE]
-====
-XDP タイプは ONTAP 9.5 以降で使用できます。ONTAP 9.4 以前では DP タイプを使用する必要があります。
 
-====
+NOTE: XDP タイプは ONTAP 9.5 以降で使用できます。ONTAP 9.4 以前では DP タイプを使用する必要があります。
+
 . デスティネーション SVM で、 SnapMirror 関係を初期化します。
 +
 `* snapmirror initialize-ls-set -destination-path *`
@@ -124,6 +144,8 @@ SVM2::> snapmirror initialize -destination-path SVM2:dstvolB
 ----
 
 
+--
+====
 https://docs.netapp.com/us-en/ontap-sm-classic/peering/index.html["クラスタと SVM のピアリング"]
 
 https://docs.netapp.com/us-en/ontap-sm-classic/volume-disaster-prep/index.html["ボリュームのディザスタリカバリの準備"]

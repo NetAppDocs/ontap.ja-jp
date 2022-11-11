@@ -1,10 +1,10 @@
 ---
 sidebar: sidebar 
-permalink: smbc/smbc_plan_additional_restrictions_and_limitations.html 
+permalink: smbc/considerations-limits.html 
 keywords: SM-BC, SMBC, restrictions, consistency group, endpoint limits, solaris, aix 
 summary: SnapMirror Business Continuity 解決策を使用する場合は、いくつかの制限事項もあります。 
 ---
-= その他の制約事項および制限事項
+= 考慮事項と制限事項
 :hardbreaks:
 :allow-uri-read: 
 :nofooter: 
@@ -14,11 +14,15 @@ summary: SnapMirror Business Continuity 解決策を使用する場合は、い�
 
 
 [role="lead"]
-SnapMirror Business Continuity 解決策を使用する場合は、いくつかの制限事項もあります。
+SnapMirror Business Continuity解決策 の使用を検討する必要がある考慮事項、制限事項、および制限事項があります。
 
 
 
-== クラスタ内の整合グループ
+== オブジェクトの制限
+
+
+
+=== クラスタ内の整合グループ
 
 SM-BCを使用するクラスタの整合グループの制限は、関係に基づいて計算され、使用するONTAP のバージョンによって異なります。制限はプラットフォームに依存しません。
 
@@ -36,13 +40,13 @@ SM-BCを使用するクラスタの整合グループの制限は、関係に基
 |===
 
 
-== 整合性グループあたりのボリューム数
+=== 整合性グループあたりのボリューム数
 
 ONTAP 9.8 から 9.9.8.1 まででは、 SM-BC 整合グループ関係ごとにサポートされる最大ボリューム数は 12 個であり、これはプラットフォームに依存しません。ONTAP 9.10.1 以降では、 SM-BC 関係でサポートされる最大ボリューム数は 16 になりました。
 
 
 
-== 個のボリューム
+=== 個のボリューム
 
 SM-BC の制限は、関係数ではなくエンドポイント数に基づいて計算されます。12 個のボリュームを含む整合グループが、ソースとデスティネーションの両方で 12 個のエンドポイントに影響します。エンドポイントの総数は、 SM-BC 関係と SnapMirror Synchronous 関係のどちらも関係します。
 
@@ -62,7 +66,7 @@ SM-BC の制限は、関係数ではなくエンドポイント数に基づい�
 |===
 
 
-== SAN オブジェクトの制限
+=== SAN オブジェクトの制限
 
 次の表に、 SAN オブジェクトの制限と制限をプラットフォームに関係なく示します。
 
@@ -89,21 +93,25 @@ SM-BC の制限は、関係数ではなくエンドポイント数に基づい�
 |===
 
 
-== NTFS セキュリティ形式です
-
-NTFS セキュリティ形式は、 SM-BC ボリュームではサポートされません。
+== サポートされている構成と機能
 
 
 
-== ファンアウト構成
+=== ファイルの一部をリストアします
 
-SM-BC はサポートしています xref:../data-protection/supported-deployment-config-concept.html[ファンアウト構成] 「MirrorAllSnapshots」ポリシーを使用し、ONTAP 9.11.1からは「MirrorAndVault」ポリシーを使用します。ファンアウト構成は'XDPDefaultポリシーではサポートされていません
+ONTAP 9.12.1以降では、SM-BCボリュームで部分的なLUNリストアがサポートされます。このプロセスの詳細については、を参照してください link:../data-protection/restore-part-file-snapshot-task.html["Snapshot コピーからファイルの一部をリストアします"]。
+
+
+
+=== ファンアウト構成
+
+SM-BC はサポートしています xref:../data-protection/supported-deployment-config-concept.html[ファンアウト構成] を使用 `MirrorAllSnapshots` ポリシーおよび、ONTAP 9.11.1以降の、 `MirrorAndVault` ポリシー：のSM-BCでは、ファンアウト構成がサポートされません `XDPDefault` ポリシー：
 
 ファンアウト構成でSM-BCデスティネーションでフェイルオーバーが発生した場合は、手動でフェイルオーバーする必要があります xref:resume-protection-fan-out-configuration.html[ファンアウト構成で保護を再開します]。
 
 
 
-== AIX の場合
+=== AIX の場合
 
 ONTAP 9.11.1以降では、SM-BCでAIXがサポートされます。AIX構成では、プライマリクラスタが「アクティブ」クラスタになります。
 
@@ -113,7 +121,7 @@ SM-BCでAIXホストを設定する方法については、ナレッジベース
 
 
 
-== SM-BC 構成での Solaris ホスト設定の推奨事項
+=== SM-BC 構成での Solaris ホスト設定の推奨事項
 
 ONTAP 9.10.1 以降、 SM-BC は Solaris 11.4 をサポートします。SM-BC環境で計画外のサイト・フェイルオーバー・スイッチオーバーが発生したときにSolarisクライアント・アプリケーションが中断されないようにするには'f_tpgsパラメータを使用してSolarisホスト11.4を設定する必要があります
 
@@ -146,7 +154,7 @@ NOTE: 「 csi-vhci-failover-override 」が適用されている場合、「 con
 
 
 
-== HP-UX の SM-BC 設定に関する既知の問題および制限事項
+=== HP-UX の SM-BC 設定に関する既知の問題および制限事項
 
 ONTAP 9.10.1 以降では、 HP-UX 用の SM-BC がサポートされています。SM-BC 構成の独立したマスタークラスタで Automatic Unplanned Failover （ AUFO ；自動計画外フェイルオーバー）イベントが発生した場合、 I/O が HP-UX ホストで再開されるまでに 120 秒以上かかることがあります。実行中のアプリケーションによっては、 I/O の中断やエラーメッセージが発生しない場合があります。隔離されたマスタークラスタで AUFO イベントが発生した場合は、中断の許容時間が 120 秒未満の HP-UX ホストでアプリケーションを再起動する必要があります。
 

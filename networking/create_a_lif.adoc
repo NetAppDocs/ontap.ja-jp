@@ -54,6 +54,7 @@ ONTAP 9.4 以降では、 FC-NVMe がサポートされます。FC-NVMe LIF を�
 * データトラフィックを処理する NVMe LIF は SVM ごとに 1 つだけ設定できます。
 * サブネットを使用してネットワークインターフェイスを作成すると、選択したサブネットから使用可能なIPアドレスがONTAP によって自動的に選択され、ネットワークインターフェイスに割り当てられます。複数のサブネットがある場合はサブネットを変更できますが、IPアドレスを変更することはできません。
 * ネットワークインターフェイスに対してSVMを作成（追加）するときに、既存のサブネットの範囲内のIPアドレスを指定することはできません。サブネットの競合エラーが表示されます。この問題 は、SVM設定またはクラスタ設定でクラスタ間ネットワークインターフェイスを作成または変更するなど、ネットワークインターフェイスの他のワークフローで実行します。
+* ONTAP 9.10.1以降の `network interface` CLIコマンドにはが含まれています `-rdma-protocols` NFS over RDMA構成用のパラメータ。ONTAP 9.12.1以降では、System ManagerでRDMA構成を使用するNFS用ネットワークインターフェイスの作成がサポートされています。詳細については、を参照してください xref:..nfs-rdma/configure-lifs-task.html[NFS over RDMA用にLIFを設定します]。
 * ONTAP 9.11.1以降では、iSCSI LIFフェイルオーバー機能をすべてのSANアレイ（ASA ）プラットフォームで使用できます。
 +
 iSCSI LIFフェイルオーバーが自動的に有効になります（フェイルオーバーポリシーは「sfo-partner-only」に設定され、auto-revertの値は「true」に設定されます）。 指定したSVMにiSCSI LIFが存在しない場合、または指定したSVM内の既存のすべてのiSCSI LIFでiSCSI LIFフェイルオーバーがすでに有効になっている場合は、新しく作成したiSCSI LIFで実行します。
@@ -119,7 +120,7 @@ ONTAP 9.12.0以降では、使用するインターフェイスに応じて次�
 . LIF を作成します。
 +
 ....
-network interface create -vserver vserver_name -lif lif_name -service-policy service_policy_name -home-node node_name -home-port port_name {-address IP_address - netmask Netmask_value | -subnet-name subnet_name} -firewall- policy policy -auto-revert {true|false}
+network interface create -vserver _SVM_name_ -lif _lif_name_ -service-policy _service_policy_name_ -home-node _node_name_ -home-port port_name {-address _IP_address_ - netmask _Netmask_value_ | -subnet-name _subnet_name_} -firewall- policy _policy_ -auto-revert {true|false}
 ....
 +
 ** 「 -home-node 」は、「 network interface revert 」コマンドを LIF で実行したときに LIF が戻るノードです。
@@ -182,3 +183,5 @@ network interface create -vserver vs1.example.com -lif datalif1 -data-protocol n
 ....
 --
 ====
+xref:modify_a_lif.html[LIF を変更する]
+xref:../nfs-rdma/configure-lifs-task.html[NFS over RDMA 用に LIF を設定します]

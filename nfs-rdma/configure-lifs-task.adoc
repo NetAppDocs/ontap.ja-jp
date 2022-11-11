@@ -1,8 +1,8 @@
 ---
 permalink: nfs-rdma/configure-lifs-task.html 
 sidebar: sidebar 
-keywords: networking, LIF, NFS over RDMA, NVIDIA, NFS, RDMA, ROCE 
-summary: この記事では、 LIF を RDMA 対応に設定する方法について説明します。 
+keywords: networking, LIF, NFS over RDMA, NVIDIA, NFS, RDMA, ROCE, network interface, system manager 
+summary: この記事では、LIF（ネットワークインターフェイス）をRDMA対応に設定する方法について説明します。 
 ---
 = NFS over RDMA 用に LIF を設定します
 :allow-uri-read: 
@@ -11,11 +11,31 @@ summary: この記事では、 LIF を RDMA 対応に設定する方法につい
 
 
 [role="lead"]
-NFS over RDMA を利用するには、 RDMA 互換性を確保するように LIF を設定する必要があります。LIF とそのフェイルオーバーペアは RDMA 対応である必要があります。
+NFS over RDMAを利用するには、LIF（ネットワークインターフェイス）をRDMA互換性を確保するように設定する必要があります。LIFとそのフェイルオーバーペアの両方がRDMAをサポートしている必要があります。
 
-ONTAP 9.10.1以降では、ネットワーク・インターフェイス・コマンドに新しい「-dma_dma_protocols」パラメータが追加され、サポートを設定し、適切なサービス・ポリシーを設定できるようになりました。
 
-.手順をクリックして新しい LIF を作成します
+
+== 新しい LIF を作成
+
+[role="tabbed-block"]
+====
+.System Manager の略
+--
+System Managerを使用してRDMA経由のNFS用のネットワークインターフェイスを作成するには、ONTAP 9.12.1以降を使用している必要があります。
+
+.手順
+. Network > Overview > Network Interfaces *を選択します。
+. 選択するオプション image:icon_add.gif["追加アイコン"]。
+. NFS、SMB / CIFS、S3 *を選択すると、RoCEポートを使用するオプションがあります。「RoCEポートを使用する」のチェックボックスをオンにします。
+. Storage VMとホームノードを選択します。名前を割り当てます。IPアドレスとサブネットマスクを入力します。
+. IPアドレスとサブネットマスクを入力すると、System Managerによって、ブロードキャストドメインのリストがRoCE対応ポートを持つドメインにフィルタリングされます。ブロードキャストドメインを選択してください。必要に応じて、ゲートウェイを追加できます。
+. [ 保存（ Save ） ] を選択します。
+
+
+--
+.CLI の使用
+--
+.手順
 . LIF を作成します。
 +
 「network interface create -vserver _svm_name _-lif lif_name _-service-policy_policy_SERVICE_policy_name _-home-node_name _home-port_port_name_-home-port_port_port_name_{-address_ip_address _netmask_value _|-subnet-name _subnet_name _}-firewall-policy _dma_policy -rdma {0/}-auto-revert { auto_protocols{0/}
@@ -27,7 +47,21 @@ ONTAP 9.10.1以降では、ネットワーク・インターフェイス・コ�
 
 
 
-.手順を使用して LIF を変更する
+--
+====
+
+
+== LIF を変更する
+
+[role="tabbed-block"]
+====
+.System Manager の略
+--
+System Managerを使用してRDMA経由のNFS用のネットワークインターフェイスを作成するには、ONTAP 9.12.1以降を使用している必要があります。.手順.Network > Overview > Network Interfaces *を選択します。。選択するオプション image:icon_kabob.gif["Kabob アイコン"] *>変更するネットワークインターフェイスの横にある[Edit]をクリックします。。RoCEポートを使用する*をオンにしてNFS over RDMAを有効にするか、オフにして無効にしてください。ネットワークインターフェイスがRoCE対応ポート上にある場合は、「RoCEポートを使用する」の横にチェックボックスが表示されます。。必要に応じて、その他の設定を変更します。。「* Save *（保存）」を選択して、変更を確定します。
+
+--
+.CLI の使用
+--
 . LIF のステータスは、「 network interface show 」コマンドで確認できます。サービスポリシーに data-nfs ネットワークインターフェイスサービスを含める必要があります。-rdma-protocols リストには 'RoCE が含まれている必要があります上記のいずれかの条件に該当しない場合は、 LIF を変更します。
 . LIF を変更するには、次のコマンドを実行します。
 +
@@ -38,4 +72,26 @@ ONTAP 9.10.1以降では、ネットワーク・インターフェイス・コ�
 
 NOTE: 特定のオフロードプロトコルを必要とするように LIF を変更した場合に、そのプロトコルをサポートするポートに LIF が割り当てられていないとエラーが発生します。
 
-xref:../networking/create_a_lif.html[LIF を作成]
+--
+====
+
+
+== LIF を移行
+
+ONTAP では、RDMAを介したNFSを利用するために、ネットワークインターフェイス（LIF）を移行することもできます。この移行を実行する場合は、デスティネーションポートがRoCEに対応していることを確認する必要があります。ONTAP 9.12.1以降では、System Managerでこの手順 を実行できます。System Managerでネットワークインターフェイスのデスティネーションポートを選択すると、ポートがRoCEに対応しているかどうかが指定されます。
+
+次の場合にのみ、LIFをNFS over RDMA構成に移行できます。
+
+* RoCE対応ポートでホストされるNFS RDMAネットワークインターフェイス（LIF）です。
+* RoCE対応ポートでホストされるNFS TCPネットワークインターフェイス（LIF）です。
+* RoCE非対応ポートでホストされるNFS TCPネットワークインターフェイス（LIF）です。
+
+
+ネットワークインターフェイスの移行の詳細については、を参照してください xref:../networking/migrate_a_lif.html[LIF を移行]。
+
+.詳細情報
+* xref:../networking/create_a_lif.html[LIF を作成]
+* xref:../networking/create_a_lif.html[LIF を作成]
+* xref:../networking/modify_a_lif.html[LIF を変更する]
+* xref:../networking/migrate_a_lif.html[LIF を移行]
+

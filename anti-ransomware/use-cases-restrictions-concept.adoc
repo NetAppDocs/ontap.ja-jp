@@ -22,7 +22,13 @@ summary: 現在のリリースでは、ランサムウェア攻撃からの保�
 ONTAP プラットフォームのサポート：
 
 * ONTAP 9.10.1以降のすべてのオンプレミスONTAP システムで、Autonomous Ransomware Protection（ARP）機能を利用できます。
-* Cloud Volumes ONTAP 環境では使用できません。
+* ARPは現在、次のCloud Volumes ONTAP 環境では使用できません。
++
+** Amazon FSx
+** Azure
+** Google Cloud
+
+
 
 
 適切なワークロード：
@@ -36,6 +42,13 @@ ONTAP プラットフォームのサポート：
 +
 たとえば、医療記録や Electronic Design Automation （ EDA ）データなどです。
 
+
+
+ONTAP 9.12.1以降では、ARPは次の構成で使用できます。
+
+* ボリュームはSnapMirrorで保護されます
+* SVMはSnapMirrorで保護されます
+* 移行が有効になっているSVM（SVMのデータ移動）
 
 
 不適切なワークロード：
@@ -62,14 +75,22 @@ ONTAP プラットフォームのサポート：
 
 * ボリュームをオフラインにします
 * 制限されたボリューム
+* SnapMirrorで保護されたボリューム（ONTAP 9.11.1以前のリリース）
 * SnapLock ボリューム
 * FlexGroup ボリューム
 * FlexCache ボリューム（ランサムウェア対策機能は、 FlexVol の送信元ボリュームではサポートされていますが、キャッシュボリュームではサポートされていません）
 * SAN-only ボリューム
 * 停止しているStorage VMのボリューム
 * Storage VMのルートボリューム
-* データ保護ボリューム
 
+
+
+
+== SnapMirrorとARPの相互運用性
+
+ONTAP 9.12.1以降では、SnapMirrorデスティネーションボリュームでARPがサポートされます。SnapMirrorソースボリュームがARP対応の場合、SnapMirrorデスティネーションボリュームにはソースボリュームのARP設定状態が自動的に取得されます。
+
+デスティネーションボリュームは読み取り専用（RO）Snapshotコピーで構成されていますが、データに対してARP処理は実行されません。ただし、SnapMirrorデスティネーションボリュームが読み書き可能（rw）に変換されると、ARPはRW変換されたデスティネーションボリュームで自動的に有効になります。デスティネーションボリュームでは、ソースボリュームにすでに記録されている情報に加えて、ラーニング手順 を追加する必要はありません。
 
 
 

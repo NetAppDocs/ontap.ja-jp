@@ -17,15 +17,35 @@ summary: 重大なイベントの通知を syslog サーバに記録するには
 
 イベント通知用の syslog サーバがまだない場合は、先に syslog サーバを作成する必要があります。他のシステムのイベントを記録するためにすでに syslog サーバを使用している場合は、重要なイベントの通知にも同じ syslog サーバを使用できます。
 
-このタスクは、クラスタの実行中であれば、 ONTAP コマンドラインでコマンドを入力していつでも実行できます。
+このタスクは、クラスタの実行中であれば、ONTAP CLIでコマンドを入力していつでも実行できます。
+
+ONTAP 9.12.1以降では、EMSイベントをTransport Layer Security（TLS）プロトコル経由でリモートsyslogサーバの指定ポートに送信できます。次の2つの新しいパラメータを使用できます。
+
+`tcp-encrypted`:: いつ `tcp-encrypted` にを指定します `syslog-transport`ONTAP は、デスティネーションホストの証明書を検証することで、そのホストのIDを検証します。デフォルト値はです `udp-unencrypted`。
+`syslog-port`:: デフォルト値 `syslog-port` パラメータは、の設定によって異なります `syslog-transport` パラメータ状況 `syslog-transport` がに設定されます `tcp-encrypted`、 `syslog-port` のデフォルト値は6514です。
+
+
+詳細については、を参照してください `event notification destination create` のマニュアルページ。
 
 .手順
 . 重要なイベントの転送先の syslog サーバを作成します。
 +
-event notification destination create -name syslog-ems -syslog syslog-server-address
+`event notification destination create -name _syslog-ems_ -syslog _syslog-server-address_ -syslog-transport {udp-unencrypted|tcp-unencrypted|tcp-encrypted}`
+
++
+ONTAP 9.12.1以降では、に次の値を指定できます `syslog-transport`：
+
++
+** `udp-unencrypted` -セキュリティなしのユーザデータグラムプロトコル
+** `tcp-unencrypted` -セキュリティなしのTransmission Control Protocol
+** `tcp-encrypted` - Transport Layer Security（TLS）を使用したTransmission Control Protocol
+
+
++
+デフォルトのプロトコルはです `udp-unencrypted``。
 
 . 重要なイベントについて、 syslog サーバに通知を転送するように設定します。
 +
-event notification create -filter-name important-events -destinations syslog-ems を指定します
+`event notification create -filter-name _important-events_ -destinations _syslog-ems_`
 
 

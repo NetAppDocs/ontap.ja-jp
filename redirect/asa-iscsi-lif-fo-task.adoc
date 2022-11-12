@@ -135,7 +135,7 @@ ONTAP CLIを使用して、iSCSI LIFを管理できます。これには、新�
 
 ASA プラットフォームHAペアが必要です。また、ONTAP 9.11.1以降が実行されている必要があります。
 
-を参照してください https://docs.netapp.com/us-en/ontap-cli-9111/index.html["ONTAP 9.11.1コマンドリファレンス"^] ネットワーク・インターフェイスのコマンドの完全なリストを表示します。
+を参照してください https://docs.netapp.com/us-en/ontap-cli-9121/index.html["ONTAP コマンドリファレンス"^] をクリックします `network interface` コマンド
 
 |===
 
@@ -143,20 +143,22 @@ ASA プラットフォームHAペアが必要です。また、ONTAP 9.11.1以�
 | 状況 | 使用するコマンド 
 
 
-| iSCSI LIFを作成 | 「network interface create -vserver vserver_name -lif_iscsi_lif_service-policy default-data-blocks -data -protocol iscsi -home-node node_name _-home-port port_name _-address _ip_address _-netmask netmask_value_`」必要に応じて、を参照してください link:../networking/create_a_lif.html["LIF を作成"] を参照してください。 
+| iSCSI LIFを作成 | `network interface create -vserver _SVM_name_ -lif _iscsi_lif_ -service-policy default-data-blocks -data-protocol iscsi -home-node _node_name_ -home-port _port_name_ -address _IP_address_ -netmask _netmask_value_`必要に応じて、を参照してください link:../networking/create_a_lif.html["LIF を作成"] を参照してください。 
 
 
-| LIFが正常に作成されたことを確認します | 'network interface show -vserver_vserver_name __-fields failover-policy failover-policy、failover-group、auto-revert、is-home 
+| LIFが正常に作成されたことを確認します | `network interface show -vserver _SVM_name_ -fields failover-policy,failover-group,auto-revert,is-home` 
 
 
-| iSCSI LIFでデフォルトの自動リバートを無視できるかどうかを確認します | 「network interface modify -vserver _vserver_name --lif_iscsi_lif__ auto-revert false」の略 
+| iSCSI LIFでデフォルトの自動リバートを無視できるかどうかを確認します | `network interface modify -vserver _SVM_name_ -lif _iscsi_lif_ -auto-revert false` 
 
 
 | iSCSI LIFでストレージフェイルオーバーを実行します | 「storage failover takeover -ofnode _node_name -- option normal」という警告が表示されます。テイクオーバーが開始されます。パートナーノードがリブートすると、ギブバックが自動的に開始されます。続行しますか？{y/n}:'y'応答はHAパートナーからのテイクオーバー・メッセージを表示します 
 
 
-| 既存のLIFに対してiSCSI LIFフェイルオーバー機能を有効にします | クラスタをONTAP 9.11.1以降にアップグレードする前に作成されたiSCSI LIFについては、iSCSI LIFフェイルオーバー機能を有効にできます（フェイルオーバーポリシーを「sfo-partner-only」に変更し、自動リバート機能を「true」に変更します）。 「network interface modify -vserver vserver_name -lif_iscsi_lif_–failover-policy sfo-partner-only -auto-revert true」このコマンドは、「-lif *」を指定して、その他のすべてのパラメータを同じ状態にして、Storage VM内のすべてのiSCSI LIF上で実行できます。 
+| 既存のLIFに対してiSCSI LIFフェイルオーバー機能を有効にします | クラスタをONTAP 9.11.1以降にアップグレードする前に作成したiSCSI LIFについては、iSCSI LIFフェイルオーバー機能を有効にできます（フェイルオーバーポリシーをに変更します） `sfo-partner-only` 自動リバート機能をに変更することで実現できます `true`）：
+`network interface modify -vserver _SVM_name_ -lif _iscsi_lif_ –failover-policy sfo-partner-only -auto-revert true`このコマンドは、「-lif *」を指定して他のすべてのパラメータを同じにすることで、Storage VM内のすべてのiSCSI LIFに対して実行できます。 
 
 
-| 既存のLIFに対してiSCSI LIFフェイルオーバー機能を無効にします | クラスタをONTAP 9.11.1以降にアップグレードする前に作成したiSCSI LIFについては、iSCSI LIFのフェイルオーバー機能と自動リバート機能を無効にすることができます。 「network interface modify -vserver vserver_name -lif_iscsi_lif_–failover-policy disabled -auto-revert false」このコマンドは、「-lif *」を指定して、その他のすべてのパラメータを同じにして、Storage VM内のすべてのiSCSI LIFに対して実行できます。 
+| 既存のLIFに対してiSCSI LIFフェイルオーバー機能を無効にします | クラスタをONTAP 9.11.1以降にアップグレードする前に作成したiSCSI LIFについては、iSCSI LIFのフェイルオーバー機能と自動リバート機能を無効にすることができます。
+`network interface modify -vserver _SVM_name_ -lif _iscsi_lif_ –failover-policy disabled -auto-revert false`このコマンドは、「-lif *」を指定して他のすべてのパラメータを同じにすることで、Storage VM内のすべてのiSCSI LIFに対して実行できます。 
 |===

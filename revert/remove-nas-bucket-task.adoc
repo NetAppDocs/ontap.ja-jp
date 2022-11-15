@@ -1,0 +1,49 @@
+---
+permalink: revert/remove-nas-bucket-task.html 
+sidebar: sidebar 
+keywords: s3, svm, bucket, object, server, filesystems, nas, directories, revert 
+summary: NASデータ用にS3クライアントアクセスを設定している場合に、ONTAP 9.12.1以降からONTAP 9.11.1以前にリバートするには、NASバケット設定を削除し、リバート前にS3ユーザとWindows/UNIXユーザのネームマッピングを削除する必要があります。 
+---
+= ONTAP 9.12.1以降からリバートする前に、S3 NASバケット設定を削除してください
+:allow-uri-read: 
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+NASデータ用にS3クライアントアクセスを設定している場合に、ONTAP 9.12.1以降からONTAP 9.11.1以前にリバートするには、NASバケット設定を削除し、リバート前にネームマッピング（S3ユーザからWindowsユーザまたはUNIXユーザへ）をすべて削除する必要があります。
+
+リバートプロセスの実行中、以下のタスクがバックグラウンドで実行されます。
+
+* 部分的に完了したシングルトンオブジェクトの作成をすべて削除します(つまり'非表示のディレクトリ内のすべてのエントリを削除します)
+* 非表示のディレクトリをすべて削除します。S3 NASバケットにマッピングされたエクスポートのルートからアクセスできるボリュームごとに1つずつ存在する場合があります。
+* アップロードテーブルを削除します。
+* 設定されているすべてのS3サーバについて、default-unix-userおよびdefault-windows-userの値を削除します。
+
+
+[role="tabbed-block"]
+====
+.System Manager の略
+--
+. S3 NASバケット設定を削除する。+ Storage（ストレージ）> Buckets（バケット）*をクリックし、をクリックします image:../media/icon_kabob.gif["kebab アイコン"] 設定されている各S3 NASバケットに対して、* Delete *をクリックします。
+. UNIXまたはWindowsクライアント（あるいはその両方）のローカルネームマッピングを削除します。
++
+.. Storage > Buckets *をクリックし、S3 / NAS対応のStorage VMを選択します。
+.. 「* Settings（*設定）」を選択し、をクリックします image:../media/icon_arrow.gif["右矢印"] *ネームマッピング*（*ホストユーザーおよびグループ*の下）で検索します。
+.. S3からWindows *、または* S3からUNIXへのタイル*（またはその両方）で、をクリックします image:../media/icon_kabob.gif["kebab アイコン"] 設定されているマッピングごとに、* Delete *をクリックします。
+
+
+
+
+--
+.CLI の使用
+--
+. S3 NASバケット設定を削除する。[+]
+`vserver object-store-server bucket delete -vserver _svm_name_ -bucket _s3_nas_bucket_name_`
+. ネームマッピングを削除します。[+]
+`vserver name-mapping delete -vserver _svm_name_ -direction s3-unix` [+]
+`vserver name-mapping delete -vserver _svm_name_ -direction s3-win`
+
+
+--
+====

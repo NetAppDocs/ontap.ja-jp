@@ -1,7 +1,7 @@
 ---
 permalink: encryption-at-rest/enable-encryption-new-volume-task.html 
 sidebar: sidebar 
-keywords: enabling, encryption, new, volume 
+keywords: encryption, new volume, NAE, NVE, volume create 
 summary: volume create コマンドを使用して、新しいボリュームで暗号化を有効にできます。 
 ---
 = 新しいボリュームで暗号化を有効にします
@@ -13,15 +13,22 @@ summary: volume create コマンドを使用して、新しいボリュームで
 [role="lead"]
 volume create コマンドを使用して ' 新しいボリュームで暗号化を有効にできます
 
-ONTAP 9.2 以降では、 SnapLock ボリュームで暗号化を有効にすることができます。
+NetApp Volume Encryption（NVE）を使用してボリュームを暗号化できます。また、ONTAP 9.6以降では、NetApp Aggregate Encryption（NAE）を使用できます。NAEおよびNVEの詳細については、を参照してください xref:configure-netapp-volume-encryption-concept[ボリューム暗号化の概要]。
 
-ONTAP 9.4 以降では ' オンボード・キー・マネージャの設定時に cc-mode-' を有効にした場合 'volume create コマンドで作成したボリュームは '-encrypt true を指定したかどうかにかかわらず ' 自動的に暗号化されます
+ONTAP で暗号化を有効にする手順 は、使用するONTAP のバージョンと構成によって異なります。
 
-ONTAP 9.6 以降では、アグリゲートレベルの暗号化を使用して、暗号化するボリュームの包含アグリゲートにキーを割り当てることができます。アグリゲートに作成するボリュームはデフォルトで暗号化されます。-encrypt オプションを使用すると ' ボリュームの作成時にデフォルトを上書きできます
+* ONTAP 9.4以降では、を有効にした場合 `cc-mode` オンボードキーマネージャをセットアップする場合は、でボリュームを作成します `volume create` コマンドは、指定したかどうかに関係なく自動的に暗号化されます `-encrypt true`。
+* ONTAP 9.6以前のリリースでは、を使用する必要があります `-encrypt true` を使用 `volume create` 暗号化を有効にするコマンド（を有効にしていない場合） `cc-mode`）。
+* ONTAP 9.6でNAEを使用している場合は、アグリゲートレベルでNAEを有効にする必要があります。を参照してください xref:enable-aggregate-level-encryption-nve-license-task.html[VEライセンスでアグリゲートレベルの暗号化を有効にします] 詳細については、を参照してください。
+* ONTAP 9.7 以降では、 VE ライセンスとオンボードキー管理または外部キー管理を使用している場合、新しく作成したボリュームがデフォルトで暗号化されます。
++
+** ONTAP 9.7以降のリリースでは、を使用します `-encrypt true` NAEアグリゲート内にボリュームを作成するには、NAEではなくNVE暗号化がボリュームに適用されます。NAEアグリゲート内のすべてのボリュームは、NVEまたはNAEを使用して暗号化する必要があります。
 
-ONTAP 9.7 以降では、 VE ライセンスとオンボードキー管理または外部キー管理を使用している場合、新しく作成したボリュームがデフォルトで暗号化されます。
 
-一意のキーで暗号化されたボリュームを、 _NVE ボリューム _ と呼びます。アグリゲートレベルのキーで暗号化されたボリュームは、 _NAE アグリゲート _ （ NetApp Aggregate Encryption の略）と呼ばれます。NAE アグリゲートではプレーンテキストボリュームがサポートされません。
+
+
+
+NOTE: NAE アグリゲートではプレーンテキストボリュームがサポートされません。
 
 .手順
 . 新しいボリュームを作成し、そのボリュームで暗号化を有効にするかどうかを指定します。
@@ -34,101 +41,41 @@ ONTAP 9.7 以降では、 VE ライセンスとオンボードキー管理また
 
 
  a| 
-ONTAP 9.7 以降の NAE ボリューム
+NAEボリューム
  a| 
-volume create -vserver SVM_name -volume volume_name -aggregate aggregate-name 」の形式で指定します
+`volume create -vserver _SVM_name_ -volume _volume_name_ -aggregate _aggregate_name_` [+]
 
 
-
- a| 
-ONTAP 9.6 NAE ボリューム（アグリゲートレベルの暗号化が有効になっている場合）
- a| 
-volume create -vserver SVM_name -volume volume_name -aggregate aggregate-name 」の形式で指定します
+NOTE: ONTAP 9.6では、アグリゲートレベルでNAEを有効にしてNAEボリュームを作成する必要があります。
 
 
 
  a| 
-ONTAP 9.7 以降の NVE ボリューム
+NVEボリューム
  a| 
-volume create -vserver SVM_name -volume volume_name -aggregate aggregate-name 」の形式で指定します
+`volume create -vserver _SVM_name_ -volume _volume_name_ -aggregate _aggregate_name_` [+]
 
 
-
- a| 
-ONTAP 9.6 以前の NVE ボリューム
- a| 
-volume create -vserver SVM_name -volume volume_name -aggregate aggregate-name -encrypt true 」という名前のボリュームが作成されます
+NOTE: ONTAP 9.6以前のバージョンを使用している場合は、を追加します `-encrypt true` をクリックしてください。ONTAP 9.7以降でこのパラメータを使用してアグリゲートのNAE暗号化を行うと、ボリュームでNVEが使用されます。
 
 
 
  a| 
 プレーンテキストのボリューム
  a| 
-「 volume create -vserver svm_name -volume volume_name -aggregate aggregate-name -encrypt false 」という名前のボリュームが作成されます
+`volume create -vserver _SVM_name_ -volume _volume_name_ -aggregate _aggregate_name_ -encrypt false`
 
 |===
 +
-コマンド構文全体については、コマンドのマニュアルページを参照してください。
+コマンド構文の詳細については、コマンドリファレンスのリンクhttps://docs.netapp.com/us-en/ontap-cli-9121/volume-create.htmlを参照してください[`volume create`^]をクリックします。
 
-+
-ONTAP 9.7 以降では、次のコマンドを実行すると、「 aggr1 」に「 vol1 」という名前の NAE ボリュームが作成されます。
-
-+
-[listing]
-----
-cluster1::> volume create -vserver vs1 -volume vol1 -aggregate aggr1
-----
-+
-次のコマンドでは、アグリゲートレベルの暗号化が有効になっている場合に ONTAP 9.6 を使用して、「 aggr1 」に「 vol1 」という名前の NAE ボリュームを作成します。
-
-+
-[listing]
-----
-cluster1::> volume create -vserver vs1 -volume vol1 -aggregate aggr1
-----
-+
-ONTAP 9.7 以降では、次のコマンドを実行すると、「 vol2 」という名前の NVE ボリュームが aggr1 に作成されます。
-
-+
-[listing]
-----
-cluster1::> volume create -vserver vs1 -volume vol2 -aggregate aggr1
-----
-+
-ONTAP 9.6 以前を使用して、次のコマンドは「 vol2 」という名前の NVE ボリュームを「 aggr1 」に作成します。
-
-+
-[listing]
-----
-cluster1::> volume create -vserver vs1 -volume vol2 -aggregate aggr1 -encrypt true
-----
-+
-次のコマンドは 'vol3` という名前のプレーンテキストボリュームを aggr1 に作成します
-
-+
-[listing]
-----
-cluster1::> volume create -vserver vs1 -volume vol3 -aggregate aggr1 -encrypt false
-----
 . ボリュームで暗号化が有効になっていることを確認します。
 +
 volume show -is-encrypted true と表示されます
 
 +
-コマンド構文全体については、コマンドのマニュアルページを参照してください。
-
-+
-次のコマンドは 'cluster2' 上の暗号化されたボリュームを表示します
-
-+
-[listing]
-----
-cluster2::> volume show -is-encrypted true
-
-Vserver  Volume  Aggregate  State  Type  Size  Available  Used
--------  ------  ---------  -----  ----  -----  --------- ----
-vs1      vol1    aggr2     online    RW  200GB    160.0GB  20%
-----
+コマンド構文全体については、を参照してください link:https://docs.netapp.com/us-en/ontap-cli-9121/volume-show.html["コマンドリファレンス"^]。
 
 
-ノードの暗号化キーを保存するために KMIP サーバを使用している場合、ボリュームを暗号化すると、 ONTAP によって暗号化キーがサーバに自動的に「プッシュ」されます。
+
+ノードの暗号化キーの格納にKMIPサーバを使用している場合は、ボリュームを暗号化するとONTAP によって暗号化キーがサーバに自動的に「プッシュ」されます。

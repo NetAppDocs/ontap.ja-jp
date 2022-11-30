@@ -11,13 +11,15 @@ summary: ONTAP 9.7 以降では、 VE ライセンスとオンボードキー管
 
 
 [role="lead"]
-ONTAP 9.7 以降では、 VE ライセンスとオンボードキー管理または外部キー管理を使用している場合、新しく作成したアグリゲートとボリュームがデフォルトで暗号化されます。ONTAP 9.6 以降では、アグリゲートレベルの暗号化を使用して、暗号化するボリュームの包含アグリゲートにキーを割り当てることができます。アグリゲートに作成するボリュームはデフォルトで暗号化されます。このデフォルトの設定は、ボリュームを暗号化するときに無効にすることができます。
+ONTAP 9.7 以降では、 VE ライセンスとオンボードキー管理または外部キー管理を使用している場合、新しく作成したアグリゲートとボリュームがデフォルトで暗号化されます。ONTAP 9.6 以降では、アグリゲートレベルの暗号化を使用して、暗号化するボリュームの包含アグリゲートにキーを割り当てることができます。
 
 このタスクを実行するには、クラスタ管理者である必要があります。
 
 アグリゲートレベルの重複排除をインラインまたはバックグラウンドで実行する場合は、アグリゲートレベルの暗号化を使用する必要があります。そうしないと、 NVE でアグリゲートレベルの重複排除がサポートされません。
 
-アグリゲートレベルの暗号化が有効になっているアグリゲートは、 _NAE アグリゲートと呼ばれます（ NetApp Aggregate Encryption の場合）。NAE アグリゲートではプレーンテキストボリュームがサポートされません。
+アグリゲートレベルの暗号化が有効になっているアグリゲートは、 _NAE アグリゲートと呼ばれます（ NetApp Aggregate Encryption の場合）。NAEアグリゲート内のすべてのボリュームは、NAEまたはNVE暗号化を使用して暗号化する必要があります。アグリゲートレベルの暗号化では、アグリゲート内に作成したボリュームはデフォルトでNAE暗号化を使用して暗号化されます。デフォルトの設定を変更して、NVE暗号化を使用することもできます。
+
+NAE アグリゲートではプレーンテキストボリュームがサポートされません。
 
 .手順
 . アグリゲートレベルの暗号化を有効または無効にします。
@@ -32,28 +34,28 @@ ONTAP 9.7 以降では、 VE ライセンスとオンボードキー管理また
  a| 
 ONTAP 9.7 以降で NAE アグリゲートを作成します
  a| 
-「 storage aggregate create -aggregate aggregate-name -node node_name 」という形式で指定します
+`storage aggregate create -aggregate _aggregate_name_ -node _node_name_`
 
 
 
  a| 
 ONTAP 9.6 で NAE アグリゲートを作成します
  a| 
-「 storage aggregate create -aggregate aggregate_name -node node_name -encrypt-with -aggr-list true 」です
+`storage aggregate create -aggregate _aggregate_name_ -node _node_name_ -encrypt-with-aggr-key true`
 
 
 
  a| 
 非 NAE アグリゲートを NAE アグリゲートに変換します
  a| 
-「 storage aggregate modify -aggregate aggregate_name -node node_name -encrypt-with -aggr-list true 」です
+`storage aggregate modify -aggregate _aggregate_name_ -node _node_name_ -encrypt-with-aggr-key true`
 
 
 
  a| 
 NAE アグリゲートを非 NAE アグリゲートに変換します
  a| 
-「 storage aggregate modify -aggregate aggregate_name -node node_name -encrypt-with -aggr-list false 」です
+`storage aggregate modify -aggregate _aggregate_name_ -node _node_name_ -encrypt-with-aggr-key false`
 
 |===
 +

@@ -16,14 +16,14 @@ volume create コマンドを使用して ' 新しいボリュームで暗号化
 .このタスクについて
 NetApp Volume Encryption（NVE）を使用してボリュームを暗号化できます。また、ONTAP 9.6以降では、NetApp Aggregate Encryption（NAE）を使用できます。NAEおよびNVEの詳細については、を参照してください xref:configure-netapp-volume-encryption-concept[ボリューム暗号化の概要]。
 
-ONTAP で暗号化を有効にする手順 は、使用するONTAP のバージョンと構成によって異なります。
+ONTAP の新しいボリュームで暗号化を有効にする手順 は、使用するONTAP のバージョンと構成によって異なります。
 
 * ONTAP 9.4以降では、を有効にした場合 `cc-mode` オンボードキーマネージャをセットアップする場合は、でボリュームを作成します `volume create` コマンドは、指定したかどうかに関係なく自動的に暗号化されます `-encrypt true`。
 * ONTAP 9.6以前のリリースでは、を使用する必要があります `-encrypt true` を使用 `volume create` 暗号化を有効にするコマンド（を有効にしていない場合） `cc-mode`）。
-* ONTAP 9.6でNAEを使用している場合は、アグリゲートレベルでNAEを有効にする必要があります。を参照してください xref:enable-aggregate-level-encryption-nve-license-task.html[VEライセンスでアグリゲートレベルの暗号化を有効にします] 詳細については、を参照してください。
-* ONTAP 9.7 以降では、 VE ライセンスとオンボードキー管理または外部キー管理を使用している場合、新しく作成したボリュームがデフォルトで暗号化されます。
+* ONTAP 9.6でNAEボリュームを作成するには、アグリゲートレベルでNAEを有効にする必要があります。を参照してください xref:enable-aggregate-level-encryption-nve-license-task.html[VEライセンスでアグリゲートレベルの暗号化を有効にします] 詳細については、を参照してください。
+* ONTAP 9.7 以降では、 VE ライセンスとオンボードキー管理または外部キー管理を使用している場合、新しく作成したボリュームがデフォルトで暗号化されます。デフォルトでは、NAEアグリゲートに作成される新しいボリュームのタイプは、NVEではなくNAEになります。
 +
-** ONTAP 9.7以降のリリースでは、を使用します `-encrypt true` NAEアグリゲート内にボリュームを作成するには、NAEではなくNVE暗号化がボリュームに適用されます。NAEアグリゲート内のすべてのボリュームは、NVEまたはNAEを使用して暗号化する必要があります。
+** ONTAP 9.7以降のリリースでは、を追加した場合 `-encrypt true` に移動します `volume create` NAEアグリゲート内にボリュームを作成するコマンドは、NAEではなくNVE暗号化を使用します。NAEアグリゲート内のすべてのボリュームは、NVEまたはNAEを使用して暗号化する必要があります。
 
 
 
@@ -32,7 +32,7 @@ ONTAP で暗号化を有効にする手順 は、使用するONTAP のバージ�
 NOTE: NAE アグリゲートではプレーンテキストボリュームがサポートされません。
 
 .手順
-. 新しいボリュームを作成し、そのボリュームで暗号化を有効にするかどうかを指定します。
+. 新しいボリュームを作成し、そのボリュームで暗号化を有効にするかどうかを指定します。新しいボリュームがNAEアグリゲートに含まれている場合、デフォルトではボリュームがNAEボリュームになります。
 +
 [cols="25,75"]
 |===
@@ -44,20 +44,17 @@ NOTE: NAE アグリゲートではプレーンテキストボリュームがサ�
  a| 
 NAEボリューム
  a| 
-`volume create -vserver _SVM_name_ -volume _volume_name_ -aggregate _aggregate_name_` [+]
-
-
-NOTE: ONTAP 9.6では、アグリゲートレベルでNAEを有効にしてNAEボリュームを作成する必要があります。
+`volume create -vserver _SVM_name_ -volume _volume_name_ -aggregate _aggregate_name_`
 
 
 
  a| 
 NVEボリューム
  a| 
-`volume create -vserver _SVM_name_ -volume _volume_name_ -aggregate _aggregate_name_` [+]
+`volume create -vserver _SVM_name_ -volume _volume_name_ -aggregate _aggregate_name_ -encrypt true` [+]
 
 
-NOTE: ONTAP 9.6以前のバージョンを使用している場合は、を追加します `-encrypt true` をクリックしてください。ONTAP 9.7以降でこのパラメータを使用してアグリゲートのNAE暗号化を行うと、ボリュームでNVEが使用されます。
+NOTE: NAEがサポートされないONTAP 9.6以前では、 `-encrypt true` ボリュームをNVEで暗号化するように指定します。NAEアグリゲートでボリュームが作成されるONTAP 9.7以降では、 `-encrypt true` 代わりにデフォルトの暗号化タイプが無効になり、NVEボリュームが作成されます。
 
 
 

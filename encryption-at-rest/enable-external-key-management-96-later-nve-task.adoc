@@ -11,7 +11,7 @@ summary: 1 つ以上の KMIP サーバを使用して、暗号化されたデー
 
 
 [role="lead"]
-1 つ以上の KMIP サーバを使用して、暗号化されたデータにアクセスする際にクラスタで使用するキーを安全に保管できます。ONTAP 9.6 以降では、 1 つ以上の KMIP サーバを使用して、特定の SVM が暗号化されたデータにアクセスする際に使用するキーを安全に保管できます。
+1 つ以上の KMIP サーバを使用して、暗号化されたデータにアクセスする際にクラスタで使用するキーを安全に保管できます。ONTAP 9.6以降では、データSVMが暗号化されたデータにアクセスする際に使用するキーを保護するための独立した外部キー管理ツールを設定できます。
 
 ONTAP 9.11.1以降では、プライマリキーサーバごとに最大3つのセカンダリキーサーバを追加して、クラスタ化されたキーサーバを作成できます。詳細については、を参照してください xref:configure-cluster-key-server-task.html[クラスタ構成の外部キーサーバを構成]。
 
@@ -19,6 +19,7 @@ ONTAP 9.11.1以降では、プライマリキーサーバごとに最大3つの�
 * KMIP SSL クライアント証明書とサーバ証明書をインストールしておく必要があります。
 * このタスクを実行するには、クラスタ管理者または SVM の管理者である必要があります。
 * MetroCluster 環境で外部キー管理を有効にする場合は、外部キー管理を有効にする前に MetroCluster が完全に設定されている必要があります。
+* MetroCluster 環境では、両方のクラスタにKMIP SSL証明書をインストールする必要があります。
 
 
 .このタスクについて
@@ -49,7 +50,9 @@ ONTAP 9.11.1以降では、プライマリキーサーバごとに最大3つの�
 +
 [NOTE]
 ====
-「 securitykey-manager external enable 」コマンドは、「 securitykey-manager setup 」コマンドに代わるものです。クラスタ・ログイン・プロンプトでこのコマンドを実行すると '_admin_svm_name はデフォルトで現在のクラスタの管理 SVM に設定されますクラスタスコープを設定するには、クラスタ管理者である必要があります。「 securitykey-manager external modify 」コマンドを実行して、外部キー管理設定を変更できます。
+** 。 `security key-manager external enable` コマンドは、に置き換わるものです `security key-manager setup` コマンドを実行しますクラスタのログインプロンプトでコマンドを実行すると、 `_admin_SVM_` デフォルトでは、現在のクラスタの管理SVMが使用されます。クラスタスコープを設定するには、クラスタ管理者である必要があります。を実行できます `security key-manager external modify` コマンドを使用して、外部キー管理の設定を変更します。
+** MetroCluster 環境で管理SVMに外部キー管理を設定する場合は、を繰り返す必要があります `security key-manager external enable` パートナークラスタに対して実行します。
+
 
 ====
 +
@@ -67,7 +70,9 @@ clusterl::> security key-manager external enable -vserver cluster1 -key-servers 
 +
 [NOTE]
 ====
-このコマンドを SVM のログインプロンプトで実行すると、「 S vm 」はデフォルトで現在の SVM に設定されます。SVM スコープを設定するには、クラスタ管理者または SVM 管理者である必要があります。「 securitykey-manager external modify 」コマンドを実行して、外部キー管理設定を変更できます。
+** このコマンドを SVM のログインプロンプトで実行すると、「 S vm 」はデフォルトで現在の SVM に設定されます。SVM スコープを設定するには、クラスタ管理者または SVM 管理者である必要があります。「 securitykey-manager external modify 」コマンドを実行して、外部キー管理設定を変更できます。
+** MetroCluster 環境でデータSVMに外部キー管理を設定する場合は、の手順を繰り返す必要はありません `security key-manager external enable` パートナークラスタに対して実行します。
+
 
 ====
 +

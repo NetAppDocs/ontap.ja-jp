@@ -1,7 +1,7 @@
 ---
 permalink: snaplock/initialize-complianceclock-task.html 
 sidebar: sidebar 
-keywords: snaplock, complianceclock, initialize, worm, retention, period, node 
+keywords: snaplock, complianceclock, initialize, worm, retention, period, node, ntp, reset, resynchronize 
 summary: SnapLock では、 ComplianceClock を使用して改ざんによる WORM ファイルの保持期間の変更を防止します。SnapLock アグリゲートをホストする各ノードでシステム ComplianceClock を初期化する必要があります。ノードで ComplianceClock を初期化すると、再度初期化することはできません。 
 ---
 = ComplianceClock を初期化します
@@ -71,3 +71,50 @@ Do you want to continue? (y|n): y
 
 --
 ====
+
+
+== NTPが設定されたシステムに対してComplianceClockの再同期を有効にします
+
+SnapLock サーバを設定する際に、NTPのComplianceClock時間同期機能を有効にすることができます。
+
+.必要なもの
+* この機能は、 advanced 権限レベルでのみ使用できます。
+* このタスクを実行するには、クラスタ管理者である必要があります。
+* ノードに SnapLock ライセンスがインストールされている必要があります。
+* この機能は、 Cloud Volumes ONTAP 、 ONTAP Select 、および vsim プラットフォームでのみ使用できます。
+
+
+.このタスクについて
+SnapLock のセキュアクロックデーモンがしきい値を超えるスキューを検出すると、ONTAP はシステム時間を使用してシステムとボリュームの両方のComplianceClockをリセットします。スキューのしきい値は 24 時間に設定されています。つまり、システム ComplianceClock はスキューが 1 日を超えた場合にのみシステムクロックに同期されます。
+
+SnapLock のセキュアクロックデーモンがスキューを検出し、 ComplianceClock をシステム時間に変更します。ComplianceClock はシステム時間が NTP の時間と同期されている場合しかシステム時間と同期されないため、システム時間を変更して ComplianceClock をシステム時間に強制的に同期しようとしても失敗します。
+
+.手順
+. NTP サーバを設定する際に、 SnapLock の ComplianceClock 時間同期機能を有効にします。
++
+「 * SnapLock compliance -clock ntp* 」を参照してください
+
++
+次のコマンドは、システムの ComplianceClock 時間同期機能を有効にします。
+
++
+[listing]
+----
+cluster1::*> snaplock compliance-clock ntp modify -is-sync-enabled true
+----
+. プロンプトが表示されたら、設定した NTP サーバが信頼できることと、通信チャネルがセキュアであることを確認して機能を有効にします。
+. 機能が有効になっていることを確認します。
++
+「 * SnapLock compliance -clock ntp show * 」を参照してください
+
++
+次のコマンドは、システムの ComplianceClock 時間同期機能が有効になっていることを確認します。
+
++
+[listing]
+----
+cluster1::*> snaplock compliance-clock ntp show
+
+Enable clock sync to NTP system time: true
+----
+

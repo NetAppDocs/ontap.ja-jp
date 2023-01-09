@@ -1,10 +1,10 @@
 ---
 permalink: snaplock/set-retention-period-task.html 
 sidebar: sidebar 
-keywords: snaplock, set, retention, time, default, file, volume, period 
+keywords: snaplock, set, retention, time, default, explicit, file, modify, volume, period 
 summary: 保持期限の設定については、ファイルに対して明示的に設定する方法と、ボリュームのデフォルトの保持期間から自動的に設定する方法があります。保持期限を明示的に設定しないかぎり、 SnapLock はデフォルトの保持期間を使用して保持期限を計算します。 
 ---
-= 保持期限の概要を設定
+= 保持期限を設定
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
@@ -13,10 +13,7 @@ summary: 保持期限の設定については、ファイルに対して明示�
 [role="lead"]
 保持期限の設定については、ファイルに対して明示的に設定する方法と、ボリュームのデフォルトの保持期間から自動的に設定する方法があります。保持期限を明示的に設定しないかぎり、 SnapLock はデフォルトの保持期間を使用して保持期限を計算します。
 
-
-
-== 保持期間と保持期限の概要
-
+.保持期間と保持期限の概要
 WORM ファイルの _retention period_ は、 WORM 状態にコミットされたファイルを保持する必要がある期間を指定します。WORM ファイルの _ retention time_ は、その時点までファイルを保持する必要がなくなった時間です。たとえば、ファイルが 2020 年 11 月 10 日の午前 6 時に WORM 状態にコミットされた場合、ファイルの保持期間が 20 年であれば、保持期限は 2040 年 11 月 10 日の午前 6 時になります
 
 image::../media/retention.gif[保持]
@@ -26,22 +23,13 @@ image::../media/retention.gif[保持]
 ONTAP 9.10.1 以降では、最大 10 月 26 日、 3058 日、保持期間を 100 年に設定できます。保持期限を延長すると、古いポリシーが自動的に変換されます。ONTAP 9.9.1 以前のリリースでは、デフォルトの保持期間を無期限に設定した場合を除き、サポートされる最大保持期間は 2071 年 1 月 19 日（ GMT ）です。
 
 ====
-
-
-== レプリケーションに関する重要な考慮事項
-
+.レプリケーションに関する重要な考慮事項
 2071年1月19日（GMT）よりもあとの保持期限を使用してSnapLock ソースボリュームとのSnapMirror関係を確立する場合、デスティネーションクラスタでONTAP 9.10.1以降が実行されている必要があります。実行されていないとSnapMirror転送が失敗します。
 
-
-
-== リバートに関する重要な考慮事項
-
+.リバートに関する重要な考慮事項
 ONTAP では、保持期間が「 January 19 、 2071 8:44:07 AM 」よりもあとのファイルがある場合、 ONTAP 9.10.1 から以前の ONTAP バージョンにクラスタをリバートすることはできません。
 
-
-
-== デフォルトの保持期間について理解していること
-
+.デフォルトの保持期間について理解していること
 SnapLock Compliance または Enterprise ボリュームには、次の 4 つの保持期間があります。
 
 * 最小保持期間（「」単位）。デフォルトは 0 です
@@ -62,3 +50,198 @@ ONTAP 9.12.1以降、保持期間がに設定されたWORMファイル `unspecif
 
 
 したがって、 Compliance モードのファイルを WORM 状態にコミットする前に保持期限を明示的に設定していない場合、デフォルトを変更していなければファイルは 30 年間保持されます。同様に、 Enterprise モードのファイルを WORM 状態にコミットする前に保持期限を明示的に設定していない場合、デフォルトを変更していなければファイルは 0 年、つまり実質的には保持されません。
+
+
+
+== デフォルトの保持期間を設定
+
+volume SnapLock modify コマンドを使用すると、 SnapLock ボリューム上のファイルのデフォルトの保存期間を設定できます。
+
+.必要なもの
+SnapLock ボリュームはオンラインである必要があります。
+
+.このタスクについて
+次の表に、デフォルトの保持期間に指定できる値を示します。
+
+[NOTE]
+====
+デフォルトの保持期間は、最小保持期間以上、最大保持期間以下にする必要があります。
+
+====
+|===
+| 価値 | 単位 | 注： 
+
+
+ a| 
+0 ~ 65535
+ a| 
+秒
+ a| 
+
+
+
+ a| 
+0 ~ 24
+ a| 
+時間
+ a| 
+
+
+
+ a| 
+0 ~ 365
+ a| 
+日
+ a| 
+
+
+
+ a| 
+0 ~ 12
+ a| 
+月
+ a| 
+
+
+
+ a| 
+0 ~ 100
+ a| 
+年
+ a| 
+ONTAP 9.10.1以降でサポートされます。以前のONTAP リリースの場合、値は0 ~ 70です。
+
+
+
+ a| 
+最大
+ a| 
+-
+ a| 
+最大保持期間を使用します。
+
+
+
+ a| 
+最小
+ a| 
+-
+ a| 
+最小保持期間を使用します。
+
+
+
+ a| 
+制限なし
+ a| 
+-
+ a| 
+ファイルを無期限に保持します。
+
+
+
+ a| 
+未指定
+ a| 
+-
+ a| 
+絶対保持期間が設定されるまでファイルを保持します。
+
+|===
+最大保持期間と最小保持期間の値と範囲は同じですが、「最大保持期間」と「最小保持期間」は適用されません。このタスクの詳細については、を参照してください link:set-retention-period-task.html["保持期限の概要を設定"]。
+
+volume SnapLock show コマンドを使用して ' ボリュームの保存期間設定を表示できます詳細については、コマンドのマニュアルページを参照してください。
+
+[NOTE]
+====
+ファイルが WORM 状態にコミットされたあとは、保持期間を延長することはできますが短縮することはできません。
+
+====
+.手順
+. SnapLock ボリューム上のファイルにデフォルトの保持期間を設定します。
++
+` * volume SnapLock modify -vserver _svm_name _ -volume_name_-default-retention-period_default_retention_period_ -minimum-retention-period_min_retention_period_ -maximum-retention_period_ *
+
++
+すべてのオプションの一覧については、コマンドのマニュアルページを参照してください。
+
++
+[NOTE]
+====
+次の例は、最小保持期間と最大保持期間が過去に変更されていないことを前提としています。
+
+====
++
+次のコマンドは、 Compliance ボリュームまたは Enterprise ボリュームのデフォルトの保持期間を 20 日に設定します。
+
++
+[listing]
+----
+cluster1::> volume snaplock modify -vserver vs1 -volume vol1 -default-retention-period 20days
+----
++
+次のコマンドは、 Compliance ボリュームのデフォルトの保持期間を 70 年に設定します。
+
++
+[listing]
+----
+cluster1::> volume snaplock modify -vserver vs1 -volume vol1 -maximum-retention-period 70years
+----
++
+次のコマンドは、 Enterprise ボリュームのデフォルトの保持期間を 10 年に設定します。
+
++
+[listing]
+----
+cluster1::> volume snaplock modify -vserver vs1 -volume vol1 -default-retention-period max -maximum-retention-period 10years
+----
++
+次のコマンドは、 Enterprise ボリュームのデフォルトの保持期間を 10 日に設定します。
+
++
+[listing]
+----
+cluster1::> volume snaplock modify -vserver vs1 -volume vol1 -minimum-retention-period 10days
+cluster1::> volume snaplock modify -vserver vs1 -volume vol1 -default-retention-period min
+----
++
+次のコマンドは、 Compliance ボリュームのデフォルトの保持期間を無期限に設定します。
+
++
+[listing]
+----
+cluster1::> volume snaplock modify -vserver vs1 -volume vol1 -default-retention-period infinite -maximum-retention-period infinite
+----
+
+
+
+
+== ファイルの保持期限の明示的な設定
+
+ファイルに対して保持期限を明示的に設定するには、最終アクセス時刻を変更します。最終アクセス時刻は、 NFS または CIFS で適切なコマンドやプログラムを使用して変更できます。
+
+.このタスクについて
+ファイルが WORM 状態にコミットされたあとは、保持期限を延長することはできますが短縮することはできません。保持時間は、ファイルの「 atime 」フィールドに格納されます。
+
+[NOTE]
+====
+ファイルの保存期間を明示的に無期限に設定することはできませんこの値は、デフォルトの保持期間を使用して保持期限を計算する場合にのみ使用できます。
+
+====
+.手順
+. 適切なコマンドまたはプログラムを使用して、保持期限を設定するファイルの最終アクセス日時を変更します。
++
+UNIX シェルで、次のコマンドを使用して、保持期限を 2020 年 11 月 21 日の午前 6 時に設定します「 Document .txt 」という名前のファイル：
+
++
+[listing]
+----
+touch -a -t 202011210600 document.txt
+----
++
+[NOTE]
+====
+Windows では、任意の適切なコマンドまたはプログラムを使用して最終アクセス時刻を変更できます。
+
+====
+

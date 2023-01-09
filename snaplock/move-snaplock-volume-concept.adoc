@@ -1,7 +1,7 @@
 ---
 permalink: snaplock/move-snaplock-volume-concept.html 
 sidebar: sidebar 
-keywords: move, snaplock, volume, aggregate, security, role, enterprise, compliance 
+keywords: move, snaplock, volume, aggregate, security, role, enterprise, compliance, create, administrator, support, user, cluster, destination, command 
 summary: ONTAP 9.8 以降では、 SnapLock ボリュームを同じタイプのデスティネーションアグリゲート（ Enterprise から Enterprise へ、または Compliance to Compliance ）に移動できます。SnapLock を移動するには、 SnapLock セキュリティロールが割り当てられている必要があります。 
 ---
 = SnapLock ボリュームを移動
@@ -12,3 +12,62 @@ summary: ONTAP 9.8 以降では、 SnapLock ボリュームを同じタイプの
 
 [role="lead"]
 ONTAP 9.8 以降では、 SnapLock ボリュームを同じタイプのデスティネーションアグリゲート（ Enterprise から Enterprise へ、または Compliance to Compliance ）に移動できます。SnapLock を移動するには、 SnapLock セキュリティロールが割り当てられている必要があります。
+
+
+
+== SnapLock セキュリティ管理者アカウントを作成します
+
+SnapLock の移動を実行するには、 SnapLock セキュリティ管理者の権限が必要です。この権限は、 ONTAP 9.8 で導入された _ SnapLock _ ロールで付与されます。このロールが割り当てられていない場合は、クラスタ管理者に、この SnapLock セキュリティロールを持つ SnapLock セキュリティユーザの作成を依頼してください。
+
+.必要なもの
+* このタスクを実行するには、クラスタ管理者である必要があります。
+* セキュアな接続（ SSH 、コンソール、または ZAPI ）でログインする必要があります。
+
+
+.このタスクについて
+SnapLock ロールは、データ SVM に関連付けられる vsadmin-snaplock ロールとは異なり、管理 SVM に関連付けられています。
+
+.ステップ
+. SnapLock 管理者ロールを持つ SVM 管理者アカウントを作成します。
++
+「 * security login create -vserver _svm_name __ user-or -group-name_user_or_group_name _application_-authmethod _authentication_method_-role _role_-comment_*`
+
++
+次のコマンドは、事前定義された「 SnapLock 」ロールを持つ SVM 管理者アカウント「 SnapLockAdmin 」が、パスワードを使用して管理 SVM 「 cluster1 」にアクセスできるようにします。
+
++
+[listing]
+----
+cluster1::> security login create -vserver cluster1 -user-or-group-name SnapLockAdmin -application ssh -authmethod password -role snaplock
+----
+
+
+
+
+== SnapLock ボリュームを移動
+
+「 volume move 」コマンドを使用して、 SnapLock ボリュームをデスティネーションアグリゲートに移動できます。
+
+.必要なもの
+* SnapLock ボリュームの移動を実行する前に、 SnapLock で保護された監査ログを作成しておく必要があります。
++
+link:create-audit-log-task.html["監査ログを作成します"]。
+
+* ONTAP 9.10.1 より前のバージョンの ONTAP を使用している場合は、デスティネーションアグリゲートの SnapLock タイプが、 Compliance から Compliance へ、または Enterprise から Enterprise への移動対象の SnapLock ボリュームと同じである必要があります。ONTAP 9.10.1 以降ではこの制限が解除され、 Compliance SnapLock と Enterprise の両方のボリューム、および SnapLock 以外のボリュームをアグリゲートに含めることができます。
+* SnapLock セキュリティロールを持つユーザである必要があります。
+
+
+.手順
+. セキュアな接続を使用して、 ONTAP クラスタ管理 LIF にログインします。
++
+'*ssh snaplock_user@cluster_mgmt_ip*
+
+. SnapLock ボリュームを移動します。
++
+` * volume move start -vserver_svm_name_-volume_snaplock_volume_name -- destination -aggregate_destination_aggregate-name_*`
+
+. ボリューム移動処理のステータスを確認します。
++
+`* volume move show -volume _snaplock_volume_name -- vserver_svm_name_-fields volume 、 phase 、 vserver *`
+
+

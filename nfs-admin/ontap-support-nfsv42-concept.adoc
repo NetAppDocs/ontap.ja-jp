@@ -1,8 +1,8 @@
 ---
 permalink: nfs-admin/ontap-support-nfsv42-concept.html 
 sidebar: sidebar 
-keywords: ontap, support, nfsv4.2 
-summary: ONTAP 9.8 以降では、 NFSv4 4.2 クライアントのアクセスを許可するために、 NFSv4 4.2 プロトコルがサポートされています。 
+keywords: ontap, support, nfsv4.2, MAC-labelled NFS, extended attributes, xattrs 
+summary: ONTAP 9.8以降では、NFSv4 4.2対応クライアントのアクセスを許可するために、NFSv4 4.2プロトコルがサポートされています。 
 ---
 = NFSv4 4.2 の ONTAP サポート
 :allow-uri-read: 
@@ -11,15 +11,31 @@ summary: ONTAP 9.8 以降では、 NFSv4 4.2 クライアントのアクセス�
 
 
 [role="lead"]
-ONTAP 9.8 以降では、 NFSv4 4.2 クライアントのアクセスを許可するために、 NFSv4 4.2 プロトコルがサポートされています。
+ONTAP 9.8以降では、NFSv4 4.2対応クライアントのアクセスを許可するために、NFSv4 4.2プロトコルがサポートされています。
 
 ONTAP 9.9.1 以降では、 NFSv4 4.2 がデフォルトで有効になっています。ONTAP 9.8 では、 Storage Virtual Machine （ SVM ）に NFS サーバを作成するときに「 -v4.1 」オプションを指定して「 enabled 」に設定することで、 v4.2 を有効にすることができます。NFSv4.1 を有効にすると、クライアントが v4.2 としてマウントされた状態で NFSv4.1 の機能を使用することもできます。
 
 以下の NFSv4 4.2 のオプション機能がサポートされます。
 
-* ONTAP 9.9.9 以降では、 NFSv4 4.2 を有効にすると、 とラベルされた必須アクセス制御（ MAC ）がサポートされます。
-* NFSv4 4.2 のオプション機能は、 ONTAP の今後のリリースで追加される予定です。
+[cols="2*"]
+|===
+| フィーチャー（ Feature ） | 以降でサポートされるコマンド 
 
+
+ a| 
+NFSとラベルされたMAC（必須アクセス制御
+ a| 
+ONTAP 9.9.1
+
+
+
+ a| 
+NFS拡張属性
+ a| 
+ONTAP 9.12.1
+
+|===
+NFSv4 4.2 のオプション機能は、 ONTAP の今後のリリースで追加される予定です。
 
 
 
@@ -29,13 +45,10 @@ ONTAP 9.9..1 以降では、 NFS セキュリティラベルを有効にでき�
 
 NFS v4.2 セキュリティラベルでは、 ONTAP NFS サーバは必須アクセス制御（ MAC ）対応であり、クライアントから送信された sec_label 属性を保存および取得します。
 
-詳細については、を参照してください https://tools.ietf.org/html/rfc7204["RFC7240"]
+詳細については、を参照してください link:https://tools.ietf.org/html/rfc7204["RFC 7240"^]
 
-[NOTE]
-====
-NFS v4.2 のセキュリティラベルは、 NDMP ダンプ処理では現在サポートされていません。ファイルまたはディレクトリでセキュリティラベルが検出されると、ダンプは失敗します。
+ONTAP 9.12.1以降では、NDMPダンプ処理でNFS v4.2セキュリティラベルがサポートされます。以前のリリースのファイルまたはディレクトリでセキュリティラベルが検出された場合、ダンプは失敗します。
 
-====
 .手順
 . 権限の設定を advanced に変更します。
 +
@@ -43,6 +56,18 @@ NFS v4.2 のセキュリティラベルは、 NDMP ダンプ処理では現在�
 
 . セキュリティラベルを有効にする：
 +
-「 vserver nfs modify -vserver svm_name -v4.2 -seclabel enabled 」を参照してください
+``vserver nfs modify -vserver _svm_name_ -v4.2-seclabel enabled``
 
 
+
+
+
+== NFS拡張属性を有効にします
+
+ONTAP 9.12.1以降では、NFS拡張属性（xattrs）がデフォルトで有効になっています。
+
+拡張属性は、で定義される標準のNFS属性です https://tools.ietf.org/html/rfc8276["RFC 8276"^] 最新のNFSクライアントで有効になっています。ユーザ定義のメタデータをファイルシステムオブジェクトに添付するために使用でき、高度なセキュリティ環境に関心があります。
+
+現在のところ、NDMPダンプ処理では、NFS拡張属性はサポートされていません。ファイルまたはディレクトリで拡張属性が検出された場合'ダンプは続行されますが'これらのファイルまたはディレクトリの拡張属性はバックアップされません
+
+拡張属性を無効にする必要がある場合は、を使用します ``vserver nfs modify -v4.2-xattrs disabled`` コマンドを実行します

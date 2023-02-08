@@ -1,0 +1,86 @@
+---
+permalink: san-admin/prevent_port_overlap_between_switchover.html 
+sidebar: sidebar 
+keywords: metrocluster environments, considerations, san configuration, metrocluster, environments, san, configurations, cisco switch, brocade switch, 
+summary: 古いポートがオフラインになり、新しいポートがオンラインになったときの重複を避けるために、フロントエンドスイッチを設定できます。 
+---
+= スイッチオーバーとスイッチバックの間でポートが重複しないようにする
+:allow-uri-read: 
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+SAN環境では、古いポートがオフラインになって新しいポートがオンラインになったときに重複しないように、フロントエンドスイッチを設定できます。
+
+スイッチオーバーの実行中に、ディザスタサイトの FC ポートがオフラインで、このポートがネームサービスとディレクトリサービスから削除されたことをファブリックが検出するまで、サバイバーサイトの FC ポートがファブリックにログインすることがあります。
+
+災害時に FC ポートがまだ削除されていないと、 WWPN の重複が原因で、サバイバーサイトでの FC ポートのファブリックログインが拒否される可能性があります。FC スイッチのこの動作は、既存のデバイスではなく、前のデバイスのログインに合わせて変更できます。この動作が他のファブリックデバイスに与える影響を確認してください。詳細については、スイッチベンダーにお問い合わせください。
+
+スイッチのタイプに応じて、適切な手順 を選択します。
+
+.手順
+[role="tabbed-block"]
+====
+.Cisco スイッチ
+--
+. スイッチに接続してログインします。
+. コンフィギュレーションモードを開始します。
++
+....
+switch# config t
+switch(config)#
+....
+. ネームサーバデータベースの最初のデバイスエントリを新しいデバイスで上書きします。
++
+[listing]
+----
+switch(config)# no fcns reject-duplicate-pwwn vsan 1
+----
+. NX-OS 8.x を実行しているスイッチで、 flogi quiesce タイムアウトが 0 に設定されていることを確認します。
++
+.. 休止期間を表示します。
++
+`switch(config)# show flogi interval info \| i quiesce`
+
++
+....
+ Stats:  fs flogi quiesce timerval:  0
+....
+.. 前の手順の出力で時刻がゼロであることが示されない場合は、 0 に設定します。
++
+'Switch (config)# flogi scale enable`
+
++
+'Switch (config)# flogi quiesce timeout 0`
+
+
+
+
+
+--
+.Brocade スイッチ
+--
+. スイッチに接続してログインします。
+. 「 witchDisable 」コマンドを入力します。
+. configure コマンドを入力し ' プロンプトで y を押します
++
+....
+ F-Port login parameters (yes, y, no, n): [no] y
+....
+. 設定 1 を選択：
++
+....
+- 0: First login take precedence over the second login (default)
+- 1: Second login overrides first login.
+- 2: the port type determines the behavior
+Enforce FLOGI/FDISC login: (0..2) [0] 1
+....
+. 残りのプロンプトに応答するか、 * Ctrl+D* を押します。
+. 「 witchEnable 」コマンドを入力します。
+
+
+--
+====
+.関連情報
+link:https://docs.netapp.com/us-en/ontap-metrocluster/manage/task_perform_switchover_for_tests_or_maintenance.html["テストまたはメンテナンスのためのスイッチオーバーの実行"^]

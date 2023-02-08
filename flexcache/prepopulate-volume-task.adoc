@@ -20,16 +20,19 @@ FlexCache ボリュームを事前に取り込むことで、キャッシュさ�
 
 .このタスクについて
 * ファイルのみを事前に読み込み、ディレクトリをクロールします
-* is-recursion フラグは、環境に渡されたディレクトリのリスト全体を事前に取り込む
+* 。 `-isRecursion` 環境 に、事前入力に渡されたディレクトリのリスト全体にフラグを設定します
 
 
 .手順
 . FlexCache ボリュームを事前に取り込む：
 +
-volume FlexCache ep_cache-vserver vserver_name -cache-volume-listpath_list path_list -is-recursion true | false
+`volume flexcache prepopulate -cache-vserver vserver_name -cache-volume -path-list _path_list_ -isRecursion true|false`
 
 +
-この例には、事前取り込み用のディレクトリパスが 1 つ含まれています。
+** 。 `-path-list` パラメータは、元のルートディレクトリから事前に取り込む相対ディレクトリパスを指定します。たとえば、元のルートディレクトリの名前が/originで、ディレクトリ/origin/dir1と/origin/dir2が含まれている場合は、次のようにパスのリストを指定できます。 `-path-list dir1, dir2` または `-path-list /dir1, /dir2`。
+** のデフォルト値 `-isRecursion` パラメータはTrueです。
++
+この例では、単一のディレクトリパスが事前に設定されています
 
 +
 [listing]
@@ -39,7 +42,7 @@ cluster1::*> flexcache prepopulate start -cache-vserver vs2 -cache-volume fg_cac
 [JobId 207]: FlexCache prepopulate job queued.
 ----
 +
-この例には、事前取り込みのためのパスがいくつか含まれています。
+次の例では、複数のディレクトリからファイルを事前に取り込みます。
 
 +
 [listing]
@@ -47,6 +50,26 @@ cluster1::*> flexcache prepopulate start -cache-vserver vs2 -cache-volume fg_cac
 cluster1::*> flexcache prepopulate start -cache-vserver vs2 -cache-volume fg_cachevol_1 -path-list /dir1,/dir2,/dir3,/dir4
   (volume flexcache prepopulate start)
 [JobId 208]: FlexCache prepopulate job queued.
+----
++
+次の例では、単一のファイルが事前に読み込まれます。
+
++
+[listing]
+----
+cluster1::*> flexcache prepopulate start -cache-vserver vs2 -cache-volume fg_cachevol_1 -path-list /dir1/file1.txt
+  (volume flexcache prepopulate start)
+[JobId 209]: FlexCache prepopulate job queued.
+----
++
+次の例では、オリジンのすべてのファイルを事前に取り込みます。
+
++
+[listing]
+----
+cluster1::*> flexcache prepopulate start -cache-vserver vs2 -cache-volume fg_cachevol_1 -path-list / -isRecursion true
+  (volume flexcache prepopulate start)
+[JobId 210]: FlexCache prepopulate job queued.
 ----
 +
 この例には、事前取り込みの無効なパスが含まれています。
@@ -60,6 +83,8 @@ cluster1::*> flexcache prepopulate start -cache-volume vol_cache2_vs3_c2_vol_ori
 Error: command failed: Path(s) "dir5, dir6" does not exist in origin volume
        "vol_origin1_vs1_c1" in Vserver "vs1_c1".
 ----
+
+
 . 読み取られたファイル数を表示します。
 +
 「 job show -id job_ID -ins 」を参照してください

@@ -2,7 +2,7 @@
 permalink: file-system-analytics/activity-tracking-task.html 
 sidebar: sidebar 
 keywords: monitor, volume, ontap, FSA, File System Analytics, 
-summary: Activity Tracking ：指定されたボリューム内のホットファイル、ディレクトリ、クライアント、およびユーザを表示して、でのリアルタイムのパフォーマンストラブルシューティングを実現します 
+summary: アクティビティトラッキング機能。ホットオブジェクトを識別し、CSVファイルとしてダウンロードできます。 
 ---
 = アクティビティトラッキングを有効にします
 :allow-uri-read: 
@@ -36,7 +36,7 @@ System Managerでボリュームレベルでアクティビティ追跡を表示
 アクティビティ追跡は、ONTAP システムマネージャまたはONTAP CLIを使用して有効にできます。
 
 .このタスクについて
-ONTAP REST API または System Manager で RBAC を使用する場合は、アクティビティ追跡へのアクセスを管理するためのカスタムロールを作成する必要があります。を参照してください <<ロールベースアクセス制御（RBAC）とアクティビティトラッキング>> をクリックしてください。
+ONTAP REST API または System Manager で RBAC を使用する場合は、アクティビティ追跡へのアクセスを管理するためのカスタムロールを作成する必要があります。を参照してください xref:role-based-access-control-task.html[ロールベースアクセス制御] をクリックしてください。
 
 [role="tabbed-block"]
 ====
@@ -72,7 +72,7 @@ volume activity -tracking show -vsverver_svm_name -- volume_volume_name --state`
 System Managerを使用して、複数のボリュームのアクティビティ追跡を一度に有効にすることができます。
 
 .このタスクについて
-ONTAP REST API または System Manager で RBAC を使用する場合は、アクティビティ追跡へのアクセスを管理するためのカスタムロールを作成する必要があります。を参照してください <<ロールベースアクセス制御（RBAC）とアクティビティトラッキング>> をクリックしてください。
+ONTAP REST API または System Manager で RBAC を使用する場合は、アクティビティ追跡へのアクセスを管理するためのカスタムロールを作成する必要があります。を参照してください <<Role-based access control (RBAC) and Activity Tracking>> をクリックしてください。
 
 [role="tabbed-block"]
 ====
@@ -94,48 +94,3 @@ ONTAP REST API または System Manager で RBAC を使用する場合は、ア�
 
 --
 ====
-
-
-== ロールベースアクセス制御（RBAC）とアクティビティトラッキング
-
-を使用する場合 xref:../concepts/administrator-authentication-rbac-concept.html[ロールベースアクセス制御] （RBAC）System ManagerまたはONTAP REST APIで、ファイルシステム分析のアクティビティ追跡に中程度のアクセスを許可する専用のロールを作成する必要があります。
-
-.手順
-. すべての機能にアクセスできるようにデフォルトのロールを作成します。
-+
-この作業は ' ロールがアクティビティの追跡のみに限定されるようにするために ' 制限的なロールを作成する前に実行する必要があります
-
-+
-「 security login role create -cmddirname default-access all-role storageadmin 」を実行します
-
-. 制限付きロールを作成します。
-+
-「 security login role create -cmddirname 」 volume file show -disk -usage 」 -access none -role storageadmin
-
-. ロールに SVM の Web サービスへのアクセスを許可します。
-+
-** REST API コール用の 'rest'
-** パスワード保護のための「セキュリティ」
-** System Manager へのアクセス用の sysmgr
-+
-「vserver services web access create -vserver_SVM-name __-name rest-role storageadmin
-
-+
-「vserver services web access create -vserver_SVM-name security-role storageadmin」という名前になります
-
-+
-vserver services web access create -vserver_SVM-name sysmgr -role storageadminです
-
-
-
-. ユーザを作成します。
-+
-ユーザに適用するアプリケーションごとに個別の create コマンドを問題 に設定する必要があります。同じユーザで create を複数回呼び出すと、すべてのアプリケーションがそのユーザに適用されるだけで、毎回新しいユーザが作成されることはありません。アプリケーション・タイプの 'http' パラメータは、 ONTAP REST API および System Manager に適用されます。
-
-+
-「 security login create -user-or -group-name storageUser-authentication-method password -application http-role storageadmin 」を参照してください
-
-. 新しいユーザクレデンシャルを使用して、System Managerにログインするか、ONTAP REST APIを使用してファイルシステム分析データにアクセスできるようになりました。
-
-
-link:https://docs.netapp.com/us-en/ontap-automation/rest/rbac_overview.html["RBACロールとONTAP REST APIの詳細については、こちらをご覧ください"^]

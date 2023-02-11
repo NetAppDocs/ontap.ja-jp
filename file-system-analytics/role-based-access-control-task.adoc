@@ -1,0 +1,114 @@
+---
+permalink: file-system-analytics/role-based-access-control-task.html 
+sidebar: sidebar 
+keywords: rbac, file system analytics, control, pre-defined, admin-no-fsa 
+summary: 使用しているONTAP のバージョンによっては、ファイルシステム分析を使用するためのカスタムのRBACロールを作成しなければならない場合があります。 
+---
+= ファイルシステム分析を使用したロールベースアクセス制御
+:allow-uri-read: 
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+ONTAP 9.12.1以降では、ONTAP に、という名前の事前定義されたロールベースアクセス制御（RBAC）ロールが含まれています `admin-no-fsa`。。 `admin-no-fsa` ロールは管理者レベルの権限を付与しますが、に関連する処理は実行できません `files` ONTAP CLI、REST API、およびSystem Managerのエンドポイント（ファイルシステム分析など）
+
+詳細については、を参照してください `admin-no-fsa` ロール。を参照してください xref:../authentication/predefined-roles-cluster-administrators-concept.html[クラスタ管理者の事前定義されたロール]。
+
+ONTAP 9.12.1よりも前のバージョンのONTAP を使用している場合は、ファイルシステム分析へのアクセスを制御する専用のロールを作成する必要があります。ONTAP 9.12.1よりも前のバージョンのONTAP では、ONTAP CLIまたはONTAP REST APIを使用してRBAC権限を設定する必要があります。
+
+[role="tabbed-block"]
+====
+.System Manager の略
+--
+ONTAP 9.12.1以降では、System Managerを使用してファイルシステム分析用のRBAC権限を設定できます。
+
+.手順
+. [* Cluster]>[Settings]（設定）*を選択します。[*セキュリティ*]で、[*ユーザーと役割*]に移動し、を選択します image:icon_arrow.gif["矢印アイコン"]。
+. [*役割（* Roles）]でを選択します image:icon_add.gif["追加アイコン"]。
+. ロールの名前を指定します。Role Attributesで、適切なを指定してユーザロールのアクセスまたは制限を設定します link:https://docs.netapp.com/us-en/ontap-automation/reference/api_reference.html#access-the-ontap-api-documentation-page["APIエンドポイント"^]。File System Analyticsアクセスまたは制限を設定するためのプライマリパスとセカンダリパスについては、次の表を参照してください。
++
+|===
+| 制限 | プライマリパス | セカンダリパス 
+
+
+| ボリュームのアクティビティ追跡 | `/api/storage/volumes`  a| 
+** `/_:uuid_/top-metrics/directories`
+** `/_:uuid_/top-metrics/files`
+** `/_:uuid_/top-metrics/clients`
+** `/_:uuid_/top-metrics/users`
+
+
+
+
+| SVMのアクティビティ追跡 | `/api/svm/svms`  a| 
+** `/_:uuid_/top-metrics/directories`
+** `/_:uuid_/top-metrics/files`
+** `/_:uuid_/top-metrics/clients`
+** `/_:uuid_/top-metrics/users`
+
+
+
+
+| すべてのファイルシステム分析処理 | `/api/storage/volumes` | `/_:uuid_/files` 
+|===
++
+を使用できます `/{asterisk}/` エンドポイントのすべてのボリュームまたはSVMにポリシーを設定する場合は、UUIDの代わりにUUIDが設定されます。
+
++
+各エンドポイントのアクセス権限を選択します。
+
+. [ 保存（ Save ） ] を選択します。
+. ユーザにロールを割り当てる手順については、を参照してください xref:../task_security_administrator_access.html[管理者アクセスの制御]。
+
+
+--
+.CLI の使用
+--
+ONTAP 9.12.1よりも前のバージョンのONTAP を使用している場合は、ONTAP CLIを使用してカスタムロールを作成します。
+
+.手順
+. すべての機能にアクセスできるようにデフォルトのロールを作成します。
++
+この作業は ' ロールがアクティビティの追跡のみに限定されるようにするために ' 制限的なロールを作成する前に実行する必要があります
+
++
+「 security login role create -cmddirname default-access all-role storageadmin 」を実行します
+
+. 制限付きロールを作成します。
++
+「 security login role create -cmddirname 」 volume file show -disk -usage 」 -access none -role storageadmin
+
+. ロールに SVM の Web サービスへのアクセスを許可します。
++
+** REST API コール用の 'rest'
+** パスワード保護のための「セキュリティ」
+** System Manager へのアクセス用の sysmgr
++
+「vserver services web access create -vserver_SVM-name __-name rest-role storageadmin
+
++
+「vserver services web access create -vserver_SVM-name security-role storageadmin」という名前になります
+
++
+vserver services web access create -vserver_SVM-name sysmgr -role storageadminです
+
+
+
+. ユーザを作成します。
++
+ユーザに適用するアプリケーションごとに個別の create コマンドを問題 に設定する必要があります。同じユーザで create を複数回呼び出すと、すべてのアプリケーションがそのユーザに適用されるだけで、毎回新しいユーザが作成されることはありません。アプリケーション・タイプの 'http' パラメータは、 ONTAP REST API および System Manager に適用されます。
+
++
+「 security login create -user-or -group-name storageUser-authentication-method password -application http-role storageadmin 」を参照してください
+
+. 新しいユーザクレデンシャルを使用して、System Managerにログインするか、ONTAP REST APIを使用してファイルシステム分析データにアクセスできるようになりました。
+
+
+--
+====
+.詳細情報
+* xref:../authentication/predefined-roles-cluster-administrators-concept.html[クラスタ管理者の事前定義されたロール。^]
+* xref:../task_security_administrator_access.html[System Manager ^で管理者アクセスを制御します]
+* link:https://docs.netapp.com/us-en/ontap-automation/rest/rbac_overview.html["RBACロールとONTAP REST APIの詳細については、こちらをご覧ください"^]
+

@@ -14,11 +14,11 @@ summary: 整合性グループの保護ポリシーを設定して、ローカ�
 [role="lead"]
 整合グループを使用すると、複数のボリュームにまたがる SAN 、 NAS 、 NVMe のアプリケーションに対して、ローカルとリモートで簡単に保護することができます。
 
-整合性グループを作成しても、保護は自動的に有効になりません。ローカル保護ポリシーとリモート保護ポリシーは、作成時または整合グループ作成後に設定できます。保護ポリシーには、ローカルの Snapshot コピーや SnapMirror によるビジネス継続性（ SM-BC ）によるリモートの SnapMirror 保護を含めることができます。ネストされた整合グループを使用している場合は、個々のボリュームに別々の保護ポリシーを設定できます。ONTAP 9.11.1以降では、整合グループによって提供されています <<two-phase,2フェーズの整合グループSnapshotの作成>>。
+整合性グループを作成しても、保護は自動的に有効になりません。ローカル保護ポリシーとリモート保護ポリシーは、作成時または整合グループ作成後に設定できます。保護ポリシーには、ローカルの Snapshot コピーや SnapMirror によるビジネス継続性（ SM-BC ）によるリモートの SnapMirror 保護を含めることができます。ネストされた整合グループを使用している場合は、個々のボリュームに別々の保護ポリシーを設定できます。
 
-リモートの SM-BC 保護を使用する場合は、整合グループで作成された整合グループの Snapshot コピーがデスティネーションに確実にコピーされるように、ソースクラスタとデスティネーションクラスタのポリシーラベルが一致している必要があります。SnapMirror ラベルが定義済みの AutomatedFailOver ポリシーに SnapMirror ラベルのルールを追加し、そのラベルで Snapshot コピーを作成しないかぎり、 SM-BC はデフォルトで Snapshot コピーをレプリケートしません。このプロセスの詳細については、を参照してください link:../task_san_configure_protection_for_business_continuity.html["ビジネス継続性の保護を構成します"]。
+ONTAP 9.11.1以降では、整合グループによって提供されています <<two-phase,2フェーズの整合グループSnapshotの作成>>。2フェーズSnapshotでは、事前確認が実行されて、Snapshotが正常にキャプチャされます。
 
-リカバリは、整合グループ全体、階層構成内の単一の整合グループ、または整合グループ内の個々のボリュームに対して実行できます。リカバリを実行するには、リカバリ元の整合グループを選択し、 Snapshot コピーのタイプを選択して、リストア元となる特定の Snapshot コピーを特定します。このプロセスの詳細については、を参照してください link:../task_dp_restore_from_vault.html["以前の Snapshot コピーからボリュームをリストアします"]。
+リカバリは、整合グループ全体、階層構成内の単一の整合グループ、または整合グループ内の個々のボリュームに対して実行できます。リカバリを実行するには、リカバリ元の整合グループを選択し、Snapshotコピーのタイプを選択して、リストア元となるSnapshotコピーを特定します。このプロセスの詳細については、を参照してください link:../task_dp_restore_from_vault.html["以前の Snapshot コピーからボリュームをリストアします"]。
 
 ONTAP 9.10.1 以降の System Manager では、 * Protection > Relationships * メニューに LUN マップが表示されます。ソース関係を選択すると、ソース関係が System Manager に表示され、視覚的に確認できます。ボリュームを選択すると、これらの関係をより深く掘り下げて、含まれる LUN およびイニシエータグループの関係のリストを確認できます。この情報は、個々のボリュームビューから Excel ブックとしてダウンロードできます。タスクはバックグラウンドで実行されます。
 
@@ -26,30 +26,42 @@ ONTAP 9.10.1 以降の System Manager では、 * Protection > Relationships * �
 
 == ローカル Snapshot 保護ポリシーを設定します
 
+ローカルSnapshot保護ポリシーを設定すると、整合性グループのすべてのボリュームに適用するポリシーを作成できます。
+
 .手順
+. Storage > Consistency groups * を選択します。
 . コンシステンシ・グループ・メニューから ' 作成したコンシステンシ・グループを選択します
 . コンシステンシ・グループの概要ページの右上にある * 編集 * を選択します
 . スケジュール Snapshot コピー（ローカル） * の横のボックスをオンにします。
 . Snapshot ポリシーを選択します。新しいカスタムポリシーを設定する手順については、を参照してください link:../task_dp_create_custom_data_protection_policies.html["カスタムのデータ保護ポリシーを作成する"]。
 . [ 保存（ Save ） ] を選択します。
-. 整合性グループの概要メニューに戻ります。左の列の * Snapshot copies （ローカル） * で、ステータスはの横に protected と表示されます image:../media/icon_shield.png["Alt = 緑の盾アイコン"]。
+. 整合性グループの概要メニューに戻ります。左の列の* Snapshot copies（ローカル）*で、ステータスはの横にprotectedと表示されます image:../media/icon_shield.png["Alt = 緑の盾アイコン"]。
 
 
 
 
-== 2段階のCG Snapshot作成
+== 2フェーズの整合グループSnapshotを作成します
 
-ONTAP 9.11.1以降では、整合グループが2つのフェーズのコミットを整合グループ（CG）のSnapshot作成でサポートします。この機能は、ONTAP REST APIでのみ使用できます。二段階的なCG Snapshot作成はSnapshot作成にのみ使用でき、整合グループのプロビジョニングや整合グループのリストアには使用できません。
+ONTAP 9.11.1以降では、整合グループは、Snapshotをコミットする前に事前確認を実行する、整合グループ（CG）Snapshot作成の2フェーズコミットをサポートします。この機能は、ONTAP REST APIでのみ使用できます。二段階的なCG Snapshot作成はSnapshot作成にのみ使用でき、整合グループのプロビジョニングや整合グループのリストアには使用できません。
 
-二段階CG Snapshotの作成により、POST要求によって呼び出されたSnapshot作成プロセスが、「/application/consistency -groups/{consistency _group_uuid}/snapshots」エンドポイントに分割され、2段階のシーケンスになります。POST要求で開始された最初のフェーズでは、APIが事前確認を実行し、Snapshotの作成をトリガーして、指定された間隔のタイマーを開始します。フェーズ1のPOST要求が201ステータスコードで完了した場合、最初のフェーズから指定した間隔で第2フェーズを呼び出し、Snapshotを適切なエンドポイントにコミットできます。
+2段階のCG Snapshot作成により、に対するPOST要求で起動されたSnapshot作成プロセスが中断されます `/application/consistency-groups/{consistency_group_uuid}/snapshots` エンドポイントを2つのフェーズからなるシーケンスに変換します。
 
-2フェーズCG Snapshot作成を使用するには、クラスタ内のすべてのノードでONTAP 9.11.1が実行されている必要があります。二相CGスナップショット作成は'action=start'パラメータを指定して呼び出すことができますまた'action_timeout'パラメータを使用して'スナップショット作成プロセスが実行できる最大秒数を指定することもできます'action_timeout'パラメータは'5～120の整数に設定できますデフォルト値の'action_timeout'は7です
+. POST要求で開始された最初のフェーズでは、APIが事前確認を実行し、Snapshotの作成をトリガーして、指定された間隔のタイマーを開始します。
+. フェーズ1のPOST要求が201ステータスコードで完了した場合、最初のフェーズから指定した間隔で第2フェーズを呼び出し、Snapshotを適切なエンドポイントにコミットできます。
 
-整合性グループSnapshot作成処理のアクティブな呼び出しは、単一フェーズか2フェーズかにかかわらず、一度に1回のみサポートされます。別のSnapshotの作成処理の実行中にSnapshotを作成しようとすると、エラーが発生します。
 
 ONTAP REST APIの詳細については、を参照してください link:https://docs.netapp.com/us-en/ontap-automation/reference/api_reference.html["API リファレンス"^] または、を参照してください link:https://devnet.netapp.com/restapi.php["ONTAP REST APIページ"^] APIエンドポイントの完全なリストについては、NetApp Developer Networkを参照してください。
 
-.2段階のコミットを作成します
+.2フェーズの整合グループSnapshotに関する考慮事項
+* 2フェーズCG Snapshot作成を使用するには、クラスタ内のすべてのノードでONTAP 9.11.1以降が実行されている必要があります。
+* 整合性グループSnapshot作成処理のアクティブな呼び出しは、単一フェーズか2フェーズかにかかわらず、一度に1回のみサポートされます。別のSnapshotの作成処理の実行中にSnapshotを作成しようとすると、エラーが発生します。
+* 2フェーズの整合グループSnapshot作成は、で実行できます `action=start` パラメータ
++
+また、を使用することもできます `action_timeout` Snapshot作成プロセスにかかる最大秒数を指定するパラメータ。。 `action_timeout` パラメータは、5～120の整数に設定できます。のデフォルト値 `action_timeout` は7です。
+
+
+
+.2フェーズの整合グループSnapshotを作成します
 . 'action=start'パラメータを使用して'整合グループのエンドポイントに対するPOST要求を使用してスナップショットを作成します
 +
 [source, curl]
@@ -74,27 +86,28 @@ curl -k -X PATCH 'https://<IP_address>/application/consistency-groups/<cg_uuid>/
 
 == リモートの SM-BC ポリシーを設定します
 
+リモートの SM-BC 保護を使用する場合は、整合グループで作成された整合グループの Snapshot コピーがデスティネーションに確実にコピーされるように、ソースクラスタとデスティネーションクラスタのポリシーラベルが一致している必要があります。事前定義されたにSnapMirrorラベルが設定されたルールを追加しないかぎり、SM-BCはデフォルトでSnapshotコピーをレプリケートしません `AutomatedFailOver` ポリシーとSnapshotコピーは、同じラベルで作成されます。このプロセスの詳細については、を参照してください link:../task_san_configure_protection_for_business_continuity.html["ビジネス継続性の保護を構成します"]。
+
 .手順
 . SM-BC を使用するための前提条件を満たしていることを確認します。を参照してください link:../smbc/smbc_plan_prerequisites.html["SM-BC の前提条件"]
-
-
++
 
 NOTE: NAS アクセス用にマウントされたボリュームでは、 SM-BC 関係を確立できません。
 
+. Storage > Consistency groups * を選択します。
 . コンシステンシ・グループ・メニューから ' 作成したコンシステンシ・グループを選択します
 . 概要ページの右上で、 [ * その他 * ] 、 [ * 保護 * ] の順に選択します。
-. ソース側の情報は、ページの左側に自動的に入力されます。
-. デスティネーションに適したクラスタと Storage VM を選択します。保護ポリシーを選択します。「関係の初期化」がオンになっていることを確認します。
-. [ 保存（ Save ） ] をクリックします。
-. 整合グループの初期化と同期が必要になります。これが完了すると、 *SnapMirror (Remote) * のステータスはの横に「 Protected 」と表示されます image:../media/icon_shield.png["Alt = 緑の盾アイコン"]。
+. ソース側の情報は自動的に入力されます。デスティネーションに適したクラスタと Storage VM を選択します。保護ポリシーを選択します。「関係の初期化」がオンになっていることを確認します。
+. [ 保存（ Save ） ] を選択します。
+. 整合グループの初期化と同期が必要になります。これが完了すると、*SnapMirror (Remote)*のステータスはの横に「Protected」と表示されます image:../media/icon_shield.png["Alt = 緑の盾アイコン"]。
 
-
-SM-BCの詳細については、を参照してください link:../smbc/index.html["SM-BCの概要"]。
 
 .次のステップ
-link:clone-task.html["整合グループをクローニングする"]
-link:../task_dp_configure_snapshot.html["Snapshot コピーを設定します"]
-link:../task_dp_create_custom_data_protection_policies.html["カスタムのデータ保護ポリシーを作成する"]
+* link:clone-task.html["整合グループをクローニングする"]
+* link:../task_dp_configure_snapshot.html["Snapshot コピーを設定します"]
+* link:../task_dp_create_custom_data_protection_policies.html["カスタムのデータ保護ポリシーを作成する"]
 link:../task_dp_recover_snapshot.html["Snapshot コピーからリカバリします"]
-link:../task_dp_restore_from_vault.html["以前の Snapshot コピーからボリュームをリストアします"]
-link:../smbc/index.html["SM-BCの概要"]
+* link:../task_dp_restore_from_vault.html["以前の Snapshot コピーからボリュームをリストアします"]
+* link:../smbc/index.html["SM-BCの概要"]
+* link:https://docs.netapp.com/us-en/ontap-automation/["ONTAP 自動化に関するドキュメント"^]
+

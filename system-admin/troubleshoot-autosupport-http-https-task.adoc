@@ -30,42 +30,42 @@ HTTP または HTTPS を使用していて、想定される AutoSupport メッ�
 .手順
 . AutoSupport サブシステムの詳細なステータスを表示します。
 +
-「 system node AutoSupport check show-details 」というエラーが表示されます
+`system node autosupport check show-details`
 
 +
 たとえば、テストメッセージを送信して AutoSupport デスティネーションへの接続を検証したり、 AutoSupport の設定で発生する可能性のあるエラーのリストを指定したりします。
 
 . ノード管理 LIF のステータスを確認します。
 +
-'network interface show -home-node local -role node-mgmt -fields vserver 、 lif 、 status-oper 、 status-admin 、 address 、 role '
+`network interface show -home-node local -role node-mgmt -fields vserver,lif,status-oper,status-admin,address,role`
 
 +
-「 tatus-oper 」フィールドと「 tatus-admin 」フィールドは「 up 」を返す必要があります。
+。 `status-oper` および `status-admin` フィールドは"up"を返す必要があります。
 
 . あとで使用できるように、 SVM 名、 LIF 名、および LIF の IP アドレスを書き留めておきます。
 . DNS が有効になっていて正しく設定されていることを確認します
 +
-vserver services name-service dns show
+`vserver services name-service dns show`
 
 . AutoSupport メッセージからエラーが返された場合は、対処します。
 +
-「 system node AutoSupport history show -node * -fields node 、 seq-num 、 destination 、 last-update 、 status 、 error 」というメッセージが表示されます
+`system node autosupport history show -node * -fields node,seq-num,destination,last-update,status,error`
 
 +
 返されたエラーのトラブルシューティングについては、を参照してください link:https://kb.netapp.com/Advice_and_Troubleshooting/Data_Storage_Software/ONTAP_OS/ONTAP_AutoSupport_(Transport_HTTPS_and_HTTP)_Resolution_Guide["ONTAP AutoSupport （Transport HTTPSおよびHTTP）解決ガイド"^]。
 
 . クラスタが必要なサーバとインターネットの両方に正常にアクセスできることを確認します。
 +
-.. 「 network traceroute -lif node-management_lif-destination dns server 」というパスに移動します
-.. 「 network traceroute -lif node_name -destination support.netapp.com` 」を参照してください
+.. `network traceroute -lif node-management_LIF -destination DNS server`
+.. `network traceroute -lif node_management_LIF -destination support.netapp.com`
 +
 [NOTE]
 ====
-アドレス「 upport.netapp.com` 」自体は ping や traceroute に応答しませんが、ホップ単位の情報は貴重です。
+アドレス `support.netapp.com` pingやtracerouteには応答しませんが、ホップ単位の情報は有効です。
 
 ====
-.. 「 system node AutoSupport show -fields proxy-url 」の略
-.. 'network traceroute -node node_name -destination proxy_url'
+.. `system node autosupport show -fields proxy-url`
+.. `network traceroute -node node_management_LIF -destination proxy_url`
 
 
 +
@@ -77,7 +77,7 @@ vserver services name-service dns show
 +
 プロキシサーバ、ユーザ名、パスワード、ポートを含む、すべての設定パラメータの値が AutoSupport の設定と同じであることを確認します。
 
-.. Web クライアントから「 + https://support.netapp.com+` 」にアクセスします。
+.. にアクセスします `+https://support.netapp.com+` Webクライアントを使用する場合
 +
 アクセスが成功します。成功しない場合は、 HTTPS トラフィックと DNS トラフィックを許可するようにすべてのファイアウォールが設定されていること、およびプロキシサーバが正しく設定されていることを確認します。support.netapp.comの静的な名前解決の設定の詳細については、サポート技術情報の記事を参照してください https://kb.netapp.com/Advice_and_Troubleshooting/Data_Storage_Software/ONTAP_OS/How_would_a_HOST_entry_be_added_in_ONTAP_for_support.netapp.com%3F["ONTAP for support.netapp.com? でホストエントリを追加する方法を説明します"^]
 

@@ -35,14 +35,23 @@ FIPS ドライブまたは SED の認証キーが永久に失われ、 KMIP サ�
  a| 
 FIPS 準拠モードでないか、 FIPS 準拠モードで FIPS キーを使用できます
  a| 
-.. 権限レベルを advanced に設定します。「 set -privilege advanced 」
-.. FIPS キーをデフォルトのメーカーセキュア ID 0x0 にリセットします。 storage encryption disk modify -fips-key-id 0x0 -disk disk_id _`
-.. 処理が成功したことを確認します。 storage encryption disk show-status 操作に失敗した場合は、このトピックの PSID プロセスを使用してください。
-.. 破損したディスクを完全消去します storage encryption disk sanitize -disk disk_id _` 次の手順に進む前に 'storage encryption disk show -status コマンドを使用して ' 操作が正常に完了したことを確認します
-.. 完全消去したディスクの障害状態を解除します。 storage disk unfail -spare true -disk disk_id _`
-.. ディスクに所有者があるかどうかを確認します storage disk show -disk disk_id _`
-.. ディスクの所有者が設定されていない場合は、所有者を割り当ててから、もう一度ディスクの障害状態を解除します。 storage disk assign -owner node -disk disk_id _` storage disk unfail -spare true -disk disk_id _`
-.. ディスクがスペアとしてアグリゲートで再び使用できる状態になったことを確認します。 storage disk show -disk disk_id _
+.. 権限レベルを advanced に設定します。
+`set -privilege advanced`
+.. FIPSキーをデフォルトのメーカーセキュアIDである「0x0」にリセットします。
+`storage encryption disk modify -fips-key-id 0x0 -disk _disk_id_`
+.. 処理が成功したことを確認します。
+`storage encryption disk show-status`処理に失敗した場合は、このトピックのPSIDプロセスを使用してください。
+.. 破損ディスクを完全消去します。
+`storage encryption disk sanitize -disk _disk_id_`コマンドを使用して、処理が成功したことを確認します `storage encryption disk show-status` 次の手順に進む前に、
+.. 完全消去したディスクの障害状態を解除し
+`storage disk unfail -spare true -disk _disk_id_`
+.. ディスクの所有者が設定されているかどうかを確認します。
+`storage disk show -disk _disk_id_`
+.. ディスクの所有者が設定されていない場合は、所有者を割り当ててから、もう一度ディスクの障害状態を解除します。
+`storage disk assign -owner node -disk _disk_id_`
+`storage disk unfail -spare true -disk _disk_id_`
+.. ディスクがスペアとしてアグリゲートで再び使用できる状態になったことを確認します。
+`storage disk show -disk _disk_id_`
 
 
 
@@ -51,12 +60,19 @@ FIPS 準拠モードでないか、 FIPS 準拠モードで FIPS キーを使用
 FIPS 準拠モードであるが FIPS キーは使用できず、 SED の PSID がラベルに印刷されている
  a| 
 .. ディスクの PSID をディスクラベルで確認します。
-.. 権限レベルを advanced に設定します。「 set -privilege advanced 」
-.. ディスクを工場出荷時の設定にリセットします。「 storage encryption disk revert-to-original-state -disk disk_id -psid_disk_physical_secure_id _ 」次の手順に進む前に、コマンド「 storage encryption disk show -status 」で処理が成功したことを確認します。
-.. 完全消去したディスクの障害状態を解除します。 storage disk unfail -spare true -disk disk_id _`
-.. ディスクに所有者があるかどうかを確認します storage disk show -disk disk_id _`
-.. ディスクの所有者が設定されていない場合は、所有者を割り当ててから、もう一度ディスクの障害状態を解除します。 storage disk assign -owner node -disk disk_id _` storage disk unfail -spare true -disk disk_id _`
-.. ディスクがスペアとしてアグリゲートで再び使用できる状態になったことを確認します。 storage disk show -disk disk_id _
+.. 権限レベルを advanced に設定します。
+`set -privilege advanced`
+.. ディスクを工場出荷時の設定にリセットします。
+`storage encryption disk revert-to-original-state -disk _disk_id_ -psid _disk_physical_secure_id_`コマンドを使用して、処理が成功したことを確認します `storage encryption disk show-status` 次の手順に進む前に、
+.. 完全消去したディスクの障害状態を解除し
+`storage disk unfail -spare true -disk _disk_id_`
+.. ディスクの所有者が設定されているかどうかを確認します。
+`storage disk show -disk _disk_id_`
+.. ディスクの所有者が設定されていない場合は、所有者を割り当ててから、もう一度ディスクの障害状態を解除します。
+`storage disk assign -owner node -disk _disk_id_`
+`storage disk unfail -spare true -disk _disk_id_`
+.. ディスクがスペアとしてアグリゲートで再び使用できる状態になったことを確認します。
+`storage disk show -disk _disk_id_`
 
 
 |===

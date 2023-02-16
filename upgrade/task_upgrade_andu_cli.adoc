@@ -48,18 +48,18 @@ ONTAP 9.8以降では、バッチ方式を使用している場合に、LIFが�
 
 
 .このタスクについて
-cluster image validate コマンドは ' クラスタ・コンポーネントをチェックし ' アップグレードを無停止で完了できるかどうかを検証します次に ' 各チェックのステータスと ' ソフトウェア・アップグレードを実行する前に実行する必要があるアクションを示します
+。 `cluster image validate` コマンドでは、クラスタコンポーネントがチェックされ、アップグレードを無停止で完了できるかどうかが検証されます。その後、各検証チェックのステータスと、ソフトウェアアップグレードの実行前に実施する必要があるアクションがある場合はそれも一緒に表示されます。
 
 
-NOTE: 自動無停止アップグレード（ ANDU ）の開始前に storage failover modify -auto-giveback コマンド・オプションの設定を変更しても ' アップグレード・プロセスには影響しませんANDU プロセスは、更新に必要なテイクオーバー / ギブバックの実行時に、このオプションに設定されている値を無視します。たとえば 'ANDU を開始する前に '-autogiveback を false に設定しても ' ギブバック前の自動アップグレードは中断されません
+NOTE: の設定を変更する `storage failover modify-auto-giveback` Automatic Nondisruptive Upgrade（ANDU；自動無停止アップグレード）を開始する前のコマンドオプションは、アップグレードプロセスには影響しません。ANDU プロセスは、更新に必要なテイクオーバー / ギブバックの実行時に、このオプションに設定されている値を無視します。たとえば、「Setting」と入力します `-autogiveback` ANDUを開始する前にfalseに設定しても、ギブバック前の自動アップグレードは中断されません。
 
 . 以前の ONTAP ソフトウェアパッケージを削除します。
 +
-'cluster image package delete - version previous_ONTAP_Version
+`cluster image package delete -version previous_ONTAP_Version`
 
 . ターゲットの ONTAP ソフトウェアパッケージをダウンロードします。
 +
-「 cluster image package get -url location 」のように指定します
+`cluster image package get -url location`
 
 +
 
@@ -75,7 +75,7 @@ Package processing completed.
 ----
 . ソフトウェアパッケージがクラスタパッケージリポジトリにあることを確認します。
 +
-cluster image package show-repository
+`cluster image package show-repository`
 
 +
 [listing]
@@ -87,7 +87,7 @@ Package Version  Package Build Time
 ----
 . クラスタを無停止でアップグレードする準備が完了していることを確認します。
 +
-cluster image validate -version package_version_number
+`cluster image validate -version package_version_number`
 
 +
 ** 2 ノードまたは 4 ノードの MetroCluster 構成をアップグレードする場合は、続行する前に両方のクラスタでこのコマンドを実行する必要があります。
@@ -104,26 +104,26 @@ WARNING: There are additional manual upgrade validation checks that must be perf
 ----
 . 検証の進捗を監視します。
 +
-cluster image show-update-progress
+`cluster image show-update-progress`
 
 . 検証で特定された必要なアクションをすべて完了します。
 . ソフトウェアアップグレードの見積もりを生成します。
 +
-cluster image update -version package_version_number -estimate-only
+`cluster image update -version package_version_number -estimate-only`
 
 +
 ソフトウェアアップグレードの見積もりには、更新対象の各コンポーネントの詳細とアップグレードの推定期間が表示されます。
 
 . ソフトウェアのアップグレードを実行します。
 +
-cluster image update -version package_version_number
+`cluster image update -version package_version_number`
 
 +
 ** ONTAP 9.3 から 9.7 にアップグレードする場合は、上記のコマンドで 9.7 の package_version_number を使用します。
 ** ONTAP 9.5 から 9.1.1 にアップグレードする場合は、上記のコマンドで 9.9.1 package_version_number を使用します。
 ** 2 ノード MetroCluster システムを除く MetroCluster 構成では、ユーザが開始してコマンドラインで確認を行うと、 ONTAP のアップグレードプロセスが両方のサイト（ローカルサイトとディザスタリカバリサイト）の HA ペアで同時に開始されます。2 ノード MetroCluster システムの場合は、最初にディザスタリカバリサイト、つまりアップグレードが開始されないサイトで更新が開始されます。ディザスタリカバリサイトで更新が完了すると、ローカルサイトでアップグレードが開始されます。
-** クラスタが 2~6 つのノードで構成されている場合は、ローリングアップグレードが実行されます。クラスタが 8 つ以上のノードで構成されている場合は、バッチアップグレードがデフォルトで実行されます。必要に応じて '-force-rolling パラメータを使用して ' 代わりにローリング・アップグレードを指定できます
-** テイクオーバーとギブバックがそれぞれ完了したら、テイクオーバーとギブバックの際に発生する I/O の中断からクライアントアプリケーションが回復できるように 8 分間待機します。クライアントの安定化に必要な時間を長くする必要がある場合は '-stabilize-minutes' パラメータを使用して ' 待機時間を変更できます
+** クラスタが 2~6 つのノードで構成されている場合は、ローリングアップグレードが実行されます。クラスタが 8 つ以上のノードで構成されている場合は、バッチアップグレードがデフォルトで実行されます。必要に応じて、を使用できます `-force-rolling` 代わりにローリングアップグレードを指定するパラメータ。
+** テイクオーバーとギブバックがそれぞれ完了したら、テイクオーバーとギブバックの際に発生する I/O の中断からクライアントアプリケーションが回復できるように 8 分間待機します。クライアントが安定するために必要な時間を調整する必要がある場合は、を使用します `-stabilize-minutes` 待機時間を変更するパラメータ。
 +
 [listing]
 ----
@@ -149,11 +149,11 @@ cluster-1::>
 
 . クラスタの更新の進捗を表示します。
 +
-cluster image show-update-progress
+`cluster image show-update-progress`
 
 +
 
-NOTE: 4 ノードまたは 8 ノードの MetroCluster 構成をアップグレードしている場合 'cluster image show-update-progress コマンドで表示されるのは ' コマンドを実行しているノードの進行状況だけです個々のノードの進捗を確認するには、各ノードでコマンドを実行する必要があります。
+NOTE: 4ノードまたは8ノードのMetroCluster 構成をアップグレードする場合は、を参照してください `cluster image show-update-progress` コマンドを実行したノードの進捗状況のみが表示されます。個々のノードの進捗を確認するには、各ノードでコマンドを実行する必要があります。
 
 . 各ノードでアップグレードが正常に完了したことを確認します。
 +
@@ -175,7 +175,7 @@ cluster1::>
 ----
 . AutoSupport 通知を送信します。
 +
-「 AutoSupport invoke -node * -type all -message 」 Finishing_NDU と入力します
+`autosupport invoke -node * -type all -message "Finishing_NDU"`
 
 +
 AutoSupport メッセージを送信するようにクラスタが設定されていない場合は、通知のコピーがローカルに保存されます。
@@ -188,7 +188,7 @@ NOTE: この手順 は、 MetroCluster FC 構成に対してのみ実行され�
 +
 .. 自動計画外スイッチオーバーが有効かどうかを確認します。
 +
-「 MetroCluster show 」
+`metrocluster show`
 
 +
 自動計画外スイッチオーバーが有効な場合、コマンド出力に次のステートメントが表示されます。
@@ -199,7 +199,7 @@ AUSO Failure Domain    auso-on-cluster-disaster
 ....
 .. 出力にステートメントが表示されない場合は、自動計画外スイッチオーバーを有効にします。
 +
-MetroCluster modify-auto-switchover-failure-domain auso-on-cluster-disaster
+`metrocluster modify -auto-switchover-failure-domain auso-on-cluster-disaster`
 
 .. 手順 1 を繰り返して、自動計画外スイッチオーバーが有効になっていることを確認します。
 
@@ -213,17 +213,17 @@ MetroCluster modify-auto-switchover-failure-domain auso-on-cluster-disaster
 エラーのために自動アップグレードが一時停止した場合は、エラーを解決して自動アップグレードを再開するか、または自動アップグレードをキャンセルしてプロセスを手動で完了することができます。自動アップグレードを続行する場合は、アップグレード手順を手動では実行しないでください。
 
 .このタスクについて
-手動でアップグレードを完了するには 'cluster image cancel-update コマンドを使用して ' 自動プロセスをキャンセルし ' 手動で続行します自動アップグレードを続行する場合は、次の手順を実行します。
+アップグレードを手動で完了する場合は、を使用します `cluster image cancel-update` コマンドを使用して、自動化されたプロセスをキャンセルし、手動で処理を続行自動アップグレードを続行する場合は、次の手順を実行します。
 
 .手順
 . アップグレードエラーを表示します。
 +
-cluster image show-update-progress
+`cluster image show-update-progress`
 
 . エラーを解決します。
 . 更新を再開します。
 +
-「 cluster image resume-update 」
+`cluster image resume-update`
 
 
 

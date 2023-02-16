@@ -32,36 +32,36 @@ NOTE: 整合性グループを拡張するために追加する新しいボリ�
 
 . ソースとデスティネーションの両方のクラスタ上にあるソースボリュームとデスティネーションボリュームの間に共通の Snapshot コピーが存在することを確認します。
 +
-「ソース：： > snapshot show -vserver vs1_src-volume vol_src3 -snapshot snapmirror * 」というエラーが表示されます
+`source::>snapshot show -vserver vs1_src -volume vol_src3 -snapshot snapmirror*`
 
 +
-「デスティネーション：： > snapshot show -vserver vs1_dst -volume vol_dst3 -snapshot snapmirror * 」という名前になります
+`destination::>snapshot show -vserver vs1_dst -volume vol_dst3 -snapshot snapmirror*`
 
 . 共通の Snapshot コピーが存在しない場合は、 FlexVol の SnapMirror 関係を作成して初期化します。
 +
-「デスティネーション」：： > snapmirror initialize-ls-set - path vs1_src ： vol_src3 -destination-path vs1_dst ： vol_dst3
+`destination::>snapmirror initialize -source-path vs1_src:vol_src3 -destination-path vs1_dst:vol_dst3`
 
 . ゼロ RTO 整合グループ関係を削除します。
 +
-「デスティネーション」：： > snapmirror delete -destination-path vs1_dst ： vol_dst3
+`destination::>snapmirror delete -destination-path vs1_dst:vol_dst3`
 
 . ソース SnapMirror 関係を解放し、共通の Snapshot コピーを保持します。
 +
-「 source ：： > snapmirror release-relationship-info -only true -destination-path vs1_dst ： vol_dst3
+`source::>snapmirror release -relationship-info-only true -destination-path vs1_dst:vol_dst3`
 
 . LUN のマッピングを解除し、既存の整合グループ関係を削除します。
 +
-デスティネーション：：： > lun mapping delete -vserver vs1_dst-path <lun_path > -igroup <igroup_name>`
+`destination::>lun mapping delete -vserver vs1_dst -path <lun_path> -igroup <igroup_name>`
 
 +
 
 NOTE: デスティネーション LUN はマッピング解除されますが、プライマリコピー上の LUN はホスト I/O を処理し続けます
 
 +
-「デスティネーション」：： > snapmirror delete -destination-path vs1_dst ： /cg /cg_dst
+`destination::>snapmirror delete -destination-path vs1_dst:/cg/cg_dst`
 
 +
-「 source ：： > snapmirror release -destination-path vs1_dst ： /cg /cg_dst -relationship-info-only true 」
+`source::>snapmirror release -destination-path vs1_dst:/cg/cg_dst -relationship-info-only true`
 
 . ** ONTAP 9.10.1以降を使用している場合**削除して再作成し'ソース上の整合グループを適切な構成で作成しますの手順に従います xref:../consistency-groups/delete-task.html[整合グループを削除する] 次に xref:../consistency-groups/configure-task.html[単一の整合グループを設定する]。ONTAP 9.10.1以降では、System ManagerまたはONTAP REST APIで削除および作成の処理を実行する必要があります。CLI手順 はありません。
 +
@@ -69,15 +69,15 @@ NOTE: デスティネーション LUN はマッピング解除されますが、
 
 . 新しい構成を使用して新しい整合グループをデスティネーションに作成します。
 +
-「デスティネーション：： > snapmirror create -source-path vs1_src ： /cc/cg_src -destination-path vs1_dst ： /cg_dst -item-mappings vol_src1 ： @vol_dst1 、 vol_src2 ： @vol_dst2 、 vol_src3 ： @vol_dst3
+`destination::>snapmirror create -source-path vs1_src:/cg/cg_src -destination-path vs1_dst:/cg/cg_dst -cg-item-mappings vol_src1:@vol_dst1, vol_src2:@vol_dst2, vol_src3:@vol_dst3`
 
 . ゼロ RTO 整合グループ関係を再同期し、同期されていることを確認します。
 +
-「デスティネーション」：： > snapmirror resync -destination-path vs1_dst ： /cg /cg_dst
+`destination::>snapmirror resync -destination-path vs1_dst:/cg/cg_dst`
 
 . 手順 5 でマッピング解除した LUN を再マッピングします。
 +
-「デスティネーション：： > lun map -vserver vs1_dst-path <lun_path > -igroup <igroup_name>`
+`destination::> lun map -vserver vs1_dst -path <lun_path> -igroup <igroup_name>`
 
 . ホスト LUN の I/O パスを再スキャンして、 LUN へのすべてのパスをリストアします。
 

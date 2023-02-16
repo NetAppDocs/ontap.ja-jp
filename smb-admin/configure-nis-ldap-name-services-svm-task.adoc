@@ -19,17 +19,17 @@ SMB アクセスでは、 NTFS セキュリティ形式のボリューム内の�
 .このタスクについて
 SVM は、ネームサービス ns-switch データベースを使用して、指定されたネームサービスデータベースを検索するソースの順番を決定します。ns-switch ソースには、「 files 」、「 nis 」、または「 ldap 」を任意に組み合わせて使用できます。グループデータベースの場合、 ONTAP は設定されたすべてのソースからグループメンバーシップを取得し、統合されたグループメンバーシップ情報をアクセスチェックに使用します。UNIX グループ情報の取得時にこれらのいずれかのソースを使用できないと、 ONTAP は完全な UNIX クレデンシャルを取得できず、アクセスチェックが失敗することがあります。そのため、 ns-switch 設定にグループデータベースのすべての ns-switch ソースが設定されていることを必ず確認する必要があります。
 
-デフォルトでは、 SMB サーバはすべての Windows ユーザをローカルの「 passwd 」データベースに格納されているデフォルト UNIX ユーザにマッピングします。デフォルトの設定を使用する場合、 SMB アクセスに対する、 NIS または LDAP UNIX ユーザおよびグループのネームサービスまたは LDAP ユーザマッピングの設定は省略可能です。
+デフォルトでは、SMBサーバはすべてのWindowsユーザをローカルに格納されているデフォルトのUNIXユーザにマッピングします `passwd` データベース：デフォルトの設定を使用する場合、 SMB アクセスに対する、 NIS または LDAP UNIX ユーザおよびグループのネームサービスまたは LDAP ユーザマッピングの設定は省略可能です。
 
 .手順
 . UNIX ユーザ、グループ、ネットグループ情報が NIS ネームサービスによって管理されている場合、 NIS ネームサービスを次のように設定します。
 +
-.. vserver services name-service ns-switch show コマンドを使用して、ネームサービスの現在の順番を確認します。
+.. を使用して、ネームサービスの現在の順番を確認します `vserver services name-service ns-switch show` コマンドを実行します
 +
-この例では 'nis' をネーム・サービス・ソースとして使用できる 3 つのデータベース (`group'passwd`'`netgroup') が 'files' だけをソースとして使用しています
+この例では、3つのデータベースが使用されています (`group`、 `passwd`および `netgroup`を使用できます `nis` ネームサービスソースでのみ使用されている `files` をソースとして使用します。
 
 +
-vserver services name-service ns-switch show -vserver vs1
+`vserver services name-service ns-switch show -vserver vs1`
 
 +
 [listing]
@@ -46,9 +46,9 @@ vs1             netgroup       true            files
 vs1             namemap        true            files
 ----
 +
-'nis' ソースを 'group' および 'passwd' データベースに追加する必要がありますまた ' オプションで 'netgroup' データベースに追加することもできます
+を追加する必要があります `nis` を参照してください `group` および `passwd` データベース。オプションで、にも追加できます `netgroup` データベース：
 
-.. 「 vserver services name-service ns-switch modify 」コマンドを使用して、ネームサービス ns-switch データベースを希望の順番に調整します。
+.. を使用して、ネームサービスns-switchデータベースを必要な順番に調整します `vserver services name-service ns-switch modify` コマンドを実行します
 +
 パフォーマンスを最大にするためには、 SVM に設定する予定のないネームサービスデータベースにはネームサービスを追加しないでください。
 
@@ -56,14 +56,14 @@ vs1             namemap        true            files
 複数のネームサービスデータベースの設定を変更する場合、変更するそれぞれのネームサービスデータベースに対して別々にコマンドを実行する必要があります。
 
 +
-この例では 'nis' と 'files' は 'group' および 'passwd' データベースのソースとして ' その順番で構成されていますその他のネームサービスデータベースは変更されません。
+この例では、 `nis` および `files` はのソースとして設定されます `group` および `passwd` データベース。その他のネームサービスデータベースは変更されません。
 
 +
-「 vserver services name-service ns-switch modify -vserver vs1 -database group -sources nis 、 files 」「 vserver services name-service ns-switch modify -vserver vs1 -database passwd -sources nis 、 files 」という名前のコマンドを入力します
+`vserver services name-service ns-switch modify -vserver vs1 -database group -sources nis,files` `vserver services name-service ns-switch modify -vserver vs1 -database passwd -sources nis,files`
 
-.. vserver services name-service ns-switch show コマンドを使用して、ネームサービスの順番が正しいことを確認します。
+.. を使用して、ネームサービスの順番が正しいことを確認します `vserver services name-service ns-switch show` コマンドを実行します
 +
-vserver services name-service ns-switch show -vserver vs1
+`vserver services name-service ns-switch show -vserver vs1`
 
 +
 [listing]
@@ -81,19 +81,20 @@ vs1             passwd         true            nis,
 vs1             netgroup       true            files
 vs1             namemap        true            files
 ----
-.. NIS ネームサービス設定を作成します。 +`vserver services name-service nis-domain create -vserver _vserver_name _domain_nis_domain_name _-servers _nis_server _IPaddress_、 … - active TRUE +`
+.. NISネームサービス設定を作成します。+
+`vserver services name-service nis-domain create -vserver _vserver_name_ -domain _NIS_domain_name_ -servers _NIS_server_IPaddress_,... -active true+`
 +
-vserver services name-service nis-domain create -vserver vs1 -domain example.com -servers 10.0.0.60 -active true
+`vserver services name-service nis-domain create -vserver vs1 -domain example.com -servers 10.0.0.60 -active true`
 
 +
 [NOTE]
 ====
-ONTAP 9.2 以降では、フィールド「 -nis-servers 」が「 -servers 」に置き換えられています。この新しいフィールドには、 NIS サーバのホスト名または IP アドレスを指定できます。
+ONTAP 9.2以降では、このフィールドが使用されます `-nis-servers` フィールドを置換します `-servers`。この新しいフィールドには、 NIS サーバのホスト名または IP アドレスを指定できます。
 
 ====
-.. NIS ネームサービスが正しく設定され、アクティブになっていることを確認します。 vserver services name-service nis-domain show vserver_vserver_name _`
+.. NISネームサービスが正しく設定され、アクティブになっていることを確認します。 `vserver services name-service nis-domain show vserver _vserver_name_`
 +
-「 vserver services name-service nis-domain show vserver vs1 」を参照してください
+`vserver services name-service nis-domain show vserver vs1`
 
 +
 [listing]

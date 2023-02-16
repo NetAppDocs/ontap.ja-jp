@@ -19,7 +19,7 @@ ONTAP 9.8 以降では、同期 SnapMirror 関係にある NVE 対応ボリュ�
 
 
 .このタスクについて
-削除されたファイルのデータ量によっては、セキュアパージが完了するまでに数分から数時間かかることがあります。volume encryption secure-purge show コマンドを使用して、処理のステータスを表示できます。volume encryption secure-purge abort コマンドを使用して、処理を終了できます。
+削除されたファイルのデータ量によっては、セキュアパージが完了するまでに数分から数時間かかることがあります。を使用できます `volume encryption secure-purge show` 処理のステータスを表示するためのコマンドです。を使用できます `volume encryption secure-purge abort` 処理を終了するコマンド。
 
 [NOTE]
 ====
@@ -29,7 +29,7 @@ SAN ホストでセキュアパージを実行するには、パージするフ�
 .手順
 . ストレージシステムで、 advanced 権限レベルに切り替えます。
 +
-「 advanced 」の権限が必要です
+`set -privilege advanced`
 
 . セキュアパージするファイルまたは LUN を削除します。
 +
@@ -39,32 +39,32 @@ SAN ホストでセキュアパージを実行するには、パージするフ�
 
 . 非同期関係のデスティネーションボリュームを安全にパージするように準備します。
 +
-'volume encryption secure-purge start -vserver svm_name -volume volume_name -prepare true
+`volume encryption secure-purge start -vserver SVM_name -volume volume_name -prepare true`
 
 +
 同期 SnapMirror 関係にある他のボリュームに対してこの手順を繰り返します。
 
 . セキュアにパージするファイルが Snapshot コピーにある場合は、 Snapshot コピーを削除します。
 +
-「 snapshot-delete -vserver SVM_name -volume vol_a -snapshot 」という Snapshot コピーを削除する
+`snapshot delete -vserver SVM_name -volume vol_A -snapshot snapshot`
 
 . セキュアなパージファイルがベースまたは共通の Snapshot コピーに含まれている場合は、 SnapMirror を更新して共通の Snapshot コピーをフォワードします。
 +
-「 snapmirror update -source-path destination_path 」を指定します
+`snapmirror update -source-snapshot snapshot_name -destination-path destination_path`
 
 +
 共通の Snapshot コピーが 2 つあるため、このコマンドは 2 回実行する必要があります。
 
 . セキュアなパージファイルがアプリケーションと整合性のある Snapshot コピーに含まれている場合は、同期 SnapMirror 関係にある両方のボリュームで Snapshot コピーを削除します。
 +
-「 snapshot-delete -vserver SVM_name -volume vol_name -snapshot 」という Snapshot コピーを削除します
+`snapshot delete -vserver SVM_name -volume vol_name -snapshot snapshot`
 
 +
 この手順は両方のボリュームで実行します。
 
 . 削除したファイルを安全にパージします。
 +
-'volume encryption secure-purge start -vserver svm_name -volume volume_name
+`volume encryption secure-purge start -vserver SVM_name -volume volume_name`
 
 +
 同期 SnapMirror 関係にある各ボリュームについて、この手順を繰り返します。
@@ -79,6 +79,6 @@ cluster1::> volume encryption secure-purge start -vserver vs1 -volume vol1
 ----
 . セキュアパージ処理のステータスを確認します。
 +
-volume encryption secure-purgeshow
+`volume encryption secure-purge show`
 
 

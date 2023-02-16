@@ -25,27 +25,27 @@ summary: アダプティブ QoS ポリシーグループを使用すると、ボ
 
 ストレージオブジェクトサイズに対するスループット制限の比率は、以下に示すフィールドの組み合わせによって決まります。
 
-* 「 expected-iops 」は、割り当てられた TB|GB あたりの最小想定 IOPS です。
+* `expected-iops` は、割り当て済みTB|GBあたりの最小想定IOPSです。
 +
 [NOTE]
 ====
-「 expected-iops 」は AFF プラットフォームでのみ保証されます。「 expected-iops 」は、階層化ポリシーが「 none 」に設定され、クラウドにブロックがない場合にのみ FabricPool に対して保証されます。「 expected-iops 」は、 SnapMirror 同期関係にないボリュームで保証されます。
+ `expected-iops` は、AFF プラットフォームでのみ保証されます。 `expected-iops` は、階層化ポリシーが「none」に設定され、ブロックがクラウドにない場合にのみFabricPool に対して保証されます。 `expected-iops` は、SnapMirror Synchronous関係にないボリュームに対して保証されます。
 
 ====
-* 「 peak-iops` 」は、割り当てられるか、または使用される TB|GB あたりの最大 IOPS です。
-* 「 expected-iops-allocation 」は、割り当て済みスペース（デフォルト）と使用済みスペースのどちらを expected-iops に使用するかを示します。
+* `peak-iops` は、割り当て済みまたは使用済みTB | GBあたりの最大IOPSです。
+* `expected-iops-allocation` 割り当てスペース（デフォルト）と使用済みスペースのどちらをexpected-iopsに使用するかを示します。
 +
 [NOTE]
 ====
-「 expected-iops-allocation 」は ONTAP 9.5 以降で使用できます。ONTAP 9.4 以前ではサポートされません。
+`expected-iops-allocation` はONTAP 9.5以降で使用できます。ONTAP 9.4 以前ではサポートされません。
 
 ====
-* 「 peak-iops-allocation 」は、「 peak-iops 」に割り当てスペースと使用スペース（デフォルト）のどちらを使用するかを指定します。
-* 「 absolute-min-iops 」は、絶対最小 IOPS です。このフィールドは非常に小さいストレージオブジェクトで使用します。「 absolute-min-iops 」が「 expected-iops 」の計算値より大きい場合は、「 peak-iops` と「 expected-iops 」の両方が優先されます。
+* `peak-iops-allocation` 割り当てスペースと使用済みスペース（デフォルト）のどちらをに使用するかを指定します `peak-iops`。
+*  `absolute-min-iops` は、絶対最小IOPS数です。このフィールドは非常に小さいストレージオブジェクトで使用します。両方より優先されます `peak-iops` および / または `expected-iops` いつ `absolute-min-iops` は、計算値より大きい値です `expected-iops`。
 +
-たとえば 'expected-iops' を 1,000 IOPS/TB に設定し ' ボリューム・サイズが 1 GB 未満の場合 ' 計算された 'expected-IOPS' はフラクショナル IOP になります計算された「 peak-iops 」は、さらに小さくなります。これを回避するには、「 absolute-min-iops 」を現実的な値に設定します。
+たとえば、を設定したとします `expected-iops` 1、000 IOPS/TB、およびボリュームサイズが1GB未満である場合は、が計算されます `expected-iops` IOPはかなりの数になります。計算された `peak-iops` より小さい分数である。これを回避するには、を設定します `absolute-min-iops` を現実的な値に設定します。
 
-* 「 block-size 」は、アプリケーションの I/O ブロック・サイズを指定します。デフォルトは 32K です。有効な値は、 8K 、 16K 、 32K 、 64K 、 ANY です。ANY は、ブロックサイズが適用されないことを意味します。
+* `block-size` アプリケーションのI/Oブロックサイズを指定します。デフォルトは 32K です。有効な値は、 8K 、 16K 、 32K 、 64K 、 ANY です。ANY は、ブロックサイズが適用されないことを意味します。
 
 
 次の表に示す 3 種類のアダプティブ QoS ポリシーグループがデフォルトで用意されています。これらのポリシーグループはボリュームに直接適用することができます。
@@ -57,7 +57,7 @@ summary: アダプティブ QoS ポリシーグループを使用すると、ボ
 
 
  a| 
-「エクストリーム」
+`extreme`
  a| 
 6,144
  a| 
@@ -68,7 +68,7 @@ summary: アダプティブ QoS ポリシーグループを使用すると、ボ
 
 
  a| 
-「パフォーマンス」
+`performance`
  a| 
 2 、 048
  a| 
@@ -79,7 +79,7 @@ summary: アダプティブ QoS ポリシーグループを使用すると、ボ
 
 
  a| 
-「値」
+`value`
  a| 
 128
  a| 
@@ -124,7 +124,7 @@ LUN をポリシーグループに割り当てます
 .手順
 . アダプティブ QoS ポリシーグループを作成します。
 +
-「 qos adaptive-policy-group create -policy group_policy_group_ -vserver_svm_s_expected-iops_number of _iops_/TB|GB-expected-iops -expected-iops -expected-iops -expected-iops -allocation -space-allocation | used-space-allocated-iops-allocation space | used-space-16K -space-alloc | abse-size -minblock_size | 32K abs~abs|abs|abs~n | abs~n | abse-size
+`qos adaptive-policy-group create -policy group _policy_group_ -vserver _SVM_ -expected-iops _number_of_iops_/TB|GB -peak-iops _number_of_iops_/TB|GB -expected-iops-allocation-space|used-space -peak-iops-allocation allocated-space|used-space -absolute-min-iops _number_of_iops_ -block-size 8K|16K|32K|64K|ANY`
 
 +
 コマンド構文全体については、マニュアルページを参照してください。
@@ -132,11 +132,11 @@ LUN をポリシーグループに割り当てます
 +
 [NOTE]
 ====
-「 -expected-iops-allocation 」および「 -block-size 」は、 ONTAP 9.5 以降で使用できます。ONTAP 9.4 以前ではこれらのオプションがサポートされません。
+`-expected-iops-allocation` および `-block-size` はONTAP 9.5以降で使用できます。ONTAP 9.4 以前ではこれらのオプションがサポートされません。
 
 ====
 +
-次のコマンドは、 adpg-app1 というアダプティブ QoS ポリシーグループを作成し、 -expected-iops を 300 IOPS/TB 、「 -peak-iops 」を 1,000 IOPS/TB 、「 -peak-iops-allocation を「 used-space 」に、「 -absolute-min-iops 」を 50 IOPS に設定します。
+次のコマンドは、アダプティブQoSポリシーグループを作成します `adpg-app1` を使用 `-expected-iops` 300IOPS/TBに設定します。 `-peak-iops` 1、000 IOPS/TBに設定します。 `-peak-iops-allocation` をに設定します `used-space`および `-absolute-min-iops` 50 IOPSに設定：
 
 +
 [listing]
@@ -145,13 +145,13 @@ cluster1::> qos adaptive-policy-group create -policy group adpg-app1 -vserver vs
 ----
 . アダプティブ QoS ポリシーグループをボリュームに適用します。
 +
-「 volume create -vserver svm_name -volume 」 -aggregate_aggregate-size_number of _tb|GB-qos-adaptive-policy-group_group _ 」を実行します
+`volume create -vserver SVM -volume _volume_ -aggregate _aggregate_ -size _number_of_ TB|GB -qos-adaptive-policy-group _policy_group_`
 
 +
 コマンド構文全体については、マニュアルページを参照してください。
 
 +
-次のコマンドは、アダプティブ QoS ポリシーグループ adpg-app1 をボリューム app1 に適用します。
+次のコマンドは、アダプティブQoSポリシーグループを適用します `adpg-app1` をボリュームに移動します `app1`：
 
 +
 [listing]
@@ -159,7 +159,7 @@ cluster1::> qos adaptive-policy-group create -policy group adpg-app1 -vserver vs
 cluster1::> volume create -vserver vs1 -volume app1 -aggregate aggr1 -size 2TB -qos-adaptive-policy-group adpg-app1
 ----
 +
-次のコマンドは、デフォルトのアダプティブ QoS ポリシーグループ「 extreme 」を新しいボリューム「 app4 」と既存のボリューム「 app5 」に適用します。ポリシーグループ環境ボリューム app4' および app5' 個別に定義されたスループットの上限：
+次のコマンドは、デフォルトのアダプティブQoSポリシーグループを適用します `extreme` をクリックします `app4` とを既存のボリュームに追加します `app5`。ポリシーグループの環境 ボリュームに対して定義されたスループットの上限 `app4` および `app5` 個別：
 
 +
 [listing]

@@ -69,8 +69,9 @@ Storage > Storage VM* の順にクリックし、 Storage VM をクリックし�
 .. [*Permissions*] で、 [*Add*] をクリックします。
 +
 *** * Principal * および * Effect * - ユーザグループの設定に対応する値を選択するか、デフォルト値をそのまま使用します。
-*** * Actions * - 「 GetObject 」、「 PutObject 」、「 DeleteObject 」、「 ListBucket 」、「 GetBucketAcl 」、「 GetObjectAcl 」、「 ListBucketMultipartUploads 」、「 ListMultipartUploadParts 」の値が表示されていることを確認します
-*** * Resources * - 必要なその他の値、デフォルトの「（ _bketname 、 bucketname_/ * ）」を使用します。
+*** *アクション*-次の値が表示されていることを確認します。
+`GetObject,PutObject,DeleteObject,ListBucket,GetBucketAcl,GetObjectAcl,ListBucketMultipartUploads,ListMultipartUploadParts`
+*** *リソース*-デフォルトを使用します `(_bucketname, bucketname_/*)` 必要な値が含まれています。
 +
 を参照してください link:../task_object_provision_manage_bucket_access.html["バケットへのユーザアクセスを管理します"] これらのフィールドの詳細については、を参照してください。
 
@@ -109,24 +110,24 @@ Storage > Storage VM* の順にクリックし、 Storage VM をクリックし�
 
 . この SVM の最初の S3 SnapMirror 関係の場合は、ソースとデスティネーションの両方の SVM に root ユーザキーが存在することを確認し、存在しない場合は再生成します。
 +
-「 vserver object-store-server user show 」のように表示されます
+`vserver object-store-server user show`
 
 +
 root ユーザのアクセスキーがあることを確認します。表示されない場合は、次のように入力します。
 
 +
-「 vserver object-store-server user regenering-keys - vserver svm_name -user_root_ 」という形式を使用します
+`vserver object-store-server user regenerate-keys -vserver svm_name -user _root_`
 
 +
 キーがすでに存在する場合は、キーを再生成しないでください。
 
 . ソースとデスティネーションの両方の SVM でバケットを作成します。
 +
-「 vserver object-store-server bucket create -vserver svm_name -bucket bucket_name [-size_integer_[KB|MB|GB|TB|PB] 」 [-comment_text_] [_additional _options_]] 」
+`vserver object-store-server bucket create -vserver svm_name -bucket bucket_name [-size _integer_[KB|MB|GB|TB|PB]] [-comment _text_] [_additional_options_]`
 
 . ソースとデスティネーションの両方の SVM で、デフォルトのバケットポリシーにアクセスルールを追加します。
 +
-「 vserver object-store-server bucket policy add-statement-vserver_svm_name_-bucket_bucket_name __ Effect ｛ allow|deny ｝ -action _object_store_actions_ -principal_user_ore_names _ -resource_object_store_resources_[-sid_text_][-index_integer_]]
+`vserver object-store-server bucket policy add-statement -vserver _svm_name_ -bucket _bucket_name_ -effect {allow|deny} -action _object_store_actions_ -principal _user_and_group_names_ -resource _object_store_resources_ [-sid _text_] [-index _integer_]`
 
 +
 .例
@@ -134,14 +135,15 @@ root ユーザのアクセスキーがあることを確認します。表示さ
 ----
 src_cluster::> vserver object-store-server bucket policy add-statement -bucket test-bucket -effect allow -action GetObject,PutObject,DeleteObject,ListBucket,GetBucketAcl,GetObjectAcl,ListBucketMultipartUploads,ListMultipartUploadParts -principal - -resource test-bucket, test-bucket /*
 ----
-. 既存のポリシーがなく、デフォルトポリシーを使用しない場合は、ソース SVM で S3 SnapMirror ポリシーを作成します。「 snapmirror policy create -vserver _svm_name _-policy policy_name -type continuous [-rpm_integer_] [-throttle_type_]] [-comment_text_options] [_additional _options_`] 」
+. ソース SVM に S3 SnapMirror ポリシーを作成します。これは、既存のポリシーがなく、デフォルトポリシーを使用しない場合に行います。
+`snapmirror policy create -vserver _svm_name_ -policy policy_name -type continuous [-rpo _integer_] [-throttle _throttle_type_] [-comment _text_] [_additional_options_]`
 +
 パラメータ
 
 +
-** type 'continuous ' – S3 SnapMirror 関係の唯一のポリシー・タイプ（必須）
-** `-rpC' –リカバリ・ポイントの目標時間を秒単位で指定します（オプション）
-** -throttle` –スループット / 帯域幅の上限をキロバイト / 秒単位で指定します（オプション）。
+** を入力します `continuous` –S3 SnapMirror関係の唯一のポリシータイプ（必須）。
+** `-rpo` –目標復旧時点の時間を秒単位で指定します（オプション）。
+** `-throttle` –スループット/帯域幅の上限をキロバイト/秒単位で指定します（オプション）。
 +
 .例
 [listing]
@@ -152,19 +154,21 @@ src_cluster::> snapmirror policy create -vserver vs0 -type continuous -rpo 0 -po
 
 . ソースクラスタとデスティネーションクラスタの管理 SVM に CA サーバ証明書をインストールします。
 +
-.. ソースクラスタで、 _destination_S3 サーバ証明書に署名した CA 証明書をインストールします。「 security certificate install -type server-ca -vserver _src_admin_svm_name -cert-name_dest_server_certificate_`
-.. デスティネーションクラスタで、 _source_S3 サーバ証明書に署名した CA 証明書をインストールします。「 securitycertificate install -type server-ca -vserver dest_admin_svm_name -cert-name_src_server_certificate_`
+.. ソースクラスタで、_destination_S3サーバ証明書に署名したCA証明書をインストールします。
+`security certificate install -type server-ca -vserver _src_admin_svm_ -cert-name _dest_server_certificate_`
+.. デスティネーションクラスタで、_source_S3サーバ証明書に署名したCA証明書をインストールします。
+`security certificate install -type server-ca -vserver _dest_admin_svm_ -cert-name _src_server_certificate_`
 +
 外部の CA ベンダーが署名した証明書を使用している場合は、ソースとデスティネーションの管理 SVM に同じ証明書をインストールします。
 
 +
-詳細については 'securitycertificate install マニュアル・ページを参照してください
+を参照してください `security certificate install` 詳細はマニュアルページを参照してください。
 
 
 
 . ソース SVM で、 S3 SnapMirror 関係を作成します。
 +
-「 napmirror create -source-path src_src_src_src_SVM_src_svm_name _ ： /bucket/_bucket_name _ -destination-path_dest_peer_svm_name _ ： /buckets/_bucket_name _ 、…… ｝ [-policy policy_name]`
+`snapmirror create -source-path _src_svm_name_:/bucket/_bucket_name_ -destination-path _dest_peer_svm_name_:/bucket/_bucket_name_, ...} [-policy policy_name]`
 
 +
 作成したポリシーを使用することも、デフォルトのポリシーをそのまま使用することもできます。
@@ -175,5 +179,6 @@ src_cluster::> snapmirror policy create -vserver vs0 -type continuous -rpo 0 -po
 ----
 src_cluster::> snapmirror create -source-path vs0-src:/bucket/test-bucket -destination-path vs1-dest:bucket/test-bucket-mirror -policy test-policy
 ----
-. ミラーリングがアクティブであることを確認します。「 snapmirror show -policy type continuous -fields status 」
+. ミラーリングがアクティブであることを確認します。
+`snapmirror show -policy-type continuous -fields status`
 

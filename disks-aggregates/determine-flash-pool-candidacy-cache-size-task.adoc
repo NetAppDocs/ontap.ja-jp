@@ -19,11 +19,11 @@ summary: 既存のローカル階層（アグリゲート）をFlash Poolロー�
 .手順
 . advanced モードに切り替えます。
 +
-「高度」
+`set advanced`
 
 . 既存のローカル階層（アグリゲート）がFlash Poolアグリゲートへの変換に適しているかどうかを確認する必要がある場合は、負荷のピーク時におけるアグリゲート内のディスクのビジー率と、それがレイテンシにどのような影響を及ぼすかを確認します。
 +
-統計表示 - 定期オブジェクトディスク： raid_group -instance _raid_group_name -- counter disk_busy | user_read_latency -interval 1 -iterations 60
+`statistics show-periodic -object disk:raid_group -instance _raid_group_name_ -counter disk_busy|user_read_latency -interval 1 -iterations 60`
 
 +
 Flash Pool キャッシュを追加してレイテンシを短縮する処理がこのアグリゲートに適しているかどうかを判断することができます。
@@ -32,39 +32,39 @@ Flash Pool キャッシュを追加してレイテンシを短縮する処理が
 次のコマンドは、アグリゲート「 aggr1 」の最初の RAID グループの統計情報を表示します。
 
 +
-統計情報表示 - 定期オブジェクトディスク： raid_group -instance /aggr1/plex0/rg0 -counter disk_busy | user_read_latency -interval 1 -iterations 60
+`statistics show-periodic -object disk:raid_group -instance /aggr1/plex0/rg0 -counter disk_busy|user_read_latency -interval 1 -iterations 60`
 
 . Automated Workload Analyzer （ AWA ）を起動します。
 +
-「 storage automated-working-set-analyzer start -node _node_name 」 -aggregate_aggr_name _
+`storage automated-working-set-analyzer start -node _node_name_ -aggregate _aggr_name_`
 
 +
 指定されたアグリゲートに関連付けられているボリュームのワークロードデータの収集が開始されます。
 
 . advanced モードを終了します。
 +
-「管理者」
+`set admin`
 
 +
 ピーク負荷が間隔をあけて複数回発生するまで AWA の実行を許可します。AWA は、指定されたアグリゲートに関連付けられているボリュームのワークロードの統計情報を収集し、期間内で最長 1 週間にわたってデータを分析します。複数の週にわたって AWA を実行すると、直近の週に収集されたデータのみレポートされます。キャッシュサイズの推定値は、データ収集期間内に確認された最も高い負荷に基づいています。データ収集期間全体の負荷が高くなくてもかまいません。
 
 . advanced モードに切り替えます。
 +
-「高度」
+`set advanced`
 
 . ワークロードの分析を表示します。
 +
-storage automated-working-set-analyzer show -node node_name --instance
+`storage automated-working-set-analyzer show -node _node_name_ -instance`
 
 . AWA を停止：
 +
-「 storage automated-working-set-analyzer stop_node_name _ 」
+`storage automated-working-set-analyzer stop _node_name_`
 
 +
 すべてのワークロードデータがフラッシュされ、分析に使用できなくなります。
 
 . advanced モードを終了します。
 +
-「管理者」
+`set admin`
 
 

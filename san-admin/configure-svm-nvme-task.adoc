@@ -49,50 +49,50 @@ ONTAP CLIを使用して、NVMe用のStorage VMを設定します。
 
 . 既存の SVM を使用しない場合は、作成します。
 +
-「 vserver create -vserver_svm_name_` 」のように指定します
+`vserver create -vserver _SVM_name_`
 
 +
 .. SVM が作成されたことを確認します。
 +
-「 vserver show 」
+`vserver show`
 
 
 
 . クラスタに NVMe または TCP 対応アダプタがインストールされていることを確認します。
 +
-NVMe の場合：「 network fcp adapter show -data-protocol supported fc-nvme 」です
+NVMeの場合： `network fcp adapter show -data-protocols-supported fc-nvme`
 
 +
-TCP の場合：「 network port show 」
+TCPの場合： `network port show`
 
 . ONTAP 9.7 以前を実行している場合は、 SVM からすべてのプロトコルを削除します。
 +
-「 vserver remove-protocols -vserver _svm_name 」プロトコル iscsi 、 fcp 、 nfs 、 cifs 、 ndmp
+`vserver remove-protocols -vserver _SVM_name_ -protocols iscsi,fcp,nfs,cifs,ndmp`
 
 +
 ONTAP 9.8 以降では、 NVMe を追加するときに他のプロトコルを削除する必要はありません。
 
 . SVM に NVMe プロトコルを追加します。
 +
-「 vserver add-protocols -vserver _svm_name_-protocols nvme 」を参照してください
+`vserver add-protocols -vserver _SVM_name_ -protocols nvme`
 
 . ONTAP 9.7 以前を実行している場合は、 SVM で許可されているプロトコルが NVMe だけであることを確認します。
 +
-「 vserver show -vserver _svm_name 」 - fields allowed-protocols 」を指定します
+`vserver show -vserver _SVM_name_ -fields allowed-protocols`
 
 +
-NVMe は、「 Allowed protocols 」列に表示される唯一のプロトコルである必要があります。
+に表示されるプロトコルはNVMeだけです `allowed protocols` 列（Column）：
 
 . NVMe サービスを作成します。
 +
-「 vserver nvme create -vserver _svm_name_` 」です
+`vserver nvme create -vserver _SVM_name_`
 
 . NVMe サービスが作成されたことを確認します。
 +
-「 vserver nvme show -vserver _svm_name 」を参照してください
+`vserver nvme show -vserver _SVM_name_`
 
 +
-SVM の「 Administrative Status 」が「 up 」になっている必要があります。
+。 `Administrative Status` SVMのがと表示されている必要があります `up`。
 
 . NVMe/FC LIF を作成します。
 +
@@ -106,7 +106,7 @@ ONTAP 9.9.1 以前
  a| 
 FC
  a| 
-「 network interface create -vserver SVM_name -lif LIF_name -role data -data-protocol fc -nvme-home-node home_node -home-port home_port 」のようになります
+`network interface create -vserver SVM_name -lif lif_name -role data -data-protocol fc-nvme -home-node home_node -home-port home_port`
 
 
 
@@ -115,7 +115,7 @@ ONTAP 9.10.1
  a| 
 FC または TCP
  a| 
-「 network interface create -vserver SVM_name -lif LIF_name -service ｛ default-data-nvme-tcp | default-data-nvme-fc ｝ -home-node home_node -home-port home_port -status admin up-failover-policy disabled -firewall-policy data -auto-revert false-failover-group failover_group-is-service-is false 」 -update-enabled
+`network interface create -vserver SVM_name -lif lif_name -service-policy {default-data-nvme-tcp | default-data-nvme-fc} -home-node home_node -home-port home_port -status admin up -failover-policy disabled -firewall-policy data -auto-revert false -failover-group failover_group -is-dns-update-enabled false`
 
 |===
 . HA パートナーノードに NVMe/FC LIF を作成します。
@@ -130,7 +130,7 @@ ONTAP 9.9.1 以前
  a| 
 FC
  a| 
-「 network interface create -vserver _svm_name _ -lif lif_name _ -role data -data-protocol fc -nvme -home-node _home_node_name -home-port home_port_` 」を使用します
+`network interface create -vserver _SVM_name_ -lif _lif_name_ -role data -data-protocol fc-nvme -home-node _home_node_ -home-port _home_port_`
 
 
 
@@ -139,16 +139,16 @@ ONTAP 9.10.1 以降
  a| 
 FC または TCP
  a| 
-「 network interface create -vserver SVM_name -lif LIF_name -service ｛ default-data-nvme-tcp | default-data-nvme-fc ｝ -home-node home_node -home-port home_port -status admin up-failover-policy disabled -firewall-policy data -auto-revert false-failover-group failover_group-is-service-is false 」 -update-enabled
+`network interface create -vserver SVM_name -lif lif_name -service-policy {default-data-nvme-tcp | default-data-nvme-fc} -home-node home_node -home-port home_port -status admin up -failover-policy disabled -firewall-policy data -auto-revert false -failover-group failover_group -is-dns-update-enabled false`
 
 |===
 . NVMe/FC LIF が作成されたことを確認します。
 +
-「 network interface show -vserver _svm_name 」をクリックします
+`network interface show -vserver _SVM_name_`
 
 . LIF と同じノードにボリュームを作成します。
 +
-vol create -vserver_svm_name_-volume_name_-aggregate-aggregate-aggregate-aggregate-aggregate-name _-size_volume_size_`
+`vol create -vserver _SVM_name_ -volume _vol_name_ -aggregate _aggregate_name_ -size _volume_size_`
 
 +
 自動効率化ポリシーに関する警告メッセージが表示された場合は無視してかまいません。

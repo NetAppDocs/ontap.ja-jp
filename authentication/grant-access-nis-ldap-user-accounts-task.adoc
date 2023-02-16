@@ -11,7 +11,7 @@ summary: LDAP または NIS のユーザアカウントが管理またはデー�
 
 
 [role="lead"]
-「 securitylogin create 」コマンドを使用すると、 LDAP または NIS のユーザアカウントが管理またはデータ SVM にアクセスできるようになります。LDAP サーバまたは NIS サーバから SVM へのアクセスを設定していない場合は、アカウントが SVM にアクセスする前に設定しておく必要があります。
+を使用できます `security login create` LDAPまたはNISのユーザアカウントが管理またはデータSVMにアクセスできるようにするコマンド。LDAP サーバまたは NIS サーバから SVM へのアクセスを設定していない場合は、アカウントが SVM にアクセスする前に設定しておく必要があります。
 
 .必要なもの
 このタスクを実行するには、クラスタ管理者である必要があります。
@@ -25,19 +25,19 @@ xref:enable-nis-ldap-users-access-cluster-task.adoc[LDAP サーバまたは NIS 
 +
 このタスクは、アカウントアクセスを有効にする前後どちらでも実行できます。
 
-* ログインアカウントに割り当てるアクセス制御ロールが不明な場合は、「 securitylogin modify 」コマンドを使用して後でロールを追加できます。
+* ログインアカウントに割り当てるアクセス制御ロールが確定していない場合は、を使用します `security login modify` あとでロールを追加するコマンド。
 +
 xref:modify-role-assigned-administrator-task.adoc[管理者に割り当てられているロールの変更]
 
 * ONTAP 9.4 以降では、 LDAP サーバまたは NIS サーバを経由するリモートユーザに対して多要素認証（ MFA ）がサポートされます。
 * ONTAP 9.11.1以降では、を使用できます link:../nfs-admin/ldap-fast-bind-nsswitch-authentication-task.html["nsswitch認証のためのLDAP高速バインド"] LDAPサーバでサポートされている場合。
-* 既知の LDAP 問題のため 'LDAP ユーザー・アカウント情報のどのフィールドにも文字 ( たとえば 'gecos''userPassword' など ) を使用しないでくださいそうしないと、そのユーザの検索操作が失敗します。
+* 既知のLDAP問題 があるため、を使用しないでください `':'` （コロン）を含むLDAPユーザアカウント情報の任意のフィールド（例： `gecos`、 `userPassword`など）。そうしないと、そのユーザの検索操作が失敗します。
 
 
 .手順
 . LDAP または NIS のユーザアカウントまたはグループアカウントが SVM にアクセスできるようにします。
 +
-「security login create -vserver svm_name -user-or -group-name user_name -application -application -authmethod nsswitch -role role -comment -is-ns-switch group yes | no [-is-ldap-fastbindtrue]]
+`security login create -vserver SVM_name -user-or-group-name user_name -application application -authmethod nsswitch -role role -comment comment -is-ns-switch-group yes|no [-is-ldap-fastbind true]`
 
 +
 コマンド構文全体については、を参照してください link:config-worksheets-reference.html["ワークシート"]。
@@ -46,7 +46,7 @@ xref:modify-role-assigned-administrator-task.adoc[管理者に割り当てられ
 link:config-worksheets-reference.html["ログインアカウントを作成または変更する"]
 
 +
-次のコマンドは ' 事前定義された backup ロールを持つ LDAP または NIS のクラスタ管理者アカウント guest2' が管理 SVM 'engCluster` にアクセスできるようにします
+次のコマンドは、LDAPまたはNISのクラスタ管理者アカウントを有効にします `guest2` 事前定義されたを使用する `backup` 管理SVMにアクセスするためのロール``engCluster``。
 
 +
 [listing]
@@ -55,10 +55,10 @@ cluster1::>security login create -vserver engCluster -user-or-group-name guest2 
 ----
 . LDAP ユーザまたは NIS ユーザに対して MFA ログインを有効にします。
 +
-「 security login modify -user-or -group-name rem_usr1 -application ssh -authentication-method nsswitch -role admin-is-ns-switch group no -second-authentication-method publickey publickey publickey
+``security login modify -user-or-group-name rem_usr1 -application ssh -authentication-method nsswitch -role admin -is-ns-switch-group no -second-authentication-method publickey``
 
 +
-認証方式には「 publickey 」を、第 2 の認証方式には「 nsswitch 」を指定できます。
+認証方法は、のように指定できます `publickey` および2番目の認証方法 `nsswitch`。
 
 +
 次の例では MFA 認証を有効にしています。

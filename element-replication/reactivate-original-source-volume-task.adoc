@@ -16,7 +16,7 @@ summary: デスティネーションからデータを提供する必要がな�
 .このタスクについて
 以下の手順は、元のソースボリュームにあるベースラインが損なわれていないことを前提としています。ベースラインが損なわれている場合は、手順を実行する前に、データの提供元のボリュームと元のソースボリュームの間の関係を作成して初期化する必要があります。
 
-Element のソースパスは '_hostip:____LUN/_name_' の形式で指定する必要がありますここで 'lun` は実際の文字列 "LUN`" で 'name' は Element ボリュームの名前です
+要素のソースパスを形式で指定する必要があります `_hostip:_/lun/_name_`「lun」は実際の文字列「lun」およびです `name` は、Elementボリュームの名前です。
 
 ONTAP 9.4 以降では、 ONTAP デスティネーションからデータを提供している間に作成された LUN の Snapshot コピーは Element ソースが再アクティブ化されたときに自動的にレプリケートされます。
 
@@ -30,13 +30,13 @@ ONTAP 9.4 以降では、 ONTAP デスティネーションからデータを提
 .手順
 . 元のデータ保護関係を削除します。
 +
-「 napmirror delete -source-path _ SVM ： volume_|| 」： //SVM/volume_destination-path_hostip ： //LUN/ _name_-policy_’
+`snapmirror delete -source-path _SVM:volume_|_cluster://SVM/volume_ -destination-path _hostip:_/lun/_name_ -policy _policy_`
 
 +
 コマンド構文全体については、マニュアルページを参照してください。
 
 +
-次の例では、元のソースボリューム「 0005 」（ IP アドレス 10.0.0.11 ）と、データを提供しているボリューム「 volA_dst 」（「 vm_backup 」）との間の関係を削除します。
+次の例は、元のソースボリューム間の関係を削除します。 `0005` IPアドレス10.0.0.11で、データの提供元のボリューム `volA_dst` オン `svm_backup`：
 
 +
 [listing]
@@ -45,7 +45,7 @@ cluster_dst::> snapmirror delete -source-path 10.0.0.11:/lun/0005 -policy Mirror
 ----
 . 元のデータ保護関係を反転します。
 +
-「 snapmirror resync -source-path_SVM ： volume_|_cluster ： //SVM/volume_destination-path_hostip ： //LUN/ _name_-policy_’
+`snapmirror resync -source-path _SVM:volume_|_cluster://SVM/volume_ -destination-path _hostip:_/lun/_name_ -policy _policy_`
 
 +
 コマンド構文全体については、マニュアルページを参照してください。
@@ -54,7 +54,7 @@ cluster_dst::> snapmirror delete -source-path 10.0.0.11:/lun/0005 -policy Mirror
 再同期の際にベースライン転送は不要ですが、再同期には時間がかかる場合があります。再同期はオフピークの時間帯に実行することを推奨します。
 
 +
-次の例は ' 元のソース・ボリューム '0005 と IP アドレス 10.0.0.11 の間の関係を反転し ' データを提供しているボリューム 'volA_dst' と 'vm_backup' の間の関係を反転します
+次の例は、元のソースボリューム間の関係を反転します。 `0005` IPアドレス10.0.0.11で、データの提供元のボリューム `volA_dst` オン `svm_backup`：
 
 +
 [listing]
@@ -63,7 +63,7 @@ cluster_dst::> snapmirror resync -source-path svm_backup:volA_dst -destination-p
 ----
 . 反転した関係を更新します。
 +
-「 snapmirror update -source-path _ SVM ： volume_|| 」： //SVM/volume_destination-path_hostip ： //LUN/ _name_`
+`snapmirror update -source-path _SVM:volume_|_cluster://SVM/volume_ -destination-path _hostip:_/lun/_name_`
 
 +
 コマンド構文全体については、マニュアルページを参照してください。
@@ -71,11 +71,11 @@ cluster_dst::> snapmirror resync -source-path svm_backup:volA_dst -destination-p
 +
 [NOTE]
 ====
-ソースとデスティネーションに共通の Snapshot コピーが存在しない場合、このコマンドは失敗します。「 Snapmirror initialize 」を使用して、関係を再初期化します。
+ソースとデスティネーションに共通の Snapshot コピーが存在しない場合、このコマンドは失敗します。使用 `snapmirror initialize` 関係を再初期化してください。
 
 ====
 +
-次の例では、データの提供元ボリュームである「 volA_dst 」と元のソースボリュームである「 0005 」の間の関係を、 IP アドレス 10.0.0.11 で更新します。
+次の例は、データの提供元のボリューム間の関係を更新します。 `volA_dst` オン `svm_backup`および元のソースボリューム `0005` IPアドレス10.0.0.11の場合：
 
 +
 [listing]
@@ -84,13 +84,13 @@ cluster_dst::> snapmirror update -source-path svm_backup:volA_dst -destination-p
 ----
 . 反転した関係のスケジュールされた転送を停止します。
 +
-「 snapmirror quiesce -source-path _ SVM ： volume_|| 」： //SVM/volume_destination-path_hostip ： //LUN/ _name_`
+`snapmirror quiesce -source-path _SVM:volume_|_cluster://SVM/volume_ -destination-path _hostip:_/lun/_name_`
 
 +
 コマンド構文全体については、マニュアルページを参照してください。
 
 +
-次の例では、データの提供元のボリューム「 volA_dst 」と元のソースボリューム「 0005 」の間の、 IP アドレス 10.0.0.11 のスケジュールされた転送を停止します。
+次の例は、データの提供元のボリューム間のスケジュールされた転送を停止します。 `volA_dst` オン `svm_backup`および元のソースボリューム `0005` IPアドレス10.0.0.11の場合：
 
 +
 [listing]
@@ -99,13 +99,13 @@ cluster_dst::> snapmirror quiesce -source-path svm_backup:volA_dst -destination-
 ----
 . 反転した関係の実行中の転送を停止します。
 +
-「 snapmirror abort -source-path SVM 」に移動します。 volume_|| cluster ： //SVM/volume_volume-destination-path _hostip ： //LUN/ _name_`
+`snapmirror abort -source-path _SVM:volume_|_cluster://SVM/volume_ -destination-path _hostip:_/lun/_name_`
 
 +
 コマンド構文全体については、マニュアルページを参照してください。
 
 +
-次の例は ' データを提供しているボリューム 'volA_dst' から元のソース・ボリューム '0005 との間の ' IP アドレス 10.0.0.11 の実行中の転送を停止します
+次の例は、データの提供元のボリューム間の実行中の転送を停止します。 `volA_dst` オン `svm_backup`および元のソースボリューム `0005` IPアドレス10.0.0.11の場合：
 
 +
 [listing]
@@ -114,13 +114,13 @@ cluster_dst::> snapmirror abort -source-path svm_backup:volA_dst -destination-pa
 ----
 . 反転した関係を解除します。
 +
-「 snapmirror break -source-path _ SVM ： volume_|| 」： //SVM/volume_destination-path_hostip ： //LUN/_name_`
+`snapmirror break -source-path _SVM:volume_|_cluster://SVM/volume_ -destination-path _hostip:_/lun/_name_`
 
 +
 コマンド構文全体については、マニュアルページを参照してください。
 
 +
-次の例では、データの提供元ボリュームである「 volA_dst 」と元のソースボリュームである「 0005 」の間の関係を IP アドレス 10.0.0.11 で解除します。
+次の例は、データの提供元のボリューム間の関係を解除します。 `volA_dst` オン `svm_backup`および元のソースボリューム `0005` IPアドレス10.0.0.11の場合：
 
 +
 [listing]
@@ -129,13 +129,13 @@ cluster_dst::> snapmirror break -source-path svm_backup:volA_dst -destination-pa
 ----
 . 反転したデータ保護関係を削除します。
 +
-「 snapmirror delete -source-path _ SVM ： volume_|| 」： //SVM/volume_destination-path_hostip_ ： /LUN/ _name_-policy_policy _
+`snapmirror delete -source-path _SVM:volume_|_cluster://SVM/volume_ -destination-path _hostip_:/lun/_name_ -policy _policy_`
 
 +
 コマンド構文全体については、マニュアルページを参照してください。
 
 +
-次の例では、元のソースボリューム「 0005 」（ IP アドレス 10.0.0.11 ）と、データの提供元のボリューム「 volA_dst 」（「 vm_backup 」）との間の反転された関係を削除します。
+次の例は、元のソースボリューム間の反転した関係を削除します。 `0005` IPアドレス10.0.0.11で、データの提供元のボリューム `volA_dst` オン `svm_backup`：
 
 +
 [listing]
@@ -144,13 +144,13 @@ cluster_src::> snapmirror delete -source-path svm_backup:volA_dst -destination-p
 ----
 . 元のデータ保護関係を再確立します。
 +
-「 snapmirror resync -source-path _hostip_ ： /LUN/ _name_ -destination-path SVM ： volume/cluster ： //SVM/volume_`
+`snapmirror resync -source-path _hostip_:/lun/_name_ -destination-path _SVM:volume|cluster://SVM/volume_`
 
 +
 コマンド構文全体については、マニュアルページを参照してください。
 
 +
-次の例は ' 元のソース・ボリューム '0005 （ IP アドレス 10.0.0.11 ）と元のデスティネーション・ボリューム 'volA_dst' （ 'vm_backup' ）の間の関係を再確立します
+次の例は、元のソースボリューム間の関係を再確立します。 `0005` IPアドレス10.0.0.11、元のデスティネーションボリューム `volA_dst` オン `svm_backup`：
 
 +
 [listing]
@@ -160,4 +160,4 @@ cluster_dst::> snapmirror resync -source-path 10.0.0.11:/lun/0005 -destination-p
 
 
 .完了後
-「 snapmirror show 」コマンドを使用して、 SnapMirror 関係が作成されたことを確認します。コマンド構文全体については、マニュアルページを参照してください。
+を使用します `snapmirror show` SnapMirror関係が作成されたことを確認するコマンド。コマンド構文全体については、マニュアルページを参照してください。

@@ -19,11 +19,11 @@ SnapMirror 環境でリバートを実行する場合は、次のミラー関係
 * ONTAP 8.3.x で作成したすべてのデータ保護ミラー関係
 * ONTAP 8.3.x でクラスタが再作成された場合は、すべてのデータ保護ミラー関係
 +
-.. すべてのデータ SVM に対して Snapshot コピーポリシーを無効にします。 volume snapshot policy modify -vserver * -enabled false
+.. すべてのデータSVMのSnapshotコピーポリシーを無効にします。 `volume snapshot policy modify -vserver * -enabled false`
 .. 各ノードのアグリゲートに対して Snapshot コピーポリシーを無効にします。
 +
 ... run -nodeodnameaggr status コマンドを使用して、ノードのアグリゲートを特定します。
-... 各アグリゲートに対して Snapshot コピーポリシーを無効にします。「 run -node nodename aggr options aggr_name nosnap on
+... 各アグリゲートのSnapshotコピーポリシーを無効にします。 `run -node nodename aggr options aggr_name nosnap on`
 ... 残りのノードそれぞれに対して同じ手順を繰り返します。
 
 
@@ -42,15 +42,15 @@ vs1::> run -node node1 vol status
            vol0 online          raid_dp, flex     root, nvfail=on
                                 64-bit
 ----
-... ルートボリュームの Snapshot コピーポリシーを無効にします。「 run -node nodename vol options root_volume_name nosnap on
+... ルートボリュームのSnapshotコピーポリシーを無効にします。 `run -node nodename vol options root_volume_name nosnap on`
 ... 残りのノードそれぞれに対して同じ手順を繰り返します。
 
 
 .. 現在のリリースへのアップグレード後に作成された Snapshot コピーをすべて削除します。
 +
-... 権限レベルを advanced に設定します。「 set -privilege advanced 」
-... スナップショットを無効にします。「 'Snapshotpolicy modify -vserver * -enabled false 」
-... ノードの新しいバージョンの Snapshot コピーを削除します。 volume snapshot prepare-for-revert -node nodename
+... 権限レベルを advanced に設定します。 `set -privilege advanced`
+... Snapshotを無効にします。``snapshot policy modify -vserver * -enabled false``
+... ノードの新しいバージョンのSnapshotコピーを削除します。 `volume snapshot prepare-for-revert -node nodename`
 +
 このコマンドは、各データボリューム、ルートアグリゲート、およびルートボリュームの新しいバージョンの Snapshot コピーを削除します。
 
@@ -65,12 +65,12 @@ cluster1::*> volume snapshot prepare-for-revert -node node1
 Warning: This command will delete all Snapshot copies that have the format used by the current version of ONTAP. It will fail if any Snapshot copy polices are enabled, or
          if any Snapshot copies have an owner. Continue? {y|n}: y
 ----
-... Snapshot コピーが削除されたことを確認します。 volume snapshot show -node nodename
+... Snapshotコピーが削除されたことを確認します。 `volume snapshot show -node nodename`
 +
-新しいバージョンの Snapshot コピーが残っている場合は、強制的に削除します。 volume snapshot delete ｛ -fs-version 9.0 -node nodename -is-constituent true ｝ -ignore-owners -force
+新しいバージョンのSnapshotコピーが残っている場合は、強制的に削除します。 `volume snapshot delete {-fs-version 9.0 -node nodename -is-constituent true} -ignore-owners -force`
 
 ... 残りのノードそれぞれについて、手順 c を繰り返します。
-... admin 権限レベルに戻ります。「 set -privilege admin 」
+... admin 権限レベルに戻ります。 `set -privilege admin`
 
 
 

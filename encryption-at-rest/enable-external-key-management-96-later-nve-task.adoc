@@ -31,7 +31,7 @@ ONTAP 9.11.1以降では、プライマリキーサーバごとに最大3つの�
 * ONTAP 9.6 以降では、 _svm scop_ を使用して、クラスタ内のデータ SVM に外部キー管理を設定できます。各テナントが異なる SVM （または SVM のセット）を使用してデータを提供するマルチテナント環境には、この方法が最適です。特定のテナントの SVM 管理者だけが、そのテナントのキーにアクセスできます。
 * マルチテナント環境の場合は、次のコマンドを使用して、 _MT_EK_MGMT_ のライセンスをインストールします。
 +
-「システムライセンス追加 - ライセンスコード <MT_EK_MGMT ライセンスコード >` 」
+`system license add -license-code <MT_EK_MGMT license code>`
 
 +
 コマンド構文全体については、コマンドのマニュアルページを参照してください。
@@ -40,12 +40,12 @@ ONTAP 9.11.1以降では、プライマリキーサーバごとに最大3つの�
 
 同じクラスタで両方のスコープを使用できます。1 つの SVM に対してキー管理サーバが設定されている場合、 ONTAP はそれらのサーバのみを使用してキーを保護します。それ以外 ONTAP の場合は、クラスタに対して設定されたキー管理サーバでキーが保護されます。
 
-オンボードキー管理はクラスタスコープで設定でき、外部キー管理は SVM スコープで設定できます。「 securitykey-manager key migrate 」コマンドを使用すると、クラスタスコープのオンボードキー管理から SVM スコープの外部キー管理ツールにキーを移行できます。
+オンボードキー管理はクラスタスコープで設定でき、外部キー管理は SVM スコープで設定できます。を使用できます `security key-manager key migrate` コマンドは、クラスタスコープのオンボードキー管理からSVMスコープの外部キー管理ツールにキーを移行します。
 
 .手順
 . クラスタのキー管理ツールの接続を設定します。
 +
-「 security key-manager external enable -vserver admin_svm -key_servers host_name | ip_address ： port 、……」 -client-cert client_certificate-server-ca-cert-certserver_CA_certificates 」と入力します
+`security key-manager external enable -vserver admin_SVM -key-servers host_name|IP_address:port,... -client-cert client_certificate -server-ca-cert server_CA_certificates`
 
 +
 [NOTE]
@@ -56,7 +56,7 @@ ONTAP 9.11.1以降では、プライマリキーサーバごとに最大3つの�
 
 ====
 +
-次のコマンドは 'cluster1 の外部キー管理を 3 台の外部キー・サーバで有効にします最初のキーサーバはホスト名とポートで指定し、 2 番目のキーサーバは IP アドレスとデフォルトポートで指定し、 3 番目のキーサーバは IPv6 アドレスとポートで指定します。
+次のコマンドは、の外部キー管理を有効にします `cluster1` 3台の外部キーサーバを使用最初のキーサーバはホスト名とポートで指定し、 2 番目のキーサーバは IP アドレスとデフォルトポートで指定し、 3 番目のキーサーバは IPv6 アドレスとポートで指定します。
 
 +
 [listing]
@@ -65,18 +65,18 @@ clusterl::> security key-manager external enable -vserver cluster1 -key-servers 
 ----
 . キー管理ツールとして SVM を設定します。
 +
-「 securitykey-manager external enable -vserver SVM-key-servers host_name | ip_address ： port 、……」 -client-cert client_certificate-server-ca-cert-certserver_CA_certificates 」と入力します
+`security key-manager external enable -vserver SVM -key-servers host_name|IP_address:port,... -client-cert client_certificate -server-ca-cert server_CA_certificates`
 
 +
 [NOTE]
 ====
-** このコマンドを SVM のログインプロンプトで実行すると、「 S vm 」はデフォルトで現在の SVM に設定されます。SVM スコープを設定するには、クラスタ管理者または SVM 管理者である必要があります。「 securitykey-manager external modify 」コマンドを実行して、外部キー管理設定を変更できます。
+** SVMのログインプロンプトでコマンドを実行すると、 `SVM` デフォルトで現在のSVMに設定されます。SVM スコープを設定するには、クラスタ管理者または SVM 管理者である必要があります。を実行できます `security key-manager external modify` コマンドを使用して、外部キー管理の設定を変更します。
 ** MetroCluster 環境でデータSVMに外部キー管理を設定する場合は、の手順を繰り返す必要はありません `security key-manager external enable` パートナークラスタに対して実行します。
 
 
 ====
 +
-次のコマンドは、デフォルトポート 5696 をリスンする 1 つのキーサーバを使用して、「 vm1 」の外部キー管理を有効にします。
+次のコマンドは、の外部キー管理を有効にします `svm1` 1つのキーサーバをデフォルトポート5696でリスンしている場合：
 
 +
 [listing]
@@ -87,17 +87,17 @@ svm1l::> security key-manager external enable -vserver svm1 -key-servers keyserv
 +
 [NOTE]
 ====
-さらに、「 securitykey-manager external add servers 」コマンドを使用して、追加の SVM を設定することもできます。「 securitykey-manager external add servers 」コマンドは、「 securitykey-manager add 」コマンドに代わるコマンドです。コマンド構文全体については、マニュアルページを参照してください。
+を使用することもできます `security key-manager external add-servers` 追加のSVMを設定するコマンド。。 `security key-manager external add-servers` コマンドは、に置き換わるものです `security key-manager add` コマンドを実行しますコマンド構文全体については、マニュアルページを参照してください。
 
 ====
 . 設定したすべての KMIP サーバが接続されていることを確認します。
 +
-「 securitykey-manager external show-status -node node_name 」
+`security key-manager external show-status -node node_name`
 
 +
 [NOTE]
 ====
-「 securitykey-manager external show-status 」コマンドは、「 securitykey-manager show -status 」コマンドに代わるコマンドです。コマンド構文全体については、マニュアルページを参照してください。
+。 `security key-manager external show-status` コマンドは、に置き換わるものです `security key-manager show -status` コマンドを実行しますコマンド構文全体については、マニュアルページを参照してください。
 
 ====
 +

@@ -24,7 +24,7 @@ ONTAP 9.7 以前では、ブロードキャストドメインに追加するポ�
 .このタスクについて
 * すべてのブロードキャストドメイン名が IPspace 内で一意である必要があります。
 * ブロードキャストドメインに追加できるポートは、物理ネットワークポート、 VLAN 、インターフェイスグループ（ ifgrp ）です。
-* 使用するポートが別のブロードキャストドメインに属しているが、使用されていない場合は、「 network port broadcast-domain remove-ports 」コマンドを使って既存のブロードキャストドメインからそのポートを削除します。
+* 使用するポートが別のブロードキャストドメインに属しているが、使用されていない場合はを使用します `network port broadcast-domain remove-ports` 既存のブロードキャストドメインからポートを削除するコマンド。
 * ブロードキャストドメインに追加したポートの MTU は、ブロードキャストドメインに設定されている MTU 値に更新されます。
 * 管理トラフィックを処理する e0M ポートを除く、レイヤ 2 ネットワークに接続されているすべてのデバイスの MTU 値が一致している必要があります。
 * IPspace 名を指定しない場合、ブロードキャストドメインは「 Default 」 IPspace に作成されます。
@@ -35,40 +35,41 @@ ONTAP 9.7 以前では、ブロードキャストドメインに追加するポ�
 .手順
 . 現在ブロードキャストドメインに割り当てられていないポートを表示します。
 +
-「 network port show 」のように表示されます
+`network port show`
 
 +
-表示が大きい場合は、「 network port show -broadcast-domain 」コマンドを使用して、割り当てられていないポートだけを表示します。
+ディスプレイが大きい場合は、を使用します `network port show -broadcast-domain` 未割り当てのポートのみを表示するコマンド。
 
 . ブロードキャストドメインを作成します。
 +
-「 network port broadcast-domain create -broadcast-domain broadcast_domain_name -mtu mtu_value [-ipspace ipspace_name] [-ports ports_list] 」
+`network port broadcast-domain create -broadcast-domain broadcast_domain_name -mtu mtu_value [-ipspace ipspace_name] [-ports ports_list]`
 
 +
 ** `_broadcast_domain_name_` は、作成するブロードキャストドメインの名前です。
-** `_mtu_value_` は IP パケットの MTU サイズであり '1500 と 9000 は一般的な値です
+** `_mtu_value_` はIPパケットのMTUサイズで、通常1500~9000です。
 +
 この値は、このブロードキャストドメインに追加するすべてのポートに適用されます。
 
-** `_ipspace_name_` は、このブロードキャストドメインを追加する IPspace の名前です。
+** `_ipspace_name_` は、このブロードキャストドメインを追加するIPspaceの名前です。
 +
 「 default 」 IPspace は、このパラメータの値を指定しないかぎり使用されます。
 
-** `_ports_list_` はブロードキャストドメインに追加するポートのリストである。
+** `_ports_list_` は、ブロードキャストドメインに追加するポートのリストです。
 +
-ポートは '_node_name ： port_number_' の形式で追加されますたとえば 'node1 ： e0c' です
+ポートはという形式で追加されます `_node_name:port_number_`例： `node1:e0c`。
 
 
 
-. ブロードキャストドメインが必要に応じて作成されたことを確認します。「 network port show -instance -broadcast-domain _new_domain_`
+. 必要に応じて、ブロードキャストドメインが作成されたことを確認します。
+`network port show -instance -broadcast-domain _new_domain_`
 
 
 .例
 次のコマンドは、 Default IPspace にブロードキャストドメイン bcast1 を作成し、 MTU を 1500 に設定してポートを 4 つ追加します。
 
-「 network port broadcast-domain create -broadcast-domain cast1_-mtu_1500_ports_cluster1-01 ： e0e 、 cluster1-01 ： e0f 、 cluster1-02 ： e0e 、 cluster1-02 ： e0e 、 cluster1-02 ： e0f 」になります
+`network port broadcast-domain create -broadcast-domain _bcast1_ -mtu _1500_ -ports _cluster1-01:e0e,cluster1-01:e0f,cluster1-02:e0e,cluster1-02:e0f_`
 
 .完了後
 この時点で、サブネットを作成してブロードキャストドメインで使用可能になる IP アドレスのプールを定義するか、 SVM とインターフェイスを IPspace に割り当てることができます。詳細については、を参照してください link:https://docs.netapp.com/us-en/ontap-sm-classic/peering/index.html["クラスタと SVM のピアリング"]。
 
-既存のブロードキャストドメインの名前を変更する必要がある場合は、「 network port broadcast-domain rename 」コマンドを使用します。
+既存のブロードキャストドメインの名前を変更する必要がある場合は、を使用します `network port broadcast-domain rename` コマンドを実行します

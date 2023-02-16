@@ -19,7 +19,7 @@ summary: クラスタのアップグレードの準備には、さまざまな�
 
 クラスタをリバートする前に、ノードが正常に機能していてクラスタに追加するための条件を満たしていること、およびクラスタがクォーラムにあることを確認する必要があります。
 
-. クラスタ内のノードがオンラインであり ' クラスタに参加できることを確認します cluster show
+. クラスタ内のノードがオンラインで、クラスタに追加するための条件を満たしていることを確認します。 `cluster show`
 +
 [listing]
 ----
@@ -32,9 +32,10 @@ node1                 true    true
 +
 正常に機能していないノードや条件を満たしていないノードがある場合は、 EMS ログでエラーを確認して適切に修正します。
 
-. 権限レベルを advanced に設定します。 + 「 set -privilege advanced 」
+. 権限レベルをadvancedに設定します。+
+`set -privilege advanced`
 +
-「 y 」と入力して続行します。
+入力するコマンド `y` 続行します。
 
 . 各 RDB プロセスの構成の詳細を確認します。
 +
@@ -52,28 +53,28 @@ node1                 true    true
  a| 
 管理アプリケーション
  a| 
-cluster ring show -unitname mgmt
+`cluster ring show -unitname mgmt`
 
 
 
  a| 
 ボリュームロケーションデータベース
  a| 
-cluster ring show -unitname vldb
+`cluster ring show -unitname vldb`
 
 
 
  a| 
 仮想インターフェイスマネージャ
  a| 
-cluster ring show -unitname vifmgr
+`cluster ring show -unitname vifmgr`
 
 
 
  a| 
 SAN 管理デーモン
  a| 
-cluster ring show -unitname bcomd
+`cluster ring show -unitname bcomd`
 
 |===
 +
@@ -93,8 +94,9 @@ node3     vldb     154      154      14847    node0     secondary
 ----
 
 
-. admin 権限レベルに戻ります。 +`set -privilege admin`
-. SAN環境を使用している場合は、各ノードがSANクォーラムにあることを確認します。「event log show -severity informational-message-name scsiblade.*」
+. admin権限レベルに戻ります。+
+`set -privilege admin`
+. SAN 環境を使用している場合は、各ノードが SAN クォーラムにあることを確認します。 `event log show  -severity informational -message-name scsiblade.*`
 +
 各ノードの最新の scsiblade イベントメッセージに、 SCSI ブレードがクォーラムにあることが示されます。
 
@@ -128,7 +130,7 @@ link:../system-admin/index.html["システム管理"]
  a| 
 破損ディスク
  a| 
-.. 破損ディスクを表示します。「 storage disk show -state broken 」
+.. 破損ディスクを表示します。 `storage disk show -state broken`
 .. 破損ディスクを取り外すか交換します。
 
 
@@ -137,12 +139,12 @@ link:../system-admin/index.html["システム管理"]
  a| 
 メンテナンス中または再構築中のディスク
  a| 
-.. 「 storage disk show -state maintenance|pending|reconstructing 」の状態のディスクを表示します
+.. 保守、保留、または再構築の状態のディスクを表示します。 `storage disk show -state maintenance|pending|reconstructing`
 .. メンテナンスまたは再構築の処理が完了するまで待ってから次に進みます。
 
 
 |===
-. ストレージアグリゲート「 storage aggregate show -state ！ online 」を含む物理ストレージと論理ストレージの状態を表示して、すべてのアグリゲートがオンラインであることを確認します
+. ストレージアグリゲートを含む物理ストレージと論理ストレージの状態を表示して、すべてのアグリゲートがオンラインであることを確認します。 `storage aggregate show -state !online`
 +
 このコマンドを実行すると、オンラインでないアグリゲートが表示されます。メジャーアップグレードまたはリバートの実行前と実行後には、すべてのアグリゲートがオンラインになっている必要があります。
 
@@ -152,7 +154,7 @@ link:../system-admin/index.html["システム管理"]
 cluster1::> storage aggregate show -state !online
 There are no entries matching your query.
 ----
-. すべてのボリュームがオンラインであることを確認するには 'volume show -state ！ online ' のようなボリュームを表示します
+. 次のコマンドを実行して、すべてのボリュームがオンラインであることを確認します。 _not_online `volume show -state !online`
 +
 メジャーアップグレードまたはリバートの実行前と実行後には、すべてのボリュームがオンラインになっている必要があります。
 
@@ -162,7 +164,7 @@ There are no entries matching your query.
 cluster1::> volume show -state !online
 There are no entries matching your query.
 ----
-. 整合性のないボリュームがないことを確認します。 volume show -is-inconsistent true
+. 整合性のないボリュームがないことを確認します。 `volume show -is-inconsistent true`
 +
 サポート技術情報の記事を参照してください link:https://kb.netapp.com/Advice_and_Troubleshooting/Data_Storage_Software/ONTAP_OS/Volume_Showing_WAFL_Inconsistent["「WAFL inconsistent」を示すボリューム"] を参照してください。
 
@@ -177,8 +179,8 @@ link:../disks-aggregates/index.html["ディスクおよびアグリゲートの�
 
 リバートを行う前に、 NTP が設定されていること、および時刻がクラスタ全体で同期されていることを確認する必要があります。
 
-. クラスタが NTP サーバに関連付けられていることを確認します。 cluster time-service ntp server show
-. 各ノードの日付と時刻が同じであることを確認します
+. クラスタがNTPサーバに関連付けられていることを確認します。 `cluster time-service ntp server show`
+. 各ノードの日付と時刻が同じであることを確認します。 `cluster date show`
 +
 [listing]
 ----
@@ -199,7 +201,7 @@ node3     4/6/2013 20:54:38   GMT
 
 ONTAP ソフトウェアをリバートする前に、クラスタジョブのステータスを確認する必要があります。アグリゲート、ボリューム、 NDMP （ダンプまたはリストア）、または Snapshot に関する実行中のジョブ（作成、削除、移動、変更、複製など） およびマウントジョブ）が実行中またはキューに登録されている場合は、ジョブが正常に完了するまで待つか、キューのエントリを停止する必要があります。
 
-. 実行中またはキューに格納されているアグリゲート、ボリューム、または Snapshot に関するジョブのリストを確認します。「 job show
+. アグリゲート、ボリューム、またはSnapshotに関する実行中のジョブとキューに格納されているジョブのリストを確認します。 `job show`
 +
 [listing]
 ----
@@ -216,13 +218,13 @@ Job ID Name                 Vserver    Node           State
 .
 .
 ----
-. アグリゲート、ボリューム、または Snapshot コピーに関する実行中のジョブとキューに格納されているジョブをすべて削除します。「 job delete -id job_id
+. アグリゲート、ボリューム、またはSnapshotに関する実行中のジョブとキューに格納されているジョブを削除します。 `job delete -id job_id`
 +
 [listing]
 ----
 cluster1::> job delete -id 8629
 ----
-. アグリゲート、ボリューム、または Snapshot ジョブが実行中またはキューに格納されていないことを確認します。「 job show
+. アグリゲート、ボリューム、またはSnapshotに関する実行中のジョブとキューに登録されているジョブがないことを確認します。 `job show`
 +
 次の例では、実行中のジョブとキューに登録されているジョブがすべて削除されています
 
@@ -278,7 +280,7 @@ Incoming Data LIF IP Address: 198.51.100.5
       Continuously Available: No
 1 entry was displayed.
 ----
-. 必要に応じて、特定された各 SMB セッションについて開いているファイルを確認します。 vserver cifs session file show -session-id session_id'
+. 必要に応じて、特定された各SMBセッションの開いているファイルを確認します。 `vserver cifs session file show -session-id session_ID`
 +
 [listing]
 ----

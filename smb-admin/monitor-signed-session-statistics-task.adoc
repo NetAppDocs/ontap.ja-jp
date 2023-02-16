@@ -14,31 +14,32 @@ summary: SMB セッションの統計を監視し、確立されたセッショ�
 SMB セッションの統計を監視し、確立されたセッションのうち、署名されたセッションと署名されていないセッションを区別できます。
 
 .このタスクについて
-advanced 権限レベルの「 statistics 」コマンドでは、署名済み SMB セッションの数を監視するために使用できる「署名付きセッション」カウンタが提供されます。「署名付きセッション」カウンタには、次の統計オブジェクトを指定できます。
+。 `statistics` advanced権限レベルのコマンドでは、を使用できます `signed_sessions` 署名済みSMBセッション数の監視に使用できるカウンタ。。 `signed_sessions` カウンタでは、次の統計オブジェクトを使用できます。
 
-* CIFS では ' すべての SMB セッションの SMB 署名を監視できます
-* 「 smb1 」を使用すると、 SMB 1.0 セッションの SMB 署名を監視できます。
-* 「 smb2 」を使用すると、 SMB 2.x セッションと SMB 3.0 セッションの SMB 署名を監視できます。
+* `cifs` すべてのSMBセッションについてSMB署名を監視できます。
+* `smb1` SMB 1.0セッションのSMB署名を監視できます。
+* `smb2` SMB 2.xセッションとSMB 3.0セッションのSMB署名を監視できます。
 +
-SMB 3.0 の統計は 'smb2` オブジェクトの出力に含まれます
+SMB 3.0の統計は、の出力に含まれます `smb2` オブジェクト。
 
 
 
-署名されたセッションの数をセッションの合計数と比較する場合は ' 署名されたセッションのカウンタの出力を established_sessions カウンタの出力と比較します
+署名済みセッション数をセッションの合計数と比較する場合は、の出力を比較します `signed_sessions` の出力でカウンタに設定します `established_sessions` カウンタ。
 
 データを取得して表示するには、統計サンプルの収集を開始する必要があります。データ収集を停止しなければ、サンプルからデータを表示できます。データ収集を停止すると、サンプルが固定された状態になります。データ収集を停止しないと、以前のクエリとの比較に使用できる更新されたデータを取得できます。この比較は、傾向を確認するのに役立ちます。
 
 .手順
-. 権限レベルを advanced に設定します。 + 「 set -privilege advanced 」
+. 権限レベルをadvancedに設定します。+
+`set -privilege advanced`
 . データ収集を開始します：+
 `statistics start -object {cifs|smb1|smb2} -instance instance -sample-id _sample_ID_ [-node _node_name_]`
 +
-「 -sample-id 」パラメータを指定しない場合、コマンドはサンプル ID を生成し、このサンプルを CLI セッションのデフォルトサンプルとして定義します。「 -sample-id 」の値はテキスト文字列です。同じ CLI セッションでこのコマンドを実行し、「 -sample-id 」パラメータを指定しない場合、コマンドは以前のデフォルトサンプルを上書きします。
+指定しない場合は、を実行します `-sample-id` パラメータを指定すると、サンプルIDが生成され、このサンプルがCLIセッションのデフォルトのサンプルとして定義されます。の値 `-sample-id` はテキスト文字列です。同じCLIセッションでこのコマンドを実行する場合に、を指定しないでください `-sample-id` パラメータを指定すると、以前のデフォルトサンプルが上書きされます。
 
 +
 必要に応じて、統計を収集するノードを指定できます。ノードを指定しない場合、サンプルは、クラスタ内のすべてのノードについて統計情報を収集します。
 
-. サンプルのデータ収集を停止するには、 'statistics stop' コマンドを使用します。
+. を使用します `statistics stop` サンプルのデータ収集を停止するコマンド。
 . SMB 署名統計情報を表示します。
 +
 |===
@@ -48,20 +49,21 @@ SMB 3.0 の統計は 'smb2` オブジェクトの出力に含まれます
  a| 
 署名されたセッション
  a| 
-'ser-sample-id sample_ID -counter signed_sessions | _node_name [-node _node_name _]'`
+`show -sample-id sample_ID -counter signed_sessions|_node_name_ [-node _node_name_]`
 
 
 
  a| 
 署名されたセッションと確立されたセッション
  a| 
-'ser-sample_id_counter signed_sessions | established_sessions | _node_name [-node node_name ]] のようになります
+`show -sample-id _sample_ID_ -counter signed_sessions|established_sessions|_node_name_ [-node node_name]`
 
 |===
 +
-単一ノードの情報のみを表示する場合は ' オプションの -node' パラメータを指定します
+単一のノードの情報のみを表示する場合は、オプションを指定します `-node` パラメータ
 
-. admin 権限レベルに戻ります。 +`set -privilege admin`
+. admin権限レベルに戻ります。+
+`set -privilege admin`
 
 
 .例

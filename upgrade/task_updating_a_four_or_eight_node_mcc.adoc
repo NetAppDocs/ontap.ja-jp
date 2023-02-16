@@ -84,7 +84,7 @@ MetroCluster ソフトウェアの更新手順では、一度に 1 つの DR グ
 
 image::../media/mcc_dr_groups_8_node.gif[MCC DR グループ 8 ノード]
 
-. 構成内の DR ペアを特定します MetroCluster node show -fields dr-partner
+. 構成内のDRペアを特定します。 `metrocluster node show -fields dr-partner`
 +
 [listing]
 ----
@@ -100,13 +100,13 @@ image::../media/mcc_dr_groups_8_node.gif[MCC DR グループ 8 ノード]
 
  cluster_A::>
 ----
-. 権限レベルを admin から advanced に設定します。続行するかどうかを尋ねられたら、「 * y * 」と入力します。「 set -privilege advanced 」
+. 権限レベルをadminからadvancedに設定します。続行するかどうかを尋ねられたら、「* y *」と入力します。 `set -privilege advanced`
 +
-詳細プロンプト (`*>') が表示されます
+advancedのプロンプト (`*>`）が表示されます。
 
 . 各ノードで実行中の ONTAP のバージョンを確認します。
 +
-.. cluster_A のシステムイメージのバージョンを確認します
+.. cluster_AのONTAPのバージョンを確認します。 `system image show`
 +
 [listing]
 ----
@@ -124,7 +124,7 @@ image::../media/mcc_dr_groups_8_node.gif[MCC DR グループ 8 ノード]
 
  cluster_A::>
 ----
-.. cluster_B のシステムイメージが表示されていることを確認します
+.. cluster_BのONTAPのバージョンを確認します。 `system image show`
 +
 [listing]
 ----
@@ -144,20 +144,20 @@ image::../media/mcc_dr_groups_8_node.gif[MCC DR グループ 8 ノード]
 ----
 
 
-. AutoSupport 通知をトリガーします。 AutoSupport invoke -node * -type all -message "starting_NDU"
+. AutoSupport 通知を送信します。 `autosupport invoke -node * -type all -message "Starting_NDU"`
 +
 この AutoSupport 通知には、更新前のシステムステータスの記録が含まれます。これにより、更新処理で問題が発生した場合に役立つトラブルシューティング情報が保存されます。
 
 +
 AutoSupport メッセージを送信するようにクラスタが設定されていない場合は、通知のコピーがローカルに保存されます。
 
-. 最初のセットに含まれる各ノードについて、ターゲットの ONTAP ソフトウェアイメージをデフォルトのイメージとして設定します。「 system image modify ｛ -node nodename -iscurrent false ｝ -isdefault true
+. 最初のセットに含まれる各ノードについて、ターゲットのONTAP ソフトウェアイメージをデフォルトのイメージとして設定します。 `system image modify {-node nodename -iscurrent false} -isdefault true`
 +
 このコマンドでは、拡張クエリを使用して、代替イメージとしてインストールされるターゲットのソフトウェアイメージがノードのデフォルトのイメージになるように変更します。
 
 . ターゲットの ONTAP ソフトウェアイメージがデフォルトのイメージとして設定されたことを確認します。
 +
-.. cluster_A 上のイメージを確認します : 'system image show'
+.. cluster_A上のイメージを確認します。 `system image show`
 +
 次の例では、 image2 が新しい ONTAP バージョンで、最初のセットに含まれる各ノードでデフォルトのイメージとして設定されています。
 
@@ -177,7 +177,7 @@ AutoSupport メッセージを送信するようにクラスタが設定され�
 
  2 entries were displayed.
 ----
-.. cluster_B のイメージを確認します : 'system image show
+.. cluster_B上のイメージを確認します。 `system image show`
 +
 次の例では、最初のセットに含まれる各ノードで、ターゲットのバージョンがデフォルトのイメージとして設定されています。
 
@@ -199,7 +199,7 @@ AutoSupport メッセージを送信するようにクラスタが設定され�
 ----
 
 
-. アップグレード対象のノードが各ノードに対して 2 回、現在クライアントにサービスを提供しているかどうかを確認します。「 system node run -node target-node-command uptime 」
+. アップグレード対象のノードが現在各ノードに対して2回クライアントに対して処理を行っているかどうかを確認します。 `system node run -node target-node -command uptime`
 +
 uptime コマンドは、ノードの前回のブート以降に NFS 、 CIFS 、 FC 、および iSCSI の各クライアントに対してノードが実行した処理総数を表示します。プロトコルごとにコマンドを 2 回実行して、処理数が増加しているかどうかを確認する必要があります。増加している場合は、そのプロトコルのクライアントに対してノードが現在処理を行っています。増加していない場合は、そのプロトコルのクライアントに対してノードは現在処理を行っていません。
 
@@ -233,11 +233,11 @@ ONTAP の新しいバージョンをノードの現在のバージョンにす�
 最初の DR グループの ONTAP ソフトウェアを更新済みで、 8 ノード MetroCluster 構成内の 2 つ目の DR グループを更新する場合は、この手順で node_A_3 と node_B_1 を更新します。
 
 . MetroCluster Tiebreaker ソフトウェアが有効になっている場合は、無効にします。
-. HA ペアの各ノードについて、自動ギブバックを無効にします。「 storage failover modify -node target-node-auto-giveback false
+. HAペアの各ノードで自動ギブバックを無効にします。 `storage failover modify -node target-node -auto-giveback false`
 +
 このコマンドは HA ペアのノードごとに実行する必要があります。
 
-. 自動ギブバックが無効になっていることを確認します。「 storage failover show -fields auto-giveback 」
+. 自動ギブバックが無効になったことを確認します。 `storage failover show -fields auto-giveback`
 +
 次の例は、両方のノードで自動ギブバックが無効になっていることを示しています。
 
@@ -257,7 +257,7 @@ ONTAP の新しいバージョンをノードの現在のバージョンにす�
 テイクオーバーされたノードを新しいソフトウェアイメージでブートするには通常のテイクオーバーが必要なため、 -option immediate パラメータは指定しないでください。
 
 +
-.. cluster_A (node_A_1 の ) 上の DR パートナーをテイクオーバーします「 storage failover takeover -ofnode node_A_1
+.. cluster_A（node_A_1）のDRパートナーをテイクオーバーします。``storage failover takeover -ofnode node_A_1``
 +
 ノードがブートし、「 Waiting for giveback 」状態になります。
 
@@ -265,7 +265,7 @@ ONTAP の新しいバージョンをノードの現在のバージョンにす�
 
 NOTE: AutoSupport が有効な場合は、ノードがクラスタクォーラムのメンバーでないことを示す AutoSupport メッセージが送信されます。この通知を無視し、アップグレードを続行してかまいません。
 
-.. テイクオーバーが正常に完了したことを確認します。「 storage failover show
+.. テイクオーバーが正常に完了したことを確認します。 `storage failover show`
 +
 次の例は、テイクオーバーが正常に完了したことを示しています。node_A_1 は「 Waiting for giveback 」状態、 node_A_1 は「 In takeover 」状態です。
 
@@ -287,7 +287,7 @@ NOTE: AutoSupport が有効な場合は、ノードがクラスタクォーラ�
 テイクオーバーされたノードを新しいソフトウェアイメージでブートするには通常のテイクオーバーが必要なため、 -option immediate パラメータは指定しないでください。
 
 +
-.. node_B_1 をテイクオーバーします。「 storage failover takeover -ofnode node_B_1
+.. node_B_1をテイクオーバーします。 `storage failover takeover -ofnode node_B_1`
 +
 ノードがブートし、「 Waiting for giveback 」状態になります。
 
@@ -295,7 +295,7 @@ NOTE: AutoSupport が有効な場合は、ノードがクラスタクォーラ�
 
 NOTE: AutoSupport が有効な場合は、ノードがクラスタクォーラムのメンバーでないことを示す AutoSupport メッセージが送信されます。この通知を無視し、アップグレードを続行してかまいません。
 
-.. テイクオーバーが正常に完了したことを確認します。「 storage failover show
+.. テイクオーバーが正常に完了したことを確認します。 `storage failover show`
 +
 次の例は、テイクオーバーが正常に完了したことを示しています。node_B_1 が「 Waiting for giveback 」状態、 node_B_2 が「 In takeover 」状態です。
 
@@ -326,14 +326,14 @@ NOTE: AutoSupport が有効な場合は、ノードがクラスタクォーラ�
 MetroCluster IP 構成を ONTAP 9.5 以降にアップグレードすると、アグリゲートの状態は短時間 degraded になったあとに再同期されて mirrored に戻ります。
 
 +
-.. アグリゲートを cluster_A の DR パートナーにギブバックします。「 storage failover giveback – ofnode node_A_1
-.. アグリゲートを cluster_B の DR パートナーにギブバックします。「 storage failover giveback – ofnode node_B_1
+.. アグリゲートをcluster_AのDRパートナーにギブバックします。 `storage failover giveback –ofnode node_A_1`
+.. アグリゲートをcluster_BのDRパートナーにギブバックします。 `storage failover giveback –ofnode node_B_1`
 +
 ギブバック処理では、最初にルートアグリゲートがノードに戻され、そのノードのブートが完了するとルート以外のアグリゲートが戻されます。
 
 
 
-. 両方のクラスタで次のコマンドを実行して、すべてのアグリゲートが戻されたことを確認します。「 storage failover show-giveback
+. 両方のクラスタで次のコマンドを実行して、すべてのアグリゲートが戻されたことを確認します。 `storage failover show-giveback`
 +
 Giveback Status フィールドにギブバックするアグリゲートがないことが示されている場合は、すべてのアグリゲートが戻されています。ギブバックが拒否された場合は、コマンドによってギブバックの進捗が表示され、ギブバックを拒否したサブシステムも表示されます。
 
@@ -356,11 +356,11 @@ Giveback Status フィールドにギブバックするアグリゲートがな�
 
 
 
-. 権限レベルを admin から advanced に設定します。続行するかどうかを尋ねられたら、「 * y * 」と入力します。「 set -privilege advanced 」
+. 権限レベルをadminからadvancedに設定します。続行するかどうかを尋ねられたら、「* y *」と入力します。 `set -privilege advanced`
 +
-詳細プロンプト (`*>') が表示されます
+advancedのプロンプト (`*>`）が表示されます。
 
-. cluster_A のシステムイメージのバージョンを確認します
+. cluster_AのONTAPのバージョンを確認します。 `system image show`
 +
 次の例は、 System image2 が node_A_1 のデフォルトおよび現在のバージョンであることを示しています。
 
@@ -381,7 +381,7 @@ Giveback Status フィールドにギブバックするアグリゲートがな�
 
  cluster_A::>
 ----
-. cluster_B のシステムイメージが表示されていることを確認します
+. cluster_BのONTAPのバージョンを確認します。 `system image show`
 +
 次の例は、 System image2 （ ONTAP 9.0.0 ）が node_A_1 のデフォルトおよび現在のバージョンであることを示しています。
 
@@ -423,11 +423,11 @@ ONTAP の新しいバージョンをノードの現在のバージョンにす�
 +
 .. cluster_A の DR パートナーをテイクオーバーします。
 +
-「 storage failover takeover -ofnode node_A_1 」 -option allow-version-mismatch
+`storage failover takeover -ofnode node_A_2 -option allow-version-mismatch`
 
 +
 
-NOTE: ONTAP 9.0 から ONTAP 9.1 にアップグレードする場合、またはパッチをアップグレードする場合、「 allow-version-mismatch 」オプションは必要ありません。
+NOTE: 。 `allow-version-mismatch` ONTAP 9.0からONTAP 9.1にアップグレードする場合、またはパッチをアップグレードする場合は、オプションは必要ありません。
 
 +
 ノードがブートし、「 Waiting for giveback 」状態になります。
@@ -435,7 +435,7 @@ NOTE: ONTAP 9.0 から ONTAP 9.1 にアップグレードする場合、また�
 +
 AutoSupport が有効な場合は、ノードがクラスタクォーラムのメンバーでないことを示す AutoSupport メッセージが送信されます。この通知を無視し、アップグレードを続行してかまいません。
 
-.. テイクオーバーが正常に完了したことを確認します。「 storage failover show
+.. テイクオーバーが正常に完了したことを確認します。 `storage failover show`
 +
 次の例は、テイクオーバーが正常に完了したことを示しています。Node_a_2 の状態が Waiting for giveback 、 node_A_1 の状態が In takeover になっています。
 
@@ -467,14 +467,14 @@ node_A_2       node_A_1       -        Waiting for giveback (HA mailboxes)
  a| 
 ONTAP 9.2 または ONTAP 9.1
  a| 
-「 storage failover takeover -ofnode node_B_1
+`storage failover takeover -ofnode node_B_2`
 
 
 
  a| 
 ONTAP 9.0 または Data ONTAP 8.3.x
  a| 
-「 storage failover takeover -ofnode node_name -option allow-version mismatch 」注： ONTAP 9.0 から ONTAP 9.1 へのアップグレードやパッチのアップグレードに「 allow-version-mismatch 」オプションは必要ありません。
+`storage failover takeover -ofnode node_B_2 -option allow-version-mismatch`注 `allow-version-mismatch` ONTAP 9.0からONTAP 9.1にアップグレードする場合、またはパッチをアップグレードする場合は、オプションは必要ありません。
 
 |===
 
@@ -485,7 +485,7 @@ ONTAP 9.0 または Data ONTAP 8.3.x
 
 + 注： AutoSupport が有効な場合、ノードがクラスタクォーラムのメンバーでないことを示す AutoSupport メッセージが送信されます。この通知を無視し、アップグレードを続行してかまいません。
 
-. テイクオーバーが正常に完了したことを確認します。「 storage failover show
+. テイクオーバーが正常に完了したことを確認します。 `storage failover show`
 +
 次の例は、テイクオーバーが正常に完了したことを示しています。node_B_2 は「 Waiting for giveback 」状態、 node_B_1 は「 In takeover 」状態です。
 
@@ -516,13 +516,13 @@ MetroCluster IP 構成を ONTAP 9.5 にアップグレードすると、アグ�
 
 
 
-. アグリゲートを cluster_A の DR パートナーにギブバックします。「 storage failover giveback – ofnode node_A_1 _a_2
-. アグリゲートを cluster_B の DR パートナーにギブバックします。「 storage failover giveback – ofnode node_B_1
+. アグリゲートをcluster_AのDRパートナーにギブバックします。 `storage failover giveback –ofnode node_A_2`
+. アグリゲートをcluster_BのDRパートナーにギブバックします。 `storage failover giveback –ofnode node_B_2`
 +
 ギブバック処理では、最初にルートアグリゲートがノードに戻され、そのノードのブートが完了するとルート以外のアグリゲートが戻されます。
 
 +
-.. 両方のクラスタで次のコマンドを実行して、すべてのアグリゲートが戻されたことを確認します。「 storage failover show-giveback
+.. 両方のクラスタで次のコマンドを実行して、すべてのアグリゲートが戻されたことを確認します。 `storage failover show-giveback`
 +
 Giveback Status フィールドにギブバックするアグリゲートがないことが示されている場合は、すべてのアグリゲートが戻されています。ギブバックが拒否された場合は、コマンドによってギブバックの進捗が表示され、ギブバックを拒否したサブシステムも表示されます。
 
@@ -539,11 +539,11 @@ Giveback Status フィールドにギブバックするアグリゲートがな�
 + リカバリ時間はクライアントによって異なり、クライアントアプリケーションの特性によっては 8 分以上かかることもあります。
 
 +
-.. 権限レベルを admin から advanced に設定します。続行するかどうかを尋ねられたら、「 * y * 」と入力します。「 set -privilege advanced 」
+.. 権限レベルをadminからadvancedに設定します。続行するかどうかを尋ねられたら、「* y *」と入力します。 `set -privilege advanced`
 +
-詳細プロンプト (`*>') が表示されます
+advancedのプロンプト (`*>`）が表示されます。
 
-.. cluster_A のシステムイメージのバージョンを確認します
+.. cluster_AのONTAPのバージョンを確認します。 `system image show`
 +
 次の例は、 System image2 （ターゲットの ONTAP イメージ）が node_A_2 のデフォルトおよび現在のバージョンであることを示しています。
 
@@ -564,7 +564,7 @@ node_A_2
 
 cluster_A::>
 ----
-.. cluster_B のシステムイメージが表示されていることを確認します
+.. cluster_BのONTAPのバージョンを確認します。 `system image show`
 +
 次の例は、 System image2 （ターゲットの ONTAP イメージ）が node_B_2 のデフォルトおよび現在のバージョンであることを示しています。
 
@@ -585,11 +585,11 @@ node_B_2
 
 cluster_A::>
 ----
-.. HA ペアの各ノードで自動ギブバックを有効にします。「 storage failover modify -node target-node-auto-giveback true
+.. HAペアの各ノードで自動ギブバックを有効にします。 `storage failover modify -node target-node -auto-giveback true`
 +
 このコマンドは HA ペアのノードごとに実行する必要があります。
 
-.. 自動ギブバックが有効になっていることを確認します。「 storage failover show -fields auto-giveback 」
+.. 自動ギブバックが有効であることを確認します。 `storage failover show -fields auto-giveback`
 +
 次の例では、両方のノードで自動ギブバックが有効になっています。
 

@@ -14,7 +14,7 @@ summary: ONTAP S3 を使用してリモートの FabricPool 容量（クラウ�
 ONTAP S3 を使用してリモートの FabricPool 容量（クラウド）階層化を有効にする場合は、クラスタ間 LIF を設定する必要があります。データネットワークと共有するポートにクラスタ間 LIF を設定できます。これにより、クラスタ間ネットワークに必要なポート数を減らすことができます。
 
 .必要なもの
-* 基になる物理または論理ネットワークポートは ' 管理ステータス up に設定されている必要があります
+* 基盤となる物理または論理ネットワークポートの管理を設定しておく必要があります `up` ステータス。
 * LIF サービスポリシーがすでに存在している必要があります。
 
 
@@ -24,10 +24,10 @@ ONTAP S3 を使用してリモートの FabricPool 容量（クラウド）階�
 .手順
 . クラスタ内のポートの一覧を表示します。
 +
-「 network port show 」のように表示されます
+`network port show`
 
 +
-次の例は 'cluster0' 内のネットワーク・ポートを示しています
+次の例は、のネットワークポートを示しています `cluster01`：
 
 +
 [listing]
@@ -50,10 +50,10 @@ cluster01-02
 ----
 . システム SVM にクラスタ間 LIF を作成します。
 +
-「network interface create -vserver Cluster -lif lif_name」サービスポリシーdefault -intercluster -home-node _node _-home-port port _-address _port_ip_-netmask netmask_’
+`network interface create -vserver Cluster -lif _LIF_name_ -service-policy default-intercluster -home-node _node_ -home-port _port_ -address _port_IP_ -netmask _netmask_`
 
 +
-次の例は、クラスタ間 LIF 「 cluster01_icl01 」と「 cluster01_icl02 」を作成します。
+次の例は、クラスタ間LIFを作成します `cluster01_icl01` および `cluster01_icl02`：
 
 +
 [listing]
@@ -69,7 +69,7 @@ policy default-intercluster -home-node cluster01-02 -home-port e0c -address 192.
 ----
 . クラスタ間 LIF が作成されたことを確認します。
 +
-「 network interface show -service -policy default -intercluster 」のように表示されます
+`network interface show -service-policy default-intercluster`
 
 +
 [listing]
@@ -86,10 +86,10 @@ cluster01
 ----
 . クラスタ間 LIF が冗長構成になっていることを確認します。
 +
-「 network interface show – service-policy default-intercluster-failover 」と表示されます
+`network interface show –service-policy default-intercluster -failover`
 
 +
-次の例は、「 e0c 」ポート上のクラスタ間 LIF 「 cluster01_icl01 」と「 cluster01_icl02 」が「 e0d 」ポートにフェイルオーバーされることを示しています。
+次の例は、クラスタ間LIFを示しています `cluster01_icl01` および `cluster01_icl02` をクリックします `e0c` ポートはにフェイルオーバーされます `e0d` ポート：
 
 +
 [listing]

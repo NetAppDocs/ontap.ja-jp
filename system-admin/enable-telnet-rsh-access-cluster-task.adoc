@@ -12,17 +12,22 @@ summary: セキュリティに関するベストプラクティスとして、 T
 
 
 [role="lead"]
-セキュリティのベストプラクティスとして、 Telnet および RSH は、事前定義されている管理ファイアウォールポリシー（「 GMT 」）では無効になっています。クラスタが Telnet 要求または RSH 要求を受け入れることができるようにするには、 Telnet または RSH を有効にした新しい管理ファイアウォールポリシーを作成し、その新しいポリシーをクラスタ管理 LIF に関連付ける必要があります。
+セキュリティに関するベストプラクティスとして、TelnetとRSHは、事前定義されている管理ファイアウォールポリシーでは無効になっています (`mgmt`）。クラスタが Telnet 要求または RSH 要求を受け入れることができるようにするには、 Telnet または RSH を有効にした新しい管理ファイアウォールポリシーを作成し、その新しいポリシーをクラスタ管理 LIF に関連付ける必要があります。
 
 .このタスクについて
-ONTAP では、事前定義されたファイアウォールポリシーは変更できませんが、事前定義された「 GMT 」管理ファイアウォールポリシーを複製し、新しいポリシーで Telnet または RSH を有効にすることで、新しいポリシーを作成できます。ただし、 Telnet および RSH はセキュアなプロトコルではないため、 SSH を使用してクラスタにアクセスすることを検討してください。SSH は、セキュアなリモートシェルと対話型のネットワークセッションを提供します。
+ONTAP では、事前定義されているファイアウォールポリシーは変更できませんが、事前定義されたポリシーをクローニングして新しいポリシーを作成することはできます `mgmt` 管理ファイアウォールポリシーを設定し、その新しいポリシーでTelnetまたはRSHを有効にします。ただし、 Telnet および RSH はセキュアなプロトコルではないため、 SSH を使用してクラスタにアクセスすることを検討してください。SSH は、セキュアなリモートシェルと対話型のネットワークセッションを提供します。
 
 クラスタへの Telnet アクセスまたは RSH アクセスを有効にするには、次の手順を実行します。
 
 .手順
-. advanced 権限モードに切り替えます：「 * set advanced * 」
-. セキュリティプロトコル（ RSH または Telnet ）を有効にします。「 * security protocol modify -application_security_protocol_-enabled true * 」
-. 「 mgmt 」管理ファイアウォールポリシーに基づいて、新しい管理ファイアウォールポリシーを作成します。「 * system services firewall policy clone -policy mgmt -destination-policy_policy-name_* 」
-. 新しい管理ファイアウォールポリシーで Telnet または RSH を有効にします。「 * system services firewall policy create -policy_policy_name_service-security_protocol__ action allow-ip-list_ip_address / netmask_ * 」を指定して、すべての IP アドレスを許可する必要があります。「 -ip-list 0.0.0.0/0 」を指定する必要があります
-. 新しいポリシーをクラスタ管理 LIF に関連付けます。「 * network interface modify -vserver _cluster_management _lif _ -lif cluster_mgmt -firewall-policy -name_* 」
+. advanced 権限モードに切り替えます。
+`*set advanced*`
+. セキュリティプロトコル（ RSH または Telnet ）を有効にします。
+`*security protocol modify -application _security_protocol_ -enabled true*`
+. に基づいて、新しい管理ファイアウォールポリシーを作成します `mgmt` 管理ファイアウォールポリシー：
+`*system services firewall policy clone -policy mgmt -destination-policy _policy-name_*`
+. 新しい管理ファイアウォールポリシーで Telnet または RSH を有効にします。
+`*system services firewall policy create -policy _policy-name_ -service _security_protocol_ -action allow -ip-list _ip_address/netmask_*`すべてのIPアドレスを許可するには、と指定します `-ip-list 0.0.0.0/0`
+. 新しいポリシーをクラスタ管理 LIF に関連付けます。
+`*network interface modify -vserver _cluster_management_LIF_ -lif cluster_mgmt -firewall-policy _policy-name_*`
 

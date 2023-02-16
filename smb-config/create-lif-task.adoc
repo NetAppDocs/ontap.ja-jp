@@ -14,24 +14,24 @@ summary: LIF は、物理ポートまたは論理ポートに関連付けられ�
 LIF は、物理ポートまたは論理ポートに関連付けられた IP アドレスです。コンポーネントに障害が発生しても、 LIF は別の物理ポートにフェイルオーバーまたは移行できるため、引き続きネットワークと通信できます。
 
 .作業を開始する前に
-* 基になる物理または論理ネットワークポートは ' 管理ステータス up に設定されている必要があります
+* 基盤となる物理または論理ネットワークポートの管理を設定しておく必要があります `up` ステータス。
 * サブネット名を使用して LIF の IP アドレスとネットワークマスク値を割り当てる場合は、そのサブネットがすでに存在している必要があります。
 +
-サブネットには、同じレイヤ 3 サブネットに属する IP アドレスのプールが含まれています。これらは 'network subnet create コマンドを使用して作成されます
+サブネットには、同じレイヤ 3 サブネットに属する IP アドレスのプールが含まれています。これらはを使用して作成されます `network subnet create` コマンドを実行します
 
 * LIF で処理するトラフィックのタイプを指定するメカニズムが変更されました。ONTAP 9.5 以前では、 LIF はロールを使用して処理するトラフィックのタイプを指定していました。ONTAP 9.6 以降では、サービスポリシーを使用して、処理するトラフィックのタイプを指定します。
 
 
 .このタスクについて
 * 同じネットワークポート上に IPv4 と IPv6 の両方の LIF を作成できます。
-* クラスタ内に多数の LIF がある場合、クラスタでサポートされる LIF の最大数は、「 network interface capacity show 」コマンドで確認できます。各ノードでサポートされる LIF の最大数は、「 network interface capacity details show 」コマンドで確認できます （ advanced 権限レベル）。
+* クラスタ内のLIFの数が多い場合は、を使用して、クラスタでサポートされるLIFの数を確認できます `network interface capacity show` コマンドとを使用した各ノードでサポートされるLIFの最大数 `network interface capacity details show` コマンド（advanced権限レベル）。
 * ONTAP 9.7 以降では、同じサブネット内に SVM 用の他の LIF がすでに存在する場合、 LIF のホームポートを指定する必要はありません。ONTAP は、同じサブネットにすでに設定されている他の LIF と同じブロードキャストドメインにある指定したホームノード上のランダムなポートを自動的に選択します。
 
 
 .手順
 . LIF を作成します。
 +
-「 network interface create -vserver vserver_name -lif_lif_name_-role data -data-protocol cifs -home-node _node_name _home-port_name_{-address_IP_address_-netmask IP_address | -subnet-name _subnet_name_} -firewall-policy data -auto-revert ｛ true ｝
+`network interface create -vserver _vserver_name_ -lif _lif_name_ -role data -data-protocol cifs -home-node _node_name_ -home-port _port_name_ {-address _IP_address_ -netmask IP_address | -subnet-name _subnet_name_} -firewall-policy data -auto-revert {true|false}`
 
 +
 |===
@@ -41,7 +41,7 @@ LIF は、物理ポートまたは論理ポートに関連付けられた IP ア
 
 
  a| 
-「 network interface create -vserver vserver_name -lif_lif_name_-role data -data-protocol cifs -home-node _node_name _home-port_name_{-address_ip_address _netmask_ip_address _|-subnet-name _subnet_name _} -firewall-policy data-firmware {\false} 」を指定します
+`network interface create -vserver _vserver_name_ -lif _lif_name_ -role data -data-protocol cifs -home-node _node_name_ -home-port _port_name_ {-address _IP_address_ -netmask _IP_address_ | -subnet-name _subnet_name_} -firewall-policy data -auto-revert {true|false}`
 
 |===
 +
@@ -52,24 +52,24 @@ LIF は、物理ポートまたは論理ポートに関連付けられた IP ア
 
 
  a| 
-「 network interface create -vserver _vserver_name -lif_lif_name_service-policy_policy_policy_service_policy_name_-home-port_node_name _-home-node _port_name_{-address_ip_address _| -subnet-name _subnet_name _} -firewall-policy data -false|} 」を指定します
+`network interface create -vserver _vserver_name_ -lif _lif_name_ -service-policy _service_policy_name_ -home-node _node_name_ -home-port _port_name_ {-address _IP_address_ -netmask _IP_address_ | -subnet-name _subnet_name_} -firewall-policy data -auto-revert {true|false}`
 
 |===
 +
-** サービス・ポリシーを使用して LIF を作成する場合は '-role パラメータは必要ありません（ ONTAP 9.6 以降）
-** LIF を作成するときに「 -data-protocol 」パラメータを指定する必要があります。あとで変更することはできません。このパラメータを変更するには、データ LIF を破棄して再作成する必要があります。
+** 。 `-role` サービスポリシーを使用してLIFを作成する場合、パラメータは不要です（ONTAP 9.6以降）。
+** 。 `-data-protocol` LIFを作成するときにパラメータを指定する必要があります。データLIFを破棄して再作成しないかぎり、あとから変更することはできません。
 +
-サービス・ポリシーを使用して LIF を作成する場合は '-data-protocol' パラメータは不要です（ ONTAP 9.6 以降）
+。 `-data-protocol` サービスポリシーを使用してLIFを作成する場合、パラメータは不要です（ONTAP 9.6以降）。
 
-** 「 -home-node 」は、「 network interface revert 」コマンドを LIF で実行したときに LIF が戻るノードです。
+** `-home-node` は、の時点でLIFが戻るノードです `network interface revert` LIFに対してコマンドを実行します。
 +
-auto-revert オプションを使用して、 LIF をホームノードおよびホームポートに自動的にリバートするかどうかを指定することもできます。
+を使用して、LIFがホームノードおよびホームポートに自動的にリバートするかどうかを指定することもできます `-auto-revert` オプション
 
-** 「 -home-port 」は、「 network interface revert 」コマンドを LIF で実行したときに、 LIF が戻る物理ポートまたは論理ポートです。
-** IP アドレスを '-address オプションと -netmask オプションで指定するか '-subnet_name オプションを使用してサブネットからの割り当てを有効にします
+** `-home-port` は、LIFが戻るときの物理ポートまたは論理ポートです `network interface revert` LIFに対してコマンドを実行します。
+** IPアドレスはで指定できます `-address` および `-netmask` を使用して、サブネットからの割り当てを有効にすることもできます `-subnet_name` オプション
 ** サブネットを使用して IP アドレスとネットワークマスクを指定した場合、サブネットにゲートウェイが定義されていると、そのサブネットを使用して LIF を作成するときにゲートウェイへのデフォルトルートが SVM に自動的に追加されます。
-** サブネットを使用せずに手動で IP アドレスを割り当てると、クライアントまたはドメインコントローラが別の IP サブネットにある場合にゲートウェイへのデフォルトルートの設定が必要になることがあります。network route create のマニュアル・ページには、 SVM 内での静的ルートの作成に関する情報が含まれています。
-** 「 -firewall-policy 」オプションには、 LIF のロールと同じデフォルトの「 data 」を使用します。
+** サブネットを使用せずに手動で IP アドレスを割り当てると、クライアントまたはドメインコントローラが別の IP サブネットにある場合にゲートウェイへのデフォルトルートの設定が必要になることがあります。。 `network route create` のマニュアルページには、SVM内の静的ルートの作成に関する情報が記載されています。
+** をクリックします `-firewall-policy` 同じデフォルトを使用します `data` をLIFのロールとして指定します。
 +
 必要に応じて、カスタムファイアウォールポリシーをあとから作成して追加できます。
 
@@ -77,12 +77,12 @@ auto-revert オプションを使用して、 LIF をホームノードおよび
 
 NOTE: ONTAP 9.10.1以降では、ファイアウォールポリシーは廃止され、完全にLIFのサービスポリシーに置き換えられました。詳細については、を参照してください link:../networking/configure_firewall_policies_for_lifs.html["LIF のファイアウォールポリシーを設定します"]。
 
-** 「 -auto-revert 」を使用すると、起動時、管理データベースのステータスの変更時、ネットワーク接続の確立時など、データ LIF をホームノードに自動的にリバートするかどうかを指定できます。デフォルトの設定は 'false' ですが ' 環境内のネットワーク管理ポリシーに応じて 'false' に設定できます
+** `-auto-revert` 起動時、管理データベースのステータスの変更時、ネットワーク接続の確立時など、データLIFがホームノードに自動的にリバートされるかどうかを指定できます。デフォルト設定はです `false`に設定することもできます `false` 環境内のネットワーク管理ポリシーによって異なります。
 
 
 . LIF が正常に作成されたことを確認します。
 +
-「 network interface show 」を参照してください
+`network interface show`
 
 . 設定した IP アドレスに到達できることを確認します。
 +
@@ -95,20 +95,20 @@ NOTE: ONTAP 9.10.1以降では、ファイアウォールポリシーは廃止�
  a| 
 IPv4 アドレス
  a| 
-「ネットワーク ping 」
+`network ping`
 
 
 
  a| 
 IPv6 アドレス
  a| 
-「 network ping6 」
+`network ping6`
 
 |===
 
 
 .例
-次のコマンドでは、 LIF を作成し、「 -address 」パラメータと「 -netmask 」パラメータを使って、 IP アドレスとネットワークマスク値を指定しています。
+次のコマンドは、LIFを作成し、を使用してIPアドレスとネットワークマスク値を指定します `-address` および `-netmask` パラメータ：
 
 [listing]
 ----
@@ -146,7 +146,7 @@ vs3.example.com
             datalif4     up/up    2001::2/64       node-2       e0c     true
 5 entries were displayed.
 ----
-「デフォルトのデータファイル」サービスポリシーで割り当てられた NAS データ LIF を作成するには、次のコマンドを使用します。
+次のコマンドは、で割り当てられるNASデータLIFを作成する方法を示しています `default-data-files` サービスポリシー：
 
 [listing]
 ----

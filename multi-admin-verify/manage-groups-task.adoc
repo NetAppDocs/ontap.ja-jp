@@ -18,7 +18,7 @@ Multi-Admin Verification（MAV；マルチ管理者検証）を有効にする�
 
 MAV機能は、既存のロールベースアクセス制御（RBAC）設定に対応しています。MAV管理者は、MAV管理者グループに追加する前に、保護された操作を実行するための十分な権限を持っている必要があります。 link:../authentication/create-svm-user-accounts-task.html["RBACの詳細については、こちらをご覧ください。"]
 
-MAVを設定して、承認リクエストが保留中であることをMAV管理者に通知できます。そのためには、電子メール通知を設定する必要があります。特に、「Mail From」パラメータと「Mail Server」パラメータを設定する必要があります。また、これらのパラメータをクリアして通知を無効にすることもできます。MAV管理者は、電子メールアラートを使用しないで、承認キューを手動でチェックする必要があります。
+MAVを設定して、承認リクエストが保留中であることをMAV管理者に通知できます。そのためには、Eメール通知、特にを設定する必要があります `Mail From` および `Mail Server` パラメータ--またはこれらのパラメータをクリアして通知を無効にすることができますMAV管理者は、電子メールアラートを使用しないで、承認キューを手動でチェックする必要があります。
 
 
 
@@ -60,9 +60,9 @@ MAVを有効にした後、既存の設定を編集するにはMAV承認が必�
 
 == CLI 手順の略
 
-. 「Mail From」パラメータと「Mail Server」パラメータに値が設定されていることを確認します。入力するコマンド
+. に値が設定されていることを確認します `Mail From` および `Mail Server` パラメータ入力するコマンド
 +
-event config show
+`event config show`
 
 +
 次のような情報が表示されます。
@@ -81,7 +81,7 @@ cluster01::> event config show
 次のパラメータを入力して設定します。
 
 +
-event config modify -mail-from_email_address --mail-server_name_`
+`event config modify -mail-from _email_address_ -mail-server _server_name_`
 
 . 管理者による検証を受ける管理者を特定します
 +
@@ -91,17 +91,17 @@ event config modify -mail-from_email_address --mail-server_name_`
 
 
 | 現在の管理者を表示します  a| 
-「 securitylogin show 」を参照してください
+`security login show`
 
 
 
 | 現在の管理者のクレデンシャルの変更  a| 
-'security login modify_<parameters>_’
+`security login modify _<parameters>_`
 
 
 
 | 新しい管理者アカウントを作成します  a| 
-security login create -user-or -group-name_admin_name --アプリケーションssh-authentication-method password'
+`security login create -user-or-group-name _admin_name_ -application ssh -authentication-method password`
 
 |===
 . MAV承認グループを作成します。
@@ -109,10 +109,10 @@ security login create -user-or -group-name_admin_name --アプリケーション
 `security multi-admin-verify approval-group create [ -vserver _svm_name_] -name _group_name_ -approvers _approver1_[,_approver2_…] [[-email _address1_], _address1_...]`
 
 +
-** `-vserver`-このリリースでは、管理SVMのみがサポートされています。
-** `-name`- MAVグループ名、最大64文字。
-** `-per-approvers'- 1人または複数の承認者のリスト
-** `-email`-リクエストが作成、承認、拒否、または実行されたときに通知される1つ以上の電子メールアドレス。
+** `-vserver` -このリリースでは管理SVMのみがサポートされます。
+** `-name` - MAVグループ名（最大64文字）。
+** `-approvers` - 1人または複数の承認者のリスト
+** `-email` -リクエストの作成、承認、拒否、または実行時に通知される1つ以上の電子メールアドレス。
 +
 *例：*次のコマンドは、2つのメンバーと関連付けられたEメールアドレスを持つMAVグループを作成します。
 
@@ -150,16 +150,16 @@ MAVグループの初期設定を変更するには、次のコマンドを使�
 
 
 | グループの特性を変更するか、既存のメンバー情報を変更します  a| 
-「security multi-admin-verify approval -group modify [_parameters_]]」
+`security multi-admin-verify approval-group modify [_parameters_]`
 
 
 
 | メンバーを追加または削除します  a| 
-「security multi-admin-verify approval -group replace [-vserver_svm_name_]-name_group_name -approver-to-add_approver1_[,_approver2_…]][-approver-to-remove_approver1_[,_approver2_...]」
+`security multi-admin-verify approval-group replace [-vserver _svm_name_] -name _group_name_ [-approvers-to-add _approver1_[,_approver2_…]][-approvers-to-remove _approver1_[,_approver2_…]]`
 
 
 
 | グループを削除します  a| 
-security multi-admin-verify approval -group delete [-vserver_svm_name_]-name_group_name
+`security multi-admin-verify approval-group delete [-vserver _svm_name_] -name _group_name_`
 
 |===

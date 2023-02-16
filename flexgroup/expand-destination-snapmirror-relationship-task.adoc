@@ -15,7 +15,7 @@ summary: デスティネーション FlexGroup ボリュームの拡張と SnapM
 
 .必要なもの
 * ソース FlexGroup ボリュームが拡張されている必要があります。
-* SnapMirror 関係は「 S napmirred 」状態である必要があります。
+* SnapMirror関係はに含まれている必要があります `SnapMirrored` 状態。
 +
 SnapMirror 関係が解除または削除されていない必要があります。
 
@@ -42,8 +42,8 @@ SnapMirror 関係が解除または削除されていない必要があります
 .選択肢
 * 更新の転送を実行し、デスティネーション FlexGroup ボリュームを自動的に拡張します。
 +
-.. SnapMirror 更新の転送を実行します。「 snapmirror update -destination-path SVM ： vol_name
-.. SnapMirror 関係の状態が「 SnapManager napmirred 」状態であることを確認します。「 'napmirror show'
+.. SnapMirror更新の転送を実行します。 `snapmirror update -destination-path svm:vol_name`
+.. SnapMirror関係のステータスがになっていることを確認します `SnapMirrored` 状態： `snapmirror show`
 +
 [listing]
 ----
@@ -64,21 +64,21 @@ vs_src:src_fg
 
 * デスティネーション FlexGroup ボリュームを手動で拡張します。
 +
-.. SnapMirror 関係が自動拡張モードになっている場合は、 SnapMirror 関係を手動拡張モードに設定します。「 snapmirror modify -destination-path SVM ： vol_name -is-auto-expand-enabled false
+.. SnapMirror関係が自動拡張モードになっている場合は、SnapMirror関係を手動拡張モードに設定します。 `snapmirror modify -destination-path svm:vol_name -is-auto-expand-enabled false`
 +
 [listing]
 ----
 cluster2::> snapmirror modify -destination-path vs_dst:dst_fg -is-auto-expand-enabled false
 Operation succeeded: snapmirror modify for the relationship with destination "vs_dst:dst_fg".
 ----
-.. SnapMirror 関係を休止します。「 snapmirror quiesce -destination-path SVM ： vol_name
+.. SnapMirror関係を休止します。 `snapmirror quiesce -destination-path svm:vol_name`
 +
 [listing]
 ----
 cluster2::> snapmirror quiesce -destination-path vs_dst:dst_fg
 Operation succeeded: snapmirror quiesce for destination "vs_dst:dst_fg".
 ----
-.. デスティネーション FlexGroup ボリュームを展開します。 ` + volume expand -vserver vserver_name -volume fg_name -aggr-list aggregate name 、…… [-aggr-list-multiplier constituents _ per _aggr] + `
+.. デスティネーションFlexGroup ボリュームを拡張します。 `+volume expand -vserver vserver_name -volume fg_name -aggr-list aggregate name,... [-aggr-list-multiplier constituents_per_aggr]+`
 +
 [listing]
 ----
@@ -88,14 +88,14 @@ Warning: The following number of constituents of size 50GB will be added to Flex
 Do you want to continue? {y|n}: y
 [Job 68] Job succeeded: Successful
 ----
-.. SnapMirror 関係を再同期します。「 snapmirror resync -destination-path SVM ： vol_name
+.. SnapMirror関係を再同期します。 `snapmirror resync -destination-path svm:vol_name`
 +
 [listing]
 ----
 cluster2::> snapmirror resync -destination-path vs_dst:dst_fg
 Operation is queued: snapmirror resync to destination "vs_dst:dst_fg".
 ----
-.. SnapMirror 関係のステータスが「 S napMirror show 」になっていることを確認します
+.. SnapMirror関係のステータスがであることを確認します `SnapMirrored`： `snapmirror show`
 +
 [listing]
 ----

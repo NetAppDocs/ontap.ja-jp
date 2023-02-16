@@ -23,7 +23,7 @@ ONTAP 9.6 以降では、メンテナンスモードでディスク完全消去�
 .作業を開始する前に
 * 自己暗号化ディスク（ SED ）を使用することはできません。
 +
-SED を完全消去するには、「 storage encryption disk sanitize 」コマンドを使用する必要があります。
+を使用する必要があります `storage encryption disk sanitize` SEDを完全消去するコマンド。
 
 +
 link:../encryption-at-rest/index.html["保存データの暗号化"]
@@ -49,35 +49,35 @@ LOADER プロンプトが表示されます。
 NOTE: ディスクのパーティショニングを解除するコマンドはdiagレベルでのみ使用でき、ネットアップサポートの指示があった場合にのみ実行してください。作業を進める前に、ネットアップサポートに問い合わせることを推奨します。Knowledge Base記事も参照できます link:https://kb.netapp.com/Advice_and_Troubleshooting/Data_Storage_Systems/FAS_Systems/How_to_unpartition_a_spare_drive_in_ONTAP["ONTAP でスペアドライブのパーティショニングを解除する方法"^]
 
 +
-「disk unpartition_disk_name _」のようになります
+`disk unpartition _disk_name_`
 
 . 指定したディスクを完全消去します。
 +
-'Disk sanitize start [-p_pattern1_|-r [-p _pattern2_|-r [-p _pattern3_|-r]]] [-c_cycle_count_]_disk_list _`
+`disk sanitize start [-p _pattern1_|-r [-p _pattern2_|-r [-p _pattern3_|-r]]] [-c _cycle_count_] _disk_list_`
 
 +
 
-NOTE: 完全消去中はノードの電源をオフにしたり、ストレージの接続を切断したり、ターゲットディスクを取り外したりしないでください。完全消去のフォーマットフェーズで処理が中断された場合、ディスクを完全消去してスペアプールに戻せる状態にするには、フォーマットフェーズを再起動して完了させる必要があります。完全消去プロセスを中止する必要がある場合は、「 Disk sanitize abort 」コマンドを使用します。指定したディスクで完全消去のフォーマットフェーズが進行中の場合、そのフェーズが完了するまで処理は中止されません。
+NOTE: 完全消去中はノードの電源をオフにしたり、ストレージの接続を切断したり、ターゲットディスクを取り外したりしないでください。完全消去のフォーマットフェーズで処理が中断された場合、ディスクを完全消去してスペアプールに戻せる状態にするには、フォーマットフェーズを再起動して完了させる必要があります。完全消去プロセスを中止する必要がある場合は、を使用します `disk sanitize abort` コマンドを実行します指定したディスクで完全消去のフォーマットフェーズが進行中の場合、そのフェーズが完了するまで処理は中止されません。
 
 +
--p `_pattern1_``-p`_pattern2_`-p```_pattern3_` は '1 ～ 3 個のユーザ定義 16 進数上書きパターンのサイクルを指定しますこのサイクルは ' 完全消去するディスクに連続して適用できますデフォルトのパターンは 3 回で、最初のパスに 0x55 、 2 番目のパスに 0xaa 、 3 番目のパスに 0x3C が使用されます。
+ `-p` `_pattern1_` `-p` `_pattern2_` `-p` `_pattern3_` 1～3個のユーザ定義16進数上書きパターンのサイクルを指定します。このサイクルは、完全消去するディスクに連続して適用できます。デフォルトのパターンは 3 回で、最初のパスに 0x55 、 2 番目のパスに 0xaa 、 3 番目のパスに 0x3C が使用されます。
 
 +
-r は ' パターン化された上書きを ' パスの一部またはすべてに対してランダムな上書きで置き換えます
+`-r` パターン化された上書きを、パスの一部またはすべてに対してランダムな上書きで置き換えます。
 
 +
-`-c`_cycle_count_` は、指定した上書きパターンが適用される回数を指定します。デフォルト値は 1 サイクルです。最大値は 7 サイクルです。
+`-c` `_cycle_count_` 指定した上書きパターンの適用回数を指定します。デフォルト値は 1 サイクルです。最大値は 7 サイクルです。
 
 +
-`_disk_list_ は ' 完全消去するスペア・ディスクの ID をスペースで区切って指定します
+`_disk_list_` には、完全消去するスペアディスクのIDを、スペースで区切って指定します。
 
 . 必要に応じて、ディスク完全消去プロセスのステータスを確認します。
 +
-「ディスクの完全消去ステータス」 [_disk_list_]
+`disk sanitize status [_disk_list_]`
 
 . 完全消去プロセスが完了したら、各ディスクのスペアステータスにディスクを戻します。
 +
-「 Disk sanitize relee_disk_name_` 」
+`disk sanitize release _disk_name_`
 
 . メンテナンスモードを終了します。
 
@@ -95,7 +95,7 @@ ONTAP 9のすべてのバージョンで、ノードシェルコマンドを使�
 
 * 自己暗号化ディスク（ SED ）を使用することはできません。
 +
-SED を完全消去するには、「 storage encryption disk sanitize 」コマンドを使用する必要があります。
+を使用する必要があります `storage encryption disk sanitize` SEDを完全消去するコマンド。
 
 +
 link:../encryption-at-rest/index.html["保存データの暗号化"]
@@ -112,65 +112,65 @@ NOTE: ディスクのパーティショニングを解除するコマンドはdi
 
 --
 +
-「disk unpartition_disk_name _」のようになります
+`disk unpartition _disk_name_`
 
 . 完全消去するディスクを所有するノードのノードシェルに切り替えます。
 +
-'system node run -node _node_name _`
+`system node run -node _node_name_`
 
 . ディスク完全消去を有効にします。
 +
-options licensed_feature.disk_sanitization.enable on `
+`options licensed_feature.disk_sanitization.enable on`
 
 +
 このコマンドは取り消すことができないため、確認を求められます。
 
 . ノードシェルの advanced 権限レベルに切り替えます。
 +
-「 priv set advanced 」のように設定します
+`priv set advanced`
 
 . 指定したディスクを完全消去します。
 +
-'disk sanitize start [-p pattern1 |-r [-p pattern2 |-r [-p pattern3 |-r]]] [-c cycle_count] disk_list
+`disk sanitize start [-p pattern1|-r [-p pattern2|-r [-p pattern3|-r]]] [-c cycle_count] disk_list`
 
 +
 
 NOTE: 完全消去中はノードの電源をオフにしたり、ストレージの接続を切断したり、ターゲットディスクを取り外したりしないでください。完全消去のフォーマットフェーズで処理が中断された場合、ディスクを完全消去してスペアプールに戻せる状態にするには、フォーマットフェーズを再起動して完了させる必要があります。完全消去プロセスを中止する必要がある場合は、 disk sanitize abort コマンドを使用します。指定したディスクで完全消去のフォーマットフェーズが進行中の場合、そのフェーズが完了するまで処理は中止されません。
 
 +
--p pattern1 -p pattern2 -p pattern3 には '1 ～ 3 の 16 進数バイトの上書きパターンを指定します指定したパターンは ' 完全消去するディスクに順に適用されますデフォルトのパターンは 3 回で、最初のパスに 0x55 、 2 番目のパスに 0xaa 、 3 番目のパスに 0x3C が使用されます。
+`-p pattern1 -p pattern2 -p pattern3` 1～3個のユーザ定義16進数上書きパターンのサイクルを指定します。このサイクルは、完全消去するディスクに連続して適用できます。デフォルトのパターンは 3 回で、最初のパスに 0x55 、 2 番目のパスに 0xaa 、 3 番目のパスに 0x3C が使用されます。
 
 +
-r は ' パターン化された上書きを ' パスの一部またはすべてに対してランダムな上書きで置き換えます
+`-r` パターン化された上書きを、パスの一部またはすべてに対してランダムな上書きで置き換えます。
 
 +
-`-c cycle_count` は、指定した上書きパターンが適用される回数を指定します。
+`-c cycle_count` 指定した上書きパターンの適用回数を指定します。
 
 +
 デフォルト値は 1 サイクルです。最大値は 7 サイクルです。
 
 +
-「 disk_list 」は、完全消去するスペアディスクの ID を、スペースで区切って指定します。
+`disk_list` には、完全消去するスペアディスクのIDを、スペースで区切って指定します。
 
 . ディスク完全消去プロセスのステータスを確認するには、次のコマンドを入力します。
 +
-「 disk sanitize status [disk_list] 」というステータスになります
+`disk sanitize status [disk_list]`
 
 . 完全消去プロセスが完了したら、ディスクをスペア状態に戻します。
 +
-「 Disk sanitize relee_disk_name_` 」
+`disk sanitize release _disk_name_`
 
 . ノードシェルの admin 権限レベルに戻ります。
 +
-'priv set admin
+`priv set admin`
 
 . ONTAP CLI に戻ります。
 +
-「 exit
+`exit`
 
 . すべてのディスクがスペア状態に戻ったかどうかを確認します。
 +
-「 storage aggregate show-spare-disks 」を参照してください
+`storage aggregate show-spare-disks`
 
 +
 [cols="1,2"]
@@ -188,19 +188,19 @@ r は ' パターン化された上書きを ' パスの一部またはすべて
 
 .. advanced 権限モードに切り替えます。
 +
-「 advanced 」の権限が必要です
+`set -privilege advanced`
 
 .. 完全消去した未割り当てのディスクを各ディスクの適切なノードに割り当てます。
 +
-storage disk assign -disk disk_name --owner_node_name
+`storage disk assign -disk _disk_name_ -owner _node_name_`
 
 .. 各ディスクのディスクをスペア状態に戻します。
 +
-storage disk unfail -disk disk_name -s -q
+`storage disk unfail -disk _disk_name_ -s -q`
 
 .. adminモードに戻ります。
 +
-「特権管理者」
+`set -privilege admin`
 
 
 
@@ -209,6 +209,6 @@ storage disk unfail -disk disk_name -s -q
 
 ====
 .結果
-指定したディスクが完全消去され、ホットスペアとしてマーキングされます。完全消去されたディスクのシリアル番号は '/etc/log/sanitized_disks' に書き込まれます
+指定したディスクが完全消去され、ホットスペアとしてマーキングされます。完全消去したディスクのシリアル番号がに書き込まれます `/etc/log/sanitized_disks`。
 
-指定されたディスクの完全消去ログは'各ディスク上で完了した内容を示しており'/mroot/etc/log/sanitization.logに書き込まれます
+指定されたディスクの完全消去ログ（各ディスクで完了した内容を示す）は、に書き込まれます `/mroot/etc/log/sanitization.log`。

@@ -191,29 +191,29 @@ image:AddLag01.png["遅延図を追加"]
 --
 * CLIを使用してインターフェイスグループを作成*
 
-ポート・インターフェイス・グループに適用される構成上の制限事項の一覧については、「 network port ifgrp add-port 」のマニュアル・ページを参照してください。
+ポートインターフェイスグループに適用される設定上の制限事項の一覧については、を参照してください `network port ifgrp add-port` のマニュアルページ。
 
 マルチモードインターフェイスグループを作成するときは、次のいずれかのロードバランシング方式を指定できます。
 
-* 「port」：トランスポート層（TCP/UDP）ポートに基づいてネットワークトラフィックが分散されます。これは推奨されるロードバランシング方式です。
-* 「mac」：ネットワークトラフィックはMACアドレスに基づいて分散されます。
-* IPアドレス：ネットワーク・トラフィックはIPアドレスに基づいて分散されます
-* 「sequential」：ネットワークトラフィックは、受信した順に分散されます。
+* `port`：ネットワークトラフィックは、トランスポートレイヤ（TCPまたはUDP）ポートに基づいて分散されます。これは推奨されるロードバランシング方式です。
+* `mac`：ネットワークトラフィックはMACアドレスに基づいて分散されます。
+* `ip`：ネットワークトラフィックはIPアドレスに基づいて分散されます。
+* `sequential`:ネットワークトラフィックは受信したとおりに分散されます。
 
 
 
 NOTE: インターフェイスグループの MAC アドレスは、基盤となるポートの順序およびそれらのポートがブートアップ時にどのように初期化されるかによって決まります。そのため、 ifgrp の MAC アドレスがリブート後や ONTAP のアップグレード後に変わる可能性があることを想定しておいてください。
 
 .ステップ
-インターフェイスグループを作成するには、「 network port ifgrp create 」コマンドを使用します。
+を使用します `network port ifgrp create` コマンドを使用して、インターフェイスグループを作成します。
 
-インターフェイスグループの名前には、「 a<number><letter> 」という構文を使用する必要があります。たとえば、 a0a 、 a0b 、 a1c 、 a2a は有効なインターフェイスグループ名です。
+インターフェイスグループの名前には、という構文を使用する必要があります `a<number><letter>`。たとえば、 a0a 、 a0b 、 a1c 、 a2a は有効なインターフェイスグループ名です。
 
 このコマンドの詳細については、を参照してください http://docs.netapp.com/ontap-9/topic/com.netapp.doc.dot-cm-cmpr/GUID-5CB10C70-AC11-41C0-8C16-B4D0DF916E9B.html["ONTAP 9 のコマンド"^]。
 
 次の例は、ポートの分散機能を使用し、モードを multimode に設定して、 a0a という名前のインターフェイスグループを作成する方法を示しています。
 
-「 network port ifgrp create -node _cluster-1-01-ifgrp a0a _ -distr-func_port_-mode_multimode_」 のようになります
+`network port ifgrp create -node _cluster-1-01_ -ifgrp _a0a_ -distr-func _port_ -mode _multimode_`
 
 --
 ====
@@ -245,15 +245,15 @@ NOTE: インターフェイスグループの MAC アドレスは、基盤とな
 .ステップ
 インターフェイスグループにネットワークポートを追加します。
 
-「 network port ifgrp add-port 」のように指定します
+`network port ifgrp add-port`
 
 このコマンドの詳細については、を参照してください link:http://docs.netapp.com/ontap-9/topic/com.netapp.doc.dot-cm-cmpr/GUID-5CB10C70-AC11-41C0-8C16-B4D0DF916E9B.html["ONTAP 9 のコマンド"^]。
 
 次の例は、 a0a というインターフェイスグループにポート e0c を追加する方法を示しています。
 
-「 network port ifgrp add -port -node -cluster_cluster-1 -01_-ifgrpa0a _ -port_e0c_ 」のようになります
+`network port ifgrp add-port -node _cluster-1-01_ -ifgrp _a0a_ -port _e0c_`
 
-ONTAP 9.8 以降では、最初の物理ポートがインターフェイスグループに追加されてから約 1 分後に、インターフェイスグループが適切なブロードキャストドメインに自動的に配置されます。ONTAP でこの処理を行わず、 ifgrp を手動でブロードキャストドメインに配置する場合は、 ifgrp add-port コマンドの一部として、 `-skip-broadcast-domain-pacement` パラメータを指定します。
+ONTAP 9.8 以降では、最初の物理ポートがインターフェイスグループに追加されてから約 1 分後に、インターフェイスグループが適切なブロードキャストドメインに自動的に配置されます。ONTAP でこの処理を行わず、ifgrpをブロードキャストドメインに手動で配置する場合は、を指定します `-skip-broadcast-domain-placement` の一部としてパラメータを指定します `ifgrp add-port` コマンドを実行します
 
 --
 ====
@@ -288,11 +288,11 @@ LIF をホストするインターフェイスグループからポートを削�
 .ステップ
 インターフェイスグループからネットワークポートを削除します。
 
-「 network port ifgrp remove-port 」のようになりました
+`network port ifgrp remove-port`
 
 次の例は、 a0a というインターフェイスグループからポート e0c を削除する方法を示しています。
 
-「 network port ifgrp remove-port -node_cluster-1-01_ -ifgrpa0a _ -port_e0c_ 」という名前になります
+`network port ifgrp remove-port -node _cluster-1-01_ -ifgrp _a0a_ -port _e0c_`
 
 --
 ====
@@ -327,13 +327,13 @@ LIF をホストするインターフェイスグループからポートを削�
 * CLIを使用してインターフェイスグループ*を削除してください
 
 .ステップ
-インターフェイスグループを削除するには、「 network port ifgrp delete 」コマンドを使用します。
+を使用します `network port ifgrp delete` コマンドを使用して、インターフェイスグループを削除します。
 
 このコマンドの詳細については、を参照してください link:http://docs.netapp.com/ontap-9/topic/com.netapp.doc.dot-cm-cmpr/GUID-5CB10C70-AC11-41C0-8C16-B4D0DF916E9B.html["ONTAP 9 のコマンド"^]。
 
 次に、 a0b という名前のインターフェイスグループを削除する例を示します。
 
-「 network port ifgrp delete -node _cluster-1-01_-ifgrp_a0b_` 」のようになります
+`network port ifgrp delete -node _cluster-1-01_ -ifgrp _a0b_`
 
 --
 ====

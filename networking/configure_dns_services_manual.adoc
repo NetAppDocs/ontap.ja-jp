@@ -19,20 +19,20 @@ NFS または SMB サーバを作成する前に、 SVM 用の DNS サービス�
 .このタスクについて
 Active Directory 統合 DNS サーバには、ドメイン LDAP およびドメインコントローラサーバのサービスロケーションレコード（ SRV ）が格納されます。SVM が Active Directory LDAP サーバおよびドメインコントローラを見つけられない場合は、 NFS または SMB サーバのセットアップに失敗します。
 
-SVM は、ホストについての情報を検索する際に、 hosts ネームサービス ns-switch データベースを使用してどのネームサービスを使用するか、どの順番で使用するかを決定します。ホスト・データベースでサポートされている 2 つのネーム・サービスは 'files' と 'ns' です
+SVM は、ホストについての情報を検索する際に、 hosts ネームサービス ns-switch データベースを使用してどのネームサービスを使用するか、どの順番で使用するかを決定します。hostsデータベースでサポートされている2つのネームサービスはです `files` および `dns`。
 
-SMB サーバを作成する前に 'dns' がソースの 1 つであることを確認する必要があります
+を確認してください `dns` は、SMBサーバを作成する前のいずれかのソースです。
 
 
 NOTE: mgwd プロセスと SecD プロセスについて DNS ネームサービスの統計を表示するには、統計画面を使用します。
 
 .手順
-. 現在の構成が 'hosts ネームサービス・データベースに対応しているかどうかを確認します
+. の現在の設定を確認します `hosts` ネームサービスデータベース。
 +
 この例では、 hosts ネームサービスデータベースはデフォルトの設定を使用しています。
 
 +
-「 vserver services name-service ns-switch show -vserver _vs1_-database _hosts_` 」を指定します
+`vserver services name-service _ns-switch_ show -vserver _vs1_ -database _hosts_`
 
 +
 ....
@@ -47,21 +47,21 @@ Name Service Switch Database: hosts
 この例では、 DNS ファイルとローカルファイルを順に使用するように hosts データベースを設定しています。
 
 +
-「 vserver services name-service ns-switch modify -vserver _vs1_-database-hosts_-sources_dns 、 files_`
+`vserver services name-service _ns-switch_ modify -vserver _vs1_ -database _hosts_ -sources _dns,files_`
 
 .. ネームサービスの設定が正しいことを確認します。
 +
-「 vserver services name-service ns-switch show -vserver _vs1_-database _hosts_` 」を指定します
+`vserver services name-service _ns-switch_ show -vserver _vs1_ -database _hosts_`
 
 
 
 . DNS サービスを設定する
 +
-「 vserver services name-service dns create -vserver_vs1_-domains _example.com,example2.com_ -name-servers_10.0.0.50 、 10.0.0.51_`
+`vserver services name-service dns create -vserver _vs1_ -domains _example.com,example2.com_ -name-servers _10.0.0.50,10.0.0.51_`
 
 +
 
-NOTE: vserver services name-service dns create コマンドを使用すると、自動構成検証が実行され、 ONTAP がネームサーバに接続できない場合はエラーメッセージが報告されます。
+NOTE: SVMのサービス `name-service dns create` コマンドは設定の自動検証を実行し、ONTAP がネームサーバに接続できない場合はエラーメッセージを報告します。
 
 . DNS の設定が正しいことと、サービスが有効になっていることを確認してください。
 +
@@ -74,7 +74,7 @@ Enable/Disable DNS: enabled Timeout (secs): 2
 ....
 . ネームサーバのステータスを検証します。
 +
-「 vserver services name-service dns check -vserver_vs1_` 」のようになります
+`vserver services name-service dns check -vserver _vs1_`
 
 +
 ....
@@ -97,7 +97,7 @@ SVM で DNS ネームサービスが設定されている必要があります�
 .このタスクについて
 完全修飾ドメイン名（ FQDN ）は一意にする必要があります。
 
-* NFS の場合、「 vserver services name-service dns dynamic-update 」コマンドで「 -vserver -fqdn 」で指定した値が、 LIF の登録 FQDN になります。
+* NFSの場合、で指定した値 `-vserver-fqdn` の一部として `vserver services name-service dns dynamic-update` コマンドは、LIFの登録済みFQDNになります。
 * SMB の場合、 CIFS サーバの NetBIOS 名および CIFS サーバの完全修飾ドメイン名として指定された値が、 LIF の登録済み FQDN になります。ONTAP では設定できません。次のシナリオでは、 LIF FQDN は「 CIFS_VS1.EXAMPLE.COM": 」です
 +
 ....
@@ -124,17 +124,17 @@ NOTE: DDNS 更新の RFC ルールに準拠していない SVM FQDN の設定エ
 .手順
 . SVM で DDNS を設定します。
 +
-「 vserver services name-service dns dynamic-update modify -vserver _vserver_name __ is-enabled_[-use-secure ｛ true|false ｝ -vserver -fqdn_used_on_dns_update_`
+`vserver services name-service dns dynamic-update modify -vserver _vserver_name_ -is- enabled _true_ [-use-secure {true|false} -vserver-fqdn _FQDN_used_for_DNS_updates_`
 
 +
-「 vserver services name-service dns dynamic-update modify -vserver _vs1_-is-enabled_-use-secure_true_-vserver -fqdn _vs1.example.com_`
+`vserver services name-service dns dynamic-update modify -vserver _vs1_ -is-enabled _true_ - use-secure _true_ -vserver-fqdn _vs1.example.com_`
 
 +
-カスタマイズした FQDN の一部としてアスタリスクを使用することはできません。たとえば '{ アスタリスク }.netapp.com は無効です
+カスタマイズした FQDN の一部としてアスタリスクを使用することはできません。例： `{asterisk}.netapp.com` は無効です。
 
 . DDNS の設定が正しいことを確認します。
 +
-vserver services name-service dns dynamic-update show
+`vserver services name-service dns dynamic-update show`
 
 +
 ....

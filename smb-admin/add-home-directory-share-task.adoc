@@ -14,42 +14,43 @@ summary: SMB ホームディレクトリ機能を使用する場合、共有プ�
 SMB ホームディレクトリ機能を使用する場合、共有プロパティにホームディレクトリプロパティを含む共有を少なくとも 1 つ追加する必要があります。
 
 .このタスクについて
-ホーム・ディレクトリ共有は、「 vserver cifs share create 」コマンドを使用して作成するか、「 vserver cifs share modify 」コマンドを使用して、いつでもホーム・ディレクトリ共有に変更できます。
+ホームディレクトリ共有は、を使用して共有を作成するときに作成できます `vserver cifs share create` コマンドを使用すると、既存の共有をいつでもホームディレクトリ共有に変更できます `vserver cifs share modify` コマンドを実行します
 
-ホーム・ディレクトリ共有を作成するには ' 共有を作成または変更するときに '-share-properties オプションに homedirectory を指定する必要があります共有名と共有パスは変数を使用して指定できます。変数はユーザがそれぞれのホームディレクトリに接続するときに動的に変換されます。パスで使用できる変数は '%w ' %d' および %u ですこれらの変数は 'Windows のユーザ名 ' ドメイン ' マッピングされた UNIX のユーザ名にそれぞれ対応しています
+ホームディレクトリ共有を作成するには、を追加する必要があります `homedirectory` の値 `-share-properties` 共有を作成または変更するときに使用します。共有名と共有パスは変数を使用して指定できます。変数はユーザがそれぞれのホームディレクトリに接続するときに動的に変換されます。パスで使用できる変数はです `%w`、 `%d`および `%u`に対応し、Windowsユーザ名、ドメイン、マッピングされたUNIXユーザ名にそれぞれ対応します。
 
 .手順
-. ホームディレクトリ共有を追加します。 +`vserver cifs share create -vserver vserver_name __ -share-name share_name -path path_to_share -share-properties homedirectory [,...]
+. ホームディレクトリ共有を追加します。+
+`vserver cifs share create -vserver _vserver_name_ -share-name _share_name_ -path _path_ -share-properties homedirectory[,...]`
 +
-「 -vserver `vserver 」には、検索パスを追加する CIFS 対応の Storage Virtual Machine （ SVM ）を指定します。
+`-vserver` `vserver` 検索パスを追加するCIFS対応のStorage Virtual Machine（SVM）を指定します。
 
 +
-`-share-name share_name には、ホーム・ディレクトリの共有名を指定します。
+`-share-name _share-name_` ホームディレクトリの共有名を指定します。
 
 +
-必須の変数に加えて、共有名にリテラル文字列「 %w 」、「 %u 」、または「 %d 」が含まれている場合、リテラル文字列の前に % （パーセント）文字を付けて、 ONTAP がリテラル文字列を変数として処理しないようにする必要があります（例：「 %%w 」）。
+共有名にいずれかのリテラル文字列が含まれている場合は、必須変数の1つだけでなく `%w`、 `%u`または `%d`ONTAP がリテラル文字列を変数として処理しないようにするには、リテラル文字列の前に%（パーセント）文字を付ける必要があります（例： `%%w`）。
 
 +
-** 共有名には '%w または %u のいずれかの変数を使用する必要があります
-** 共有名には '%d' 変数 ( 例 : %d'`%w ') または固定部分 ( 例 : home1_`%w ````') を含めることもできます
+** 共有名には、のいずれかを使用する必要があります `%w` または `%u` 変数（Variable）：
+** 共有名には、を追加で含めることもできます `%d` 変数（例： `%d`/`%w`）または共有名の静的な部分（例：home1_）を入力します/`%w`）。
 ** 管理者が、他のユーザのホームディレクトリに接続するために、またはユーザが他のユーザのホームディレクトリに接続するのを許可するために共有を使用する場合は、動的な共有名のパターンの先頭にチルダ（ ~ ）を付ける必要があります。
 +
-「 vserver cifs home-directory modify 」は、「 -is-home-dirs-access-for-admin-enabled 」オプションを「 true 」に設定するか、 advanced オプション「 -is-home-dirs-access-for-public-enabled 」を「 true 」に設定することで、このアクセスを有効にするために使用します。
+。 `vserver cifs home-directory modify` は、を設定してこのアクセスを有効にするために使用します `-is-home-dirs-access-for-admin-enabled` オプションをに設定します `true`）または詳細オプションを設定します `-is-home-dirs-access-for-public-enabled` 終了： `true`。
 
 
 
 +
-「 -path 」には、ホーム・ディレクトリへの相対パスを指定します。
+`-path` `path` ホームディレクトリの相対パスを指定します。
 
 
 
-`-share-properties homedirectory [,...] には、その共有の共有プロパティを指定します。homedirectory の値を指定する必要があります追加の共有プロパティをカンマで区切って指定できます。
+`-share-properties homedirectory[,...]` その共有の共有プロパティを指定します。を指定する必要があります `homedirectory` 価値。追加の共有プロパティをカンマで区切って指定できます。
 
-. 「 vserver cifs share show 」コマンドを使用して、ホームディレクトリ共有が正常に追加されたことを確認します。
+. を使用して、ホームディレクトリ共有が追加されたことを確認します `vserver cifs share show` コマンドを実行します
 
 
 .例
-次のコマンドでは '%w という名前のホーム・ディレクトリ共有が作成されます「 oplocks 」、「 browsable 」、および「 changenotify 」の各共有プロパティは、「 homedirectory 」共有プロパティの設定に加えて設定されています。
+次のコマンドを実行すると、という名前のホームディレクトリ共有が作成されます `%w`。。 `oplocks`、 `browsable`および `changenotify` 共有プロパティは、の設定に加えて設定されます `homedirectory` 共有プロパティ。
 
 [NOTE]
 ====

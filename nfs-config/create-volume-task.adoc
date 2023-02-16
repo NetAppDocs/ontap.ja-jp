@@ -11,47 +11,47 @@ summary: volume create コマンドを使用して、ボリュームを作成し
 
 
 [role="lead"]
-volume create コマンドを使用して、ボリュームを作成し、ジャンクションポイントやその他のプロパティを指定できます。
+を使用して、ボリュームを作成し、ジャンクションポイントやその他のプロパティを指定できます `volume create` コマンドを実行します
 
 .必要なもの
 SVM のセキュリティ形式が UNIX で、 NFS が設定されて実行されている必要があります。
 
 .このタスクについて
-クライアントがデータを使用できるようにするには、ボリュームに _junction path_ を含める必要があります。ジャンクションパスは、新しいボリュームを作成するときに指定できます。ジャンクションパスを指定せずにボリュームを作成する場合、 volume mount コマンドを使用して SVM ネームスペース内のボリュームを _mount_the にする必要があります。
+クライアントがデータを使用できるようにするには、ボリュームに _junction path_ を含める必要があります。ジャンクションパスは、新しいボリュームを作成するときに指定できます。ジャンクションパスを指定せずにボリュームを作成する場合は、を使用してSVMネームスペースで_mount_the volumeに指定されている必要があります `volume mount` コマンドを実行します
 
 .手順
 . ジャンクションポイントを指定してボリュームを作成します。
 +
-`volume create -vserver_name_-volume_name_-aggregate-aggregate_name _size {_integer_[KB|MB|GB|TB|PB] ｝ -security-style unix -user_user_name _or -group_group_name _or_number_junction-path _export_policy_name_export_policy_name_export_policy_name_export_policy_name_junction-path export_policy_name_export_policy_name_export_policy_name_`export_policy_name]-security-style unix -security-style unix -MB|MB|MB|GB|GB|GB|GB|TB|TB|PB}
+`volume create -vserver _vserver_name_ -volume _volume_name_ -aggregate _aggregate_name_ -size {_integer_[KB|MB|GB|TB|PB]} -security-style unix -user _user_name_or_number_ -group _group_name_or_number_ -junction-path _junction_path_ [-policy _export_policy_name_]`
 
 +
-「 -junction-path 」の選択肢は次のとおりです。
+の選択肢 `-junction-path` 次のとおりです。
 
 +
-** ルートの直下。たとえば、「 //_new_vol_ 」のように指定します
+** ルートの直下。例： `/_new_vol_`
 +
 新しいボリュームを作成し、 SVM のルートボリュームに直接マウントされるように指定することができます。
 
-** 既存のディレクトリの下（例：「 //_existing_dir/new_vol_ 」）
+** 既存のディレクトリの下。例： `/_existing_dir/new_vol_`
 +
 新しいボリュームを作成し、ディレクトリとして表現されている既存のボリューム（既存の階層内）にマウントされるように指定できます。
 
 
 
 +
-新しいディレクトリ（新しいボリュームの下の新しい階層）にボリュームを作成する場合、たとえば「 _/new_dir/new_vol_ 」のように、まず SVM ルートボリュームにジャンクションされている新しい親ボリュームを作成する必要があります。その後、新しい親ボリューム（新しいディレクトリ）のジャンクションパスに新しい子ボリュームを作成します。
+新しいディレクトリ（新しいボリュームの下の新しい階層）にボリュームを作成する場合の例を次に示します。 `_/new_dir/new_vol_`SVMのルートボリュームにジャンクションされている新しい親ボリュームを作成しておく必要があります。その後、新しい親ボリューム（新しいディレクトリ）のジャンクションパスに新しい子ボリュームを作成します。
 
 +
-+ 既存のエクスポートポリシーを使用する場合は、ボリュームの作成時に指定できます。エクスポート・ポリシーは 'volume modify コマンドを使用して後で追加することもできます
++ 既存のエクスポートポリシーを使用する場合は、ボリュームの作成時に指定できます。エクスポートポリシーは、あとででを使用して追加することもできます `volume modify` コマンドを実行します
 
 . 目的のジャンクションポイントでボリュームが作成されたことを確認します。
 +
-volume show -vserver_name_-volume_name_-junction-path です
+`volume show -vserver _vserver_name_ -volume _volume_name_ -junction`
 
 
 
 .例
-次のコマンドは、 SVM vs1.example.com およびアグリゲート aggr1 上に、 users1 という名前の新しいボリュームを作成します。新しいボリュームは '/users' で使用可能になりますボリュームのサイズは 750GB で、ボリュームギャランティのタイプは volume （デフォルト）です。
+次のコマンドは、 SVM vs1.example.com およびアグリゲート aggr1 上に、 users1 という名前の新しいボリュームを作成します。新しいボリュームは、で使用できます `/users`。ボリュームのサイズは 750GB で、ボリュームギャランティのタイプは volume （デフォルト）です。
 
 [listing]
 ----
@@ -64,7 +64,7 @@ Vserver           Volume  Active   Junction Path   Path Source
 ----------------- ------- -------- --------------- -----------
 vs1.example.com   users1  true     /users          RW_volume
 ----
-次のコマンドは、 SVM 「 vs1.example.com 」およびアグリゲート「 aggr1 」に、「 home4 」という名前の新しいボリュームを作成します。ディレクトリ「 /eng/` は vs1 SVM のネームスペースにすでに存在し、新しいボリュームは「 /eng/home 」で利用可能になります。これは「 /eng/` 名前空間」のホームディレクトリになります。ボリュームのサイズは 750 GB で ' ボリューム・ギャランティのタイプは volume （デフォルト）です
+次のコマンドは、 SVM 「 vs1.example.com 」およびアグリゲート「 aggr1 」に、「 home4 」という名前の新しいボリュームを作成します。ディレクトリです `/eng/` vs1 SVMのネームスペースにすでに存在し、新しいボリュームがに提供されます `/eng/home`をクリックします。これがのホームディレクトリになります `/eng/` ネームスペース：ボリュームのサイズは750GBで、ボリュームギャランティのタイプはです `volume` （デフォルト）。
 
 [listing]
 ----

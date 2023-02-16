@@ -18,7 +18,7 @@ ONTAP CLI の位置指定パラメータ機能を活用して、効率的にコ�
 == 位置指定パラメータとは何ですか
 
 * 位置指定パラメータは、値を指定する前にパラメータ名を指定する必要のないパラメータです。
-* コマンド入力には、位置指定パラメータとそれ以外のパラメータを組み合わせて指定できます。ただし、コマンド内の他の位置指定パラメータとの相対的な順序が、「 * _ command_name ？ _ * 」の出力に従っている場合に限ります。
+* コマンド入力には、位置指定パラメータとそれ以外のパラメータを組み合わせて指定できます。ただし、コマンド内の他の位置指定パラメータとの相対的な順序が、に示すとおりであることが条件です `*_command_name ?_*` 出力。
 * 位置指定パラメータは、必須パラメータの場合とオプションパラメータの場合があります。
 * あるパラメータが 1 つのコマンドでは位置指定パラメータで、別のコマンドでは位置指定パラメータでない場合もあります。
 
@@ -32,29 +32,29 @@ ONTAP CLI の位置指定パラメータ機能を活用して、効率的にコ�
 
 == 位置指定パラメータを特定します
 
-位置指定パラメータは '*_command_name?_*' コマンド出力で識別できます位置指定パラメータは、次のいずれかの形式で、パラメータ名が角かっこで囲まれています。
+位置指定パラメータは、で特定できます `*_command_name ?_*` コマンド出力。位置指定パラメータは、次のいずれかの形式で、パラメータ名が角かっこで囲まれています。
 
-* [`__ parameter_name_`]`_parameter_value_` は ' 必須の位置指定パラメータです
-* [[`__ parameter_name_`]`_parameter_value_`] には、位置指定であるオプションのパラメータが表示されます。
+* [`_-parameter_name_`] `_parameter_value_` は、必須の位置指定パラメータです。
+* [[`_-parameter_name_`] `_parameter_value_`]は、オプションの位置指定パラメータです。
 
 
-たとえば '*_command_name?_*' の出力に次のように表示される場合 ' パラメータは ' 表示されるコマンドの位置指定パラメータです
+たとえば、に次のように表示されます `*_command_name ?_*` の出力では、パラメータは該当するコマンドの位置指定パラメータです。
 
-* `[-lif ]<lif-name>`
-* [[-LIF] <lif-name>]
+* `[-lif] <lif-name>`
+* `[[-lif] <lif-name>]`
 
 
 ただし、次の出力では、パラメータは該当するコマンドの位置指定パラメータではありません。
 
 * `-lif <lif-name>`
-* `[-lif <lif-name>]
+* `[-lif <lif-name>]`
 
 
 
 
 == 位置指定パラメータの使用例
 
-次の例では '*_volume create ?_*' 出力は ' -volume'`-aggregate'-size' という 3 つのパラメータがコマンドの位置指定パラメータであることを示しています
+次の例では、が表示されています `*_volume create ?_*` 出力には、コマンドの3つのパラメータが位置指定パラメータであることが示されています `-volume`、 `-aggregate`および `-size`。
 
 [listing]
 ----
@@ -73,12 +73,12 @@ cluster1::> volume create ?
   [ -percent-snapshot-space <percent> ]   Space Reserved for Snapshot Copies
   ...
 ----
-次の例では ' 位置指定パラメータ機能を使用せずに volume create コマンドを指定しています
+次の例では、が表示されています `volume create` 位置指定パラメータ機能を使用せずにコマンドを指定した場合：
 
-cluster1 ：： > volume create -vserver svm1 -volume vol1 -aggregate * aggr1 -size 1g * -percent-snapshot-space 0
+`cluster1::> volume create -vserver svm1 -volume vol1 -aggregate *aggr1 -size 1g* -percent-snapshot-space 0`
 
-次の例では、位置指定パラメータ機能を使用して効率的にコマンドを入力しています。位置指定パラメータとそれ以外のパラメータを組み合わせて volume create コマンドを実行し、位置指定パラメータの値はパラメータ名なしで指定されています。位置指定パラメータは、「 * volume create ？ * 」の出力と同じ順序で指定します。つまり '-volume' の値は '-size' の前に指定された -aggregate' の値よりも前に指定されます
+次の例では、位置指定パラメータ機能を使用して効率的にコマンドを入力しています。位置指定パラメータとそれ以外のパラメータの両方をに入力します `volume create` 位置指定パラメータの値は、パラメータ名なしで指定されています。位置指定パラメータは、と同じ順序で指定します `*volume create ?*` 出力。つまり、の値です `-volume` は、の前に指定します `-aggregate`を指定します。この値は、の前に指定されます `-size`。
 
-cluster1 ：： > volume create * vol2 * aggr1 * * 1g * -vserver svm1 -percent-snapshot-space 0 ｝
+`cluster1::> volume create *vol2* *aggr1* *1g* -vserver svm1 -percent-snapshot-space 0`
 
-cluster1 ：： > volume create -vserver svm1 * vol3 * -snapshot-policy default * aggr1 * -nvfail off * 1g * -space-guarantee none
+`cluster1::> volume create -vserver svm1 *vol3* -snapshot-policy default *aggr1* -nvfail off *1g* -space-guarantee none`

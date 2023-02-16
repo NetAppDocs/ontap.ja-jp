@@ -2,7 +2,7 @@
 permalink: flexcache/enable-file-access-time-updates-task.html 
 sidebar: sidebar 
 keywords: atime, atime-update, flexcache, flex cache, access time 
-summary: 'FlexCache ボリュームで「-atime-update」フィールドを有効にして、ファイルアクセス時間の更新を許可することができます。アクセス時間の更新期間は"-atime-update-period"属性を使用して設定することもできますatime更新期間は、atime更新を実行する頻度と、元のボリュームに更新を伝播できるタイミングを制御します。' 
+summary: 'を有効にすることができます `-atime-update` ファイルアクセス時間の更新を許可するFlexCache ボリューム上のフィールド。を使用してアクセス時間の更新期間を設定することもできます `-atime-update-period` 属性（Attribute）：atime更新期間は、atime更新を実行する頻度と、元のボリュームに更新を伝播できるタイミングを制御します。' 
 ---
 = ファイルアクセス時間の更新を有効にします
 :allow-uri-read: 
@@ -11,15 +11,15 @@ summary: 'FlexCache ボリュームで「-atime-update」フィールドを有�
 
 
 [role="lead"]
-ONTAP 9.11.1以降では、FlexCache ボリュームの「-atime-update」フィールドを有効にして、ファイルアクセス時間の更新を許可できます。アクセス時間の更新期間は'-atime-update-period'属性を使用して設定することもできます「-atime-update-period」属性は、アクセス時間の更新を実行する頻度と、その更新を元のボリュームに伝播できるタイミングを制御します。
+ONTAP 9.11.1以降では、を有効にすることができます `-atime-update` ファイルアクセス時間の更新を許可するFlexCache ボリューム上のフィールド。を使用してアクセス時間の更新期間を設定することもできます `-atime-update-period` 属性（Attribute）：。 `-atime-update-period` 属性は、アクセス時間の更新を実行する頻度と、更新を元のボリュームにいつ伝播できるかを制御します。
 
 
 
 == 概要
 
-ONTAP には'-atime-update'というボリューム・レベルのフィールドがあり'読み取り'readlink'READDIRを使用して読み込まれたファイルとディレクトリのアクセス・タイム更新を管理できますアクセス頻度の低いファイルとディレクトリのデータライフサイクルの決定にはatimeが使用されます。アクセス頻度の低いファイルは最終的にアーカイブストレージに移行され、あとでテープに移動されることもあります。
+ONTAP には、というボリュームレベルのフィールドがあります `-atime-update`で読み取り'readlink'READDIRを使用して読み込まれたファイルとディレクトリのアクセス時間の更新を管理しますアクセス頻度の低いファイルとディレクトリのデータライフサイクルの決定にはatimeが使用されます。アクセス頻度の低いファイルは最終的にアーカイブストレージに移行され、あとでテープに移動されることもあります。
 
-atime更新フィールドは、既存および新規に作成されたFlexCache ボリュームではデフォルトで無効になります。9.11.1よりも前のONTAP リリースでFlexCache ボリュームを使用している場合は、atime更新フィールドを無効にして、元のボリュームで読み取り処理が実行されるときにキャッシュが不要に削除されないようにする必要があります。ただし、大規模なFlexCache キャッシュでは、管理者が特別なツールを使用してデータを管理し、ホットデータがキャッシュに残ってコールドデータがパージされるのを確保します。atime更新を無効にする場合は実行できません。ただし、ONTAP 9.11.1以降では、「-atime-update」と「-atime-update-period」をイネーブルにし、キャッシュされたデータの管理に必要なツールを使用できます。
+atime更新フィールドは、既存および新規に作成されたFlexCache ボリュームではデフォルトで無効になります。9.11.1よりも前のONTAP リリースでFlexCache ボリュームを使用している場合は、atime更新フィールドを無効にして、元のボリュームで読み取り処理が実行されるときにキャッシュが不要に削除されないようにする必要があります。ただし、大規模なFlexCache キャッシュでは、管理者が特別なツールを使用してデータを管理し、ホットデータがキャッシュに残ってコールドデータがパージされるのを確保します。atime更新を無効にする場合は実行できません。ただし、ONTAP 9.11.1以降では、を有効にできます `-atime-update` および `-atime-update-period,` キャッシュされたデータの管理に必要なツールを使用できます。
 
 
 
@@ -31,26 +31,26 @@ atime更新フィールドは、既存および新規に作成されたFlexCache
 
 == このタスクについて
 
-「-atime-update-period」を86400秒に設定すると、ファイル上で実行される読み取りと同様の操作の数に関係なく、24時間ごとに1回のアクセス時間更新を行うことはできません。
+設定 `-atime-update-period` 86400秒に設定すると、ファイルで実行される読み取りと似た操作の数に関係なく、24時間ごとに複数のアクセス時間更新を行うことができません。
 
-「-atime-update-period」を0に設定すると、各読み取りアクセスの送信元にメッセージが送信されます。その後、元のFlexCache は各に、パフォーマンスに影響するatimeが古いことを通知します。
+を設定します `-atime-update-period` を0にすると、各読み取りアクセスの送信元にメッセージが送信されます。その後、元のFlexCache は各に、パフォーマンスに影響するatimeが古いことを通知します。
 
 .手順
 . ファイルアクセス時間の更新を有効にし、更新頻度を設定します。
 +
-volume modify -volume vol_name -vserver_svm_name_-atime-update true -atime-update-period_seconds_`
+`volume modify -volume vol_name -vserver _SVM_name_ -atime-update true -atime-update-period _seconds_`
 
 +
-次の例では、「-atime-update」をイネーブルにし、「-atime-update-period」を86400秒または24時間に設定します。
+次の例は、を有効にします `-atime-update` およびセット `-atime-update-period` ～86400秒、または24時間:
 
 +
 [listing]
 ----
 c1: volume modify -volume origin1 vs1_c1 -atime-update true -atime-update-period 86400
 ----
-. 「-atime-update」が有効になっていることを確認します。
+. 確認します `-atime-update` 有効：
 +
-volume show -volume _vol_name --fields atime-update、atime-update-period
+`volume show -volume _vol_name_ -fields atime-update,atime-update-period`
 
 +
 [listing]

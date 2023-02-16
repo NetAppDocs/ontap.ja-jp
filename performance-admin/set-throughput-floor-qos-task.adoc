@@ -11,7 +11,7 @@ summary: ポリシーグループの min-throughput フィールドを使用す�
 
 
 [role="lead"]
-ポリシーグループの「 m in-froughput」 フィールドを使用して、ストレージオブジェクトワークロードのスループットの下限（最小 QoS ）を定義できます。ポリシーグループは、ストレージオブジェクトを作成または変更するときに適用できます。ONTAP 9.8 以降では、スループットの下限を IOPS または MBps で指定できるようになりました。
+を使用できます `min-throughput` ストレージオブジェクトのワークロードのスループットの下限（最小QoS）を定義するポリシーグループ用のフィールド。ポリシーグループは、ストレージオブジェクトを作成または変更するときに適用できます。ONTAP 9.8 以降では、スループットの下限を IOPS または MBps で指定できるようになりました。
 
 .必要なもの
 * ONTAP 9.2 以降が実行されている必要があります。スループットの下限は ONTAP 9.2 以降で使用できます。
@@ -21,7 +21,7 @@ summary: ポリシーグループの min-throughput フィールドを使用す�
 .このタスクについて
 * ONTAP 9.4 以降では、 _non-shared_qos ポリシーグループを使用して、定義したスループットの下限を各メンバーワークロードに個別に適用するように指定できます。スループットの下限が定義されたポリシーグループを複数のワークロードに適用できるのは、この場合だけです。
 +
-非共有ポリシーグループを指定するには 'qos policy-group create コマンドに '-is-shared=false' を設定します
+設定 `-is-shared=false` をクリックします `qos policy-group create` 非共有のポリシーグループを指定するコマンド。
 
 * ノードまたはアグリゲートに十分なパフォーマンス容量（ヘッドルーム）がない場合は、ワークロードのスループットが指定された下限を下回ることがあります。
 * QoS 制限の対象となるストレージオブジェクトは、ポリシーグループが属している SVM に含める必要があります。同じ SVM に複数のポリシーグループを作成することができます。
@@ -33,13 +33,13 @@ summary: ポリシーグループの min-throughput フィールドを使用す�
 . permalink の説明に従って、ノードまたはアグリゲートに十分なパフォーマンス容量があることを確認します。 identify -remaining-performion-capacity-task.html [ 残りのパフォーマンス容量の特定中 ] 。
 . ポリシーグループを作成する。
 +
-「 qos policy-group create -policy group_policy_group 」 -vserver_svm_-min -throughput qos_target_-is-shared true | false
+`qos policy-group create -policy group _policy_group_ -vserver _SVM_ -min-throughput _qos_target_ -is-shared true|false`
 
 +
-コマンド構文全体については、 ONTAP リリースのマニュアルページを参照してください。qos policy-group modify コマンドを使用して、スループットの下限を調整できます。
+コマンド構文全体については、 ONTAP リリースのマニュアルページを参照してください。を使用できます `qos policy-group modify` スループットの下限を調整するコマンド。
 
 +
-次のコマンドは、最小スループットが 1 、 000 IOPS の共有ポリシーグループ pg-vs2 を作成します。
+次のコマンドは、共有ポリシーグループを作成します `pg-vs2` 最小スループットが1、000 IOPSの場合：
 
 +
 [listing]
@@ -47,7 +47,7 @@ summary: ポリシーグループの min-throughput フィールドを使用す�
 cluster1::> qos policy-group create -policy group pg-vs2 -vserver vs2 -min-throughput 1000iops -is-shared true
 ----
 +
-次のコマンドは、スループット制限がない非共有ポリシーグループ「 pg-vs4 」を作成します。
+次のコマンドでは、非共有のポリシーグループを作成します `pg-vs4` スループットの制限がない場合：
 
 +
 [listing]
@@ -56,13 +56,13 @@ cluster1::> qos policy-group create -policy group pg-vs4 -vserver vs4 -is-shared
 ----
 . ポリシーグループをボリュームまたは LUN に適用します。
 +
-`_storage_object_create -vserver_svm_-qos-policy-group policy_group_group_
+`_storage_object_ create -vserver _SVM_ -qos-policy-group _policy_group_`
 
 +
-コマンド構文全体については、マニュアルページを参照してください。_storage_object_modify コマンドを使用して ' ストレージ・オブジェクトに別のポリシー・グループを適用できます
+コマンド構文全体については、マニュアルページを参照してください。を使用できます `_storage_object_modify` コマンドを使用して、ストレージオブジェクトに別のポリシーグループを適用します。
 
 +
-次のコマンドは ' ポリシー・グループ pg-app2 をボリューム app2 に適用します
+次のコマンドは、ポリシーグループを適用します `pg-app2` をボリュームに追加します `app2`：
 
 +
 [listing]
@@ -71,7 +71,7 @@ cluster1::> volume create -vserver vs2 -volume app2 -aggregate aggr1 -qos-policy
 ----
 . ポリシーグループのパフォーマンスを監視します。
 +
-「 qos statistics performance show 」を参照してください
+`qos statistics performance show`
 
 +
 コマンド構文全体については、マニュアルページを参照してください。
@@ -98,7 +98,7 @@ _System-Background         30           0KB/s        0ms
 ----
 . ワークロードのパフォーマンスを監視します。
 +
-「 qos statistics workload performance show 」を参照してください
+`qos statistics workload performance show`
 
 +
 コマンド構文全体については、マニュアルページを参照してください。
@@ -127,7 +127,7 @@ _Scan_Backgro..   5688       20            0KB/s        0ms
 +
 [NOTE]
 ====
-qos statistics workload latency show コマンドを使用すると、 QoS ワークロードの詳細な遅延統計情報を表示できます。
+を使用できます `qos statistics workload latency show` QoSワークロードの詳細なレイテンシ統計を表示するコマンド。
 
 ====
 

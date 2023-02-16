@@ -19,15 +19,15 @@ FlexGroup SVM DR 関係を作成するには、既存の FlexGroup Volume SnapMi
 
 
 .手順
-. SnapMirror デスティネーションから、 FlexGroup レベルの SnapMirror 関係「 snapmirror resync 」を再同期します
-. FlexGroup SVM DRのSnapMirror関係を作成FlexGroup ボリュームのSnapMirror関係に設定されているものと同じSnapMirrorポリシーを使用します。snapmirror create -destination-path dest_svm：-source-path src_svm：-identity-preserve true -policy MirrorAllSnapshots
+. SnapMirrorデスティネーションから、FlexGroup レベルのSnapMirror関係を再同期します。 `snapmirror resync`
+. FlexGroup SVM DRのSnapMirror関係を作成FlexGroup VolumeのSnapMirror関係と同じSnapMirrorポリシーを使用します。 `snapmirror create -destination-path dest_svm: -source-path src_svm: -identity-preserve true -policy MirrorAllSnapshots`
 +
 [NOTE]
 ====
-レプリケーション関係を作成するときは 'snapmirror create コマンドの -identity-preserve true オプションを使用する必要があります
+を使用する必要があります `-identity-preserve true` のオプション `snapmirror create` コマンドは、レプリケーション関係を作成するときに使用します。
 
 ====
-. 関係が解除されたことを確認します。snapmirror show -destination-path dest_svm：-source-path src_svm：`
+. 関係が解除されたことを確認します。 `snapmirror show -destination-path dest_svm: -source-path src_svm:`
 +
 [listing]
 ----
@@ -40,7 +40,7 @@ Path        Type  Path        State   Status         Progress  Healthy Updated
 fg_vs:        XDP  fg_vs1_renamed:     Broken-off
                                       Idle           -         true   -
 ----
-. デスティネーション SVM を停止します。 vserver stop -vserver vs_name
+. デスティネーション SVM を停止します。 `vserver stop -vserver vs_name`
 +
 [listing]
 ----
@@ -48,13 +48,13 @@ vserver stop -vserver fg_vs_renamed
 [Job 245] Job is queued: Vserver Stop fg_vs_renamed.
 [Job 245] Done
 ----
-. SVMのSnapMirror関係を再同期します。snapmirror resync -destination-path dest_svm：-source-path src_svm：`
+. SVMのSnapMirror関係を再同期します。 `snapmirror resync -destination-path dest_svm: -source-path src_svm:`
 +
 [listing]
 ----
 snapmirror resync -destination-path fg_vs_renamed: -source-path fg_vs:
 Warning: This Vserver has volumes which are the destination of FlexVol or FlexGroup SnapMirror relationships. A resync on the Vserver SnapMirror relationship will cause disruptions in data access
 ----
-. SVM DR レベルの SnapMirror 関係が正常なアイドル状態に達したことを確認します。「 snapmirror show-expand 」
-. FlexGroup の SnapMirror 関係が「 SnapMirro show 」の状態であることを確認します
+. SVM DRレベルのSnapMirror関係が正常なアイドル状態に達したことを確認します。 `snapmirror show -expand`
+. FlexGroup SnapMirror関係が正常な状態であることを確認します。 `snapmirror show`
 

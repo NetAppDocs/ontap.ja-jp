@@ -11,7 +11,7 @@ summary: ソースとデスティネーションの SVM が異なるサブネッ
 
 
 [role="lead"]
-ソースとデスティネーションの SVM が異なるサブネットにある場合は、「 snapmirror policy create 」コマンドの「 -discard-configs network 」オプションを使用して、 LIF と関連ネットワークの設定を SVM レプリケーション対象から除外できます。
+ソースとデスティネーションのSVMが異なるサブネットにある場合は、を使用できます `-discard-configs network` のオプション `snapmirror policy create` コマンドを使用して、LIFと関連ネットワークの設定をSVMレプリケーションの対象から除外します。
 
 .必要なもの
 ソースクラスタとデスティネーションクラスタ、および SVM のピア関係が確立されている必要があります。
@@ -19,39 +19,39 @@ summary: ソースとデスティネーションの SVM が異なるサブネッ
 詳細については、を参照してください link:../peering/create-cluster-relationship-93-later-task.html["クラスタピア関係を作成"] および link:../peering/create-intercluster-svm-peer-relationship-93-later-task.html["SVM のクラスタ間ピア関係を作成します"]。
 
 .このタスクについて
-SVM レプリケーション関係を作成するときは 'snapmirror create コマンドの -identity-preserve オプションを true に設定する必要があります
+。 `-identity-preserve` のオプション `snapmirror create` コマンドはに設定する必要があります `true` SVMレプリケーション関係を作成するときに選択します。
 
 コマンド構文全体については、マニュアルページを参照してください。
 
 .手順
 . デスティネーション SVM を作成します。
 +
-「 vserver create -vserver_svm__subtype dp-destination 」に指定します
+`vserver create -vserver _SVM_ -subtype dp-destination`
 
 +
 SVM 名はソースクラスタとデスティネーションクラスタの間で一意である必要があります。
 
 +
-次の例は、「 VM_backup 」という名前のデスティネーション SVM を作成します。
+次の例は、という名前のデスティネーションSVMを作成します `svm_backup`：
 
 +
 [listing]
 ----
 cluster_dst:> vserver create -vserver svm_backup -subtype dp-destination
 ----
-. デスティネーションクラスタから、「 vserver peer create 」コマンドを使用して、 SVM ピア関係を作成します。
+. デスティネーションクラスタから、を使用してSVMピア関係を作成します `vserver peer create` コマンドを実行します
 +
 詳細については、を参照してください link:../peering/create-intercluster-svm-peer-relationship-93-later-task.html["SVM のクラスタ間ピア関係を作成します"]。
 
 . ジョブスケジュールを作成します。
 +
-'job schedule cron create -name_job_name__ month_month_month_month_dayofweek _dayof_day_day_day_of_month_-hour _hour_-minute_minute_`
+`job schedule cron create -name _job_name_ -month _month_ -dayofweek _day_of_week_ -day _day_of_month_ -hour _hour_ -minute _minute_`
 
 +
-「 -month 」、「 -dayofweek 」、「 -hour 」には、「 all 」を指定して、毎月、曜日、および時ごとにジョブを実行できます。
+の場合 `-month`、 `-dayofweek`および `-hour`、を指定できます `all` ジョブを毎月、曜日、および時間ごとに実行します。
 
 +
-次の例は、土曜日の午前 3 時に実行する「 my_weekly 」というジョブスケジュールを作成します。
+次の例は、という名前のジョブスケジュールを作成します `my_weekly` 土曜日の午前3時に実行されます。
 
 +
 [listing]
@@ -60,7 +60,7 @@ cluster_dst::> job schedule cron create -name my_weekly -dayofweek "Saturday" -h
 ----
 . カスタムレプリケーションポリシーを作成します。
 +
-「 napmirror policy create -vserver _SVM_policy_policy_type async-mirror mirror | vault | mirror-vault -vault-comment_comment __ tries transfer_tries-transfer-priority low | normal-is-network-compression-enabled true | false-discard-configs network 」に設定されています
+`snapmirror policy create -vserver _SVM_ -policy _policy_ -type async-mirror|vault|mirror-vault -comment _comment_ -tries transfer_tries -transfer-priority low|normal -is-network-compression-enabled true|false -discard-configs network`
 
 +
 コマンド構文全体については、マニュアルページを参照してください。
@@ -83,12 +83,12 @@ cluster_dst::> snapmirror policy create -vserver svm1 -policy unified_exclude_LI
 ----
 . デスティネーション SVM またはデスティネーションクラスタから次のコマンドを実行して、レプリケーション関係を作成します。
 +
-「 snapmirror create -source-path SVM_： -destination-path svm_ ： -type DP | xdmp-schedule _policy_policy_policy_policy_identity-preserve true | false 」を指定します
+`snapmirror create -source-path _SVM_: -destination-path _SVM_: -type DP|XDP -schedule _schedule_ -policy _policy_ -identity-preserve true|false`
 
 +
 [NOTE]
 ====
-「 -source-path 」オプションと「 -destination-path 」オプションでは、 SVM 名のあとにコロン（ : ）を入力する必要があります。以下の例を参照してください。
+で、SVM名のあとにコロン（：）を入力する必要があります `-source-path` および `-destination-path` オプション（ Options ）以下の例を参照してください。
 
 ====
 +
@@ -109,10 +109,10 @@ cluster_dst::> snapmirror create -source-path svm1: -destination-path svm_backup
 ----
 . デスティネーション SVM を停止します。
 +
-「 vserver stop 」
+`vserver stop`
 
 +
-「 _SVM 名 _ 」
+`_SVM name_`
 
 +
 次の例は、 dvs1 という名前のデスティネーション SVM を停止します。
@@ -124,13 +124,13 @@ cluster_dst::> vserver stop -vserver dvs1
 ----
 . デスティネーション SVM またはデスティネーションクラスタから、レプリケーション関係を初期化します。
 +
-「 snapmirror initialize-ls-set initialize-ls-set _svm_:-destination -destination-path svm_:` 」のように設定します
+`snapmirror initialize -source-path _SVM_: -destination-path _SVM_:`
 
 +
 コマンド構文全体については、マニュアルページを参照してください。
 
 +
-次に、ソース「 vm1 」とデスティネーション「 vm_backup 」の関係を初期化する例を示します。
+次の例は、ソース間の関係を初期化します。 `svm1` 移行先、 `svm_backup`：
 
 +
 [listing]

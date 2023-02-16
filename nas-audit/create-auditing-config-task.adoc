@@ -47,37 +47,37 @@ SVM が SVM ディザスタリカバリソースである場合、デスティ�
  a| 
 ログサイズ
  a| 
-vserver audit create -vserver vserver_name -destination path -events [ ｛ file-ops | cifs-logon-logoff | cap-staging | file-change | user-account | security-group | authorization-policy -policy-change ｝ ] [-format ｛ xml | evtx] [-rotate-limit integer ] [-rotate-size ｛ gb | binteger
+`vserver audit create -vserver vserver_name -destination path -events [{file-ops|cifs-logon-logoff|cap-staging|file-share|audit-policy-change|user-account|security-group|authorization-policy-change}] [-format {xml|evtx}] [-rotate-limit integer] [-rotate-size {integer[KB|MB|GB|TB|PB]}]`
 
 
 
  a| 
 スケジュール
  a| 
-vserver audit create -vserver vserver_name -destination path -events [ ｛ file-ops | cifs-logon-logoff | cap-staging ｝ ] [-format ｛ xml | evtx ｝ ] [-rotate-limit integer ] [--rotate-schedule-month chron_month] [--rotate-schedule-dayofweek chron_month] [-rotate-hour] chron-hour [ -dayofweek chron -hour chron -hour
+`vserver audit create -vserver vserver_name -destination path -events [{file-ops|cifs-logon-logoff|cap-staging}] [-format {xml|evtx}] [-rotate-limit integer] [-rotate-schedule-month chron_month] [-rotate-schedule-dayofweek chron_dayofweek] [-rotate-schedule-day chron_dayofmonth] [-rotate-schedule-hour chron_hour] -rotate-schedule-minute chron_minute`
 
 [NOTE]
 ====
-時間ベースの監査ログローテーションを設定する場合は '-rotate-schedule-minute パラメータが必要です
+。 `-rotate-schedule-minute` 時間に基づく監査ログのローテーションを設定する場合、パラメータは必須です。
 
 ====
 |===
 
 
 .例
-次の例は、サイズに基づくローテーションを使用してファイル操作と SMB ログオンおよびログオフイベント（デフォルト）を監査する監査の設定を作成します。ログ形式は「 EVTX 」（デフォルト）です。ログは '/audit_log' ディレクトリに保存されますログ・ファイルのサイズの上限は 200 MB ですログのサイズが 200MB になると、ログのローテーションが実行されます。
+次の例は、サイズに基づくローテーションを使用してファイル操作と SMB ログオンおよびログオフイベント（デフォルト）を監査する監査の設定を作成します。ログの形式はです `EVTX` （デフォルト）。ログはに保存されます `/audit_log` ディレクトリ。ログファイルの最大サイズはです `200 MB`。ログのサイズが 200MB になると、ログのローテーションが実行されます。
 
 [listing]
 ----
 cluster1::> vserver audit create -vserver vs1 -destination /audit_log -rotate-size 200MB
 ----
-次の例は、サイズに基づくローテーションを使用してファイル操作と SMB ログオンおよびログオフイベント（デフォルト）を監査する監査の設定を作成します。ログ形式は「 EVTX 」（デフォルト）です。ログ・ファイルのサイズの上限は '100 MB' （デフォルト）で ' ログのローテーションの上限は 5 です
+次の例は、サイズに基づくローテーションを使用してファイル操作と SMB ログオンおよびログオフイベント（デフォルト）を監査する監査の設定を作成します。ログの形式はです `EVTX` （デフォルト）。ログファイルの最大サイズはです `100 MB` （デフォルト）、ログのローテーション回数の上限はです `5`：
 
 [listing]
 ----
 cluster1::> vserver audit create -vserver vs1 -destination /audit_log -rotate-limit 5
 ----
-次の例は、時間に基づくローテーションを使用してファイル操作、 CIFS ログオンおよびログオフイベント、集約型アクセスポリシーのステージングイベントを監査する監査の設定を作成します。ログ形式は「 EVTX 」（デフォルト）です。監査ログのローテーションが毎月、午後 12 時 30 分に実行されますそして毎日、午後 12 ： 30 に実行されます。ログのローテーション回数の上限は「 5 」です。
+次の例は、時間に基づくローテーションを使用してファイル操作、 CIFS ログオンおよびログオフイベント、集約型アクセスポリシーのステージングイベントを監査する監査の設定を作成します。ログの形式はです `EVTX` （デフォルト）。監査ログのローテーションが毎月、午後 12 時 30 分に実行されますそして毎日、午後 12 ： 30 に実行されます。ログのローテーションの上限はです `5`：
 
 [listing]
 ----

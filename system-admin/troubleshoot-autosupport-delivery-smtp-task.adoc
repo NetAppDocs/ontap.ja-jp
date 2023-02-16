@@ -32,36 +32,36 @@ summary: システムが SMTP 経由で AutoSupport メッセージを配信で�
 .手順
 . ノード管理 LIF のステータスを確認します。
 +
-`* network interface show -home-node local -role node-mgmt -fields vserver 、 lif 、 status-oper 、 status-admin 、 address 、 role * '
+`*network interface show -home-node local -role node-mgmt -fields vserver,lif,status-oper,status-admin,address,role*`
 
 +
-「 tatus-oper 」フィールドと「 tatus-admin 」フィールドは「 up 」を返す必要があります。
+。 `status-oper` および `status-admin` フィールドが返されるはずです `up`。
 
 . あとで使用できるように、 SVM 名、 LIF 名、および LIF の IP アドレスを書き留めておきます。
 . DNS が有効になっていて正しく設定されていることを確認します
 +
-*vserver services name-service dns show *
+`*vserver services name-service dns show*`
 
 . AutoSupport で使用するように設定されているすべてのサーバを表示します。
 +
-*system node AutoSupport show -fields mail-hosts *
+`*system node autosupport show -fields mail-hosts*`
 
 +
 表示されたすべてのサーバ名を記録します。
 
-. 前の手順で表示された各サーバと「 upport.netapp.com` 」に対し、サーバまたは URL にノードからアクセスできることを確認します。
+. 前の手順で表示した各サーバについて、およびを参照してください `support.netapp.com`を使用して、サーバまたはURLにノードからアクセスできることを確認します。
 +
-`* network traceroute -node local-destination_server _name_*`
+`*network traceroute -node local -destination _server_name_*`
 
 +
 これらのルートのいずれかが機能していない場合は、ほとんどのサードパーティ製ネットワーククライアントで検出された「 traceroute 」または「 tracert 」ユーティリティを使用して、クラスタと同じサブネット上の機能しているホストから同じルートを試してください。これにより、問題がネットワーク構成とクラスタ構成のどちらに含まれているかを判断できます。
 
 . メールホストとして指定したホストにログインし、このホストが SMTP 要求を処理できることを確認します。
 +
-*netstat -aAn|grep 25 *`
+`*netstat -aAn|grep 25*`
 
 +
-「 25 」は、リスナー SMTP のポート番号です。
+`25` は、リスナーSMTPのポート番号です。
 
 +
 次のようなメッセージが表示されます。
@@ -73,7 +73,7 @@ ff64878c tcp        0      0  *.25    *.*    LISTEN.
 ----
 . 他のホストで、メールホストの SMTP ポートを使用した Telnet セッションを開始します。
 +
-`*telnet_mailhost_25*`
+`*telnet _mailhost_ 25*`
 
 +
 次のようなメッセージが表示されます。
@@ -86,29 +86,30 @@ ff64878c tcp        0      0  *.25    *.*    LISTEN.
 ----
 . Telnet のプロンプトで、メールホストからメッセージをリレーできることを確認します。
 +
-'*HELO_DOMAIN_NAME_*
+`*HELO _domain_name_*`
 
 +
-`* メールの送信元： _Your_email_address_*`
+`*MAIL FROM: _your_email_address_*`
 
 +
-「 * RCPT TO ： \ autosupport@netapp.com * 」
+`*RCPT TO: \autosupport@netapp.com*`
 
 +
-「ドメイン名」はネットワークのドメイン名です。
+`domain_name` は、ネットワークのドメイン名です。
 
 +
 リレーが拒否されたというエラーが返された場合は、メールホストでリレーが有効になっていません。システム管理者に問い合わせてください。
 
 . Telnet のプロンプトで、テストメッセージを送信します。
 +
-「 * data * 」と入力します
+`*DATA*`
 
 +
-`*subject: testing*`* これはテスト *` です
+`*SUBJECT: TESTING*`
+`*THIS IS A TEST*`
 
 +
-'*.*'
+`*.*`
 
 +
 [NOTE]
@@ -121,21 +122,21 @@ ff64878c tcp        0      0  *.25    *.*    LISTEN.
 
 . ONTAP のコマンドラインインターフェイスから、アクセス可能な信頼できる E メールアドレスに AutoSupport テストメッセージを送信します。
 +
-*system node AutoSupport invoke -node local -type test *
+`*system node autosupport invoke -node local -type test*`
 
 . テストのシーケンス番号を確認します。
 +
-「 * system node AutoSupport history show -node local-destination smtp * 」と表示されます
+`*system node autosupport history show -node local -destination smtp*`
 
 +
 タイムスタンプに基づいて、シーケンス番号を探します。おそらく、最新の試みです。
 
 . テストメッセージに関するエラーを表示します。
 +
-*system node AutoSupport history show -node local-seq-num seq_num -fields error *`
+`*system node autosupport history show -node local -seq-num seq_num -fields error*`
 
 +
-表示されるエラーが「 Login denied 」の場合、クラスタ管理 LIF からの送信要求を SMTP サーバが受け入れていません。転送プロトコルを HTTPS に変更しない場合は、サイトのネットワーク管理者に連絡して、この問題に対応するように SMTP ゲートウェイを設定してください。
+表示されるエラーがである場合 `Login denied`を指定した場合、クラスタ管理LIFからの送信要求をSMTPサーバが受け入れていません。転送プロトコルを HTTPS に変更しない場合は、サイトのネットワーク管理者に連絡して、この問題に対応するように SMTP ゲートウェイを設定してください。
 
 +
 このテストが成功しても mailto ： autosupport@netapp.com に同じメッセージが送信されない場合は、すべての SMTP メールホストで SMTP リレーが有効になっていることを確認するか、転送プロトコルとして HTTPS を使用してください。

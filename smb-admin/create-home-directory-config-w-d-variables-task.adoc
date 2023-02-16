@@ -11,44 +11,44 @@ summary: '%w 変数と %d 変数を使用して、ホームディレクトリの
 
 
 [role="lead"]
-ホーム・ディレクトリ構成は '%w 変数と %d' 変数を使用して作成できますユーザは、動的に作成された共有を使用してホームディレクトリ共有に接続できます。
+を使用して、ホームディレクトリの設定を作成できます `%w` および `%d` 変数（variables）：ユーザは、動的に作成された共有を使用してホームディレクトリ共有に接続できます。
 
 .手順
-. ユーザのホームディレクトリを含む qtree を作成します。 volume qtree create -vserver vserver_name -qtree-path qtree_path
-. qtree が正しいセキュリティ形式を使用していることを確認します。 volume qtree show
-. 目的のセキュリティ形式が qtree で使用されていない場合は、 volume qtree security コマンドを使用してセキュリティ形式を変更します。
-. ホームディレクトリ共有を追加します。 `+vserver cifs share create -vserver vserver -share-name %w -path %d/%w -share-properties homedirectory \ 、 ...\]+`
+. ユーザのホームディレクトリを含むqtreeを作成します。 `volume qtree create -vserver vserver_name -qtree-path qtree_path`
+. qtreeで正しいセキュリティ形式が使用されていることを確認します。 `volume qtree show`
+. 適切なセキュリティ形式がqtreeで使用されていない場合は、を使用してセキュリティ形式を変更します `volume qtree security` コマンドを実行します
+. ホームディレクトリ共有を追加します。 `+vserver cifs share create -vserver vserver -share-name %w -path %d/%w -share-properties homedirectory\[,...\]+`
 +
-「 -vserver `vserver 」には、検索パスを追加する CIFS 対応の Storage Virtual Machine （ SVM ）を指定します。
+`-vserver` `vserver` 検索パスを追加するCIFS対応のStorage Virtual Machine（SVM）を指定します。
 
 +
-`-share-name `%w は、ホームディレクトリ共有名を指定します。ユーザがホームディレクトリに接続すると、 ONTAP によって共有名が動的に作成されます。共有名の形式は _windows_user_name です。
+`-share-name` `%w` ホームディレクトリの共有名を指定します。ユーザがホームディレクトリに接続すると、 ONTAP によって共有名が動的に作成されます。共有名の形式は _windows_user_name です。
 
 +
-`-path %d/%w は ' ホーム・ディレクトリへの相対パスを指定しますユーザがホームディレクトリに接続すると、ユーザごとに _domain/windows_user_name の形式で相対パスが動的に作成されます。
+`-path` `%d/%w` ホームディレクトリの相対パスを指定します。ユーザがホームディレクトリに接続すると、ユーザごとに _domain/windows_user_name の形式で相対パスが動的に作成されます。
 
 +
-`-share-properties homedirectory 、 ...+` は、その共有の共有プロパティを指定します。homedirectory の値を指定する必要があります追加の共有プロパティをカンマで区切って指定できます。
+`-share-properties homedirectory[,...]+` その共有の共有プロパティを指定します。を指定する必要があります `homedirectory` 価値。追加の共有プロパティをカンマで区切って指定できます。
 
-. vserver cifs share show コマンドを使用して、共有の設定が適切であることを確認します。
-. ホームディレクトリ検索パス「 vserver cifs home-directory search-path add -vserver vserver -path path 」を追加します
+. を使用して、共有の設定が適切であることを確認します `vserver cifs share show` コマンドを実行します
+. ホームディレクトリ検索パスを追加します。 `vserver cifs home-directory search-path add -vserver vserver -path path`
 +
-`-vserver_name_` は、検索パスを追加する CIFS 対応の SVM を指定します。
+`-vserver _vserver-name_` 検索パスを追加するCIFS対応のSVMを指定します。
 
 +
-`-path_path_` は、検索パスへの絶対ディレクトリパスを指定します。
+`-path _path_` 検索パスの絶対ディレクトリパスを指定します。
 
-. vserver cifs home-directory search-path show コマンドを使用して、検索パスが正常に追加されたことを確認します。
+. を使用して検索パスが追加されたことを確認します `vserver cifs home-directory search-path show` コマンドを実行します
 . ユーザにホームディレクトリがある場合は、ホームディレクトリを含むように指定した qtree またはボリュームに対応するディレクトリを作成します。
 +
-たとえば、「 /vol/vol1/users 」というパスの qtree を作成した場合に、ディレクトリの作成対象となるユーザのユーザ名が mydomain\user1 であるときは、「 /vol/vol1/users/mydomain/user1 」というパスを使用してディレクトリを作成します。
+たとえば、というパスのqtreeを作成したとします `/vol/vol1/users` ディレクトリを作成するユーザ名はmydomain\user1で、次のパスを使用してディレクトリを作成します。 `/vol/vol1/users/mydomain/user1`。
 
 +
-「 /home1 」にマウントされる「 home1 」という名前のボリュームを作成した場合は、「 /home1/mydomain/user1 」というパスを使用してディレクトリを作成します。
+にマウントされる「home1」という名前のボリュームを作成した場合 `/home1`を指定すると、次のパスでディレクトリが作成されます。 `/home1/mydomain/user1`。
 
 . ドライブをマッピングするか、 UNC パスを使用して、ユーザがホームディレクトリ共有に正常に接続できることを確認します。
 +
-たとえば、ユーザ mydomain\user1 が、 SVM vs1 にある手順 8 で作成したディレクトリに接続する場合、 user1 は UNC パス「 \\vs1_user1 」を使用して接続します。
+たとえば、ユーザmydomain\user1が、SVM vs1にある手順8で作成したディレクトリに接続する場合、user1はUNCパスを使用して接続します `\\vs1\user1`。
 
 
 
@@ -57,7 +57,7 @@ summary: '%w 変数と %d 変数を使用して、ホームディレクトリの
 
 * 共有名は %w です
 * 相対ホームディレクトリパスは %d/%w です
-* ホーム・ディレクトリ「 /home1' 」を含めるために使用される検索パスは 'NTFS セキュリティ・スタイルで構成されたボリュームです
+* ホームディレクトリを含めるために使用する検索パス。 `/home1`は、NTFSセキュリティ形式が設定されたボリュームです。
 * 設定は SVM vs1 上に作成されます。
 
 

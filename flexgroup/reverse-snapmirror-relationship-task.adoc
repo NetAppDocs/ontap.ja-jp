@@ -16,16 +16,16 @@ summary: 災害によって SnapMirror 関係のソース FlexGroup が機能し
 .このタスクについて
 再同期が実行される前に、デスティネーションボリュームのアクティブなクォータルールは非アクティブ化され、削除されます。
 
-volume quota policy rule create コマンドと volume quota modify コマンドを使用すると ' 再同期操作の完了後にクォータ・ルールを作成し ' 再びアクティブにすることができます
+を使用できます `volume quota policy rule create` および `volume quota modify` 再同期処理の完了後にクォータルールを作成して再アクティブ化するコマンド。
 
 .手順
-. 元のデスティネーション FlexGroup ボリュームで、ソース FlexGroup ボリュームとデスティネーション FlexGroup ボリュームの間のデータ保護ミラー関係を削除します。「 snapmirror delete -destination-path svm_name ： volume_name
+. 元のデスティネーションFlexGroup ボリュームで、ソースFlexGroup ボリュームとデスティネーションFlexGroup ボリューム間のデータ保護ミラー関係を削除します。 `snapmirror delete -destination-path svm_name:volume_name`
 +
 [listing]
 ----
 cluster2::> snapmirror delete -destination-path vsd:dst
 ----
-. 元のソース FlexGroup ボリュームで、ソース FlexGroup ボリュームから関係の情報を削除します。「 snapmirror release -destination-path svm_name ： volume_name -relationship-info-only 」
+. 元のソースFlexGroup ボリュームで、ソースFlexGroup ボリュームから関係の情報を削除します。 `snapmirror release -destination-path svm_name:volume_name -relationship-info-only`
 +
 SnapMirror 関係を削除したあと、再同期処理を実行する前に、ソース FlexGroup ボリュームから関係の情報を削除する必要があります。
 
@@ -34,19 +34,19 @@ SnapMirror 関係を削除したあと、再同期処理を実行する前に、
 ----
 cluster1::> snapmirror release -destination-path vsd:dst -relationship-info-only true
 ----
-. 新しいデスティネーション FlexGroup ボリュームで、ミラー関係を作成します。「 snapmirror create -source-path src_svm_name ： volume_name -destination-path dst_svm_name ： volume_name -type XDP -policy MirrorAllSnapshots
+. 新しいデスティネーションFlexGroup で、ミラー関係を作成します。 `snapmirror create -source-path src_svm_name:volume_name -destination-path dst_svm_name:volume_name -type XDP -policy MirrorAllSnapshots`
 +
 [listing]
 ----
 cluster1::> snapmirror create -source-path vsd:dst -destination-path vss:src -type XDP -policy MirrorAllSnapshots
 ----
-. 新しいデスティネーション FlexGroup ボリュームで、ソース FlexGroup を再同期します。「 snapmirror resync -source-path svm_name ： volume_name
+. 新しいデスティネーションFlexGroup ボリュームで、ソースFlexGroup を再同期します。 `snapmirror resync -source-path svm_name:volume_name`
 +
 [listing]
 ----
 cluster1::> snapmirror resync -source-path vsd:dst
 ----
-. SnapMirror 転送を監視します。「 snapmirror show -expand
+. SnapMirror転送を監視します。 `snapmirror show -expand`
 +
 [listing]
 ----
@@ -76,6 +76,6 @@ vsd:dst__0008 XDP  vss:src__0008  Snapmirrored
 ...
 ----
 +
-各コンスティチュエントの SnapMirror 関係のステータスには、再同期が成功したことを示す「 SnapManager がミラーリングされています」と表示されます。
+各コンスティチュエントのSnapMirror関係のステータスはと表示されます `Snapmirrored` これは、再同期が正常に完了したことを示します。
 
 

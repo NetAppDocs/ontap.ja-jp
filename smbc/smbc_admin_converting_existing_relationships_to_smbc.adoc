@@ -25,46 +25,46 @@ summary: 既存のゼロリカバリポイント保護（ RPO ゼロ）の同期
 .このタスクについて
 * ソースとデスティネーションでクラスタおよび SVM の管理者である必要があります。
 * SnapMirror ポリシーを変更して、ゼロ RPO をゼロ RTO 同期に変換することはできません。
-* セカンダリボリューム上の既存の LUN がマッピングされている場合、「 AutomatedFailover policy を含む「 Snapmirror create 」でエラーがトリガーされます。「 snapmirror create 」コマンドを発行する前に、 LUN がマッピング解除されていることを確認する必要があります。
+* セカンダリボリュームの既存のLUNがマッピングされている場合、 `snapmirror create` AutomatedFailoverポリシーを使用すると、エラーが発生します。を実行する前に、LUNがマッピング解除されていることを確認する必要があります `snapmirror create` コマンドを実行します
 
 
 .手順
 . 既存の関係に対して SnapMirror 更新処理を実行します。
 +
-「デスティネーション」：： > snapmirror update -destination-path vs1_dst ： vol1'
+`destination::>snapmirror update -destination-path vs1_dst:vol1`
 
 . SnapMirror の更新が正常に完了したことを確認します。
 +
-「デスティネーション」：： >snapmirror show ’
+`destination::>snapmirror show`
 
 . RPO ゼロの各同期関係を休止します。
 +
-「デスティネーション」：： > snapmirror quiesce -destination-path vs1_dst ： vol1'
+`destination::>snapmirror quiesce -destination-path vs1_dst:vol1`
 
 +
-「デスティネーション」：： > snapmirror quiesce -destination-path vs1_dst ： vol2
+`destination::>snapmirror quiesce -destination-path vs1_dst:vol2`
 
 . RPO ゼロの同期関係をそれぞれ削除します。
 +
-「デスティネーション」：： > snapmirror delete -destination-path vs1_dst ： vol1'
+`destination::>snapmirror delete -destination-path vs1_dst:vol1`
 
 +
-「デスティネーション」：： > snapmirror delete -destination-path vs1_dst ： vol2
+`destination::>snapmirror delete -destination-path vs1_dst:vol2`
 
 . ソース SnapMirror 関係を解放しますが、共通の Snapshot コピーが保持されます。
 +
-「 source ：： > snapmirror release -relationship-info-only true -destination-path vs1_dst ： vol1'
+`source::>snapmirror release -relationship-info-only true -destination-path vs1_dst:vol1`
 
 +
-「 source ：： > snapmirror release -relationship-info-only true -destination-path vs1_dst ： vol2
+`source::>snapmirror release -relationship-info-only true -destination-path vs1_dst:vol2`
 
 . グループゼロの RTO Synchronous SnapMirror 関係を作成します。
 +
-「デスティネーション」：： > snapmirror create -source-path vs1_src ： /cc/cg_src -destination-path vs1_dst ： /cg_dst -cg-item-mappings vol1 ： @vol1 、 vol2 ： @vol2 -policy AutomatedFailover
+`destination::> snapmirror create -source-path vs1_src:/cg/cg_src -destination-path vs1_dst:/cg/cg_dst -cg-item-mappings vol1:@vol1,vol2:@vol2 -policy AutomatedFailover`
 
 . ゼロ RTO 整合グループを再同期します。
 +
-「デスティネーション」：： > snapmirror resync -destination-path vs1_dst ： /cg /cg_dst
+`destination::> snapmirror resync -destination-path vs1_dst:/cg/cg_dst`
 
 . ホスト LUN の I/O パスを再スキャンして、 LUN へのすべてのパスをリストアします。
 

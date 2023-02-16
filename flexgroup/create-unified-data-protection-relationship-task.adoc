@@ -19,9 +19,9 @@ FlexGroup ボリュームの一元化されたデータ保護関係の作成に�
 link:snapvault-backup-concept.html["FlexGroup ボリュームの SnapVault バックアップ関係および一元化されたデータ保護関係を作成する際の考慮事項について説明します"]
 
 .手順
-. ソース FlexGroup ボリュームと同じ数のコンスティチュエントで構成される「 D 」タイプのデスティネーション FlexGroup ボリュームを作成します。
+. タイプがのデスティネーションFlexGroup ボリュームを作成します `DP` コンスティチュエントの数がソースFlexGroup ボリュームと同じであることを確認します。
 +
-.. ソースクラスタから、ソース FlexGroup ボリュームのコンスティチュエントの数を確認します。 volume show -volume volume_name * -is-constituent true
+.. ソースクラスタから、ソースFlexGroup ボリュームのコンスティチュエントの数を確認します。 `volume show -volume volume_name* -is-constituent true`
 +
 [listing]
 ----
@@ -38,7 +38,7 @@ vss       srcFG__0006    aggr1        online     RW         25TB    10.64TB   57
 vss       srcFG__0007    Aggr_cmode   online     RW         25TB    10.63TB   57%
 ...
 ----
-.. デスティネーションクラスタから、「 D 」タイプのデスティネーション FlexGroup を、ソース FlexGroup ボリュームと同じ数のコンスティチュエントで作成します。
+.. デスティネーションクラスタから、タイプがのデスティネーションFlexGroup ボリュームを作成します `DP` コンスティチュエントの数がソースFlexGroup ボリュームと同じである。
 +
 [listing]
 ----
@@ -48,7 +48,7 @@ Warning: The FlexGroup volume "dstFG" will be created with the following number 
 Do you want to continue? {y|n}: y
 [Job 766] Job succeeded: Successful
 ----
-.. デスティネーションクラスタから、デスティネーション FlexGroup ボリュームのコンスティチュエントの数を確認します。 volume show -volume volume_name * -is-constituent true
+.. デスティネーションクラスタから、デスティネーションFlexGroup ボリュームのコンスティチュエントの数を確認します。 `volume show -volume volume_name* -is-constituent true`
 +
 [listing]
 ----
@@ -67,37 +67,37 @@ vsd       dstFG__0007    Aggr_cmode   online     RW         25TB    10.63TB   57
 ----
 
 
-. ジョブスケジュールを作成します。 'job schedule cron create -name job_name -month -dayofweek day-of-week day-of-month-day day-of-month -hour hour-hour minute'
+. ジョブスケジュールを作成します。 `job schedule cron create -name job_name -month month -dayofweek day_of_week -day day_of_month -hour hour -minute minute`
 +
-「 -month 」、「 -dayofweek 」、「 -hour 」の各オプションに「 all 」を指定すると、毎月、毎日、および 1 時間ごとにジョブを実行できます。
+をクリックします `-month`、 `-dayofweek`および `-hour` オプションを使用して、を指定できます `all` ジョブを毎月、毎日、および毎時間実行します。
 
 +
-次の例は、土曜日の午前 3 時に実行する「 my_weekly 」というジョブスケジュールを作成します。
+次の例は、という名前のジョブスケジュールを作成します `my_weekly` 土曜日の午前3時に実行されます。
 
 +
 [listing]
 ----
 cluster1::> job schedule cron create -name my_weekly -dayofweek "Saturday" -hour 3 -minute 0
 ----
-. 「 mmirror vault 」タイプのカスタムポリシーを作成し、ミラーとバックアップポリシーのルールを定義します。
+. タイプがのカスタムポリシーを作成する `mirror-vault`をクリックし、ミラーとバックアップポリシーのルールを定義します。
 +
-.. 一元化されたデータ保護関係に「 m mirror vault 」タイプのカスタムポリシーを作成します。「 snapmirror policy create -vserver SVM_name -policy policy_name -type mirror vault 」
-.. 初期化と更新の処理中に転送する Snapshot コピーを決定する、ミラーとバックアップポリシーのルールを定義します。「 snapmirror policy add-rule -vserver SVM_name -policy policy_on_rule -snapmirror-label snapmirror-label -keep retention_count -schedule
+.. タイプがのカスタムポリシーを作成する `mirror-vault` 一元化されたデータ保護関係の場合： `snapmirror policy create -vserver svm_name -policy policy_name -type mirror-vault`
+.. 初期化と更新の際にどのSnapshotコピーを転送するかを決定する、ミラーとバックアップポリシーのルールを定義します。 `snapmirror policy add-rule -vserver svm_name -policy policy_for_rule - snapmirror-label snapmirror-label -keep retention_count -schedule schedule`
 
 
 +
-カスタムポリシーを指定しない場合、「 M irrorMasyortso 」ポリシーは統合データ保護関係に使用されます。
+カスタムポリシーを指定しない場合は、が表示されます `MirrorAndVault` ポリシーは一元化されたデータ保護関係に使用されます。
 
-. 一元化されたデータ保護関係を作成します。「 snapmirror create -source-path src_SVM ： src_flexgroup -destination-path dest_SVM ： dest_flexgroup -type XDP -schedule schedule_name -policy MirrorAndVault
+. 一元化されたデータ保護関係を作成します。 `snapmirror create -source-path src_svm:src_flexgroup -destination-path dest_svm:dest_flexgroup -type XDP -schedule schedule_name -policy MirrorAndVault`
 +
-ONTAP 9.4 以前では、「 snapmirror create 」コマンドでポリシーを指定しなかった場合、デフォルトで「 MirrorAllSnapshots 」ポリシーが使用されます。ONTAP 9.5 では、「 snapmirror create 」コマンドでポリシーが指定されていない場合、デフォルトで「 M irroresstons 」ポリシーが使用されます。
+ONTAP 9.4以前では、ポリシーをで指定していない場合 `snapmirror create` コマンドを入力します `MirrorAllSnapshots` ポリシーはデフォルトで使用されます。ONTAP 9.5で、ポリシーがに指定されていない場合 `snapmirror create` コマンドを入力します `MirrorAndVault` ポリシーはデフォルトで使用されます。
 
 +
 [listing]
 ----
 cluster2::> snapmirror create -source-path vss:srcFG -destination-path vsd:dstFG -type XDP -schedule Daily -policy MirrorAndVault
 ----
-. デスティネーションクラスタから、ベースライン転送を実行して一元化されたデータ保護関係を初期化します。「 snapmirror initialize -destination-path dest_SVM ： dest_flexgroup
+. デスティネーションクラスタから、ベースライン転送を実行して一元化されたデータ保護関係を初期化します。 `snapmirror initialize -destination-path dest_svm:dest_flexgroup`
 +
 [listing]
 ----

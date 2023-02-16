@@ -35,23 +35,23 @@ summary: レプリケーション関係を一度に 1 ステップずつ設定�
 .手順
 . セカンダリデスティネーションクラスタで、「 $napvault_secondary 」ポリシーを作成します。
 +
-「 cluster_secondary ：： > snapmirror policy create -policy snapvault_secondary-type vault -comment “ Policy on secondary for vault to vault cascade ” -vserver svm_name 」 -vserver svm_name を選択します
+`cluster_secondary::> snapmirror policy create -policy snapvault_secondary -type vault -comment “Policy on secondary for vault to vault cascade” -vserver svm_secondary`
 
 . セカンダリデスティネーションクラスタで、ポリシーの「 `my-daily 」ルールを定義します。
 +
-「 cluster_secondary ： > snapmirror policy add-rule snapvault_secondary -snapmirror-label my-daily -keep 7 -vserver svm_name 」という名前の SnapMirror ポリシーを追加しました
+`cluster_secondary::> snapmirror policy add-rule -policy snapvault_secondary -snapmirror-label my-daily -keep 7 -vserver svm_secondary`
 
 . セカンダリデスティネーションクラスタで、ポリシーの「 `my-weekly" 」ルールを定義します。
 +
-「 cluster_secondary ： > snapmirror policy add-rule snapvault_secondary -snapmirror-label my-weekly -keep 52 -vserver svm_name 」という名前の SnapMirror ポリシーが追加されました
+`cluster_secondary::> snapmirror policy add-rule -policy snapvault_secondary -snapmirror-label my-weekly -keep 52 -vserver svm_secondary`
 
 . セカンダリデスティネーションクラスタで、ポリシーの「 my-monthly 」ルールを定義します。
 +
-「 cluster_secondary ：： > snapmirror policy add-rule snapvault_secondary-snapmirror-label my-monthly -keep 180 -vserver svm_name 」という名前の SnapMirror ポリシーが追加されました
+`cluster_secondary::> snapmirror policy add-rule -policy snapvault_secondary -snapmirror-label my-monthly -keep 180 -vserver svm_secondary`
 
 . セカンダリデスティネーションクラスタで、ポリシーを検証します。
 +
-'cluster_secondary:>snapmirror policy show snapvault_secondary-instance'
+`cluster_secondary::> snapmirror policy show snapvault_secondary -instance`
 
 +
 [listing]
@@ -77,23 +77,23 @@ summary: レプリケーション関係を一度に 1 ステップずつ設定�
 ----
 . セカンダリデスティネーションクラスタで、ソースクラスタとの関係を作成します。
 +
-'cluster_secondary:>snapmirror create -source-path SVM_primary ： volA -destination-path svm_secondary ： volA -type XDP -schedule my_snapvault_policy snapvault_secondary ’
+`cluster_secondary::> snapmirror create -source-path svm_primary:volA -destination-path svm_secondary:volA -type XDP -schedule my_snapvault -policy snapvault_secondary`
 
 . セカンダリデスティネーションクラスタで、ソースクラスタとの関係を初期化します。
 +
-'cluster_secondary] ： > snapmirror initialize -source-path SVM_primary ： volA -destination-path svm_secondary ： volA
+`cluster_secondary::> snapmirror initialize -source-path svm_primary:volA -destination-path svm_secondary:volA`
 
 . 3 次デスティネーションクラスタで、「 'napvault_tertiary' 」ポリシーを作成します。
 +
-「 cluster_tertiary ：： > snapmirror policy create -policy snapvault_tertiary -type vault -comment “ Policy on tertiary for vault to vault cascade 」 -vserver svm_name -tertiary ’
+`cluster_tertiary::> snapmirror policy create -policy snapvault_tertiary -type vault -comment “Policy on tertiary for vault to vault cascade” -vserver svm_tertiary`
 
 . 3 次デスティネーションクラスタで、ポリシーの「 `my-weekly] 」ルールを定義します。
 +
-「 cluster_tertiary ：： > snapmirror policy add-rule snapvault_tertiary -snapmirror-label my-weekly -keep 250 -vserver svm_name 」という名前の SnapMirror ポリシーを追加しました
+`cluster_tertiary::> snapmirror policy add-rule -policy snapvault_tertiary -snapmirror-label my-weekly -keep 250 -vserver svm_tertiary`
 
 . 3 番目のデスティネーションクラスタで、ポリシーを検証します。
 +
-「 cluster_tertiary ：： > snapmirror policy show snapvault_tertiary -instance 」と入力します
+`cluster_tertiary::> snapmirror policy show snapvault_tertiary -instance`
 
 +
 [listing]
@@ -117,10 +117,10 @@ summary: レプリケーション関係を一度に 1 ステップずつ設定�
 ----
 . 3 番目のデスティネーションクラスタで、セカンダリクラスタとの関係を作成します。
 +
-cluster_tertiary ：： > snapmirror create -source-path SVM_secondary ： volA -destination-path svm_tertiary ： volA -type XDP -schedule my_snapvault -policy snapvault_tertiary ’
+`cluster_tertiary::> snapmirror create -source-path svm_secondary:volA -destination-path svm_tertiary:volA -type XDP -schedule my_snapvault -policy snapvault_tertiary`
 
 . 3 番目のデスティネーションクラスタで、セカンダリクラスタとの関係を初期化します。
 +
-cluster_tertiary ::> snapmirror initialize-ls-set svm_secondary ： volA -destination-path svm_tertiary ： volA
+`cluster_tertiary::> snapmirror initialize -source-path svm_secondary:volA -destination-path svm_tertiary:volA`
 
 

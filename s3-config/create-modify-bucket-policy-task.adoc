@@ -19,11 +19,11 @@ S3 サーバとバケットを含む S3 対応の SVM がすでに存在して�
 権限を付与するには、事前にユーザまたはグループを作成しておく必要があります。
 
 .このタスクについて
-新しいユーザとグループに新しいステートメントを追加したり、既存のステートメントの属性を変更したりできます。その他のオプションについては 'vserver object-store-server バケット policy のマニュアルページを参照してください
+新しいユーザとグループに新しいステートメントを追加したり、既存のステートメントの属性を変更したりできます。その他のオプションについては、を参照してください `vserver object-store-server bucket policy` マニュアルページ
 
 ユーザとグループの権限は、バケットの作成時または必要に応じてあとから付与できます。バケットの容量と QoS ポリシーグループの割り当てを変更することもできます。
 
-ONTAP 9.9.1以降のリリースでは、ONTAP S3サーバでAWSクライアントオブジェクトのタグ付け機能をサポートする場合、バケットまたはグループポリシーを使用して「GetObjectTagging」、「PutObjectTagging」、「DeleteObjectTagging」の各アクションを許可する必要があります。
+ONTAP 9.9.1以降のリリースで、ONTAP S3サーバでAWSクライアントオブジェクトのタグ付け機能をサポートする場合、処理 `GetObjectTagging`、 `PutObjectTagging`および `DeleteObjectTagging` バケットポリシーまたはグループポリシーを使用して許可する必要があります。
 
 実行する手順 は、System ManagerまたはCLIを使用するインターフェイスによって異なります。
 
@@ -52,7 +52,7 @@ ONTAP 9.9.1以降のリリースでは、ONTAP S3サーバでAWSクライアン�
 .手順
 . バケットポリシーにステートメントを追加します。
 +
-「vserver object-store-server bucket policy add-statement-vserver_svm_name_-bucket_bucket_name __ Effect｛allow|deny｝-action _object_store_actions_-principal_user_names _-resource_store_resources_[-sid text][-index integer]」
+`vserver object-store-server bucket policy add-statement -vserver _svm_name_ -bucket _bucket_name_ -effect {allow|deny} -action _object_store_actions_ -principal _user_and_group_names_ -resource _object_store_resources_ [-sid text] [-index integer]`
 
 +
 次のパラメータでアクセス権限を定義します。
@@ -63,40 +63,40 @@ ONTAP 9.9.1以降のリリースでは、ONTAP S3サーバでAWSクライアン�
 
 
  a| 
-「効果」
+`-effect`
  a| 
 この文では ' アクセスを許可または拒否できます
 
 
 
  a| 
-「 -action 」を使用します
+`-action`
  a| 
-「 * 」を指定すると、すべてのアクションを意味することも、「 GetObject 」、「 PutObject 」、「 DeleteObject 」、「 ListBucket 」、「 GetBucketAcl 」、「 GetObjectAcl 」のうちの 1 つ以上のアクションを意味することもできます。 ListBucketMultipartUploads'`ListMultipartUploadPartUploadParts`
+を指定できます `*` すべてのアクション、または次の1つ以上のリストを意味します。 `GetObject, PutObject, DeleteObject, ListBucket, GetBucketAcl,GetObjectAcl, ListBucketMultipartUploads,` および `ListMultipartUploadParts`。
 
 
 
  a| 
-「 -principal 」
+`-principal`
  a| 
 1 つ以上の S3 ユーザまたはグループのリスト。
 
 ** 最大 10 のユーザまたはグループを指定できます。
-** S3 グループを指定する場合は、「 group/group_name . 」の形式で指定する必要があります
-** 「 * 」は、公開アクセスを意味するように指定できます。つまり、 access-key と secret-key を使用せずにアクセスします。
+** S3グループを指定する場合は、という形式で指定する必要があります `group/group_name.`
+** `*` 公開アクセスとはつまり、アクセスキーとシークレットキーを使用せずにアクセスすることを意味するように指定できます。
 ** プリンシパルを指定しない場合、 SVM 内のすべての S3 ユーザにアクセスが許可されます。
 
 
 
 
  a| 
-「 -resource 」と入力します
+`-resource`
  a| 
-バケットとバケットに含まれるすべてのオブジェクト。ワイルドカード文字「 * 」および「 ? 」 リソースを指定するための正規表現を形成するために使用できます。
+バケットとバケットに含まれるすべてのオブジェクト。ワイルドカード文字を使用できます `*` および `?` リソースを指定するための正規表現を形成するために使用できます。
 
 |===
 +
-オプションで '-sid` オプションを使用して ' テキスト文字列をコメントとして指定できます
+オプションで、テキスト文字列をコメントとして指定できます `-sid` オプション
 
 
 

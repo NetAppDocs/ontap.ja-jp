@@ -44,22 +44,29 @@ AKVまたはCloud KMSを使用する際は、デフォルトでデータSVM LIF�
 .Azure
 --
 .ONTAP 用 Azure Key Vault を有効にします
-. 作業を開始する前に、クライアントシークレットまたは証明書のいずれかで、 Azure アカウントから適切な認証クレデンシャルを取得する必要があります。また、クラスタ内のすべてのノードが正常であることを確認する必要があります。これは 'cluster show コマンドで確認できます
-. 特権レベルを advanced に設定します（ set -priv advanced
-. SVM 「 security key-manager external Azure enable -client-id_client_id_ -stenant -id_ttenant_id _ -name -key_id_ -authentication-method ｛ certificate | client-secret ｝ 」で AKV を有効にするか、プロンプトが表示されたら Azure アカウントからクライアント証明書またはクライアントシークレットを入力します。
-. AKVが正しく有効になっていることを確認します。「security key-manager external Azure show vserver_svm_name_`サービスの到達可能性が問題でない場合は、データSVM LIFを介してAKVキー管理サービスへの接続を確立します。
+. 作業を開始する前に、クライアントシークレットまたは証明書のいずれかで、 Azure アカウントから適切な認証クレデンシャルを取得する必要があります。また、クラスタ内のすべてのノードが正常であることを確認する必要があります。これはコマンドで確認できます `cluster show`。
+. 特権レベルをadvancedに設定します
+`set -priv advanced`
+. SVMでAKVを有効にします
+`security key-manager external azure enable -client-id _client_id_ -tenant-id _tenant_id_ -name -key-id _key_id_ -authentication-method {certificate|client-secret}`プロンプトが表示されたら、 Azure アカウントからクライアント証明書またはクライアントシークレットを入力します。
+. AKVが正しく有効になっていることを確認します。
+`security key-manager external azure show vserver _SVM_name_`サービスに到達できない場合は、データSVM LIFを介してAKVキー管理サービスへの接続を確立します。
 
 
 --
 .Google Cloud
 --
 .ONTAP の CLI を使用して Cloud KMS を有効にします
-. 作業を開始する前に、 Google Cloud KMS アカウントキーファイルの秘密鍵を JSON 形式で取得する必要があります。これは GCP アカウントにあります。また、クラスタ内のすべてのノードが正常であることを確認する必要があります。これは 'cluster show コマンドで確認できます
-. 特権レベルを advanced に設定します（ set -priv advanced
-. SVM の「 security key-manager external GCP enable -vserver _data_SVM_name_id_ -project-id_key_ring_id_ -key-ring-name _key_ring_name 」で Cloud KMS を有効にするかどうかを確認するメッセージが表示されたら、 JSON ファイルの内容をプライベートアカウントで入力します
-. Cloud KMSが正しいパラメータで構成されていることを確認します。「security key-manager external GCP show vserver_svm_name_`暗号化されたボリュームが作成されていない場合、「kmsラップされた鍵のステータス」は「不明」になります。サービスへの到達可能性がOKでない場合は、データSVM LIFを介してGCPキー管理サービスへの接続を確立します。
+. 作業を開始する前に、 Google Cloud KMS アカウントキーファイルの秘密鍵を JSON 形式で取得する必要があります。これは GCP アカウントにあります。また、クラスタ内のすべてのノードが正常であることを確認する必要があります。これはコマンドで確認できます `cluster show`。
+. 特権レベルをadvancedに設定します
+`set -priv advanced`
+. SVMでCloud KMSを有効にします
+`security key-manager external gcp enable -vserver _data_svm_name_ -project-id _project_id_-key-ring-name _key_ring_name_ -key-ring-location _key_ring_location_ -key-name _key_name_`プロンプトが表示されたら、サービスアカウントの秘密鍵を使用して JSON ファイルの内容を入力します
+. Cloud KMSが正しいパラメータで設定されていることを確認します。
+`security key-manager external gcp show vserver _SVM_name_`のステータス `kms_wrapped_key_status` になります `“UNKNOWN”` 暗号化されたボリュームが作成されていない場合。サービスへの到達可能性がOKでない場合は、データSVM LIFを介してGCPキー管理サービスへの接続を確立します。
 
 
 --
 ====
-データSVM用にすでに暗号化されたボリュームが1つ以上設定され、管理SVMのオンボードキーマネージャで対応するNVEキーが管理されている場合は、それらのキーを外部キー管理サービスに移行する必要があります。CLIでこの操作を行うには、次のコマンドを実行します。security key-manager key migrate-from -Vserver_admin_svm_name -to-Vserver_data_SVM_`データSVMのNVEキーがすべて移行されるまで、テナントのデータSVM用に新しい暗号化ボリュームを作成することはできません。
+データSVM用にすでに暗号化されたボリュームが1つ以上設定され、管理SVMのオンボードキーマネージャで対応するNVEキーが管理されている場合は、それらのキーを外部キー管理サービスに移行する必要があります。CLIでこの操作を行うには、次のコマンドを実行します。
+`security key-manager key migrate -from-Vserver _admin_SVM_ -to-Vserver _data_SVM_`テナントのデータSVMのすべてのNVEキーが正常に移行されるまで、テナントのデータSVM用に新しい暗号化ボリュームを作成することはできません。

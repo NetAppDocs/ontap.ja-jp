@@ -27,10 +27,10 @@ SnapMirror 関係のタイプを DP から XDP に変換すると、オートサ
 .手順
 . デスティネーションクラスタから、SnapMirror関係のタイプがDPで、ミラーの状態がSnapMirrored、関係のステータスがIdle、関係がhealthyであることを確認します。
 +
-snapmirror show -destination-path SVM：volume_|| cluster：//SVM/volume_`
+`snapmirror show -destination-path _SVM:volume_|_cluster://SVM/volume_`
 
 +
-次に'snapmirror showコマンドの出力例を示します
+次の例は、からの出力を示しています `snapmirror show` コマンドを実行します
 
 +
 [listing]
@@ -58,15 +58,15 @@ Healthy: true
 +
 [NOTE]
 ====
-snapmirror showコマンドの出力のコピーを保持して'関係設定の既存の状態を追跡すると便利な場合があります
+のコピーを保持しておくと便利です `snapmirror show` 関係の既存の設定を追跡するためのコマンド出力。
 
 ====
 . ソースボリュームとデスティネーションボリュームから、両方のボリュームで共通のSnapshotコピーを作成します。
 +
-volume snapshot show -vserver _svm_-volume_`
+`volume snapshot show -vserver _SVM_ -volume _volume_`
 
 +
-次に'ソース・ボリュームとデスティネーション・ボリュームのvolume snapshot showの出力例を示します
+次の例は、を示しています `volume snapshot show` ソースボリュームとデスティネーションボリュームの出力：
 
 +
 [listing]
@@ -110,7 +110,7 @@ snapmirror.10af643c-32d1-11e3-954b-123478563412_2147484682.2014-06-27_100026
 ----
 . 変換中にスケジュールされた更新が実行されないようにするには、既存のDPタイプの関係を休止します。
 +
-「 snapmirror quiesce - source_path_SVM ： volume_|_cluster ： //SVM/volume_、 ……」 -destination-path SVM ： volume_cluster_,...`
+`snapmirror quiesce -source-path _SVM:volume_|_cluster://SVM/volume_, ... -destination-path _SVM:volume_|_cluster://SVM/volume_, ...`
 
 +
 コマンド構文全体については、マニュアルページを参照してください。
@@ -122,7 +122,7 @@ snapmirror.10af643c-32d1-11e3-954b-123478563412_2147484682.2014-06-27_100026
 
 ====
 +
-次の例では 'vm1 のソースボリューム volA' と 'vm_backup' のデスティネーションボリューム volA_dst の間の関係を休止します
+次の例は、ソースボリューム間の関係を休止します `volA` オン `svm1` デスティネーションボリュームを指定します `volA_dst` オン `svm_backup`：
 
 +
 [listing]
@@ -131,7 +131,7 @@ cluster_dst::> snapmirror quiesce -destination-path svm_backup:volA_dst
 ----
 . 既存の DP タイプの関係を解除します。
 +
-snapmirror break -destination-path SVM：volume_|_cluster：//SVM/volume_,..."
+`snapmirror break -destination-path _SVM:volume_|_cluster://SVM/volume_, ...`
 
 +
 コマンド構文全体については、マニュアルページを参照してください。
@@ -143,7 +143,7 @@ snapmirror break -destination-path SVM：volume_|_cluster：//SVM/volume_,..."
 
 ====
 +
-次の例では 'vm1 のソースボリューム volA' と 'vm_backup' のデスティネーションボリューム volA_dst の間の関係を解除します
+次の例は、ソースボリューム間の関係を解除します `volA` オン `svm1` デスティネーションボリュームを指定します `volA_dst` オン `svm_backup`：
 
 +
 [listing]
@@ -152,10 +152,10 @@ cluster_dst::> snapmirror break -destination-path svm_backup:volA_dst
 ----
 . デスティネーションボリュームでSnapshotコピーの自動削除が有効になっている場合は無効にします。
 +
-volume snapshot autodelete modify -vserver_svm_-volume _-enabled false
+`volume snapshot autodelete modify -vserver _SVM_ -volume _volume_ -enabled false`
 
 +
-次の例は、デスティネーションボリューム volA_dst で Snapshot コピーの自動削除を無効にします。
+次の例は、デスティネーションボリュームでSnapshotコピーの自動削除を無効にします `volA_dst`：
 
 +
 [listing]
@@ -164,7 +164,7 @@ cluster_dst::> volume snapshot autodelete modify -vserver svm_backup -volume vol
 ----
 . 既存の DP タイプの関係を削除します。
 +
-snapmirror delete -destination-path SVM：volume_|_cluster：//SVM/volume_,..."
+`snapmirror delete -destination-path _SVM:volume_|_cluster://SVM/volume_, ...`
 
 +
 コマンド構文全体については、マニュアルページを参照してください。
@@ -176,16 +176,16 @@ snapmirror delete -destination-path SVM：volume_|_cluster：//SVM/volume_,..."
 
 ====
 +
-次の例は 'vm1 のソースボリューム volA' と 'vm_backup' のデスティネーションボリューム volA_dst の間の関係を削除します
+次の例は、ソースボリューム間の関係を削除します `volA` オン `svm1` デスティネーションボリュームを指定します `volA_dst` オン `svm_backup`：
 
 +
 [listing]
 ----
 cluster_dst::> snapmirror delete -destination-path svm_backup:volA_dst
 ----
-. snapmirror showコマンドで保持した出力を使用して、新しいXDPタイプの関係を作成できます。
+. から保存した出力を使用できます `snapmirror show` 新しいXDPタイプの関係を作成するコマンドは次のとおりです。
 +
-「 Snapmirror create -source-path SVM ： volume_|| クラスタ： //SVM/volume_、 ... 」 -destination-path SVM ： volume_|_cluster ： // SVM/volume_,... -type XDP -schedule --policy_policy_policy_`
+`snapmirror create -source-path _SVM:volume_|_cluster://SVM/volume_, ... -destination-path _SVM:volume_|_cluster://SVM/volume_, ... -type XDP -schedule _schedule_ -policy _policy_`
 
 +
 新しい関係では、同じソースボリュームとデスティネーションボリュームを使用する必要があります。コマンド構文全体については、マニュアルページを参照してください。
@@ -197,7 +197,7 @@ cluster_dst::> snapmirror delete -destination-path svm_backup:volA_dst
 
 ====
 +
-次の例は、デフォルトの「 irrorAllSnapshots 」ポリシーを使用して、「 vm1 」上のソースボリューム「 volA' 」と「 vm_backup 」上のデスティネーションボリューム「 volA_dst 」との間に SnapMirror DR 関係を作成します。
+次の例は、ソースボリューム間にSnapMirror DR関係を作成します `volA` オン `svm1` デスティネーションボリュームを指定します `volA_dst` オン `svm_backup` デフォルトを使用する `MirrorAllSnapshots` ポリシー：
 
 +
 [listing]
@@ -207,7 +207,7 @@ cluster_dst::> snapmirror create -source-path svm1:volA -destination-path svm_ba
 ----
 . ソースボリュームとデスティネーションボリュームを再同期します。
 +
-「 snapmirror resync -source-path_SVM ： volume_|| 」： // SVM /volume_,... -destination-path SVM ： volume_cluster_,...`
+`snapmirror resync -source-path _SVM:volume_|_cluster://SVM/volume_, ... -destination-path _SVM:volume_|_cluster://SVM/volume_, ...`
 
 +
 再同期時間を短縮するには、を使用します `-quick-resync` オプションですが、Storage Efficiencyによる削減効果は失われる可能性がある点に注意してください。コマンド構文全体については、マニュアルページを参照してください。 link:https://docs.netapp.com/us-en/ontap-cli-9121/snapmirror-resync.html#parameters.html["snapmirror resyncコマンドの実行"]。
@@ -219,7 +219,7 @@ cluster_dst::> snapmirror create -source-path svm1:volA -destination-path svm_ba
 
 ====
 +
-次の例は 'vm1 のソースボリューム volA' と 'vm_backup' のデスティネーションボリューム volA_dst の間の関係を再同期します
+次の例は、ソースボリューム間の関係を再同期します `volA` オン `svm1` デスティネーションボリュームを指定します `volA_dst` オン `svm_backup`：
 
 +
 [listing]
@@ -228,11 +228,11 @@ cluster_dst::> snapmirror resync -source-path svm1:volA -destination-path svm_ba
 ----
 . Snapshotコピーの自動削除を無効にした場合は、再度有効にします。
 +
-volume snapshot autodelete modify -vserver_svm_-volume _-enabled true
+`volume snapshot autodelete modify -vserver _SVM_ -volume _volume_ -enabled true`
 
 
 
 .完了後
-. 「 snapmirror show 」コマンドを使用して、 SnapMirror 関係が作成されたことを確認します。コマンド構文全体については、マニュアルページを参照してください。
-. SnapMirror XDPデスティネーションボリュームが、SnapMirrorポリシーで定義されたSnapshotコピーの更新を開始したら、ソースクラスタから「snapmirror list-destinations」コマンドの出力を使用して、新しいSnapMirror XDP関係を表示できます。
+. を使用します `snapmirror show` SnapMirror関係が作成されたことを確認するコマンド。コマンド構文全体については、マニュアルページを参照してください。
+. SnapMirror XDPデスティネーションボリュームが、SnapMirrorポリシーの定義に従ってSnapshotコピーの更新を開始したら、の出力を使用できます `snapmirror list-destinations` ソースクラスタからコマンドを実行し、新しいSnapMirror XDP関係を表示します。
 

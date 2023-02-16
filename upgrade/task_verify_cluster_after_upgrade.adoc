@@ -27,11 +27,11 @@ NOTE: MetroCluster FC 構成を使用している場合は、クラスタで自�
 
 . クラスタのバージョンがターゲットの ONTAP リリースになっていることを確認します。
 +
-「バージョン」
+`version`
 
 . クラスタのバージョンがターゲットの ONTAP リリースになっていない場合は、すべてのノードのアップグレードステータスを確認します。
 +
-system node upgrade-revert show
+`system node upgrade-revert show`
 
 
 
@@ -43,7 +43,7 @@ system node upgrade-revert show
 
 . クラスタ内のノードがオンラインで、クラスタに追加するための条件を満たしていることを確認します。
 +
-「 cluster show 」を参照してください
+`cluster show`
 
 +
 [listing]
@@ -59,7 +59,7 @@ node1                 true    true
 
 . 権限レベルを advanced に設定します。
 +
-「 advanced 」の権限が必要です
+`set -privilege advanced`
 
 +
 続行するには、「 y 」と入力します。
@@ -81,28 +81,28 @@ node1                 true    true
  a| 
 管理アプリケーション
  a| 
-cluster ring show -unitname mgmt
+`cluster ring show -unitname mgmt`
 
 
 
  a| 
 ボリュームロケーションデータベース
  a| 
-cluster ring show -unitname vldb
+`cluster ring show -unitname vldb`
 
 
 
  a| 
 仮想インターフェイスマネージャ
  a| 
-cluster ring show -unitname vifmgr
+`cluster ring show -unitname vifmgr`
 
 
 
  a| 
 SAN 管理デーモン
  a| 
-cluster ring show -unitname bcomd
+`cluster ring show -unitname bcomd`
 
 |===
 +
@@ -122,7 +122,7 @@ node2     vldb     154      154      14847    node0     secondary
 node3     vldb     154      154      14847    node0     secondary
 4 entries were displayed.
 ----
-. SAN環境を使用している場合は、各ノードがSANクォーラムにあることを確認します。「event log show -severity informational-message-name scsiblade.*」
+. SAN 環境を使用している場合は、各ノードが SAN クォーラムにあることを確認します。 `event log show  -severity informational -message-name scsiblade.*`
 +
 各ノードの最新の scsiblade イベントメッセージに、 SCSI ブレードがクォーラムにあることが示されます。
 
@@ -153,7 +153,7 @@ NOTE: この手順 は、 MetroCluster FC 構成に対してのみ実行され�
 .手順
 . 自動計画外スイッチオーバーが有効かどうかを確認します。
 +
-「 MetroCluster show 」
+`metrocluster show`
 
 +
 自動計画外スイッチオーバーが有効な場合、コマンド出力に次のステートメントが表示されます。
@@ -165,7 +165,7 @@ AUSO Failure Domain  auso-on-cluster-disaster
 ----
 . ステートメントが表示されない場合は、自動計画外スイッチオーバーを有効にします。
 +
-MetroCluster modify-auto-switchover-failure-domain auso-on-cluster-disaster
+`metrocluster modify -auto-switchover-failure-domain auso-on-cluster-disaster`
 
 . 手順 1 を繰り返して、自動計画外スイッチオーバーが有効になっていることを確認します。
 
@@ -189,7 +189,7 @@ MetroCluster modify-auto-switchover-failure-domain auso-on-cluster-disaster
  a| 
 .. 破損ディスクを表示します。
 +
-「 storage disk show -state broken 」のように表示されます
+`storage disk show -state broken`
 
 .. 破損ディスクを取り外すか交換します。
 
@@ -201,7 +201,7 @@ MetroCluster modify-auto-switchover-failure-domain auso-on-cluster-disaster
  a| 
 .. 保守、保留、または再構築の状態のディスクを表示します。
 +
-storage disk show -state maintenance|pending|reconstruct`
+`storage disk show -state maintenance|pending|reconstructing`
 
 .. メンテナンスまたは再構築の処理が完了するまで待ってから次に進みます。
 
@@ -209,7 +209,7 @@ storage disk show -state maintenance|pending|reconstruct`
 |===
 . ストレージアグリゲートを含む物理ストレージと論理ストレージの状態を表示して、すべてのアグリゲートがオンラインであることを確認します。
 +
-「 storage aggregate show-state ！ online 」と入力します
+`storage aggregate show -state !online`
 
 +
 このコマンドを実行すると、オンラインでないアグリゲートが表示されます。メジャーアップグレードまたはリバートの実行前と実行後には、すべてのアグリゲートがオンラインになっている必要があります。
@@ -222,7 +222,7 @@ There are no entries matching your query.
 ----
 . 次のコマンドを実行して、すべてのボリュームがオンラインであることを確認します。 _not_online
 +
-volume show -state ！ online
+`volume show -state !online`
 
 +
 メジャーアップグレードまたはリバートの実行前と実行後には、すべてのボリュームがオンラインになっている必要があります。
@@ -235,7 +235,7 @@ There are no entries matching your query.
 ----
 . 整合性のないボリュームがないことを確認します。
 +
-volume show -is-inconsistent true
+`volume show -is-inconsistent true`
 
 +
 サポート技術情報の記事を参照してください link:https://kb.netapp.com/Advice_and_Troubleshooting/Data_Storage_Software/ONTAP_OS/Volume_Showing_WAFL_Inconsistent["「WAFL inconsistent」を示すボリューム"] を参照してください。

@@ -47,13 +47,13 @@ SLMのレポートノードリストからノードとそのHAパートナーを
 
 ノードを削除中であることをネットアップテクニカルサポートに通知する AutoSupport メッセージを問題 で送信することを推奨します。
 
-* 注：自動 ONTAP アップグレードの実行中は 'cluster remove-node' 'cluster unjoin ' および 'node rename などの操作を実行しないでください
+*注：*などの操作は実行できません `cluster remove-node`、 `cluster unjoin`および `node rename` ONTAP の自動アップグレードが進行中の場合。
 
 .このタスクについて
 バージョンが混在したクラスタを実行している場合は、 ONTAP 9.3 以降の advanced 権限のコマンドのいずれかを使用して、バージョンが低い最後のノードを削除できます。
 
-* ONTAP 9.3: cluster unjoin -skip-last-low-version-node-check
-* ONTAP 9.4 以降： cluster remove-node-skip-last-low-version-node-check
+* ONTAP 9.3： `cluster unjoin -skip-last-low-version-node-check`
+* ONTAP 9.4以降： `cluster remove-node -skip-last-low-version-node-check`
 
 
 *注：*ノードをクラスタから削除する前に、ノードに接続されたすべてのディスクのすべてのシステムデータとユーザデータにアクセスできないようにする必要があります。ノードが誤ってクラスタから参加解除された場合は、ネットアップサポートにリカバリのオプションを問い合わせてください。
@@ -61,14 +61,14 @@ SLMのレポートノードリストからノードとそのHAパートナーを
 .手順
 . 権限レベルを advanced に変更します。
 +
-「 * set -privilege advanced * 」のように指定します
+`*set -privilege advanced*`
 
-. 削除するノードが現在のマスターノードである場合は、マスターノードのクラスタ資格を「 false 」に変更して、クラスタ内の別のノードでマスターノードとして選出できるようにします。
+. 削除するノードが現在のマスターノードである場合は、マスターノードのクラスタ参加資格をに変更して、クラスタ内の別のノードでマスターノードとして選出できるようにします `false`：
 +
-*cluster modify – eligibility false *
+`*cluster modify –eligibility false*`
 
 +
-マスターノードとは、「 `m GMT` 」、「 vldb 」、「 vifmgr 」、「 bcomd 」、「 crs 」などのプロセスを保持するノードです。advanced 権限レベルの cluster ring show コマンドを使用すると、現在のマスターノードが表示されます。
+マスターノードとは、「 `m GMT` 」、「 vldb 」、「 vifmgr 」、「 bcomd 」、「 crs 」などのプロセスを保持するノードです。。 `cluster ring show` advancedコマンドを使用すると、現在のマスターノードが表示されます。
 
 +
 [listing]
@@ -85,18 +85,18 @@ cluster::*> cluster modify -node node1 -eligibility false
  a| 
 ONTAP 9.3
  a| 
-'*cluster unjoin *
+`*cluster unjoin*`
 
 
 
  a| 
 ONTAP 9.4 以降
  a| 
-*cluster remove-node *
+`*cluster remove-node*`
 
 |===
 +
-バージョンが混在したクラスタで ' バージョンが古いノードを削除する場合は ' これらのコマンドで '-skip-last-low-version-node-check パラメータを使用します
+バージョンが混在したクラスタで最新のバージョンが古いノードを削除する場合は、を使用します `-skip-last-low-version-node-check` これらのコマンドでパラメータを指定します。
 
 +
 次の内容が表示されます。
@@ -112,7 +112,7 @@ ONTAP 9.4 以降
 
 
 
-. エラー・メッセージにエラー状態が示された場合は ' その状態に対処し 'cluster remove-node' または cluster unjoin コマンドを再実行します
+. エラーメッセージにエラー状態が示された場合は、その状態に対処し、を再実行します `cluster remove-node` または `cluster unjoin` コマンドを実行します
 +
 ノードは、クラスタから正常に削除されると自動的にリブートされます。
 
@@ -124,7 +124,7 @@ ONTAP 9.4 以降
 
 . admin 権限レベルに戻ります。
 +
-'*set -privilege admin*
+`*set -privilege admin*`
 
 . クラスタからフェイルオーバーパートナーを削除するには、前述の手順を繰り返します。
 

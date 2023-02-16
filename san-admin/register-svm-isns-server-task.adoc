@@ -11,36 +11,36 @@ summary: iSNS サーバに登録するように Storage Virtual Machine （ SVM 
 
 
 [role="lead"]
-iSNS サーバに登録するように Storage Virtual Machine （ SVM ）を設定するには、「 vserver iscsi isns 」コマンドを使用します。
+を使用できます `vserver iscsi isns` iSNSサーバに登録するようにStorage Virtual Machine（SVM）を設定するコマンド。
 
 .このタスクについて
-vserver iscsi isns create コマンドは、 SVM を iSNS サーバに登録します。SVM には、 iSNS サーバの設定や管理を行うコマンドはありません。iSNS サーバを管理するには、 iSNS サーバのベンダーが提供するサーバ管理ツールまたはインターフェイスを使用します。
+。 `vserver iscsi isns create` コマンドは、SVMをiSNSサーバに登録します。SVM には、 iSNS サーバの設定や管理を行うコマンドはありません。iSNS サーバを管理するには、 iSNS サーバのベンダーが提供するサーバ管理ツールまたはインターフェイスを使用します。
 
 .手順
 . iSNS サーバで、 iSNS サービスが開始しており、サービスを提供可能な状態であることを確認します。
 . データポートに SVM 管理 LIF を作成します。
 +
-「 network interface create -vserver _svm_name _ -lif lif_name _ -role data -data-protocol none -home-node _home_node_name _ -home-port home_port_IP_address _-netmask network_mask_ 」のようになります
+`network interface create -vserver _SVM_name_ -lif _lif_name_ -role data -data-protocol none -home-node _home_node_name_ -home-port _home_port_ -address _IP_address_ -netmask _network_mask_`
 
 . SVM に iSCSI サービスがない場合は作成します。
 +
-「 vserver iscsi create -vserver_svm_name_` 」のように指定します
+`vserver iscsi create -vserver _SVM_name_`
 
 . iSCSI サービスが正常に作成されたことを確認します。
 +
-iscsi show -vserver_svm_name_`
+`iscsi show -vserver _SVM_name_`
 
 . SVM のデフォルトルートが存在していることを確認します。
 +
-「 network route show -vserver _svm_name 」をクリックします
+`network route show -vserver _SVM_name_`
 
 . SVM のデフォルトルートが存在しない場合は、デフォルトルートを作成します。
 +
-「 network route create -vserver _svm_name 」 -destination_destination_-gateway_`
+`network route create -vserver _SVM_name_ -destination _destination_ -gateway _gateway_`
 
 . iSNS サービスに登録するように SVM を設定します。
 +
-vserver iscsi isns create -vserver _svm_name -address_ip_address _`
+`vserver iscsi isns create -vserver _SVM_name_ -address _IP_address_`
 
 +
 IPv4 アドレスファミリーと IPv6 アドレスファミリーの両方がサポートされています。iSNS サーバのアドレスファミリーは、 SVM 管理 LIF のアドレスファミリーと同じである必要があります。
@@ -50,10 +50,10 @@ IPv4 アドレスファミリーと IPv6 アドレスファミリーの両方が
 
 . iSNS サービスが実行されていることを確認します。
 +
-vserver iscsi isns show -vserver_svm_name_`
+`vserver iscsi isns show -vserver _SVM_name_`
 
 . iSNS サービスが実行されていない場合は、 iSNS サービスを開始します。
 +
-「 vserver iscsi isns start -vserver _svm_name _ 」という名前になります
+`vserver iscsi isns start -vserver _SVM_name_`
 
 

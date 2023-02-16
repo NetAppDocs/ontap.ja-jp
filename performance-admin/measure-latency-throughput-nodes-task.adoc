@@ -11,7 +11,7 @@ summary: network test-path コマンドを使用して、ネットワークの�
 
 
 [role="lead"]
-network test-path コマンドを使用して ' ネットワークのボトルネックを特定したり ' ノード間のネットワーク・パスを事前に確認したりできますこのコマンドは、クラスタ間のノード間でもクラスタ内のノード間でも実行できます。
+を使用できます `network test-path` コマンドを使用して、ネットワークのボトルネックを特定したり、ノード間のネットワークパスのパフォーマンスを事前に確認したりできます。このコマンドは、クラスタ間のノード間でもクラスタ内のノード間でも実行できます。
 
 .必要なもの
 * このタスクを実行するには、クラスタ管理者である必要があります。
@@ -22,14 +22,14 @@ network test-path コマンドを使用して ' ネットワークのボトル�
 .このタスクについて
 ノード間のネットワークパフォーマンスが、パス構成に対して期待される値にならない場合があります。たとえば、ソースクラスタとデスティネーションクラスタの間のリンクが 10GbE の場合でも、 SnapMirror レプリケーション処理による大量のデータ転送では 1Gbps の伝送速度が観察されることがあります。
 
-ノード間のスループットと遅延を測定するには 'network test-path コマンドを使用しますこのコマンドは、クラスタ間のノード間でもクラスタ内のノード間でも実行できます。
+を使用できます `network test-path` ノード間のスループットとレイテンシを測定するコマンド。このコマンドは、クラスタ間のノード間でもクラスタ内のノード間でも実行できます。
 
 [NOTE]
 ====
 このテストはネットワークパスが一杯になるまでデータを投入するため、システムがビジーでなく、ノード間のネットワークトラフィックが集中していないときに実行してください。テストは 10 秒後にタイムアウトします。このコマンドは、 ONTAP 9 のノード間でのみ実行できます。
 
 ====
-「 session-type 」オプションは、ネットワークパスで実行する処理を指定します。たとえば、リモートデスティネーションへの SnapMirror レプリケーションに「 AsyncMirrorRemote 」と指定します。タイプによって、テストで使用されるデータの量が決まります。次の表に、セッションタイプを示します。
+。 `session-type` オプションは、ネットワークパス経由で実行する処理のタイプを指定します。たとえば、リモートデスティネーションへのSnapMirrorレプリケーションには「AsyncMirrorRemote」と指定します。タイプによって、テストで使用されるデータの量が決まります。次の表に、セッションタイプを示します。
 
 |===
 
@@ -60,17 +60,17 @@ ONTAP が同じクラスタ内のノード間のリモートデータアクセ�
 .手順
 . advanced 権限レベルに切り替えます。
 +
-「 advanced 」の権限が必要です
+`set -privilege advanced`
 
 . ノード間のスループットとレイテンシを測定します。
 +
-「 network test-path -source-path -source-path -source -node _source_nodename 」 | local-destination cluster_destination_clustername -- destination -node _destination_nodename __ -session-type default | AsyncMirrorLocal | AsyncMirrorRemote | SyncMirrorRemote | RemoteDataTransfer 」
+`network test-path -source-node _source_nodename_ |local -destination-cluster _destination_clustername_ -destination-node _destination_nodename_ -session-type Default|AsyncMirrorLocal|AsyncMirrorRemote|SyncMirrorRemote|RemoteDataTransfer`
 
 +
-ソースノードはローカルクラスタにある必要があります。デスティネーションノードはローカルクラスタまたはピアクラスタに含めることができます。「 -source-node 」の値として、コマンドを実行するノードを指定します。
+ソースノードはローカルクラスタにある必要があります。デスティネーションノードはローカルクラスタまたはピアクラスタに含めることができます。の値は「local」です `-source-node` コマンドを実行しているノードを指定します。
 
 +
-次のコマンドは ' ローカル・クラスタ上の node1 と cluster2 上の node3 との間で SnapMirror タイプのレプリケーション・オペレーションのスループットと遅延を測定します
+次のコマンドは、間のSnapMirrorタイプのレプリケーション処理のスループットとレイテンシを測定します `node1` ローカルクラスタおよびで実行します `node3` オン `cluster2`：
 
 +
 [listing]
@@ -87,7 +87,7 @@ Max latency in ms:  3056.86
 ----
 . admin 権限に戻ります。
 +
-「特権管理者」
+`set -privilege admin`
 
 
 

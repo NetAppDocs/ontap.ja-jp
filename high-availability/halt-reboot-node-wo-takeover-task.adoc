@@ -17,12 +17,12 @@ summary: ノードまたはシェルフで特定のハードウェアのメン�
 ノードまたはシェルフで特定のハードウェアのメンテナンスを実施し、パートナーノードを稼働させて停止時間を制限する場合は、テイクオーバーを開始せずに、2ノードクラスタ内のノードを停止またはリブートします。 また、手動テイクオーバーを実行できない問題がある場合に、パートナーノードのアグリゲートを稼働させてデータを提供したいときも、また、テクニカルサポートから問題のトラブルシューティングを依頼された場合は、その一環としてこの手順 を実行しなければならないことがあります。
 
 .このタスクについて
-* テイクオーバーを抑制する前に（inhibit-takeover trueパラメータを使用）、クラスタHAを無効にします。
+* テイクオーバーを抑制する前に（を使用します `-inhibit-takeover true` パラメータ）を指定した場合はクラスタHAを無効にします。
 
 
 [CAUTION]
 ====
-* クラスタHAは、2ノードクラスタの一方のノードで障害が発生してもクラスタが無効にならないようにする機能です。ただし、--inhibit-takeover trueパラメータを使用する前にクラスタHAを無効にしないと、両方のノードでデータ処理が停止します。
+* クラスタHAは、2ノードクラスタの一方のノードで障害が発生してもクラスタが無効にならないようにする機能です。ただし、を使用する前にクラスタHAを無効にしていない場合は  `-inhibit-takeover true` パラメータを指定すると、両方のノードでデータの提供が停止します
 * クラスタHAを無効にする前にノードを停止またはリブートしようとすると、ONTAP から警告が表示され、クラスタHAを無効にするように指示されます。
 
 
@@ -32,9 +32,10 @@ summary: ノードまたはシェルフで特定のハードウェアのメン�
 
 
 .手順
-. 両方のノードが正常であることを確認します:cluster show
+. 両方のノードが正常であることを確認します。
+`cluster show`
 +
-両方のノードについて'Health'カラムに'true'が表示されます
+両方のノードで、 `true` が表示されます `Health` 列（Column）：
 
 +
 [listing]
@@ -45,10 +46,12 @@ Node         Health  Eligibility
 node1        true     true
 node2        true     true
 ----
-. 停止またはリブートするノードから、すべてのLIFをパートナーノードに移行します。「network interface migrate-all -node _node_name _`
+. 停止またはリブートするノードからすべてのLIFをパートナーノードに移行します。
+`network interface migrate-all -node _node_name_`
 . ノードで停止またはリブートするノードが停止したときにオンラインのままにするアグリゲートがある場合は、そのアグリゲートをパートナーノードに再配置します。それ以外の場合は、次の手順に進みます。
 +
-.. 停止またはリブートするノード上のアグリゲートを表示します。storage aggregates show -node _node_name _`
+.. 停止またはリブートするノード上のアグリゲートを表示します。
+`storage aggregates show -node _node_name_`
 +
 たとえば、node1は停止またはリブートするノードです。
 
@@ -70,18 +73,20 @@ test2_aggr  2.18TB    2.18TB    0% online       7 node1    raid_dp,
                                                                 normal
 4 entries were displayed.
 ----
-.. アグリゲートをパートナーノードに移動します。storage aggregate relocation start -node_name -destination_node_name __ aggregate-aggregate-list_aggregate_aggregate-name _`
+.. アグリゲートをパートナーノードに移動します。
+`storage aggregate relocation start -node _node_name_ -destination _node_name_ -aggregate-list _aggregate_name_`
 +
 たとえば、アグリゲートaggr1、aggr2、test2_aggrは、node1からnode2に移動されます。
 
 +
-storage aggregate relocation start -node_node1_-destination_node2 _-aggregate-list_aggr1_cluster1_01、_aggr2、_test2_aggr_`
+`storage aggregate relocation start -node _node1_ -destination _node2_ -aggregate-list _aggr1_,_aggr2_,_test2_aggr_`
 
 
 
-. クラスタHA: cluster ha modify -configured falseを無効にします
+. クラスタHAを無効にします。
+`cluster ha modify -configured false`
 +
-リターン出力はHAが無効であることを確認します:'Notice:haは無効です
+HAが無効になっていることを示す戻り出力が表示されます `Notice: HA is disabled`
 
 +
 
@@ -89,42 +94,50 @@ NOTE: この処理ではストレージフェイルオーバーは無効にな�
 
 . 該当するコマンドを使用して、ターゲットノードを停止またはリブートしてテイクオーバーを抑制します。
 +
-** 'system node halt -node node_name --inhibit-takeover true
-** 'system node reboot -node node_name --inhibit-takeover true
+** `system node halt -node _node_name_ -inhibit-takeover true`
+** `system node reboot -node _node_name_ -inhibit-takeover true`
 +
 
-NOTE: コマンド出力には、処理を続行するかどうかを確認する警告が表示されます。「y」と入力します。
+NOTE: コマンド出力に、処理を続行するかどうかを確認する警告が表示されます。を入力します `y`。
 
 
 
-. オンラインのままのノードが正常な状態であることを確認します(パートナーがダウンしている間): cluster show
+. オンラインのままのノードが正常な状態であることを確認します（パートナーが停止している間）。
+`cluster show`
 +
-オンライン・ノードの場合は'Health'カラムに'true'が表示されます
+オンラインのノードの場合は、 `true` が表示されます `Health` 列（Column）：
 
 +
 
 NOTE: コマンドの出力に、クラスタHAが構成されていないことを示す警告が表示されます。この警告は無視してかまいません。
 
 . ノードの停止またはリブートに必要な操作を実行します。
-. LOADERプロンプトからオフラインノードをブートします：「boot_ontap」
-. 両方のノードが正常であることを確認します:cluster show
+. LOADERプロンプトからオフラインノードをブートします。
+`boot_ontap`
+. 両方のノードが正常であることを確認します。
+`cluster show`
 +
-両方のノードについて'Health'カラムに'true'が表示されます
+両方のノードで、 `true` が表示されます `Health` 列（Column）：
 
 +
 
 NOTE: コマンドの出力に、クラスタHAが構成されていないことを示す警告が表示されます。この警告は無視してかまいません。
 
-. クラスタHAを再度イネーブルにします。「cluster ha modify -configured true」
-. この手順 で以前にアグリゲートをパートナーノードに再配置した場合は、それらのアグリゲートをホームノードに戻します。それ以外の場合は、次の手順に進みます。storage aggregate relocation start -node_name -destination_node_name _destination-node_name Aggregate -list_aggregate-name _`
+. クラスタHAを再度有効にします。
+`cluster ha modify -configured true`
+. この手順 で前の手順でアグリゲートをパートナーノードに再配置した場合は、元のホームノードに戻します。それ以外の場合は、次の手順に進みます。
+`storage aggregate relocation start -node _node_name_ -destination _node_name_ -aggregate-list _aggregate_name_`
 +
-たとえば、アグリゲートaggr1、aggr2、test2_aggrがノードnode2からノードnode1に移動されています。「storage aggregate relocation start -node_node2 _destination_node1 _aggregate-aggregate-list_aggr1、_aggr2、_test2_aggr_`
+たとえば、アグリゲートaggr1、aggr2、およびtest2_aggrがノードnode2からノードnode1に移動されているとします。
+`storage aggregate relocation start -node _node2_ -destination _node1_ -aggregate-list _aggr1_,_aggr2_,_test2_aggr_`
 
 . LIFをそれぞれのホームポートにリバートします。
 +
-.. ホームにないLIFを表示します。「network interface show -is-home false」
+.. ホームにないLIFを表示します。
+`network interface show -is-home false`
 .. 停止しているノードから移行されなかったホーム以外のLIFがある場合は、リバート前に移動しても安全であることを確認してください。
-.. 安全な場合は、すべてのLIFをホームに戻します。「 network interface revert * 」の略
+.. 安全な場合は、すべてのLIFをホームに戻します。
+`network interface revert *`
 
 
 

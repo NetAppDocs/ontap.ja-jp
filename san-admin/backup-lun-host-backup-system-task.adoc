@@ -21,21 +21,21 @@ summary: ホストバックアップシステムのソースデータとして�
 +
 ホストオペレーティングシステムのコマンドを使用するか、 SnapDrive for Windows または SnapDrive for UNIX を使用できます。この手順を SAN バックアップのプリプロセススクリプトに含めることもできます。
 
-. volume snapshot create コマンドを使用して ' 本番 LUN の Snapshot コピーを作成します
+. を使用します `volume snapshot create` コマンドを使用して、本番用LUNのSnapshotコピーを作成します。
 +
-volume snapshot create -vserver vs0 -volume vol3 -snapshot vol3_snapshot-comment "Single snapshot" -foreground false
+`volume snapshot create -vserver vs0 -volume vol3 -snapshot vol3_snapshot -comment "Single snapshot" -foreground false`
 
-. volume file clone create コマンドを使用して ' 本番 LUN のクローンを作成します
+. を使用します `volume file clone create` コマンドを使用して、本番用LUNのクローンを作成します。
 +
-volume file clone create -vserver vs3 -volume vol3 -source-path lun1 -snapshot-name snap_vvol3 -destination-path lun1_clone
+`volume file clone create -vserver vs3 -volume vol3 -source-path lun1 -snapshot-name snap_vol3 -destination-path lun1_backup`
 
-. バックアップ・サーバの WWPN を含む igroup を作成するには、 lun igroup create コマンドを使用します。
+. を使用します `lun igroup create` バックアップサーバのWWPNを含むigroupを作成するコマンド。
 +
-lun igroup create -vserver vs3 -igroup igroup3 -protocol fc-ostype windows -initiator 10 ： 00 ： 00 ： 00 ： c9 ： 73 ： 5b ： 91'
+`lun igroup create -vserver vs3 -igroup igroup3 -protocol fc -ostype windows -initiator 10:00:00:00:c9:73:5b:91`
 
-. 「 lun mapping create 」コマンドを使用して、手順 3 で作成した LUN クローンをバックアップ・ホストにマッピングします。
+. を使用します `lun mapping create` コマンドを使用して、手順3で作成したLUNクローンをバックアップホストにマッピングします。
 +
-lun mapping create -vserver vs3 -volume vol3 -LUN lun1_clone lun1_backup -igroup igroup3`
+`lun mapping create -vserver vs3 -volume vol3 -lun lun1_backup -igroup igroup3`
 
 +
 この手順を SAN バックアップアプリケーションのポストプロセススクリプトに含めることができます。
@@ -45,16 +45,16 @@ lun mapping create -vserver vs3 -volume vol3 -LUN lun1_clone lun1_backup -igroup
 この手順を SAN バックアップアプリケーションのポストプロセススクリプトに含めることができます。
 
 . SAN バックアップアプリケーションを使用して、バックアップホストの LUN クローン内のデータをテープにバックアップします。
-. LUN クローンをオフラインにするには 'lun modify コマンドを使用します
+. を使用します `lun modify` LUNクローンをオフラインにするコマンド。
 +
-lun modify -vserver vs3 -path /vol/vol3/lun1_clone -backup-state off`
+`lun modify -vserver vs3 -path /vol/vol3/lun1_backup -state offline`
 
-. LUN クローンを削除するには 'lun delete を使用します
+. を使用します `lun delete` をクリックして、LUNクローンを削除します。
 +
-lun delete -vserver vs3 -volume vol3 -lun lun1_clone
+`lun delete -vserver vs3 -volume vol3 -lun lun1_backup`
 
-. volume snapshot delete コマンドを使用して、 Snapshot コピーを削除します。
+. を使用します `volume snapshot delete` コマンドを使用してSnapshotコピーを削除します。
 +
-'volume snapshot delete -vserver vs3 -volume vol3 -snapshot vol3_snapshot
+`volume snapshot delete -vserver vs3 -volume vol3 -snapshot vol3_snapshot`
 
 

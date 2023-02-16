@@ -21,7 +21,8 @@ ONTAP 9.7 以降では、 FlexGroup ボリュームを FlexCache 関係の元の
 .手順
 . 別のクラスタに作成する FlexCache ボリュームを作成する場合は、クラスタピア関係を作成します。
 +
-.. デスティネーションクラスタで、データ保護のソースクラスタとのピア関係を作成します。+`cluster peer create-passphrase -offer-expiration MM/DD/YYYY HH：MM：SS|1...7days | 1...168 hours -peer-addrs_peer_lif_ips_-initial-allowed-vserver-svm_svm_name _、.inspace_ipspace *-peers_peer_name
+.. デスティネーションクラスタで、データ保護のソースクラスタとのピア関係を作成します：+
+`cluster peer create -generate-passphrase -offer-expiration MM/DD/YYYY HH:MM:SS|1...7days|1...168hours -peer-addrs _peer_LIF_IPs_ -initial-allowed-vserver-peers _svm_name_,..|* -ipspace _ipspace_name_`
 +
 ONTAP 9.6 以降では、クラスタピア関係の作成時に TLS 暗号化がデフォルトで有効になります。TLS 暗号化は、元のボリュームと FlexCache ボリュームの間のクラスタ間通信でサポートされます。必要に応じて、クラスタピア関係の TLS 暗号化を無効にすることもできます。
 
@@ -38,7 +39,8 @@ cluster02::> cluster peer create -generate-passphrase -offer-expiration 2days -i
 
 Warning: make a note of the passphrase - it cannot be displayed again.
 ----
-.. ソースクラスタで、ソースクラスタをデスティネーションクラスタに対して認証します。+`cluster peer create -peer-addrs_peer_lif_ips_-ipspace_ips_`
+.. ソースクラスタで、ソースクラスタをデスティネーションクラスタに対して認証します：+
+`cluster peer create -peer-addrs _peer_LIF_IPs_ -ipspace _ipspace_`
 +
 [listing]
 ----
@@ -54,9 +56,10 @@ Clusters cluster02 and cluster01 are peered.
 ----
 
 
-. FlexCache ボリュームが元のボリュームとは別の SVM にある場合は、「 FlexCache 」をアプリケーションとして使用して SVM ピア関係を作成します。
+. FlexCache ボリュームが元のボリュームとは別のSVMにある場合は、を使用してSVMピア関係を作成します `flexcache` アプリケーションとして：
 +
-.. SVMが別のクラスタにある場合は、ピアリングするSVMのSVM権限を作成します。+`vserver peer permission create -peer-cluster_cluster_name _-vserver_SVM-name _-applications FlexCache ’
+.. SVMが別のクラスタにある場合は、ピアリングするSVMのSVM権限を作成してください：+
+`vserver peer permission create -peer-cluster _cluster_name_ -vserver _svm-name_ -applications flexcache`
 +
 次の例は、すべてのローカル SVM に適用される SVM ピア権限を作成する方法を示しています。
 
@@ -69,12 +72,13 @@ Warning: This Vserver peer permission applies to all local Vservers. After that 
 "vserver peer accept" command required for Vserver peer relationship creation request
 from peer cluster "cluster2" with any of the local Vservers. Do you want to continue? {y|n}: y
 ----
-.. SVMピア関係を作成します。+`vserver peer create -vserver local_svm -peer-vserver_remote_SVM_-peer-cluster_cluster_cluster_name_-applications FlexCache ’
+.. SVMピア関係を作成します：+
+`vserver peer create -vserver local_SVM -peer-vserver _remote_SVM_ -peer-cluster _cluster_name_ -applications flexcache`
 
 
 . FlexCache ボリュームを作成します。
 +
-「volume FlexCache create -vserver _cache_SVM_-volume _cache_vol_name」-自動プロビジョニング- FlexGroup - size _vol _-origin-vserver_origin_svm _-origin-volume_origine_vol_name _`
+`volume flexcache create -vserver _cache_svm_ -volume _cache_vol_name_ -auto-provision-as flexgroup -size _vol_size_ -origin-vserver _origin_svm_ -origin-volume _origin_vol_name_`
 
 +
 次の例では、 FlexCache ボリュームを作成し、プロビジョニングする既存のアグリゲートを自動的に選択します。
@@ -96,7 +100,8 @@ cluster1::> flexcache create -vserver vs34 -volume fc4 -aggr-list aggr34,aggr43 
 ----
 . FlexCache ボリュームと元のボリュームの FlexCache 関係を確認します。
 +
-.. クラスタ内の FlexCache 関係を表示します。 +`volume FlexCache show`
+.. クラスタ内のFlexCache 関係を表示します：+
+`volume flexcache show`
 +
 [listing]
 ----
@@ -105,7 +110,8 @@ Vserver Volume      Size       Origin-Vserver Origin-Volume Origin-Cluster
 ------- ----------- ---------- -------------- ------------- --------------
 vs_1    fc1         160MB      vs_1           vol_1           cluster1
 ----
-.. 元のクラスタ内のすべての FlexCache 関係を表示します。 +`volume FlexCache origin show-Caches
+.. 元のクラスタのすべてのFlexCache 関係を表示します：+
+`volume flexcache origin show-caches`
 +
 [listing]
 ----

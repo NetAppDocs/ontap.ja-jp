@@ -22,18 +22,18 @@ IP トラフィックがクラスタ LIF のみを経由するローカル階層
 
 link:../authentication/index.html["管理者認証と RBAC"]
 
-その他の設定オプションについては 'security' のマニュアル・ページを参照してください
+を参照してください `security certificate` その他の設定オプションについては、マニュアルページを参照してください。
 
 .手順
 . 自己署名デジタル証明書を作成します。
 +
-security certificate create -vserver_svm_name_-type root-ca -common-name_ca_cert_name_`
+`security certificate create -vserver _svm_name_ -type root-ca -common-name _ca_cert_name_`
 
 +
-「 -type root-ca 」オプションは、他の証明書に署名するための自己署名デジタル証明書を作成してインストールし、認証局（ CA ）として機能します。
+。 `-type root-ca` オプションを指定すると、他の証明書への署名でCAとして使用する自己署名デジタル証明書が作成されてインストールされます。
 
 +
-「 -common-name 」オプションを指定すると、 SVM の認証局（ CA ）名が作成され、証明書の完全な名前を生成するときに使用されます。
+。 `-common-name` オプションを指定すると、SVMの認証局（CA）名が作成され、証明書の完全な名前が生成されます。
 
 +
 デフォルトの証明書サイズは 2048 ビットです。
@@ -53,10 +53,10 @@ The certificate's generated name for reference: svm1_ca_159D1587CE21E9D4_svm1_ca
 
 . 証明書署名要求を生成します。
 +
-'security certificate generate-csr -common-name _s3_server_name_[additional _options]
+`security certificate generate-csr -common-name _s3_server_name_ [additional_options]`
 
 +
-署名要求の「 -common-name 」パラメータには、 S3 サーバ名（ FQDN ）を指定する必要があります。
+。 `-common-name` 署名要求のパラメータにはS3サーバ名（FQDN）を指定する必要があります。
 
 +
 必要に応じて、 SVM の場所やその他の詳細情報を指定できます。
@@ -66,14 +66,14 @@ The certificate's generated name for reference: svm1_ca_159D1587CE21E9D4_svm1_ca
 
 . SVM_CA を使用して CSR に署名し、 S3 サーバの証明書を生成します。
 +
-「security certificate sign -vserver_svm_name_-ca_cert_name_ca-ca-serial_ca_cert_serial_number _[additional options]」
+`security certificate sign -vserver _svm_name_ -ca _ca_cert_name_ -ca-serial _ca_cert_serial_number_ [additional_options]`
 
 +
 前の手順で使用したコマンドオプションを入力します。
 
 +
-** ca-ca -- 手順 1 で入力した CA の共通名。
-** ca-serial -- ステップ 1 の CA シリアル番号。たとえば、 CA 証明書の名前が svm1_ca_159D1587CE21E9D4_svm1_ca の場合、シリアル番号は 159D1587CE21E9D4 です。
+** `-ca` --手順1で入力したCAの共通名。
+** `-ca-serial` --手順1のCAシリアル番号。たとえば、 CA 証明書の名前が svm1_ca_159D1587CE21E9D4_svm1_ca の場合、シリアル番号は 159D1587CE21E9D4 です。
 
 
 +
@@ -87,7 +87,7 @@ The certificate's generated name for reference: svm1_ca_159D1587CE21E9D4_svm1_ca
 
 . S3 対応 SVM に署名済み証明書をインストールします。
 +
-「security certificate install -type server -vserver_svm_name_`」のように指定します
+`security certificate install -type server -vserver _svm_name_`
 
 +
 プロンプトが表示されたら、証明書と秘密鍵を入力します。
@@ -100,7 +100,7 @@ The certificate's generated name for reference: svm1_ca_159D1587CE21E9D4_svm1_ca
 
 . 公開鍵証明書を取得します。
 +
-security certificate show -vserver _svm_name_common-name_ca_cert_name__-type root-ca -instance
+`security certificate show -vserver _svm_name_ -common-name _ca_cert_name_ -type root-ca -instance`
 
 +
 公開鍵証明書を保存しておき、以降のクライアント側の設定に使用します。

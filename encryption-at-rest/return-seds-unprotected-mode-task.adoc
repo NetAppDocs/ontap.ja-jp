@@ -11,7 +11,7 @@ summary: FIPS ドライブまたは SED は、ノードの認証キー ID がデ
 
 
 [role="lead"]
-FIPS ドライブまたは SED は、ノードの認証キー ID がデフォルト以外の値に設定されている場合にのみ不正アクセスから保護されます。FIPS ドライブまたは SED を非保護モードに戻すには、「 storage encryption disk modify 」コマンドを使用してキー ID をデフォルトの値に設定します。
+FIPS ドライブまたは SED は、ノードの認証キー ID がデフォルト以外の値に設定されている場合にのみ不正アクセスから保護されます。FIPSドライブまたはSEDを非保護モードに戻すには、を使用します `storage encryption disk modify` キーIDをデフォルトに設定するコマンド。
 
 HA ペアで暗号化 SAS ドライブまたは NVMe ドライブ（ SED 、 NSE 、 FIPS ）を使用している場合は、システムを初期化する前に、 HA ペア内のすべてのドライブでこのプロセスに従う必要があります（ブートオプション 4 または 9 ）。そうしないと、ドライブを転用した場合にデータが失われる可能性があります。
 
@@ -21,14 +21,14 @@ HA ペアで暗号化 SAS ドライブまたは NVMe ドライブ（ SED 、 NSE
 .手順
 . 権限レベルを advanced に設定します。
 +
-「 advanced 」の権限が必要です
+`set -privilege advanced`
 
 . FIPS ドライブが FIPS 準拠モードの場合は、ノードの FIPS 認証キー ID をデフォルトの MSID である 0x0 に戻します。
 +
-storage encryption disk modify -disk disk_id -- fips-key-id 0x0
+`storage encryption disk modify -disk _disk_id_ -fips-key-id 0x0`
 
 +
-「 securitykey-manager query 」コマンドを使用すると、キー ID を表示できます。
+を使用できます `security key-manager query` キーIDを表示するためのコマンド。
 
 +
 [listing]
@@ -43,7 +43,7 @@ Info: Starting modify on 14 disks.
 次のコマンドで、処理が成功したことを確認します。
 
 +
-「 storage encryption disk show-status 」を参照してください
+`storage encryption disk show-status`
 
 +
 show -statusコマンドを繰り返して、「Disksでした」と「Disks done」の番号が同じになるようにします。
@@ -61,13 +61,13 @@ cluster1    true    modify   1/18/2022 15:29:38    3           14     5         
 ----
 . ノードのデータ認証キー ID をデフォルトの MSID である 0x0 に戻します。
 +
-storage encryption disk modify -disk disk_id__ -data-key-id 0x0
+`storage encryption disk modify -disk _disk_id_ -data-key-id 0x0`
 
 +
--data-key-id' の値は 'SAS ドライブと NVMe ドライブのどちらを非保護モードに戻すかに応じて 0x0 に設定する必要があります
+の値 `-data-key-id` SASドライブとNVMeドライブのどちらを非保護モードに戻すかに応じて「0x0」に設定します。
 
 +
-「 securitykey-manager query 」コマンドを使用すると、キー ID を表示できます。
+を使用できます `security key-manager query` キーIDを表示するためのコマンド。
 
 +
 [listing]
@@ -82,7 +82,7 @@ Info: Starting modify on 14 disks.
 次のコマンドで、処理が成功したことを確認します。
 
 +
-「 storage encryption disk show-status 」を参照してください
+`storage encryption disk show-status`
 
 +
 番号が同じになるまで、 show -status コマンドを繰り返します。処理が完了するのは、「ディスクの開始」と「ディスクの終了」の番号が同じ場合です。
@@ -98,18 +98,18 @@ ONTAP 9.7以降では、FIPSドライブのキーを保守モードから変更�
 .手順
 . ノードのFIPS認証キーIDをデフォルトのMSIDである0x0に戻します。
 +
-「disk encrypt rekey _fips 0x0」0x0～
+`disk encrypt rekey_fips 0x0 _disklist_`
 
 . ノードのデータ認証キー ID をデフォルトの MSID である 0x0 に戻します。
 +
-「disk encrypt rekey 0x0_diskList」
+`disk encrypt rekey 0x0 _disklist_`
 
 . FIPS認証キーのキーが変更されたことを確認します。
 +
-「disk encrypt show_fips」
+`disk encrypt show_fips`
 
 . データ認証キーのキーが変更されたことを確認します。
 +
-「disk encrypt show」のように表示されます
+`disk encrypt show`
 
 

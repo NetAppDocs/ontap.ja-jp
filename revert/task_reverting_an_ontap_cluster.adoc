@@ -17,11 +17,11 @@ summary: クラスタをオフラインにして以前の ONTAP リリースに�
 
 クラスタをリバートするには、クラスタをオフラインにした状態でリバートを行う必要があります。
 
-. 権限レベルを advanced に設定します。続行するかどうかを尋ねられたら、「 * y * 」と入力します。「 set -privilege advanced 」
+. 権限レベルをadvancedに設定します。続行するかどうかを尋ねられたら、「* y *」と入力します。 `set -privilege advanced`
 +
-詳細プロンプト (`*>') が表示されます
+advancedのプロンプト (`*>`）が表示されます。
 
-. ターゲットの ONTAP ソフトウェアがインストールされていることを確認します。 'system image show'
+. ターゲットのONTAP ソフトウェアがインストールされていることを確認します。 `system image show`
 +
 次の例では、両方のノードに代替イメージとしてバージョン 9.1 がインストールされています。
 
@@ -40,7 +40,7 @@ node1
          image2  false   false   9.1        MM/DD/YYYY TIME
 4 entries were displayed.
 ----
-. クラスタ内のすべてのデータ LIF を無効にします。「 network interface modify ｛ -role data ｝ -status-admin down
+. クラスタ内のすべてのデータLIFを無効にします。 `network interface modify {-role data} -status-admin down`
 . クラスタが2つのノードだけで構成されている場合は、クラスタHAを無効にします。 `cluster ha modify -configured false`
 . [[step-5]]どちらかのノードからHAペアのノードのストレージフェイルオーバーを無効にします。 `storage failover modify -node nodename -enabled false`
 +
@@ -50,8 +50,8 @@ node1
 +
 ノードをリバートするには、そのノードのノード管理 LIF を通じてクラスタにログインする必要があります。
 
-. ノードのターゲット ONTAP ソフトウェアイメージをデフォルトのイメージとして設定します。「 system image modify -node nodename -image target_image -isdefault true
-. ターゲットの ONTAP ソフトウェアイメージが、リバートするノードのデフォルトのイメージとして設定されたことを確認します。「 system image show
+. ノードのターゲットONTAP ソフトウェアイメージをデフォルトのイメージとして設定します。 `system image modify -node nodename -image target_image -isdefault true`
+. ターゲットのONTAP ソフトウェアイメージが、リバートするノードのデフォルトのイメージとして設定されたことを確認します。 `system image show`
 +
 次の例では、 node0 でデフォルトのイメージとしてバージョン 9.1 が設定されています。
 
@@ -72,7 +72,7 @@ node1
 ----
 . クラスタが 2 つのノードだけで構成されている場合は、ノードにイプシロンが設定されていないことを確認します。
 +
-.. ノードに現在イプシロンが設定されているかどうかを確認します。 cluster show -node nodename
+.. ノードにイプシロンが現在設定されているかどうかを確認します。 `cluster show -node nodename`
 +
 次の例では、ノードにイプシロンが設定されています。
 
@@ -87,11 +87,11 @@ cluster1::*> cluster show -node node1
    Eligibility: true
         Health: true
 ----
-.. ノードにイプシロンが設定されている場合は、イプシロンをパートナーに移動できるように、イプシロンを false に設定します。「 cluster modify -node nodenameA -epsilon false
-.. パートナーノードでイプシロンを true に設定して、イプシロンをパートナーに移動します。 cluster modify -node nodenameB -epsilon true
+.. ノードにイプシロンが設定されている場合は、イプシロンをパートナーに移動できるように、イプシロンをfalseに設定します。 `cluster modify -node nodenameA -epsilon false`
+.. パートナーノードでイプシロンをtrueに設定して、イプシロンをパートナーに移動します。 `cluster modify -node nodenameB -epsilon true`
 
 
-. ノードをリバートする準備が完了していることを確認します。「 system node revert-to -node nodename -check-only true -version 9.x 」
+. ノードをリバートする準備が完了していることを確認します。 `system node revert-to -node nodename -check-only true -version 9.x`
 +
 check-only パラメータを指定すると、リバートを行う前に対処する必要がある前提条件が特定されます。これには、たとえば次のような処理が含まれます。
 
@@ -101,19 +101,19 @@ check-only パラメータを指定すると、リバートを行う前に対処
 ** 新しいバージョンの ONTAP へのアップグレード後に作成された Snapshot コピーを削除する
 
 
-. すべての前提条件を満たしていることを確認します。「 system node revert-to -node nodename -check-only true -version 9.x 」
-. ノードのクラスタ設定をリバートします。「 system node revert-to -node nodename -version 9.x
+. すべての前提条件を満たしていることを確認します。 `system node revert-to -node nodename -check-only true -version 9.x`
+. ノードのクラスタ設定をリバートします。 `system node revert-to -node nodename -version 9.x`
 +
 version オプションは、ターゲットのリリースを表します。たとえば、確認したインストール済みのソフトウェアが ONTAP 9.1 であれば、 -version オプションの値は 9.1 になります。
 
 +
 クラスタ設定がリバートされ、クラスタシェルからログアウトされます。
 
-. もう一度クラスタシェルにログインし、ノードシェルに切り替えます。「 run -node nodename
+. もう一度クラスタシェルにログインし、ノードシェルに切り替えます。 `run -node nodename`
 +
 クラスタシェルに再度ログインしたあと、ノードシェルコマンドを使用できるようになるまでに数分かかることがあります。そのため、コマンドが失敗した場合は数分待ってからもう一度実行してください。
 
-. ノードのファイルシステム設定を元に戻します : 「 vert_to 9.x 」
+. ノードのファイルシステム設定をリバートします。 `revert_to 9.x`
 +
 このコマンドを実行すると、ノードのファイルシステム設定をリバートする準備が完了していることが検証され、そのあとにリバートが実行されます。前提条件が示された場合は、それに対処してから revert_to コマンドを再実行する必要があります。
 
@@ -125,9 +125,9 @@ NOTE: システムコンソールを使用してリバートプロセスを監�
 AUTOBOOT が true に設定されている場合は、コマンドが完了すると、ノードで ONTAP がリブートされます。
 
 +
-AUTOBOOT が false に設定されている場合は、コマンドで LOADER プロンプトが表示されます。復元するには 'yes' を入力し ' 次に 'boot_ontap を使用して ' ノードを手動で再起動します
+AUTOBOOT が false に設定されている場合は、コマンドで LOADER プロンプトが表示されます。入力するコマンド `yes` 元に戻すには、を使用します `boot_ontap` ノードを手動でリブートする場合。
 
-. ノードがリブートしたら、新しいソフトウェアが実行されていることを確認します。「 system node image show 」
+. ノードのリブートが完了したら、新しいソフトウェアが実行されていることを確認します。 `system node image show`
 +
 次の例では、 image1 が新しい ONTAP バージョンで、 node0 で現在のバージョンとして設定されています。
 
@@ -151,7 +151,7 @@ node1
 ステータスが complete になっている必要があります。
 
 . 繰り返します <<step-6>> から <<step-16>> HA ペアのもう一方のノード。
-. クラスタが 2 つのノードだけで構成されている場合は、クラスタ HA を再度有効にします。「 cluster ha modify -configured true
+. クラスタが2つのノードだけで構成されている場合は、クラスタHAを再度有効にします。 `cluster ha modify -configured true`
 . [[step-19]]ストレージフェイルオーバーを無効にした場合は、両方のノードで再度有効にします。 `storage failover modify -node nodename -enabled true`
 . 繰り返します <<step-5>> から <<step-19>> MetroCluster 構成で、 HA ペアのそれぞれおよび両方のクラスタを追加します。
 

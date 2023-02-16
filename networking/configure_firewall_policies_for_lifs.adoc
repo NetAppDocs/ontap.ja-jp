@@ -48,11 +48,11 @@ ONTAP 9.10.1 以降：
 
 LIF のファイアウォールポリシーは、各 LIF を介したクラスタへのアクセスを制限するために使用します。デフォルトのファイアウォールポリシーが、各タイプの LIF を介したシステムアクセスにどのように影響するか、および LIF のセキュリティを強化または低下させるためにファイアウォールポリシーをカスタマイズする方法について理解しておく必要があります。
 
-「 network interface create 」コマンドまたは「 network interface modify 」コマンドを使用して LIF を設定するときに、「 -firewall-policy 」パラメータに指定した値によって、 LIF へのアクセスが許可されるサービスプロトコルと IP アドレスが決まります。
+を使用してLIFを設定する場合 `network interface create` または `network interface modify` コマンド。に指定した値 `-firewall-policy` パラメータで、LIFへのアクセスを許可するサービスプロトコルとIPアドレスを指定します。
 
 多くの場合、デフォルトのファイアウォールポリシーの値をそのまま使用できます。特定の IP アドレスや管理サービスプロトコルへのアクセスを制限しなければならない場合もあります。使用可能な管理サービスプロトコルは、 SSH 、 HTTP 、 HTTPS 、 Telnet 、 NTP 、 NDMP 、 NDMPS 、 RSH 、 DNS 、および SNMP 。
 
-すべてのクラスタ LIF のファイアウォールポリシーはデフォルトで「」に設定され、変更することはできません。
+すべてのクラスタLIFのファイアウォールポリシーはデフォルトでに設定されます `""` 変更できません。
 
 次の表に、 LIF の作成時にそのロール（ ONTAP 9.5 以前）またはサービスポリシー（ ONTAP 9.6 以降）に応じて LIF に割り当てられるデフォルトのファイアウォールポリシーを示します。
 
@@ -139,11 +139,11 @@ ONTAP 9.4 から ONTAP 9.6 への動作は、アップグレード時にシー�
 .portmapサービスを追加または削除する方法
 SVM またはクラスタのファイアウォールポリシーに portmap サービスを追加する（ファイアウォール内でのアクセスを許可する）には、次のように入力します。
 
-「 system services firewall policy create -vserver SVM-policy mgmt | intercluster | data | custom-service portmap 」を使用します
+`system services firewall policy create -vserver SVM -policy mgmt|intercluster|data|custom -service portmap`
 
 SVM またはクラスタのファイアウォールポリシーから portmap サービスを削除する（ファイアウォール内でのアクセスを禁止する）には、次のように入力します。
 
-「 system services firewall policy delete -vserver SVM-policy mgmt | intercluster | data | custom-service portmap 」を参照してください
+`system services firewall policy delete -vserver SVM -policy mgmt|intercluster|data|custom -service portmap`
 
 既存の LIF にファイアウォールポリシーを適用するには、 network interface modify コマンドを使用します。コマンド構文全体については、を参照してください link:http://docs.netapp.com/ontap-9/topic/com.netapp.doc.dot-cm-cmpr/GUID-5CB10C70-AC11-41C0-8C16-B4D0DF916E9B.html["ONTAP 9 のコマンド"^]。
 
@@ -154,7 +154,7 @@ SVM またはクラスタのファイアウォールポリシーから portmap �
 LIF を作成するときに、デフォルトのファイアウォールポリシーが割り当てられます。多くの場合、ファイアウォールのデフォルト設定をそのまま使用でき、変更する必要はありません。LIF にアクセスできるネットワークサービスや IP アドレスを変更する場合は、カスタムファイアウォールポリシーを作成して LIF に割り当てることができます。
 
 .このタスクについて
-* 「 policy 'name 'd ata, 'intercluster ’ , 'cluster' 」、または「 m GMT' 」を使用してファイアウォールポリシーを作成することはできません。
+* でファイアウォールポリシーを作成することはできません `policy` 名前 `data`、  `intercluster`、  `cluster`または `mgmt`。
 +
 これらの値は、システム定義のファイアウォールポリシー用に予約されています。
 
@@ -165,32 +165,32 @@ LIF を作成するときに、デフォルトのファイアウォールポリ�
 * ポリシーからサービスを削除する必要がある場合は、既存のファイアウォールポリシーを削除してから、新しいポリシーを作成する必要があります。
 * クラスタで IPv6 が有効になっている場合は、 IPv6 アドレスを使用してファイアウォールポリシーを作成できます。
 +
-IPv6 を有効にすると、「 data 」、「 intercluster 」、および「 m GMT 」のファイアウォールポリシーには、許可されるアドレスのリストに「 : /0 」という IPv6 ワイルドカードが含まれます。
+IPv6を有効にすると、  `data`、 `intercluster`および `mgmt` ファイアウォールポリシーには、許可されるアドレスのリストに、IPv6のワイルドカードである：：/0が含まれます。
 
 * System Manager を使用してクラスタ全体のデータ保護機能を設定するときは、許可されるアドレスのリストにクラスタ間 LIF の IP アドレスを含め、必ず、クラスタ間 LIF と会社所有のファイアウォールの両方で HTTPS サービスを許可してください。
 +
-デフォルトでは、「 intercluster 」ファイアウォールポリシーはすべての IP アドレスからのアクセスを許可し（ 0.0.0.0/0 、または IPv6 の場合は ::/0 ）、 HTTPS 、 NDMP 、および NDMPS サービスを有効にします。このデフォルトポリシーを変更する場合や、クラスタ間 LIF の独自のファイアウォールポリシーを作成する場合は、許可されるアドレスのリストに各クラスタ間 LIF の IP アドレスを追加して、 HTTPS サービスを有効にする必要があります。
+デフォルトでは、が表示されます `intercluster` ファイアウォールポリシーは、すべてのIPアドレス（0.0.0.0/0、または：：/0（IPv6））からのアクセスを許可し、HTTPS、NDMP、およびNDMPSサービスを有効にします。このデフォルトポリシーを変更する場合や、クラスタ間 LIF の独自のファイアウォールポリシーを作成する場合は、許可されるアドレスのリストに各クラスタ間 LIF の IP アドレスを追加して、 HTTPS サービスを有効にする必要があります。
 
 * ONTAP 9.6 以降では、 HTTPS および SSH のファイアウォールサービスはサポートされていません。
 +
-ONTAP 9.6 では、 HTTPS および SSH の管理アクセスに「管理 - https 」および「管理 - ssh 」 LIF サービスを使用できます。
+ONTAP 9.6では、を参照してください `management-https` および `management-ssh` LIFサービスは、HTTPSおよびSSHの管理アクセスに使用できます。
 
 
 
 .手順
 . 特定の SVM の LIF で使用できるファイアウォールポリシーを作成します。
 +
-「 system services firewall policy create -vserver vserver_name 」 -policy_policy_policy_policy_name_service_network_service_-allow-list_ip_address /mask_`
+`system services firewall policy create -vserver _vserver_name_ -policy _policy_name_ -service _network_service_ -allow-list _ip_address/mask_`
 
 +
 ファイアウォールポリシーに追加するネットワークサービスごとに上記のコマンドを繰り返して、各サービスで許可される IP アドレスを指定できます。
 
-. 「 system services firewall policy show 」コマンドを使用して、ポリシーが正しく追加されたことを確認します。
+. を使用して、ポリシーが正しく追加されたことを確認します `system services firewall policy show` コマンドを実行します
 . ファイアウォールポリシーを LIF に適用します。
 +
-「 network interface modify -vserver _vserver_name __ lif_lif_name_-firewall-policy name 」 - 「 firewall 」 - 「 policy_policy_policy_policy_policy_policy_name_`
+`network interface modify -vserver _vserver_name_ -lif _lif_name_ -firewall-policy _policy_name_`
 
-. network interface show -fields firewall-policy コマンドを使用して、ポリシーが LIF に正しく追加されたことを確認します。
+. を使用して、ポリシーがLIFに正しく追加されたことを確認します `network interface show -fields firewall-policy` コマンドを実行します
 
 
 .ファイアウォールポリシーを作成してLIFに適用する例

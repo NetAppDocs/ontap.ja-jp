@@ -18,18 +18,18 @@ summary: ホスト情報を取得するには、 DNS を使用してローカル
 
 ONTAP がクライアントに適切なアクセスを許可するには、ホスト情報を検索できなければなりません。ネームサービスを設定して、 ONTAP がホスト情報を取得するためにローカルまたは外部の DNS サービスにアクセスできるようにします。
 
-ONTAP は 'UNIX システム上の /etc/nsswitch.conf ファイルと同等のテーブルにネーム・サービス構成情報を格納します
+ONTAP では、に相当するテーブルにネームサービス設定情報が格納されます `/etc/nsswitch.conf` UNIXシステム上のファイル。
 
 
 
 == 外部 DNS サーバを使用して、ホスト名解決のために SVM とデータ LIF を設定する
 
-SVM 上で DNS を有効にし、ホスト名解決に DNS を使用するように設定するには、「 vserver services name-service dns 」コマンドを使用します。ホスト名は外部 DNS サーバを使用して解決されます。
+を使用できます `vserver services name-service dns` SVMでDNSを有効にし、ホスト名解決にDNSを使用するように設定するコマンド。ホスト名は外部 DNS サーバを使用して解決されます。
 
 .作業を開始する前に
 ホスト名を検索するために、サイト規模の DNS サーバが使用可能である必要があります。
 
-単一点障害を回避するには、複数の DNS サーバを設定する必要があります。1 つの DNS サーバ名だけを入力すると 'vserver services name-service dns create コマンドによって警告が表示されます
+単一点障害を回避するには、複数の DNS サーバを設定する必要があります。。 `vserver services name-service dns create` 入力したDNSサーバ名が1つだけの場合は、コマンドによって警告が表示されます。
 
 .このタスクについて
 を参照してください xref:configure_dynamic_dns_services.html[動的 DNS サービスを設定する] SVMでの動的DNSの設定に関する詳細については、を参照してください。
@@ -62,21 +62,21 @@ NOTE: vserver services name-service dns create コマンドを使用すると、
  a| 
 既存の LIF ゾーン名を変更する
  a| 
-network interface modify -lif lifname -dns-zone
+`network interface modify -lif lifname -dns-zone`
 
 
 
  a| 
 新しい LIF ゾーン名を作成しています
  a| 
-network interface create -lif lifname -dns-zone
+`network interface create -lif lifname -dns-zone`
 
 |===
 +
 ....
 vserver services name-service dns create -vserver <vs1> -domains <example.com> -name-servers <192.0.2.201, 192.0.2.202> -state <enabled> network interface modify -lif <datalif1> -dns-zone <zonename.whatever.com>
 ....
-. 「 vserver services name-service dns check 」コマンドを使用して、ネームサーバのステータスを検証します。
+. を使用してネームサーバのステータスを検証します `vserver services name-service dns check` コマンドを実行します
 +
 ....
 vserver services name-service dns check -vserver vs1.example.com

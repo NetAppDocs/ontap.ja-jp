@@ -32,7 +32,7 @@ CLIでは、バケットを作成する際に、次の2つのプロビジョニ�
 *** 新しいバケットにアグリゲートとコンスティチュエントを指定すると、新しいバケット用の新しい FlexGroup が作成されます。
 *** 新しいバケットにアグリゲートとコンスティチュエントを指定しない場合、新しいバケットが既存の FlexGroup に追加されます。を参照してください xref:../flexgroup/index.html[FlexGroup ボリューム管理] を参照してください。
 +
-バケットの作成時にアグリゲートとコンスティチュエントを指定した場合、デフォルトまたはカスタムの QoS ポリシーグループは適用されません。あとで 'vserver object-store-server bucket modify コマンドを使用して変更できます
+バケットの作成時にアグリゲートとコンスティチュエントを指定した場合、デフォルトまたはカスタムの QoS ポリシーグループは適用されません。これは、であとから実行できます `vserver object-store-server bucket modify` コマンドを実行します
 
 
 
@@ -54,7 +54,7 @@ link:storage-service-definitions-reference.html["ストレージサービスの�
 
 link:../performance-admin/index.html["パフォーマンス管理"]
 
-その他の設定および表示オプションについては 'vserver object-store-server バケットのマニュアルページを参照してください
+を参照してください `vserver object-store-server bucket` その他の設定および表示オプションのマニュアルページ
 
 
 
@@ -64,13 +64,13 @@ link:../performance-admin/index.html["パフォーマンス管理"]
 ====
 .CLI の使用
 --
-. アグリゲートと FlexGroup コンポーネントを自分で選択する場合は、権限レベルを advanced に設定します（それ以外の場合は admin 権限レベルで十分です）。「 set -privilege advanced
+. アグリゲートとFlexGroup コンポーネントを自分で選択する場合は、権限レベルをadvancedに設定します（それ以外の場合はadmin権限レベルで十分です）。 `set -privilege advanced`
 . バケットを作成します。
 +
-「 vserver object-store-server bucket create -vserver _svm_name _-bucket_bucket_name _ [-size integer [KB|MB|GB|TB|PB] 」 [-comment text] [additional _options]] 」
+`vserver object-store-server bucket create -vserver _svm_name_ -bucket _bucket_name_ [-size integer[KB|MB|GB|TB|PB]] [-comment text] [additional_options]`
 
 +
-ローカル階層化を設定する場合、 SVM 名はデータ SVM または「 Cluster 」（システム SVM 名）にできます。
+SVM名には、データSVMとのどちらかを指定できます `Cluster` （システムSVM名）。ローカルの階層化を設定する場合に使用します。
 
 +
 オプションを指定しない場合、 ONTAP は 5GB のバケットを作成し、システムで使用可能な最上位のサービスレベルに設定します。
@@ -81,11 +81,11 @@ link:../performance-admin/index.html["パフォーマンス管理"]
 +
 ** サービスレベル
 +
--service-level オプションには 'value] ' 'performe' または 'extreme のいずれかの値を指定します
+を含めます `-storage-service-level` 次のいずれかの値を指定したオプション `value`、 `performance`または `extreme`。
 
 ** 階層化
 +
--used as capacity tier true オプションを含めます
+を含めます `-used-as-capacity-tier true` オプション
 
 
 
@@ -93,26 +93,26 @@ link:../performance-admin/index.html["パフォーマンス管理"]
 基盤となる FlexGroup ボリュームを作成するアグリゲートを指定する場合は、次のオプションを使用します。
 
 +
-** aggr-list パラメータには、 FlexGroup ボリューム・コンスティチュエントに使用するアグリゲートのリストを指定します。
+** 。 `-aggr-list` パラメータは、FlexGroup ボリュームコンスティチュエントに使用するアグリゲートのリストを指定します。
 +
 指定したエントリごとに、そのアグリゲート上にコンスティチュエントが 1 つ作成されます。同じアグリゲートを複数回指定すると、そのアグリゲート上に複数のコンスティチュエントを作成できます。
 
 +
 FlexGroup 全体で一貫したパフォーマンスが得られるように、すべてのアグリゲートで同じディスクタイプと RAID グループ構成を使用する必要があります。
 
-** 「 -aggr-list 」パラメータでは、 FlexGroup ボリュームの作成時に「 -aggr-list 」パラメータで指定したアグリゲートを繰り返す回数を指定します。
+** 。 `-aggr-list-multiplier` パラメータは、にリストされているアグリゲートに対して繰り返し処理を行う回数を指定します `-aggr-list` FlexGroup ボリューム作成時のパラメータ。
 +
-「 -aggr-list-multiplier 」パラメータのデフォルト値は 4 です。
+のデフォルト値 `-aggr-list-multiplier` パラメータは4です。
 
 
 
 . 必要に応じて QoS ポリシーグループを追加します。
 +
-「 vserver object-store-server bucket modify -bucket_bucket_name_-qos-policy-group _qos_policy_group_ 」という形式で指定します
+`vserver object-store-server bucket modify -bucket _bucket_name_ -qos-policy-group _qos_policy_group_`
 
 . バケットの作成を確認します。
 +
-「 vserver object-store-server bucket show [-instance]` 」のように表示されます
+`vserver object-store-server bucket show [-instance]`
 
 
 

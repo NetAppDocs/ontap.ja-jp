@@ -82,7 +82,7 @@ SnapMirror Synchronousでは、階層化ポリシーが「なし」、「Snapsho
 
 ONTAP 9.7 の SnapMirror Synchronous テクノロジでは、次の機能がサポートされています。
 
-* アプリケーションで作成されたSnapshotコピーのレプリケーション：CLIまたはONTAP APIを使用して'スナップショット・コピーがスナップショット作成オペレーション時に適切なラベルでタグ付けされると'アプリケーションの休止後に'ユーザーが作成したスナップショット・コピーまたは外部スクリプトで作成したスナップショット・コピーの両方がレプリケートされますSnapshot ポリシーを使用して作成され、スケジュール設定された Snapshot コピーはレプリケートされません。アプリケーションで作成されたSnapshotコピーのレプリケートの詳細については、ナレッジベースの記事： link:https://kb.netapp.com/Advice_and_Troubleshooting/Data_Protection_and_Security/SnapMirror/How_to_replicate_application_created_snapshots_with_SnapMirror_Synchronous["アプリケーションで作成されたSnapshotをSnapMirror Synchronousでレプリケートする方法"^]。
+* Snapshotコピーがの時点で適切なラベルでタグ付けされている場合、アプリケーションで作成されたSnapshotコピーのレプリケーション `snapshot create` SnapMirror Synchronousは、CLIまたはONTAP APIを使用して、アプリケーションの休止後にユーザが作成したSnapshotコピーと外部スクリプトで作成したSnapshotコピーの両方をレプリケートします。Snapshot ポリシーを使用して作成され、スケジュール設定された Snapshot コピーはレプリケートされません。アプリケーションで作成されたSnapshotコピーのレプリケートの詳細については、ナレッジベースの記事： link:https://kb.netapp.com/Advice_and_Troubleshooting/Data_Protection_and_Security/SnapMirror/How_to_replicate_application_created_snapshots_with_SnapMirror_Synchronous["アプリケーションで作成されたSnapshotをSnapMirror Synchronousでレプリケートする方法"^]。
 * FC-NVMe
 * LUNクローンとNVMeネームスペースクローンには、アプリケーションで作成されたSnapshotコピーに基づくLUNクローンもサポートされます。
 
@@ -141,18 +141,18 @@ Synchronous SnapMirror 関係では、次の機能はサポートされません
 SnapMirror Synchronous には、使用する SnapMirror ポリシーに基づいて 2 つの動作モードがあります。
 
 * * Syncモード* Syncモードでは'アプリケーションI/O処理はプライマリ・ストレージ・システムとセカンダリ・ストレージ・システムに並行して送信されます何らかの理由でセカンダリストレージへの書き込みが完了しない場合、アプリケーションはプライマリストレージへの書き込みを継続できます。エラー状態が解消されると、 SnapMirror Synchronous テクノロジは自動的にセカンダリストレージを再同期し、プライマリストレージからセカンダリストレージへの同期モードでのレプリケーションを再開します。Sync モードでは、セカンダリレプリケーションに障害問題が発生するまで RPO=0 と非常に低い RTO を実現できます。この場合、 RPO と RTO は不確定になりますが、セカンダリレプリケーションが失敗し、再同期が完了するまでの時間と同じになります。
-* * StrictSyncモード* SnapMirror Synchronousは、必要に応じてStrictSyncモードで実行できます。何らかの理由でセカンダリストレージへの書き込みが完了しない場合、アプリケーション I/O が失敗し、プライマリストレージとセカンダリストレージが同一に保たれます。プライマリへのアプリケーション I/O は、 SnapMirror 関係のステータスが「 InSync 」に戻るまで再開されません。プライマリストレージで障害が発生した場合は、フェイルオーバー後にセカンダリストレージでアプリケーション I/O を再開できます。データ損失は発生しません。StrictSync モードの RPO は常にゼロで、 RTO も非常に低く抑えられます。
+* * StrictSyncモード* SnapMirror Synchronousは、必要に応じてStrictSyncモードで実行できます。何らかの理由でセカンダリストレージへの書き込みが完了しない場合、アプリケーション I/O が失敗し、プライマリストレージとセカンダリストレージが同一に保たれます。プライマリへのアプリケーションI/Oは、SnapMirror関係がに戻るまで再開されません `InSync` ステータス。プライマリストレージで障害が発生した場合は、フェイルオーバー後にセカンダリストレージでアプリケーション I/O を再開できます。データ損失は発生しません。StrictSync モードの RPO は常にゼロで、 RTO も非常に低く抑えられます。
 
 
 
 
 == 関係のステータス
 
-SnapMirror Synchronous 関係のステータスは、通常の動作中は常に「 InSync 」ステータスになります。何らかの理由で SnapMirror 転送に失敗すると、デスティネーションがソースと同期していない状態になり、ステータスが「 OutofSync 」になります。
+SnapMirror Synchronous関係のステータスは常にに表示されます `InSync` 通常動作中のステータス。何らかの理由でSnapMirror転送に失敗した場合、デスティネーションはソースと同期されていない状態になり、にアクセスできます `OutofSync` ステータス。
 
-SnapMirror Synchronous 関係の場合、システムは一定の間隔で自動的に関係のステータス（「 InSync 」または「 OutofSync 」）をチェックします。関係のステータスが「 OutofSync 」の場合、 ONTAP は自動的に再同期プロセスを開始して、関係を「 InSync 」ステータスに戻します。再同期が実行されるのは、ソースまたはデスティネーションでの計画外のストレージフェイルオーバーやネットワークの停止などによって転送に失敗した場合のみです。「 snapmirror quiesce 」や「 Snapmirror break 」などのユーザが開始した操作では、自動再同期は実行されません。
+SnapMirror Synchronous関係については、自動的にステータスが確認されます  `InSync` または `OutofSync`）を一定の間隔で指定します。関係のステータスがの場合 `OutofSync`、ONTAP は、自動再同期プロセスを自動的に開始して、に関係を戻します `InSync` ステータス。再同期が実行されるのは、ソースまたはデスティネーションでの計画外のストレージフェイルオーバーやネットワークの停止などによって転送に失敗した場合のみです。など、ユーザが開始する操作 `snapmirror quiesce` および `snapmirror break` 自動再同期は実行しないでください。
 
-StrictSync モードでは、 SnapMirror Synchronous 関係のステータスが「 OutofSync 」になると、プライマリボリュームへの I/O 処理がすべて停止します。Sync モードでは SnapMirror Synchronous 関係の OutofSync 状態はプライマリに影響を与えず ' プライマリ・ボリュームでは I/O 処理が許可されます
+関係のステータスがになった場合 `OutofSync` StrictSyncモードのSnapMirror Synchronous関係では、プライマリボリュームに対するI/O処理がすべて停止します。。 `OutofSync` 同期モードのSnapMirror Synchronous関係の状態はプライマリに影響せず、プライマリボリュームでI/O処理が許可されます。
 
 .関連情報
 http://www.netapp.com/us/media/tr-4733.pdf["ネットアップテクニカルレポート4733：『SnapMirror Synchronous config ration and best bests.』"^]

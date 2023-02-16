@@ -16,11 +16,11 @@ summary: オンアクセスポリシーはオンアクセススキャンの範�
 .このタスクについて
 デフォルトでは、 ONTAP は「デフォルト CIFS 」という名前のオンアクセスポリシーを作成し、クラスタ内のすべての SVM に対して有効にします。
 
-「 mandatory-mandatory 」オプションを off に設定すると、ウィルススキャンに使用できる Vscan サーバがない場合にファイルアクセスを許可するように指定できます。「 paths-to-exclude 」、「 file-ext-to-exclude 」、または「 m ax-file-size 」パラメータに基づいてスキャンの除外対象となるファイルは、「 CAN-Mandatory 」オプションが on に設定されている場合でもスキャンの対象とはなりません。
+を設定できます `scan-mandatory` ウィルススキャンに使用できるVscanサーバがない場合にファイルアクセスを許可するように指定するには、offを指定します。に基づいてスキャン除外の対象となるファイルはどれでもかまいません `paths-to-exclude`、 `file-ext-to-exclude`または `max-file-size` パラメータは、の場合でもスキャンの対象とはみなされません `scan-mandatory` オプションはonに設定されています。
 
 [NOTE]
 ====
-「 CAN-Mandatory 」オプションに関連する潜在的な問題については、を参照してください xref:vscan-server-connection-concept.adoc[scan-mandatory オプションの使用時に発生する可能性がある接続の問題]。
+を参照してください `scan-mandatory` オプションを参照してください xref:vscan-server-connection-concept.adoc[scan-mandatory オプションの使用時に発生する可能性がある接続の問題]。
 
 ====
 デフォルトでは、読み取り / 書き込みボリュームのみがスキャンされます。読み取り専用ボリュームのスキャンを有効にするフィルタや、実行アクセス権で開かれたファイルのみにスキャンを制限するフィルタを指定することができます。
@@ -28,12 +28,12 @@ summary: オンアクセスポリシーはオンアクセススキャンの範�
 .手順
 . オンアクセスポリシーを作成します。
 +
-vserver vscan on-access-policy create -vserver _data_svm | cluster_admin_svm_name -policy-name _-protocol cifs_max-file-size_max_size_of_files_To-scan_To-– filters [scan-ro-volume 、 ] [scan-execute-access] -file-file-ext-to-exclude -file-ext-to-exclude -file-extensions-to-exclude -file-ext-to-exclude -file-extensions-to-exclude -file-ext-to-exclude -file-extensions-to-exclude -file-extensions-to-exclude files -file-ext-to-exclude -file-ext-to-exclude -file-extensions-to-exclude スキャン -file-extensions-to-exclude スキャン -file-extensions-to-include true ファイルへのスキャンオプションを指定した次のスキャンオプションを指定したファイルへの除外ファイルへの除外ファイルへのパスを指定した次のパスを指定したチェックを指定しない場合、次のスキャン除外ファイルへの除外ファイルへの除外ファイルへのパスを指定した場合
+`vserver vscan on-access-policy create -vserver _data_SVM|cluster_admin_SVM_ -policy-name _policy_name_ -protocol CIFS -max-file-size _max_size_of_files_to_scan_ –filters [scan-ro-volume,][scan-execute-access] -file-ext-to-include _extensions_of_files_to_include_ -file-ext-to-exclude _extensions_of_files_to_exclude_ -scan-files-with-no-ext true|false -paths-to-exclude _paths_of_files_to_exclude_ -scan-mandatory on|off`
 
 +
 ** 個々の SVM 用のポリシーの場合はデータ SVM 、クラスタ内のすべての SVM 用のポリシーの場合はクラスタ管理 SVM を指定します。
-** -file-ext-to-exclude 設定は '-file-ext-to-include' 設定よりも優先されます
-** 拡張子のないファイルをスキャンするには '-scan-files-with-no-ext' を true に設定します次のコマンドは、「 vs1 」の VM に「 Policy1 」という名前のオンアクセスポリシーを作成します。
+** 。 `-file-ext-to-exclude` 設定は、より優先されます `-file-ext-to-include` 設定：
+** 設定 `-scan-files-with-no-ext` をtrueに設定すると、拡張子がないファイルがスキャンされます次のコマンドは、という名前のオンアクセスポリシーを作成します `Policy1` をクリックします ``vs1``SVM：
 
 
 +
@@ -41,12 +41,12 @@ vserver vscan on-access-policy create -vserver _data_svm | cluster_admin_svm_nam
 ----
 cluster1::> vserver vscan on-access-policy create -vserver vs1 -policy-name Policy1 -protocol CIFS -filters scan-ro-volume -max-file-size 3GB -file-ext-to-include “mp*”,"tx*" -file-ext-to-exclude "mp3","txt" -scan-files-with-no-ext false -paths-to-exclude "\vol\a b\","\vol\a,b\"
 ----
-. オンアクセスポリシーが作成されたことを確認します。 vserver vscan on-access-policy show -instance data_svm | cluster_admin_svm_name -policy-name policy_name
+. オンアクセスポリシーが作成されたことを確認します。 `vserver vscan on-access-policy show -instance _data_SVM|cluster_admin_SVM_ -policy-name policy_name`
 +
 すべてのオプションの一覧については、コマンドのマニュアルページを参照してください。
 
 +
-次のコマンドは 'Policy1' ポリシーの詳細を表示します
+次のコマンドでは、の詳細が表示されます `Policy1` ポリシー：
 
 +
 [listing]

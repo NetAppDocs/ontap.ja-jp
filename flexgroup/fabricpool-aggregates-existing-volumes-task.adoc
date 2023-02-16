@@ -14,7 +14,7 @@ summary: ONTAP 9.5 以降では、 FlexGroup ボリュームで FabricPool が�
 ONTAP 9.5 以降では、 FlexGroup ボリュームで FabricPool がサポートされます。FabricPool 内のアグリゲートを既存の FlexGroup ボリュームに使用する場合は、 FlexGroup ボリュームが配置されているアグリゲートを FabricPool 内のアグリゲートに変換するか、 FlexGroup ボリュームのコンスティチュエントを FabricPool 内のアグリゲートに移行します。
 
 .必要なもの
-* FlexGroup ボリュームのスペース・ギャランティは 'none' に設定する必要があります
+* FlexGroup ボリュームのスペースギャランティがに設定されている必要があります `none`。
 * FlexGroup ボリュームが配置されているアグリゲートを FabricPool 内のアグリゲートに変換する場合は、アグリゲートが SSD ディスクのみを使用している必要があります。
 
 
@@ -24,13 +24,13 @@ ONTAP 9.5 以降では、 FlexGroup ボリュームで FabricPool がサポー�
 .選択肢
 * FlexGroup ボリュームが配置されているアグリゲートを FabricPool のアグリゲートに変換するには、次の手順を実行します。
 +
-.. 既存の FlexGroup ボリュームで階層化ポリシーを設定します。 volume modify -volume flexgroup -tiering-policy [auto|snapshot|none|backup]]
+.. 既存のFlexGroup ボリュームで階層化ポリシーを設定します。 `volume modify -volume flexgroup_name -tiering-policy [auto|snapshot|none|backup]`
 +
 [listing]
 ----
 cluster-2::> volume modify -volume fg1 -tiering-policy auto
 ----
-.. FlexGroup ボリュームが存在するアグリゲートを特定します。 volume show -volume flexgroup -fields aggr-list 」
+.. FlexGroup ボリュームが配置されているアグリゲートを特定します。 `volume show -volume flexgroup_name -fields aggr-list`
 +
 [listing]
 ----
@@ -39,7 +39,7 @@ vserver volume aggr-list
 ------- ------ -----------
 vs1     fg1    aggr1,aggr3
 ----
-.. アグリゲートリストに表示された各アグリゲートにオブジェクトストアを接続します。「 storage aggregate object-store attach -aggregate aggregate name object-store-name-allow-flexgroup true 」
+.. アグリゲートリスト内の各アグリゲートにオブジェクトストアを接続します。 `storage aggregate object-store attach -aggregate aggregate name -name object-store-name -allow-flexgroup true`
 +
 すべてのアグリゲートをオブジェクトストアに接続する必要があります。
 
@@ -52,13 +52,13 @@ cluster-2::> storage aggregate object-store attach -aggregate aggr1 -object-stor
 ----
 * FlexGroup ボリュームのコンスティチュエントを FabricPool 内のアグリゲートに移行するには、次の手順を実行します。
 +
-.. 既存の FlexGroup ボリュームで階層化ポリシーを設定します。 volume modify -volume flexgroup -tiering-policy [auto|snapshot|none|backup]]
+.. 既存のFlexGroup ボリュームで階層化ポリシーを設定します。 `volume modify -volume flexgroup_name -tiering-policy [auto|snapshot|none|backup]`
 +
 [listing]
 ----
 cluster-2::> volume modify -volume fg1 -tiering-policy auto
 ----
-.. FlexGroup ボリュームの各コンスティチュエントを、同じクラスタにある FabricPool 内のアグリゲートに移動します。「 volume move start -volume constituent-volume -volume-destination-aggregate FabricPool _aggregate-allow-fmixed-aggr-types true
+.. FlexGroup の各コンスティチュエントを、同じクラスタ内のFabricPool 内のアグリゲートに移動します。 `volume move start -volume constituent-volume -destination-aggregate FabricPool_aggregate -allow-mixed-aggr-types true`
 +
 FlexGroup ボリュームのすべてのコンスティチュエントを FabricPool 内のアグリゲートに移動し（ FlexGroup ボリュームのコンスティチュエントが異なるタイプのアグリゲートに配置されている場合）、それらのコンスティチュエントをクラスタ内のノード間に分散します。
 

@@ -11,7 +11,7 @@ summary: プライマリストレージのソースボリュームとセカン�
 
 
 [role="lead"]
-プライマリストレージのソースボリュームとセカンダリストレージのデスティネーションボリュームの関係は、 _data 保護関係と呼ばれます。 _ SnapMirror DR 、 SnapVault 、またはユニファイドレプリケーションのデータ保護関係を作成するには、「 snapmirror-create 」コマンドを使用します。
+プライマリストレージのソースボリュームとセカンダリストレージのデスティネーションボリュームの関係は、_data保護関係と呼ばれます。_を使用できます `snapmirror create` SnapMirror DR、SnapVault 、またはユニファイドレプリケーションのデータ保護関係を作成するコマンドです。
 
 .必要なもの
 * ソースクラスタとデスティネーションクラスタ、および SVM のピア関係が確立されている必要があります。
@@ -81,7 +81,7 @@ XDPDefault （ SnapVault ）
 
 * SVM データ保護関係のデフォルトは引き続き DP モードです。
 +
-デフォルトの「 irrorAllSnapshots 」ポリシーで XDP モードを取得するには、 XDP を明示的に指定します。
+デフォルトのXDPモードを使用するには、XDPを明示的に指定してください `MirrorAllSnapshots` ポリシー：
 
 * 負荷共有データ保護関係のデフォルトは引き続き DP モードです。
 * SnapLock データ保護関係のデフォルトは引き続き DP モードです。
@@ -103,7 +103,7 @@ ONTAP 9.5 以降では、 SnapMirror Synchronous 関係がサポートされま�
 .ステップ
 . デスティネーションクラスタから、レプリケーション関係を作成します。
 +
-「 Snapmirror create -source-path SVM ： volume_|| クラスタ： //SVM/volume_、 ... 」 -destination-path SVM ： volume_|_cluster ： // SVM/volume_,... -type DP | xdp -schedule _-policy_'
+`snapmirror create -source-path _SVM:volume_|_cluster://SVM/volume_, ... -destination-path _SVM:volume_|_cluster://SVM/volume_, ... -type DP|XDP -schedule _schedule_ -policy _policy_`
 
 +
 コマンド構文全体については、マニュアルページを参照してください。
@@ -111,11 +111,11 @@ ONTAP 9.5 以降では、 SnapMirror Synchronous 関係がサポートされま�
 +
 [NOTE]
 ====
-SnapMirror Synchronous 関係を作成する場合は、「 schedule 」パラメータは使用できません。
+。 `schedule` パラメータは、SnapMirror Synchronous関係の作成には使用できません。
 
 ====
 +
-次の例は、デフォルトの「 MirrorAllSnapshots 」ポリシーを使用して、 SnapMirror DR 関係を作成します。
+次の例は、デフォルトを使用して、SnapMirror DR関係を作成します `MirrorLatest` ポリシー：
 
 +
 [listing]
@@ -123,7 +123,7 @@ SnapMirror Synchronous 関係を作成する場合は、「 schedule 」パラ�
 cluster_dst::> snapmirror create -source-path svm1:volA -destination-path svm_backup:volA_dst -type XDP -schedule my_daily -policy MirrorLatest
 ----
 +
-次に、デフォルトの「 XDPDefault 」ポリシーを使用して SnapVault 関係を作成する例を示します。
+次の例は、デフォルトを使用してSnapVault 関係を作成します `XDPDefault` ポリシー：
 
 +
 [listing]
@@ -131,7 +131,7 @@ cluster_dst::> snapmirror create -source-path svm1:volA -destination-path svm_ba
 cluster_dst::> snapmirror create -source-path svm1:volA -destination-path svm_backup:volA_dst -type XDP -schedule my_daily -policy XDPDefault
 ----
 +
-次の例では、デフォルトの「 mirrorsusy' 」ポリシーを使用して、ユニファイドレプリケーション関係を作成します。
+次の例は、デフォルトを使用してユニファイドレプリケーション関係を作成します `MirrorAndVault` ポリシー：
 
 +
 [listing]
@@ -139,7 +139,7 @@ cluster_dst::> snapmirror create -source-path svm1:volA -destination-path svm_ba
 cluster_dst:> snapmirror create -source-path svm1:volA -destination-path svm_backup:volA_dst -type XDP -schedule my_daily -policy MirrorAndVault
 ----
 +
-次の例では、カスタムの「 y_unified 」ポリシーを使用して、ユニファイド・レプリケーション関係を作成します。
+次の例は、カスタムのを使用してユニファイドレプリケーション関係を作成します `my_unified` ポリシー：
 
 +
 [listing]
@@ -147,7 +147,7 @@ cluster_dst:> snapmirror create -source-path svm1:volA -destination-path svm_bac
 cluster_dst::> snapmirror create -source-path svm1:volA -destination-path svm_backup:volA_dst -type XDP -schedule my_daily -policy my_unified
 ----
 +
-次の例は、デフォルトの「 Sync 」ポリシーを使用して、 SnapMirror Synchronous 関係を作成します。
+次の例は、デフォルトを使用してSnapMirror Synchronous関係を作成します `Sync` ポリシー：
 
 +
 [listing]
@@ -155,7 +155,7 @@ cluster_dst::> snapmirror create -source-path svm1:volA -destination-path svm_ba
 cluster_dst::> snapmirror create -source-path svm1:volA -destination-path svm_backup:volA_dst -type XDP -policy Sync
 ----
 +
-次の例は、デフォルトの「 StrictSync 」ポリシーを使用して、 SnapMirror Synchronous 関係を作成します。
+次の例は、デフォルトを使用してSnapMirror Synchronous関係を作成します `StrictSync` ポリシー：
 
 +
 [listing]
@@ -163,7 +163,7 @@ cluster_dst::> snapmirror create -source-path svm1:volA -destination-path svm_ba
 cluster_dst::> snapmirror create -source-path svm1:volA -destination-path svm_backup:volA_dst -type XDP -policy StrictSync
 ----
 +
-次の例は、 SnapMirror DR 関係を作成します。DP タイプが自動的に XDP に変換され、ポリシーが指定されていない場合、ポリシーはデフォルトで「 mirrorAllSnapshots 」ポリシーになります。
+次の例は、 SnapMirror DR 関係を作成します。DPタイプは自動的にXDPに変換され、ポリシーは指定されません。デフォルトポリシーはです `MirrorAllSnapshots` ポリシー：
 
 +
 [listing]
@@ -171,7 +171,7 @@ cluster_dst::> snapmirror create -source-path svm1:volA -destination-path svm_ba
 cluster_dst::> snapmirror create -source-path svm1:volA -destination-path svm_backup:volA_dst -type DP -schedule my_daily
 ----
 +
-次の例は、 SnapMirror DR 関係を作成します。タイプまたはポリシーが指定されていない場合、ポリシーはデフォルトで「 mirrorAllSnapshots 」ポリシーになります。
+次の例は、 SnapMirror DR 関係を作成します。タイプまたはポリシーが指定されていない場合、ポリシーはデフォルトでになります `MirrorAllSnapshots` ポリシー：
 
 +
 [listing]
@@ -179,7 +179,7 @@ cluster_dst::> snapmirror create -source-path svm1:volA -destination-path svm_ba
 cluster_dst::> snapmirror create -source-path svm1:volA -destination-path svm_backup:volA_dst -schedule my_daily
 ----
 +
-次の例は、 SnapMirror DR 関係を作成します。ポリシーが指定されていない場合、ポリシーはデフォルトで「 XDPDefault 」ポリシーになります。
+次の例は、 SnapMirror DR 関係を作成します。ポリシーを指定しない場合、ポリシーはデフォルトでになります `XDPDefault` ポリシー：
 
 +
 [listing]
@@ -187,7 +187,7 @@ cluster_dst::> snapmirror create -source-path svm1:volA -destination-path svm_ba
 cluster_dst::> snapmirror create -source-path svm1:volA -destination-path svm_backup:volA_dst -type XDP -schedule my_daily
 ----
 +
-次の例は、事前定義された「 S napCenterSync 」ポリシーを使用して SnapMirror Synchronous 関係を作成します。
+次の例は、事前定義されたポリシーを使用して、SnapMirror Synchronous関係を作成します `SnapCenterSync`：
 
 +
 [listing]
@@ -197,13 +197,13 @@ cluster_dst::> snapmirror create -source-path svm1:volA -destination-path svm_ba
 +
 [NOTE]
 ====
-定義済みのポリシー「 S napCenterSync 」のタイプは「 S sync 」です。このポリシーでは、「 app_consistent 」の「 Snapmirror -label 」で作成された Snapshot コピーがすべてレプリケートされます。
+事前定義されたポリシー `SnapCenterSync` はタイプです `Sync`。このポリシーは、で作成されたすべてのSnapshotコピーをレプリケートします `snapmirror-label` 」が表示されます。
 
 ====
 
 
 .完了後
-「 snapmirror show 」コマンドを使用して、 SnapMirror 関係が作成されたことを確認します。コマンド構文全体については、マニュアルページを参照してください。
+を使用します `snapmirror show` SnapMirror関係が作成されたことを確認するコマンド。コマンド構文全体については、マニュアルページを参照してください。
 
 
 

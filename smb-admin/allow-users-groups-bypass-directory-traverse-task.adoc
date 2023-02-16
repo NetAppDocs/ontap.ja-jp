@@ -11,27 +11,27 @@ summary: トラバースするディレクトリに対する権限がない場�
 
 
 [role="lead"]
-トラバースするディレクトリに対する権限がない場合でも、ファイルへのパスに含まれるすべてのディレクトリをユーザがトラバースできるようにするには、 Storage Virtual Machine （ SVM ）のローカル SMB ユーザまたはグループに「ショート」権限を追加します。デフォルトでは、ユーザはディレクトリのトラバースチェックをバイパスできます。
+トラバースするディレクトリに対する権限がない場合でも、ファイルへのパスに含まれるすべてのディレクトリをユーザがトラバースできるようにするには、を追加します `SeChangeNotifyPrivilege` Storage Virtual Machine（SVM）上のローカルSMBユーザまたはグループに対する権限。デフォルトでは、ユーザはディレクトリのトラバースチェックをバイパスできます。
 
 .作業を開始する前に
 * SVM 上に SMB サーバが存在している必要があります。
 * ローカルユーザとローカルグループの SMB サーバオプションが有効になっている必要があります。
-* 「ユーザー・グループ」権限を追加するローカルまたはドメインのユーザーまたはグループがすでに存在している必要があります。
+* が配置されるローカルまたはドメインのユーザまたはグループ `SeChangeNotifyPrivilege` 権限はすでに追加されている必要があります。
 
 
 .このタスクについて
 ドメインユーザまたはグループへの権限の追加時、 ONTAP では、ドメインコントローラに接続してそのドメインユーザまたはグループを検証することがあります。ONTAP からドメインコントローラに接続できない場合、コマンドが失敗することがあります。
 
 .手順
-. 「特権ユーザ」権限をローカルまたはドメインユーザまたはグループに追加して、トラバースチェックのバイパスを有効にします。「 vserver cifs users-and-groups privilege add-privilege -vserver vserver_name -user-or-group-name -user-or-group-name name _-privileges SeChangeNotifyPrivilege
+. を追加して、トラバースチェックのバイパスを有効にします `SeChangeNotifyPrivilege` ローカルまたはドメインのユーザまたはグループに対する権限： `vserver cifs users-and-groups privilege add-privilege -vserver _vserver_name_ -user-or-group-name _name_ -privileges SeChangeNotifyPrivilege`
 +
-'-user-' または -group-name' パラメータの値は ' ローカル・ユーザまたはグループ ' あるいはドメイン・ユーザまたはグループです
+の値 `-user-or-group-name` パラメータは、ローカルユーザまたはローカルグループ、あるいはドメインユーザまたはドメイングループです。
 
-. 指定したユーザまたはグループに対してトラバースチェックのバイパスが有効になっていることを確認します。 vserver cifs users-and-groups privilege show -vserver vserver_name _-user-or-group-name name _`
+. 指定したユーザまたはグループに対してトラバースチェックのバイパスが有効になっていることを確認します。 `vserver cifs users-and-groups privilege show -vserver _vserver_name_ ‑user-or-group-name _name_`
 
 
 .例
-次のコマンドでは、 "EXAMPLE\eng" グループに属するユーザが、グループに "S eStrong" 権限を追加することで、ディレクトリのトラバースチェックをバイパスできるようにします。
+次のコマンドでは、「EXAMPLE \eng」グループに属するユーザが、を追加してディレクトリのトラバースチェックをバイパスできるようにします `SeChangeNotifyPrivilege` グループに対する権限：
 
 [listing]
 ----

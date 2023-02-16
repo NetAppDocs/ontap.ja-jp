@@ -1,0 +1,163 @@
+---
+sidebar: sidebar 
+permalink: concepts/capacity-measurements-in-sm-concept.html 
+keywords: capacity, measurement, physical, logical, storage, used storage, local tier capacity, aggregate capacity, block, capacity concern, add capacity, volume, used capacity, available capacity, total capacity, inactive capacity, static insights, dynamic insights, snapshot copy, snapshot copies, inactive data, overprovision, overflows, snapshot copy policy, snapshot copy reserves, reserves, policy, top volumes 
+summary: システム容量は物理スペースまたは論理スペースとして測定できます。最新バージョンの System Manager では、物理容量と論理容量を測定します。 
+---
+= System Manager で測定される容量
+:allow-uri-read: 
+
+
+[role="lead"]
+システム容量は物理スペースまたは論理スペースとして測定できます。最新バージョンの System Manager では、物理容量と論理容量を測定します。
+
+2 つの測定値の違いについては、次の説明を参照してください。
+
+* *物理容量*：物理スペースは、ボリュームまたはローカル階層で使用されているストレージの物理ブロックを表します。通常、使用済み物理容量の値は、ストレージ効率化機能（重複排除や圧縮など）によるデータの削減が原因で使用済み論理容量の値よりも小さくなります。
+* *論理容量*：論理スペースとは、ボリュームまたはローカル階層の使用可能なスペース（論理ブロック）のことです。論理スペースとは、重複排除や圧縮の結果を考慮せずに、理論上のスペースをどのように使用できるかを指します。使用済み論理スペースは、使用済みの物理スペースの量に加えて、設定済みの Storage Efficiency 機能（重複排除や圧縮など）による削減量から導き出されます。Snapshot コピー、クローン、その他のコンポーネントが含まれ、データ圧縮やその他の物理スペースの削減が反映されていないため、この測定値は、多くの場合、物理使用容量よりも大きく表示されます。したがって、合計論理容量は、プロビジョニング済みスペースよりも多くなる可能性があります。
+
+
+
+NOTE: System Manager では、ルートストレージ階層（アグリゲート）の容量は表示されません。
+
+<<measurements-used-cap>>
+<<cap-measurement-terms>>
+<<cap-measurement-units>>
+
+.追加情報
+System Managerで、クラスタ、ローカル階層、およびボリュームの容量を監視できます。を参照してください link:./task_admin_monitor_capacity_in_sm.html["System Manager で容量を監視"]。
+
+
+
+== 使用済み容量の測定値
+
+使用済み容量の測定値の表示方法は、次の表に示すように、使用している System Manager のバージョンによって異なります。
+
+[cols="30,30,40"]
+|===
+
+
+| System Manager のバージョン | 容量に使用される用語 | 参照される容量のタイプ 
+
+
+ a| 
+9.5 および 9.6 （クラシックビュー）
+ a| 
+使用済み
+ a| 
+使用済みの物理スペース
+
+
+
+ a| 
+9.7 および 9.8
+ a| 
+使用済み
+ a| 
+使用済みの論理スペース（ Storage Efficiency の設定が有効になっている場合）
+
+
+
+ a| 
+9.9.1 以降
+ a| 
+使用済みの論理容量
+ a| 
+使用済みの論理スペース（ Storage Efficiency の設定が有効になっている場合）
+
+|===
+
+
+== 容量測定条件
+
+容量の説明では次の用語を使用します。
+
+* * Available *：ボリュームのプロビジョニングに使用できるローカル階層内の使用可能な物理スペースの量です。
+* *クライアントデータ*：クライアントデータに使用されているスペースの量（物理または論理）。
+* * Committed *：ローカル階層のコミット済み容量。
+* *データ削減*：
++
+** *全体*：すべての使用済み論理スペースと使用済み物理スペースの比率。
+** * Snapshotコピーとクローンを使用しない*：クライアントデータのみで使用されている論理スペースと、クライアントデータのみで使用されている物理スペースの比率。
+
+
+* * Logical Used *：ストレージ効率化機能によって削減されたスペースを考慮せずに使用されているスペース。
+* * Logical Used%*：Snapshotリザーブを除く、プロビジョニングサイズに対する現在の使用済み論理容量の割合。この値は、ボリューム内での効率化による削減も含まれるため、 100% より大きい値にすることができます。
+* *使用済み物理容量*：ボリュームまたはローカル階層の物理ブロックで使用されている容量。
+* * Physical Used %*：ボリュームの物理ブロックで使用されている容量の、プロビジョニングされたサイズに対する割合。
+* * Reserved *：ローカル階層ですでにプロビジョニングされているボリューム用にリザーブされているスペースの量。
+* * usedおよびreserved *：使用済みの物理スペースとリザーブスペースの合計です。
+
+
+
+
+== 容量の単位
+
+System Manager は、 1024 （ 2^10^ ）バイトのバイナリ単位に基づいてストレージ容量を計算します。ONTAP 9.10.0 以前では、 System Manager に KB 、 MB 、 GB 、 TB 、 PB として表示されていました。ONTAP 9.10.1 以降の System Manager では、 KiB 、 MiB 、 GiB 、 TiB 、および PiB として表示されます。
+
+
+NOTE: System Manager のスループットに使用される単位は、すべてのリリースの ONTAP について、 KB/ 秒、 MB/ 秒、 GB/ 秒、および PB / 秒です。
+
+[cols="20,20,30,30"]
+|===
+
+
+| ONTAP 9.10.0 以前の System Manager で表示される容量の単位 | ONTAP 9.10.1以降のSystem Managerに表示される容量単位 | 計算 | バイト単位の値 
+
+
+ a| 
+KB
+ a| 
+KiB
+ a| 
+1024
+ a| 
+1024 バイト
+
+
+
+ a| 
+MB
+ a| 
+MIB
+ a| 
+1024 * 1024
+ a| 
+1 、 048 、 576 バイト
+
+
+
+ a| 
+GB
+ a| 
+GIB
+ a| 
+1024 * 1024 * 1024
+ a| 
+1,073,741,824 バイト
+
+
+
+ a| 
+容量
+ a| 
+TiB
+ a| 
+1024 * 1024 * 1024 * 1024
+ a| 
+1 、 099 、 511 、 627 、 776 バイト
+
+
+
+ a| 
+PB
+ a| 
+PIB
+ a| 
+1024 * 1024 * 1024 * 1024 * 1024
+ a| 
+1,125,898,010,834,824 バイト
+
+|===
+.追加情報 ：
+link:./volumes/logical-space-reporting-enforcement-concept.html["ボリュームの論理スペースのレポートと適用"]

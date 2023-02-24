@@ -14,9 +14,10 @@ summary: ONTAP 9.6 以降では、 FlexGroup ボリュームのサイズを現�
 ONTAP 9.6 以降では、 FlexGroup ボリュームのサイズを現在のサイズよりも小さい値に変更して、ボリュームから未使用のスペースを解放できます。FlexGroup ボリュームのサイズを縮小すると、 ONTAP によってすべての FlexGroup コンスティチュエントのサイズが自動的に変更されます。
 
 .ステップ
-. FlexGroup ボリュームのサイズを縮小します。 `volume size -vserver vserver_name -volume fg_name -size new_size`
+. 現在のFlexGroup ボリュームサイズを確認します。「volume size -vserver _vserver_name _-volume_fg_name _」
+. FlexGroup ボリュームのサイズを縮小します。 `volume size -vserver _vserver_name_ -volume _fg_name_ _new_size_`
 +
-`new_size` は、FlexGroup ボリュームのサイズです。現在のサイズよりも小さい値を指定するか、 FlexGroup ボリュームのサイズを現在よりもどれだけ小さくするかを負の値で指定できます。
+新しいサイズを指定するときは、現在のサイズよりも小さい値を指定するか、マイナス記号（-）を使用してFlexGroup ボリュームの現在のサイズが縮小される負の値を指定できます。
 
 +
 [NOTE]
@@ -25,13 +26,31 @@ ONTAP 9.6 以降では、 FlexGroup ボリュームのサイズを現在のサ�
 
 ====
 +
-[listing]
-----
-cluster1::> volume size -vserver svm1 -volume volX -size 10TB
-----
+次の例は、volXという名前のFlexGroup ボリュームの現在のボリュームサイズを表示し、ボリュームのサイズを10TBに変更します。
+
 +
 [listing]
 ----
-cluster1::> volume size -vserver svm1 -volume volX -size -5TB
+cluster1::> volume size -vserver svm1 -volume volX
+(volume size)
+vol size: FlexGroup volume 'svm1:volX' has size 15TB.
+
+cluster1::> volume size -vserver svm1 -volume volX 10TB
+(volume size)
+vol size: FlexGroup volume 'svm1:volX' size set to 10TB.
+----
++
+次の例は、volXという名前のFlexGroup ボリュームの現在のボリュームサイズを表示し、ボリュームのサイズを5TBだけ縮小します。
+
++
+[listing]
+----
+cluster1::> volume size -vserver svm1 -volume volX
+(volume size)
+vol size: FlexGroup volume 'svm1:volX' has size 15TB.
+
+cluster1::> volume size -vserver svm1 -volume volX -5TB
+(volume size)
+vol size: FlexGroup volume 'svm1:volX' size set to 10TB.
 ----
 

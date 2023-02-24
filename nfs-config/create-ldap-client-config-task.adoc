@@ -22,22 +22,22 @@ AD ドメイン解決リストの最初の 3 台のサーバのうち 1 台が�
 
 ====
 .手順
-. に対する適切な設定値を決定するには、LDAP管理者に問い合わせてください `vserver services name-service ldap client create` コマンドを実行します
+. LDAP管理者に問い合わせて、の適切な設定値を確認してください `vserver services name-service ldap client create` コマンドを実行します
 +
 .. LDAP サーバへのドメインベースまたはアドレスベースの接続を指定します。
 +
 。 `-ad-domain` および `-servers` オプションを同時に指定することはできません。
 
 +
-*** を使用します `-ad-domain` Active DirectoryドメインでLDAPサーバの検出を有効にするオプション。
+*** を使用します `-ad-domain` Active DirectoryドメインでLDAPサーバ検出を有効にするオプション。
 +
-を使用できます `-preferred-ad-servers` 複数の優先Active Directoryサーバをカンマで区切ってIPアドレスで指定できます。クライアントが作成されたら、を使用してこのリストを変更できます `vserver services name-service ldap client modify` コマンドを実行します
+を使用できます `-preferred-ad-servers` カンマで区切ってIPアドレスで1つ以上の優先Active Directoryサーバを指定するオプション。クライアントが作成されたら、を使用してこのリストを変更できます `vserver services name-service ldap client modify` コマンドを実行します
 
-*** を使用します `-servers` カンマで区切ったIPアドレスでLDAPサーバ（ADまたはUNIX）を指定するオプション。
+*** を使用します `-servers` カンマで区切ってIPアドレスで1つ以上のLDAPサーバ（ADまたはUNIX）を指定するオプション。
 +
 [NOTE]
 ====
-。 `-servers` オプションはONTAP 9.2で廃止されました。ONTAP 9.2以降では、がサポートされます `-ldap-servers` フィールドがに置き換わります `-servers` フィールド。この新しいフィールドには、 LDAP サーバのホスト名または IP アドレスを指定できます。
+。 `-servers` オプションはONTAP 9.2で廃止されました。ONTAP 9.2以降では `-ldap-servers` フィールドがに置き換わります `-servers` フィールド。この新しいフィールドには、 LDAP サーバのホスト名または IP アドレスを指定できます。
 
 ====
 
@@ -88,19 +88,19 @@ LDAP サーバで必要な場合は、 LDAP の署名と封印または LDAP ove
 +
 *** `--session-security {none|sign|seal}`
 +
-署名を有効にできます (`sign`、データの整合性）、署名と封印 (`seal`、データの整合性と暗号化）、またはどちらもサポートされていません  `none`、署名も封印もなし）。デフォルト値はです `none`。
+署名を有効にできます (`sign`、データ整合性）、署名と封印 (`seal`、データ整合性と暗号化）、またはどちらでもない  `none`、署名または封印なし）。デフォルト値はです `none`。
 
 +
 また、を設定する必要があります `-min-bind-level` {`sasl`｝バインド認証をにフォールバックする場合を除きます `*anonymous*` または `*simple*` 署名と封印のバインドが失敗した場合。
 
 *** `-use-start-tls` {`true`|`false`｝
 +
-に設定すると `*true*` LDAPサーバでサポートされている場合、LDAPクライアントはサーバへの暗号化されたTLS接続を使用します。デフォルト値はです `*false*`。このオプションを使用するには、 LDAP サーバの自己署名ルート CA 証明書をインストールする必要があります。
+に設定すると `*true*` LDAPサーバがサポートしており、LDAPクライアントはサーバへの暗号化されたTLS接続を使用します。デフォルト値はです `*false*`。このオプションを使用するには、 LDAP サーバの自己署名ルート CA 証明書をインストールする必要があります。
 
 +
 [NOTE]
 ====
-SVMでSMBサーバがドメインに追加されていて、LDAPサーバがSMBサーバのホームドメインのドメインコントローラの1つである場合は、を変更できます `-session-security-for-ad-ldap` オプションを使用します `vserver cifs security modify` コマンドを実行します
+SVMにSMBサーバがドメインに追加されていて、LDAPサーバがSMBサーバのホームドメインのドメインコントローラの1つである場合は、を変更できます `-session-security-for-ad-ldap` オプションを使用します `vserver cifs security modify` コマンドを実行します
 
 ====
 
@@ -117,7 +117,7 @@ SVMでSMBサーバがドメインに追加されていて、LDAPサーバがSMB�
 +
 Start TLS を使用した LDAP 接続の保護を予定している場合は、デフォルトのポート 389 を使用する必要があります。Start TLS は LDAP のデフォルトポート 389 経由でプレーンテキスト接続として開始され、その後 TLS 接続にアップグレードされます。ポートを変更すると、 Start TLS は失敗します。
 
-*** `-query-timeout _integer_` クエリのタイムアウトを秒単位で指定します。
+*** `-query-timeout _integer_` クエリータイムアウトを秒単位で指定します。
 +
 指定できる範囲は 1~10 秒です。デフォルト値はです `3` 秒。
 
@@ -125,11 +125,11 @@ Start TLS を使用した LDAP 接続の保護を予定している場合は、�
 +
 必要に応じて複数の値を入力できます（ LDAP リファーラル追跡を有効にした場合など）。デフォルト値はです `""` （ルート）。
 
-*** `-base-scope` {`base`|`onelevel`|`subtree`}は、ベース検索範囲を指定します。
+*** `-base-scope` {`base`|`onelevel`|`subtree`｝は、ベース検索範囲を指定します。
 +
 デフォルト値はです `subtree`。
 
-*** `-referral-enabled` {`true`|`false`｝は、LDAPリファーラル追跡を有効にするかどうかを示します。
+*** `-referral-enabled` {`true`|`false`｝LDAPリファーラル追跡を有効にするかどうかを指定します。
 +
 ONTAP 9.5 以降では、 LDAP リファーラル追跡を有効にすると、必要なレコードが他の LDAP サーバにあることを示す LDAP リファーラル応答がプライマリ LDAP サーバから返された場合に、 ONTAP LDAP クライアントがそれらの LDAP サーバに対してルックアップ要求を実行することができます。デフォルト値はです `*false*`。
 

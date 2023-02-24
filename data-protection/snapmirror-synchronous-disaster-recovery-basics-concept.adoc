@@ -82,7 +82,7 @@ SnapMirror Synchronousでは、階層化ポリシーが「なし」、「Snapsho
 
 ONTAP 9.7 の SnapMirror Synchronous テクノロジでは、次の機能がサポートされています。
 
-* Snapshotコピーがの時点で適切なラベルでタグ付けされている場合、アプリケーションで作成されたSnapshotコピーのレプリケーション `snapshot create` SnapMirror Synchronousは、CLIまたはONTAP APIを使用して、アプリケーションの休止後にユーザが作成したSnapshotコピーと外部スクリプトで作成したSnapshotコピーの両方をレプリケートします。Snapshot ポリシーを使用して作成され、スケジュール設定された Snapshot コピーはレプリケートされません。アプリケーションで作成されたSnapshotコピーのレプリケートの詳細については、ナレッジベースの記事： link:https://kb.netapp.com/Advice_and_Troubleshooting/Data_Protection_and_Security/SnapMirror/How_to_replicate_application_created_snapshots_with_SnapMirror_Synchronous["アプリケーションで作成されたSnapshotをSnapMirror Synchronousでレプリケートする方法"^]。
+* 実行時に適切なラベルでSnapshotコピーがタグ付けされている場合、アプリケーションで作成されたSnapshotコピーのレプリケーション `snapshot create` SnapMirror Synchronousは、CLIまたはONTAP APIを使用して、アプリケーションを休止すると、ユーザが作成したSnapshotコピーと外部スクリプトで作成したSnapshotコピーの両方をレプリケートします。Snapshot ポリシーを使用して作成され、スケジュール設定された Snapshot コピーはレプリケートされません。アプリケーションで作成されたSnapshotコピーのレプリケートの詳細については、ナレッジベースの記事： link:https://kb.netapp.com/Advice_and_Troubleshooting/Data_Protection_and_Security/SnapMirror/How_to_replicate_application_created_snapshots_with_SnapMirror_Synchronous["アプリケーションで作成されたSnapshotをSnapMirror Synchronousでレプリケートする方法"^]。
 * FC-NVMe
 * LUNクローンとNVMeネームスペースクローンには、アプリケーションで作成されたSnapshotコピーに基づくLUNクローンもサポートされます。
 
@@ -148,11 +148,11 @@ SnapMirror Synchronous には、使用する SnapMirror ポリシーに基づい
 
 == 関係のステータス
 
-SnapMirror Synchronous関係のステータスは常にに表示されます `InSync` 通常動作中のステータス。何らかの理由でSnapMirror転送に失敗した場合、デスティネーションはソースと同期されていない状態になり、にアクセスできます `OutofSync` ステータス。
+SnapMirror Synchronous関係のステータスは、常ににあります `InSync` 通常動作中のステータス。何らかの理由でSnapMirror転送に失敗した場合、デスティネーションはソースと同期されておらず、に移動できます `OutofSync` ステータス。
 
-SnapMirror Synchronous関係については、自動的にステータスが確認されます  `InSync` または `OutofSync`）を一定の間隔で指定します。関係のステータスがの場合 `OutofSync`、ONTAP は、自動再同期プロセスを自動的に開始して、に関係を戻します `InSync` ステータス。再同期が実行されるのは、ソースまたはデスティネーションでの計画外のストレージフェイルオーバーやネットワークの停止などによって転送に失敗した場合のみです。など、ユーザが開始する操作 `snapmirror quiesce` および `snapmirror break` 自動再同期は実行しないでください。
+SnapMirror Synchronous関係については、関係のステータスが自動的にチェックされます  `InSync` または `OutofSync`）を一定の間隔で入力します。関係のステータスがの場合 `OutofSync`ONTAP は自動再同期プロセスを自動的にトリガーして、関係をに戻します `InSync` ステータス。再同期が実行されるのは、ソースまたはデスティネーションでの計画外のストレージフェイルオーバーやネットワークの停止などによって転送に失敗した場合のみです。など、ユーザが開始した処理 `snapmirror quiesce` および `snapmirror break` 自動再同期はトリガーしないでください。
 
-関係のステータスがになった場合 `OutofSync` StrictSyncモードのSnapMirror Synchronous関係では、プライマリボリュームに対するI/O処理がすべて停止します。。 `OutofSync` 同期モードのSnapMirror Synchronous関係の状態はプライマリに影響せず、プライマリボリュームでI/O処理が許可されます。
+関係のステータスがになる場合 `OutofSync` StrictSyncモードのSnapMirror Synchronous関係では、プライマリボリュームに対するI/O処理がすべて停止されます。。 `OutofSync` SyncモードでのSnapMirror Synchronous関係の状態はプライマリへの影響を受けず、プライマリボリュームでI/O処理が許可されます。
 
 .関連情報
 http://www.netapp.com/us/media/tr-4733.pdf["ネットアップテクニカルレポート4733：『SnapMirror Synchronous config ration and best bests.』"^]

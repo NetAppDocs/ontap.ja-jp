@@ -21,9 +21,9 @@ summary: 2 ノード MetroCluster 構成の ONTAP は、無停止でアップグ
 
 . 権限レベルをadvancedに設定します。続行するかどうかを尋ねられたら、「* y *」と入力します。 `set -privilege advanced`
 +
-advancedのプロンプト (`*>`）が表示されます。
+advancedプロンプトが表示されます (`*>`）が表示されます。
 
-. アップグレード対象のクラスタで、新しいONTAP ソフトウェアイメージをデフォルトとしてインストールします。 `system node image update -package package_location -setdefault true -replace-package true`
+. アップグレードするクラスタで、新しいONTAP ソフトウェアイメージをデフォルトとしてインストールします。 `system node image update -package package_location -setdefault true -replace-package true`
 +
 [listing]
 ----
@@ -31,7 +31,7 @@ cluster_B::*> system node image update -package http://www.example.com/NewImage.
 ----
 . ターゲットのソフトウェアイメージがデフォルトのイメージとして設定されたことを確認します。 `system node image show`
 +
-次の例はその方法を示しています `NewImage` はデフォルトイメージとして設定されています。
+次の例はそれを示しています `NewImage` デフォルトのイメージとして設定されています。
 
 +
 [listing]
@@ -45,9 +45,9 @@ node_B_1
          NewImage  true    false   Y.Y.Y                MM/DD/YYYY TIME
 2 entries were displayed.
 ----
-. ターゲットのソフトウェアイメージがデフォルトのイメージとして設定されていない場合は、デフォルトに変更します。 `system image modify {-node * -iscurrent false} -isdefault true`
+. ターゲットのソフトウェアイメージがデフォルトのイメージとして設定されていない場合は、変更します。 `system image modify {-node * -iscurrent false} -isdefault true`
 . すべてのクラスタSVMが健全な状態であることを確認します。 `metrocluster vserver show`
-. 更新対象でないクラスタで、ネゴシエートスイッチオーバーを開始します。 `metrocluster switchover`
+. 更新されていないクラスタで、ネゴシエートスイッチオーバーを開始します。 `metrocluster switchover`
 +
 この処理には数分かかることがあります。MetroCluster operation show コマンドを使用して、スイッチオーバーが完了したことを確認できます。
 
@@ -67,7 +67,7 @@ Warning: negotiated switchover is about to start. It will stop all the data
 Do you want to continue? {y|n}: y
 ----
 . すべてのクラスタSVMが健全な状態であることを確認します。 `metrocluster vserver show`
-. 「サバイバー」クラスタ上のデータアグリゲートを再同期します。 `metrocluster heal -phase aggregates`
+. 「Surviving」クラスタ上のデータアグリゲートを再同期します。 `metrocluster heal -phase aggregates`
 +
 MetroCluster IP 構成を ONTAP 9.5 以降にアップグレードすると、アグリゲートの状態は短時間 degraded になったあとに再同期されて mirrored に戻ります。
 
@@ -88,7 +88,7 @@ Start Time: MM/DD/YYYY TIME
 End Time: MM/DD/YYYY TIME
 Errors: -
 ----
-. 「残りの」クラスタ上のルートアグリゲートを再同期します。 `metrocluster heal -phase root-aggregates`
+. 「Surviving」クラスタのルートアグリゲートを再同期します。 `metrocluster heal -phase root-aggregates`
 +
 [listing]
 ----
@@ -108,7 +108,7 @@ Errors: -
 ----
 . 停止したクラスタで、LOADERプロンプトからノードをブートします。 `boot_ontap`
 . ブートプロセスの終了を待ってから、すべてのクラスタSVMが健全な状態であることを確認します。 `metrocluster vserver show`
-. 「サバイバー」クラスタからスイッチバックを実行します。 `metrocluster switchback`
+. 「Surviving」クラスタからスイッチバックを実行します。 `metrocluster switchback`
 . スイッチバックが正常に完了したことを確認します。 `metrocluster operation show`
 +
 [listing]

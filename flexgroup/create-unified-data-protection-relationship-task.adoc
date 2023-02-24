@@ -19,7 +19,7 @@ FlexGroup ボリュームの一元化されたデータ保護関係の作成に�
 link:snapvault-backup-concept.html["FlexGroup ボリュームの SnapVault バックアップ関係および一元化されたデータ保護関係を作成する際の考慮事項について説明します"]
 
 .手順
-. タイプがのデスティネーションFlexGroup ボリュームを作成します `DP` コンスティチュエントの数がソースFlexGroup ボリュームと同じであることを確認します。
+. タイプがのデスティネーションFlexGroup ボリュームを作成します `DP` ソースFlexGroup と同じ数のコンスティチュエントを含むデータセンターを作成します。
 +
 .. ソースクラスタから、ソースFlexGroup ボリュームのコンスティチュエントの数を確認します。 `volume show -volume volume_name* -is-constituent true`
 +
@@ -38,7 +38,7 @@ vss       srcFG__0006    aggr1        online     RW         25TB    10.64TB   57
 vss       srcFG__0007    Aggr_cmode   online     RW         25TB    10.63TB   57%
 ...
 ----
-.. デスティネーションクラスタから、タイプがのデスティネーションFlexGroup ボリュームを作成します `DP` コンスティチュエントの数がソースFlexGroup ボリュームと同じである。
+.. デスティネーションクラスタから、タイプがのデスティネーションFlexGroup ボリュームを作成します `DP` ソースFlexGroup と同じ数のコンスティチュエントで構成されています。
 +
 [listing]
 ----
@@ -69,7 +69,7 @@ vsd       dstFG__0007    Aggr_cmode   online     RW         25TB    10.63TB   57
 
 . ジョブスケジュールを作成します。 `job schedule cron create -name job_name -month month -dayofweek day_of_week -day day_of_month -hour hour -minute minute`
 +
-をクリックします `-month`、 `-dayofweek`および `-hour` オプションを使用して、を指定できます `all` ジョブを毎月、毎日、および毎時間実行します。
+をクリックします `-month`、 `-dayofweek`および `-hour` オプションを指定できます `all` ジョブを毎月、毎日、および1時間ごとに実行します。
 
 +
 次の例は、という名前のジョブスケジュールを作成します `my_weekly` 土曜日の午前3時に実行されます。
@@ -79,18 +79,18 @@ vsd       dstFG__0007    Aggr_cmode   online     RW         25TB    10.63TB   57
 ----
 cluster1::> job schedule cron create -name my_weekly -dayofweek "Saturday" -hour 3 -minute 0
 ----
-. タイプがのカスタムポリシーを作成する `mirror-vault`をクリックし、ミラーとバックアップポリシーのルールを定義します。
+. タイプがのカスタムポリシーを作成します `mirror-vault`をクリックし、ミラーとバックアップポリシーのルールを定義します。
 +
-.. タイプがのカスタムポリシーを作成する `mirror-vault` 一元化されたデータ保護関係の場合： `snapmirror policy create -vserver svm_name -policy policy_name -type mirror-vault`
+.. タイプがのカスタムポリシーを作成します `mirror-vault` 一元化されたデータ保護関係の場合： `snapmirror policy create -vserver svm_name -policy policy_name -type mirror-vault`
 .. 初期化と更新の際にどのSnapshotコピーを転送するかを決定する、ミラーとバックアップポリシーのルールを定義します。 `snapmirror policy add-rule -vserver svm_name -policy policy_for_rule - snapmirror-label snapmirror-label -keep retention_count -schedule schedule`
 
 
 +
-カスタムポリシーを指定しない場合は、が表示されます `MirrorAndVault` ポリシーは一元化されたデータ保護関係に使用されます。
+カスタムポリシーを指定しない場合は、 `MirrorAndVault` ポリシーは一元化されたデータ保護関係に使用されます。
 
 . 一元化されたデータ保護関係を作成します。 `snapmirror create -source-path src_svm:src_flexgroup -destination-path dest_svm:dest_flexgroup -type XDP -schedule schedule_name -policy MirrorAndVault`
 +
-ONTAP 9.4以前では、ポリシーをで指定していない場合 `snapmirror create` コマンドを入力します `MirrorAllSnapshots` ポリシーはデフォルトで使用されます。ONTAP 9.5で、ポリシーがに指定されていない場合 `snapmirror create` コマンドを入力します `MirrorAndVault` ポリシーはデフォルトで使用されます。
+ONTAP 9.4以前では、でポリシーが指定されていない場合 `snapmirror create` コマンドを入力します `MirrorAllSnapshots` デフォルトではポリシーが使用されます。ONTAP 9.5では、でポリシーが指定されていない場合 `snapmirror create` コマンドを入力します `MirrorAndVault` デフォルトではポリシーが使用されます。
 
 +
 [listing]

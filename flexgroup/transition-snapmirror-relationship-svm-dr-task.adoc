@@ -20,14 +20,14 @@ FlexGroup SVM DR 関係を作成するには、既存の FlexGroup Volume SnapMi
 
 .手順
 . SnapMirrorデスティネーションから、FlexGroup レベルのSnapMirror関係を再同期します。 `snapmirror resync`
-. FlexGroup SVM DRのSnapMirror関係を作成FlexGroup VolumeのSnapMirror関係と同じSnapMirrorポリシーを使用します。 `snapmirror create -destination-path dest_svm: -source-path src_svm: -identity-preserve true -policy MirrorAllSnapshots`
+. FlexGroup SVM DRのSnapMirror関係を作成FlexGroup Volume SnapMirror関係に設定されているのと同じSnapMirrorポリシーを使用します。 `snapmirror create -destination-path dest_svm: -source-path src_svm: -identity-preserve true -policy MirrorAllSnapshots`
 +
 [NOTE]
 ====
-を使用する必要があります `-identity-preserve true` のオプション `snapmirror create` コマンドは、レプリケーション関係を作成するときに使用します。
+を使用する必要があります `-identity-preserve true` のオプション `snapmirror create` コマンドを使用してレプリケーション関係を作成します。
 
 ====
-. 関係が解除されたことを確認します。 `snapmirror show -destination-path dest_svm: -source-path src_svm:`
+. 関係が解除されていることを確認します。 `snapmirror show -destination-path dest_svm: -source-path src_svm:`
 +
 [listing]
 ----
@@ -48,13 +48,13 @@ vserver stop -vserver fg_vs_renamed
 [Job 245] Job is queued: Vserver Stop fg_vs_renamed.
 [Job 245] Done
 ----
-. SVMのSnapMirror関係を再同期します。 `snapmirror resync -destination-path dest_svm: -source-path src_svm:`
+. SVM SnapMirror関係を再同期します。 `snapmirror resync -destination-path dest_svm: -source-path src_svm:`
 +
 [listing]
 ----
 snapmirror resync -destination-path fg_vs_renamed: -source-path fg_vs:
 Warning: This Vserver has volumes which are the destination of FlexVol or FlexGroup SnapMirror relationships. A resync on the Vserver SnapMirror relationship will cause disruptions in data access
 ----
-. SVM DRレベルのSnapMirror関係が正常なアイドル状態に達したことを確認します。 `snapmirror show -expand`
-. FlexGroup SnapMirror関係が正常な状態であることを確認します。 `snapmirror show`
+. SVM DRレベルのSnapMirror関係が正常なアイドル状態になっていることを確認します。 `snapmirror show -expand`
+. FlexGroup SnapMirror関係が健全な状態であることを確認します。 `snapmirror show`
 

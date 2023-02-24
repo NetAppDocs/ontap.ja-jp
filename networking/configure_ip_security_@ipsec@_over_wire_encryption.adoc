@@ -16,7 +16,7 @@ summary: 転送中もデータの安全性と暗号化を維持するために�
 [role="lead"]
 ONTAP 9.8 以降では、 ONTAP は転送モードで IPSec プロトコルを使用して、転送中もデータのセキュリティと暗号化を継続的に確保します。IPSec では、 NFS 、 iSCSI 、 SMB の各プロトコルを含むすべての IP トラフィックを暗号化できます。IPSec では、 iSCSI トラフィックに対して転送中の暗号化オプションのみが提供されます。
 
-ONTAP 9.9..1以降では、IPSecで使用される暗号化アルゴリズムはFIPS 140-2が検証されています。アルゴリズムは、ONTAP のNetApp Cryptographic Moduleによって生成され、FIPS 140-2認定を継承しています。
+ONTAP 9.9.1以降では、IPsecで使用される暗号化アルゴリズムがFIPS 140-2に準拠しています。アルゴリズムは、ONTAP のNetApp Cryptographic Moduleによって生成され、FIPS 140-2認定を継承しています。
 
 ONTAP 9.10.1 以降では、 Pre-Shared Key （ PSK; 事前共有キー）または証明書のいずれかを使用して IPSec での認証を行うことができます。以前は、 IPsec でサポートされていたのは PSK だけでした。
 
@@ -43,7 +43,7 @@ NetApp SnapMirror およびクラスタピアリングトラフィックの暗�
 `security ipsec config show`
 
 +
-結果にが含まれる場合 `IPsec Enabled: false`次の手順に進みます。
+結果にが含まれている場合 `IPsec Enabled: false`次の手順に進みます。
 
 . IPsec を有効にします。
 +
@@ -54,7 +54,7 @@ NetApp SnapMirror およびクラスタピアリングトラフィックの暗�
 `security ipsec config show`
 
 +
-結果にが含まれます `IPsec Enabled: true`。
+結果にが含まれるようになりました `IPsec Enabled: true`。
 
 
 
@@ -74,11 +74,11 @@ NetApp SnapMirror およびクラスタピアリングトラフィックの暗�
 NOTE: ONTAP LIF は証明書を共有できます。証明書と LIF の間に 1 対 1 のマッピングは必要ありません。
 
 .手順
-. 相互認証で使用するすべての CA 証明書を（ ONTAP 側とクライアント側の両方の CA を含む） ONTAP 証明書管理にインストールする必要があります。ただし、 CA がすでにインストールされている場合は、 ONTAP の自己署名ルート CA と同様です。*コマンド例*
+. 相互認証で使用するすべての CA 証明書を（ ONTAP 側とクライアント側の両方の CA を含む） ONTAP 証明書管理にインストールする必要があります。ただし、 CA がすでにインストールされている場合は、 ONTAP の自己署名ルート CA と同様です。*サンプルコマンド*
 `cluster::> security certificate install -vserver svm_name -type server-ca -cert-name my_ca_cert`
-. インストールされた CA が認証時に IPsec CA 検索パス内にあることを確認するには、 security ipsec ca-certificate add コマンドを使用して、 ONTAP 証明書管理 CA を IPSec モジュールに追加します。*コマンド例*
+. インストールされた CA が認証時に IPsec CA 検索パス内にあることを確認するには、 security ipsec ca-certificate add コマンドを使用して、 ONTAP 証明書管理 CA を IPSec モジュールに追加します。*サンプルコマンド*
 `cluster::> security ipsec ca-certificate add -vserver svm_name -ca-certs my_ca_cert`
-. ONTAP LIF で使用する証明書を作成してインストールします。この証明書の発行元 CA がすでに ONTAP にインストールされ、 IPSec に追加されている必要があります。*コマンド例*
+. ONTAP LIF で使用する証明書を作成してインストールします。この証明書の発行元 CA がすでに ONTAP にインストールされ、 IPSec に追加されている必要があります。*サンプルコマンド*
 `cluster::> security certificate install -vserver svm_name -type server -cert-name my_nfs_server_cert`
 
 
@@ -103,10 +103,10 @@ NOTE: クライアントは、 Pre-Shared Key （ PSK ）を使用して Interne
 +
 ONTAP IP アドレスとクライアント IP アドレスの間のすべてのトラフィックを保護するには、この手順を省略します。デフォルトでは、すべてのトラフィックを保護します。
 
-.. のPSKまたはPKIを入力します `auth-method` 必要な認証方法のパラメータ。
+.. にPSKまたはPKIを入力します `auth-method` 必要な認証方式のパラメータ。
 +
 ... PSK を入力した場合は、他のすべてのオプションパラメータを終了した後、 Enter キーを押して事前共有キーを入力し、確認するプロンプトを表示します。
-... PKIを入力する場合は、も入力する必要があります `cert-name`、 `local-identity`、 `remote-identity` パラメータリモートサイド証明書のIDが不明な場合、または複数のクライアントIDが必要な場合は、特殊語を入力します `ANYTHING`。
+... PKIを入力する場合は、も入力する必要があります `cert-name`、 `local-identity`、 `remote-identity` パラメータリモート側証明書のIDが不明な場合、または複数のクライアントIDが予想される場合は、特殊な単語を入力します `ANYTHING`。
 
 
 
@@ -126,7 +126,7 @@ ONTAP とクライアントの両方で一致する IPSec ポリシーを設定�
 
 == IPsec ID を使用する
 
-事前共有キー認証方式の場合、 IPsec クライアント（ Libreswan など）で要求されない限り、 ID はオプションです。PKI/ 証明書認証方式の場合、ローカル ID とリモート ID の両方が必須です。ID は、各サイドの証明書で認証され、検証プロセスで使用される ID を指定します。remote-identityが不明な場合、または異なるIDが多数存在する可能性がある場合は、特別なIDを使用します `ANYTHING`。
+事前共有キー認証方式の場合、 IPsec クライアント（ Libreswan など）で要求されない限り、 ID はオプションです。PKI/ 証明書認証方式の場合、ローカル ID とリモート ID の両方が必須です。ID は、各サイドの証明書で認証され、検証プロセスで使用される ID を指定します。リモートIDが不明な場合、または多数の異なるIDである可能性がある場合は、特別なIDを使用します `ANYTHING`。
 
 .このタスクについて
 ONTAP では、 SPD エントリを変更するか、または SPD ポリシーを作成する際に、 ID を指定します。SPD には、 IP アドレスまたは文字列形式の ID 名を使用できます。
@@ -150,7 +150,7 @@ ONTAP では、 IPSec が有効な単一の SVM IP アドレスに、多数の�
 
 * * サブネット構成 *
 +
-特定のサブネット上のすべてのクライアント（192.168.134.0/24など）が、1つのSPDポリシーエントリを使用して1つのSVM IPアドレスに接続できるようにするには、を指定する必要があります `remote-ip-subnets` サブネット形式で指定します。さらに、を指定する必要があります `remote-identity` フィールドに正しいクライアント側IDを入力します。
+特定のサブネット（192.168.134.0/24など）のすべてのクライアントが単一のSPDポリシーエントリを使用して単一のSVM IPアドレスに接続できるようにするには、を指定する必要があります `remote-ip-subnets` サブネット形式。また、を指定する必要があります `remote-identity` フィールドに正しいクライアント側IDを入力します。
 
 
 
@@ -159,13 +159,13 @@ NOTE: サブネット設定で 1 つのポリシーエントリを使用する�
 
 * * すべてのクライアント設定を許可 *
 +
-ソースIPアドレスに関係なく、すべてのクライアントがSVMのIPSec対応IPアドレスに接続できるようにするには、を使用します `0.0.0.0/0` を指定する場合のワイルドカード `remote-ip-subnets` フィールド。
+ソースIPアドレスに関係なくすべてのクライアントにSVMのIPsec対応IPアドレスへの接続を許可するには、を使用します `0.0.0.0/0` を指定する場合のワイルドカード `remote-ip-subnets` フィールド。
 
 +
-さらに、を指定する必要があります `remote-identity` フィールドに正しいクライアント側IDを入力します。証明書認証の場合、と入力できます `ANYTHING`。
+また、を指定する必要があります `remote-identity` フィールドに正しいクライアント側IDを入力します。証明書認証の場合は、と入力できます `ANYTHING`。
 
 +
-また、時 `0.0.0.0/0` ワイルドカードを使用する場合は、使用する特定のローカルまたはリモートポート番号を設定する必要があります。例： `NFS port 2049`。
+また、ときに `0.0.0.0/0` ワイルドカードを使用する場合は、使用する特定のローカルまたはリモートポート番号を設定する必要があります。例： `NFS port 2049`。
 
 +
 .ステップ

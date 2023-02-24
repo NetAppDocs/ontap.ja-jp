@@ -11,7 +11,7 @@ summary: ONTAP 9.3 以降では、 snapmirror protect コマンドを使用し�
 
 
 [role="lead"]
-ONTAP 9.3以降では、を使用できます `snapmirror protect` コマンドを使用すると、データ保護関係をワンステップで設定できます。レプリケートするボリュームのリスト、デスティネーションクラスタ上の SVM 、ジョブスケジュール、および SnapMirror ポリシーを指定します。 `snapmirror protect` によって残りの処理を行います。
+ONTAP 9.3以降では、を使用できます `snapmirror protect` コマンドを使用してデータ保護関係をワンステップで設定できます。レプリケートするボリュームのリスト、デスティネーションクラスタ上の SVM 、ジョブスケジュール、および SnapMirror ポリシーを指定します。 `snapmirror protect` 残りの処理を実行します。
 
 .必要なもの
 * ソースクラスタとデスティネーションクラスタ、および SVM のピア関係が確立されている必要があります。
@@ -24,20 +24,20 @@ https://docs.netapp.com/us-en/ontap-sm-classic/peering/index.html["クラスタ�
 .このタスクについて
 。 `snapmirror protect` コマンドは、指定したSVMに関連付けられているアグリゲートを選択します。SVM にアグリゲートが関連付けられていない場合は、クラスタ内のすべてのアグリゲートから選択されます。アグリゲートの選択は、空きスペースの量とアグリゲート上のボリュームの数に基づいて行われます。
 
-。 `snapmirror protect` コマンドは、以下の手順を実行します。
+。 `snapmirror protect` コマンドは次の手順を実行します。
 
 * レプリケートするボリュームのリスト内の各ボリュームについて、適切なタイプとリザーブされたスペースを持つデスティネーションボリュームを作成します。
 * 指定したポリシーに適したレプリケーション関係を設定します。
 * 関係を初期化します。
 
 
-デスティネーションボリュームの名前の形式は、です `_source_volume_name_dst_`。既存の名前と競合する場合は、コマンドによってボリューム名に数字が追加されます。コマンドオプションでは、プレフィックスまたはサフィックスを指定できます。システムが指定したサフィックスに置き換えられます `dst` サフィックス。
+デスティネーションボリュームの名前は、の形式になります `_source_volume_name_dst_`。既存の名前と競合する場合は、コマンドによってボリューム名に数字が追加されます。コマンドオプションでは、プレフィックスまたはサフィックスを指定できます。サフィックスは、システムが指定したものを置き換えます `dst` サフィックス。
 
 ONTAP 9.3 以前では、デスティネーションボリュームに格納できる Snapshot コピーは最大 251 個です。ONTAP 9.4 以降では、デスティネーションボリュームに格納できる Snapshot コピーは最大 1019 個です。
 
 [NOTE]
 ====
-初期化には時間がかかる場合があります。 `snapmirror protect` は、初期化が完了するのを待たずにジョブを終了します。そのため、を使用する必要があります `snapmirror show` ではなく、コマンドを使用します `job show` 初期化が完了したかどうかを確認するコマンドです。
+初期化には時間がかかる場合があります。 `snapmirror protect` では、初期化が完了してからジョブが終了するまで待機しません。そのため、を使用する必要があります `snapmirror show` コマンドを使用してください `job show` 初期化がいつ完了したかを確認するコマンド。
 
 ====
 ONTAP 9.5以降では、を使用してSnapMirror Synchronous関係を作成できます `snapmirror protect` コマンドを実行します
@@ -54,7 +54,7 @@ ONTAP 9.5以降では、を使用してSnapMirror Synchronous関係を作成で�
 
 ====
 +
-次の例は、デフォルトを使用して、SnapMirror DR関係を作成して初期化します `MirrorAllSnapshots` ポリシー：
+次の例は、デフォルトのを使用して、SnapMirror DR関係を作成して初期化します `MirrorAllSnapshots` ポリシー：
 
 +
 [listing]
@@ -68,7 +68,7 @@ cluster_dst::> snapmirror protect -path-list svm1:volA, svm1:volB -destination-v
 
 ====
 +
-次の例は、デフォルトを使用してSnapVault 関係を作成して初期化します `XDPDefault` ポリシー：
+次の例は、デフォルトのを使用して、SnapVault 関係を作成して初期化します `XDPDefault` ポリシー：
 
 +
 [listing]
@@ -76,7 +76,7 @@ cluster_dst::> snapmirror protect -path-list svm1:volA, svm1:volB -destination-v
 cluster_dst::> snapmirror protect -path-list svm1:volA, svm1:volB -destination-vserver svm_backup -policy XDPDefault -schedule replication_daily
 ----
 +
-次の例は、デフォルトを使用してユニファイドレプリケーション関係を作成し、初期化します `MirrorAndVault` ポリシー：
+次の例は、デフォルトのを使用して、ユニファイドレプリケーション関係を作成して初期化します `MirrorAndVault` ポリシー：
 
 +
 [listing]
@@ -84,7 +84,7 @@ cluster_dst::> snapmirror protect -path-list svm1:volA, svm1:volB -destination-v
 cluster_dst::> snapmirror protect -path-list svm1:volA, svm1:volB -destination-vserver svm_backup -policy MirrorAndVault
 ----
 +
-次の例は、デフォルトを使用して、SnapMirror Synchronous関係を作成して初期化します `Sync` ポリシー：
+次の例は、デフォルトのを使用して、SnapMirror Synchronous関係を作成して初期化します `Sync` ポリシー：
 
 +
 [listing]
@@ -100,4 +100,4 @@ SnapVault ポリシーとユニファイドレプリケーションポリシー�
 
 
 .完了後
-を使用します `snapmirror show` SnapMirror関係が作成されたことを確認するコマンド。コマンド構文全体については、マニュアルページを参照してください。
+を使用します `snapmirror show` コマンドを実行して、SnapMirror関係が作成されたことを確認します。コマンド構文全体については、マニュアルページを参照してください。

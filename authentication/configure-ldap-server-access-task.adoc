@@ -11,7 +11,7 @@ summary: LDAP アカウントが SVM にアクセスするためには、 LDAP �
 
 
 [role="lead"]
-LDAP アカウントが SVM にアクセスするためには、 LDAP サーバから SVM へのアクセスを設定しておく必要があります。を使用できます `vserver services name-service ldap client create` コマンドを使用して、SVMにLDAPクライアント設定を作成します。その後、を使用できます `vserver services name-service ldap create` LDAPクライアント設定をSVMに関連付けるコマンド。
+LDAP アカウントが SVM にアクセスするためには、 LDAP サーバから SVM へのアクセスを設定しておく必要があります。を使用できます `vserver services name-service ldap client create` コマンドを使用してSVMにLDAPクライアント設定を作成します。その後、を使用できます `vserver services name-service ldap create` コマンドを使用してLDAPクライアント設定をSVMに関連付けます。
 
 .必要なもの
 * をインストールしておく必要があります link:install-ca-signed-server-digital-certificate-task.html["CA 署名済みサーバデジタル証明書"] 指定します。
@@ -34,7 +34,7 @@ LDAP アカウントが SVM にアクセスするためには、 LDAP サーバ�
 
 
 .手順
-. SVMでLDAPクライアント設定を作成します。 `vserver services name-service ldap client create -vserver SVM_name -client-config client_configuration -servers LDAP_server_IPs -schema schema -use-start-tls true|false`
+. SVMにLDAPクライアント設定を作成します。 `vserver services name-service ldap client create -vserver SVM_name -client-config client_configuration -servers LDAP_server_IPs -schema schema -use-start-tls true|false`
 +
 [NOTE]
 ====
@@ -45,7 +45,7 @@ Start TLS は、データ SVM へのアクセスでのみサポートされま�
 コマンド構文全体については、を参照してください link:config-worksheets-reference.html["ワークシート"]。
 
 +
-次のコマンドは、という名前のLDAPクライアント設定を作成します `corp` 指定します``engData``。クライアントは、IPアドレスを使用してLDAPサーバに匿名でバインドします `172.160.0.100` および `172.16.0.101`。クライアントはを使用します `RFC-2307` LDAPクエリを作成するスキーマ。クライアントとサーバ間の通信は Start TLS を使用して暗号化されます。
+次のコマンドは、という名前のLDAPクライアント設定を作成します `corp` 指定します``engData``。クライアントは、IPアドレスを使用してLDAPサーバに匿名でバインドします `172.160.0.100` および `172.16.0.101`。クライアントはを使用します `RFC-2307` LDAPクエリを作成するためのスキーマ。クライアントとサーバ間の通信は Start TLS を使用して暗号化されます。
 
 +
 [listing]
@@ -56,7 +56,7 @@ cluster1::>vserver services name-service ldap client create
 +
 [NOTE]
 ====
-ONTAP 9.2以降では、このフィールドが使用されます `-ldap-servers` フィールドを置換します `-servers`。この新しいフィールドには、 LDAP サーバのホスト名または IP アドレスを指定できます。
+ONTAP 9.2以降では、フィールドが表示されます `-ldap-servers` フィールドを置き換えます `-servers`。この新しいフィールドには、 LDAP サーバのホスト名または IP アドレスを指定できます。
 
 ====
 . LDAPクライアント設定をSVMに関連付けます。 `vserver services name-service ldap create -vserver SVM_name -client-config client_configuration -client-enabled true|false`
@@ -64,7 +64,7 @@ ONTAP 9.2以降では、このフィールドが使用されます `-ldap-server
 コマンド構文全体については、を参照してください link:config-worksheets-reference.html["ワークシート"]。
 
 +
-次のコマンドは、LDAPクライアント設定を関連付けます `corp` 必要です``engData``およびで、SVMでLDAPクライアントを有効にします。
+次のコマンドは、LDAPクライアント設定を関連付けます `corp` SVMを使用します``engData``、SVMでLDAPクライアントを有効にします。
 
 +
 [listing]
@@ -74,7 +74,7 @@ cluster1::>vserver services name-service ldap create -vserver engData -client-co
 +
 [NOTE]
 ====
-ONTAP 9.2以降では、がサポートされます `vserver services name-service ldap create` コマンドは設定の自動検証を実行し、ONTAP がネームサーバに接続できない場合はエラーメッセージを報告します。
+ONTAP 9.2以降では `vserver services name-service ldap create` コマンドは設定の自動検証を実行し、ONTAP がネームサーバに接続できない場合はエラーメッセージを報告します。
 
 ====
 . vserver services name-service ldap check コマンドを使用して、ネームサーバのステータスを検証します。

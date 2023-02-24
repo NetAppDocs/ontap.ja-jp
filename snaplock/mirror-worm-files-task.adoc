@@ -18,7 +18,7 @@ SnapMirror を使用すると、ディザスタリカバリなどの目的で、
 
 .このタスクについて
 * ONTAP 9.5 以降では、 WORM ファイルのレプリケーションに DP （データ保護）タイプの関係ではなく XDP （拡張データ保護）タイプの SnapMirror 関係を使用できます。XDP モードは ONTAP のバージョンに依存せず、同じブロックに格納されたファイルを区別できるため、レプリケートされた Compliance モードのボリュームの再同期が大幅に簡単になります。既存の DP タイプの関係を XDP タイプの関係に変換する方法については、を参照してください link:../data-protection/index.html["データ保護"]。
-* Compliance モードのボリュームで DP タイプの SnapMirror 関係を再同期する場合、再同期によってデータが失われると SnapLock で判断されると処理は失敗します。再同期処理に失敗した場合は、を使用して再同期できます `volume clone create` コマンドを使用して、デスティネーションボリュームのクローンを作成します。その後、ソースボリュームをクローンと再同期できます。
+* Compliance モードのボリュームで DP タイプの SnapMirror 関係を再同期する場合、再同期によってデータが失われると SnapLock で判断されると処理は失敗します。再同期処理が失敗した場合は、を使用できます `volume clone create` デスティネーションボリュームのクローンを作成するコマンド。その後、ソースボリュームをクローンと再同期できます。
 * SnapLock 対応ボリューム間の XDP タイプの SnapMirror 関係では、関係解除後にデスティネーションのデータがソースから変化していても再同期がサポートされます。
 +
 再同期時に共通の Snapshot に基づいてソースとデスティネーションの間でデータの相違が検出されると、この相違をキャプチャするためにデスティネーションで新しい Snapshot が作成されます。新しい Snapshot と共通の Snapshot の両方が次の期間ロックされます。
@@ -72,7 +72,7 @@ ONTAP 9.12.1以降では、System Managerを使用してWORMファイルのSnapM
 --
 . デスティネーションクラスタを特定します。
 . デスティネーションクラスタで、SnapLock ライセンスをインストールし、ComplianceClockを初期化します。9.10.1よりも前のONTAP リリースを使用している場合は、SnapLock アグリゲートを作成します。
-. デスティネーションクラスタで、タイプがのSnapLock デスティネーションボリュームを作成します `DP` ソースボリュームと同じサイズ以上のサイズ：
+. デスティネーションクラスタで、タイプがのSnapLock デスティネーションボリュームを作成します `DP` ソースボリュームと同じかそれ以上のサイズが指定されている必要があります。
 +
 `*volume create -vserver _SVM_name_ -volume _volume_name_ -aggregate _aggregate_name_ -snaplock-type compliance|enterprise -type DP -size _size_*`
 
@@ -81,7 +81,7 @@ ONTAP 9.12.1以降では、System Managerを使用してWORMファイルのSnapM
 NOTE: ONTAP 9.10.1 以降では、 SnapLock ボリュームと非 SnapLock ボリュームを同じアグリゲート上に配置できるため、 ONTAP 9.10.1 を使用している場合に別の SnapLock アグリゲートを作成する必要がなくなりました。ComplianceまたはEnterprise SnapLock のボリュームタイプを指定するには、volume-snaplock-typeオプションを使用します。ONTAP 9.10.1より前のONTAP リリースでは、SnapLock モード（ComplianceモードまたはEnterpriseモード）がアグリゲートから継承されます。バージョンに依存しないデスティネーションボリュームはサポートされません。デスティネーションボリュームの言語設定とソースボリュームの言語設定が一致している必要があります。
 
 +
-次のコマンドでは、2GBのSnapLock を作成します `Compliance` という名前のボリューム `dstvolB` インチ `SVM2` をクリックします `node01_aggr`：
+次のコマンドは、2GBのSnapLock を作成します `Compliance` という名前のボリューム `dstvolB` インチ `SVM2` アグリゲート `node01_aggr`：
 
 +
 [listing]
@@ -105,7 +105,7 @@ SVM2::> snapmirror policy create -vserver SVM2 -policy SVM1-mirror
 `*job schedule cron create -name _schedule_name_ -dayofweek _day_of_week_ -hour _hour_ -minute _minute_*`
 
 +
-次のコマンドを実行すると、というSnapMirrorスケジュールが作成されます `weekendcron`：
+次のコマンドは、という名前のSnapMirrorスケジュールを作成します `weekendcron`：
 
 +
 [listing]
@@ -117,7 +117,7 @@ SVM2::> job schedule cron create -name weekendcron -dayofweek "Saturday, Sunday"
 `*snapmirror create -source-path _source_path_ -destination-path _destination_path_ -type XDP|DP -policy _policy_name_ -schedule _schedule_name_*`
 
 +
-次のコマンドでは、ソースボリューム間にSnapMirror関係を作成します `srcvolA` オン `SVM1` デスティネーションボリュームを指定します `dstvolB` オン `SVM2`をクリックし、ポリシーを割り当てます `SVM1-mirror` スケジュールを設定します `weekendcron`：
+次のコマンドでは、ソースボリューム間にSnapMirror関係を作成します `srcvolA` オン `SVM1` デスティネーションボリュームを指定します `dstvolB` オン `SVM2`をクリックし、ポリシーを割り当てます `SVM1-mirror` スケジュールも `weekendcron`：
 
 +
 [listing]

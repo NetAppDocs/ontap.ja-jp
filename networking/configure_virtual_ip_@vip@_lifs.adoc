@@ -31,9 +31,9 @@ VIP データ LIF には次の利点があります。
 
 VIP LIF を作成する前に BGP をセットアップする必要があります。 BGP は、 VIP LIF の存在をピアルータに通知するためのルーティングプロトコルです。
 
-ONTAP 9.9..1以降では、VIP BGPはBGPピアグループ化を使用して、設定を簡素化するデフォルトルート自動化を提供します。
+ONTAP 9.9.1以降では、VIP BGPにより、BGPピアグループを使用したデフォルトルート自動化が提供され、設定が簡素化されます。
 
-ONTAP では、 BGP ピアが同じサブネット上にある場合、 BGP ピアをネクストホップルータとして使用してデフォルトルートを簡単に学習できます。この機能を使用するには、を設定します `-use-peer-as-next-hop` 属性の宛先 `true`。デフォルトでは、この属性はです `false`。
+ONTAP では、 BGP ピアが同じサブネット上にある場合、 BGP ピアをネクストホップルータとして使用してデフォルトルートを簡単に学習できます。この機能を使用するには、を設定します `-use-peer-as-next-hop` 属性をに設定します `true`。デフォルトでは、この属性はです `false`。
 
 静的ルートが設定されている場合は、これらの自動デフォルトルートよりも優先されます。
 
@@ -55,7 +55,7 @@ ONTAP 9.8以降では、これらのフィールドがに追加されていま�
 
 これらの BGP アトリビュートを使用すると、 BGP ピアグループの AS パスおよびコミュニティアトリビュートを設定できます。
 
-ONTAP 9.9..1以降では、次のフィールドが追加されています。
+ONTAP 9.9.1以降では、次のフィールドが追加されました。
 
 * -ASN または -peer-ASN （ 4 バイト値）：属性自体は新規ではありませんが、現在は 4 バイトの整数を使用しています。
 * - med
@@ -101,7 +101,7 @@ network bgp defaults modify -asn asn_integer -holdtime hold_time
 network bgp defaults modify -asn 65502
 ....
 +
-*** `asn_integer` にはASNを指定します。ONTAP 9.8 以降では、 BGP の ASN は 2 バイトの非負の整数をサポートします。これは 16 ビットの数値です（ 1 ~ 65534 を使用可能）。ONTAP 9.9.4.1以降のBGPのASNでは、4バイトの非負の整数（1～4294967295）がサポートされています。デフォルトの ASN は 65501 です。ASN 23456 は、 4 バイト ASN 機能を発表していないピアとの ONTAP セッション確立用に予約されています。
+*** `asn_integer` ASNを指定します。ONTAP 9.8 以降では、 BGP の ASN は 2 バイトの非負の整数をサポートします。これは 16 ビットの数値です（ 1 ~ 65534 を使用可能）。ONTAP 9.9.1以降では、BGP用ASNは4バイトの非負整数（1-4294967295）をサポートしています。デフォルトの ASN は 65501 です。ASN 23456 は、 4 バイト ASN 機能を発表していないピアとの ONTAP セッション確立用に予約されています。
 *** `hold_time` 保持時間を秒単位で指定します。デフォルト値は 180 です。
 
 
@@ -171,7 +171,7 @@ network interface create -vserver svm_name -lif lif_name -role data -data-protoc
 {nfs|cifs|iscsi|fcache|none|fc-nvme} -home-node home_node -address ip_address -is-vip true
 ....
 +
-でホームポートを指定しなかった場合は、VIPポートが自動的に選択されます `network interface create` コマンドを実行します
+でホームポートを指定しない場合は、VIPポートが自動的に選択されます `network interface create` コマンドを実行します
 
 +
 VIP データ LIF は、デフォルトで、各 IPspace に対してシステムで作成されるブロードキャストドメイン「 vip 」に属します。VIP ブロードキャストドメインを変更することはできません。
@@ -189,7 +189,7 @@ Node        Vserver  bgp status
 	    node1       vs1      up
 ....
 +
-BGPのステータスがの場合 `down` ノード上のSVMについては、VIPデータLIFはSVMのBGPステータスがupになっている別のノードにフェイルオーバーします。BGPのステータスがの場合 `down` すべてのノードでVIPデータLIFをどこでもホストすることはできず、LIFステータスはdownになります。
+BGPステータスがの場合 `down` ノードのSVMについては、VIPデータLIFは、SVMのBGPステータスがupになっている別のノードにフェイルオーバーします。BGPステータスがの場合 `down` すべてのノードでVIPデータLIFをどこでもホストすることはできず、LIFのステータスがdownになっている。
 
 
 

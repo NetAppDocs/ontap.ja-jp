@@ -20,7 +20,7 @@ LIF は、物理ポートまたは論理ポートに関連付けられた IP ア
 * 基盤となる物理または論理ネットワークポートの管理ステータスが up に設定されている必要があります。
 * サブネット名を使用して LIF の IP アドレスとネットワークマスク値を割り当てる場合は、そのサブネットがすでに存在している必要があります。
 +
-サブネットには、同じレイヤ 3 サブネットに属する IP アドレスのプールが含まれています。System Managerまたはを使用して作成します `network subnet create` コマンドを実行します
+サブネットには、同じレイヤ 3 サブネットに属する IP アドレスのプールが含まれています。作成するには、System Managerまたはを使用します `network subnet create` コマンドを実行します
 
 * LIF で処理するトラフィックのタイプを指定するメカニズムが変更されました。ONTAP 9.5 以前では、 LIF はロールを使用して処理するトラフィックのタイプを指定していました。ONTAP 9.6 以降では、サービスポリシーを使用して、処理するトラフィックのタイプを指定します。
 
@@ -37,7 +37,7 @@ LIF は、物理ポートまたは論理ポートに関連付けられた IP ア
 * クラスタ内のLIFの数が多い場合は、クラスタでサポートされるLIFの容量を確認できます。
 +
 ** System Manager：ONTAP 9.12.0以降では、ネットワークインターフェイスグリッドのスループットを表示します。
-** CLIの場合：を使用します `network interface capacity show` コマンドとを使用した各ノードでサポートされるLIFの最大数 `network interface capacity details show` コマンド（advanced権限レベル）。
+** CLI：を使用します `network interface capacity show` コマンドとを使用して、各ノードでサポートされるLIFの容量を確認します `network interface capacity details show` コマンド（advanced権限レベル）。
 
 
 * ONTAP 9.7 以降では、同じサブネット内に SVM 用の他の LIF がすでに存在する場合、 LIF のホームポートを指定する必要はありません。ONTAP は、同じサブネットにすでに設定されている他の LIF と同じブロードキャストドメインにある指定したホームノード上のランダムなポートを自動的に選択します。
@@ -57,10 +57,10 @@ ONTAP 9.4 以降では、 FC-NVMe がサポートされます。FC-NVMe LIF を�
 * ONTAP 9.10.1以降の `network interface` CLIコマンドにはが含まれています `-rdma-protocols` NFS over RDMA構成用のパラメータ。ONTAP 9.12.1以降では、System ManagerでRDMA構成を使用するNFS用ネットワークインターフェイスの作成がサポートされています。詳細については、を参照してください xref:..nfs-rdma/configure-lifs-task.html[NFS over RDMA用にLIFを設定します]。
 * ONTAP 9.11.1以降では、iSCSI LIFフェイルオーバー機能をすべてのSANアレイ（ASA ）プラットフォームで使用できます。
 +
-iSCSI LIFのフェイルオーバーが自動的に有効になります（フェイルオーバーポリシーはに設定されます） `sfo-partner-only` auto-revertの値をに設定します `true`）を追加して作成したiSCSI LIFで、指定したSVMにiSCSI LIFが存在しない場合、または指定したSVM内の既存のすべてのiSCSI LIFでiSCSI LIFフェイルオーバーがすでに有効になっている場合。
+iSCSI LIFのフェイルオーバーは自動的に有効になります（フェイルオーバーポリシーはに設定されます） `sfo-partner-only` auto-revertの値はに設定されています `true`）。指定したSVMにiSCSI LIFが存在しない場合、または指定したSVMの既存のすべてのiSCSI LIFですでにiSCSI LIFのフェイルオーバーが有効になっている場合。
 
 +
-ONTAP 9.11.1以降にアップグレードしたあとに、iSCSI LIFフェイルオーバー機能が有効になっていないSVM内の既存のiSCSI LIFがある場合に、同じSVMに新しいiSCSI LIFを作成すると、新しいiSCSI LIFには同じフェイルオーバーポリシーが適用されます (`disabled`）SVM内の既存のiSCSI LIFが表示されます。
+ONTAP 9.11.1以降にアップグレードしたあとに、iSCSI LIFのフェイルオーバー機能が有効になっていないSVMに既存のiSCSI LIFがある場合に、同じSVMに新しいiSCSI LIFを作成すると、新しいiSCSI LIFでも同じフェイルオーバーポリシーが適用されます (`disabled`）を作成します。
 
 +
 link:../san-admin/asa-iscsi-lif-fo-task.html["ASA プラットフォームのiSCSI LIFのフェイルオーバー"]
@@ -123,15 +123,15 @@ ONTAP 9.12.0以降では、使用するインターフェイスに応じて次�
 network interface create -vserver _SVM_name_ -lif _lif_name_ -service-policy _service_policy_name_ -home-node _node_name_ -home-port port_name {-address _IP_address_ - netmask _Netmask_value_ | -subnet-name _subnet_name_} -firewall- policy _policy_ -auto-revert {true|false}
 ....
 +
-** `-home-node` は、の時点でLIFが戻るノードです `network interface revert` LIFに対してコマンドを実行します。
+** `-home-node` は、の実行時にLIFが戻るノードです `network interface revert` LIFに対してコマンドを実行します。
 +
 auto-revert オプションを使用して、 LIF をホームノードおよびホームポートに自動的にリバートするかどうかを指定することもできます。
 
-** `-home-port` は、LIFが戻るときの物理ポートまたは論理ポートです `network interface revert` LIFに対してコマンドを実行します。
-** IPアドレスはで指定できます `-address` および `-netmask` を使用して、サブネットからの割り当てを有効にすることもできます `-subnet_name` オプション
+** `-home-port` は、の実行時にLIFが戻る物理ポートまたは論理ポートです `network interface revert` LIFに対してコマンドを実行します。
+** でIPアドレスを指定できます `-address` および `-netmask` オプションを選択するか、を使用してサブネットからの割り当てを有効にします `-subnet_name` オプション
 ** サブネットを使用して IP アドレスとネットワークマスクを指定した場合、サブネットにゲートウェイが定義されていると、そのサブネットを使用して LIF を作成するときにゲートウェイへのデフォルトルートが SVM に自動的に追加されます。
-** サブネットを使用せずに手動で IP アドレスを割り当てると、クライアントまたはドメインコントローラが別の IP サブネットにある場合にゲートウェイへのデフォルトルートの設定が必要になることがあります。。 `network route create` のマニュアルページには、SVM内の静的ルートの作成に関する情報が記載されています。
-** `-auto-revert` 起動時、管理データベースのステータスの変更時、ネットワーク接続の確立時など、データLIFがホームノードに自動的にリバートされるかどうかを指定できます。デフォルト設定はです `false`に設定することもできます `true` 環境内のネットワーク管理ポリシーによって異なります。
+** サブネットを使用せずに手動で IP アドレスを割り当てると、クライアントまたはドメインコントローラが別の IP サブネットにある場合にゲートウェイへのデフォルトルートの設定が必要になることがあります。。 `network route create` のマニュアルページには、SVM内での静的ルートの作成に関する情報が記載されています。
+** `-auto-revert` 起動時、管理データベースのステータスが変わったとき、ネットワーク接続が確立されたときなどの状況で、データLIFがホームノードに自動的にリバートされるかどうかを指定できます。デフォルト設定はです `false`に設定することもできます `true` 環境内のネットワーク管理ポリシーによって異なります。
 **  `-service-policy` ONTAP 9.5以降では、を使用してLIFのサービスポリシーを割り当てることができます `-service-policy` オプションLIF にサービスポリシーを指定すると、そのポリシーを使用して LIF のデフォルトロール、フェイルオーバーポリシー、データプロトコルのリストが作成されます。ONTAP 9.5 では、クラスタ間および BGP ピアのサービスについてのみサービスポリシーがサポートされます。ONTAP 9.6 では、複数のデータサービスおよび管理サービスに対してサービスポリシーを作成できます。
 ** `-data-protocol` FCPまたはNVMe/FCプロトコルをサポートするLIFを作成できます。IP LIF を作成する場合、このオプションは必要ありません。
 
@@ -140,14 +140,14 @@ auto-revert オプションを使用して、 LIF をホームノードおよび
 +
 .. network ndp prefix show コマンドを使用し、各種インターフェイスで学習された RA プレフィックスのリストを表示します。
 +
-。 `network ndp prefix show` コマンドは、advanced権限レベルで使用できます。
+。 `network ndp prefix show` コマンドはadvanced権限レベルで使用できます。
 
-.. の形式を使用します `prefix::id` IPv6アドレスを手動で作成する場合。
+.. の形式を使用します `prefix::id` IPv6アドレスを手動で作成します。
 +
 `prefix` は、さまざまなインターフェイスで学習されたプレフィックスです。
 
 +
-を生成する場合 `id`をクリックし、ランダムな64ビットの16進数を選択します。
+を導出するため `id`で、ランダムな64ビット16進数を選択します。
 
 
 
@@ -167,7 +167,7 @@ auto-revert オプションを使用して、 LIF をホームノードおよび
 | IPv6 アドレス | ネットワーク ping6 
 |===
 .例
-次のコマンドは、LIFを作成し、を使用してIPアドレスとネットワークマスク値を指定します `-address` および `-netmask` パラメータ：
+次のコマンドでは、を使用してLIFを作成し、IPアドレスとネットワークマスク値を指定します `-address` および `-netmask` パラメータ：
 
 ....
 network interface create -vserver vs1.example.com -lif datalif1 -service-policy default-data-files -home-node node-4 -home-port e1c -address 192.0.2.145 -netmask 255.255.255.0 -auto-revert true

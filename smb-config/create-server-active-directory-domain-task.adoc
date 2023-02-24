@@ -11,7 +11,7 @@ summary: vserver cifs create コマンドを使用すると、 SVM 上に SMB �
 
 
 [role="lead"]
-を使用できます `vserver cifs create` コマンドを使用して、SVM上にSMBサーバを作成し、所属先のActive Directory（AD）ドメインを指定します。
+を使用できます `vserver cifs create` コマンドを使用してSVM上にSMBサーバを作成し、所属先のActive Directory（AD）ドメインを指定します。
 
 .作業を開始する前に
 データ処理に使用している SVM および LIF が、 SMB プロトコルを許可するように設定されている必要があります。LIF は、 SVM 上で設定されている DNS サーバ、および SMB サーバの追加先ドメインの AD ドメインコントローラに接続できる必要があります。
@@ -32,26 +32,26 @@ SMB サーバの NetBIOS エイリアスを設定すると、他のファイル�
 
 
 
-。 `vserver cifs` その他のオプションのパラメータと命名要件については、マニュアルページを参照してください。
+。 `vserver cifs` マニュアルページには、追加のオプションパラメータと命名要件が記載されています。
 
 [NOTE]
 ====
 ONTAP 9.1 以降では、 SMB バージョン 2.0 からドメインコントローラ（ DC ）への接続を有効にすることができます。これは、ドメインコントローラで SMB 1.0 を無効にしている場合は必須です。ONTAP 9.2 以降では、 SMB 2.0 がデフォルトで有効になります。
 
 ====
-ONTAP 9.8 以降では、ドメインコントローラへの接続を暗号化するように指定できます。ONTAP では、の際にドメインコントローラ通信の暗号化が必要になります `-encryption-required-for-dc-connection` オプションはに設定されています `true`デフォルトはです `false`。このオプションを設定すると、 SMB3 でのみ暗号化がサポートされるため、 SMB3 プロトコルのみが使用されます。。
+ONTAP 9.8 以降では、ドメインコントローラへの接続を暗号化するように指定できます。ONTAP では、ドメインコントローラの通信に暗号化が必要です `-encryption-required-for-dc-connection` オプションはに設定されています `true`;デフォルトはです `false`。このオプションを設定すると、 SMB3 でのみ暗号化がサポートされるため、 SMB3 プロトコルのみが使用されます。。
 
 link:../smb-admin/index.html["SMB の管理"] SMB サーバ設定オプションの詳細については、を参照してください。
 
 .手順
-. クラスタ上でSMBのライセンスが有効であることを確認します。 `system license show -package cifs`
+. クラスタでSMBのライセンスが有効になっていることを確認します。 `system license show -package cifs`
 +
 表示されない場合は、営業担当者にお問い合わせください。
 
 +
 SMB サーバを認証のみに使用する場合は、 CIFS ライセンスは必要ありません。
 
-. ADドメイン内にSMBサーバを作成します。 `+vserver cifs create -vserver vserver_name -cifs-server smb_server_name -domain FQDN [-ou organizational_unit][-netbios-aliases NetBIOS_name, ...][-keytab-uri {(ftp|http)://hostname|IP_address}][-comment text]+`
+. ADドメインにSMBサーバを作成します。 `+vserver cifs create -vserver vserver_name -cifs-server smb_server_name -domain FQDN [-ou organizational_unit][-netbios-aliases NetBIOS_name, ...][-keytab-uri {(ftp|http)://hostname|IP_address}][-comment text]+`
 +
 ドメインに参加する場合、このコマンドの実行には数分かかることがあります。
 
@@ -90,7 +90,7 @@ Default Site Used by LIFs Without Site Membership:
                           CIFS Server Description: -
                           List of NetBIOS Aliases: -
 ----
-. 必要に応じて、ドメインコントローラとの暗号化された通信を有効にします（ONTAP 9.8以降）。 `vserver cifs security modify -vserver svm_name -encryption-required-for-dc-connection true`
+. 必要に応じて、ドメインコントローラとの暗号化通信を有効にします（ONTAP 9.8以降）。 `vserver cifs security modify -vserver svm_name -encryption-required-for-dc-connection true`
 
 
 .例
@@ -111,7 +111,7 @@ Default Site Used by LIFs Without Site Membership:
                           CIFS Server Description: -
                           List of NetBIOS Aliases: OLD_CIFS_SERVER01
 ----
-次のコマンドは、別のドメインのユーザ（ここでは信頼できるドメインの管理者）が、 SVM vs3.example.com 上に「 smb_server03 」という名前の SMB サーバを作成できるようにします。。 `-domain` optionは、SMBサーバを作成するホームドメイン（DNSの設定で指定される）の名前を指定します。。 `username` optionは、信頼できるドメインの管理者を指定します。
+次のコマンドは、別のドメインのユーザ（ここでは信頼できるドメインの管理者）が、 SVM vs3.example.com 上に「 smb_server03 」という名前の SMB サーバを作成できるようにします。。 `-domain` optionは、SMBサーバを作成するホームドメイン（DNSの設定で指定）の名前を指定します。。 `username` オプションは、信頼できるドメインの管理者を指定します。
 
 * ホームドメイン： example.com
 * 信頼できるドメイン： trust.lab.com

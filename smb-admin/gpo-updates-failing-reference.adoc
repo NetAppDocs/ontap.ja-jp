@@ -11,18 +11,18 @@ summary: 一部の状況では、 Windows Server 2012 ドメインコントロ�
 
 
 [role="lead"]
-一部の状況では、Windows Server 2012ドメインコントローラからのグループポリシーオブジェクト（GPO）の更新が失敗し、に何も表示されないことがあります `Central Access Policy Settings` の出力のセクション `vserver cifs group-policy show-defined` コマンドを実行しますこの問題が発生した場合の修正方法を理解しておく必要があります。
+状況によっては、Windows 2012ドメインコントローラからのグループポリシーオブジェクト(GPO)の更新が失敗し、の下に何も表示されないことがあります `Central Access Policy Settings` の出力のセクションを参照してください `vserver cifs group-policy show-defined` コマンドを実行しますこの問題が発生した場合の修正方法を理解しておく必要があります。
 
 |===
 | 基盤となる原因 | 対処方法 
 
 
  a| 
-ONTAP がGPOの更新を実行するためにWindows Server 2012ドメインコントローラに接続しようとすると、接続に失敗してエラーが表示されることがあります `error 0xc00000bd (NT STATUS_DUPLICATE_NAME)`。
+ONTAP がGPOの更新を実行するためにWindows 2012ドメインコントローラに接続しようとすると、接続が失敗してエラーが発生することがあります `error 0xc00000bd (NT STATUS_DUPLICATE_NAME)`。
 
 このエラーは、接続するサーバの名前が CIFS サーバの NetBIOS 名と異なる場合に発生します。これは、エイリアスを使用するなど、さまざまな理由で発生します。また、 ONTAP は、ドメインコントローラに接続する際に、 NetBIOS 名を名前の長さが 15 文字になるように空白を追加します。これにより、 CIFS サーバ名と NetBIOS 名が異なるように見える場合があります。
  a| 
-. 次のレジストリキーに値を設定してWindowsサーバのNetBIOS名のチェックを無効にします `1`：
+. 値がに設定された次のレジストリキーを追加して、WindowsサーバでNetBIOS名チェックを無効にします `1`：
 +
 `"HKEY_LOCAL_MACHINE\System\CurrentControlSet\Services\LanmanServer\Parameters\DisableStrictNameChecking"`
 

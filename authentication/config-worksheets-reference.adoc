@@ -17,7 +17,7 @@ summary: ログインアカウントを作成してロールベースアクセ�
 
 == ログインアカウントを作成または変更します
 
-次の値はで指定します `security login create` コマンドは、ログインアカウントによるStorage Virtual Machine（SVM）へのアクセスを有効にする場合に使用します。にも同じ値を指定します `security login modify` コマンドは、アカウントによるSVMへのアクセスを変更する場合に使用します。
+次の値はで指定します `security login create` コマンドは、ログインアカウントによるStorage Virtual Machine（SVM）へのアクセスを有効にする場合に使用します。にも同じ値を指定します `security login modify` コマンドは、アカウントによるSVMへのアクセス方法を変更するときに使用します。
 
 [cols="3*"]
 |===
@@ -63,12 +63,12 @@ SVM へのアクセスに使用するアプリケーション。
 
 * `cert` SSL証明書認証用
 * `domain` Active Directory認証用
-* `nsswitch` LDAP認証またはNIS認証の場合
-* `password` ユーザパスワード認証に使用します
-* `publickey` 公開鍵認証の場合
-* `community` SNMPコミュニティストリングの場合
+* `nsswitch` LDAPまたはNIS認証に使用します
+* `password` ユーザパスワード認証用
+* `publickey` 公開鍵認証用
+* `community` （SNMPコミュニティストリング）
 * `usm` SNMPユーザセキュリティモデルの場合
-* `saml` Security Assertion Markup Language（SAML）認証用
+* `saml` Security Assertion Markup Language（SAML）認証に使用します
 
  a| 
 
@@ -77,7 +77,7 @@ SVM へのアクセスに使用するアプリケーション。
  a| 
 `-remote-switch-ipaddress`
  a| 
-リモートスイッチの IP アドレスです。リモートスイッチは、クラスタスイッチヘルスモニタ（ CSHM ）で監視されるクラスタスイッチ、または MetroCluster ヘルスモニタ（ MCC-HM ）で監視される Fibre Channel （ FC ）スイッチです。このオプションは、アプリケーションがの場合にのみ適用されます `snmp` 認証方式はです `usm`。
+リモートスイッチの IP アドレスです。リモートスイッチは、クラスタスイッチヘルスモニタ（ CSHM ）で監視されるクラスタスイッチ、または MetroCluster ヘルスモニタ（ MCC-HM ）で監視される Fibre Channel （ FC ）スイッチです。このオプションは、アプリケーションがの場合にのみ適用されます `snmp` 認証方法はです `usm`。
  a| 
 
 
@@ -116,9 +116,9 @@ SVM へのアクセスに使用するアプリケーション。
 ONTAP 9.3 * で多要素認証を使用する場合の第 2 の認証方法：
 
 * `none` 多要素認証を使用しない場合は、デフォルト値
-* `publickey` 公開鍵認証用 `authmethod` には、passwordまたはnsswitchを指定します
-* `password` を使用してログインします `authmethod` は公開鍵です
-* `nsswitch` 認証方式がpublickeyの場合はユーザパスワード認証に使用されます
+* `publickey` 公開鍵認証の場合 `authmethod` は、passwordまたはnsswitchです
+* `password` でのユーザパスワード認証に使用します `authmethod` は公開鍵です
+* `nsswitch` authmethodがpublickeyの場合のユーザパスワード認証用
 +
 [NOTE]
 ====
@@ -135,7 +135,7 @@ ONTAP 9.4以降では、nsswitchがサポートされます。
  a| 
 `-is-ldap-fastbind`
  a| 
-ONTAP 9.11.1以降では、trueに設定すると、nsswitch認証に対してLDAPファストバインドが有効になります。デフォルトはfalseです。LDAP高速バインドを使用するには、を参照してください `-authentication-method` 値はに設定する必要があります `nsswitch`。 link:../nfs-admin/ldap-fast-bind-nsswitch-authentication-task.html["nsswitch認証のLDAP fastbindについて説明します。"]
+ONTAP 9.11.1以降では、trueに設定すると、nsswitch認証に対してLDAPファストバインドが有効になります。デフォルトはfalseです。LDAP高速バインドを使用するには、を使用します `-authentication-method` 値はに設定する必要があります `nsswitch`。 link:../nfs-admin/ldap-fast-bind-nsswitch-authentication-task.html["nsswitch認証のLDAP fastbindについて説明します。"]
  a| 
 
 |===
@@ -171,7 +171,7 @@ ONTAP 9.11.1以降では、trueに設定すると、nsswitch認証に対してLD
  a| 
 `-cmddirname`
  a| 
-ロールでアクセスできるコマンドまたはコマンドディレクトリ。コマンドサブディレクトリの名前は二重引用符（ " ）で囲む必要があります。例： `"volume snapshot"`。と入力する必要があります `DEFAULT` すべてのコマンドディレクトリを指定します。
+ロールでアクセスできるコマンドまたはコマンドディレクトリ。コマンドサブディレクトリの名前は二重引用符（ " ）で囲む必要があります。例： `"volume snapshot"`。入る必要があります `DEFAULT` すべてのコマンドディレクトリを指定します。
  a| 
 
 
@@ -181,14 +181,14 @@ ONTAP 9.11.1以降では、trueに設定すると、nsswitch認証に対してLD
  a| 
 （任意）ロールのアクセスレベル。コマンドディレクトリの場合：
 
-* `none` （カスタムロールのデフォルト値）コマンドディレクトリ内のコマンドへのアクセスを拒否します
-* `readonly` へのアクセスを許可します `show` コマンドディレクトリとそのサブディレクトリ内のコマンドです
-* `all` コマンドディレクトリとそのサブディレクトリに含まれるすべてのコマンドへのアクセスを許可します
+* `none` （カスタムロールのデフォルト値）は、コマンドディレクトリ内のコマンドへのアクセスを拒否します
+* `readonly` へのアクセスを許可します `show` コマンドディレクトリとそのサブディレクトリ内のコマンド
+* `all` コマンドディレクトリとそのサブディレクトリ内のすべてのコマンドへのアクセスを許可します
 
 
-非組み込みコマンド_（末尾がでないコマンド）の場合 `create`、 `modify`、 `delete`または `show`）：
+for_nonintrinsic commands_（末尾がでないコマンド `create`、 `modify`、 `delete`または `show`）：
 
-* `none` （カスタムロールのデフォルト値）コマンドへのアクセスを拒否します
+* `none` （カスタムロールのデフォルト値）は、コマンドへのアクセスを拒否します
 * `readonly` は適用されません
 * `all` コマンドへのアクセスを許可します
 
@@ -201,7 +201,7 @@ ONTAP 9.11.1以降では、trueに設定すると、nsswitch認証に対してLD
  a| 
 `-query`
  a| 
-（任意）アクセスレベルのフィルタリングに使用されるクエリーオブジェクト。コマンドの有効なオプションまたはコマンドディレクトリ内のコマンドの形式で指定します。クエリオブジェクトは二重引用符（ " ）で囲む必要があります。たとえば、コマンドディレクトリがの場合などです `volume`をクリックします `"-aggr aggr0"` でアクセスできるようになります `aggr0` アグリゲートのみ。
+（任意）アクセスレベルのフィルタリングに使用されるクエリーオブジェクト。コマンドの有効なオプションまたはコマンドディレクトリ内のコマンドの形式で指定します。クエリオブジェクトは二重引用符（ " ）で囲む必要があります。たとえば、コマンドディレクトリがの場合などです `volume`、クエリーオブジェクト `"-aggr aggr0"` のアクセスを有効にします `aggr0` アグリゲートのみ：
  a| 
 
 |===
@@ -229,7 +229,7 @@ ONTAP 9.11.1以降では、trueに設定すると、nsswitch認証に対してLD
  a| 
 `-username`
  a| 
-アカウントのユーザ名。デフォルト値 `admin`クラスタ管理者のデフォルト名です。
+アカウントのユーザ名。デフォルト値 `admin`に変更します。これは、クラスタ管理者のデフォルト名です。
  a| 
 
 
@@ -269,7 +269,7 @@ OpenSSH 公開鍵。キーは二重引用符（ " ）で囲む必要がありま
 
 == CA 署名済みサーバデジタル証明書をインストールする。
 
-次の値はで指定します `security certificate generate-csr` コマンドは、SVMをSSLサーバとして認証する際に使用するCertificate Signing Request（CSR；証明書署名要求）を生成する場合に使用します。
+次の値はで指定します `security certificate generate-csr` コマンドは、SVMをSSLサーバとして認証する際に使用するデジタル証明書署名要求（CSR）を生成するときに使用します。
 
 [cols="3*"]
 |===
@@ -371,10 +371,10 @@ SVM の管理担当者の E メールアドレス。
  a| 
 証明書のタイプ。
 
-* `server` サーバ証明書および中間証明書の場合
-* `client-ca` SSLクライアントのルートCAの公開鍵証明書については、を参照してください
-* `server-ca` ONTAP がクライアントであるSSLサーバのルートCAの公開鍵証明書
-* `client` ONTAP の自己署名またはCA署名のデジタル証明書および秘密鍵をSSLクライアントとして使用する場合
+* `server` （サーバ証明書と中間証明書）
+* `client-ca` SSLクライアントのルートCAの公開鍵証明書用
+* `server-ca` ONTAP がクライアントであるSSLサーバのルートCAの公開鍵証明書用
+* `client` ONTAP をSSLクライアントとして使用するための自己署名またはCA署名のデジタル証明書および秘密鍵
 
  a| 
 
@@ -383,7 +383,7 @@ SVM の管理担当者の E メールアドレス。
 
 == Active Directory ドメインコントローラアクセスを設定する
 
-次の値はで指定します `security login domain-tunnel create` コマンドは、データSVM用にSMBサーバを設定済みで、SVMをゲートウェイまたはActive Directoryドメインコントローラからクラスタへのアクセス用に設定する場合に使用します。
+次の値はで指定します `security login domain-tunnel create` コマンドは、データSVM用のSMBサーバをすでに設定しており、SVMをゲートウェイまたはクラスタへのActive Directoryドメインコントローラアクセスの_tunnel_として設定する場合に使用します。
 
 [cols="3*"]
 |===
@@ -443,11 +443,11 @@ Active Directory コンピュータアカウントを作成する SVM の名前�
 
 == LDAP サーバまたは NIS サーバのアクセスを設定
 
-次の値はで指定します `vserver services name-service ldap client create` コマンドは、SVMのLDAPクライアント設定を作成するときに使用します。
+次の値はで指定します `vserver services name-service ldap client create` コマンドは、SVM用のLDAPクライアント設定を作成するときに使用します。
 
 [NOTE]
 ====
-ONTAP 9.2以降では、がサポートされます `-ldap-servers` フィールドがに置き換わります `-servers` フィールド。この新しいフィールドには、 LDAP サーバの値としてホスト名または IP アドレスを指定できます。
+ONTAP 9.2以降では `-ldap-servers` フィールドがに置き換わります `-servers` フィールド。この新しいフィールドには、 LDAP サーバの値としてホスト名または IP アドレスを指定できます。
 
 ====
 次の表には、アカウント設定に関連するオプションのみを示します。
@@ -502,7 +502,7 @@ ONTAP 9.2以降では、がサポートされます `-ldap-servers` フィール
  a| 
 `-use-start-tls`
  a| 
-クライアントがLDAPサーバとの通信をStart TLSを使用して暗号化するかどうか (`true` または `false`）。
+クライアントがStart TLSを使用してLDAPサーバとの通信を暗号化するかどうか (`true` または `false`）。
 
 [NOTE]
 ====
@@ -539,15 +539,15 @@ Start TLS は、データ SVM へのアクセスでのみサポートされま�
  a| 
 `-client-enabled`
  a| 
-SVMがLDAPクライアント設定を使用できるかどうか (`true` または `false`）。
+SVMでLDAPクライアント設定を使用できるかどうか (`true` または `false`）。
  a| 
 
 |===
-次の値はで指定します `vserver services name-service nis-domain create` コマンドは、SVMでNISドメイン設定を作成する場合に使用します。
+次の値はで指定します `vserver services name-service nis-domain create` コマンドは、SVMにNISドメイン設定を作成するときに使用します。
 
 [NOTE]
 ====
-ONTAP 9.2以降では、がサポートされます `-nis-servers` フィールドがに置き換わります `-servers` フィールド。この新しいフィールドには、 NIS サーバの値としてホスト名または IP アドレスを指定できます。
+ONTAP 9.2以降では `-nis-servers` フィールドがに置き換わります `-servers` フィールド。この新しいフィールドには、 NIS サーバの値としてホスト名または IP アドレスを指定できます。
 
 ====
 [cols="3*"]
@@ -618,11 +618,11 @@ ONTAP 9.2以降では、がサポートされます `-nis-servers` フィール�
  a| 
 ネームサービスデータベース。
 
-* `hosts` ファイルおよびDNSネームサービス用
-* `group` ファイル、LDAP、およびNISの各ネームサービスに使用できます
-* `passwd` ファイル、LDAP、およびNISの各ネームサービスに使用できます
-* `netgroup` ファイル、LDAP、およびNISの各ネームサービスに使用できます
-* `namemap` ファイルおよびLDAPネームサービス
+* `hosts` （ファイルおよびDNSネームサービス）
+* `group` （ファイル、LDAP、およびNISの各ネームサービス）
+* `passwd` （ファイル、LDAP、およびNISの各ネームサービス）
+* `netgroup` （ファイル、LDAP、およびNISの各ネームサービス）
+* `namemap` （ファイルおよびLDAPネームサービス）
 
  a| 
 
@@ -681,7 +681,7 @@ SAML サービスプロバイダホスト（ ONTAP システム）のホスト�
  a| 
 `-verify-metadata-server`
  a| 
-IdPメタデータサーバのIDを検証する必要があるかどうか  `true` または `false`）。この値は常にに設定することを推奨します `true`。
+IdPメタデータサーバのIDを検証するかどうか  `true` または `false`）。この値は常にに設定することを推奨します `true`。
  a| 
 
 |===

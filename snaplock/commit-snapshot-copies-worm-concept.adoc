@@ -49,7 +49,7 @@ image::../media/snapvault-steps-clustered.gif[この図は、 SnapVault 関係�
 .手順
 . デスティネーションクラスタを特定します。
 . デスティネーションクラスタで、SnapLock ライセンスをインストールし、ComplianceClockを初期化します。9.10.1よりも前のONTAP リリースを使用している場合は、SnapLock アグリゲートを作成します。を参照してください xref:workflow-concept.html[SnapLock ワークフロー]。
-. デスティネーションクラスタで、タイプがのSnapLock デスティネーションボリュームを作成します `DP` ソースボリュームと同じサイズ以上のサイズ：
+. デスティネーションクラスタで、タイプがのSnapLock デスティネーションボリュームを作成します `DP` ソースボリュームと同じかそれ以上のサイズが指定されています。
 +
 `*volume create -vserver _SVM_name_ -volume _volume_name_ -aggregate _aggregate_name_ -snaplock-type compliance|enterprise -type DP -size _size_*`
 
@@ -60,7 +60,7 @@ ONTAP 9.10.1 以降では、 SnapLock ボリュームと非 SnapLock ボリュ�
 
 ====
 +
-次のコマンドでは、2GBのSnapLock を作成します `Compliance` という名前のボリューム `dstvolB` インチ `SVM2` をクリックします `node01_aggr`：
+次のコマンドは、2GBのSnapLock を作成します `Compliance` という名前のボリューム `dstvolB` インチ `SVM2` アグリゲート `node01_aggr`：
 
 +
 [listing]
@@ -76,7 +76,7 @@ cluster2::> volume create -vserver SVM2 -volume dstvolB -aggregate node01_aggr -
 ====
 . xref:../data-protection/create-replication-relationship-task.adoc[新しいレプリケーション関係を作成] SnapLock 以外のソースと、手順 3 で作成した新しい SnapLock デスティネーションの間。
 +
-この例では、デスティネーションSnapLock ボリュームとの新しいSnapMirror関係を作成します `dstvolB` ポリシーを使用する `XDPDefault` dailyおよびweeklyというラベルの付いたSnapshotコピーを毎時スケジュールで保管するには、次の手順を実行します。
+この例は、デスティネーションSnapLock ボリュームとの新しいSnapMirror関係を作成します `dstvolB` ポリシーを使用します `XDPDefault` dailyおよびweeklyのラベルが付いたSnapshotコピーを毎時スケジュールに基づいてバックアップするには、
 
 +
 [listing]
@@ -101,9 +101,9 @@ xref:../data-protection/create-custom-replication-policy-concept.adoc[カスタ�
 ----
 cluster2::> snapmirror initialize -destination-path SVM2:dstvolB
 ----
-. 関係が初期化されてアイドル状態になったら、を使用します `snapshot show` レプリケートされたSnapshotコピーに適用されたSnapLock の有効期限を確認するコマンド。
+. 関係が初期化され、アイドル状態になったら、を使用します `snapshot show` デスティネーションでコマンドを実行して、レプリケートされたSnapshotコピーに適用されているSnapLock の有効期限を確認します。
 +
-この例は、ボリュームのSnapshotコピーを表示します `dstvolB` SnapMirrorラベルとSnapLock 有効期限が設定されているデータ：
+次の例は、ボリューム上のSnapshotコピーを表示します `dstvolB` SnapMirrorラベルとSnapLock の有効期限が設定されているデータセンターを次に示します。
 
 +
 [listing]

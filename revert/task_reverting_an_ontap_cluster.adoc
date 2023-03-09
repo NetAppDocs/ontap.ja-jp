@@ -17,9 +17,9 @@ summary: クラスタをオフラインにして以前の ONTAP リリースに�
 
 クラスタをリバートするには、クラスタをオフラインにした状態でリバートを行う必要があります。
 
-. 権限レベルをadvancedに設定します。続行するかどうかを尋ねられたら、「* y *」と入力します。 `set -privilege advanced`
+. 権限レベルを advanced に設定します。 `set -privilege advanced`
 +
-advancedプロンプトが表示されます (`*>`）が表示されます。
+続行するかどうかを尋ねられたら、「* y *」と入力します。
 
 . ターゲットのONTAP ソフトウェアがインストールされていることを確認します。 `system image show`
 +
@@ -41,6 +41,8 @@ node1
 4 entries were displayed.
 ----
 . クラスタ内のすべてのデータLIFを無効にします。 `network interface modify {-role data} -status-admin down`
+. クラスタ間FlexCache 関係があるかどうかを確認します。 `flexcache origin show-caches -relationship-type inter-cluster`
+. クラスタ間フラッシュが存在する場合は、キャッシュクラスタのデータLIFを無効にします。 `network interface modify -vserver vserver_name -lif lif_name -status-admin down`
 . クラスタが2つのノードだけで構成されている場合は、クラスタHAを無効にします。 `cluster ha modify -configured false`
 . [[step-5]]どちらかのノードからHAペアのノードのストレージフェイルオーバーを無効にします。 `storage failover modify -node nodename -enabled false`
 +

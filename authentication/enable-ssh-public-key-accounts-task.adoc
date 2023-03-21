@@ -27,15 +27,15 @@ xref:manage-public-key-authentication-concept.adoc[ユーザアカウントへ�
 * ログインアカウントに割り当てるアクセス制御ロールが不明な場合は、を使用します `security login modify` コマンドを使用してあとでロールを追加します。
 
 
-SVM へのアクセス前に管理者アカウントが SSH 公開鍵で認証するクラスタで SSL FIPS モードを有効にする場合は、 FIPS を有効にする前にホストキーアルゴリズムがサポートされていることを確認する必要があります。
+クラスタでFIPSモードを有効にする場合は、サポートされているキーアルゴリズムのない既存のSSH公開鍵アカウントを、サポートされるキータイプで再設定する必要があります。FIPSを有効にする前にアカウントを再設定する必要があります。そうしないと、管理者認証が失敗します。
 
-*注：ONTAP 9.11.1以降では、ホストキーアルゴリズムのサポートが変更されています。
+次の表に、ONTAP SSH接続でサポートされるホストキータイプアルゴリズムを示します。これらのキータイプは、SSH公開認証の設定には適用されません。
 
 [cols="30,30,30"]
 |===
 
 
-| ONTAP リリース | サポートされているキータイプ | サポートされていないキータイプです 
+| ONTAP リリース | FIPSモードでサポートされるキータイプ | FIPS以外のモードでサポートされるキータイプ 
 
 
  a| 
@@ -43,7 +43,7 @@ SVM へのアクセス前に管理者アカウントが SSH 公開鍵で認証�
  a| 
 ECDSA - sha2 - nistp256
  a| 
-rsa-sha2-512+ rsa-sha2-256+ ssh-ed25519 + ssh-dss+ssh-rsa
+ecdsa-sha2-nistp256 + rsa-sha2-512 + rsa-sha2-256 + ssh-ed25519 + ssh-dss+ ssh-rsa
 
 
 
@@ -52,10 +52,11 @@ rsa-sha2-512+ rsa-sha2-256+ ssh-ed25519 + ssh-dss+ssh-rsa
  a| 
 ECDSA - sha2 -nistp256 + ssh-ed25519
  a| 
-SSH-DSS + ssh-rsa
+ecdsa-sha2-nistp256 + ssh-ed25519 + ssh-dss+ ssh-rsa
 
 |===
-FIPS を有効にする前に、サポートされるキーアルゴリズムを使用していない既存の SSH 公開鍵アカウントをサポート対象のキータイプで再設定する必要があります。再設定しないと、管理者認証は失敗します。
+
+NOTE: 9.11.1では、SSH-ed25519ホストキーアルゴリズムのサポートが廃止されました
 
 詳細については、を参照してください link:../networking/configure_network_security_using_federal_information_processing_standards_@fips@.html["FIPS を使用してネットワークセキュリティを設定する"]。
 

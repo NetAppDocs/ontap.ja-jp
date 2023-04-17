@@ -50,18 +50,33 @@ SLMのレポートノードリストからノードとそのHAパートナーを
 *注：*などの操作は実行しないでください `cluster remove-node`、 `cluster unjoin`および `node rename` ONTAP の自動アップグレードが進行中の場合。
 
 .このタスクについて
-バージョンが混在したクラスタを実行している場合は、 ONTAP 9.3 以降の advanced 権限のコマンドのいずれかを使用して、バージョンが低い最後のノードを削除できます。
+* バージョンが混在したクラスタを実行している場合は、 ONTAP 9.3 以降の advanced 権限のコマンドのいずれかを使用して、バージョンが低い最後のノードを削除できます。
++
+** ONTAP 9.3： `cluster unjoin -skip-last-low-version-node-check`
+** ONTAP 9.4以降： `cluster remove-node -skip-last-low-version-node-check`
 
-* ONTAP 9.3： `cluster unjoin -skip-last-low-version-node-check`
-* ONTAP 9.4以降： `cluster remove-node -skip-last-low-version-node-check`
+
+* 4ノードクラスタから2つのノードを分離すると、残りの2つのノードでクラスタHAが自動的に有効になります。
 
 
-*注：*ノードをクラスタから削除する前に、ノードに接続されたすべてのディスクのすべてのシステムデータとユーザデータにアクセスできないようにする必要があります。ノードが誤ってクラスタから参加解除された場合は、ネットアップサポートにリカバリのオプションを問い合わせてください。
+
+NOTE: クラスタからノードを削除する前に、ノードに接続されているすべてのディスクのすべてのシステムデータとユーザデータにユーザがアクセスできないようにする必要があります。ノードが誤ってクラスタから参加解除された場合は、ネットアップサポートにリカバリのオプションを問い合わせてください。
 
 .手順
 . 権限レベルを advanced に変更します。
 +
 `*set -privilege advanced*`
+
+. クラスタのノードにイプシロンが設定されているかどうかを確認します。
++
+`*cluster show -epsilon true*`
+
++
+.. イプシロンが設定されているノードの場合は、参加資格をfalseに変更します。
++
+`*cluster modify -node <node_name> -eligibility false*`
+
+
 
 . 削除するノードが現在のマスターノードである場合は、マスターノードのクラスタ参加資格をに変更して、クラスタ内の別のノードをマスターノードとして選出できるようにします `false`：
 +

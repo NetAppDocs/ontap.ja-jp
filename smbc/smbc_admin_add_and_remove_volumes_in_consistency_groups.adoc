@@ -14,18 +14,27 @@ summary: ボリュームを追加または削除して整合グループの構�
 
 
 [role="lead"]
-ボリュームを追加または削除して整合グループの構成を変更する場合は、最初に元の関係を削除してから、新しい構成で整合グループを作成し直す必要があります。
-
-
-NOTE: このワークフローは環境 ONTAP 9.8 および 9.8.1 です。ONTAP 9.10.1 以降では、を管理することを推奨します link:../consistency-groups/index.html["整合グループ"] System Manager または ONTAP REST API を使用ONTAP 9.12.1以降では、System ManagerまたはONTAP REST APIを使用して、整合性グループにボリュームを追加または削除できます。整合グループを変更してSM-BC保護をリストアする前に、SM-BC関係を解除する必要があります。このプロセスの詳細については、を参照してください xref:../consistency-groups/modify-task.html[整合グループを変更する]。
+アクティブなSM-BC関係にあるボリュームの追加と削除は、使用しているONTAP のバージョンによって異なります。
 
 .このタスクについて
+ONTAP 9.8~9.9.1では、ONTAP CLIを使用して整合グループにボリュームを追加または削除できます。
+
+ONTAP 9.10.1 以降では、を管理することを推奨します link:../consistency-groups/index.html["整合グループ"] System Manager または ONTAP REST API を使用ボリュームを追加または削除して整合グループの構成を変更する場合は、最初に元の関係を削除してから、新しい構成で整合グループを作成し直す必要があります。
+
+ONTAP 9.13.1以降では、ソースまたはデスティネーションからアクティブなSM-BC関係を持つ整合性グループに無停止でボリュームを追加できます。
+
+
+NOTE: SM-BC関係を含む整合性グループからボリュームを削除するとシステムが停止するため、この処理を続行する前にSnapMirror関係を解除する必要があります。
+
+[role="tabbed-block"]
+====
+.ONTAP 9.8-9.13.0
+--
+.作業を開始する前に
 * 整合グループが「 InSync 」状態の場合、コンポジションを変更することはできません。
 * デスティネーションボリュームのタイプは DP でなければなりません。
+* 整合性グループを拡張するために追加する新しいボリュームには、ソースボリュームとデスティネーションボリュームの間に共通の Snapshot コピーのペアが必要です。
 
-
-
-NOTE: 整合性グループを拡張するために追加する新しいボリュームには、ソースボリュームとデスティネーションボリュームの間に共通の Snapshot コピーのペアが必要です。
 
 .手順
 この手順では、エンドポイント vs1_src ： /cc/cg_src と vs1_dst ： /cc/cg_dst の間の整合グループ関係に、 vol_src1 と vol_src2 のボリュームマッピングがあることを前提としています。
@@ -63,7 +72,7 @@ NOTE: デスティネーション LUN はマッピング解除されますが、
 +
 `source::>snapmirror release -destination-path vs1_dst:/cg/cg_dst -relationship-info-only true`
 
-. ** ONTAP 9.10.1以降を使用している場合**削除して再作成し'ソース上の整合グループを適切な構成で作成しますの手順に従います xref:../consistency-groups/delete-task.html[整合グループを削除する] 次に xref:../consistency-groups/configure-task.html[単一の整合グループを設定する]。ONTAP 9.10.1以降では、System ManagerまたはONTAP REST APIで削除および作成の処理を実行する必要があります。CLI手順 はありません。
+. ** ONTAP 9.10.1～9.13.0を使用している場合は'**ソースのコンシステンシ・グループを正しいコンポジションで削除して再作成しますの手順に従います xref:../consistency-groups/delete-task.html[整合グループを削除する] 次に xref:../consistency-groups/configure-task.html[単一の整合グループを設定する]。ONTAP 9.10.1以降では、System ManagerまたはONTAP REST APIで削除および作成の処理を実行する必要があります。CLI手順 はありません。
 +
 ** ONTAP 9.8、9.0、または9.9.8.1を使用している場合は、次の手順に進みます。**
 
@@ -77,7 +86,24 @@ NOTE: デスティネーション LUN はマッピング解除されますが、
 
 . 手順 5 でマッピング解除した LUN を再マッピングします。
 +
-`destination::> lun map -vserver vs1_dst -path <lun_path> -igroup <igroup_name>`
+`destination::> lun map -vserver vs1_dst -path _lun_path_ -igroup _igroup_name_`
 
 . ホスト LUN の I/O パスを再スキャンして、 LUN へのすべてのパスをリストアします。
 
+
+--
+.ONTAP 9.13.1以降
+--
+ONTAP 9.13.1以降では、アクティブなSM-BC関係を持つ整合性グループに無停止でボリュームを追加できます。SM-BCでは、ソースとデスティネーションの両方からボリュームを追加できます。
+
+ソース整合性グループからのボリュームの追加の詳細については、を参照してください xref:../consistency-groups/modify-task.html[整合グループを変更する]。
+
+.デスティネーションクラスタからボリュームを追加
+. デスティネーションクラスタで、**Protection**>** Relationships**を選択します。
+. ボリュームを追加するSM-BC関係を探します。選択するオプション image:icon_kabob.gif["kebab アイコン"] 次に、**展開**。
+. 整合性グループにボリュームを追加するボリューム関係を選択します
+. [**展開*]を選択します。
+
+
+--
+====

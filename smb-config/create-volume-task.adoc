@@ -8,19 +8,29 @@ summary: volume create コマンドを使用して、ボリュームを作成し
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
+:firstname: *
+:author: *
+:authorinitials: *
+:authors: *
+:revdate: [.lead]
 
 
-[role="lead"]
 を使用して、ボリュームを作成し、ジャンクションポイントやその他のプロパティを指定できます `volume create` コマンドを実行します
-
-.作業を開始する前に
-SVM のセキュリティ形式は NTFS である必要があります。また、 SMB が設定されて実行されている必要があります。
 
 .このタスクについて
 クライアントがデータを使用できるようにするには、ボリュームに _junction path_ を含める必要があります。ジャンクションパスは、新しいボリュームを作成するときに指定できます。ジャンクションパスを指定せずにボリュームを作成する場合は、を使用してSVMネームスペースにボリュームを_mount_する必要があります `volume mount` コマンドを実行します
 
+.作業を開始する前に
+* SMBがセットアップされて実行されている必要があります。
+* SVMのセキュリティ形式はNTFSである必要があります。
+* ONTAP 9.13.1以降では、容量分析とアクティビティ追跡を有効にしてボリュームを作成できます。容量またはアクティビティトラッキングを有効にするには、を問題します `volume create` コマンドにを指定します `-analytics-state` または `-activity-tracking-state` をに設定します `on`。
++
+容量分析とアクティビティ追跡の詳細については、を参照してください xref:../task_nas_file_system_analytics_enable.html[File System Analytics を有効にします]。
+
+
+
 .手順
-. ジャンクションポイントを指定してボリュームを作成します。 `volume create -vserver vserver_name -volume volume_name -aggregate aggregate_name -size {integer[KB|MB|GB|TB|PB]} -security-style ntfs -junction-path junction_path]`
+. ジャンクションポイントを指定してボリュームを作成します。 `volume create -vserver _svm_name_ -volume _volume_name_ -aggregate _aggregate_name_ -size {integer[KB|MB|GB|TB|PB]} -security-style ntfs -junction-path _junction_path_]`
 +
 の選択 `-junction-path` 次のようなものがあります。
 
@@ -38,7 +48,7 @@ SVM のセキュリティ形式は NTFS である必要があります。また�
 +
 新しいディレクトリ（新しいボリュームの下の新しい階層）にボリュームを作成する場合は、次のように指定します。 `/new_dir/new_vol`その後、SVMルートボリュームにジャンクションされた新しい親ボリュームを作成しておく必要があります。その後、新しい親ボリューム（新しいディレクトリ）のジャンクションパスに新しい子ボリュームを作成します。
 
-. 目的のジャンクションポイントでボリュームが作成されたことを確認します。 `volume show -vserver vserver_name -volume volume_name -junction`
+. 目的のジャンクションポイントでボリュームが作成されたことを確認します。 `volume show -vserver _svm_name_ -volume _volume_name_ -junction`
 
 
 .例

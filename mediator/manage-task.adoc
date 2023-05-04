@@ -93,6 +93,251 @@ ONTAP メディエーターサービスをインストールしたあと、ユ�
 
 
 
+== ONTAP メディエーターサービスを停止します
+
+ONTAP メディエーターサービスを停止するには、次の手順を実行します。
+
+.手順
+. ONTAP メディエーターを停止します。
++
+`systemctl stop ontap_mediator`
+
+. SCSTを停止します。
++
+`systemctl stop mediator-scst`
+
+. ONTAP メディエーターとSCSTを無効にします。
++
+`systemctl diable ontap_mediator mediator-scst`
+
+
+
+
+
+== ONTAP メディエーターサービスを再度有効にします
+
+ONTAP メディエーターサービスを再度有効にするには、次の手順を実行します。
+
+.手順
+. ONTAP メディエーターとSCSTを有効にします。
++
+`systemctl enable ontap_mediator mediator-scst`
+
+. SCSTを起動します。
++
+`systemctl start mediator-scst`
+
+. ONTAP Mediatorを起動します。
++
+`systemctl start ontap_mediator`
+
+
+
+
+
+== ONTAP メディエーターが正常であることを確認します
+
+ONTAP メディエーターをインストールしたら、ONTAP メディエーターサービスが実行されていることを確認する必要があります。
+
+.手順
+. ONTAP メディエーターサービスのステータスを表示します。
++
+.. `systemctl status ontap_mediator`
++
+[listing]
+----
+[root@scspr1915530002 ~]# systemctl status ontap_mediator
+
+ ontap_mediator.service - ONTAP Mediator
+Loaded: loaded (/etc/systemd/system/ontap_mediator.service; enabled; vendor preset: disabled)
+Active: active (running) since Mon 2022-04-18 10:41:49 EDT; 1 weeks 0 days ago
+Process: 286710 ExecStop=/bin/kill -s INT $MAINPID (code=exited, status=0/SUCCESS)
+Main PID: 286712 (uwsgi)
+Status: "uWSGI is ready"
+Tasks: 3 (limit: 49473)
+Memory: 139.2M
+CGroup: /system.slice/ontap_mediator.service
+      ├─286712 /opt/netapp/lib/ontap_mediator/pyenv/bin/uwsgi --ini /opt/netapp/lib/ontap_mediator/uwsgi/ontap_mediator.ini
+      ├─286716 /opt/netapp/lib/ontap_mediator/pyenv/bin/uwsgi --ini /opt/netapp/lib/ontap_mediator/uwsgi/ontap_mediator.ini
+      └─286717 /opt/netapp/lib/ontap_mediator/pyenv/bin/uwsgi --ini /opt/netapp/lib/ontap_mediator/uwsgi/ontap_mediator.ini
+
+[root@scspr1915530002 ~]#
+----
+.. `systemctl status mediator-scst`
++
+[listing]
+----
+[root@scspr1915530002 ~]# systemctl status mediator-scst
+   Loaded: loaded (/etc/systemd/system/mediator-scst.service; enabled; vendor preset: disabled)
+   Active: active (running) since Mon 2022-04-18 10:41:47 EDT; 1 weeks 0 days ago
+  Process: 286595 ExecStart=/etc/init.d/scst start (code=exited, status=0/SUCCESS)
+ Main PID: 286662 (iscsi-scstd)
+    Tasks: 1 (limit: 49473)
+   Memory: 1.2M
+   CGroup: /system.slice/mediator-scst.service
+           └─286662 /usr/local/sbin/iscsi-scstd
+
+[root@scspr1915530002 ~]#
+----
+
+
+. ONTAP メディエーターサービスで使用されているポートを確認します。
++
+`netstat`
+
++
+[listing]
+----
+[root@scspr1905507001 ~]# netstat -anlt | grep -E '3260|31784'
+
+         tcp   0   0 0.0.0.0:31784   0.0.0.0:*      LISTEN
+
+         tcp   0   0 0.0.0.0:3260    0.0.0.0:*      LISTEN
+
+         tcp6  0   0 :::3260         :::*           LISTEN
+----
+
+
+
+
+== ホストのメンテナンスを実行するには、SCSTを手動でアンインストールします
+
+SCSTをアンインストールするには、インストールされているONTAP メディエーターのバージョンに使用するSCST tarバンドルが必要です。
+
+.手順
+. 次の表に示すように、適切なSCSTバンドルをダウンロードして解凍します。
++
+[cols="50,50"]
+|===
+
+
+| バージョン | 使用するtarバンドル 
+
+
+ a| 
+ONTAP Mediator 1.0の略
+ a| 
+scst-3.3.0.tar.bz2
+
+
+
+ a| 
+ONTAP メディエーター1.1
+ a| 
+scst-3.4.0.tar.bz2
+
+
+
+ a| 
+ONTAP メディエーター1.2.
+ a| 
+scst-3.4.0.tar.bz2
+
+
+
+ a| 
+ONTAP Mediator 1.3.
+ a| 
+scst-3.5.0.tar.bz2
+
+
+
+ a| 
+ONTAP メディエーター1.4.
+ a| 
+scst-3.6.0.tar.bz2
+
+
+
+ a| 
+ONTAP メディエーター1.5.
+ a| 
+scst-3.6.0.tar.bz2
+
+
+
+ a| 
+ONTAP メディエーター1.6.
+ a| 
+scst-3.7.0.tar.bz2
+
+|===
+. 「scst」ディレクトリにある次のコマンドを問題 します。
++
+.. `systemctl stop mediator-scst`
+.. `make scstadm_uninstall`
+.. `make iscsi_uninstall`
+.. `make usr_uninstall`
+.. `make scst_uninstall`
+.. `depmod`
+
+
+
+
+
+
+== ホストのメンテナンスを実行するには、SCSTを手動でインストールしてください
+
+SCSTを手動でインストールするには、インストールされているONTAP メディエーターのバージョンに使用するSCST tarバンドルが必要です（を参照） <<scst-bundle-table,上の表>>）。
+
+. 「scst」ディレクトリにある次のコマンドを問題 します。
++
+.. `make 2release`
+.. `make scst_install`
+.. `make usr_install`
+.. `make iscsi_install`
+.. `make scstadm_install`
+.. `depmod`
+.. `cp scst/src/certs/scst_module_key.der /opt/netapp/lib/ontap_mediator/ontap_mediator/SCST_mod_keys/.`
+.. `cp scst/src/certs/scst_module_key.der /opt/netapp/lib/ontap_mediator/ontap_mediator/SCST_mod_keys/.`
+.. `patch /etc/init.d/scst < /opt/netapp/lib/ontap_mediator/systemd/scst.patch`
+
+
+. （オプション）セキュアブートが有効になっている場合は、リブートする前に、次の手順を実行します。
++
+.. 「scst_vdisk」、「scst」、および「iscsi_scst」モジュールの各ファイル名を確認します。
++
+....
+`[root@localhost ~]# modinfo -n scst_vdisk`
+`[root@localhost ~]# modinfo -n scst`
+`[root@localhost ~]# modinfo -n iscst_scst_vdisk`
+....
+.. カーネルのリリースを確認します。
++
+....
+[root@localhost ~]# uname -r
+....
+.. 各ファイルにカーネルで署名します。
++
+....
+[root@localhost ~]# /usr/src/kernels/<KERNEL-RELEASE>/scripts/sign-file \sha256 \
+/opt/netapp/lib/ontap_mediator/ontap_mediator/SCST_mod_keys/scst_module_key.priv \
+/opt/netapp/lib/ontap_mediator/ontap_mediator/SCST_mod_keys/scst_module_key.der \
+_module-filename_
+....
+.. UEFIファームウェアで正しいキーをインストールします。
++
+UEFIキーのインストール手順は、次の場所にあります。
+
++
+`/opt/netapp/lib/ontap_mediator/ontap_mediator/SCST_mod_keys/README.module-signing`
+
++
+生成されたUEFIキーは次の場所にあります。
+
++
+`/opt/netapp/lib/ontap_mediator/ontap_mediator/SCST_mod_keys/scst_module_key.der`
+
+
+
+. リブートを実行します。
++
+`reboot`
+
+
+
+
+
 == ONTAP メディエーターサービスをアンインストールします
 
 .作業を開始する前に

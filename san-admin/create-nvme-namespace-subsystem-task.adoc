@@ -13,8 +13,6 @@ summary: NVMe プロトコルを使用するシステムでは、 NVMe のネー
 [role="lead"]
 特定のホストの手順 を使用できない場合は、次の手順に従って、NVMeでサポートされるすべてのホストのネームスペースを作成し、ストレージをプロビジョニングします。
 
-ネームスペースは、 Linux では SCSI ディスクデバイスとして表示されます。
-
 この手順は、既存の Storage VM に新しいネームスペースを作成します。Storage VM が NVMe 用に設定され、 FC または TCP 転送がすでにセットアップされている必要があります。
 
 ONTAP 9.8 以降では、ストレージをプロビジョニングすると QoS がデフォルトで有効になります。QoS を無効にするか、プロビジョニングプロセス中またはあとからカスタムの QoS ポリシーを選択できます。
@@ -31,8 +29,6 @@ ONTAP System Manager（9.7以降）を使用して、NVMeプロトコルを使�
 新しいサブシステムを作成する必要がある場合は、 * その他のオプション * をクリックします。
 
 . ONTAP 9.8 以降を実行していて、 QoS を無効にする場合やカスタムの QoS ポリシーを選択する場合は、「その他のオプション」をクリックし、「 * ストレージおよび最適化 * 」で「 * パフォーマンスサービスレベル * 」を選択します。
-
-
 . FC スイッチを WWPN でゾーニングイニシエータごとに 1 つのゾーンを使用し、各ゾーンにすべてのターゲットポートを含めます。
 . ホストで、新しいネームスペースを検出します。
 . ネームスペースを初期化し、ファイルシステムでフォーマットします。
@@ -51,45 +47,59 @@ NVMe用にStorage VMを設定する必要がある場合は、を参照してく
 .手順
 . SVM が NVMe 用に設定されていることを確認します。
 +
-`vserver show -vserver _SVM_name_ -fields allowed-protocols`
-
+[source, cli]
+----
+vserver show -vserver <svm_name> -fields allowed-protocols
+----
 +
 `NVMe` がの下に表示されます `allowed-protocols` 列（Column）：
 
 . NVMe ネームスペースを作成します。
 +
-`vserver nvme namespace create -vserver _SVM_name_ -path _path_ -size _size_of_namespace_ -ostype _OS_type_`
-
+[source, cli]
+----
+vserver nvme namespace create -vserver <svm_name> -path <path> -size <size_of_namespace> -ostype <OS_type>
+----
 . NVMe サブシステムを作成します。
 +
-`vserver nvme subsystem create -vserver _SVM_name_ -subsystem _name_of_subsystem_ -ostype _OS_type_`
-
+[source, cli]
+----
+vserver nvme subsystem create -vserver <svm_name> -subsystem <name_of_subsystem> -ostype <OS_type>
+----
 +
 NVMe サブシステムの名前では大文字と小文字が区別されます。1~96文字で指定する必要があります。特殊文字を使用できます。
 
 . サブシステムが作成されたことを確認します。
 +
-`vserver nvme subsystem show -vserver _SVM_name_`
-
+[source, cli]
+----
+vserver nvme subsystem show -vserver <svm_name>
+----
 +
 。 `nvme` の下にサブシステムが表示されます `Subsystem` 列（Column）：
 
 . ホストから NQN を取得します。
 . ホストの NQN をサブシステムに追加します。
 +
-`vserver nvme subsystem host add -vserver _SVM_name_ -subsystem _subsystem_name_ -host-nqn _Host_NQN_:subsystem._subsystem_name_`
-
+[source, cli]
+----
+vserver nvme subsystem host add -vserver <svm_name> -subsystem <subsystem_name> -host-nqn <Host_NQN>
+----
 . ネームスペースをサブシステムにマッピングします。
 +
-`vserver nvme subsystem map add -vserver _SVM_name_ -subsystem _subsystem_name_ -path _path_`
-
+[source, cli]
+----
+vserver nvme subsystem map add -vserver <svm_name> -subsystem <subsystem_name> -path <path>
+----
 +
 ネームスペースは、 1 つのサブシステムにのみマッピングできます。
 
 . ネームスペースがサブシステムにマッピングされていることを確認します。
 +
-`vserver nvme namespace show -vserver _SVM_name_ -instance`
-
+[source, cli]
+----
+vserver nvme namespace show -vserver <svm_name> -instance
+----
 +
 サブシステムがと表示されます `Attached subsystem`。
 

@@ -1,0 +1,96 @@
+---
+permalink: s3-config/create-bucket-lifecycle-rule-task.html 
+sidebar: sidebar 
+keywords: s3, bucket, cli, lifecycle, rule 
+summary: ONTAP 9.13.1以降では、S3オブジェクトの有効期限を実装できます。 
+---
+= バケットライフサイクル管理ルールを作成します
+:allow-uri-read: 
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+ONTAP 9.13.1以降では、S3オブジェクトの有効期限を実装できます。有効期限アクションは、バケット内のオブジェクトの有効期限を定義します。この機能を使用すると、オブジェクトバージョンを管理できるため、保持要件を満たし、S3オブジェクトストレージ全体を効率的に管理できます。
+
+.作業を開始する前に
+S3 サーバとバケットを含む S3 対応の SVM がすでに存在している必要があります。を参照してください link:create-svm-s3-task.html["S3 用の SVM を作成します"] を参照してください。
+
+.このタスクについて
+バケットライフサイクル管理ルールを作成するときは、次の3つの有効期限アクションタイプのいずれかを選択する必要があります。
+
+* `Expiration` –有効期限アクションは'ルールによって識別されたオブジェクトを期限切れにしますバケットでケースのバージョン管理が有効になっている場合、S3は期限切れのオブジェクトをすべて使用できないようにします。バージョン管理が有効になっていない場合は、このルールによってオブジェクトが完全に削除されます。
+* `NoncurrentVersionExpiration` –このアクションは、S3が最新でないオブジェクトを完全に削除するタイミングを指定する場合に使用します。削除されたこれらのオブジェクトはリカバリできません。
+* `AbortIncompleteMultipartUpload` –管理者は、この要素を使用して、マルチパートアップロードの実行を許可する最大時間（日数）を設定できます
+
+
+バケットライフサイクル管理ルールを作成するときは、有効期限アクションタイプごとに必須フィールドを定義する必要があります。これらのフィールドは、最初の作成後に変更できます。次の表に、アクションタイプごとに固有のフィールドを示します。
+
+[cols="30,70"]
+|===
+
+
+| アクションタイプ | 一意のフィールド 
+
+
+ a| 
+NonCurrentVersionExpiration
+ a| 
+* `-non-curr-days` -最新でないバージョンが削除されるまでの日数
+* `-new-non-curr-versions` -保持する最新の非最新バージョンの数
+
+
+
+
+ a| 
+有効期限
+ a| 
+* `-obj-age-days` -オブジェクトの現在のバージョンを削除できるようになるまでの作成からの日数
+* `-obj-exp-date` -オブジェクトが期限切れになる日付
+* `-expired-obj-del-markers` -オブジェクト削除マーカーをクリーンアップします
+
+
+
+
+ a| 
+AbortIncompleteMultipartUpload の略
+ a| 
+* `-after-initiation-days` -アップロードを中止できる開始日数。この日数を過ぎるとアップロードが中止されます
+
+
+|===
+バケットライフサイクル管理ルールを特定のオブジェクトのサブセットにのみ適用するには、管理者はルールの作成時に各フィルタを設定する必要があります。ルールの作成時にこれらのフィルタが設定されていない場合、ルールはバケット内のすべてのオブジェクトに適用されます。
+
+以下の場合は、すべてのフィルタを最初に作成した後_except_に変更できます。+
+
+* `-prefix`
+* `-tags`
+* `-obj-size-greater-than`
+* `-obj-size-less-than`
+
+
+.手順
+. を使用します `vserver object-store-server bucket lifecycle-management-rule create` バケットライフサイクル管理ルールを作成するためのexpirationアクションタイプの必須フィールドを含むコマンド。
+
+
+.例
+次のコマンドは、NonCurrentVersionExpirationバケットライフサイクル管理ルールを作成します。
+
+[listing]
+----
+vserver object-store-server bucket lifecycle-management-rule create -vserver <svm_name> -bucket <bucket_name> -rule-id <rule_name> -action NonCurrentVersionExpiration -index <lifecycle_rule_index_integer> -is-enabled {true|false} -prefix <object_name> -tags <text> -obj-size-greater-than {<integer>[KB|MB|GB|TB|PB]} -obj-size-less-than {<integer>[KB|MB|GB|TB|PB]} -new-non-curr-versions <integer> -non-curr-days <integer>
+----
+.例
+次のコマンドは、Expirationバケットライフサイクル管理ルールを作成します。
+
+[listing]
+----
+vserver object-store-server bucket lifecycle-management-rule create -vserver <svm_name> -bucket <bucket_name> -rule-id <rule_name> -action Expiration -index <lifecycle_rule_index_integer> -is-enabled {true|false} -prefix <object_name> -tags <text> -obj-size-greater-than {<integer>[KB|MB|GB|TB|PB]} -obj-size-less-than {<integer>[KB|MB|GB|TB|PB]} -obj-age-days <integer> -obj-exp-date <"MM/DD/YYYY HH:MM:SS"> -expired-obj-del-marker {true|false}
+----
+.例
+次のコマンドは、AbortIncompleteMultipartUploadバケットライフサイクル管理ルールを作成します。
+
+[listing]
+----
+vserver object-store-server bucket lifecycle-management-rule create -vserver <svm_name> -bucket <bucket_name> -rule-id <rule_name> -action AbortIncompleteMultipartUpload -index <lifecycle_rule_index_integer> -is-enabled {true|false} -prefix <object_name> -tags <text> -obj-size-greater-than {<integer>[KB|MB|GB|TB|PB]} -obj-size-less-than {<integer>[KB|MB|GB|TB|PB]} -after-initiation-days <integer>
+----

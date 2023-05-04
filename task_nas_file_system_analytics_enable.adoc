@@ -1,7 +1,7 @@
 ---
 sidebar: sidebar 
 permalink: task_nas_file_system_analytics_enable.html 
-keywords: capacity analytics, data visualization, File System Analytics, System Manager, storage, explorer 
+keywords: capacity analytics, data visualization, File System Analytics 
 summary: 容量分析などの使用状況データを収集して表示するには、 File System Analytics を有効にする必要があります。 
 ---
 = File System Analytics を有効にします
@@ -21,7 +21,10 @@ summary: 容量分析などの使用状況データを収集して表示する�
 [role="lead"]
 容量分析などの使用状況データを収集して表示するには、ボリュームでファイルシステム分析を有効にする必要があります。
 
-ONTAP 9.8以降では、新規または既存のボリュームでファイルシステム分析を有効にできます。システムをONTAP 9.8以降にアップグレードする場合は、ファイルシステム分析を有効にする前に、すべてのアップグレードプロセスが完了していることを確認してください。
+.このタスクについて
+* ONTAP 9.8以降では、新規または既存のボリュームでファイルシステム分析を有効にできます。システムをONTAP 9.8以降にアップグレードする場合は、ファイルシステム分析を有効にする前に、すべてのアップグレードプロセスが完了していることを確認してください。
+* ボリュームのサイズと内容によっては、 ONTAP がボリューム内の既存データを処理する間、分析を有効にするのに時間がかかることがあります。完了すると、 System Manager に進捗状況が表示され、分析データが表示されます。初期化の進捗状況に関する詳細情報が必要な場合は、ONTAP CLIコマンドを使用します `volume analytics show`。
+
 
 .このタスクについて
 ボリュームのサイズと内容によっては、 ONTAP がボリューム内の既存データを処理する間、分析を有効にするのに時間がかかることがあります。完了すると、 System Manager に進捗状況が表示され、分析データが表示されます。初期化の進捗状況に関する詳細情報が必要な場合は、ONTAP CLIコマンドを使用します `volume analytics show`。
@@ -44,10 +47,53 @@ ONTAP システムマネージャまたはCLIを使用して、ファイルシ�
 --
 .CLI の使用
 --
-.CLI でファイルシステム分析を有効にするには、次の手順を実行します
+.CLI を使用してファイルシステム分析を有効にします
 . 次のコマンドを実行します。
 `volume analytics on -vserver _svm_name_ -volume _volume_name_ [-foreground {true|false}]`デフォルトでは、このコマンドはフォアグラウンドで実行されます。 ONTAP は進捗状況を表示し、完了すると分析データを表示します。より正確な情報が必要な場合は、を使用してコマンドをバックグラウンドで実行できます `-foreground false` オプションを選択し、を使用します `volume analytics show` CLIに初期化の進行状況を表示するコマンド。
-. ファイルシステム分析を有効にしたあと、ONTAP システムマネージャを使用して分析データを表示します。
+. ファイルシステム分析を有効にしたら、System ManagerまたはONTAP REST APIを使用して分析データを表示します。
+
+
+--
+====
+
+
+== ファイルシステム分析のデフォルト設定を変更します
+
+ONTAP 9.13.1以降では、SVMまたはクラスタの設定を変更して、新しいボリュームに対してデフォルトでファイルシステム分析を有効にすることができます。
+
+[role="tabbed-block"]
+====
+.System Manager の略
+--
+System Managerを使用している場合は、Storage VMまたはクラスタの設定を変更して、ボリューム作成時に容量分析とアクティビティ追跡をデフォルトで有効にすることができます。設定の変更後に作成された環境ボリュームのみがデフォルトで有効になり、既存のボリュームは有効になりません。
+
+.クラスタのファイルシステム分析の設定を変更します
+. System Managerで、**[クラスタ設定*]に移動します。
+. **クラスタ設定**で、[ファイルシステム設定]タブを確認します。設定を変更するには、を選択します image:icon_gear.gif["設定ギア"] をクリックします。
+. [**Activity Tracking*]フィールドに、アクティビティ追跡をデフォルトで有効にするSVMの名前を入力します。このフィールドを空白のままにすると、すべてのSVMでアクティビティ追跡が無効のままになります。
++
+新しいStorage VMでアクティビティ追跡をデフォルトで無効にするには、[**Enable on new Storage VMs]**ボックスをオフにします。
+
+. [**Analytics*]フィールドに、容量分析をデフォルトで有効にするStorage VMの名前を入力します。このフィールドを空白のままにすると、すべてのSVMで容量分析が無効なままになります。
++
+新しいStorage VMに対して容量分析をデフォルトで無効にするには、[**Enable on new Storage VMs]**ボックスをオフにします。
+
+. **保存**を選択します。
+
+
+.SVMのファイルシステム分析設定を変更します
+. 変更するSVMを選択し、** Storage VM設定**を選択します。
+. [** File System Analytics*]カードで、トグルを使用して、Storage VM上のすべての新しいボリュームに対してアクティビティ追跡と容量分析を有効または無効にします。
+
+
+--
+.CLI の使用
+--
+ONTAP CLIを使用して、新しいボリュームでファイルシステム分析をデフォルトで有効にするようにStorage VMを設定できます。
+
+.SVMでファイルシステム分析をデフォルトで有効にします
+. SVMを変更して、新しく作成したすべてのボリュームで容量分析とアクティビティ追跡をデフォルトで有効にします。
+`vserver modify -vserver _svm_name_ -auto-enable-activity-tracking true -auto-enable-analytics true`
 
 
 --

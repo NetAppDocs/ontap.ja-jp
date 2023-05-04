@@ -61,6 +61,10 @@ FlexCloneボリュームの作成時にファイルのリバランシングが�
 +
 FlexGroup のリバランシング処理中にファイルが移動されると、ソースとデスティネーションの両方のコンスティチュエントについて、クォータアカウンティングの一部としてファイルサイズが報告されます。移動が完了すると、クォータアカウンティングは通常に戻り、ファイルサイズは新しいデスティネーションでのみ報告されます。
 
+* 自律的なランサムウェア防御
++
+ONTAP 9.13.1以降では、停止を伴うリバランシング処理と無停止のリバランシング処理の両方で、inode間で自律型ランサムウェア対策をコピーできます。
+
 
 
 
@@ -68,6 +72,8 @@ FlexGroup のリバランシング処理中にファイルが移動されると�
 == FlexGroup のリバランシングを有効にする
 
 ONTAP 9.12.1以降では、無停止FlexGroup ボリュームの自動リバランシングを有効にして、FlexGroup コンスティチュエント間でファイルを再配分できます。
+
+ONTAP 9.13.1以降では、特定の日時にFlexGroupのリバランシング処理を開始するようにスケジュールを設定できます。
 
 .作業を開始する前に
 を有効にしておく必要があります `granular-data` FlexGroup のリバランシングを有効にする前にFlexGroup ボリュームのオプションを選択します。有効にするには、次のいずれかの方法を使用します。
@@ -85,8 +91,10 @@ FlexGroup のリバランシングは、ONTAP のSystem ManagerまたはONTAP �
 --
 .手順
 . [ストレージ]>[ボリューム]に移動し、再バランスするFlexGroup ボリュームを探します。
-. をクリックします image:icon_dropdown_arrow.gif["詳細アイコンを表示します"] をクリックしてボリュームの詳細を確認してください。
-. 「*バランス調整*」をクリックします。
+. 選択するオプション image:icon_dropdown_arrow.gif["詳細アイコンを表示します"] をクリックしてボリュームの詳細を確認してください。
+. [リバランス]*を選択します。
+. 「* Rebalance Volume *」（ボリュームの再バランス）ウィンドウで、必要に応じてデフォルト設定を変更します。
+. リバランシング処理をスケジュールするには、*[あとでリバランシング]*を選択して日時を入力します。
 
 
 --
@@ -95,7 +103,28 @@ FlexGroup のリバランシングは、ONTAP のSystem ManagerまたはONTAP �
 .手順
 . 自動リバランシングを開始します。 `volume rebalance start -vserver _SVM_name_ -volume _volume_name_`
 +
-必要に応じて、次のオプションを指定できます。[-max-runtime]<time interval>] Maximum Runtime [-max-threshold <percent>] Maximum inバランスThreshold per constituent[-min-threshold <percent>] Minimum不均衡しきい値[-max-file-Moves <integer>] Maximum Concurrent File Moves per constituent構成 要素[-min-file-size {<KB|EXCLUDE MB][min-min-min-min-file|file
+必要に応じて、次のオプションを指定できます。
+
++
+[[-max-runtime]<time interval>最大実行時間
+
++
+[-max-threshold <percent>]コンスティチュエントあたりの最大不均衡しきい値
+
++
+[-min-threshold <percent>]コンスティチュエントごとの最小不均衡しきい値
+
++
+[-max-file-moves <integer>]コンスティチュエントあたりの同時ファイル移動の最大数
+
++
+[-min-file-size｛<integer>[KB|MB|GB|TB|PB]｝]最小ファイルサイズ
+
++
+[-start-time <mm/dd/yyyy-00:00:00>]再バランスの開始日時をスケジュールします
+
++
+[-exclude-snapshots｛true|false｝] Snapshotコピーで停止しているファイルを除外します
 
 +
 例
@@ -105,8 +134,6 @@ FlexGroup のリバランシングは、ONTAP のSystem ManagerまたはONTAP �
 ----
 volume rebalance start -vserver vs0 -volume fg1
 ----
-. 必要に応じて、* Rebalance Volume *ウィンドウでデフォルト設定を変更します。
-. *保存*をクリックして、デフォルト設定を受け入れます。
 
 
 --
@@ -115,7 +142,7 @@ volume rebalance start -vserver vs0 -volume fg1
 
 == FlexGroup のリバランシング設定を変更します
 
-FlexGroup のリバランシング設定を変更して、不均衡しきい値、同時ファイルの移動数の最小ファイルサイズ、最大実行時間、およびSnapshotコピーを追加または除外することができます。
+FlexGroup のリバランシング設定を変更して、不均衡しきい値、同時ファイルの移動数の最小ファイルサイズ、最大実行時間、およびSnapshotコピーを追加または除外することができます。FlexGroup リバランシングスケジュールを変更するオプションは、ONTAP 9.13.1以降で使用できます。
 
 [role="tabbed-block"]
 ====
@@ -123,10 +150,9 @@ FlexGroup のリバランシング設定を変更して、不均衡しきい値�
 --
 .手順
 . [ストレージ]>[ボリューム]に移動し、再バランスするFlexGroup ボリュームを探します。
-. をクリックします image:icon_dropdown_arrow.gif["詳細アイコンを表示します"] をクリックしてボリュームの詳細を確認してください。
-. 「*バランス調整*」をクリックします。
+. 選択するオプション image:icon_dropdown_arrow.gif["詳細アイコンを表示します"] をクリックしてボリュームの詳細を確認してください。
+. [リバランス]*を選択します。
 . 「* Rebalance Volume *」（ボリュームの再バランス）ウィンドウで、必要に応じてデフォルト設定を変更します。
-. [ 保存（ Save ） ] をクリックします。
 
 
 --
@@ -135,7 +161,28 @@ FlexGroup のリバランシング設定を変更して、不均衡しきい値�
 .ステップ
 . 自動リバランシングを変更します。 `volume rebalance modify -vserver _SVM_name_ -volume _volume_name_`
 +
-次のオプションを1つ以上指定できます。[-max-runtime]<time interval>] Maximum Runtime [-max-threshold <percent>] Maximum Runtime Threshold per constituent[-min-threshold <percent>] Minimum不均衡Threshold per constituent[-max-file-Moves <integer>] Maximum Concurrent File Moves per constituent[-min-file-size {bmin]| kb-exclude file }
+次のオプションを1つ以上指定できます。
+
++
+[[-max-runtime]<time interval>最大実行時間
+
++
+[-max-threshold <percent>]コンスティチュエントあたりの最大不均衡しきい値
+
++
+[-min-threshold <percent>]コンスティチュエントごとの最小不均衡しきい値
+
++
+[-max-file-moves <integer>]コンスティチュエントあたりの同時ファイル移動の最大数
+
++
+[-min-file-size｛<integer>[KB|MB|GB|TB|PB]｝]最小ファイルサイズ
+
++
+[-start-time <mm/dd/yyyy-00:00:00>]再バランスの開始日時をスケジュールします
+
++
+[-exclude-snapshots｛true|false｝] Snapshotコピーで停止しているファイルを除外します
 
 
 
@@ -145,7 +192,7 @@ FlexGroup のリバランシング設定を変更して、不均衡しきい値�
 
 == FlexGroup のリバランシングを停止します
 
-FlexGroup のリバランシングを有効にしたあとは、いつでも停止できます。
+FlexGroupのリバランシングを有効またはスケジュール設定したあとは、いつでも停止できます。
 
 [role="tabbed-block"]
 ====
@@ -153,8 +200,8 @@ FlexGroup のリバランシングを有効にしたあとは、いつでも停�
 --
 .手順
 . [ストレージ]>[ボリューム]の順に選択し、FlexGroup ボリュームを探します。
-. をクリックします image:icon_dropdown_arrow.gif["詳細アイコンを表示します"] をクリックしてボリュームの詳細を確認してください。
-. 「*バランスの再調整を停止*」をクリックします。
+. 選択するオプション image:icon_dropdown_arrow.gif["詳細アイコンを表示します"] をクリックしてボリュームの詳細を確認してください。
+. [Stop Rebalance]*を選択します。
 
 
 --
@@ -178,9 +225,9 @@ FlexGroup のリバランシング処理、FlexGroup のリバランシング設
 --
 .手順
 . [ストレージ]>[ボリューム]の順に選択し、FlexGroup ボリュームを探します。
-. をクリックします image:icon_dropdown_arrow.gif["詳細アイコンを表示します"] をクリックしてFlexGroup の詳細を確認してください。
+. 選択するオプション image:icon_dropdown_arrow.gif["詳細アイコンを表示します"] をクリックしてFlexGroup の詳細を確認してください。
 . * FlexGroup Balance Status *は、詳細ペインの下部に表示されます。
-. 最後の再バランス操作に関する情報を表示するには、*最後のボリューム再バランスステータス*をクリックします。
+. 前回のリバランシング処理に関する情報を表示するには、*[前回のボリュームのリバランシングステータス]*を選択します。
 
 
 --

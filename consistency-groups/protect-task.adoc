@@ -1,8 +1,8 @@
 ---
 permalink: consistency-groups/protect-task.html 
 sidebar: sidebar 
-keywords: consistency groups, consistency group, application protection, parent, child, configure, two-phase commit, 2 phase 
-summary: 整合性グループの保護ポリシーを設定して、ローカルの Snapshot ポリシーまたはリモートの SM-BC 保護を使用したアプリケーションのバックアップを有効にします 
+keywords: application protection, two-phase commit, 2 phase, smbc, async snapmirror, local, remote, snapshot 
+summary: ローカルSnapshot、SnapMirrorビジネス継続性（SM-BC）、または非同期SnapMirror保護を使用して整合性グループを保護します。 
 ---
 = 整合グループを保護する
 :hardbreaks:
@@ -14,13 +14,18 @@ summary: 整合性グループの保護ポリシーを設定して、ローカ�
 [role="lead"]
 整合グループを使用すると、複数のボリュームにまたがる SAN 、 NAS 、 NVMe のアプリケーションに対して、ローカルとリモートで簡単に保護することができます。
 
-整合性グループを作成しても、保護は自動的に有効になりません。ローカル保護ポリシーとリモート保護ポリシーは、作成時または整合グループ作成後に設定できます。保護ポリシーには、ローカルの Snapshot コピーや SnapMirror によるビジネス継続性（ SM-BC ）によるリモートの SnapMirror 保護を含めることができます。ネストされた整合グループを使用している場合は、個々のボリュームに別々の保護ポリシーを設定できます。
+整合性グループを作成しても、保護は自動的に有効になりません。保護ポリシーは、コンシステンシグループの作成時または作成後に設定できます。次のコマンドを使用して整合グループを保護できます。
+
+* ローカルSnapshotポリシー
+* SnapMirror のビジネス継続性（ SM-BC ）
+* 非同期SnapMirror（9.13.1以降）
+
+
+ネストされた整合グループを使用する場合は、親整合グループと子整合グループに異なる保護ポリシーを設定できます。
 
 ONTAP 9.11.1以降では、整合グループによって提供されています <<two-phase,2フェーズの整合グループSnapshotの作成>>。2フェーズSnapshotでは、事前確認が実行されて、Snapshotが正常にキャプチャされます。
 
 リカバリは、整合グループ全体、階層構成内の単一の整合グループ、または整合グループ内の個々のボリュームに対して実行できます。リカバリを実行するには、リカバリ元の整合グループを選択し、Snapshotコピーのタイプを選択して、リストア元となるSnapshotコピーを特定します。このプロセスの詳細については、を参照してください link:../task_dp_restore_from_vault.html["以前の Snapshot コピーからボリュームをリストアします"]。
-
-ONTAP 9.10.1 以降の System Manager では、 * Protection > Relationships * メニューに LUN マップが表示されます。ソース関係を選択すると、ソース関係が System Manager に表示され、視覚的に確認できます。ボリュームを選択すると、これらの関係をより深く掘り下げて、含まれる LUN およびイニシエータグループの関係のリストを確認できます。この情報は、個々のボリュームビューから Excel ブックとしてダウンロードできます。タスクはバックグラウンドで実行されます。
 
 
 
@@ -42,7 +47,9 @@ ONTAP 9.10.1 以降の System Manager では、 * Protection > Relationships * �
 
 == 2フェーズの整合グループSnapshotを作成します
 
-ONTAP 9.11.1以降では、整合グループは、Snapshotをコミットする前に事前確認を実行する、整合グループ（CG）Snapshot作成の2フェーズコミットをサポートします。この機能は、ONTAP REST APIでのみ使用できます。二段階的なCG Snapshot作成はSnapshot作成にのみ使用でき、整合グループのプロビジョニングや整合グループのリストアには使用できません。
+ONTAP 9.11.1以降では、整合グループは、Snapshotをコミットする前に事前確認を実行する、整合グループ（CG）Snapshot作成の2フェーズコミットをサポートします。この機能は、ONTAP REST APIでのみ使用できます。
+
+二段階的なCG Snapshot作成はSnapshot作成にのみ使用でき、整合グループのプロビジョニングや整合グループのリストアには使用できません。
 
 2段階のCG Snapshot作成により、に対するPOST要求で起動されたSnapshot作成プロセスが中断されます `/application/consistency-groups/{consistency_group_uuid}/snapshots` エンドポイントを2つのフェーズからなるシーケンスに変換します。
 
@@ -52,7 +59,7 @@ ONTAP 9.11.1以降では、整合グループは、Snapshotをコミットする
 
 ONTAP REST APIの詳細については、を参照してください link:https://docs.netapp.com/us-en/ontap-automation/reference/api_reference.html["API リファレンス"^] または、を参照してください link:https://devnet.netapp.com/restapi.php["ONTAP REST APIページ"^] APIエンドポイントの完全なリストについては、NetApp Developer Networkを参照してください。
 
-.2フェーズの整合グループSnapshotに関する考慮事項
+.作業を開始する前に
 * 2フェーズCG Snapshot作成を使用するには、クラスタ内のすべてのノードでONTAP 9.11.1以降が実行されている必要があります。
 * 整合性グループSnapshot作成処理のアクティブな呼び出しは、単一フェーズか2フェーズかにかかわらず、一度に1回のみサポートされます。別のSnapshotの作成処理の実行中にSnapshotを作成しようとすると、エラーが発生します。
 * 2フェーズの整合グループSnapshot作成は、で実行できます `action=start` パラメータ
@@ -61,8 +68,8 @@ ONTAP REST APIの詳細については、を参照してください link:https:
 
 
 
-.2フェーズの整合グループSnapshotを作成します
-. を使用して、POST要求でSnapshotの作成を整合性グループエンドポイントに対して呼び出します `action=start` パラメータ
+.手順
+. Snapshotの作成を呼び出します。を使用して、コンシステンシグループエンドポイントにPOST要求を送信します `action=start` パラメータ
 +
 [source, curl]
 ----
@@ -74,7 +81,7 @@ curl -k -X POST 'https://<IP_address>/application/consistency-groups/<cg-uuid>/s
   "snapmirror_label": "<SnapMirror_label>"
 }'
 ----
-. POST要求が成功した場合は、Snapshot UUIDが出力に含まれます。その情報を使用して、Snapshotをコミットするようにパッチ要求を送信します。
+. POST要求が成功した場合は、Snapshot UUIDが出力に含まれます。そのUUIDを使用して、スナップショットをコミットするPATCH要求を送信します。
 +
 [source, curl]
 ----
@@ -84,30 +91,77 @@ curl -k -X PATCH 'https://<IP_address>/application/consistency-groups/<cg_uuid>/
 
 
 
-== リモートの SM-BC ポリシーを設定します
+== コンシステンシグループにリモート保護を設定します
 
-リモートの SM-BC 保護を使用する場合は、整合グループで作成された整合グループの Snapshot コピーがデスティネーションに確実にコピーされるように、ソースクラスタとデスティネーションクラスタのポリシーラベルが一致している必要があります。事前定義されたにSnapMirrorラベルが設定されたルールを追加しないかぎり、SM-BCはデフォルトでSnapshotコピーをレプリケートしません `AutomatedFailOver` ポリシーとSnapshotコピーは、同じラベルで作成されます。このプロセスの詳細については、を参照してください link:../task_san_configure_protection_for_business_continuity.html["ビジネス継続性の保護を構成します"]。
+整合グループは、SM-BCおよびONTAP 9.13.1以降の非同期SnapMirrorを使用したリモート保護を提供します。
+
+
+
+=== SM-BCで保護を設定します
+
+SM-BCを使用すると、整合グループに作成された整合グループのSnapshotコピーがデスティネーションにコピーされるようにすることができます。SM-BCの詳細については、を参照してください xref:../task_san_configure_protection_for_business_continuity.html[ビジネス継続性の保護を構成します]。
+
+.作業を開始する前に
+* NAS アクセス用にマウントされたボリュームでは、 SM-BC 関係を確立できません。
+* ソースクラスタとデスティネーションクラスタのポリシーラベルが一致している必要があります。
+* 事前定義されたにSnapMirrorラベルが設定されたルールを追加しないかぎり、SM-BCはデフォルトでSnapshotコピーをレプリケートしません `AutomatedFailOver` ポリシーとSnapshotコピーは、同じラベルで作成されます。
++
+このプロセスの詳細については、を参照してください link:../task_san_configure_protection_for_business_continuity.html["ビジネス継続性の保護を構成します"]。
+
+* ONTAP 9.13.1以降では、システムを停止することはできません xref:modify-task.html#add-volumes-to-a-consistency-group[整合グループにボリュームを追加します] アクティブなSM-BC関係を使用している場合。整合性グループにその他の変更を加える場合は、SM-BC関係を解除し、整合性グループを変更してから関係を再確立して再同期する必要があります。
+
 
 .手順
-. SM-BC を使用するための前提条件を満たしていることを確認します。を参照してください link:../smbc/smbc_plan_prerequisites.html["SM-BC の前提条件"]
-+
-
-NOTE: NAS アクセス用にマウントされたボリュームでは、 SM-BC 関係を確立できません。
-
+. が完了していることを確認します link:../smbc/smbc_plan_prerequisites.html["SM-BCを使用するための前提条件"]。
 . Storage > Consistency groups * を選択します。
 . コンシステンシ・グループ・メニューから ' 作成したコンシステンシ・グループを選択します
 . 概要ページの右上で、 [ * その他 * ] 、 [ * 保護 * ] の順に選択します。
-. ソース側の情報は自動的に入力されます。デスティネーションに適したクラスタと Storage VM を選択します。保護ポリシーを選択します。「関係の初期化」がオンになっていることを確認します。
+. ソース側の情報はSystem Managerで自動的に入力されます。デスティネーションに適したクラスタと Storage VM を選択します。保護ポリシーを選択します。「関係の初期化」がオンになっていることを確認します。
 . [ 保存（ Save ） ] を選択します。
-. 整合グループの初期化と同期が必要になります。これが完了すると、*SnapMirror (Remote)*のステータスはの横に「Protected」と表示されます image:../media/icon_shield.png["Alt = 緑の盾アイコン"]。
+. 整合グループを初期化して同期する必要があります。[整合グループ]*メニューに戻って、同期が正常に完了したことを確認します。SnapMirror（リモート）*ステータスが表示されます `Protected` の横 image:../media/icon_shield.png["Alt = 緑の盾アイコン"]。
 
 
-.次のステップ
+
+
+=== 非同期SnapMirror保護を設定する
+
+ONTAP 9.13.1以降では、単一の整合グループに非同期SnapMirror保護を設定できます。
+
+.作業を開始する前に
+* 非同期SnapMirror保護は、単一の整合グループに対してのみ使用できます。階層型整合グループではサポートされません。階層整合グループを単一の整合グループに変換するには、を参照してください xref:modify-geometry-task.html[整合グループのアーキテクチャを変更]。
+* xref:../data-protection/supported-deployment-config-concept.html[カスケード構成] SM-BCではサポートされません。
+* ソースクラスタとデスティネーションクラスタのポリシーラベルが一致している必要があります。
+* システムを停止することはありません xref:modify-task.html#add-volumes-to-a-consistency-group[整合グループにボリュームを追加します] アクティブな非同期SnapMirror関係を使用しています。整合性グループにその他の変更を加える場合は、SnapMirror関係を解除し、整合性グループを変更してから関係を再確立して再同期する必要があります。
+* 複数のボリュームに対して非同期SnapMirror保護関係を設定している場合は、既存のSnapshotを保持したまま、それらのボリュームを整合グループに変換できます。ボリュームを正常に変換するには：
+* ボリュームの共通のSnapshotコピーがある必要があります。
+* 既存のSnapMirror関係を解除する必要があります。 xref:configure-task.html[ボリュームを単一の整合グループに追加します]をクリックし、次のワークフローを使用して関係を再同期します。
+
+
+.手順
+. デスティネーションクラスタで、*[ストレージ]>[整合グループ]*を選択します。
+. コンシステンシ・グループ・メニューから ' 作成したコンシステンシ・グループを選択します
+. 概要ページの右上で、 [ * その他 * ] 、 [ * 保護 * ] の順に選択します。
+. ソース側の情報はSystem Managerで自動的に入力されます。デスティネーションに適したクラスタと Storage VM を選択します。保護ポリシーを選択します。「関係の初期化」がオンになっていることを確認します。
++
+非同期ポリシーを選択するときは、**転送スケジュールを上書き**するオプションがあります。
+
+. [ 保存（ Save ） ] を選択します。
+. 整合グループを初期化して同期する必要があります。[整合グループ]*メニューに戻って、同期が正常に完了したことを確認します。SnapMirror（リモート）*ステータスが表示されます `Protected` の横 image:../media/icon_shield.png["Alt = 緑の盾アイコン"]。
+
+
+
+
+== 関係を可視化します
+
+System Managerの*[保護]>[関係]*メニューにLUNマップが表示されます。ソース関係を選択すると、ソース関係が System Manager に表示され、視覚的に確認できます。ボリュームを選択すると、これらの関係をより深く掘り下げて、含まれる LUN およびイニシエータグループの関係のリストを確認できます。この情報は、個 々 のボリュームビューからExcelブックとしてダウンロードできます。ダウンロード操作はバックグラウンドで実行されます。
+
+.関連情報
 * link:clone-task.html["整合グループをクローニングする"]
 * link:../task_dp_configure_snapshot.html["Snapshot コピーを設定します"]
 * link:../task_dp_create_custom_data_protection_policies.html["カスタムのデータ保護ポリシーを作成する"]
-link:../task_dp_recover_snapshot.html["Snapshot コピーからリカバリします"]
+* link:../task_dp_recover_snapshot.html["Snapshot コピーからリカバリします"]
 * link:../task_dp_restore_from_vault.html["以前の Snapshot コピーからボリュームをリストアします"]
 * link:../smbc/index.html["SM-BCの概要"]
 * link:https://docs.netapp.com/us-en/ontap-automation/["ONTAP 自動化に関するドキュメント"^]
+* xref:../data-protection/snapmirror-disaster-recovery-concept.html[非同期 SnapMirror ディザスタリカバリの基本]
 

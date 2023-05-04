@@ -13,15 +13,19 @@ summary: SMB クライアントへのデータアクセスを提供するため�
 [role="lead"]
 SMB クライアントへのデータアクセスを提供するための SVM がクラスタ内に 1 つもない場合は、作成する必要があります。
 
+.作業を開始する前に
+* ONTAP 9.13.1以降では、Storage VMに最大容量を設定できます。また、SVMの容量レベルがしきい値に近づいたときにアラートを設定することもできます。詳細については、を参照してください xref:../system-admin/manage-svm-capacity.html[SVM容量の管理]。
+
+
 .手順
-. SVM を作成します。 `vserver create -vserver vserver_name -rootvolume root_volume_name -aggregate aggregate_name -rootvolume-security-style ntfs -language C.UTF-8 -ipspace ipspace_name`
+. SVM を作成します。 `vserver create -vserver _svm_name_ -rootvolume _root_volume_name_ -aggregate _aggregate_name_ -rootvolume-security-style ntfs -language C.UTF-8 -ipspace _ipspace_name_`
 +
 ** にNTFS設定を使用します `-rootvolume-security-style` オプション
 ** デフォルトのC.UTF-8を使用します `-language` オプション
 ** 。 `ipspace` 設定はオプションです。
 
 
-. 新しく作成した SVM の設定とステータスを確認します。 `vserver show -vserver vserver_name`
+. 新しく作成した SVM の設定とステータスを確認します。 `vserver show -vserver _vserver_name_`
 +
 。 `Allowed Protocols` フィールドにはCIFSを含める必要があります。このリストはあとで編集できます。
 
@@ -31,7 +35,7 @@ SMB クライアントへのデータアクセスを提供するための SVM �
 
 
 .例
-次のコマンドは、データアクセス用の SVM を IPspace ipspaceA 内に作成します。
+次のコマンドは、データアクセス用のSVMをIPspace内に作成します `ipspaceA`：
 
 [listing]
 ----
@@ -70,3 +74,5 @@ cluster1::> vserver show -vserver vs1.example.com
                                 Config Lock: false
                                IPspace Name: ipspaceA
 ----
+
+NOTE: ONTAP 9.13.1以降では、アダプティブQoSポリシーグループテンプレートを設定して、SVM内のボリュームにスループットの下限と上限の制限を適用できます。このポリシーはSVMの作成後にのみ適用できます。このプロセスの詳細については、を参照してください xref:../performance-admin/adaptive-policy-template-task.html[アダプティブポリシーグループテンプレートを設定します]。

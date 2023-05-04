@@ -11,12 +11,16 @@ summary: FlexClone ボリュームの作成
 
 
 [role="lead"]
-データ保護 FlexClone ボリュームは、 SnapMirror デスティネーションから作成するか、 SnapVault セカンダリボリュームである親の FlexVol から作成できます。FlexClone ボリュームの作成後は、 FlexClone ボリュームが存在する間は親ボリュームを削除できません。
+データ保護 FlexClone ボリュームは、 SnapMirror デスティネーションから作成するか、 SnapVault セカンダリボリュームである親の FlexVol から作成できます。ONTAP 9.7以降では、FlexGroup ボリュームからFlexCloneボリュームを作成できます。FlexClone ボリュームの作成後は、 FlexClone ボリュームが存在する間は親ボリュームを削除できません。
 
 .必要なもの
 * クラスタに FlexClone ライセンスがインストールされている必要があります。
 * クローニングするボリュームはオンライン状態である必要があります。
 
+
+
+
+== FlexVol またはFlexGroup のFlexCloneボリュームを作成します
 
 .ステップ
 . FlexClone ボリュームを作成します。
@@ -40,4 +44,37 @@ summary: FlexClone ボリュームの作成
 +
 `volume clone create -vserver vs1 -flexclone vol_dp_clone -type DP -parent-volume dp_vol -parent-snapshot snap1`
 
+
+
+
+
+== 任意のSnapLock タイプのFlexCloneを作成
+
+ONTAP 9.13.1以降では、次の3つのSnapLock タイプのいずれかを指定できます。 `compliance`、 `enterprise`、 `non-snaplock`（RWボリュームのFlexCloneを作成する場合）。デフォルトでは、FlexCloneボリュームは親ボリュームと同じSnapLock タイプで作成されます。ただし、を使用してデフォルトの設定を上書きできます `snaplock-type` FlexCloneボリュームの作成時のオプション。
+
+を使用する `non-snaplock` パラメータと `snaplock-type` オプションを使用すると、SnapLock の親ボリュームからSnapLockタイプ以外のFlexCloneボリュームを作成して、必要に応じてデータを迅速にオンラインに戻すことができます。
+
+の詳細を確認してください link:https://docs.netapp.com/us-en/ontap/snaplock/index.html["SnapLock"]。
+
+.作業を開始する前に
+SnapLock タイプが親ボリュームと異なる場合は、FlexCloneボリュームに次の制限事項があることに注意してください。
+
+* RWタイプのクローンのみがサポートされます。SnapLock タイプが親ボリュームと異なるDPタイプのクローンはサポートされません。
+* SnapLock ボリュームではLUNがサポートされないため、LUNを含むボリュームはsnaplock-typeオプションを使用してクローニングできません。
+* MetroCluster のミラーされたアグリゲートではSnapLock Complianceボリュームがサポートされないため、MetroCluster のミラーされたアグリゲート上のボリュームをCompliance SnapLock タイプでクローニングすることはできません。
+* リーガルホールドを使用するSnapLock Complianceボリュームを別のSnapLock タイプでクローニングすることはできません。リーガルホールドは、SnapLock Complianceボリュームでのみサポートされます。
+* SVM DRはSnapLock ボリュームをサポートしません。SVM DR関係の一部であるSVMのボリュームからSnapLock クローンを作成しようとすると失敗します。
+* FabricPool のベストプラクティスでは、クローンの階層化ポリシーは親と同じにすることを推奨しています。ただし、FabricPool対応ボリュームのSnapLock Complianceクローンに、親と同じ階層化ポリシーを使用することはできません。階層化ポリシーはに設定する必要があります `none`。階層化ポリシーが以外の親からSnapLock Complianceクローンを作成しようとしています `none` 失敗します。
+
+
+.手順
+. SnapLock タイプのFlexCloneボリュームを作成します。 `volume clone create -vserver _svm_name_ -flexclone _flexclone_name_ -type RW [ -snaplock-type {non-snaplock|compliance|enterprise} ]`
++
+例
+
++
+[listing]
+----
+> volume clone create -vserver vs0 -flexclone vol1_clone -type RW -snaplock-type enterprise -parent-volume vol1
+----
 

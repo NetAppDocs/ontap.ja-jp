@@ -26,6 +26,7 @@ xref:enable-ad-users-groups-access-cluster-svm-task.adoc[Active Directory ドメ
 +
 このタスクは、アカウントアクセスを有効にする前後どちらでも実行できます。
 
+* ONTAP 9.13.1以降では、ADユーザパスワードを使用して、SSH公開鍵をプライマリまたはセカンダリの認証方式として使用できます。
 * ONTAP 9.11.1以降では、を使用できます link:../nfs-admin/ldap-fast-bind-nsswitch-authentication-task.html["nsswitch認証のためのLDAP高速バインド"] AD LDAPサーバでサポートされている場合。
 * ログインアカウントに割り当てるアクセス制御ロールが不明な場合は、を使用します `security login modify` コマンドを使用してあとでロールを追加します。
 +
@@ -35,36 +36,66 @@ xref:modify-role-assigned-administrator-task.adoc[管理者に割り当てられ
 
 [NOTE]
 ====
-ADグループアカウントへのアクセスは、でのみサポートされます `SSH` および `ontapi` アプリケーション：
+ADグループアカウントへのアクセスは、でのみサポートされます `SSH` および `ontapi` アプリケーション：ADグループは、多要素認証に一般的に使用されるSSH公開鍵認証ではサポートされません。
 
 ====
 .ステップ
 . AD のユーザまたはグループ管理者アカウントが SVM にアクセスできるようにします。
 +
-`security login create -vserver SVM_name -user-or-group-name user_or_group_name -application application -authmethod domain -role role -comment comment [-is-ldap-fastbind true]`
+* ADユーザの場合：*
 
 +
-コマンド構文全体については、を参照してください link:config-worksheets-reference.html["ワークシート"]。
+[cols="1,1,1,4"]
+|===
+| ONTAP バージョン | プライマリ認証 | セカンダリ認証 | コマンドを実行します 
 
-+
-link:config-worksheets-reference.html["ログインアカウントを作成または変更する"]
 
-+
-次のコマンドは、ADクラスタ管理者アカウントを有効にします `DOMAIN1\guest1` を使用します `backup` 管理SVMにアクセスするためのロール``engCluster``。
-
-+
+| 9.13.1以降 | 公開鍵 | なし  a| 
 [listing]
 ----
-cluster1::>security login create -vserver engCluster -user-or-group-name DOMAIN1\guest1 -application ssh -authmethod domain -role backup
+security login create -vserver <svm_name> -user-or-group-name <user_name> -application ssh -authentication-method publickey -role <role>
 ----
-+
-次のコマンドは、ADグループアカウントのSVM管理者アカウントを有効にします `DOMAIN1\adgroup` を使用します `vsadmin-volume` SVMにアクセスするためのロール``engData``。
 
-+
+
+| 9.13.1以降 | ドメイン | 公開鍵  a| 
+*新規ユーザーの場合*
+
 [listing]
 ----
-cluster1::>security login create -vserver engData -user-or-group-name DOMAIN1\adgroup -application ssh -authmethod domain -role vsadmin-volume
+security login create -vserver <svm_name> -user-or-group-name <user_name> -application ssh -authentication-method domain -second-authentication-method publickey -role <role>
 ----
+*既存のユーザーの場合*
+
+[listing]
+----
+security login modify -vserver <svm_name> -user-or-group-name <user_name> -application ssh -authentication-method domain -second-authentication-method publickey -role <role>
+----
+
+
+| 9.0以降 | ドメイン | なし  a| 
+[listing]
+----
+security login create -vserver <svm_name> -user-or-group-name <user_name> -application <application> -authentication-method domain -role <role> -comment <comment> [-is-ldap-fastbind true]
+----
+|===
++
+* ADグループの場合：*
+
++
+[cols="1,1,1,4"]
+|===
+| ONTAP バージョン | プライマリ認証 | セカンダリ認証 | コマンドを実行します 
+
+
+| 9.0以降 | ドメイン | なし  a| 
+[listing]
+----
+security login create -vserver <svm_name> -user-or-group-name <user_name> -application <application> -authentication-method domain -role <role> -comment <comment> [-is-ldap-fastbind true]
+----
+|===
++
+コマンド構文全体については、を参照してください link:config-worksheets-reference.html["管理者認証およびRBAC設定用のワークシート"]
+
 
 
 .完了後

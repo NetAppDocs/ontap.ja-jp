@@ -2,14 +2,14 @@
 sidebar: sidebar 
 permalink: concepts/capacity-measurements-in-sm-concept.html 
 keywords: capacity, measurement, physical, logical, storage, used storage, local tier capacity, aggregate capacity, block, capacity concern, add capacity, volume, used capacity, available capacity, total capacity, inactive capacity, static insights, dynamic insights, snapshot copy, snapshot copies, inactive data, overprovision, overflows, snapshot copy policy, snapshot copy reserves, reserves, policy, top volumes 
-summary: システム容量は物理スペースまたは論理スペースとして測定できます。最新バージョンの System Manager では、物理容量と論理容量を測定します。 
+summary: システム容量は、物理スペースと論理スペースのどちらかで測定できます。ONTAP 9.7以降では、System Managerで物理容量と論理容量の両方を測定できます。 
 ---
 = System Manager で測定される容量
 :allow-uri-read: 
 
 
 [role="lead"]
-システム容量は物理スペースまたは論理スペースとして測定できます。最新バージョンの System Manager では、物理容量と論理容量を測定します。
+システム容量は、物理スペースと論理スペースのどちらかで測定できます。ONTAP 9.7以降では、System Managerで物理容量と論理容量の両方を測定できます。
 
 2 つの測定値の違いについては、次の説明を参照してください。
 
@@ -19,13 +19,6 @@ summary: システム容量は物理スペースまたは論理スペースと�
 
 
 NOTE: System Manager では、ルートストレージ階層（アグリゲート）の容量は表示されません。
-
-<<measurements-used-cap>>
-<<cap-measurement-terms>>
-<<cap-measurement-units>>
-
-.追加情報
-System Managerで、クラスタ、ローカル階層、およびボリュームの容量を監視できます。を参照してください link:../task_admin_monitor_capacity_in_sm.html["System Manager で容量を監視"]。
 
 
 
@@ -72,7 +65,9 @@ System Managerで、クラスタ、ローカル階層、およびボリューム
 
 容量の説明では次の用語を使用します。
 
-* * Available *：ボリュームのプロビジョニングに使用できるローカル階層内の使用可能な物理スペースの量です。
+* *割り当て容量*：Storage VM内のボリュームに割り当てられているスペースの量。
+* *使用可能*：Storage VMまたはローカル階層でデータの格納やボリュームのプロビジョニングに使用できる物理スペースの量。
+* *ボリューム間の容量*：Storage VM上のすべてのボリュームの使用済みストレージと使用可能なストレージの合計。
 * *クライアントデータ*：クライアントデータに使用されているスペースの量（物理または論理）。
 * * Committed *：ローカル階層のコミット済み容量。
 * *データ削減*：
@@ -83,11 +78,34 @@ System Managerで、クラスタ、ローカル階層、およびボリューム
 
 * * Logical Used *：ストレージ効率化機能によって削減されたスペースを考慮せずに使用されているスペース。
 * * Logical Used%*：Snapshotリザーブを除く、プロビジョニングサイズに対する現在の使用済み論理容量の割合。この値は、ボリューム内での効率化による削減も含まれるため、 100% より大きい値にすることができます。
+* *最大容量*：Storage VM上のボリュームに割り当てられる最大スペース。
 * *使用済み物理容量*：ボリュームまたはローカル階層の物理ブロックで使用されている容量。
 * * Physical Used %*：ボリュームの物理ブロックで使用されている容量の、プロビジョニングされたサイズに対する割合。
 * * Reserved *：ローカル階層ですでにプロビジョニングされているボリューム用にリザーブされているスペースの量。
+* *使用済み*：データが格納されているスペースの量。
 * * usedおよびreserved *：使用済みの物理スペースとリザーブスペースの合計です。
 
+
+
+
+== Storage VMの容量
+
+Storage VMの最大容量は、ボリュームに割り当てられている合計スペースに未割り当ての残りスペースを足したものです。
+
+* ボリュームの割り当てスペースは、FlexVol 、FlexGroup 、およびFlexCache の使用済み容量と使用可能容量の合計です。
+* ボリュームの容量は、制限されている場合、オフラインの場合、または削除後にリカバリキューに格納されている場合でも、合計に含まれます。
+* ボリュームに自動拡張が設定されている場合は、ボリュームの最大オートサイズの値が合計で使用されます。自動拡張を使用しない場合は、ボリュームの実際の容量が合計で使用されます。
+
+
+次のグラフは、ボリューム間の容量の測定値と最大容量の関係を示しています。
+
+image:max-cap-limit-cap-x-volumes.gif["最大容量制限は割り当て済みスペースと使用可能スペースで構成され、ボリューム全体の容量は割り当て済みスペースのみを占有します。"]
+
+ONTAP 9.13.1以降では、クラスタ管理者が使用できます link:../manage-max-cap-limit-svm-in-sm-task.html["Storage VMの最大容量制限を有効にする"]。ただし、データ保護、SnapMirror関係、またはMetroCluster 構成のボリュームを含むStorage VMに対してストレージ制限を設定することはできません。また、Storage VMの最大容量を超えるようにクォータを設定することはできません。
+
+最大容量制限の設定後は、現在割り当てられている容量よりも小さいサイズに変更することはできません。
+
+Storage VMが最大容量に達すると、一部の処理を実行できなくなります。System Managerには、の次の手順に関する推奨事項が表示されます link:../insights-system-optimization-task.html["*インサイト*"]。
 
 
 
@@ -156,8 +174,10 @@ PIB
  a| 
 1024 * 1024 * 1024 * 1024 * 1024
  a| 
-1,125,898,010,834,824 バイト
+1、125、899、906、842、624バイト
 
 |===
-.追加情報 ：
+.関連情報
+link:../task_admin_monitor_capacity_in_sm.html["System Manager で容量を監視"]
+
 link:../volumes/logical-space-reporting-enforcement-concept.html["ボリュームの論理スペースのレポートと適用"]

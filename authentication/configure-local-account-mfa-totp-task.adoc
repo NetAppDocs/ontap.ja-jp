@@ -1,0 +1,42 @@
+---
+permalink: authentication/configure-local-account-mfa-totp-task.html 
+sidebar: sidebar 
+keywords: enable, ssh, multifactor authentication, mfa, hardware authentication device 
+summary: 時間ベースのワンタイムパスワード（TOTP）を使用した多要素認証（MFA）によるアカウントのセキュリティ強化を活用するには、ローカルユーザアカウントをTOTPで使用するように設定する必要があります。 
+---
+= TOTPを使用してMFA用のローカルユーザアカウントを設定します
+:allow-uri-read: 
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+ONTAP 9.13.1以降では、時間ベースのワンタイムパスワード（TOTP）を使用して多要素認証（MFA）でユーザアカウントを設定できます。
+
+.作業を開始する前に
+* ストレージ管理者が必要です link:setup-ssh-multifactor-authentication-task.html#enable-mfa-with-totp["TOTPでMFAを有効にする"] ユーザーアカウントの2番目の認証方法として。
+* プライマリユーザアカウントの認証方法は、ユーザパスワードまたは公開SSHキーである必要があります。
+* スマートフォンと連携するようにTOTPアプリを設定し、TOTPシークレットキーを作成する必要があります。
++
+TOTPは、Google Authenticatorなどのさまざまな認証アプリでサポートされています。
+
+
+
+.手順
+. 現在の認証方法でユーザーアカウントにログインします。
++
+現在の認証方法は、ユーザパスワードまたはSSH公開鍵である必要があります。
+
+. アカウントでTOTP設定を作成します。
++
+[source, cli]
+----
+security login totp create -vserver "<svm_name>" -username "<account_username >"
+----
+. アカウントでTOTP設定が有効になっていることを確認します。
++
+[source, cli]
+----
+security login totp show -vserver "<svm_name>" -username "<account_username>"
+----
+

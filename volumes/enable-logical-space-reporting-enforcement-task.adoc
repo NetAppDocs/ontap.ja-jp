@@ -16,32 +16,34 @@ ONTAP 9.4 以降では、論理スペースのレポートを有効にするこ�
 .このタスクについて
 個々のボリュームレベルで論理スペースのレポートと適用を有効にできるだけでなく、この機能をサポートするすべてのボリュームについて SVM レベルで有効にすることができます。SVM 全体で論理スペース機能を有効にする場合は、個々のボリュームに対して無効にすることもできます。
 
-9.8 以降では、 SnapMirror ソースボリュームで論理スペースのレポートを有効にした場合、転送後にデスティネーションボリュームでも自動的に有効になります。
+ONTAP 9.8以降では、SnapMirrorソースボリュームで論理スペースのレポートを有効にすると、転送後にデスティネーションボリュームで自動的に有効になります。
 
-[NOTE]
-====
-SnapMirror ソースボリュームで適用オプションを有効にすると、適用設定がデスティネーションボリュームに転送されます。ただし、デスティネーションボリュームでは適用がサポートされないため、論理スペースの使用量はデスティネーションで報告されますが、適用は受け入れられません。
+ONTAP 9.13.1以降では、SnapMirrorソースボリュームで適用オプションが有効になっていると、デスティネーションで論理スペースの消費が報告されて適用されるため、より適切なキャパシティプランニングが可能になります。
 
-====
+
+NOTE: ONTAP 9.13.1より前のONTAP リリースを実行している場合、適用設定はSnapMirrorデスティネーションボリュームに転送されますが、デスティネーションボリュームでは適用がサポートされないことを理解しておく必要があります。そのため、デスティネーションでは論理スペースの使用量は報告されますが、適用は実行されません。
+
+の詳細を確認してください link:https://docs.netapp.com/us-en/ontap/volumes/logical-space-reporting-enforcement-concept.html["ONTAP リリースでの論理スペースのレポートのサポート"]。
+
 .選択肢
 * ボリュームの論理スペースのレポートを有効にします。
 +
-`volume modify -vserver SVM-name -volume volume-name -size volume-size -is-space-reporting-logical true`
+`volume modify -vserver _svm_name_ -volume _volume_name_ -size _volume_size_ -is-space-reporting-logical true`
 
 * ボリュームの論理スペースの適用を有効にします。
 +
-`volume modify -vserver SVM-name -volume volume-name -size volume-size -is-space-enforcement-logical true`
+`volume modify -vserver _svm_name_ -volume _volume_name_ -size _volume_size_ -is-space-enforcement-logical true`
 
 * ボリュームの論理スペースのレポートと適用を一緒に有効にします。
 +
-`volume modify -vserver SVM-name -volume volume-name -size volume-size -is-space-reporting-logical true -is-space-enforcement-logical true`
+`volume modify -vserver _svm_name_ -volume _volume_name_ -size _volume_size_ -is-space-reporting-logical true -is-space-enforcement-logical true`
 
 * 新しい SVM の論理スペースのレポートまたは適用を有効にします。
 +
-`+vserver create -vserver SVM-name -rootvolume root-volume-name -rootvolume-security-style unix -data-services {desired-data-services} [-is-space-reporting-logical true] [-is-space-enforcement-logical true]+`
+`+vserver create -vserver _svm_name_ -rootvolume root-_volume_name_ -rootvolume-security-style unix -data-services {desired-data-services} [-is-space-reporting-logical true] [-is-space-enforcement-logical true]+`
 
 * 既存の SVM の論理スペースのレポートまたは適用を有効にします。
 +
-`+vserver modify -vserver SVM-name {desired-data-services} [-is-space-reporting-logical true] [-is-space-enforcement-logical true]+`
+`+vserver modify -vserver _svm_name_ {desired-data-services} [-is-space-reporting-logical true] [-is-space-enforcement-logical true]+`
 
 

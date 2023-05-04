@@ -21,6 +21,8 @@ summary: 通常とは異なるワークロードイベントが発生すると�
 [role="lead"]
 通常とは異なるワークロードイベントが発生すると予想される場合は、一時的にRansomware Protection（ARP）分析を一時的に一時停止して再開できます。
 
+ONTAP 9.13.1以降では、マルチ管理者検証（MAV）をイネーブルにして、複数の認証済みユーザ管理者がARPを一時停止する必要があります。 link:../multi-admin-verify/enable-disable-task.html["詳細はこちら。"^]。
+
 .必要なもの
 * ARPは学習モードまたはアクティブモードで実行されています。
 
@@ -29,7 +31,7 @@ summary: 通常とは異なるワークロードイベントが発生すると�
 ARPの一時停止中は、イベントはログに記録されず、新しい書き込みに対するアクションも記録されません。ただし、分析処理はバックグラウンドで以前のログに対して続行されます。
 
 
-NOTE: ランサムウェア対策無効化機能を使用して分析を一時停止しないでください。これにより、ボリュームのARPが無効になり、学習されたワークロードの動作に関する既存の情報はすべて失われます。これには学習期間の再開が必要です。
+NOTE: ARP無効機能を使用して分析を一時停止しないでください。これにより、ボリュームのARPが無効になり、学習されたワークロードの動作に関する既存の情報はすべて失われます。これには学習期間の再開が必要です。
 
 .手順
 [role="tabbed-block"]
@@ -38,18 +40,45 @@ NOTE: ランサムウェア対策無効化機能を使用して分析を一時�
 --
 . [*Storage]>[Volumes]をクリックし、ARPを一時停止するボリュームを選択します。
 . Volumes OverviewのSecurityタブで、* Anti-Ransomware *ボックスの* Pause anti-Ransomware *をクリックします。
++
+
+NOTE: ONTAP 9.13.1以降では、MAVを使用してARP設定を保護している場合、一時停止操作によって、1人以上の追加管理者の承認を得るように求められます。 link:../multi-admin-verify/request-operation-task.html["すべての管理者から承認を受ける必要があります"] MAV承認グループに関連付けられているか、操作が失敗します。
+
 
 
 --
 .CLI の使用
 --
-ボリュームのARPを一時停止します。
-
+. ボリュームのARPを一時停止します。
++
 `security anti-ransomware volume pause -vserver _svm_name_ -volume _vol_name_`
 
-処理を再開するには、を使用します `resume` パラメータ
-
+. 処理を再開するには、を使用します `resume` パラメータ
++
 `security anti-ransomware volume resume -vserver _svm_name_ -volume _vol_name_`
+
+
+
+ONTAP 9.13.1以降では、MAVを使用してARP設定を保護している場合、一時停止操作によって、1人以上の追加管理者の承認を得るように求められます。MAV承認グループに関連付けられているすべての管理者から承認を受ける必要があります。そうしないと、操作は失敗します。
+
+MAVを使用していて、予定されている一時停止操作で追加の承認が必要な場合は、各MAVグループ承認者が次の処理を行います。
+
+. 要求を表示します。
++
+`security multi-admin-verify request show`
+
+. リクエストを承認します。
++
+`security multi-admin-verify request approve -index[_number returned from show request_]`
+
++
+最後のグループ承認者に対する応答は、ボリュームが変更され、ARPの状態が一時停止されたことを示します。
+
+
+
+MAVを使用していて、MAVグループ承認者である場合は、一時停止操作要求を拒否できます。
+
+`security multi-admin-verify request veto -index[_number returned from show request_]`
 
 --
 ====

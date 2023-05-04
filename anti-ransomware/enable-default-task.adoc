@@ -37,19 +37,38 @@ anti_Ransomware
 
 
  a| 
-ONTAP 9.8 - 9.10.1
+ONTAP 9.10.1
  a| 
 MT_EK_MGMT（マルチテナントキー管理）
 
 |===
+* オプションですが推奨されます。ONTAP 9.13.1以降では、マルチ管理者認証（MAV）を有効にして、ランサムウェア対策に2人以上の認証されたユーザ管理者が必要になるようにすることができます。 link:../multi-admin-verify/enable-disable-task.html["詳細はこちら。"^]。
 
 
 .このタスクについて
-新しいボリュームは、ARPを無効モードでデフォルトで作成されますが、System ManagerおよびCLIで変更できます。デフォルトで有効になっているボリュームは、学習モードでARPに設定されます。
+新しいボリュームは、ARPを無効モードでデフォルトで作成されますが、System ManagerおよびCLIで変更できます。デフォルトで有効になっているボリュームは、学習モードでARPに設定されます。ONTAP 9.13.1以降、アダプティブラーニングがARP分析に追加され、ラーニングモードからアクティブモードへの切り替えが自動的に行われます。
 
 [NOTE]
 ====
 SVMの新しいボリュームに対してARPをデフォルトで有効にしても、そのSVMの既存のボリュームに対してARPは自動的には有効になりません。方法をご確認ください link:enable-task.html["既存のボリュームでARPを有効にします"]。
+
+====
+.ラーニングモードからアクティブモードへの自律ARPスイッチング
+[%collapsible]
+====
+ONTAP 9.13.1以降、アダプティブラーニングがARP分析に追加され、ラーニングモードからアクティブモードへの切り替えが自動的に行われます。ARPによるラーニングモードからアクティブモードへの自動切り替えは、次のオプションの設定に基づいて決定されます。
+
+[listing]
+----
+ -anti-ransomware-auto-switch-minimum-incoming-data-percent
+ -anti-ransomware-auto-switch-duration-without-new-file-extension
+ -anti-ransomware-auto-switch-minimum-learning-period
+ -anti-ransomware-auto-switch-minimum-file-count
+ -anti-ransomware-auto-switch-minimum-file-extension
+----
+30日後にこれらのオプションの条件が満たされないと、ボリュームは自動的にARPアクティブモードに切り替わります。この期間は、オプションで設定できます `anti-ransomware-auto-switch-duration-without-new-file-extension`ただし、最大値は30日です。
+
+デフォルト値を含むARP設定オプションの詳細については、ONTAP のマニュアルページを参照してください。
 
 ====
 .手順
@@ -57,8 +76,12 @@ SVMの新しいボリュームに対してARPをデフォルトで有効にし�
 ====
 .System Manager の略
 --
-. Storage > Storage VM* をクリックし、デフォルトのウィルス対策用の Storage VM を選択します。
-. [ * 設定 * （ * Settings * ） ] タブの [ * セキュリティ * （ * Security * ） ] セクションで、をクリックします image:icon_pencil.gif["ペンアイコン"] [* Anti-ラン サムウェア*]ボックスで、NASボリュームのARPを有効にするチェックボックスをオンにします。
+. [ストレージ]>[Storage VM]*をクリックし、ARPで保護するボリュームを含むStorage VMを選択します。
+. [ * 設定 * （ * Settings * ） ] タブの [ * セキュリティ * （ * Security * ） ] セクションで、をクリックします image:icon_pencil.gif["ペンアイコン"] [* Anti-ラン サムウェア*]ボックスで、NASボリュームのARPを有効にするチェックボックスをオンにします。Storage VM内の対応するすべてのNASボリュームでARPを有効にするには、追加のボックスをオンにします。
++
+
+NOTE: ONTAP 9.13.1にアップグレードした場合は、*十分な学習後に自動的に学習モードからアクティブモードに切り替える*設定が自動的に有効になります。これにより、ARPは最適な学習期間間隔を決定し、アクティブモードへの切り替えを自動化できます。手動でアクティブモードに移行する場合は、この設定をオフにします。
+
 
 
 --
@@ -69,6 +92,12 @@ SVMの新しいボリュームに対してARPをデフォルトで有効にし�
 +
 CLIでは、新しいボリュームに対してARPがデフォルトで有効になっている新しいSVMを作成することもできます。
 `vserver create -vserver svm_name -anti-ransomware-default-volume-state dry-run [_other parameters as needed_]`
+
++
+ONTAP 9.13.1以降にアップグレードした場合は、アクティブ状態への変更が自動的に行われるように、アダプティブラーニングがイネーブルになります。この動作を自動的に有効にしない場合は、次のコマンドを使用します。
+
++
+`vserver modify _svm_name_ -anti-ransomware-auto-switch-from-learning-to-enabled false`
 
 
 

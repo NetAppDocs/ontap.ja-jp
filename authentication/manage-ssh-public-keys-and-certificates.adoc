@@ -1,0 +1,115 @@
+---
+permalink: authentication/manage-ssh-public-keys-and-certificates.html 
+sidebar: sidebar 
+keywords: associate, public key, administrator account 
+summary: SSH公開鍵認証の場合、公開鍵とその管理者アカウントのX.509証明書との関連付けを管理できます。security login publickeyコマンドを使用して、管理者アカウントの公開鍵と証明書を管理できます。 
+---
+= 管理者アカウントのSSH公開鍵とX.509証明書を管理します
+:allow-uri-read: 
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+管理者アカウントによるSSH認証のセキュリティを強化するには、を使用します `security login publickey` SSH公開鍵およびそのX.509証明書との関連付けを管理するための一連のコマンド。
+
+
+
+== 公開鍵とX.509証明書を管理者アカウントに関連付けます
+
+ONTAP 9.13.1以降では、管理者アカウントに関連付けた公開鍵にX.509証明書を関連付けることができます。これにより、そのアカウントのSSHログイン時の証明書の有効期限または失効チェックのセキュリティが強化されます。
+
+.作業を開始する前に
+* このタスクを実行するには、クラスタ管理者または SVM の管理者である必要があります。
+* SSH キーを生成しておく必要があります。
+* X.509証明書の有効期限のみを確認する必要がある場合は、自己署名証明書を使用できます。
+* X.509証明書の有効期限と失効を確認する必要がある場合は、次の手順を実行します。
++
+** 認証局（CA）から証明書を受け取っておく必要があります。
+** を使用して証明書チェーン（中間およびルートのCA証明書）をインストールする必要があります `security certificate install` コマンド
+** SSHに対してOCSPを有効にする必要があります。を参照してください link:../system-admin/verify-digital-certificates-valid-ocsp-task.html["OCSP を使用してデジタル証明書が有効であることを確認します"^] 手順については、を参照し
+
+
+
+
+.このタスクについて
+SSH公開鍵とX.509証明書の両方を使用してSSH経由でアカウントを認証する場合、ONTAPは、SSH公開鍵を使用して認証する前にX.509証明書の有効性をチェックします。証明書の有効期限が切れているか失効している場合、SSHログインは拒否され、公開鍵は自動的に無効になります。
+
+.手順
+. 公開鍵とX.509証明書を管理者アカウントに関連付けます。
++
+`security login publickey create -vserver _SVM_name_ -username _user_name_ -index _index_ -publickey _certificate_ -x509-certificate install`
+
++
+コマンド構文全体については、のワークシートリファレンスを参照してください link:config-worksheets-reference.html#associate-a-public-key-with-a-user-account["ユーザアカウントへの公開鍵の関連付け"^]。
+
+. 公開鍵を表示して変更を確認します。
++
+`security login publickey show -vserver _SVM_name_ -username _user_name_ -index _index_`
+
+
+
+.例
+次のコマンドは、公開鍵とX.509証明書をSVM管理者アカウントに関連付けます `svmadmin2` SVM用 `engData2`。公開鍵にはインデックス番号6が割り当てられます。
+
+[listing]
+----
+cluster1::> security login publickey create -vserver engData2 -username svmadmin2 -index 6 -publickey
+"<key text>" -x509-certificate install
+Please enter Certificate: Press <Enter> when done
+<certificate text>
+----
+
+
+== 管理者アカウントのSSH公開鍵から証明書の関連付けを削除します
+
+公開鍵を保持したまま、アカウントのSSH公開鍵から現在の証明書の関連付けを削除できます。
+
+.作業を開始する前に
+このタスクを実行するには、クラスタ管理者または SVM の管理者である必要があります。
+
+.手順
+. 管理者アカウントからX.509証明書の関連付けを削除し、既存のSSH公開鍵を保持します。
++
+`security login publickey modify -vserver SVM_name -username user_name -index index -x509-certificate delete`
+
+. 公開鍵を表示して変更を確認します。
++
+`security login publickey show -vserver _SVM_name_ -username _user_name_ -index _index_`
+
+
+
+.例
+次のコマンドは、X.509証明書の関連付けをSVM管理者アカウントから削除します `svmadmin2` SVM用 `engData2` インデックス番号6です。
+
+[listing]
+----
+cluster1::> security login publickey modify -vserver engData2 -username svmadmin2 -index 6 -x509-certificate delete
+----
+
+
+== 管理者アカウントから公開鍵と証明書の関連付けを削除します
+
+アカウントから現在の公開鍵と証明書の設定を削除できます。
+
+.作業を開始する前に
+このタスクを実行するには、クラスタ管理者または SVM の管理者である必要があります。
+
+.手順
+. 管理者アカウントから公開鍵とX.509証明書の関連付けを削除します。
++
+`security login publickey delete -vserver _SVM_name_ -username _user_name_ -index _index_`
+
+. 公開鍵を表示して変更を確認します。
++
+`security login publickey show -vserver _SVM_name_ -username _user_name_ -index _index_`
+
+
+
+.例
+次のコマンドは、SVM管理者アカウントから公開鍵とX.509証明書を削除します `svmadmin3` SVM用 `engData3` インデックス番号7です。
+
+[listing]
+----
+cluster1::> security login publickey delete -vserver engData3 -username svmadmin3 -index 7
+----

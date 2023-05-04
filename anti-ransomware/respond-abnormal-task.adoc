@@ -68,7 +68,12 @@ NOTE: ボリューム全体をリストアした場合にクリアされる通�
 | 選択した値 | 対処方法 
 
 
-| 誤検出 | [*Update*] と [*Clear Suspect File Types] をクリックして、決定を記録し、通常のランサムウェア対策モニタリングを再開します。 
+| 誤検出  a| 
+[Update]*および[Clear Suspect File Types]*をクリックして、決定を記録し、通常のARPモニタリングを再開します。
+
+
+NOTE: ONTAP 9.13.1以降では、MAVを使用してARP設定を保護している場合、clear-suspect操作によって、1人以上の追加管理者の承認を得るように求められます。 link:../multi-admin-verify/request-operation-task.html["すべての管理者から承認を受ける必要があります"] MAV承認グループに関連付けられているか、操作が失敗します。
+
 
 
 | 潜在的なランサムウェア攻撃 | 攻撃に対応し、保護されたデータを復元します。次に、[*Update*]および[*Clear suspect File Types]をクリックして決定を記録し、通常のARPモニタリングを再開します。+ボリューム全体をリストアした場合、クリアされる疑わしいファイルタイプは存在しません。 
@@ -121,7 +126,7 @@ EMS メッセージを確認することもできます。
 +
 ** 誤検出
 +
-次のコマンドを入力して決定を記録し（許可された拡張子のリストに新しい拡張子を追加）、通常のランサムウェア対策の監視を再開します。
+次のコマンドを入力して決定を記録し、許可された拡張子のリストに新しい拡張子を追加して、通常のランサムウェア対策の監視を再開します。
 `anti-ransomware volume attack clear-suspect -vserver _svm_name_ -volume _vol_name_ [_extension identifiers_] -false-positive true`
 
 +
@@ -132,7 +137,7 @@ EMS メッセージを確認することもできます。
 
 ** ランサムウェア攻撃の可能性
 +
-攻撃に対応し、データを復元します。次に、次のコマンドを入力して決定を記録し、通常のARPモニタリングを再開します。
+攻撃に応答し link:../anti-ransomware/recover-data-task.html["ARPによって作成されたバックアップスナップショットからデータをリカバリします"]。データがリカバリされたら、次のコマンドを入力して決定事項を記録し、通常のARPモニタリングを再開します。
 
 +
 `anti-ransomware volume attack clear-suspect -vserver _svm_name_ -volume _vol_name_ [_extension identifiers_] -false-positive false`
@@ -144,9 +149,28 @@ EMS メッセージを確認することもできます。
 `[-start-time _date_time_ -end-time _date_time_]` 消去されるファイル範囲の開始時刻と終了時刻。形式は「MM/DD/YYYY HH:MM:SS」です。
 
 +
-ボリューム全体をリストアした場合、クリアされる疑わしいファイルタイプは存在しません。
+ボリューム全体をリストアした場合、クリアされる疑わしいファイルタイプは存在しません。ARPによって作成されたバックアップスナップショットが削除され、攻撃レポートがクリアされます。
 
 
+
+. MAVと予想されるを使用している場合 `clear-suspect` 操作には追加の承認が必要です。各MAVグループ承認者は次のことを行います。
++
+.. 要求を表示します。
++
+`security multi-admin-verify request show`
+
+.. 通常のランサムウェア対策監視の再開要求を承認します。
++
+`security multi-admin-verify request approve -index[_number returned from show request_]`
+
++
+最後のグループ承認者に対する応答は、ボリュームが変更され、誤検出が記録されたことを示します。
+
+
+
+. MAVを使用していて、MAVグループ承認者である場合は、疑わしいリクエストを却下することもできます。
++
+`security multi-admin-verify request veto -index[_number returned from show request_]`
 
 
 

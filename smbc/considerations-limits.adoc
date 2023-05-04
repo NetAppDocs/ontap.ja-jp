@@ -95,19 +95,15 @@ SM-BC の制限は、関係数ではなくエンドポイント数に基づい�
 
 == サポートされている構成と機能
 
+SM-BCは、次のような多数のオペレーティングシステムとONTAP 機能でサポートされています。
 
+* AIX（ONTAP 9.11.1以降）
+* ファンアウト構成
+* HP-UX（ONTAP 9.10.1以降）
+* NDMPコピー（ONTAP 9.13.1以降）
+* 部分ファイルのリストア（ONTAP 9.12.1以降）
+* Solaris 11.4（ONTAP 9.10.1以降）
 
-=== ファイルの一部をリストアします
-
-ONTAP 9.12.1以降では、SM-BCボリュームで部分的なLUNリストアがサポートされます。このプロセスの詳細については、を参照してください link:../data-protection/restore-part-file-snapshot-task.html["Snapshot コピーからファイルの一部をリストアします"]。
-
-
-
-=== ファンアウト構成
-
-SM-BC はサポートしています xref:../data-protection/supported-deployment-config-concept.html[ファンアウト構成] を使用 `MirrorAllSnapshots` ポリシーおよび、ONTAP 9.11.1以降の、 `MirrorAndVault` ポリシー：のSM-BCでは、ファンアウト構成がサポートされません `XDPDefault` ポリシー：
-
-ファンアウト構成でSM-BCデスティネーションでフェイルオーバーが発生した場合は、手動でフェイルオーバーする必要があります xref:resume-protection-fan-out-configuration.html[ファンアウト構成で保護を再開します]。
 
 
 
@@ -118,6 +114,42 @@ ONTAP 9.11.1以降では、SM-BCでAIXがサポートされます。AIX構成で
 AIX構成では、フェイルオーバー時にシステムが停止します。フェイルオーバーが発生するたびに、ホストで再スキャンを実行してI/O処理を再開する必要があります。
 
 SM-BCでAIXホストを設定する方法については、ナレッジベースの記事を参照してください link:https://kb.netapp.com/Advice_and_Troubleshooting/Data_Protection_and_Security/SnapMirror/How_to_configure_an_AIX_host_for_SnapMirror_Business_Continuity_(SM-BC)["SnapMirrorのビジネス継続性を実現するためのAIXホストの構成方法（SM-BC）"]。
+
+
+
+=== HP-UX SM-BC設定の既知の問題および制限事項
+
+ONTAP 9.10.1 以降では、 HP-UX 用の SM-BC がサポートされています。SM-BC 構成の独立したマスタークラスタで Automatic Unplanned Failover （ AUFO ；自動計画外フェイルオーバー）イベントが発生した場合、 I/O が HP-UX ホストで再開されるまでに 120 秒以上かかることがあります。実行中のアプリケーションによっては、 I/O の中断やエラーメッセージが発生しない場合があります。隔離されたマスタークラスタで AUFO イベントが発生した場合は、中断の許容時間が 120 秒未満の HP-UX ホストでアプリケーションを再起動する必要があります。
+
+プライマリ原因 クラスタとセカンダリクラスタの間の接続が失われ、プライマリクラスタとメディエーターの間の接続も失われると、分離されたマスタークラスタで AUFO イベントが発生することがあります。これは、他の AUFO イベントとは異なり、まれなイベントとみなされます。
+
+
+
+=== FabricPool
+
+SM-BCでは、FabricPool アグリゲートのソースボリュームとデスティネーションボリュームの階層化ポリシーが「なし」、「Snapshot」、または「自動」に設定されています。SM-S SM-BCでは、階層化ポリシーを「すべて」に設定したFabricPool アグリゲートはサポートされません。
+
+
+
+=== ファンアウト構成
+
+SM-BC はサポートしています xref:../data-protection/supported-deployment-config-concept.html[ファンアウト構成] を使用 `MirrorAllSnapshots` ポリシーおよび（ONTAP 9.11.1以降） `MirrorAndVault` ポリシー：のSM-BCでは、ファンアウト構成がサポートされません `XDPDefault` ポリシー：
+
+ファンアウト構成でSM-BCデスティネーションでフェイルオーバーが発生した場合は、手動でフェイルオーバーする必要があります xref:resume-protection-fan-out-configuration.html[ファンアウト構成で保護を再開します]。
+
+
+
+=== NDMPリストア
+
+ONTAP 9.13.1以降では、NDMPを使用してSM-BCでデータをコピーおよびリストアできます。NDMPを使用すると、保護を一時停止することなくデータをSM-BCソースに移動してリストアを完了できます。これは、ファンアウト構成で特に便利です。
+
+このプロセスの詳細については、を参照してください xref:../tape-backup/transfer-data-ndmpcopy-task.html[NDMPコピーを使用してデータを転送します]。
+
+
+
+=== ファイルの一部をリストアします
+
+ONTAP 9.12.1以降では、SM-BCボリュームで部分的なLUNリストアがサポートされます。このプロセスの詳細については、を参照してください link:../data-protection/restore-part-file-snapshot-task.html["Snapshot コピーからファイルの一部をリストアします"]。
 
 
 
@@ -151,11 +183,3 @@ svl_fops_name = 0xa00298d69e0 "conf f_tpgs"
 
 
 NOTE: `conf` がに追加されます `svl_fops_name` の場合 `scsi-vhci-failover-override` が適用されました。追加情報およびデフォルト設定への推奨される変更については、ネットアップの技術情報アーティクルを参照してください https://kb.netapp.com/Advice_and_Troubleshooting/Data_Protection_and_Security/SnapMirror/Solaris_Host_support_recommended_settings_in_SnapMirror_Business_Continuity_(SM-BC)_configuration["Solaris ホストでは、 SnapMirror Business Continuity （ SM-BC ）構成での推奨設定がサポートされます"]。
-
-
-
-=== HP-UX の SM-BC 設定に関する既知の問題および制限事項
-
-ONTAP 9.10.1 以降では、 HP-UX 用の SM-BC がサポートされています。SM-BC 構成の独立したマスタークラスタで Automatic Unplanned Failover （ AUFO ；自動計画外フェイルオーバー）イベントが発生した場合、 I/O が HP-UX ホストで再開されるまでに 120 秒以上かかることがあります。実行中のアプリケーションによっては、 I/O の中断やエラーメッセージが発生しない場合があります。隔離されたマスタークラスタで AUFO イベントが発生した場合は、中断の許容時間が 120 秒未満の HP-UX ホストでアプリケーションを再起動する必要があります。
-
-プライマリ原因 クラスタとセカンダリクラスタの間の接続が失われ、プライマリクラスタとメディエーターの間の接続も失われると、分離されたマスタークラスタで AUFO イベントが発生することがあります。これは、他の AUFO イベントとは異なり、まれなイベントとみなされます。

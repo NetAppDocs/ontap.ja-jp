@@ -1,0 +1,117 @@
+---
+permalink: nfs-admin/manage-nfsv4-storepool-controls-task.html 
+sidebar: sidebar 
+keywords: enable, disable, nfsv4, storepool, controls, limit, client, resource, blocked, 
+summary: ONTAP 9.13以降では、クライアントあたりのストレージプールのリソース制限に達したときに、NFSサーバがNFSクライアントに対するリソースを拒否するように設定できます。 
+---
+= NFSv4ストレージプールの制限を管理します
+:allow-uri-read: 
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+ONTAP 9.13以降では、クライアントあたりのストレージプールのリソース制限に達したときに、NFSv4サーバがNFSv4クライアントに対するリソースを拒否するように設定できます。クライアントがNFSv4ストレージプールリソースを大量に消費すると、NFSv4ストレージプールリソースが使用できないために他のNFSv4クライアントがブロックされる可能性があります。
+
+この機能を有効にすると、各クライアントによるアクティブなストレージプールリソース消費量を表示することもできます。これにより、システムリソースを使い果たしているクライアントを識別しやすくなり、クライアントごとのリソース制限を課すことができます。
+
+
+
+== 消費されたストレージプールリソースを表示します
+
+。 `vserver nfs storepool show` コマンドは、消費されたストレージプールリソースの数を表示します。ストレージプールは、NFSv4クライアントが使用するリソースのプールです。
+
+.ステップ
+. 管理者としてを実行します `vserver nfs storepool show` コマンドを使用してNFSv4クライアントのstorepool情報を表示します。
+
+
+.例
+次の例は、NFSv4クライアントのストレージプール情報を表示します。
+
+[listing]
+----
+cluster1::*> vserver nfs storepool show
+
+Node: node1
+
+Vserver: vs1
+
+Data-Ip: 10.0.1.1
+
+Client-Ip Protocol IsTrunked OwnerCount OpenCount DelegCount LockCount
+
+-------------- --------- --------- ---------- ---------- ---------- ---------
+
+10.0.2.1          nfs4.1     true    2 1 0 4
+
+10.0.2.2          nfs4.2     true    2 1 0 4
+
+2 entries were displayed.
+----
+
+
+== ストレージプール制限の制御を有効または無効にします
+
+管理者は、次のコマンドを使用して、ストレージプールの制限制御を有効または無効にできます。
+
+.ステップ
+. 管理者は、次のいずれかの操作を実行します。
++
+[cols="2*"]
+|===
+| 状況 | 入力するコマンド 
+
+
+ a| 
+ストレージプール制限の制御を有効にします
+ a| 
+`vserver nfs storepool config modify -limit-enforce enabled`
+
+
+
+ a| 
+ストレージプール制限の制御を無効にします
+ a| 
+`vserver nfs storepool config modify -limit-enforce disabled`
+
+|===
+
+
+
+
+== ブロックされたクライアントのリストを表示します
+
+ストレージプール制限が有効になっている場合、管理者は、クライアントごとのリソースしきい値に達したときにブロックされたクライアントを確認できます。管理者は次のコマンドを使用して、ブロックされたクライアントとしてマークされているクライアントを確認できます。
+
+.手順
+. を使用します `vserver nfs storepool blocked-client show` コマンドを使用してNFSv4ブロッククライアントリストを表示します。
+
+
+
+
+== ブロックされたクライアントリストからクライアントを削除します
+
+クライアントあたりのしきい値に達したクライアントは切断され、ブロッククライアントキャッシュに追加されます。管理者は次のコマンドを使用して、ブロッククライアントキャッシュからクライアントを削除できます。これにより、クライアントはONTAP NFSv4サーバに接続できるようになります。
+
+.手順
+. を使用します `vserver nfs storepool blocked-client flush -client-ip <ip address>` コマンドを実行して、storepoolブロックされたクライアントキャッシュをフラッシュします。
+. を使用します `vserver nfs storepool blocked-client show` コマンドを使用して、クライアントがブロッククライアントキャッシュから削除されたことを確認します。
+
+
+.例
+この例では、IPアドレスが「10.2.1.1」のブロックされたクライアントがすべてのノードからフラッシュされています。
+
+[listing]
+----
+cluster1::*>vserver nfs storepool blocked-client flush -client-ip 10.2.1.1
+
+cluster1::*>vserver nfs storepool blocked-client show
+
+Node: node1
+
+Client IP
+----------
+10.1.1.1
+
+1 entries were displayed.
+----

@@ -33,7 +33,7 @@ System Managerでボリュームレベルでアクティビティ追跡を表示
 
 == 1つのボリュームのアクティビティトラッキングを有効にします
 
-アクティビティ追跡は、ONTAP システムマネージャまたはONTAP CLIを使用して有効にできます。
+アクティビティ追跡は、ONTAP System ManagerまたはCLIを使用して有効にできます。
 
 .このタスクについて
 ONTAP REST API または System Manager で RBAC を使用する場合は、アクティビティ追跡へのアクセスを管理するためのカスタムロールを作成する必要があります。を参照してください xref:role-based-access-control-task.html[ロールベースアクセス制御] をクリックしてください。
@@ -56,7 +56,7 @@ ONTAP REST API または System Manager で RBAC を使用する場合は、ア�
 +
 `volume activity-tracking on -vsverver _svm_name_ -volume _volume_name_`
 
-. ボリュームのアクティビティ追跡状態がオンであるかオフであるかは、コマンドを使用して確認できます。
+. 次のコマンドを使用して、ボリュームのアクティビティ追跡の状態がオンまたはオフになっているかどうかを確認します。
 +
 `volume activity-tracking show -vsverver _svm_name_ -volume _volume_name_ -state`
 
@@ -76,20 +76,40 @@ ONTAP REST API または System Manager で RBAC を使用する場合は、ア�
 
 [role="tabbed-block"]
 ====
-.特定のボリューム用のコマンドです
+.System Manager の略
 --
-.手順
+.特定のボリュームに対して有効にします
 . Storage > Volumes （ストレージ）を選択します。目的のボリュームを選択します。個々のボリュームメニューから、ファイルシステムを選択し、アクティビティタブを選択します。
 . アクティビティトラッキングを有効にするボリュームを選択します。ボリュームリストの上部で、*その他のオプション*ボタンを選択します。［*アクティビティトラッキングを有効にする*］を選択します。
 . SVMレベルでアクティビティの追跡を表示するには、表示するSVMを* Storage > Volumes *から選択します。[ファイルシステム]タブに移動して[アクティビティ]を選択すると、アクティビティ追跡が有効になっているボリュームのデータが表示されます。
 
 
---
-.SVM内のすべてのボリューム
---
-.手順
+.すべてのボリュームでを有効にします
 . Storage > Volumes （ストレージ）を選択します。メニューからSVMを選択します。
 . 「* File System *」タブに移動し、「* More *」タブを選択して、SVM内のすべてのボリュームでアクティビティの追跡を有効にします。
+
+
+--
+.CLI の使用
+--
+ONTAP 9.13.1以降では、ONTAP CLIを使用して複数のボリュームのアクティビティ追跡を有効にすることができます。
+
+.手順
+. アクティビティトラッキングを有効にする：
++
+`volume activity-tracking on -vserver _svm_name_ -volume [*|!_volume_names_]`
+
++
+使用 `*` 指定したStorage VM上のすべてのボリュームに対してアクティビティ追跡を有効にします。
+
++
+使用 `!` 続けてボリューム名を指定し、指定したボリュームを除くSVM上のすべてのボリュームに対してアクティビティ追跡を有効にします。
+
+. 処理が成功したことを確認します。
++
+`volume show -fields activity-tracking-state`
+
+. 有効にしたら、 ONTAP システムマネージャまたは ONTAP REST API を使用してアクティビティ追跡データを表示します。
 
 
 --

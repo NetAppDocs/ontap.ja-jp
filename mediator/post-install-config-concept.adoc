@@ -1,0 +1,100 @@
+---
+permalink: mediator/post-install-config-concept.html 
+sidebar: sidebar 
+keywords: mediator, new, release, update, install, configuration, post-installation, after installation, metrocluster ip, snapmirror business continuity 
+summary: ONTAP メディエーターサービスをインストールして実行したら、メディエーターの機能を使用するには、ONTAP ストレージシステムで追加の設定タスクを実行する必要があります。 
+---
+= インストール後の設定
+:allow-uri-read: 
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+ONTAP メディエーターサービスをインストールして実行したら、メディエーターの機能を使用するには、ONTAP ストレージシステムで追加の設定タスクを実行する必要があります。
+
+* MetroCluster IP 構成で ONTAP メディエーターサービスを使用する場合は、を参照してください link:https://docs.netapp.com/us-en/ontap-metrocluster/install-ip/task_configuring_the_ontap_mediator_service_from_a_metrocluster_ip_configuration.html["MetroCluster IP 構成での ONTAP メディエーターサービスの設定"^]。
+* SnapMirror のビジネス継続性機能を使用する手順については、を参照して link:https://docs.netapp.com/us-en/ontap/smbc/smbc_install_confirm_ontap_cluster.html["ONTAP メディエーターサービスをインストールし、 ONTAP クラスタの設定を確認します"^]。
+
+
+
+
+== ONTAP メディエーターのセキュリティポリシーを設定します
+
+ONTAP メディエーターサーバでは、いくつかの設定可能なセキュリティ設定がサポートされます。すべての設定のデフォルト値は、low_space_threshold_mib：10読み取り専用ファイルで提供されます。
+
+`/opt/netapp/lib/ontap_mediator/server_config/ontap_mediator.user_config.yaml`
+
+に配置されているすべての値 `ontap_mediator.user_config.yaml` デフォルト値は上書きされ、ONTAP メディエーターのすべてのアップグレードで維持されます。
+
+を変更した後 `ontap_mediator.user_config.yaml`ONTAP メディエーターサービスを再起動します。
+
+`systemctl restart ontap_mediator`
+
+次の属性を設定できます。注：のその他のデフォルト値 `ontap_mediator.config.yaml` 変更しないでください。
+
+* *デフォルトの自己署名証明書の代わりにサードパーティのSSL証明書をインストールするための設定*
++
+....
+cert_path: '/opt/netapp/lib/ontap_mediator/ontap_mediator/server_config/ontap_mediator_server.crt'
+key_path: '/opt/netapp/lib/ontap_mediator/ontap_mediator/server_config/ontap_mediator_server.key'
+ca_cert_path: '/opt/netapp/lib/ontap_mediator/ontap_mediator/server_config/ca.crt'
+ca_key_path: '/opt/netapp/lib/ontap_mediator/ontap_mediator/server_config/ca.key'
+ca_serial_path: '/opt/netapp/lib/ontap_mediator/ontap_mediator/server_config/ca.srl'
+cert_valid_days: '1095'                   # Used to set the expiration on client certs to 3 years
+x509_passin_pwd: 'pass:ontap'             # passphrase for the signed client cert
+....
+* *ブルートフォースパスワード推測攻撃に対する保護を提供する設定*
++
+この機能を有効にするには、の値を設定します `window_seconds` および `retry_limit`
+
++
+例
+
++
+--
+** 5分間の猶予期間を設けて推測し、失敗回数をゼロにリセットします。
++
+`authentication_lock_window_seconds: 300`
+
+** 期間内に5つの障害が発生した場合は、アカウントをロックします。
++
+`authentication_retry_limit: 5`
+
+** 各試行を拒否する前に発生する遅延を設定することで、ブルートフォースパスワード推測攻撃の影響を軽減し、攻撃の速度を低下させます。
++
+`authentication_failure_delay_seconds: 5`
+
++
+....
+authentication_failure_delay_seconds: 0   # seconds (float) to delay failed auth attempts prior to response, 0 = no delay
+authentication_lock_window_seconds: null  # seconds (int) since the oldest failure before resetting the retry counter, null = no window
+authentication_retry_limit: null          # number of retries to allow before locking API access, null = unlimited
+....
+
+
+--
+* * ONTAP メディエーターAPIユーザーアカウントのパスワードの複雑さのルールを制御するフィールド*
++
+....
+password_min_length: 8
+
+password_max_length: 64
+
+password_uppercase_chars: 0    # min. uppercase characters
+
+password_lowercase_chars: 1    # min. lowercase character
+
+password_special_chars: 1      # min. non-letter, non-digit
+
+password_nonletter_chars: 2    # min. non-letter characters (digits, specials, anything)
+....
+* *で必要な空き容量を制御する設定 `/opt/netapp/lib/ontap_mediator` ディスク。*
++
+スペースが設定されたしきい値を下回ると、サービスは警告イベントを問題 します。
+
++
+....
+low_space_threshold_mib: 10
+....
+

@@ -1,0 +1,66 @@
+---
+permalink: authentication/reset-totp-configuration-task.html 
+sidebar: sidebar 
+keywords: enable, ssh, multifactor authentication, mfa, hardware authentication device 
+summary: アカウントのセキュリティを保護するために、TOTPシークレットキーが侵害されたり紛失したりした場合は、それを無効にして新しいシークレットキーを作成する必要があります。 
+---
+= TOTPシークレットキーをリセットします
+:allow-uri-read: 
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+アカウントのセキュリティを保護するために、TOTPシークレットキーが侵害されたり紛失したりした場合は、それを無効にして新しいシークレットキーを作成する必要があります。
+
+
+
+== キーが侵害された場合はTOTPをリセットします
+
+TOTPシークレットキーが侵害されたにもかかわらずアクセスできる場合は、侵害されたキーを削除して新しいキーを作成できます。
+
+. ユーザパスワードまたはSSH公開鍵と侵害されたTOTPシークレットキーを使用してユーザアカウントにログインします。
+. 侵害されたTOTPシークレットキーを削除します。
++
+[source, cli]
+----
+security login totp delete -vserver <svm_name> -username <account_username>
+----
+. 新しいTOTPシークレットキーを作成します。
++
+[source, cli]
+----
+security login totp create -vserver <svm_name> -username <account_username>
+----
+. アカウントでTOTP設定が有効になっていることを確認します。
++
+[source, cli]
+----
+security login totp show -vserver <svm_name> -username <account_username>
+----
+
+
+
+
+== キーを紛失した場合はTOTPをリセットします
+
+TOTPシークレットキーが失われた場合は、ストレージ管理者にに問い合わせてください link:disable-totp-secret-key-task.html["キーを無効にします"]。キーが無効になったら、最初の認証方法を使用してログインし、新しいTOTPを設定できます。
+
+.開始する前に：
+ストレージ管理者がTOTPシークレットキーを無効にする必要があります。ストレージ管理者アカウントがない場合は、ストレージ管理者に連絡してキーを無効にしてください。
+
+.手順
+. ストレージ管理者がTOTPシークレットを無効にしたら、プライマリの認証方法を使用してローカルアカウントにログインします。
+. 新しいTOTPシークレットキーを作成します。
++
+[source, cli]
+----
+security login totp create -vserver <svm_name> -username <account_username >
+----
+. アカウントでTOTP設定が有効になっていることを確認します。
++
+[source, cli]
+----
+security login totp show -vserver <svm_name> -username <account_username>
+----
+

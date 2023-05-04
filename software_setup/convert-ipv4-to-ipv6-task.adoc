@@ -1,0 +1,74 @@
+---
+permalink: software_setup/convert-ipv4-to-ipv6-task.html 
+sidebar: sidebar 
+keywords: software, setup, ontap, covert, converting, ipv4, ipv6 
+summary: ONTAP 9.13.1以降では、A800およびFAS8700プラットフォームで管理LIFにIPv6アドレスを割り当てることができます。9.13.1より前のONTAPリリースでは、他のプラットフォームの9.13.1以降では、管理LIFにIPv4アドレスを割り当ててから、クラスタのセットアップの完了後にIPv6アドレスを変換する必要があります。 
+---
+= 管理LIFをIPv4からIPv6に変換します
+:allow-uri-read: 
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+ONTAP 9.13.1以降では、クラスタの初期セットアップ時に、A800およびFAS8700プラットフォームの管理LIFにIPv6アドレスを割り当てることができます。9.13.1より前のONTAPリリースまたは他のプラットフォームの9.13.1以降では、最初にIPv4アドレスを管理LIFに割り当ててから、クラスタのセットアップの完了後にIPv6アドレスに変換する必要があります。
+
+.手順
+. クラスタに対してIPv6を有効にします。
++
+[source, cli]
+----
+network options ipv6 modify -enable true
+----
+. 権限をadvancedに設定します。
++
+[source, cli]
+----
+set priv advanced
+----
+. さまざまなインターフェイスで学習されたRAプレフィックスのリストを表示します。
++
+[source, cli]
+----
+network ndp prefix show
+----
+. IPv6管理LIFを作成します。
++
+の形式を使用します `prefix::id` IPv6アドレスを手動で作成するには、addressパラメータを使用します。
+
++
+[source, cli]
+----
+network interface create -vserver <svm_name> -lif <LIF> -home-node <home_node> -home-port <home_port> -address <IPv6prefix::id> -netmask-length <netmask_length> -failover-policy <policy> -service-policy <service_policy> -auto-revert true
+----
+. LIF が作成されたことを確認します。
++
+[source, cli]
+----
+network interface show
+----
+. 設定した IP アドレスに到達できることを確認します。
++
+[source, cli]
+----
+network ping6
+----
+. IPv4 LIFを「意図的に停止」とマークします。
++
+[source, cli]
+----
+network interface modify -vserver <svm_name> -lif <lif_name> -status-admin down
+----
+. IPv4管理LIFを削除します。
++
+[source, cli]
+----
+network interface delete -vserver <svm_name> -lif <lif_name>
+----
+. IPv4管理LIFが削除されたことを確認します。
++
+[source, cli]
+----
+network interface show
+----
+

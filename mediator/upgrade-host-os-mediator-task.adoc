@@ -1,0 +1,292 @@
+---
+permalink: mediator/upgrade-host-os-mediator-task.html 
+sidebar: sidebar 
+keywords: mediator, new, release, update, install, 
+summary: インストールプロセスでは、ホストオペレーティングシステム、ONTAP メディエーターの順にアップグレードします。 
+---
+= ホストオペレーティングシステムをアップグレードしてから、ONTAP メディエーターをアップグレードします
+:allow-uri-read: 
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+ONTAP メディエーター用のホストOSを新しいバージョンにアップグレードするには、最初にONTAP メディエーターをアンインストールする必要があります。
+
+.作業を開始する前に
+Red Hat Enterprise Linux または CentOS とその関連リポジトリをシステムにインストールする際のベストプラクティスは次のとおりです。別の方法でインストールまたは設定されたシステムでは、追加の手順が必要になる
+
+* Red Hat Enterprise Linux または CentOS のインストールについては、 Red Hat のベストプラクティスに従う必要があります。CentOS 8.xバージョンはサポートされないため、互換性があるバージョンのCentOS 8.xは推奨されません。
+* Red Hat Enterprise Linux または CentOS への ONTAP メディエーターサービスのインストール中にインストールプログラムが必要なすべてのソフトウェアにアクセスしてインストールできるように、システムには該当するリポジトリへのアクセスが必要です。
+* yum インストーラで Red Hat Enterprise Linux リポジトリから依存するソフトウェアを検索するには、 Red Hat Enterprise Linux のインストール中またはインストール後に有効な Red Hat サブスクリプションを使用してシステムを登録しておく必要があります。
++
+Red Hat Subscription Manager については、 Red Hat のドキュメントを参照してください。
+
+* 次のポートをメディエーター用に空けておく必要があります。
++
+** 31784 です
+** 3260
+
+
+* サードパーティ製ファイアウォールを使用している場合は、を参照してください link:https://docs.netapp.com/us-en/ontap-metrocluster/install-ip/concept_mediator_requirements.html#firewall-requirements-for-ontap-mediator["ONTAP メディエーターのファイアウォール要件"^]
+* Linuxホストがインターネットにアクセスできない場所にある場合は、必要なパッケージがローカルリポジトリにあることを確認する必要があります。
++
+Linux環境でLink Aggregation Control Protocol（LACP）を使用している場合は、カーネルを正しく設定し、を確認する必要があります `sysctl net.ipv4.conf.all.arp_ignore` は「2」に設定されています。
+
+
+
+.必要なもの
+ONTAP メディエーターサービスで必要なパッケージは次のとおりです。
+
+[cols="34,33,33"]
+|===
+
+
+| すべての RHEL または CentOS バージョン | RHEL 8.x/Rocky Linux 8用の追加パッケージ | RHEL 9.x/Rocky Linux 9用の追加パッケージ 
+
+
+ a| 
+* openssl
+* openssl-devel
+* kernel-devel-$（uname -r）
+* GCC
+* メーカー
+* libselinux-utils
+* パッチ
+* Bzip2.
+* Perl - データダンパー
+* PERLA-ExtUtils-MakeMaker
+* efibootmgr
+* モクティル
+
+ a| 
+* python3-pip の略
+* elfutils-libelf-devel
+* policycoreutils -python-utils
+* RedHat LSB コアです
+* ピートン39
+* Python39 -デベル
+
+ a| 
+* python3-pip の略
+* elfutils-libelf-devel
+* policycoreutils -python-utils
+* ピートン3
+* Python3 -デベル
+
+
+|===
+メディエーターのインストールパッケージは自己解凍形式の圧縮 tar ファイルで、次のものが含まれます。
+
+* サポートされているリリースのリポジトリから取得できないすべての依存関係を含む RPM ファイル。
+* インストールスクリプト。
+
+
+有効なSSL証明書を使用することを推奨します。
+
+.このタスクについて
+leapp-upgradeツールを使用してONTAP メディエーター用のホストOSを新しいメジャーバージョン（7.xから8.xなど）にアップグレードする場合は、次の手順を実行します。 ONTAP メディエーターは、システムに登録されているリポジトリにインストールされているRPMの新しいバージョンを検出しようとするため、アンインストールする必要があります。
+
+.rpmファイルはONTAP メディエーターのインストーラの一部としてインストールされているため、その検索に含まれます。ただし、その.rpmファイルはインストーラの一部として展開され、登録されたリポジトリからダウンロードされなかったため、アップグレードが見つかりません。この場合、leapp-upgradeツールはパッケージをアンインストールします。
+
+サポートケースの優先順位付けに使用されるログファイルを保持するには、OSのアップグレード前にファイルをバックアップし、ONTAP メディエーターパッケージの再インストール後にリストアする必要があります。ONTAP メディエーターを再インストールするため、接続されているONTAP クラスタは新規インストール後に再接続する必要があります。
+
+
+NOTE: 次の手順を順番に実行する必要があります。ONTAP メディエーターを再インストールしたらすぐに、ontap_mediatorサービスを停止してログファイルを交換し、サービスを再起動する必要があります。これにより、ログが失われなくなります。
+
+.手順
+. ログファイルをバックアップします。
++
+....
+[rootmediator-host ~]# tar -czf ontap_mediator_file_backup.tgz -C /opt/netapp/lib/ontap_mediator ./log ./ontap_mediator/server_config/ontap_mediator.user_config.yaml
+[rootmediator-host ~]# tar -tf ontap_mediator_file_backup.tgz
+./log/
+./log/ontap_mediator.log
+./log/scstadmin.log
+./log/ontap_mediator_stdout.log
+./log/ontap_mediator_requests.log
+./log/install_20230419134611.log
+./log/scst.log
+./log/ontap_mediator_syslog.log
+./ontap_mediator/server_config/ontap_mediator.user_config.yaml
+[rootmediator-host ~]#
+....
+. leapp-upgradeツールを使用してアップグレードを実行します。
++
+....
+[rootmediator-host ~]# leapp preupgrade --target 8.4
+  ..<snip upgrade checks>..
+  ..<fix issues found>..
+[rootmediator-host ~]# leapp upgrade --target 8.4
+  ..<snip upgrade>..
+[rootmediator-host ~]# cat /etc/os-release | head -2
+NAME="Red Hat Enterprise Linux"
+VERSION="8.4 (Ootpa)"
+[rootmediator-host ~]#
+....
+. ONTAP メディエーターを再インストールします。
++
+
+NOTE: ログファイルが失われないように、ONTAP メディエーターを再インストールした直後に残りの手順を実行します。
+
++
+....
+[rootmediator-host ~]# ontap-mediator-1.6.0/ontap-mediator-1.6.0
+
+ONTAP Mediator: Self Extracting Installer
+
+  ..<snip installation>..
+[rootmediator-host ~]#
+....
+. ontap_mediatorサービスを停止します。
++
+....
+[rootmediator-host ~]# systemctl stop ontap_mediator
+[rootmediator-host ~]#
+....
+. ログファイルを置き換えます。
++
+....
+[rootmediator-host ~]# tar -xf ontap_mediator_log_backup.tgz -C /opt/netapp/lib/ontap_mediator
+[rootmediator-host ~]#
+....
+. ontap_mediatorサービスを開始します。
++
+....
+[rootmediator-host ~]# systemctl start ontap_mediator
+[rootmediator-host ~]#
+....
+. アップグレードしたONTAP メディエーターにすべてのONTAP クラスタを再接続します
++
+.手順 for MetroCluster over IPの略
+[%collapsible]
+====
+....
+siteA::> metrocluster configuration-settings mediator show
+Mediator IP     Port    Node                    Configuration Connection
+                                                Status        Status
+--------------- ------- ----------------------- ------------- -----------
+172.31.40.122
+                31784   siteA-node2             true          false
+                        siteA-node1             true          false
+                        siteB-node2             true          false
+                        siteB-node2             true          false
+siteA::> metrocluster configuration-settings mediator remove
+Removing the mediator and disabling Automatic Unplanned Switchover. It may take a few minutes to complete.
+Please enter the username for the mediator: mediatoradmin
+Please enter the password for the mediator:
+Confirm the mediator password:
+Automatic Unplanned Switchover is disabled for all nodes...
+Removing mediator mailboxes...
+Successfully removed the mediator.
+
+siteA::> metrocluster configuration-settings mediator add -mediator-address 172.31.40.122
+Adding the mediator and enabling Automatic Unplanned Switchover. It may take a few minutes to complete.
+Please enter the username for the mediator: mediatoradmin
+Please enter the password for the mediator:
+Confirm the mediator password:
+Successfully added the mediator.
+
+siteA::> metrocluster configuration-settings mediator show
+Mediator IP     Port    Node                    Configuration Connection
+                                                Status        Status
+--------------- ------- ----------------------- ------------- -----------
+172.31.40.122
+                31784   siteA-node2             true          true
+                        siteA-node1             true          true
+                        siteB-node2             true          true
+                        siteB-node2             true          true
+siteA::>
+....
+====
++
+.手順 for SnapMirror Business Continuityの略
+[%collapsible]
+====
+SnapMirrorビジネス継続性を実現するために、/opt/netappディレクトリ以外にTLS証明書をインストールした場合は再インストールする必要はありません。生成されたデフォルトの自己署名証明書を使用していた場合、またはカスタム証明書を/opt/netappディレクトリに配置していた場合は、その証明書をバックアップおよびリストアする必要があります。
+
+....
+peer1::> snapmirror mediator show
+Mediator Address Peer Cluster     Connection Status Quorum Status
+---------------- ---------------- ----------------- -------------
+172.31.49.237    peer2            unreachable       true
+
+peer1::> snapmirror mediator remove -mediator-address 172.31.49.237 -peer-cluster peer2
+
+Info: [Job 39] 'mediator remove' job queued
+
+peer1::> job show -id 39
+                            Owning
+Job ID Name                 Vserver    Node           State
+------ -------------------- ---------- -------------- ----------
+39     mediator remove      peer1      peer1-node1    Success
+     Description: Removing entry in mediator
+
+peer1::> security certificate show -common-name ONTAPMediatorCA
+Vserver    Serial Number   Certificate Name                       Type
+---------- --------------- -------------------------------------- ------------
+peer1
+        4A790360081F41145E14C5D7CE721DC6C210007F
+                        ONTAPMediatorCA                        server-ca
+    Certificate Authority: ONTAP Mediator CA
+        Expiration Date: Mon Apr 17 10:27:54 2073
+
+peer1::> security certificate delete -common-name ONTAPMediatorCA *
+1 entry was deleted.
+
+ peer1::> security certificate install -type server-ca -vserver peer1
+
+Please enter Certificate: Press <Enter> when done
+  ..<snip ONTAP Mediator CA public key>..
+
+You should keep a copy of the CA-signed digital certificate for future reference.
+
+The installed certificate's CA and serial number for reference:
+CA: ONTAP Mediator CA
+serial: 44786524464C5113D5EC966779D3002135EA4254
+
+The certificate's generated name for reference: ONTAPMediatorCA
+
+peer2::> security certificate delete -common-name ONTAPMediatorCA *
+1 entry was deleted.
+
+peer2::> security certificate install -type server-ca -vserver peer2
+
+ Please enter Certificate: Press <Enter> when done
+..<snip ONTAP Mediator CA public key>..
+
+
+You should keep a copy of the CA-signed digital certificate for future reference.
+
+The installed certificate's CA and serial number for reference:
+CA: ONTAP Mediator CA
+serial: 44786524464C5113D5EC966779D3002135EA4254
+
+The certificate's generated name for reference: ONTAPMediatorCA
+
+peer1::> snapmirror mediator add -mediator-address 172.31.49.237 -peer-cluster peer2 -username mediatoradmin
+
+Notice: Enter the mediator password.
+
+Enter the password:
+Enter the password again:
+
+Info: [Job: 43] 'mediator add' job queued
+
+peer1::> job show -id 43
+                            Owning
+Job ID Name                 Vserver    Node           State
+------ -------------------- ---------- -------------- ----------
+43     mediator add         peer1      peer1-node2    Success
+    Description: Creating a mediator entry
+
+peer1::> snapmirror mediator show
+Mediator Address Peer Cluster     Connection Status Quorum Status
+---------------- ---------------- ----------------- -------------
+172.31.49.237    peer2            connected         true
+
+peer1::>
+
+....
+====
+

@@ -1,20 +1,25 @@
 ---
 sidebar: sidebar 
 permalink: task_admin_monitor_capacity_in_sm.html 
-keywords: system manager, monitor, capacity, view, measurement, physical, logical, storage, used storage, local tier capacity, aggregate capacity, block, add capacity, volume, used capacity, available capacity, total capacity, snapshot copy, snapshot copies, inactive data, overprovision, over provision, overflows, snapshot copy reserves, reserves, clone 
-summary: System Managerを使用して、使用済みのストレージ容量、およびクラスタやローカル階層でまだ使用可能な容量を監視できます。 
+keywords: used storage, local tier capacity, aggregate capacity, add capacity, used capacity, available capacity, total capacity, inactive data, overprovision, overflows, snapshot copy reserves, reserves, clone, maximum capacity limit, storage VM, allocated 
+summary: System Managerを使用して、使用済みのストレージ容量と、クラスタ、ローカル階層、またはStorage VMで使用可能な残りの容量を監視できます。 
 ---
 = System Manager で容量を監視
 :allow-uri-read: 
 
 
 [role="lead"]
-System Managerを使用して、使用済みのストレージ容量、およびクラスタやローカル階層でまだ使用可能な容量を監視できます。
+System Managerを使用して、使用済みのストレージ容量と、クラスタ、ローカル階層、またはStorage VMで使用可能な残りの容量を監視できます。
 
-また、 ONTAP 9.10.1 以降のシステムでは、 System Manager を使用して、クラスタの容量に関する履歴データと、今後使用または利用可能になる容量に関する予測データを表示することができます。ローカル階層とローカルボリュームの容量も監視できます。また、ONTAP 9.12.1以降、System Managerにはローカル階層のコミット済み容量も表示されます。
+ONTAP の各バージョンでは、より堅牢な容量監視情報が提供されます。
+
+* ONTAP 9.10.1以降のSystem Managerでは、クラスタの容量に関する履歴データと、使用済みまたは使用可能な容量に関する予測を表示できます。ローカル階層とローカルボリュームの容量も監視できます。
+* ONTAP 9.12.1以降では、ローカル階層のコミット済み容量がSystem Managerに表示されます。
+* ONTAP 9.13.1以降では、Storage VMの最大容量制限を有効にし、使用済みストレージが最大容量の一定の割合に達したときにアラートをトリガーするしきい値を設定できます。
 
 
-NOTE: 使用済み容量の測定値の表示方法は、使用しているSystem Managerのバージョンによって異なります。を参照してください link:concepts/capacity-measurements-in-sm-concept.html["System Manager で測定される容量"]。
+
+NOTE: 使用済み容量の測定値は、ONTAP のバージョンによって表示されます。詳細は、を参照してください link:./concepts/capacity-measurements-in-sm-concept.html["System Manager で測定される容量"]。
 
 
 
@@ -44,14 +49,36 @@ NOTE: 使用済み容量の測定値の表示方法は、使用しているSyste
 
 NOTE: System Manager では、ルートストレージ階層（アグリゲート）の容量は表示されません。
 
-. をクリックします image:../media/icon_arrow.gif["右矢印"] をクリックして、クラスタの容量に関する詳細を確認してください。
+. グラフをクリックすると、クラスタの容量に関する詳細が表示されます。
++
+容量の測定値は、次の2つの棒グラフで表示されます。
 
++
+--
+** 上部のグラフには、物理容量（使用済みの物理スペース、リザーブスペース、使用可能なスペース）が表示されます。
+** 下部のグラフには、論理容量（クライアントデータ、Snapshotコピー、クローンのサイズ）、および使用済み論理スペースの合計が表示されます。
+
+
+--
++
+棒グラフの下には、データ削減の測定値が表示されます。
+
++
+--
+** クライアントデータのみのデータ削減率（Snapshotコピーとクローンは含まれません）。
+** 全体的なデータ削減率。
+
+
+--
+
+
+詳細については、を参照してください link:./concepts/capacity-measurements-in-sm-concept.html["System Manager で測定される容量"]。
 
 
 
 == ローカル階層の容量を表示します
 
-ローカル階層の容量に関する詳細を確認できます。また、ONTAP 9.12.1以降では、ローカル階層のコミット済み容量を表示して、コミット済み容量に対応するためにローカル階層に容量を追加する必要があるかどうかを判断し、空きスペースが不足しないようにすることができます。
+ローカル階層の容量に関する詳細を確認できます。ONTAP 9.12.1以降では、*[容量]*ビューにローカル階層のコミット済み容量も表示されるため、コミット済み容量に対応して空きスペースが不足しないようにローカル階層に容量を追加する必要があるかどうかを判断できます。
 
 .手順
 . [ ストレージ ] 、 [ 階層 ] の順にクリックします。
@@ -79,14 +106,66 @@ NOTE: System Manager では、ルートストレージ階層（アグリゲー�
 
 +
 --
-** 全体的なデータ削減率。
 ** クライアントデータのみのデータ削減率（Snapshotコピーとクローンは含まれません）。
+** 全体的なデータ削減率。
 
 
 --
 
 
+詳細については、を参照してください link:./concepts/capacity-measurements-in-sm-concept.html["System Manager で測定される容量"]。
+
 .オプションのアクション
 * コミット済み容量がローカル階層の容量よりも大きい場合は、空きスペースが不足する前にローカル階層に容量を追加することを検討してください。を参照してください link:./disks-aggregates/add-disks-local-tier-aggr-task.html["ローカル階層への容量の追加（アグリゲートへのディスクの追加）"]。
-* 特定のボリュームがローカル階層で使用している容量を表示するには、* Volumes *タブを選択します。
+* 特定のボリュームがローカル階層で使用しているストレージを確認するには、*[ボリューム]*タブを選択します。
+
+
+
+
+== Storage VM内のボリュームの容量を表示します
+
+Storage VMのボリュームで使用されているストレージの容量と、まだ使用可能な容量を確認できます。使用済みストレージと使用可能なストレージの合計測定値を「ボリューム間の容量」と呼びます。
+
+.手順
+. [ストレージ]*>*[Storage VMs]*を選択します。
+. Storage VMの名前をクリックします。
+. [Capacity]*セクションまでスクロールします。このセクションには、次の測定値を含む棒グラフが表示されます。
++
+--
+** *使用済み物理容量*：このStorage VMのすべてのボリュームの使用済み物理ストレージの合計。
+** *使用可能*：このStorage VMのすべてのボリュームで使用可能な容量の合計。
+** *使用済み論理容量*：このStorage VMのすべてのボリュームの使用済み論理ストレージの合計。
+
+
+--
+
+
+測定値の詳細については、を参照してください link:./concepts/capacity-measurements-in-sm-concept.html["System Manager で測定される容量"]。
+
+
+
+== Storage VMの最大容量制限を表示します
+
+ONTAP 9.13.1以降では、Storage VMの最大容量制限を表示できます。
+
+.作業を開始する前に
+実行する必要があります link:manage-max-cap-limit-svm-in-sm-task.html["Storage VMの最大容量制限を有効にする"] 表示する前に。
+
+.手順
+. [ストレージ]*>*[Storage VMs]*を選択します。
++
+最大容量測定値は次の2つの方法で表示できます。
+
++
+--
+** Storage VMの行で、*[最大容量]*列を確認します。この列には、使用済み容量、使用可能容量、および最大容量を示す棒グラフが表示されます。
+** Storage VMの名前をクリックします。[概要]*タブをスクロールして、左側の列に最大容量、割り当て容量、および容量のアラートしきい値を確認します。
+
+
+--
+
+
+.関連情報
+* link:manage-max-cap-limit-svm-in-sm-task.html#edit-max-cap-limit-svm["Storage VMの最大容量制限を編集します"]
+* link:./concepts/capacity-measurements-in-sm-concept.html["System Manager で測定される容量"]
 

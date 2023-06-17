@@ -55,79 +55,90 @@ NOTE: の設定の変更 `storage failover modify-auto-giveback` 自動無停止
 
 . 以前の ONTAP ソフトウェアパッケージを削除します。
 +
-`cluster image package delete -version previous_ONTAP_Version`
-
+[source, cli]
+----
+cluster image package delete -version previous_ONTAP_Version
+----
 . ターゲットの ONTAP ソフトウェアパッケージをダウンロードします。
 +
-`cluster image package get -url location`
-
-+
-
-NOTE: ONTAP 9.3 から 9.7 にアップグレードする場合は、 ONTAP 9.5 のソフトウェアパッケージをダウンロードし、同じコマンドを使用して 9.7 のソフトウェアパッケージをダウンロードします。ONTAP 9.5 から 9.6.1 にアップグレードする場合は、 ONTAP 9.7 のソフトウェアパッケージをダウンロードし、同じコマンドを使用して 9.6.1 のソフトウェアパッケージをダウンロードします。
-
+[source, cli]
+----
+cluster image package get -url location
+----
 +
 [listing]
 ----
-cluster1::> cluster image package get -url http://www.example.com/software/9.7/image.tgz
+cluster1::> cluster image package get -url http://www.example.com/software/9.13.1/image.tgz
 
 Package download completed.
 Package processing completed.
 ----
++
+を実行する場合 link:https://docs.netapp.com/us-en/ontap/upgrade/concept_upgrade_paths.html#types-of-upgrade-paths["直接マルチホップアップグレード"]を実行し、アップグレードに必要なONTAPの中間バージョンのソフトウェアパッケージをダウンロードします。次に、同じコマンドを使用して、ターゲットのONTAPバージョンに対応するソフトウェアパッケージをダウンロードします。  たとえば、9.8から9.13.1にアップグレードする場合は、ONTAP 9.12.1のソフトウェアパッケージをダウンロードし、同じコマンドを使用して9.13.1のソフトウェアパッケージをダウンロードする必要があります。
+
 . ソフトウェアパッケージがクラスタパッケージリポジトリにあることを確認します。
 +
-`cluster image package show-repository`
-
+[source, cli]
+----
+cluster image package show-repository
+----
 +
 [listing]
 ----
 cluster1::> cluster image package show-repository
 Package Version  Package Build Time
 ---------------- ------------------
-9.7              MM/DD/YYYY 10:32:15
+9.13.1              MM/DD/YYYY 10:32:15
 ----
 . クラスタを無停止でアップグレードする準備が完了していることを確認します。
 +
-`cluster image validate -version package_version_number`
-
+[source, cli]
+----
+cluster image validate -version package_version_number
+----
 +
+** を実行する場合 link:https://docs.netapp.com/us-en/ontap/upgrade/concept_upgrade_paths.html#types-of-upgrade-paths["直接マルチホップアップグレード"]を使用して、ターゲットのONATPパッケージを検証します。  中間アップグレードイメージを個別に検証する必要はありません。  たとえば、9.8から9.13.1にアップグレードする場合は、9.13.1パッケージを検証に使用する必要があります。9.12.1パッケージを個別に検証する必要はありません。
 ** 2 ノードまたは 4 ノードの MetroCluster 構成をアップグレードする場合は、続行する前に両方のクラスタでこのコマンドを実行する必要があります。
-** ONTAP 9.3 から 9.7 にアップグレードする場合は、 9.7 のパッケージを使用して検証します。9.5 パッケージを別途検証する必要はありません。
-** ONTAP 9.5 から 9.1.1 にアップグレードする場合は、検証に 9.9.1 パッケージを使用します。9.7 パッケージを別途検証する必要はありません。
-
-
 +
 [listing]
 ----
-cluster1::> cluster image validate -version 9.7
+cluster1::> cluster image validate -version 9.13.1
 
 WARNING: There are additional manual upgrade validation checks that must be performed after these automated validation checks have completed...
 ----
+
+
 . 検証の進捗を監視します。
 +
-`cluster image show-update-progress`
-
+[source, cli]
+----
+cluster image show-update-progress
+----
 . 検証で特定された必要なアクションをすべて完了します。
 . ソフトウェアアップグレードの見積もりを生成します。
 +
-`cluster image update -version package_version_number -estimate-only`
-
+[source, cli]
+----
+cluster image update -version package_version_number -estimate-only
+----
 +
 ソフトウェアアップグレードの見積もりには、更新対象の各コンポーネントの詳細とアップグレードの推定期間が表示されます。
 
 . ソフトウェアのアップグレードを実行します。
 +
-`cluster image update -version package_version_number`
-
+[source, cli]
+----
+cluster image update -version package_version_number
+----
 +
-** ONTAP 9.3 から 9.7 にアップグレードする場合は、上記のコマンドで 9.7 の package_version_number を使用します。
-** ONTAP 9.5 から 9.1.1 にアップグレードする場合は、上記のコマンドで 9.9.1 package_version_number を使用します。
-** 2 ノード MetroCluster システムを除く MetroCluster 構成では、ユーザが開始してコマンドラインで確認を行うと、 ONTAP のアップグレードプロセスが両方のサイト（ローカルサイトとディザスタリカバリサイト）の HA ペアで同時に開始されます。2 ノード MetroCluster システムの場合は、最初にディザスタリカバリサイト、つまりアップグレードが開始されないサイトで更新が開始されます。ディザスタリカバリサイトで更新が完了すると、ローカルサイトでアップグレードが開始されます。
+** を実行する場合 link:https://docs.netapp.com/us-en/ontap/upgrade/concept_upgrade_paths.html#types-of-upgrade-paths["直接マルチホップアップグレード"] package_version_numberには、ターゲットのONTAPバージョンを使用します。たとえば、ONTAP 9.8から9.13.1にアップグレードする場合は、package_version_numberに9.13.1を使用します。
 ** クラスタが 2~6 つのノードで構成されている場合は、ローリングアップグレードが実行されます。クラスタが 8 つ以上のノードで構成されている場合は、バッチアップグレードがデフォルトで実行されます。必要に応じて、を使用できます `-force-rolling` 代わりにローリングアップグレードを指定するパラメータ。
 ** テイクオーバーとギブバックがそれぞれ完了したら、テイクオーバーとギブバックの際に発生する I/O の中断からクライアントアプリケーションが回復できるように 8 分間待機します。クライアントが安定するために必要な時間が増減する場合は、を使用します `-stabilize-minutes` 別の待機時間を指定するパラメータ。
+** 2 ノード MetroCluster システムを除く MetroCluster 構成では、ユーザが開始してコマンドラインで確認を行うと、 ONTAP のアップグレードプロセスが両方のサイト（ローカルサイトとディザスタリカバリサイト）の HA ペアで同時に開始されます。2 ノード MetroCluster システムの場合は、最初にディザスタリカバリサイト、つまりアップグレードが開始されないサイトで更新が開始されます。ディザスタリカバリサイトで更新が完了すると、ローカルサイトでアップグレードが開始されます。
 +
 [listing]
 ----
-cluster1::> cluster image update -version 9.7
+cluster1::> cluster image update -version 9.13.1
 
 Starting validation for this update. Please wait..
 
@@ -149,13 +160,19 @@ cluster-1::>
 
 . クラスタの更新の進捗を表示します。
 +
-`cluster image show-update-progress`
-
+[source, cli]
+----
+cluster image show-update-progress
+----
 +
-
-NOTE: 4ノードまたは8ノードのMetroCluster 構成をアップグレードする場合は、を参照してください `cluster image show-update-progress` コマンドは、コマンドを実行するノードの進捗状況のみを表示します。個々のノードの進捗を確認するには、各ノードでコマンドを実行する必要があります。
+4ノードまたは8ノードのMetroCluster 構成をアップグレードする場合は、を参照してください `cluster image show-update-progress` コマンドは、コマンドを実行するノードの進捗状況のみを表示します。個々のノードの進捗を確認するには、各ノードでコマンドを実行する必要があります。
 
 . 各ノードでアップグレードが正常に完了したことを確認します。
++
+[source, cli]
+----
+cluster image show-update-progress
+----
 +
 [listing]
 ----
@@ -170,26 +187,28 @@ Post-update checks   completed                00:10:00        00:02:00
 3 entries were displayed.
 
 Updated nodes: node0, node1.
-
-cluster1::>
 ----
 . AutoSupport 通知を送信します。
 +
-`autosupport invoke -node * -type all -message "Finishing_NDU"`
-
+[source, cli]
+----
+autosupport invoke -node * -type all -message "Finishing_NDU"
+----
 +
 AutoSupport メッセージを送信するようにクラスタが設定されていない場合は、通知のコピーがローカルに保存されます。
 
 . クラスタで自動計画外スイッチオーバーが有効になっていることを確認します。
 +
 
-NOTE: この手順 は、 MetroCluster FC 構成に対してのみ実行されます。MetroCluster IP 構成を使用している場合は、この手順 を省略してください。
+NOTE: この手順は、MetroCluster FC構成に対してのみ実行します。  MetroCluster IP設定を使用している場合は、この手順を実行する必要はありません。
 
 +
 .. 自動計画外スイッチオーバーが有効かどうかを確認します。
 +
-`metrocluster show`
-
+[source, cli]
+----
+metrocluster show
+----
 +
 自動計画外スイッチオーバーが有効な場合、コマンド出力に次のステートメントが表示されます。
 
@@ -199,9 +218,16 @@ AUSO Failure Domain    auso-on-cluster-disaster
 ....
 .. 出力にステートメントが表示されない場合は、自動計画外スイッチオーバーを有効にします。
 +
-`metrocluster modify -auto-switchover-failure-domain auso-on-cluster-disaster`
-
-.. 手順 1 を繰り返して、自動計画外スイッチオーバーが有効になっていることを確認します。
+[source, cli]
+----
+metrocluster modify -auto-switchover-failure-domain auso-on-cluster-disaster
+----
+.. 自動計画外スイッチオーバーが有効になっていることを確認します。
++
+[source, cli]
+----
+metrocluster show
+----
 
 
 
@@ -218,16 +244,20 @@ AUSO Failure Domain    auso-on-cluster-disaster
 .手順
 . アップグレードエラーを表示します。
 +
-`cluster image show-update-progress`
-
+[source, cli]
+----
+cluster image show-update-progress
+----
 . エラーを解決します。
 . 更新を再開します。
 +
-`cluster image resume-update`
-
+[source, cli]
+----
+cluster image resume-update
+----
 
 
 .関連情報
-https://aiq.netapp.com/["Active IQ を起動します"]
+* https://aiq.netapp.com/["Active IQ を起動します"]
+* https://docs.netapp.com/us-en/active-iq/["Active IQ のドキュメント"]
 
-https://docs.netapp.com/us-en/active-iq/["Active IQ のドキュメント"]

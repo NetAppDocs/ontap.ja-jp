@@ -13,12 +13,28 @@ summary: 温度に基づくストレージ効率化はONTAP 9.8で導入され�
 [role="lead"]
 ONTAP は、ボリュームのデータへのアクセス頻度を評価し、その頻度とデータに適用される圧縮レベルをマッピングすることで、温度に影響されるStorage Efficiencyのメリットを提供します。アクセス頻度の低いコールドデータの場合は大容量のデータブロックが圧縮され、頻繁にアクセスされて上書きされるホットデータの場合は小さなデータブロックが圧縮されるため、プロセスが効率化されます。
 
-温度に基づくStorage Efficiency機能はONTAP 9.8で導入され、新しく作成したシンプロビジョニングAFFでは自動的に有効になります。既存のAFFボリュームとシンプロビジョニングされたAFF DP以外のボリュームでは、温度に基づくStorage Efficiencyを有効にすることができます。
+温度識別型Storage Efficiency（TSSE）はONTAP 9.8で導入された機能で、新しく作成したシンプロビジョニングAFFボリュームでは自動的に有効になります。既存のAFFボリュームとシンプロビジョニングされたAFF DP以外のボリュームでは、温度に基づくStorage Efficiencyを有効にすることができます。
 
-ONTAP 9.10.1以降では、AFF システムに対してのみ、ボリュームレベルの2つのStorage Efficiencyモード（_default_と_efficient_）が導入されました。この2つのモードでは、ファイル圧縮（デフォルト）（新しいAFF が作成されたときのデフォルトモード）と、温度に基づくStorage Efficiency（効率的）のどちらかを選択できます。ONTAP 9.10.1では、温度に応じたStorage Efficiency機能を明示的に設定して自動アダプティブ圧縮を有効にする必要があります。ただし、AFF プラットフォームでは、データコンパクション、自動重複排除スケジュール、インライン重複排除、ボリューム間インライン重複排除、ボリューム間バックグラウンド重複排除などの他のStorage Efficiency機能が、デフォルトモードと効率モードのどちらでもデフォルトで有効になります。
+.「デフォルト」モードと「効率的」モードが導入されました
+ONTAP 9.10.1以降では、AFF システムに対してのみ、ボリュームレベルの2つのStorage Efficiencyモード（_default_と_efficient_）が導入されました。この2つのモードでは、新しいAFFボリュームの作成時のデフォルトモードであるファイル圧縮（デフォルト）と、温度に基づくStorage Efficiency（効率的）のどちらかを選択できます。ONTAP 9.10.1では、 link:https://docs.netapp.com/us-en/ontap/volumes/set-efficiency-mode-task.html["温度に基づくストレージ効率化は明示的に設定する必要があります"] 自動アダプティブ圧縮を有効にします。ただし、AFF プラットフォームでは、データコンパクション、自動重複排除スケジュール、インライン重複排除、ボリューム間インライン重複排除、ボリューム間バックグラウンド重複排除などの他のStorage Efficiency機能が、デフォルトモードと効率モードのどちらでもデフォルトで有効になります。
 
 どちらのStorage Efficiencyモード（デフォルトと効率化）も、FabricPool対応アグリゲートでサポートされ、すべての階層化ポリシータイプでサポートされます。
 
+.Cシリーズプラットフォームで温度に基づくStorage Efficiencyを有効にします
+AFF Cシリーズプラットフォーム、および次のリリースがインストールされたデスティネーションでボリューム移動またはSnapMirrorを使用して、非TSSEプラットフォームからTSSE対応Cシリーズプラットフォームにボリュームを移行する場合、温度に基づくStorage Efficiencyがデフォルトで有効になります。
+
+* ONTAP 9.12.1P4以降
+* ONTAP 9.13.1以降
+
+
+詳細については、を参照してください link:https://docs.netapp.com/us-en/volumes/storage-efficiency-behavior-snapmirror-reference.html["ボリューム移動処理とSnapMirror処理でのStorage Efficiencyの動作"]。
+
+既存のボリュームでは、温度に基づくStorage Efficiencyは自動的には有効になりませんが、有効にすることはできます link:https://docs.netapp.com/us-en/ontap/volumes/change-efficiency-mode-task.html["Storage Efficiencyモードを変更します"] 手動で効率モードに変更します。
+
+
+NOTE: Storage Efficiencyモードを効率化モードに変更したあとに元に戻すことはできません。
+
+.連続する物理ブロックをシーケンシャルにパッキングすることで、ストレージ効率が向上します
 ONTAP 9.13.1以降では、温度に左右されるストレージ効率化機能によって、連続する物理ブロックのシーケンシャルパッキングが追加され、ストレージ効率がさらに向上します。システムをONTAP 9.13.1にアップグレードすると、温度の影響を受けやすいStorage Efficiencyが有効になっているボリュームでは、自動的にシーケンシャルパッキングが有効になります。シーケンシャルパッキングを有効にした後は、を実行する必要があります link:https://docs.netapp.com/us-en/ontap/volumes/run-efficiency-operations-manual-task.html["既存のデータを手動で再パックします"]。
 
 

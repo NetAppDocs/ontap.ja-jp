@@ -1,8 +1,8 @@
 ---
 permalink: volumes/split-flexclone-from-parent-task.html 
 sidebar: sidebar 
-keywords: split, flexclone, volume, parent, volume 
-summary: 読み書き可能 FlexClone ボリュームで親ボリュームのディスクスペースではなく独自のディスクスペースを使用する場合は、 FlexClone ボリュームを親ボリュームからスプリットします。この処理では現在親ボリュームと FlexClone ボリュームで共有されているデータのコピーが作成されるため、完了までに時間がかかることがあります。 
+keywords: split, flexclone, volume, parent, volume, clone 
+summary: 読み書き可能FlexCloneボリュームで親ボリュームのディスクスペースではなく独自のディスクスペースを使用する場合は、FlexCloneボリュームを親ボリュームからスプリットできます。 
 ---
 = FlexClone ボリュームを親ボリュームからスプリットします
 :allow-uri-read: 
@@ -11,12 +11,12 @@ summary: 読み書き可能 FlexClone ボリュームで親ボリュームのデ
 
 
 [role="lead"]
-読み書き可能 FlexClone ボリュームで親ボリュームのディスクスペースではなく独自のディスクスペースを使用する場合は、 FlexClone ボリュームを親ボリュームからスプリットします。この処理では現在親ボリュームと FlexClone ボリュームで共有されているデータのコピーが作成されるため、完了までに時間がかかることがあります。
+読み書き可能FlexCloneボリュームで親ボリュームのディスクスペースではなく独自のディスクスペースを使用する場合は、FlexCloneボリュームを親ボリュームからスプリットできます。
 
 .このタスクについて
 親ボリュームからFlexCloneボリュームをスプリットすると、包含アグリゲートでリザーブされるスペースが増える可能性があります。アグリゲートの使用可能なスペースを表示するための十分な権限がない場合は、ストレージ管理者に問い合わせて、スプリット処理を完了できるだけの十分なスペースがアグリゲートにあることを確認する必要があります。
 
-ONTAP 9.4 以降では、 AFF システム上のボリュームのギャランティが none である場合、 FlexClone ボリュームのスプリット処理では物理ブロックが共有され、データはコピーされません。したがって、 ONTAP 9.4 では、 AFF システムの FlexClone ボリュームのスプリットは他の FAS システムの FlexClone スプリット処理よりも短時間で完了します。AFF システムでの FlexClone スプリット処理の向上には、次の利点があります。
+ONTAP 9.4 以降では、 AFF システム上のボリュームのギャランティが none である場合、 FlexClone ボリュームのスプリット処理では物理ブロックが共有され、データはコピーされません。そのため、ONTAP 9.4以降では、AFFシステムのFlexCloneボリュームのスプリットは、他のFASシステムのFlexCloneスプリット処理よりも高速です。AFF システムでの FlexClone スプリット処理の向上には、次の利点があります。
 
 * 親からクローンをスプリットしたあともストレージ効率が維持されます。
 * 既存の Snapshot コピーは削除されません。
@@ -27,10 +27,10 @@ ONTAP 9.4 以降では、 AFF システム上のボリュームのギャラン�
 .手順
 . スプリット処理を完了するために必要な空きスペースの量を確認します。
 +
-`volume clone show -estimate -vserver vserver_name -flexclone clone_volume_name -parent-volume parent_vol_name`
+`volume clone show -estimate -vserver _vserver_name_ -flexclone _clone_volume_name_ -parent-volume _parent_vol_name_`
 
 +
-次の例は、 FlexClone ボリューム clone1 を親ボリューム vol1 からスプリットするために必要な空きスペースに関する情報を表示します。
+次の例は、FlexCloneボリューム「clone1」を親ボリューム「vol1」からスプリットするために必要な空きスペースに関する情報を表示します。
 
 +
 [listing]
@@ -58,7 +58,7 @@ vs1       clone1           40.73MB
 `volume clone split start -vserver _vserver_name_ -flexclone _clone_volume_name_`
 
 +
-次の例は、 FlexClone ボリューム clone1 を親ボリューム vol1 からスプリットするためのプロセスを開始する方法を示しています。
+次の例は、FlexCloneボリューム「Clone1」を親ボリューム「vol1」からスプリットするプロセスを開始する方法を示しています。
 
 +
 [listing]
@@ -91,10 +91,10 @@ vs1       clone1        0         0       411247   153600         0        37
 `volume show -volume _volume_name_ -fields _clone-volume_`
 
 +
-の値 `clone-volume` オプションはです `false` FlexCloneボリュームではないボリュームに対して実行します。
+の値 `clone-volume` FlexCloneボリューム以外のボリュームの場合、オプションは「false」です。
 
 +
-次の例は、親からスプリットしたボリューム clone1 が FlexClone ボリュームではないことを確認する方法を示しています。
+次の例は、親からスプリットしたボリューム「Clone1」がFlexCloneボリュームでないかどうかを確認する方法を示しています。
 
 +
 [listing]

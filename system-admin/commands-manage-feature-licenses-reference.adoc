@@ -13,6 +13,7 @@ summary: クラスタの機能のライセンスを管理するには、 system 
 [role="lead"]
 を使用します `system license` クラスタの機能ライセンスを管理するコマンド。を使用します `system feature-usage` 機能の使用状況を監視するコマンド。
 
+[cols="2,4"]
 |===
 | 状況 | 使用するコマンド 
 
@@ -22,6 +23,21 @@ summary: クラスタの機能のライセンスを管理するには、 system 
  a| 
 `system license add`
 
+.例
+次に、AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAおよびBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBというキーを持つライセンスのリストをクラスタに追加する例を示します。
+
+[]
+====
+cluster1：：> system license add-license-code AAAAAAAAAAAAAAAAAAAAAAAA、BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB
+
+====
+次の例は、ローカルノード「/mroot/etc/lic_file」からライセンスをインストールします。
+
+[]
+====
+cluster1：：> system license add -use-license-file true
+
+====
 
 
  a| 
@@ -52,8 +68,43 @@ summary: クラスタの機能のライセンスを管理するには、 system 
 * 有効期限（該当する場合）
 
  a| 
-`system license status show`
+`system license show-status`
 
+.例
+次の例は、クラスタのライセンスステータスを表示します。
+
+[]
+====
+cluster1：：> system license show-status
+ステータスライセンス 適用範囲 詳細ステータス
+---------- ------------------ ---------- --------------------
+一部インストール済み
+          CIFS ノード ノード2-Cluster1にライセンスがありません。
+          SnapRestore ノード ノード2-Cluster1にライセンスがありません。
+有効
+          FCP ノード -
+          FabricPool クラスタシステムは1TBを使用し、最大25TBを使用できます。
+未インストール
+          NFS - -
+          iSCSI - -
+          SnapMirror - -
+          FlexClone® - -
+          SnapVault - -
+          SnapLock - -
+          SnapManagerスイート - -
+          SnapProtectApps - -
+          V_StorageAttach（ストレージ接続） - -
+          インサイトバランス - -
+          OCShift - -
+          TPM - -
+          VE - -
+          DP_最適化 - -
+該当なし
+          クラウド - -
+          選択 - -
+20件のエントリーが表示されました。
+
+====
 
 
  a| 
@@ -61,6 +112,21 @@ summary: クラスタの機能のライセンスを管理するには、 system 
  a| 
 `system license delete`
 
+.例
+次の例は、CIFSという名前のライセンスとシリアル番号1-81-000000000000000123456をクラスタから削除します。
+
+[]
+====
+cluster1：：> system license delete -serial-number 1-81-000000000000000123456 -package cifs
+
+====
+次の例は、シリアル番号123456789のInstalled license Core Bundleの下のすべてのライセンスをクラスタから削除します。
+
+[]
+====
+cluster1：：> system license delete｛-serial-number 123456789-installed-license "Core Bundle"｝
+
+====
 
 
  a| 
@@ -68,6 +134,47 @@ summary: クラスタの機能のライセンスを管理するには、 system 
  a| 
 `system license clean-up`
 
+.例
+次の例は、クリーンアップ可能なライセンスをシミュレートおよび表示します。
+
+[]
+====
+cluster-1：：> system license clean-up-expired-unused
+
+次のライセンスが安全に削除されました：
+
+シリアル番号：1-80-000011
+所有者：cdancluster-1
+パッケージ 理由
+---------------------- ------------------------------------------------
+CIFS ライセンスの期限が切れました
+
+シリアル番号：4067154888
+所有者：なし
+パッケージ 理由
+---------------------- ------------------------------------------------
+クラウド ライセンスの期限が切れました
+
+シリアル番号：1-81-0000000000000004067154999
+所有者：なし
+パッケージ 理由
+---------------------- ------------------------------------------------
+iSCSI クラスタ内のノードで使用されていないライセンス
+次のライセンスは有効期限が切れているか未使用ですが、安全に削除することはできません。
+
+シリアル番号：4067154778
+所有者：ノード1
+パッケージ 理由
+---------------------- ------------------------------------------------
+クラウド 削除すると機能が損なわれる
+
+シリアル番号：4067154779
+所有者：ノード2
+パッケージ 理由
+---------------------- ------------------------------------------------
+クラウド システムで生成されたライセンス
+
+====
 
 
  a| 
@@ -97,3 +204,7 @@ summary: クラスタの機能のライセンスを管理するには、 system 
 |===
 .関連情報
 http://docs.netapp.com/ontap-9/topic/com.netapp.doc.dot-cm-cmpr/GUID-5CB10C70-AC11-41C0-8C16-B4D0DF916E9B.html["ONTAP 9コマンド"^]
+
+https://kb.netapp.com/onprem/ontap/os/ONTAP_9.10.1_and_later_licensing_overview["技術情報アーティクル：ONTAP 9.10.1以降のライセンスの概要"^]
+
+https://docs.netapp.com/us-en/ontap/task_admin_enable_new_features.html["System Managerを使用してNetAppライセンスファイルをインストールする"^]

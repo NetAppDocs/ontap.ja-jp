@@ -1,0 +1,278 @@
+---
+permalink: antivirus/monitor-status-performance-activities-reference.html 
+sidebar: sidebar 
+keywords: monitoring, performance, status, connection, statistics 
+summary: Vscanサーバの重大な問題を監視できます。 
+---
+= ステータスとパフォーマンスアクティビティの監視
+:allow-uri-read: 
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+Vscanサーバの接続ステータス、
+Vscanサーバの健常性、およびスキャンされたファイルの数。この情報は、
+Vscanサーバに関連する問題を診断します。
+
+
+
+== Vscanサーバの接続情報の表示
+
+Vscanサーバの接続ステータスを表示して、使用中の接続を管理できます。
+使用可能な接続が表示されます。さまざまなコマンドで情報を表示
+Vscanサーバの接続ステータスについて
+
+|===
+
+
+| コマンド... | 表示される情報... 
+
+
+ a| 
+`vserver vscan connection-status show`
+ a| 
+接続ステータスの概要
+
+
+
+ a| 
+`vserver vscan connection-status show-all`
+ a| 
+接続ステータスに関する詳細情報
+
+
+
+ a| 
+`vserver vscan connection-status show-not-connected`
+ a| 
+使用可能だが接続されていない接続のステータス
+
+
+
+ a| 
+`vserver vscan connection-status show-connected`
+ a| 
+接続されているVscanサーバに関する情報
+
+|===
+これらのコマンドの詳細については、マニュアルページを参照してください。
+
+
+
+== Vscanサーバの統計の表示
+
+Vscanサーバ固有の統計を表示して、パフォーマンスを監視し、関連する問題を診断できます。
+ウィルススキャン：を使用する前に、データサンプルを収集する必要があります。 `statistics show` コマンドをに送信します
+Vscanサーバの統計を表示します。
+データサンプルを完了するには、次の手順を実行します。
+
+.ステップ
+. を実行します `statistics start` コマンドとを実行します `optional statistics` 停止コマンド。
+
+
+
+
+=== Vscanサーバ要求とレイテンシの統計を表示する
+
+ONTAPを使用できます。 `offbox_vscan` SVM単位でカウンタを実行してVscan速度を監視
+すべてのVscanで1秒あたりに送出および受信されるサーバ要求とサーバレイテンシ
+サーバ：これらの統計を表示するには、次の手順を実行します。
+
+.ステップ
+. statistics showを実行します。 `object offbox_vscan –instance SVM` コマンドにを指定します
+次のカウンタ
++
+|===
+
+
+| カウンタ... | 表示される情報... 
+
+
+ a| 
+`scan_request_dispatched_rate`
+ a| 
+ONTAPからVscanサーバに送信される1秒あたりのウィルススキャン要求数
+
+
+
+ a| 
+`scan_noti_received_rate`
+ a| 
+ONTAPがVscanサーバから受信した1秒あたりのウィルススキャン要求数
+
+
+
+ a| 
+`dispatch_latency`
+ a| 
+使用可能なVscanサーバを特定してそのVscanサーバに要求を送信するためのONTAP内のレイテンシ
+
+
+
+ a| 
+`scan_latency`
+ a| 
+ONTAPからVscanサーバへのラウンドトリップレイテンシ（スキャンの実行時間を含む）
+
+|===
+
+
+
+
+==== ONTAP外部Vscanカウンタから生成される統計の例
+
+[listing]
+----
+Object: offbox_vscan
+Instance: SVM
+Start-time: 10/16/2013 10:13:25
+End-time: 10/16/2013 10:25:11
+Cluster: cluster01
+Number of Constituents: 2 (complete_aggregation)
+Counter Value
+-------------------------------- --------------------------------
+scan_request_dispatched_rate 291
+scan_noti_received_rate 292
+dispatch_latency 43986us
+scan_latency 3433501us
+-----------------------------------------------------------------
+----
+
+
+=== 個 々 のVscanサーバ要求とレイテンシの統計を表示する
+
+ONTAPを使用できます。 `offbox_vscan_server` SVMごと、オフボックスのVscanサーバごとにカウンタ
+ノード単位で監視し、ディスパッチされたVscanサーバ要求の速度とサーバレイテンシを
+各Vscanサーバを個別に指定します。この情報を収集するには、次の手順を実行します。
+
+.ステップ
+. を実行します `statistics show –object offbox_vscan –instance
+SVM:servername:nodename` 次のカウンタを指定してコマンドを実行します。
++
+|===
+
+
+| カウンタ... | 表示される情報... 
+
+
+ a| 
+`scan_request_dispatched_rate`
+ a| 
+ONTAPから送信されたウィルススキャン要求の数
+
+
+
+ a| 
+`scan_latency`
+ a| 
+ONTAPからVscanサーバへのラウンドトリップレイテンシ（スキャンの実行時間を含む）
+1秒あたりのVscanサーバへの転送
+
+|===
+
+
+
+
+==== ONTAP offbox_vscan_serverカウンタで生成される統計の例
+
+[listing]
+----
+Object: offbox_vscan_server
+Instance: SVM:vscan_server:node
+Start-time: 10/16/2013 10:13:25
+End-time: 10/16/2013 10:25:11
+Cluster: cluster01
+Number of Constituents: 1 (complete_aggregation)
+Counter Value
+-------------------------------- --------------------------------
+scan_request_dispatched_rate 291
+scan_latency 3433830us
+------------------------------------------------------------------
+----
+
+
+=== Vscanサーバ使用率の統計を表示する
+
+ONTAPを使用することもできます。 `offbox_vscan_server` Vscanサーバ側の使用率を収集するカウンタ
+統計：これらの統計は、SVM単位、オフボックスのVscanサーバ単位、ノード単位で追跡されます。彼らは
+VscanサーバのCPU利用率、Vscanサーバでのスキャン処理のキュー深度を記載
+（現在と最大の両方）、使用済みメモリ、および使用済みネットワーク。
+これらの統計は、Antivirus ConnectorによってONTAP内の統計カウンタに転送されます。彼らは
+20秒ごとにポーリングされ、正確性を保つために複数回収集する必要があるデータに基づいている。
+それ以外の場合、統計に表示される値は最後のポーリングのみを反映します。CPUの利用率とキューは
+特に監視と分析に重要です。平均キューの値が大きい場合、
+Vscanサーバがボトルネックになります。
+SVMごと、オフボックスVscanサーバごと、およびノードごとのVscanサーバの使用率の統計を収集するには
+Basisで、次の手順を実行します。
+
+.ステップ
+. Vscanサーバの使用率の統計を収集します。
++
+を実行します `statistics show –object offbox_vscan_server –instance
+SVM:servername:nodename` コマンドと次のコマンド `offbox_vscan_server` カウンタ：
+
+
+
+|===
+
+
+| カウンタ... | 表示される情報... 
+
+
+ a| 
+`scanner_stats_pct_cpu_used`
+ a| 
+VscanサーバのCPU利用率
+
+
+
+ a| 
+`scanner_stats_pct_input_queue_avg`
+ a| 
+Vscanサーバ上のスキャン要求の平均キュー
+
+
+
+ a| 
+`scanner_stats_pct_input_queue_hiwatermark`
+ a| 
+Vscanサーバでのスキャン要求のピークキュー
+
+
+
+ a| 
+`scanner_stats_pct_mem_used`
+ a| 
+Vscanサーバで使用されているメモリ
+
+
+
+ a| 
+`scanner_stats_pct_network_used`
+ a| 
+Vscanサーバで使用されるネットワーク
+
+|===
+
+
+==== Vscanサーバの使用率統計の例
+
+[listing]
+----
+Object: offbox_vscan_server
+Instance: SVM:vscan_server:node
+Start-time: 10/16/2013 10:13:25
+End-time: 10/16/2013 10:25:11
+Cluster: cluster01
+Number of Constituents: 1 (complete_aggregation)
+Counter Value
+-------------------------------- --------------------------------
+scanner_stats_pct_cpu_used 51
+scanner_stats_pct_dropped_requests 0
+scanner_stats_pct_input_queue_avg 91
+scanner_stats_pct_input_queue_hiwatermark 100
+scanner_stats_pct_mem_used 95
+scanner_stats_pct_network_used 4
+-----------------------------------------------------------------
+----

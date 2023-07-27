@@ -1,7 +1,7 @@
 ---
 permalink: san-admin/selective-lun-map-concept.html 
 sidebar: sidebar 
-keywords: select, lun, map 
+keywords: select, selective, lun, map, slm, enabled, modify, reporting, nodes, list 
 summary: 選択的 LUN マップ（ SLM ）を使用すると、ホストから LUN へのパスの数を減らすことができます。SLM を使用して新しい LUN マップを作成すると、 LUN を所有するノードとその HA パートナーのパス経由でのみ LUN にアクセスできます。 
 ---
 = 選択的 LUN マップの概要
@@ -18,3 +18,46 @@ SLM を使用すると、ホストごとに 1 つの igroup を管理でき、�
 以前のバージョンの ONTAP と同様に、ポートセットと SLM を併用すると、特定のターゲットのアクセスを特定のイニシエータのみに制限できます。SLM とポートセットを併用する場合、 LUN には、その LUN を所有するノードおよびノードの HA パートナーのポートセットに含まれる一連の LIF 経由でアクセス可能になります。
 
 新しい LUN マップでは SLM がデフォルトで有効になります。
+
+
+
+== SLM が LUN マップで有効かどうかを判断します
+
+ONTAP で作成された LUN と以前のバージョンから移行された LUN が環境内に混在している場合は、特定の LUN で Selective LUN Map （ SLM ；選択的 LUN マップ）が有効になっているかどうかを判断しなければならないことがあります。
+
+の出力に表示される情報を使用できます `lun mapping show -fields reporting-nodes, node` コマンドを使用して、LUNマップでSLMが有効になっているかどうかを確認します。SLMが有効になっていない場合は、コマンド出力の「reporting-nodes」列の下のセルにと表示されます。SLMが有効な場合、「nodes」列の下に表示されるノードのリストが「reporting-nodes」列に複製されます。
+
+
+
+== SLM レポートノードリストを変更します
+
+LUN または LUN が含まれているボリュームを同じクラスタ内の別のハイアベイラビリティ（ HA ）ペアに移動する場合は、移動を開始する前に選択的 LUN マップ（ SLM ）のレポートノードリストを変更して、最適化されたアクティブな LUN パスを維持する必要があります。
+
+.手順
+. デスティネーションノードとそのパートナーノードをアグリゲートまたはボリュームのレポートノードリストに追加します。
++
+`lun mapping add-reporting-nodes -vserver _vserver_name_ -path _lun_path_ -igroup _igroup_name_ [-destination-aggregate _aggregate_name_|-destination-volume _volume_name_]`
+
++
+一貫した命名規則がある場合は、を使用して複数のLUNマッピングを同時に変更できます `_igroup_prefix*_` ではなく `_igroup_name_`。
+
+. ホストを再スキャンして、新しく追加したパスを検出します。
+. OS で必要な場合は、マルチパスネットワーク I/O （ MPIO ）構成に新しいパスを追加します。
+. 必要な移動処理のためのコマンドを実行して、処理が完了するまで待ちます。
+. I/O がアクティブパスまたは最適パス経由で処理されていることを確認します。
++
+`lun mapping show -fields reporting-nodes`
+
+. レポートノードリストから、前の LUN 所有者とそのパートナーノードを削除します。
++
+`lun mapping remove-reporting-nodes -vserver _vserver_name_ -path _lun_path_ -igroup _igroup_name_ -remote-nodes`
+
+. 既存の LUN マップから LUN が削除済みであることを確認します。
++
+`lun mapping show -fields reporting-nodes`
+
+. ホスト OS の古いデバイスのエントリを削除します。
+. 必要に応じて、マルチパス構成ファイルを変更します。
+. ホストを再スキャンして古いパスが削除されたことを確認します。[+]
+ホストを再スキャンする手順については、ホストのマニュアルを参照してください。
+

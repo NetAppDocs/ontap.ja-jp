@@ -27,7 +27,7 @@ ONTAP 9.12.1以降では、フロントエンドホストプロトコルIPsecサ
 
 IPSec の設定後は、リプレイ攻撃や中間者（ MITM ）攻撃に対抗するための予防措置を講じて、クライアントと ONTAP 間のネットワークトラフィックを保護します。
 
-NetApp SnapMirror およびクラスタピアリングトラフィックの暗号化では、クラスタピアリング暗号化（ CPE ）の場合でも、 IPSec 経由でセキュアな転送レイヤセキュリティ（ TLS ）を使用することを推奨します。これは、 TLS のパフォーマンスが IPsec よりも優れているためです。
+NetApp SnapMirror およびクラスタピアリングトラフィックの暗号化では、クラスタピアリング暗号化（ CPE ）の場合でも、 IPSec 経由でセキュアな転送レイヤセキュリティ（ TLS ）を使用することを推奨します。これは、TLSの方がIPsecよりもパフォーマンスが優れているためです。
 
 クラスタで IPSec 機能が有効になっている場合、ネットワークでトラフィックを処理するには、保護対象のトラフィックと一致する Security Policy Database （ SPD ）エントリ、および保護の詳細（暗号スイートや認証方式など）を指定する必要があります。各クライアントには、対応する SPD エントリも必要です。SPD 要件は、 PSK 認証方式と証明書認証方式の両方で必要です。
 
@@ -74,11 +74,14 @@ NetApp SnapMirror およびクラスタピアリングトラフィックの暗�
 NOTE: ONTAP LIF は証明書を共有できます。証明書と LIF の間に 1 対 1 のマッピングは必要ありません。
 
 .手順
-. 相互認証で使用するすべての CA 証明書を（ ONTAP 側とクライアント側の両方の CA を含む） ONTAP 証明書管理にインストールする必要があります。ただし、 CA がすでにインストールされている場合は、 ONTAP の自己署名ルート CA と同様です。*サンプルコマンド*
+. 相互認証で使用するすべての CA 証明書を（ ONTAP 側とクライアント側の両方の CA を含む） ONTAP 証明書管理にインストールする必要があります。ただし、 CA がすでにインストールされている場合は、 ONTAP の自己署名ルート CA と同様です。
+*サンプルコマンド*
 `cluster::> security certificate install -vserver svm_name -type server-ca -cert-name my_ca_cert`
-. インストールされた CA が認証時に IPsec CA 検索パス内にあることを確認するには、 security ipsec ca-certificate add コマンドを使用して、 ONTAP 証明書管理 CA を IPSec モジュールに追加します。*サンプルコマンド*
+. インストールされた CA が認証時に IPsec CA 検索パス内にあることを確認するには、 security ipsec ca-certificate add コマンドを使用して、 ONTAP 証明書管理 CA を IPSec モジュールに追加します。
+*サンプルコマンド*
 `cluster::> security ipsec ca-certificate add -vserver svm_name -ca-certs my_ca_cert`
-. ONTAP LIF で使用する証明書を作成してインストールします。この証明書の発行元 CA がすでに ONTAP にインストールされ、 IPSec に追加されている必要があります。*サンプルコマンド*
+. ONTAP LIF で使用する証明書を作成してインストールします。この証明書の発行元 CA がすでに ONTAP にインストールされ、 IPSec に追加されている必要があります。
+*サンプルコマンド*
 `cluster::> security certificate install -vserver svm_name -type server -cert-name my_nfs_server_cert`
 
 
@@ -99,7 +102,7 @@ IPSec では、トラフィックをネットワーク上に転送する前に S
 
 NOTE: クライアントは、 Pre-Shared Key （ PSK ）を使用して Internet Key Exchange バージョン 2 （ IKEv2 ）をサポートしている必要があります。
 
-.. 任意。上位層プロトコル（ UDP 、 TCP 、 ICMP など）、ローカルポート番号、および保護するリモートポート番号を選択します。対応するパラメータはです `protocols`、 `local-ports` および `remote-ports` それぞれ。
+.. 任意。上位層プロトコル（UDP、TCP、ICMPなど）を選択します。 ）、ローカルポート番号、および保護するリモートポート番号。対応するパラメータはです `protocols`、 `local-ports` および `remote-ports` それぞれ。
 +
 ONTAP IP アドレスとクライアント IP アドレスの間のすべてのトラフィックを保護するには、この手順を省略します。デフォルトでは、すべてのトラフィックを保護します。
 

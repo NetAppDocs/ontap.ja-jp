@@ -24,7 +24,7 @@ summary: 新しい S3 バケットを作成すると、オブジェクトスト�
 .必要なもの
 * オブジェクトストアプロバイダの有効なアカウントクレデンシャルと設定情報が必要です。
 * ソースシステムにクラスタ間ネットワークインターフェイスと IPspace が設定されている。
-* •ソース Storage VM の DNS 設定でターゲットの FQDN を解決できる必要があります。
+* •ソースStorage VMのDNS設定で、ターゲットのFQDNを解決できる必要があります。
 
 
 
@@ -96,8 +96,12 @@ summary: 新しい S3 バケットを作成すると、オブジェクトスト�
 == CLI 手順の略
 
 . この SVM の最初の S3 SnapMirror 関係の場合は、ソースとデスティネーションの両方の SVM に root ユーザキーが存在することを確認し、存在しない場合は再生成します。
-`vserver object-store-server user show`+ rootユーザのアクセスキーがあることを確認します。表示されない場合は、次のように入力します。
-`vserver object-store-server user regenerate-keys -vserver svm_name -user _root_`+キーがすでに存在する場合は、再生成しないでください。
+`vserver object-store-server user show`
+ [+]
+rootユーザのアクセスキーがあることを確認します。表示されない場合は、次のように入力します。
+`vserver object-store-server user regenerate-keys -vserver svm_name -user _root_`
+ [+]
+キーがすでに存在する場合は、キーを再生成しないでください。
 . ソースSVMにバケットを作成します。
 `vserver object-store-server bucket create -vserver _svm_name_ -bucket _bucket_name_ [-size _integer_[KB|MB|GB|TB|PB]] [-comment _text_] [_additional_options_]`
 . デフォルトのバケットポリシーにアクセスルールを追加します。
@@ -111,7 +115,10 @@ clusterA::> vserver object-store-server bucket policy add-statement -bucket test
 . S3 SnapMirror ポリシーを作成します。これは、既存のポリシーがなく、デフォルトポリシーを使用しない場合に行います。
 `snapmirror policy create -vserver svm_name -policy policy_name -type continuous [-rpo _integer_] [-throttle _throttle_type_] [-comment _text_] [_additional_options_]`
 +
-パラメータ：* `type continuous` –S3 SnapMirror関係の唯一のポリシータイプ（必須）。* `-rpo` –目標復旧時点の時間を秒単位で指定します（オプション）。* `-throttle` –スループット/帯域幅の上限をキロバイト/秒単位で指定します（オプション）。
+パラメータ
+* `type continuous` –S3 SnapMirror関係の唯一のポリシータイプ（必須）。
+* `-rpo` –目標復旧時点の時間を秒単位で指定します（オプション）。
+* `-throttle` –スループット/帯域幅の上限をキロバイト/秒単位で指定します（オプション）。
 
 +
 .例
@@ -127,7 +134,14 @@ clusterA::> snapmirror policy create -vserver vs0 -type continuous -rpo 0 -polic
 . S3 SnapMirrorデスティネーションオブジェクトストアを定義します。
 `snapmirror object-store config create -vserver _svm_name_ -object-store-name _target_store_name_ -usage data -provider-type {AWS_S3|SGWS} -server _target_FQDN_ -container-name _remote_bucket_name_ -is-ssl-enabled true -port _port_number_ -access-key target_access_key -secret-password _target_secret_key_`
 +
-パラメータ：* `-object-store-name` –ローカルONTAP システム上のオブジェクトストアターゲットの名前。* `-usage` –使用します `data` をクリックします。* `-provider-type` – `AWS_S3` および `SGWS` （StorageGRID ）ターゲットがサポートされます。* `-server` –ターゲットサーバのFQDNまたはIPアドレス。* `-is-ssl-enabled` –SSLの有効化はオプションですが、推奨されます。+を参照してください `snapmirror object-store config create` のマニュアルページを参照してください。
+パラメータ
+* `-object-store-name` –ローカルONTAP システム上のオブジェクトストアターゲットの名前。
+* `-usage` –使用します `data` をクリックします。
+* `-provider-type` – `AWS_S3` および `SGWS` （StorageGRID ）ターゲットがサポートされます。
+* `-server` –ターゲットサーバのFQDNまたはIPアドレス。
+* `-is-ssl-enabled` –SSLの有効化はオプションですが、推奨されます。
+ [+]
+を参照してください `snapmirror object-store config create` のマニュアルページを参照してください。
 
 +
 .例
@@ -138,7 +152,10 @@ src_cluster::> snapmirror object-store config create -vserver vs0 -object-store-
 . S3 SnapMirror関係を作成します。
 `snapmirror create -source-path _svm_name_:/bucket/_bucket_name_ -destination-path _object_store_name_:/objstore -policy _policy_name_`
 +
-パラメータ：* `-destination-path` –前の手順で作成したオブジェクトストアの名前と固定値 `objstore`。+ 作成したポリシーを使用することも、デフォルトをそのまま使用することもできます。
+パラメータ
+* `-destination-path` –前の手順で作成したオブジェクトストアの名前と固定値 `objstore`。
+  [+]
+作成したポリシーを使用することも、デフォルトのポリシーをそのまま使用することもできます。
 
 +
 .例

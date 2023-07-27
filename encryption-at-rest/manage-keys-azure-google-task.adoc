@@ -69,11 +69,13 @@ AWS KMS、AKV、Cloud KMSを使用して保護できます link:configure-netapp
 .Azure
 --
 .ONTAP SVMでAzure Key Vaultを有効にします
-. 作業を開始する前に、クライアントシークレットまたは証明書のいずれかで、 Azure アカウントから適切な認証クレデンシャルを取得する必要があります。また、クラスタ内のすべてのノードが正常であることを確認する必要があります。これを確認するには、コマンドを使用します `cluster show`。
+. 作業を開始する前に、クライアントシークレットまたは証明書のいずれかで、 Azure アカウントから適切な認証クレデンシャルを取得する必要があります。
+また、クラスタ内のすべてのノードが正常であることを確認する必要があります。これを確認するには、コマンドを使用します `cluster show`。
 . 特権レベルをadvancedに設定します
 `set -priv advanced`
 . SVMでAKVを有効にします
-`security key-manager external azure enable -client-id _client_id_ -tenant-id _tenant_id_ -name -key-id _key_id_ -authentication-method {certificate|client-secret}`プロンプトが表示されたら、 Azure アカウントからクライアント証明書またはクライアントシークレットを入力します。
+`security key-manager external azure enable -client-id _client_id_ -tenant-id _tenant_id_ -name -key-id _key_id_ -authentication-method {certificate|client-secret}`
+プロンプトが表示されたら、 Azure アカウントからクライアント証明書またはクライアントシークレットを入力します。
 . AKVが正しく有効になっていることを確認します。
 `security key-manager external azure show vserver _svm_name_`
 サービスの到達可能性がOKでない場合は、データSVM LIFを介したAKVキー管理サービスへの接続を確立します。
@@ -99,7 +101,8 @@ AWS KMS、AKV、Cloud KMSを使用して保護できます link:configure-netapp
 --
 ====
 データSVM用にすでに暗号化されたボリュームが1つ以上設定され、管理SVMのオンボードキーマネージャで対応するNVEキーが管理されている場合は、それらのキーを外部キー管理サービスに移行する必要があります。CLIでこれを行うには、次のコマンドを実行します。
-`security key-manager key migrate -from-Vserver _admin_SVM_ -to-Vserver _data_SVM_`データSVMのすべてのNVEキーが正常に移行されるまで、テナントのデータSVM用に暗号化された新しいボリュームを作成することはできません。
+`security key-manager key migrate -from-Vserver _admin_SVM_ -to-Vserver _data_SVM_`
+データSVMのすべてのNVEキーが正常に移行されるまで、テナントのデータSVM用に暗号化された新しいボリュームを作成することはできません。
 
 .関連情報
 * link:https://docs.netapp.com/us-en/cloud-manager-cloud-volumes-ontap/task-encrypting-volumes.html["ネットアップのCloud Volumes ONTAP向け暗号化ソリューションを使用したボリュームの暗号化"^]

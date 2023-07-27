@@ -64,7 +64,7 @@ MetroCluster ソフトウェアの更新手順では、一度に 1 つの DR グ
 
 . DR グループ 2 を更新します。
 +
-.. node_A_1 と node_B_1 を更新します。
+.. node_A_3とnode_B_3を更新します。
 .. node_A_1 4 と node_B_1 を更新します。
 
 
@@ -457,7 +457,7 @@ node_A_2       node_A_1       -        Waiting for giveback (HA mailboxes)
 テイクオーバーされたノードを新しいソフトウェアイメージでブートするには通常のテイクオーバーが必要なため、 -option immediate パラメータは指定しないでください。
 
 +
-.. cluster_B （ node_B_2 ）の DR パートナーをテイクオーバーします。
+.. cluster_B（node_B_2）のDRパートナーをテイクオーバーします。
 +
 [cols="2*"]
 |===
@@ -465,16 +465,17 @@ node_A_2       node_A_1       -        Waiting for giveback (HA mailboxes)
 
 
  a| 
-ONTAP 9.2 または ONTAP 9.1
+ONTAP 9.2または ONTAP 9.1
  a| 
 `storage failover takeover -ofnode node_B_2`
 
 
 
  a| 
-ONTAP 9.0 または Data ONTAP 8.3.x
+ONTAP 9.0または Data ONTAP 8.3.x
  a| 
-`storage failover takeover -ofnode node_B_2 -option allow-version-mismatch`注： `allow-version-mismatch` ONTAP 9.0からONTAP 9.1へのアップグレードやパッチのアップグレードでは、オプションは必要ありません。
+`storage failover takeover -ofnode node_B_2 -option allow-version-mismatch`
+注： `allow-version-mismatch` ONTAP 9.0からONTAP 9.1へのアップグレードやパッチのアップグレードでは、オプションは必要ありません。
 
 |===
 
@@ -483,7 +484,8 @@ ONTAP 9.0 または Data ONTAP 8.3.x
 
 ノードがブートし、「 Waiting for giveback 」状態になります。
 
-+ 注： AutoSupport が有効な場合、ノードがクラスタクォーラムのメンバーでないことを示す AutoSupport メッセージが送信されます。この通知を無視し、アップグレードを続行してかまいません。
+[+]
+注：AutoSupportが有効になっている場合は、ノードがクラスタクォーラムのメンバーでないことを示すAutoSupportメッセージが送信されます。この通知を無視し、アップグレードを続行してかまいません。
 
 . テイクオーバーが正常に完了したことを確認します。 `storage failover show`
 +
@@ -533,10 +535,14 @@ Giveback Status フィールドにギブバックするアグリゲートがな�
 . 必要に応じて、エラーメッセージに記載されている「宛」の状態に対処し、特定された処理が正常に終了するようにします。
 . storage failover giveback コマンドを再度入力します。
 +
-「 "" ～ "" 」条件をオーバーライドする場合は、 -override-vetoes パラメータを true に設定します。。8 分以上待ってから、次の状態を確認します。 ** クライアントマルチパス（導入している場合）が安定している。** クライアントはギブバック中に発生した I/O の中断から回復しています。
+「 "" ～ "" 」条件をオーバーライドする場合は、 -override-vetoes パラメータを true に設定します。
+。8 分以上待ってから、次の条件を満たしていることを確認します。
+ **クライアントのマルチパス（導入されている場合）が安定している。
+ ** クライアントはギブバック中に発生した I/O の中断から回復しています。
 
 +
-+ リカバリ時間はクライアントによって異なり、クライアントアプリケーションの特性によっては 8 分以上かかることもあります。
+[+]
+回復までの時間はクライアントによって異なり、クライアントアプリケーションの特性によっては 8 分以上かかることもあります。
 
 +
 .. 権限レベルをadminからadvancedに設定します。続行するかどうかを尋ねられたら、「* y *」と入力します。 `set -privilege advanced`
@@ -566,7 +572,7 @@ cluster_A::>
 ----
 .. cluster_Bのバージョンを確認します。 `system image show`
 +
-次の例は、 System image2 （ターゲットの ONTAP イメージ）が node_B_2 のデフォルトおよび現在のバージョンであることを示しています。
+次の例は、System image2（ターゲットのONTAPイメージ）がnode_B_2のデフォルトかつ現在のバージョンであることを示しています。
 
 +
 [listing]

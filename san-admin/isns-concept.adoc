@@ -1,10 +1,10 @@
 ---
 permalink: san-admin/isns-concept.html 
 sidebar: sidebar 
-keywords: what, isns 
+keywords: isns, isns server, internet storage name service, iscsi, iqn 
 summary: Internet Storage Name Service （ iSNS ）は、 TCP / IP ストレージネットワークで iSCSI デバイスを自動的に検出して管理できるプロトコルです。iSNS サーバは、 IP アドレス、 iSCSI ノード名 IQN 、ポータルグループなど、ネットワーク上のアクティブな iSCSI デバイスに関する情報を保持します。 
 ---
-= iSNS とは
+= Internet Storage Name Service（iSNS）
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
@@ -28,3 +28,92 @@ iSNS サーバは、 Internet Storage Name Service （ iSNS ）プロトコル�
 iSNS プロトコルを使用すると、 IP ストレージネットワークで iSCSI デバイスを自動的に検出して管理できます。iSCSI イニシエータは、 iSNS サーバに照会して iSCSI ターゲットデバイスを検出します。
 
 ネットアップでは、 iSNS サーバの提供や再販は行っていません。これらのサーバは、ネットアップがサポートするベンダーから入手できます。
+
+
+
+== SVMs と iSNS サーバの連動
+
+iSNS サーバは、 Storage Virtual Machine （ SVM ）の管理 LIF を介して各 SVM と通信します。管理 LIF は、特定の SVM のすべての iSCSI ターゲットのノード名、エイリアス、およびポータル情報を iSNS サーバに登録します。
+
+次の例では、SVM「VS1」はSVM管理LIF「VS1_mgmt_LIF'」を使用してiSNSサーバに登録しています。iSNS に登録中、 SVM はすべての iSCSI LIF を SVM 管理 LIF を介して iSNS サーバに送信します。iSNSの登録が完了すると、iSNSサーバには「VS1」でiSCSIを提供するすべてのLIFのリストが格納されます。複数の SVMs があるクラスタでは、 iSNS サービスを使用する個々の SVM が iSNS サーバに登録する必要があります。
+
+image::../media/bsag_c-mode_iSNS_register.png[BSAG c モード iSNS レジスタ]
+
+次の例では、iSNSサーバによるターゲットへの登録が完了すると、ホストAがiSNSサーバを介して「VS1」のすべてのLIFを検出できるようになります（手順1を参照）。ホストAが「VS1」のLIFの検出を完了すると、ホストAは「VS1」の任意のLIFとの接続を確立できます（手順2を参照）。「VS2」の管理LIF「VS2_mgmt_LIF」がiSNSサーバに登録されるまで、ホストAは「VS2」内のLIFを認識しません。
+
+image::../media/bsag_c-mode_iSNS_connect.png[BSAG c モード iSNS 接続]
+
+ただし、インターフェイスアクセスリストを定義すると、ホストがターゲットへのアクセスに使用できるのはインターフェイスアクセスリストに定義された LIF のみになります。
+
+一度 iSNS が設定されると、 SVM の設定を変更するたびに ONTAP によって iSNS サーバが自動的に更新されます。
+
+設定を変更してからONTAPからiSNSサーバに更新情報が送信されるまでには、数分程度の遅れが生じる可能性があります。iSNSサーバのiSNS情報を強制的に更新します。 `vserver iscsi isns update`
+
+
+
+== iSNS を管理するためのコマンド
+
+ONTAP には、 iSNS サービスを管理するコマンドが用意されています。
+
+|===
+
+
+| 状況 | 使用するコマンド 
+
+
+ a| 
+iSNS サービスを設定する
+ a| 
+`vserver iscsi isns create`
+
+
+
+ a| 
+iSNS サービスを開始する
+ a| 
+`vserver iscsi isns start`
+
+
+
+ a| 
+iSNS サービスを変更する
+ a| 
+`vserver iscsi isns modify`
+
+
+
+ a| 
+iSNS サービス設定を表示します
+ a| 
+`vserver iscsi isns show`
+
+
+
+ a| 
+登録済みの iSNS 情報を強制的に更新します
+ a| 
+`vserver iscsi isns update`
+
+
+
+ a| 
+iSNS サービスを停止します
+ a| 
+`vserver iscsi isns stop`
+
+
+
+ a| 
+iSNS サービスを削除します
+ a| 
+`vserver iscsi isns delete`
+
+
+
+ a| 
+コマンドのマニュアルページを表示します
+ a| 
+`man _command name_`
+
+|===
+詳細については、各コマンドのマニュアルページを参照してください。

@@ -104,7 +104,7 @@ NOTE: このチェックボックスをオンにすると、iSCSI LIFを完全�
 
 .手順
 . System Managerで、* Network > Overview > Network Interfaces *の順にクリックします。
-. リバートするLIFを選択し、をクリックします image:icon_kabob.gif["Kabob アイコン"] [ネットワークインターフェイスを元に戻す*]をクリックします。
+. リバートするLIFを選択し、 image:icon_kabob.gif["Kabob アイコン"] [ネットワークインターフェイスを元に戻す*]をクリックします。
 . [ネットワークインターフェイスの復帰*]ダイアログボックスで、[復帰*]をクリックします。
 
 
@@ -147,7 +147,9 @@ ASA プラットフォームHAペアが必要です。また、ONTAP 9.11.1以�
 | 状況 | 使用するコマンド 
 
 
-| iSCSI LIFを作成 | `network interface create -vserver _SVM_name_ -lif _iscsi_lif_ -service-policy default-data-blocks -data-protocol iscsi -home-node _node_name_ -home-port _port_name_ -address _IP_address_ -netmask _netmask_value_`必要に応じて、を参照してください link:../networking/create_a_lif.html["LIF を作成"] を参照してください。 
+| iSCSI LIFを作成 | `network interface create -vserver _SVM_name_ -lif _iscsi_lif_ -service-policy default-data-blocks -data-protocol iscsi -home-node _node_name_ -home-port _port_name_ -address _IP_address_ -netmask _netmask_value_`
+
+必要に応じて、を参照してください link:../networking/create_a_lif.html["LIF を作成"] を参照してください。 
 
 
 | LIFが正常に作成されたことを確認します | `network interface show -vserver _SVM_name_ -fields failover-policy,failover-group,auto-revert,is-home` 
@@ -156,13 +158,23 @@ ASA プラットフォームHAペアが必要です。また、ONTAP 9.11.1以�
 | iSCSI LIFでデフォルトの自動リバートを無視できるかどうかを確認します | `network interface modify -vserver _SVM_name_ -lif _iscsi_lif_ -auto-revert false` 
 
 
-| iSCSI LIFでストレージフェイルオーバーを実行します | `storage failover takeover -ofnode _node_name_ -option normal`次の警告が表示されます。 `A takeover will be initiated. Once the partner node reboots, a giveback will be automatically initiated. Do you want to continue? {y/n}:`A `y` 応答にHAパートナーからのテイクオーバーメッセージが表示されます。 
+| iSCSI LIFでストレージフェイルオーバーを実行します | `storage failover takeover -ofnode _node_name_ -option normal`
+
+次の警告が表示されます。 `A takeover will be initiated. Once the partner node reboots, a giveback will be automatically initiated. Do you want to continue? {y/n}:`
+
+A `y` 応答にHAパートナーからのテイクオーバーメッセージが表示されます。 
 
 
 | 既存のLIFに対してiSCSI LIFフェイルオーバー機能を有効にします | クラスタをONTAP 9.11.1以降にアップグレードする前に作成したiSCSI LIFについては、iSCSI LIFフェイルオーバー機能を有効にできます（フェイルオーバーポリシーをに変更します） `sfo-partner-only` 自動リバート機能をに変更することで実現できます `true`）：
-`network interface modify -vserver _SVM_name_ -lif _iscsi_lif_ –failover-policy sfo-partner-only -auto-revert true`このコマンドは、「-lif *」を指定して他のすべてのパラメータを同じにすることで、Storage VM内のすべてのiSCSI LIFに対して実行できます。 
+
+`network interface modify -vserver _SVM_name_ -lif _iscsi_lif_ –failover-policy sfo-partner-only -auto-revert true`
+
+このコマンドは、「-lif *」を指定して他のすべてのパラメータを同じにすることで、Storage VM内のすべてのiSCSI LIFに対して実行できます。 
 
 
 | 既存のLIFに対してiSCSI LIFフェイルオーバー機能を無効にします | クラスタをONTAP 9.11.1以降にアップグレードする前に作成したiSCSI LIFについては、iSCSI LIFのフェイルオーバー機能と自動リバート機能を無効にすることができます。
-`network interface modify -vserver _SVM_name_ -lif _iscsi_lif_ –failover-policy disabled -auto-revert false`このコマンドは、「-lif *」を指定して他のすべてのパラメータを同じにすることで、Storage VM内のすべてのiSCSI LIFに対して実行できます。 
+
+`network interface modify -vserver _SVM_name_ -lif _iscsi_lif_ –failover-policy disabled -auto-revert false`
+
+このコマンドは、「-lif *」を指定して他のすべてのパラメータを同じにすることで、Storage VM内のすべてのiSCSI LIFに対して実行できます。 
 |===

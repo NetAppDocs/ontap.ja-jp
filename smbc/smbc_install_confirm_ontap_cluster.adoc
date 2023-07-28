@@ -1,10 +1,10 @@
 ---
 sidebar: sidebar 
 permalink: smbc/smbc_install_confirm_ontap_cluster.html 
-keywords: SM-BC, SMBC, ONTAP, cluster, configure, peering, volume, SVM, SAN, LIFs, map, igroup, discover 
-summary: ソースクラスタとデスティネーションクラスタが適切に設定されていることを確認してください。 
+keywords: SM-BC, SMBC, cluster, peering, ONTAP Mediator, initialize 
+summary: SM-BCでは、ONTAPメディエーターをインストールして初期化し、クラスタが適切にピアリングされるようにする必要があります。 
 ---
-= ONTAP メディエーターサービスをインストールし、 ONTAP クラスタの設定を確認します
+= SnapMirrorビジネス継続性を実現するためのONTAPメディエーターとクラスタの設定
 :hardbreaks:
 :allow-uri-read: 
 :nofooter: 
@@ -14,9 +14,28 @@ summary: ソースクラスタとデスティネーションクラスタが適�
 
 
 [role="lead"]
-ソースクラスタとデスティネーションクラスタが適切に設定されていることを確認してください。
+SnapMirrorビジネス継続性（SM-BC）は、フェイルオーバー時にデータの可用性を確保するためにピアクラスタを利用します。ONTAPメディエーターは、ビジネス継続性を確保するための重要なリソースであり、各クラスタの健全性を監視します。SM-BCを設定するには、まずONTAPメディエーターをインストールし、プライマリクラスタとセカンダリクラスタが適切に設定されていることを確認する必要があります。
 
-.このタスクについて
+ONTAPメディエーターをインストールしてクラスタを設定したら、次の手順を実行する必要があります。 <<initialize-the-ontap-mediator>> SM-BCで使用するONTAPメディエーター。次の手順に従ってください。 xref:../task_san_configure_protection_for_business_continuity.html[SM-BCの整合性グループを作成、初期化、マッピングする]
+
+
+
+== ONTAP メディエーター
+
+ONTAP メディエーターは、 SM-BC 関係にある ONTAP クラスタのクォーラムを確立します。障害が検出された場合に自動フェイルオーバーを調整し、プライマリとして機能するクラスタを特定して、正しいデスティネーションとの間でデータが提供されるようにします。
+
+.ONTAP メディエーターの前提条件
+* ONTAP メディエーターには独自の前提条件があります。メディエーターをインストールするには、あらかじめこれらの前提条件を満たしている必要があります。
++
+詳細については、を参照してください link:https://docs.netapp.com/us-en/ontap-metrocluster/install-ip/task_configuring_the_ontap_mediator_service_from_a_metrocluster_ip_configuration.html["ONTAP メディエーターサービスをインストールする準備をします"^]。
+
+* ONTAP メディエーターは、デフォルトでは TCP ポート 31784 を使用してサービスを提供します。ONTAP クラスタとメディエーターの間でポート 31784 が開いて使用可能であることを確認する必要があります。
+
+
+
+
+== ONTAPメディエーターをインストールしてクラスタ構成を確認
+
 次の各手順を実行します。手順ごとに、特定の設定が実行されたことを確認する必要があります。各手順のあとに記載されたリンクを使用して、必要に応じて詳細を確認します。
 
 .手順
@@ -27,7 +46,7 @@ xref:../mediator/index.html[ONTAP メディエーターサービス]
 . クラスタ間にクラスタピア関係が存在することを確認します。
 +
 
-NOTE: デフォルト IPspace は、クラスタピア関係を確立するために SM-BC で必要です。カスタム IPspace はサポートされません。
+NOTE: デフォルト IPspace は、クラスタピア関係を確立するために SM-BC で必要です。カスタムIPspaceはサポートされません。
 
 +
 xref:../task_dp_prepare_mirror.html[ピア関係を設定]
@@ -51,9 +70,72 @@ link:../san-admin/lifs-cluster-concept.html["クラスタ SAN 環境での LIF �
 +
 link:https://docs.netapp.com/ontap-9/topic/com.netapp.doc.dot-cm-sanag/GUID-4B666C44-694A-48A3-B0A9-517FA7FD2502.html?cp=13_6_4_0["LIF を作成する"^]
 
-. 必要な LUN が作成され、 igroup にマッピングされていることを確認します。 igroup は、アプリケーションホストのイニシエータに LUN をマッピングするために使用されます。
+. 必要なLUNが作成され、igroupにマッピングされていることを確認します。igroupは、アプリケーションホストのイニシエータにLUNをマッピングするために使用されます。
 +
 xref:../san-admin/create-luns-mapping-igroups-task.html[LUN を作成して igroup をマッピングします]
 
 . アプリケーションホストを再スキャンして新しい LUN を検出します。
 
+
+
+
+== SM-BCのONTAPメディエーターを初期化する
+
+ONTAPメディエーターをインストールしてクラスタ構成を確認したら、クラスタの監視用にONTAPメディエーターを初期化する必要があります。ONTAPメディエーターは、System ManagerまたはONTAP CLIを使用して初期化できます。
+
+[role="tabbed-block"]
+====
+.System Manager の略
+--
+System Managerでは、自動フェイルオーバー用にONTAPメディエーターサーバを設定できます。自己署名 SSL および CA をサードパーティによる検証済み SSL 証明書および CA に置き換えていない場合は、 CA に置き換えることもできます。
+
+.手順
+. [* Protection] > [Overview] > [Mediator] > [Configure] * に移動します。
+. [追加]*を選択し、次のONTAPメディエーターサーバ情報を入力します。
++
+** IPv4 アドレス
+** ユーザ名
+** パスワード
+** 証明書
+
+
+
+
+--
+.CLI の使用
+--
+ONTAPメディエーターは、ONTAP CLIを使用してプライマリクラスタまたはセカンダリクラスタから初期化できます。問題 を実行すると `mediator add` コマンド一方のクラスタでは、もう一方のクラスタにONTAPメディエーターが自動的に追加されます。
+
+.手順
+. いずれかのクラスタでメディエーターを初期化します。
++
+`snapmirror mediator add -mediator-address IP_Address -peer-cluster cluster_name -username user_name`
+
++
+* 例 *
+
++
+....
+cluster1::> snapmirror mediator add -mediator-address 192.168.10.1 -peer-cluster cluster2 -username mediatoradmin
+Notice: Enter the mediator password.
+
+Enter the password: ******
+Enter the password again: ******
+....
+. メディエーター設定のステータスを確認します。
++
+`snapmirror mediator show`
+
++
+....
+Mediator Address Peer Cluster     Connection Status Quorum Status
+---------------- ---------------- ----------------- -------------
+192.168.10.1     cluster-2        connected         true
+....
++
+`Quorum Status` SnapMirror整合性グループ関係がメディエーターと同期されているかどうかを示します。ステータスは `true` 同期が成功したことを示します
+
+
+
+--
+====

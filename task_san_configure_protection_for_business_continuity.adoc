@@ -1,10 +1,10 @@
 ---
 sidebar: sidebar 
 permalink: task_san_configure_protection_for_business_continuity.html 
-keywords: netapp, ontap, System Manager, LUNs, source cluster, protect, protection, storage VM, volume, volumes, source, destination, cluster, IOPS activity 
-summary: ビジネス継続性の保護を設定するには、 ONTAP ソースクラスタで LUN を選択し、整合グループに追加します。ソースクラスタのブラウザから System Manager を開き、ビジネス継続性の保護の設定を開始します。 
+keywords: SM-BC, snapmirror business continuity, consistency group, remote protection, 9.8, 9.9.1, destination 
+summary: ビジネス継続性の保護を設定するには、 ONTAP ソースクラスタで LUN を選択し、整合グループに追加します。 
 ---
-= ビジネス継続性の保護を構成します
+= SnapMirrorビジネス継続性による保護の確立
 :toc: macro
 :hardbreaks:
 :toclevels: 1
@@ -19,25 +19,71 @@ summary: ビジネス継続性の保護を設定するには、 ONTAP ソース�
 
 
 [role="lead"]
-ビジネス継続性の保護を設定するには、 ONTAP ソースクラスタで LUN を選択し、整合グループに追加します。ソースクラスタのブラウザから System Manager を開き、ビジネス継続性の保護の設定を開始します。
+SnapMirrorビジネス継続性を使用した保護を設定するには、ONTAPソースクラスタでLUNを選択して整合グループに追加します。
 
-このワークフローは、 ONTAP 9.8 および 9.9 向けに設計されています。ONTAP 9.10.1 以降では、まず整合グループを作成し、次に SM-BC をリモート保護として使用することを推奨します。
+.作業を開始する前に
+* SnapMirror Synchronousライセンスが必要です。
+* クラスタ管理者または Storage VM 管理者である必要があります。
+* 整合性グループ内のコンスティチュエントボリュームは、すべて1つのStorage VM（SVM）に含まれている必要があります。
++
+** LUN は異なるボリュームに配置できます。
 
 
-
-== このタスクについて
-
-* LUN は同じ Storage VM に存在する必要があります。
-* LUN は異なるボリュームに配置できます。
 * ソースとデスティネーションのクラスタを同じにすることはできません。
+* ASAクラスタとASA以外のクラスタの間でSM-BC整合性グループ関係を確立することはできません。
 * デフォルト IPspace は、クラスタピア関係を確立するために SM-BC で必要です。カスタム IPspace はサポートされません。
+* 整合グループの名前は一意である必要があります。
+* セカンダリ（デスティネーション）クラスタ上のボリュームのタイプはDPである必要があります。
+* プライマリとセカンダリのSVMでピア関係が確立されている必要があります。
 
 
 .手順
-. 保護する LUN を選択し ' 保護グループに追加します * 保護 > 概要 > ビジネス継続性のための保護 > LUN の保護 *
-. ソースクラスタで保護する LUN を 1 つ以上選択してください。
+ONTAP CLIまたはSystem Managerを使用して整合グループを設定できます。
+
+ONTAP 9.10.1以降では、ONTAPに追加の管理ユーティリティを提供する整合グループエンドポイントと整合グループメニューがSystem Managerに用意されています。ONTAP 9.10.1以降を使用している場合は、を参照してください。 link:../consistency-groups/configure-task.html["整合グループの設定"] そうすると link:../consistency-groups/protect-task.html["保護の設定"] をクリックしてSM-BC関係を作成してください。
+
+[role="tabbed-block"]
+====
+.System Manager の略
+--
+. プライマリクラスタで、*[保護]>[概要]>[ビジネス継続性のための保護]>[LUNの保護]*に移動します。
+. 保護するLUNを選択し、保護グループに追加します。
 . デスティネーションクラスタと SVM を選択
 . * 初期化関係 * がデフォルトで選択されています。[ 保存（ Save ） ] をクリックして保護を開始します。
 . [Dashboard] > [Performance] に移動して、 LUN の IOPS アクティビティを確認します。
 . デスティネーションクラスタで、 System Manager を使用して、ビジネス継続性関係の保護が同期されていることを確認します。 * Protection > Relationships * 。
 
+
+--
+.CLI の使用
+--
+. デスティネーションクラスタから整合性グループ関係を作成
+'デスティネーション：：> snapmirror create -source-path_source-path_-destination-path_-destination-path_-cg-item-mappings_volume-paths_-policy_policy-name_
++
+を使用して最大12個のコンスティチュエントボリュームをマッピングできます。 `cg-item-mappings` のパラメータ `snapmirror create` コマンドを実行します
+
++
+次の例では、2つの整合グループを作成します。 `cg_src_ on the source with `vol1` および `vol2` ミラーされたデスティネーション整合グループ `cg_dst`。
+
++
+`destination::> snapmirror create -source-path vs1_src:/cg/cg_src -destination-path vs1_dst:/cg/cg_dst -cg-item-mappings vol_src1:@vol_dst1,vol_src2:@vol_dst2 -policy AutomatedFailOver`
+
+. デスティネーションクラスタから、整合性グループを初期化します。
++
+`destination::>snapmirror initialize -destination-path _destination-consistency-group_`
+
+. 初期化処理が正常に完了したことを確認します。ステータスがになっている必要があります `InSync`。
++
+`snapmirror show`
+
+. 各クラスタにigroupを作成して、アプリケーションホストのイニシエータにLUNをマッピングします。
+`lun igroup create -igroup _name_ -protocol _fcp|iscsi_ -ostype _os_ -initiator _initiator_name_`
+. 各クラスタで、LUNをigroupにマッピングします。
++
+`lun map -path _path_name_ -igroup _igroup_name_`
+
+. LUNマッピングが次のコマンドで正常に完了したことを確認： `lun map` コマンドを実行しますその後、アプリケーションホストで新しいLUNを検出できます。
+
+
+--
+====

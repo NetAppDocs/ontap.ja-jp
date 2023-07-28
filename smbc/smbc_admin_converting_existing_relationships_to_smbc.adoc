@@ -14,23 +14,25 @@ summary: 既存のゼロリカバリポイント保護（ RPO ゼロ）の同期
 
 
 [role="lead"]
-既存のゼロリカバリポイント保護（ RPO ゼロ）の同期 SnapMirror 関係を、 SM-BC ゼロ RTO 同期 SnapMirror 整合グループ関係に変換することができます。
+ソースクラスタとデスティネーションクラスタの間に既存の同期SnapMirror関係がある場合は、SM-BC関係に変換できます。これにより、ミラーボリュームを整合グループに関連付けることができ、マルチボリュームワークロード全体でRPOをゼロにすることができます。また、SM-BC関係を確立する前に特定の時点にリバートする必要がある場合は、既存のSnapMirror Snapshotを保持できます。
 
 .作業を開始する前に
-* プライマリとセカンダリの間には、 RPO ゼロの同期 SnapMirror 関係が存在します。
-* RTO ゼロの SnapMirror 関係を作成する前に、デスティネーションボリューム上のすべての LUN がマッピング解除されます。
+* プライマリクラスタとセカンダリクラスタの間にRPOゼロの同期SnapMirror関係が存在している必要があります。
+* RTOゼロのSnapMirror関係を作成するには、デスティネーションボリューム上のすべてのLUNのマッピングを解除する必要があります。
 * SM-BC がサポートするのは SAN プロトコルだけです（ NFS / CIFS はサポートしません）。NAS アクセス用に整合性グループのコンスティチュエントがマウントされていないことを確認します。
 
 
 .このタスクについて
-* ソースとデスティネーションでクラスタおよび SVM の管理者である必要があります。
+* プライマリクラスタとセカンダリクラスタのクラスタ管理者およびSVM管理者である必要があります。
 * SnapMirror ポリシーを変更して、ゼロ RPO をゼロ RTO 同期に変換することはできません。
-* セカンダリボリュームの既存のLUNがマッピングされている場合は、 `snapmirror create` AutomatedFailoverポリシーを使用すると、エラーがトリガーされます。
-を実行する前に、LUNのマッピングが解除されていることを確認する必要があります `snapmirror create` コマンドを実行します
+* を実行する前に、LUNのマッピングが解除されていることを確認する必要があります `snapmirror create` コマンドを実行します
++
+セカンダリボリュームの既存のLUNがマッピングされており、 `AutomatedFailover` ポリシーが設定され、 `snapmirror create` エラーが発生します。
+
 
 
 .手順
-. 既存の関係に対して SnapMirror 更新処理を実行します。
+. セカンダリクラスタから、既存の関係に対してSnapMirror更新を実行します。
 +
 `destination::>snapmirror update -destination-path vs1_dst:vol1`
 
@@ -63,7 +65,7 @@ summary: 既存のゼロリカバリポイント保護（ RPO ゼロ）の同期
 +
 `destination::> snapmirror create -source-path vs1_src:/cg/cg_src -destination-path vs1_dst:/cg/cg_dst -cg-item-mappings vol1:@vol1,vol2:@vol2 -policy AutomatedFailover`
 
-. ゼロ RTO 整合グループを再同期します。
+. 整合グループを再同期します。
 +
 `destination::> snapmirror resync -destination-path vs1_dst:/cg/cg_dst`
 

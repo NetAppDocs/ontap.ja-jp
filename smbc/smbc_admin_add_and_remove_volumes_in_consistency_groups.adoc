@@ -4,7 +4,7 @@ permalink: smbc/smbc_admin_add_and_remove_volumes_in_consistency_groups.html
 keywords: SM-BC, SMBC, volume, consistency group, remove volume, add volume 
 summary: ボリュームを追加または削除して整合グループの構成を変更する場合は、最初に元の関係を削除してから、新しい構成で整合グループを作成し直す必要があります。 
 ---
-= 整合グループ内のボリュームの追加と削除
+= 整合性グループへのボリュームの追加または削除
 :hardbreaks:
 :allow-uri-read: 
 :nofooter: 
@@ -14,32 +14,36 @@ summary: ボリュームを追加または削除して整合グループの構�
 
 
 [role="lead"]
-アクティブなSM-BC関係にあるボリュームの追加と削除は、使用しているONTAP のバージョンによって異なります。
+アプリケーションワークロードの要件が変化した場合は、ビジネス継続性を確保するために、整合グループに対してボリュームの追加や削除が必要になることがあります。アクティブなSM-BC関係のボリュームを追加および削除するプロセスは、使用しているONTAPのバージョンによって異なります。
+
+ほとんどの場合、停止を伴うプロセスです。このプロセスでは、SnapMirror関係を解除し、整合グループを変更してから保護を再開する必要があります。ONTAP 9.13.1以降では、アクティブなSM-BC関係を持つ整合グループにボリュームを追加する処理は無停止で実行されます。
 
 .このタスクについて
-ONTAP 9.8~9.9.1では、ONTAP CLIを使用して整合グループにボリュームを追加または削除できます。
+* ONTAP 9.8~9.9.1では、ONTAP CLIを使用して整合グループにボリュームを追加または削除できます。
+* ONTAP 9.10.1 以降では、を管理することを推奨します link:../consistency-groups/index.html["整合グループ"] System Manager または ONTAP REST API を使用
++
+ボリュームを追加または削除して整合グループの構成を変更する場合は、最初に元の関係を削除してから、新しい構成で整合グループを作成し直す必要があります。
 
-ONTAP 9.10.1 以降では、を管理することを推奨します link:../consistency-groups/index.html["整合グループ"] System Manager または ONTAP REST API を使用ボリュームを追加または削除して整合グループの構成を変更する場合は、最初に元の関係を削除してから、新しい構成で整合グループを作成し直す必要があります。
+* ONTAP 9.13.1以降では、ソースまたはデスティネーションからアクティブなSM-BC関係を持つ整合性グループに無停止でボリュームを追加できます。
++
+ボリュームの削除はシステム停止を伴う処理です。ボリュームの削除を続行する前に、SnapMirror関係を解除する必要があります。
 
-ONTAP 9.13.1以降では、ソースまたはデスティネーションからアクティブなSM-BC関係を持つ整合性グループに無停止でボリュームを追加できます。
 
-
-NOTE: SM-BC関係を含む整合性グループからボリュームを削除するとシステムが停止するため、この処理を続行する前にSnapMirror関係を解除する必要があります。
 
 [role="tabbed-block"]
 ====
 .ONTAP 9.8-9.13.0
 --
 .作業を開始する前に
-* 整合グループが「 InSync 」状態の場合、コンポジションを変更することはできません。
+* 整合グループが内にある間は変更を開始できません。 `InSync` 状態。
 * デスティネーションボリュームのタイプは DP でなければなりません。
 * 整合性グループを拡張するために追加する新しいボリュームには、ソースボリュームとデスティネーションボリュームの間に共通の Snapshot コピーのペアが必要です。
 
 
 .手順
-この手順では、エンドポイント vs1_src ： /cc/cg_src と vs1_dst ： /cc/cg_dst の間の整合グループ関係に、 vol_src1 と vol_src2 のボリュームマッピングがあることを前提としています。
+2つのボリュームマッピングで示されている例は次のとおりです。 `vol_src1` <--> `vol_dst1` および `vol_src2` <--> `vol_dst2`、エンドポイント間の整合性グループ関係 `vs1_src:/cg/cg_src` および `vs1_dst:/cg/cg_dst`。
 
-. ソースとデスティネーションの両方のクラスタ上にあるソースボリュームとデスティネーションボリュームの間に共通の Snapshot コピーが存在することを確認します。
+. ソースクラスタとデスティネーションクラスタで、コマンドを使用して、ソースクラスタとデスティネーションクラスタの間に共通のSnapshotがあることを確認します。 `snapshot show -vserver _svm_name_ -volume _volume_name_ -snapshot _snapmirror_`
 +
 `source::>snapshot show -vserver vs1_src -volume vol_src3 -snapshot snapmirror*`
 
@@ -50,7 +54,7 @@ NOTE: SM-BC関係を含む整合性グループからボリュームを削除す
 +
 `destination::>snapmirror initialize -source-path vs1_src:vol_src3 -destination-path vs1_dst:vol_dst3`
 
-. ゼロ RTO 整合グループ関係を削除します。
+. 整合性グループ関係を削除します。
 +
 `destination::>snapmirror delete -destination-path vs1_dst:vol_dst3`
 

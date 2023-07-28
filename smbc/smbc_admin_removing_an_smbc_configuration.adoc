@@ -14,22 +14,23 @@ summary: ゼロ RTO 同期 SnapMirror 保護を削除し、 SM-BC 関係の設�
 
 
 [role="lead"]
-ゼロ RTO 同期 SnapMirror 保護を削除し、 SM-BC 関係の設定を削除できます。
+RTOゼロの同期SnapMirror保護が不要になった場合は、SM-BC関係を削除できます。
 
 .このタスクについて
-SM-BC 関係を削除する前に、デスティネーションクラスタ内のすべての LUN のマッピングを解除する必要があります。
-LUN のマッピングが解除されてホストが再スキャンされると、 SCSI ターゲットは LUN のインベントリが変更されたことをホストに通知します。RTO ゼロのセカンダリボリュームにある既存の LUN は、ゼロの RTO 関係が削除されたあとに新しい ID が反映されるように変更されます。ホストは、セカンダリボリューム LUN を、ソースボリューム LUN とは関係のない新しい LUN として検出します。
-関係を削除しても、セカンダリボリュームは DP ボリュームのままです。snapmirror breakコマンドを問題して、読み取り/書き込みに変換できます。
-フェイルオーバー状態でない関係は削除できません。
+* SM-BC 関係を削除する前に、デスティネーションクラスタ内のすべての LUN のマッピングを解除する必要があります。
+* LUN のマッピングが解除されてホストが再スキャンされると、 SCSI ターゲットは LUN のインベントリが変更されたことをホストに通知します。RTO ゼロのセカンダリボリュームにある既存の LUN は、ゼロの RTO 関係が削除されたあとに新しい ID が反映されるように変更されます。ホストは、セカンダリボリューム LUN を、ソースボリューム LUN とは関係のない新しい LUN として検出します。
+* 関係を削除しても、セカンダリボリュームは DP ボリュームのままです。問題を実行できます。 `snapmirror break` 読み取り/書き込みに変換するコマンド。
+* フェイルオーバー状態でない関係は削除できません。
+
 
 .手順
-. ソースエンドポイントとデスティネーションエンドポイント間の SM-BC 整合グループ関係を削除します。
+. セカンダリクラスタから、ソースエンドポイントとデスティネーションエンドポイントの間のSM-BC整合性グループ関係を削除します。
 +
-`Destination::>snapmirror delete -destination-path vs1_dst:/cg/cg_dst`
+`destination::>snapmirror delete -destination-path vs1_dst:/cg/cg_dst`
 
-. ソースクラスタで、関係に対して作成された整合グループ関係と Snapshot コピーを解放します。
+. プライマリクラスタで、整合性グループ関係と関係に対して作成されたSnapshotコピーを解放します。
 +
-`Source::>snapmirror release -destination-path vs1_dst:/cg/cg_dst`
+`source::>snapmirror release -destination-path vs1_dst:/cg/cg_dst`
 
 . ホストの再スキャンを実行して LUN インベントリを更新する。
 . ONTAP 9.10.1 以降では、 SnapMirror 関係を削除しても整合グループは削除されません。整合グループを削除する場合は、 System Manager または ONTAP REST API を使用する必要があります。を参照してください xref:../consistency-groups/delete-task.adoc[整合グループを削除する] を参照してください。

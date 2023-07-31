@@ -4,7 +4,7 @@ sidebar: sidebar
 keywords: ontap, upgrade, update, considerations, ssl, fips mode, host key algorithm 
 summary: 管理者アカウントがSSH公開鍵を使用して認証するクラスタでSSL FIPSモードが有効になっている場合は、ONTAP をアップグレードする前に、ターゲットリリースでホストキーアルゴリズムがサポートされていることを確認する必要があります。 
 ---
-= セッション指向プロトコルに関する考慮事項
+= アップグレード前にSSHホストキーアルゴリズムのサポートを確認
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
@@ -13,13 +13,13 @@ summary: 管理者アカウントがSSH公開鍵を使用して認証するク�
 [role="lead"]
 管理者アカウントがSSH公開鍵を使用して認証するクラスタでSSL FIPSモードが有効になっている場合は、ONTAP をアップグレードする前に、ターゲットリリースでホストキーアルゴリズムがサポートされていることを確認する必要があります。
 
-*注：ONTAP 9.11.1以降では、ホストキーアルゴリズムのサポートが変更されています。
+次の表に、ONTAP SSH接続でサポートされるホストキータイプアルゴリズムを示します。  これらのキータイプは、SSH公開認証の設定には適用されません。
 
 [cols="30,30,30"]
 |===
 
 
-| ONTAP リリース | サポートされているキータイプ | サポートされていないキータイプです 
+| ONTAP リリース | FIPSモードでサポートされるキータイプ | FIPS以外のモードでサポートされるキータイプ 
 
 
  a| 
@@ -27,6 +27,7 @@ summary: 管理者アカウントがSSH公開鍵を使用して認証するク�
  a| 
 ECDSA - sha2 - nistp256
  a| 
+ECDSA-sha2-nistp256+
 rsa-sha2-512+
 rsa-sha2-256+
 SSH-ed25519以降
@@ -41,10 +42,17 @@ SSH-RSA
 ECDSA-sha2-nistp256+
 SSH-ed25519
  a| 
+ECDSA-sha2-nistp256+
+SSH-ed25519以降
 SSH-DSS+
 SSH-RSA
 
 |===
+
+NOTE: 9.11.1では、SSH-ed25519ホストキーアルゴリズムのサポートが廃止されました
+
+詳細については、を参照してください link:../networking/configure_network_security_using_federal_information_processing_standards_@fips@.html["FIPS を使用してネットワークセキュリティを設定する"]。
+
 アップグレードを有効にする前に、サポートされるキーアルゴリズムを使用していない既存のSSH公開鍵アカウントをサポート対象のキータイプで再設定する必要があります。再設定しないと、管理者認証が失敗します。
 
 link:../authentication/enable-ssh-public-key-accounts-task.html["SSH公開鍵アカウントの有効化の詳細については、こちらを参照してください。"]

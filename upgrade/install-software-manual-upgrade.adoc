@@ -1,0 +1,85 @@
+---
+permalink: upgrade/install-software-manual-upgrade.html 
+sidebar: sidebar 
+keywords: ontap, software, image, download, downloading, install, installing 
+summary: アップグレード用のONTAPソフトウェアパッケージをダウンロードしたら、アップグレードを開始する前にローカルにインストールする必要があります。 
+---
+= 手動アップグレードのためのONTAPソフトウェアパッケージのインストール
+:allow-uri-read: 
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+アップグレード用のONTAPソフトウェアパッケージをダウンロードしたら、アップグレードを開始する前にローカルにインストールする必要があります。
+
+.手順
+. 権限レベルをadvancedに設定します。続行するかどうかを尋ねられたら、「* y *」と入力します。 `set -privilege advanced`
++
+advancedプロンプトが表示されます (`*>`）が表示されます。
+
+. イメージをインストールします。
++
+[cols="2"]
+|===
+| 構成 | 使用するコマンド 
+
+
+ a| 
+** MetroCluster以外
+** 2ノードMetroCluster
+
+ a| 
+`system node image update -node * -package _location_ -replace-package true -setdefault true -background true`
+
+_location_ は、 ONTAP のバージョンに応じて、 Web サーバまたはローカルフォルダです。を参照してください `system node image update` のマニュアルページを参照してください。
+
+このコマンドを実行すると、ソフトウェアイメージがすべてのノードに同時にインストールされます。一度に1つずつ各ノードにイメージをインストールする場合は、 `-background` パラメータ
+
+
+
+ a| 
+** 4ノードMetroCluster
+** 8ノードMetroCluster構成
+
+ a| 
+`system node image update -node * -package location -replace-package true -background true -setdefault false`
+
+このコマンドは両方のクラスタで問題する必要があります。
+
+このコマンドでは、拡張クエリを使用して、各ノードに代替イメージとしてインストールされるターゲットソフトウェアイメージを変更します。
+
+|===
+. 入力するコマンド `y` プロンプトが表示されたら続行します。
+. 各ノードにソフトウェアイメージがインストールされていることを確認します。
++
+`system node image show-update-progress -node *`
+
++
+このコマンドは、ソフトウェアイメージのインストールの現在のステータスを表示します。すべてのノードの Run Status * が Exited * になり、 * Exit Status * が * Success * になるまで、このコマンドを繰り返し実行します。
+
++
+system node image update コマンドが失敗して、エラーまたは警告メッセージが表示されることがあります。エラーまたは警告を解決したら、もう一度コマンドを実行できます。
+
++
+次の例では、2ノードクラスタの両方のノードにソフトウェアイメージが正常にインストールされています。
+
++
+[listing]
+----
+cluster1::*> system node image show-update-progress -node *
+There is no update/install in progress
+Status of most recent operation:
+        Run Status:     Exited
+        Exit Status:    Success
+        Phase:          Run Script
+        Exit Message:   After a clean shutdown, image2 will be set as the default boot image on node0.
+There is no update/install in progress
+Status of most recent operation:
+        Run Status:     Exited
+        Exit Status:    Success
+        Phase:          Run Script
+        Exit Message:   After a clean shutdown, image2 will be set as the default boot image on node1.
+2 entries were acted on.
+----
+

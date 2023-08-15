@@ -1,0 +1,97 @@
+---
+sidebar: sidebar 
+permalink: anti-ransomware/manage-parameters-task.html 
+keywords: anti-ransomware overview, ransomware, security, modify, security anti-ransomware attack, parameters 
+summary: ONTAP 9.11.1以降では、ワークロードに応じて自律型ランサムウェア対策の検出パラメータを変更できます。 
+---
+= ARP攻撃検出パラメータを管理します。
+:toc: macro
+:hardbreaks:
+:toclevels: 1
+:allow-uri-read: 
+:toc: 
+:toclevels: 1
+:nofooter: 
+:icons: font
+:linkattrs: 
+:imagesdir: ./media/
+:toc-position: content
+
+
+[role="lead"]
+ONTAP 9.11.1以降では、特定の自律型ランサムウェア対策が有効なボリュームでランサムウェア検出のパラメータを変更し、通常のファイルアクティビティとして既知の急増を報告できます。検出パラメータを調整すると、特定のボリュームワークロードに基づいてレポートの精度が向上します。
+
+
+
+== 攻撃検出の仕組み
+
+Autonomous Ransomware Protection（ARP；自律型ランサムウェア対策）がラーニングモードの場合、ボリューム動作のベースライン値が設定されます。これらはエントロピー、ファイル拡張子、およびONTAP 9.11.1以降のIOPSです。これらのベースラインは、ランサムウェアの脅威を評価するために使用されます。これらの条件の詳細については、を参照してください。 xref:index.html#what-arp-detects[ARPが検出するもの]。
+
+ONTAP 9.10.1では、次の両方の条件が検出されると、ARPは警告を発行します。
+
+* これまでにボリュームで確認されていないファイル拡張子を持つファイルが20個を超える
+* 高エントロピーデータ
+
+
+ONTAP 9.11.1以降では、_only_one条件が満たされた場合にARPから脅威警告が発行されます。たとえば、ボリュームで以前に観察されたことがないファイル拡張子を持つ20を超えるファイルが24時間以内に観察された場合、ARPはこれをthreat_expendered_of observed entropyに分類します。（24時間と20ファイルの値はデフォルトであり、変更可能です）。
+
+特定のボリュームやワークロードでは、異なる検出パラメータが必要です。たとえば、ARP対応ボリュームで多数の種類のファイル拡張子がホストされている場合、以前に見たことのないファイル拡張子のしきい値をデフォルトの20よりも大きい値に変更したり、以前に見たことのないファイル拡張子に基づいて警告を無効にしたりすることができます。ONTAP 9.11.1以降では、特定のワークロードに適した攻撃検出パラメータを変更できます。
+
+
+
+== 攻撃検出パラメータの変更
+
+ARP対応ボリュームの想定される動作によっては、攻撃検出パラメータを変更することができます。
+
+.手順
+. 既存の攻撃検出パラメータを表示します。
++
+`security anti-ransomware volume attack-detection-parameters show -vserver _svm_name_ -volume _volume_name_`
+
++
+....
+security anti-ransomware volume attack-detection-parameters show -vserver vs1 -volume vol1
+                                             Vserver Name : vs1
+                                              Volume Name : vol1
+            Is Detection Based on High Entropy Data Rate? : true
+  Is Detection Based on Never Seen before File Extension? : true
+                  Is Detection Based on File Create Rate? : true
+                  Is Detection Based on File Rename Rate? : true
+                  Is Detection Based on File Delete Rate? : true
+           Is Detection Relaxing Popular File Extensions? : true
+                High Entropy Data Surge Notify Percentage : 100
+                 File Create Rate Surge Notify Percentage : 100
+                 File Rename Rate Surge Notify Percentage : 100
+                 File Delete Rate Surge Notify Percentage : 100
+ Never Seen before File Extensions Count Notify Threshold : 20
+       Never Seen before File Extensions Duration in Hour : 24
+....
+. に表示されるすべてのフィールドは、ブール値または整数値で変更できます。フィールドを変更するには、 `security anti-ransomware volume attack-detection-parameters modify` コマンドを実行します
++
+パラメータの完全なリストについては、を参照してください。 link:https://docs.netapp.com/us-en/ontap-cli-9131/security-anti-ransomware-volume-attack-detection-parameters-modify.html["ONTAP コマンドリファレンス"^]。
+
+
+
+
+
+== 既知のサージを報告
+
+ARPは、アクティブモードでも検出パラメータのベースライン値の変更を継続します。1回限りのサージ、または新しい日常の特徴であるサージのいずれかのボリュームアクティビティのサージを知っている場合は、それを安全として報告する必要があります。これらの急増を安全として手動で報告することは、ARPの脅威評価の精度を向上させるのに役立ちます。
+
+.1回限りのサージ
+. 既知の状況で1回限りのサージが発生していて、ARPで将来の状況でも同様のサージを報告する場合は、ワークロードの動作からサージをクリアします。
++
+`security anti-ransomware volume workload-behavior clear-surge -vserver _svm_name_ -volume _volume_name_`
+
+
+
+.ベースラインサージの修正
+. 報告されたサージを通常のアプリケーション動作と見なす必要がある場合は、サージを報告してベースラインサージ値を変更します。
++
+`security anti-ransomware volume workload-behavior update-baseline-from-surge -vserver _svm_name_ -volume _volume_name_`
+
+
+
+.詳細情報
+* link:https://kb.netapp.com/onprem/ontap/da/NAS/Understanding_Autonomous_Ransomware_Protection_attacks_and_the_Autonomous_Ransomware_Protection_snapshot["Autonomous Ransomware Protection AttacksとAutonomous Ransomware Protectionのスナップショットについて理解する"^]
+

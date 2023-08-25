@@ -14,11 +14,11 @@ summary: Storage Virtual Machine （ SVM ）ボリュームに格納されたデ
 Storage Virtual Machine （ SVM ）ボリュームに格納されたデータへの NAS クライアントアクセスを設定するには、ボリュームが NAS ネームスペースにマウントされている必要があります。現在マウントされていないボリュームは、ジャンクションポイントにマウントできます。ボリュームはアンマウントすることもできます。
 
 .このタスクについて
-ボリュームをアンマウントしてオフラインにすると、アンマウントしたボリュームのネームスペース内に含まれたジャンクションポイントのあるボリューム内のデータも含め、ジャンクションポイント内のすべてのデータに NAS クライアントからアクセスできなくなります。
+ボリュームをアンマウントしてオフラインにすると、アンマウントしたボリュームのネームスペース内に含まれていたジャンクションポイントのあるボリューム内のデータも含め、ジャンクションポイント内のすべてのデータにNASクライアントからアクセスできなくなります。
 
 [NOTE]
 ====
-NAS クライアントからのボリュームへのアクセスを中止するには、ボリュームを単純にアンマウントするだけでは不十分です。ボリュームをオフラインにするか、クライアント側のファイルハンドルのキャッシュが無効になるように他の手順を実行する必要があります。詳細については、次の技術情報アーティクルを参照してください。
+NAS クライアントからのボリュームへのアクセスを中止するには、ボリュームを単純にアンマウントするだけでは不十分です。ボリュームをオフラインにするか、クライアント側のファイルハンドルキャッシュを確実に無効にするためのその他の手順を実行する必要があります。詳細については、次の技術情報アーティクルを参照してください。
 
 https://kb.netapp.com/Advice_and_Troubleshooting/Data_Storage_Software/ONTAP_OS/NFSv3_clients_still_have_access_to_a_volume_after_being_removed_from_the_namespace_in_ONTAP["ONTAP のネームスペースから NFSv3 クライアントを削除しても、ボリュームにアクセスできるようになります"]
 
@@ -36,24 +36,26 @@ https://kb.netapp.com/Advice_and_Troubleshooting/Data_Storage_Software/ONTAP_OS/
  a| 
 ボリュームをマウント
  a| 
-`volume mount -vserver svm_name -volume volume_name -junction-path junction_path`
+`volume mount -vserver _svm_name_ -volume _volume_name_ -junction-path _junction_path_`
 
 
 
  a| 
 ボリュームをアンマウントします
  a| 
-`volume unmount -vserver svm_name -volume volume_name` `volume offline -vserver svm_name -volume volume_name`
+`volume unmount -vserver _svm_name_ -volume _volume_name_`
+
+`volume offline -vserver _svm_name_ -volume _volume_name_`
 
 |===
 . ボリュームが目的のマウント状態になっていることを確認します。
 +
-`volume show -vserver vserver_name -volume volume_name -fields state,junction-path,junction-active`
+`volume show -vserver _svm_name_ -volume _volume_name_ -fields state,junction-path,junction-active`
 
 
 
 .例
-次の例は、SVM vs1にある「sales」という名前のボリュームをジャンクションポイントにマウントします `/sales`：
+次の例は、SVM「vs1」にある「sales」という名前のボリュームをジャンクションポイント「/sales」にマウントします。
 
 [listing]
 ----
@@ -67,7 +69,7 @@ vs1       data       online    /data           true
 vs1       home4      online    /eng/home       true
 vs1       sales      online    /sales          true
 ----
-次の例は、 SVM vs1 にある「 `d ATA` 」という名前のボリュームをアンマウントしてオフラインにします。
+次の例は、SVM「vs1」にある「data」という名前のボリュームをアンマウントしてオフラインにします。
 
 [listing]
 ----

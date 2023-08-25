@@ -1,16 +1,100 @@
 ---
 permalink: encryption-at-rest/encrypt-existing-volume-task.html 
 sidebar: sidebar 
-keywords: enabling, encryption, existing, volume, volume move start, command 
-summary: volume move start コマンドを使用して、既存のボリュームを移動して暗号化を有効にできます。ONTAP 9.2 以前では、 volume move start を使用する必要があります。使用するアグリゲートは同じアグリゲートでも別のアグリゲートでもかまいません。 
+keywords: enabling, encryption, existing, volume, volume move start, command, volume encryption conversion start 
+summary: 既存のボリュームで暗号化を有効にするには、volume move startコマンドを使用するか、volume encryption conversion startコマンドを使用します。 
 ---
-= volume move start コマンドを使用して、既存のボリュームの暗号化を有効にします
+= 既存のボリュームで暗号化を有効にする
 :allow-uri-read: 
-:icons: font
-:imagesdir: ../media/
 
 
 [role="lead"]
+既存のボリュームの暗号化を有効にするには'次の2つの方法のいずれかを使用します `volume move start command` または、 `volume encryption conversion start` コマンドを実行します
+
+.このタスクについて
+* ONTAP 9.3以降では、を使用できます `volume encryption conversion start` 既存のボリュームの暗号化を「インプレース」で有効にするコマンド。ボリュームを別の場所に移動する必要はありません。または、 `volume move start` コマンドを実行します
+* ONTAP 9.2以前では、 `volume move start` コマンドを使用して既存のボリュームを移動して暗号化を有効にします。
+
+
+
+
+== volume encryption conversion start コマンドを使用して既存のボリュームの暗号化を有効にします
+
+ONTAP 9.3以降では、を使用できます `volume encryption conversion start` 既存のボリュームの暗号化を「インプレース」で有効にするコマンド。ボリュームを別の場所に移動する必要はありません。
+
+変換処理を開始したら、完了する必要があります。処理中にパフォーマンス問題 が発生した場合は、を実行できます `volume encryption conversion pause` 処理を一時停止するコマンド、および `volume encryption conversion resume` コマンドを実行して処理を再開します。
+
+[NOTE]
+====
+使用できません `volume encryption conversion start` SnapLock ボリュームを変換します。
+
+====
+.手順
+. 既存のボリュームで暗号化を有効にします。
++
+`volume encryption conversion start -vserver SVM_name -volume volume_name`
+
++
+コマンド構文全体については、コマンドのマニュアルページを参照してください。
+
++
+次のコマンドは、既存のボリュームで暗号化を有効にします。 `vol1`：
+
++
+[listing]
+----
+cluster1::> volume encryption conversion start -vserver vs1 -volume vol1
+----
++
+ボリュームの暗号化キーが作成されます。ボリュームのデータが暗号化されます。
+
+. 変換処理のステータスを確認します。
++
+`volume encryption conversion show`
+
++
+コマンド構文全体については、コマンドのマニュアルページを参照してください。
+
++
+次のコマンドは、変換処理のステータスを表示します。
+
++
+[listing]
+----
+cluster1::> volume encryption conversion show
+
+Vserver   Volume   Start Time           Status
+-------   ------   ------------------   ---------------------------
+vs1       vol1     9/18/2017 17:51:41   Phase 2 of 2 is in progress.
+----
+. 変換処理が完了したら、ボリュームで暗号化が有効になっていることを確認します。
++
+`volume show -is-encrypted true`
+
++
+コマンド構文全体については、コマンドのマニュアルページを参照してください。
+
++
+次のコマンドは、の暗号化されたボリュームを表示します `cluster1`：
+
++
+[listing]
+----
+cluster1::> volume show -is-encrypted true
+
+Vserver  Volume  Aggregate  State  Type  Size  Available  Used
+-------  ------  ---------  -----  ----  -----  --------- ----
+vs1      vol1    aggr2     online    RW  200GB    160.0GB  20%
+----
+
+
+.結果
+ノードの暗号化キーを保存するために KMIP サーバを使用している場合、ボリュームを暗号化すると、 ONTAP によって暗号化キーがサーバに自動的に「プッシュ」されます。
+
+
+
+== volume move start コマンドを使用して、既存のボリュームの暗号化を有効にします
+
 を使用できます `volume move start` コマンドを使用して既存のボリュームを移動して暗号化を有効にします。を使用する必要があります `volume move start` ONTAP 9.2以前では、使用するアグリゲートは同じアグリゲートでも別のアグリゲートでもかまいません。
 
 .必要なもの
@@ -19,11 +103,10 @@ summary: volume move start コマンドを使用して、既存のボリュー�
 link:delegate-volume-encryption-svm-administrator-task.html["volume move コマンドの実行権限の委譲"]
 
 .このタスクについて
-ONTAP 9.8以降では、を使用できます `volume move start` SnapLock またはFlexGroup ボリュームで暗号化を有効にします。
+* ONTAP 9.8以降では、を使用できます `volume move start` SnapLock またはFlexGroup ボリュームで暗号化を有効にします。
+* ONTAP 9.6 以降では、アグリゲートレベルの暗号化を使用して、移動するボリュームの包含アグリゲートにキーを割り当てることができます。一意のキーで暗号化されたボリュームを、 _NVE ボリューム _ と呼びます。アグリゲートレベルのキーで暗号化されたボリュームは、 _NAE ボリューム（ NetApp Aggregate Encryption の場合）と呼ばれます。NAE アグリゲートではプレーンテキストボリュームがサポートされません。
+* ONTAP 9.4以降では、オンボードキーマネージャのセットアップ時に「cc-mode」を有効にすると、を使用してボリュームを作成できます `volume move start` コマンドは自動的に暗号化されます。指定する必要はありません `-encrypt-destination true`。
 
-ONTAP 9.4以降では、オンボードキーマネージャのセットアップ時に「cc-mode」を有効にすると、を使用してボリュームを作成できます `volume move start` コマンドは自動的に暗号化されます。指定する必要はありません `-encrypt-destination true`。
-
-ONTAP 9.6 以降では、アグリゲートレベルの暗号化を使用して、移動するボリュームの包含アグリゲートにキーを割り当てることができます。一意のキーで暗号化されたボリュームを、 _NVE ボリューム _ と呼びます。アグリゲートレベルのキーで暗号化されたボリュームは、 _NAE ボリューム（ NetApp Aggregate Encryption の場合）と呼ばれます。NAE アグリゲートではプレーンテキストボリュームがサポートされません。
 
 .手順
 . 既存のボリュームを移動し、そのボリュームで暗号化を有効にするかどうかを指定します。

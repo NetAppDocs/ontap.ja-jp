@@ -1,8 +1,8 @@
 ---
 permalink: system-admin/configure-saml-authentication-task.html 
 sidebar: sidebar 
-keywords: tdp, ldap, identity, provider, saml, security, assertion, markup, lanaguage, active, directory 
-summary: ONTAP 9.3 以降では、 Web サービスに Security Assertion Markup Language （ SAML ）認証を設定できます。SAML 認証を設定して有効にすると、 Active Directory や LDAP などのディレクトリサービスプロバイダではなく、外部のアイデンティティプロバイダ（ IdP ）によってユーザが認証されます。 
+keywords: tdp, ldap, identity, provider, saml, security, assertion, markup, lanaguage, active, directory, disable, authentication, idp, active directory, troubleshoot, repair 
+summary: ONTAP 9.3 以降では、 Web サービスに Security Assertion Markup Language （ SAML ）認証を設定できます。SAML 認証を設定して有効にすると、 Active Directory や LDAP などのディレクトリサービスプロバイダではなく、外部のアイデンティティプロバイダ（ IdP ）によってユーザが認証されます。SAML 認証が無効な場合は、 Active Directory や LDAP などの設定済みのディレクトリサービスプロバイダが認証に使用されます。 
 ---
 = SAML 認証を設定する
 :allow-uri-read: 
@@ -100,10 +100,116 @@ admin          service-processor
                            password      admin            no     none
 admin          ssh         password      admin            no     none
 admin1         http        password      backup           no     none
-**admin1         http        saml          backup           -      none**
+**admin1       http        saml          backup           -      none**
 ----
 
 
+
+
+
+
+== SAML 認証を無効にする
+
+外部のアイデンティティプロバイダ（ IdP ）を使用して Web ユーザの認証を停止する場合は、 SAML 認証を無効にすることができます。SAML 認証が無効な場合は、 Active Directory や LDAP などの設定済みのディレクトリサービスプロバイダが認証に使用されます。
+
+.必要なもの
+コンソールからログインする必要があります。
+
+.手順
+. SAML 認証を無効にする
++
+`*security saml-sp modify -is-enabled false*`
+
+. SAML 認証を使用しなくなった場合や IdP を変更する場合は、 SAML の設定を削除します。
++
+`*security saml-sp delete*`
+
+
+
+
+
+== SAML の設定に関する問題のトラブルシューティング
+
+Security Assertion Markup Language （ SAML ）認証の設定に失敗した場合は、 SAML の設定に失敗した各ノードを手動で修復して、障害からリカバリできます。修復プロセスの実行中は、 Web サーバが再起動され、アクティブな HTTP 接続または HTTPS 接続が中断されます。
+
+.このタスクについて
+SAML 認証の設定時に、 ONTAP は SAML の設定をノード単位で適用します。SAML 認証を有効にすると、 ONTAP は設定の問題がある場合に自動的に各ノードを修復しようとします。いずれかのノードで SAML の設定に関する問題がある場合は、 SAML 認証を無効にしてから再度有効にすることができます。SAML 認証を再度有効にしたあとでも、 1 つ以上のノードに SAML の設定を適用できない場合があります。SAML の設定に失敗したノードを特定し、そのノードを手動で修復できます。
+
+.手順
+. advanced 権限レベルにログインします。
++
+`*set -privilege advanced*`
+
+. SAML の設定に失敗したノードを特定します。
++
+`*security saml-sp status show -instance*`
+
++
+[listing]
+----
+cluster_12::*> security saml-sp status show -instance
+
+                         Node: node1
+                Update Status: config-success
+               Database Epoch: 9
+   Database Transaction Count: 997
+                   Error Text:
+SAML Service Provider Enabled: false
+        ID of SAML Config Job: 179
+
+                         Node: node2
+                Update Status: config-failed
+               Database Epoch: 9
+   Database Transaction Count: 997
+                   Error Text: SAML job failed, Reason: Internal error. Failed to receive the SAML IDP Metadata file.
+SAML Service Provider Enabled: false
+        ID of SAML Config Job: 180
+2 entries were displayed.
+----
+. 障害が発生したノードで SAML の設定を修復します。
++
+`*security saml-sp repair -node _node_name_*`
+
++
+[listing]
+----
+cluster_12::*> security saml-sp repair -node node2
+
+Warning: This restarts the web server. Any HTTP/S connections that are active
+         will be disrupted.
+Do you want to continue? {y|n}: y
+[Job 181] Job is running.
+[Job 181] Job success.
+----
++
+Web サーバが再起動され、アクティブな HTTP 接続または HTTPS 接続が中断されます。
+
+. すべてのノードで SAML が正常に設定されたことを確認します。
++
+`*security saml-sp status show -instance*`
+
++
+[listing]
+----
+cluster_12::*> security saml-sp status show -instance
+
+                         Node: node1
+                Update Status: config-success
+               Database Epoch: 9
+   Database Transaction Count: 997
+                   Error Text:
+SAML Service Provider Enabled: false
+        ID of SAML Config Job: 179
+
+                         Node: node2
+                Update Status: **config-success**
+               Database Epoch: 9
+   Database Transaction Count: 997
+                   Error Text:
+SAML Service Provider Enabled: false
+        ID of SAML Config Job: 180
+2 entries were displayed.
+----
 
 
 .関連情報

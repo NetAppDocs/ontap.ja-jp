@@ -4,21 +4,58 @@ sidebar: sidebar
 keywords: ontap, upgrade, snapmirror, operations, quisce 
 summary: ONTAP の無停止アップグレードを実行する前に、 SnapMirror 処理を休止することを推奨します。 
 ---
-= 無停止アップグレードを行うために SnapMirror 関係を準備する
+= ONTAPのアップグレードのためのSnapMirror関係の準備
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-ONTAP の無停止アップグレードを実行する前に、 SnapMirror 処理を休止することを推奨します。
+SnapMirrorを実行しているクラスタでONTAPをアップグレードする前に、デスティネーションボリュームを含む各ノードのSnapMirror処理を休止し、ピア関係にある各SVMの名前がクラスタ間で一意である必要があります。SVMごとに一意のFully Qualified Domain Name（FQDN；完全修飾ドメイン名）を使用することを推奨します（例：「dataVerser.HQ」、「mirrorVserver.Offsite」）。
 
+DP SnapMirror関係のクラスタをアップグレードする場合は、ソースノードをアップグレードする前にデスティネーションノードをアップグレードする必要があります。
+
+
+
+== ONTAPのアップグレード前にSnapMirror処理を休止する
+
+SnapMirror転送が失敗しないようにするには、SnapMirror処理を休止する必要があります。または、ソースノードをアップグレードする前に特定のデスティネーションボリュームでSnapMirror転送を休止し、所有権を持つデスティネーションノードをアップグレードして、他のすべてのデスティネーションボリュームでSnapMirror転送を続行することもできます。次の表に、 SnapMirror 処理を一時停止するための 2 つのオプションを示します。
+
+[cols="3*"]
+|===
+| オプション | 説明 | ソースノードよりも先にデスティネーションノードをアップグレードする必要がある 
+
+
+ a| 
+NDU （無停止アップグレード）の実行時に SnapMirror 処理を一時停止する
+ a| 
+SnapMirror 環境でアップグレードを行うときは、すべての SnapMirror 処理を一時停止してアップグレードを実行し、完了後に SnapMirror 処理を再開する方法が最も簡単です。ただし、この方法では、 NDU を実行している間は SnapMirror 転送が行われません。相互にボリュームをミラーリングしているノードがクラスタにある場合は、この方法を使用する必要があります。
+ a| 
+いいえ。任意の順序でノードをアップグレードできます。
+
+
+
+ a| 
+一度に 1 つのデスティネーションボリュームで SnapMirror 処理を一時停止する
+ a| 
+特定のデスティネーションボリュームの SnapMirror 転送を一時停止し、デスティネーションボリュームを含むノード（または HA ペア）、ソースボリュームを含むノード（または HA ペア）の順にアップグレードして、完了後にデスティネーションボリュームの SnapMirror 転送を再開できます。この方法を使用すると、デスティネーションボリュームを含むノードとソースボリュームを含むノードをアップグレードしている間、他のすべてのデスティネーションボリュームの SnapMirror 転送を続行できます。
+ a| 
+はい。
+
+|===
 .手順
-. を使用します `snapmirror show` 各SnapMirror関係のデスティネーションパスを確認するコマンド。
+. 各SnapMirror関係のデスティネーションパスを確認します。
++
+[source, cli]
+----
+snapmirror show
+----
 . それぞれのデスティネーションボリュームについて、以降のSnapMirror転送を一時停止します。
 +
-`snapmirror quiesce -destination-path destination`
-
+[source, cli]
+----
+snapmirror quiesce -destination-path destination
+----
 +
 SnapMirror関係のアクティブな転送がない場合、このコマンドのステータスは「Quiesced」になります。アクティブな転送が関係に含まれる場合、転送が完了するまでステータスは「Quiescing」になり、完了すると「Quiesced」になります。
 
@@ -65,12 +102,9 @@ There are no entries matching your query.
 
 `snapmirror abort -destination-path destination -h`
 
-*注：*を使用する必要があります `-foreground true` 負荷共有ミラー転送を中止する場合は、パラメータを指定します。
+*注：*を使用する必要があります `-foreground true` 負荷共有ミラーの転送を終了する場合はパラメータ。
  a| 
 このコマンドは、 SnapMirror 転送を中止して、正常に転送された最新の Snapshot コピーにデスティネーションボリュームをリストアします。関係のステータスは「Quiesced」になります。
 
 |===
 
-
-.関連情報
-xref:concept_upgrade_requirements_for_snapmirror.adoc[SnapMirror のアップグレード要件]

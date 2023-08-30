@@ -13,15 +13,17 @@ summary: Active IQ Digital Advisor の Upgrade Advisor サービスは、アッ�
 [role="lead"]
 ONTAP 9.7以前からONTAP 9.8以降にアップグレードする前にEvent Management System（EMS；イベント管理システム）メッセージを設定していた場合は、アップグレード後にEMSメッセージが配信されないことがあります。
 
-アップグレードの実行時に、EMS LIFサービスであるmanagement-EMSが、既存のすべてのサービスポリシーに追加されます。  これにより、いずれかのサービスポリシーに関連付けられたいずれかのLIFからEMSメッセージを送信できます。  選択したLIFにイベント通知の送信先への到達可能性がない場合、メッセージは配信されません。
+アップグレードでは、EMS LIFサービスであるmanagement-emsが既存のすべてのサービスポリシーに追加されます。  これにより、いずれかのサービスポリシーに関連付けられたいずれかのLIFからEMSメッセージを送信できます。  選択したLIFにイベント通知の送信先への到達可能性がない場合、メッセージは配信されません。
 
 これを回避するには、アップグレード後に、デスティネーションに到達できないネットワークサービスポリシーからEMS LIFサービスを削除します。
 
 .手順
 . EMSメッセージの送信に使用できるLIFと関連付けられたネットワークサービスポリシーを特定します。
 +
-`network interface show -fields service-policy -services management-ems`
-
+[source, cli]
+----
+network interface show -fields service-policy -services management-ems
+----
 +
 [listing]
 ----
@@ -39,8 +41,10 @@ cluster-1      inter_cluster
 ----
 . 各LIFでEMSデスティネーションへの接続を確認します。
 +
-`network ping -lif lif_name -vserver svm_name -destination destination_address`
-
+[source, cli]
+----
+network ping -lif lif_name -vserver svm_name -destination destination_address
+----
 +
 この手順は各ノードで実行します。
 
@@ -56,16 +60,22 @@ no answer from 10.10.10.10
 ----
 . advanced 権限レベルに切り替えます。
 +
-`set advanced`
-
+[source, cli]
+----
+set advanced
+----
 . LIFに到達できない場合は、対応するサービスポリシーからmanagement-ems LIFサービスを削除します。
 +
-`network interface service-policy remove-service -vserver svm_name -policy service_policy_name -service management-ems`
-
+[source, cli]
+----
+network interface service-policy remove-service -vserver svm_name -policy service_policy_name -service management-ems
+----
 . 管理EMS LIFがEMSデスティネーションに到達できるLIFにのみ関連付けられていることを確認します。
 +
-`network interface show -fields service-policy -services management-ems`
-
+[source, cli]
+----
+network interface show -fields service-policy -services management-ems
+----
 
 
 .関連リンク

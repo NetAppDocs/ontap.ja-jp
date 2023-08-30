@@ -11,20 +11,36 @@ summary: ターゲットの ONTAP リリースにアップグレードする前�
 
 
 [role="lead"]
-ターゲットの ONTAP リリースにアップグレードする前に、 SSLv3 を使用している LDAP クライアントが TLS を使用して LDAP サーバとセキュアに通信できるように設定する必要があります。SSL はアップグレード後に使用できなくなります。
+ONTAPをアップグレードする前に、TLSを使用するLDAPサーバとのセキュアな通信を実現するために、SSLv3を使用するLDAPクライアントを設定する必要があります。SSL はアップグレード後に使用できなくなります。
 
 デフォルトでは、クライアントアプリケーションとサーバアプリケーション間の LDAP 通信は暗号化されません。SSL の使用を禁止して、強制的に TLS を使用する必要があります。
 
+.手順
 . 環境内の LDAP サーバで TLS がサポートされていることを確認します。
 +
 サポートされていない場合は、次の手順に進まないでください。TLS をサポートするバージョンに LDAP サーバをアップグレードする必要があります。
 
-. どのONTAP LDAPクライアント設定でSSL/TLS経由のLDAPが有効になっているかを確認します。 `vserver services name-service ldap client show`
+. どのONTAP LDAPクライアント設定でSSL/TLS経由のLDAPが有効になっているかを確認します。
++
+[source, cli]
+----
+vserver services name-service ldap client show
+----
 +
 ない場合は、残りの手順を省略できます。ただし、セキュリティを強化するには、 TLS 経由の LDAP の使用を検討してください。
 
-. LDAPクライアント設定ごとに、SSLを禁止して強制的にTLSを使用します。 `vserver services name-service ldap client modify -vserver vserver_name -client-config ldap_client_config_name -allow-ssl false`
-. LDAPクライアントでSSLの使用が許可されていないことを確認します。 `vserver services name-service ldap client show`
+. LDAPクライアント設定ごとに、SSLを禁止して強制的にTLSを使用します。
++
+[source, cli]
+----
+vserver services name-service ldap client modify -vserver vserver_name -client-config ldap_client_config_name -allow-ssl false
+----
+. LDAPクライアントでSSLの使用が許可されていないことを確認します。
++
+[source, cli]
+----
+vserver services name-service ldap client show
+----
 
 
 .関連情報

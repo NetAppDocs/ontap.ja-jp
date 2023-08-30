@@ -4,25 +4,47 @@ sidebar: sidebar
 keywords: ontap, upgrade, verifying, verify, netgroup file, present, nodes 
 summary: ネットグループを Storage Virtual Machine （ SVM ）にロードした場合は、アップグレード前またはリバート前に、ネットグループファイルが各ノードに存在することを確認する必要があります。ノード上にネットグループファイルが見つからない場合は、原因のアップグレードまたはリバートが失敗する可能性があります。 
 ---
-= ネットグループファイルがすべてのノードに存在するかどうかを確認する
+= ONTAPのアップグレードまたはリバートの前に、ネットグループファイルがすべてのノードに存在することを確認する
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-ネットグループを Storage Virtual Machine （ SVM ）にロードした場合は、アップグレード前またはリバート前に、ネットグループファイルが各ノードに存在することを確認する必要があります。ノード上にネットグループファイルが見つからない場合は、原因のアップグレードまたはリバートが失敗する可能性があります。
+ネットグループをStorage Virtual Machine（SVM）にロードした場合は、ONTAPをアップグレードまたはリバートする前に、ネットグループファイルが各ノードに存在することを確認する必要があります。ノード上にネットグループファイルが見つからない場合は、原因のアップグレードまたはリバートが失敗する可能性があります。
 
-link:../nfs-admin/index.html["NFS の管理"] ネットグループおよび URI からのネットグループのロードの詳細が含まれます。
-
-. 権限レベルを advanced に設定します。 `set -privilege advanced`
-. 各SVMのネットグループのステータスを表示します。 `vserver services netgroup status`
-. 各SVMについて、各ノードに表示されているネットグループファイルのハッシュ値が同じであることを確認します。 `vserver services name-service netgroup status`
+.手順
+. 権限レベルを advanced に設定します。
++
+[source, cli]
+----
+set -privilege advanced
+----
+. 各SVMのネットグループのステータスを表示します。
++
+[source, cli]
+----
+vserver services netgroup status
+----
+. 各SVMについて、各ノードに表示されているネットグループファイルのハッシュ値が同じであることを確認します。
++
+[source, cli]
+----
+vserver services name-service netgroup status
+----
 +
 その場合は、次の手順を省略してアップグレードまたはリバートを実行できます。それ以外の場合は、次の手順に進みます。
 
-. クラスタのいずれかのノードで、ネットグループファイルを手動でロードします。 `vserver services netgroup load -vserver vserver_name -source uri`
+. クラスタのいずれかのノードで、ネットグループファイルを手動でロードします。
++
+[source, cli]
+----
+vserver services netgroup load -vserver vserver_name -source uri
+----
 +
 このコマンドは、すべてのノードにネットグループファイルをダウンロードします。ノード上に既存のネットグループファイルがある場合は、そのファイルが上書きされます。
 
 
+
+.関連情報
+link:../nfs-config/work-netgroups-task.html["ネットグループの使用"]

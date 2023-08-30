@@ -11,12 +11,23 @@ summary: ONTAP をアップグレードする前に、重複排除機能が有�
 
 
 [role="lead"]
-ONTAP をアップグレードする前に、重複排除機能が有効なボリュームとそのボリュームを含むアグリゲートに重複排除メタデータ用の十分な空きスペースがあるかどうかを確認する必要があります。空きスペースが不足している場合は、 ONTAP のアップグレードが完了したときに重複排除機能が無効になります。
+ONTAPをアップグレードする前に、重複排除機能が有効なボリュームとそのボリュームを含むアグリゲートに、重複排除メタデータ用の十分な空きスペースがあることを確認する必要があります。空きスペースが不足している場合は、 ONTAP のアップグレードが完了したときに重複排除機能が無効になります。
 
 重複排除機能が有効な各ボリュームには 4% 以上の空きスペースが必要です。重複排除機能が有効なボリュームを含む各アグリゲートには 3% 以上の空きスペースが必要です。
 
-. 重複排除されているボリュームを特定します。 `volume efficiency show`
-. 特定した各ボリュームで使用可能な空きスペースを確認します。 `vol show -vserver Vserver_name -volume volume_name -fields volume, size, used, available, percent-used, junction-path`
+.手順
+. 重複排除されているボリュームを特定します。
++
+[source, cli]
+----
+volume efficiency show
+----
+. 特定した各ボリュームで使用可能な空きスペースを確認します。
++
+[source, cli]
+----
+vol show -vserver Vserver_name -volume volume_name -fields volume, size, used, available, percent-used, junction-path
+----
 +
 重複排除機能が有効な各ボリュームの使用容量が 96% を超えないようにしてください。必要に応じて、この容量を超えたボリュームのサイズを拡張できます。
 
@@ -35,7 +46,12 @@ cluster1-01 vol0   22.99GB -             14.11GB      7.73GB 35%
 cluster1-02 vol0   22.99GB -             12.97GB      8.87GB    40%
 2 entries were displayed.
 ----
-. 重複排除機能が有効なボリュームを含む各アグリゲート上の使用可能な空きスペースを確認します。 `aggr show -aggregate aggregate_name -fields aggregate, size, usedsize, availsize, percent-used`
+. 重複排除機能が有効なボリュームを含む各アグリゲート上の使用可能な空きスペースを確認します。
++
+[source, cli]
+----
+aggr show -aggregate aggregate_name -fields aggregate, size, usedsize, availsize, percent-used
+----
 +
 各アグリゲートの使用容量が 97% を超えないようにしてください。必要に応じて、この容量を超えたアグリゲートのサイズを拡張できます。
 

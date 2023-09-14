@@ -11,21 +11,19 @@ summary: ONTAP 9.8 以降では、セキュアパージを使用して、同期 
 
 
 [role="lead"]
-ONTAP 9.8 以降では、同期 SnapMirror 関係にある NVE 対応ボリュームで、システムを停止せずに「 crub 」データをセキュアパージできます。
-
-.必要なもの
-* このタスクを実行するには、クラスタ管理者である必要があります。
-* このタスクを実行するには advanced 権限が必要です。
-
+ONTAP 9.8以降では、セキュアパージを使用して、同期SnapMirror関係にあるNVE対応ボリュームのデータを無停止で「スクラビング」できます。
 
 .このタスクについて
 削除されたファイルのデータ量によっては、セキュアパージが完了するまでに数分から数時間かかることがあります。を使用できます `volume encryption secure-purge show` コマンドを使用して処理のステータスを表示します。を使用できます `volume encryption secure-purge abort` コマンドを入力して処理を終了します。
 
-[NOTE]
-====
-SAN ホストでセキュアパージを実行するには、パージするファイルを含む LUN 全体を削除するか、パージするファイルに属するブロックの LUN で穴を開ける必要があります。LUN を削除できない場合や、ホストオペレーティングシステムで LUN のパンチ穴がサポートされていない場合は、セキュアパージを実行できません。
 
-====
+NOTE: SAN ホストでセキュアパージを実行するには、パージするファイルを含む LUN 全体を削除するか、パージするファイルに属するブロックの LUN で穴を開ける必要があります。LUN を削除できない場合や、ホストオペレーティングシステムで LUN のパンチ穴がサポートされていない場合は、セキュアパージを実行できません。
+
+.作業を開始する前に
+* このタスクを実行するには、クラスタ管理者である必要があります。
+* このタスクを実行するには advanced 権限が必要です。
+
+
 .手順
 . ストレージシステムで、 advanced 権限レベルに切り替えます。
 +
@@ -46,25 +44,25 @@ SAN ホストでセキュアパージを実行するには、パージするフ�
 
 . セキュアにパージするファイルが Snapshot コピーにある場合は、 Snapshot コピーを削除します。
 +
-`snapshot delete -vserver SVM_name -volume vol_A -snapshot snapshot`
+`snapshot delete -vserver _SVM_name_ -volume _volume_name_ -snapshot _snapshot_`
 
 . セキュアなパージファイルがベースまたは共通の Snapshot コピーに含まれている場合は、 SnapMirror を更新して共通の Snapshot コピーをフォワードします。
 +
-`snapmirror update -source-snapshot snapshot_name -destination-path destination_path`
+`snapmirror update -source-snapshot _snapshot_name_ -destination-path _destination_path_`
 
 +
 共通の Snapshot コピーが 2 つあるため、このコマンドは 2 回実行する必要があります。
 
 . セキュアなパージファイルがアプリケーションと整合性のある Snapshot コピーに含まれている場合は、同期 SnapMirror 関係にある両方のボリュームで Snapshot コピーを削除します。
 +
-`snapshot delete -vserver SVM_name -volume vol_name -snapshot snapshot`
+`snapshot delete -vserver _SVM_name_ -volume _volume_name_ -snapshot _snapshot_`
 
 +
 この手順は両方のボリュームで実行します。
 
 . 削除したファイルを安全にパージします。
 +
-`volume encryption secure-purge start -vserver SVM_name -volume volume_name`
+`volume encryption secure-purge start -vserver _SVM_name_ -volume _volume_name_`
 
 +
 同期 SnapMirror 関係にある各ボリュームについて、この手順を繰り返します。

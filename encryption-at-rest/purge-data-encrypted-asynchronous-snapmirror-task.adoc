@@ -13,7 +13,7 @@ summary: ONTAP 9.8 以降では、セキュアパージを使用して、非同�
 [role="lead"]
 ONTAP 9.8 以降では、非同期 SnapMirror 関係を持つ NVE 対応ボリュームで、システムを停止せずに「 crub 」データをセキュアパージできます。
 
-.必要なもの
+.作業を開始する前に
 * このタスクを実行するには、クラスタ管理者である必要があります。
 * このタスクを実行するには advanced 権限が必要です。
 
@@ -21,13 +21,11 @@ ONTAP 9.8 以降では、非同期 SnapMirror 関係を持つ NVE 対応ボリ�
 .このタスクについて
 削除されたファイルのデータ量によっては、セキュアパージが完了するまでに数分から数時間かかることがあります。を使用できます `volume encryption secure-purge show` コマンドを使用して処理のステータスを表示します。を使用できます `volume encryption secure-purge abort` コマンドを入力して処理を終了します。
 
-[NOTE]
-====
-SAN ホストでセキュアパージを実行するには、パージするファイルを含む LUN 全体を削除するか、パージするファイルに属するブロックの LUN で穴を開ける必要があります。LUN を削除できない場合や、ホストオペレーティングシステムで LUN のパンチ穴がサポートされていない場合は、セキュアパージを実行できません。
 
-====
+NOTE: SAN ホストでセキュアパージを実行するには、パージするファイルを含む LUN 全体を削除するか、パージするファイルに属するブロックの LUN で穴を開ける必要があります。LUN を削除できない場合や、ホストオペレーティングシステムで LUN のパンチ穴がサポートされていない場合は、セキュアパージを実行できません。
+
 .手順
-. ストレージシステムで、 advanced 権限レベルに切り替えます。
+. ストレージシステムで、advanced権限レベルに切り替えます。
 +
 `set -privilege advanced`
 
@@ -39,24 +37,24 @@ SAN ホストでセキュアパージを実行するには、パージするフ�
 
 . 非同期関係のデスティネーションボリュームを安全にパージするように準備します。
 +
-`volume encryption secure-purge start -vserver SVM_name -volume volume_name -prepare true`
+`volume encryption secure-purge start -vserver _SVM_name_ -volume _volume_name_ -prepare true`
 
 +
 非同期 SnapMirror 関係の各ボリュームについて、この手順を繰り返します。
 
 . セキュアにパージするファイルが Snapshot コピーにある場合は、 Snapshot コピーを削除します。
 +
-`snapshot delete -vserver SVM_name -volume vol_name -snapshot`
+`snapshot delete -vserver _SVM_name_ -volume _volume_name_ -snapshot`
 
 . セキュアパージの対象となるファイルがベース Snapshot コピー内にある場合は、次の手順を実行します。
 +
 .. 非同期 SnapMirror 関係のデスティネーションボリュームに Snapshot コピーを作成します。
 +
-`volume snapshot create -snapshot snapshot_name -vserver SVM_name -volume vol_name`
+`volume snapshot create -snapshot snapshot_name -vserver _SVM_name_ -volume _volume_name_`
 
 .. SnapMirror を更新してベースの Snapshot コピーをフォワードします。
 +
-`snapmirror update -source-snapshot snapshot_name -destination-path destination_path`
+`snapmirror update -source-snapshot _snapshot_name_ -destination-path _destination_path_`
 
 +
 非同期 SnapMirror 関係のボリュームごとにこの手順を繰り返します。
@@ -67,15 +65,15 @@ SAN ホストでセキュアパージを実行するには、パージするフ�
 
 .. ベースのSnapshotコピーが存在することを確認します。
  [+]
-`snapshot show -vserver SVM_name -volume vol_name``
+`snapshot show -vserver _SVM_name_ -volume _volume_name_`
 .. ベースのSnapshotコピーを削除します。
  [+]
-`snapshot delete -vserver SVM_name -volume vol_name -snapshot snapshot`
+`snapshot delete -vserver _svm_name_ -volume _volume_name_ -snapshot snapshot`
 
 
 . 削除したファイルを安全にパージします。
 +
-`volume encryption secure-purge start -vserver SVM_name -volume volume_name`
+`volume encryption secure-purge start -vserver _svm_name_ -volume _volume_name_`
 
 +
 非同期 SnapMirror 関係の各ボリュームについて、この手順を繰り返します。

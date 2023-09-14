@@ -22,7 +22,7 @@ ONTAP 9.11.1以降では、SVM上のクラスタ化された外部キー管理�
 
 == 作業を開始する前に
 
-* link:install-ssl-certificates-hardware-task.html["KMIPキー管理はSVMですでに有効になっています"]。
+* link:install-ssl-certificates-hardware-task.html["SVMでKMIPキー管理が有効になっている必要があります。"]。
 * このプロセスでサポートされるのは、KMIPを使用するキーサーバのみです。サポートされているキーサーバの一覧については、を参照してください link:http://mysupport.netapp.com/matrix/["NetApp Interoperability Matrix Tool で確認できます"^]。
 * クラスタ内のすべてのノードでONTAP 9.11.1以降が実行されている必要があります。
 * サーバの順序は、で引数をリストします `-secondary-key-servers` パラメータには、外部キー管理（KMIP）サーバのアクセス順序が反映されます。
@@ -39,19 +39,19 @@ ONTAP 9.11.1以降では、SVM上のクラスタ化された外部キー管理�
 .SVMにプライマリキーサーバとセカンダリキーサーバを追加する
 --
 . クラスタでキー管理が有効になっていないことを確認します。
-`security key-manager external show -vserver _vserver_name_`
+`security key-manager external show -vserver _svm_name_`
 SVMですでに最大4つのプライマリキーサーバが有効になっている場合は、新しいプライマリキーサーバを追加する前に既存のプライマリキーサーバの1つを削除する必要があります。
 . プライマリキー管理ツールを有効にします。
-`security key-manager external enable -vserver _vserver_name_ -key-servers _server_ip_ -client-cert _client_cert_name_ -server-ca-certs _server_ca_cert_names_`
+`security key-manager external enable -vserver _svm_name_ -key-servers _server_ip_ -client-cert _client_cert_name_ -server-ca-certs _server_ca_cert_names_`
 . プライマリキーサーバを変更してセカンダリキーサーバを追加します。。 `-secondary-key-servers` パラメータには、最大3つのキーサーバをカンマで区切って指定できます。
-`security key-manager external modify-server -vserver _vserver_name_ -key-servers _primary_key_server_ -secondary-key-servers _list_of_key_servers_`
+`security key-manager external modify-server -vserver _svm_name_ -key-servers _primary_key_server_ -secondary-key-servers _list_of_key_servers_`
 
 
 --
 .既存のプライマリキーサーバにセカンダリキーサーバを追加する
 --
 . プライマリキーサーバを変更してセカンダリキーサーバを追加します。。 `-secondary-key-servers` パラメータには、最大3つのキーサーバをカンマで区切って指定できます。
-`security key-manager external modify-server -vserver _vserver_name_ -key-servers _primary_key_server_ -secondary-key-servers _list_of_key_servers_`
+`security key-manager external modify-server -vserver _svm_name_ -key-servers _primary_key_server_ -secondary-key-servers _list_of_key_servers_`
 セカンダリキーサーバの詳細については、を参照してください  <<mod-secondary>>。
 
 
@@ -65,7 +65,7 @@ SVMですでに最大4つのプライマリキーサーバが有効になって�
 
 
 
-=== プライマリキーサーバとセカンダリキーサーバを変換しています
+=== プライマリキーサーバとセカンダリキーサーバの変換
 
 プライマリキーサーバをセカンダリキーサーバに変換するには、まずを使用してSVMからプライマリキーサーバを削除する必要があります `security key-manager external remove-servers` コマンドを実行します
 
@@ -73,7 +73,7 @@ SVMですでに最大4つのプライマリキーサーバが有効になって�
 
 
 
-=== セカンダリキーサーバを変更しています
+=== セカンダリキーサーバを変更します。
 
 セカンダリキーサーバの管理はで行います `-secondary-key-servers` のパラメータ `security key-manager external modify-server` コマンドを実行します。 `-secondary-key-servers` パラメータにはカンマで区切ったリストを指定できます。リスト内で指定されたセカンダリキーサーバの順序によって、セカンダリキーサーバのアクセスシーケンスが決まります。アクセス順序は、コマンドを実行して変更できます `security key-manager external modify-server` セカンダリキーサーバを別の順序で入力します。
 

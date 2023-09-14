@@ -13,19 +13,17 @@ summary: ONTAP 9.4 以降では、セキュアパージを使用して、 NVE �
 [role="lead"]
 ONTAP 9.4 以降では、 NVE 対応ボリューム上で、システムを停止することなく「 crub 」データにセキュアパージを使用できます。
 
-.必要なもの
+.このタスクについて
+削除されたファイルのデータ量によっては、セキュアパージが完了するまでに数分から数時間かかることがあります。を使用できます `volume encryption secure-purge show` コマンドを使用して処理のステータスを表示します。を使用できます `volume encryption secure-purge abort` コマンドを入力して処理を終了します。
+
+
+NOTE: SAN ホストでセキュアパージを実行するには、パージするファイルを含む LUN 全体を削除するか、パージするファイルに属するブロックの LUN で穴を開ける必要があります。LUN を削除できない場合や、ホストオペレーティングシステムで LUN のパンチ穴がサポートされていない場合は、セキュアパージを実行できません。
+
+.作業を開始する前に
 * このタスクを実行するには、クラスタ管理者である必要があります。
 * このタスクを実行するには advanced 権限が必要です。
 
 
-.このタスクについて
-削除されたファイルのデータ量によっては、セキュアパージが完了するまでに数分から数時間かかることがあります。を使用できます `volume encryption secure-purge show` コマンドを使用して処理のステータスを表示します。を使用できます `volume encryption secure-purge abort` コマンドを入力して処理を終了します。
-
-[NOTE]
-====
-SAN ホストでセキュアパージを実行するには、パージするファイルを含む LUN 全体を削除するか、パージするファイルに属するブロックの LUN で穴を開ける必要があります。LUN を削除できない場合や、ホストオペレーティングシステムで LUN のパンチ穴がサポートされていない場合は、セキュアパージを実行できません。
-
-====
 .手順
 . セキュアパージするファイルまたは LUN を削除します。
 +
@@ -39,11 +37,11 @@ SAN ホストでセキュアパージを実行するには、パージするフ�
 
 . 安全にパージするファイルがスナップショットにある場合は、スナップショットを削除します。
 +
-`snapshot delete -vserver SVM_name -volume vol_name -snapshot`
+`snapshot delete -vserver _SVM_name_ -volume _volume_name_ -snapshot`
 
 . 削除したファイルを安全にパージします。
 +
-`volume encryption secure-purge start -vserver SVM_name -volume volume_name`
+`volume encryption secure-purge start -vserver _SVM_name_ -volume _volume_name_`
 
 +
 次のコマンドは、で削除したファイルをセキュアパージします `vol1` SVM上``vs1``：

@@ -1,8 +1,8 @@
 ---
 permalink: concepts/insights-system-optimization-concept.html 
 sidebar: sidebar 
-keywords: system manager, optimize, optimise, optimization, optimisation, insight, cluster, system, analysis, analyze, perform, performing, performance, capacity, local tier, storage tier, telnet, remote shell, rsh, autosupport, auto support, auto-support, insecure protocol, login banner, log in banner, ssh, secure shell, cbc cipher, ntp server, admin user, administrative, user, best practice, practise, fabricpool, fabric pool, physical capacity, aggregate, cloud, snapshot, directories, directory, file, remote access, transport protocol, https, http, autogrow, auto grow, auto-grow, shrink, reduce, reduction, dismiss, undismiss, explore, fix, remove, replace, analytic, security, compliance, secure, comply, volume, applications, reclaim, space, full, provisioning, provisioned cluster, serial, port, node 
-summary: System Managerでは、システムのパフォーマンスとセキュリティの最適化に役立つ分析情報を表示できます。 
+keywords: system manager, optimize, optimise, optimization, optimisation, insight, cluster, system, analysis, analyze, perform, performing, performance, capacity, local tier, storage tier, telnet, remote shell, rsh, autosupport, auto support, auto-support, insecure protocol, nonsecure, login banner, log in banner, ssh, secure shell, cbc cipher, ntp server, admin user, administrative, user, best practice, practise, fabricpool, fabric pool, physical capacity, aggregate, cloud, snapshot, directories, directory, file, remote access, transport protocol, https, http, autogrow, auto grow, auto-grow, shrink, reduce, reduction, dismiss, undismiss, explore, fix, remove, replace, analytic, security, compliance, secure, comply, volume, applications, reclaim, space, full, provisioning, provisioned cluster, serial, port, node, global fips 140-2 
+summary: ONTAP 9.11.1以降では、システムのパフォーマンスとセキュリティの最適化に役立つ分析情報がSystem Managerに表示されます。 
 ---
 = System Managerの分析情報
 :allow-uri-read: 
@@ -30,15 +30,13 @@ System Managerでは、システムの容量の状況に応じて次の情報を
 
 
  a| 
-ローカル階層の物理容量が不足しています
+ローカル階層のスペースが不足しています
  a| 
 リスクを修正
  a| 
-1つ以上のローカル階層の使用率が95%を超えており、急速に拡張しています。
+1つ以上のローカル階層の使用率が95%を超えており、急速に拡張しています。既存のワークロードを拡張できない場合や、極端な場合には、既存のワークロードのスペースが不足して失敗することがあります。
  a| 
-*推奨される修正*：他のオプションのいずれかを実行します。
-
-*その他のオプション*：
+*推奨される修正*：次のいずれかのオプションを実行します。
 
 * ボリュームリカバリキューをクリアします。
 * シックプロビジョニングされたボリュームでシンプロビジョニングを有効にして、トラップされたストレージを解放します。
@@ -51,22 +49,11 @@ System Managerでは、システムの容量の状況に応じて次の情報を
 
 
  a| 
-FlexGroupボリュームの容量が不均衡になっています
- a| 
-ストレージの最適化
- a| 
-1つ以上のFlexGroupボリュームで不均衡の割合が高くなっています。
- a| 
-*推奨*：FlexGroupボリュームをリバランシングします。
-
-
-
- a| 
-アプリケーションのスペース不足
+アプリケーションにスペースが不足している
  a| 
 要注意
  a| 
-95%を超えているボリュームでは自動拡張は有効になりません。
+95%を超えていますが、自動拡張が有効になっていません。
  a| 
 *推奨*：現在の容量の150%まで自動拡張を有効にします。
 
@@ -76,6 +63,28 @@ FlexGroupボリュームの容量が不均衡になっています
 * ボリュームのサイズを変更します。
 * ディレクトリまたはファイルを削除します。
 
+
+
+
+ a| 
+FlexGroupボリュームの容量が不均衡になっています
+ a| 
+ストレージの最適化
+ a| 
+1つ以上のFlexGroupのコンスティチュエントボリュームのサイズが時間の経過とともに不均衡になっており、使用容量が不均衡になっています。  コンスティチュエントボリュームがフルになると、書き込みエラーが発生する可能性があります。
+ a| 
+*推奨*：FlexGroupボリュームをリバランシングします。
+
+
+
+ a| 
+Storage VMの容量が不足しています
+ a| 
+ストレージの最適化
+ a| 
+1つ以上のStorage VMが最大容量に近づいています。  Storage VMが最大容量に達しても、新規または既存のボリュームに追加のスペースをプロビジョニングすることはできません。
+ a| 
+*推奨*：可能であれば、Storage VMの最大容量を増やします。
 
 |===
 
@@ -89,6 +98,50 @@ FlexGroupボリュームの容量が不均衡になっています
 
 
 | インサイト | 重大度 | 条件 | の修正 
+
+
+ a| 
+ボリュームは引き続きランサムウェア対策学習モード
+ a| 
+要注意
+ a| 
+1つ以上のボリュームが90日間Anti-Ransomware Learningモードになっています。
+ a| 
+*推奨*：これらのボリュームに対して、ランサムウェア対策のアクティブモードを有効にします。
+
+
+
+ a| 
+ボリュームでSnapshotコピーの自動削除が有効になる
+ a| 
+要注意
+ a| 
+Snapshotの自動削除が1つ以上のボリュームで有効になっています。
+ a| 
+*推奨*：Snapshotコピーの自動削除を無効にします。そうしないと、ランサムウェア攻撃が発生した場合に、これらのボリュームのデータリカバリが不可能になる可能性があります。
+
+
+
+ a| 
+ボリュームにSnapshotポリシーがありません
+ a| 
+要注意
+ a| 
+1つ以上のボリュームに適切なSnapshotポリシーが関連付けられていません。
+ a| 
+*推奨*：Snapshotポリシーが割り当てられていないボリュームにSnapshotポリシーを適用します。そうしないと、ランサムウェア攻撃が発生した場合に、これらのボリュームのデータリカバリが不可能になる可能性があります。
+
+
+
+ a| 
+ネイティブFPolicyが設定されていない
+ a| 
+ベストプラクティス
+ a| 
+1つ以上のNAS Storage VMにFPolicyが設定されていません。
+ a| 
+*推奨*：クラスタ内のボリュームへの書き込みを許可または許可しないファイル拡張子を制御するように、NAS Storage VMのFPolicyを設定します。これにより、既知のファイル拡張子を持つランサムウェアによる攻撃を防ぐことができます。
+
 
 
  a| 
@@ -109,106 +162,7 @@ Telnetが有効
  a| 
 NTP用に設定されているサーバの数が3未満です。
  a| 
-*推奨*：NTPサーバを追加して、3台以上の構成にします。
-
-
-
- a| 
-AutoSupportでセキュアでないプロトコルが使用されています
- a| 
-ベストプラクティス
- a| 
-AutoSupportはHTTPS経由で通信するように設定されていません。
- a| 
-*推奨*：転送プロトコルをHTTPSに変更します。
-
-
-
- a| 
-デフォルトのadminユーザはロックされていません
- a| 
-ベストプラクティス
- a| 
-デフォルトの管理アカウント（adminまたはdiag）を使用してログインしているユーザはおらず、これらのアカウントはロックされていません。
- a| 
-*推奨*：使用されていないデフォルトの管理アカウントをロックします。
-
-
-
- a| 
-ボリュームにSnapshotポリシーがありません
- a| 
-要注意
- a| 
-適切なSnapshotポリシーが1つ以上のボリュームに関連付けられていません。
- a| 
-*推奨*：Snapshotポリシーが割り当てられていないボリュームにSnapshotポリシーを適用します。そうしないと、ランサムウェア攻撃が発生した場合に、これらのボリュームのデータをリカバリできない可能性があります。
-
-
-
- a| 
-Snapshotの自動削除が有効になっています
- a| 
-要注意
- a| 
-Snapshotコピーの自動削除は、1つ以上のボリュームで有効になっています。
- a| 
-*推奨*：Snapshotコピーの自動削除を無効にします。そうしないと、ランサムウェア攻撃が発生した場合に、これらのボリュームのデータをリカバリできない可能性があります。
-
-
-
- a| 
-ボリュームはランサムウェア攻撃の監視対象外
- a| 
-要注意
- a| 
-Anti-Ransomwareは複数のボリュームでサポートされていますが、まだ設定されていません。そうしないと、ボリュームが脅威にさらされているときや攻撃を受けているときに気付かない可能性があります。
- a| 
-*推奨*：ボリュームでランサムウェア対策を有効にします。
-
-
-
- a| 
-Storage VMはランサムウェア対策用に設定されていない
- a| 
-ベストプラクティス
- a| 
-ランサムウェア対策は複数のStorage VMでサポートされていますが、まだ設定されていません。
- a| 
-*推奨*：Storage VMでランサムウェア対策を有効にします。そうしないと、Storage VMが脅威にさらされているときや攻撃を受けているときに気付かない可能性があります。
-
-
-
- a| 
-ネイティブFPolicyが設定されていない
- a| 
-ベストプラクティス
- a| 
-NAS Storage VMに対してFPolicyが設定されていません。
- a| 
-*推奨*：クラスタ内のボリュームへの書き込みを許可または許可しないファイル拡張子を制御するように、NAS Storage VMのFPolicyを設定します。
-
-
-
- a| 
-Anti-Ransomwareに対してアクティブモードが有効になっていない
- a| 
-要注意
- a| 
-いくつかのボリュームが学習モードを完了しましたが、アクティブモードがオンになっていません。
- a| 
-*推奨*：これらのボリュームのアクティブモードをオンにします。
-
-
-
- a| 
-ログインバナーが設定されていません
- a| 
-ベストプラクティス
- a| 
-クラスタまたはStorage VMにログインメッセージが設定されていません。
- a| 
-*推奨*：クラスタまたはStorage VMのログインバナーを設定して使用を有効にしてください。
+*推奨*：少なくとも3台のNTPサーバをクラスタに関連付けます。  そうしないと、クラスタ時間の同期で問題が発生する可能性があります。
 
 
 
@@ -224,24 +178,79 @@ Remote Shell（RSH；リモートシェル）が有効
 
 
  a| 
-Secure Shell（SSH）でセキュアでない暗号が使用されています
+ログインバナーが設定されていません
  a| 
 ベストプラクティス
  a| 
-現在の設定では、セキュアでないCBC暗号が使用されています。
+クラスタ、Storage VM、またはその両方に対してログインメッセージが設定されることはありません。
  a| 
-*推奨*：「ais128-cbc」、「aes192-cbc」、「aes256-cbc」、「3DES-cbc」など、「cbc」を含む名前の暗号を削除します。
+*推奨*：クラスタとStorage VMのログインバナーを設定し、使用を有効にします。
 
 
 
  a| 
-グローバルFIPSは無効です
+AutoSupportがセキュアでないプロトコルを使用している
  a| 
 ベストプラクティス
  a| 
-FIPS 140-2へのグローバルな準拠は無効になっています。
+AutoSupportはHTTPS経由で通信するように設定されていません。
  a| 
-*推奨*：グローバルFIPS 140-2準拠を有効にします。
+*推奨*：テクニカルサポートにAutoSupportメッセージを送信するためのデフォルトの転送プロトコルとしてHTTPSを使用することを強く推奨します。
+
+
+
+ a| 
+デフォルトの管理ユーザがロックされていません
+ a| 
+ベストプラクティス
+ a| 
+デフォルトの管理アカウント（adminまたはdiag）を使用してログインしているユーザはおらず、これらのアカウントはロックされていません。
+ a| 
+*推奨*：使用されていないデフォルトの管理アカウントをロックします。
+
+
+
+ a| 
+Secure Shell（SSH）でセキュアでない暗号を使用
+ a| 
+ベストプラクティス
+ a| 
+現在の設定では、セキュアでないCBC暗号を使用しています。
+ a| 
+*推奨*:訪問者との安全な通信を保護するために、Webサーバー上で安全な暗号のみを許可する必要があります。名前に「cbc」を含む暗号（「ais128-cbc」、「aes192-cbc」、「aes256-cbc」、「3DES-cbc」など）を削除します。
+
+
+
+ a| 
+FIPS 140-2へのグローバルな準拠が無効になっている
+ a| 
+ベストプラクティス
+ a| 
+クラスタでFIPS 140-2へのグローバル準拠が無効になっています。
+ a| 
+*推奨*：セキュリティ上の理由から、ONTAPが外部のクライアントまたはサーバクライアントと安全に通信できるように、グローバルFIPS 140-2準拠の暗号化を有効にする必要があります。
+
+
+
+ a| 
+ボリュームがランサムウェア攻撃で監視されていない
+ a| 
+要注意
+ a| 
+Anti-ransomwareが1つ以上のボリュームで無効になっています。
+ a| 
+*推奨*：ボリュームでランサムウェア対策を有効にします。そうしないと、ボリュームが脅威にさらされているときや攻撃を受けているときに気付かない可能性があります。
+
+
+
+ a| 
+Storage VMはランサムウェア対策用に設定されていない
+ a| 
+ベストプラクティス
+ a| 
+ランサムウェア対策用に設定されていないStorage VMがあります。
+ a| 
+*推奨*：Storage VMでランサムウェア対策を有効にします。そうしないと、Storage VMが脅威にさらされているときや攻撃を受けているときに気付かない可能性があります。
 
 |===
 
@@ -258,34 +267,34 @@ FIPS 140-2へのグローバルな準拠は無効になっています。
 
 
  a| 
-自動更新が有効になっていません。
- a| 
-ベストプラクティス
- a| 
-クラスタでEULAが承認されていません。
- a| 
-*推奨*：クラスタのEULAに同意します。
-
-
-
- a| 
-ファームウェアの最新のアップデートが利用可能です
- a| 
-ベストプラクティス
- a| 
-お使いのシステムには、パフォーマンス向上のためにクラスタを保護するための改善策、セキュリティパッチ、または新機能が含まれている可能性のあるファームウェアに対する最新の更新がありません。
- a| 
-*推奨*：ONTAPファームウェアをアップデートします。
-
-
-
- a| 
-通知が設定されていません
+通知用のクラスタが設定されていません
  a| 
 ベストプラクティス
  a| 
 Eメール、Webhook、またはSNMPトラップホストが、クラスタの問題に関する通知を受信できるように設定されていません。
  a| 
 *推奨*：クラスタの通知を設定します。
+
+
+
+ a| 
+クラスタに自動更新が設定されていません。
+ a| 
+ベストプラクティス
+ a| 
+最新のディスク認定パッケージ、ディスクファームウェア、シェルフファームウェア、およびSP / BMCファームウェアファイルが利用可能な場合に自動更新を受信するようにクラスタが設定されていません。
+ a| 
+*推奨*：この機能を有効にします。
+
+
+
+ a| 
+クラスタファームウェアが最新ではありません
+ a| 
+ベストプラクティス
+ a| 
+お使いのシステムには、パフォーマンス向上のためにクラスタを保護するための改善策、セキュリティパッチ、または新機能が含まれている可能性のあるファームウェアに対する最新の更新がありません。
+ a| 
+*推奨*：ONTAPファームウェアをアップデートします。
 
 |===

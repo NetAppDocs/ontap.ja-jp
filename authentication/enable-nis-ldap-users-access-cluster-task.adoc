@@ -19,11 +19,6 @@ LDAP アカウントまたは NIS アカウントから SVM にアクセスす�
 
 LDAP アカウントが SVM にアクセスするためには、 LDAP サーバから SVM へのアクセスを設定しておく必要があります。を使用できます `vserver services name-service ldap client create` コマンドを使用してSVMにLDAPクライアント設定を作成します。その後、を使用できます `vserver services name-service ldap create` コマンドを使用してLDAPクライアント設定をSVMに関連付けます。
 
-.必要なもの
-* をインストールしておく必要があります link:install-ca-signed-server-digital-certificate-task.html["CA 署名済みサーバデジタル証明書"] 指定します。
-* このタスクを実行するには、クラスタ管理者または SVM の管理者である必要があります。
-
-
 .このタスクについて
 ほとんどの LDAP サーバでは、 ONTAP が提供する次のデフォルトスキーマを使用できます。
 
@@ -33,10 +28,15 @@ LDAP アカウントが SVM にアクセスするためには、 LDAP サーバ�
 * RFC-2307 （ UNIX LDAP サーバ）
 
 
-他のスキーマを使用する必要がある場合を除き、デフォルトのスキーマを使用することを推奨します。その場合は、デフォルトスキーマをコピーし、コピーを変更することによって、独自のスキーマを作成できます。詳細については、次のドキュメントを参照してください。
+他のスキーマを使用する必要がある場合を除き、デフォルトのスキーマを使用することを推奨します。その場合は、デフォルトスキーマをコピーし、コピーを変更することによって、独自のスキーマを作成できます。詳細については、を参照してください
 
 * link:../nfs-config/index.html["NFS構成"]
 * https://www.netapp.com/pdf.html?item=/media/19423-tr-4835.pdf["ネットアップテクニカルレポート 4835 ：『 How to Configure LDAP in ONTAP 』"^]
+
+
+.作業を開始する前に
+* をインストールしておく必要があります link:install-ca-signed-server-digital-certificate-task.html["CA 署名済みサーバデジタル証明書"] 指定します。
+* このタスクを実行するには、クラスタ管理者または SVM の管理者である必要があります。
 
 
 .手順
@@ -45,11 +45,9 @@ LDAP アカウントが SVM にアクセスするためには、 LDAP サーバ�
 `vserver services name-service ldap client create -vserver SVM_name -client-config client_configuration -servers LDAP_server_IPs -schema schema -use-start-tls true|false`
 
 +
-[NOTE]
-====
-Start TLS は、データ SVM へのアクセスでのみサポートされます。管理 SVM へのアクセスではサポートされません。
 
-====
+NOTE: Start TLS は、データ SVM へのアクセスでのみサポートされます。管理 SVM へのアクセスではサポートされません。
+
 +
 コマンド構文全体については、を参照してください link:config-worksheets-reference.html["ワークシート"]。
 
@@ -63,17 +61,15 @@ cluster1::> vserver services name-service ldap client create
 -vserver engData -client-config corp -servers 172.16.0.100,172.16.0.101 -schema RFC-2307 -use-start-tls true
 ----
 +
-[NOTE]
-====
-ONTAP 9.2以降では、フィールドが表示されます `-ldap-servers` フィールドを置き換えます `-servers`。この新しいフィールドには、 LDAP サーバのホスト名または IP アドレスを指定できます。
 
-====
+NOTE: ONTAP 9.2以降では、フィールドが表示されます `-ldap-servers` フィールドを置き換えます `-servers`。この新しいフィールドには、 LDAP サーバのホスト名または IP アドレスを指定できます。
+
 . LDAPクライアント設定をSVMに関連付けます。 `vserver services name-service ldap create -vserver SVM_name -client-config client_configuration -client-enabled true|false`
 +
 コマンド構文全体については、を参照してください link:config-worksheets-reference.html["ワークシート"]。
 
 +
-次のコマンドは、LDAPクライアント設定を関連付けます `corp` SVMを使用します``engData``、SVMでLDAPクライアントを有効にします。
+次のコマンドは、LDAPクライアント設定を関連付けます `corp` SVMを使用します `engData`、SVMでLDAPクライアントを有効にします。
 
 +
 [listing]
@@ -81,11 +77,9 @@ ONTAP 9.2以降では、フィールドが表示されます `-ldap-servers` フ
 cluster1::>vserver services name-service ldap create -vserver engData -client-config corp -client-enabled true
 ----
 +
-[NOTE]
-====
-ONTAP 9.2以降では、 `vserver services name-service ldap create` コマンドは設定の自動検証を実行し、ONTAP がネームサーバに接続できない場合はエラーメッセージを報告します。
 
-====
+NOTE: ONTAP 9.2以降では、 `vserver services name-service ldap create` コマンドは設定の自動検証を実行し、ONTAP がネームサーバに接続できない場合はエラーメッセージを報告します。
+
 . vserver services name-service ldap check コマンドを使用して、ネームサーバのステータスを検証します。
 +
 次のコマンドは、 SVM vs0 上の LDAP サーバを検証します。
@@ -111,13 +105,13 @@ cluster1::> vserver services name-service ldap check -vserver vs0
 
 NISアカウントがSVMにアクセスするためには、NISサーバからSVMへのアクセスを設定しておく必要があります。を使用できます `vserver services name-service nis-domain create` コマンドを使用してSVMにNISドメイン設定を作成します。
 
-.必要なもの
+.このタスクについて
+複数の NIS ドメインを作成できます。に設定できるNISドメインは1つだけです `active` 一度に。
+
+.作業を開始する前に
 * SVM に NIS ドメインを設定するためには、設定済みのすべてのサーバが使用可能でアクセスできる状態になっている必要があります。
 * このタスクを実行するには、クラスタ管理者または SVM の管理者である必要があります。
 
-
-.このタスクについて
-複数の NIS ドメインを作成できます。に設定できるNISドメインは1つだけです `active` 一度に。
 
 .ステップ
 . SVMにNISドメイン設定を作成します。
@@ -128,13 +122,11 @@ NISアカウントがSVMにアクセスするためには、NISサーバからSV
 コマンド構文全体については、を参照してください link:config-worksheets-reference.html["ワークシート"]。
 
 +
-[NOTE]
-====
-ONTAP 9.2以降では、フィールドが表示されます `-nis-servers` フィールドを置き換えます `-servers`。この新しいフィールドには、NISサーバのホスト名またはIPアドレスを指定できます。
 
-====
+NOTE: ONTAP 9.2以降では、フィールドが表示されます `-nis-servers` フィールドを置き換えます `-servers`。この新しいフィールドには、NISサーバのホスト名またはIPアドレスを指定できます。
+
 +
-次のコマンドは、SVM「engData」にNISドメイン設定を作成します。NISドメイン「nisdomain」は作成時にアクティブになり、IPアドレスが192.0.2.180のNISサーバと通信します。
+次のコマンドは、SVM「engData」にNISドメイン設定を作成します。NISドメイン `nisdomain` は作成時にアクティブになり、IPアドレスが192.0.2.180のNISサーバと通信します。
 
 +
 [listing]
@@ -150,7 +142,7 @@ cluster1::>vserver services name-service nis-domain create
 
 ネームサービススイッチ機能を使用すると、 LDAP または NIS を代替ネームサービスソースとして使用できます。を使用できます `vserver services name-service ns-switch modify` コマンドを使用して、ネームサービスソースの参照順序を指定します。
 
-.必要なもの
+.作業を開始する前に
 * LDAP サーバおよび NIS サーバのアクセスを設定しておく必要があります。
 * このタスクを実行するには、クラスタ管理者または SVM 管理者である必要があります。
 

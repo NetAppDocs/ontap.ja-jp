@@ -49,107 +49,119 @@ ONTAP CLIを使用して、NVMe用のStorage VMを設定します。
 
 . 既存の SVM を使用しない場合は、作成します。
 +
-`vserver create -vserver _SVM_name_`
-
+[source, cli]
+----
+vserver create -vserver <SVM_name>
+----
 +
 .. SVM が作成されたことを確認します。
 +
-`vserver show`
-
+[source, cli]
+----
+vserver show
+----
 
 
 . クラスタに NVMe または TCP 対応アダプタがインストールされていることを確認します。
 +
-NVMeの場合： `network fcp adapter show -data-protocols-supported fc-nvme`
+NVMeの場合：
 
 +
-TCPの場合： `network port show`
+[source, cli]
+----
+network fcp adapter show -data-protocols-supported fc-nvme
+----
++
+TCPの場合：
 
++
+[source, cli]
+----
+network port show
+----
 . ONTAP 9.7 以前を実行している場合は、 SVM からすべてのプロトコルを削除します。
 +
-`vserver remove-protocols -vserver _SVM_name_ -protocols iscsi,fcp,nfs,cifs,ndmp`
-
+[source, cli]
+----
+vserver remove-protocols -vserver <SVM_name> -protocols iscsi,fcp,nfs,cifs,ndmp
+----
 +
 ONTAP 9.8 以降では、 NVMe を追加するときに他のプロトコルを削除する必要はありません。
 
 . SVM に NVMe プロトコルを追加します。
 +
-`vserver add-protocols -vserver _SVM_name_ -protocols nvme`
-
+[source, cli]
+----
+vserver add-protocols -vserver <SVM_name> -protocols nvme
+----
 . ONTAP 9.7 以前を実行している場合は、 SVM で許可されているプロトコルが NVMe だけであることを確認します。
 +
-`vserver show -vserver _SVM_name_ -fields allowed-protocols`
-
+[source, cli]
+----
+vserver show -vserver <SVM_name> -fields allowed-protocols
+----
 +
 に表示されるプロトコルはNVMeのみです `allowed protocols` 列（Column）：
 
 . NVMe サービスを作成します。
 +
-`vserver nvme create -vserver _SVM_name_`
-
+[source, cli]
+----
+vserver nvme create -vserver <SVM_name>
+----
 . NVMe サービスが作成されたことを確認します。
 +
-`vserver nvme show -vserver _SVM_name_`
-
+[source, cli]
+----
+vserver nvme show -vserver <SVM_name>
+----
 +
 。 `Administrative Status` SVMのがと表示されている必要があります `up`。
 
 . NVMe/FC LIF を作成します。
 +
-[cols="3*"]
-|===
-| ONTAPバージョン | 適用されるプロトコル | コマンドを実行します 
+** ONTAP 9.9.1以前の場合、FC：
++
+[source, cli]
+----
+network interface create -vserver <SVM_name> -lif <lif_name> -role data -data-protocol fc-nvme -home-node <home_node> -home-port <home_port>
+----
+** ONTAP 9.10.1以降、FCまたはTCPの場合：
++
+[source, cli]
+----
+network interface create -vserver <SVM_name> -lif <lif_name> -service-policy <default-data-nvme-tcp | default-data-nvme-fc> -home-node <home_node> -home-port <home_port> -status admin up -failover-policy disabled -firewall-policy data -auto-revert false -failover-group <failover_group> -is-dns-update-enabled false
+----
 
 
- a| 
-ONTAP 9.9.1 以前
- a| 
-FC
- a| 
-`network interface create -vserver SVM_name -lif lif_name -role data -data-protocol fc-nvme -home-node home_node -home-port home_port`
-
-
-
- a| 
-ONTAP 9.10.1
- a| 
-FC または TCP
- a| 
-`network interface create -vserver SVM_name -lif lif_name -service-policy {default-data-nvme-tcp | default-data-nvme-fc} -home-node home_node -home-port home_port -status admin up -failover-policy disabled -firewall-policy data -auto-revert false -failover-group failover_group -is-dns-update-enabled false`
-
-|===
 . HA パートナーノードに NVMe/FC LIF を作成します。
 +
-[cols="3*"]
-|===
-| ONTAPバージョン | 適用されるプロトコル | コマンドを実行します 
+** ONTAP 9.9.1以前の場合、FC：
++
+[source, cli]
+----
+network interface create -vserver <SVM_name> -lif <lif_name> -role data -data-protocol fc-nvme -home-node <home_node> -home-port <home_port>
+----
+** ONTAP 9.10.1以降、FCまたはTCPの場合：
++
+[source, cli]
+----
+network interface create -vserver <SVM_name> -lif <lif_name> -service-policy <default-data-nvme-tcp | default-data-nvme-fc> -home-node <home_node> -home-port <home_port> -status admin up -failover-policy disabled -firewall-policy data -auto-revert false -failover-group <failover_group> -is-dns-update-enabled false
+----
 
 
- a| 
-ONTAP 9.9.1 以前
- a| 
-FC
- a| 
-`network interface create -vserver _SVM_name_ -lif _lif_name_ -role data -data-protocol fc-nvme -home-node _home_node_ -home-port _home_port_`
-
-
-
- a| 
-ONTAP 9.10.1 以降
- a| 
-FC または TCP
- a| 
-`network interface create -vserver SVM_name -lif lif_name -service-policy {default-data-nvme-tcp | default-data-nvme-fc} -home-node home_node -home-port home_port -status admin up -failover-policy disabled -firewall-policy data -auto-revert false -failover-group failover_group -is-dns-update-enabled false`
-
-|===
 . NVMe/FC LIF が作成されたことを確認します。
 +
-`network interface show -vserver _SVM_name_`
-
+[source, cli]
+----
+network interface show -vserver <SVM_name>
+----
 . LIF と同じノードにボリュームを作成します。
 +
-`vol create -vserver _SVM_name_ -volume _vol_name_ -aggregate _aggregate_name_ -size _volume_size_`
-
+[source, cli]
+----
+vol create -vserver <SVM_name> -volume <vol_name> -aggregate <aggregate_name> -size <volume_size>
+----
 +
 自動効率化ポリシーに関する警告メッセージが表示された場合は無視してかまいません。
 

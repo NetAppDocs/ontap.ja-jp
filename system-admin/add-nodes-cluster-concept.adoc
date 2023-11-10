@@ -14,19 +14,13 @@ summary: 作成したクラスタは、ノードを追加して拡張できま�
 作成したクラスタは、ノードを追加して拡張できます。一度に追加できるノードは 1 つだけです。
 
 .必要なもの
-* 複数ノードクラスタにノードを追加する場合は、クラスタ内の既存のノードのうち半数を上回るノードが正常である必要があります（で確認可能） `cluster show`）。
-* 2 ノードスイッチレスクラスタにノードを追加する場合は、ノードを追加する前に、クラスタ管理スイッチとインターコネクトスイッチをインストールして設定しておく必要があります。
+* 複数ノードクラスタにノードを追加する場合は、クラスタ内の既存のすべてのノードが正常である必要があります（ `cluster show`）。
+* 2ノードスイッチレスクラスタにノードを追加する場合は、NetAppでサポートされるクラスタスイッチを使用して、2ノードスイッチレスクラスタをスイッチ接続クラスタに変換する必要があります。
 +
 スイッチレスクラスタ機能は、 2 ノードクラスタでのみサポートされます。
 
-+
-クラスタ HA は、クラスタのノードが 3 つ以上のときは不要であるため、 3 つ以上で構成する場合や 3 つ以上に増えた場合は自動的に無効になります。
-
 * シングルノードクラスタに 2 つ目のノードを追加する場合は、その 2 つ目のノードがインストールされていて、クラスタネットワークが構成されている必要があります。
-* クラスタで SP の自動設定が有効になっている場合、 SP 用に指定されたサブネットに、参加するノードで使用可能なリソースが必要です。
-+
-クラスタに参加するノードは、指定されたサブネットを使用して、 SP の自動設定を実行します。
-
+* クラスタでSPの自動設定が有効になっている場合は、追加するノードが指定されたサブネットを使用してSPを自動的に設定できるように、SP用に指定されたサブネットに利用可能なリソースが必要です。
 * 新しいノードのノード管理 LIF について、次の情報を収集しておく必要があります。
 +
 ** ポート
@@ -58,7 +52,7 @@ You can enter the following commands at any time:
 
 To accept a default or omit a question, do not enter a value.
 
-Enter the node management interface port [e0c]:
+Enter the node management interface port [e0M]:
 ----
 . ノードのセットアップウィザードを終了します。 `exit`
 +
@@ -86,7 +80,7 @@ You can return to cluster setup at any time by typing "cluster setup".
 To accept a default or omit a question, do not enter a value....
 
 Use your web browser to complete cluster setup by accessing
-https://10.63.11.29
+https://<node_mgmt_or_e0M_IP_address>
 
 Otherwise, press Enter to complete cluster setup using the
 command line interface:
@@ -104,6 +98,9 @@ command line interface:
 Do you want to create a new cluster or join an existing cluster? {create, join}:
 join
 ----
++
+新しいノードで実行されているONTAPのバージョンが既存のクラスタで実行されているバージョンと異なる場合は、 `System checks Error: Cluster join operation cannot be performed at this time` エラー。これは想定される動作です。続行するには、 `add-node -allow-mixed-version-join new_node_name` クラスタ内の既存のノードからadvanced権限レベルでコマンドを実行します。
+
 . プロンプトに従ってノードをセットアップし、クラスタに追加します。
 +
 ** プロンプトでデフォルト値を受け入れるには、 Enter キーを押します。
@@ -115,3 +112,6 @@ join
 
 .完了後
 ノードをクラスタに追加したあと、 HA ペアごとにストレージフェイルオーバーを有効にする必要があります。
+
+.関連情報
+https://docs.netapp.com/us-en/ontap/upgrade/concept_mixed_version_requirements.html#requirements-for-mixed-version-ontap-clusters["バージョンが混在したONTAPクラスタ"]

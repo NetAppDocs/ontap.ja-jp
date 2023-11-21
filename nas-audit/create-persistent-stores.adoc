@@ -1,0 +1,55 @@
+---
+permalink: nas-audit/create-persistent-stores.html 
+sidebar: sidebar 
+keywords: create, persistent store, fpolicy 
+summary: ONTAP 9.14.1以降では、FPolicyで永続的ストアを設定して、SVM内の非同期（必須ではない）ポリシーのファイルアクセスイベントをキャプチャできます。永続的ストアを使用すると、クライアントI/O処理とFPolicy通知処理を分離して、クライアントのレイテンシを低減できます。同期および非同期の必須構成はサポートされていません。 
+---
+= 永続ストアの作成
+:allow-uri-read: 
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+ONTAP 9.14.1以降では、FPolicyを使用して link:persistent-stores.html["永続的ストア"] SVM内の非同期非必須ポリシーのファイルアクセスイベントをキャプチャする。永続的ストアを使用すると、クライアントI/O処理とFPolicy通知処理を分離して、クライアントのレイテンシを低減できます。同期（必須または必須でない）および非同期の必須構成はサポートされていません。
+
+.ベストプラクティス
+* 永続ストア機能を使用する前に、パートナーアプリケーションがこの構成をサポートしていることを確認してください。
+* 永続的ストアボリュームはSVM単位でセットアップします。FPolicyが有効なSVMごとに、永続的ストアボリュームが必要です。
+* 永続的ストアのボリューム名とボリューム作成時に指定したジャンクションパスが一致している必要があります。
+* FPolicyで最大トラフィック量を監視すると想定されるLIFがあるノードに永続的ストアボリュームを作成します。
+* Snapshotポリシーをに設定 `none` 対象のボリュームではなく `default`。これは、Snapshotが誤ってリストアされて現在のイベントが失われることがないようにし、イベント処理が重複しないようにするためです。
+* 永続的なイベントレコードが誤って破損したり削除されたりしないように、外部ユーザプロトコルアクセス（CIFS / NFS）で永続的ストアボリュームにアクセスできないようにします。これには、FPolicyを有効にしたあとにONTAPでボリュームをアンマウントしてジャンクションパスを削除すると、ユーザプロトコルアクセスができなくなります。
+
+
+.手順
+. 永続ストア用にプロビジョニング可能な空のボリュームをSVMに作成します。
++
+`volume create -vserver <SVM Name> -volume <volume> -state <online> -junction-path <path> -policy <default> -unix-permissions <777> -size <value> -aggregate <aggregate name> -snapshot-policy <none>`
+
++
+** 永続的ストアボリュームのサイズは、外部サーバ（パートナーアプリケーション）に配信されないイベントを維持する期間に基づいています。
++
+たとえば、1秒あたり30Kの通知があるクラスタで30分間のイベントを維持する場合は、次のコマンドを実行します。
+
++
+必要なボリュームサイズ= 30000 x 30 x 60 x 0.6KB（平均通知レコードサイズ）= 32400000 KB =~32GB
+
++
+おおよその通知速度を確認するには、FPolicyパートナーアプリケーションに連絡するか、FPolicyカウンタを利用します。 `requests_dispatched_rate`。
+
+** （ボリュームを作成するための）十分なRBAC権限を持つ管理者ユーザが、必要なサイズのボリュームを（volume CLIコマンドまたはREST APIを使用して）作成し、そのボリュームの名前を `-volume` 永続的ストアでは、CLIコマンドまたはREST APIを作成します。
+
+
+. 永続ストアを作成します。
++
+`vserver fpolicy persistent store create -vserver <SVM> -persistent-store <PS_name> -volume <volume>`
+
++
+** persistent-store：永続ストアの名前
+** volume：永続的ストアボリューム
+
+
+. 永続的ストアが作成されたら、FPolicyポリシーを作成し、そのポリシーに永続的ストア名を追加できます。
+詳細については、を参照してください link:https://docs.netapp.com/us-en/ontap/nas-audit/create-fpolicy-policy-task.html["FPolicy ポリシーを作成します"]。
+

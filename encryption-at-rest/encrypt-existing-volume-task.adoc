@@ -99,8 +99,9 @@ vs1      vol1    aggr2     online    RW  200GB    160.0GB  20%
 
 .このタスクについて
 * ONTAP 9.8以降では、を使用できます `volume move start` SnapLock またはFlexGroup ボリュームで暗号化を有効にします。
-* ONTAP 9.6 以降では、アグリゲートレベルの暗号化を使用して、移動するボリュームの包含アグリゲートにキーを割り当てることができます。一意のキーで暗号化されたボリュームを、 _NVE ボリューム _ と呼びます。アグリゲートレベルのキーで暗号化されたボリュームは、 _NAE ボリューム（ NetApp Aggregate Encryption の場合）と呼ばれます。NAE アグリゲートではプレーンテキストボリュームがサポートされません。
 * ONTAP 9.4以降では、オンボードキーマネージャのセットアップ時に「cc-mode」を有効にすると、を使用してボリュームを作成できます `volume move start` コマンドは自動的に暗号化されます。指定する必要はありません `-encrypt-destination true`。
+* ONTAP 9.6 以降では、アグリゲートレベルの暗号化を使用して、移動するボリュームの包含アグリゲートにキーを割り当てることができます。一意のキーで暗号化されたボリュームは、_NVEボリューム_と呼ばれます（NetAppボリューム暗号化を使用することを意味します）。アグリゲートレベルのキーで暗号化されたボリュームは、 _NAE ボリューム（ NetApp Aggregate Encryption の場合）と呼ばれます。NAE アグリゲートではプレーンテキストボリュームがサポートされません。
+* ONTAP 9.14.1以降では、NVEでSVMルートボリュームを暗号化できます。詳細については、を参照してください xref:configure-nve-svm-root-task.html[SVMルートボリュームでのNetAppボリューム暗号化の設定]。
 
 
 .作業を開始する前に
@@ -121,35 +122,35 @@ link:delegate-volume-encryption-svm-administrator-task.html["volume move コマ�
  a| 
 プレーンテキストボリュームから NVE ボリューム
  a| 
-`volume move start -vserver SVM_name -volume volume_name -destination-aggregate aggregate_name -encrypt-destination true`
+`volume move start -vserver _SVM_name_ -volume _volume_name_ -destination-aggregate _aggregate_name_ -encrypt-destination true`
 
 
 
  a| 
 NVE ボリュームまたはプレーンテキストボリュームから NAE ボリューム（デスティネーションでアグリゲートレベルの暗号化が有効になっている場合）
  a| 
-`volume move start -vserver SVM_name -volume volume_name -destination-aggregate aggregate_name -encrypt-with-aggr-key true`
+`volume move start -vserver _SVM_name_ -volume _volume_name_ -destination-aggregate _aggregate_name_ -encrypt-with-aggr-key true`
 
 
 
  a| 
 NAE ボリュームから NVE ボリューム
  a| 
-`volume move start -vserver SVM_name -volume volume_name -destination-aggregate aggregate_name -encrypt-with-aggr-key false`
+`volume move start -vserver _SVM_name_ -volume _volume_name_ -destination-aggregate _aggregate_name_ -encrypt-with-aggr-key false`
 
 
 
  a| 
 NAE ボリュームからプレーンテキストボリューム
  a| 
-`volume move start -vserver SVM_name -volume volume_name -destination-aggregate aggregate_name -encrypt-destination false -encrypt-with-aggr-key false`
+`volume move start -vserver _SVM_name_ -volume _volume_name_ -destination-aggregate _aggregate_name_ -encrypt-destination false -encrypt-with-aggr-key false`
 
 
 
  a| 
 NVEボリュームからプレーンテキストボリューム
  a| 
-`volume move start -vserver SVM_name -volume volume_name -destination-aggregate aggregate_name -encrypt-destination false`
+`volume move start -vserver _SVM_name_ -volume _volume_name_ -destination-aggregate _aggregate_name_ -encrypt-destination false`
 
 |===
 +
@@ -241,4 +242,4 @@ vs1      vol1    aggr2     online    RW  200GB    160.0GB  20%
 
 
 .結果
-ノードの暗号化キーを保存するために KMIP サーバを使用している場合、ボリュームを暗号化すると、 ONTAP によって暗号化キーがサーバに自動的に「プッシュ」されます。
+ノードの暗号化キーの格納にKMIPサーバを使用している場合、ボリュームの暗号化時にONTAPからサーバに暗号化キーが自動的にプッシュされます。

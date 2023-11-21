@@ -1,0 +1,59 @@
+---
+permalink: consistency-groups/modify-tags-task.html 
+sidebar: sidebar 
+keywords: consistency groups, application tag, sql, oracle, component tag 
+summary: アプリケーションとコンポーネントのタグは管理ツールであり、整合グループ内のさまざまなワークロードをフィルタリングして識別できます。 
+---
+= アプリケーションタグとコンポーネントタグの変更
+:allow-uri-read: 
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+ONTAP 9.12.1以降では、コンシステンシグループでコンポーネントとアプリケーションのタギングがサポートされます。アプリケーションとコンポーネントのタグは管理ツールであり、整合グループ内のさまざまなワークロードをフィルタリングして識別できます。
+
+.このタスクについて
+整合グループには、次の2種類のタグがあります。
+
+* **アプリケーションタグ**:個 々 のコンシステンシグループと親コンシステンシグループに適用されます。アプリケーションタグは、MongoDB、Oracle、SQL Serverなどのワークロードにラベルを付けます。整合グループのデフォルトのアプリケーションタグはOtherです。
+* **コンポーネントタグ**:階層整合グループの子には、アプリケーションタグではなくコンポーネントタグがあります。コンポーネントタグのオプションは、「data」、「logs」、または「other」です。デフォルト値はOtherです。
+
+
+タグは、整合グループの作成時、または整合グループの作成後に適用できます。
+
+
+IMPORTANT: 整合グループにSM-BC関係がある場合は、アプリケーションタグまたはコンポーネントタグに* other*を使用する必要があります。
+
+.手順
+ONTAP 9.12.1以降では、System Managerを使用してアプリケーションタグとコンポーネントタグを変更できます。ONTAP 9.14.1以降では、ONTAP CLIを使用してアプリケーションタグとコンポーネントタグを変更できます。
+
+[role="tabbed-block"]
+====
+.System Manager の略
+--
+. Storage > Consistency groups * を選択します。
+. タグを変更する整合性グループを選択します。を選択します image:icon_kabob.gif["積み上げられた3つの点"] の横にある*[編集]*をクリックします。
+. ドロップダウンメニューで、適切なアプリケーションまたはコンポーネントタグを選択します。
+. [ 保存（ Save ） ] を選択します。
+
+
+--
+.CLI の使用
+--
+ONTAP 9.14.1以降では、ONTAP CLIを使用して、既存の整合グループのアプリケーションタグまたはコンポーネントタグを変更できます。
+
+.アプリケーションタグの変更
+. アプリケーションタグは、限られた数のプリセット文字列を受け入れます。受け入れられた文字列のリストを確認するには、次のコマンドを実行します。
+`consistency-group modify -vserver _svm_name_ -consistency-group _consistency_group_ -application-type ?`
+. 出力から適切な文字列を選択し、整合グループを変更します。
+`consistency-group modify -vserver _svm_name_ -consistency-group _consistency_group_ -application-type application_type`
+
+
+.構成要素タグを修正します
+. 構成要素タイプを修正します。コンポーネントタイプには、データ、ログ、またはその他があります。SM-BCを使用する場合は、「other」である必要があります。
+`consistency-group modify -vserver _svm_ -consistency-group _child_consistency_group_ -parent-consistency-group _parent_consistency_group_ -application-component-type [data|logs|other]`
+
+
+--
+====

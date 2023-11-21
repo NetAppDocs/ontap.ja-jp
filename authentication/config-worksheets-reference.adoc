@@ -17,7 +17,7 @@ summary: ログインアカウントを作成してロールベースアクセ�
 
 == ログインアカウントを作成または変更します
 
-次の値はで指定します `security login create` コマンドは、ログインアカウントによるStorage Virtual Machine（SVM）へのアクセスを有効にする場合に使用します。にも同じ値を指定します `security login modify` コマンドは、アカウントによるSVMへのアクセス方法を変更するときに使用します。
+次の値はで指定します `security login create` コマンドは、ログインアカウントによるStorage VMへのアクセスを有効にする場合に使用します。にも同じ値を指定します `security login modify` コマンドは、アカウントによるStorage VMへのアクセス方法を変更するときに使用します。
 
 [cols="3*"]
 |===
@@ -29,7 +29,7 @@ summary: ログインアカウントを作成してロールベースアクセ�
  a| 
 `-vserver`
  a| 
-アカウントがアクセスする SVM の名前。デフォルト値はクラスタの管理 SVM の名前です。
+アカウントがアクセスするStorage VMの名前。デフォルト値はクラスタの管理Storage VMの名前です。
  a| 
 
 
@@ -45,7 +45,7 @@ summary: ログインアカウントを作成してロールベースアクセ�
  a| 
 `-application`
  a| 
-SVM へのアクセスに使用するアプリケーション。
+Storage VMへのアクセスに使用されるアプリケーション：
 
 * `http`
 * `ontapi`
@@ -87,8 +87,8 @@ SVM へのアクセスに使用するアプリケーション。
  a| 
 アカウントに割り当てられているアクセス制御ロール。
 
-* クラスタ（管理SVM）の場合、デフォルト値はです `admin`。
-* データSVMの場合、デフォルト値はです `vsadmin`。
+* クラスタ（管理Storage VM）のデフォルト値はです。 `admin`。
+* データStorage VMの場合、デフォルト値はです。 `vsadmin`。
 
  a| 
 
@@ -113,18 +113,12 @@ SVM へのアクセスに使用するアプリケーション。
  a| 
 `-second-authentication-method`
  a| 
-ONTAP 9.3 * で多要素認証を使用する場合の第 2 の認証方法：
+多要素認証の場合の2番目の認証方式：
 
 * `none` 多要素認証を使用しない場合は、デフォルト値
 * `publickey` 公開鍵認証の場合 `authmethod` は、passwordまたはnsswitchです
 * `password` でのユーザパスワード認証に使用します `authmethod` は公開鍵です
 * `nsswitch` authmethodがpublickeyの場合のユーザパスワード認証用
-+
-[NOTE]
-====
-ONTAP 9.4以降では、nsswitchがサポートされます。
-
-====
 
 
 認証の順序は、常に公開鍵が先でパスワードがあとです。
@@ -136,6 +130,106 @@ ONTAP 9.4以降では、nsswitchがサポートされます。
 `-is-ldap-fastbind`
  a| 
 ONTAP 9.11.1以降では、trueに設定すると、nsswitch認証に対してLDAPファストバインドが有効になります。デフォルトはfalseです。LDAP高速バインドを使用するには、を使用します `-authentication-method` 値はに設定する必要があります `nsswitch`。 link:../nfs-admin/ldap-fast-bind-nsswitch-authentication-task.html["nsswitch認証のLDAP fastbindについて説明します。"]
+ a| 
+
+|===
+
+
+== Cisco Duoセキュリティ情報の設定
+
+次の値はで指定します `security login duo create` コマンドは、Storage VMに対してSSHログインを使用したCisco Duoツーファクタ認証を有効にする場合に使用します。
+
+[cols="3*"]
+|===
+
+
+| フィールド | 説明 | あなたの価値 
+
+
+ a| 
+`-vserver`
+ a| 
+Duo認証設定を適用するStorage VM（ONTAP CLIではVserver）。
+ a| 
+
+
+
+ a| 
+`-integration-key`
+ a| 
+DuoにSSHアプリケーションを登録するときに取得した統合キー。
+ a| 
+
+
+
+ a| 
+`-secret-key`
+ a| 
+DuoにSSHアプリケーションを登録するときに取得した秘密キー。
+ a| 
+
+
+
+ a| 
+`-api-host`
+ a| 
+SSHアプリケーションをDuoに登録するときに取得されるAPIホスト名。例：
+
+[listing]
+----
+api-<HOSTNAME>.duosecurity.com
+---- a| 
+
+
+
+ a| 
+`-fail-mode`
+ a| 
+Duo認証を妨げるサービスまたは構成エラーの場合は、失敗します。 `safe` （アクセスを許可）または `secure` （アクセスを拒否）。デフォルトはです `safe`これは、Duo APIサーバーにアクセスできないなどのエラーが原因で失敗した場合、Duo認証がバイパスされることを意味します。
+ a| 
+
+
+
+ a| 
+`-http-proxy`
+ a| 
+指定したHTTPプロキシを使用します。HTTPプロキシで認証が必要な場合は、プロキシURLにクレデンシャルを含めます。例：
+
+[listing]
+----
+http-proxy=http://username:password@proxy.example.org:8080
+---- a| 
+
+
+
+ a| 
+`-autopush`
+ a| 
+または `true` または `false`。デフォルトはです `false`。状況 `true`Duoは、プッシュログイン要求をユーザーの電話に自動的に送信し、プッシュが利用できない場合は通話に戻ります。これにより、パスコード認証が実質的に無効になります。状況 `false`を選択すると、認証方法を選択するように求められます。
+
+セツテイシタシヨウコウ `autopush = true`を設定することをお勧めします `max-prompts = 1`。
+ a| 
+
+
+
+ a| 
+`-max-prompts`
+ a| 
+ユーザーが2番目のファクターで認証に失敗した場合、Duoはユーザーに再度認証を求めるプロンプトを表示します。このオプションは、アクセスを拒否する前にDuoが表示するプロンプトの最大数を設定します。でなければなりません `1`、 `2`または `3`。デフォルト値はです `1`。
+
+例えば、 `max-prompts = 1`ユーザは最初のプロンプトで正常に認証される必要がありますが、次の場合は `max-prompts = 2`ユーザが最初のプロンプトで誤った情報を入力すると、再度認証を求めるプロンプトが表示されます。
+
+セツテイシタシヨウコウ `autopush = true`を設定することをお勧めします `max-prompts = 1`。
+
+最高のエクスペリエンスを得るために、公開鍵認証のみを使用するユーザには、常に `max-prompts` をに設定します `1`。
+ a| 
+
+
+
+ a| 
+`-enabled`
+ a| 
+Duo 2要素認証を有効にします。をに設定します `true` デフォルトでは有効にすると、設定されているパラメータに従って、SSHログイン時にDuo 2要素認証が実行されます。Duoが無効になっている場合（ `false`)、Duo認証は無視されます。
  a| 
 
 |===
@@ -155,7 +249,7 @@ ONTAP 9.11.1以降では、trueに設定すると、nsswitch認証に対してLD
  a| 
 `-vserver`
  a| 
-（オプション）ロールに関連付けられている SVM の名前。
+（オプション）ロールに関連付けられているStorage VM（ONTAP CLIではVserverと表示されます）の名前。
  a| 
 
 
@@ -221,7 +315,7 @@ for_nonintrinsic commands_（末尾がでないコマンド `create`、 `modify`
  a| 
 `-vserver`
  a| 
-（オプション）アカウントがアクセスする SVM の名前。
+（オプション）アカウントがアクセスするStorage VMの名前。
  a| 
 
 
@@ -284,7 +378,7 @@ X.509証明書をSSH公開鍵に関連付けると、ONTAPはSSHログイン時�
 
 == CA 署名済みサーバデジタル証明書をインストールする。
 
-次の値はで指定します `security certificate generate-csr` コマンドは、SVMをSSLサーバとして認証する際に使用するデジタル証明書署名要求（CSR）を生成するときに使用します。
+次の値はで指定します `security certificate generate-csr` Storage VMをSSLサーバとして認証するために使用するデジタル証明書署名要求（CSR）を生成するときにコマンドを実行します。
 
 [cols="3*"]
 |===
@@ -312,7 +406,7 @@ X.509証明書をSSH公開鍵に関連付けると、ONTAPはSSHログイン時�
  a| 
 `-country`
  a| 
-SVM が設置されている国の 2 文字のコード。デフォルト値はです `US`。コードの一覧については、マニュアルページを参照してください。
+Storage VMの国（2文字のコード）。デフォルト値はです `US`。コードの一覧については、マニュアルページを参照してください。
  a| 
 
 
@@ -320,7 +414,7 @@ SVM が設置されている国の 2 文字のコード。デフォルト値は�
  a| 
 `-state`
  a| 
-SVM が設置されている都道府県。
+Storage VMの都道府県。
  a| 
 
 
@@ -328,7 +422,7 @@ SVM が設置されている都道府県。
  a| 
 `-locality`
  a| 
-SVM が設置されている市区町村。
+Storage VMの局所性。
  a| 
 
 
@@ -336,7 +430,7 @@ SVM が設置されている市区町村。
  a| 
 `-organization`
  a| 
-SVM を管理している組織。
+Storage VMの組織。
  a| 
 
 
@@ -344,7 +438,7 @@ SVM を管理している組織。
  a| 
 `-unit`
  a| 
-SVM を管理している組織内の部門。
+Storage VMの組織内の単位。
  a| 
 
 
@@ -352,7 +446,7 @@ SVM を管理している組織内の部門。
  a| 
 `-email-addr`
  a| 
-SVM の管理担当者の E メールアドレス。
+Storage VMの管理者連絡先のEメールアドレス。
  a| 
 
 
@@ -364,7 +458,7 @@ SVM の管理担当者の E メールアドレス。
  a| 
 
 |===
-次の値はで指定します `security certificate install` コマンドは、クラスタまたはSVMをSSLサーバとして認証する際に使用するCA署名デジタル証明書をインストールする場合に使用します。次の表には、アカウント設定に関連するオプションのみを示します。
+次の値はで指定します `security certificate install` コマンドは、クラスタまたはStorage VMをSSLサーバとして認証するためにCA署名デジタル証明書をインストールするときに使用します。次の表には、アカウント設定に関連するオプションのみを示します。
 
 [cols="3*"]
 |===
@@ -376,7 +470,7 @@ SVM の管理担当者の E メールアドレス。
  a| 
 `-vserver`
  a| 
-証明書をインストールする SVM の名前。
+証明書をインストールするStorage VMの名前。
  a| 
 
 
@@ -398,7 +492,7 @@ SVM の管理担当者の E メールアドレス。
 
 == Active Directory ドメインコントローラアクセスを設定する
 
-次の値はで指定します `security login domain-tunnel create` コマンドは、データSVM用のSMBサーバをすでに設定しており、SVMをゲートウェイまたはクラスタへのActive Directoryドメインコントローラアクセスの_tunnel_として設定する場合に使用します。
+次の値はで指定します `security login domain-tunnel create` コマンドは、データStorage VM用のSMBサーバがすでに設定されていて、Storage VMをゲートウェイまたは_tunnel_（Active Directoryドメインコントローラによるクラスタへのアクセスの場合）として設定する場合に使用します。
 
 [cols="3*"]
 |===
@@ -410,11 +504,11 @@ SVM の管理担当者の E メールアドレス。
  a| 
 `-vserver`
  a| 
-SMBサーバが設定されているSVMの名前。
+SMBサーバが設定されているStorage VMの名前。
  a| 
 
 |===
-次の値はで指定します `vserver active-directory create` コマンドは、SMBサーバを設定しておらず、Active DirectoryドメインにSVMコンピュータアカウントを作成する場合に使用します。
+次の値はで指定します `vserver active-directory create` コマンドは、SMBサーバを設定しておらず、Active DirectoryドメインにStorage VMコンピュータアカウントを作成する場合に使用します。
 
 [cols="3*"]
 |===
@@ -426,7 +520,7 @@ SMBサーバが設定されているSVMの名前。
  a| 
 `-vserver`
  a| 
-Active Directory コンピュータアカウントを作成する SVM の名前。
+Active Directoryコンピュータアカウントを作成するStorage VMの名前。
  a| 
 
 
@@ -458,13 +552,8 @@ Active Directory コンピュータアカウントを作成する SVM の名前�
 
 == LDAP サーバまたは NIS サーバのアクセスを設定
 
-次の値はで指定します `vserver services name-service ldap client create` コマンドは、SVM用のLDAPクライアント設定を作成するときに使用します。
+次の値はで指定します `vserver services name-service ldap client create` コマンドは、Storage VMのLDAPクライアント設定を作成するときに使用します。
 
-[NOTE]
-====
-ONTAP 9.2以降では、 `-ldap-servers` フィールドがに置き換わります `-servers` フィールド。この新しいフィールドには、 LDAP サーバの値としてホスト名または IP アドレスを指定できます。
-
-====
 次の表には、アカウント設定に関連するオプションのみを示します。
 
 [cols="3*"]
@@ -477,7 +566,7 @@ ONTAP 9.2以降では、 `-ldap-servers` フィールドがに置き換わりま
  a| 
 `-vserver`
  a| 
-クライアント設定の SVM の名前。
+クライアント設定のStorage VMの名前。
  a| 
 
 
@@ -491,17 +580,9 @@ ONTAP 9.2以降では、 `-ldap-servers` フィールドがに置き換わりま
 
 
  a| 
-`-servers`
- a| 
-* ONTAP 9.0 、 9.1 * ：クライアントの接続先 LDAP サーバの IP アドレスをカンマで区切って指定します。
- a| 
-
-
-
- a| 
 `-ldap-servers`
  a| 
-* ONTAP 9.2 * ：クライアントの接続先 LDAP サーバの IP アドレスとホスト名をカンマで区切って指定します。
+クライアントの接続先LDAPサーバのIPアドレスとホスト名をカンマで区切ったリスト。
  a| 
 
 
@@ -521,12 +602,12 @@ ONTAP 9.2以降では、 `-ldap-servers` フィールドがに置き換わりま
 
 [NOTE]
 ====
-Start TLS は、データ SVM へのアクセスでのみサポートされます。管理 SVM へのアクセスではサポートされません。
+Start TLSは、データStorage VMへのアクセスでのみサポートされます。管理Storage VMへのアクセスではサポートされていません。
 
 ==== a| 
 
 |===
-次の値はで指定します `vserver services name-service ldap create` コマンドは、LDAPクライアント設定をSVMに関連付けるときに使用します。
+次の値はで指定します `vserver services name-service ldap create` コマンドは、LDAPクライアント設定をStorage VMに関連付けるときに使用します。
 
 [cols="3*"]
 |===
@@ -538,7 +619,7 @@ Start TLS は、データ SVM へのアクセスでのみサポートされま�
  a| 
 `-vserver`
  a| 
-クライアント設定を関連付ける SVM の名前。
+クライアント設定を関連付けるStorage VMの名前。
  a| 
 
 
@@ -554,17 +635,12 @@ Start TLS は、データ SVM へのアクセスでのみサポートされま�
  a| 
 `-client-enabled`
  a| 
-SVMでLDAPクライアント設定を使用できるかどうか (`true` または `false`）。
+Storage VMでLDAPクライアント設定を使用できるかどうか (`true` または `false`）。
  a| 
 
 |===
-次の値はで指定します `vserver services name-service nis-domain create` コマンドは、SVMにNISドメイン設定を作成するときに使用します。
+次の値はで指定します `vserver services name-service nis-domain create` コマンドは、Storage VMにNISドメイン設定を作成するときに使用します。
 
-[NOTE]
-====
-ONTAP 9.2以降では、 `-nis-servers` フィールドがに置き換わります `-servers` フィールド。この新しいフィールドには、NISサーバの値としてホスト名またはIPアドレスを指定できます。
-
-====
 [cols="3*"]
 |===
 
@@ -575,7 +651,7 @@ ONTAP 9.2以降では、 `-nis-servers` フィールドがに置き換わりま�
  a| 
 `-vserver`
  a| 
-ドメイン設定を作成する SVM の名前。
+ドメイン設定を作成するStorage VMの名前。
  a| 
 
 
@@ -607,7 +683,7 @@ ONTAP 9.2以降では、 `-nis-servers` フィールドがに置き換わりま�
  a| 
 `-nis-servers`
  a| 
-* ONTAP 9.2 * ：ドメイン設定で使用する NIS サーバの IP アドレスおよびホスト名をカンマで区切って指定します。
+ドメイン設定で使用されるNISサーバのIPアドレスとホスト名をカンマで区切ったリスト。
  a| 
 
 |===
@@ -623,7 +699,7 @@ ONTAP 9.2以降では、 `-nis-servers` フィールドがに置き換わりま�
  a| 
 `-vserver`
  a| 
-ネームサービスの参照順序を設定する SVM の名前。
+ネームサービスの参照順序を設定するStorage VMの名前。
  a| 
 
 

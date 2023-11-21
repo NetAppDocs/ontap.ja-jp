@@ -1,0 +1,65 @@
+---
+permalink: nfs-trunking/create-exports-task.html 
+sidebar: sidebar 
+keywords: servers, network, NFS trunking, NIC, export policies, rule, Linux, VMware, datastores, client 
+summary: データ共有へのクライアントアクセスを許可するには、ボリュームを1つ以上作成し、ボリュームに少なくとも1つのルールが設定されたエクスポートポリシーを設定する必要があります。 
+---
+= クライアントアクセス用のデータのエクスポート
+:allow-uri-read: 
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+データ共有へのクライアントアクセスを許可するには、ボリュームを1つ以上作成し、ボリュームに少なくとも1つのルールが設定されたエクスポートポリシーを設定する必要があります。
+
+クライアントのエクスポート要件：
+
+* Linuxクライアントでは、トランキング接続ごと（つまりLIFごと）に、個別のマウントと個別のマウントポイントが必要です。
+* VMwareクライアントでは、複数のLIFを指定したエクスポートされたボリュームに対してマウントポイントが1つだけ必要です。
++
+VMwareクライアントには、エクスポートポリシーでルートアクセスが必要です。
+
+
+
+.手順
+. エクスポートポリシーを作成する
++
+`vserver export-policy create -vserver _svm_name_ -policyname _policy_name_`
+
++
+ポリシー名に指定できる文字数は最大 256 文字です。
+
+. エクスポートポリシーが作成されたことを確認します。
++
+`vserver export-policy show -policyname _policy_name_`
+
++
+.例
+次のコマンドは、 vs1 という SVM で、 exp1 という名前のエクスポートポリシーを作成し、作成を確認します。
+
++
+`vs1::> vserver export-policy create -vserver vs1 -policyname exp1`
+
+. エクスポートルールを作成して既存のエクスポートポリシーに追加します。
++
+`vserver export-policy rule create -vserver _svm_name_ -policyname _policy_name_ -ruleindex _integer_ -protocol nfs4 -clientmatch { _text | "text,text,…"_ } -rorule _security_type_ -rwrule _security_type_ -superuser _security_type_ -anon _user_ID_`
+
++
+。 `-clientmatch` パラメータには、エクスポートをマウントするトランキング対応のLinuxまたはVMwareクライアントを指定する必要があります。
+
++
+の詳細を確認してください link:../nfs-config/add-rule-export-policy-task.html["エクスポートルールを作成しています。"]
+
+. ジャンクションポイントを指定してボリュームを作成します。
++
+`volume create -vserver _svm_name_ -volume _volume_name_ -aggregate _aggregate_name_-size {integer[KB|MB|GB|TB|PB]} -security-style unix -user _user_name_or_number_ -group _group_name_or_number_ -junction-path _junction_path_ -policy _export_policy_name_`
+
++
+詳細はこちら link:../nfs-config/create-volume-task.html["ボリュームを作成します。"]
+
+. 目的のジャンクションポイントでボリュームが作成されたことを確認します。
++
+`volume show -vserver _svm_name_ -volume _volume_name_ -junction-path`
+
+

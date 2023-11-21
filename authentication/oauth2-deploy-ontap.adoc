@@ -1,0 +1,178 @@
+---
+sidebar: sidebar 
+permalink: authentication/oauth2-deploy-ontap.html 
+keywords: certificate, install certificate, enable, enable oauth2 
+summary: OAuth 2.0のコア機能の展開には、主に3つのステップがあります。 
+---
+= ONTAPでのOAuth 2.0の導入
+:hardbreaks:
+:allow-uri-read: 
+:nofooter: 
+:icons: font
+:linkattrs: 
+:imagesdir: ./media/
+
+
+[role="lead"]
+OAuth 2.0のコア機能の展開には、主に3つのステップがあります。
+
+
+
+== 作業を開始する前に
+
+ONTAPを設定する前に、OAuth 2.0の展開を準備する必要があります。たとえば、証明書がどのように署名されたか、ファイアウォールの内側にあるかなど、承認サーバーを評価する必要があります。を参照してください link:../authentication/oauth2-prepare.html["ONTAPを使用したOAuth 2.0の導入準備"] を参照してください。
+
+
+
+== 手順1：認証サーバ証明書をインストールする
+
+ONTAPには、多数のルートCA証明書が事前にインストールされています。そのため、多くの場合、認証サーバの証明書は追加の設定なしでONTAPによってすぐに認識されます。ただし、許可サーバ証明書の署名方法によっては、ルートCA証明書と中間証明書のインストールが必要になる場合があります。
+
+必要に応じて、次の手順に従って証明書をインストールします。必要な証明書はすべてクラスタレベルでインストールする必要があります。
+
+ONTAPへのアクセス方法に基づいて、正しい手順を選択します。
+
+.手順
+[role="tabbed-block"]
+====
+.System Manager の略
+--
+. System Managerで、*[クラスタ]*>*[設定]*を選択します。
+. [セキュリティ]*セクションまで下にスクロールします。
+. [証明書]*の横にある*->*をクリックします。
+. [信頼された認証局]*タブで*[追加]*をクリックします。
+. [インポート]*をクリックし、証明書ファイルを選択します。
+. 環境に合わせて設定パラメータを設定します。
+. [ 追加（ Add ） ] をクリックします。
+
+
+--
+.CLI の使用
+--
+. インストールを開始します。
++
+`security certificate install -type server-ca`
+
+. 次のコンソールメッセージを確認します。
++
+`Please enter Certificate: Press <Enter> when done`
+
+. 証明書ファイルをテキストエディタで開きます。
+. 次の行を含む証明書全体をコピーします。
++
+`-----BEGIN CERTIFICATE-----`
+
++
+`-----END CERTIFICATE-----`
+
+. コマンドプロンプトの後に証明書を端末に貼り付けます。
+. Enter*キーを押してインストールを完了します。
+. 次のいずれかを使用して証明書がインストールされていることを確認します。
++
+`security certificate show-user-installed`
+
++
+`security certificate show`
+
+
+
+--
+====
+
+
+== 手順2：認証サーバを設定する
+
+ONTAPに対する認可サーバーを少なくとも1つ定義する必要があります。設定と導入計画に基づいてパラメータ値を選択する必要があります。レビュー link:../authentication/oauth2-deployment-scenarios.html["OAuth2導入シナリオ"] をクリックして、構成に必要な正確なパラメータを決定します。
+
+
+TIP: 認可サーバー定義を変更するには、既存の定義を削除して新しい定義を作成します。
+
+次の例は、最初のシンプルな導入シナリオに基づいています。 link:../authentication/oauth2-deployment-scenarios.html#local-validation["ローカル検証"]。自己完結型スコープはプロキシなしで使用されます。
+
+ONTAPへのアクセス方法に基づいて、正しい手順を選択します。CLI手順では、コマンドを実行する前に置き換える必要があるシンボリック変数を使用します。
+
+.手順
+[role="tabbed-block"]
+====
+.System Manager の略
+--
+. System Managerで、*[クラスタ]*>*[設定]*を選択します。
+. [セキュリティ]*セクションまで下にスクロールします。
+. * OAuth 2.0 authorization *の横にある*+*をクリックします。
+. [その他のオプション]*を選択します。
+. 導入に必要な値を次のように指定します。
++
+** 名前
+** アプリケーション（http）
+** プロバイダJWKS URI
+** 発行者URI
+
+
+. [ 追加（ Add ） ] をクリックします。
+
+
+--
+.CLI の使用
+--
+. 定義を再作成します。
++
+[source, cli]
+----
+security oauth2 client create -config-name <NAME> -provider-jwks-uri <URI_JWKS> -application http -issuer <URI_ISSUER>
+----
++
+例：
+
++
+[listing]
+----
+security oauth2 client create \
+-config-name auth0 \
+-provider-jwks-uri https://superzap.dev.netapp.com:8443/realms/my-realm/protocol/openid-connect/certs \
+-application http \
+-issuer https://superzap.dev.netapp.com:8443/realms/my-realm
+----
+
+
+--
+====
+
+
+== 手順3：OAuth 2.0を有効にする
+
+最後のステップは、OAuth 2.0を有効にすることです。これはONTAPクラスタのグローバル設定です。
+
+
+CAUTION: ONTAP、認可サーバー、およびサポートサービスがすべて正しく設定されていることを確認するまで、OAuth 2.0の処理を有効にしないでください。
+
+ONTAPへのアクセス方法に基づいて、正しい手順を選択します。
+
+.手順
+[role="tabbed-block"]
+====
+.System Manager の略
+--
+. System Managerで、*[クラスタ]*>*[設定]*を選択します。
+. [セキュリティ]セクション*まで下にスクロールします。
+. * OAuth 2.0 authorization *の横にある*->*をクリックします。
+. * OAuth 2.0認証*を有効にします。
+
+
+--
+.CLI の使用
+--
+. OAuth 2.0を有効にします。
++
+`security oauth2 modify -enabled true`
+
+. OAuth 2.0が有効になっていることを確認します。
++
+[listing]
+----
+security oauth2 show
+Is OAuth 2.0 Enabled: true
+----
+
+
+--
+====

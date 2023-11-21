@@ -11,7 +11,7 @@ summary: SnapLock for SnapVault を使用して、セカンダリストレージ
 
 
 [role="lead"]
-SnapLock for SnapVault を使用して、セカンダリストレージ上の Snapshot コピーを WORM 方式で保護できます。SnapLock デスティネーションでは、 SnapVault の基本的なタスクをすべて実行します。デスティネーションボリュームは自動的に読み取り専用でマウントされるため、 Snapshot コピーを WORM 状態に明示的にコミットする必要はありません。したがって、 SnapMirror ポリシーを使用してデスティネーションボリュームにスケジュールされた Snapshot コピーを作成することはできません。
+SnapLock for SnapVault を使用して、セカンダリストレージ上の Snapshot コピーを WORM 方式で保護できます。SnapLockの基本タスクはすべてSnapVaultデスティネーションで実行します。デスティネーションボリュームは自動的に読み取り専用でマウントされるため、 Snapshot コピーを WORM 状態に明示的にコミットする必要はありません。したがって、 SnapMirror ポリシーを使用してデスティネーションボリュームにスケジュールされた Snapshot コピーを作成することはできません。
 
 .作業を開始する前に
 * ソースクラスタで ONTAP 8.2.2 以降が実行されている必要があります。
@@ -35,7 +35,9 @@ SnapLock ボリュームはクローニングできますが、 SnapLock ボリ�
 
 NOTE: SnapLockボリュームではLUNはサポートされません。SnapLockでは、SnapLock以外のボリュームで作成されたSnapshotコピーをSnapLockバックアップ関係の一部として保護するためにSnapLockに転送する場合にのみ、LUNがサポートされます。読み取り/書き込みSnapLockボリュームではLUNはサポートされません。ただし、Snapshotコピーの改ざんは、SnapMirrorのソースボリュームと、LUNを含むデスティネーションボリュームの両方でサポートされます。
 
-ONTAP 9.13.1以降では、を使用してFlexCloneを作成することで、ロックされたSnapshotコピーをSnapLock for SnapVault 関係のデスティネーションSnapLock ボリュームに瞬時にリストアできます `snaplock-type` オプションを「non-snaplock」に設定し、ボリュームクローン作成処理の実行時に「parent-snapshot」としてSnapshotコピーを指定します。の詳細を確認してください link:https://docs.netapp.com/us-en/ontap/volumes/create-flexclone-task.html?q=volume+clone["SnapLock タイプのFlexCloneボリュームを作成します"]。
+ONTAP 9.14.1以降では、SnapMirror関係のSnapMirrorポリシーに特定のSnapMirrorラベルの保持期間を指定できます。これにより、ソースボリュームからデスティネーションボリュームにレプリケートされたSnapshotコピーが、ルールで指定された保持期間に保持されます。保持期間を指定しない場合は、デスティネーションボリュームのデフォルトの保持期間が使用されます。
+
+ONTAP 9.13.1以降では、ロックされたSnapshotコピーをSnapLockバックアップ関係のデスティネーションSnapLockボリュームに瞬時にリストアできます。これには、 `snaplock-type` オプションを「non-snaplock」に設定し、ボリュームクローン作成処理の実行時に「parent-snapshot」としてSnapshotコピーを指定します。の詳細を確認してください link:https://docs.netapp.com/us-en/ontap/volumes/create-flexclone-task.html?q=volume+clone["SnapLock タイプのFlexCloneボリュームを作成します"]。
 
 MetroCluster 構成の場合は、次の点に注意してください。
 
@@ -44,13 +46,13 @@ MetroCluster 構成の場合は、次の点に注意してください。
 * データ提供用の SVM のボリュームから同期元の SVM の DP ボリュームへの SnapVault 関係を作成できます。
 
 
-次の図は、 SnapVault 関係を初期化するための手順を示しています。
+次の図は、SnapLockバックアップ関係を初期化するための手順を示しています。
 
-image::../media/snapvault-steps-clustered.gif[この図は、 SnapVault 関係を初期化するための手順を示しています。デスティネーションクラスタを特定しています,creating a destination volume,creating a policy]
+image::../media/snapvault-steps-clustered.gif[この図は、SnapLockバックアップ関係を初期化するための手順を示しています。デスティネーションクラスタの特定,creating a destination volume,creating a policy]
 
 .手順
 . デスティネーションクラスタを特定します。
-. デスティネーションクラスタで、SnapLock ライセンスをインストールし、ComplianceClockを初期化します。9.10.1よりも前のONTAP リリースを使用している場合は、SnapLock アグリゲートを作成します。を参照してください xref:workflow-concept.html[SnapLock ワークフロー]。
+. デスティネーションクラスタで、SnapLockライセンスをインストールしてコンプライアンスクロックを初期化し、9.10.1より前のONTAPリリースを使用している場合は、の説明に従ってSnapLockアグリゲートを作成します。 xref:workflow-concept.html[SnapLock ワークフロー]。
 . デスティネーションクラスタで、タイプがのSnapLock デスティネーションボリュームを作成します `DP` ソースボリュームと同じかそれ以上のサイズが指定されています。
 +
 `*volume create -vserver _SVM_name_ -volume _volume_name_ -aggregate _aggregate_name_ -snaplock-type compliance|enterprise -type DP -size _size_*`

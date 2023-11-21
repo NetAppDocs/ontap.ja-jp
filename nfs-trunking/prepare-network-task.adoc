@@ -1,0 +1,102 @@
+---
+permalink: nfs-trunking/prepare-network-task.html 
+sidebar: sidebar 
+keywords: NFS, servers, network, prepare, NFS trunking, LIF, trunking group, NIC 
+summary: NFSv4.1トランキングを利用するには、トランキンググループ内のLIFが同じノードに配置され、同じノードにホームポートがある必要があります。。 
+---
+= ネットワークをトランキング用に準備する
+:allow-uri-read: 
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+NFSv4.1トランキングを利用するには、トランキンググループ内のLIFが同じノードに配置され、同じノードにホームポートがある必要があります。LIFは、同じノードのフェイルオーバーグループに設定する必要があります。
+
+.このタスクについて
+LIFとNICを1対1でマッピングするとパフォーマンスが最大限に向上しますが、トランキングを有効にする必要はありません。少なくとも2つのNICをインストールするとパフォーマンスが向上しますが、必須ではありません。
+
+複数のフェイルオーバーグループを設定できますが、トランキングのフェイルオーバーグループにはトランキンググループに含めるLIFだけを指定する必要があります。
+
+フェイルオーバーグループの接続（および基盤となるNIC）を追加または削除するときは、常にトランキングフェイルオーバーグループを調整する必要があります。
+
+.作業を開始する前に
+* フェイルオーバーグループを作成する場合は、NICに関連付けられているポート名を確認しておく必要があります。
+* すべてのポートが同じノード上にある必要があります。
+
+
+.手順
+. 使用するネットワークポートの名前とステータスを確認します。
++
+`network port status`
+
+. フェイルオーバーグループを作成します。
++
+`network interface failover-groups create -vserver _svm_name_ -failover-group _failover_group_name_ -targets _ports_list_`
+
++
+
+NOTE: フェイルオーバーグループは必須ではありませんが、使用することを強く推奨します。
+
++
+** `_svm_name_` は、NFSサーバが含まれているSVMの名前です。
+** `_ports_list_` は、フェイルオーバーグループに追加するポートのリストです。
++
+ポートは_node_name：port_number_の形式で追加します（例：node1：e0c）。
+
++
+次のコマンドは、SVM vs1にフェイルオーバーグループfg3を作成し、ポートを3つ追加します。
+
++
+`network interface failover-groups create -vserver vs1 -failover-group fg3 -targets cluster1-01:e0c,cluster1-01:e0d,cluster1-01:e0e`
+
++
+の詳細を確認してください link:../networking/configure_failover_groups_and_policies_for_lifs_overview.html["フェイルオーバーグループ："]
+
+
+
+. 必要に応じて、トランキンググループのメンバー用のLIFを作成します。
++
+`network interface create -vserver _svm_name_ -lif _lif_name_ -home-node _node_name_ -home-port _port_name_ -address _IP_address_ -netmask _IP_address_ [-service-policy _policy_] [-auto-revert {true|false}]`
+
++
+** `-home-node` - network interface revertコマンドをLIFで実行したときにLIFが戻るノード。
++
+を使用して、LIFをホームノードおよびホームポートに自動的にリバートするかどうかを指定することもできます `-auto-revert` オプション
+
+** `-home-port` は、network interface revertコマンドをLIFに対して実行したときにLIFが戻る物理ポートまたは論理ポートです。
+** でIPアドレスを指定できます `-address` および `-netmask` オプション（ではなく） `-subnet` オプション
+** 別のIPサブネットにクライアントまたはドメインコントローラがある場合は、IPアドレスを割り当てるときに、ゲートウェイへのデフォルトルートの設定が必要になることがあります。。 `network route create` のマニュアルページには、SVM内での静的ルートの作成に関する情報が記載されています。
+** `-service-policy` - LIFのサービスポリシー。ポリシーを指定しない場合、デフォルトのポリシーが自動的に割り当てられます。を使用します `network interface service-policy show` 使用可能なサービスポリシーを確認するためのコマンド。
+** `-auto-revert` -起動時、管理データベースのステータスが変わったとき、ネットワーク接続が確立されたときなどの状況で、データLIFがホームノードに自動的にリバートされるかどうかを指定します。デフォルト設定はfalseですが、環境内のネットワーク管理ポリシーに応じてtrueに設定できます。
++
+トランキンググループ内のすべてのLIFに対してこの手順を繰り返します。
+
++
+次のコマンドを実行すると、 `lif-A` SVM用 `vs1`、ポート `e0c` ノード `cluster1_01`：
+
++
+`network interface create -vserver vs1 -lif lif-A -service-policy *???* -home-node cluster1_01 -home-port e0c -address 192.0.2.0`
+
++
+の詳細を確認してください link:../networking/create_lifs.html["LIFの作成"]
+
+
+
+. LIFが作成されたことを確認します。
++
+`network interface show`
+
+. 設定したIPアドレスに到達できることを確認します。
++
+[cols="25,75"]
+|===
+| 対象 | 使用 
+
+
+| IPv4 アドレス | `network ping` 
+
+
+| IPv6アドレス | `network ping6` 
+|===
+

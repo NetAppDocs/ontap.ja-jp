@@ -1,0 +1,73 @@
+---
+permalink: encryption-at-rest/configure-nve-svm-root-task.html 
+keywords: volume encryption, nve, svm root, encrypt 
+summary: NetApp Volume Encryption （ NVE ）は、一度に 1 ボリュームずつ保管データを暗号化するためのソフトウェアベースのテクノロジです。ONTAP 9.14.1以降では、SVMルートにNVEを設定できます。 
+---
+= SVMルートボリュームでのNetAppボリューム暗号化の設定
+:allow-uri-read: 
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+ONTAP 9.14.1以降では、Storage VM（SVM）のルートボリュームでNetApp Volume Encryption（NVE）を有効にすることができます。NVEでは、ルートボリュームが一意のキーで暗号化されるため、SVMのセキュリティが向上します。
+
+.このタスクについて
+SVMルートボリューム上のNVEは、SVMの作成後にのみ有効にできます。
+
+.作業を開始する前に
+* NetAppアグリゲート暗号化（NAE）で暗号化されたアグリゲートにSVMルートボリュームを配置しないでください。
+* オンボードキーマネージャまたは外部キーマネージャを使用した暗号化を有効にしておく必要があります。
+* ONTAP 9.14.1以降が実行されている必要があります。
+* NVEで暗号化されたルートボリュームを含むSVMを移行するには、移行の完了後にSVMルートボリュームをプレーンテキストボリュームに変換し、SVMルートボリュームを再暗号化する必要があります。
++
+** SVM移行のデスティネーションアグリゲートでNAEを使用する場合、ルートボリュームはデフォルトでNAEを継承します。
+
+
+* SVMがSVMディザスタリカバリ関係にある場合は、次の手順を実行します。
++
+** ミラーされたSVMの暗号化設定はデスティネーションにコピーされません。ソースまたはデスティネーションでNVEを有効にする場合は、ミラーされたSVMルートボリュームでNVEを個別に有効にする必要があります。
+** デスティネーションクラスタ内のすべてのアグリゲートがNAEを使用する場合、SVMルートボリュームはNAEを使用します。
+
+
+
+
+.手順
+ONTAP CLIまたはSystem Managerを使用して、SVMルートボリュームでNVEを有効にできます。
+
+[role="tabbed-block"]
+====
+.CLI の使用
+--
+NVEは、SVMルートボリュームでインプレースで有効にすることも、アグリゲート間でボリュームを移動することによって有効にすることもできます。
+
+.ルートボリュームをインプレースで暗号化
+. ルートボリュームを暗号化されたボリュームに変換します。
++
+`volume encryption conversion start -vserver _svm_name_ -volume _volume_`
+
+. 暗号化が成功したことを確認します。 `volume show -encryption-type volume` NVEを使用しているすべてのボリュームのリストを表示します。
+
+
+.SVMルートボリュームの移動による暗号化
+. ボリュームの移動を開始します。
++
+`volume move start -vserver _svm_name_ -volume _volume_ -destination-aggregate _aggregate_ -encrypt-with-aggr-key false -encrypt-destination true`
+
++
+詳細情報 `volume move`を参照してください xref:../volumes/move-volume-task.html[ボリュームを移動する]。
+
+. を確認します。 `volume move` で操作が成功しました `volume move show` コマンドを実行します。 `volume show -encryption-type volume` NVEを使用しているすべてのボリュームのリストを表示します。
+
+
+--
+.System Manager の略
+--
+. **ストレージ**>**ボリューム**に移動します。
+. 暗号化するSVMルートボリュームの名前の横にあるを選択します。 image:icon_kabob.gif["3つの縦の点"] 次に、**編集**を実行します。
+. [** Storage and Optimization*]見出しで、[** Enable encryption*]を選択します。
+. **保存**を選択します。
+
+
+--
+====

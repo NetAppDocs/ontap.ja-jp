@@ -2,7 +2,7 @@
 sidebar: sidebar 
 permalink: anti-ransomware/use-cases-restrictions-concept.html 
 keywords: anti-ransomware workloads, anti-ransomware requirements, anti-ransomware performance, volumes, anti-ransomware encryption, anti-ransomware system configurations, arp 
-summary: 現在のリリースでは、ランサムウェア攻撃からの保護が NAS 環境に最も適しています。その他の環境は、今後のリリースでサポートされる予定です。 
+summary: ARPはNASワークロードに対応しています。NFSストレージ、WindowsまたはLinuxのホームディレクトリ、ビデオとイメージのワークロード上のデータベースに最適です。 
 ---
 = 自動ランサムウェア対策による保護のユースケースと考慮事項
 :toc: macro
@@ -14,12 +14,12 @@ summary: 現在のリリースでは、ランサムウェア攻撃からの保�
 :nofooter: 
 :icons: font
 :linkattrs: 
-:imagesdir: ./media/
+:imagesdir: ../media/
 :toc-position: content
 
 
 [role="lead"]
-自律型ランサムウェア対策は、ONTAP 9.10.1以降のNASワークロードで使用できます。ARPを導入する前に、推奨される使用方法とサポートされる設定、およびパフォーマンスへの影響について理解しておく必要があります。
+ONTAP 9.10.1以降では、自律型ランサムウェア対策（ARP）をNASワークロードで使用できます。ARPを導入する前に、推奨される使用方法とサポートされる設定、およびパフォーマンスへの影響について理解しておく必要があります。
 
 
 
@@ -65,22 +65,22 @@ ONTAP 9.10.1以降では、オンプレミスのONTAPシステムのNFSボリュ
 次のONTAPバージョンでは、その他の構成とボリュームタイプがサポートされます。
 
 |===
-|  | ONTAP 9.13.1 | ONTAP 9.12.1 | ONTAP 9.11.1 | ONTAP 9.10.1 
+|  | ONTAP 9.14.1 | ONTAP 9.13.1 | ONTAP 9.12.1 | ONTAP 9.11.1 | ONTAP 9.10.1 
 
 
-| 非同期SnapMirrorで保護されているボリューム | X | X |  |  
+| 非同期SnapMirrorで保護されているボリューム | ✓ | ✓ | ✓ |  |  
 
 
-| 非同期SnapMirrorで保護されているSVM | X | X |  |  
+| 非同期SnapMirrorで保護されているSVM | ✓ | ✓ | ✓ |  |  
 
 
-| データ移行が有効になっているSVM | X | X |  |  
+| データ移行が有効になっているSVM | ✓ | ✓ | ✓ |  |  
 
 
-| FlexGroup ボリューム | X |  |  |  
+| FlexGroup ボリューム | ✓ | ✓ |  |  |  
 
 
-| 管理者による検証が複数必要です | X |  |  |  
+| 管理者による検証が複数必要です | ✓ | ✓ |  |  |  
 |===
 .SnapMirrorとARPの相互運用性
 ONTAP 9.12.1以降では、非同期SnapMirrorデスティネーションボリュームでARPがサポートされます。ARPはSnapMirror Synchronousでサポートされていません**。
@@ -137,7 +137,7 @@ ARPでは、次のボリューム構成はサポートされません。
 * SAN-only ボリューム
 * SnapLock ボリューム
 * SnapMirror Synchronous
-* 非同期SnapMirror（ONTAP 9.10.1~9.12.1の場合）非同期SnapMirrorは、ONTAP 9.12.1以降でサポートされます。詳細については、を参照してください <<snapmirror>>. ）
+* 非同期SnapMirror（ONTAP 9.10.1および9.11.1でのみサポートされません。非同期SnapMirrorは、ONTAP 9.12.1以降でサポートされます。詳細については、を参照してください <<snapmirror>>. ）
 * 制限されたボリューム
 * Storage VMのルートボリューム
 * 停止しているStorage VMのボリューム
@@ -165,8 +165,15 @@ ARP分析は優先順位付けされた順序で実行されるため、保護�
 
 
 
-== Autonomous Ransomware Protection（ARP）で保護されたボリュームを使用した複数管理者による検証
+== ARPで保護されたボリュームを使用したマルチ管理者検証
 
 ONTAP 9.13.1以降では、マルチ管理者検証（MAV）をイネーブルにしてARPによるセキュリティを強化できます。MAVを使用すると、少なくとも2人以上の認証された管理者が、保護されたボリュームでARPをオフにしたり、ARPを一時停止したり、疑わしい攻撃をfalse positiveとしてマークしたりする必要があります。方法をご確認ください link:../multi-admin-verify/enable-disable-task.html["ARPで保護されたボリュームのMAVを有効にします"^]。
 
 MAVグループの管理者を定義し、のMAVルールを作成する必要があります `security anti-ransomware volume disable`、 `security anti-ransomware volume pause`および `security anti-ransomware volume attack clear-suspect` 保護するARPコマンド。MAVグループの各管理者は、新しいルール要求とを承認する必要があります link:../multi-admin-verify/enable-disable-task.html["MAVルールを再度追加します"^] MAV設定内。
+
+ONTAP 9.14.1以降では、ARPスナップショットの作成および新しいファイル拡張子の監視に関するアラートが提供されます。これらのイベントのアラートは、デフォルトでは無効になっています。アラートはボリュームレベルまたはSVMレベルで設定できます。MAVルールは、次のコマンドを使用してSVMレベルで作成できます。 `security anti-ransomware vserver event-log modify` またはボリュームレベルで、 `security anti-ransomware volume event-log modify`。
+
+.次のステップ
+* link:enable-task.html["自動ランサムウェア対策を有効化"]
+* link:../multi-admin-verify/enable-disable-task.html["ARPで保護されたボリュームのMAVを有効にする"]
+

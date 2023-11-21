@@ -1,0 +1,53 @@
+---
+permalink: nfs-trunking/modify-exports-task.html 
+sidebar: sidebar 
+keywords: NFS, servers, network, NFS trunking, NIC, export, policies, rule, Linux, VMware, datastores, client 
+summary: クライアントが既存のデータ共有のトランキングを利用できるようにするには、エクスポートポリシーとルール、およびそれらが接続されているボリュームの変更が必要になる場合があります。 
+---
+= クライアントアクセス用のデータエクスポートを変更します。
+:allow-uri-read: 
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+クライアントが既存のデータ共有のトランキングを利用できるようにするには、エクスポートポリシーとルール、およびそれらが接続されているボリュームの変更が必要になる場合があります。LinuxクライアントとVMwareデータストアには、エクスポートに関するさまざまな要件があります。
+
+クライアントのエクスポート要件：
+
+* Linuxクライアントでは、トランキング接続ごと（つまりLIFごと）に、個別のマウントと個別のマウントポイントが必要です。
++
+ONTAP 9.14.1にアップグレードしていて、すでにボリュームをエクスポートしている場合は、そのボリュームをトランキンググループで引き続き使用できます。
+
+* VMwareクライアントでは、複数のLIFを指定したエクスポートされたボリュームに対してマウントポイントが1つだけ必要です。
++
+VMwareクライアントには、エクスポートポリシーでルートアクセスが必要です。
+
+
+
+.手順
+. 既存のエクスポートポリシーが設定されていることを確認します。
++
+`vserver export-policy show`
+
+. 既存のエクスポートポリシールールがトランキング構成に適していることを確認します。
++
+`vserver export-policy rule show -policyname _policy_name_`
+
++
+特に、 `-clientmatch` パラメータを指定すると、エクスポートをマウントするトランキング対応のLinuxクライアントまたはVMwareクライアントが正しく識別されます。
+
++
+調整が必要な場合は、 `vserver export-policy rule modify` コマンドを実行するか、新しいルールを作成します。
+
++
+`vserver export-policy rule create -vserver _svm_name_ -policyname _policy_name_ -ruleindex integer -protocol nfs4 -clientmatch { text | "text,text,…" } -rorule _security_type_ -rwrule _security_type_ -superuser _security_type_ -anon _user_ID_`
+
++
+の詳細を確認してください link:../nfs-config/add-rule-export-policy-task.html["エクスポートルールを作成しています。"]
+
+. エクスポートした既存のボリュームがオンラインであることを確認します。
++
+`volume show -vserver _svm_name_`
+
+

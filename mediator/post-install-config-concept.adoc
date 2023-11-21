@@ -31,8 +31,14 @@ ONTAP メディエーターサーバでは、いくつかの設定可能なセ�
 
 `systemctl restart ontap_mediator`
 
+
+
+== ONTAPメディエーターの属性を変更します。
+
 次の属性を設定できます。
-注：その他のデフォルト値は、 `ontap_mediator.config.yaml` 変更しないでください。
+
+
+NOTE: その他のデフォルト値 `ontap_mediator.config.yaml` 変更しないでください。
 
 * *デフォルトの自己署名証明書の代わりにサードパーティのSSL証明書をインストールするための設定*
 +
@@ -98,4 +104,37 @@ password_nonletter_chars: 2    # min. non-letter characters (digits, specials, a
 ....
 low_space_threshold_mib: 10
 ....
+* * RESERVE_LOG_SPACEを制御する設定。*
++
+ONTAPメディエーターサーバのデフォルトのインストールでは、ログ用に独立したディスクスペースが作成されます。  Mediatorのロギングに明示的に使用される、合計700MBのディスクスペースを含む新しい固定サイズのファイルがインストーラによって作成されます。
+
++
+この機能を無効にしてデフォルトのディスク容量を使用するには、次の手順に従います。
+
++
+--
+.. 次のファイルでRESERVE_LOG_SPACEの値を「1」から「0」に変更します。
++
+`/opt/netapp/lib/ontap_mediator/tools/mediator_env`
+
+.. Mediatorを再起動します。
++
+... `cat /opt/netapp/lib/ontap_mediator/tools/mediator_env | grep "RESERVE_LOG_SPACE"`
++
+....
+RESERVE_LOG_SPACE=0
+....
+... `systemctl restart ontap_mediator`
+
+
+
+
+--
++
+この機能を再度有効にするには、値を「0」から「1」に変更してMediatorを再起動します。
+
++
+
+NOTE: ディスクスペースを切り替えても、既存のログは消去されません。  以前のログはすべてバックアップされ、Mediatorの切り替えと再起動のあとに現在のディスクスペースに移動されます。
+
 

@@ -1,0 +1,149 @@
+---
+sidebar: sidebar 
+permalink: authentication/overview-oauth2.html 
+keywords: oauth 2.0, oauth2, access token, bearer token, authentication, authorization, mutual tls, mtls, adfs, auth0, oidc 
+summary: ONTAP 9.14以降では、Open Authorization（OAuth 2.0）フレームワークを使用してONTAPクラスタへのアクセスを制御できます。この機能は、ONTAP CLI、System Manager、REST APIなど、ONTAP管理インターフェイスを使用して設定できます。ただし、OAuth 2.0の承認とアクセス制御の決定は、クライアントがREST APIを使用してONTAPにアクセスする場合にのみ適用できます。 
+---
+= ONTAP OAuth 2.0実装の概要
+:hardbreaks:
+:allow-uri-read: 
+:nofooter: 
+:icons: font
+:linkattrs: 
+:imagesdir: ./media/
+
+
+[role="lead"]
+ONTAP 9.14以降では、Open Authorization（OAuth 2.0）フレームワークを使用してONTAPクラスタへのアクセスを制御できます。この機能は、ONTAP CLI、System Manager、REST APIなど、ONTAP管理インターフェイスを使用して設定できます。ただし、OAuth 2.0の承認とアクセス制御の決定は、クライアントがREST APIを使用してONTAPにアクセスする場合にのみ適用できます。
+
+
+NOTE: OAuth 2.0のサポートはONTAP 9.14.0で初めて導入されたため、使用しているONTAPリリースに依存します。を参照してください https://library.netapp.com/ecm/ecm_download_file/ECMLP2492508["ONTAP リリースノート"^] を参照してください。
+
+
+
+== 機能とメリット
+
+ONTAPでOAuth 2.0を使用する主な機能と利点を以下に説明します。
+
+.OAuth 2.0標準のサポート
+OAuth 2.0は業界標準の認可フレームワークです。署名付きアクセストークンを使用して、保護されたリソースへのアクセスを制限および制御するために使用されます。OAuth 2.0を使用すると、次のような利点があります。
+
+* 認証設定の多くのオプション
+* パスワードを含むクライアントのクレデンシャルは絶対に公開しない
+* トークンは構成に基づいて有効期限が切れるように設定できます
+* REST APIでの使用に最適
+
+
+.いくつかの一般的な承認サーバーでテスト済み
+ONTAPの実装は、OAuth 2.0準拠の認可サーバーと互換性があるように設計されています。次の一般的なサーバまたはサービスでテスト済みです。
+
+* Auth0
+* Active Directoryフェデレーションサービス（ADFS）
+* キークローク
+
+
+.複数の同時認証サーバのサポート
+1つのONTAPクラスタに対して最大8つの許可サーバを定義できます。これにより、多様なセキュリティ環境のニーズに柔軟に対応できます。
+
+.RESTロールトノトウゴウ
+ONTAP認証の決定は、最終的にはユーザまたはグループに割り当てられたRESTロールに基づいて行われます。これらのロールは、自己完結型スコープとしてアクセストークン内で伝送されるか、Active DirectoryまたはLDAPグループとともにローカルONTAP定義に基づいて伝送されます。
+
+.送信者に制約されたアクセストークンを使用するオプション
+クライアント認証を強化するMutual Transport Layer Security（MTLS）を使用するようにONTAPおよび認可サーバを設定できます。これにより、OAuth 2.0アクセストークンが最初に発行されたクライアントによってのみ使用されることが保証されます。この機能は、FAPIやMITERによって確立されたものを含む、いくつかの一般的なセキュリティ推奨事項をサポートし、それらと一致しています。
+
+
+
+== 実装と構成
+
+大まかに言えば、OAuth 2.0の実装と構成にはいくつかの側面があり、開始時に考慮する必要があります。
+
+.ONTAP内のOAuth 2.0エンティティ
+OAuth 2.0認証フレームワークは、データセンターまたはネットワーク内の実際の要素または仮想要素にマッピングできる複数のエンティティを定義します。OAuth 2.0エンティティとそのONTAPへの適応を以下の表に示します。
+
+[cols="30,70"]
+|===
+| OAuth 2.0エンティティ | 説明 
+
+
+| リソース | 内部ONTAPコマンドを使用してONTAPリソースへのアクセスを提供するREST APIエンドポイント。 
+
+
+| リソース所有者 | 保護されたリソースを作成した、またはデフォルトでそのリソースを所有しているONTAPクラスタユーザ。 
+
+
+| リソースサーバ | 保護されているリソースのホスト（ONTAPクラスタ）。 
+
+
+| クライアント | リソース所有者に代わって、または権限を持ってREST APIエンドポイントへのアクセスを要求するアプリケーション。 
+
+
+| 許可サーバ | 通常、アクセストークンの発行と管理ポリシーの適用を担当する専用サーバです。 
+|===
+.コアONTAP構成
+OAuth 2.0を有効にして使用するようにONTAPクラスタを設定する必要があります。これには、認可サーバへの接続の確立と、必要なONTAP認可設定の定義が含まれます。この設定は、次のいずれかの管理インターフェイスを使用して実行できます。
+
+* ONTAP コマンドラインインターフェイス
+* System Manager の略
+* ONTAP REST API
+
+
+.環境およびサポートサービス
+ONTAP定義に加えて、認可サーバも設定する必要があります。グループとロールのマッピングを使用している場合は、Active DirectoryグループまたはLDAPに相当するものも設定する必要があります。
+
+.サポートされるONTAPクライアント
+ONTAP 9.14以降では、REST APIクライアントからOAuth 2.0を使用してONTAPにアクセスできます。REST API呼び出しを実行する前に、認証サーバからアクセストークンを取得する必要があります。次に、クライアントは、HTTP認証要求ヘッダーを使用して、このトークンを_bearer token_としてONTAPクラスタに渡します。必要なセキュリティのレベルに応じて、クライアントで証明書を作成してインストールし、MTLSに基づいて送信者に制約されたトークンを使用することもできます。
+
+
+
+== 選択した用語
+
+ONTAPを使用したOAuth 2.0デプロイメントの検討を開始する際には、いくつかの用語について理解しておくと役立ちます。を参照してください link:../authentication/overview-oauth2.html#additional-resources["その他のリソース"] OAuth 2.0に関する詳細情報へのリンクについては、を参照してください。
+
+アクセストークン:: 認証サーバーによって発行され、保護されたリソースへのアクセス要求を行うためにOAuth 2.0クライアントアプリケーションによって使用されるトークン。
+JSON Webトークン:: アクセストークンのフォーマットに使用される標準。JSONは、OAuth 2.0の要求を3つの主要セクションに配置したコンパクトな形式で表現するために使用されます。
+送信者に制約されたアクセストークン:: Mutual Transport Layer Security（MTLS）プロトコルに基づくオプションの機能。トークンで追加の確認要求を使用することで、アクセストークンが最初に発行されたクライアントによってのみ使用されるようになります。
+JSON Webキーセット:: JWKSは、ONTAPがクライアントから提示されたJWTトークンを検証するために使用する公開鍵の集まりです。キーセットは、通常、認証サーバで専用のURIを使用して使用できます。
+適用範囲:: スコープは、ONTAP REST APIなどの保護されたリソースへのアプリケーションのアクセスを制限または制御する手段を提供します。これらは、アクセストークン内の文字列として表されます。
+ONTAP RESTロール:: RESTロールはONTAP 9.6で導入され、ONTAP RBACフレームワークの中核をなす機能です。これらのロールは、ONTAPで引き続きサポートされている以前の従来のロールとは異なります。ONTAPのOAuth 2.0実装では、RESTロールのみがサポートされています。
+HTTP認証ヘッダー:: REST API呼び出しの一部としてクライアントと関連する権限を識別するためのHTTP要求に含まれるヘッダー。認証と認可の実行方法に応じて、いくつかの種類または実装があります。OAuth 2.0アクセストークンをONTAPに提示する場合、トークンは_bearer token_として識別されます。
+HTTPベーシック認証:: 初期のHTTP認証技術はまだONTAPでサポートされています。プレーンテキストのクレデンシャル（ユーザ名とパスワード）はコロンで連結され、base64でエンコードされます。文字列は認可要求ヘッダーに配置され、サーバに送信されます。
+FAPI:: OpenID Foundationのワーキンググループで、金融業界向けにプロトコル、データスキーマ、およびセキュリティに関する推奨事項を提供しています。このAPIは元 々 Financial Grade APIとして知られていた。
+マイター:: 米国空軍と米国政府に技術的および安全保障上のガイダンスを提供する民間の非営利企業。
+
+
+
+
+== その他のリソース
+
+いくつかの追加リソースを以下に示します。OAuth 2.0と関連規格の詳細については、これらのサイトを参照してください。
+
+.プロトコルと標準
+* https://www.rfc-editor.org/info/rfc6749["RFC 6749: OAuth 2.0認可フレームワーク"^]
+* https://www.rfc-editor.org/info/rfc7519["RFC 7519：JSON Webトークン（JWT）"^]
+* https://www.rfc-editor.org/info/rfc7523["RFC 7523: OAuth 2.0クライアントの認証と承認のためのJSON Webトークン（JWT）プロファイル"^]
+* https://www.rfc-editor.org/info/rfc7662["RFC 7662：『OAuth 2.0 Token Introspection』"^]
+* https://www.rfc-editor.org/info/rfc7800["RFC 7800：『Proof-of-Possession Key for JWT』"^]
+* https://www.rfc-editor.org/info/rfc8705["RFC 8705：『OAuth 2.0 Mutual-TLS Client Authentication and Certificate-Bound Access Tokens』"^]
+
+
+.組織
+* https://openid.net["OpenID基盤"^]
+* https://openid.net/wg/fapi["FAPIワーキンググループ"^]
+* https://www.mitre.org["マイター"^]
+* https://www.iana.org/assignments/jwt/jwt.xhtml["IANA-JWT"^]
+
+
+.製品とサービス
+* https://auth0.com["Auth0"^]
+* https://learn.microsoft.com/en-us/windows-server/identity/ad-fs/ad-fs-overview["ADFSの概要"^]
+* https://www.keycloak.org["キークローク"^]
+
+
+.その他のツールとユーティリティ
+* https://jwt.io["Auth0によるJWT"^]
+* https://www.openssl.org["OpenSSL"^]
+
+
+.NetAppのドキュメントとリソース
+* https://docs.netapp.com/us-en/ontap-automation["ONTAPの自動化"^] ドキュメント
+

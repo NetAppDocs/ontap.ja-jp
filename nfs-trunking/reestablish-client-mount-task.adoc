@@ -1,0 +1,51 @@
+---
+permalink: nfs-trunking/reestablish-client-mount-task.html 
+sidebar: sidebar 
+keywords: NFS, servers, network, NFS trunking, data, shares, Linux, VMware, mounts, client 
+summary: トランキングされていないクライアント接続をトランキングされた接続に変換するには、LinuxクライアントおよびVMwareクライアントの既存のマウントを、LIFに関する情報を使用してアンマウントし、再マウントする必要があります。 
+---
+= クライアントマウントの再確立
+:allow-uri-read: 
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+トランキングされていないクライアント接続をトランキングされた接続に変換するには、LinuxクライアントおよびVMwareクライアントの既存のマウントを、LIFに関する情報を使用してアンマウントし、再マウントする必要があります。
+
+クライアントでmountコマンドを入力する場合は、トランキンググループ内の各LIFのIPアドレスを入力する必要があります。
+
+詳細はこちら link:index.html#supported-clients["サポートされるクライアント"]。
+
+
+NOTE: VMwareクライアントをアンマウントすると、データストア上のVMが停止します。別の方法として、トランキングを有効にした新しいデータストアを作成し、* Storage VMotion *を使用してVMを古いデータストアから新しいデータストアに移動します。詳細については、VMwareのドキュメントを参照してください。
+
+[role="tabbed-block"]
+====
+.Linuxクライアントの要件
+--
+トランキンググループ内の接続ごとに、個別のマウントポイントが必要です。
+
+次のようなコマンドを使用して、エクスポートしたボリュームをマウントします。
+
+`mount lif1_ip:/vol-test /mnt/test1 -o vers=4.1,max_connect=2`
+
+`mount lif2_ip:/vol-test /mnt/test2 -o vers=4.1,max_connect=2`
+
+。 `vers` 値は次のでなければなりません： `4.1` 以降が必要です。
+
+。 `max_connect` 値は、トランキンググループ内の接続数に対応している必要があります。
+
+--
+.VMwareクライアントの要件
+--
+トランキンググループ内の各接続のIPアドレスを含むMOUNTステートメントが必要です。
+
+次のようなコマンドを使用して、エクスポートしたデータストアをマウントします。
+
+`#esxcli storage nfs41 -H lif1_ip, lif2_ip -s /mnt/sh are1 -v nfs41share`
+
+。 `-H` 値はトランキンググループの接続に対応している必要があります。
+
+--
+====

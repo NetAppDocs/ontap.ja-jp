@@ -1,0 +1,243 @@
+---
+permalink: authentication/configure-cisco-duo-mfa-task.html 
+sidebar: sidebar 
+keywords: enable, ssh, multifactor authentication, mfa, 2fa, hardware authentication device, Cisco, Duo 
+summary: Cisco Duo for SSHを使用した2要素認証（2FA）によるアカウントセキュリティの強化を活用するには、Cisco Duoで使用するSSHを設定する必要があります。 
+---
+= SSHログイン用のCisco Duo 2FAの設定
+:allow-uri-read: 
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+ONTAP 9.14.1以降では、SSHログイン時に2要素認証（2FA）にCisco Duoを使用するようにONTAPを設定できます。Duoはクラスタレベルで設定し、IT環境はデフォルトですべてのユーザーアカウントを設定します。また、Storage VM（旧称Vserver）のレベルでDuoを設定することもできます。その場合は、そのStorage VMのユーザにのみ適用されます。Duoを有効にして設定すると、追加の認証方式として機能し、すべてのユーザの既存の方式を補完します。
+
+SSHログインでDuo認証を有効にした場合、ユーザは次回SSHを使用してログインするときにデバイスを登録する必要があります。登録情報については、『Cisco Duo https://guide.duo.com/add-device["登録に関するドキュメント"^]。
+
+Cisco Duoでは、ONTAPコマンドラインインターフェイスを使用して次のタスクを実行できます。
+
+* <<Cisco Duoの設定>>
+* <<Cisco Duo設定の変更>>
+* <<Cisco Duo設定の削除>>
+* <<Cisco Duo設定の表示>>
+* <<Duoグループの削除>>
+* <<Duoグループの表示>>
+* <<ユーザーのDuo認証をバイパスする>>
+
+
+
+
+== Cisco Duoの設定
+
+Cisco Duo構成は、クラスタ全体または特定のStorage VM（ONTAP CLIではVserverと呼ばれます）に対して、次のコマンドを使用して作成できます。 `security login duo create` コマンドを実行しますこれを行うと、このクラスタまたはStorage VMのSSHログインでCisco Duoが有効になります。
+
+.手順
+. Cisco Duo管理パネルにログインします。
+. [アプリケーション]>[UNIXアプリケーション]*に移動します。
+. 統合キー、シークレットキー、およびAPIホスト名を記録します。
+. SSHを使用してONTAPアカウントにログインします。
+. このStorage VMに対してCisco Duo認証を有効にし、環境の情報を括弧内の値に置き換えます。
++
+[source, cli]
+----
+security login duo create \
+-vserver <STORAGE_VM_NAME> \
+-integration-key <INTEGRATION_KEY> \
+-secret-key <SECRET_KEY> \
+-apihost <API_HOSTNAME>
+----
++
+このコマンドの必須パラメータおよびオプションパラメータの詳細については、を参照してください。 link:config-worksheets-reference.html["管理者認証と RBAC 設定用のワークシートです"^]。
+
+
+
+
+
+== Cisco Duo設定の変更
+
+Cisco Duoがユーザを認証する方法（指定される認証プロンプトの数、使用されるHTTPプロキシなど）を変更できます。Storage VM（ONTAP CLIではVserver）のCisco Duo設定を変更する必要がある場合は、 `security login duo modify` コマンドを実行します
+
+.手順
+. Cisco Duo管理パネルにログインします。
+. [アプリケーション]>[UNIXアプリケーション]*に移動します。
+. 統合キー、シークレットキー、およびAPIホスト名を記録します。
+. SSHを使用してONTAPアカウントにログインします。
+. このStorage VMのCisco Duo構成を変更します。括弧内の値は、環境から更新された情報に置き換えてください。
++
+[source, cli]
+----
+security login duo modify \
+-vserver <STORAGE_VM_NAME> \
+-integration-key <INTEGRATION_KEY> \
+-secret-key <SECRET_KEY> \
+-apihost <API_HOSTNAME> \
+-pushinfo true|false \
+-http-proxy <HTTP_PROXY_URL> \
+-autopush true|false \
+-prompts 1|2|3 \
+-max-unenrolled-logins <NUM_LOGINS> \
+-is-enabled true|false \
+-fail-mode safe|secure
+----
+
+
+
+
+== Cisco Duo設定の削除
+
+Cisco Duo設定を削除すると、SSHユーザがログイン時にDuoを使用して認証する必要がなくなります。Storage VM（ONTAP CLIではVserverと呼ばれます）のCisco Duo設定を削除するには、 `security login duo delete` コマンドを実行します
+
+.手順
+. SSHを使用してONTAPアカウントにログインします。
+. このStorage VMのCisco Duo設定を削除します。Storage VM名は `<STORAGE_VM_NAME>`：
++
+[source, cli]
+----
+security login duo delete  -vserver <STORAGE_VM_NAME>
+----
++
+これにより、このStorage VMのCisco Duo設定が完全に削除されます。
+
+
+
+
+
+== Cisco Duo設定の表示
+
+Storage VM（ONTAP CLIではVserverと表示されます）の既存のCisco Duo構成を表示するには、 `security login duo show` コマンドを実行します
+
+.手順
+. SSHを使用してONTAPアカウントにログインします。
+. このStorage VMのCisco Duo設定を表示します。必要に応じて、を使用できます `vserver` Storage VMを指定するパラメータ。Storage VM名は `<STORAGE_VM_NAME>`：
++
+[source, cli]
+----
+security login duo show -vserver <STORAGE_VM_NAME>
+----
++
+次のような出力が表示されます。
+
++
+[source, cli]
+----
+Vserver: testcluster
+Enabled: true
+
+Status: ok
+INTEGRATION-KEY: DI89811J9JWMJCCO7IOH
+SKEY SHA Fingerprint:
+b79ffa4b1c50b1c747fbacdb34g671d4814
+API Host: api-host.duosecurity.com
+Autopush: true
+Push info: true
+Failmode: safe
+Http-proxy: 192.168.0.1:3128
+Prompts: 1
+Comments: -
+----
+
+
+
+
+== Duoグループの作成
+
+Cisco Duoでは、特定のActive Directory、LDAP、またはローカルユーザグループのユーザだけをDuo認証プロセスに含めるように設定できます。Duoグループを作成すると、そのグループ内のユーザーのみがDuo認証を求められます。Duoグループを作成するには、 `security login duo group create` コマンドを実行しますグループを作成するときに、必要に応じて、そのグループ内の特定のユーザーをDuo認証プロセスから除外することができます。
+
+.手順
+. SSHを使用してONTAPアカウントにログインします。
+. Duoグループを作成し、環境の情報を括弧内の値に置き換えます。を省略した場合は、 `-vserver` パラメータを指定すると、グループはクラスタレベルで作成されます。
++
+[source, cli]
+----
+security login duo group create -vserver <STORAGE_VM_NAME> -group-name <GROUP_NAME> -exclude-users <USER1, USER2>
+----
++
+Duoグループの名前は、Active Directory、LDAP、またはローカルグループと一致している必要があります。オプションで指定するユーザ `-exclude-users` パラメータはDuo認証プロセスに含まれません。
+
+
+
+
+
+== Duoグループの表示
+
+既存のCisco Duoグループエントリを表示するには、 `security login duo group show` コマンドを実行します
+
+.手順
+. SSHを使用してONTAPアカウントにログインします。
+. Duoグループのエントリを表示します。括弧内の値は、環境の情報に置き換えてください。を省略した場合は、 `-vserver` パラメータを指定すると、グループはクラスタレベルで表示されます。
++
+[source, cli]
+----
+security login duo group show -vserver <STORAGE_VM_NAME> -group-name <GROUP_NAME> -exclude-users <USER1, USER2>
+----
++
+Duoグループの名前は、Active Directory、LDAP、またはローカルグループと一致している必要があります。オプションで指定するユーザ `-exclude-users` パラメータは表示されません。
+
+
+
+
+
+== Duoグループの削除
+
+Duoグループのエントリを削除するには、 `security login duo group delete` コマンドを実行しますグループを削除すると、そのグループのユーザはDuo認証プロセスに含まれなくなります。
+
+.手順
+. SSHを使用してONTAPアカウントにログインします。
+. Duoグループエントリを削除し、環境内の情報を括弧内の値に置き換えます。を省略した場合は、 `-vserver` パラメータを指定すると、グループはクラスタレベルで削除されます。
++
+[source, cli]
+----
+security login duo group delete -vserver <STORAGE_VM_NAME> -group-name <GROUP_NAME>
+----
++
+Duoグループの名前は、Active Directory、LDAP、またはローカルグループと一致している必要があります。
+
+
+
+
+
+== ユーザーのDuo認証をバイパスする
+
+すべてのユーザーまたは特定のユーザーをDuo SSH認証プロセスから除外できます。
+
+
+
+=== すべてのDuoユーザーを除外
+
+すべてのユーザに対してCisco Duo SSH認証をディセーブルにできます。
+
+.手順
+. SSHを使用してONTAPアカウントにログインします。
+. SSHユーザに対してCisco Duo認証を無効にします（SVM名をに置き換えてください）。 `<STORAGE_VM_NAME>`：
++
+[source, cli]
+----
+security login duo -vserver <STORAGE_VM_NAME> -is-duo-enabled-false
+----
+
+
+
+
+=== Duoグループユーザーを除外
+
+Duoグループの一部である特定のユーザーを、Duo SSH認証プロセスから除外できます。
+
+.手順
+. SSHを使用してONTAPアカウントにログインします。
+. グループ内の特定のユーザに対してCisco Duo認証をディセーブルにします。括弧内の値は、除外するグループ名とユーザのリストに置き換えてください。
++
+[source, cli]
+----
+security login group modify -group-name <GROUP_NAME> -exclude-users <USER1, USER2>
+----
++
+Duoグループの名前は、Active Directory、LDAP、またはローカルグループと一致している必要があります。で指定するユーザ `-exclude-users` パラメータはDuo認証プロセスに含まれません。
+
+
+
+
+
+=== ローカルDuoユーザを除外
+
+Cisco Duo管理パネルを使用すると、特定のローカルユーザをDuo認証の使用から除外できます。手順については、を参照してください https://duo.com/docs/administration-users#changing-user-status["Cisco Duoマニュアル"^]。

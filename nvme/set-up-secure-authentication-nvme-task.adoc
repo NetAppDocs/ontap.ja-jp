@@ -1,0 +1,95 @@
+---
+permalink: nvme/set-up-secure-authentication-nvme-task.html 
+sidebar: sidebar 
+keywords: manage, nvme, secure, authentication, tcp, dh-hmac-hcap, chap, setting up, set up, in-band, in band 
+summary: ONTAP 9.12.1以降では、DH-HMAC-CHAP認証プロトコルを使用したNVMe経由でNVMeホストとコントローラの間の双方向認証がサポートされます。    
+---
+= NVMe経由のインバンド認証の設定
+:allow-uri-read: 
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+ONTAP 9.12.1以降では、ONTAPコマンドラインインターフェイス（CLI）を使用して、DH-HMAC-CHAP認証を使用して、NVMe/TCPおよびNVMe/FCプロトコルを介したNVMeホストとコントローラ間のインバンド（セキュア）双方向および単方向認証を設定できます。  ONTAP 9.14.1以降では、インバンド認証をSystem Managerで設定できます。
+
+インバンド認証を設定するには、各ホストまたはコントローラにDH-HMAC-CHAPキーを関連付ける必要があります。DH-HMAC-CHAPキーは、NVMeホストまたはコントローラのNQNと管理者が設定した認証シークレットを組み合わせたものです。  NVMeホストまたはコントローラがピアを認証するには、ピアに関連付けられたキーを認識している必要があります。
+
+単方向認証では、コントローラではなくホストにシークレットキーが設定されます。  双方向認証では、ホストとコントローラの両方にシークレットキーが設定されます。
+
+SHA-256がデフォルトのハッシュ関数で、2048ビットがデフォルトのDHグループです。
+
+[role="tabbed-block"]
+====
+.System Manager の略
+--
+ONTAP 9.14.1以降では、NVMeサブシステムの作成または更新、NVMeネームスペースの作成またはクローニング、新しいNVMeネームスペースを使用した整合グループの追加時に、System Managerを使用してインバンド認証を設定できます。
+
+.手順
+. System Managerで、*[ホスト]>[NVMeサブシステム]*をクリックし、*[追加]*をクリックします。
+. NVMeサブシステム名を追加し、Storage VMとホストオペレーティングシステムを選択します。
+. ホストのNQNを入力します。
+. [Host NQN]の横にある*[Use in-band authentication]*を選択します。
+. ホストシークレットとコントローラシークレットを指定します。
++
+DH-HMAC-CHAPキーは、NVMeホストまたはコントローラのNQNと管理者が設定した認証シークレットを組み合わせたものです。
+
+. ホストごとに使用するハッシュ関数とDHグループを選択します。
++
+ハッシュ関数とDHグループを選択しない場合、SHA-256がデフォルトのハッシュ関数として割り当てられ、2048ビットがデフォルトのDHグループとして割り当てられます。
+
+. 必要に応じて、*[追加]*をクリックし、必要に応じて手順を繰り返してホストを追加します。
+. [ 保存（ Save ） ] をクリックします。
+. インバンド認証が有効になっていることを確認するには、*[システムマネージャ]>[ホスト]>[NVMeサブシステム]>[グリッド]>[ピークビュー]*をクリックします。
++
+ホスト名の横にあるトランスペアレントキーアイコンは、単方向モードがイネーブルであることを示します。  ホスト名の横にある不透明キーは、双方向モードが有効であることを示します。
+
+
+
+--
+.CLI の使用
+--
+.手順
+. NVMeサブシステムにDH-MHMAC-CHAP認証を追加します。
++
+[source, cli]
+----
+vserver nvme subsystem host add -vserver <svm_name> -subsystem <subsystem> -host-nqn <host_nqn> -dhchap-host-secret <authentication_host_secret> -dhchap-controller-secret <authentication_controller_secret> -dhchap-hash-function <sha-256|sha-512> -dhchap-group <none|2048-bit|3072-bit|4096-bit|6144-bit|8192-bit>
+----
+. DH-MHMAC CHAP認証プロトコルがホストに追加されていることを確認します。
++
+[source, cli]
+----
+vserver nvme subsystem host show
+----
++
+[listing]
+----
+  [ -dhchap-hash-function {sha-256|sha-512} ]  Authentication Hash Function
+  [ -dhchap-dh-group {none|2048-bit|3072-bit|4096-bit|6144-bit|8192-bit} ]
+                                               Authentication Diffie-Hellman
+                                               Group
+  [ -dhchap-mode {none|unidirectional|bidirectional} ]
+                                               Authentication Mode
+
+----
+. NVMeコントローラの作成時にDH-MHMAC CHAP認証が実行されたことを確認します。
++
+[source, cli]
+----
+vserver nvme subsystem controller show
+----
++
+[listing]
+----
+ [ -dhchap-hash-function {sha-256|sha-512} ]  Authentication Hash Function
+ [ -dhchap-dh-group {none|2048-bit|3072-bit|4096-bit|6144-bit|8192-bit} ]
+                                               Authentication Diffie-Hellman
+                                               Group
+ [ -dhchap-mode {none|unidirectional|bidirectional} ]
+                                               Authentication Mode
+----
+
+
+--
+====

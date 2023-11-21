@@ -1,7 +1,7 @@
 ---
 permalink: data-protection/snapmirror-svm-replication-concept.html 
 sidebar: sidebar 
-keywords: understand, snapmirror, svm, replication, SVM DR storage limits 
+keywords: understand, snapmirror, svm, replication, SVM disaster recovery storage limits 
 summary: SnapMirror を使用すると、 SVM 間のデータ保護関係を作成できます。このタイプのデータ保護関係では、 SVM のすべてまたは一部の設定が NFS エクスポートおよび SMB 共有から RBAC にレプリケートされます。また、 SVM が所有するボリューム内のデータもレプリケートされます。 
 ---
 = SnapMirror SVM レプリケーションの概要
@@ -27,7 +27,7 @@ ONTAP 9.9.1以降では、mirror-vaultポリシーを使用している場合に
 ** スケジュールされた通常の処理、更新、および再同期の実行中に、ソースからデスティネーションに上書きされることはありません
 ** 解除処理の実行中に削除されることはありません。
 ** 逆再同期処理の実行中は削除されません。
-ONTAP 9.9.1 以降を使用してミラーバックアップポリシーを使用して SVM DR 関係を設定する場合、ポリシーの動作は次のようになります。
+ONTAP 9.9.1以降を使用してmirror-vaultポリシーを使用してSVMディザスタ関係を設定する場合、ポリシーは次のように動作します。
 ** ソースでのユーザ定義の Snapshot コピーポリシーは、デスティネーションにコピーされません。
 ** システム定義の Snapshot コピーポリシーはデスティネーションにコピーされません。
 ** ユーザおよびシステム定義の Snapshot ポリシーとのボリュームの関連付けはデスティネーションにコピーされません。
@@ -107,7 +107,7 @@ MirrorAndVault （ユニファイドレプリケーション）
 
 [NOTE]
 ====
-バージョンに依存しないレプリケーションは、 SVM レプリケーションではサポートされません。SVM DR構成では、フェイルオーバー処理とフェイルバック処理がサポートされるように、デスティネーションSVMをソースSVMクラスタと同じバージョンのONTAP を実行しているクラスタで実行する必要があります。
+バージョンに依存しないレプリケーションは、 SVM レプリケーションではサポートされません。SVMディザスタリカバリ設定では、フェイルオーバーおよびフェイルバック処理をサポートするために、デスティネーションSVMがソースSVMクラスタと同じバージョンのONTAPを実行しているクラスタである必要があります。
 
 ====
 link:compatible-ontap-versions-snapmirror-concept.html["SnapMirror 関係に対応した ONTAP バージョン"]
@@ -120,7 +120,7 @@ SVM レプリケーション関係の内容は、以下に示すフィールド�
 
 * 。 `-identity-preserve true` のオプション `snapmirror create` コマンドは、SVMの設定全体をレプリケートします。
 +
-。 `-identity-preserve false` オプションは、SVMのボリュームと認証と許可の設定、およびに記載されているプロトコルとネームサービスの設定のみをレプリケートします link:snapmirror-svm-replication-concept.html#configurations-replicated-in-svm-dr-relationships["SVM DR 関係でレプリケートされる設定"]。
+。 `-identity-preserve false` オプションは、SVMのボリュームと認証と許可の設定、およびに記載されているプロトコルとネームサービスの設定のみをレプリケートします link:snapmirror-svm-replication-concept.html#configurations-replicated-in-svm-dr-relationships["SVMディザスタリカバリ関係でレプリケートされる設定"]。
 
 * 。 `-discard-configs network` のオプション `snapmirror policy create` このコマンドは、ソースとデスティネーションのSVMが異なるサブネットにある場合に使用するLIFおよび関連ネットワーク設定をSVMレプリケーション対象から除外します。
 * 。 `-vserver-dr-protection unprotected` のオプション `volume modify` 指定したボリュームをSVMレプリケーション対象から除外します。
@@ -142,9 +142,21 @@ SVM レプリケーション関係の内容は、以下に示すフィールド�
 
 
  a| 
+導入タイプ
+ a| 
+* 単一のソースから単一のデスティネーション
+* ONTAP 9.4 以降はファンアウトファンアウトできるのは 2 つの宛先だけです。
++
+デフォルトでは、 -identity-preserve true の関係はソース SVM ごとに 1 つだけ許可されます。
+
+
+
+
+
+ a| 
 関係タイプ
  a| 
-* SnapMirror DR
+* SnapMirrorディザスタリカバリ
 * ONTAP 9.2 以降では、 SnapMirror ユニファイドレプリケーションがサポートされます
 
 
@@ -158,25 +170,6 @@ SVM レプリケーション関係の内容は、以下に示すフィールド�
 
 
  a| 
-バージョンに依存しません
- a| 
-サポート対象外
-
-
-
- a| 
-導入タイプ
- a| 
-* 単一のソースから単一のデスティネーション
-* ONTAP 9.4 以降はファンアウトファンアウトできるのは 2 つの宛先だけです。
-+
-デフォルトでは、 -identity-preserve true の関係はソース SVM ごとに 1 つだけ許可されます。
-
-
-
-
-
- a| 
 自律的なランサムウェア防御
  a| 
 * ONTAP 9.12.1以降でサポート。詳細については、を参照してください link:https://docs.netapp.com/us-en/ontap/anti-ransomware/index.html["自律的なランサムウェア防御"]
@@ -185,13 +178,9 @@ SVM レプリケーション関係の内容は、以下に示すフィールド�
 
 
  a| 
-ボリューム暗号化
+整合グループの非同期サポート
  a| 
-* ソースで暗号化されたボリュームがデスティネーションで暗号化されます。
-* オンボードキーマネージャまたは KMIP サーバをデスティネーションで設定する必要があります。
-* 新しい暗号化キーはデスティネーションで生成されます。
-* ボリューム暗号化をサポートするノードがデスティネーションに含まれていない場合、レプリケーションは成功しますが、デスティネーションボリュームは暗号化されません。
-
+ONTAP 9.14.1以降では、整合グループが存在する場合に最大32個のSVMディザスタリカバリ関係がサポートされます。を参照してください link:https://docs.netapp.com/us-en/ontap/consistency-groups/protect-task.html["整合グループを保護する"] および link:https://docs.netapp.com/us-en/ontap/consistency-groups/limits.html["整合グループの制限"] を参照してください。
 
 
 
@@ -205,41 +194,66 @@ ONTAP 9.6 以降の FabricPool では、 SnapMirror SVM レプリケーション
  a| 
 MetroCluster
  a| 
-ONTAP 9.11.1以降では、MetroCluster 構成内のSVM DR関係の両側が、追加のSVM DR構成のソースとして機能できます。
+ONTAP 9.11.1以降では、MetroCluster構成内のSVMディザスタリカバリ関係の両側を、SVMディザスタリカバリ設定のソースとして使用できます。
 
 ONTAP 9.5 以降の MetroCluster 構成では、 SnapMirror SVM レプリケーションがサポートされます。
 
-* MetroCluster 構成を SVM DR 関係のデスティネーションにすることはできません。
-* SVM DR 関係のソースとして使用できるのは、 MetroCluster 構成内のアクティブな SVM だけです。
+* MetroCluster構成をSVMディザスタリカバリ関係のデスティネーションにすることはできません。
+* SVM ディザスタリカバリ関係のソースとして使用できるのは、 MetroCluster 構成内のアクティブな SVM だけです。
 +
 スイッチオーバー前の同期元の SVM とスイッチオーバー後の同期先の SVM のどちらもソースに使用できます。
 
-* MetroCluster 構成が安定した状態のときは MetroCluster の同期先 SVM がオンラインでないため、同期先ボリュームを SVM DR 関係のソースにすることはできません。
-* SVM DR 関係のソースが同期元の SVM の場合、ソースの SVM DR 関係情報が MetroCluster パートナーにレプリケートされます。
-* スイッチオーバーおよびスイッチバックの実行中に、 SVM DR のデスティネーションへのレプリケーションが失敗することがあります。
+* MetroCluster 構成が安定した状態のときは MetroCluster の同期先の SVM はオンラインでないため、同期先ボリュームを SVM ディザスタリカバリ関係のソースにすることはできません。
+* 同期元のSVMがSVMディザスタリカバリ関係のソースである場合は、ソースのSVMディザスタリカバリ関係の情報がMetroClusterパートナーにレプリケートされます。
+* スイッチオーバーおよびスイッチバックの処理中に、SVMディザスタリカバリデスティネーションへのレプリケーションが失敗することがあります。
 +
-ただし、スイッチオーバーまたはスイッチバックプロセスの完了後、 SVM DR の次回のスケジュールされている更新は成功します。
+ただし、スイッチオーバーまたはスイッチバックのプロセスが完了すると、SVMディザスタリカバリの次回のスケジュールされた更新は成功します。
 
 
+
+
+
+ a| 
+整合グループ
+ a| 
+ONTAP 9.14.1以降でサポートされます。詳細については、を参照してください xref:../consistency-groups/protect.html[整合グループを保護する]。
 
 
 
  a| 
 ONTAP S3の略
  a| 
-SVM DR ではサポートされません。
+SVMディザスタリカバリではサポートされません。
 
 
 
  a| 
 SnapMirror Synchronous
  a| 
-SVM DR ではサポートされません。
+SVMディザスタリカバリではサポートされません。
+
+
+
+ a| 
+バージョンに依存しません
+ a| 
+サポート対象外
+
+
+
+ a| 
+ボリューム暗号化
+ a| 
+* ソースで暗号化されたボリュームがデスティネーションで暗号化されます。
+* オンボードキーマネージャまたは KMIP サーバをデスティネーションで設定する必要があります。
+* 新しい暗号化キーはデスティネーションで生成されます。
+* ボリューム暗号化をサポートするノードがデスティネーションに含まれていない場合、レプリケーションは成功しますが、デスティネーションボリュームは暗号化されません。
+
 
 |===
 
 
-== SVM DR 関係でレプリケートされる設定
+== SVMディザスタリカバリ関係でレプリケートされる設定
 
 次の表に、の相互作用を示します `snapmirror create -identity-preserve` オプションとを使用します `snapmirror policy create -discard-configs network` オプション：
 
@@ -857,9 +871,9 @@ v3 ユーザ
 |===
 
 
-== SVM DRストレージの制限
+== SVMディザスタリカバリのストレージ制限
 
-次の表に、ストレージオブジェクトごとにサポートされるボリュームおよびSVM DR関係の最大数の推奨値を示します。制限はプラットフォームによって異なることが多いので注意してください。を参照してください link:https://hwu.netapp.com/["Hardware Universe"^] をクリックして、それぞれの構成の制限事項を確認してください。
+次の表に、ストレージオブジェクトごとにサポートされる推奨されるボリュームおよびSVMディザスタリカバリ関係の最大数を示します。制限はプラットフォームによって異なることが多いので注意してください。を参照してください link:https://hwu.netapp.com/["Hardware Universe"^] をクリックして、それぞれの構成の制限事項を確認してください。
 
 [cols="2*"]
 |===
@@ -885,6 +899,6 @@ HA ペア
  a| 
 クラスタ
  a| 
-128個のSVM DR関係
+128個のSVMディザスタ関係
 
 |===

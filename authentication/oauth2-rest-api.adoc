@@ -1,0 +1,82 @@
+---
+sidebar: sidebar 
+permalink: authentication/oauth2-rest-api.html 
+keywords: acquire token, curl, rest api call, keycloak 
+summary: ONTAPのOAuth 2.0実装では、REST APIクライアントアプリケーションがサポートされています。curlを使用して簡単なREST API呼び出しを問題し、OAuth 2.0の使用を開始できます。 
+---
+= OAuth 2.0を使用したREST API呼び出しの問題
+:hardbreaks:
+:allow-uri-read: 
+:nofooter: 
+:icons: font
+:linkattrs: 
+:imagesdir: ./media/
+
+
+[role="lead"]
+ONTAPのOAuth 2.0実装では、REST APIクライアントアプリケーションがサポートされています。curlを使用して簡単なREST API呼び出しを問題し、OAuth 2.0の使用を開始できます。次の例は、ONTAPクラスタのバージョンを取得します。
+
+
+
+== 作業を開始する前に
+
+ONTAPクラスタに対してOAuth 2.0機能を設定して有効にする必要があります。これには、認可サーバーの定義が含まれます。
+
+
+
+== ステップ1：アクセストークンを取得する
+
+REST API呼び出しで使用するアクセストークンを取得する必要があります。トークン要求はONTAPの外部で実行され、正確な手順は認可サーバとその設定によって異なります。Webブラウザ、curlコマンド、またはプログラミング言語を使用してトークンを要求できます。
+
+説明のために、curlを使用してKeycloakからアクセストークンを要求する方法の例を以下に示します。
+
+.キークロークの例
+[source, curl]
+----
+curl --request POST \
+--location 'https://superzap.dev.netapp.com:8443/realms/peterson/protocol/openid-connect/token' \
+--header 'Content-Type: application/x-www-form-urlencoded' \
+--data-urlencode 'client_id=dp-client-1' \
+--data-urlencode 'grant_type=client_credentials' \
+--data-urlencode 'client_secret=5iTUf9QKLGxAoYa1iR33vlD5A2xq09V7'
+----
+返されたトークンをコピーして保存する必要があります。
+
+
+
+== 手順2：REST API呼び出しを問題する
+
+有効なアクセストークンを取得したら、curlコマンドとアクセストークンを使用してREST API呼び出しを問題できます。
+
+.パラメータと変数
+curlの例の2つの変数について、次の表で説明します。
+
+[cols="25,75"]
+|===
+| 変数（ Variable ） | 説明 
+
+
+| $FQDN_IP | ONTAP管理LIFの完全修飾ドメイン名またはIPアドレス。 
+
+
+| $access_token | 認可サーバーによって発行されたOAuth 2.0アクセストークン。 
+|===
+curlの例を発行する前に、まずBashシェル環境でこれらの変数を設定する必要があります。たとえば、Linux CLIで次のコマンドを入力して、FQDN変数を設定および表示します。
+
+[listing]
+----
+FQDN_IP=172.14.31.224
+echo $FQDN_IP
+172.14.31.224
+----
+両方の変数をローカルのBashシェルで定義したら、curlコマンドをコピーしてCLIに貼り付けることができます。Enter *を押して変数を置き換え、コマンドを問題します。
+
+.カールの例
+[source, curl]
+----
+curl --request GET \
+--location "https://$FQDN_IP/api/cluster?fields=version" \
+--include \
+--header "Accept: */*" \
+--header "Authorization: Bearer $ACCESS_TOKEN"
+----

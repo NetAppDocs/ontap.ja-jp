@@ -1,0 +1,84 @@
+---
+permalink: encryption-at-rest/enable-encryption-existing-volume-93-later-task.html 
+sidebar: sidebar 
+keywords: enabling, encryption, existing, volume encryption conversion start, command 
+summary: ONTAP 9.3以降では、volume encryption conversion startコマンドを使用して、既存のボリュームの暗号化を「インプレース」で有効にできます。volSumeを別の場所に移動する必要はありません。 
+---
+= volume encryption conversion start コマンドを使用して既存のボリュームの暗号化を有効にします
+:allow-uri-read: 
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+ONTAP 9.3以降では、を使用できます `volume encryption conversion start` 既存のボリュームの暗号化を「インプレース」で有効にするコマンド。ボリュームを別の場所に移動する必要はありません。
+
+.このタスクについて
+変換処理を開始したら、最後まで完了する必要があります。処理中にパフォーマンス問題 が発生した場合は、を実行できます `volume encryption conversion pause` 処理を一時停止するコマンド、および `volume encryption conversion resume` コマンドを実行して処理を再開します。
+
+ONTAP 9.14.1以降では、 `volume encryption conversion start` SVMルートボリューム。詳細については、を参照してください xref:configure-nve-svm-root-task.html[SVMルートボリュームでのNetAppボリューム暗号化の設定]。
+
+
+NOTE: を使用することはできません `volume encryption conversion start` SnapLock ボリュームを変換します。
+
+.手順
+. 既存のボリュームで暗号化を有効にします。
++
+`volume encryption conversion start -vserver _svm_name_ -volume _volume_name_`
+
++
+コマンド構文全体については、を参照してください link:https://docs.netapp.com/us-en/ontap-cli-9131//volume-encryption-conversion-start.html["コマンドリファレンス"^]。
+
++
+次のコマンドは、既存のボリュームで暗号化を有効にします `vol1`：
+
++
+[listing]
+----
+cluster1::> volume encryption conversion start -vserver vs1 -volume vol1
+----
++
+ボリュームの暗号化キーが作成されます。ボリュームのデータが暗号化されます。
+
+. 変換処理のステータスを確認します。
++
+`volume encryption conversion show`
+
++
+コマンド構文全体については、コマンドのマニュアルページを参照してください。
+
++
+次のコマンドは、変換処理のステータスを表示します。
+
++
+[listing]
+----
+cluster1::> volume encryption conversion show
+
+Vserver   Volume   Start Time           Status
+-------   ------   ------------------   ---------------------------
+vs1       vol1     9/18/2017 17:51:41   Phase 2 of 2 is in progress.
+----
+. 変換処理が完了したら、ボリュームで暗号化が有効になっていることを確認します。
++
+`volume show -is-encrypted true`
+
++
+コマンド構文全体については、コマンドのマニュアルページを参照してください。
+
++
+次のコマンドは、の暗号化されたボリュームを表示します `cluster1`：
+
++
+[listing]
+----
+cluster1::> volume show -is-encrypted true
+
+Vserver  Volume  Aggregate  State  Type  Size  Available  Used
+-------  ------  ---------  -----  ----  -----  --------- ----
+vs1      vol1    aggr2     online    RW  200GB    160.0GB  20%
+----
+
+
+.結果
+ノードの暗号化キーの格納にKMIPサーバを使用している場合、ボリュームの暗号化時にONTAPからサーバに暗号化キーが自動的にプッシュされます。

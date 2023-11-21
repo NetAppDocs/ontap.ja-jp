@@ -1,59 +1,72 @@
 ---
 permalink: snaplock/initialize-complianceclock-task.html 
 sidebar: sidebar 
-keywords: snaplock, complianceclock, initialize, worm, retention, period, node, ntp, reset, resynchronize 
-summary: SnapLock では、 ComplianceClock を使用して改ざんによる WORM ファイルの保持期間の変更を防止します。SnapLock アグリゲートをホストする各ノードでシステム ComplianceClock を初期化する必要があります。ノードで ComplianceClock を初期化すると、再度初期化することはできません。 
+keywords: snaplock, complianceclock, compliance clock, initialize, worm, retention, period, node, ntp, reset, resynchronize 
+summary: SnapLock では、 ComplianceClock を使用して改ざんによる WORM ファイルの保持期間の変更を防止します。SnapLockアグリゲートをホストする各ノードでシステムコンプライアンスクロックを初期化する必要があります。  
 ---
-= ComplianceClock を初期化します
+= コンプライアンスクロックを初期化します
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-SnapLock では、 ComplianceClock を使用して改ざんによる WORM ファイルの保持期間の変更を防止します。SnapLock アグリゲートをホストする各ノードで、 _system ComplianceClock _ を初期化する必要があります。ノードで ComplianceClock を初期化すると、再度初期化することはできません。
+SnapLockでは、_volumeコンプライアンスクロック_を使用して、改ざんによるWORMファイルの保持期間の変更を防止します。最初に、SnapLockアグリゲートをホストする各ノードで_system ComplianceClock_を初期化する必要があります。
 
-.必要なもの
+ONTAP 9.14.1以降では、Snapshotコピーロックが有効になっているSnapLockボリュームがない場合やボリュームがない場合に、システムコンプライアンスクロックを初期化または再初期化できます。再初期化機能を使用すると、システム管理者は、システムコンプライアンスクロックが誤って初期化されたり、システムのクロックドリフトが修正されたりした場合に、システムコンプライアンスクロックをリセットできます。ONTAP 9.13.1以前のリリースでは、一度ノードでコンプライアンスクロックを初期化すると、再度初期化することはできません。
+
+.作業を開始する前に
+コンプライアンスクロックを再初期化する手順は、次のとおりです。
+
+* クラスタ内のすべてのノードが正常な状態である必要があります。
+* すべてのボリュームがオンラインである必要があります。
+* どのボリュームもリカバリキューに含めることができません。
+* SnapLockボリュームが存在できません。
+* Snapshotコピーロックが有効になっているボリュームは存在できません。
+
+
+コンプライアンスクロックを初期化するための一般的な要件：
+
 * このタスクを実行するには、クラスタ管理者である必要があります。
 * ノードに SnapLock ライセンスがインストールされている必要があります。
 
 
 .このタスクについて
-システム ComplianceClock の時間は、ボリューム上の WORM ファイルの保持期間を制御する _volume ComplianceClock _ に継承されます。ボリューム ComplianceClock は、新しい SnapLock ボリュームの作成時に自動的に初期化されます。
+システムのコンプライアンスクロックの時間は_volumeコンプライアンスクロック_に継承され、ボリューム上のWORMファイルの保持期間はボリューム側で制御されます。ボリュームコンプライアンスクロックは、新しいSnapLockを作成すると自動的に初期化されます。
 
 [NOTE]
 ====
-ComplianceClock の初期設定は現在のシステムクロックに基づきます。そのため、 ComplianceClock を初期化する前に、システム時間とタイムゾーンが正しいことを確認してください。ノードで ComplianceClock を初期化すると、再度初期化することはできません。
+システムコンプライアンスクロックの初期設定は、現在のハードウェアシステムクロックに基づいています。そのため、各ノードでシステムコンプライアンスクロックを初期化する前に、システム時間とタイムゾーンが正しいことを確認する必要があります。ノードでシステムコンプライアンスクロックを初期化すると、ロックが有効なSnapLockボリュームまたはボリュームが存在する場合、再度初期化することはできません。
 
 ====
+.手順
+ONTAP CLIを使用してコンプライアンスクロックを初期化できます。ONTAP 9.12.1以降では、System Managerを使用してコンプライアンスクロックを初期化できます。
+
 [role="tabbed-block"]
 ====
 .System Manager の略
 --
-ONTAP 9.12.1以降では、System Managerを使用してSnapLock コンプライアンスクロックを初期化できます。
-
-.手順
 . [Cluster]>[Overview]に移動します。
 . [*ノード*]セクションで、[Initialize SnapLock Compliance Clock*]をクリックします。
-. コンプライアンスクロック列を表示し、コンプライアンスクロックが初期化されていることを確認するには、*クラスタ>概要>ノード*セクションで*表示/非表示*をクリックし、* SnapLock コンプライアンスクロック*を選択します。
+. コンプライアンスクロック*列を表示してコンプライアンスクロックが初期化されたことを確認するには、*[クラスタ]>[概要]>[ノード]*セクションで*[表示/非表示]*をクリックし、*[ SnapLockコンプライアンスクロック]*を選択します。
 
 
 --
 --
 .CLI の使用
-. システム ComplianceClock を初期化します。
+. システムコンプライアンスクロックを初期化します。
 +
 `*snaplock compliance-clock initialize -node _node_name_*`
 
 +
-次のコマンドは、でシステムComplianceClockを初期化します `node1`：
+次のコマンドは、システムコンプライアンスクロックをオンに初期化します。 `node1`：
 
 +
 [listing]
 ----
 cluster1::> snaplock compliance-clock initialize -node node1
 ----
-. プロンプトが表示されたら、システムクロックが正しいことと、 ComplianceClock の初期化を確定します。
+. プロンプトが表示されたら、システムクロックが正しいこと、およびコンプライアンスクロックを初期化することを確認します。
 +
 [listing]
 ----
@@ -73,9 +86,9 @@ Do you want to continue? (y|n): y
 ====
 
 
-== NTPが設定されたシステムに対してComplianceClockの再同期を有効にします
+== NTPが設定されたシステムでコンプライアンスクロックの再同期を有効にする
 
-SnapLock サーバを設定する際に、NTPのComplianceClock時間同期機能を有効にすることができます。
+サーバが設定されている場合は、SnapLockコンプライアンスクロック時間同期機能を有効にできます。
 
 .必要なもの
 * この機能は、 advanced 権限レベルでのみ使用できます。
@@ -85,17 +98,17 @@ SnapLock サーバを設定する際に、NTPのComplianceClock時間同期機�
 
 
 .このタスクについて
-SnapLock のセキュアクロックデーモンがしきい値を超えるスキューを検出すると、ONTAP はシステム時間を使用してシステムとボリュームの両方のComplianceClockをリセットします。スキューのしきい値は 24 時間に設定されています。つまり、システム ComplianceClock はスキューが 1 日を超えた場合にのみシステムクロックに同期されます。
+SnapLockセキュアクロックデーモンがしきい値を超えたスキューを検出すると、ONTAPはシステム時間を使用してシステムクロックとボリュームコンプライアンスクロックの両方をリセットします。スキューのしきい値は 24 時間に設定されています。つまり、スキューが1日以上経過した場合にのみ、システムコンプライアンスクロックがシステムクロックに同期されます。
 
-SnapLock のセキュアクロックデーモンがスキューを検出し、 ComplianceClock をシステム時間に変更します。ComplianceClock はシステム時間が NTP の時間と同期されている場合しかシステム時間と同期されないため、システム時間を変更して ComplianceClock をシステム時間に強制的に同期しようとしても失敗します。
+SnapLockセキュアクロックデーモンはスキューを検出し、コンプライアンスクロックをシステム時間に変更します。コンプライアンスクロックはシステム時間がNTP時間と同期されている場合にのみシステム時間と同期されるため、コンプライアンスクロックを強制的にシステム時間に変更しようとすると失敗します。
 
 .手順
-. NTP サーバを設定する際に、 SnapLock の ComplianceClock 時間同期機能を有効にします。
+. サーバが設定されている場合は、SnapLockコンプライアンスクロック時間同期機能を有効にします。
 +
 `*snaplock compliance-clock ntp*`
 
 +
-次のコマンドは、システムの ComplianceClock 時間同期機能を有効にします。
+次のコマンドは、システムコンプライアンスクロック時間同期機能を有効にします。
 
 +
 [listing]
@@ -108,7 +121,7 @@ cluster1::*> snaplock compliance-clock ntp modify -is-sync-enabled true
 `*snaplock compliance-clock ntp show*`
 
 +
-次のコマンドは、システムの ComplianceClock 時間同期機能が有効になっていることを確認します。
+次のコマンドは、システムコンプライアンスクロック時間同期機能が有効になっていることを確認します。
 
 +
 [listing]

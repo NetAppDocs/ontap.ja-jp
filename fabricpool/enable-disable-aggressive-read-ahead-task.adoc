@@ -1,0 +1,87 @@
+---
+permalink: fabricpool/enable-disable-aggressive-read-ahead-task.html 
+bar: sidebar 
+keywords: creating, volume, fabricpool, aggressive read ahead, enable, on prem, on premises, disable 
+summary: ONTAP 9.14.1以降では、メディアやエンターテイメント（ムービーストリーミングワークロードなど）をサポートするFabricPoolのボリュームで、積極的な先読みモードを有効または無効にすることができます。 
+---
+= アグレッシブ先読みモードの有効化と無効化
+:allow-uri-read: 
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+ONTAP 9.14.1以降では、ムービーストリーミングワークロードなどのメディアやエンターテイメントをサポートするFabricPoolのボリュームで、積極的な先読みモードを有効または無効にすることができます。ONTAP 9.14.1では、FabricPoolをサポートするすべてのオンプレミスプラットフォームでアグレッシブ先読みモードを使用できます。この機能はデフォルトで無効になっています。
+
+.このタスクについて
+。 `aggressive-readahead-mode` コマンドには2つのオプションがあります。
+
+* `none`:先読みは無効です。
+* `file_prefetch`:クライアントアプリケーションよりも先にファイル全体がメモリに読み込まれます。
+
+
+.作業を開始する前に
+* クラスタ管理者またはSVM管理者である必要があります。
+* advanced権限レベルが必要です。
+
+
+.手順
+. 権限レベルを advanced に設定します。
++
+[source, cli]
+----
+set -privilege advanced
+----
+. ボリュームを作成し、クラウド書き込みモードを有効にします。
++
+[source, cli]
+----
+volume create -volume <volume name>  -aggressive-readahead-mode <none|file_prefetch>
+----
++
+次の例は、file_prefetchオプションを指定して、アグレッシブ先読みを有効にしたvol1という名前のボリュームを作成します。
+
++
+[listing]
+----
+volume create -volume vol1 -aggressive-readahead-mode file_prefetch
+----
+
+
+.手順
+. 権限レベルを advanced に設定します。
++
+[source, cli]
+----
+set -privilege advanced
+----
+. ボリュームを変更してアグレッシブ先読みモードを無効にします。
++
+[source, cli]
+----
+volume modify -volume <volume name>  -aggressive-readahead-mode none
+----
++
+次の例は、vol1という名前のボリュームを変更して、アグレッシブ先読みモードを無効にします。
+
++
+[listing]
+----
+volume modify -volume vol1 -aggressive-readahead-mode none
+----
+
+
+.手順
+. 権限レベルを advanced に設定します。
++
+[source, cli]
+----
+set -privilege advanced
+----
+. ボリュームを変更してアグレッシブ先読みモードを無効にします。
++
+[source, cli]
+----
+volume show -fields aggressive-readahead-mode
+----
+

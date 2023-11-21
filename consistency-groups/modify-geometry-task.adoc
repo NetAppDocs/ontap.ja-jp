@@ -31,6 +31,12 @@ ONTAP 9.13.1以降では、既存の親整合グループに新しい子整合�
 
 
 .手順
+[role="tabbed-block"]
+====
+.System Manager の略
+--
+ONTAP 9.13.1以降では、この処理をSystem Managerで実行できます。
+
 . Storage > Consistency groups * を選択します。
 . 子整合グループを追加する親整合グループを選択します。
 . 親コンシステンシグループの名前の横にある[**詳細*]を選択してから、[**新しい子コンシステンシグループの追加*]を選択します。
@@ -44,6 +50,27 @@ ONTAP 9.13.1以降では、既存の親整合グループに新しい子整合�
 . **追加**を選択します。
 
 
+--
+.CLI の使用
+--
+ONTAP 9.14.1以降では、ONTAP CLIを使用して子整合グループを追加できます。
+
+.新しいボリュームを含む子整合性グループを追加する
+. 新しい整合グループを作成します。整合グループの名前、ボリュームのプレフィックス、ボリューム数、ボリュームサイズ、ストレージサービス、 およびエクスポートポリシー名：
++
+`consistency-group create -vserver _SVM_name_ -consistency-group _consistency_group_ -parent-consistency-group _parent_consistency_group_ -volume-prefix _prefix_ -volume-count _number_ -size _size_ -storage-service _service_ -export-policy _policy_name_`
+
+
+
+.既存のボリュームを含む子整合性グループを追加する
+. 新しい整合グループを作成します。。 `volumes` パラメータには、ボリューム名をカンマで区切って指定できます。
++
+`consistency-group create -vserver _SVM_name_ -consistency-group _new_consistency_group_ -parent-consistency-group _parent_consistency_group_ -volumes _volume_`
+
+
+
+--
+====
 
 
 == 子整合グループの接続を解除します
@@ -53,9 +80,16 @@ ONTAP 9.13.1以降では、子整合グループを親から削除して個別�
 .作業を開始する前に
 * 子整合グループの接続を解除すると、親整合グループのSnapshotが無効になり、アクセスできなくなります。ボリューム単位のSnapshotは引き続き有効です。
 * 個 々 の整合グループの既存のSnapshotコピーは引き続き有効です。
+* 接続を解除する子整合グループと同じ名前の既存の整合グループが1つある場合、この処理は失敗します。この状況が発生した場合は、整合グループの接続を解除するときに整合グループの名前を変更する必要があります。
 
 
 .手順
+[role="tabbed-block"]
+====
+.System Manager の略
+--
+ONTAP 9.13.1以降では、この処理をSystem Managerで実行できます。
+
 . Storage > Consistency groups * を選択します。
 . 接続を解除する子を含む親整合性グループを選択します。
 . 分離する子コンシステンシグループの横にある[**詳細*]を選択してから、[**親からの分離*]を選択します。
@@ -63,9 +97,22 @@ ONTAP 9.13.1以降では、子整合グループを親から削除して個別�
 . **切り離し**を選択します。
 
 
+--
+.CLI の使用
+--
+ONTAP 9.14.1以降では、ONTAP CLIを使用して子整合グループの接続を解除できます。
+
+. 整合グループの接続を解除します。必要に応じて、接続解除された整合グループの名前を `-new-name` パラメータ
++
+`consistency-group detach -vserver _SVM_name_ -consistency-group _child_consistency_group_ -parent-consistency-group _parent_consistency_group_ [-new-name _new_name_]`
 
 
-== 親整合グループの下に1つの整合グループを移動します
+
+--
+====
+
+
+== 親整合グループの下に既存の単一の整合グループを移動する
 
 ONTAP 9.13.1以降では、既存の単一の整合グループを子整合グループに変換できます。移動処理中に、既存の親整合グループの下に整合グループを移動するか、新しい親整合グループを作成できます。
 
@@ -76,6 +123,12 @@ ONTAP 9.13.1以降では、既存の単一の整合グループを子整合グ�
 
 
 .手順
+[role="tabbed-block"]
+====
+.System Manager の略
+--
+ONTAP 9.13.1以降では、この処理をSystem Managerで実行できます。
+
 . Storage > Consistency groups * を選択します。
 . 変換する整合グループを選択します。
 . [**More*]を選択してから、[**Move under different consistency group]**を選択します。
@@ -89,11 +142,32 @@ ONTAP 9.13.1以降では、既存の単一の整合グループを子整合グ�
 . **移動**を選択します。
 
 
+--
+.CLI の使用
+--
+ONTAP 9.14.1以降では、ONTAP CLIを使用して、親整合グループの下に1つの整合グループを移動できます。
+
+.新しい親整合グループの下に整合グループを移動する
+. 新しい親整合グループを作成します。。 `-consistency-groups` パラメータを指定すると、既存の整合グループが新しい親に移行されます。
++
+`consistency-group attach -vserver _svm_name_ -consistency-group _parent_consistency_group_ -consistency-groups _child_consistency_group_`
+
+
+
+.既存の整合グループの下に整合グループを移動する
+. 整合グループを移動します。
++
+`consistency-group add -vserver _SVM_name_ -consistency-group _consistency_group_ -parent-consistency-group _parent_consistency_group_`
+
+
+
+--
+====
 
 
 == 子コンシステンシグループをプロモートします
 
-ONTAP 9.13.1以降では、1つの整合グループを親整合グループに昇格できます。単一の整合グループを親に昇格すると、元の単一の整合グループ内のすべてのボリュームを継承する新しい子整合グループも作成されます。
+ONTAP 9.13.1以降では、単一の整合グループを親整合グループに昇格できます。単一の整合グループを親に昇格すると、元の単一の整合グループ内のすべてのボリュームを継承する新しい子整合グループも作成されます。
 
 .作業を開始する前に
 * 子整合グループを親整合グループに変換する場合は、最初に実行する必要があります <<detach>> その後、子整合グループはこの手順に従います。
@@ -101,6 +175,12 @@ ONTAP 9.13.1以降では、1つの整合グループを親整合グループに�
 
 
 .手順
+[role="tabbed-block"]
+====
+.System Manager の略
+--
+ONTAP 9.13.1以降では、この処理をSystem Managerで実行できます。
+
 . Storage > Consistency groups * を選択します。
 . 昇格する整合性グループを選択します。
 . **More**を選択してから、**Promote to parent consistency group **を選択します。
@@ -108,6 +188,19 @@ ONTAP 9.13.1以降では、1つの整合グループを親整合グループに�
 . **プロモート**を選択します。
 
 
+--
+.CLI の使用
+--
+ONTAP 9.14.1以降では、ONTAP CLIを使用して、親整合グループの下に1つの整合グループを移動できます。
+
+. 整合グループを昇格します。このコマンドは、1つの親整合グループと1つの子整合グループを作成します。
++
+`consistency-group promote -vserver _SVM_name_ -consistency-group _existing_consistency_group_ -new-name _new_child_consistency_group_`
+
+
+
+--
+====
 
 
 == 親を単一の整合グループに降格します
@@ -119,8 +212,28 @@ ONTAP 9.13.1以降では、親整合グループを1つの整合グループに�
 
 
 .手順
+[role="tabbed-block"]
+====
+.System Manager の略
+--
+ONTAP 9.13.1以降では、この処理をSystem Managerで実行できます。
+
 . Storage > Consistency groups * を選択します。
 . 降格する親整合性グループを選択します。
 . ** More**を選択してから** Demote to single consistency group **を選択します。
 . 関連付けられているすべての子整合グループが削除され、そのボリュームが新しい単一の整合グループの下に移動されることを示す警告が表示されます。**降格**を選択して、影響を理解していることを確認します。
 
+
+--
+.CLI の使用
+--
+ONTAP 9.14.1以降では、ONTAP CLIを使用して整合グループを降格できます。
+
+. 整合グループを降格します。オプションの `-new-name` 整合グループの名前を変更するためのパラメータ。
++
+`consistency-group demote -vserver _SVM_name_ -consistency-group _parent_consistency_group_ [-new-name _new_consistency_group_name_]`
+
+
+
+--
+====

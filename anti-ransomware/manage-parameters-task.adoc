@@ -4,7 +4,7 @@ permalink: anti-ransomware/manage-parameters-task.html
 keywords: anti-ransomware overview, ransomware, security, modify, security anti-ransomware attack, parameters 
 summary: ONTAP 9.11.1以降では、ワークロードに応じて自律型ランサムウェア対策の検出パラメータを変更できます。 
 ---
-= ARP攻撃検出パラメータを管理します。
+= 自律型ランサムウェア対策攻撃検出パラメータの管理
 :toc: macro
 :hardbreaks:
 :toclevels: 1
@@ -14,7 +14,7 @@ summary: ONTAP 9.11.1以降では、ワークロードに応じて自律型ラ�
 :nofooter: 
 :icons: font
 :linkattrs: 
-:imagesdir: ./media/
+:imagesdir: ../media/
 :toc-position: content
 
 
@@ -29,11 +29,13 @@ Autonomous Ransomware Protection（ARP；自律型ランサムウェア対策）
 
 ONTAP 9.10.1では、次の両方の条件が検出されると、ARPは警告を発行します。
 
-* これまでにボリュームで確認されていないファイル拡張子を持つファイルが20個を超える
+* 以前にボリュームで認識されなかったファイル拡張子を持つファイルが20個を超える
 * 高エントロピーデータ
 
 
 ONTAP 9.11.1以降では、_only_one条件が満たされた場合にARPから脅威警告が発行されます。たとえば、ボリュームで以前に観察されたことがないファイル拡張子を持つ20を超えるファイルが24時間以内に観察された場合、ARPはこれをthreat_expendered_of observed entropyに分類します。（24時間と20ファイルの値はデフォルトであり、変更可能です）。
+
+ONTAP 9.14.1以降では、ARPが新しいファイル拡張子を監視したとき、およびARPがスナップショットを作成したときにアラートを設定できます。詳細については、を参照してください <<modify-alerts>>
 
 特定のボリュームやワークロードでは、異なる検出パラメータが必要です。たとえば、ARP対応ボリュームで多数の種類のファイル拡張子がホストされている場合、以前に見たことのないファイル拡張子のしきい値をデフォルトの20よりも大きい値に変更したり、以前に見たことのないファイル拡張子に基づいて警告を無効にしたりすることができます。ONTAP 9.11.1以降では、特定のワークロードに適した攻撃検出パラメータを変更できます。
 
@@ -78,7 +80,7 @@ security anti-ransomware volume attack-detection-parameters show -vserver vs1 -v
 
 ARPは、アクティブモードでも検出パラメータのベースライン値の変更を継続します。1回限りのサージ、または新しい日常の特徴であるサージのいずれかのボリュームアクティビティのサージを知っている場合は、それを安全として報告する必要があります。これらの急増を安全として手動で報告することは、ARPの脅威評価の精度を向上させるのに役立ちます。
 
-.1回限りのサージ
+.1回限りの急増を報告する
 . 既知の状況で1回限りのサージが発生していて、ARPで将来の状況でも同様のサージを報告する場合は、ワークロードの動作からサージをクリアします。
 +
 `security anti-ransomware volume workload-behavior clear-surge -vserver _svm_name_ -volume _volume_name_`
@@ -92,6 +94,67 @@ ARPは、アクティブモードでも検出パラメータのベースライ�
 
 
 
+
+
+== ARPアラートの設定
+
+ONTAP 9.14.1以降では、ARPで2つのARPイベントのアラートを指定できます。
+
+* ボリューム上の新しいファイル拡張子の観察
+* ARPスナップショットの作成
+
+
+これら2つのイベントのアラートは、個 々 のボリュームまたはSVM全体に対して設定できます。SVMでアラートを有効にした場合、アラートの設定は有効にしたあとに作成されたボリュームにのみ継承されます。デフォルトでは、アラートはどのボリュームでも有効になっていません。
+
+イベントアラートは、マルチ管理者検証で制御できます。詳細については、を参照してください xref:use-cases-restrictions-concept.html#multi-admin-verification-with-volumes-protected-with-ARP[ARPで保護されたボリュームを使用したマルチ管理者検証]。
+
+[role="tabbed-block"]
+====
+.System Manager の略
+--
+.ボリュームのアラートの設定
+. **ボリューム**に移動します。設定を変更するボリュームを個別に選択します。
+. **セキュリティ**タブを選択し、**イベントセキュリティ設定**を選択します。
+. **新しいファイル拡張子が検出されました**および**ランサムウェアスナップショットが作成されました**のアラートを受信するには、**Severity**見出しの下のドロップダウンメニューを選択します。**イベントを生成しない**から**通知**に設定を変更します。
+. **保存**を選択します。
+
+
+.SVMのアラートを設定する
+. [Storage VM]**に移動し、設定を有効にするSVMを選択します。
+. [** Security*]見出しの下で、[** Anti-ransomware*]カードを探します。選択するオプション image:../media/icon_kabob.gif["3つの点"] 次に、**ランサムウェアイベントの重大度**を編集します。
+. **新しいファイル拡張子が検出されました**および**ランサムウェアスナップショットが作成されました**のアラートを受信するには、**Severity**見出しの下のドロップダウンメニューを選択します。**イベントを生成しない**から**通知**に設定を変更します。
+. **保存**を選択します。
+
+
+--
+.CLI の使用
+--
+.ボリュームのアラートの設定
+* 新しいファイル拡張子にアラートを設定するには、次の手順を実行します。
++
+`security anti-ransomware volume event-log modify -vserver _svm_name_ -is-enabled-on-new-file-extension-seen true`
+
+* ARPスナップショットの作成に関するアラートを設定するには、次の手順を実行します。
++
+`security anti-ransomware volume event-log modify -vserver _svm_name_ -is-enabled-on-snapshot-copy-creation true`
+
+* を使用して設定を確認します。 `anti-ransomware volume event-log show` コマンドを実行します
+
+
+.SVMのアラートを設定する
+* 新しいファイル拡張子にアラートを設定するには、次の手順を実行します。
++
+`security anti-ransomware vserver event-log modify -vserver _svm_name_ -is-enabled-on-new-file-extension-seen true`
+
+* ARPスナップショットの作成に関するアラートを設定するには、次の手順を実行します。
++
+`security anti-ransomware vserver event-log modify -vserver _svm_name_ -is-enabled-on-snapshot-copy-creation true`
+
+* を使用して設定を確認します。 `security anti-ransomware vserver event-log show` コマンドを実行します
+
+
+--
+====
 .詳細情報
 * link:https://kb.netapp.com/onprem/ontap/da/NAS/Understanding_Autonomous_Ransomware_Protection_attacks_and_the_Autonomous_Ransomware_Protection_snapshot["Autonomous Ransomware Protection AttacksとAutonomous Ransomware Protectionのスナップショットについて理解する"^]
 

@@ -5,30 +5,30 @@ keywords: snapmirror create a mirror relationship for an existing bucket, existi
 summary: 既存の S3 バケットの保護はいつでも開始できます。たとえば、 S3 設定を ONTAP 9.10.1 より前のリリースからアップグレードした場合などです。 
 ---
 = 既存のバケットのミラー関係を作成する（リモートクラスタ）
-:toc: macro
 :hardbreaks:
 :toclevels: 1
 :allow-uri-read: 
-:toc: 
 :toclevels: 1
 :nofooter: 
 :icons: font
 :linkattrs: 
 :imagesdir: ../media/
-:toc-position: content
 
 
 [role="lead"]
 既存の S3 バケットの保護はいつでも開始できます。たとえば、 S3 設定を ONTAP 9.10.1 より前のリリースからアップグレードした場合などです。
 
-.必要なもの
+.このタスクについて
+タスクはソースクラスタとデスティネーションクラスタの両方で実行する必要があります。
+
+.作業を開始する前に
 * ONTAP のバージョン、ライセンス、 S3 サーバの設定に関する要件を満たしている必要があります。
 * ソースクラスタとデスティネーションクラスタの間にピア関係が存在し、ソース Storage VM とデスティネーション Storage VM の間にピア関係が存在します。
 * CA 証明書は、ソース VM とデスティネーション VM に必要です。自己署名 CA 証明書または外部 CA ベンダーが署名した証明書を使用できます。
 
 
-.このタスクについて
-タスクはソースとデスティネーションの両方のクラスタで実行する必要があります。
+.手順
+ミラー関係は、System ManagerまたはONTAP CLIを使用して作成できます。
 
 [role="tabbed-block"]
 ====
@@ -36,7 +36,7 @@ summary: 既存の S3 バケットの保護はいつでも開始できます。�
 --
 . この Storage VM の最初の S3 SnapMirror 関係である場合は、ソースとデスティネーションの Storage VM の両方に root ユーザキーが存在することを確認し、存在しない場合は再生成します。
 +
-.. Storage > Storage VM* をクリックし、 Storage VM を選択します。
+.. [ストレージ]>[Storage VM]*を選択し、Storage VMを選択します。
 .. [ * 設定 * ] タブで、をクリックします image:icon_pencil.gif["編集アイコン"] を * S3 * タイルに追加します。
 .. [*Users*] タブで、 root ユーザのアクセスキーがあることを確認します。
 .. 表示されていない場合は、をクリックします image:icon_kabob.gif["[ 詳細 ] アイコン"] [root]*の横にある*[Regenerate Key]をクリックします。*
@@ -44,14 +44,14 @@ summary: 既存の S3 バケットの保護はいつでも開始できます。�
 
 
 . ソースとデスティネーションの Storage VM 両方でユーザおよびグループのアクセスが正しいことを確認します。
-[ストレージ]>[Storage VM]をクリックし、* Storage VMをクリックして*[設定]*をクリックし、 image:icon_pencil.gif["編集アイコン"] * S3 の下 * 。
+[ストレージ]>[Storage VM]*を選択し、Storage VMを選択して*[設定]*を選択します。最後に、 image:icon_pencil.gif["編集アイコン"] * S3 の下 * 。
 +
 を参照してください link:../task_object_provision_add_s3_users_groups.html[" S3 ユーザとグループを追加"] を参照してください。
 
 . ソースクラスタに S3 SnapMirror ポリシーを作成します。これは、既存のポリシーがなく、デフォルトポリシーを使用しない場合に行います。
 +
-.. [* 保護 ] 、 [ 概要 *] の順にクリックし、 [ ローカルポリシーの設定 *] をクリックします。
-.. をクリックします image:../media/icon_arrow.gif["右矢印"] [* 保護ポリシー * ] の横にある [* 追加 ] をクリックします。
+.. [保護]>[概要]*を選択し、*[ローカルポリシー設定]*をクリックします。
+.. 選択するオプション image:../media/icon_arrow.gif["右矢印"] [* 保護ポリシー * ] の横にある [* 追加 ] をクリックします。
 .. ポリシー名と概要を入力します。
 .. ポリシーのスコープとして、クラスタまたは SVM を選択します
 .. S3 SnapMirror 関係には「 * Continuous * 」を選択します。

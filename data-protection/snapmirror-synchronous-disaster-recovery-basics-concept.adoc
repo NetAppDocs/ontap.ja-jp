@@ -40,6 +40,19 @@ AFF
 
 
  a| 
+ASA
+ a| 
+8時80分
+ a| 
+一六 〇
+ a| 
+200です
+ a| 
+400だ
+
+
+
+ a| 
 FAS
  a| 
 40
@@ -68,56 +81,98 @@ ONTAP Select の場合
 
 == サポートされている機能
 
-ONTAP 9.12.1では、AFF / ASAプラットフォームでのみ、ノンストップのSnapMirror Synchronous処理（NDO）がサポートされます。ノンストップオペレーションをサポートしているため、ダウンタイムをスケジュールせずに、一般的なメンテナンスタスクを多数実行できます。サポートされる処理には、テイクオーバーとギブバック、およびボリュームの移動があります。ただし、1つのノードが2つのクラスタのそれぞれで稼働している必要があります。
+次の表に、SnapMirror SynchronousおよびONTAPの各リリースでサポートされる機能を示します。
 
-ONTAP 9.10.1では、次の機能がSnapMirror Synchronousテクノロジでサポートされます。ただし、ソースとデスティネーションのクラスタのすべてのノードでONTAP 9.10.1が実行されている必要があります。
-
-* NFSv4.2
-* NVMe/FC
+[cols="3,1,4"]
+|===
 
 
-ONTAP 9.5 以降では、 SnapMirror Synchronous テクノロジは、 NFSv3 、 FC 、および iSCSI の各プロトコルをサポートしており、いずれのネットワークでもレイテンシは 10 ミリ秒以内に抑えられます。
-
-SnapMirror Synchronousでは、階層化ポリシーが「なし」、「Snapshot」、または「自動」であるFabricPool アグリゲート上のソースボリュームとデスティネーションボリュームがサポートされます。FabricPool アグリゲートのデスティネーションボリュームを「すべて」の階層化ポリシーに設定することはできません。
-
-ONTAP 9.7 の SnapMirror Synchronous テクノロジでは、次の機能がサポートされています。
-
-* アプリケーションで作成された Snapshot コピーのレプリケーション
-Snapshotコピーに適切なラベルでタグ付けされている場合は、 `snapshot create` SnapMirror Synchronousは、CLIまたはONTAP APIを使用して、アプリケーションを休止すると、ユーザが作成したSnapshotコピーと外部スクリプトで作成したSnapshotコピーの両方をレプリケートします。Snapshot ポリシーを使用して作成され、スケジュール設定された Snapshot コピーはレプリケートされません。アプリケーションで作成されたSnapshotコピーのレプリケートの詳細については、ナレッジベースの記事： link:https://kb.netapp.com/Advice_and_Troubleshooting/Data_Protection_and_Security/SnapMirror/How_to_replicate_application_created_snapshots_with_SnapMirror_Synchronous["アプリケーションで作成されたSnapshotをSnapMirror Synchronousでレプリケートする方法"^]。
-* FC-NVMe
-* LUN クローンと NVMe ネームスペースクローン
-アプリケーションで作成された Snapshot コピーに基づく LUN クローンもサポートされます。
+| フィーチャー（ Feature ） | 最初にサポートされたリリース | 追加情報 
 
 
-ONTAP 9.6 の SnapMirror Synchronous テクノロジでは、次の機能がサポートされます。ただし、ソースクラスタとデスティネーションクラスタのすべてのノードで ONTAP 9.6 が実行されている場合に限ります。
-
-* SVM DR
-+
-** SnapMirror Synchronous ソースは SVM DR ソースにすることもできます。たとえば、 SM-S を 1 つに、 SVM DR をもう 1 つにしたファンアウト構成などです。
-** SM-S は DP ソースのカスケードをサポートしていないため、 SnapMirror Synchronous ソースを SVM DR デスティネーションにすることはできません。
-デスティネーションクラスタで SVM DR のフリップ再同期を実行する前に、同期関係を解放する必要があります。
-** SVM DR は DP ボリュームのレプリケーションをサポートしていないため、 SnapMirror Synchronous デスティネーションを SVM DR ソースにすることはできません。
-同期ソースの再同期を逆に行うと、 SVM DR にデスティネーションクラスタの DP ボリュームが含まれなくなります。
+| SnapMirror Synchronous 関係のプライマリボリュームに対するウィルス対策 | ONTAP 9.6 |  
 
 
-* NFSv4.0およびNFSv4.1
-* SMB 2.0以降
-* 混在プロトコルアクセス（NFSv3とSMB）
-* SnapMirror Synchronous 関係のプライマリボリュームに対するウィルス対策
-* SnapMirror Synchronous 関係のプライマリボリュームに対するハードクォータまたはソフトクォータ
-クォータルールはデスティネーションにレプリケートされないため、クォータデータベースはデスティネーションにレプリケートされません。
-* SnapMirror Synchronous 関係のプライマリボリュームに対する FPolicy
-* SnapMirror Synchronous ミラー - ミラーカスケード
-SnapMirror Synchronous 関係のデスティネーションボリュームからの関係は非同期 SnapMirror 関係である必要があります。
-* NAS のソースボリュームとデスティネーションボリュームの間のタイムスタンプパリティ
-ONTAP 9.5 から ONTAP 9.6 にアップグレードした場合、タイムスタンプはソースボリューム内の新規および変更されたファイルについてのみレプリケートされます。ソースボリューム内の既存のファイルのタイムスタンプは同期されません。
-* メタデータ処理頻度の上限の削除
-* TLS 1.2 暗号化を使用した機密データ転送時のセキュリティ
-* クローンの自動削除
+| アプリケーションで作成されたSnapshotコピーのレプリケーション | ONTAP 9.7 | Snapshotコピーに適切なラベルでタグ付けされている場合は、 `snapshot create` SnapMirror Synchronousは、CLIまたはONTAP APIを使用して、アプリケーションを休止すると、ユーザが作成したSnapshotコピーと外部スクリプトで作成したSnapshotコピーの両方をレプリケートします。Snapshot ポリシーを使用して作成され、スケジュール設定された Snapshot コピーはレプリケートされません。アプリケーションで作成されたSnapshotコピーのレプリケートの詳細については、ナレッジベースの記事： link:https://kb.netapp.com/Advice_and_Troubleshooting/Data_Protection_and_Security/SnapMirror/How_to_replicate_application_created_snapshots_with_SnapMirror_Synchronous["アプリケーションで作成されたSnapshotをSnapMirror Synchronousでレプリケートする方法"^]。 
 
 
-ONTAP 9.13.1以降では、SnapMirror SynchronousでNDMPがサポートされます。SnapMirror SynchronousでNDMPを使用するには、ソースクラスタとデスティネーションクラスタの両方でONTAP 9.13.1以降が実行されている必要があります。詳細については、を参照してください xref:../tape-backup/transfer-data-ndmpcopy-task.html[NDMPコピーを使用してデータを転送します]。
+| クローンの自動削除 | ONTAP 9.6 |  
 
+
+| 階層化ポリシーが「なし」、「Snapshot」、または「自動」のFabricPoolアグリゲートは、SnapMirror Synchronousのソースとデスティネーションでサポートされます。 | ONTAP 9.5 | FabricPool アグリゲートのデスティネーションボリュームを「すべて」の階層化ポリシーに設定することはできません。 
+
+
+| FC | ONTAP 9.5 | レイテンシが10ミリ秒を超えないすべてのネットワーク 
+
+
+| FC-NVMe | ONTAP 9.7 |  
+
+
+| SnapMirror Synchronous 関係のプライマリボリュームに対する FPolicy | ONTAP 9.6 |  
+
+
+| SnapMirror Synchronous関係のプライマリボリュームに対するハードクォータとソフトクォータ | ONTAP 9.6 | クォータルールはデスティネーションにレプリケートされないため、クォータデータベースはデスティネーションにレプリケートされません。 
+
+
+| iSCSI | ONTAP 9.5 |  
+
+
+| LUN クローンと NVMe ネームスペースクローン | ONTAP 9.7 |  
+
+
+| アプリケーションで作成されたSnapshotコピーによってバックアップされるLUNクローン | ONTAP 9.7 |  
+
+
+| 混在プロトコルアクセス（NFS v3とSMB） | ONTAP 9.6 |  
+
+
+| NDMP / NDMPリストア | ONTAP 9.13.1 | SnapMirror SynchronousでNDMPを使用するには、ソースクラスタとデスティネーションクラスタの両方でONTAP 9.13.1以降が実行されている必要があります。詳細については、を参照してください xref:../tape-backup/transfer-data-ndmpcopy-task.html[NDMPコピーを使用してデータを転送します]。 
+
+
+| AFF / ASAプラットフォームでのみ、無停止のSnapMirror Synchronous Operations（NDO；SnapMirror Synchronous Operations）を実行できます。 | ONTAP 9.12.1 | ノンストップオペレーションをサポートしているため、ダウンタイムをスケジュールせずに、一般的なメンテナンスタスクを多数実行できます。サポートされる処理には、テイクオーバーとギブバック、およびボリュームの移動があります。ただし、1つのノードが2つのクラスタのそれぞれで稼働している必要があります。 
+
+
+| NFS v4.2 | ONTAP 9.10.1 |  
+
+
+| NFS v4.3 | ONTAP 9.5 |  
+
+
+| NFS v4.0 | ONTAP 9.6 |  
+
+
+| NFS v4.1 | ONTAP 9.6 |  
+
+
+| NVMe/FC | 9.10.1 |  
+
+
+| メタデータ処理頻度の上限の削除 | ONTAP 9.6 |  
+
+
+| TLS 1.2 暗号化を使用した機密データ転送時のセキュリティ | ONTAP 9.6 |  
+
+
+| 単一ファイルおよび部分ファイルのリストア | ONTAP 9.13.1 |  
+
+
+| SMB 2.0以降 | ONTAP 9.6 |  
+
+
+| SnapMirror Synchronous ミラー - ミラーカスケード | ONTAP 9.6 | SnapMirror Synchronous 関係のデスティネーションボリュームからの関係は非同期 SnapMirror 関係である必要があります。 
+
+
+| SVM ディザスタリカバリ | ONTAP 9.6 | * SnapMirror Synchronousソースは、SVMディザスタリカバリソースにすることもできます。たとえば、SnapMirror Synchronousを一方のレッグとして、SVMディザスタリカバリをもう一方のレッグとして使用するファンアウト構成などです。
+
+* SnapMirror Synchronousはデータ保護ソースのカスケードをサポートしていないため、SnapMirror SynchronousソースをSVMディザスタリカバリデスティネーションにすることはできません。
+デスティネーションクラスタでSVMディザスタリカバリのフリップ再同期を実行する前に、同期関係を解放する必要があります。
+
+* SVMディザスタリカバリではDPボリュームのレプリケーションがサポートされないため、SnapMirror SynchronousデスティネーションをSVMディザスタリカバリソースにすることはできません。
+同期ソースの逆再同期を実行すると、SVMディザスタリカバリでデスティネーションクラスタのDPボリュームが除外されます。 
+
+
+| NAS のソースボリュームとデスティネーションボリュームの間のタイムスタンプパリティ | ONTAP 9.6 | ONTAP 9.5 から ONTAP 9.6 にアップグレードした場合、タイムスタンプはソースボリューム内の新規および変更されたファイルについてのみレプリケートされます。ソースボリューム内の既存のファイルのタイムスタンプは同期されません。 
+|===
 
 
 == サポートされない機能です
@@ -137,11 +192,11 @@ Synchronous SnapMirror 関係では、次の機能はサポートされません
 LUN と NVMe ネームスペースは、同じボリュームまたは SVM ではサポートされません。
 * SnapCenter
 * SnapLock ボリューム
-* SnapRestore
 * 改ざん防止Snapshotコピー
 * デスティネーションボリュームでのダンプおよび SMTape を使用したテープバックアップまたはリストア
 * ソースボリュームへのテープベースのリストア
 * ソースボリュームのしきい値の下限（最小 QoS ）
+* ボリュームSnapRestore
 * VVol
 
 

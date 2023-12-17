@@ -2,7 +2,7 @@
 permalink: upgrade/task_verify_cluster_after_upgrade.html 
 sidebar: sidebar 
 keywords: ontap, upgrade, upgrade, verify, status, health, post, after 
-summary: アップグレード後にクラスタを確認する必要があります。 
+summary: ONTAPをアップグレードしたら、クラスタのバージョン、クラスタの健全性、およびストレージの健全性を確認します。  MetroCluster FC構成の場合は、自動計画外スイッチオーバーが有効になっていることを確認します。 
 ---
 = ONTAPのアップグレード後のクラスタの確認
 :allow-uri-read: 
@@ -11,7 +11,7 @@ summary: アップグレード後にクラスタを確認する必要があり�
 
 
 [role="lead"]
-ONTAPをアップグレードしたら、クラスタのバージョン、クラスタの健全性、およびストレージの健全性を確認する必要があります。  クラスタがMetroCluster FC構成の場合は、クラスタで自動計画外スイッチオーバーが有効になっていることも確認する必要があります。
+ONTAPをアップグレードしたら、クラスタのバージョン、クラスタの健全性、およびストレージの健全性を確認します。  MetroCluster FC構成の場合は、クラスタで自動計画外スイッチオーバーが有効になっていることも確認します。
 
 
 
@@ -23,12 +23,16 @@ ONTAPをアップグレードしたら、クラスタのバージョン、クラ
 
 . クラスタのバージョンがターゲットの ONTAP リリースになっていることを確認します。
 +
-`version`
-
+[source, cli]
+----
+version
+----
 . クラスタのバージョンがターゲットのONTAPリリースになっていない場合は、すべてのノードのアップグレードステータスを確認する必要があります。
 +
-`system node upgrade-revert show`
-
+[source, cli]
+----
+system node upgrade-revert show
+----
 
 
 
@@ -39,8 +43,10 @@ ONTAPをアップグレードしたら、クラスタのバージョン、クラ
 
 . クラスタ内のノードがオンラインで、クラスタに追加するための条件を満たしていることを確認します。
 +
-`cluster show`
-
+[source, cli]
+----
+cluster show
+----
 +
 [listing]
 ----
@@ -55,8 +61,10 @@ node1                 true    true
 
 . 権限レベルを advanced に設定します。
 +
-`set -privilege advanced`
-
+[source, cli]
+----
+set -privilege advanced
+----
 . 各 RDB プロセスの構成の詳細を確認します。
 +
 ** リレーショナルデータベースのエポックとデータベースのエポックが各ノードで一致すること。
@@ -115,7 +123,12 @@ node2     vldb     154      154      14847    node0     secondary
 node3     vldb     154      154      14847    node0     secondary
 4 entries were displayed.
 ----
-. SAN 環境を使用している場合は、各ノードが SAN クォーラムにあることを確認します。 `cluster kernel-service show`
+. SAN 環境を使用している場合は、各ノードが SAN クォーラムにあることを確認します。
++
+[source, cli]
+----
+cluster kernel-service show
+----
 +
 [listing]
 ----
@@ -138,15 +151,15 @@ link:../system-admin/index.html["システム管理"]
 
 クラスタがMetroCluster FC構成の場合は、ONTAPのアップグレード後に自動計画外スイッチオーバーが有効になっていることを確認する必要があります。
 
-.このタスクについて
-
-NOTE: この手順 は、 MetroCluster FC 構成に対してのみ実行されます。  MetroCluster IP 構成を使用している場合は、この手順 を省略してください。
+MetroCluster IP 構成を使用している場合は、この手順 を省略してください。
 
 .手順
 . 自動計画外スイッチオーバーが有効かどうかを確認します。
 +
-`metrocluster show`
-
+[source, cli]
+----
+metrocluster show
+----
 +
 自動計画外スイッチオーバーが有効な場合、コマンド出力に次のステートメントが表示されます。
 
@@ -157,9 +170,16 @@ AUSO Failure Domain  auso-on-cluster-disaster
 ----
 . ステートメントが表示されない場合は、自動計画外スイッチオーバーを有効にします。
 +
-`metrocluster modify -auto-switchover-failure-domain auso-on-cluster-disaster`
-
-. 手順 1 を繰り返して、自動計画外スイッチオーバーが有効になっていることを確認します。
+[source, cli]
+----
+metrocluster modify -auto-switchover-failure-domain auso-on-cluster-disaster
+----
+. 自動計画外スイッチオーバーが有効になっていることを確認します。
++
+[source, cli]
+----
+metrocluster show
+----
 
 
 .関連情報

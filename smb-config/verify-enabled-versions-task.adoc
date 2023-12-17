@@ -2,7 +2,7 @@
 permalink: smb-config/verify-enabled-versions-task.html 
 sidebar: sidebar 
 keywords: ontap, release, smb, version, enable, default, connection, client, domain, controller, controller, verify, support, functionality, environment, verify enabled smb versions, can smb1 be enabled in ontap 9 
-summary: ONTAP 9 のリリースによって、クライアントおよびドメインコントローラとの接続に対してデフォルトで有効になっている SMB のバージョンが決まります。ご使用の環境で必要なクライアントと機能を、 SMB サーバがサポートしていることを確認する必要があります。 
+summary: ONTAP 9.0以降では、SMB 2.0がデフォルトで有効になります。  SMB 1.0は使用しているONTAPのバージョンに応じてデフォルトで有効になっています 
 ---
 = 有効な SMB のバージョンを確認
 :allow-uri-read: 
@@ -35,34 +35,76 @@ SMB サーバが Active Directory （ AD ）ドメイン内にある場合、 ON
 link:../smb-admin/index.html["SMBの管理"] サポートされる SMB のバージョンと機能に関する詳細が記載されています。
 
 .手順
-. 権限レベルを advanced に設定します。 `set -privilege advanced`
-. 有効になっているSMBのバージョンを確認します。 `vserver cifs options show`
+. 権限レベルを advanced に設定します。
++
+[source, cli]
+----
+set -privilege advanced
+----
+. 有効になっているSMBのバージョンを確認します。
++
+[source, cli]
+----
+vserver cifs options show
+----
 +
 リストを下にスクロールすると、クライアント接続用に有効になっている SMB のバージョンを表示できます。また、 AD ドメイン内の SMB サーバを設定している場合は、 AD ドメイン接続用に有効になっているバージョンを表示できます。
 
 . 必要に応じて、クライアント接続用の SMB プロトコルを有効または無効にします。
 +
-** SMBバージョンを有効にするには： `vserver cifs options modify -vserver vserver_name smb_version true`
-** SMBバージョンを無効にするには： `vserver cifs options modify -vserver vserver_name smb_version false`
+** SMBバージョンを有効にするには：
++
+[source, cli]
+----
+vserver cifs options modify -vserver vserver_name smb_version true
+----
+** SMBバージョンを無効にするには：
++
+[source, cli]
+----
+vserver cifs options modify -vserver vserver_name smb_version false
+----
++
 に指定できる値 `smb_version`：
-** `-smb1-enabled`
-** `-smb2-enabled`
-** `-smb3-enabled`
-** `-smb31-enabled`
-次のコマンドは、SVM vs1.example.comでSMB 3.1を有効にします。
+
++
+*** `-smb1-enabled`
+*** `-smb2-enabled`
+*** `-smb3-enabled`
+*** `-smb31-enabled`
+
+
 
 
 +
+次のコマンドは、SVM vs1.example.comでSMB 3.1を有効にします。
+
+
+
 [listing]
 ----
-
 cluster1::*> vserver cifs options modify -vserver vs1.example.com -smb31-enabled true
 ----
 . SMB サーバが Active Directory ドメイン内にある場合は、必要に応じて、 DC 接続用の SMB プロトコルを有効または無効にします。
 +
-** SMBバージョンを有効にするには： `vserver cifs security modify -vserver vserver_name -smb2-enabled-for-dc-connections true`
-** SMBバージョンを無効にするには： `vserver cifs security modify -vserver vserver_name -smb2-enabled-for-dc-connections false`
+** SMBバージョンを有効にするには：
++
+[source, cli]
+----
+vserver cifs security modify -vserver vserver_name -smb2-enabled-for-dc-connections true
+----
+** SMBバージョンを無効にするには：
++
+[source, cli]
+----
+vserver cifs security modify -vserver vserver_name -smb2-enabled-for-dc-connections false
+----
 
 
-. admin 権限レベルに戻ります。 `set -privilege admin`
+. admin 権限レベルに戻ります。
++
+[source, cli]
+----
+set -privilege admin
+----
 

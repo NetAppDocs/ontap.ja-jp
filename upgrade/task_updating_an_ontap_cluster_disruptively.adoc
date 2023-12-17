@@ -2,7 +2,7 @@
 permalink: upgrade/task_updating_an_ontap_cluster_disruptively.html 
 sidebar: sidebar 
 keywords: ontap, upgrade, disruptively 
-summary: 新しい ONTAP リリースにアップグレードする際にクラスタをオフラインにしてもかまわない場合は、停止を伴うアップグレードを使用できます。この方式では、各 HA ペアのストレージフェイルオーバーを無効にして、クラスタ内の各ノードをリブートし、完了したらストレージフェイルオーバーを再度有効にします。 
+summary: 新しい ONTAP リリースにアップグレードする際にクラスタをオフラインにしてもかまわない場合は、停止を伴うアップグレードを使用できます。 
 ---
 = CLIを使用した手動による停止を伴うONTAPアップグレード
 :allow-uri-read: 
@@ -22,15 +22,31 @@ summary: 新しい ONTAP リリースにアップグレードする際にクラ�
 
 停止を伴うアップグレードでは、各 HA ペアのストレージフェイルオーバーを無効にして各ノードを更新するため、ダウンタイムが必要です。ストレージフェイルオーバーを無効にすると、各ノードはシングルノードクラスタとして動作します。つまり、ノードに関連するシステムサービスは、システムをリブートするまで中断されます。
 
-. 権限レベルをadminからadvancedに設定します。続行するかどうかを尋ねられたら、「* y *」と入力します。 `set -privilege advanced`
+.手順
+. 権限レベルをadminからadvancedに設定します。続行するかどうかを尋ねられたら、「* y *」と入力します。
++
+[source, cli]
+----
+set -privilege advanced
+----
 +
 advancedプロンプトが表示されます (`*>`）が表示されます。
 
-. 新しいONTAP ソフトウェアイメージをデフォルトのイメージとして設定します。 `system image modify {-node * -iscurrent false} -isdefault true`
+. 新しいONTAP ソフトウェアイメージをデフォルトのイメージとして設定します。
++
+[source, cli]
+----
+system image modify {-node * -iscurrent false} -isdefault true
+----
 +
 このコマンドでは、拡張クエリを使用して、代替イメージとしてインストールされるターゲットの ONTAP ソフトウェアイメージが各ノードのデフォルトのイメージになるように変更します。
 
-. 新しいONTAP ソフトウェアイメージがデフォルトのイメージとして設定されたことを確認します。 `system image show`
+. 新しいONTAP ソフトウェアイメージがデフォルトのイメージとして設定されたことを確認します。
++
+[source, cli]
+----
+system image show
+----
 +
 次の例では、イメージ 2 が新しい ONTAP バージョンであり、両方のノードでデフォルトのイメージとして設定されています。
 
@@ -81,7 +97,12 @@ node1
 クラスタ内の各HAペアのストレージフェイルオーバーを無効にします。 `storage failover modify -node * -enabled false`
 
 |===
-. クラスタ内のノードをリブートします。 `system node reboot -node nodename -ignore-quorum-warnings`
+. クラスタ内のノードをリブートします。
++
+[source, cli]
+----
+system node reboot -node nodename -ignore-quorum-warnings
+----
 +
 
 IMPORTANT: 一度に複数のノードをリブートしないでください。
@@ -89,11 +110,21 @@ IMPORTANT: 一度に複数のノードをリブートしないでください。
 +
 ノードが新しい ONTAP イメージでブートします。ONTAP ログインプロンプトが表示され、リブートプロセスが完了したことが示されます。
 
-. ノードまたはノードセットが新しいONTAP イメージでリブートされたら、権限レベルをadvancedに設定します。 `set -privilege advanced`
+. ノードまたはノードセットが新しいONTAP イメージでリブートされたら、権限レベルをadvancedに設定します。
++
+[source, cli]
+----
+set -privilege advanced
+----
 +
 続行するかどうかを尋ねられたら、「* y *」と入力します
 
-. 新しいソフトウェアが実行されていることを確認します。 `system node image show`
+. 新しいソフトウェアが実行されていることを確認します。
++
+[source, cli]
+----
+system node image show
+----
 +
 次の例では、 image1 が新しい ONTAP バージョンで、 node0 で現在のバージョンとして設定されています。
 
@@ -114,18 +145,43 @@ node1
 ----
 . アップグレードが正常に完了したことを確認します。
 +
-.. 権限レベルを advanced に設定します。 `set -privilege advanced`
-.. 各ノードのアップグレードステータスが完了になっていることを確認します。 `system node upgrade-revert show -node nodename`
+.. 権限レベルを advanced に設定します。
++
+[source, cli]
+----
+set -privilege advanced
+----
+.. 各ノードのアップグレードステータスが完了になっていることを確認します。
++
+[source, cli]
+----
+system node upgrade-revert show -node nodename
+----
 +
 ステータスが complete になっている必要があります。
 
 +
 ステータスがcompleteになっていない場合は、 link:http://mysupport.netapp.com/["ネットアップサポートにお問い合わせください"] すぐに。
 
-.. admin 権限レベルに戻ります。 `set -privilege admin`
+.. admin 権限レベルに戻ります。
++
+[source, cli]
+----
+set -privilege admin
+----
 
 
-. 追加するノードごとに、手順 2~7 を繰り返します。
-. クラスタが複数のノードで構成されている場合は、クラスタ内の各HAペアのストレージフェイルオーバーを有効にします。 `storage failover modify -node * -enabled true`
-. クラスタが2つのノードだけで構成されている場合は、クラスタのハイアベイラビリティを有効にします。 `cluster ha modify -configured true`
+. 追加するノードごとに、手順2~8を繰り返します。
+. クラスタが複数のノードで構成されている場合は、クラスタ内の各HAペアのストレージフェイルオーバーを有効にします。
++
+[source, cli]
+----
+storage failover modify -node * -enabled true
+----
+. クラスタが2つのノードだけで構成されている場合は、クラスタのハイアベイラビリティを有効にします。
++
+[source, cli]
+----
+cluster ha modify -configured true
+----
 

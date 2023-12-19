@@ -65,31 +65,60 @@ NOTE: クラスタからノードを削除する前に、ノードに接続さ�
 .手順
 . 権限レベルを advanced に変更します。
 +
-`*set -privilege advanced*`
-
+[source, cli]
+----
+set -privilege advanced
+----
 . クラスタのノードにイプシロンが設定されているかどうかを確認します。
 +
-`*cluster show -epsilon true*`
-
-+
-.. イプシロンが設定されているノードの場合は、参加資格をfalseに変更します。
-+
-`*cluster modify -node <node_name> -eligibility false*`
-
-
-
-. 削除するノードが現在のマスターノードである場合は、マスターノードのクラスタ参加資格をに変更して、クラスタ内の別のノードをマスターノードとして選出できるようにします `false`：
-+
-`*cluster modify –eligibility false*`
-
-+
-マスターノードとは、「 `m GMT` 」、「 vldb 」、「 vifmgr 」、「 bcomd 」、「 crs 」などのプロセスを保持するノードです。。 `cluster ring show` advancedコマンドを実行すると、現在のマスターノードが表示されます。
-
-+
-[listing]
+[source, cli]
 ----
-cluster::*> cluster modify -node node1 -eligibility false
+cluster show -epsilon true
 ----
+. クラスタのノードにイプシロンが設定されていて、そのノードを分離する場合は、分離しないノードにイプシロンを移動します。
++
+.. 分離するノードからイプシロンを移動します。
++
+[source, cli]
+----
+cluster modify -node <name_of_node_to_be_unjoined> -epsilon false
+----
+.. 分離しないノードにイプシロンを移動します。
++
+[source, cli]
+----
+cluster modify -node <node_name> -epsilon true
+----
+
+
+. 現在のマスターノードを特定します。
++
+[source, cli]
+----
+cluster ring show
+----
++
+マスターノードとは、「 `m GMT` 」、「 vldb 」、「 vifmgr 」、「 bcomd 」、「 crs 」などのプロセスを保持するノードです。
+
+. 削除するノードが現在のマスターノードである場合は、クラスタ内の別のノードがマスターノードとして選出されるようにします。
++
+.. 現在のマスターノードをクラスタに参加できないようにします。
++
+[source, cli]
+----
+cluster modify – node <node_name> -eligibility false
+----
++
+マスターノードが参加資格を得られなくなると、残りのノードの1つがクラスタクォーラムによって新しいマスターとして選出されます。
+
+.. 以前のマスターノードを再びクラスタに参加できるようにします。
++
+[source, cli]
+----
+cluster modify – node <node_name> -eligibility true
+----
+
+
 . 削除するノードとは別のノードのリモートノード管理LIFまたはクラスタ管理LIFにログインします。
 . クラスタからノードを削除します。
 +
@@ -100,15 +129,19 @@ cluster::*> cluster modify -node node1 -eligibility false
  a| 
 ONTAP 9.3
  a| 
-`*cluster unjoin*`
-
+[source, cli]
+----
+cluster unjoin
+----
 
 
  a| 
 ONTAP 9.4以降
  a| 
-`*cluster remove-node*`
-
+[source, cli]
+----
+cluster remove-node*
+----
 |===
 +
 バージョンが混在したクラスタでバージョンが低い最後のノードを削除する場合は、を使用します `-skip-last-low-version-node-check` パラメータを指定します。
@@ -134,13 +167,15 @@ ONTAP 9.4以降
 . ノードを転用する場合は、ノードの設定を消去し、すべてのディスクを初期化します。
 +
 .. ブートプロセス時に、プロンプトが表示されたら Ctrl+C キーを押してブートメニューを表示します。
-.. ブートメニューオプション * （ 4 ） Clean configuration and initialize all disks * を選択します。
+.. ブートメニューオプション[（4）Clean configuration and initialize all disks]を選択します。
 
 
 . admin 権限レベルに戻ります。
 +
-`*set -privilege admin*`
-
+[source, cli]
+----
+set -privilege admin
+----
 . クラスタからフェイルオーバーパートナーを削除するには、前述の手順を繰り返します。
 
 

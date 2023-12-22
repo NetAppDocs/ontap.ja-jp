@@ -1,0 +1,307 @@
+---
+permalink: antivirus/configure-ontap-antivirus-connector-task.html 
+sidebar: sidebar 
+keywords: 'configure, antivirus connector, task, SVM"s, connections' 
+summary: ONTAP管理LIF、ポーリング情報、およびONTAP管理者アカウントのクレデンシャルを入力するか、データLIFだけを入力して、接続先の1つ以上のStorage Virtual Machine（SVM）を指定するようにAntivirus Connectorを設定する必要があります。 
+---
+= ONTAP Antivirus Connectorの設定
+:allow-uri-read: 
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+ONTAP管理LIF、ポーリング情報、およびONTAP管理者アカウントのクレデンシャルを入力するか、データLIFだけを入力して、接続先のStorage Virtual Machine（SVM）を指定するようにONTAP Antivirus Connectorを設定します。また、SVM接続の詳細を変更したり、SVM接続を削除したりすることもできます。ONTAP管理LIFが設定されている場合、デフォルトでは、ONTAP Antivirus ConnectorはREST APIを使用してデータLIFのリストを取得します。
+
+
+
+== SVM接続の詳細を変更する
+
+Antivirus Connectorに追加されたStorage Virtual Machine（SVM）接続の詳細を更新するには、ONTAP管理LIFとポーリング情報を変更します。データLIFの追加後に更新することはできません。データLIFを更新するには、まずデータLIFを削除してから、新しいLIFまたはIPアドレスを使用して再度追加する必要があります。
+
+.作業を開始する前に
+HTTPアプリケーション用のユーザアカウントを作成し、（少なくとも読み取り専用）アクセスを持つロールを割り当てたことを確認します。 `/api/network/ip/interfaces` REST API：
+ユーザの作成の詳細については、を参照してください。 link:https://docs.netapp.com/us-en/ontap-cli-9131//security-login-role-create.html#description["Security login role create を実行します"^] および link:https://docs.netapp.com/us-en/ontap-cli-9131//security-login-create.html["security login create を実行します"^] コマンド
+管理SVM用に認証トンネルSVMを追加して、ドメインユーザをアカウントとして使用することもできます。
+詳細については、を参照してください link:https://docs.netapp.com/us-en/ontap-cli-9131//security-login-domain-tunnel-create.html["security login domain-tunnel createのように設定します"] ONTAPのマニュアルページ
+
+.手順
+. Antivirus Connectorのインストールの完了時にデスクトップに保存されていた*[Configure ONTAP LIFs]*アイコンを右クリックし、*[Run as Administrator]*を選択します。[Configure ONTAP LIF]ダイアログボックスが開きます。
+. SVMのIPアドレスを選択し、*[更新]*をクリックします。
+. 必要に応じて情報を更新します。
+. [保存]*をクリックして、レジストリの接続の詳細を更新します。
+. 接続のリストをレジストリインポートまたはレジストリエクスポートファイルにエクスポートする場合は、*エクスポート*をクリックします。
+これは、複数のVscanサーバが同じ管理LIFまたはデータLIFのセットを使用する場合に便利です。
+
+
+
+
+== Antivirus ConnectorからSVM接続を削除する
+
+不要になったSVM接続は削除できます。
+
+.手順
+. Antivirus Connectorのインストールの完了時にデスクトップに保存されていた*[Configure ONTAP LIFs]*アイコンを右クリックし、*[Run as Administrator]*を選択します。[Configure ONTAP LIF]ダイアログボックスが開きます。
+. SVMのIPアドレスを1つ以上選択し、*[削除]*をクリックします。
+. [保存]*をクリックして、レジストリの接続の詳細を更新します。
+. 接続のリストをレジストリインポートまたはレジストリエクスポートファイルにエクスポートする場合は、*エクスポート*をクリックします。
+これは、複数のVscanサーバが同じ管理LIFまたはデータLIFのセットを使用する場合に便利です。
+
+
+
+
+== トラブルシューティングを行う
+
+.作業を開始する前に
+この手順でレジストリ値を作成する場合は、右側のペインを使用します。
+
+診断目的でAntivirus Connectorログを有効または無効にすることができます。デフォルトでは、これらのログは無効になっています。パフォーマンスを強化するには、Antivirus Connectorのログを無効なままにし、重大イベントに対してのみ有効にする必要があります。
+
+.手順
+. [スタート]*を選択し、検索ボックスに「regedit」と入力して、 `regedit.exe` をクリックします。
+. レジストリエディタ*で、ONTAP Antivirus Connectorの次のサブキーを探します。
+`HKEY_LOCAL_MACHINE\SOFTWARE\Wow6432Node\Data ONTAP\Clustered Data ONTAP Antivirus Connector\v1.0`
+. 次の表に示すタイプ、名前、および値を指定して、レジストリ値を作成します。
++
+|===
+
+
+| を入力します | 名前 | 値 
+
+
+ a| 
+文字列
+ a| 
+トレースパス
+ a| 
+C：\ avshim.log
+
+|===
++
+このレジストリ値には、他の有効なパスを指定できます。
+
+. 次の表に示すタイプ、名前、値、およびログ情報を指定して、別のレジストリ値を作成します。
++
+|===
+
+
+| を入力します | 名前 | 重要なロギング | 中間ロギング | 詳細なロギング 
+
+
+ a| 
+DWORD
+ a| 
+トレースレベル
+ a| 
+1.
+ a| 
+2または3
+ a| 
+4.
+
+|===
++
+これにより、手順3でTracePathに指定したパス値に保存されるAntivirus Connectorログが有効になります。
+
+. 手順3および4で作成したレジストリ値を削除して、Antivirus Connectorログを無効にします。
+. 「LogRotation」という名前でタイプ「multi_sz」の別のレジストリ値を作成します（引用符なし）。"LogRotation"で、
+ローテーションサイズのエントリとして「logFileSize:1」を指定し（1は1MBを表します）、次の行では「logFileCount:5」を
+ローテーションの制限（5が制限）を入力します。
++
+[NOTE]
+====
+これらの値はオプションです。指定しない場合は、ローテーションサイズとローテーションの上限にそれぞれデフォルト値の20MBと10ファイルが使用されます。指定された整数値には、小数または小数の値は指定されません。デフォルト値よりも大きい値を指定した場合は、代わりにデフォルト値が使用されます。
+
+====
+. ユーザー設定のログローテーションを無効にするには、手順6で作成したレジストリ値を削除します。
+
+
+
+
+== カスタマイズ可能なバナー
+
+カスタムバナーを使用すると、法的拘束力のあるステートメントとシステムアクセスに関する免責事項を_Configure ONTAP LIFAPI_windowに配置できます。
+
+.ステップ
+. の内容を更新してデフォルトバナーを変更します。 `banner.txt` ファイルをインストールディレクトリに保存し、変更を保存します。
+変更内容がバナーに反映されるようにするには、[Configure ONTAP LIF]ウィンドウを再度開いてください。
+
+
+
+
+== Extended Ordinance（EO）モードを有効にする
+
+セキュアな運用のために、拡張規則（EO）モードを有効または無効にすることができます。
+
+.手順
+. [スタート]*を選択し、検索ボックスに「regedit」と入力して、 `regedit.exe` をクリックします。
+. レジストリエディタ*で、ONTAP Antivirus Connectorの次のサブキーを探します。
+`HKEY_LOCAL_MACHINE\SOFTWARE\Wow6432Node\Data ONTAP\Clustered Data ONTAP Antivirus Connector\v1.0`
+. 右側のペインで、EOモードを有効にするには「EO_Mode」（引用符なし）と値「1」（引用符なし）という名前の「DWORD」タイプの新しいレジストリ値を作成し、EOモードを無効にするには「0」（引用符なし）を作成します。
+
+
+
+NOTE: デフォルトでは、 `EO_Mode` レジストリエントリがありません。EOモードは無効です。EOモードをイネーブルにする場合は、外部syslogサーバと相互証明書認証の両方を設定する必要があります。
+
+
+
+== 外部syslogサーバの設定
+
+.作業を開始する前に
+この手順でレジストリ値を作成する場合は、右側のペインを使用することに注意してください。
+
+.手順
+. [スタート]*を選択し、検索ボックスに「regedit」と入力して、 `regedit.exe` をクリックします。
+. レジストリエディタ*で、syslog設定用のONTAP Antivirus Connector用の次のサブキーを作成します。
+`HKEY_LOCAL_MACHINE\SOFTWARE\Wow6432Node\Data ONTAP\Clustered Data ONTAP Antivirus Connector\v1.0\syslog`
+. 次の表に示すように、タイプ、名前、および値を指定してレジストリ値を作成します。
++
+|===
+
+
+| を入力します | 名前 | 価値 
+
+
+ a| 
+DWORD
+ a| 
+syslog_enabled
+ a| 
+1または0
+
+|===
++
+値「1」はsyslogを有効にし、値「0」はsyslogを無効にすることに注意してください。
+
+. 次の表に示す情報を指定して、別のレジストリ値を作成します。
++
+|===
+
+
+| を入力します | 名前 
+
+
+ a| 
+REG_SZ
+ a| 
+syslog_host
+
+|===
++
+[Value]フィールドにsyslogホストのIPアドレスまたはドメイン名を入力します。
+
+. 次の表に示す情報を指定して、別のレジストリ値を作成します。
++
+|===
+
+
+| を入力します | 名前 
+
+
+ a| 
+REG_SZ
+ a| 
+syslog_port
+
+|===
++
+[Value]フィールドに、syslogサーバが実行されているポート番号を入力します。
+
+. 次の表に示す情報を指定して、別のレジストリ値を作成します。
++
+|===
+
+
+| を入力します | 名前 
+
+
+ a| 
+REG_SZ
+ a| 
+syslog_protocol
+
+|===
++
+syslogサーバで使用中のプロトコル（「tcp」または「udp」）を[Value]フィールドに入力します。
+
+. 次の表に示す情報を指定して、別のレジストリ値を作成します。
++
+|===
+
+
+| を入力します | 名前 | LOG_CRIT | LOG_NOTICE | ログ情報 | LOG_DEBUG 
+
+
+ a| 
+DWORD
+ a| 
+syslog_level
+ a| 
+2.
+ a| 
+5.
+ a| 
+6.
+ a| 
+7.
+
+|===
+. 次の表に示す情報を指定して、別のレジストリ値を作成します。
++
+|===
+
+
+| を入力します | 名前 | 価値 
+
+
+ a| 
+DWORD
+ a| 
+syslog_tls
+ a| 
+1または0
+
+|===
+
+
+値「1」はTransport Layer Security（TLS）でsyslogを有効にし、値「0」はTLSでsyslogを無効にすることに注意してください。
+
+
+
+=== 設定された外部syslogサーバがスムーズに動作することを確認する
+
+* キーが存在しない場合、またはnull値がある場合は、次の手順を実行します。
++
+** プロトコルのデフォルトは「TCP」です。
+** ポートのデフォルトは、プレーンな「TCP/UDP」の場合は「514」、TLSの場合は「6514」です。
+** syslogレベルのデフォルト値は5（log_notice）です。
+
+
+* syslogが有効になっていることを確認するには、 `syslog_enabled` 値は「1」です。をクリックします `syslog_enabled` 値は「1」です。EOモードが有効かどうかに関係なく、設定されたリモートサーバにログインできます。
+* EOモードが「1」に設定されていて、 `syslog_enabled` 「1」から「0」までの値。以下が適用されます。
++
+** syslogがEOモードでイネーブルになっていない場合は、サービスを開始できません。
+** システムが安定した状態で実行されている場合は、EOモードでsyslogを無効にできず、syslogが強制的に「1」に設定されていることを示す警告が表示されます。これはレジストリに表示されます。この場合は、まずEOモードをディセーブルにしてから、syslogをディセーブルにする必要があります。
+
+
+* EOモードおよびsyslogが有効になっているときにsyslogサーバが正常に実行できない場合、サービスの実行は停止します。これは、次のいずれかの理由で発生する可能性があります。
++
+** syslog_hostが無効であるか、設定されていません。
+** UDPまたはTCP以外の無効なプロトコルが設定されています。
+** ポート番号が無効です。
+
+
+* TCPまたはTLS over TCP構成では、サーバがIPポートをリッスンしていない場合、接続は失敗し、サービスはシャットダウンします。
+
+
+
+
+== X.509相互証明書認証の設定
+
+管理パス内のAntivirus ConnectorとONTAP間のSecure Sockets Layer（SSL）通信では、X.509証明書ベースの相互認証が可能です。EOモードが有効になっていて証明書が見つからない場合、AVコネクタは終了します。Antivirus Connectorで次の手順を実行します。
+
+.手順
+. Antivirus Connectorは、Antivirus Connectorのインストールディレクトリを実行するディレクトリパスで、Antivirus Connectorクライアント証明書とNetAppサーバの認証局（CA）証明書を検索します。証明書をこの固定ディレクトリパスにコピーします。
+. クライアント証明書とその秘密鍵をPKCS12形式で埋め込み、「av_client.p12」という名前を付けます。
+. NetAppサーバの証明書への署名に使用したCA証明書（およびルートCAまでの中間署名機関）が、Privacy Enhanced Mail（PEM）形式で「ontap_CA.pem」という名前のものであることを確認します。Antivirus Connectorインストールディレクトリに配置します。NetApp ONTAPシステムで、Antivirus Connectorのクライアント証明書に「client-ca」タイプの証明書として署名するためのCA証明書（およびルートCAまでの中間署名機関）を「ONTAP」にインストールします。
+

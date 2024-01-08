@@ -13,20 +13,18 @@ summary: FlexCache ボリュームでグローバルファイルロックを有�
 [role="lead"]
 ONTAP 9.10.1 以降では、グローバルファイルロックを適用して、関連するキャッシュファイルすべての読み取りを防止できます。
 
-.このタスクについて
-デフォルトでは、 FlexCache ボリュームは整合性よりも可用性が優先されます。グローバルファイルロックが有効でない場合、元のボリュームに対する変更は FlexCache に分散されますが、同時に更新されない可能性があります。グローバルファイルロックは、ボリューム間の整合性を可用性よりも優先します。グローバルファイルロックを有効にすると、すべての FlexCache ボリュームがオンラインになるまで元のボリュームに対する変更は中断されます。
+グローバルファイルロックを有効にすると、すべてのFlexCacheボリュームがオンラインになるまで元のボリュームに対する変更が中断されます。グローバルファイルロックを有効にする必要があるのは、キャッシュと送信元の間の接続の信頼性を一時停止することが原因でのみです。また、 FlexCache ボリュームがオフラインになった場合には、変更がタイムアウトする可能性があります。
+
+.作業を開始する前に
+* グローバルファイルロックを使用するには、元のクラスタとすべての関連キャッシュを含むクラスタで ONTAP 9.9.1 以降が実行されている必要があります。グローバルファイルロックは、新規または既存の FlexCache ボリュームで有効にできます。このコマンドは1つのボリュームに対して実行でき、関連付けられているすべてのFlexCacheボリュームを環境できます。
+* グローバルファイルロックを有効にするには、 advanced 権限レベルが必要です。
+* ONTAP 9.9.1より前のバージョンにリバートする場合は、最初に送信元キャッシュと関連するキャッシュでグローバルファイルロックを無効にする必要があります。無効にするには、元のボリュームから次のコマンドを実行します。 `volume flexcache prepare-to-downgrade -disable-feature-set 9.10.0`
+* グローバルファイルロックを有効にするプロセスは、オリジンに既存のキャッシュがあるかどうかによって異なります。
++
+** <<enable-gfl-new>>
+** <<enable-gfl-existing>>
 
 
-NOTE: グローバルファイルロックを有効にする必要があるのは、キャッシュと送信元の間の接続の信頼性を一時停止することが原因でのみです。また、 FlexCache ボリュームがオフラインになった場合には、変更がタイムアウトする可能性があります。
-
-グローバルファイルロックを使用するには、元のクラスタとすべての関連キャッシュを含むクラスタで ONTAP 9.9.1 以降が実行されている必要があります。グローバルファイルロックは、新規または既存の FlexCache ボリュームで有効にできます。このコマンドは 1 つのボリュームに対して実行でき、関連付けられているすべてのボリュームに適用されます。
-
-グローバルファイルロックを有効にするには、 advanced 権限レベルが必要です。
-
-グローバルファイルロックを有効にするプロセスは、元のキャッシュが既存のキャッシュにあるかどうかによって異なります。
-
-* <<enable-gfl-new>>
-* <<enable-gfl-existing>>
 
 
 
@@ -39,7 +37,8 @@ NOTE: グローバルファイルロックを有効にする必要があるの�
 `volume flexcache create volume _volume_name_ -is-global-file-locking-enabled true`
 
 +
-のデフォルト値 `-is-global-file-locking` は"`false`"です。次のいずれかの場合 `volume flexcache create` コマンドはボリュームに対して実行されます。コマンドはで渡す必要があります `-is-global-file-locking enabled` 「true」に設定します。
+
+NOTE: のデフォルト値 `-is-global-file-locking` は"`false`"です。次のいずれかの場合 `volume flexcache create` コマンドはボリュームに対して実行されます。コマンドはで渡す必要があります `-is-global-file-locking enabled` 「true」に設定します。
 
 
 
@@ -54,14 +53,10 @@ NOTE: グローバルファイルロックを有効にする必要があるの�
 `volume flexcache connection-status show`
 
 +
-表示されたすべてのボリュームのステータスがと表示されます “`connected.`」を参照してください link:view-connection-status-origin-task.html["FlexCache 関係のステータスを確認します"] または link:synchronize-properties-origin-volume-task.html["元のボリュームから FlexCache ボリュームのプロパティを同期する"]。
+表示されたすべてのボリュームのステータスがと表示されます `connected.` 詳細については、を参照してください link:view-connection-status-origin-task.html["FlexCache 関係のステータスを確認します"] または link:synchronize-properties-origin-volume-task.html["元のボリュームから FlexCache ボリュームのプロパティを同期する"]。
 
 . キャッシュ上でグローバルファイルロックを有効にします。
 +
 `volume flexcache origin config show/modify -volume _volume_name_ -is-global-file-locking-enabled true`
 
 
-
-9.9..1 より前のバージョンの ONTAP にリバートする場合は、最初に元のキャッシュと関連付けられているキャッシュでグローバルファイルロックを無効にする必要があります。これは次のコマンドで管理できます。
-
-`volume flexcache prepare-to-downgrade -disable-feature-set 9.10.0`

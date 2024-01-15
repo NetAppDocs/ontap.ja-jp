@@ -13,9 +13,26 @@ summary: ONTAP 9.3 以降では、 Web サービスに Security Assertion Markup
 [role="lead"]
 ONTAP 9.3 以降では、 Web サービスに Security Assertion Markup Language （ SAML ）認証を設定できます。SAML 認証を設定して有効にすると、 Active Directory や LDAP などのディレクトリサービスプロバイダではなく、外部のアイデンティティプロバイダ（ IdP ）によってユーザが認証されます。
 
-.必要なもの
-* SAML 認証用の IdP を設定しておく必要があります。
-* IdP URI が必要です。
+
+
+== SAML 認証を有効にする
+
+System ManagerまたはCLIを使用してSAML認証を有効にするには、次の手順を実行します。クラスタでONTAP 9.7以前が実行されている場合は、System Managerで実行する手順が異なります。ご使用のシステムで利用可能なSystem Managerのオンラインヘルプを参照してください。
+
+
+NOTE: SAML認証を有効にすると、System ManagerのGUIにアクセスできるのはリモートユーザだけになります。ローカルユーザは、 SAML 認証を有効にしたあとで System Manager GUI にアクセスできません。
+
+image:workflow_security_mfa_setup.gif["SAML を使用したマルチファクタ認証をセットアップするタスクのワークフロー図"]
+
+.作業を開始する前に
+* リモート認証に使用する IdP を設定する必要があります。
++
+[NOTE]
+====
+設定済みの IdP から提供されたドキュメントを参照してください。
+
+====
+* IdP の URI が必要です。
 
 
 .このタスクについて
@@ -42,7 +59,34 @@ ONTAP 9.3 以降では、 Web サービスに Security Assertion Markup Language
 * Shibboleth
 
 
+環境に応じて、次の手順を実行します。
+
 .手順
+[role="tabbed-block"]
+====
+.System Manager の略
+--
+. [*Cluster] > [Settings*] の順にクリックします。
+. SAML 認証 * の横にあるをクリックします image:icon_gear.gif["歯車アイコン"]。
+. SAML 認証を有効にする * チェックボックスがオンになっていることを確認します。
+. IdP URI の URL （を含む）を入力します "https://"[]）。
+. 必要に応じて、ホストシステムのアドレスを変更します。
+. 正しい証明書が使用されていることを確認します。
++
+** タイプが「 server 」の証明書が 1 つだけシステムにマッピングされている場合、その証明書はデフォルトとみなされ、表示されません。
+** システムが「 server 」タイプの複数の証明書にマッピングされている場合は、いずれかの証明書が表示されます。  別の証明書を選択するには、 * Change * をクリックします。
+
+
+. [ 保存（ Save ） ] をクリックします。確認ウィンドウには、自動的にクリップボードにコピーされたメタデータ情報が表示されます。
+. 指定した IdP システムに移動し、クリップボードからメタデータをコピーしてシステムメタデータを更新します。
+. 確認ウィンドウ（ System Manager ）に戻り、チェックボックスをオンにします。 * ホスト URI またはメタデータで IdP を設定しました。 *
+. Logout * をクリックして、 SAML ベースの認証を有効にします。  IdP システムに認証画面が表示されます。
+. IdP システムで、 SAML ベースのクレデンシャルを入力します。クレデンシャルを確認すると、 System Manager のホームページが表示されます。
+
+
+--
+.CLI の使用
+--
 . SAML の設定を作成して、 ONTAP が IdP メタデータにアクセスできるようにします。
 +
 `*security saml-sp create -idp-uri _idp_uri_ -sp-host _ontap_host_name_*`
@@ -122,16 +166,29 @@ admin1         http        password      backup           no     none
 
 
 
+--
+====
 
 
 == SAML 認証を無効にする
 
 外部のアイデンティティプロバイダ（ IdP ）を使用して Web ユーザの認証を停止する場合は、 SAML 認証を無効にすることができます。SAML 認証が無効な場合は、 Active Directory や LDAP などの設定済みのディレクトリサービスプロバイダが認証に使用されます。
 
-.必要なもの
-コンソールからログインする必要があります。
+環境に応じて、次の手順を実行します。
 
 .手順
+[role="tabbed-block"]
+====
+.System Manager の略
+--
+. [*Cluster] > [Settings*] の順にクリックします。
+. [* SAML Authentication* （ SAML 認証） ] で、 [* Enabled * （有効 * ） ] トグルボタンをクリックします。
+. _オプション_：  image:icon_gear.gif["歯車アイコン"] [SAML 認証 *] の横にある [SAML 認証を有効にする *] チェックボックスをオフにします
+
+
+--
+.CLI の使用
+--
 . SAML 認証を無効にする
 +
 `*security saml-sp modify -is-enabled false*`
@@ -142,6 +199,8 @@ admin1         http        password      backup           no     none
 
 
 
+--
+====
 
 
 == SAML の設定に関する問題のトラブルシューティング

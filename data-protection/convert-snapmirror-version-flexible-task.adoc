@@ -26,9 +26,6 @@ SnapMirror 関係のタイプを DP から XDP に変換すると、オートサ
 .手順
 . デスティネーションクラスタから、SnapMirror関係のタイプがDPで、ミラーの状態がSnapMirrored、関係のステータスがIdle、関係がhealthyであることを確認します。
 +
-このコマンドを実行する前に、山かっこ内の変数を必要な値に置き換える必要があります。
-
-+
 [source, cli]
 ----
 snapmirror show -destination-path <SVM:volume>
@@ -66,9 +63,6 @@ Healthy: true
 
 ====
 . ソースボリュームとデスティネーションボリュームから、両方のボリュームで共通のSnapshotコピーを作成します。
-+
-このコマンドを実行する前に、山かっこ内の変数を必要な値に置き換える必要があります。
-
 +
 [source, cli]
 ----
@@ -119,9 +113,6 @@ snapmirror.10af643c-32d1-11e3-954b-123478563412_2147484682.2014-06-27_100026
 ----
 . 変換中にスケジュールされた更新が実行されないようにするには、既存のDPタイプの関係を休止します。
 +
-このコマンドを実行する前に、山かっこ内の変数を必要な値に置き換える必要があります。
-
-+
 [source, cli]
 ----
 snapmirror quiesce -source-path <SVM:volume> -destination-path <SVM:volume>
@@ -144,9 +135,6 @@ snapmirror quiesce -source-path <SVM:volume> -destination-path <SVM:volume>
 cluster_dst::> snapmirror quiesce -destination-path svm_backup:volA_dst
 ----
 . 既存の DP タイプの関係を解除します。
-+
-このコマンドを実行する前に、山かっこ内の変数を必要な値に置き換える必要があります。
-
 +
 [source, cli]
 ----
@@ -185,9 +173,6 @@ cluster_dst::> volume snapshot autodelete modify -vserver svm_backup -volume vol
 ----
 . 既存の DP タイプの関係を削除します。
 +
-このコマンドを実行する前に、山かっこ内の変数を必要な値に置き換える必要があります。
-
-+
 [source, cli]
 ----
 snapmirror delete -destination-path <SVM:volume>
@@ -209,10 +194,21 @@ snapmirror delete -destination-path <SVM:volume>
 ----
 cluster_dst::> snapmirror delete -destination-path svm_backup:volA_dst
 ----
-. で保持した出力を使用できます `snapmirror show` 次のコマンドを使用して、新しいXDPタイプの関係を作成します。
+. ソースで元のSVMディザスタリカバリ関係を解放します。
 +
-このコマンドを実行する前に、山かっこ内の変数を必要な値に置き換える必要があります。
+[source, cli]
+----
+snapmirror release -destination-path <SVM:volume> -relationship-info-only true
+----
++
+次の例は、SVMディザスタリカバリ関係をリリースします。
 
++
+[listing]
+----
+cluster_src::> snapmirror release -destination-path svm_backup:volA_dst -relationship-info-only true
+----
+. で保持した出力を使用できます `snapmirror show` 次のコマンドを使用して、新しいXDPタイプの関係を作成します。
 +
 [source, cli]
 ----
@@ -228,7 +224,7 @@ snapmirror create -source-path <SVM:volume> -destination-path <SVM:volume>  -typ
 
 ====
 +
-次の例は、ソースボリューム間にSnapMirror DR関係を作成します `volA` オン `svm1` デスティネーションボリュームを指定します `volA_dst` オン `svm_backup` デフォルトを使用します `MirrorAllSnapshots` ポリシー：
+次の例は、ソースボリューム間のSnapMirrorディザスタリカバリ関係を作成します。 `volA` オン `svm1` デスティネーションボリュームを指定します `volA_dst` オン `svm_backup` デフォルトを使用します `MirrorAllSnapshots` ポリシー：
 
 +
 [listing]
@@ -237,9 +233,6 @@ cluster_dst::> snapmirror create -source-path svm1:volA -destination-path svm_ba
 -type XDP -schedule my_daily -policy MirrorAllSnapshots
 ----
 . ソースボリュームとデスティネーションボリュームを再同期します。
-+
-このコマンドを実行する前に、山かっこ内の変数を必要な値に置き換える必要があります。
-
 +
 [source, cli]
 ----
@@ -263,9 +256,6 @@ snapmirror resync -source-path <SVM:volume> -destination-path <SVM:volume>
 cluster_dst::> snapmirror resync -source-path svm1:volA -destination-path svm_backup:volA_dst
 ----
 . Snapshotコピーの自動削除を無効にした場合は、再度有効にします。
-+
-このコマンドを実行する前に、山かっこ内の変数を必要な値に置き換える必要があります。
-
 +
 [source, cli]
 ----

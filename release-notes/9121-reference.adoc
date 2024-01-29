@@ -1,0 +1,222 @@
+---
+permalink: release-notes/9121-reference.html 
+sidebar: sidebar 
+keywords: 'what"s new, release notes, 9.12.1' 
+summary: ONTAP 9.12.1の新機能の詳細 
+---
+= ONTAP 9.12.1の新機能
+:allow-uri-read: 
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+ONTAP 9.12.1で利用できる新しい機能について説明します。
+
+以前のONTAP 9リリース、ハードウェアプラットフォームとスイッチのサポート、既知の問題、および制限事項の詳細については、_を参照してください。link:https://library.netapp.com/ecm/ecm_download_file/ECMLP2492508["ONTAP 9リリースノート"^]_。ONTAP 9リリースノート_にアクセスするには、NetAppアカウントでサインインするか、NetAppアカウントを作成する必要があります。
+
+ONTAPをアップグレードするには、 xref:../upgrade/prepare.html[ONTAPをアップグレードする準備]。
+
+
+
+== データ保護
+
+[cols="30%,70%"]
+|===
+| 更新 | 説明 
+
+
+| xref:../data-protection/snapmirror-synchronous-disaster-recovery-basics-concept.html[SnapMirror Synchronousによる大容量FlexVolのサポート]  a| 
+SnapMirror Synchronous構成でサポートされるFlexVolの最大サイズが100TBから300TBに拡張されました。ソースクラスタとデスティネーションクラスタの両方で_ ONTAP 9.12.1P2以降_が実行されている必要があります。
+
+
+
+| xref:../data-protection/snapmirror-synchronous-disaster-recovery-basics-concept.html[SnapMirror SynchronousでのファイルサイズとLUNサイズの拡張のサポート] | SnapMirror Synchronous構成でサポートされるファイルとLUNの最大サイズが16TBから128TBに拡張されました。ソースとデスティネーションの両方のクラスタでONTAP 9.12.1 P2以降が実行されている必要があります。 
+
+
+| xref:../consistency-groups/index.html[整合グループのサポートの強化]  a| 
+* 整合グループへのボリュームの追加と削除、整合グループのクローニング（Snapshotコピーからのボリュームを含む）を実行できます。
+* コンシステンシグループはアプリケーションタギングをサポートし、データ保護と管理のプロセスを合理化します。
+* ONTAP REST APIでは、NFS / SMBボリュームまたはNVMeネームスペースを使用した整合性グループの設定がサポートされます。
+
+
+
+
+| xref:../data-protection/snapmirror-synchronous-disaster-recovery-basics-concept.html#supported-features[SnapMirror Synchronous NDO] | SnapMirror Synchronousは、HAのテイクオーバーとギブバック、ボリューム移動、その他のメンテナンス関連処理のノンストップオペレーション（NDO）をサポートします。この機能は、AFF / ASAプラットフォームでのみ使用できます。 
+
+
+| xref:../snaplock/commit-snapshot-copies-worm-concept.html[SnapLock for SnapVaultによるFlexGroupボリュームのサポート] | SnapLock for SnapVaultによるFlexGroupボリュームのサポート 
+
+
+| xref:../mediator/index.html[ONTAP Mediator 1.5でSnapMirrorビジネス継続性をサポート] | ONTAP Mediator 1.5では、SnapMirrorビジネス継続性（SM-BC）関係を監視できます。 
+
+
+| xref:../smbc/index.html[SnapMirror Business（SM-BC）の継続性の強化] | SM-BCでは、SnapshotからのLUNの部分リストアがサポートされています。また、SM-BCでは、SM-BC関係にないボリュームでもQoSが拡張されます。 
+
+
+| xref:../data-protection/convert-snapmirror-version-flexible-task.html[SnapMirror非同期のData Warehouseリビルドインジケータ] | SnapMirror非同期は、ディザスタリカバリ（DR）のリハーサル後にData Warehouseのリビルドにかかる時間を示すインジケータとして、完了した割合を表示します。 
+
+
+| 最小保持期間を「未指定」に設定するSnapLockオプション絶対保持期間 | SnapLockには、絶対保持期限が「unspecified」に設定されている場合に最小保持期限を設定するオプションがあります。 
+
+
+| xref:../snaplock/snapshot-lock-concept.html[改ざん防止Snapshotコピー] | SnapLock以外のボリューム上のSnapshotコピーをロックして、ランサムウェア攻撃から保護することができます。Snapshotコピーをロックすると、誤って削除したり故意に削除したりしないようになります。 
+|===
+
+
+== ファイルアクセスプロトコル
+
+[cols="30%,70%"]
+|===
+| 更新 | 説明 
+
+
+| xref:../smb-admin/configure-kerberos-aes-encryption-concept.html[Kerberos通信の弱い暗号化タイプを無効にする] | 新しいSMBセキュリティオプションを使用すると、Active Directory（AD）KDCとのKerberosベースの通信にAdvanced Encryption Standard（AES）暗号化タイプを優先してRC4とDESを無効にできます。 
+
+
+| xref:../s3-multiprotocol/index.html[NASデータへのS3クライアントアクセス] | S3クライアントは、再フォーマットすることなくNFSクライアントやSMBクライアントと同じNASデータにアクセスできるため、オブジェクトデータを必要とするS3アプリケーションを簡単に提供できます。 
+
+
+| xref:../nfs-admin/manage-nfsv4-storepool-controls-task.html[NFSv4.xストレージプール] | 一部のクライアントがNFSv4.xストレージプールリソースを過剰に消費するため、NFSv4.xストレージプールリソースを使用できないために他のNFSv4.xクライアントがブロックされます。環境でNFSv4.xストレージプールのリソースを大量に消費するクライアントの拒否とブロックを有効にすることができます。 
+|===
+
+
+== MetroCluster
+
+[cols="30%,70%"]
+|===
+| 更新 | 説明 
+
+
+| xref:../mediator/index.html[ONTAP Mediator 1.5はMetroCluster IP構成でサポートされます。] | ONTAPメディエーター1.5は、MetroCluster IP構成の監視に使用できます。 
+
+
+| xref:../configure_ip_security_@ipsec@_over_wire_encryption.html[フロントエンドホストプロトコル（NFSやiSCSIなど）のIPSecサポートは、MetroCluster IPおよびMetroClusterファブリック接続構成で使用できます。] | フロントエンドホストプロトコル（NFSやiSCSIなど）のIPSecサポートは、MetroCluster IPおよびMetroClusterファブリック接続構成で使用できます。 
+
+
+| link:https://docs.netapp.com/us-en/ontap-metrocluster/install-ip/concept-risks-limitations-automatic-switchover.html["MetroCluster IP構成のミラーされていないアグリゲート上のSVM上のS3"^] | MetroClusterの自動強制スイッチオーバー機能は、MetroCluster IP構成で有効にすることができます。この機能は、Mediator-Assisted Unplanned Switchover（MAUSO；メディエーターアシスト計画外スイッチオーバー）機能の拡張です。 
+|===
+MetroCluster構成のプラットフォームおよびスイッチ構成の拡張機能については、_を参照してください。link:https://library.netapp.com/ecm/ecm_download_file/ECMLP2492508["ONTAP 9リリースノート"^]_。
+
+
+
+== ネットワークおよびセキュリティプロトコル
+
+[cols="30%,70%"]
+|===
+| 更新 | 説明 
+
+
+| xref:../ontap/system-admin/forward-command-history-log-file-destination-task.html[LIFサアヒス] | management-log-forwardingサービスを使用して、監査ログをリモートsyslogサーバに転送するために使用するLIFを制御できます。 
+|===
+
+
+== S3オブジェクトストレージ
+
+[cols="30%,70%"]
+|===
+| 更新 | 説明 
+
+
+| xref:../s3-config/ontap-s3-supported-actions-reference.html[S3操作のサポートを強化]  a| 
+次のAmazon S3 APIアクションがサポートされています。
+
+* `CopyObject`
+* `UploadPartCopy`
+* `BucketPolicy` （GET、PUT、DELETE）
+
+
+|===
+
+
+== SAN
+
+[cols="30%,70%"]
+|===
+| 更新 | 説明 
+
+
+| xref:/san-admin/resize-lun-task.html[AFFおよびFASプラットフォームの最大LUNサイズの拡張] | ONTAP 9.12.1P2以降では、AFFおよびFASプラットフォームでサポートされるLUNの最大サイズが16TBから128TBに拡張されました。 
+
+
+| link:https://hwu.netapp.com/["NVMeの上限の引き上げ"^]  a| 
+NVMeプロトコルでサポートされる機能は次のとおりです。
+
+* 1つのStorage VMと1つのクラスタに8Kのサブシステムを配置
+* 12ノードクラスタNVMe/FCはポートあたり256台のコントローラをサポートし、NVMe/TCPはノードあたり2、000台のコントローラをサポートします。
+
+
+
+
+| xref:../nvme/setting-up-secure-authentication-nvme-tcp-task.html[NVMe/TCPのサポートによるセキュアな認証] | NVMeホストとコントローラの間で、DHHMAC-CHAP認証プロトコルを使用したNVMe/TCP経由のセキュアな一方向認証および双方向認証がサポートされます。 
+
+
+| xref:../asa/support-limitations.html[MetroCluster IPでのNVMeのサポート] | NVMe/FCプロトコルは、4ノードのMetroCluster IP構成でサポートされます。 
+|===
+
+
+== セキュリティ
+
+[cols="30%,70%"]
+|===
+| フィーチャー（ Feature ） | 説明 
+
+
+| xref:../anti-ransom/index.html[自律型ランサムウェア対策の相互運用性の強化]  a| 
+Autonomous Ransomware Protectionは、次の構成で使用できます。
+
+* ボリュームはSnapMirrorで保護されます
+* SVMはSnapMirrorで保護されます
+* 移行が有効になっているSVM（SVMのデータ移動）
+
+
+
+
+| xref:../authentication/setup-ssh-multifactor-authentication-task.html[FIDO2およびPIVを使用したSSHのMFAサポート（どちらもYubikeyで使用）] | SSH多要素認証（MFA）では、ユーザ名とパスワードを使用したハードウェア支援型の公開鍵/秘密鍵交換を使用できます。Yubikeyは、MFAセキュリティを強化するためにSSHクライアントに接続される物理トークンデバイスです。 
+
+
+| xref:../system-admin/ontap-implements-audit-logging-concept.html[改ざん防止ロギング] | ONTAPのすべての内部ログはデフォルトで改ざんされていないため、侵害された管理者アカウントが悪意のある操作を隠すことができません。 
+
+
+| xref:../error-messages/configure-ems-events-notifications-syslog-task.html[イベントのTLS転送] | TLSプロトコルを使用してEMSイベントをリモートsyslogサーバに送信できるため、ネットワークを介した保護が強化され、中央の外部監査ログが記録されます。 
+|===
+
+
+== ストレージ効率
+
+2022年10月、NetAppは、HTTPSとTLSv1.2またはセキュアSMTPで送信されないAutoSupportメッセージの送信を拒否するための変更を実装します。詳細については、を参照してください link:https://kb.netapp.com/Support_Bulletins/Customer_Bulletins/SU484["SU484：NetAppは不十分な転送セキュリティで送信されたAutoSupportメッセージを拒否します。"^]。
+
+[cols="30%,70%"]
+|===
+| 更新 | 説明 
+
+
+| xref:../volumes/change-efficiency-mode-task.html[温度に基づくストレージ効率]  a| 
+新しいAFF C250、AFF C400、AFF C800のプラットフォームおよびボリュームでは、温度に基づくStorage Efficiencyがデフォルトで有効になります。TSSEは既存のボリュームではデフォルトでは有効になっていませんが、ONTAP CLIを使用して手動で有効にすることができます。
+
+
+
+| xref:../volumes/determine-space-usage-volume-aggregate-concept.html[使用可能なアグリゲートスペースの増加] | All Flash FAS（AFF）およびFAS500fプラットフォームでは、30TBを超えるアグリゲート用のWAFLリザーブが10%から5%に削減され、アグリゲート内の使用可能なスペースが増加します。 
+
+
+| xref:../concept_nas_file_system_analytics_overview.html[ファイルシステム分析：サイズ別上位のディレクトリ] | ボリューム内でスペースを最も消費しているディレクトリがファイルシステム分析によって特定されるようになりました。 
+|===
+
+
+== System Manager の略
+
+ONTAP 9.12.1以降では、System ManagerがBlueXPに統合されています。BlueXPを使用すると、管理者は使い慣れたSystem Managerダッシュボードを使用しながら、単一のコントロールプレーンからハイブリッドマルチクラウドインフラを管理できます。System Managerにサインインする際、管理者はBlueXPのSystem Managerインターフェイスにアクセスするか、System Managerに直接アクセスするかを選択できます。の詳細を確認してください xref:../ontap/sysmgr-integration-bluexp-concept.html[System ManagerとBlueXPの統合]。
+
+[cols="30%,70%"]
+|===
+| 更新 | 説明 
+
+
+| xref:../snaplock/create-snaplock-volume-task.html[System ManagerによるSnapLockのサポート] | System Managerでは、コンプライアンスクロックの初期化、SnapLockボリュームの作成、WORMファイルのミラーリングなどのSnapLock処理がサポートされます。 
+
+
+| xref:../system-admin/configure-saml-authentication-task.html[System Managerへのログイン時にCisco Duoを使用した多要素認証のサポート] | Cisco DuoをSAMLアイデンティティプロバイダ（IdP）として設定すると、ユーザがSystem ManagerにログインするときにCisco Duoを使用して認証できるようになります。 
+
+
+| xref:../networking/network_features_by_release.html[System Managerのネットワークの機能拡張] | System Managerでは、ネットワークインターフェイスの作成時に、サブネットやホームポートをより細かく選択できます。System Managerでは、RDMA接続経由のNFSの設定もサポートされます。 
+|===

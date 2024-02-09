@@ -20,14 +20,16 @@ NOTE: ノードを対象としたNDMPは、ONTAP 9で廃止されました。
 ノードスコープモードでNDMPを使用する場合、認証はノード単位で設定する必要があります。詳細については、を参照してください link:https://kb.netapp.com/Advice_and_Troubleshooting/Data_Protection_and_Security/NDMP/How_to_configure_NDMP_authentication_in_the_%E2%80%98node-scope%E2%80%99_mode["サポート技術情報の記事「ノードスコープモードでNDMP認証を構成する方法」"^]。
 
 .手順
-. を使用して、ノードを対象としたNDMPモードを有効にします `system services ndmp` コマンドにを指定します `node-scope-mode` パラメータ
+. ノードを対象としたNDMPモードを有効にします。
 +
-[listing]
+[source, cli]
 ----
 cluster1::> system services ndmp node-scope-mode on
-NDMP node-scope-mode is enabled.
 ----
-. を使用して、クラスタ内のすべてのノードでNDMPサービスを有効にします `system services ndmp on` コマンドを実行します
++
+NDMP node-scope-modeが有効になっている。
+
+. クラスタ内のすべてのノードでNDMPサービスを有効にします。
 +
 ワイルドカード「 * 」を使用すると、すべてのノードで NDMP サービスが同時に有効になります。
 
@@ -35,29 +37,35 @@ NDMP node-scope-mode is enabled.
 バックアップアプリケーションによる NDMP 接続の認証でパスワードを指定する必要があります。
 
 +
-[listing]
+[source, cli]
 ----
 cluster1::> system services ndmp on -node *
-
+----
++
+[listing]
+----
 Please enter password:
 Confirm password:
 2 entries were modified.
 ----
-. を無効にします `-clear-text` を使用してNDMPパスワードのセキュアな通信を行うためのオプション `system services ndmp modify` コマンドを実行します
+. を無効にします `-clear-text` NDMPパスワードのセキュアな通信のためのオプション：
 +
 ワイルドカード"'を使用します*`" disables the `-clear-text` オプションをすべてのノードで同時に選択できます。
 
 +
-[listing]
+[source, cli]
 ----
 cluster1::> system services ndmp modify -node * -clear-text false
-2 entries were modified.
 ----
-. NDMPサービスとが有効になっていることを確認します `-clear-text` オプションはを使用して無効にします `system services ndmp show` コマンドを実行します
+. NDMPサービスとが有効になっていることを確認します `-clear-text` オプションが無効になっています。
++
+[source, cli]
+----
+cluster1::> system services ndmp show
+----
 +
 [listing]
 ----
-cluster1::> system services ndmp show
 Node                  Enabled   Clear text  User Id
 --------------------- --------- ----------- ---------
 cluster1-1            true      false        root

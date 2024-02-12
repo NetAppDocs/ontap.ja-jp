@@ -1,0 +1,130 @@
+---
+permalink: system-admin/manage-license-task.html 
+sidebar: sidebar 
+keywords: manage, license, delete, view, record, software, entitlement, keys, codes, cluster, administrator, nlf 
+summary: System ManagerまたはONTAP CLIを使用して、ライセンスのステータスやシリアル番号の表示、ライセンスの削除など、システムにインストールされているライセンスを管理できます。 
+---
+= ONTAPライセンスの管理（クラスタ管理者のみ）
+:allow-uri-read: 
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+System ManagerまたはONTAP CLIを使用して、ライセンスシリアル番号の表示、ライセンスのステータスの確認、ライセンスの削除など、システムにインストールされているライセンスを管理できます。
+
+
+
+== ライセンスの詳細を表示する
+
+.手順
+ライセンスに関する詳細の表示方法は、使用しているONTAPのバージョン、およびSystem ManagerとONTAP CLIのどちらを使用しているかによって異なります。
+
+[role="tabbed-block"]
+====
+.System Manager - ONTAP 9.8以降
+--
+. 特定の機能ライセンスに関する詳細を表示するには、*[クラスタ]>[設定]*を選択します。
+. [ライセンス]*で、 image:icon_arrow.gif["矢印アイコン"]。
+. [機能]*を選択します。
+. 表示するライセンス機能を探して選択します。 image:icon_dropdown_arrow.gif["展開アイコン"] をクリックしてライセンスの詳細を表示します。
+
+
+--
+.System Manager - ONTAP 9.7以前
+--
+. [設定]>[クラスタ]>[ライセンス]*を選択します。
+. [*Licenses*] ウィンドウで、適切なアクションを実行します。
+. [ * 詳細 * ] タブをクリックします。
+
+
+--
+.CLI の使用
+--
+. インストールされているライセンスに関する詳細を表示します。
++
+[source, cli]
+----
+system license show
+----
+
+
+--
+====
+
+
+== ライセンスを削除する
+
+[role="tabbed-block"]
+====
+.System Manager - ONTAP 9.8以降
+--
+. ライセンスを削除するには、*[クラスタ]>[設定]*を選択します。
+. [ライセンス]*で、 image:icon_arrow.gif["矢印アイコン"]。
+. [機能]*を選択します。
+. 削除するライセンス機能を選択し、*レガシーキーを削除*を選択します。
+
+
+--
+.System Manager - ONTAP 9.7以前
+--
+. [設定]>[クラスタ]>[ライセンス]*を選択します。
+. [*Licenses*] ウィンドウで、適切なアクションを実行します。
++
+|===
+| 状況 | 手順 
+
+
+ a| 
+ノードの特定のライセンスパッケージまたはマスターライセンスを削除する
+ a| 
+[ * 詳細 * ] タブをクリックします。
+
+
+
+ a| 
+クラスタ内のすべてのノードから特定のライセンスパッケージを削除する
+ a| 
+[ * パッケージ * ] タブをクリックします。
+
+|===
+. 削除するソフトウェアライセンスパッケージを選択し、 * 削除 * をクリックします。
++
+一度に削除できるライセンスパッケージは 1 つだけです。
+
+. 確認のチェックボックスをオンにし、 * 削除 * をクリックします。
+
+
+--
+.CLI の使用
+--
+. ライセンスを削除します。
++
+[source, cli]
+----
+system license delete
+----
++
+次の例は、CIFSという名前のライセンスとシリアル番号1-81-000000000000000123456をクラスタから削除します。
+
++
+[listing]
+----
+cluster1::> system license delete -serial-number 1-81-0000000000000000000123456 -package CIFS
+----
++
+次の例は、シリアル番号123456789のInstalled license Core Bundleの下のすべてのライセンスをクラスタから削除します。
+
++
+[listing]
+----
+cluster1::> system license delete { -serial-number 123456789 -installed-license "Core Bundle" }
+----
+
+
+--
+====
+.関連情報
+https://docs.netapp.com/us-en/ontap/system-admin/commands-manage-feature-licenses-reference.html["ライセンスの管理用ONTAP CLIコマンド"]
+
+https://docs.netapp.com/us-en/ontap/concepts/manual-pages.html["ONTAP 9コマンド"^]

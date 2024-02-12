@@ -1,66 +1,143 @@
 ---
 permalink: system-admin/manage-licenses-concept.html 
 sidebar: sidebar 
-keywords: manage, license, enable, add, record, software, entitlement, keys, codes, risk, usage, cluster, administrator, nlf 
-summary: ライセンスには、ソフトウェアの使用権が 1 つ以上記録されています。ONTAP 8.2からONTAP 9.9.1までのライセンスは28文字の文字列で提供され、ONTAP 機能ごとに1つのキーがあります。ネットアップライセンスファイル（ NLF ）と呼ばれる新しいライセンス形式が、 FabricPool などのクラスタ全体の機能のみを対象に ONTAP 9.2 で導入されました。 
+keywords: manage, license, ontap one, enable, add, record, software, entitlement, keys, codes, risk, usage, cluster, administrator, nlf 
+summary: ライセンスには、ソフトウェアの使用権が 1 つ以上記録されています。ONTAP 8.2からONTAP 9.9.1までのライセンスは28文字の文字列で提供され、ONTAP 機能ごとに1つのキーがあります。NetAppライセンスファイル（NLF）と呼ばれる新しいライセンス形式がONTAP 9.2で導入され、クラスタ全体の機能のみを対象としています。 
 ---
-= ライセンスの管理の概要（クラスタ管理者のみ）
+= ONTAPライセンスの概要
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-ライセンスには、ソフトウェアの使用権が 1 つ以上記録されています。ONTAP ONTAP 9.9.1では、ライセンスキーは28文字の文字列として提供され、ONTAP 機能ごとに1つのキーがあります。ネットアップライセンスファイル（ NLF ）と呼ばれる新しいライセンスキー形式が、 FabricPool などのクラスタ全体の機能に対してのみ ONTAP 9.2 で導入されました。
-
-ONTAP 9.10.1 以降、すべてのライセンスが NLF として提供されるようになりました。NLF ライセンスでは、購入内容に応じて、 1 つ以上の ONTAP 機能を有効にできます。NetApp Support Siteから NLF ライセンスを取得するには、システム（コントローラ）のシリアル番号を検索します。
-
-初回購入のソフトウェアまたはアドオンソフトウェアのライセンスは、NetApp Support Siteの「 * My Support * > * Software Licenses * 」にあります（ログインが必要です）。ライセンスの置換の詳細については、サポート技術情報の記事を参照してください link:https://kb.netapp.com/Advice_and_Troubleshooting/Flash_Storage/AFF_Series/Post_Motherboard_Replacement_Process_to_update_Licensing_on_a_AFF_FAS_system["AFF / FASシステムのライセンスを更新するための、マザーボード交換後のプロセス"]。
-
-ONTAP では、次の方法で機能ライセンスを管理できます。
-
-* インストールされているライセンスに関する情報を表示します (`system license show`)
-* ライセンスが必要なパッケージと、クラスタ上でのそのパッケージの現在のライセンスステータスを表示する (`system license status show`)
-* シリアル番号を指定してクラスタまたはノードからライセンスを削除します (`system license delete`)
-* 期限切れのライセンスまたは未使用のライセンスを表示または削除します (`system license clean-up`)
-
-
-ONTAP では、次の方法で機能の使用状況やライセンス使用権のリスクを監視できます。
-
-* クラスタでの機能の使用状況の概要をノード単位で表示する (`system feature-usage show-summary`)
-+
-この概要には、機能の使用週数、機能の最後の使用日時などのカウンタ情報が含まれます。
-
-* クラスタでの機能の使用ステータスをノード単位および週単位で表示します (`system feature-usage show-history`)
-+
-機能の使用ステータスはになります `not-used`、 `configured`または `in-use`。使用状況の情報がない場合は、ステータスがと表示されます `not-available`。
-
-* 各ライセンスパッケージのライセンス使用権リスクステータスを表示します (`system license entitlement-risk show`)
-+
-リスクステータスはになります `low`、 `medium`、 `high`、 `unlicensed`または `unknown`。リスクステータスは AutoSupport メッセージにも含まれます。ライセンス使用権のリスクは基本ライセンスパッケージには該当しません。
-
-+
-ライセンス使用権のリスクは、次に挙げるような複数の要因に基づいて評価されます。
-
-+
-** 各パッケージのライセンスの状態
-** 各ライセンスのタイプと有効期限ステータス、およびクラスタ全体でのライセンスの統一性
-** ライセンスパッケージに関連付けられている機能の使用方法
-評価プロセスでクラスタにライセンス使用権のリスクがあると判断された場合は、推奨される対処方法も出力されます。
+ライセンスには、ソフトウェアの使用権が 1 つ以上記録されています。ONTAP 9.10.1以降では、すべてのライセンスがNetAppライセンスファイル（NLF）として提供されます。これは、複数の機能を有効にする単一のファイルです。  2023年5月以降、すべてのAFFシステム（AシリーズとCシリーズの両方）とFASシステムは、ONTAP ONEソフトウェアスイートまたはONTAP Baseソフトウェアスイートのいずれかとともに販売されます。これらのソフトウェアスイートはそれぞれ1つのNLFとして提供され、ONTAP 9.10.1で最初に導入された個別のNLFバンドルに置き換わります。
 
 
 
+== ONTAP Oneに含まれるライセンス
+
+ONTAP Oneには、使用可能なライセンス機能がすべて含まれています以前のCore Bundle、Data Protection Bundle、Security and Compliance Bundle、Hybrid Cloud Bundle、Encryption Bundleの内容が次の表にまとめられています。暗号化は制限された国では使用できません。
+
+|===
+
+
+| 以前のバンドル名 | 含まれるONTAPキー 
+
+
+.5+| Core Bundle | FlexClone 
+
+
+| SnapRestore 
+
+
+| NFS、SMB、S3 
+
+
+| FC、iSCSI 
+
+
+| NVMe-oF 
+
+
+.3+| Security and Compliance Bundle | 自律的なランサムウェア防御 
+
+
+| MTKM 
+
+
+| SnapLock 
+
+
+.3+| Data Protection Bundle | SnapMirror（非同期、同期、ビジネス継続性） 
+
+
+| SnapCenter 
+
+
+| NetAppターゲット用のS3 SnapMirror 
+
+
+.2+| Hybrid Cloud Bundle | SnapMirror クラウド 
+
+
+| ネットアップ以外のターゲット用のS3 SnapMirror 
+
+
+.2+| 暗号化バンドル | NetApp Volume Encryption の略 
+
+
+| Trusted Platformモジュール 
+|===
+
+
+== ONTAP Oneに含まれていないライセンス
+
+ONTAP Oneには、以下を含むネットアップのクラウド提供サービスは含まれていません。
+
+* BlueXPの階層化
+* Cloud Insights の機能です
+* BlueXPバックアップ
+* データガバナンス
+
+
+
+
+== 既存システム用のONTAP One
+
+現在NetAppのサポートを受けているが、ONTAP Oneにアップグレードされていない既存のシステムがある場合、これらのシステムの既存のライセンスは引き続き有効であり、期待どおりに機能します。たとえば、既存のシステムにSnapMirrorライセンスがすでにインストールされている場合、ONTAP ONEにアップグレードして新しいSnapMirrorライセンスを取得する必要はありません。ただし、既存のシステムにSnapMirrorライセンスがインストールされていない場合は、追加料金でONTAP ONEにアップグレードするしかありません。
+
+2023年6月以降、28文字のライセンスキーを使用するONTAPシステムでも、 link:https://kb.netapp.com/onprem/ontap/os/How_to_get_an_ONTAP_One_license_when_the_system_has_28_character_keys["ONTAP OneまたはONTAP Base互換性バンドルへのアップグレード"]。
+
+
+
+== ONTAP Baseに含まれるライセンス
+
+ONTAP Baseは、ONTAPシステム用のONTAP Oneに代わるオプションのソフトウェアスイートです。専用のテスト環境や開発環境に対応した非本番システムなど、SnapMirrorやSnapCenterなどのデータ保護テクノロジや、Autonomous Ransomwareなどのセキュリティ機能が不要な特定のユースケースを対象としています。ONTAP Baseにライセンスを追加することはできません。SnapMirrorなどの追加ライセンスが必要な場合は、ONTAP ONEにアップグレードする必要があります。
+
+|===
+
+
+| 以前のバンドル名 | 含まれるONTAPキー 
+
+
+.5+| Core Bundle | FlexClone 
+
+
+| SnapRestore 
+
+
+| NFS、SMB、S3 
+
+
+| FC、iSCSI 
+
+
+| NVMe-oF 
+
+
+.3+| 暗号化バンドル | NetApp Volume Encryption の略 
+
+
+| Trusted Platformモジュール 
+
+
+| 保存データの暗号化 
+|===
+
+
+== その他のライセンス提供方法
+
+ONTAP ONTAP 9.9.1では、ライセンスキーは28文字の文字列として提供され、ONTAP 機能ごとに1つのキーがあります。ONTAP ONTAP 9.9.1を使用している場合は、ONTAP CLIを使用してライセンスキーをインストールします。
 
 [NOTE]
 ====
-注：ONTAP 9.10.1では、System ManagerまたはCLIを使用した28文字のライセンスキーもサポートされます。ただし、 1 つの機能に NLF ライセンスがインストールされている場合、同じ機能に対して 28 文字のライセンスキーを NLF ライセンス経由でインストールすることはできません。System Manager を使用して NLF またはライセンスキーをインストールする方法については、「新機能を有効にする」を参照してください。
+ONTAP 9.10.1では、System ManagerまたはCLIを使用した28文字のライセンスキーのインストールがサポートされています。ただし、機能用にNLFライセンスがインストールされている場合、同じ機能用のNetAppライセンスファイルに28文字のライセンスキーをインストールすることはできません。System Managerを使用したNLFまたはライセンスキーのインストールについては、を参照してください。 link:https://docs.netapp.com/us-en/ontap/system-admin/install-license-task.html["ONTAPライセンスのインストール"]。
 
 ====
 .関連情報
-https://kb.netapp.com/Advice_and_Troubleshooting/Data_Storage_Software/ONTAP_OS/What_are_Data_ONTAP_8.2_and_8.3_licensing_overview_and_references%3F["Data ONTAP 8.2 および 8.3 のライセンスの概要とリファレンスを教えてください。"^]
+https://kb.netapp.com/onprem/ontap/os/How_to_get_an_ONTAP_One_license_when_the_system_has_NLFs_already["システムにすでにNLFがある場合にONTAP Oneライセンスを取得する方法"]
 
-https://kb.netapp.com/Advice_and_Troubleshooting/Data_Storage_Software/ONTAP_OS/How_to_verify_Data_ONTAP_Software_Entitlements_and_related_License_Keys_using_the_Support_Site["サポートサイトを使用して、 Data ONTAP ソフトウェアのエンタイトルメントと関連するライセンスキーを検証する方法"^]
+https://kb.netapp.com/Advice_and_Troubleshooting/Data_Storage_Software/ONTAP_OS/How_to_verify_Data_ONTAP_Software_Entitlements_and_related_License_Keys_using_the_Support_Site["サポートサイトを使用してONTAPソフトウェアの使用権と関連ライセンスキーを確認する方法"^]
 
-https://kb.netapp.com/Advice_and_Troubleshooting/Data_Storage_Software/ONTAP_OS/FAQ%3A_Licensing_updates_in_Data_ONTAP_9.2["FAQ ： Data ONTAP 9.2 のライセンスに関する更新情報"^]
-
-http://mysupport.netapp.com/licensing/ontapentitlementriskstatus["ネットアップ： Data ONTAP Entitlement Risk Status"^]
+http://mysupport.netapp.com/licensing/ontapentitlementriskstatus["NetApp：ONTAP使用権リスクステータス"^]

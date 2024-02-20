@@ -15,7 +15,7 @@ MAV（Multi-admin Verification）ルールを作成して、承認が必要な�
 
 ルールは任意の管理者が適切なRBAC機能を使用してMAVを有効にする前に作成できますが、MAVを有効にすると、ルールセットを変更するにはMAV承認が必要になります。
 
-ONTAP 9.11.1以降では、次のコマンドのルールを作成できます。
+ONTAP 9.11.1以降では、次のコマンドを保護するルールを作成できます。
 
 [cols="2*"]
 |===
@@ -61,21 +61,29 @@ ONTAP 9.11.1以降では、次のコマンドのルールを作成できます�
 `vserver peer delete`
 
 |===
-ONTAP 9.13.1以降では、次のコマンドのルールを作成できます。
+ONTAP 9.13.1以降では、次のコマンドを保護するルールを作成できます。
 
 * `volume snaplock modify`
 
 
-また、MAVがイネーブルになっている場合、次のコマンドはデフォルトで保護されますが、これらのコマンドの保護を解除するためにルールを変更することもできます。
+ONTAP 9.14.1以降では、次のコマンドを保護するルールを作成できます。
+
+* `volume recovery-query modify`
+* `volume recovery-query purge`
+* `volume recovery-query purge-all`
+* `vserver modify`
+
+
+マルチ管理者検証を有効にした場合、システム定義のコマンドに加えて次のコマンドもデフォルトで保護されますが、これらのコマンドの保護を解除するようにルールを変更することができます。
 
 * `security login password`
 * `security login unlock`
 * `set`
 
 
-MAV system-defaultコマンドのルール– `security multi-admin-verify` コマンド–変更できません。
+MAV system-defaultコマンドのルール `security multi-admin-verify` link:../multi-admin-verify/index.html#how-multi-admin-verification-works["コマンド"]を変更することはできません。
 
-ルールを作成するときに、オプションでを指定できます `-query` 要求をコマンド機能のサブセットに制限するオプション。たとえば、デフォルトのsetコマンドでは、 `-query` がに設定されます `-privilege diag`つまり、-privilege diagを指定した場合にのみ、setコマンドに対する要求が生成されます。
+ルールを作成するときに、オプションでを指定できます `-query` 要求をコマンド機能のサブセットに制限するオプション。たとえば、デフォルトのsetコマンドでは、 `-query` がに設定されます `-privilege diag`SETコマンドの要求は、次の場合にのみ生成されます。 `-privilege diag` を指定します。
 
 [listing]
 ----
@@ -86,7 +94,7 @@ Vserver Operation                              Approvers Groups
 vs01    set                                    -         -
           Query: -privilege diagnostic
 ----
-デフォルトでは、ルールは対応するを指定します `security multi-admin-verify request create _“protected_operation”_` 保護されたオペレーションが入力されると、コマンドが自動的に生成されます。このデフォルトを変更して、が必要になるようにすることができます `request create` コマンドは別 々 に入力してください。
+デフォルトでは、ルールは対応するを指定します `security multi-admin-verify request create _“protected_operation”_` 保護されたオペレーションが入力されると、コマンドが自動的に生成されます。このデフォルトを変更して、が必要になるようにすることができます `request create` コマンドは別 々 に入力します。
 
 デフォルトでは、ルール固有の例外を指定できますが、ルールは次のグローバルMAV設定を継承します。
 
@@ -138,11 +146,11 @@ NOTE: すべて `security multi-admin-verify rule` コマンドを実行する�
 
 
 | 現在の管理者のクレデンシャルの変更  a| 
-`security login modify _<parameters>_`
+`security login modify <parameters>`
 
 *例*：次のルールでは、ルートボリュームの削除が承認されている必要があります。
 
-`security multi-admin-verify rule create  -operation "volume delete" -query "-vserver vs0`
+`security multi-admin-verify rule create  -operation "volume delete" -query "-vserver vs0"`
 
 
 

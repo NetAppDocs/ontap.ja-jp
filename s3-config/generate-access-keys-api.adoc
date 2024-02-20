@@ -14,6 +14,8 @@ summary: APIを使用して、S3ユーザがS3クライアントにアクセス�
 [role="lead"]
 ONTAP 9.14.1以降では、ONTAP管理者がカスタムロールを作成してローカルグループ、ドメイングループ、またはLightweight Directory Access Protocol（LDAP）グループに付与し、それらのグループに属するユーザがS3クライアントアクセス用に独自のアクセスキーとシークレットキーを生成できるようにすることができます。
 
+カスタムロールを作成してアクセスキーを生成するAPIを呼び出すユーザに割り当てるには、Storage VMでいくつかの設定手順を実行する必要があります。
+
 .作業を開始する前に
 次の点を確認します。
 
@@ -21,7 +23,9 @@ ONTAP 9.14.1以降では、ONTAP管理者がカスタムロールを作成して
 . そのStorage VMにバケットが作成されている。を参照してください link:../s3-config/create-bucket-task.html["バケットを作成する"]。
 . Storage VMにDNSが設定されています。を参照してください link:../networking/configure_dns_services_manual.html["DNS サービスを設定する"]。
 . LDAPサーバの自己署名ルート認証局（CA）証明書がStorage VMにインストールされている。を参照してください link:../nfs-config/install-self-signed-root-ca-certificate-svm-task.html["自己署名ルート CA 証明書を SVM にインストールします"]。
-. Storage VMでTLSが有効になっているLDAPクライアントが設定されています。を参照してください link:../nfs-config/create-ldap-client-config-task.html["LDAP クライアント設定を作成します"] および link:../nfs-config/enable-ldap-svms-task.html["LDAP クライアント設定を SVM に関連付けます"]。
+. Storage VMでTLSが有効になっているLDAPクライアントが設定されています。を参照してください link:../nfs-config/create-ldap-client-config-task.html["LDAP クライアント設定を作成します"] および。
+. クライアント設定をSVMに関連付けます。を参照してください link:../nfs-config/enable-ldap-svms-task.html["LDAP クライアント設定を SVM に関連付けます"] および https://docs.netapp.com/us-en/ontap-cli-9141//vserver-services-name-service-ldap-create.html["vserver services name-service ldap createを使用して"]。
+. データStorage VMを使用している場合は、管理ネットワークインターフェイス（LIF）とVM上に、LIFのサービスポリシーを作成します。を参照してください https://docs.netapp.com/us-en/ontap-cli-9141/network-interface-create.html["ネットワークインターフェイスの作成"] および https://docs.netapp.com/us-en/ontap-cli-9141//network-interface-service-policy-create.html["network interface service-policy createを実行します"] コマンド
 
 
 
@@ -89,11 +93,13 @@ ONTAP 9.14.1以降では、S3クライアントにアクセスするための独
 .カールの例
 [source, curl]
 ----
-curl --request POST \
+curl
+--request POST \
 --location "https://$FQDN_IP /api/protocols/s3/services/{svm.uuid}/users " \
 --include \
 --header "Accept: */*" \
 --header "Authorization: Basic $BASIC_AUTH"
+--data '{"name":"_name_"}'
 ----
 .JSON 出力例
 [listing]

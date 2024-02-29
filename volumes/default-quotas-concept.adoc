@@ -34,12 +34,19 @@ summary: デフォルトクォータを使用して、特定のクォータタ�
 
 == デフォルトユーザクォータの例
 
-次の quotas ファイルは、デフォルトユーザクォータを使用して、各ユーザの vol1 の割り当てを 50MB に制限しています。
+次のクォータルールでは、デフォルトユーザクォータを使用して、vol1の各ユーザに50MBの制限を適用しています。
 
 [listing]
 ----
-#Quota target type           disk  files  thold  sdisk  sfile
-#-----------  ----           ----  -----  -----  -----  -----
-*             user@/vol/vol1  50M
+cluster1::> volume quota policy rule create -vserver vs0 -volume vol1 -policy-name default -type user -target "" -qtree "" -disk-limit 50m
+
+cluster1::> volume quota policy rule show -vserver vs0 -volume vol1
+
+Vserver: vs0               Policy: default           Volume: vol1
+                                               Soft             Soft
+                         User         Disk     Disk   Files    Files
+Type   Target    Qtree   Mapping     Limit    Limit   Limit    Limit  Threshold
+-----  --------  ------- -------  --------  -------  ------  -------  ---------
+user   ""        ""      off          50MB        -       -        -          -
 ----
 システム上原因のユーザが、 vol1 内に占めるそのユーザのデータが 50MB を超えるようなコマンドを入力した場合（エディタからのファイルへの書き込みなど）、そのコマンドは失敗します。

@@ -20,31 +20,67 @@ summary: 明示的クォータは、特定のクォータターゲットに対�
 明示的クォータが影響するのは、同じレベル（ボリュームまたは qtree ）のデフォルトクォータのみです。たとえば、 qtree の明示的ユーザクォータが、その qtree を含むボリュームのデフォルトユーザクォータに影響することはありません。ただし、 qtree の明示的ユーザクォータは、その qtree のデフォルトユーザクォータを上書きします（制限を置き換えます）。
 
 .明示的クォータの例
-次の quotas ファイルには、 vol1 のすべてのユーザのスペースを 50MB に制限するというデフォルトユーザクォータが含まれています。ただし、 jsmith というユーザだけは、明示的クォータ（太字）によりスペース制限が 80MB に設定されています。
+次のクォータルールは、vol1内のすべてのユーザのスペースを50MBに制限するデフォルトユーザクォータを定義します。ただし、jsmithという1人のユーザには、明示的クォータ（太字）により80MBのスペースが許可されています。
 
 [listing]
 ----
-#Quota target type            disk  files  thold  sdisk  sfile
-#-----------  ----            ----  -----  -----  -----  -----
-*             user@/vol/vol1  50M
-**jsmith      user@/vol/vol1  80M**
+cluster1::> volume quota policy rule create -vserver vs0 -volume vol1 -policy-name default -type user -target "" -qtree "" -disk-limit 50m
+
+cluster1::> volume quota policy rule create -vserver vs0 -volume vol1 -policy-name default -type user -target "jsmith" -qtree "" -disk-limit 80m
+
+cluster1::> volume quota policy rule show -vserver vs0 -volume vol1
+
+Vserver: vs0               Policy: default           Volume: vol1
+                                               Soft             Soft
+                         User         Disk     Disk   Files    Files
+Type   Target    Qtree   Mapping     Limit    Limit   Limit    Limit  Threshold
+-----  --------  ------- -------  --------  -------  ------  -------  ---------
+user   ""        ""      off          50MB        -       -        -          -
+user   jsmith    ""      off          80MB        -       -        -          -
 ----
-次の quotas エントリは、 4 つの ID によって表されるユーザに対して、 vol1 ボリュームのディスクスペースを 500MB に、ファイル数を 10 、 240 個に制限しています。
+次のクォータルールでは、4つのIDで表されるユーザを、vol1ボリューム内の550MBのディスクスペースと10、000ファイルに制限しています。
 
 [listing]
 ----
-jsmith,corp\jsmith,engineering\”john smith”,
-S-1-5-32-544   user@/vol/vol1         500M      10K
+cluster1::> volume quota policy rule create -vserver vs0 -volume vol1 -policy-name default -type user -target " jsmith,corp\jsmith,engineering\john smith,S-1-5-32-544" -qtree "" -disk-limit 550m -file-limit 10000
+
+cluster1::> volume quota policy rule show -vserver vs0 -volume vol1
+
+Vserver: vs0               Policy: default           Volume: vol1
+                                               Soft             Soft
+                         User         Disk     Disk   Files    Files
+Type   Target    Qtree   Mapping     Limit    Limit   Limit    Limit  Threshold
+-----  --------  ------- -------  --------  -------  ------  -------  ---------
+user   "jsmith,corp\jsmith,engineering\john smith,S-1-5-32-544"
+                 ""      off         550MB        -   10000        -          -
 ----
-次の quotas エントリの制限により、 eng1 グループは、 /vol/vol2/proj1 qtree 内で 150MB のディスクスペースと無制限の数のファイルを使用できます。
+次のクォータルールは、eng1グループのディスクスペースを150MBに制限し、proj1 qtree内のファイル数を無制限に制限します。
 
 [listing]
 ----
-eng1        group@/vol/vol2/proj1  150M
+cluster1::> volume quota policy rule create -vserver vs0 -volume vol2 -policy-name default -type group -target "eng1" -qtree "proj1" -disk-limit 150m
+
+cluster1::> volume quota policy rule show -vserver vs0 -volume vol2
+
+Vserver: vs0               Policy: default           Volume: vol2
+                                               Soft             Soft
+                         User         Disk     Disk   Files    Files
+Type   Target    Qtree   Mapping     Limit    Limit   Limit    Limit  Threshold
+-----  --------  ------- -------  --------  -------  ------  -------  ---------
+group  eng1      proj1   off         150MB        -       -        -          -
 ----
-次の quotas エントリは、 vol2 ボリュームの proj1 qtree に対して、ディスクスペースを 750MB に、ファイル数を 76 、 800 個に制限しています。
+次のクォータルールでは、vol2ボリューム内のproj1 qtreeのディスクスペースが750MB、ファイル数が75、000に制限されています。
 
 [listing]
 ----
-/vol/vol2/proj1   tree                750M      75K
+cluster1::> volume quota policy rule create -vserver vs0 -volume vol2 -policy-name default -type tree -target "proj1" -disk-limit 750m -file-limit 75000
+
+cluster1::> volume quota policy rule show -vserver vs0 -volume vol2
+
+Vserver: vs0               Policy: default           Volume: vol2
+                                               Soft             Soft
+                         User         Disk     Disk   Files    Files
+Type   Target    Qtree   Mapping     Limit    Limit   Limit    Limit  Threshold
+-----  --------  ------- -------  --------  -------  ------  -------  ---------
+tree   proj1     ""      -           750MB        -   75000        -          -
 ----

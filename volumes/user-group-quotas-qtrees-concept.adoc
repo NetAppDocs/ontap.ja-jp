@@ -14,19 +14,34 @@ summary: ツリークォータは、 qtree の全体的なサイズを制限し�
 ツリークォータは、 qtree の全体的なサイズを制限します。個々のユーザまたはグループが qtree 全体を使用するのを防ぐには、その qtree のユーザクォータまたはグループクォータを指定します。
 
 .qtree内のユーザクォータの例
-次のような quotas ファイルがあるとします。
+次のクォータルールがあるとします。
 
 [listing]
 ----
+cluster1::> volume quota policy rule show -vserver vs0 -volume vol1
 
-#Quota target type            disk files thold sdisk sfile
-#-----------  ----            ---- ----- ----- ----- -----
-*             user@/vol/vol1  50M   -     45M
-jsmith        user@/vol/vol1  80M   -     75M
+Vserver: vs0               Policy: default           Volume: vol1
+                                               Soft             Soft
+                         User         Disk     Disk   Files    Files
+Type   Target    Qtree   Mapping     Limit    Limit   Limit    Limit  Threshold
+-----  --------  ------- -------  --------  -------  ------  -------  ---------
+user   ""        ""      off          50MB        -       -        -       45MB
+user   jsmith    ""      off          80MB        -       -        -       75MB
 ----
-kjones という特定ユーザが、 vol2 に存在する重要な qtree である qt1 で大量のスペースを使用しています。この場合、次の行を quotas ファイルに追加することで、このユーザのスペースを制限できます。
+あるユーザkjonesが、vol1に存在する重要なqtree proj1で大量のスペースを消費しています。次のクォータルールを追加することで、このユーザのスペースを制限できます。
 
 [listing]
 ----
-kjones        user@/vol/vol2/qt1  20M  -   15M
+cluster1::> volume quota policy rule create -vserver vs0 -volume vol1 -policy-name default -type user -target "kjones" -qtree "proj1" -disk-limit 20m -threshold 15m
+
+cluster1::> volume quota policy rule show -vserver vs0 -volume vol1
+
+Vserver: vs0               Policy: default           Volume: vol1
+                                               Soft             Soft
+                         User         Disk     Disk   Files    Files
+Type   Target    Qtree   Mapping     Limit    Limit   Limit    Limit  Threshold
+-----  --------  ------- -------  --------  -------  ------  -------  ---------
+user   ""        ""      off          50MB        -       -        -       45MB
+user   jsmith    ""      off          80MB        -       -        -       75MB
+user   kjones    proj1   off          20MB        -       -        -       15MB
 ----

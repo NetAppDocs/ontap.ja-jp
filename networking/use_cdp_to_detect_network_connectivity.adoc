@@ -1,0 +1,380 @@
+---
+sidebar: sidebar 
+permalink: networking/use_cdp_to_detect_network_connectivity.html 
+keywords: display, view, show, network, connectivity, neighbor, discovery, protocol, cdp, use cdp to detect network connectivity, considerations for using cdp, enable or disable cdp, view cdp neighbor information, example of showing and clearing statistics, cisco 
+summary: データセンターでは、近接探索プロトコルを使用して、物理または仮想システムのペアとそのネットワークインターフェイス間のネットワーク接続を表示できます。ONTAPは、シスコ検出プロトコル（CDP）とリンク層検出プロトコル（LLDP）の2つの近接探索プロトコルをサポートしています。 
+---
+= CDP を使用してネットワーク接続を検出します
+:hardbreaks:
+:allow-uri-read: 
+:nofooter: 
+:icons: font
+:linkattrs: 
+:imagesdir: ./media/
+
+
+[role="lead"]
+CDP を使用してネットワーク接続を検出するには、導入時の考慮事項を確認し、データポートで CDP を有効にし、ネイバーデバイスを表示し、必要に応じて CDP 設定値を調整します。クラスタポートでは、 CDP はデフォルトで有効になります。
+
+隣接デバイスに関する情報を表示するには、スイッチとルータでも CDP を有効にする必要があります。
+
+[cols="30,70"]
+|===
+
+
+| ONTAP リリース | 説明 
+
+
+ a| 
+9.10.1以前
+ a| 
+CDP は、クラスタと管理ネットワークスイッチを自動的に検出するためにクラスタスイッチヘルスモニタでも使用されます。
+
+
+
+ a| 
+9.11.1以降
+ a| 
+CDPは、クラスタ、ストレージ、および管理ネットワークスイッチを自動的に検出するためにクラスタスイッチヘルスモニタでも使用されます。
+
+|===
+.関連情報
+link:../system-admin/index.html["システム管理"^]
+
+
+
+== CDP を使用する場合の考慮事項
+
+デフォルトでは、 CDP 対応デバイスは CDPv2 通知を送信します。CDP 対応デバイスは、 CDPv1 通知を受信した場合にのみ、 CDPv1 通知を送信します。ONTAP は CDPv1 のみをサポートします。したがって、 ONTAP ノードが CDPv1 通知を送信すると、 CDP 対応の隣接デバイスが CDPv1 通知を返します。
+
+ノードで CDP を有効にする前に、次の点を確認してください。
+
+* CDP はすべてのポートでサポートされます。
+* CDP 通知は、 up 状態のポートから送受信されます。
+* CDP 通知を送受信するには、送信デバイスと受信デバイスの両方で CDP を有効にする必要があります。
+* CDP 通知は一定間隔で送信され、送信間隔は設定可能です。
+* LIF の IP アドレスが変更されると、ノードは更新された情報を次の CDP 通知で送信します。
+* ONTAP 9.10.1以前：
++
+** CDP はクラスタポートで常に有効になります。
+** 非クラスタポートでは、 CDP はデフォルトで無効になります。
+
+
+* ONTAP 9.11.1以降：
++
+** CDPは、クラスタポートとストレージポートで常に有効になります。
+** 非クラスタポートと非ストレージポートでは、CDPはデフォルトで無効になっています。
+
+
+
+
+
+NOTE: ノードで LIF が変更された場合、スイッチなどの受信デバイス側で CDP 情報が更新されないことがあります。このような問題が発生した場合は、ノードのネットワークインターフェイスをいったん down 状態にしてから、 up 状態に設定してください。
+
+* CDP 通知で送信されるのは IPv4 アドレスのみです。
+* VLAN が設定されている物理ネットワークポートの場合、 VLAN に設定されているすべての LIF が通知されます。
+* インターフェイスグループの一部となっている物理ポートの場合、そのインターフェイスグループに設定されているすべての IP アドレスが、各物理ポートで通知されます。
+* VLAN をホストするインターフェイスグループの場合、インターフェイスグループおよび VLAN に設定されているすべての LIF が各ネットワークポートで通知されます。
+* CDPパケットが1500バイト以下に制限されているため、ポート上
+多数のLIFで構成されている場合、隣接するスイッチではこれらのIPアドレスの一部のみが報告されることがあります。
+
+
+
+
+== CDP を有効または無効にします
+
+CDP 対応の隣接デバイスを検出して通知を送信するには、クラスタの各ノードで CDP が有効になっている必要があります。
+
+ONTAP 9.10.1以前のデフォルトでは、ノードのすべてのクラスタポートでCDPが有効になり、ノードのすべての非クラスタポートで無効になります。
+
+ONTAP 9.11.1以降では、デフォルトで、ノードのすべてのクラスタポートとストレージポートでCDPが有効になり、ノードの非クラスタポートと非ストレージポートで無効になっています。
+
+.このタスクについて
+。 `cdpd.enable` オプションは、ノードのポートでCDPを有効にするか無効にするかを制御します。
+
+* ONTAP 9.10.1以前の場合、onを指定すると、非クラスタポートでCDPが有効になります。
+* ONTAP 9.11.1以降では、onを指定すると、非クラスタポートと非ストレージポートでCDPが有効になります。
+* ONTAP 9.10.1以前のバージョンでは、offを指定すると非クラスタポートでCDPが無効になります。クラスタポートのCDPを無効にすることはできません。
+* ONTAP 9.11.1以降では、offを指定すると、非クラスタポートと非ストレージポートでCDPが無効になります。クラスタポートのCDPを無効にすることはできません。
+
+
+CDP 対応デバイスに接続されているポートで CDP を無効にすると、ネットワークトラフィックが最適化されない可能性があります。
+
+.手順
+. クラスタ内の 1 つまたはすべてのノードの、現在の CDP 設定を表示します。
++
+[cols="30,70"]
+|===
+
+
+| CDP 設定を表示する対象 | 入力するコマンド 
+
+
+ a| 
+ノード
+ a| 
+`run - node <node_name> options cdpd.enable`
+
+
+
+ a| 
+クラスタ内のすべてのノード
+ a| 
+`options cdpd.enable`
+
+|===
+. クラスタ内の 1 つまたはすべてのノードで、すべてのポートの CDP を有効または無効にします。
++
+[cols="30,70"]
+|===
+
+
+| CDP を有効または無効にする対象 | 入力するコマンド 
+
+
+ a| 
+ノード
+ a| 
+`run -node node_name options cdpd.enable {on or off}`
+
+
+
+ a| 
+クラスタ内のすべてのノード
+ a| 
+`options cdpd.enable {on or off}`
+
+|===
+
+
+
+
+== CDP ネイバー情報を表示します
+
+クラスタのノードのポートに CDP 対応デバイスが接続されている場合は、そのポートの隣接デバイスの情報を表示することができます。を使用できます `network device-discovery show -protocol cdp` ネイバー情報を表示するコマンド。
+
+.このタスクについて
+ONTAP 9.10.1以前では、クラスタポートでCDPが常に有効になっているため、これらのポートのCDPネイバー情報は常に表示されます。非クラスタポートの隣接情報を表示するには、これらのポートで CDP を有効にする必要があります。
+
+ONTAP 9.11.1以降では、クラスタポートとストレージポートでCDPが常に有効になっているため、これらのポートのCDP隣接情報は常に表示されます。非クラスタポートおよび非ストレージポートでCDPを有効にして、これらのポートのネイバー情報を表示する必要があります。
+
+.ステップ
+クラスタ内のノードのポートに接続されているすべての CDP 対応デバイスの情報を表示します。
+
+....
+network device-discovery show -node node -protocol cdp
+....
+次のコマンドは、ノードsti2650-212のポートに接続されているネイバーを表示します。
+
+....
+network device-discovery show -node sti2650-212 -protocol cdp
+Node/       Local  Discovered
+Protocol    Port   Device (LLDP: ChassisID)  Interface         Platform
+----------- ------ ------------------------- ----------------  ----------------
+sti2650-212/cdp
+            e0M    RTP-LF810-510K37.gdl.eng.netapp.com(SAL1942R8JS)
+                                             Ethernet1/14      N9K-C93120TX
+            e0a    CS:RTP-CS01-510K35        0/8               CN1610
+            e0b    CS:RTP-CS01-510K36        0/8               CN1610
+            e0c    RTP-LF350-510K34.gdl.eng.netapp.com(FDO21521S76)
+                                             Ethernet1/21      N9K-C93180YC-FX
+            e0d    RTP-LF349-510K33.gdl.eng.netapp.com(FDO21521S4T)
+                                             Ethernet1/22      N9K-C93180YC-FX
+            e0e    RTP-LF349-510K33.gdl.eng.netapp.com(FDO21521S4T)
+                                             Ethernet1/23      N9K-C93180YC-FX
+            e0f    RTP-LF349-510K33.gdl.eng.netapp.com(FDO21521S4T)
+                                             Ethernet1/24      N9K-C93180YC-FX
+....
+出力には、指定したノードの各ポートに接続されている Cisco デバイスが一覧表示されます。
+
+
+
+== CDP メッセージの保持時間を設定します
+
+保持時間とは、 CDP 通知が CDP 対応の隣接デバイスのキャッシュに格納される時間です。保持時間は各 CDPv1 パケットで通知され、ノードが CDPv1 パケットを受信するたびに更新されます。
+
+* の値 `cdpd.holdtime` オプションの値は、HAペアの両方のノードで同じに設定する必要があります。
+* デフォルトの保持時間は 180 ですが、 10~255 秒の値を入力できます。
+* 保持時間が切れる前に IP アドレスが削除された場合、 CDP 情報は保持時間が切れるまでキャッシュされます。
+
+
+.手順
+. クラスタ内の 1 つまたはすべてのノードの CDP メッセージの現在の保持時間を表示します。
++
+[cols="30,70"]
+|===
+
+
+| 保持時間を表示する対象 | 入力するコマンド 
+
+
+ a| 
+ノード
+ a| 
+`run -node node_name options cdpd.holdtime`
+
+
+
+ a| 
+クラスタ内のすべてのノード
+ a| 
+`options cdpd.holdtime`
+
+|===
+. クラスタ内の 1 つまたはすべてのノードで、すべてのポートの CDP 通知の保持時間を設定します。
++
+[cols="30,70"]
+|===
+
+
+| 保持時間を設定する対象 | 入力するコマンド 
+
+
+ a| 
+ノード
+ a| 
+`run -node node_name options cdpd.holdtime holdtime`
+
+
+
+ a| 
+クラスタ内のすべてのノード
+ a| 
+`options cdpd.holdtime holdtime`
+
+|===
+
+
+
+
+== CDP 通知の送信間隔を設定します
+
+CDP 通知は、一定の間隔で CDP 隣接機器に送信されます。ネットワークトラフィックの量やネットワークトポロジの変化に応じて、 CDP 通知の送信間隔を調整することができます。
+
+* の値 `cdpd.interval` オプションの値は、HAペアの両方のノードで同じに設定する必要があります。
+* デフォルトの送信間隔は 60 秒ですが、 5~900 秒の値を入力できます。
+
+
+.手順
+. クラスタ内の 1 つまたはすべてのノードについて、 CDP 通知の現在の送信間隔を表示します。
++
+[cols="30,70"]
+|===
+
+
+| 送信間隔を表示する対象 | 入力するコマンド 
+
+
+ a| 
+ノード
+ a| 
+`run -node node_name options cdpd.interval`
+
+
+
+ a| 
+クラスタ内のすべてのノード
+ a| 
+`options cdpd.interval`
+
+|===
+. クラスタ内の 1 つまたはすべてのノードで、すべてのポートの CDP 通知の送信間隔を設定します。
++
+[cols="30,70"]
+|===
+
+
+| 送信間隔を設定する対象 | 入力するコマンド 
+
+
+ a| 
+ノード
+ a| 
+`run -node node_name options cdpd.interval interval`
+
+
+
+ a| 
+クラスタ内のすべてのノード
+ a| 
+`options cdpd.interval interval`
+
+|===
+
+
+
+
+== CDP 統計情報を表示または消去します
+
+ネットワーク接続に潜在的な問題を検出するために、各ノードのクラスタポートと非クラスタポートの CDP 統計を表示することができます。CDP 統計は、値が前回消去されたときからの累積値です。
+
+.このタスクについて
+ONTAP 9.10.1以前では、ポートでCDPが常にイネーブルになっているため、これらのポート上のトラフィックに関するCDP統計情報は常に表示されます。これらのポートの統計情報を表示するには、ポート上でCDPを有効にする必要があります。
+
+ONTAP 9.11.1以降では、クラスタポートとストレージポートでCDPが常に有効になっているため、これらのポートのトラフィックについてCDP統計情報が常に表示されます。非クラスタポートまたは非ストレージポートでCDP統計情報を表示するには、これらのポートでCDPを有効にする必要があります。
+
+.ステップ
+ノードのすべてのポートに関する現在の CDP 統計情報を表示または消去します。
+
+[cols="30,70"]
+|===
+
+
+| 状況 | 入力するコマンド 
+
+
+ a| 
+CDP 統計情報を表示します
+ a| 
+`run -node node_name cdpd show-stats`
+
+
+
+ a| 
+CDP 統計情報を消去します
+ a| 
+`run -node node_name cdpd zero-stats`
+
+|===
+
+
+=== 統計情報の表示と消去の例
+
+次のコマンドは、消去する前の CDP 統計情報を表示します。出力には、前回統計情報が消去されてから送受信されたパケットの合計数が表示されます。
+
+....
+run -node node1 cdpd show-stats
+
+RECEIVE
+ Packets:         9116  | Csum Errors:       0  | Unsupported Vers:  4561
+ Invalid length:     0  | Malformed:         0  | Mem alloc fails:      0
+ Missing TLVs:       0  | Cache overflow:    0  | Other errors:         0
+
+TRANSMIT
+ Packets:         4557  | Xmit fails:        0  | No hostname:          0
+ Packet truncated:   0  | Mem alloc fails:   0  | Other errors:         0
+
+OTHER
+ Init failures:      0
+....
+次のコマンドは、 CDP 統計情報を消去します。
+
+....
+run -node node1 cdpd zero-stats
+....
+....
+run -node node1 cdpd show-stats
+
+RECEIVE
+ Packets:            0  | Csum Errors:       0  | Unsupported Vers:     0
+ Invalid length:     0  | Malformed:         0  | Mem alloc fails:      0
+ Missing TLVs:       0  | Cache overflow:    0  | Other errors:         0
+
+TRANSMIT
+ Packets:            0  | Xmit fails:        0  | No hostname:          0
+ Packet truncated:   0  | Mem alloc fails:   0  | Other errors:         0
+
+OTHER
+ Init failures:      0
+....
+統計を消去すると、次回 CDP 通知を送信または受信したあとに統計が累積され始めます。

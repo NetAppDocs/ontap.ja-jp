@@ -14,9 +14,13 @@ summary: LIF を作成します。 LIF は、物理ポートまたは論理ポ�
 
 
 [role="lead"]
-LIF（ネットワークインターフェイス）は、物理ポートまたは論理ポートに関連付けられたIPアドレスです。コンポーネントに障害が発生しても、 LIF は別の物理ポートにフェイルオーバーまたは移行できるため、引き続きネットワークと通信できます。
+SVM は、 1 つ以上のネットワーク論理インターフェイス（ LIF ）を通じてクライアントにデータを提供します。データへのアクセスに使用するポートに LIF を作成する必要があります。LIF（ネットワークインターフェイス）は、物理ポートまたは論理ポートに関連付けられたIPアドレスです。コンポーネントに障害が発生しても、 LIF は別の物理ポートにフェイルオーバーまたは移行できるため、引き続きネットワークと通信できます。
+
+.ベストプラクティス
+ONTAPに接続されたスイッチポートは、LIFの移行時の遅延を軽減するために、スパニングツリーエッジポートとして設定する必要があります。
 
 .作業を開始する前に
+* このタスクを実行するには、クラスタ管理者である必要があります。
 * 基盤となる物理または論理ネットワークポートの管理ステータスが up に設定されている必要があります。
 * サブネット名を使用して LIF の IP アドレスとネットワークマスク値を割り当てる場合は、そのサブネットがすでに存在している必要があります。
 +
@@ -29,6 +33,10 @@ LIF（ネットワークインターフェイス）は、物理ポートまた�
 * 同じ LIF に NAS プロトコルや SAN プロトコルを割り当てることはできません。
 +
 サポートされているプロトコルは、 SMB 、 NFS 、 FlexCache 、 iSCSI 、および FC です。 iSCSI と FC を他のプロトコルと組み合わせることはできません。ただし、 NAS プロトコルとイーサネットベースの SAN プロトコルは、同じ物理ポートで使用できます。
+
++
+** SMBトラフィックを伝送するLIFを、ホームノードに自動的にリバートするように設定しないでください。Hyper-V over SMB または SQL Server over SMB でノンストップオペレーションを実現する解決策を SMB サーバでホストする場合、これは必須です。
+
 
 * 同じネットワークポート上に IPv4 と IPv6 の両方の LIF を作成できます。
 * DNS 、 NIS 、 LDAP 、 Active Directory など、 SVM で使用されるすべてのネームマッピングサービスとホスト名解決サービス SVM のデータトラフィックを処理する少なくとも 1 つの LIF から到達可能である必要があります。
@@ -66,6 +74,8 @@ ONTAP 9.11.1以降にアップグレードしたあとに、iSCSI LIFのフェ�
 link:../san-admin/asa-iscsi-lif-fo-task.html["ASA プラットフォームのiSCSI LIFのフェイルオーバー"]
 
 
+
+ONTAP 9.7 以降では、少なくとも 1 つの LIF が同じサブネットにすでに存在するかぎり、 ONTAP によって LIF のホームポートが自動的に選択されます。ONTAP は、そのサブネット内の他の LIF と同じブロードキャストドメイン内のホームポートを選択します。ホームポートは指定できますが、指定した IPspace のサブネットにまだ LIF がない場合を除き、指定する必要はありません。
 
 ONTAP 9.12.0以降では、使用するインターフェイスに応じて次の手順 が使用されます。System ManagerまたはCLI：
 
@@ -117,7 +127,26 @@ ONTAP 9.12.0以降では、使用するインターフェイスに応じて次�
 * CLIを使用してLIFを作成してください*
 
 .手順
-. LIF を作成します。
+. LIF に使用するブロードキャストドメインのポートを決定します。
++
+`network port broadcast-domain show -ipspace _ipspace1_`
+
++
+....
+IPspace     Broadcast                       Update
+Name        Domain name   MTU   Port List   Status Details
+ipspace1
+            default       1500
+                                node1:e0d   complete
+                                node1:e0e   complete
+                                node2:e0d   complete
+                                node2:e0e   complete
+....
+. LIF に使用するサブネットに未使用の IP アドレスが十分にあることを確認します。
++
+`network subnet show -ipspace _ipspace1_`
+
+. データへのアクセスに使用するポートに 1 つ以上の LIF を作成します。
 +
 ....
 network interface create -vserver _SVM_name_ -lif _lif_name_ -service-policy _service_policy_name_ -home-node _node_name_ -home-port port_name {-address _IP_address_ - netmask _Netmask_value_ | -subnet-name _subnet_name_} -firewall- policy _policy_ -auto-revert {true|false}
@@ -152,7 +181,31 @@ LIF にサービスポリシーを指定すると、そのポリシーを使用�
 
 
 
-. を使用して、LIFが作成されたことを確認します `network interface show` コマンドを実行します
+. LIF インターフェイスの設定が正しいことを確認します。
++
+`network interface show -vserver vs1`
+
++
+....
+          Logical    Status     Network         Current   Current Is
+Vserver   Interface  Admin/Oper Address/Mask    Node      Port    Home
+--------- ---------- ---------- --------------- --------- ------- ----
+vs1
+           lif1       up/up      10.0.0.128/24   node1     e0d     true
+....
+. フェイルオーバーグループの設定が適切であることを確認します。
++
+`network interface show -failover -vserver _vs1_`
+
++
+....
+         Logical    Home       Failover        Failover
+Vserver  interface  Node:Port  Policy          Group
+-------- ---------- ---------  ---------       --------
+vs1
+         lif1       node1:e0d  system-defined  ipspace1
+Failover Targets: node1:e0d, node1:e0e, node2:e0d, node2:e0e
+....
 . 設定した IP アドレスに到達できることを確認します。
 
 
@@ -185,6 +238,3 @@ network interface create -vserver vs1.example.com -lif datalif1 -data-protocol n
 ....
 --
 ====
-.詳細情報
-xref:modify_a_lif.html[LIF を変更する]
-xref:../nfs-rdma/configure-lifs-task.html[NFS over RDMA 用に LIF を設定します]

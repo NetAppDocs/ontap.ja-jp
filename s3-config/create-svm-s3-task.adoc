@@ -59,15 +59,19 @@ S3サーバを既存のStorage VMに追加する場合は、* Storage > Storage 
 --
 . クラスタ上で S3 のライセンスが有効であることを確認します。
 +
-`system license show -package s3`
-
+[source, cli]
+----
+system license show -package s3
+----
 +
 表示されない場合は、営業担当者にお問い合わせください。
 
 . SVM を作成します。
 +
-`vserver create -vserver _svm_name_ -rootvolume _root_volume_name_ -aggregate _aggregate_name_ -rootvolume-security-style unix -language C.UTF-8 -ipspace _ipspace_name_`
-
+[source, cli]
+----
+vserver create -vserver _svm_name_ -subtype default -rootvolume _root_volume_name_ -aggregate _aggregate_name_ -rootvolume-security-style unix -language C.UTF-8 -data-services _data-s3-server_ -ipspace _ipspace_name_
+----
 +
 ** にUNIX設定を使用します `-rootvolume-security-style` オプション
 ** デフォルトのC.UTF-8を使用します `-language` オプション
@@ -76,8 +80,10 @@ S3サーバを既存のStorage VMに追加する場合は、* Storage > Storage 
 
 . 新しく作成した SVM の設定とステータスを確認します。
 +
-`vserver show -vserver _svm_name_`
-
+[source, cli]
+----
+vserver show -vserver _svm_name_
+----
 +
 。 `Vserver Operational State` フィールドにはを表示する必要があります `running` 状態。が表示された場合 `initializing` 状態にすると、ルートボリュームの作成などの中間処理が失敗したため、SVMを削除して再作成する必要があります。
 
@@ -88,7 +94,7 @@ S3サーバを既存のStorage VMに追加する場合は、* Storage > Storage 
 
 [listing]
 ----
-cluster-1::> vserver create -vserver svm1.example.com -rootvolume root_svm1 -aggregate aggr1 -rootvolume-security-style unix -language C.UTF-8 -ipspace ipspaceA
+cluster-1::> vserver create -vserver svm1.example.com -rootvolume root_svm1 -aggregate aggr1 -rootvolume-security-style unix -language C.UTF-8 -data-services _data-s3-server_ -ipspace ipspaceA
 
 [Job 2059] Job succeeded:
 Vserver creation completed

@@ -27,20 +27,26 @@ ARPを学習モードで最低30日間実行することをお勧めします。
 NOTE: 既存のボリュームでは、ラーニングモードとアクティブモードは新しく書き込まれたデータにのみ適用され、ボリューム内の既存のデータには適用されません。既存のデータはスキャンおよび分析されません。これは、以前の通常のデータトラフィックの特性が、ARPでボリュームを有効にした後の新しいデータに基づいていると見なされるためです。
 
 .作業を開始する前に
-* Storage VMでNFSまたはSMB（またはその両方）が有効になっている必要があります。
+* NFSまたはSMB（またはその両方）に対してStorage VM（SVM）が有効になっている必要があります。
 * 。 xref:index.html[正しいライセンス] ONTAP のバージョンに対応するがインストールされている必要があります。
 * クライアントでNASワークロードを設定しておく必要があります。
-* ARPを設定するボリュームを保護する必要があります link:../concepts/namespaces-junction-points-concept.html["ジャンクションパス"^]。
+* ARPを設定するボリュームは保護されており、アクティブなボリュームである必要があります link:../concepts/namespaces-junction-points-concept.html["ジャンクションパス"^]。
 * ボリュームの使用率が100%未満である必要があります。
 * ARPアクティビティの通知を含む電子メール通知を送信するようにEMSシステムを設定することをお勧めします。詳細については、を参照してください link:../error-messages/configure-ems-events-send-email-task.html["E メール通知を送信するように EMS イベントを設定します"^]。
 * ONTAP 9.13.1以降では、Autonomous Ransomware Protection（ARP；自律ランサムウェア対策）設定に複数の認証済みユーザ管理者が必要になるように、Multi-admin Verification（MAV；マルチ管理者検証）を有効にすることを推奨します。詳細については、を参照してください link:../multi-admin-verify/enable-disable-task.html["マルチ管理者検証を有効にします"^]。
 
 
-.手順
+
+
+== ARPを有効にする
+
+ARPは、System ManagerまたはONTAP CLIを使用して有効にできます。
+
 [role="tabbed-block"]
 ====
 .System Manager の略
 --
+.手順
 . [ストレージ]>[ボリューム]*を選択し、保護するボリュームを選択します。
 . [Volumes]の概要の*[Security]*タブで、*[Status]*を選択し、*[Anti-ransomware]*ボックスで[Disabled]から[Enabled in learning-mode]に切り替えます。
 . 学習期間が終了したら、ARPをアクティブモードに切り替えます。
@@ -62,19 +68,15 @@ NOTE: ONTAP 9.13.1以降では、ARPによって最適な学習期間間隔が�
 --
 .CLI の使用
 --
+CLIを使用してARPを有効にするプロセスは、既存のボリュームで有効にする場合と新しいボリュームで有効にする場合で異なります。
+
 .既存のボリュームでARPを有効にします
 . 既存のボリュームを変更して、学習モードでランサムウェアからの保護を有効にします。
 +
 `security anti-ransomware volume dry-run -volume _vol_name_ -vserver _svm_name_`
 
 +
-を使用してランサムウェア対策を有効にすることもできます `volume modify` コマンドを実行します
-
-+
-`volume modify -volume _vol_name_ -vserver _svm_name_ -anti-ransomware-state dry-run`
-
-+
-ONTAP 9.13.1以降にアップグレードした場合は、アクティブ状態への変更が自動的に行われるように、アダプティブラーニングがイネーブルになります。この動作を自動的に有効にしない場合は、関連付けられているすべてのボリュームでSVMレベルの設定を変更します。
+ONTAP 9.13.1以降を実行している場合は、アクティブ状態への変更が自動的に行われるように、アダプティブラーニングがイネーブルになります。この動作を自動的に有効にしない場合は、関連付けられているすべてのボリュームでSVMレベルの設定を変更します。
 
 +
 `vserver modify _svm_name_ -anti-ransomware-auto-switch-from-learning-to-enabled false`
@@ -101,7 +103,7 @@ volume modify コマンドを使用して、アクティブモードに切り替
 `volume create -volume _vol_name_ -vserver _svm_name_  -aggregate _aggr_name_ -size _nn_ -anti-ransomware-state dry-run -junction-path /_path_name_`
 
 +
-ONTAP 9.13.1以降にアップグレードした場合は、アクティブ状態への変更が自動的に行われるように、アダプティブラーニングがイネーブルになります。この動作を自動的に有効にしない場合は、関連付けられているすべてのボリュームでSVMレベルの設定を変更します。
+ONTAP 9.13.1以降を実行している場合は、アクティブ状態への変更が自動的に行われるように、アダプティブラーニングがイネーブルになります。この動作を自動的に有効にしない場合は、関連付けられているすべてのボリュームでSVMレベルの設定を変更します。
 
 +
 `vserver modify _svm_name_ -anti-ransomware-auto-switch-from-learning-to-enabled false`

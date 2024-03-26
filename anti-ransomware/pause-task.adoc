@@ -26,17 +26,15 @@ ARPの一時停止中は、イベントはログに記録されず、新しい�
 
 NOTE: ARP無効機能を使用して分析を一時停止しないでください。これにより、ボリュームのARPが無効になり、学習されたワークロードの動作に関する既存の情報はすべて失われます。これには学習期間の再開が必要です。
 
-.作業を開始する前に
-* ARPは学習モードまたはアクティブモードで実行されています。
-
-
 .手順
+ARPは、System ManagerまたはONTAP CLIを使用して一時停止できます。
+
 [role="tabbed-block"]
 ====
 .System Manager の略
 --
 . [ストレージ]>[ボリューム]*を選択し、ARPを一時停止するボリュームを選択します。
-. Volumes OverviewのSecurityタブで、* Anti-Ransomware *ボックスの* Pause anti-Ransomware *をクリックします。
+. [Volumes]の概要の[** Security*]タブで、[Anti-ransomware]ボックスの*[Pause anti-ransomware]*を選択します。
 +
 
 NOTE: ONTAP 9.13.1以降では、MAVを使用してARP設定を保護している場合、一時停止操作によって、1人以上の追加管理者の承認を得るように求められます。 link:../multi-admin-verify/request-operation-task.html["すべての管理者から承認を受ける必要があります"] MAV承認グループに関連付けられているか、操作が失敗します。
@@ -54,28 +52,31 @@ NOTE: ONTAP 9.13.1以降では、MAVを使用してARP設定を保護してい�
 +
 `security anti-ransomware volume resume -vserver _svm_name_ -volume _vol_name_`
 
-
-
-ONTAP 9.13.1以降では、MAVを使用してARP設定を保護している場合、一時停止操作によって、1人以上の追加管理者の承認を得るように求められます。MAV承認グループに関連付けられているすべての管理者から承認を受ける必要があります。そうしないと、操作は失敗します。
-
+. *ARP設定を保護するためにMAV（ONTAP 9.13.1以降で使用可能）を使用している場合は、一時停止操作によって、1人以上の追加管理者の承認を得るように求められます。MAV承認グループに関連付けられているすべての管理者から承認を受ける必要があります。そうしないと、操作は失敗します。
++
 MAVを使用していて、予定されている一時停止操作で追加の承認が必要な場合は、各MAVグループ承認者が次の処理を行います。
 
-. 要求を表示します。
++
+.. 要求を表示します。
 +
 `security multi-admin-verify request show`
 
-. リクエストを承認します。
+.. リクエストを承認します。
 +
 `security multi-admin-verify request approve -index[_number returned from show request_]`
 
 +
 最後のグループ承認者に対する応答は、ボリュームが変更され、ARPの状態が一時停止されたことを示します。
 
-
-
++
 MAVを使用していて、MAVグループ承認者である場合は、一時停止操作要求を拒否できます。
 
++
 `security multi-admin-verify request veto -index[_number returned from show request_]`
+
+
+
+
 
 --
 ====

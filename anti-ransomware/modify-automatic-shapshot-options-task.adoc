@@ -16,41 +16,53 @@ summary: ランサムウェア攻撃の疑いがある場合に自動的に生�
 
 
 [role="lead"]
-ONTAP 9.11.1以降では、ランサムウェア攻撃の疑いがある場合に自動的に生成されるAutonomous Ransomware Protection（ARP）Snapshotコピーの数と保持期間をCLIを使用して制御できます。
+ONTAP 9.11.1以降では、ランサムウェア攻撃の疑いがある場合に自動的に生成されるAutonomous Ransomware Protection（ARP）Snapshotコピーの保持設定をCLIで制御できます。
 
+.作業を開始する前に
+変更できるのはノードSVM上のARP Snapshotオプションだけです。
 
-
-== 変更可能なSnapshotオプション
-
-自動Snapshotコピーの次のオプションを変更できます。
-
-ARW.SNAP_maxカウント:: 指定した時間に1つのボリューム内に存在可能なARP Snapshotコピーの最大数を指定します。古いコピーは、ARP Snapshotコピーの総数がこの指定した制限内に収まるように削除されます。
-arw.snap.create.interval.hours:: ARP Snapshotコピー間の間隔（時間）を指定します。攻撃の疑いがあり、以前に作成されたコピーが指定した間隔よりも古い場合に、新しいSnapshotコピーが作成されます。
-arw.snap.normal.retain.interval.hours:: ARP Snapshotコピーを保持する期間（時間）を指定します。ARP Snapshotコピーがこの古いものになると、この経過時間に達するために最新のコピーよりも前に作成された他のARP Snapshotコピーは削除されます。この期間よりも古いARP Snapshotコピーはありません。
-arw.snap.max.retain.interval.days:: ARP Snapshotコピーを保持できる最大期間（日数）を指定します。ボリュームで攻撃が報告されていない場合、指定した期間よりも古いARP Snapshotコピーは削除されます。
-
-
-
-NOTE: 中程度の脅威が検出された場合、ARP Snapshotの最大保持間隔は無視されます。脅威の直前に作成されたスナップショットは、脅威が誤検出とマークされるまで保持されます。誤検出としてマークされると、そのボリューム上の他のすべてのARP Snapshotも同様に削除されます。
-
-arw.snap.create.interval.hours.post.max.count:: ボリュームにARP Snapshotコピーの最大数がすでに含まれている場合に、ARP Snapshotコピーを作成する間隔を時間単位で指定します。最大数に達すると、ARP Snapshotコピーが削除されて、新しいコピー用のスペースが確保されます。このオプションを使用すると、新しいARP Snapshotコピーの作成速度を下げて、古いコピーを保持することができます。ボリュームにARP Snapshotコピーの最大数がすでに含まれている場合、このオプションで指定した間隔が、arw.snap.create.interval.hoursではなく、次回のARP Snapshotコピー作成に使用されます。
-arw.surge.snap.interval.days:: ARPサージSnapshotコピーの間隔（日数）を指定します。IOトラフィックが急増し、最後に作成されたARP Snapshotコピーが指定した間隔より古い場合、新しいARP Snapshotサージコピーが作成されます。このオプションは、ARPサージSnapshotコピーを保持する期間（日数）も指定します。
-
-
-
-
-== CLIコマンド
-
-変更できるのはノードSVMのオプションだけです。
-
+.手順
+. 現在のARP Snapshotコピー設定をすべて表示するには、次のように入力します。
+`vserver options -vserver _svm_name_ arw*`
++
 
 NOTE: 。 `vserver options` コマンドは非表示のコマンドです。マニュアルページを表示するには、と入力します `man vserver options` ONTAP CLIで実行します。
 
-現在のARP Snapshotコピー設定をすべて表示するには、次のように入力します。
-`vserver options -vserver _svm_name_ arw*`
-
-選択した現在のARP Snapshotコピー設定を表示するには、次のように入力します。
+. 選択した現在のARP Snapshotコピー設定を表示するには、次のように入力します。
 `vserver options -vserver _svm_name_ -option-name _arw_setting_name_`
-
-ARP Snapshotコピーの設定を変更するには、次のように入力します。
+. ARP Snapshotコピーの設定を変更するには、次のように入力します。
 `vserver options -vserver _svm_name_ -option-name _arw_setting_name_ -option-value _arw_setting_value_`
++
+次の設定を変更できます。
+
++
+[cols="1,3"]
+|===
+| ARW設定 | 説明 
+
+
+| * arw.snap.maxcount * | 指定した時間に1つのボリューム内に存在可能なARP Snapshotコピーの最大数を指定します。古いコピーは、ARP Snapshotコピーの総数がこの指定した制限内に収まるように削除されます。 
+
+
+| * arw.snap.create.interval.hours* | ARP Snapshotコピーの間隔（hours_between）を指定します。攻撃が疑われる場合、新しいSnapshotコピーが作成されます。以前に作成されたコピーは、この指定した間隔よりも古いものです。 
+
+
+| * arw.snap.normal.retain.interval.hours* | ARP Snapshotコピーを保持する期間（時間）を指定します。ARP Snapshotコピーがこの古いものになると、この経過時間に達するために最新のコピーよりも前に作成された他のARP Snapshotコピーは削除されます。この期間よりも古いARP Snapshotコピーはありません。 
+
+
+| * arw.snap.max.retain.interval.days*  a| 
+ARP Snapshotコピーを保持できる最大期間（日数）を指定します。ボリュームで攻撃が報告されていない場合、指定した期間よりも古いARP Snapshotコピーは削除されます。
+
+[+]
+
+
+NOTE: 中程度の脅威が検出された場合、ARP Snapshotの最大保持間隔は無視されます。脅威に対応して作成されたスナップショットは、脅威に対応するまで保持されます。脅威を誤検出としてマークすると、ボリューム上のARP Snapshotコピーが削除されます。
+
+
+
+| * arw.snap.create.interval.hours.post.max.count* | ボリュームにすでに最大数のARP Snapshotコピーが含まれている場合の、ARP Snapshotコピーの間隔（interval_in hours_between）を指定します。最大数に達すると、ARP Snapshotコピーが削除されて、新しいコピー用のスペースが確保されます。このオプションを使用すると、新しいARP Snapshotコピーの作成速度を下げて、古いコピーを保持することができます。ボリュームにARP Snapshotコピーの最大数がすでに含まれている場合、このオプションで指定した間隔が、arw.snap.create.interval.hoursではなく、次回のARP Snapshotコピー作成に使用されます。 
+
+
+| * arw.surge.snap.interval.days* | ARPサージSnapshotコピーの間隔（日数）を指定します。ONTAPは、IOトラフィックが急増し、最後に作成されたARP Snapshotコピーがこの指定された間隔よりも古い場合に、ARP Snapshotサージコピーを作成します。このオプションは、ARPサージスナップショットの保持期間（日数_）も指定します。 
+|===
+

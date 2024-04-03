@@ -15,6 +15,8 @@ MAV（Multi-admin Verification）ルールを作成して、承認が必要な�
 
 ルールは任意の管理者が適切なRBAC機能を使用してMAVを有効にする前に作成できますが、MAVを有効にすると、ルールセットを変更するにはMAV承認が必要になります。
 
+1回の操作で作成できるMAVルールは1つだけです。たとえば、複数のMAVルールを作成することはできません。 `volume-snapshot-delete` ルール。必要なルール制約は1つのルール内に含める必要があります。
+
 
 
 == ルールで保護されたコマンド
@@ -75,9 +77,9 @@ ONTAP 9.13.1以降では、次のコマンドを保護するルールを作成�
 
 ONTAP 9.14.1以降では、次のコマンドを保護するルールを作成できます。
 
-* `volume recovery-query modify`
-* `volume recovery-query purge`
-* `volume recovery-query purge-all`
+* `volume recovery-queue modify`
+* `volume recovery-queue purge`
+* `volume recovery-queue purge-all`
 * `vserver modify`
 
 
@@ -90,7 +92,13 @@ MAV system-defaultコマンドのルール `security multi-admin-verify` link:..
 * `set`
 
 
-ルールを作成するときに、オプションでを指定できます `-query` 要求をコマンド機能のサブセットに制限するオプション。たとえば、デフォルトのsetコマンドでは、 `-query` がに設定されます `-privilege diag`SETコマンドの要求は、次の場合にのみ生成されます。 `-privilege diag` を指定します。
+
+
+== ルール制約
+
+ルールを作成するときに、オプションでを指定できます `-query` 要求をコマンド機能のサブセットに制限するオプション。。 `-query` オプションを使用すると、SVM、ボリューム、Snapshot名などの構成要素を制限することもできます。
+
+例えば、 `volume snapshot delete` コマンド、 `-query` 次のように設定できます。 `-snapshot !hourly*,!daily*,!weekly*`つまり、hourly、daily、またはweekly属性のプレフィックスが付いたボリュームSnapshotは、MAV保護から除外されます。
 
 [listing]
 ----
@@ -98,9 +106,12 @@ smci-vsim20::> security multi-admin-verify rule show
                                                Required  Approval
 Vserver Operation                              Approvers Groups
 ------- -------------------------------------- --------- -------------
-vs01    set                                    -         -
-          Query: -privilege diagnostic
+vs01    volume snapshot delete                 -         -
+          Query: -snapshot !hourly*,!daily*,!weekly*
 ----
+
+NOTE: 除外された構成要素はMAVによって保護されず、管理者はそれらを削除または名前変更できます。
+
 デフォルトでは、ルールは対応するを指定します `security multi-admin-verify request create _“protected_operation”_` 保護されたオペレーションが入力されると、コマンドが自動的に生成されます。このデフォルトを変更して、が必要になるようにすることができます `request create` コマンドは別 々 に入力します。
 
 デフォルトでは、ルール固有の例外を指定できますが、ルールは次のグローバルMAV設定を継承します。

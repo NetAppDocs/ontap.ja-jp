@@ -13,6 +13,9 @@ summary: ONTAP は、ディスク所有権情報をディスクに書き込み�
 [role="lead"]
 ONTAP は、ディスク所有権情報をディスクに書き込みます。スペアディスクまたはそのシェルフをノードから取り外す前に、所有権情報を削除して、別のノードに適切に統合できるようにする必要があります。
 
+
+NOTE: ディスクがルート/データパーティショニング用にパーティショニングされており、ONTAP 9.10.1以降を実行している場合は、NetAppテクニカルサポートに連絡して所有権を削除してください。詳細については、を参照してください link:https://kb.netapp.com/onprem/ontap/hardware/Error%3A_command_failed%3A_Failed_to_remove_the_owner_of_disk["技術情報アーティクル「Failed to remove the owner of disk」"]。
+
 .必要なもの
 所有権を削除するディスクが次の要件を満たしている必要があります。
 
@@ -51,21 +54,12 @@ ONTAP は、ディスク所有権情報をディスクに書き込みます。�
 ....
 storage disk removeowner sys1:0a.23,sys1:0a.24,sys1:0a.25
 ....
-. ディスクがルート/データパーティショニング用にパーティショニングされている場合は、パーティションから所有権を削除します。
+. ディスクがルート/データパーティショニング用にパーティショニングされていて、ONTAP 9.9.1以前を実行している場合は、パーティションから所有権を削除します。
 +
 --
-.. ONTAP 9.10.1以降の場合は、次のように入力します。
-+
-`storage disk removeowner -disk _disk_name_`
-
-.. ONTAP 9.9.1以前の場合は、両方のコマンドを入力します。
-+
 `storage disk removeowner -disk _disk_name_ -root true`
 
-+
 `storage disk removeowner -disk _disk_name_ -data true`
-
-
 
 これで、両方のパーティションはどのノードからも所有されなくなります。
 

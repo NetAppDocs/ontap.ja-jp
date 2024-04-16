@@ -38,27 +38,28 @@ ONTAP では、に相当するテーブルにネームサービス設定情報�
 . SVM で DNS を有効にします。
 +
 ....
-vserver services name-service dns create -vserver vserver_name -domains domain_name - name-servers ip_addresses -state enabled
+vserver services name-service dns create -vserver <vserver_name> -domains <domain_name> -name-servers <ip_addresses> -state enabled
 ....
 +
 次のコマンドは、 SVM vs1 で外部 DNS サーバを有効にします。
 
 +
 ....
-vserver services name-service dns create -vserver <vs1.example.com> -domains <example.com> -name-servers <192.0.2.201,192.0.2.202> -state <enabled>
+vserver services name-service dns create -vserver vs1.example.com -domains example.com -name-servers 192.0.2.201,192.0.2.202 -state enabled
 ....
 +
 
-NOTE: vserver services name-service dns create コマンドを使用すると、設定の自動検証が行われ、 ONTAP がネームサーバに接続できない場合はエラーメッセージが報告されます。
+NOTE: 。 `vserver services name-service dns create` コマンドは設定の自動検証を実行し、ONTAP がネームサーバに接続できない場合はエラーメッセージを報告します。
 
 . を使用してネームサーバのステータスを検証します `vserver services name-service dns check` コマンドを実行します
 +
 ....
 vserver services name-service dns check -vserver vs1.example.com
-VserverName       Server     Status    Status Details
-----------------  ---------- -------   --------------------------
-vs1.example.com   10.0.0.50  up        Response time (msec): 2
-vs1.example.com   10.0.0.51  up        Response time (msec): 2
+                                    Name Server
+Vserver             Name Server     Status       Status Details
+-------------       --------------- ------------ --------------------------
+vs1.example.com     10.0.0.50       up           Response time (msec): 2
+vs1.example.com     10.0.0.51       up           Response time (msec): 2
 ....
 
 
@@ -77,18 +78,18 @@ ONTAP がホスト情報を取得するためにローカルまたは外部の�
 . ネームサービススイッチテーブルに必要なエントリを追加します。
 +
 ....
-vserver services name-service <ns-switch> create -vserver <vserver_name> -database <database_name> -source <source_names>
+vserver services name-service ns-switch modify -vserver <vserver_name> -database <database_name> -source <source_names>
 ....
 . ネームサービススイッチテーブルに想定されるエントリが適切な順序で格納されていることを確認します。
 +
 ....
-vserver services name-service <ns-switch> show -vserver <vserver_name>
+vserver services name-service ns-switch show -vserver <vserver_name>
 ....
 
 
 .例
-次の例は、 SVM vs1 のネームサービススイッチテーブルに、ホスト名を解決するためにまずローカルの hosts ファイルを使用し、次に外部 DNS サーバを使用するように指定するエントリを作成しています。
+次の例は、SVM vs1のネームサービススイッチテーブル内のエントリを、ホスト名を解決するためにまずローカルのhostsファイルを使用し、次に外部DNSサーバを使用するように変更します。
 
 ....
-vserver services name-service ns-switch create -vserver vs1 -database hosts -sources files dns
+vserver services name-service ns-switch modify -vserver vs1 -database hosts -sources files,dns
 ....

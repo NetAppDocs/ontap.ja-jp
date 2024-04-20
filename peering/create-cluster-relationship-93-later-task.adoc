@@ -2,7 +2,7 @@
 permalink: peering/create-cluster-relationship-93-later-task.html 
 sidebar: sidebar 
 keywords: create, cluster, peer, relationship 
-summary: cluster peer create コマンドを使用すると、ローカルクラスタとリモートクラスタ間のピア関係を作成できます。ピア関係が作成されたら、リモートクラスタで cluster peer create を実行して、ローカルクラスタに対してピア関係を認証できます。 
+summary: ローカルクラスタとリモートクラスタの間にピア関係を作成するには、cluster peer createコマンドまたはSystem Managerを使用します。ピア関係が作成されたら、リモートクラスタでこのタスクを繰り返して、ローカルクラスタに対してピア関係を認証できます。 
 ---
 = クラスタピア関係を作成
 :allow-uri-read: 
@@ -19,10 +19,34 @@ summary: cluster peer create コマンドを使用すると、ローカルクラ
 
 
 .手順
+この作業は、ONTAP システムマネージャまたはONTAP CLIを使用して実行します。
+
+[role="tabbed-block"]
+====
+.System Manager の略
+--
+. ローカルクラスタで、*[クラスタ]>[設定]*をクリックします。
+. [クラスタ間設定]*セクションで、*[ネットワークインターフェイスの追加]*をクリックし、クラスタのクラスタ間ネットワークインターフェイスを追加します。
++
+リモートクラスタでこの手順を繰り返します。
+
+. リモートクラスタで、*[クラスタ]>[設定]*をクリックします。
+. をクリックします image:icon_kabob.gif["メニューオプションアイコン"] [クラスタピア]*セクションで、*[パスフレーズの生成]*を選択します。
+. リモートONTAPクラスタのバージョンを選択します。
+. 生成されたパスフレーズをコピーします。
+. ローカルクラスタの*[クラスタピア]*で、 image:icon_kabob.gif["メニューオプションアイコン"] をクリックし、*[ピアクラスタ]*を選択します。
+. [クラスタのピアリング]*ウィンドウで、パスフレーズを貼り付け、*[クラスタピアリングの開始]*をクリックします。
+
+
+--
+.CLI の使用
+--
 . デスティネーションクラスタで、ソースクラスタとのピア関係を作成します。
 +
-`cluster peer create -generate-passphrase -offer-expiration _MM/DD/YYYY HH:MM:SS_|1...7days|1...168hours -peer-addrs _peer_LIF_IPs_ -initial-allowed-vserver-peers _svm_name_,..|* -ipspace _ipspace_`
-
+[source, cli]
+----
+cluster peer create -generate-passphrase -offer-expiration <MM/DD/YYYY HH:MM:SS>|1...7days|1...168hours -peer-addrs <peer_LIF_IPs > -initial-allowed-vserver-peers <svm_name>|* -ipspace <ipspace>
+----
 +
 両方を指定する場合は `-generate-passphrase` および `-peer-addrs`にクラスタ間LIFが指定されているクラスタのみ `-peer-addrs` 生成されたパスワードを使用できます。
 
@@ -82,8 +106,10 @@ Warning: make a note of the passphrase - it cannot be displayed again.
 ----
 . ソースクラスタで、ソースクラスタをデスティネーションクラスタに対して認証します。
 +
-`cluster peer create -peer-addrs _peer_LIF_IPs_ -ipspace ipspace`
-
+[source, cli]
+----
+cluster peer create -peer-addrs <peer_LIF_IPs> -ipspace <ipspace>
+----
 +
 コマンド構文全体については、マニュアルページを参照してください。
 
@@ -108,8 +134,10 @@ Clusters cluster02 and cluster01 are peered.
 
 . クラスタピア関係が作成されたことを確認します。
 +
-`cluster peer show -instance`
-
+[source, cli]
+----
+cluster peer show -instance
+----
 +
 [listing]
 ----
@@ -129,8 +157,10 @@ cluster01::> cluster peer show -instance
 ----
 . ピア関係にあるノードの接続状態とステータスを確認します。
 +
-`cluster peer health show`
-
+[source, cli]
+----
+cluster peer health show
+----
 +
 [listing]
 ----
@@ -155,6 +185,8 @@ cluster01-02
 ----
 
 
+--
+====
 
 
 == ONTAP でこれを行うその他の方法

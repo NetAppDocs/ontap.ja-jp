@@ -1,0 +1,141 @@
+---
+sidebar: sidebar 
+permalink: snapmirror-active-sync/interoperability-reference.html 
+keywords: SM-BC, SMBC, restrictions, consistency group, endpoint limits, solaris, aix, hp-ux, fanout, snapmirror active sync 
+summary: SnapMirrorアクティブ同期は、ONTAPの多数のオペレーティングシステムやその他の機能と互換性があります。 
+---
+= SnapMirrorアクティブ同期の相互運用性
+:allow-uri-read: 
+:icons: font
+:linkattrs: 
+:imagesdir: ../media/
+
+
+[role="lead"]
+SnapMirror Active Syncは、ONTAPの多数のオペレーティングシステム、アプリケーションホスト、およびその他の機能と互換性があります。
+
+
+
+== アプリケーションホスト
+
+SnapMirror Active Syncは、Hyper-V、Red Hat Enterprise Linux（RHEL）、VMware、VMware vSphere Metro Storage Cluster（vMSC）、Windows Server、ONTAP 9.14.1以降のWindows Serverフェイルオーバークラスタなどのアプリケーションホストをサポートします。
+
+
+
+== オペレーティングシステム
+
+SnapMirror Active Syncは、次のようなさまざまなオペレーティングシステムでサポートされています。
+
+* AIX（ONTAP 9.11.1以降）
+* HP-UX（ONTAP 9.10.1以降）
+* Solaris 11.4（ONTAP 9.10.1以降）
+
+
+
+
+=== AIX の場合
+
+ONTAP 9.11.1以降では、SnapMirrorアクティブ同期でAIXがサポートされます。AIX構成では、プライマリクラスタが「アクティブ」クラスタになります。
+
+AIX構成では、フェイルオーバー時にシステムが停止します。フェイルオーバーが発生するたびに、ホストで再スキャンを実行してI/O処理を再開する必要があります。
+
+SnapMirrorアクティブSYNを使用してAIXホスト用に設定する方法については、技術情報アーティクルを参照してください。 link:https://kb.netapp.com/Advice_and_Troubleshooting/Data_Protection_and_Security/SnapMirror/How_to_configure_an_AIX_host_for_SnapMirror_Business_Continuity_(SM-BC)["AIXホストでSnapMirrorアクティブ同期を設定する方法"^]。
+
+
+
+=== HP-UX
+
+ONTAP 9.10.1以降では、HP-UX用のSnapMirrorアクティブ同期がサポートされます。
+
+.HP-UXによる自動計画外フェイルオーバー
+分離されたマスタークラスタでの自動計画外フェイルオーバー（AUFO）イベントは、プライマリクラスタとセカンダリクラスタの間の接続が失われ、プライマリクラスタとメディエーターの間の接続も失われた場合に、二重イベントの障害が原因で発生することがあります。これは、他の AUFO イベントとは異なり、まれなイベントとみなされます。
+
+* このシナリオでは、HP-UXホストでI/Oが再開されるまでに120秒以上かかることがあります。実行中のアプリケーションによっては、 I/O の中断やエラーメッセージが発生しない場合があります。
+* 修正するには、中断許容時間が120秒未満のHP-UXホストでアプリケーションを再起動する必要があります。
+
+
+
+
+=== Solaris の場合
+
+ONTAP 9.10.1以降では、SnapMirrorアクティブ同期でSolaris 11.4がサポートされます。
+
+SnapMirrorアクティブ同期環境で計画外サイトフェイルオーバースイッチオーバーが発生した場合にSolarisクライアントアプリケーションが無停止で実行されるようにするには、Solaris OSのデフォルト設定を変更します。推奨設定でSolarisを構成するには、ナレッジベースの記事を参照してください。 link:https://kb.netapp.com/Advice_and_Troubleshooting/Data_Protection_and_Security/SnapMirror/Solaris_Host_support_recommended_settings_in_SnapMirror_Business_Continuity_(SM-BC)_configuration["SnapMirrorアクティブ同期でのSolarisホストサポートの推奨設定"^]。
+
+
+
+== ONTAPの相互運用性
+
+SnapMirrorアクティブ同期は、ONTAPのコンポーネントと統合してデータ保護機能を拡張します。
+
+
+
+=== FabricPool
+
+SnapMirror Active Syncは、FabricPoolアグリゲートのソースボリュームとデスティネーションボリュームをサポートします。階層化ポリシーは「なし」、「Snapshot」、または「自動」です。SnapMirrorアクティブな同期では、階層化ポリシーを「すべて」に設定したFabricPoolアグリゲートはサポートされません。
+
+
+
+=== ファンアウト構成
+
+インチ xref:../data-protection/supported-deployment-config-concept.html[ファンアウト構成]を使用すると、ソースボリュームを、SnapMirrorのアクティブな同期のデスティネーションエンドポイントおよび1つ以上のSnapMirror非同期関係にミラーリングできます。
+
+image:fanout-diagram.png["ファンアウト構成図"]
+
+SnapMirror Active Syncのサポート xref:../data-protection/supported-deployment-config-concept.html[ファンアウト構成] を使用 `MirrorAllSnapshots` ポリシーおよび（ONTAP 9.11.1以降） `MirrorAndVault` ポリシー：ファンアウト構成は、とのSnapMirrorアクティブな同期ではサポートされません。 `XDPDefault` ポリシー：
+
+ONTAP 9.15.1以降では、SnapMirrorアクティブ同期で、フェイルオーバー後のファンアウトレッグの自動再設定がサポートされます。プライマリサイトからセカンダリサイトへのフェイルオーバーが成功すると、セカンダリサイトをソースとして扱うように、ターシャリサイトが自動的に再設定されます。再設定は、計画的フェイルオーバーまたは計画外フェイルオーバーによってトリガーされます。再設定は、プライマリサイトへのフェイルバック時にも実行されます。
+
+以前のリリースのONTAPでのファンアウト構成の管理については、を参照してください。 xref:recover-unplanned-failover-task.adoc[ファンアウト構成で保護を再開します]。
+
+
+
+=== NDMPリストア
+
+ONTAP 9.13.1以降では、 xref:../tape-backup/transfer-data-ndmpcopy-task.html[NDMPによるデータのコピーとリストア] （SnapMirrorのアクティブな同期あり）。NDMPを使用すると、データをSnapMirrorのアクティブな同期ソースに移動して、保護を一時停止することなくリストアを完了できます。これは、ファンアウト構成で特に便利です。
+
+
+
+=== SnapCenter
+
+SnapMirrorアクティブ同期は、SnapCenterでサポートされるようになりました。 link:https://docs.netapp.com/us-en/snapcenter/index.html["SnapCenter 5.0"^]。SnapCenterでは、アプリケーションと仮想マシンの保護とリカバリに使用できるSnapshotを作成できます。これにより、アプリケーションレベルのきめ細かさで、いつでも利用可能なストレージソリューションを実現できます。
+
+
+
+=== SnapRestore
+
+SnapMirror Active Syncでは、部分ファイルと単一ファイルのSnapRestoreがサポートされます。
+
+.Single File SnapRestore
+ONTAP 9.11.1以降、 xref:../data-protection/restore-single-file-snapshot-task.html[単一ファイルのSnapRestore] は、SnapMirrorのアクティブな同期ボリュームでサポートされます。SnapMirrorのアクティブな同期ソースからデスティネーションにレプリケートされたSnapshotコピーから単一のファイルをリストアできます。ボリュームには1つ以上のLUNを含めることができるため、この機能を使用すると、中断の少ないリストア処理を実装して、他のLUNを中断せずに1つのLUNをきめ細かくリストアできます。Single File SnapRestoreには、インプレースとアウトオブプレースの2つのオプションがあります。
+
+.部分ファイルのSnapRestore
+ONTAP 9.12.1以降 link:../data-protection/restore-part-file-snapshot-task.html["部分的なLUNリストア"] は、SnapMirrorのアクティブな同期ボリュームでサポートされます。SnapMirrorのアクティブな同期元（ボリューム）ボリュームとデスティネーション（Snapshotコピー）ボリュームの間でレプリケートされた、アプリケーションで作成されたSnapshotコピーからデータをリストアできます。同じLUNに複数のデータベースが格納されているホストでデータベースをリストアする必要がある場合は、LUNまたはファイルの部分リストアが必要になることがあります。この機能を使用するには、データの開始バイトオフセットとバイトカウントを知る必要があります。
+
+
+
+=== LUN および大容量ボリューム
+
+大規模なLUNと大規模なボリューム（100TBを超えるボリューム）がサポートされるかどうかは、使用しているONTAPのバージョンとプラットフォームによって異なります。
+
+[role="tabbed-block"]
+====
+.ONTAP 9.12.1P2以降
+--
+* ONTAP 9.12.1 P2以降では、ASAおよびAFF（Cシリーズを含む）で、SnapMirrorアクティブ同期で大規模なLUNと100TBを超えるボリュームがサポートされます。
+
+
+
+NOTE: ONTAPリリース9.12.1P2以降では、プライマリクラスタとセカンダリクラスタの両方がオールフラッシュSANアレイ（ASA）またはオールフラッシュアレイ（AFF）で、両方にONTAP 9.12.1 P2以降がインストールされていることを確認する必要があります。セカンダリクラスタでONTAP 9.12.1P2より前のバージョンが実行されている場合やアレイタイプがプライマリクラスタと異なる場合、プライマリボリュームが100TBを超えると同期関係が同期されなくなることがあります。
+
+--
+.ONTAP 9.9.1 ~ 9.12.1P1
+--
+* ONTAP 9.9.1から9.12.1 P1までのONTAPリリースでは、100TBを超える大容量LUNと大容量ボリュームがオールフラッシュSANアレイでのみサポートされます。
+
+
+
+NOTE: ONTAP 9.9.1から9.12.1 P2のONTAPリリースでは、プライマリクラスタとセカンダリクラスタの両方がオールフラッシュSANアレイで、両方にONTAP 9.9.1以降がインストールされていることを確認する必要があります。セカンダリクラスタでONTAP 9.9.1より前のバージョンが実行されている場合やオールフラッシュSANアレイでない場合、プライマリボリュームが100TBを超えると同期関係が同期されなくなることがあります。
+
+--
+====

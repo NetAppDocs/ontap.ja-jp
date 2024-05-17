@@ -1,0 +1,196 @@
+---
+sidebar: sidebar 
+permalink: snapmirror-active-sync/protect-task.html 
+keywords: SM-BC, snapmirror business continuity, consistency group, remote protection, destination 
+summary: ビジネス継続性の保護を設定するには、 ONTAP ソースクラスタで LUN を選択し、整合グループに追加します。 
+---
+= SnapMirrorのアクティブな同期で保護
+:hardbreaks:
+:toclevels: 1
+:allow-uri-read: 
+:toclevels: 1
+:nofooter: 
+:icons: font
+:linkattrs: 
+:imagesdir: ./media/
+
+
+[role="lead"]
+SnapMirrorアクティブ同期は非対称保護を提供し、ONTAP 9.15.1以降では対称アクティブ/アクティブ保護を提供します。
+
+
+
+== 非対称保護の設定
+
+SnapMirrorアクティブ同期を使用した非対称保護を設定するには、ONTAPソースクラスタでLUNを選択して整合グループに追加します。
+
+.作業を開始する前に
+* SnapMirror同期ライセンスが必要です。
+* クラスタ管理者または Storage VM 管理者である必要があります。
+* 整合性グループ内のコンスティチュエントボリュームは、すべて1つのStorage VM（SVM）に含まれている必要があります。
++
+** LUN は異なるボリュームに配置できます。
+
+
+* ソースとデスティネーションのクラスタを同じにすることはできません。
+* ASAクラスタとASA以外のクラスタの間で、SnapMirrorのアクティブな同期整合性グループ関係を確立することはできません。
+* クラスタピア関係のSnapMirror Active Syncでは、デフォルトのIPspaceが必要です。カスタム IPspace はサポートされません。
+* 整合グループの名前は一意である必要があります。
+* セカンダリ（デスティネーション）クラスタ上のボリュームのタイプはDPである必要があります。
+* プライマリとセカンダリのSVMでピア関係が確立されている必要があります。
+
+
+.手順
+ONTAP CLIまたはSystem Managerを使用して整合グループを設定できます。
+
+ONTAP 9.10.1以降では、ONTAPに追加の管理ユーティリティを提供する整合グループエンドポイントと整合グループメニューがSystem Managerに用意されています。ONTAP 9.10.1以降を使用している場合は、を参照してください。 link:../consistency-groups/configure-task.html["整合グループの設定"] そうすると link:../consistency-groups/protect-task.html["保護の設定"] をクリックして、SnapMirrorのアクティブな同期関係を作成します。
+
+
+IMPORTANT: ONTAP 9.8~9.14.1では、SnapMirrorアクティブ同期をSnapMirrorビジネス継続性（SM-BC）と呼びます。
+
+[role="tabbed-block"]
+====
+.System Manager の略
+--
+. プライマリクラスタで、*[保護]>[概要]>[ビジネス継続性のための保護]>[LUNの保護]*に移動します。
+. 保護するLUNを選択し、保護グループに追加します。
+. デスティネーションクラスタと SVM を選択
+. * 初期化関係 * がデフォルトで選択されています。[ 保存（ Save ） ] をクリックして保護を開始します。
+. [Dashboard] > [Performance] に移動して、 LUN の IOPS アクティビティを確認します。
+. デスティネーションクラスタで、 System Manager を使用して、ビジネス継続性関係の保護が同期されていることを確認します。 * Protection > Relationships * 。
+
+
+--
+.CLI の使用
+--
+. デスティネーションクラスタから整合性グループ関係を作成
+`destination::> snapmirror create -source-path _source-path_ -destination-path _destination-path_ -cg-item-mappings _volume-paths_ -policy _policy-name_`
++
+を使用して最大12個のコンスティチュエントボリュームをマッピングできます。 `cg-item-mappings` のパラメータ `snapmirror create` コマンドを実行します
+
++
+次の例では、2つの整合グループを作成します。 `cg_src_ on the source with `vol1` および `vol2` ミラーされたデスティネーション整合グループ `cg_dst`。
+
++
+`destination::> snapmirror create -source-path vs1_src:/cg/cg_src -destination-path vs1_dst:/cg/cg_dst -cg-item-mappings vol_src1:@vol_dst1,vol_src2:@vol_dst2 -policy AutomatedFailOver`
+
+. デスティネーションクラスタから、整合性グループを初期化します。
++
+`destination::>snapmirror initialize -destination-path _destination-consistency-group_`
+
+. 初期化処理が正常に完了したことを確認します。ステータスがになっている必要があります `InSync`。
++
+`snapmirror show`
+
+. 各クラスタにigroupを作成して、アプリケーションホストのイニシエータにLUNをマッピングします。
+`lun igroup create -igroup _name_ -protocol _fcp|iscsi_ -ostype _os_ -initiator _initiator_name_`
+. 各クラスタで、LUNをigroupにマッピングします。
++
+`lun map -path _path_name_ -igroup _igroup_name_`
+
+. LUNマッピングが次のコマンドで正常に完了したことを確認： `lun map` コマンドを実行しますその後、アプリケーションホストで新しいLUNを検出できます。
+
+
+--
+====
+
+
+== 対称アクティブ/アクティブ保護の設定
+
+対称保護は、System ManagerまたはONTAP CLIを使用して確立できます。どちらのインターフェイスでも、 xref:index.html#key-concepts[均一なコンフィギュレーションと非均一なコンフィギュレーション]。
+
+.作業を開始する前に
+* 両方のクラスタでONTAP 9.15.1以降が実行されている必要があります。
+* 対称アクティブ/アクティブ構成には、 `AutomatedFailoverDuplex` 保護ポリシー：または、 xref:../data-protection/create-custom-replication-policy-concept.html[カスタムのSnapMirrorポリシーを作成する] 必要に応じて、 `-type` はです `automated-failover-duplex`。
+
+
+.手順
+[role="tabbed-block"]
+====
+.System Manager の略
+--
+.統一された構成の手順
+. プライマリサイトで、 link:../consistency-groups/configure-task.html#create-a-consistency-group-with-new-luns-or-volumes["新しいLUNを使用して整合グループを作成します。"^]
++
+.. 整合グループを作成するときは、ホストイニシエータを指定してigroupを作成します。
+.. [Enable SnapMirror]チェックボックスをオンにして、 `AutomatedFailoverDuplex` ポリシー：
+.. 表示されるダイアログボックスで、[**replicate initiator groups**]チェックボックスを選択してigroupをレプリケートします。[**Edit proximal settings*]で、ホストの近接SVMを設定します。
+.. **保存**を選択します。
+
+
+
+
+.不均一な構成の手順
+. プライマリサイトで、 link:../consistency-groups/configure-task.html#create-a-consistency-group-with-new-luns-or-volumes["新しいLUNを使用して整合グループを作成します。"^]
++
+.. 整合グループを作成するときは、ホストイニシエータを指定してigroupを作成します。
+.. [Enable SnapMirror]チェックボックスをオンにして、 `AutomatedFailoverDuplex` ポリシー：
+.. [**Save*]を選択して、LUN、整合グループ、igroup、SnapMirror関係、igroupマッピングを作成します。
+
+
+. セカンダリサイトでigroupを作成し、LUNをマッピングします。
++
+.. ** Hosts**>** SAN Initiator Groups**に移動します。
+.. 新しいigroupを作成するには、[**+Add*]を選択します。
+.. ** Name **を指定し、** Host Operating System **を選択してから、** Initiator Group Members **を選択します。
+.. **保存**を選択します。
+
+
+. 新しいigroupをデスティネーションLUNにマッピングします。
++
+.. **ストレージ**>** LUNs**に移動します。
+.. igroupにマッピングするLUNをすべて選択します。
+.. ** More **を選択してから** Map to Initiator Groups **を選択します。
+
+
+
+
+--
+.CLI の使用
+--
+.統一された構成の手順
+. アプリケーション内のすべてのボリュームをグループ化して、新しいSnapMirror関係を作成します。次の項目を指定してください： `AutomatedFailOverDuplex` 双方向の同期レプリケーションを確立するポリシー。
++
+`snapmirror create -source-path _source_path_ -destination-path _destination_path_ -cg-item-mappings _source_volume:@destination_volume_ -policy AutomatedFailOverDuplex`
+
+. 処理が成功したことを確認するために、 `Mirrored State` 次のように表示 `SnapMirrored` および `Relationship Status` として `Insync`。
++
+`snapmirror show -destination-path _destination_path_`
+
+. ホストで、必要に応じて各クラスタにアクセスできるようにホスト接続を設定します。
+. igroup設定を確立します。ローカルクラスタのイニシエータの優先パスを設定します。ピアクラスタの逆アフィニティに設定をレプリケートするオプションを指定します。
++
+`SiteA::> igroup create -vserver _svm_name_ -igroup _igroup_name_ -replication-peer _peer_svm_name_ -initiators _host_ -proximal-vserver local`
+
++
+`SiteA::> igroup add -vserver _svm_name_ -igroup _igroup_name_ -initiators _host_ -proximal-vserver _peer_svm_`
+
+. ホストからパスを検出し、優先クラスタのストレージLUNへのアクティブな最適パスがホストにあることを確認します。
+. アプリケーションを導入し、VMワークロードをクラスタ間に分散して、必要な負荷分散を実現します。
+
+
+.不均一な構成の手順
+. アプリケーション内のすべてのボリュームをグループ化して、新しいSnapMirror関係を作成します。双方向の同期レプリケーションを確立するには、必ず「AutomatedFailOverDuplex」ポリシーを指定してください。
++
+`snapmirror create -source-path _source_path_ -destination-path _destination_path_ -cg-item-mappings _source_volume:@destination_volume_ -policy AutomatedFailOverDuplex`
+
+. 処理が成功したことを確認するために、 `Mirrored State` 次のように表示 `SnapMirrored` および `Relationship Status` として `Insync`。
++
+`snapmirror show -destination-path _destination_path_`
+
+. ホストで、必要に応じて各クラスタにアクセスできるようにホスト接続を設定します。
+. ソースとデスティネーションの両方のクラスタでigroup構成を確立します。
++
+`# primary site
+SiteA::> igroup create -vserver _svm_name_ -igroup _igroup_name_ -initiators _host_1_name_`
+
++
+`# secondary site
+SiteB::> igroup create -vserver _svm_name_ -igroup _igroup_name_ -initiators _host_2_name_`
+
+. ホストからパスを検出し、優先クラスタのストレージLUNへのアクティブな最適パスがホストにあることを確認します。
+. アプリケーションを導入し、VMワークロードをクラスタ間に分散して、必要な負荷分散を実現します。
+
+
+--
+====

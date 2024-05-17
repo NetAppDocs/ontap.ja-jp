@@ -2,7 +2,7 @@
 permalink: nas-audit/steps-setup-fpolicy-config-concept.html 
 sidebar: sidebar 
 keywords: steps, setting, fpolicy configuration 
-summary: FPolicy でファイルアクセスを監視するには、 FPolicy の設定を作成し、 FPolicy サービスが必要な Storage Virtual Machine （ SVM ）で有効にする必要があります。 
+summary: FPolicyでファイルアクセスを監視するには、FPolicyの設定を作成し、FPolicyサービスが必要なSVMで有効にする必要があります。 
 ---
 = FPolicy の設定手順は何ですか
 :allow-uri-read: 
@@ -19,9 +19,22 @@ SVM で FPolicy 設定をセットアップして有効にする手順は次の�
 +
 FPolicy 外部エンジンでは、特定の FPolicy の設定に関連付けられた外部 FPolicy サーバ（ FPolicy サーバ）を識別します。内部の「ネイティブ」 FPolicy エンジンを使用してネイティブ・ファイル・ブロッキング構成を作成する場合は、 FPolicy 外部エンジンを作成する必要はありません。
 
++
+ONTAP 9.15.1以降では、 `protobuf` エンジンフォーマット。に設定すると `protobuf`では、通知メッセージはGoogle Protobufを使用してバイナリ形式でエンコードされています。エンジンフォーマットをに設定する前に `protobuf`FPolicyサーバでもサポートされていることを確認します。 `protobuf` デシリアライゼーション。詳細については、を参照してください link:plan-fpolicy-external-engine-config-concept.html["FPolicy 外部エンジンの設定を計画します"]
+
 . FPolicy イベントを作成します。
 +
 FPolicy イベントでは、 FPolicy ポリシーで監視する対象を定義します。監視対象のプロトコルとファイル操作を指定し、一連のフィルタを含めることができます。それらのフィルタを使用して、監視対象イベントの中から、 FPolicy 外部エンジンで通知を送信する必要があるイベントだけを抽出できます。イベントでは、ポリシーでボリューム操作を監視するかどうかも指定します。
+
+. FPolicy永続ストアを作成します（オプション）。
++
+ONTAP 9.14.1以降では、FPolicyを使用して link:persistent-stores.html["永続的ストア"] SVM内の非同期非必須ポリシーのファイルアクセスイベントをキャプチャする。同期（必須または非必須）および非同期の必須構成はサポートされていません。
+
++
+永続的ストアを使用すると、クライアントI/O処理とFPolicy通知処理を分離して、クライアントのレイテンシを低減できます。
+
++
+ONTAP 9.15.1以降では、FPolicyの永続的ストアの設定が簡易化されています。。 `persistent-store-create` コマンドを実行すると、SVM用のボリュームの作成が自動化され、永続的ストア用のボリュームが設定されます。
 
 . FPolicy ポリシーを作成します。
 +

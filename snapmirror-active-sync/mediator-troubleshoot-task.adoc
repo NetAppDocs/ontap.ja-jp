@@ -1,0 +1,41 @@
+---
+sidebar: sidebar 
+permalink: snapmirror-active-sync/mediator-troubleshoot-task.html 
+keywords: troubleshooting, SM-BC, SMBC, Mediator, quorum, quorum status, failover, network, snapmirror active sync 
+summary: snapmirror failover start コマンドの実行後、 snapmirror failover show コマンドの出力にメディエーターが設定されていないことを示すメッセージが表示されます。 
+---
+= ONTAPメディエーターに到達できないか、メディエーターのクォーラムステータスがfalseになっている
+:hardbreaks:
+:allow-uri-read: 
+:nofooter: 
+:icons: font
+:linkattrs: 
+:imagesdir: ../media/
+
+
+.問題 ：
+[role="lead"]
+を実行したあとに `snapmirror failover start` コマンドを入力し、の出力を表示します `snapmirror failover show` ONTAPメディエーターが設定されていないことを示すメッセージが表示されます。
+
+を参照してください link:mediator-install-task.html["ONTAPメディエーターとクラスタのSnapMirrorアクティブ同期の設定"]。
+
+....
+Cluster1::> snapmirror failover show
+Source Destination Error
+Path Path Type Status start-time end-time Reason
+-------- ----------- -------- --------- ---------- ---------- ----------
+vs0:/cg/cg vs1:/cg/cg planned failed 10/1/2020 10/1/2020 SnapMirror failover cannot start because the source-side precheck failed. reason: Mediator not configured.
+05:50:42 05:50:43
+....
+.原因 ：
+メディエーターが設定されていないか、ネットワーク接続に問題があります。
+
+.解決策 ：
+ONTAPメディエーターが設定されていない場合は、ONTAPのアクティブな同期関係を確立する前にメディエーターを設定する必要があります。ネットワーク接続の問題を修正snapmirror mediator show コマンドを使用して、ソースサイトとデスティネーションサイトの両方でメディエーターが接続されていること、およびクォーラムステータスが true であることを確認します。詳細については、を参照してください xref:smbc_install_confirm_ontap_cluster.html[ONTAPメディエーターの設定]。
+
+....
+cluster::> snapmirror mediator show
+Mediator Address Peer Cluster     Connection Status Quorum Status
+---------------- ---------------- ----------------- -------------
+10.234.10.143    cluster2         connected         true
+....

@@ -1,0 +1,37 @@
+---
+sidebar: sidebar 
+permalink: snapmirror-active-sync/delete-fails-takeover-task.html 
+keywords: troubleshooting, SM-BC, SMBC, SnapMirror, delete, takeover, consistency group, snapmirror active sync 
+summary: 'ONTAP 9.9.1がクラスタにインストールされている場合は、を実行します `snapmirror delete` SnapMirrorのアクティブな同期整合性グループ関係がテイクオーバー状態の場合、コマンドが失敗します。' 
+---
+= SnapMirror の削除処理がテイクオーバー状態のときに失敗します
+:hardbreaks:
+:allow-uri-read: 
+:nofooter: 
+:icons: font
+:linkattrs: 
+:imagesdir: ../media/
+
+
+.問題 ：
+[role="lead"]
+ONTAP 9.9.1がクラスタにインストールされている場合は、を実行します `snapmirror delete` SnapMirrorのアクティブな同期整合性グループ関係がテイクオーバー状態の場合、コマンドが失敗します。
+
+....
+C2_cluster::> snapmirror delete  vs1:/cg/dd
+
+Error: command failed: RPC: Couldn't make connection
+....
+.解決策
+SnapMirrorのアクティブな同期関係にあるノードがテイクオーバー状態のときは、「-force」オプションをtrueに設定してSnapMirrorの削除および解放処理を実行します。
+
+....
+C2_cluster::> snapmirror delete  vs1:/cg/dd -force true
+
+Warning: The relationship between source "vs0:/cg/ss" and destination
+         "vs1:/cg/dd" will be deleted, however the items of the destination
+         Consistency Group might not be made writable, deletable, or modifiable
+         after the operation. Manual recovery might be required.
+Do you want to continue? {y|n}: y
+Operation succeeded: snapmirror delete for the relationship with destination "vs1:/cg/dd".
+....

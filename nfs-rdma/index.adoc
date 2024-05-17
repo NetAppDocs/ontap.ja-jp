@@ -15,14 +15,28 @@ NFS over RDMA は RDMA アダプタを使用し、ストレージシステムメ
 
 NFS over RDMA 構成は、レイテンシの影響を受けやすいワークロードや、マシンラーニングや分析などの広帯域幅ワークロードを使用するお客様向けに設計されています。NVIDIA は、 GPU Direct Storage （ GDS ）を有効にするために RDMA 経由の NFS を拡張しました。GDSはRDMAを使用してストレージシステムとGPUメモリ間でデータを直接転送することで、CPUとメインメモリを完全にバイパスすることで、GPU対応のワークロードをさらに高速化します。
 
-ONTAP 9.14.1以降では、RDMA経由のNFS構成がNFSv4.1プロトコルでサポートされます。
+ONTAP 9.10.1以降では、Mellanox CX-5アダプタまたはCX-6アダプタを使用すると、NFSv4.0プロトコルでNFS over RDMA構成がサポートされます。このアダプタを使用すると、バージョン2のRoCEプロトコルを使用したRDMAがサポートされます。GDS は、 Mellanox NIC カードと MOFED ソフトウェアを搭載した NVIDIA Tesla および Ampere ファミリー GPU のみを使用してサポートされます。以降のONTAPリリースでサポートされるNFSバージョンについては、要件の表を参照してください。
 
-ONTAP 9.10.1以降では、RDMA経由のNFS構成が、Mellanox CX-5またはCX-6アダプタと一緒に使用した場合にNFSv4.0プロトコルでサポートされます。このアダプタでは、バージョン2のRoCEプロトコルを使用するRDMAがサポートされます。GDS は、 Mellanox NIC カードと MOFED ソフトウェアを搭載した NVIDIA Tesla および Ampere ファミリー GPU のみを使用してサポートされます。
 
-NFS over RDMA のサポートは、ノードローカルトラフィックのみに限定されます。同じノード上のすべてのコンスティチュエントがサポートされ、同じノード上の LIF からアクセスできる標準の FlexVol または FlexGroup 。NFS マウントのサイズが 64k を超えると、 NFS over RDMA 構成でパフォーマンスが不安定になります。
+NOTE: NFSマウントサイズが64kを超えると、NFS over RDMA構成のパフォーマンスが不安定になります。
 
 .要件
-* ストレージシステムでONTAP 9.10.1以降が実行されている必要があります
+* ストレージシステムでONTAP 9.10.1以降が実行されている必要があります。
+* 使用するNFSのバージョンに対応した正しいバージョンのONTAPを実行していることを確認します。
++
+[cols="2"]
+|===
+| NFS バージョン | ONTAPのサポート 
+
+
+| NFSv4.0 | ONTAP 9.10.1 以降 
+
+
+| NFSv4.1 | ONTAP 9.14.1以降 
+
+
+| NFSv3 | ONTAP 9.15.1以降 
+|===
 +
 ** ONTAP 9.12.1以降では、System Managerを使用してRDMA経由のNFSを設定できます。ONTAP 9.10.1および9.11.1では、CLIを使用してRDMA上のNFSを設定する必要があります。
 
@@ -36,16 +50,16 @@ NFS over RDMA のサポートは、ノードローカルトラフィックのみ
 
 
 | 9.10.1以降  a| 
-** A400
-** A700
-** A800
+** AFF A400
+** AFF A700の略
+** AFF A800
 
 
 
 
 | ONTAP 9.14.1以降  a| 
 ** AFF Cシリーズ
-** A900
+** AFF A900 の略
 
 
 |===
@@ -66,8 +80,8 @@ NOTE: インターフェイスグループはNFS over RDMAではサポートさ�
 .関連情報
 * link:../concepts/rdma-concept.html["RDMA"]
 * xref:../nfs-trunking/index.html[NFSトランキングの概要]
-* link:https://datatracker.ietf.org/doc/html/rfc7530["RFC 7530 ： NFS バージョン 4 プロトコル"]
-* link:https://datatracker.ietf.org/doc/html/rfc8166["RFC 8166 ：リモート手順コールバージョン 1 用のリモートダイレクトメモリアクセストランスポート"]
-* link:https://datatracker.ietf.org/doc/html/rfc8167["RFC 8167 ： RPC-over-RDMA トランスポート上の双方向リモート手順コール"]
-* link:https://datatracker.ietf.org/doc/html/rfc8267["RFC 8267 ： RPC-over-RDMA バージョン 1 への NFS 上位レイヤバインディング"]
+* https://datatracker.ietf.org/doc/html/rfc7530["RFC 7530 ： NFS バージョン 4 プロトコル"^]
+* https://datatracker.ietf.org/doc/html/rfc8166["RFC 8166 ：リモート手順コールバージョン 1 用のリモートダイレクトメモリアクセストランスポート"^]
+* https://datatracker.ietf.org/doc/html/rfc8167["RFC 8167 ： RPC-over-RDMA トランスポート上の双方向リモート手順コール"^]
+* https://datatracker.ietf.org/doc/html/rfc8267["RFC 8267 ： RPC-over-RDMA バージョン 1 への NFS 上位レイヤバインディング"^]
 

@@ -1,0 +1,63 @@
+---
+sidebar: sidebar 
+permalink: snapmirror-active-sync/planned-failover-task.html 
+keywords: SM-BC, testing failover, planned failover, maintenance, quorum, snapmirror active sync 
+summary: 計画的フェイルオーバーを実行して、ディザスタリカバリ設定をテストしたり、プライマリクラスタでメンテナンスを実施したりできます。 
+---
+= SnapMirrorのアクティブな同期関係にあるクラスタの計画的フェイルオーバーを実行する
+:hardbreaks:
+:allow-uri-read: 
+:nofooter: 
+:icons: font
+:linkattrs: 
+:imagesdir: ../media/
+
+
+[role="lead"]
+SnapMirrorのアクティブな同期関係にあるONTAPクラスタの計画的フェイルオーバーでは、プライマリクラスタからセカンダリクラスタにテイクオーバーされるように、プライマリクラスタとセカンダリクラスタのロールを切り替えます。フェイルオーバー中は、通常はセカンダリクラスタがクライアントの処理を中断せずにローカルで入出力要求を処理します。
+
+計画的フェイルオーバーを実行して、ディザスタリカバリ構成の健全性をテストしたり、プライマリクラスタでメンテナンスを実行したりすることができます。
+
+.このタスクについて
+計画的フェイルオーバーは、セカンダリクラスタの管理者が開始します。この処理を実行するには、セカンダリクラスタがプライマリからテイクオーバーするように、プライマリとセカンダリのロールを切り替える必要があります。新しいプライマリクラスタは、クライアントの処理を中断することなく、ローカルで入出力要求の処理を開始できます。
+
+.作業を開始する前に
+* SnapMirrorのアクティブな同期関係が同期されている必要があります。
+* ノンストップオペレーションの実行中は、計画的フェイルオーバーを開始できません。ノンストップオペレーションには、ボリュームの移動、アグリゲートの再配置、ストレージフェイルオーバーなどがあります。
+* ONTAPメディエーターが設定され、接続され、クォーラムを構成している必要があります。
+
+
+.手順
+計画的フェイルオーバーは、ONTAP CLIまたはSystem Managerを使用して実行できます。
+
+[role="tabbed-block"]
+====
+.System Manager の略
+--
+
+IMPORTANT: ONTAP 9.8~9.14.1では、SnapMirrorアクティブ同期をSnapMirrorビジネス継続性（SM-BC）と呼びます。
+
+. System Managerで、[**Protection]>[Overview]>[Relationships]の順に選択します。
+. フェイルオーバーするSnapMirrorのアクティブな同期関係を特定します。名前の横にある `...` 関係の名前の横にある[**Failover*]を選択します。
+. フェイルオーバーのステータスを監視するには、 `snapmirror failover show` ONTAP CLIを使用します。
+
+
+--
+.CLI の使用
+--
+. デスティネーションクラスタから、フェイルオーバー処理を開始します。
++
+`destination::>snapmirror failover start -destination-path   vs1_dst:/cg/cg_dst`
+
+. フェイルオーバーの進捗を監視します。
++
+`destination::>snapmirror failover show`
+
+. フェイルオーバー処理が完了したら、デスティネーションからSnapMirror同期保護関係のステータスを監視できます。
++
+`destination::>snapmirror show`
+
+
+
+--
+====

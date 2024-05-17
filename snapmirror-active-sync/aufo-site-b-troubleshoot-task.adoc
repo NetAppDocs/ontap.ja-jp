@@ -1,0 +1,57 @@
+---
+sidebar: sidebar 
+permalink: snapmirror-active-sync/aufo-site-b-troubleshoot-task.html 
+keywords: SM-BC, SMBC, troubleshooting, automatic unplanned failover, aufo, failover, Mediator, quorum, snapmirror active sync 
+summary: サイト A で障害が発生しても、サイト B で計画外フェイルオーバーはトリガーされません 
+---
+= サイト B で自動計画外フェイルオーバーがトリガーされない
+:hardbreaks:
+:allow-uri-read: 
+:nofooter: 
+:icons: font
+:linkattrs: 
+:imagesdir: ../media/
+
+
+.問題 ：
+[role="lead"]
+サイト A で障害が発生しても、サイト B で計画外フェイルオーバーはトリガーされません
+
+.原因 #1の候補：
+ONTAPメディエーターが設定されていません。これが原因 かどうかを確認するには、問題 を実行します `snapmirror mediator show` コマンドをサイトBのクラスタで実行します。
+
+....
+Cluster2::*> snapmirror mediator show
+This table is currently empty.
+....
+この例は、サイトBでONTAPメディエーターが設定されていないことを示しています。
+
+.解決策 ：
+両方のクラスタにONTAPメディエーターが設定されていて、ステータスが「connected」で、クォーラムがTrueに設定されていることを確認します。
+
+.可能な原因 #2：
+SnapMirror 整合グループが同期されていません。これが原因かどうかを確認するには、イベントログを表示して、サイト A で障害が発生したときに整合グループが同期されているかどうかを確認します。
+
+....
+cluster::*> event log show -event *out.of.sync*
+
+Time                Node             Severity      Event
+------------------- ---------------- ------------- ---------------------------
+10/1/2020 23:26:12  sti42-vsim-ucs511w ERROR       sms.status.out.of.sync: Source volume "vs0:zrto_cg_556844_511u_RW1" and destination volume "vs1:zrto_cg_556881_511w_DP1" with relationship UUID "55ab7942-03e5-11eb-ba5a-005056a7dc14" is in "out-of-sync" status due to the following reason: "Transfer failed."
+....
+.解決策 ：
+サイト B で強制フェイルオーバーを実行するには、次の手順を実行します
+
+. この整合グループに属するすべての LUN のマッピングをサイト B から解除します
+. を使用して、SnapMirror整合性グループ関係を削除します `force` オプション
+. を入力します `snapmirror break` 整合性グループのコンスティチュエントボリュームに対してコマンドを実行し、ボリュームをDPからR/Wに変換してサイトBからのI/Oを可能にします
+. サイト A のノードをブートして、サイト B からサイト A への RTO 関係をゼロにします
+. を使用して整合グループを解放します `relationship-info-only` サイトAで共通のSnapshotコピーを保持し、整合グループに属するLUNのマッピングを解除します。
+. Sync ポリシーまたは非同期ポリシーを使用してボリュームレベルの関係を設定し、サイト A のボリュームを R/W から DP に変換します。
+. 問題 `snapmirror resync` 関係を同期します。
+. サイト A の Sync ポリシーを使用して、 SnapMirror 関係を削除します
+. を使用して、Syncポリシーが設定されたSnapMirror関係を解放します `relationship-info-only true` サイトB
+. サイト B からサイト A への整合グループ関係を作成します
+. サイト A から整合グループの再同期を実行し、整合グループが同期されていることを確認します。
+. ホスト LUN の I/O パスを再スキャンして、 LUN へのすべてのパスをリストアします。
+

@@ -1,0 +1,108 @@
+---
+sidebar: sidebar 
+permalink: snapmirror-active-sync/monitor-task.html 
+keywords: SM-BC, SMBC, monitoring, Mediator status, EMS, errors, planned failover status, automatic unplanned failover status, , snapmirror active sync 
+summary: SnapMirrorのアクティブな同期のコンポーネントと処理は複数あり、監視できます。 
+---
+= SnapMirrorのアクティブな同期処理を監視する
+:hardbreaks:
+:allow-uri-read: 
+:nofooter: 
+:icons: font
+:linkattrs: 
+:imagesdir: ../media/
+
+
+[role="lead"]
+次のSnapMirrorのアクティブな同期処理を監視して、SnapMirrorのアクティブな同期設定の健全性を確保できます。
+
+* ONTAP メディエーター
+* 計画的フェイルオーバー処理
+* 自動計画外フェイルオーバー処理
+* SnapMirrorアクティブ同期の可用性
+
+
+
+NOTE: ONTAP 9.15.1以降では、どちらかのクラスタのSnapMirrorアクティブな同期関係のステータスがSystem Managerに表示されます。ONTAPメディエーターのステータスは、System Managerのどちらのクラスタからも監視できます。
+
+
+
+== ONTAP メディエーター
+
+通常運用時は、ONTAPメディエーターの状態は「connected」になります。それ以外の状態の場合は、エラー状態を示している可能性があります。を確認します link:https://docs.netapp.com/us-en/ontap-ems-9131/sm-mediator-events.html["Event Management System（EMS；イベント管理システム）メッセージ"^] エラーと適切な対処方法を特定します。
+
+
+
+== 計画的フェイルオーバー処理
+
+を使用して、計画的フェイルオーバー処理のステータスと進捗状況を監視できます `snapmirror failover show` コマンドを実行します例：
+
+....
+ClusterB::> snapmirror failover start -destination-path vs1:/cg/dcg1
+....
+フェイルオーバー処理が完了したら、新しいデスティネーションクラスタからSnapMirror保護ステータスを監視できます。例：
+
+....
+ClusterA::> snapmirror show
+....
+を参照してください link:https://docs.netapp.com/us-en/ontap-ems-9131/smbc-pfo-events.html["EMS参照"^] をクリックしてイベントメッセージと対処方法を確認してください。
+
+
+
+== 自動計画外フェイルオーバー処理
+
+自動計画外フェイルオーバーの実行中は、を使用して処理のステータスを監視できます `snapmirror failover show` コマンドを実行します
+
+....
+ClusterB::> snapmirror failover show -instance
+Start Time: 9/23/2020 22:03:29
+         Source Path: vs1:/cg/scg3
+    Destination Path: vs3:/cg/dcg3
+     Failover Status: completed
+        Error Reason:
+            End Time: 9/23/2020 22:03:30
+Primary Data Cluster: cluster-2
+Last Progress Update: -
+       Failover Type: unplanned
+  Error Reason codes: -
+....
+を参照してください link:https://docs.netapp.com/us-en/ontap-ems-9131/smbc-aufo-events.html["EMS参照"^] をクリックして、イベントメッセージおよび対処方法について確認してください。
+
+
+
+== SnapMirrorアクティブ同期の可用性
+
+SnapMirrorのアクティブな同期関係の可用性は、プライマリクラスタ、セカンダリクラスタ、またはその両方で一連のコマンドを使用して確認できます。
+
+使用するコマンドには、があります `snapmirror mediator show` プライマリクラスタとセカンダリクラスタの両方でコマンドを実行し、接続とクォーラムステータスを確認します `snapmirror show` コマンド、および `volume show` コマンドを実行します例：
+
+....
+SMBC_A::*> snapmirror mediator show
+Mediator Address Peer Cluster     Connection Status Quorum Status
+---------------- ---------------- ----------------- -------------
+10.236.172.86    SMBC_B           connected         true
+
+SMBC_B::*> snapmirror mediator show
+Mediator Address Peer Cluster     Connection Status Quorum Status
+---------------- ---------------- ----------------- -------------
+10.236.172.86    SMBC_A           connected         true
+
+SMBC_B::*> snapmirror show -expand
+                                                                       Progress
+Source            Destination Mirror  Relationship   Total             Last
+Path        Type  Path        State   Status         Progress  Healthy Updated
+----------- ---- ------------ ------- -------------- --------- ------- --------
+vs0:/cg/cg1 XDP  vs1:/cg/cg1_dp Snapmirrored Insync -         true    -
+vs0:vol1    XDP  vs1:vol1_dp  Snapmirrored Insync   -         true    -
+2 entries were displayed.
+
+SMBC_A::*> volume show -fields is-smbc-master,smbc-consensus,is-smbc-failover-capable -volume vol1
+vserver volume is-smbc-master is-smbc-failover-capable smbc-consensus
+------- ------ -------------- ------------------------ --------------
+vs0     vol1   true           false                    Consensus
+
+SMBC_B::*> volume show -fields is-smbc-master,smbc-consensus,is-smbc-failover-capable -volume vol1_dp
+vserver volume  is-smbc-master is-smbc-failover-capable smbc-consensus
+------- ------- -------------- ------------------------ --------------
+vs1     vol1_dp false          true                     No-consensus
+....

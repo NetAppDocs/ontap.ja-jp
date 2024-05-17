@@ -1,0 +1,136 @@
+---
+sidebar: sidebar 
+permalink: snapmirror-active-sync/remove-configuration-task.html 
+keywords: SM-BC, SMBC, removing, protection relationship, snapmirror active sync 
+summary: RTOゼロのSnapMirror同期保護を解除し、SnapMirrorのアクティブな同期関係の設定を削除できます。 
+---
+= SnapMirrorのアクティブな同期設定を削除する
+:hardbreaks:
+:allow-uri-read: 
+:nofooter: 
+:icons: font
+:linkattrs: 
+:imagesdir: ../media/
+
+
+[role="lead"]
+RTOゼロのSnapMirror同期保護が不要になった場合は、SnapMirrorのアクティブな同期関係を削除できます。
+
+
+
+== 非対称構成を削除します。
+
+* SnapMirrorのアクティブな同期関係を削除する前に、デスティネーションクラスタのすべてのLUNのマッピングを解除する必要があります。
+* LUN のマッピングが解除されてホストが再スキャンされると、 SCSI ターゲットは LUN のインベントリが変更されたことをホストに通知します。RTO ゼロのセカンダリボリュームにある既存の LUN は、ゼロの RTO 関係が削除されたあとに新しい ID が反映されるように変更されます。ホストは、セカンダリボリューム LUN を、ソースボリューム LUN とは関係のない新しい LUN として検出します。
+* 関係を削除しても、セカンダリボリュームは DP ボリュームのままです。問題を実行できます。 `snapmirror break` 読み取り/書き込みに変換するコマンド。
+* フェイルオーバー状態でない関係は削除できません。
+
+
+.手順
+. セカンダリクラスタから、ソースエンドポイントとデスティネーションエンドポイントの間のSnapMirrorアクティブな同期整合性グループ関係を削除します。
++
+`destination::>snapmirror delete -destination-path vs1_dst:/cg/cg_dst`
+
+. プライマリクラスタで、整合性グループ関係と関係に対して作成されたSnapshotコピーを解放します。
++
+`source::>snapmirror release -destination-path vs1_dst:/cg/cg_dst`
+
+. ホストの再スキャンを実行して LUN インベントリを更新する。
+. ONTAP 9.10.1 以降では、 SnapMirror 関係を削除しても整合グループは削除されません。整合グループを削除する場合は、 System Manager または ONTAP REST API を使用する必要があります。を参照してください xref:../consistency-groups/delete-task.adoc[整合グループを削除する] を参照してください。
+
+
+
+
+== 対称アクティブ/アクティブ構成を削除する
+
+対称構成は、System ManagerまたはONTAP CLIを使用して削除できます。どちらのインターフェイスでも、 xref:index.html#key-concepts[均一なコンフィギュレーションと非均一なコンフィギュレーション]。
+
+[role="tabbed-block"]
+====
+.System Manager の略
+--
+.統一された構成の手順
+. プライマリサイトで、リモートホストをigroupから削除し、レプリケーションを終了します。
++
+.. [**Hosts]>[*SAN Initiator Groups]に移動します。
+.. 変更するigroupを選択し、**Edit**します。
+.. リモートイニシエータを削除し、igroupレプリケーションを終了します。**保存**を選択します。
+
+
+. セカンダリサイトで、LUNのマッピングを解除してレプリケートされた関係を削除します。
++
+.. ** Hosts**>** SAN Initiator Groups**に移動します。
+.. SnapMirror関係があるigroupを選択し、**Delete **を選択します。
+.. ダイアログボックスで、[**Unmap the associated LUNs*]ボックスを選択し、[**Delete*]を選択します。
+.. **保護**>**関係**に移動します。
+.. アクティブなSnapMirror同期関係を選択し、**Release**を選択して関係を削除します。
+
+
+
+
+.不均一な構成の手順
+. プライマリサイトで、リモートホストをigroupから削除し、レプリケーションを終了します。
++
+.. [**Hosts]>[*SAN Initiator Groups]に移動します。
+.. 変更するigroupを選択し、**Edit**します。
+.. リモートイニシエータを削除し、igroupレプリケーションを終了します。**保存**を選択します。
+
+
+. セカンダリサイトで、SnapMirrorのアクティブな同期関係を削除します。
++
+.. **保護**>**関係**に移動します。
+.. アクティブなSnapMirror同期関係を選択し、**Release**を選択して関係を削除します。
+
+
+
+
+--
+.CLI の使用
+--
+.統一された構成の手順
+. すべてのVMワークロードを、SnapMirrorアクティブ同期のソースクラスタのローカルホストに移動します。
+. ソースクラスタで、igroupからイニシエータを削除し、igroupのレプリケーションを終了するようにigroup設定を変更します。
++
+`SiteA::> igroup remove -vserver _svm_name_ -igroup _igroup_name_ -initiator _host2_
+SiteA::> igroup modify -vserver _svm_name_ -igroup _igroup_name_ -replication-peer "-"`
+
+. セカンダリサイトで、LUNマッピングを削除し、igroup設定を削除します。
++
+`SiteB::> lun mapping delete -vserver _svm_name_ -igroup _igroup_name_ -path <>
+SiteB::> igroup delete -vserver _svm_name_ -igroup _igroup_name_`
+
+. セカンダリサイトで、SnapMirrorのアクティブな同期関係を削除します。
++
+`SiteB::> snapmirror delete -destination-path _destination_path_`
+
+. プライマリサイトで、プライマリサイトからSnapMirrorのアクティブな同期関係を解放します。
++
+`SiteA::> snapmirror release -destination-path _destination_path_`
+
+. パスを再検出して、ホストへのローカルパスのみが使用可能であることを確認します。
+
+
+.不均一な構成の手順
+. すべてのVMワークロードを、SnapMirrorアクティブ同期のソースクラスタのローカルホストに移動します。
+. ソースクラスタで、igroupからイニシエータを削除します。
++
+`SiteA::> igroup remove -vserver _svm_name_ -igroup _igroup_name_ -initiator _host2_`
+
+. セカンダリサイトで、LUNマッピングを削除し、igroup設定を削除します。
++
+`SiteB::> lun mapping delete -vserver _svm_name_ -igroup _igroup_name_ -path <>
+SiteB::> igroup delete -vserver _svm_name_ -igroup _igroup_name_`
+
+. セカンダリサイトで、SnapMirrorのアクティブな同期関係を削除します。
++
+`SiteB::> snapmirror delete -destination-path _destination_path_`
+
+. プライマリサイトで、プライマリサイトからSnapMirrorのアクティブな同期関係を解放します。
++
+`SiteA::> snapmirror release -destination-path _destination_path_`
+
+. パスを再検出して、ホストへのローカルパスのみが使用可能であることを確認します。
+
+
+--
+====

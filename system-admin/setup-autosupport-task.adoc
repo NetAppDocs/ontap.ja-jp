@@ -1,8 +1,8 @@
 ---
-permalink: system-admin/setup-autosupport-task.html 
 sidebar: sidebar 
-keywords: set, up, autosupport, technical, support, organization, internal, configuration, test 
-summary: テクニカルサポートまたは社内のサポート部門に AutoSupport 情報を送信するかどうかおよびその方法を管理し、その設定が正しいことをテストできます。 
+permalink: system-admin/setup-autosupport-task.html 
+keywords: autosupport, set up autosupport, technical support 
+summary: AutoSupportメッセージをNetAppテクニカルサポートに配信し、社内のサポート部門にEメールコピーを送信するようにONTAPクラスタを設定します。 
 ---
 = AutoSupport をセットアップする
 :allow-uri-read: 
@@ -11,21 +11,18 @@ summary: テクニカルサポートまたは社内のサポート部門に Auto
 
 
 [role="lead"]
-テクニカルサポートまたは社内のサポート部門に AutoSupport 情報を送信するかどうかおよびその方法を管理し、その設定が正しいことをテストできます。
+AutoSupportメッセージをNetAppテクニカルサポートに配信し、社内のサポート部門にEメールコピーを送信するようにONTAPクラスタを設定できます。その一環として、本番環境で使用する前に構成をテストすることもできます。
 
 .このタスクについて
-ONTAP 9.5 以降のリリースでは、クラスタのすべてのノードで AutoSupport を有効にし、その設定を同時に変更できます。新しいノードがクラスタに追加されると、そのノードは AutoSupport クラスタ設定を自動的に継承します。各ノードの設定を個別に更新する必要はありません。
+ONTAP 9.5以降では、クラスタのすべてのノードに対して同時にAutoSupportを有効にして設定することができます。新しいノードがクラスタに追加されると、同じAutoSupport設定が自動的に継承されます。これをサポートするには、CLIコマンドの範囲 `system node autosupport modify` はクラスタレベルです。。 `-node` コマンドオプションは下位互換性のために保持されていますが、無視されます。
 
-[NOTE]
-====
-ONTAP 9.5以降では、の対象となります `system node autosupport modify` コマンドはクラスタ全体に適用されます。AutoSupport 設定がクラスタ内のすべてのノードで変更されます。これには、が含まれます `-node` オプションが指定されています。このオプションは無視されますが、 CLI の下位互換性を維持するために保持されています。
 
-ONTAP 9.4以前のリリースでは、の対象となります `system node autosupport modify` コマンドはノードに固有です。クラスタ内の各ノードで AutoSupport 設定を変更する必要があります。
+NOTE: ONTAP 9.4以前のリリースでは、コマンド `system node autosupport modify` は各ノードに固有です。クラスタでONTAP 9.4以前を実行している場合は、クラスタ内の各ノードでAutoSupportを有効にして設定する必要があります。
 
-====
-デフォルトでは、各ノードで AutoSupport が有効になっており、 HTTPS 転送プロトコルを使用してテクニカルサポートにメッセージを送信できます。
+.作業を開始する前に
+AutoSupportメッセージをNetAppに配信するための推奨される転送設定はHTTPS（TLSを使用したHTTP）です。このオプションは、最も堅牢な機能と最高のセキュリティを提供します。
 
-セキュリティを最適化し、AutoSupportの最新の機能をすべてサポートするには、AutoSupportメッセージの配信にHTTPSとTLSv1.2またはセキュアSMTPを使用する必要があります。
+レビュー link:requirements-autosupport-reference.html["AutoSupportを使用する準備"] を参照してくださいONTAP。
 
 .手順
 . AutoSupport が有効になっていることを確認します。
@@ -34,7 +31,7 @@ ONTAP 9.4以前のリリースでは、の対象となります `system node aut
 ----
 system node autosupport modify -state enable
 ----
-. テクニカルサポートに AutoSupport メッセージを送信するには、次のコマンドを使用します。
+. NetAppテクニカルサポートにAutoSupportメッセージを送信するには、次のコマンドを使用します。
 +
 [listing]
 ----
@@ -43,7 +40,7 @@ system node autosupport modify -support enable
 +
 AutoSupport を AutoSupport OnDemand と連携できるようにする場合、またはコアダンプファイルやパフォーマンスアーカイブファイルなどの大容量ファイルをテクニカルサポートまたは指定の URL にアップロードする場合は、このオプションを有効にする必要があります。
 
-. テクニカルサポートが AutoSupport メッセージを受信できるようになっている場合は、メッセージに使用する転送プロトコルを指定します。
+. NetAppテクニカルサポートがAutoSupportメッセージを受信できるようになっている場合は、メッセージに使用する転送プロトコルを指定します。
 +
 次のオプションから選択できます。
 
@@ -139,6 +136,28 @@ SMTP を使用する
 設定 `-perf` 終了： `false`。
 
 |===
+. SMTPを使用してAutoSupportメッセージをNetAppに配信する場合は、オプションでTLSを有効にしてセキュリティを強化できます。
++
+.. 新しいパラメータに使用可能な値を表示します。
++
+[listing]
+----
+cluster1::> system node autosupport modify -smtp-encryption ?
+----
+.. SMTPメッセージ配信のTLSを有効にします。
++
+[listing]
+----
+cluster1::> system node autosupport modify -smtp-encryption start_tls
+----
+.. 現在の設定を表示します。
++
+[listing]
+----
+cluster1::> system node autosupport show -fields smtp-encryption
+----
+
+
 . を使用して設定全体を確認します `system node autosupport show` コマンドにを指定します `-node` パラメータ
 . を使用してAutoSupport の動作を確認します `system node autosupport check show` コマンドを実行します
 +
@@ -146,7 +165,7 @@ SMTP を使用する
 
 . AutoSupport メッセージが送受信されていることをテストします。
 +
-.. を使用します `system node autosupport invoke` コマンドにを指定します `-type` パラメータをに設定します `test`。
+.. を使用します `system node autosupport invoke` コマンドにを指定します `-type` パラメータをに設定します `test`：
 +
 [listing]
 ----
@@ -154,12 +173,14 @@ cluster1::> system node autosupport invoke -type test -node node1
 ----
 .. ネットアップが AutoSupport メッセージを受信していることを確認します。
 +
-system node AutoSupport history show -node local コマンドを実行します
-
+[listing]
+----
+system node autosupport history show -node local
+----
 +
 最新の発信AutoSupport メッセージのステータスは、最終的ににに変わります `sent-successful` すべての適切なプロトコルの宛先に対して。
 
-.. 必要に応じて、AutoSupportメッセージが社内のサポート部門またはサポートパートナーに送信されていることを確認します。そのためには、用に設定したアドレスのEメールを確認します `-to`、 `-noteto`または `-partner-address`  のパラメータ `system node autosupport modify` コマンドを実行します
+.. 必要に応じて、AutoSupportメッセージが社内のサポート部門またはサポートパートナーに送信されていることを確認するために、 `-to`、 `-noteto`または `-partner-address`  のパラメータ `system node autosupport modify` コマンドを実行します
 
 
 

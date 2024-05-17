@@ -1,7 +1,7 @@
 ---
 sidebar: sidebar 
 permalink: task_nas_enable_linux_nfs.html 
-keywords: ontap, netapp, provision nas storage, linux, enable, nfs, modify storage VM, configure DNS, configure name server, configure Kerberos 
+keywords: ontap, netapp, provision nas storage, linux, enable, nfs, modify storage VM, configure DNS, configure name server, configure Kerberos, configure TLS, TLS, NMFS over TLS 
 summary: Storage VM を変更して、 NFS サーバが Linux クライアントにデータを提供できるようにします。 
 ---
 = NFS を使用して Linux サーバ用の NAS ストレージを有効にします
@@ -18,21 +18,24 @@ summary: Storage VM を変更して、 NFS サーバが Linux クライアント
 [role="lead"]
 Storage VMを作成または変更して、NFSサーバがLinuxクライアントにデータを提供できるようにします。
 
-この手順は、NFSプロトコル用に新規または既存のStorage VMを有効にします。ここでは、環境に必要なネットワークサービス、認証サービス、セキュリティサービスの構成の詳細を記載するものとします。
+この手順を使用して、NFSプロトコル用に新規または既存のStorage VMを有効にします。
 
-image:workflow_nas_enable_linux_nfs.gif["NFS を使用して Linux サーバで NAS を有効にするワークフロー図"]
+image:workflow_nas_enable_linux_nfs.png["NFS を使用して Linux サーバで NAS を有効にするワークフロー図"]
+
+.作業を開始する前に
+環境で必要なネットワークサービス、認証サービス、またはセキュリティサービスの設定の詳細をメモしておいてください。
 
 .手順
 . Storage VMでNFSを有効にします。
 +
-.. 新しいStorage VMの場合：* Storage > Storage VM*をクリックし、* Add *をクリックしてStorage VM名を入力し、* SMB / CIFS、NFS、S3 *タブで* NFSの有効化*を選択します。
+** 新しいStorage VMの場合：*[ストレージ]>[Storage VM]*をクリックし、*[追加]*をクリックしてStorage VM名を入力し、*[SMB / CIFS、NFS、S3 *]タブで*[NFSの有効化]*を選択します。
 +
-*** デフォルトの言語を確認します。
-*** ネットワークインターフェイスを追加
-*** Storage VM管理者アカウント情報を更新する（オプション）。
+... デフォルトの言語を確認します。
+... ネットワークインターフェイスを追加
+... Storage VM管理者アカウント情報を更新する（オプション）。
 
 
-.. 既存のStorage VMの場合：* Storage > Storage VM*をクリックし、Storage VMを選択して* Settings *をクリックし、をクリックします image:icon_gear.gif["設定アイコン"] NFS * 。
+** 既存のStorage VMの場合：* Storage > Storage VM*をクリックし、Storage VMを選択して* Settings *をクリックし、をクリックします image:icon_gear.gif["設定アイコン"] NFS * 。
 
 
 . Storage VM ルートボリュームのエクスポートポリシーを開きます。
@@ -51,13 +54,43 @@ image:workflow_nas_enable_linux_nfs.gif["NFS を使用して Linux サーバで 
 . 必要に応じてネームサービスを設定
 +
 .. Storage > Storage VM* をクリックし、 Storage VM を選択して * Settings * をクリックし、 for をクリックします image:icon_gear.gif["設定アイコン"] LDAP または NIS 。
-.. ネームサービススイッチファイルに変更を加えた場合は追加します。をクリックします image:icon_pencil.gif["編集アイコン"] ネームサービススイッチタイル。
+.. をクリックします image:icon_pencil.gif["編集アイコン"] [ネームサービススイッチ]タイルで変更を反映します。
 
 
-. 必要に応じて Kerberos を設定します。
+. 必要に応じて暗号化を設定します。
+
+
+[role="tabbed-block"]
+====
+.NFSクライアント用のTLSの設定
+--
+
+NOTE: ONTAP 9.15.1では、NFS over TLSがパブリックプレビューとして提供されています。プレビュー版として、ONTAP 9.15.1では本番ワークロードでNFS over TLSはサポートされていません。
+
+.手順
+. を参照してください link:nfs-admin/tls-nfs-strong-security-concept.html["要件"^] （NFS over TLSの場合）を参照してください。
+. Storage > Storage VM* をクリックし、 Storage VM を選択して、 * Settings * をクリックします。
+. [NFS]タイルで、*[NFS over TLS設定]*をクリックします。
+. [NFS over TLS設定]*領域で、TLSを有効にするNFSネットワークインターフェイスを選択します。
+. をクリックします image:icon_kabob.gif["オプションアイコン"] そのインターフェイスのために。
+. [*Enable*] をクリックします。
+. [ネットワークインターフェイスのTLS設定]*ダイアログで、次のいずれかのオプションを選択して、TLSで使用する証明書を含めます。
 +
-.. Storage > Storage VM* をクリックし、 Storage VM を選択して、 * Settings * をクリックします。
-.. をクリックします image:icon_arrow.gif["矢印アイコン"] Kerberos タイルで、 * Add * をクリックします。
+** *インストール済み証明書*：ドロップダウンリストから、以前にインストールした証明書を選択します。
+** *新しい証明書*：証明書の共通名を選択します。
+** *外部のCA署名証明書*：手順に従って、証明書と秘密鍵の内容をボックスに貼り付けます。
 
 
+. [ 保存（ Save ） ] をクリックします。
 
+
+--
+.Kerberosの設定
+--
+.手順
+. Storage > Storage VM* をクリックし、 Storage VM を選択して、 * Settings * をクリックします。
+. をクリックします image:icon_arrow.gif["矢印アイコン"] Kerberos タイルで、 * Add * をクリックします。
+
+
+--
+====

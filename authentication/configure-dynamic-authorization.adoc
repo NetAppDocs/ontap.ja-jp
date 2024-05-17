@@ -1,0 +1,326 @@
+---
+permalink: authentication/configure-dynamic-authorization.html 
+sidebar: sidebar 
+keywords: dynamic, authorization, framework, security, login, ssh 
+summary: SSHログインのセキュリティを強化し、不審な状況下で特定のコマンドの実行を制限するように、動的認可フレームワークを設定します。 
+---
+= 動的許可のカスタマイズ
+:allow-uri-read: 
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+管理者は、動的許可の設定のさまざまな側面をカスタマイズして、ONTAPクラスタへのリモート管理者のSSH接続のセキュリティを強化できます。
+
+セキュリティのニーズに応じて、次の動的認可設定をカスタマイズできます。
+
+* <<動的認証グローバル設定の構成>>
+* <<動的認証信頼スコアコンポーネントの設定>>
+* <<カスタム信頼スコアプロバイダの設定>>
+* <<制限されたコマンドの設定>>
+* <<動的許可グループの設定>>
+
+
+
+
+== 動的認証グローバル設定の構成
+
+動的許可のグローバル設定を行うことができます。これには、セキュアなStorage VM、認証チャレンジの抑制間隔、信頼スコアの設定などが含まれます。
+
+のパラメータとデフォルト値の詳細については、 `security dynamic-authorization modify` コマンドについては、ONTAPのマニュアルページを参照してください。
+
+.手順
+. 動的認可のグローバル設定を構成します。使用しない場合は、 `-vserver` パラメータを指定すると、コマンドはクラスタレベルで実行されます。かっこ<>の値を環境に合わせて更新します。
++
+[source, subs="specialcharacters,quotes"]
+----
+security dynamic-authorization modify \
+-lower-challenge-boundary <percent> \
+-upper-challenge-boundary <percent> \
+-suppression-interval <interval> \
+-vserver <storage_VM_name>
+----
+. 作成された構成を表示します。
++
+[source, console]
+----
+security dynamic-authorization show
+----
+
+
+
+
+== 制限されたコマンドの設定
+
+ダイナミック許可をイネーブルにすると、この機能には制限されたコマンドのデフォルトセットが含まれます。このリストは、必要に応じて変更できます。を参照してください link:../multi-admin-verify/index.html["Multi-Admin Verification（MAV）ドキュメント"] デフォルトの制限されたコマンドのリストについては、を参照してください。
+
+
+
+=== 制限されたコマンドの追加
+
+動的許可で制限されているコマンドのリストにコマンドを追加できます。
+
+のパラメータとデフォルト値の詳細については、 `security dynamic-authorization rule create` コマンドについては、ONTAPのマニュアルページを参照してください。
+
+.手順
+. コマンドを追加します。括弧<>の値を環境に合わせて更新します。使用しない場合は、 `-vserver` パラメータを指定すると、コマンドはクラスタレベルで実行されます。太字のパラメータは必須です。
++
+[source, subs="specialcharacters,quotes"]
+----
+security dynamic-authorization rule create \
+-query <query> \
+*-operation <text>* \
+-index <integer> \
+-vserver <storage_VM_name>
+----
+. 表示される制限されたコマンドのリストを表示します。
++
+[source, console]
+----
+security dynamic-authorization rule show
+----
+
+
+
+
+=== 制限されたコマンドを削除する
+
+ダイナミック許可で制限されているコマンドのリストから、コマンドを削除できます。
+
+のパラメータとデフォルト値の詳細については、 `security dynamic-authorization rule delete` コマンドについては、ONTAPのマニュアルページを参照してください。
+
+.手順
+. コマンドを削除します。括弧<>の値を環境に合わせて更新します。使用しない場合は、 `-vserver` パラメータを指定すると、コマンドはクラスタレベルで実行されます。太字のパラメータは必須です。
++
+[source, subs="specialcharacters,quotes"]
+----
+security dynamic-authorization rule delete \
+*-operation <text>* \
+-vserver <storage_VM_name>
+----
+. 表示される制限されたコマンドのリストを表示します。
++
+[source, console]
+----
+security dynamic-authorization rule show
+----
+
+
+
+
+== 動的許可グループの設定
+
+デフォルトでは、動的認可は、イネーブルにするとすぐにすべてのユーザとグループを環境にします。ただし、 `security dynamic-authorization group create` このコマンドを使用すると、ダイナミック認可は特定のユーザだけを環境にすることができます。
+
+
+
+=== 動的認可グループを追加します。
+
+ダイナミック認可グループを追加できます。
+
+のパラメータとデフォルト値の詳細については、 `security dynamic-authorization group create` コマンドについては、ONTAPのマニュアルページを参照してください。
+
+.手順
+. グループを作成します。括弧<>の値を環境に合わせて更新します。使用しない場合は、 `-vserver` パラメータを指定すると、コマンドはクラスタレベルで実行されます。太字のパラメータは必須です。
++
+[source, subs="specialcharacters,quotes"]
+----
+security dynamic-authorization group create \
+*-group-name <group-name>* \
+-vserver <storage_VM_name> \
+-exclude-users <user1,user2,user3...>
+
+----
+. 作成された動的認可グループを表示します。
++
+[source, console]
+----
+security dynamic-authorization group show
+----
+
+
+
+
+=== ダイナミック許可グループを削除します。
+
+ダイナミック認可グループを削除できます。
+
+.手順
+. グループを削除します。括弧<>の値を環境に合わせて更新します。使用しない場合は、 `-vserver` パラメータを指定すると、コマンドはクラスタレベルで実行されます。太字のパラメータは必須です。
++
+[source, subs="specialcharacters,quotes"]
+----
+security dynamic-authorization group delete \
+*-group-name <group-name>* \
+-vserver <storage_VM_name>
+----
+. 作成された動的認可グループを表示します。
++
+[source, console]
+----
+security dynamic-authorization group show
+----
+
+
+
+
+== 動的認証信頼スコアコンポーネントの設定
+
+スコアリング基準の優先度を変更したり、リスクスコアリングから特定の基準を削除したりするために、最大スコアウェイトを設定できます。
+
+
+NOTE: ベストプラクティスとして、デフォルトのスコアウェイト値はそのままにし、必要な場合にのみ調整することを推奨します。
+
+のパラメータとデフォルト値の詳細については、 `security dynamic-authorization trust-score-component modify` コマンドについては、ONTAPのマニュアルページを参照してください。
+
+変更可能なコンポーネントは、デフォルトのスコアとパーセンテージの重みとともに次のとおりです。
+
+[cols="4*"]
+|===
+| 基準 | コンポーネント名 | デフォルトの未加工スコアの重み | デフォルトの重量パーセンテージ 
+
+
+| 信頼できるデバイス | `trusted-device` | 20 | 50です 
+
+
+| ユーザログイン認証履歴 | `authentication-history` | 20 | 50です 
+|===
+.手順
+. 信頼スコアコンポーネントを変更します。括弧<>の値を環境に合わせて更新します。使用しない場合は、 `-vserver` パラメータを指定すると、コマンドはクラスタレベルで実行されます。太字のパラメータは必須です。
++
+[source, subs="specialcharacters,quotes"]
+----
+security dynamic-authorization trust-score-component modify \
+*-component <component-name>* \
+*-weight <integer>* \
+-vserver <storage_VM_name>
+----
+. 結果の信頼スコアコンポーネントの設定を表示します。
++
+[source, console]
+----
+security dynamic-authorization trust-score-component show
+----
+
+
+
+
+=== ユーザーの信頼スコアをリセットする
+
+ユーザーがシステムポリシーのためにアクセスを拒否され、IDを証明できる場合、管理者はユーザーの信頼スコアをリセットできます。
+
+のパラメータとデフォルト値の詳細については、 `security dynamic-authorization user-trust-score reset` コマンドについては、ONTAPのマニュアルページを参照してください。
+
+.手順
+. コマンドを追加します。を参照してください <<動的認証信頼スコアコンポーネントの設定>> リセット可能な信頼スコアコンポーネントのリストについては、を参照してください。括弧<>の値を環境に合わせて更新します。使用しない場合は、 `-vserver` パラメータを指定すると、コマンドはクラスタレベルで実行されます。太字のパラメータは必須です。
++
+[source, subs="specialcharacters,quotes"]
+----
+security dynamic-authorization user-trust-score reset \
+*-username <username>* \
+*-component <component-name>* \
+-vserver <storage_VM_name>
+----
+
+
+
+
+=== 信頼スコアの表示
+
+ユーザは、ログインセッションの独自の信頼スコアを表示できます。
+
+.手順
+. 信頼スコアを表示します。
++
+[source, console]
+----
+security login whoami
+----
++
+次のような出力が表示されます。
+
++
+[listing]
+----
+User: admin
+Role: admin
+Trust Score: 50
+----
+
+
+
+
+== カスタム信頼スコアプロバイダの設定
+
+外部の信頼スコアプロバイダーからスコアリングメソッドをすでに受信している場合は、カスタムプロバイダーを動的認可設定に追加できます。
+
+.作業を開始する前に
+* カスタム信頼スコアプロバイダはJSON応答を返す必要があります。次の構文要件を満たす必要があります。
++
+** 信頼スコアを返すフィールドは、配列の要素ではなくスカラーフィールドである必要があります。
+** 信頼スコアを返すフィールドは、次のようにネストされたフィールドにすることができます。 `trust_score.value`。
+** JSON応答内に数値の信頼スコアを返すフィールドが必要です。これがネイティブで利用できない場合は、この値を返すラッパースクリプトを記述できます。
+
+
+* 提供される値は、信頼スコアまたはリスクスコアのいずれかです。違いは、信頼スコアが昇順で、高いスコアが高い信頼レベルを示し、リスクスコアが降順であることです。たとえば、0～100のスコア範囲の信頼スコアが90の場合は、スコアが非常に信頼性が高く、追加のチャレンジなしで「許可」になる可能性があることを示します。 スコアの範囲が0～100の場合、リスクスコアが90の場合は、リスクが高く、追加のチャレンジなしで「拒否」になる可能性があります。
+* カスタム信頼スコアプロバイダには、ONTAP REST API経由でアクセスできる必要があります。
+* カスタム信頼スコアプロバイダは、サポートされているパラメータのいずれかを使用して設定する必要があります。サポートされているパラメータリストにない設定を必要とするカスタム信頼スコアプロバイダはサポートされません。
+
+
+のパラメータとデフォルト値の詳細については、 `security dynamic-authorization trust-score-component create` コマンドについては、ONTAPのマニュアルページを参照してください。
+
+.手順
+. カスタム信頼スコアプロバイダを追加します。括弧<>の値を環境に合わせて更新します。使用しない場合は、 `-vserver` パラメータを指定すると、コマンドはクラスタレベルで実行されます。太字のパラメータは必須です。
++
+[source, subs="specialcharacters,quotes"]
+----
+security dynamic-authorization trust-score-component create \
+-component <text> \
+*-provider-uri <text>* \
+-score-field <text> \
+-min-score <integer> \
+*-max-score <integer>* \
+*-weight <integer>* \
+-secret-access-key "<key_text>" \
+-provider-http-headers <list<header,header,header>> \
+-vserver <storage_VM_name>
+----
+. 結果の信頼スコアプロバイダ設定を表示します。
++
+[source, console]
+----
+security dynamic-authorization trust-score-component show
+----
+
+
+
+
+=== カスタム信頼スコアプロバイダタグの設定
+
+タグを使用して外部の信頼スコアプロバイダーと通信できます。これにより、機密情報を公開することなく、URL内の情報を信頼スコアプロバイダーに送信できます。
+
+のパラメータとデフォルト値の詳細については、 `security dynamic-authorization trust-score-component create` コマンドについては、ONTAPのマニュアルページを参照してください。
+
+.手順
+. 信頼スコアプロバイダタグを有効にします。括弧<>の値を環境に合わせて更新します。使用しない場合は、 `-vserver` パラメータを指定すると、コマンドはクラスタレベルで実行されます。太字のパラメータは必須です。
++
+[source, subs="specialcharacters,quotes"]
+----
+security dynamic-authorization trust-score-component create \
+*-component <component_name>* \
+-weight <initial_score_weight> \
+-max-score <max_score_for_provider> \
+*-provider-uri <provider_URI>* \
+-score-field <REST_API_score_field> \
+*-secret-access-key "<key_text>"*
+----
++
+例：
+
++
+[source, console]
+----
+security dynamic-authorization trust-score-component create -component comp1 -weight 20 -max-score 100 -provider-uri https://<url>/trust-scores/users/<user>/<ip>/component1.html?api-key=<access-key> -score-field score -access-key "MIIBBjCBrAIBArqyTHFvYdWiOpLkLKHGjUYUNSwfzX"
+----
+

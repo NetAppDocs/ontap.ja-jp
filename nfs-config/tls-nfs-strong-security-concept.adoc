@@ -1,0 +1,30 @@
+---
+permalink: nfs-config/tls-nfs-strong-security-concept.html 
+sidebar: sidebar 
+keywords: use, tls, nfs, strong, security 
+summary: TLSを使用すると、暗号化されたネットワーク通信をKerberosと同等のセキュリティで実現でき、複雑さも軽減されます。 
+---
+= NFSでのTLSを使用したセキュリティ強化の概要
+:allow-uri-read: 
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead lead"]
+TLSを使用すると、暗号化されたネットワーク通信をKerberosやIPsecと同等のセキュリティで実現でき、複雑さも軽減されます。管理者は、System Manager、ONTAP CLI、またはONTAP REST APIを使用して、NFSv3およびNFSv4.x接続でのセキュリティを強化するためのTLSの有効化、設定、および無効化を行うことができます。
+
+
+NOTE: ONTAP 9.15.1では、NFS over TLSがパブリックプレビューとして提供されています。プレビュー版として、ONTAP 9.15.1では本番ワークロードでNFS over TLSはサポートされていません。
+
+ONTAPでは、TLS経由のNFS接続にTLS 1.3が使用されます。
+
+
+
+== 要件
+
+NFS over TLSにはX.509証明書が必要です。ONTAPクラスタにCA署名済みサーバ証明書をインストールするか、NFSサービスが直接使用する証明書をインストールできます。証明書は次のガイドラインに従っている必要があります。
+
+* 各証明書は、NFSサーバ（TLSを有効または設定するデータLIF）のFully Qualified Domain Name（FQDN；完全修飾ドメイン名）を共通名（CN）として設定する必要があります。
+* 各証明書には、サブジェクト代替名（SAN）としてNFSサーバ（またはその両方）のIPアドレスまたはFQDNを設定する必要があります。IPアドレスとFQDNの両方が設定されている場合、NFSクライアントはIPアドレスまたはFQDNを使用して接続できます。
+* 同じLIFに複数のNFSサービス証明書をインストールできますが、NFS TLS設定で一度に使用できるのはそのうちの1つだけです。
+

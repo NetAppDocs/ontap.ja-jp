@@ -1,0 +1,83 @@
+---
+sidebar: sidebar 
+permalink: snapmirror-active-sync/recover-unplanned-failover-task.html 
+keywords: fan-out, snapmirror active sync, unplanned failover 
+summary: 自動計画外フェイルオーバー（ AUFO ）処理は、プライマリクラスタが停止しているか分離されている場合に実行されます。  この場合、セカンダリクラスタがプライマリに変換され、クライアントへのサービスが開始されます。 
+---
+= 自動計画外フェイルオーバー処理からのリカバリ
+:hardbreaks:
+:allow-uri-read: 
+:nofooter: 
+:icons: font
+:linkattrs: 
+:imagesdir: ../media/
+
+
+[role="lead"]
+自動計画外フェイルオーバー（ AUFO ）処理は、プライマリクラスタが停止しているか分離されている場合に実行されます。ONTAPメディエーターは、フェイルオーバーの発生を検出し、セカンダリクラスタへの自動計画外フェイルオーバーを実行します。セカンダリクラスタがプライマリに変換され、クライアントへのサービス提供が開始されます。この処理は、 ONTAP メディエーターからのみ実行します。
+
+
+NOTE: 自動計画外フェイルオーバーの実行後は、 I/O パスが失われないようにホスト LUN I/O パスを再スキャンすることが重要です。
+
+
+
+== 計画外フェイルオーバー後の保護関係の再確立
+
+保護関係は、System ManagerまたはONTAP CLIを使用して再確立できます。
+
+[role="tabbed-block"]
+====
+.System Manager の略
+--
+.手順
+
+IMPORTANT: ONTAP 9.8~9.14.1では、SnapMirrorアクティブ同期をSnapMirrorビジネス継続性（SM-BC）と呼びます。
+
+. [*Protection] > [Relationships] に移動し、関係の状態が [InSync （ InSync ） ] になるまで待ちます。
+. 元のソースクラスタで処理を再開するには、をクリックします image:icon_kabob.gif["Kabob アイコン"] をクリックし、 * Failover * を選択します。
+
+
+--
+.CLI の使用
+--
+自動計画外フェイルオーバーのステータスは、 `snapmirror failover show` コマンドを実行します
+
+例：
+
+....
+ClusterB::> snapmirror failover show -instance
+Start Time: 9/23/2020 22:03:29
+         Source Path: vs1:/cg/scg3
+    Destination Path: vs3:/cg/dcg3
+     Failover Status: completed
+        Error Reason:
+            End Time: 9/23/2020 22:03:30
+Primary Data Cluster: cluster-2
+Last Progress Update: -
+       Failover Type: unplanned
+  Error Reason codes: -
+....
+を参照してください link:https://docs.netapp.com/us-en/ontap-ems-9131/smbc-aufo-events.html["EMS参照"^] をクリックして、イベントメッセージおよび対処方法について確認してください。
+
+--
+====
+
+
+== フェイルオーバー後にファンアウト構成で保護を再開する
+
+ONTAP 9.15.1以降では、SnapMirrorアクティブ同期で、フェイルオーバー後のファンアウトレッグの自動再設定がサポートされます。詳細については、を参照してください link:interoperability-reference.html#fan-out-configurations["ファンアウト構成"]。
+
+ONTAP 9.14.1以前を使用していて、SnapMirrorのアクティブな同期関係にあるセカンダリクラスタでフェイルオーバーが発生すると、SnapMirror非同期デスティネーションは正常な状態でなくなります。SnapMirror非同期エンドポイントとの関係を削除して再作成し、保護を手動でリストアする必要があります。
+
+.手順
+. フェイルオーバーが正常に完了したことを確認します。
+`snapmirror failover show`
+. SnapMirror非同期エンドポイントで、ファンアウトエンドポイントを削除します。
+`snapmirror delete -destination-path _destination_path_`
+. 3番目のサイトで、新しいSnapMirrorアクティブな同期プライマリボリュームと非同期ファンアウトデスティネーションボリュームの間にSnapMirror非同期関係を作成します。
+`snapmirror create -source-path _source_path_ -destination-path _destination_path_ -policy MirrorAllSnapshots -schedule _schedule_`
+. 関係を再同期します。
+`snapmirror resync -destination-path _destination_path_`
+. 関係のステータスと健全性を確認します。
+`snapmirror show`
+

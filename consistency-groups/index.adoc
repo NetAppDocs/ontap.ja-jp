@@ -23,15 +23,15 @@ summary: 整合グループとはボリュームの集まりで、1つのユニ�
 
 整合グループは、プロトコル（NAS、SAN、NVMe）に関係なく任意のFlexVol をサポートし、ONTAP REST APIまたは* Storage > Consistency Groups *メニュー項目でSystem Managerから管理できます。ONTAP 9.14.1以降では、ONTAP CLIを使用して整合グループを管理できます。
 
-整合グループは、個 々 のエンティティ（ボリュームの集まり）として作成することも、他の整合グループで構成される階層関係として作成することもできます。個 々 のボリュームには、ボリューム単位で独自のSnapshotポリシーを設定できます。また、整合グループ全体のSnapshotポリシーを作成することもできます。整合グループには、SnapMirror Business Continuity（SM-BC）関係と共有のSM-BCポリシーを1つだけ含めることができます。このポリシーを使用して整合グループ全体をリカバリできます。
+整合グループは、個 々 のエンティティ（ボリュームの集まり）として作成することも、他の整合グループで構成される階層関係として作成することもできます。個 々 のボリュームには、ボリューム単位で独自のSnapshotポリシーを設定できます。また、整合グループ全体のSnapshotポリシーを作成することもできます。整合性グループに設定できるアクティブなSnapMirror同期関係と共有SnapMirrorポリシーは1つだけで、整合性グループ全体をリカバリできます。
 
 次の図は、個 々 の整合グループを使用する方法を示しています。でホストされているアプリケーションのデータ `SVM1` 2つのボリュームにまたがっている： `vol1` および `vol2`。整合グループのSnapshotポリシーは、データのSnapshotコピーを15分ごとにキャプチャします。
 
 image:../media/consistency-group-single-diagram.gif["コンスティチュエントボリュームおよびローカル Snapshot ポリシーを含む単一の整合グループの図"]
 
-アプリケーションワークロードが大きいほど、複数の整合グループが必要になる場合がありますこのような場合は、階層型整合グループを作成して、1つの整合グループが親整合グループの子コンポーネントになります。親整合グループには、最大 5 つの子整合グループを含めることができます。個々の整合グループと同様に、リモートの SM-BC 保護ポリシーを整合グループの設定全体（親と子）に適用して、アプリケーションワークロードをリカバリすることができます。
+アプリケーションワークロードが大きいほど、複数の整合グループが必要になる場合がありますこのような場合は、階層型整合グループを作成して、1つの整合グループが親整合グループの子コンポーネントになります。親整合グループには、最大 5 つの子整合グループを含めることができます。個 々 の整合グループと同様に、リモートSnapMirrorアクティブ同期保護ポリシーを整合グループの構成全体（親と子）に適用して、アプリケーションワークロードをリカバリできます。
 
-次の例では、アプリケーションがでホストされています `SVM1`。管理者が親整合グループを作成し、 `SVM1_app`を使用します。このグループには次の2つの子整合グループ `SVM1appDataCG` データおよび `SVM1app_logCG` をクリックします。子整合グループには、それぞれ独自のSnapshotポリシーがあります。SVMナイノボリュームノSnapshotコピー `SVM1appDataCG` 15分ごとに服用してください。のSnapshot `SVM1app_logCG` 1時間ごとに作成されます。親整合グループ `SVM1_app` データを複製し、災害発生時にサービスを継続できるようにするSM-BCポリシーが用意されています。
+次の例では、アプリケーションがでホストされています `SVM1`。管理者が親整合グループを作成し、 `SVM1_app`を使用します。このグループには次の2つの子整合グループ `SVM1appDataCG` データおよび `SVM1app_logCG` をクリックします。子整合グループには、それぞれ独自のSnapshotポリシーがあります。SVMナイノボリュームノSnapshotコピー `SVM1appDataCG` 15分ごとに服用してください。のSnapshot `SVM1app_logCG` 1時間ごとに作成されます。親整合グループ `SVM1_app` 災害発生時にサービスを継続できるように、データをレプリケートするSnapMirrorアクティブ同期ポリシーが設定されています。
 
 image:../media/consistency-group-nested-diagram.gif["ネストされた整合グループとそのボリュームを含む図"]
 
@@ -67,9 +67,9 @@ NOTE: ONTAP 9.13.1では、REST APIを使用してのみ過去の指標を取得
 コンシステンシ・グループは'次の機能を使用
 
 * Snapshot ポリシー
-* xref:../smbc/index.html[SnapMirror のビジネス継続性（ SM-BC ）]
+* xref:../snapmirror-active-sync/index.html[SnapMirrorアクティブ同期]
 * <<mcc>> （ONTAP 9.11.1以降）
-* xref:../data-protection/snapmirror-disaster-recovery-concept.html[非同期SnapMirror] （ONTAP 9.13.1以降）
+* xref:../data-protection/snapmirror-disaster-recovery-concept.html[SnapMirror非同期] （ONTAP 9.13.1以降）
 * link:../data-protection/snapmirror-svm-replication-concept.html["SVM ディザスタリカバリ"] （ONTAP 9.14.1以降）
 
 
@@ -77,10 +77,10 @@ NOTE: ONTAP 9.13.1では、REST APIを使用してのみ過去の指標を取得
 
 コンシステンシグループに保護を設定するには、を参照してください link:protect-task.html["整合グループを保護する"]。
 
-リモート保護を利用するには、の要件を満たす必要があります xref:../smbc/smbc_plan_prerequisites.html#licensing[SnapMirror によるビジネス継続性の導入]。
+リモート保護を利用するには、の要件を満たす必要があります xref:../snapmirror-active-sync/prerequisites-reference.html[SnapMirrorアクティブ同期]。
 
 
-NOTE: NAS アクセス用にマウントされたボリュームでは、 SM-BC 関係を確立できません。
+NOTE: NASアクセス用にマウントされたボリュームには、SnapMirrorアクティブな同期関係を確立できません。
 
 
 
@@ -107,68 +107,68 @@ NOTE: ストレージのパフォーマンスと可用性を最適化するた�
 
 == アップグレード時の考慮事項
 
-ONTAP 9.8および9.9.1でSM-BCで作成した整合グループは、ONTAP 9.10.1以降へのアップグレード時に、System Managerの*[ストレージ]>[整合グループ]*またはONTAP REST APIで自動的にアップグレードされて管理できるようになります。ONTAP 9.8または9.9.1からのアップグレードの詳細については、を参照してください link:../smbc/smbc_admin_upgrade_and_revert_considerations.html["SM-BC アップグレードおよびリバートに関する考慮事項"]。
+ONTAP 9.10.1以降にアップグレードする場合、SnapMirrorアクティブ同期（旧SnapMirrorビジネス継続性）で作成された整合グループ ONTAP 9.8および9.9.1では、System ManagerまたはONTAP REST APIの*[ストレージ]>[整合グループ]*で自動的にアップグレードされて管理可能になります。ONTAP 9.8または9.9.1からのアップグレードの詳細については、を参照してください。 link:../snapmirror-active-sync/upgrade-revert-task.html["SnapMirrorアクティブ同期のアップグレードとリバートに関する考慮事項"]。
 
 REST APIで作成された整合グループSnapshotコピーは、System Managerの整合グループインターフェイスおよび整合グループREST APIエンドポイントを使用して管理できます。ONTAP 9.14.1以降では、ONTAP CLIでも整合グループSnapshotを管理できます。
 
 
-NOTE: ontapiコマンドで作成されたSnapshotコピー `cg-start` および `cg-commit` は整合グループのSnapshotとして認識されるため、ONTAP REST APIでは、System Managerの整合グループインターフェイスまたは整合グループエンドポイントから管理することはできません。ONTAP 9.14.1以降では、非同期SnapMirrorポリシーを使用している場合、これらのSnapshotコピーをデスティネーションボリュームにミラーリングできます。詳細については、を参照してください xref:protect-task.html#configure-asynchronous-snapmirror-protection[非同期SnapMirror保護を設定する]。
+NOTE: ontapiコマンドで作成されたSnapshotコピー `cg-start` および `cg-commit` は整合グループのSnapshotとして認識されるため、ONTAP REST APIでは、System Managerの整合グループインターフェイスまたは整合グループエンドポイントから管理することはできません。ONTAP 9.14.1以降では、SnapMirror非同期ポリシーを使用している場合、これらのSnapshotコピーをデスティネーションボリュームにミラーリングできます。詳細については、を参照してください xref:protect-task.html#configure-asynchronous-snapmirror-protection[SnapMirror非同期保護の設定]。
 
 
 
 == リリースごとにサポートされる機能
 
-[cols="3,1,1,1,1,1"]
+[cols="3,1,1,1,1,1,1"]
 |===
-|  | ONTAP 9.14.1 | ONTAP 9.13.1 | ONTAP 9.12.1 | ONTAP 9.11.1 | ONTAP 9.10.1 
+|  | ONTAP 9.15.1 | ONTAP 9.14.1 | ONTAP 9.13.1 | ONTAP 9.12.1 | ONTAP 9.11.1 | ONTAP 9.10.1 
 
 
-| 階層整合グループ | ✓ | ✓ | ✓ | ✓ | ✓ 
+| 階層整合グループ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ 
 
 
-| Snapshotコピーによるローカル保護 | ✓ | ✓ | ✓ | ✓ | ✓ 
+| Snapshotコピーによるローカル保護 | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ 
 
 
-| SnapMirror によるビジネス継続性 | ✓ | ✓ | ✓ | ✓ | ✓ 
+| SnapMirrorアクティブ同期 | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ 
 
 
-| MetroCluster のサポート | ✓ | ✓ | ✓ | ✓ |  
+| MetroCluster のサポート | ✓ | ✓ | ✓ | ✓ | ✓ |  
 
 
-| 2フェーズコミット（REST APIのみ） | ✓ | ✓ | ✓ | ✓ |  
+| 2フェーズコミット（REST APIのみ） | ✓ | ✓ | ✓ | ✓ | ✓ |  
 
 
-| アプリケーションタグとコンポーネントタグ | ✓ | ✓ | ✓ |  |  
+| アプリケーションタグとコンポーネントタグ | ✓ | ✓ | ✓ | ✓ |  |  
 
 
-| 整合グループをクローニングします | ✓ | ✓ | ✓ |  |  
+| 整合グループをクローニングします | ✓ | ✓ | ✓ | ✓ |  |  
 
 
-| ボリュームを追加および削除します | ✓ | ✓ | ✓ |  |  
+| ボリュームを追加および削除します | ✓ | ✓ | ✓ | ✓ |  |  
 
 
-| 新しいNASボリュームでCGを作成します | ✓ | ✓ | REST APIのみ |  |  
+| 新しいNASボリュームでCGを作成します | ✓ | ✓ | ✓ | REST APIのみ |  |  
 
 
-| 新しいNVMeネームスペースを使用してCGを作成します | ✓ | ✓ | REST APIのみ |  |  
+| 新しいNVMeネームスペースを使用してCGを作成します | ✓ | ✓ | ✓ | REST APIのみ |  |  
 
 
-| 子整合グループ間でボリュームを移動します | ✓ | ✓ |  |  |  
+| 子整合グループ間でボリュームを移動します | ✓ | ✓ | ✓ |  |  |  
 
 
-| コンシステンシグループジオメトリを変更します | ✓ | ✓ |  |  |  
+| コンシステンシグループジオメトリを変更します | ✓ | ✓ | ✓ |  |  |  
 
 
-| 監視 | ✓ | ✓ |  |  |  
+| 監視 | ✓ | ✓ | ✓ |  |  |  
 
 
-| 非同期SnapMirror（単一の整合グループのみ） | ✓ | ✓ |  |  |  
+| SnapMirror非同期（単一の整合グループのみ） | ✓ | ✓ | ✓ |  |  |  
 
 
-| SVMディザスタリカバリ（単一の整合グループのみ） | ✓ |  |  |  |  
+| SVMディザスタリカバリ（単一の整合グループのみ） | ✓ | ✓ |  |  |  |  
 
 
-| CLIのサポート | ✓ |  |  |  |  
+| CLIのサポート | ✓ | ✓ |  |  |  |  
 |===
 
 
@@ -177,7 +177,7 @@ NOTE: ontapiコマンドで作成されたSnapshotコピー `cg-start` および
 video::j0jfXDcdyzE[youtube,width=848,height=480]
 .詳細情報
 * link:https://docs.netapp.com/us-en/ontap-automation/["ONTAP 自動化に関するドキュメント"^]
-* xref:../smbc/index.html[SnapMirror によるビジネス継続性]
-* xref:../data-protection/snapmirror-disaster-recovery-concept.html[非同期 SnapMirror ディザスタリカバリの基本]
+* xref:../snapmirror-active-sync/index.html[SnapMirrorアクティブ同期]
+* xref:../data-protection/snapmirror-disaster-recovery-concept.html[SnapMirror非同期ディザスタリカバリの基本]
 * link:https://docs.netapp.com/us-en/ontap-metrocluster/["MetroCluster のドキュメント"]
 

@@ -1,0 +1,39 @@
+---
+sidebar: sidebar 
+permalink: snapmirror-active-sync/strategy-concept.html 
+keywords: snapmirror, snapmirror business continuity, sm-bc, deployment, recommendations 
+summary: SnapMirror Active Syncの導入とベストプラクティスを紹介します。 
+---
+= SnapMirror Active Syncの導入戦略とベストプラクティス
+:hardbreaks:
+:allow-uri-read: 
+:nofooter: 
+:icons: font
+:linkattrs: 
+:imagesdir: ../media/
+
+
+[role="lead"]
+ビジネス継続性のために保護が必要なワークロードの脅威をデータ保護戦略で明確に特定することが重要です。データ保護戦略で最も重要なステップは、エンタープライズアプリケーションのデータレイアウトを明確にして、ボリュームをどのように分散し、ビジネス継続性を保護するかを決定できるようにすることです。フェイルオーバーはアプリケーションごとに整合グループレベルで実行されるため、必要なデータボリュームを整合グループに追加してください。
+
+
+
+== SVM設定
+
+次の図は、SnapMirrorのアクティブな同期に推奨されるStorage VM（SVM）設定を示しています。
+
+image:snapmirror-svm-layout.png["SnapMirror Active Sync構成のSVMの図"]
+
+* データボリュームの場合：
++
+** ランダムリードのワークロードはシーケンシャルライトとは切り離されているため、データファイルとログファイルは通常、データベースのサイズによっては別 々 のボリュームに配置されます。
++
+*** 重要な大規模データベースの場合、単一のデータファイルがFlexVol 1に、対応するログファイルがFlexVol 2にあります。
+*** 統合を効率化するために、小規模から中規模の重要でないデータベースは、すべてのデータファイルがFlexVol 1に配置され、対応するログファイルがFlexVol 2に配置されるようにグループ化されます。ただし、このグループ化によって、アプリケーションレベルの細分性が失われます。
+
+
+** 別の方法としては、すべてのファイルを同じFlexVol 3に格納し、データファイルをLUN1に、ログファイルをLUN 2に格納する方法があります。
+
+
+* 環境が仮想化されている場合は、さまざまなエンタープライズアプリケーションのすべてのVMを1つのデータストアで共有します。通常、VMとアプリケーションバイナリはSnapMirrorを使用して非同期でレプリケートされます。
+

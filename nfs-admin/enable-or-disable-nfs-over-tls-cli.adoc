@@ -1,0 +1,152 @@
+---
+permalink: nfs-admin/enable-or-disable-nfs-over-tls-cli.html 
+sidebar: sidebar 
+keywords: enable, tls, data, lif 
+summary: ONTAP CLIを使用して、NFSクライアント用のデータLIFでTLSを有効にすることができます。これにより、SVMでNFSのTLSセキュリティサービスを使用できるようになります。 
+---
+= NFSクライアントに対するTLSの有効化または無効化
+:allow-uri-read: 
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+NFSクライアントとONTAPの間でネットワーク経由で送信されるすべてのデータを暗号化するようにNFS over TLSを設定すると、NFS接続のセキュリティを強化できます。これにより、NFS接続のセキュリティが向上します。有効になっている既存のStorage VMでこの設定を行うことができます： link:../task_nas_enable_linux_nfs.html["NFS"]。
+
+
+NOTE: ONTAP 9.15.1では、NFS over TLSがパブリックプレビューとして提供されています。プレビュー版として、ONTAP 9.15.1では本番ワークロードでNFS over TLSはサポートされていません。
+
+
+
+== TLSを有効にする
+
+NFSクライアントに対してTLS暗号化を有効にすると、転送中のデータのセキュリティを強化できます。
+
+.作業を開始する前に
+* を参照してください link:tls-nfs-strong-security-concept.html["要件"] （NFS over TLSの場合）を参照してください。
+* この手順のコマンドの詳細については、ONTAPのマニュアルページを参照してください。
+
+
+.手順
+. TLSを有効にするStorage VMと論理インターフェイス（LIF）を選択してください。
+. そのStorage VMおよびインターフェイスのNFS接続に対してTLSを有効にします。
++
+[source, console]
+----
+vserver nfs tls interface enable -vserver <STORAGE_VM> -lif <LIF_NAME> -certificate-name <CERTIFICATE_NAME>
+----
+. を使用します `vserver nfs tls interface show` コマンドを使用して結果を表示します。
++
+[source, console]
+----
+vserver nfs tls interface show
+----
+
+
+.例
+次のコマンドは、でNFS over TLSを有効にします。 `data1` SVMノLIF `vs1` Storage VM：
+
+[source, console]
+----
+vserver nfs tls interface enable -vserver vs1 -lif data1 -certificate-name cert_vs1
+----
+[source, console]
+----
+vserver nfs tls interface show
+----
+....
+               Logical
+Vserver        Interface     Address         TLS Status TLS Certificate Name
+-------------- ------------- --------------- ---------- -----------------------
+vs1            data1         10.0.1.1        enabled    cert_vs1
+vs2            data2         10.0.1.2        disabled   -
+2 entries were displayed.
+....
+
+
+== TLSを無効にする
+
+転送中のデータのセキュリティを強化する必要がなくなった場合は、NFSクライアントのTLSを無効にすることができます。
+
+.作業を開始する前に
+この手順のコマンドの詳細については、ONTAPのマニュアルページを参照してください。
+
+.手順
+. TLSを無効にするStorage VMと論理インターフェイス（LIF）を選択してください。
+. そのStorage VMおよびインターフェイスのNFS接続に対するTLSを無効にします。
++
+[source, console]
+----
+vserver nfs tls interface disable -vserver <STORAGE_VM> -lif <LIF_NAME>
+----
+. を使用します `vserver nfs tls interface show` コマンドを使用して結果を表示します。
++
+[source, console]
+----
+vserver nfs tls interface show
+----
+
+
+.例
+次のコマンドは、でNFS over TLSを無効にします。 `data1` SVMノLIF `vs1` Storage VM：
+
+[source, console]
+----
+vserver nfs tls interface disable -vserver vs1 -lif data1
+----
+[source, console]
+----
+vserver nfs tls interface show
+----
+....
+               Logical
+Vserver        Interface     Address         TLS Status TLS Certificate Name
+-------------- ------------- --------------- ---------- -----------------------
+vs1            data1         10.0.1.1        disabled   -
+vs2            data2         10.0.1.2        disabled   -
+2 entries were displayed.
+....
+
+
+== TLS設定の編集
+
+NFS over TLSの既存の設定を変更できます。たとえば、この手順を使用してTLS証明書を更新できます。
+
+.作業を開始する前に
+この手順のコマンドの詳細については、ONTAPのマニュアルページを参照してください。
+
+.手順
+. NFSクライアントのTLS設定を変更するStorage VMと論理インターフェイス（LIF）を選択してください。
+. 設定を変更します。を指定する場合 `status` の `enable`を指定する必要があります。 `certificate-name` パラメータ括弧<>の値は、環境の情報で置き換えます。
++
+[source, console]
+----
+vserver nfs tls interface modify -vserver <STORAGE_VM> -lif <LIF_NAME> -status <STATUS> -certificate-name <CERTIFICATE_NAME>
+----
+. を使用します `vserver nfs tls interface show` コマンドを使用して結果を表示します。
++
+[source, console]
+----
+vserver nfs tls interface show
+----
+
+
+.例
+次のコマンドは、SVM上のNFS over TLSの設定を変更します。 `data2` SVMノLIF `vs2` Storage VM：
+
+[source, console]
+----
+vserver nfs tls interface modify -vserver vs2 -lif data2 -status enable -certificate-name new_cert
+----
+[source, console]
+----
+vserver nfs tls interface show
+----
+....
+               Logical
+Vserver        Interface     Address         TLS Status TLS Certificate Name
+-------------- ------------- --------------- ---------- -----------------------
+vs1            data1         10.0.1.1        disabled   -
+vs2            data2         10.0.1.2        enabled    new_cert
+2 entries were displayed.
+....

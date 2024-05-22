@@ -1,7 +1,7 @@
 ---
 sidebar: sidebar 
 permalink: snapmirror-active-sync/index.html 
-keywords: SM-BC, SMBC, failover, terms, benefits, snapmirror active sync 
+keywords: SM-BC, SMBC, failover, terms, benefits, snapmirror active sync, TR-4878 
 summary: SnapMirror Active Syncを使用してLUNでアプリケーションを保護し、アプリケーションが透過的にフェイルオーバーできるようにして、災害発生時のビジネス継続性を確保します。 
 ---
 = SnapMirror Active Syncの概要
@@ -14,11 +14,11 @@ summary: SnapMirror Active Syncを使用してLUNでアプリケーションを�
 
 
 [role="lead"]
-SnapMirror Active Sync（当初はSnapMirror Business Continuity [SM-BC]としてリリース）を使用すると、サイト全体が障害状態になってもビジネスサービスの運用を継続でき、アプリケーションがセカンダリコピーを使用して透過的にフェイルオーバーできるようになります。SnapMirror Active Syncでフェイルオーバーをトリガーするには、手動操作やカスタムスクリプトが必要です。
+SnapMirrorアクティブ同期（SnapMirrorビジネス継続性[SM-BC]とも呼ばれます）を使用すると、サイト全体の障害が発生してもビジネスサービスの運用を継続でき、アプリケーションがセカンダリコピーを使用して透過的にフェイルオーバーできるようになります。SnapMirror Active Syncでフェイルオーバーをトリガーするには、手動操作やカスタムスクリプトが必要です。
 
-SnapMirrorアクティブ同期は、ONTAP 9.9.1以降で使用できます。SnapMirrorアクティブ同期は、AFFクラスタ、オールフラッシュSANアレイ（ASA）クラスタ、Cシリーズ（AFFまたはASA）でサポートされます。プライマリクラスタとセカンダリクラスタのタイプが同じである必要があります（ASAまたはAFF）。SnapMirror Active Syncは、iSCSI LUNまたはFCP LUNを使用してアプリケーションを保護します。
+ONTAP 9.9.1以降では、AFFクラスタ、オールフラッシュSANアレイ（ASA）クラスタ、およびCシリーズ（AFFまたはASA）でSnapMirrorアクティブ同期がサポートされます。プライマリクラスタとセカンダリクラスタのタイプが同じである必要があります（ASAまたはAFF）。SnapMirror Active Syncは、iSCSI LUNまたはFCP LUNを使用してアプリケーションを保護します。
 
-ONTAP 9.15.1以降では、SnapMirrorアクティブ同期でAがサポートされます。 xref:architecture-concept.html[対称アクティブ/アクティブ機能]双方向同期レプリケーションを使用して、保護されたLUNの両方のコピーからの読み取りおよび書き込みI/O処理を有効にし、両方のLUNコピーがI/O処理をローカルで処理できるようにします。
+ONTAP 9.15.1以降では、SnapMirrorアクティブ同期でAがサポートされます。 xref:architecture-concept.html[対称アクティブ/アクティブ機能]双方向同期レプリケーションを使用して、保護されたLUNの両方のコピーからの読み取りおよび書き込みI/O処理を有効にし、両方のLUNコピーがI/O処理をローカルで処理できるようにします。ONTAP 9.15.1より前のバージョンでは、SnapMirrorのアクティブな同期でサポートされるのは、セカンダリサイトのデータがLUNにプロキシされる非対称アクティブ/アクティブ構成のみです。
 
 
 NOTE: 2024年7月以降、これまでPDFとして公開されていたテクニカルレポートの内容がONTAPの製品ドキュメントに統合されました。ONTAP SnapMirror Active Syncのドキュメントに、TR-4878：『SnapMirror active sync』の内容が追加されました。
@@ -67,7 +67,7 @@ SnapMirrorのアクティブな同期関係で保護されている整合性グ�
 
 * ONTAPクラスタのピアリング
 * ピアONTAPクラスタノード
-* 整合グループ（フェイルオーバーユニット）。整合グループごとに次の情報が表示されます。
+* 整合グループ（SnapMirrorのアクティブな同期関係でフェイルオーバーユニットを定義）。整合グループごとに次の情報が表示されます。
 +
 ** レプリケーションの状態：Uninitialized、In Sync、またはOut of Sync
 ** プライマリコピーをホストするクラスタ
@@ -85,7 +85,7 @@ NOTE: ONTAP 9.15.1以降では、どちらかのクラスタのSnapMirrorアク�
 SnapMirrorのアクティブな同期関係におけるコピーの役割を変更する手動処理。プライマリサイトがセカンダリになり、セカンダリがプライマリになります。
 
 .一次バイアスと一次バイアス
-SnapMirrorのアクティブな同期では、プライマリファーストの原則が採用されており、ネットワークに分割された場合にI/Oを処理するためにプライマリコピーが優先されます。
+SnapMirrorのアクティブな同期では、ネットワークに分割された場合にI/Oを処理するためにプライマリファーストの原則が使用されます。
 
 primary-biasは、SnapMirrorのアクティブな同期で保護されたデータセットの可用性を向上させる特別なクォーラムの実装です。プライマリコピーが使用可能な場合、両方のクラスタからONTAPメディエーターにアクセスできないときにプライマリバイアスが有効になります。
 
@@ -104,8 +104,6 @@ SnapMirror Active Syncは自動再同期をサポートしており、コピー�
 ONTAP 9.15.1以降では、SnapMirrorアクティブ同期がサポートされます。 link:interoperability-reference.html#fan-out-configurations["ファンアウト構成での自動再構成"]。
 
 .均一な構成と非均一な構成
-対称アクティブ/アクティブ_を使用して保護を作成する場合、プロセスは構成によって異なります。
-
 * **均一なホストアクセス**は、両方のサイトのホストが両方のサイトのストレージクラスタへのすべてのパスに接続されていることを意味します。サイト間パスが複数の距離にわたってストレッチされている。
 * **Non-uniform host access **は、各サイトのホストが同じサイトのクラスタにのみ接続されることを意味します。サイト間パスとストレッチパスは接続されません。
 

@@ -2,7 +2,7 @@
 permalink: data-protection/create-snapshot-job-schedule-task.html 
 sidebar: sidebar 
 keywords: create, snapshot, job, schedule 
-summary: Snapshot ポリシーには、 Snapshot コピーのジョブスケジュールが少なくとも 1 つ必要です。job schedule cron create コマンドを使用すると、ジョブスケジュールを作成できます。 
+summary: Snapshot ポリシーには、 Snapshot コピーのジョブスケジュールが少なくとも 1 つ必要です。System Managerまたはjob schedule cron createコマンドを使用して、ジョブスケジュールを作成します。 
 ---
 = Snapshot ジョブスケジュールを作成
 :allow-uri-read: 
@@ -11,18 +11,40 @@ summary: Snapshot ポリシーには、 Snapshot コピーのジョブスケジ�
 
 
 [role="lead"]
-Snapshot ポリシーには、 Snapshot コピーのジョブスケジュールが少なくとも 1 つ必要です。を使用できます `job schedule cron create` コマンドを使用してジョブスケジュールを作成します。
+Snapshot ポリシーには、 Snapshot コピーのジョブスケジュールが少なくとも 1 つ必要です。System Managerまたは `job schedule cron create` コマンドを使用してジョブスケジュールを作成します。
 
 .このタスクについて
 デフォルトでは、 ONTAP が Snapshot コピーの名前を作成する際には、ジョブスケジュール名にタイムスタンプを追加します。
 
 日にちと曜日の両方に値を指定すると、それぞれ個別に判断されます。たとえば、dayが指定されたcronスケジュールなどです `Friday` 日付を指定します `13` 13日の金曜日だけでなく、毎月の毎週金曜日と13日に実行されます。
 
-.ステップ
+
+
+== Snapshotコピージョブスケジュールを作成する
+
+.手順
+System ManagerまたはONTAP CLIを使用して、Snapshotコピージョブスケジュールを作成できます。
+
+[role="tabbed-block"]
+====
+.System Manager の略
+--
+. [保護]>[概要]*に移動し、*[ローカルポリシー設定]*を展開します。
+. [スケジュール]*ペインで、 image:icon_arrow.gif["矢印（ Arrow ）"]。
+. [スケジュール]ウィンドウで、 image:icon_add.gif["プラス"]。
+. [スケジュールの追加]ウィンドウで、スケジュール名を入力し、コンテキストとスケジュールタイプを選択します。
+. [ 保存（ Save ） ] をクリックします。
+
+
+--
+.CLI の使用
+--
 . ジョブスケジュールを作成します。
 +
-`job schedule cron create -name _job_name_ -month month -dayofweek _day_of_week_ -day _day_of_month_ -hour _hour_ -minute _minute_`
-
+[source, cli]
+----
+job schedule cron create -name <job_name> -month <month> -dayofweek <day_of_week> -day <day_of_month> -hour <hour> -minute <minute>
+----
 +
 の場合 `-month`、 `-dayofweek`および `-hour`を指定できます `all` 毎月、曜日、および時間ごとにジョブを実行します。
 
@@ -30,8 +52,10 @@ Snapshot ポリシーには、 Snapshot コピーのジョブスケジュール�
 ONTAP 9.10.1 以降では、ジョブスケジュールに SVM を追加できます。
 
 +
-`job schedule cron create -name _job_name_ -vserver _Vserver_name_ -month _month_ -dayofweek _day_of_week_ -day _day_of_month_ -hour _hour_ -minute _minute_`
-
+[listing, subs="+quotes"]
+----
+job schedule cron create -name <job_name> *-vserver <Vserver_name>* -month <month> -dayofweek <day_of_week> -day <day_of_month> -hour <hour> -minute <minute>
+----
 +
 次の例は、という名前のジョブスケジュールを作成します `myweekly` 土曜日の午前3時に実行されます。
 
@@ -49,3 +73,6 @@ cluster1::> job schedule cron create -name myweekly -dayofweek "Saturday" -hour 
 job schedule cron create -name myweeklymulti -dayofweek "Monday,Wednesday,Sunday" -hour 3,9,12 -minute 0,20,50
 ----
 
+
+--
+====

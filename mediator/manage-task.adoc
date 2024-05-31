@@ -2,7 +2,7 @@
 permalink: mediator/manage-task.html 
 sidebar: sidebar 
 keywords: mediator, service, username, user name, password, change, uninstall, self-signed certificate, self signed certificate, regenerate, stop mediator service, uninstall scst 
-summary: ONTAP メディエーターサービスをインストールしたあと、必要に応じてユーザ名またはパスワードを変更できます。ONTAPメディエーターサービスをアンインストールすることもできます。 
+summary: ONTAPメディエーターサービスの管理（ユーザクレデンシャル管理、サービス制御、健全性検証、SCSTメンテナンス、証明書の管理とトラブルシューティングなど） 
 ---
 = ONTAP メディエーターサービスを管理します
 :allow-uri-read: 
@@ -11,14 +11,16 @@ summary: ONTAP メディエーターサービスをインストールしたあ�
 
 
 [role="lead"]
-ONTAP メディエーターサービスをインストールしたあと、必要に応じてユーザ名またはパスワードを変更できます。ONTAPメディエーターサービスをアンインストールすることもできます。
+ユーザクレデンシャルの変更、サービスの停止と再有効化、健全性の確認、ホストメンテナンスのためのSCSTのインストールとアンインストールなど、ONTAPメディエーターサービスの管理を行います。また、自己署名証明書の再生成、信頼されたサードパーティ証明書への置き換え、証明書関連の問題のトラブルシューティングなど、証明書の管理も行うことができます。
 
 
 
-== ユーザ名を変更します
+== ユーザ名の変更
 
-.これらのタスクについて
-これらのタスクは、 ONTAP メディエーターサービスがインストールされた Linux ホストで実行します。
+ユーザ名は次の手順を使用して変更できます。
+
+.このタスクについて
+このタスクは、ONTAPメディエーターサービスがインストールされているLinuxホストで実行します。
 
 このコマンドを実行できない場合は、次の例のように完全パスを使用してコマンドを実行する必要があります。
 
@@ -27,7 +29,7 @@ ONTAP メディエーターサービスをインストールしたあと、必�
 .手順
 次のいずれかを実行してユーザ名を変更します。
 
-* 次の例に示すように、コマンド mediator_change_user を実行してプロンプトに応答します。
+* *オプション（a）*：コマンドを実行します。 `mediator_change_user` 次の例に示すように、プロンプトに応答します。
 +
 ....
  [root@mediator-host ~]# mediator_change_user
@@ -38,24 +40,27 @@ ONTAP メディエーターサービスをインストールしたあと、必�
  The account username has been modified successfully.
  [root@mediator-host ~]#
 ....
-* 次のコマンドを実行します。
+* *オプション（b）*：次のコマンドを実行します。
 +
 `MEDIATOR_USERNAME=mediator MEDIATOR_PASSWORD=mediator2 MEDIATOR_NEW_USERNAME=mediatoradmin mediator_change_user`
 
 +
-....
- [root@mediator-host ~]# MEDIATOR_USERNAME= mediator MEDIATOR_PASSWORD='mediator2' MEDIATOR_NEW_USERNAME= mediatoradmin mediator_change_user
+[listing]
+----
+ [root@mediator-host ~]# MEDIATOR_USERNAME=mediator MEDIATOR_PASSWORD='mediator2' MEDIATOR_NEW_USERNAME=mediatoradmin mediator_change_user
  The account username has been modified successfully.
  [root@mediator-host ~]#
-....
+----
 
 
 
 
 == パスワードを変更します
 
+パスワードは次の手順を使用して変更できます。
+
 .このタスクについて
-このタスクは、 ONTAP メディエーターサービスがインストールされた Linux ホストで実行します。
+このタスクは、ONTAPメディエーターサービスがインストールされているLinuxホストで実行します。
 
 このコマンドを実行できない場合は、次の例のように完全パスを使用してコマンドを実行する必要があります。
 
@@ -64,7 +69,7 @@ ONTAP メディエーターサービスをインストールしたあと、必�
 .手順
 次のいずれかを実行してパスワードを変更します。
 
-* を実行します `mediator_change_password` コマンドを実行し、次の例に示すようにプロンプトに応答します。
+* *オプション（a）*： `mediator_change_password` コマンドを実行し、次の例に示すようにプロンプトに応答します。
 +
 ....
  [root@mediator-host ~]# mediator_change_password
@@ -76,9 +81,9 @@ ONTAP メディエーターサービスをインストールしたあと、必�
  The password has been updated successfully.
  [root@mediator-host ~]#
 ....
-* 次のコマンドを実行します。
+* *オプション（b）*：次のコマンドを実行します。
 +
-`MEDIATOR_USERNAME= mediatoradmin MEDIATOR_PASSWORD=mediator1 MEDIATOR_NEW_PASSWORD=mediator2 mediator_change_password`
+`MEDIATOR_USERNAME=mediatoradmin MEDIATOR_PASSWORD=mediator1 MEDIATOR_NEW_PASSWORD=mediator2 mediator_change_password`
 
 +
 この例では、パスワードが「mediator1」から「mediator2」に変更されています。
@@ -98,7 +103,7 @@ ONTAP メディエーターサービスをインストールしたあと、必�
 ONTAP メディエーターサービスを停止するには、次の手順を実行します。
 
 .手順
-. ONTAP メディエーターを停止します。
+. ONTAPメディエーターを停止します。
 +
 `systemctl stop ontap_mediator`
 
@@ -106,7 +111,7 @@ ONTAP メディエーターサービスを停止するには、次の手順を�
 +
 `systemctl stop mediator-scst`
 
-. ONTAP メディエーターとSCSTを無効にします。
+. ONTAPメディエーターとSCSTを無効にします。
 +
 `systemctl diable ontap_mediator mediator-scst`
 
@@ -119,15 +124,15 @@ ONTAP メディエーターサービスを停止するには、次の手順を�
 ONTAP メディエーターサービスを再度有効にするには、次の手順を実行します。
 
 .手順
-. ONTAP メディエーターとSCSTを有効にします。
+. ONTAPメディエーターとSCSTを有効にします。
 +
 `systemctl enable ontap_mediator mediator-scst`
 
-. SCSTを起動します。
+. SCSTを開始します。
 +
 `systemctl start mediator-scst`
 
-. ONTAP Mediatorを起動します。
+. ONTAPメディエーターを起動します。
 +
 `systemctl start ontap_mediator`
 
@@ -293,7 +298,7 @@ SCSTを手動でインストールするには、インストールされてい�
 .. `patch /etc/init.d/scst < /opt/netapp/lib/ontap_mediator/systemd/scst.patch`
 
 
-. （オプション）セキュアブートが有効になっている場合は、リブートする前に、次の手順を実行します。
+. セキュアブートが有効になっている場合は、リブートする前に、次の手順を実行します。
 +
 .. 「scst_vdisk」、「scst」、および「iscsi_scst」モジュールの各ファイル名を確認します。
 +
@@ -340,11 +345,13 @@ UEFIキーのインストール手順は、次の場所にあります。
 
 == ONTAP メディエーターサービスをアンインストールします
 
+必要に応じて、 ONTAP メディエーターサービスを削除できます。
+
 .作業を開始する前に
-必要に応じて、 ONTAP メディエーターサービスを削除できます。メディエーターサービスを削除するには、事前にメディエーターを ONTAP から切断する必要があります。
+ONTAPメディエーターサービスを削除する前に、ONTAPメディエーターをONTAPから切断する必要があります。
 
 .このタスクについて
-このタスクは、 ONTAP メディエーターサービスがインストールされた Linux ホストで実行します。
+このタスクは、ONTAPメディエーターサービスがインストールされているLinuxホストで実行する必要があります。
 
 このコマンドを実行できない場合は、次の例のように完全パスを使用してコマンドを実行する必要があります。
 
@@ -371,16 +378,18 @@ UEFIキーのインストール手順は、次の場所にあります。
 
 == 一時的な自己署名証明書の再生成
 
+次の手順を使用して、一時的な自己署名証明書を再生成できます。
+
 .このタスクについて
 * このタスクは、ONTAPメディエーターサービスがインストールされているLinuxホストで実行します。
 * このタスクは、ONTAPメディエーターのインストール後にホストのホスト名またはIPアドレスが変更されたために、生成された自己署名証明書が廃止された場合にのみ実行できます。
-* 一時的な自己署名証明書を信頼できるサードパーティ証明書に置き換えたあと、このタスクを使用して証明書を再生成します。  自己署名証明書がないと、原因この手順は失敗します。
+* 一時的な自己署名証明書を信頼できるサードパーティ証明書に置き換えたあと、このタスクを使用して証明書を再生成します。自己署名証明書がないと、原因この手順は失敗します。
 
 
 .ステップ
 現在のホストの新しい一時的な自己署名証明書を再生成するには、次の手順を実行します。
 
-. ONTAPメディエーターを再起動します。
+. ONTAPメディエーターサービスを再起動します。
 +
 `./make_self_signed_certs.sh overwrite`
 
@@ -408,3 +417,282 @@ subject=C = US, ST = California, L = San Jose, O = "NetApp, Inc.", OU = ONTAP Co
 Getting CA Private Key
 ----
 
+
+
+
+== 自己署名証明書を信頼できるサードパーティ証明書に置き換える
+
+自己署名証明書を信頼できるサードパーティ証明書に置き換えることができます。
+
+.このタスクについて
+* このタスクは、ONTAPメディエーターサービスがインストールされているLinuxホストで実行します。
+* このタスクは、生成された自己署名証明書を、信頼された下位の認証局（CA）から取得した証明書に置き換える必要がある場合に実行できます。これを実現するには、信頼できる公開キーインフラストラクチャ（PKI）権限にアクセスする必要があります。
+
+
+
+
+=== 手順1：CA証明書を発行しているサードパーティから証明書を取得する
+
+次の手順を使用して、PKI認証局から証明書を取得できます。
+
+次の例は、次のような自己署名証明書アクターの交換を示しています。 `ca.key`、 `ca.csr`、 `ca.srl`および `ca.crt` 場所： `/opt/netapp/lib/ontap_mediator/ontap_mediator/server_config/` サードパーティの証明書アクターを使用します。
+
+
+NOTE: 次の例は、ONTAPメディエーターサービスに必要な証明書に必要な基準を示しています。この手順とは異なる方法で、PKI認証局から証明書を取得できます。ビジネスニーズに合わせて手順を調整します。
+
+.手順
+. 秘密鍵の作成 `ca.key` 構成ファイル `openssl_ca.cnf` PKI認証局が証明書を生成するために使用します。
++
+.. 秘密鍵の生成 `ca.key`：
++
+* 例 *
+
++
+`openssl genrsa -aes256 -out ca.key 4096`
+
+.. 構成ファイル `openssl_ca.cnf` （場所： `/opt/netapp/lib/ontap_mediator/ontap_mediator/server_config/openssl_ca.cnf`）は、生成された証明書に必要なプロパティを定義します。
+
+
+. 秘密鍵と構成ファイルを使用して証明書署名要求を作成する `ca.csr``：
++
+* 例： *
+
++
+`openssl req -key <private_key_name>.key -new -out <certificate_csr_name>.csr -config <config_file_name>.cnf`
+
++
+[listing]
+----
+[root@scs000216655 server_config]# openssl req -key ca.key -new -config openssl_ca.cnf -out ca.csr
+Enter pass phrase for ca.key:
+[root@scs000216655 server_config]# cat ca.csr
+-----BEGIN CERTIFICATE REQUEST-----
+MIIE6TCCAtECAQAwgaMxCzAJBgNVBAYTAlVTMRMwEQYDVQQIDApDYWxpZm9ybmlh
+...
+erARKhY9z0e8BHPl3g==
+-----END CERTIFICATE REQUEST-----
+----
+. 証明書署名要求を送信する `ca.csr` 署名のためにPKI機関に送られます
++
+PKI機関は要求を検証し、 `.csr`、証明書の生成 `ca.crt`。
+
++
+
+NOTE: SnapMirrorビジネス継続性（SM-BC）クラスタの場合は、証明書を追加する必要があります。 `ca.crt` ONTAPクラスタに追加します。を参照してください link:https://docs.netapp.com/us-en/ontap/smbc/smbc_install_confirm_ontap_cluster.html#ontap-mediator["SM-BC用のONTAPメディエーターとクラスタの設定"]。
+
+
+
+
+
+=== 手順2：サードパーティのCA証明書で署名してサーバ証明書を生成する
+
+サーバ証明書は秘密鍵で署名されている必要があります。 `ca.key` およびサードパーティの証明書 `ca.crt`。さらに、構成ファイル `/opt/netapp/lib/ontap_mediator/ontap_mediator/server_config/openssl_server.cnf` OpenSSLによって発行されるサーバー証明書に必要なプロパティを指定する特定の属性が含まれています。
+
+サーバ証明書を生成するには、次のコマンドを実行します。
+
+.ステップ
+サーバ証明書を生成するには、フォルダから次のコマンドを実行します。 `/opt/netapp/lib/ontap_mediator/ontap_mediator/server_config`：
+
+`openssl req -config openssl_server.cnf -extensions v3_req -nodes -newkey rsa:4096 -sha512 -keyout ontap_mediator_server.key -out ontap_mediator_server.csr`
+
+`openssl x509 -extfile openssl_server.cnf -extensions v3_req -CA ca.crt -CAkey ca.key -CAcreateserial -sha512 -days 1095 -req -in ontap_mediator_server.csr -out ontap_mediator_server.crt`
+
+`-CAcreateserial` オプションを使用してファイルを生成します。 `ca.srl`。
+
+
+
+=== 手順3：ONTAPメディエーター構成で新しいサードパーティのCA証明書とサーバ証明書を交換する
+
+証明書の設定は、にある構成ファイルでONTAPメディエーターサービスに提供されます。 `/opt/netapp/lib/ontap_mediator/ontap_mediator/server_config/ontap_mediator.config.yaml`。このファイルには、次の属性が含まれています。
+
+[listing]
+----
+cert_path: '/opt/netapp/lib/ontap_mediator/ontap_mediator/server_config/ontap_mediator_server.crt'
+key_path: '/opt/netapp/lib/ontap_mediator/ontap_mediator/server_config/ontap_mediator_server.key'
+ca_cert_path: '/opt/netapp/lib/ontap_mediator/ontap_mediator/server_config/ca.crt'
+ca_key_path: '/opt/netapp/lib/ontap_mediator/ontap_mediator/server_config/ca.key'
+ca_serial_path: '/opt/netapp/lib/ontap_mediator/ontap_mediator/server_config/ca.srl'
+----
+* `cert_path` および `key_path` はサーバ証明書変数です。
+* `ca_cert_path`、 `ca_key_path`および `ca_serial_path` はCA証明書変数です。
+
+
+.手順
+. を交換します `ca.*` サードパーティの証明書を含むファイル。
+. ONTAPメディエーターを再起動します。
++
+`systemctl restart ontap_mediator`
+
+
+
+
+
+=== 手順4：必要に応じて、サードパーティの証明書に別のパスまたは名前を使用します。
+
+以外の名前のサードパーティ証明書を使用できます。 `ca.*` または、サードパーティの証明書を別の場所に保存します。
+
+.手順
+. ファイルの設定 `/opt/netapp/lib/ontap_mediator/ontap_mediator/server_config/ontap_mediator.user_config.yaml` のデフォルト変数値を上書きするには `ontap_mediator.config.yaml` ファイル。
++
+例えば、 `intermediate.crt` PKI権限から秘密鍵を保存します。 `intermediate.key` シヨウメイシヨメイヨウキユウ `intermediate.csr` ある場所で `/opt/netapp/lib/ontap_mediator/ontap_mediator/server_config`この場合、user_configファイルは次のようになります。
+
++
+[listing]
+----
+[root@scs000216655 server_config]# cat  ontap_mediator.user_config.yaml
+
+# This config file can be used to override the default settings in ontap_mediator.config.yaml
+# To override a setting, copy the property key from ontap_mediator.config.yaml to this file and
+# set the property to the desired value. e.g.,
+#
+# The default value for 'default_mailboxes_per_target' is 4 in ontap_mediator.config.yaml
+#
+# To override this value with 6 mailboxes per target, add the following key/value pair
+# below this comment:
+#
+# 'default_mailboxes_per_target': 6
+#
+cert_path: '/opt/netapp/lib/ontap_mediator/ontap_mediator/server_config/ontap_mediator_server.crt'
+key_path: '/opt/netapp/lib/ontap_mediator/ontap_mediator/server_config/ontap_mediator_server.key'
+ca_cert_path: '/opt/netapp/lib/ontap_mediator/ontap_mediator/server_config/intermediate.crt'
+ca_key_path: '/opt/netapp/lib/ontap_mediator/ontap_mediator/server_config/intermediate.key'
+ca_serial_path: '/opt/netapp/lib/ontap_mediator/ontap_mediator/server_config/intermediate.srl'
+----
+. 構成ファイルで証明書が更新されたら、ONTAPメディエーターを再起動します。
++
+`systemctl restart ontap_mediator`
+
+
+
+
+
+== 証明書関連の問題のトラブルシューティング
+
+証明書の特定のプロパティを確認できます。
+
+
+
+=== 証明書の有効期限を確認
+
+証明書の有効範囲を確認するには、次のコマンドを使用します。
+
+[listing]
+----
+[root@scs000216982 server_config]# openssl x509 -in ca.crt -text -noout
+Certificate:
+    Data:
+...
+        Validity
+            Not Before: Feb 22 19:57:25 2024 GMT
+            Not After : Feb 15 19:57:25 2029 GMT
+----
+
+
+=== CA証明書でのX509v3拡張の確認
+
+次のコマンドを使用して、CA証明書のX509v3拡張を確認します。
+
+で定義されたプロパティ `*v3_ca*` インチ `openssl_ca.cnf` と表示されます。 `X509v3 extensions` インチ `ca.crt`。
+
+[listing, subs="+quotes"]
+----
+[root@scs000216982 server_config]# pwd
+/opt/netapp/lib/ontap_mediator/ontap_mediator/server_config
+
+[root@scs000216982 server_config]# cat openssl_ca.cnf
+...
+[ v3_ca ]
+*subjectKeyIdentifier = hash*
+*authorityKeyIdentifier = keyid:always,issuer*
+*basicConstraints = critical, CA:true*
+*keyUsage = critical, cRLSign, digitalSignature, keyCertSign*
+
+[root@scs000216982 server_config]# openssl x509 -in ca.crt -text -noout
+Certificate:
+    Data:
+...
+        *X509v3 extensions:*
+            X509v3 Subject Key Identifier:
+                9F:06:FA:47:00:67:BA:B2:D4:82:70:38:B8:48:55:B5:24:DB:FC:27
+            X509v3 Authority Key Identifier:
+                keyid:9F:06:FA:47:00:67:BA:B2:D4:82:70:38:B8:48:55:B5:24:DB:FC:27
+
+            X509v3 Basic Constraints: critical
+                CA:TRUE
+            X509v3 Key Usage: critical
+                Digital Signature, Certificate Sign, CRL Sign
+----
+
+
+=== サーバ証明書およびサブジェクトの代替名のX509v3拡張を確認する
+
+。 `v3_req` で定義されたプロパティ `openssl_server.cnf` 構成ファイルは次のように表示されます `X509v3 extensions` 証明書で。
+
+次の例では、 `alt_names` コマンドの実行によるセクションの作成 `hostname -A` および `hostname -I` ONTAPメディエーターがインストールされているLinux VM。
+
+変数の正しい値については、ネットワーク管理者に確認してください。
+
+[listing]
+----
+[root@scs000216982 server_config]# pwd
+/opt/netapp/lib/ontap_mediator/ontap_mediator/server_config
+
+[root@scs000216982 server_config]# cat openssl_server.cnf
+...
+[ v3_req ]
+basicConstraints       = CA:false
+extendedKeyUsage       = serverAuth
+keyUsage               = keyEncipherment, dataEncipherment
+subjectAltName         = @alt_names
+
+[ alt_names ]
+DNS.1 = abc.company.com
+DNS.2 = abc-v6.company.com
+IP.1 = 1.2.3.4
+IP.2 = abcd:abcd:abcd:abcd:abcd:abcd
+
+[root@scs000216982 server_config]# openssl x509 -in ca.crt -text -noout
+Certificate:
+    Data:
+...
+
+        X509v3 extensions:
+            X509v3 Basic Constraints:
+                CA:FALSE
+            X509v3 Extended Key Usage:
+                TLS Web Server Authentication
+            X509v3 Key Usage:
+                Key Encipherment, Data Encipherment
+            X509v3 Subject Alternative Name:
+                DNS:abc.company.com, DNS:abc-v6.company.com, IP Address:1.2.3.4, IP Address:abcd:abcd:abcd:abcd:abcd:abcd
+----
+
+
+=== 秘密鍵が証明書と一致することを確認する
+
+特定の秘密鍵が証明書と一致するかどうかを確認できます。
+
+キーと証明書に対して、それぞれ次のOpenSSLコマンドを使用します。
+
+[listing]
+----
+[root@scs000216982 server_config]# openssl rsa -noout -modulus -in intermediate.key | openssl md5
+Enter pass phrase for intermediate.key:
+(stdin)= 14c6b98b0c7c59012b1de89eee4a9dbc
+[root@scs000216982 server_config]# openssl x509 -noout -modulus -in intermediate.crt | openssl md5
+(stdin)= 14c6b98b0c7c59012b1de89eee4a9dbc
+----
+状況に応じて `-modulus` 両方の属性が一致する場合、秘密鍵と証明書のペアに互換性があり、相互に動作できることを示します。
+
+
+
+=== サーバ証明書が特定のCA証明書から作成されていることを確認する
+
+サーバ証明書が特定のCA証明書から作成されたことを確認するには、次のコマンドを使用します。
+
+[listing]
+----
+[root@scs000216982 server_config]# openssl verify -CAfile ca.crt ontap_mediator_server.crt
+ontap_mediator_server.crt: OK
+----
+Online Certificate Status Protocol（OCSP）検証を使用している場合は、コマンドを使用します。 link:https://www.openssl.org/docs/manmaster/man1/openssl-verify.html^["OpenSSL -検証"]。

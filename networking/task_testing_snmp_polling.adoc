@@ -1,0 +1,82 @@
+---
+sidebar: sidebar 
+permalink: networking/task_testing_snmp_polling.html 
+keywords: configure, snmp, verify, poll, cluster, test, test snmp poll 
+summary: SNMP を設定したら、クラスタをポーリングできることを確認する必要があります。 
+---
+= SNMP ポーリングのテスト
+:allow-uri-read: 
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+SNMP を設定したら、クラスタをポーリングできることを確認する必要があります。
+
+.このタスクについて
+クラスタをポーリングするには、次のようなサードパーティのコマンドを使用する必要があります。 `snmpwalk`。
+
+.手順
+. SNMP コマンドを送信して、別のクラスタからクラスタをポーリングします。
++
+SNMPv1を実行しているシステムの場合は、CLIコマンドを使用します。 `snmpwalk -v version -c community_stringip_address_or_host_name system` MIB（管理情報ベース）の内容を検出します。
+
++
+この例では、ポーリングするクラスタ管理 LIF の IP アドレスは 10.11.12.123 です。要求された MIB 情報が表示されます。
+
++
+[listing]
+----
+C:\Windows\System32>snmpwalk -v 1 -c public 10.11.12.123 system
+
+SNMPv1-MIB::sysDescr.0 = STRING: NetApp Release 8.3.0
+            Cluster-Mode: Tue Apr 22 16:24:48 EDT 2014
+SNMPv1-MIB::sysObjectID.0 = OID: SNMPv1-SMI::enterprises.789.2.5
+DISMAN-EVENT-MIB::sysUpTimeInstance = Timeticks: (162644448) 18 days, 19:47:24.48
+SNMPv1-MIB::sysContact.0 = STRING:
+SNMPv1-MIB::sysName.0 = STRING: systemname.testlabs.com
+SNMPv1-MIB::sysLocation.0 = STRING: Floor 2 Row B Cab 2
+SNMPv1-MIB::sysServices.0 = INTEGER: 72
+----
++
+SNMPv2cを実行しているシステムの場合は、CLIコマンドを使用します。 `snmpwalk -v version -c community_stringip_address_or_host_name system` MIB（管理情報ベース）の内容を検出します。
+
++
+この例では、ポーリングするクラスタ管理 LIF の IP アドレスは 10.11.12.123 です。要求された MIB 情報が表示されます。
+
++
+[listing]
+----
+C:\Windows\System32>snmpwalk -v 2c -c public 10.11.12.123 system
+
+SNMPv2-MIB::sysDescr.0 = STRING: NetApp Release 8.3.0
+            Cluster-Mode: Tue Apr 22 16:24:48 EDT 2014
+SNMPv2-MIB::sysObjectID.0 = OID: SNMPv2-SMI::enterprises.789.2.5
+DISMAN-EVENT-MIB::sysUpTimeInstance = Timeticks: (162635772) 18 days, 19:45:57.72
+SNMPv2-MIB::sysContact.0 = STRING:
+SNMPv2-MIB::sysName.0 = STRING: systemname.testlabs.com
+SNMPv2-MIB::sysLocation.0 = STRING: Floor 2 Row B Cab 2
+SNMPv2-MIB::sysServices.0 = INTEGER: 72
+----
++
+SNMPv3を実行しているシステムの場合は、CLIコマンドを使用します。 `snmpwalk -v 3 -a MD5 or SHA -l authnopriv -u username -A passwordip_address_or_host_name system` MIB（管理情報ベース）の内容を検出します。
+
++
+この例では、ポーリングするクラスタ管理 LIF の IP アドレスは 10.11.12.123 です。要求された MIB 情報が表示されます。
+
++
+[listing]
+----
+C:\Windows\System32>snmpwalk -v 3 -a MD5 -l authnopriv -u snmpv3
+       -A password123 10.11.12.123 system
+
+SNMPv3-MIB::sysDescr.0 = STRING: NetApp Release 8.3.0
+       Cluster-Mode: Tue Apr 22 16:24:48 EDT 2014
+SNMPv3-MIB::sysObjectID.0 = OID: SNMPv3-SMI::enterprises.789.2.5
+DISMAN-EVENT-MIB::sysUpTimeInstance = Timeticks: (162666569) 18 days, 19:51:05.69
+SNMPv3-MIB::sysContact.0 = STRING:
+SNMPv3-MIB::sysName.0 = STRING: systemname.testlabs.com
+SNMPv3-MIB::sysLocation.0 = STRING: Floor 2 Row B Cab 2
+SNMPv3-MIB::sysServices.0 = INTEGER: 72
+----
+

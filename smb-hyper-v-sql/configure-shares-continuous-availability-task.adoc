@@ -2,7 +2,7 @@
 permalink: smb-hyper-v-sql/configure-shares-continuous-availability-task.html 
 sidebar: sidebar 
 keywords: configure, shares, continuous, availability, hyper, v, sql, server, virutal, machine, database, file 
-summary: 既存の共有を変更して、継続的な可用性が確保された共有にすることができます。この共有は、 Hyper-V および SQL Server アプリケーションサーバが Hyper-V 仮想マシンおよび構成ファイルや SQL Server データベースファイルに無停止でアクセスするために使用します。 
+summary: 共有を継続的可用性を確保するように変更します。Hyper-VおよびSQL Serverアプリケーションサーバで無停止アクセスを実現 
 ---
 = 既存の共有を継続的な可用性を確保するように設定し
 :allow-uri-read: 
@@ -42,45 +42,52 @@ summary: 既存の共有を変更して、継続的な可用性が確保され�
 .手順
 . 現在の共有パラメータの設定と、設定済みの共有プロパティの現在のリストを表示します。
 +
-`*vserver cifs share show -vserver _vserver_name_ -share-name _share_name_*`
-
-. 必要に応じて、を使用して共有パラメータを変更してシンボリックリンクを無効にし、オフラインファイルをmanualに設定します `vserver cifs share properties modify` コマンドを実行します
-+
-シンボリックリンクを無効にするには、の値を設定します `-symlink` パラメータの値 `""`。
-
+[source, cli]
+----
+vserver cifs share show -vserver <vserver_name> -share-name <share_name>
+----
+. 必要に応じて、コマンドを使用して共有パラメータを変更し、シンボリックリンクを無効にし、オフラインファイルをmanualに設定し `vserver cifs share modify` ます。
 +
 ** シンボリックリンクを無効にするには、の値を設定します `-symlink` パラメータの値 `""`。
 ** を設定できます `-offline-files` を指定して正しい設定に変更します `manual`。
 
 
-. を追加します `continuously-available` 共有プロパティ、および必要に応じてを共有します `oplocks` 共有プロパティ：
+. 共有プロパティを追加し、必要に応じて共有プロパティを追加し `continuously-available` `oplocks` ます。
 +
-`*vserver cifs share properties add -vserver _vserver_name_ -share-name _share_name_ -share-properties continuously-available[,oplock]*`
-
+[source, cli]
+----
+vserver cifs share properties add -vserver <vserver_name> -share-name <share_name> -share-properties continuously-available[,oplock]
+----
 +
 状況に応じて `oplocks` 共有プロパティがまだ設定されていないため、と一緒に追加する必要があります `continuously-available` 共有プロパティ。
 
 . 継続的な可用性が確保された共有でサポートされていない共有プロパティを削除します。
 +
-`*vserver cifs share properties remove -vserver _vserver_name_ -share-name _share_name_ -share-properties properties[,...]*`
-
+[source, cli]
+----
+vserver cifs share properties remove -vserver <vserver_name> -share-name <share_name> -share-properties properties[,...]
+----
 +
 共有プロパティをカンマで区切って指定して、 1 つ以上の共有プロパティを削除することができます。
 
 . を確認します `-symlink` および `-offline-files` パラメータが正しく設定されている。
 +
-`*vserver cifs share show -vserver _vserver_name_ -share-name _share_name_ -fields symlink-properties,offline-files*`
-
+[source, cli]
+----
+vserver cifs share show -vserver <vserver_name> -share-name <share_name> -fields symlink-properties,offline-files
+----
 . 設定済みの共有プロパティのリストが正しいことを確認します。
 +
-`*vserver cifs shares properties show -vserver _vserver_name_ -share-name share_name*`
-
+[source, cli]
+----
+vserver cifs share properties show -vserver <vserver_name> -share-name <share_name>
+----
 
 
 .例
-次の例は、 Storage Virtual Machine （ SVM ） vs1 上の「 share1 」という名前の既存の共有を SMB を介したアプリケーションサーバでの NDO 用に設定する方法を示しています。
+次の例は、Storage Virtual Machine（SVM）「vs1」に「share1」という名前の既存の共有をSMBを介したアプリケーションサーバでのNDO用に設定する方法を示しています。
 
-* を設定すると、共有でシンボリックリンクが無効になります `-symlink` パラメータを""に設定します。
+* パラメータをに設定すると、共有でシンボリックリンクが無効になります `-symlink` `""`。
 * 。 `-offline-file` パラメータが変更され、に設定されます `manual`。
 * 。 `continuously-available` 共有プロパティが共有に追加されます。
 * 。 `oplocks` 共有プロパティはすでに共有プロパティのリストに含まれているため、追加する必要はありません。

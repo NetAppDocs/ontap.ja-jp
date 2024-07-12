@@ -2,7 +2,7 @@
 permalink: smb-hyper-v-sql/configure-smb-multichannel-performance-task.html 
 sidebar: sidebar 
 keywords: configure, smb, multichannel, performance, redundancy, session, fault, tolerance, hyper, v, sql 
-summary: ONTAP 9.4 以降では、 SMB マルチチャネルを設定して、 1 つの SMB セッションで ONTAP とクライアントの間に複数の接続を確立することができます。これにより、 Hyper-V および SQL Server over SMB 構成のスループットとフォールトトレランスが向上します。 
+summary: Hyper-V over SMBおよびSQL Server over SMB構成のスループットとフォールトトレランスを向上させるために、SMBマルチチャネルを設定して、1つのSMBセッションでONTAPとクライアントの間に複数の接続を確立します。 
 ---
 = パフォーマンスと冗長性を高めるために SMB マルチチャネルを設定します
 :allow-uri-read: 
@@ -13,7 +13,7 @@ summary: ONTAP 9.4 以降では、 SMB マルチチャネルを設定して、 1
 [role="lead"]
 ONTAP 9.4 以降では、 SMB マルチチャネルを設定して、 1 つの SMB セッションで ONTAP とクライアントの間に複数の接続を確立することができます。これにより、 Hyper-V および SQL Server over SMB 構成のスループットとフォールトトレランスが向上します。
 
-.必要なもの
+.作業を開始する前に
 SMB マルチチャネル機能は、クライアントが SMB 3.0 以降のバージョンでネゴシエートする場合にのみ使用できます。ONTAP SMB サーバでは、 SMB 3.0 以降がデフォルトで有効になっています。
 
 .このタスクについて
@@ -33,14 +33,14 @@ SMB セッションでの同時接続数は、導入している NIC によっ�
 
 また、次のパラメータを変更することもできます（ advanced 権限）。
 
-* *`-max-connections-per-session`*
+* `-max-connections-per-session`
 +
 各マルチチャネルセッションに許可される最大接続数。デフォルトの接続数は 32 です。
 
 +
 デフォルトよりも多くの接続を有効にする場合は、クライアントの設定に対して同等の調整を行う必要があります。これには、デフォルトの接続数は 32 です。
 
-* *`-max-lifs-per-session`*
+* `-max-lifs-per-session`
 +
 各マルチチャネルセッションで通知されるネットワークインターフェイスの最大数。デフォルトのネットワークインターフェイス数は 256 です。
 
@@ -49,20 +49,28 @@ SMB セッションでの同時接続数は、導入している NIC によっ�
 .手順
 . 権限レベルを advanced に設定します。
 +
-`*set -privilege advanced*`
-
+[listing]
+----
+set -privilege advanced
+----
 . SMB サーバで SMB マルチチャネルを有効にします。
 +
-`*vserver cifs options modify -vserver _vserver_name_ -is-multichannel-enabled true*`
-
+[listing]
+----
+vserver cifs options modify -vserver <vserver_name> -is-multichannel-enabled true
+----
 . ONTAP が SMB マルチチャネルセッションを報告していることを確認します。
 +
-`*vserver cifs session options show*`
-
+[listing]
+----
+vserver cifs session show
+----
 . admin 権限レベルに戻ります。
 +
-`*set -privilege admin*`
-
+[listing]
+----
+set -privilege admin
+----
 
 
 .例

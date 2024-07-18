@@ -1,0 +1,27 @@
+---
+sidebar: sidebar 
+permalink: ontap-security-hardening/nas-local-accounts.html 
+keywords: tr-4569, ontap hardening guide, security, CIFS workgroup, local users and groups, extra layer of security, NTLM, vserver cifs session show 
+summary: ローカルで定義されたユーザとグループを使用してサーバに認証するCIFSクライアントを含むワークグループ内のCIFSサーバ。 
+---
+= NASファイルシステムのローカルアカウント（CIFSワークグループ）
+:hardbreaks:
+:allow-uri-read: 
+:icons: font
+:linkattrs: 
+:imagesdir: ../media
+
+
+[role="lead"]
+ワークグループによるクライアント認証は、従来のドメイン認証の仕組みに反しないセキュリティ レイヤをONTAPソリューションに追加します。IP情報、認証メカニズム、プロトコルバージョン、認証タイプなど、ポスチャ関連の詳細情報を多数表示するには、コマンドを使用し `vserver cifs session show` ます。
+
+ONTAP 9以降では、ローカルで定義されたユーザとグループを使用してサーバに認証するCIFSクライアントを含むワークグループ内にCIFSサーバを設定できます。ワークグループによるクライアント認証は、従来のドメイン認証の仕組みに反しないセキュリティ レイヤをONTAPソリューションに追加します。CIFSサーバを設定するには、コマンドを使用し `vserver cifs create` ます。CIFSサーバを作成したら、CIFSドメインに追加するかワークグループに追加できます。ワークグループに参加するには、パラメータを使用し `-workgroup` ます。次に設定例を示します。
+
+[listing]
+----
+cluster1::> vserver cifs create -vserver vs1 -cifs-server CIFSSERVER1 -workgroup Sales
+----
+
+NOTE: ワークグループ モードのCIFSサーバでは、Windows NT LAN Manager（NTLM）認証のみがサポートされ、Kerberos認証はサポートされません。
+
+NetAppでは、組織のセキュリティ体制を維持するために、CIFSワークグループでNTLM認証機能を使用することを推奨しています。NetAppでは、CIFSのセキュリティ体制を検証するために、コマンドを使用して、IP情報、認証メカニズム、プロトコルバージョン、認証タイプなど、ポスチャ関連の詳細を表示することを推奨してい `vserver cifs session show` ます。

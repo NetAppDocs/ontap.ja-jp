@@ -1,0 +1,43 @@
+---
+sidebar: sidebar 
+permalink: ontap-security-hardening/configure-smb-signing-sealing.html 
+keywords: tr-4569, ontap hardening guide, security, SMB signing, SMB sealing 
+summary: SMB署名を設定して有効にするには、「vserver cifs security modify」コマンドを使用して、「-is-signing-required」パラメータが「true」に設定されていることを確認します。 
+---
+= CIFS SMBの署名と封印の設定と有効化
+:hardbreaks:
+:allow-uri-read: 
+:icons: font
+:linkattrs: 
+:imagesdir: ../media
+
+
+[role="lead"]
+ストレージシステムとクライアント間のトラフィックがリプレイ攻撃や中間者攻撃によって危険にさらされないようにすることで、データファブリックのセキュリティを保護するSMB署名を設定して有効にすることができます。SMB署名は、SMBメッセージに有効な署名があることを確認することで保護します。
+
+.このタスクについて
+ファイルシステムやアーキテクチャの代表的な脅威ベクターは、SMBプロトコルです。このベクターに対処するために、ONTAP 9は業界標準のSMB署名と封印を使用ます。SMB署名は、ストレージシステムとクライアント間のトラフィックがリプレイ攻撃や中間者攻撃によって危険にさらされないようにすることで、データファブリックのセキュリティを保護します。具体的には、SMBメッセージに有効な署名があることが確認されます。
+
+パフォーマンス上の理由からSMB署名はデフォルトでは無効になっていますが、NetAppでは有効にすることを強く推奨します。さらに、ONTAPではSMB暗号化（封印）もサポートしています。SMB暗号化は共有単位でのセキュアなデータ転送を実現します。デフォルトでは、SMB暗号化は無効になっています。ただし、NetAppではSMB暗号化を有効にすることを推奨します。
+
+SMB 2.0以降ではLDAPの署名と封印がサポートされるようになりました。署名（改ざんに対する保護）と封印（暗号化）により、SVMとActive Directoryサーバ間のセキュアな通信が実現します。SMB 3.0以降では、アクセラレーション用の新しいAES命令セット（Intel AES NI）がサポートされます。Intel AES NIはAESアルゴリズムの改良版で、サポートされるプロセッサ ファミリでのデータ暗号化を加速します。
+
+.手順
+. SMB署名を設定して有効にするには、コマンドを使用し `vserver cifs security modify` て、パラメータがに設定されていることを確認し `-is-signing-required` `true`ます。次の設定例を参照してください。
++
+[listing]
+----
+cluster1::> vserver cifs security modify -vserver vs1 -kerberos-clock-skew 3 -kerberos-ticket-age 8 -is-signing-required true
+----
+. SMBの封印と暗号化を設定して有効にするには、コマンドを使用し `vserver cifs security modify` て、パラメータがに設定されていることを確認し `-is-smb-encryption-required` `true`ます。次の設定例を参照してください。
++
+[listing]
+----
+cluster1::> vserver cifs security modify -vserver vs1 -is-smb-encryption-required true
+
+cluster1::> vserver cifs security show -vserver vs1 -fields is-smb-encryption-required
+vserver  is-smb-encryption-required
+-------- -------------------------
+vs1      true
+----
+

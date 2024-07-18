@@ -1,0 +1,49 @@
+---
+sidebar: sidebar 
+permalink: ontap-security-hardening/tls-ssl.html 
+keywords: tr-4569, ontap hardening guide, security, TLS, FIPS, SSL, cipher, 140-2, SSH, OpenSSL, AES, 3DES, FIPS 140-2 compliance, FIPS 140-3 compliance, security config modify, protocol, ciphers, Perfect Forward Secrecy, SSH, advanced privilege level 
+summary: ONTAPの「security config modify」コマンドを使用すると、クラスタ全体のコントロールプレーンインターフェイスのプロトコルと暗号を制限できます。 
+---
+= TLSとSSLの管理
+:hardbreaks:
+:allow-uri-read: 
+:icons: font
+:linkattrs: 
+:imagesdir: ../media
+
+
+[role="lead"]
+コントロールプレーンインターフェイスのFIPS 140-2 / 3準拠モードを有効にするには、ONTAPコマンドでパラメータをtrueに設定し `is-fips-enabled` `security config modify` ます。
+
+ONTAP 9以降では、クラスタ全体のコントロールプレーンインターフェイスに対してFIPS 140-2準拠モードを有効にすることができます。デフォルトでは、FIPS 140-2のみのモードは無効になっています。FIPS 140-2準拠モードを有効にするには、コマンドのパラメータをに設定し `is-fips-enabled` `true` `security config modify` ます。その後、を使用してオンラインステータスを確認できます `security config show command` 。
+
+FIPS 140-2への準拠を有効にすると、TLSv1とSSLv3は無効になり、TLSv1.1とTLSv1.2のみが引き続き有効になります。ONTAPでは、FIPS 140-2への準拠が有効な場合、TLSv1とSSLv3を有効にすることはできません。FIPS 140-2を有効にし、そのあとに無効にした場合、TLSv1とSSLv3は無効なままになりますが、以前の設定に応じて、TLSv1.2またはTLSv1.1とTLSv1.2の両方が有効なままになります。
+
+コマンドは `security config modify` 、クラスタ全体の既存のセキュリティ設定を変更します。FIPS準拠モードを有効にしたクラスタでは、自動的にTLSプロトコルのみが選択されます。パラメータを使用する `-supported-protocols` と、FIPSモードとは関係なくTLSプロトコルを追加または除外できます。デフォルトではFIPSモードは無効で、ONTAPはTLSv1.2、TLSv1.1、およびTLSv1の各プロトコルをサポートします。
+
+下位互換性を維持するため、ONTAPでは、FIPSモードが無効な場合にSSLv3をリストに追加でき `supported-protocols` ます。パラメータを使用し `-supported-cipher-suites` て、Advanced Encryption Standard（AES）またはAESと3DESのみを設定します。「!RC4」のように指定してRC4などの弱い暗号を無効にすることもできます。デフォルトでは、サポートされる暗号設定はです `ALL:!LOW:!aNULL:!EXP:!eNULL`。この設定では、認証なし、暗号なし、エクスポートなし、および弱い暗号化の暗号スイートを除く、プロトコルに対してサポートされるすべての暗号スイートが有効になります。64ビットまたは56ビットの暗号化アルゴリズムを使用するスイートが当てはまります。
+
+選択したプロトコルで使用可能な暗号スイートを選択してください。設定が無効な場合、一部の機能が適切に動作しなくなる可能性があります。
+
+正しい暗号文字列構文については、OpenSSL（OpenSSLソフトウェア財団が公開）のページを参照してください link:https://www.openssl.org/docs/man1.1.1/man1/ciphers.html["アンコウ"^] 。ONTAP 9.9.1以降のリリースでは、セキュリティ設定の変更後にすべてのノードを手動でリブートする必要がなくなりました。
+
+FIPS 140-2への準拠を有効にすると、ONTAP 9内外の他のシステムや通信に影響します。コンソール アクセスが可能な非本番環境のシステムで、これらの設定をテストすることを強く推奨します。
+
+
+NOTE: ONTAP 9の管理にSSHを使用する場合は、OpenSSH 5.7以降のクライアントを使用する必要があります。SSHクライアントは、接続を成功させるために、Elliptic Curve Digital Signature Algorithm（ECDSA）公開鍵アルゴリズムとネゴシエートする必要があります。
+
+TLSセキュリティは、TLS 1.2のみを有効にし、Perfect Forward Secrecy（PFS）対応の暗号スイートを使用することで、さらに強化できます。PFSは鍵交換の方法で、TLS 1.2などの暗号化プロトコルと組み合わせて使用すると、攻撃者がクライアントとサーバ間のすべてのネットワークセッションを復号化するのを防ぐことができます。TLS 1.2およびPFS対応の暗号スイートのみを有効にするには、次の例に示すように、advanced権限レベルでコマンドを使用します `security config modify` 。
+
+
+NOTE: SSLインターフェイス設定を変更する前に、クライアントがONTAPに接続するときに、前述の暗号（DHE、ECDHE）をサポートしている必要があることに注意してください。それ以外の場合、接続は許可されません。
+
+[listing]
+----
+cluster1::*> security config modify -interface SSL -supported-protocols TLSv1.2 -supported-cipher-suites PSK:DHE:ECDHE:!LOW:!aNULL:!EXP:!eNULL:!3DES:!kDH:!kECDH
+----
+プロンプトごとに確認し `y` ます。PFSの詳細については、を参照してください link:https://blog.netapp.com/protecting-your-data-perfect-forward-secrecy-pfs-with-netapp-ontap/["このNetAppブログ"^]。
+
+ONTAP 9.11.1およびTLS 1.3のサポート以降では、FIPS 140-3を検証できます。
+
+
+NOTE: FIPSの設定は、ONTAPとプラットフォームBMCに適用されます。

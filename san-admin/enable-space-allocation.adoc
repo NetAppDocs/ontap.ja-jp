@@ -1,7 +1,7 @@
 ---
 permalink: san-admin/enable-space-allocation.html 
 sidebar: sidebar 
-keywords: enable, space allocation, space reclamation, unmap 
+keywords: enable, space allocation, space reclamation, unmap, lun 
 summary: スペース割り当てを有効にして、ホストとストレージシステムがスペース管理で連携できるようにします。 
 ---
 = SANのスペース割り当てを有効にする
@@ -11,7 +11,11 @@ summary: スペース割り当てを有効にして、ホストとストレー�
 
 
 [role="lead"]
-ホストとストレージシステムが連携してLUNのスペース管理を行えるように、スペース割り当てを有効にします。を有効にします `space-allocation` を設定すると、次の利点が得られます。
+ホストとストレージシステムが連携してLUNのスペース管理を行えるように、スペース割り当てを有効にします。
+
+ONTAP 9.15.1以降では、新しく作成したLUNに対するスペース割り当てがデフォルトで有効になります。以前のバージョンのONTAP（9.14.1以前）では、スペース割り当てがデフォルトで無効になっていました。
+
+この設定を有効にする `space-allocation` と、次の利点が得られます。
 
 * * ONTAPは、書き込みを処理するための空きスペースがないホストと通信できます*：この通信は、ホストがスペース不足の状況を処理するためのより優雅な方法です。LUNはオンラインのままですが、スペースが使用可能になるまで書き込みIOを処理できません。読み取りIOは引き続き実行できます。ホストOSへの正確な影響はホストの構成によって異なります。場合によっては、OSが成功するまで書き込みIOを再試行します。それ以外の場合は、ファイルシステムがオフラインになる可能性があります。
 +
@@ -38,20 +42,21 @@ NOTE: 状況に応じて `space-allocation` 設定が有効になっていない
 スペースの割り当てはNVMeホストではサポートされません。
 
 .このタスクについて
-ONTAP 9.15.1以降では、新しく作成したVMware LUNおよびHyper-V LUNに対してスペース割り当てがデフォルトで有効になり、新しく作成したVMwareおよびHyper-Vで使用されないLUNに対しては無効になります。
-
-
-NOTE: クラスタをONTAP 9.15.1にアップグレードした場合、ソフトウェアのアップグレード前に作成されたすべてのLUNのスペース割り当て設定は、ホストタイプに関係なく、アップグレード後も変更されません。  たとえば、スペース割り当てが無効になっているVMwareホスト用にONTAP 9.13.1でLUNが作成された場合、ONTAP 9.15.1へのアップグレード後も、そのLUNでのスペース割り当ては無効なままです。
+クラスタをONTAP 9.15.1にアップグレードした場合、ソフトウェアのアップグレード前に作成されたすべてのLUNのスペース割り当て設定は、ホストタイプに関係なく、アップグレード後も変更されません。たとえば、スペース割り当てが無効になっているVMwareホスト用にONTAP 9.13.1でLUNが作成された場合、ONTAP 9.15.1へのアップグレード後も、そのLUNでのスペース割り当ては無効なままです。
 
 .手順
 . スペース割り当てを有効にします。
 +
-`lun modify -vserver _vserver_name_ -volume _volume_name_ -lun _lun_name_ -space-allocation enabled`
-
+[source, cli]
+----
+`lun modify -vserver <vserver_name> -volume <volume_name> -lun <lun_name> -space-allocation enabled
+----
 . スペース割り当てが有効になっていることを確認します。
 +
-`lun show -vserver _vserver_name_ -volume _volume_name_ -lun _lun_name_ -fields space-allocation`
-
+[source, cli]
+----
+lun show -vserver <vserver_name> -volume <volume_name> -lun <lun_name> -fields space-allocation
+----
 . ホストOSでスペース割り当てが有効になっていることを確認します。
 +
 

@@ -89,3 +89,22 @@ NOTE: S3クライアントからシークレットキーの入力を求められ
 
 
 
+
+
+
+=== UIDとGIDを使用しないユーザに対するActive Directoryのリソース認証
+
+bucket-policyステートメントで指定されたnasgroupまたはnasgroupの一部であるユーザにUIDとGIDが設定されていない場合、これらの属性が見つからないと検索が失敗します。
+
+検索の失敗を避けるため、NetAppでは、信頼できるドメインをUPN形式で使用することを推奨しています。nasgroup / group@trusted_domain.com
+
+
+
+=== LDAP高速バインドを使用しない場合に信頼できるドメインユーザのユーザアクセスキーを生成するには
+
+UPN形式で指定されたユーザを持つ「3/services/UPN/users <svm_uuid>」エンドポイントを使用します。例：
+
+[listing]
+----
+$curl -siku FQDN\\user:<user_name> -X POST https://<LIF_IP_Address>/api/protocols/s3/services/<SVM_UUID>/users -d {"comment":"<S3_user_name>", "name":<user[@fqdn](https://github.com/fqdn)>,"<key_time_to_live>":"PT6H3M"}'
+----

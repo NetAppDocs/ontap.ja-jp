@@ -1,0 +1,57 @@
+---
+permalink: upgrade/snapmirror-cascade-relationship-blocked.html 
+sidebar: sidebar 
+keywords: ontap, upgrade, 9.9.1. 9.10.1, update, cascade, LTR, long term retention, snapshots, considerations, secondary storage 
+summary: クラスタにSnapMirrorカスケード関係が設定されている場合は、アップグレード前に長期保持（LTR）Snapshotを無効にしなければならないことがあります。 
+---
+= ONTAPのアップグレード前に長期保持のSnapshotを無効にする
+:allow-uri-read: 
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+クラスタでSnapMirrorカスケード関係が設定されているONTAP 9.9.1以前からONTAP 9.10.1以降にアップグレードする場合は、アップグレード前にカスケード内の中間ボリュームから長期保持（LTR）Snapshotを無効にする必要があります。LTRスナップショットを有効にしたボリュームのカスケードは、ONTAP 9.10.1以降ではサポートされていません。アップグレード後にこの構成を使用すると、バックアップやSnapshotが失われる可能性があります。
+
+次のような場合に対処する必要があります。
+
+* 長期保持（LTR）Snapshotは、SnapMirrorカスケードの「B」ボリューム、または大きなカスケードの別の中間SnapMirrorデスティネーションボリュームで構成されます。
+* LTR Snapshotは、SnapMirrorポリシールールに適用されるスケジュールによって定義されます。このルールでは、Snapshotはソースボリュームからはレプリケートされませんが、デスティネーションボリュームに直接作成されます。
++
+
+NOTE: スケジュールとSnapMirrorポリシーの詳細については、ナレッジベースの記事を参照してください。
+
+
+
+.手順
+. カスケードの中間ボリュームのSnapMirrorポリシーからLTRルールを削除します。
++
+[listing]
+----
+Secondary::> snapmirror policy remove-rule -vserver <> -policy <> -snapmirror-label <>
+----
+. LTRスケジュールを指定せずに、SnapMirrorラベルのルールを再度追加します。
++
+[listing]
+----
+Secondary::> snapmirror policy add-rule -vserver <> -policy <> -snapmirror-label <> -keep <>
+----
++
+
+NOTE: SnapMirrorポリシールールからLTR Snapshotを削除すると、SnapMirrorは指定されたラベルのSnapshotをソースボリュームからプルします。適切なラベルが設定されたSnapshotを作成するために、ソースボリュームのSnapshotポリシーでスケジュールの追加や変更が必要になる場合もあります。
+
+. 必要に応じて、ソースボリュームのSnapshotポリシーでスケジュールを変更（または作成）して、SnapMirrorラベルのSnapshotを作成できるようにします。
++
+[listing]
+----
+Primary::> volume snapshot policy modify-schedule -vserver <> -policy <> -schedule <> -snapmirror-label <>
+----
++
+[listing]
+----
+Primary::> volume snapshot policy add-schedule -vserver <> -policy <> -schedule <> -snapmirror-label <> -count <>
+----
+
+
+
+NOTE: LTRスナップショットは、SnapMirrorカスケード構成内の最終的なSnapMirrorデスティネーションボリュームで引き続き有効にすることができます。

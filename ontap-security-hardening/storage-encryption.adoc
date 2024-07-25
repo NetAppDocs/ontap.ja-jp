@@ -1,0 +1,78 @@
+---
+sidebar: sidebar 
+permalink: ontap-security-hardening/storage-encryption.html 
+keywords: tr-4569, ontap hardening guide, security, encryption, FIPS, FIPS 140-2, NVE, NAE, NSE, CSfC, NetApp Storage Encryption, NetApp Volume Encryption, NetApp Aggregate Encryption, Onboard Key Manager, External Key Manager, CryptoMod, FIPS-140-2, data at rest encryption 
+summary: ハードウェアベースのNetAppストレージ暗号化またはソフトウェアベースのNetAppボリューム暗号化/ネットアップアグリゲート暗号化により、機密データが保護されます。 
+---
+= ストレージ暗号化
+:hardbreaks:
+:allow-uri-read: 
+:icons: font
+:linkattrs: 
+:imagesdir: ../media
+
+
+[role="lead"]
+ディスクが盗難、返却、転用された場合に機密データを保護するには、ハードウェアベースのNetAppストレージ暗号化またはソフトウェアベースのNetAppボリューム暗号化/ネットアップアグリゲート暗号化を使用してください。どちらのメカニズムもFIPS-140-2検証済みであり、ハードウェアベースのメカニズムとソフトウェアベースのメカニズムを使用する場合、このソリューションはCommercial Solutions for Classified（CSfC）Programの対象となります。ハードウェアレイヤとソフトウェアレイヤの両方に保存されている機密データと最高機密データのセキュリティ保護を強化できます。
+
+保管データの暗号化は、ディスクが盗難、返却、転用された場合に機密データを保護するために重要です。
+
+ONTAP 9には、連邦情報処理標準（FIPS）140-2に準拠した保管データ暗号化ソリューションが3つあります。
+
+* NetAppストレージ暗号化（NSE）は、自己暗号化ドライブを使用するハードウェアソリューションです。
+* NetApp Volume Encryption（NVE）は、ボリュームごとに一意のキーを使用して、あらゆるタイプのドライブのあらゆるデータ ボリュームを暗号化できるソフトウェア ソリューションです。
+* NetApp Aggregate Encryption（NAE）は、アグリゲートごとに一意のキーを使用して、あらゆるタイプのドライブのあらゆるデータ ボリュームを暗号化できるソフトウェア ソリューションです。
+
+
+NSE、NVE、NAEは、外部キー管理またはオンボードキーマネージャ（OKM）のいずれかを使用できます。NSE、NVE、およびNAEを使用しても、ONTAPのストレージ効率化機能には影響はありません。ただし、NVEボリュームはアグリゲート重複排除の対象外です。NAEボリュームはアグリゲート重複排除の対象であり、重複排除のメリットが得られます。
+
+OKMは、NSE、NVE、またはNAEを使用した保存データに対する自己完結型の暗号化ソリューションです。
+
+NVE、NAE、OKMでは、ONTAP CryptoModが使用されます。CryptoModは、CMVP FIPS 140-2の検証済みモジュールのリストに表示されています。を参照して link:https://csrc.nist.gov/projects/cryptographic-module-validation-program/certificate/4144["FIPS 140-2証明書番号4144"^]
+
+OKMの設定を開始するには、コマンドを使用し `security key-manager onboard enable` ます。外部のKey Management Interoperability Protocol（KMIP）キー管理ツールを設定するには、コマンドを使用し `security key-manager external enable` ます。ONTAP 9.6以降では、外部キー マネージャでマルチテナンシーがサポートされます。パラメータを使用し `-vserver <vserver name>` て、特定のSVMで外部キー管理を有効にします。9.6より前のバージョンでは `security key-manager setup` 、コマンドを使用してOKMと外部キーマネージャの両方を設定していました。オンボード キー管理の場合、オペレータや管理者は、このコマンドの指示に従ってパスフレーズやOKMのその他のパラメータを順に設定できます。
+
+以下はその一部です。
+
+[listing]
+----
+cluster1::> security key-manager setup
+Welcome to the key manager setup wizard, which will lead you through
+the steps to add boot information.
+
+Enter the following commands at any time
+"help" or "?" if you want to have a question clarified,
+"back" if you want to change your answers to previous questions, and
+"exit" if you want to quit the key manager setup wizard. Any changes
+you made before typing "exit" will be applied.
+
+Restart the key manager setup wizard with "security key-manager setup". To accept a default
+or omit a question, do not enter a value.
+
+Would you like to configure onboard key management? {yes, no} [yes]:
+Enter the cluster-wide passphrase for onboard key management. To continue the configuration, enter the passphrase, otherwise
+type "exit":
+Re-enter the cluster-wide passphrase:
+After configuring onboard key management, save the encrypted configuration data
+in a safe location so that you can use it if you need to perform a manual recovery
+operation. To view the data, use the “security key-manager backup show” command.
+----
+ONTAP 9.4以降では、でtrueオプションを使用して、リブート後にユーザにパスフレーズの入力を求めることができます `-enable-cc-mode` `security key-manager setup` 。ONTAP 9.6以降では、コマンド構文はです `security key-manager onboard enable -cc-mode-enabled yes`。
+
+ONTAP 9.4以降では、advanced権限で機能を使用して、NVE対応ボリュームのデータを無停止で「スクラビング」でき `secure-purge` ます。暗号化されたボリュームのデータをスクラビングすると、物理メディアからもリカバリできなくなります。次のコマンドは、SVM vs1のvol1にある削除済みファイルを安全にパージします。
+
+[listing]
+----
+cluster1::> volume encryption secure-purge start -vserver vs1 -volume vol1
+----
+ONTAP 9.7以降では、VEライセンスが設定されていて、OKMまたは外部キー管理ツールが設定されていてNSEが使用されていない場合、NAEとNVEがデフォルトで有効になります。NAEアグリゲートにはNAEボリュームがデフォルトで作成され、NAE以外のアグリゲートにはNVEボリュームがデフォルトで作成されます。これを無効にするには、次のコマンドを入力します。
+
+[listing]
+----
+cluster1::*> options -option-name encryption.data_at_rest_encryption.disable_by_default true
+----
+ONTAP 9.6以降では、SVMスコープを使用して、クラスタ内のデータSVMに対して外部キー管理を設定できます。この方法は、各テナントが異なるSVM（または一連のSVM）を使用してデータを提供するマルチテナント環境に最適です。特定のテナントのSVM管理者のみが、そのテナントのキーにアクセスできます。詳細については、ONTAPのドキュメントのを参照してください link:https://docs.netapp.com/us-en/ontap/encryption-at-rest/enable-external-key-management-96-later-nve-task.html["ONTAP 9.6以降で外部キー管理を有効にする"] 。
+
+ONTAP 9.11.1以降では、SVMでプライマリキーサーバとセカンダリキーサーバを指定することで、クラスタ化された外部キー管理サーバへの接続を設定できます。詳細については、ONTAPのドキュメントのを参照してください link:https://docs.netapp.com/us-en/ontap/encryption-at-rest/configure-cluster-key-server-task.html["クラスタ化された外部キーサーバの設定"] 。
+
+ONTAP 9.13.1以降では、System Managerで外部キー管理サーバを設定できます。詳細については、ONTAPのドキュメントのを参照してください link:https://docs.netapp.com/us-en/ontap/encryption-at-rest/manage-external-key-managers-sm-task.html["外部キー管理ツールを管理します。"] 。

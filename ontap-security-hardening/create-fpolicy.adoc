@@ -1,0 +1,75 @@
+---
+sidebar: sidebar 
+permalink: ontap-security-hardening/create-fpolicy.html 
+keywords: tr-4569, ontap hardening guide, security, native, external server, file policy, take actions, synchronous, asynchronous, storage workload security 
+summary: 可視性とファイルアクセス制御を提供するために、ONTAPソリューションではNetApp FPolicy機能を使用しています。 
+---
+= NetApp FPolicyの作成と使用
+:hardbreaks:
+:allow-uri-read: 
+:icons: font
+:linkattrs: 
+:imagesdir: ../media
+
+
+[role="lead"]
+ONTAPソリューションのインフラコンポーネントであるFPolicyを作成して使用できます。FPolicyを使用すると、パートナーアプリケーションからファイルアクセス権限を監視および設定できます。その中でも強力なアプリケーションの1つが、NetApp SaaSアプリケーションであるストレージワークロードセキュリティです。ハイブリッドクラウド環境全体にわたるすべての企業データアクセスを一元的に可視化して制御できるため、セキュリティとコンプライアンスの目標を確実に達成できます。
+
+アクセス制御はセキュリティの中核をなす概念です。ファイルアクセスやファイル操作を可視化し、応答できるようにすることは、セキュリティ体制の維持に欠かせません。可視性とファイルアクセス制御を提供するために、ONTAPソリューションではNetApp FPolicy機能を使用しています。
+
+ファイル ポリシーはファイル タイプに基づいて設定できます。FPolicyは、ファイルを作成する、開く、名前を変更する、削除するといった、個々のクライアント システムからの操作の要求をストレージ システムがどのように処理するかを決定します。ONTAP 9以降ではFPolicyのファイル アクセス通知フレームワークが強化され、フィルタによる制御および短時間のネットワーク停止に対する耐障害性が追加されました。
+
+.手順
+. FPolicy機能を利用するには、まずコマンドを使用してFPolicyポリシーを作成する必要があります `vserver fpolicy policy create` 。
++
+
+NOTE: FPolicyを使用してイベントを表示したり収集したりする場合は、パラメータも使用し `-events` ます。ONTAPには、フィルタ処理やアクセスをユーザ名レベルで制御するより細かな機能が用意されています。ユーザ名で権限とアクセスを制御するには、パラメータを指定します `-privilege-user-name` 。
+
++
+次にFPolicyの作成例を示します。
+
++
+[listing]
+----
+cluster1::> vserver fpolicy policy create -vserver vs1.example.com -policy-name vs1_pol -events cserver_evt,v1e1 -engine native -is-mandatory true -allow-privileged-access no -is-passthrough-read-enabled false
+----
+. FPolicyポリシーを作成したら、コマンドを使用して有効にする必要があります `vserver fpolicy enable` 。このコマンドではFPolicyエントリの優先度（順序）も設定します。
++
+
+NOTE: 同じファイル アクセス イベントに複数のポリシーが割り当てられている場合、優先度に基づいてアクセスが許可または拒否される順序が決まるため、FPolicyのシーケンスが重要になります。
+
++
+次のテキストは、コマンドを使用してFPolicyポリシーを有効にし、その設定を検証する設定例を示してい `vserver fpolicy show` ます。
+
++
+[listing]
+----
+cluster1::> vserver fpolicy enable -vserver vs2.example.com -policy-name vs2_pol -sequence-number 5
+
+cluster1::> vserver fpolicy show
+Vserver                 Policy Name                    Sequence  Status   Engine
+----------------------- ------------------------------ --------  -------  -------
+vs1.example.com         vs1_pol
+vs2.example.com         vs2_pol
+ external
+2 entries were displayed.
+----
+
+
+
+
+== FPolicyの機能拡張
+
+以降のセクションで、ONTAP 9で強化されたFPolicyの機能について説明します。
+
+
+
+=== フィルタリングコントロール
+
+ディレクトリアクティビティに関する通知を削除するための新しいフィルタが追加されました `SetAttr` 。
+
+
+
+=== 非同期の耐障害性
+
+非同期モードで動作している FPolicy サーバでネットワーク停止が発生した場合、停止中に生成された FPolicy 通知はストレージノードに格納されます。FPolicy サーバがオンラインに戻ると、サーバは格納された通知に関するアラートを受け取り、ストレージノードから通知を読み込むことができます。停止中に通知を保存できる期間は、最大 10 分に設定できます。

@@ -1,0 +1,43 @@
+---
+sidebar: sidebar 
+permalink: ontap-security-hardening/enable-ldap-signing-sealing.html 
+keywords: tr-4569, ontap hardening guide, security, queries, LDAP server, none, sign, seal 
+summary: Lightweight Directory Access Protocolの署名と封印により、LDAPサーバへのクエリでセッションセキュリティが有効になります。 
+---
+= Lightweight Directory Access Protocolの署名と封印を有効にする
+:hardbreaks:
+:allow-uri-read: 
+:icons: font
+:linkattrs: 
+:imagesdir: ../media
+
+
+[role="lead"]
+署名と封印は、LDAPサーバへのクエリでセッションセキュリティを有効にするためにサポートされています。これは、LDAP over TLSに代わるセッション セキュリティを提供します。
+
+署名は、シークレット キー技術を使用してLDAPペイロード データの整合性を確保します。封印は、LDAPペイロードデータを暗号化して、機密情報がクリアテキストで送信されないようにします。SVMのセッション セキュリティ設定は、LDAPサーバで使用可能な設定に対応しています。デフォルトでは、LDAPの署名と封印は無効になっています。
+
+.手順
+. この機能を有効にするには、パラメータを指定してコマンドを実行し `vserver cifs security modify` `session-security-for-ad-ldap` ます。
++
+LDAPセキュリティ機能のオプション：
+
++
+** *なし*:デフォルト、署名または封印なし
+** *署名*：LDAPトラフィックに署名します。
+** *封印*：LDAPトラフィックの署名と暗号化
++
+
+NOTE: signとsealは累積的に適用されます。つまり、signオプションを使用した場合はLDAPが署名され、sealオプションを使用した場合は署名されたうえで封印（暗号化）されます。また、このコマンドにパラメータを指定しない場合、デフォルトはnoneです。
+
++
+次に、設定例を示します。
+
++
+[listing]
+----
+cluster1::> vserver cifs security modify -vserver vs1 -kerberos-clock-skew 3 -kerberos-ticket-age 8 -session-security-for-ad-ldap seal
+----
+
+
+

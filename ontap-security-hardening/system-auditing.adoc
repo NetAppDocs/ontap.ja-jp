@@ -1,0 +1,102 @@
+---
+sidebar: sidebar 
+permalink: ontap-security-hardening/system-auditing.html 
+keywords: tr-4569, ontap hardening guide, security, log forwarding, log encryption, events, syslog, audit, event notification 
+summary: ONTAPイベントをリモートsyslogサーバにオフロードして、イベント監査の整合性を確保します。 
+---
+= ストレージ管理システムの監査
+:hardbreaks:
+:allow-uri-read: 
+:icons: font
+:linkattrs: 
+:imagesdir: ../media
+
+
+[role="lead"]
+ONTAPイベントをリモートsyslogサーバにオフロードして、イベント監査の整合性を確保します。このサーバは、Splunkなどのセキュリティ情報イベント管理システムである可能性があります。
+
+
+
+== syslogを送信
+
+ログや監査情報は、サポートやシステム可用性の観点から組織に欠かせません。また、ログ（syslog）や監査レポート、出力結果には、通常、取り扱いに注意を要する情報が含まれています。セキュリティのコントロールと体制を維持するためには、ログと監査データをセキュアな方法で管理することが必要です。
+
+違反の範囲やフットプリントを単一のシステムまたはソリューションに限定するには、syslog情報のオフロードが必要です。そのため、NetAppでは、syslog情報を安全なストレージまたは保持場所に安全にオフロードすることを推奨しています。
+
+
+
+=== ログの転送先を作成する
+
+リモートロギングのログ転送先を作成するには、コマンドを使用し `cluster log-forwarding create` ます。
+
+.パラメータ
+コマンドを設定するには、次のパラメータを使用し `cluster log-forwarding create` ます。
+
+* *デスティネーションホスト*ログの転送先サーバのホスト名、IPv4アドレス、またはIPv6アドレスを指定します。
++
+[listing]
+----
+-destination <Remote InetAddress>
+----
+* *宛先ポート*転送先サーバがリスンするポートを指定します。
++
+[listing]
+----
+[-port <integer>]
+----
+* *ログ転送プロトコル。*転送先へのメッセージの送信に使用するプロトコルを指定します。
++
+[listing]
+----
+[-protocol \{udp-unencrypted|tcp-unencrypted|tcp-encrypted}]
+----
++
+ログ転送プロトコルには、次のいずれかの値を指定できます。
+
++
+** `udp-unencrypted`です。User Datagram Protocol、セキュリティなし。
+** `tcp-unencrypted`です。TCP、セキュリティなし。
+** `tcp-encrypted`です。TCP、Transport Layer Security（TLS）を使用。
+
+
+* *宛先サーバーIDを確認します。*このパラメータをtrueに設定すると、証明書を検証してログの転送先の識別情報が確認されます。この値をtrueに設定できるのは、protocolフィールドで値が選択されている場合だけ `tcpencrypted` です。
++
+[listing]
+----
+[-verify-server \{true|false}]
+----
+* * Syslogファシリティ。*転送対象のログに使用するsyslog機能を指定します。
++
+[listing]
+----
+[-facility <Syslog Facility>]
+----
+* *接続テストをスキップします。*通常、この `cluster log-forwarding create` コマンドは、Internet Control Message Protocol（ICMP）pingを送信して宛先に到達できるかどうかを確認し、到達できない場合は失敗します。この値をに設定する `true` と、pingチェックが省略され、到達不能なデスティネーションを設定できるようになります。
++
+[listing]
+----
+[-force [true]]
+----
+
+
+
+NOTE: NetAppでは、コマンドを使用してタイプへの接続を強制することを推奨しています `cluster log-forwarding` `-tcp-encrypted` 。
+
+
+
+== イベント通知
+
+システムから送信される情報とデータを保護することは、システムのセキュリティ体制を維持および管理するために不可欠です。ONTAPソリューションで生成されるイベントは、ソリューションで発生している状況や処理されている情報など、豊富な情報を提供します。このデータは非常に重要なものであり、安全な方法で管理および移行する必要があります。
+
+コマンドは `event notification create` 、イベントフィルタで定義した一連のイベントの新しい通知を1つ以上の通知先に送信します。次の例は、イベント通知の設定と、設定されているイベント通知フィルタと送信先を表示するコマンドを示して `event notification show` います。
+
+[listing]
+----
+cluster1::> event notification create -filter-name filter1 -destinations
+ email_dest,syslog_dest,snmp-traphost
+
+cluster1::> event notification show
+ID     Filter Name       Destinations
+-----  ----------------  -----------------
+1 filter1 email_dest, syslog_dest, snmp-traphost
+----

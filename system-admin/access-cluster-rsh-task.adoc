@@ -20,14 +20,6 @@ RSH を使用してクラスタにアクセスするには、次の条件を満�
 +
 。 `-application` のパラメータ `security login` コマンドは、ユーザアカウントのアクセス方法を指定します。詳細については、を参照してください `security login` マニュアルページ
 
-* RSH 要求がファイアウォールを通過できるように、クラスタ管理 LIF またはノード管理 LIF によって使用される管理ファイアウォールポリシーで RSH がすでに有効になっている必要があります。
-+
-デフォルトでは、RSHは無効になっています。。 `system services firewall policy show` コマンドにを指定します `-service rsh` パラメータは、ファイアウォールポリシーでRSHが有効になっているかどうかを表示します。詳細については、を参照してください `system services firewall policy` マニュアルページ
-
-* IPv6 接続を使用する場合は、クラスタで IPv6 が設定されて有効になっている必要があります。また、ファイアウォールポリシーに IPv6 アドレスが設定されている必要があります。
-+
-。 `network options ipv6 show` IPv6が有効になっているかどうかを表示します。。 `system services firewall policy show` コマンドは、ファイアウォールポリシーを表示します。
-
 
 
 .このタスクについて
@@ -40,20 +32,35 @@ RSH を使用してクラスタにアクセスするには、次の条件を満�
 クラスタ管理 LIF がノード上に存在する場合、クラスタ管理 LIF はこの制限をノード管理 LIF と共有します。
 
 +
-着信接続数が 1 秒あたり 10 を超えると、サービスは一時的に 60 秒間無効になります。
+着信接続の速度が 1 秒あたり 10 を超えると、サービスは一時的に 60 秒間無効になります。
 
+* rshコマンドにはadvanced権限が必要です。
 
 
 .手順
-. 管理ホストで次のコマンドを入力します。
+. RSHセキュリティプロトコルが有効になっていることを確認します。
 +
-`*rsh _hostname_or_IP_ -l _username:passwordcommand_*`
+`security protocol show`
 
 +
-`_hostname_or_IP_` は、クラスタ管理LIFまたはノード管理LIFのホスト名またはIPアドレスです。クラスタ管理 LIF を使用することを推奨します。IPv4 または IPv6 アドレスを使用できます。
+.. RSHセキュリティプロトコルが有効になっている場合は、次の手順に進みます。
+.. RSHセキュリティプロトコルが有効になっていない場合は、次のコマンドを使用して有効にします。
++
+`security protocol modify -application rsh -enabled true`
+
+
+
+. 管理LIFにサービスが存在することを確認し `management-rsh-server` ます。
++
+`network interface show -services management-rsh-server`
 
 +
-`_command_` は、RSH経由で実行するコマンドです。
+.. サービスが存在する場合は `management-rsh-server` 、次の手順に進みます。
+.. サービスが存在しない場合は `management-rsh-server` 、次のコマンドを使用して追加します。
++
+`network interface service-policy add-service -vserver cluster1 -policy default-management -service management-rsh-server`
+
+
 
 
 

@@ -2,7 +2,7 @@
 permalink: data-protection/enable-disable-snapshot-dir-access-task.html 
 sidebar: sidebar 
 keywords: enable, disable, access, snapshot copy 
-summary: 'SnapshotコピーからファイルまたはLUNをリストアするために、NFSクライアントおよびSMBクライアントがSnapshotコピーディレクトリを認識できるかどうかを確認するには、を使用してSnapshotコピーディレクトリへのアクセスを有効または無効にします `-snapdir-access` のオプション `volume modify` コマンドを実行します' 
+summary: Snapshotコピーディレクトリへのアクセスを有効または無効にして、クライアントシステムがSnapshotコピーディレクトリを認識できるようにし、クライアントシステムにボリューム上のSnapshotコピーディレクトリへのアクセスを許可することができます。 
 ---
 = Snapshot コピーディレクトリへの NFS および SMB クライアントアクセスを有効または無効にします
 :allow-uri-read: 
@@ -11,13 +11,37 @@ summary: 'SnapshotコピーからファイルまたはLUNをリストアする�
 
 
 [role="lead"]
-SnapshotコピーからファイルまたはLUNをリストアするために、NFSクライアントおよびSMBクライアントがSnapshotコピーディレクトリを認識できるかどうかを確認するには、を使用してSnapshotコピーディレクトリへのアクセスを有効または無効にします `-snapdir-access` のオプション `volume modify` コマンドを実行します
+コマンドのCLIオプションを使用してSnapshotコピーディレクトリへのアクセスを有効または無効にできます。ONTAP 9.10.1以降では、ONTAP `-snapdir-access` `volume modify` Managerを使用してクライアントシステムからボリューム上のSnapshotコピーディレクトリへのアクセスを有効または無効にできます。アクセスを有効にすると、クライアントからSnapshotコピーディレクトリが認識され、WindowsクライアントからSnapshotコピーディレクトリにドライブをマッピングして、その内容を表示してアクセスできるようになります。その後、NFSクライアントとSMBクライアントは、SnapshotからファイルまたはLUNをリストアできます。
+
+ボリュームの Snapshot コピーディレクトリへのアクセスを有効または無効にするには、ボリュームの設定を編集するか、ボリュームの共有設定を編集します。
+
+
+
+== ボリュームを編集して、 Snapshot コピーディレクトリへのクライアントアクセスを有効または無効にします
 
 .手順
+クライアントのSnapshotコピーディレクトリへのアクセスを有効または無効にするには、ONTAP System ManagerまたはONTAP CLIを使用します。デフォルトでは、ボリューム上のSnapshotコピーディレクトリにクライアントがアクセスできます。
+
+[role="tabbed-block"]
+====
+.System Manager の略
+--
+. [ ストレージ ] 、 [ ボリューム ] の順にクリックします。
+. 表示または非表示にする Snapshot コピーディレクトリが含まれているボリュームを選択します。
+. をクリック image:icon_kabob.gif["メニューオプションアイコン"] し、*[編集]*を選択します。
+. 「 * Snapshot Copies （ Local ） Settings * 」セクションで、「 * Show the Snapshot copies directory to clients * 」を選択または選択解除します。
+. [ 保存（ Save ） ] をクリックします。
+
+
+--
+.CLI の使用
+--
 . Snapshot ディレクトリのアクセスステータスを確認します。
 +
-`volume show -vserver _SVM_name_ -volume _vol_name_ -fields snapdir-access`
-
+[source, cli]
+----
+volume show -vserver <SVM_name> -volume <vol_name> -fields snapdir-access
+----
 +
 例
 
@@ -32,8 +56,10 @@ vs0     vol1   false
 ----
 . Snapshot コピーのディレクトリアクセスを有効または無効にします。
 +
-`volume modify -vserver _SVM_name_ -volume _vol_name_ -snapdir-access true|false`
-
+[source, cli]
+----
+volume modify -vserver <SVM_name> -volume <vol_name> -snapdir-access <true|false>
+----
 +
 次の例は、 vol1 で Snapshot コピーのディレクトリへのアクセスを有効にします。
 
@@ -44,4 +70,20 @@ vs0     vol1   false
 clus1::> volume modify -vserver vs0 -volume vol1 -snapdir-access true
 Volume modify successful on volume vol1 of Vserver vs0.
 ----
+
+
+--
+====
+
+
+== 共有を編集して、 Snapshot コピーディレクトリへのクライアントアクセスを有効または無効にします
+
+デフォルトでは、ボリューム上の Snapshot コピーディレクトリにクライアントからアクセスできます。
+
+.手順
+. [ * ストレージ ] 、 [ 共有 ] の順にクリックします。
+. 表示または非表示にする Snapshot コピーディレクトリが含まれているボリュームを選択します。
+. をクリック image:icon_kabob.gif["メニューオプションアイコン"] し、*[編集]*を選択します。
+. 「 * 共有プロパティ * 」セクションで、「 * クライアントによる Snapshot コピー・ディレクトリへのアクセスを許可する」を選択または選択解除します。
+. [ 保存（ Save ） ] をクリックします。
 

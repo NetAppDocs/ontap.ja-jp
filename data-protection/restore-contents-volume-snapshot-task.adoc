@@ -11,15 +11,31 @@ summary: Snapshot コピーからボリュームの内容をリストアする�
 
 
 [role="lead"]
-を使用できます `volume snapshot restore` コマンドを使用して、Snapshotコピーからボリュームの内容をリストアします。
+Snapshotコピーからリストアすることで、ボリュームを過去のある時点の状態にリカバリできます。コマンドを使用すると、Snapshotコピーからボリュームの内容をリストアできます `volume snapshot restore` 。
 
 .このタスクについて
 ボリュームに SnapMirror 関係が設定されている場合は、 Snapshot コピーからリストアしたあと、すぐにボリュームのすべてのミラーコピーを手動でレプリケートします。レプリケートしないと、ミラーコピーを使用できなくなり、削除および再作成が必要になることがあります。
 
+.手順
+System ManagerまたはONTAP CLIを使用できます。
+
+[role="tabbed-block"]
+====
+.System Manager の略
+--
+. [* ストレージ ] をクリックし、ボリュームを選択します。
+. [Snapshotコピー]*で、リストアするSnapshotコピーの横にある*をクリックし image:icon_kabob.gif["メニューオプションアイコン"] 、*[リストア]*を選択します。
+
+
+--
+.CLI の使用
+--
 . ボリューム内の Snapshot コピーの一覧を表示します。
 +
-`volume snapshot show -vserver _SVM_ -volume _volume_`
-
+[source, cli]
+----
+volume snapshot show -vserver <SVM> -volume <volume>
+----
 +
 次の例は、のSnapshotコピーを示しています `vol1`：
 
@@ -31,7 +47,7 @@ clus1::> volume snapshot show -vserver vs1 -volume vol1
 
 Vserver Volume Snapshot                State    Size  Total% Used%
 ------- ------ ---------- ----------- ------   -----  ------ -----
-vs1	 vol1   hourly.2013-01-25_0005  valid   224KB     0%    0%
+vs1	    vol1   hourly.2013-01-25_0005  valid   224KB     0%    0%
                daily.2013-01-25_0010   valid   92KB      0%    0%
                hourly.2013-01-25_0105  valid   228KB     0%    0%
                hourly.2013-01-25_0205  valid   236KB     0%    0%
@@ -43,8 +59,10 @@ vs1	 vol1   hourly.2013-01-25_0005  valid   224KB     0%    0%
 ----
 . Snapshot コピーからボリュームの内容をリストアします。
 +
-`volume snapshot restore -vserver _SVM_ -volume _volume_ -snapshot _snapshot_`
-
+[source, cli]
+----
+volume snapshot restore -vserver <SVM> -volume <volume> -snapshot <snapshot>
+----
 +
 次の例は、の内容をリストアします `vol1`：
 
@@ -54,3 +72,6 @@ vs1	 vol1   hourly.2013-01-25_0005  valid   224KB     0%    0%
 cluster1::> volume snapshot restore -vserver vs0 -volume vol1 -snapshot daily.2013-01-25_0010
 ----
 
+
+--
+====

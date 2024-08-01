@@ -13,10 +13,17 @@ summary: プライマリストレージのソースボリュームとセカン�
 [role="lead"]
 プライマリストレージのソースボリュームとセカンダリストレージのデスティネーションボリュームの関係は、_データ保護関係と呼ばれます。_を使用できます `snapmirror create` コマンドを使用して、SnapMirror DR、SnapVault 、またはユニファイドレプリケーションのデータ保護関係を作成します。
 
+ONTAP 9.11.1以降では、System Managerを使用して、事前に作成されたカスタムのミラーとバックアップポリシーを選択したり、従来のポリシーを表示して選択したりできます。また、ボリュームやStorage VMを保護する際に、保護ポリシーに定義されている転送スケジュールを上書きしたりできます。この機能は、ONTAP 9.8のONTAP 9.8P12以降のパッチでも利用できます。
+
+[NOTE]
+====
+ONTAP 9.8P12以降のONTAP 9.8パッチリリースを使用しており、System Managerを使用してSnapMirrorを設定している場合、ONTAP 9.9.1またはONTAP 9.10.1リリースにアップグレードする場合は、ONTAP 9.9.1P13以降およびONTAP 9.10.1P10以降のパッチリリースを使用する必要があります。
+
+====
 .作業を開始する前に
 * ソースクラスタとデスティネーションクラスタ、および SVM のピア関係が確立されている必要があります。
 +
-https://docs.netapp.com/us-en/ontap-system-manager-classic/peering/index.html["クラスタと SVM のピアリング"^]
+link:../peering/index.html["クラスタと SVM のピアリング"]
 
 * デスティネーションボリューム上の言語は、ソースボリューム上の言語と同じである必要があります。
 
@@ -102,7 +109,24 @@ ONTAP 9.5 以降では、 SnapMirror Synchronous 関係がサポートされま�
 
 ONTAP 9.14.1以降では `-backoff-level` 、、、の各コマンドにオプションが追加され、 `snapmirror create` `snapmirror modify` `snapmirror restore` 関係ごとにバックオフレベルを指定できるようになりました。オプションは、FlexVol SnapMirror関係でのみサポートされます。オプションのコマンドでは、クライアント処理によるSnapMirrorバックオフレベルを指定します。バックオフ値には、high、medium、noneのいずれかを指定できます。デフォルト値はHighです。
 
-.ステップ
+.手順
+レプリケーション関係は、System ManagerまたはONTAP CLIを使用して作成できます。
+
+[role="tabbed-block"]
+====
+.System Manager の略
+--
+. 保護するボリュームまたは LUN を選択します。 * Storage > Volumes * または * Storage > LUNs * をクリックし、目的のボリュームまたは LUN 名をクリックします。
+. をクリックします image:icon_protect.gif["保護アイコン"]
+. デスティネーションクラスタと Storage VM を選択してください。
+. デフォルトでは非同期ポリシーが選択されます。同期ポリシーを選択するには、 * その他のオプション * をクリックします。
+. [*Protect*]( 保護 ) をクリックします
+. 選択したボリュームまたは LUN の * SnapMirror （ローカルまたはリモート） * タブをクリックして、保護が正しく設定されていることを確認します。
+
+
+--
+.CLI の使用
+--
 . デスティネーションクラスタから、レプリケーション関係を作成します。
 +
 このコマンドを実行する前に、山かっこ内の変数を必要な値に置き換える必要があります。
@@ -116,11 +140,9 @@ snapmirror create -source-path <SVM:volume> -destination-path <SVM:volume> -type
 コマンド構文全体については、マニュアルページを参照してください。
 
 +
-[NOTE]
-====
-。 `schedule` SnapMirror Synchronous関係を作成する場合は、パラメータは使用できません。
 
-====
+NOTE: 。 `schedule` SnapMirror Synchronous関係を作成する場合は、パラメータは使用できません。
+
 +
 次の例は、デフォルトのを使用して、SnapMirror DR関係を作成します `MirrorLatest` ポリシー：
 
@@ -202,18 +224,18 @@ cluster_dst::> snapmirror create -source-path svm1:volA -destination-path svm_ba
 cluster_dst::> snapmirror create -source-path svm1:volA -destination-path svm_backup:volA_dst -type XDP -policy SnapCenterSync
 ----
 +
-[NOTE]
-====
-事前定義されたポリシー `SnapCenterSync` がのタイプです `Sync`。このポリシーは、で作成されたすべてのSnapshotコピーをレプリケートします `snapmirror-label` が「app_consistent」の場合。
 
-====
+NOTE: 事前定義されたポリシー `SnapCenterSync` がのタイプです `Sync`。このポリシーは、で作成されたすべてのSnapshotコピーをレプリケートします `snapmirror-label` が「app_consistent」の場合。
+
 
 
 .完了後
 を使用します `snapmirror show` コマンドを実行して、SnapMirror関係が作成されたことを確認します。コマンド構文全体については、マニュアルページを参照してください。
 
+--
+====
 .関連情報
-* link:https://docs.netapp.com/us-en/ontap/data-protection/create-delete-snapmirror-failover-test-task.html["SnapMirrorフェイルオーバーテストボリュームの作成と削除"]。
+* link:create-delete-snapmirror-failover-test-task.html["SnapMirrorフェイルオーバーテストボリュームの作成と削除"]です。
 
 
 
@@ -223,9 +245,6 @@ cluster_dst::> snapmirror create -source-path svm1:volA -destination-path svm_ba
 [cols="2"]
 |===
 | 実行するタスク | 参照するコンテンツ 
-
-
-| 再設計された System Manager （ ONTAP 9.7 以降で使用可能） | link:https://docs.netapp.com/us-en/ontap/task_dp_configure_mirror.html["ミラーとバックアップを設定します"^] 
 
 
 | System Manager Classic （ ONTAP 9.7 以前で使用可能） | link:https://docs.netapp.com/us-en/ontap-system-manager-classic/volume-backup-snapvault/index.html["SnapVault によるボリュームのバックアップの概要"^] 

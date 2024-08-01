@@ -99,7 +99,7 @@ ONTAPのIDおよびアクセス管理機能を使用して、APIを使用して�
 
 NVEには、機密ファイルが分類されていないボリュームに書き込まれたときに、暗号化によってデータ流出から有害なデータを削除するという機能もあります。 https://blog.netapp.com/flash-memory-summit-award/["セキュアパージ"^]
 
-ONTAPに組み込みのキー管理ツールであるを https://docs.netapp.com/ontap-9/topic/com.netapp.doc.pow-nve/GUID-466E3BFC-F7FA-4B79-A8C9-2540C3BF1408.html["オンボードキーマネージャ（ OKM ）"^]使用するか、 https://mysupport.netapp.com/matrix/imt.jsp?components=69551;&solution=1156&isHWU&src=IMT["承認済み"^] サードパーティ製 https://docs.netapp.com/ontap-9/topic/com.netapp.doc.pow-nve/GUID-DD718B42-038D-4009-84FF-20BBD6530BC2.html["カイフキカンリツル"^] をNSEおよびNVEとともに使用して、キー情報をセキュアに格納できます。
+ONTAPに組み込まれているキー管理ツールであるを link:../encryption-at-rest/support-storage-encryption-concept.html["オンボードキーマネージャ（ OKM ）"]使用するか、 https://mysupport.netapp.com/matrix/imt.jsp?components=69551;&solution=1156&isHWU&src=IMT["承認済み"^] またはサードパーティ製品 link:../encryption-at-rest/support-storage-encryption-concept.html["カイフキカンリツル"] をNSEおよびNVEと併用して、キー情報をセキュアに格納できます。
 
 image::../media/zero-trust-two-layer-encryption-solution-aff-fas.png[AFFおよびFAS向けの2レイヤ暗号化ソリューションのフロー図]
 
@@ -109,13 +109,13 @@ image::../media/zero-trust-two-layer-encryption-solution-aff-fas.png[AFFおよ�
 
 ==== 転送中データの暗号化
 
-ONTAPの転送中データ暗号化により、ユーザデータアクセスとコントロールプレーンアクセスが保護されます。ユーザデータアクセスは、Microsoft CIFS共有アクセスの場合はSMB 3.0暗号化、NFS Kerberos 5の場合はkrb5pによって暗号化できます。ユーザデータアクセスは、を使用してCIFS、NFS、iSCSIの暗号化することもできます https://docs.netapp.com/us-en/ontap/networking/configure_ip_security_@ipsec@_over_wire_encryption.html["IPSec"^] 。コントロールプレーンアクセスは、Transport Layer Security（TLS）で暗号化されます。ONTAPには、コントロールプレーンアクセスのコンプライアンスモードが用意されて https://docs.netapp.com/us-en/ontap-cli//security-config-modify.html["FIPS"^] います。このモードでは、FIPS承認のアルゴリズムが有効になり、FIPS承認でないアルゴリズムが無効になります。データレプリケーションはで暗号化され https://docs.netapp.com/ontap-9/topic/com.netapp.doc.pow-csp/GUID-D58CC065-5EB5-4887-9A64-714755CC5B51.html["クラスタピア暗号化"^]ます。これにより、ONTAP SnapVaultテクノロジとSnapMirrorテクノロジが暗号化されます。
+ONTAPの転送中データ暗号化により、ユーザデータアクセスとコントロールプレーンアクセスが保護されます。ユーザデータアクセスは、Microsoft CIFS共有アクセスの場合はSMB 3.0暗号化、NFS Kerberos 5の場合はkrb5pによって暗号化できます。ユーザデータアクセスは、を使用してCIFS、NFS、iSCSIの暗号化することもできます https://docs.netapp.com/us-en/ontap/networking/configure_ip_security_@ipsec@_over_wire_encryption.html["IPSec"^] 。コントロールプレーンアクセスは、Transport Layer Security（TLS）で暗号化されます。ONTAPには、コントロールプレーンアクセスのコンプライアンスモードが用意されて https://docs.netapp.com/us-en/ontap-cli//security-config-modify.html["FIPS"^] います。このモードでは、FIPS承認のアルゴリズムが有効になり、FIPS承認でないアルゴリズムが無効になります。データレプリケーションはで暗号化され link:../peering/enable-cluster-peering-encryption-existing-task.html["クラスタピア暗号化"]ます。これにより、ONTAP SnapVaultテクノロジとSnapMirrorテクノロジが暗号化されます。
 
 
 
 === すべてのアクセスを監視してログに記録
 
-RBACポリシーを設定したら、アクティブな監視、監査、アラートを導入する必要があります。NetApp ONTAPのFPolicyゼロトラストエンジンとを組み合わせること https://www.netapp.com/partners/partner-connect["NetApp FPolicyパートナーエコシステム"^]で、データ主体のゼロトラストモデルに必要な制御を実現できます。NetApp ONTAPは、セキュリティが充実したデータ管理ソフトウェアであり https://docs.netapp.com/ontap-9/topic/com.netapp.doc.dot-cifs-nfs-audit/GUID-F1F54C15-057A-460E-A5E1-21FFBB9773FA.html["FPolicy の"^] 、きめ細かなファイルベースのイベント通知インターフェイスを提供する、業界をリードするONTAP機能です。NetAppのFPolicyパートナーは、このインターフェイスを使用して、ONTAP内のデータアクセスの照度を高めることができます。ONTAPのFPolicy機能とFPolicyパートナーのNetAppアライアンスパートナーエコシステムを組み合わせることで、組織のデータがどこに存在し、誰がデータにアクセスできるかを特定できます。これには、データアクセスパターンが有効かどうかを特定するユーザ行動分析が使用されます。ユーザの行動分析を使用すると、通常のパターンから外れた不審なデータアクセスや異常なデータアクセスをアラートで通知し、必要に応じてアクセスを拒否するアクションを実行できます。
+RBACポリシーを設定したら、アクティブな監視、監査、アラートを導入する必要があります。NetApp ONTAPのFPolicyゼロトラストエンジンとを組み合わせること https://www.netapp.com/partners/partner-connect["NetApp FPolicyパートナーエコシステム"^]で、データ主体のゼロトラストモデルに必要な制御を実現できます。NetApp ONTAPは、セキュリティが充実したデータ管理ソフトウェアであり link:../nas-audit/two-parts-fpolicy-solution-concept.html["FPolicy の"] 、きめ細かなファイルベースのイベント通知インターフェイスを提供する、業界をリードするONTAP機能です。NetAppのFPolicyパートナーは、このインターフェイスを使用して、ONTAP内のデータアクセスの照度を高めることができます。ONTAPのFPolicy機能とFPolicyパートナーのNetAppアライアンスパートナーエコシステムを組み合わせることで、組織のデータがどこに存在し、誰がデータにアクセスできるかを特定できます。これには、データアクセスパターンが有効かどうかを特定するユーザ行動分析が使用されます。ユーザの行動分析を使用すると、通常のパターンから外れた不審なデータアクセスや異常なデータアクセスをアラートで通知し、必要に応じてアクセスを拒否するアクションを実行できます。
 
 FPolicyパートナーは、ユーザ行動分析にとどまらず、機械学習（ML）や人工知能（AI）に移行しつつあります。これにより、イベントの忠実度が向上し、誤検出があった場合にはそれを減らすことができます。すべてのイベントは、syslogサーバ、またはMLやAIを使用できるセキュリティ情報イベント管理（SIEM）システムに記録する必要があります。
 

@@ -1,8 +1,8 @@
 ---
 permalink: data-protection/replicate-entire-svm-config-task.html 
 sidebar: sidebar 
-keywords: replicate, entire, svm, configuration, snapmirror, snap mirror, replication, mirror vault policy, snapshot 
-summary: SVM の設定全体をレプリケートするには、 snapmirror create コマンドの -identity-preserve true オプションを使用します。 
+keywords: replicate, entire, svm, storage vm, disaster, protection, configuration, snapmirror, snap mirror, replication, mirror vault policy, snapshot 
+summary: SVMディザスタリカバリ（SVM DR）関係を作成して、あるSVMの設定を別のSVMにレプリケートすることができます。プライマリサイトで災害が発生した場合は、デスティネーションSVMを簡単にアクティブ化できます。 
 ---
 = SVM の設定全体をレプリケート
 :allow-uri-read: 
@@ -11,7 +11,7 @@ summary: SVM の設定全体をレプリケートするには、 snapmirror crea
 
 
 [role="lead"]
-を使用できます `-identity-preserve true` のオプション `snapmirror create` SVMの設定全体をレプリケートするコマンド。
+SVMディザスタリカバリ（SVM DR）関係を作成して、あるSVMの設定を別のSVMにレプリケートすることができます。プライマリサイトで災害が発生した場合は、デスティネーションSVMを簡単にアクティブ化できます。
 
 .作業を開始する前に
 ソースクラスタとデスティネーションクラスタ、および SVM のピア関係が確立されている必要があります。
@@ -24,11 +24,31 @@ summary: SVM の設定全体をレプリケートするには、 snapmirror crea
 
 ONTAP 9.9.1以降では、mirror-vaultポリシーを使用すると、ソースSVMとデスティネーションSVMで異なるSnapshotポリシーを作成でき、デスティネーションのSnapshotコピーがソースのSnapshotコピーで上書きされることはありません。詳細については、を参照してください link:snapmirror-svm-replication-concept.html["SnapMirror SVM レプリケーションの概要"]。
 
+デスティネーションからこの手順を実行します。ソースStorage VMでSMBを設定している場合などに新しい保護ポリシーを作成する必要がある場合は、System Managerを使用してポリシーを作成し、*[保護ポリシーの追加]*ウィンドウで*[Identity preserve]*オプションを選択します。詳細は、を参照してください link:create-custom-replication-policy-concept.html["カスタムのデータ保護ポリシーを作成する"]。
+
 .手順
+このタスクは、System ManagerまたはONTAP CLIから実行できます。
+
+[role="tabbed-block"]
+====
+.System Manager の略
+--
+. デスティネーションクラスタで、 * Protection > Relationships * をクリックします。
+. [関係]*で、*[保護]*をクリックし、*[Storage VM（DR）]*を選択します。
+. 保護ポリシーを選択します。カスタムの保護ポリシーを作成した場合は、ポリシーを選択し、レプリケートするソースクラスタと Storage VM を選択します。新しい Storage VM 名を入力して、新しいデスティネーション Storage VM を作成することもできます。
+. 必要に応じて、デスティネーションの設定を変更してIDの保持を無効にし、ネットワークインターフェイスおよびプロトコルを対象に含めるか除外するかを選択します。
+. [ 保存（ Save ） ] をクリックします。
+
+
+--
+.CLI の使用
+--
 . デスティネーション SVM を作成します。
 +
-`vserver create -vserver _SVM_name_ -subtype dp-destination`
-
+[source, cli]
+----
+vserver create -vserver <SVM_name> -subtype dp-destination
+----
 +
 SVM 名はソースクラスタとデスティネーションクラスタの間で一意である必要があります。
 
@@ -46,17 +66,17 @@ cluster_dst:> vserver create -vserver svm_backup -subtype dp-destination
 
 . レプリケーションジョブスケジュールを作成
 +
-`job schedule cron create -name _job_name_ -month _month_ -dayofweek _day_of_week_ -day _day_of_month_ -hour _hour_ -minute _minute_`
-
+[source, cli]
+----
+job schedule cron create -name <job_name> -month <month> -dayofweek <day_of_week> -day <day_of_month> -hour <hour> -minute <minute>
+----
 +
 の場合 `-month`、 `-dayofweek`および `-hour`を指定できます `all` 毎月、曜日、および時間ごとにジョブを実行します。
 
 +
-[NOTE]
-====
-SVM SnapMirror関係にあるFlexVol ボリュームに対してサポートされる最小スケジュール（RPO）は15分です。SVM SnapMirror関係にあるFlexGroup ボリュームに対してサポートされる最小スケジュール（RPO）は30分です。
 
-====
+NOTE: SVM SnapMirror関係にあるFlexVol ボリュームに対してサポートされる最小スケジュール（RPO）は15分です。SVM SnapMirror関係にあるFlexGroup ボリュームに対してサポートされる最小スケジュール（RPO）は30分です。
+
 +
 次の例は、という名前のジョブスケジュールを作成します `my_weekly` 土曜日の午前3時に実行されます。
 
@@ -67,14 +87,14 @@ cluster_dst::> job schedule cron create -name my_weekly -dayofweek saturday -hou
 ----
 . デスティネーション SVM またはデスティネーションクラスタから、レプリケーション関係を作成します。
 +
-`snapmirror create -source-path _SVM_name_: -destination-path _SVM_name_: -type DP|XDP -schedule _schedule_ -policy _policy_ -identity-preserve true`
-
+[source, cli]
+----
+snapmirror create -source-path <SVM_name>: -destination-path <SVM_name>: -type <DP|XDP> -schedule <schedule> -policy <policy> -identity-preserve true
+----
 +
-[NOTE]
-====
-で、SVM名のあとにコロン（：）を入力する必要があります `-source-path` および `-destination-path` オプション（ Options ）
 
-====
+NOTE: で、SVM名のあとにコロン（：）を入力する必要があります `-source-path` および `-destination-path` オプション（ Options ）
+
 +
 次の例は、デフォルトのを使用して、SnapMirror DR関係を作成します `MirrorAllSnapshots` ポリシー：
 
@@ -109,22 +129,27 @@ cluster_dst::> snapmirror create -source-path svm1: -destination-path svm_backup
 ----
 . デスティネーション SVM を停止します。
 +
-`vserver stop`
-
+[source, cli]
+----
+vserver stop -vserver <SVM_name>
+----
 +
-`_SVM name_`
-
-+
-次の例は、 dvs1 という名前のデスティネーション SVM を停止します。
+次の例は、svm_backupという名前のデスティネーションSVMを停止します。
 
 +
 [listing]
 ----
-cluster_dst::> vserver stop -vserver dvs1
+cluster_dst::> vserver stop -vserver svm_backup
 ----
-. デスティネーション SVM またはデスティネーションクラスタから、 SVM レプリケーション関係を初期化します： +
+. デスティネーション SVM またはデスティネーションクラスタから、 SVM レプリケーション関係を初期化します。
 +
-`snapmirror initialize -source-path _SVM_name_: -destination-path _SVM_name_:`
+[source, cli]
+----
+snapmirror initialize -source-path <SVM_name>: -destination-path <SVM_name>:
+----
++
+
+NOTE: で、SVM名のあとにコロン（：）を入力する必要があります `-source-path` および `-destination-path` オプション（ Options ）
 
 +
 次の例は、ソースSVM間の関係を初期化します。 `svm1`およびデスティネーションSVM `svm_backup`：
@@ -135,3 +160,6 @@ cluster_dst::> vserver stop -vserver dvs1
 cluster_dst::> snapmirror initialize -source-path svm1: -destination-path svm_backup:
 ----
 
+
+--
+====

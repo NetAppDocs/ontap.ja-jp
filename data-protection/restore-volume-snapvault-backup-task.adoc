@@ -32,11 +32,33 @@ SnapMirror デスティネーションボリューム内の Snapshot コピー�
 
 デスティネーションボリュームに対して定義されたクォータルールは、リストアの実行前に非アクティブ化されます。を使用できます `volume quota modify` リストア処理の完了後にクォータルールを再アクティブ化するコマンド。
 
+ボリューム内のデータが失われた場合や破損した場合、以前の Snapshot コピーからリストアすることでデータをロールバックできます。
+
+この手順は、ソースボリューム上の現在のデータを、以前のバージョンの Snapshot コピーのデータで置き換えます。このタスクはデスティネーションクラスタで実行する必要があります。
+
 .手順
+ボリュームの内容は、System ManagerまたはONTAP CLIを使用してリストアできます。
+
+[role="tabbed-block"]
+====
+.System Manager の略
+--
+. [ 保護 ] 、 [ 関係 ] の順にクリックし、ソースボリューム名をクリックします。
+. をクリックし image:icon_kabob.gif["メニューオプションアイコン"] 、*[リストア]*を選択します。
+. ソースボリュームは、 * Source * でデフォルトで選択されます。ソース以外のボリュームを選択する場合は、「 * その他のボリューム」をクリックします。
+. 「 * Destination * 」で、リストアする Snapshot コピーを選択します。
+. ソースとデスティネーションが異なるクラスタにある場合は、リモートクラスタで、 * Protection > Relationships * をクリックしてリストアの進捗状況を監視します。
+
+
+--
+.CLI の使用
+--
 . デスティネーションボリューム内の Snapshot コピーの一覧を表示します。
 +
-`volume snapshot show -vserver <SVM> -volume <volume>`
-
+[source, cli]
+----
+volume snapshot show -vserver <SVM> -volume <volume>
+----
 +
 コマンド構文全体については、マニュアルページを参照してください。
 
@@ -69,11 +91,9 @@ vserverB    secondary1  hourly.2013-01-25_0005  valid   224KB     0%    0%
 コマンド構文全体については、マニュアルページを参照してください。
 
 +
-[NOTE]
-====
-このコマンドは元のソースSVMまたは元のソースクラスタから実行する必要があります。
 
-====
+NOTE: このコマンドは元のソースSVMまたは元のソースクラスタから実行する必要があります。
+
 +
 次のコマンドは、元のソースボリュームの内容をリストアします `primary1` Snapshotコピーから削除します `daily.2013-01-25_0010` （元のデスティネーションボリューム内） `secondary1`：
 
@@ -91,6 +111,8 @@ Do you want to continue? {y|n}: y
 . リストアしたボリュームを再マウントし、ボリュームを使用するすべてのアプリケーションを再起動します。
 
 
+--
+====
 
 
 == ONTAP でこれを行うその他の方法
@@ -98,9 +120,6 @@ Do you want to continue? {y|n}: y
 [cols="2"]
 |===
 | 実行するタスク | 参照するコンテンツ 
-
-
-| 再設計された System Manager （ ONTAP 9.7 以降で使用可能） | link:https://docs.netapp.com/us-en/ontap/task_dp_restore_from_vault.html["以前の Snapshot コピーからボリュームをリストアします"^] 
 
 
 | System Manager Classic （ ONTAP 9.7 以前で使用可能） | link:https://docs.netapp.com/us-en/ontap-system-manager-classic/volume-restore-snapvault/index.html["SnapVault によるボリュームリストアの概要"^] 

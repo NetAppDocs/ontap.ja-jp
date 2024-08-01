@@ -1,8 +1,8 @@
 ---
 permalink: data-protection/make-svm-destination-volumes-writeable-task.html 
 sidebar: sidebar 
-keywords: make, svm, destination, volume, writable 
-summary: クライアントにデータを提供する前に、 SVM デスティネーションボリュームを書き込み可能にする必要があります。手順は、 1 つの例外を除いて、ボリュームレプリケーション用の手順とほとんど同じです。SVM レプリケーション関係の作成時に -identity-preserve true を設定した場合は、デスティネーション SVM をアクティブ化する前にソース SVM を停止する必要があります。 
+keywords: make, svm, storage vm, destination, volume, writable 
+summary: クライアントにデータを提供する前に、 SVM デスティネーションボリュームを書き込み可能にする必要があります。 
 ---
 = SVM デスティネーションボリュームを書き込み可能にします
 :allow-uri-read: 
@@ -11,7 +11,9 @@ summary: クライアントにデータを提供する前に、 SVM デスティ
 
 
 [role="lead"]
-クライアントにデータを提供する前に、 SVM デスティネーションボリュームを書き込み可能にする必要があります。手順は、 1 つの例外を除いて、ボリュームレプリケーション用の手順とほとんど同じです。設定した場合 `-identity-preserve true` SVMレプリケーション関係を作成したら、デスティネーションSVMをアクティブ化する前にソースSVMを停止する必要があります。
+クライアントにデータを提供する前に、 SVM デスティネーションボリュームを書き込み可能にする必要があります。
+
+この手順は、1つの例外を除き、ボリュームレプリケーションの手順とほとんど同じです。SVMレプリケーション関係の作成時にを設定した場合は `-identity-preserve true` 、デスティネーションSVMをアクティブ化する前にソースSVMを停止する必要があります。
 
 .このタスクについて
 コマンド構文全体については、マニュアルページを参照してください。
@@ -21,17 +23,36 @@ summary: クライアントにデータを提供する前に、 SVM デスティ
 ディザスタリカバリのシナリオでは、ソース SVM とそのデータにアクセスできなくなり、前回の再同期後の更新が無効または破損している可能性があるため、ソース SVM からディザスタリカバリのデスティネーション SVM への SnapMirror 更新を実行できません。
 
 ====
+ONTAP 9.8以降では、System Managerを使用して、災害発生後にデスティネーションStorage VMをアクティブ化できます。デスティネーションStorage VMをアクティブ化すると、SVMデスティネーションボリュームが書き込み可能になり、クライアントにデータを提供できるようになります。
+
 .手順
+このタスクは、System ManagerまたはONTAP CLIから実行できます。
+
+[role="tabbed-block"]
+====
+.System Manager の略
+--
+. ソースクラスタにアクセスできる場合は、SVMが停止していることを確認します。* Storage > Storage VM*に移動し、SVMの* State *列を確認します。
+. ソースSVMの状態が「実行中」の場合は停止します。を選択し、*[停止]*を選択 image:icon_kabob.gif["メニューオプションアイコン"] します。
+. デスティネーションクラスタで、目的の保護関係を探します。* Protection > Relationships *に移動します。
+. 目的のソースStorage VM名にカーソルを合わせ、をクリックし image:icon_kabob.gif["メニューオプションアイコン"]、*デスティネーションStorage VMのアクティブ化*を選択します。
+. [デスティネーションStorage VMのアクティブ化]*ウィンドウで、*[デスティネーションStorage VMをアクティブ化して関係を解除する]*を選択します。
+. [Activate （有効化） ] をクリックします
+
+
+--
+.CLI の使用
+--
 . デスティネーション SVM またはデスティネーションクラスタから、デスティネーションへのスケジュールされた転送を停止します。
 +
-`snapmirror quiesce -source-path _SVM_: -destination-path _SVM_:`
-
+[source, cli]
+----
+snapmirror quiesce -source-path <SVM>: -destination-path <SVM>:
+----
 +
-[NOTE]
-====
-で、SVM名のあとにコロン（：）を入力する必要があります `-source-path` および `-destination-path` オプション（ Options ）以下の例を参照してください。
 
-====
+NOTE: で、SVM名のあとにコロン（：）を入力する必要があります `-source-path` および `-destination-path` オプション（ Options ）以下の例を参照してください。
+
 +
 次の例は、ソースSVM間のスケジュールされた転送を停止します `svm1` およびデスティネーションSVM `svm_backup`：
 
@@ -42,14 +63,14 @@ cluster_dst::> snapmirror quiesce -source-path svm1: -destination-path svm_backu
 ----
 . デスティネーション SVM またはデスティネーションクラスタから、デスティネーションへの実行中の転送を停止します。
 +
-`snapmirror abort -source-path _SVM_: -destination-path _SVM_:`
-
+[source, cli]
+----
+snapmirror abort -source-path <SVM>: -destination-path <SVM>:
+----
 +
-[NOTE]
-====
-で、SVM名のあとにコロン（：）を入力する必要があります `-source-path` および `-destination-path` オプション（ Options ）以下の例を参照してください。
 
-====
+NOTE: で、SVM名のあとにコロン（：）を入力する必要があります `-source-path` および `-destination-path` オプション（ Options ）以下の例を参照してください。
+
 +
 次の例は、ソースSVM間の実行中の転送を停止します `svm1` およびデスティネーションSVM `svm_backup`：
 
@@ -60,14 +81,14 @@ cluster_dst::> snapmirror abort -source-path svm1: -destination-path svm_backup:
 ----
 . デスティネーション SVM またはデスティネーションクラスタから、レプリケーション関係を解除します。
 +
-`snapmirror break -source-path _SVM_: -destination-path _SVM_:`
-
+[source, cli]
+----
+snapmirror break -source-path <SVM>: -destination-path <SVM>:
+----
 +
-[NOTE]
-====
-で、SVM名のあとにコロン（：）を入力する必要があります `-source-path` および `-destination-path` オプション（ Options ）以下の例を参照してください。
 
-====
+NOTE: で、SVM名のあとにコロン（：）を入力する必要があります `-source-path` および `-destination-path` オプション（ Options ）以下の例を参照してください。
+
 +
 次の例は、ソースSVM間の関係を解除します `svm1` およびデスティネーションSVM `svm_backup`：
 
@@ -78,8 +99,10 @@ cluster_dst::> snapmirror break -source-path svm1: -destination-path svm_backup:
 ----
 . 設定した場合 `-identity-preserve true` SVMレプリケーション関係を作成したら、ソースSVMを停止します。
 +
-`vserver stop -vserver _SVM_`
-
+[source, cli]
+----
+vserver stop -vserver <SVM>
+----
 +
 次の例は、ソースSVMを停止します `svm1`：
 
@@ -90,8 +113,10 @@ cluster_src::> vserver stop svm1
 ----
 . デスティネーション SVM を起動します。
 +
-`vserver start -vserver _SVM_`
-
+[source, cli]
+----
+vserver start -vserver <SVM>
+----
 +
 次の例は、デスティネーションSVMを起動します `svm_backup`：
 
@@ -104,3 +129,6 @@ cluster_dst::> vserver start svm_backup
 
 .完了後
 の説明に従って、データアクセス用の SVM デスティネーションボリュームを設定します link:configure-destination-volume-data-access-concept.html["データアクセス用のデスティネーションボリュームを設定"]。
+
+--
+====

@@ -13,7 +13,7 @@ summary: 関係のデフォルトポリシーが適切でない場合は、カ�
 [role="lead"]
 関係のデフォルトポリシーが適切でない場合は、カスタムレプリケーションポリシーを作成できます。たとえば、ネットワーク転送時にデータを圧縮したり、 Snapshot コピーを転送するための SnapMirror の試行回数を変更したりできます。
 
-レプリケーション関係の作成時には、デフォルトまたはカスタムのポリシーを使用できます。カスタムアーカイブ（旧 SnapVault ）またはユニファイドレプリケーションポリシーの場合は、初期化と更新の際に転送する Snapshot コピーを決定する 1 つ以上の _ rules_ を定義する必要があります。また、デスティネーションでローカル Snapshot コピーを作成するスケジュールを定義することもできます。
+レプリケーション関係の作成時には、デフォルトまたはカスタムのポリシーを使用できます。カスタムアーカイブ（旧SnapVault）ポリシーまたはユニファイドレプリケーションポリシーの場合は、初期化と更新の際に転送するSnapshotコピーを決定する1つ以上の_rules_を定義する必要があります。また、デスティネーションでローカルSnapshotコピーを作成するスケジュールを定義することもできます。
 
 レプリケーションポリシーの _policy type_of によって、サポートされる関係のタイプが決まります。次の表は、使用可能なポリシータイプを示しています。
 
@@ -63,11 +63,34 @@ Sync モードの SnapMirror Synchronous （ ONTAP 9.5 以降でサポート）
 カスタムレプリケーションポリシーを作成する場合は、デフォルトポリシーをモデルとすることを推奨します。
 
 ====
-.ステップ
+.手順
+カスタムのデータ保護ポリシーは、System ManagerまたはONTAP CLIで作成できます。ONTAP 9.11.1以降では、System Managerを使用してカスタムのミラーポリシーとバックアップポリシーを作成したり、従来のポリシーを表示して選択したりできます。この機能は、ONTAP 9.8のONTAP 9.8P12以降のパッチでも利用できます。
+
+ソースクラスタとデスティネーションクラスタの両方にカスタムの保護ポリシーを作成する。
+
+[role="tabbed-block"]
+====
+.System Manager の略
+--
+. [* Protection] > [Local Policy Settings] をクリックします。
+. [保護ポリシー]*で、をクリックし image:icon_arrow.gif["矢印アイコン"]ます。
+. [保護ポリシー]*ペインで、をクリックします image:icon_add.gif["追加アイコン"]。
+. 新しいポリシー名を入力し、ポリシーのスコープを選択します。
+. ポリシータイプを選択します。バックアップ専用ポリシーまたはミラーのみのポリシーを追加するには、*非同期*を選択し、*従来のポリシータイプを使用*をクリックします。
+. 必須フィールドに入力します。
+. [ 保存（ Save ） ] をクリックします。
+. もう一方のクラスタで同じ手順を繰り返します。
+
+
+--
+.CLI の使用
+--
 . カスタムレプリケーションポリシーを作成します。
 +
-`snapmirror policy create -vserver _SVM_ -policy _policy_ -type async-mirror|vault|mirror-vault|strict-sync-mirror|sync-mirror -comment _comment_ -tries _transfer_tries_ -transfer-priority low|normal -is-network-compression-enabled true|false`
-
+[source, cli]
+----
+snapmirror policy create -vserver <SVM> -policy _policy_ -type <async-mirror|vault|mirror-vault|strict-sync-mirror|sync-mirror> -comment <comment> -tries <transfer_tries> -transfer-priority <low|normal> -is-network-compression-enabled <true|false>
+----
 +
 コマンド構文全体については、マニュアルページを参照してください。
 
@@ -112,3 +135,6 @@ cluster_dst::> snapmirror policy create -vserver svm1 -policy my_strictsync -typ
 「 vault 」および「 `m mirror vault 」ポリシータイプの場合は、初期化および更新時に転送する Snapshot コピーを決定するルールを定義する必要があります。
 
 を使用します `snapmirror policy show` コマンドを入力して、SnapMirrorポリシーが作成されたことを確認します。コマンド構文全体については、マニュアルページを参照してください。
+
+--
+====

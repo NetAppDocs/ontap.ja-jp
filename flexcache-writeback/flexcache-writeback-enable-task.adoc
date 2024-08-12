@@ -1,0 +1,229 @@
+---
+permalink: flexcache-writeback/flexcache-writeback-enable-task.html 
+sidebar: sidebar 
+keywords: creating, manage, disable, view, flexcache, flex cache, writeback, write-back, write back 
+summary: FlexCacheボリュームでFlexCacheライトバックモードを有効にすると、エッジコンピューティング環境と書き込み負荷の高いワークロードのキャッシュのパフォーマンスが向上します。 
+---
+= FlexCacheライトバックの有効化と管理
+:allow-uri-read: 
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+ONTAP 9.15.1以降では、FlexCacheボリュームでFlexCacheライトバックモードを有効にすることで、エッジコンピューティング環境や書き込み負荷の高いワークロードのキャッシュのパフォーマンスを向上させることができます。また、必要に応じて、FlexCacheボリュームでライトバックが有効になっているかどうかを確認したり、ボリュームのライトバックを無効にしたりすることもできます。
+
+キャッシュボリュームでライトバックが有効になっている場合、書き込み要求は元のボリュームではなくローカルキャッシュに送信されます。
+
+.作業を開始する前に
+advanced権限モードにする必要があります。
+
+
+
+== ライトバックを有効にして新しいFlexCacheボリュームを作成する
+
+.手順
+ONTAPシステムマネージャまたはONTAP CLIを使用して、ライトバックを有効にして新しいFlexCacheボリュームを作成できます。
+
+[role="tabbed-block"]
+====
+.System Manager の略
+--
+. FlexCacheボリュームが元のボリュームとは別のクラスタにある場合は、クラスタピア関係を作成します。
++
+.. ローカルクラスタで、*[保護]>[概要]*をクリックします。
+.. [クラスタ間設定]*を展開し、*[ネットワークインターフェイスの追加]*をクリックして、クラスタにクラスタ間インターフェイスを追加します。
++
+リモートクラスタで同じ手順を繰り返します。
+
+.. リモートクラスタで、*[保護]>[概要]*をクリックします。[Cluster Peers]セクション内をクリックし image:icon_kabob.gif["メニューオプションアイコン"] 、*[Generate Passphrase]*をクリックします。
+.. 生成されたパスフレーズをコピーしてローカルクラスタに貼り付けます。
+.. ローカルクラスタで、[クラスタピア]の*[クラスタのピアリング]*をクリックし、ローカルクラスタとリモートクラスタをピアリングします。
+
+
+. FlexCacheボリュームが元のボリュームとは異なるクラスタにある場合は、SVMピア関係を作成します。
++
+[Storage VMピア]*で、*[Storage VMのピア関係を設定]*をクリックし、*[Storage VMのピアリング]*をクリックし image:icon_kabob.gif["メニューオプションアイコン"] てStorage VMをピアリングします。
+
++
+FlexCacheボリュームが同じクラスタにある場合、System Managerを使用してSVMピア関係を作成することはできません。
+
+. Storage > Volumes （ストレージ）を選択します。
+. 「 * 追加」を選択します。
+. [その他のオプション]*を選択し、*[リモートボリュームのキャッシュとして追加]*を選択します。
+. [Enable FlexCache write-back]*を選択します。
+
+
+--
+.CLI の使用
+--
+. 別のクラスタに作成する FlexCache ボリュームを作成する場合は、クラスタピア関係を作成します。
++
+.. デスティネーションクラスタで、データ保護のソースクラスタとのピア関係を作成します。
++
+[source, cli]
+----
+cluster peer create -generate-passphrase -offer-expiration MM/DD/YYYY HH:MM:SS|1...7days|1...168hours -peer-addrs <peer_LIF_IPs> -initial-allowed-vserver-peers <svm_name>,..|* -ipspace <ipspace_name>
+----
++
+ONTAP 9.6 以降では、クラスタピア関係の作成時に TLS 暗号化がデフォルトで有効になります。TLS 暗号化は、元のボリュームと FlexCache ボリュームの間のクラスタ間通信でサポートされます。必要に応じて、クラスタピア関係の TLS 暗号化を無効にすることもできます。
+
++
+[listing]
+----
+cluster02::> cluster peer create -generate-passphrase -offer-expiration 2days -initial-allowed-vserver-peers *
+
+                     Passphrase: UCa+6lRVICXeL/gq1WrK7ShR
+                Expiration Time: 6/7/2017 08:16:10 EST
+  Initial Allowed Vserver Peers: *
+            Intercluster LIF IP: 192.140.112.101
+              Peer Cluster Name: Clus_7ShR (temporary generated)
+
+Warning: make a note of the passphrase - it cannot be displayed again.
+----
+.. ソースクラスタで、ソースクラスタをデスティネーションクラスタに対して認証します。
++
+[source, cli]
+----
+cluster peer create -peer-addrs <peer_LIF_IPs> -ipspace <ipspace>
+----
++
+[listing]
+----
+cluster01::> cluster peer create -peer-addrs 192.140.112.101,192.140.112.102
+
+Notice: Use a generated passphrase or choose a passphrase of 8 or more characters.
+        To ensure the authenticity of the peering relationship, use a phrase or sequence of characters that would be hard to guess.
+
+Enter the passphrase:
+Confirm the passphrase:
+
+Clusters cluster02 and cluster01 are peered.
+----
+
+
+. FlexCache ボリュームが元のボリュームとは異なるSVMにある場合は、を使用してSVMピア関係を作成します `flexcache` アプリケーションとして：
++
+.. SVMが別のクラスタにある場合は、ピアリングするSVMのSVM権限を作成します。
++
+[source, cli]
+----
+vserver peer permission create -peer-cluster <cluster_name> -vserver <svm-name> -applications flexcache
+----
++
+次の例は、すべてのローカル SVM に適用される SVM ピア権限を作成する方法を示しています。
+
++
+[listing]
+----
+cluster1::> vserver peer permission create -peer-cluster cluster2 -vserver "*" -applications flexcache
+
+Warning: This Vserver peer permission applies to all local Vservers. After that no explict
+"vserver peer accept" command required for Vserver peer relationship creation request
+from peer cluster "cluster2" with any of the local Vservers. Do you want to continue? {y|n}: y
+----
+.. SVMピア関係を作成します。
++
+[source, cli]
+----
+vserver peer create -vserver <local_SVM> -peer-vserver <remote_SVM> -peer-cluster <cluster_name> -applications flexcache
+----
+
+
+. ライトバックを有効にしてFlexCacheボリュームを作成します。
++
+[source, cli]
+----
+volume flexcache create -vserver <cache_vserver_name> -volume <cache_flexgroup_name> -aggr-list <list_of_aggregates> -origin-volume <origin flexgroup> -origin-vserver <origin_vserver name> -junction-path <junction_path> -is-writeback-enabled true
+----
+
+
+--
+====
+
+
+== 既存のFlexCacheボリュームでFlexCacheライトバックを有効にする
+
+ONTAPシステムマネージャまたはONTAP CLIを使用して、既存のFlexCacheボリュームでFlexCacheライトバックを有効にできます。
+
+[role="tabbed-block"]
+====
+.System Manager の略
+--
+. [ストレージ]>[ボリューム]*を選択し、既存のFlexCacheボリュームを選択します。
+. ボリュームの[Overview]ページで、右上にある*[Edit]*をクリックします。
+. [ボリュームの編集]*ウィンドウで、*[ FlexCacheライトバックを有効にする]*を選択します。
+
+
+--
+.CLI の使用
+--
+. 既存のFlexCacheボリュームでライトバックを有効にします。
++
+[source, cli]
+----
+volume flexcache config modify -volume <cache_flexgroup_name> -is-writeback-enabled true
+----
+
+
+--
+====
+
+
+== FlexCacheライトバックが有効かどうかの確認
+
+.手順
+FlexCacheライトバックが有効になっているかどうかは、System ManagerまたはONTAP CLIを使用して確認できます。
+
+[role="tabbed-block"]
+====
+.System Manager の略
+--
+. [ストレージ]>[ボリューム]*を選択し、ボリュームを選択します。
+. ボリューム*[概要]*で、*[ FlexCacheの詳細]*を探し、FlexCacheボリュームでFlexCacheライトバックが*[有効]*に設定されているかどうかを確認します。
+
+
+--
+.CLI の使用
+--
+. FlexCacheライトバックが有効になっているかどうかを確認します。
++
+[source, cli]
+----
+volume flexcache config show -volume cache -fields is-writeback-enabled
+----
+
+
+--
+====
+
+
+== FlexCacheボリュームのライトバックを無効にする
+
+FlexCacheボリュームを削除する前に、FlexCacheライトバックを無効にする必要があります。
+
+.手順
+System ManagerまたはONTAP CLIを使用して、FlexCacheライトバックを無効にできます。
+
+[role="tabbed-block"]
+====
+.System Manager の略
+--
+. [ストレージ]>[ボリューム]*を選択し、FlexCacheライトバックが有効になっている既存のFlexCacheボリュームを選択します。
+. ボリュームの[Overview]ページで、右上にある*[Edit]*をクリックします。
+. [ボリュームの編集]*ウィンドウで、*[ FlexCacheライトバックを有効にする]*の選択を解除します。
+
+
+--
+.CLI の使用
+--
+. ライトバックを無効にします。
++
+[source, cli]
+----
+volume flexcache config modify -volume <cache_vol_name> -is-writeback-enabled false
+----
+
+
+--
+====

@@ -26,11 +26,32 @@ hourly.2017-05-15_1006/             hourly.2017-05-15_1306/
 
 。 `snapmirror-label` オプションはSnapMirrorレプリケーション用です。詳細については、を参照してください link:define-rule-policy-task.html["ポリシーのルールを定義する"]。
 
-.ステップ
+.手順
+System ManagerまたはONTAP CLIを使用して、Snapshotコピーポリシーを作成できます。この手順では、ローカルクラスタにのみSnapshotコピーポリシーが作成されます。
+
+[role="tabbed-block"]
+====
+.System Manager の略
+--
+. [保護]>[概要]*に移動し、*[ローカルポリシー設定]*を展開します。
+. [Snapshotポリシー]*ペインで、をクリックしますimage:icon_arrow.gif["矢印アイコン"]。
+. [Snapshotポリシー]*タブで、をクリックしますimage:icon_add.gif["追加アイコン"]。
+. [Snapshotポリシーの追加]*ウィンドウで、ポリシー名を入力し、範囲を選択します。
+. をクリックします image:icon_add.gif["追加アイコン"]。
+. スケジュールを選択するには、現在表示されているスケジュール名をクリックし、をクリックしimage:icon_dropdown_arrow.gif["ドロップダウンアイコン"]て、別のスケジュールを選択します。
+. 保持するSnapshotコピーの最大数を入力し、必要に応じてSnapMirrorラベルとSnapLockの保持期間を入力します。
+. [ 保存（ Save ） ] をクリックします。
+
+
+--
+.CLI の使用
+--
 . Snapshot ポリシーを作成します
 +
-`volume snapshot policy create -vserver _SVM_ -policy _policy_name_ -enabled true|false -schedule1 _schedule1_name_ -count1 _copies_to_retain_ -prefix1 _snapshot_prefix_ -snapmirror-label1 _snapshot_label_ ... -schedule5 _schedule5_name_ -count5 _copies_to_retain_-prefix5 _snapshot_prefix_ -snapmirror-label5 _snapshot_label_`
-
+[source, cli]
+----
+volume snapshot policy create -vserver <SVM> -policy <policy_name> -enabled true|false -schedule1 <schedule1_name> -count1 <copies_to_retain> -prefix1 <snapshot_prefix> -snapmirror-label1 <snapshot_label> ... -schedule5 <schedule5_name> -count5 <copies_to_retain> -prefix5 <snapshot_prefix> -snapmirror-label5 <snapshot_label>
+----
 +
 次の例は、という名前のSnapshotポリシーを作成します `snap_policy_daily` これはAで実行されます `daily` スケジュール：このポリシーには最大5つのSnapshotコピーが含まれ、それぞれにという名前が付けられます `daily`.`_timestamp_` およびSnapMirrorラベル `daily`：
 
@@ -40,3 +61,6 @@ hourly.2017-05-15_1006/             hourly.2017-05-15_1306/
 cluster1::> volume snapshot policy create -vserver vs0 -policy snap_policy_daily -schedule1 daily -count1 5 -snapmirror-label1 daily
 ----
 
+
+--
+====

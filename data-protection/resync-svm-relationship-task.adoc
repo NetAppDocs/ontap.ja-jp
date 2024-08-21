@@ -1,0 +1,50 @@
+---
+sidebar: sidebar 
+permalink: data-protection/resync-svm-destination-task.html 
+keywords: netapp, ontap, system manager, data, VM, resynchronize, resynchronization, resync, source, SVM, source SVM, source storage VM, destination, destination storage VM, destination SVM, protection, relationship, protection relationship, relationships 
+summary: ONTAP 9.8 以降では、 System Manager を使用して、ソース Storage VM のデータおよび設定の詳細を、解除した保護関係のデスティネーション Storage VM に再同期し、関係を再確立できます。 
+---
+= デスティネーション Storage VM を再同期
+:hardbreaks:
+:toclevels: 1
+:allow-uri-read: 
+:toclevels: 1
+:nofooter: 
+:icons: font
+:linkattrs: 
+:imagesdir: ./media/
+
+
+[role="lead"]
+ONTAP 9.8 以降では、 System Manager を使用して、ソース Storage VM のデータおよび設定の詳細を、解除した保護関係のデスティネーション Storage VM に再同期し、関係を再確立できます。
+
+ONTAP 9.11.1では、災害復旧のリハーサルを実行するときにデータウェアハウスの完全な再構築をバイパスするオプションが導入されており、本番環境に戻すまでの時間を短縮できます。
+
+再同期処理は元の関係のデスティネーションからのみ実行できます。再同期を実行すると、ソース Storage VM のデータよりも新しいデスティネーション Storage VM のデータがすべて削除されます。
+
+.手順
+このタスクは、System ManagerまたはONTAP CLIを使用して実行できます。
+
+[role="tabbed-block"]
+====
+.System Manager の略
+--
+. デスティネーションから、必要な保護関係を選択します。*[保護]>[関係]*をクリックします。
+. 必要に応じて、［*クイック再同期を実行する*］を選択すると、災害復旧のリハーサル時にデータウェアハウスの完全な再構築をバイパスできます。
+. をクリックし image:icon_kabob.gif["メニューオプションアイコン"] 、*[再同期]*をクリックします。
+. 「 * Relationships * 」で、関係の「 * Transfer Status * 」を表示して、再同期の進捗状況を監視します。
+
+
+--
+.CLI の使用
+--
+. デスティネーションクラスタから、関係を再同期します。
++
+[source, cli]
+----
+snapmirror resync -source-path <svm>: -destination-path <svm>: -quick-resync true|false
+----
+
+
+--
+====

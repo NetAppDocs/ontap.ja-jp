@@ -1,7 +1,7 @@
 ---
 permalink: data-protection/resynchronize-relationship-task.html 
 sidebar: sidebar 
-keywords: resynchronize, replication, relationship 
+keywords: resynchronize, replication, relationship, snapmirror, mirror, snapshot copy, restore, disaster recovery, DR, resync, protection relationship, data protection 
 summary: デスティネーションボリュームを書き込み可能にしたあと、ソースボリュームとデスティネーションボリュームに共通の Snapshot コピーが存在しないために更新が失敗したあと、または関係のレプリケーションポリシーを変更した場合には、レプリケーション関係の再同期が必要です。 
 ---
 = レプリケーション関係を再同期
@@ -20,27 +20,28 @@ ONTAP 9.8 以降では、 System Manager を使用して逆再同期操作を実
 * ファンアウト構成またはカスケード構成の一部であるボリュームの再同期には時間がかかることがあります。長時間にわたってステータスが「 preparing 」と報告されている SnapMirror 関係が表示されることは珍しくありません。
 
 
-この手順は非同期関係にある元のソースボリュームのデータを置き換えるため、元のソースボリュームからデータの提供を再開して元の保護関係を再開できます。
-
 [NOTE]
 ====
 System Managerでは、クラスタ内の関係との逆再同期はサポートされません。クラスタ内の関係に対する逆再同期処理は、ONTAP CLIを使用して実行できます。
 
 ====
-逆再同期処理を実行すると、共通のSnapshotコピーのデータよりも新しいソースボリューム上のデータはすべて削除されます。
-
 .手順
-System ManagerまたはONTAP CLIを使用して、レプリケーション関係を再同期できます。デスティネーションボリュームを書き込み可能にしたら、System Managerを使用してレプリケーション関係を逆再同期できます。ONTAP CLIを使用する場合の手順は、デスティネーションボリュームを書き込み可能にするか、レプリケーション関係を更新するかに関係なく同じです。
+このタスクは、System ManagerまたはONTAP CLIを使用して実行できます。ONTAP CLIを使用する場合の手順は、デスティネーションボリュームを書き込み可能にするか、レプリケーション関係を更新するかに関係なく同じです。
 
 [role="tabbed-block"]
 ====
 .System Managerの逆再同期
 --
+link:make-destination-volume-writeable-task.html["関係を解除する"]デスティネーションを書き込み可能にしたら、関係を逆再同期します。
+
 . デスティネーションクラスタで、 * Protection > Relationships * をクリックします。
-. 逆にする解除した関係にカーソルを合わせ、をクリックし image:icon_kabob.gif["Kabob アイコン"]て*[逆再同期]*を選択します。
+. 逆にする解除した関係にカーソルを合わせ、をクリックし image:icon_kabob.gif["メニューオプションアイコン"]て*[逆再同期]*を選択します。
 . [逆再同期関係]*ウィンドウで、*[逆再同期]*をクリックします。
 . 「 * Relationships * 」で、関係の「 * Transfer Status * 」を表示して、逆再同期の進捗を監視します。
 
+
+.次のステップ
+元のソースが再び使用可能になったら、反転した関係を解除してもう一度逆再同期処理を実行することで、元の関係を再確立できます。逆再同期プロセスでは、データを元のソースに提供しているサイトからの変更がすべてコピーされ、元のソースが再び読み取り/書き込み可能になります。
 
 --
 .System Managerの再同期

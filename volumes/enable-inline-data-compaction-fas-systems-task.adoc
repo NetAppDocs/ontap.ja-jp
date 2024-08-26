@@ -1,8 +1,8 @@
 ---
 permalink: volumes/enable-inline-data-compaction-fas-systems-task.html 
 sidebar: sidebar 
-keywords: enable, inline, data, compaction, fas systems 
-summary: Flash Pool （ハイブリッド）アグリゲートまたは HDD アグリゲートを使用する FAS システムでは、 WAFL コンパクションの有効化ノードシェルコマンドを使用して、ボリュームレベルまたはアグリゲートレベルでインラインデータコンパクションを制御できます。FAS システムのデータコンパクションはデフォルトで無効になっています。 
+keywords: enable, inline, data compaction, fas systems, hdd aggregate, volume efficiency 
+summary: Flash Pool（ハイブリッド）アグリゲートまたはHDDアグリゲートを使用するFASシステムで、ボリュームレベルまたはアグリゲートレベルでインラインデータコンパクションを有効にします。 
 ---
 = FAS システムのインラインデータコンパクションを有効にします
 :allow-uri-read: 
@@ -11,24 +11,40 @@ summary: Flash Pool （ハイブリッド）アグリゲートまたは HDD ア�
 
 
 [role="lead"]
-Flash Pool（ハイブリッド）アグリゲートまたはHDDアグリゲートを使用するFAS システムでは、を使用して、ボリュームレベルまたはアグリゲートレベルでインラインデータコンパクションを制御できます `volume efficiency` cluster shellコマンド。FAS システムのデータコンパクションはデフォルトで無効になっています。
+Flash Pool（ハイブリッド）アグリゲートまたはHDDアグリゲートを使用するFASシステムでは、 `volume efficiency`cluster shellコマンドを使用して、ボリュームレベルまたはアグリゲートレベルでインラインデータコンパクションを有効にできます。FASシステムでは、データコンパクションはデフォルトで無効になっています。
 
 .このタスクについて
 アグリゲートレベルでデータコンパクションを有効にすると、ボリュームのスペースギャランティをにして作成された新しいボリュームでデータコンパクションが有効になります `none` アグリゲート内。HDD アグリゲートのボリュームでデータコンパクションを有効にすると、追加の CPU リソースが使用されます。
 
 .手順
-. advanced権限レベルに切り替えます。+
-`set -privilege advanced`
-. 目的のノードのボリュームとアグリゲートのデータコンパクションの状態を確認します。+
-`volume efficiency show -volume _volume_name_` [+]
-. ボリュームでデータコンパクションを有効にします：+
-`volume efficiency modify -volume _volume_name_ -data-compaction true`
+. advanced 権限レベルに切り替えます。
++
+[source, cli]
+----
+set -privilege advanced
+----
+. 目的のノードのボリュームおよびアグリゲートのデータコンパクションの状態を確認します。
++
+[source, cli]
+----
+volume efficiency show -volume <volume_name>
+----
+. ボリュームでデータコンパクションを有効にします。
++
+[source, cli]
+----
+volume efficiency modify -volume <volume_name> -data-compaction true
+----
 +
 [NOTE]
 ====
-アグリゲートまたはボリュームのいずれかでデータコンパクションがに設定されている場合 `false` 、コンパクションは失敗します。コンパクションを有効にしても既存のデータに対しては実行されず、システムへの新規の書き込みに対してのみ実行されます。 `volume efficiency start`コマンドには、既存データのコンパクション方法の詳細が含まれています（ONTAP 9.1以降）。+詳細については、を参照してください https://docs.netapp.com/us-en/ontap-cli["ONTAP コマンドリファレンス"^]。
+アグリゲートまたはボリュームのいずれかでデータコンパクションがに設定されている場合 `false` 、コンパクションは失敗します。コンパクションを有効にしても既存のデータに対しては実行されず、システムへの新規の書き込みに対してのみ実行されます。 `volume efficiency start`コマンドには、既存データのコンパクション方法の詳細が含まれています（ONTAP 9.1以降）。詳細については、を参照して https://docs.netapp.com/us-en/ontap-cli["ONTAP コマンドリファレンス"^]ください。
 
 ====
 . コンパクションの統計を表示します。
-`volume efficiency show -volume _volume_name_`
++
+[source, cli]
+----
+volume efficiency show -volume <volume_name>
+----
 

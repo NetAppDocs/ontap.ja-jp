@@ -2,22 +2,22 @@
 permalink: volumes/run-efficiency-operations-manual-task.html 
 sidebar: sidebar 
 keywords: starting deduplication manually, starting data compression manually, efficiency, run, sequential packing 
-summary: volume efficiency start コマンドを使用して、ボリュームに対して効率化処理を手動で実行できます。 
+summary: ボリュームに対して効率化処理を手動で実行できます。この処理は、効率化処理のスケジュールが適切でない場合に実行できます。 
 ---
-= 効率化処理を手動で実行
+= 効率化処理を手動で実行する
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-を使用して、ボリュームに対して効率化処理を手動で実行できます `volume efficiency start` コマンドを実行します
+ボリュームに対して効率化処理を手動で実行できます。この処理は、効率化処理のスケジュールが適切でない場合に実行できます。
 
-.必要なもの
+.作業を開始する前に
 手動で実行する効率化処理に応じて、重複排除またはデータ圧縮と重複排除の両方をボリュームで有効にしておく必要があります。
 
 .このタスクについて
-温度に基づくStorage Efficiencyをボリュームで有効にすると、最初に重複排除が実行され、続けてデータ圧縮が実行されます。
+この処理は、 `volume efficiency start`コマンドを使用して実行します。温度に基づくStorage Efficiencyをボリュームで有効にすると、最初に重複排除が実行され、続けてデータ圧縮が実行されます。
 
 重複排除は、実行中にシステムリソースを消費するバックグラウンドプロセスです。ボリューム内のデータの変更頻度が高くない場合は、重複排除の実行頻度を低くすることを推奨します。ストレージシステムで複数の重複排除処理が同時に実行されると、システムリソースの消費量が増加します。
 
@@ -29,32 +29,35 @@ ONTAP 9.13.1以降では、温度に基づくストレージ効率化がボリ�
 
 == 効率化を手動で実行
 
-.ステップ
+.手順
 . ボリュームで効率化処理を開始します。 `volume efficiency start`
-+
-.例
-次のコマンドを使用すると、重複排除のみを手動で開始し、続いて論理圧縮とコンテナ圧縮をボリュームVolAで開始できます
 
-+
+
+.例
++次のコマンドを使用すると、重複排除のみを手動で開始し、続けて論理圧縮とコンテナ圧縮をボリュームVolAに対して実行できます。
+
+[+]
+
 [listing]
 ----
 volume efficiency start -vserver vs1 -volume VolA
 ----
 
 
-
-
 == 既存のデータを再パックします
 
 温度の影響を受けやすいStorage Efficiencyが有効になっているボリュームで、ONTAP 9.13.1で導入されたシーケンシャルデータパッキングを利用するには、既存データを再パックします。このコマンドを使用するには、advanced権限モードにする必要があります。
 
-.ステップ
+.手順
 . 権限レベルを設定します。 `set -privilege advanced`
 . 既存データの再パック： `volume efficiency inactive-data-compression start -vserver _vserver_name_ -volume _volume_name_ -scan-mode extended_recompression`
-+
+
+
 .例
 [listing]
 ----
 volume efficiency inactive-data-compression start -vserver vs1 -volume vol1 -scan-mode extended_recompression
 ----
+.関連情報
+* link:run-efficiency-operations-manual-existing-data-task.html["既存データに対して効率化処理を手動で実行します"]
 

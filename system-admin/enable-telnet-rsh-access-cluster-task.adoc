@@ -1,7 +1,7 @@
 ---
 permalink: system-admin/enable-telnet-rsh-access-cluster-task.html 
 sidebar: sidebar 
-keywords: enable, telnet, rsh, access, cluster, mgmt, management, service, policy 
+keywords: enable, telnet, rsh, access, cluster, mgmt, management, service, policy, firewall, roles 
 summary: セキュリティのベストプラクティスとして、TelnetとRSHはデフォルトで無効になっています。クラスタがTelnet要求またはRSH要求を受け入れることができるようにするには、デフォルトの管理サービスポリシーでサービスを有効にする必要があります。 
 ---
 = クラスタへの Telnet アクセスまたは RSH アクセスを有効にします
@@ -14,6 +14,33 @@ summary: セキュリティのベストプラクティスとして、TelnetとRS
 [role="lead"]
 セキュリティのベストプラクティスとして、TelnetとRSHはデフォルトで無効になっています。クラスタがTelnet要求またはRSH要求を受け入れることができるようにするには、デフォルトの管理サービスポリシーでサービスを有効にする必要があります。
 
+時間の経過とともに、LIFでサポートされるトラフィックのタイプのONTAPによる管理方法が変わりました。
+
+* ONTAP 9 .5以前のリリースでは、LIFのロールとファイアウォールサービスを使用
+* ONTAP 9 .6以降のリリースでは、LIFのサービスポリシーが使用されます。
++
+** ONTAP 9 .5リリースでLIFサービスポリシーが導入された
+** ONTAP 9 .6でLIFのロールがLIFのサービスポリシーに置き換えられました
+** ファイアウォールサービスをONTAP 9のサービスポリシーに置き換えました。
+
+
+
+
+設定する方法は、使用するONTAPのリリースによって異なります。
+
+詳細については、以下を参照してください。
+
+* ファイアウォールポリシーについては、を参照してください。link:https://docs.netapp.com/us-en/ontap-cli//system-services-firewall-policy-show.html["コマンド：firewall-policy-show"^]
+* LIFのロール。を参照してください。link:../networking/lif_roles95.html["LIFのロール（ONTAP 9.5以前）"]
+* LIFのサービスポリシーについては、を参照してください。link:../networking/lifs_and_service_policies96.html["LIFとサービスポリシー（ONTAP 9.6以降）"]
+
+
+TelnetとRSHはセキュアなプロトコルではありません。SSHを使用してクラスタにアクセスすることを検討してください。SSHは、セキュアなリモートシェルおよび対話型ネットワークセッションを提供します。詳細については、を参照してください。link:./access-cluster-ssh-task.html["SSHを使用したクラスタへのアクセス"]
+
+[role="tabbed-block"]
+====
+.ONTAP 9 .6以降
+--
 .このタスクについて
 * RSH はセキュアなプロトコルではありません。
 +
@@ -64,3 +91,38 @@ summary: セキュリティのベストプラクティスとして、TelnetとRS
 
 
 
+
+--
+.ONTAP 9 .5以前
+--
+.このタスクについて
+ONTAPでは、事前定義されているファイアウォールポリシーは変更できませんが、事前定義されている `mgmt`管理ファイアウォールポリシーをクローニングし、そのポリシーでTelnetまたはRSHを有効にすることで、新しいポリシーを作成できます。
+
+.手順
+. advanced 権限モードに切り替えます。
++
+`set advanced`
+
+. セキュリティプロトコル（RSHまたはTelnet）を有効にします。
++
+`security protocol modify -application security_protocol -enabled true`
+
+.  `mgmt`管理ファイアウォールポリシーに基づいて新しい管理ファイアウォールポリシーを作成します。
++
+`system services firewall policy clone -policy _mgmt_ -destination-policy _policy-name_`
+
+. 新しい管理ファイアウォールポリシーでTelnetまたはRSHを有効にします。
++
+`system services firewall policy create -policy _policy-name_ -service _security_protocol_ -action allow -ip-list _ip_address/netmask_`
+
++
+すべてのIPアドレスを許可するには、次のように指定します。 `-ip-list _0.0.0.0/0_`
+
+. 新しいポリシーをクラスタ管理LIFに関連付けます。
++
+`network interface modify -vserver cluster_management_LIF -lif cluster_mgmt -firewall-policy policy-name`
+
+
+
+--
+====

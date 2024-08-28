@@ -1,7 +1,7 @@
 ---
 permalink: system-admin/access-cluster-rsh-task.html 
 sidebar: sidebar 
-keywords: access, cluster, rsh, cluster, administrative, task, secure, protocol 
+keywords: access, cluster, rsh, cluster, administrative, task, secure, protocol, service, policy, lif, firewall, role 
 summary: クラスタへの問題 RSH 要求を使用して、管理タスクを実行できます。RSH はセキュアなプロトコルではなく、デフォルトでは無効になっています。 
 ---
 = RSH を使用してクラスタにアクセスします
@@ -13,7 +13,34 @@ summary: クラスタへの問題 RSH 要求を使用して、管理タスクを
 [role="lead"]
 クラスタへの問題 RSH 要求を使用して、管理タスクを実行できます。RSH はセキュアなプロトコルではなく、デフォルトでは無効になっています。
 
-.必要なもの
+時間の経過とともに、LIFでサポートされるトラフィックのタイプのONTAPによる管理方法が変わりました。
+
+* ONTAP 9 .5以前のリリースでは、LIFのロールとファイアウォールサービスを使用
+* ONTAP 9 .6以降のリリースでは、LIFのサービスポリシーが使用されます。
++
+** ONTAP 9 .5リリースでLIFサービスポリシーが導入された
+** ONTAP 9 .6でLIFのロールがLIFのサービスポリシーに置き換えられました
+** ファイアウォールサービスをONTAP 9のサービスポリシーに置き換えました。
+
+
+
+
+設定する方法は、使用するONTAPのリリースによって異なります。
+
+詳細については、以下を参照してください。
+
+* ファイアウォールポリシーについては、を参照してください。link:https://docs.netapp.com/us-en/ontap-cli//system-services-firewall-policy-show.html["コマンド：firewall-policy-show"^]
+* LIFのロール。を参照してください。link:../networking/lif_roles95.html["LIFのロール（ONTAP 9.5以前）"]
+* LIFのサービスポリシーについては、を参照してください。link:../networking/lifs_and_service_policies96.html["LIFとサービスポリシー（ONTAP 9.6以降）"]
+
+
+TelnetとRSHはセキュアなプロトコルではありません。SSHを使用してクラスタにアクセスすることを検討してください。SSHは、セキュアなリモートシェルおよび対話型ネットワークセッションを提供します。詳細については、を参照してください。link:./access-cluster-ssh-task.html["SSHを使用したクラスタへのアクセス"]
+
+[role="tabbed-block"]
+====
+.ONTAP 9 .6以降
+--
+.作業を開始する前に
 RSH を使用してクラスタにアクセスするには、次の条件を満たしている必要があります。
 
 * アクセス方法として RSH を使用するように設定された、クラスタのローカルユーザアカウントを持っている必要があります。
@@ -80,3 +107,69 @@ node2                 true    true
 
 admin_host$
 ----
+--
+.ONTAP 9 .5以前
+--
+.作業を開始する前に
+RSH を使用してクラスタにアクセスするには、次の条件を満たしている必要があります。
+
+* アクセス方法として RSH を使用するように設定された、クラスタのローカルユーザアカウントを持っている必要があります。
++
+security loginコマンドの-applicationパラメータで、ユーザアカウントのアクセス方法を指定します。詳細については、security loginのマニュアルページを参照してください。
+
+* RSH 要求がファイアウォールを通過できるように、クラスタ管理 LIF またはノード管理 LIF によって使用される管理ファイアウォールポリシーで RSH がすでに有効になっている必要があります。
++
+デフォルトでは、RSHは無効になっています。 `-service rsh`パラメータを指定してsystem services firewall policy showコマンドを実行すると、ファイアウォールポリシーでRSHが有効になっているかどうかが表示されます。詳細については、 `system services firewall policy`のマニュアルページを参照してください。
+
+* IPv6接続を使用する場合は、クラスタでIPv6が設定されて有効になっている必要があり、ファイアウォールポリシーにIPv6アドレスが設定されている必要があります。
++
+ `network options ipv6 show`コマンドは、IPv6が有効になっているかどうかを表示します。 `system services firewall policy show`コマンドは、ファイアウォールポリシーを表示します。
+
+
+
+.このタスクについて
+* RSH はセキュアなプロトコルではありません。
++
+クラスタにアクセスするときは、 SSH を使用することを検討してください。SSH は、セキュアなリモートシェルと対話型のネットワークセッションを提供します。
+
+* ONTAP では、 1 つのノードについて同時に最大 50 の RSH セッションがサポートされています。
++
+クラスタ管理 LIF がノード上に存在する場合、クラスタ管理 LIF はこの制限をノード管理 LIF と共有します。
+
++
+着信接続数が 1 秒あたり 10 を超えると、サービスは一時的に 60 秒間無効になります。
+
+
+
+.手順
+. 管理ホストで次のコマンドを入力します。
++
+`rsh hostname_or_IP -l username:passwordcommand`
+
++
+`hostname_or_IP`は、クラスタ管理LIFまたはノード管理LIFのホスト名またはIPアドレスです。クラスタ管理LIFを使用することを推奨します。IPv4またはIPv6アドレスを使用できます。
+
++
+`command`は、RSH経由で実行するコマンドです。
+
+
+
+.RSH要求の例
+次の例は、RSHアクセスを使用するように設定された「joe」というユーザが、cluster showコマンドを実行するRSH要求を発行する方法を示しています。
+
+[listing]
+----
+admin_host$ rsh 10.72.137.28 -l joe:password cluster show
+
+Node  Health Eligibility
+----  ------ -----------
+node1 true   true
+node2 true   true
+
+2 entries were displayed.
+
+admin_host
+
+----
+--
+====

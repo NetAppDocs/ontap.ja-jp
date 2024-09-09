@@ -4,7 +4,7 @@ permalink: s3-snapmirror/index.html
 keywords: s3 snapmirror buckets, snapmirror buckets SVM, s3 snapmirror data protection, hybrid cloud bundle, s3 snapmirror relationship, VM peering, cluster and storage VM peering, Fan-in deployments, data protection, s3 snapmirror policy, peering 
 summary: ONTAP 9.10.1 以降では、使い慣れた SnapMirror ミラーリングとバックアップ機能を使用して ONTAP S3 オブジェクトストア内のバケットを保護できます。 
 ---
-= S3 SnapMirror の概要
+= SnapMirror S3の概要
 :hardbreaks:
 :toclevels: 1
 :allow-uri-read: 
@@ -16,9 +16,9 @@ summary: ONTAP 9.10.1 以降では、使い慣れた SnapMirror ミラーリン�
 
 
 [role="lead"]
-ONTAP 9.10.1以降では、SnapMirrorのミラーリングとバックアップの機能を使用してONTAP S3オブジェクトストアのバケットを保護できます。標準のSnapMirrorとは異なり、S3 SnapMirrorでは、AWS S3などのネットアップ以外のデスティネーションへのミラーリングとバックアップが可能です。
+ONTAP 9 .10.1以降では、SnapMirrorのミラーリングとバックアップの機能を使用してONTAP S3オブジェクトストアのバケットを保護できます。標準のSnapMirrorとは異なり、SnapMirror S3では、AWS S3などのNetApp以外のデスティネーションへのミラーリングとバックアップが可能です。
 
-S3 SnapMirror は、 ONTAP S3 バケットから次のデスティネーションへのアクティブなミラー階層とバックアップ階層をサポートしています。
+SnapMirror S3では、ONTAP S3バケットから次のデスティネーションへのアクティブなミラー階層とバックアップ階層がサポートされます。
 
 [cols="50,25,25"]
 |===
@@ -53,7 +53,7 @@ ONTAP S3 サーバ上の既存のバケットを保護することも、デー�
 
 
 
-== S3 SnapMirror の要件
+== SnapMirror S3の要件
 
 * ONTAPバージョン
 +
@@ -65,8 +65,8 @@ ONTAP S3 サーバ上の既存のバケットを保護することも、デー�
 
 +
 ** ONTAP S3プロトコルとストレージ
-** 他のNetAppオブジェクトストアターゲット（ONTAP S3、StorageGRID、Cloud Volumes ONTAP）をターゲットにするS3 SnapMirror
-** AWS S3などのサードパーティのオブジェクトストアをターゲットとするS3 SnapMirror（ link:../data-protection/install-snapmirror-cloud-license-task.html["ONTAP One互換バンドル"])
+** 他のNetAppオブジェクトストアターゲット（ONTAP S3、StorageGRID、Cloud Volumes ONTAP）をターゲットにするためのSnapMirror S3
+** AWS S3などのサードパーティのオブジェクトストアをターゲットとするSnapMirror S3（で使用可能link:../data-protection/install-snapmirror-cloud-license-task.html["ONTAP One互換バンドル"]）
 
 
 * ONTAP S3の略
@@ -90,7 +90,7 @@ ONTAP S3 サーバ上の既存のバケットを保護することも、デー�
 
 * SnapMirror ポリシー
 +
-** S3 固有の SnapMirror ポリシーはすべての S3 SnapMirror 関係に必要ですが、複数の関係に同じポリシーを使用することができます。
+** すべてのSnapMirror S3関係にS3固有のSnapMirrorポリシーが必要ですが、複数の関係に同じポリシーを使用できます。
 ** 独自のポリシーを作成するか、次の値を含むデフォルトの * Continuous * ポリシーをそのまま使用できます。
 +
 *** スロットル（スループット / 帯域幅の上限） - 無制限
@@ -104,8 +104,7 @@ ONTAP S3 サーバ上の既存のバケットを保護することも、デー�
 
 NOTE: 2つのS3バケットがSnapMirror関係にある場合、オブジェクトの現在のバージョンが期限切れになる（削除される）ようにライフサイクルポリシーが設定されていると、同じ処理がパートナーバケットにレプリケートされることに注意してください。これは、パートナーバケットが読み取り専用またはパッシブの場合でも同様です。
 
-* rootユーザキー
-S3 SnapMirror関係ではStorage VMのrootユーザアクセスキーが必要です。ONTAPではデフォルトでは割り当てられません。S3 SnapMirror 関係を初めて作成するときは、ソースとデスティネーションの Storage VM の両方にキーが存在することを確認し、存在しない場合は再生成する必要があります。再生成する必要がある場合は、アクセスキーとシークレットキーのペアを使用するすべてのクライアントおよび SnapMirror オブジェクトストアのすべての設定が新しいキーで更新されていることを確認する必要があります。
+* rootユーザキーSnapMirror S3関係にはStorage VMのrootユーザアクセスキーが必要です。ONTAPではデフォルトで割り当てられません。SnapMirror S3関係の初回作成時には、キーがソースとデスティネーションの両方のStorage VMに存在することを確認し、存在しない場合は再生成する必要があります。それらのキーを再生成する必要がある場合は、アクセスキーとシークレットキーのペアを使用するすべてのクライアントおよびSnapMirrorオブジェクトストアの設定が新しいキーで更新されていることを確認する必要があります。
 
 
 S3 サーバの設定については、次のトピックを参照してください。
@@ -124,9 +123,9 @@ S3 サーバの設定については、次のトピックを参照してくだ�
 
 == サポートされるSnapMirror関係
 
-S3 SnapMirror は、ファンアウト関係とカスケード関係をサポートしています。概要については、を参照してください link:../data-protection/supported-deployment-config-concept.html["ファンアウト構成およびカスケード構成のデータ保護"]。
+SnapMirror S3では、ファンアウト関係とカスケード関係がサポートされます。概要については、を参照してくださいlink:../data-protection/supported-deployment-config-concept.html["ファンアウト構成およびカスケード構成のデータ保護"]。
 
-S3 SnapMirrorでは、ファンイン環境（複数のソースバケットと1つのデスティネーションバケット間のデータ保護関係）はサポートされません。S3 SnapMirrorは、複数のクラスタから単一のセカンダリクラスタへの複数のバケットミラーをサポートできますが、各ソースバケットにセカンダリクラスタ上の専用のデスティネーションバケットが必要です。
+SnapMirror S3は、ファンイン環境（複数のソースバケットと1つのデスティネーションバケット間のデータ保護関係）をサポートしていません。SnapMirror S3では、複数のクラスタから単一のセカンダリクラスタへの複数のバケットミラーをサポートできますが、各ソースバケットにセカンダリクラスタ上の専用のデスティネーションバケットが必要です。
 
 
 

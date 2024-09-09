@@ -32,13 +32,13 @@ summary: 既存の S3 バケットのバックアップはいつでも開始で�
 +
 を参照してください link:../task_object_provision_add_s3_users_groups.html["S3 ユーザとグループを追加"] を参照してください。
 
-. S3 SnapMirror ポリシーを作成します。これは、既存のポリシーがなく、デフォルトポリシーを使用しない場合に行います。
+. SnapMirror S3ポリシーを作成します（既存のポリシーがなく、デフォルトポリシーを使用しない場合）。
 +
 .. [* 保護 ] 、 [ 概要 *] の順にクリックし、 [ ローカルポリシーの設定 *] をクリックします。
 .. [保護ポリシー]*の横にあるをクリックし image:../media/icon_arrow.gif["矢印アイコン"] 、*[追加]*をクリックします。
 .. ポリシー名と概要を入力します。
 .. ポリシーのスコープとして、クラスタまたは SVM を選択します
-.. S3 SnapMirror 関係には「 * Continuous * 」を選択します。
+.. SnapMirror S3関係の場合は*[Continuous]*を選択します。
 .. スロットル * とリカバリ・ポイントの目標値 * を入力します。
 
 
@@ -75,7 +75,7 @@ summary: 既存の S3 バケットのバックアップはいつでも開始で�
 
 
 
-. S3 SnapMirror を使用してバケットをバックアップします。
+. SnapMirror S3を使用してバケットをバックアップします。
 +
 .. [ * Storage * ] > [* Buckets] をクリックし、バックアップするバケットを選択します。
 .. [* Protect （保護） ] をクリックし、 [* Target （ターゲット） ] の下の [* Cloud Storage （クラウドストレージ） ] を選択してから、 [* Cloud Object Store （クラウドオブジェクトストア） ]
@@ -96,13 +96,10 @@ Save をクリックすると、既存のバケットがクラウドオブジェ
 ----
 clusterA::> vserver object-store-server bucket policy add-statement -bucket test-bucket -effect allow -action GetObject,PutObject,DeleteObject,ListBucket,GetBucketAcl,GetObjectAcl,ListBucketMultipartUploads,ListMultipartUploadParts -principal - -resource test-bucket, test-bucket /*
 ----
-. S3 SnapMirror ポリシーを作成します。これは、既存のポリシーがなく、デフォルトポリシーを使用しない場合に行います。
+. SnapMirror S3ポリシーを作成します（既存のポリシーがなく、デフォルトポリシーを使用しない場合）。
 `snapmirror policy create -vserver svm_name -policy policy_name -type continuous [-rpo _integer_] [-throttle _throttle_type_] [-comment _text_] [_additional_options_]`
 +
-パラメータ
-* `type continuous` –S3 SnapMirror関係の唯一のポリシータイプ（必須）。
-* `-rpo` –目標復旧時点の時間を秒単位で指定します（オプション）。
-* `-throttle` –スループット/帯域幅の上限をキロバイト/秒単位で指定します（オプション）。
+パラメータ：* `type continuous`–SnapMirror S3関係の唯一のポリシータイプ（必須）。* `-rpo`–目標復旧時点の時間を秒単位で指定します（オプション）。* `-throttle`–スループット/帯域幅の上限をキロバイト/秒単位で指定します（オプション）。
 
 +
 .例
@@ -115,7 +112,7 @@ clusterA::> snapmirror policy create -vserver vs0 -type continuous -rpo 0 -polic
 +
 を参照してください `security certificate install` のマニュアルページを参照してください。
 
-. S3 SnapMirrorデスティネーションオブジェクトストアを定義します。
+. SnapMirror S3デスティネーションオブジェクトストアを定義します。
 `snapmirror object-store config create -vserver _svm_name_ -object-store-name _target_store_name_ -usage data -provider-type {AWS_S3|SGWS} -server _target_FQDN_ -container-name _remote_bucket_name_ -is-ssl-enabled true -port _port_number_ -access-key target_access_key -secret-password _target_secret_key_`
 +
 パラメータ
@@ -133,7 +130,7 @@ clusterA::> snapmirror policy create -vserver vs0 -type continuous -rpo 0 -polic
 ----
 src_cluster::> snapmirror object-store config create -vserver vs0 -object-store-name sgws-store -usage data -provider-type SGWS -server sgws.example.com -container-name target-test-bucket -is-ssl-enabled true -port 443 -access-key abc123 -secret-password xyz890
 ----
-. S3 SnapMirror関係を作成します。
+. SnapMirror S3関係を作成します。
 `snapmirror create -source-path _svm_name_:/bucket/_bucket_name_ -destination-path _object_store_name_:/objstore  -policy _policy_name_`
 +
 パラメータ

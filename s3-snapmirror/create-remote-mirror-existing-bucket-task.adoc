@@ -34,7 +34,7 @@ summary: 既存の S3 バケットの保護はいつでも開始できます。�
 ====
 .System Manager の略
 --
-. この Storage VM の最初の S3 SnapMirror 関係である場合は、ソースとデスティネーションの Storage VM の両方に root ユーザキーが存在することを確認し、存在しない場合は再生成します。
+. このStorage VMの最初のSnapMirror S3関係である場合は、ソースとデスティネーションの両方のStorage VMにrootユーザキーが存在することを確認し、存在しない場合は再生成します。
 +
 .. [ストレージ]>[Storage VM]*を選択し、Storage VMを選択します。
 .. [設定]タブで、* S3 *タイル内をクリックします image:icon_pencil.gif["編集アイコン"] 。
@@ -46,13 +46,13 @@ summary: 既存の S3 バケットの保護はいつでも開始できます。�
 +
 を参照してください link:../task_object_provision_add_s3_users_groups.html[" S3 ユーザとグループを追加"] を参照してください。
 
-. ソースクラスタに S3 SnapMirror ポリシーを作成します。これは、既存のポリシーがなく、デフォルトポリシーを使用しない場合に行います。
+. 既存のS3ポリシーがなく、デフォルトのポリシーを使用しない場合は、ソースクラスタでSnapMirror S3ポリシーを作成します。
 +
 .. [保護]>[概要]*を選択し、*[ローカルポリシー設定]*をクリックします。
 .. [保護ポリシー]*の横にあるを選択し image:../media/icon_arrow.gif["矢印アイコン"] 、*[追加]*をクリックします。
 .. ポリシー名と概要を入力します。
 .. ポリシースコープ（クラスタまたはSVM）を選択します。
-.. S3 SnapMirror 関係には「 * Continuous * 」を選択します。
+.. SnapMirror S3関係の場合は*[Continuous]*を選択します。
 .. スロットル値および * 目標復旧時点 * 値を入力します。
 
 
@@ -76,7 +76,7 @@ GetObject,PutObject,DeleteObject,ListBucket,GetBucketAcl,GetObjectAcl,ListBucket
 
 
 
-. S3 SnapMirror 保護を使用して既存のバケットを保護します。
+. SnapMirror S3保護で既存のバケットを保護します。
 +
 .. [* Storage * > * Buckets] をクリックして、保護するバケットを選択します。
 .. [*Protect] をクリックして、次の値を入力します。
@@ -113,13 +113,9 @@ ONTAP 9.14.1以降では、ロックされたS3バケットをバックアップ
 --
 .CLI の使用
 --
-. この SVM の最初の S3 SnapMirror 関係の場合は、ソースとデスティネーションの両方の SVM に root ユーザキーが存在することを確認し、存在しない場合は再生成します。
-`vserver object-store-server user show`
- [+]
-root ユーザのアクセスキーがあることを確認します。表示されない場合は、次のように入力します。
-`vserver object-store-server user regenerate-keys -vserver _svm_name_ -user _root_`
- [+]
-キーがすでに存在する場合は、キーを再生成しないでください。
+. このSVMに対する最初のSnapMirror S3関係である場合は、ソースとデスティネーションの両方のSVMにrootユーザキーが存在することを確認し、存在しない場合は再生成します
+`vserver object-store-server user show`。+ rootユーザのアクセスキーがあることを確認します。存在しない場合は、「
+`vserver object-store-server user regenerate-keys -vserver _svm_name_ -user _root_`+ Do not regenerate the key if one already exists」と入力します。
 . ミラーターゲットにするバケットをデスティネーション SVM 上に作成します。
 +
 `vserver object-store-server bucket create -vserver _svm_name_ -bucket _dest_bucket_name_ [-size _integer_[KB|MB|GB|TB|PB]] [-comment _text_] [_additional_options_]`
@@ -134,7 +130,7 @@ root ユーザのアクセスキーがあることを確認します。表示さ
 ----
 src_cluster::> vserver object-store-server bucket policy add-statement -bucket test-bucket -effect allow -action GetObject,PutObject,DeleteObject,ListBucket,GetBucketAcl,GetObjectAcl,ListBucketMultipartUploads,ListMultipartUploadParts -principal - -resource test-bucket, test-bucket /*
 ----
-. ソース SVM に S3 SnapMirror ポリシーを作成します。これは、既存のポリシーがなく、デフォルトポリシーを使用しない場合に行います。
+. ソースSVMで、SnapMirror S3ポリシーを作成します（既存のポリシーがなく、デフォルトのポリシーを使用しない場合）。
 +
 `snapmirror policy create -vserver svm_name -policy policy_name -type continuous [-rpo _integer_] [-throttle _throttle_type_] [-comment _text_] [_additional_options_]`
 
@@ -142,7 +138,7 @@ src_cluster::> vserver object-store-server bucket policy add-statement -bucket t
 パラメータ
 
 +
-** `continuous` –S3 SnapMirror関係の唯一のポリシータイプ（必須）。
+** `continuous`–SnapMirror S3関係の唯一のポリシータイプ（必須）。
 ** `-rpo` –目標復旧時点の時間を秒単位で指定します（オプション）。
 ** `-throttle` –スループット/帯域幅の上限をキロバイト/秒単位で指定します（オプション）。
 +
@@ -166,7 +162,7 @@ src_cluster::> snapmirror policy create -vserver vs0 -type continuous -rpo 0 -po
 
 
 
-. ソース SVM で、 S3 SnapMirror 関係を作成します。
+. ソースSVMで、SnapMirror S3関係を作成します。
 +
 `snapmirror create -source-path _src_svm_name_:/bucket/_bucket_name_ -destination-path dest_peer_svm_name:/bucket/_bucket_name_, ...} [-policy policy_name]`
 

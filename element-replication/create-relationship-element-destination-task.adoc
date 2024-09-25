@@ -1,62 +1,8 @@
 ---
 permalink: element-replication/create-relationship-element-destination-task.html 
-sidebar: sidebar 
-keywords: create, relationship, ontap, source, element, destination, snapshot, snap shot, lun, migrate, data, snap mirror, snapmirror, replicate, replication 
-summary: ONTAP 9.4 以降では、 SnapMirror を使用して、 ONTAP ソースで作成した LUN の Snapshot コピーを Element デスティネーションにレプリケートできます。LUN を使用して ONTAP から Element ソフトウェアにデータを移行することができます。 
+redirect: element-software/storage/task-element-replication-create-relationship-element-destination.html 
 ---
-= ONTAP ソースから Element デスティネーションへの関係を作成します
+= 
 :allow-uri-read: 
-:icons: font
-:imagesdir: ../media/
 
 
-[role="lead"]
-ONTAP 9.4 以降では、 SnapMirror を使用して、 ONTAP ソースで作成した LUN の Snapshot コピーを Element デスティネーションにレプリケートできます。LUN を使用して ONTAP から Element ソフトウェアにデータを移行することができます。
-
-.作業を開始する前に
-* Element デスティネーションノードから ONTAP にアクセスできるようにしておく必要があります。
-* Element ボリュームの SnapMirror レプリケーションを有効にしておく必要があります。
-
-
-.このタスクについて
-Elementのデスティネーションパスをの形式で指定する必要があり `<hostip:>/lun/<name>`ます。「LUN」は実際の文字列「LUN」、 `name` はElementボリュームの名前です。
-
-レプリケーションルールは次のとおりです。
-
-* レプリケーション関係には「 async 」タイプのポリシーが必要です。
-+
-デフォルトまたはカスタムのポリシーを使用できます。
-
-* iSCSI LUN のみがサポートされます。
-* ONTAP ボリュームから Element ボリュームに複数の LUN をレプリケートすることはできません。
-* ONTAP ボリュームから複数の Element ボリュームに LUN をレプリケートすることはできません。
-
-
-.ステップ
-. ONTAP ソースから Element デスティネーションへのレプリケーション関係を作成します。
-+
-`snapmirror create -source-path <SVM:volume>|<cluster://SVM/volume> -destination-path <hostip:>/lun/<name> -type XDP -schedule schedule -policy <policy>`
-
-+
-コマンド構文全体については、マニュアルページを参照してください。
-
-+
-次の例は、デフォルトのを使用して、SnapMirror DR関係を作成します `MirrorLatest` ポリシー：
-
-+
-[listing]
-----
-cluster_dst::> snapmirror create -source-path svm_1:volA_dst -destination-path 10.0.0.11:/lun/0005 -type XDP -schedule my_daily -policy MirrorLatest
-----
-+
-次の例は、カスタムのを使用してSnapMirror DR関係を作成します `my_mirror` ポリシー：
-
-+
-[listing]
-----
-cluster_dst::> snapmirror create -source-path svm_1:volA_dst -destination-path 10.0.0.11:/lun/0005 -type XDP -schedule my_daily -policy my_mirror
-----
-
-
-.完了後
-を使用します `snapmirror show` コマンドを実行して、SnapMirror関係が作成されたことを確認します。コマンド構文全体については、マニュアルページを参照してください。

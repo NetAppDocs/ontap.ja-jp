@@ -1,7 +1,7 @@
 ---
 permalink: system-admin/forward-command-history-log-file-destination-task.html 
 sidebar: sidebar 
-keywords: forward, audit, log, destination, cluster, forwarding, splunk 
+keywords: forward, audit, log, destination, cluster, forwarding, splunk, RFC-3164, RFC-5424 
 summary: 監査ログは最大で10箇所に転送できます。たとえば、 Splunk や syslog サーバにログを転送し、監視や分析、バックアップなどの目的で使用できます。 
 ---
 = 監査ログの送信先を管理します
@@ -16,12 +16,20 @@ summary: 監査ログは最大で10箇所に転送できます。たとえば、
 .このタスクについて
 転送を設定するには、転送されたログに使用するsyslogまたはSplunkホストのIPアドレス、ポート番号、転送プロトコル、syslog機能を指定する必要があります。 https://datatracker.ietf.org/doc/html/rfc5424["syslogファシリティについて説明します"^]。
 
-次のいずれかの送信値を選択できます。
+ `-protocol`パラメータを使用して、次のいずれかの送信値を選択できます。
 
 UDP暗号化なし:: セキュリティなしのユーザデータグラムプロトコル（デフォルト）
 TCP暗号化なし:: セキュリティなしのTransmission Control Protocol
 TCP暗号化:: Transport Layer Security（TLS）を使用したTransmission Control Protocol +
 [TCP暗号化プロトコル]が選択されている場合は、[VERIFY SERVER]オプションを使用できます。
+
+
+デフォルトのポートはUDPの場合は514、TCPの場合は6514ですが、ネットワークのニーズを満たす任意のポートを指定できます。
+
+ `-message-format`コマンドを使用すると、次のいずれかのメッセージ形式を選択できます。
+
+レガシー- NetApp:: RFC-3164 Syslog形式のバリエーション（形式：<PRIVAL> timestamp hostname：MSG）
+RFC-5424:: RFC-5424に基づくsyslog形式（形式：<PRIVAL> version timestamp hostname：MSG）
 
 
 監査ログは、ONTAP CLIから転送できます。ONTAP 9.11.1以降は、System Managerから転送できます。
@@ -45,7 +53,7 @@ cluster1::> cluster log-forwarding create -destination 192.168.123.96
 -port 514 -facility user
 
 cluster1::> cluster log-forwarding create -destination 192.168.123.98
--port 514 -protocol tcp-encrypted -facility user
+-port 6514 -protocol tcp-encrypted -facility user
 ----
 +
 ** 状況に応じて `cluster log-forwarding create` コマンドが接続を確認するためにデスティネーションホストにpingを実行できない場合、エラーが表示されてコマンドが失敗します。推奨されませんが、を使用してください `-force` パラメータを指定すると、接続の検証が省略されます。
@@ -62,12 +70,12 @@ cluster1::> cluster log-forwarding show
 Destination Host          Port   Protocol        Server Facility
 ------------------------- ------ --------        ------ --------
 192.168.123.96            514    udp-unencrypted false  user
-192.168.123.98            514    tcp-encrypted   true   user
+192.168.123.98            6514   tcp-encrypted   true   user
 2 entries were displayed.
 ----
 
 
-詳細については、マニュアルページを参照してください。
+詳細については、のマニュアルページを参照して `cluster log-forwarding create` ください。
 
 --
 ====

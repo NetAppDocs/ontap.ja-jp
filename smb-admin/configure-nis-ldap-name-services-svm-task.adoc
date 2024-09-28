@@ -17,7 +17,7 @@ SMB アクセスでは、 NTFS セキュリティ形式のボリューム内の�
 ネームサービスデータベース設定をネームサービスインフラに合わせてカスタマイズしておく必要があります。
 
 .このタスクについて
-SVM は、ネームサービス ns-switch データベースを使用して、指定されたネームサービスデータベースを検索するソースの順番を決定します。ns-switch ソースには、「 files 」、「 nis 」、または「 ldap 」を任意に組み合わせて使用できます。グループデータベースの場合、 ONTAP は設定されたすべてのソースからグループメンバーシップを取得し、統合されたグループメンバーシップ情報をアクセスチェックに使用します。UNIX グループ情報の取得時にこれらのいずれかのソースを使用できないと、 ONTAP は完全な UNIX クレデンシャルを取得できず、アクセスチェックが失敗することがあります。そのため、 ns-switch 設定にグループデータベースのすべての ns-switch ソースが設定されていることを必ず確認する必要があります。
+SVMは、ネームサービスns-switchデータベースを使用して、指定されたネームサービスデータベースを検索するソースの順序を決定します。ns-switchソースには、、 `nis`、または `ldap`を任意に組み合わせて指定できます `files`。グループデータベースの場合、ONTAPは設定されているすべてのソースからグループメンバーシップを取得しようとし、統合されたグループメンバーシップ情報をアクセスチェックに使用します。UNIXグループ情報の取得時にこれらのソースのいずれかが使用できないと、ONTAPは完全なUNIXクレデンシャルを取得できず、以降のアクセスチェックが失敗することがあります。そのため、ns-switch設定でグループデータベースのすべてのns-switchソースが設定されていることを常に確認する必要があります。
 
 デフォルトでは、SMBサーバは、すべてのWindowsユーザをローカルに格納されているデフォルトのUNIXユーザにマッピングします `passwd` データベース：デフォルトの設定を使用する場合、 SMB アクセスに対する、 NIS または LDAP UNIX ユーザおよびグループのネームサービスまたは LDAP ユーザマッピングの設定は省略可能です。
 
@@ -82,9 +82,9 @@ vs1             netgroup       true            files
 vs1             namemap        true            files
 ----
 .. NISネームサービス設定を作成します。+
-`vserver services name-service nis-domain create -vserver _vserver_name_ -domain _NIS_domain_name_ -servers _NIS_server_IPaddress_,... -active true+`
+`vserver services name-service nis-domain create -vserver <vserver_name> -domain <NIS_domain_name> -servers <NIS_server_IPaddress>,...`
 +
-`vserver services name-service nis-domain create -vserver vs1 -domain example.com -servers 10.0.0.60 -active true`
+`vserver services name-service nis-domain create -vserver vs1 -domain example.com -servers 10.0.0.60`
 
 +
 [NOTE]
@@ -92,7 +92,7 @@ vs1             namemap        true            files
 ONTAP 9.2以降では、フィールドが表示されます `-nis-servers` フィールドを置き換えます `-servers`。この新しいフィールドには、NISサーバのホスト名またはIPアドレスを指定できます。
 
 ====
-.. NISネームサービスが適切に設定され、アクティブになっていることを確認します。 `vserver services name-service nis-domain show vserver _vserver_name_`
+.. NISネームサービスが適切に設定されていることを確認します。 `vserver services name-service nis-domain show vserver <vserver_name>`
 +
 `vserver services name-service nis-domain show vserver vs1`
 
@@ -100,9 +100,9 @@ ONTAP 9.2以降では、フィールドが表示されます `-nis-servers` フ�
 [listing]
 ----
 
-Vserver       Domain              Active Server
-------------- ------------------- ------ ---------------
-vs1           example.com         true   10.0.0.60
+Vserver       Domain              Server
+------------- ------------------- ---------------
+vs1           example.com         10.0.0.60
 ----
 
 

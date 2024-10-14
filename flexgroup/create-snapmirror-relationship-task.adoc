@@ -2,34 +2,34 @@
 permalink: flexgroup/create-snapmirror-relationship-task.html 
 sidebar: sidebar 
 keywords: create, snapmirror, relationship, flexgroup, volume, snap mirror, flex group, peered svm, replicate, replicating, disaster 
-summary: ディザスタリカバリ用にデータをレプリケートするために、ピア関係にある SVM のソース FlexGroup ボリュームとデスティネーション FlexGroup ボリュームの間で SnapMirror 関係を作成することができます。災害が発生した場合は、 FlexGroup ボリュームのミラーコピーを使用してデータをリカバリできます。 
+summary: ディザスタリカバリ用にデータをレプリケートするために、ピア関係にあるSVMのソースFlexGroupボリュームとデスティネーションFlexGroupボリュームの間にSnapMirror関係を作成できます。災害発生時にFlexGroupボリュームのミラーコピーを使用してデータをリカバリできます。 
 ---
-= FlexGroup ボリュームの SnapMirror 関係を作成
+= FlexGroupボリュームのSnapMirror関係を作成する
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-ディザスタリカバリ用にデータをレプリケートするために、ピア関係にある SVM のソース FlexGroup ボリュームとデスティネーション FlexGroup ボリュームの間で SnapMirror 関係を作成することができます。災害が発生した場合は、 FlexGroup ボリュームのミラーコピーを使用してデータをリカバリできます。
+ディザスタリカバリ用にデータをレプリケートするために、ピア関係にあるSVMのソースFlexGroupボリュームとデスティネーションFlexGroupボリュームの間にSnapMirror関係を作成できます。災害発生時にFlexGroupボリュームのミラーコピーを使用してデータをリカバリできます。
 
 .必要なもの
-クラスタと SVM のピア関係を作成しておく必要があります。
+クラスタピア関係とSVMピア関係を作成しておく必要があります。
 
-link:../peering/index.html["クラスタと SVM のピアリング"]
+link:../peering/index.html["クラスタとSVMのピアリング"]
 
-.このタスクについて
-* FlexGroup ボリュームには、クラスタ間 SnapMirror 関係とクラスタ内 SnapMirror 関係の両方を作成することができます。
-* ONTAP 9.3 以降では、 SnapMirror 関係にある FlexGroup ボリュームを拡張できます。
+.タスクの内容
+* FlexGroupボリュームには、クラスタ間SnapMirror関係とクラスタ内SnapMirror関係の両方を作成できます。
+* ONTAP 9 .3以降では、SnapMirror関係にあるFlexGroupボリュームを拡張できます。
 +
-ONTAP 9.3 より前 FlexGroup のバージョンの ONTAP を使用している場合は、 SnapMirror 関係の確立後に FlexGroup ボリュームを拡張することはできませんが、容量を拡張することはできます。ONTAP 9.3 よりも前のリリースで SnapMirror 関係の解除後にソース FlexGroup ボリュームを拡張した場合は、デスティネーション FlexGroup へのベースライン転送を実行する必要があります。
+ONTAP 9 FlexGroupよりも前のバージョンのONTAPを使用している場合は、SnapMirror関係の確立後にFlexGroupボリュームを拡張しないでください。ただし、容量を増やすことは、SnapMirror関係の確立後に実行できます。ONTAP 9よりも前のリリースでSnapMirror関係の解除後にソースFlexGroupボリュームを拡張する場合は、デスティネーションFlexGroupボリュームへのベースライン転送を実行する必要があります。3
 
 
 
 .手順
-. タイプがのデスティネーションFlexGroup ボリュームを作成します `DP` ソースFlexGroup と同じ数のコンスティチュエントを含むデータセンターを作成します。
+. ソースFlexGroupと同じ数のコンスティチュエントで構成されるタイプのデスティネーションFlexGroupボリュームを作成し `DP`ます。
 +
-.. ソースクラスタから、ソースFlexGroup ボリュームのコンスティチュエントの数を確認します。 `volume show -volume volume_name* -is-constituent true`
+.. ソースクラスタから、ソースFlexGroupボリュームのコンスティチュエントの数を確認します。 `volume show -volume volume_name* -is-constituent true`
 +
 [listing]
 ----
@@ -46,7 +46,7 @@ vss       srcFG__0006    aggr1        online     RW         25TB    10.64TB   57
 vss       srcFG__0007    Aggr_cmode   online     RW         25TB    10.63TB   57%
 ...
 ----
-.. デスティネーションクラスタから、タイプがのデスティネーションFlexGroup ボリュームを作成します `DP` ソースFlexGroup と同じ数のコンスティチュエントで構成されています。
+.. デスティネーションクラスタから、ソースFlexGroupと同じ数のコンスティチュエントで構成されるタイプのデスティネーションFlexGroupボリュームを作成し `DP`ます。
 +
 [listing]
 ----
@@ -56,7 +56,7 @@ Warning: The FlexGroup volume "dstFG" will be created with the following number 
 Do you want to continue? {y|n}: y
 [Job 766] Job succeeded: Successful
 ----
-.. デスティネーションクラスタから、デスティネーションFlexGroup ボリュームのコンスティチュエントの数を確認します。 `volume show -volume volume_name* -is-constituent true`
+.. デスティネーションクラスタから、デスティネーションFlexGroupボリュームのコンスティチュエントの数を確認します。 `volume show -volume volume_name* -is-constituent true`
 +
 [listing]
 ----
@@ -77,35 +77,35 @@ vsd       dstFG__0007    Aggr_cmode   online     DP         25TB    10.63TB   57
 
 . ジョブスケジュールを作成します。 `job schedule cron create -name job_name -month month -dayofweek day_of_week -day day_of_month -hour hour -minute minute`
 +
-をクリックします `-month`、 `-dayofweek`および `-hour` オプションを指定できます `all` ジョブを毎月、毎日、および1時間ごとに実行します。
+ `-month`オプション、 `-dayofweek`および `-hour`オプションでは、ジョブを毎月、毎日、および1時間ごとに実行するように指定できます `all`。
 
 +
-次の例は、という名前のジョブスケジュールを作成します `my_weekly` 土曜日の午前3時に実行されます。
+次の例は、土曜日の午前3時に実行するという名前のジョブスケジュールを作成します `my_weekly`。
 
 +
 [listing]
 ----
 cluster1::> job schedule cron create -name my_weekly -dayofweek "Saturday" -hour 3 -minute 0
 ----
-. タイプがのカスタムポリシーを作成します `async-mirror` SnapMirror関係に対して次のコマンドを実行します。 `snapmirror policy create -vserver SVM -policy snapmirror_policy -type async-mirror`
+. SnapMirror関係のタイプがのカスタムポリシーを作成し `async-mirror`ます。 `snapmirror policy create -vserver SVM -policy snapmirror_policy -type async-mirror`
 +
-カスタムポリシーを作成しない場合は、を指定する必要があります `MirrorAllSnapshots` SnapMirror関係のポリシー。
+カスタムポリシーを作成しない場合は、SnapMirror関係にポリシーを指定する必要があります `MirrorAllSnapshots`。
 
-. デスティネーションクラスタから、ソースFlexGroup ボリュームとデスティネーションFlexGroup ボリュームの間のSnapMirror関係を作成します。 `snapmirror create -source-path src_svm:src_flexgroup -destination-path dest_svm:dest_flexgroup -type XDP -policy snapmirror_policy -schedule sched_name`
+. デスティネーションクラスタから、ソースFlexGroupボリュームとデスティネーションFlexGroupボリュームの間のSnapMirror関係を作成します。 `snapmirror create -source-path src_svm:src_flexgroup -destination-path dest_svm:dest_flexgroup -type XDP -policy snapmirror_policy -schedule sched_name`
 +
-FlexGroup ボリュームのSnapMirror関係のタイプはである必要があります `XDP`。
+FlexGroupボリュームのSnapMirror関係のタイプはである必要があり `XDP`ます。
 
 +
-FlexGroup ボリュームの SnapMirror 関係にスロットル値を指定した場合、各コンスティチュエントに同じスロットル値が使用されます。スロットル値はコンスティチュエント間で分配されません。
+FlexGroupのSnapMirror関係のスロットル値を指定した場合、各コンスティチュエントで使用されるスロットル値は同じです。スロットル値はコンスティチュエント間で分配されません。
 
 +
 [NOTE]
 ====
-FlexGroup ボリュームでは、 Snapshot コピーの SnapMirror ラベルは使用できません。
+SnapshotコピーのSnapMirrorラベルをFlexGroupボリュームに使用することはできません。
 
 ====
 +
-ONTAP 9.4以前では、でポリシーが指定されていない場合 `snapmirror create` コマンドを入力します `MirrorAllSnapshots` デフォルトではポリシーが使用されます。ONTAP 9.5では、でポリシーが指定されていない場合 `snapmirror create` コマンドを入力します `MirrorAndVault` デフォルトではポリシーが使用されます。
+ONTAP 9 .4以前では、コマンドでポリシーが指定されていない場合 `snapmirror create`、 `MirrorAllSnapshots`デフォルトでポリシーが使用されます。ONTAP 9 .5では、コマンドでポリシーが指定されていない場合 `snapmirror create`、 `MirrorAndVault`デフォルトでポリシーが使用されます。
 
 +
 [listing]
@@ -115,7 +115,7 @@ Operation succeeded: snapmirror create for the relationship with destination "vs
 ----
 . デスティネーションクラスタから、ベースライン転送を実行してSnapMirror関係を初期化します。 `snapmirror initialize -destination-path dest_svm:dest_flexgroup`
 +
-ベースライン転送の完了後は、 SnapMirror 関係のスケジュールに基づいて定期的にデスティネーション FlexGroup ボリュームが更新されます。
+ベースライン転送の完了後は、SnapMirror関係のスケジュールに基づいて定期的にデスティネーションFlexGroupボリュームが更新されます。
 
 +
 [listing]
@@ -126,10 +126,10 @@ Operation is queued: snapmirror initialize of destination "vsd:dstFG".
 +
 [NOTE]
 ====
-ソースクラスタでONTAP 9 .3が実行されているFlexGroupとデスティネーションクラスタでONTAP 9 .2以前が実行されているSnapMirror関係を作成した場合、ソースFlexGroupボリュームにqtreeを作成するとSnapMirrorの更新が失敗します。この状況からリカバリするには、FlexGroupボリューム内のデフォルト以外のqtreeをすべて削除し、FlexGroupボリュームのqtree機能を無効にしてから、qtree機能が有効になっているSnapshotコピーをすべて削除する必要があります。FlexGroupボリュームでqtree機能を有効にしている場合は、ONTAP 9 .3から以前のバージョンのONTAPにリバートする前にも、次の手順を実行する必要があります。link:../revert/task_disabling_qtrees_in_flexgroup_volumes_before_reverting.html["リバート前に FlexGroup ボリュームの qtree 機能を無効にする"]です。
+ソースクラスタでONTAP 9 .3が実行されているFlexGroupとデスティネーションクラスタでONTAP 9 .2以前が実行されているSnapMirror関係を作成した場合、ソースFlexGroupボリュームにqtreeを作成するとSnapMirrorの更新が失敗します。この状況からリカバリするには、FlexGroupボリューム内のデフォルト以外のqtreeをすべて削除し、FlexGroupボリュームのqtree機能を無効にしてから、qtree機能が有効になっているSnapshotコピーをすべて削除する必要があります。FlexGroupボリュームでqtree機能を有効にしている場合は、ONTAP 9 .3から以前のバージョンのONTAPにリバートする前にも、次の手順を実行する必要があります。link:../revert/task_disabling_qtrees_in_flexgroup_volumes_before_reverting.html["リバート前にFlexGroupボリュームのqtree機能を無効にする"]です。
 
 ====
 
 
-.完了後
-LIF やエクスポートポリシーなどの必要な設定を行って、デスティネーション SVM のデータアクセスを設定します。
+.終了後
+LIFやエクスポートポリシーなどの必要な設定を行って、デスティネーションSVMをデータアクセス用にセットアップする必要があります。

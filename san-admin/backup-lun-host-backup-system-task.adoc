@@ -2,58 +2,58 @@
 permalink: san-admin/backup-lun-host-backup-system-task.html 
 sidebar: sidebar 
 keywords: back up, lun, through, host, backup, system 
-summary: ホストバックアップシステムのソースデータとして、 Snapshot コピー内のクローン LUN を使用できます。 
+summary: ホストバックアップシステムのソースデータとして、SnapshotコピーからクローニングしたLUNを使用できます。 
 ---
-= ホストバックアップシステムを介して LUN をバックアップする
+= ホストバックアップシステムを使用したLUNのバックアップ
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-ホストバックアップシステムのソースデータとして、 Snapshot コピー内のクローン LUN を使用できます。
+ホストバックアップシステムのソースデータとして、SnapshotコピーからクローニングしたLUNを使用できます。
 
 .必要なもの
-本番用 LUN が必要です。アプリケーションサーバの WWPN またはイニシエータノード名を含む igroup にマッピングされている必要があります。また、 LUN がフォーマット済みで、ホストにアクセスできる必要があります
+本番用LUNが存在し、アプリケーションサーバのWWPNまたはイニシエータノード名を含むigroupにマッピングされている必要があります。また、LUNがフォーマットされていて、ホストからアクセスできる必要があります。
 
 .手順
 . ホストファイルシステムバッファの内容をディスクに保存します。
 +
-ホストオペレーティングシステムのコマンドを使用するか、 SnapDrive for Windows または SnapDrive for UNIX を使用できます。この手順を SAN バックアップのプリプロセススクリプトに含めることもできます。
+ホストオペレーティングシステムのコマンドを使用するか、SnapDrive（Windows）またはSnapDrive（UNIX）を使用できます。この手順をSANバックアップの前処理スクリプトに含めることもできます。
 
-. を使用します `volume snapshot create` コマンドを使用して本番用LUNのSnapshotコピーを作成します。
+. コマンドを使用し `volume snapshot create`て、本番用LUNのSnapshotコピーを作成します。
 +
 `volume snapshot create -vserver vs0 -volume vol3 -snapshot vol3_snapshot -comment "Single snapshot" -foreground false`
 
-. を使用します `volume file clone create` 本番用LUNのクローンを作成するコマンド。
+. コマンドを使用し `volume file clone create`て、本番用LUNのクローンを作成します。
 +
 `volume file clone create -vserver vs3 -volume vol3 -source-path lun1 -snapshot-name snap_vol3 -destination-path lun1_backup`
 
-. を使用します `lun igroup create` バックアップサーバのWWPNを含むigroupを作成するコマンド。
+. コマンドを使用し `lun igroup create`て、バックアップサーバのWWPNを含むigroupを作成します。
 +
 `lun igroup create -vserver vs3 -igroup igroup3 -protocol fc -ostype windows -initiator 10:00:00:00:c9:73:5b:91`
 
-. を使用します `lun mapping create` 手順3で作成したLUNクローンをバックアップホストにマッピングするコマンド。
+. コマンドを使用し `lun mapping create`て、手順3で作成したLUNクローンをバックアップホストにマッピングします。
 +
 `lun mapping create -vserver vs3 -volume vol3 -lun lun1_backup -igroup igroup3`
 
 +
-この手順を SAN バックアップアプリケーションのポストプロセススクリプトに含めることができます。
+この手順をSANバックアップアプリケーションのポストプロセススクリプトに含めることもできます。
 
-. ホストから、新しい LUN を検出し、ファイルシステムをホストで使用できるようにします。
+. ホストから、新しいLUNを検出し、ファイルシステムをホストで使用できるようにします。
 +
-この手順を SAN バックアップアプリケーションのポストプロセススクリプトに含めることができます。
+この手順をSANバックアップアプリケーションのポストプロセススクリプトに含めることもできます。
 
-. SAN バックアップアプリケーションを使用して、バックアップホストの LUN クローン内のデータをテープにバックアップします。
-. を使用します `lun modify` LUNクローンをオフラインにするコマンド。
+. SANバックアップアプリケーションを使用して、バックアップホストのLUNクローン内のデータをテープにバックアップします。
+. コマンドを使用し `lun modify`て、LUNクローンをオフラインにします。
 +
 `lun modify -vserver vs3 -path /vol/vol3/lun1_backup -state offline`
 
-. を使用します `lun delete` をクリックしてLUNクローンを削除します。
+. を使用し `lun delete`てLUNクローンを削除します。
 +
 `lun delete -vserver vs3 -volume vol3 -lun lun1_backup`
 
-. を使用します `volume snapshot delete` コマンドを実行してSnapshotコピーを削除します。
+. コマンドを使用し `volume snapshot delete`て、Snapshotコピーを削除します。
 +
 `volume snapshot delete -vserver vs3 -volume vol3 -snapshot vol3_snapshot`
 

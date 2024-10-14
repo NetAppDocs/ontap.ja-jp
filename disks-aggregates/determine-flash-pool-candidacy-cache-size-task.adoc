@@ -2,22 +2,22 @@
 permalink: disks-aggregates/determine-flash-pool-candidacy-cache-size-task.html 
 sidebar: sidebar 
 keywords: flash pool, candidacy, optimal cache size, local tier, aggregate 
-summary: 既存のローカル階層（アグリゲート）をFlash Poolローカル階層に変換する前に、ローカル階層がI/Oバウンドであるかどうか、およびワークロードと予算に応じた最適なFlash Poolのキャッシュサイズを確認できます。また、既存のFlash Poolローカル階層のキャッシュサイズが正しく設定されているかどうかも確認できます。 
+summary: 既存のローカル階層（アグリゲート）をFlash Poolローカル階層に変換する前に、ローカル階層がI/Oバウンドであるかどうか、およびワークロードと予算に応じた最適なFlash Poolキャッシュサイズを確認できます。また、既存のFlash Poolローカル階層のキャッシュのサイズが正しく設定されているかどうかを確認することもできます。 
 ---
-= Flash Pool の候補と最適なキャッシュサイズを確認します
+= Flash Poolの候補と最適なキャッシュサイズを確認する
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-既存のローカル階層（アグリゲート）をFlash Poolローカル階層に変換する前に、ローカル階層がI/Oバウンドであるかどうか、およびワークロードと予算に応じた最適なFlash Poolのキャッシュサイズを確認できます。また、既存のFlash Poolローカル階層のキャッシュサイズが正しく設定されているかどうかも確認できます。
+既存のローカル階層（アグリゲート）をFlash Poolローカル階層に変換する前に、ローカル階層がI/Oバウンドであるかどうか、およびワークロードと予算に応じた最適なFlash Poolキャッシュサイズを確認できます。また、既存のFlash Poolローカル階層のキャッシュのサイズが正しく設定されているかどうかを確認することもできます。
 
 .必要なもの
-分析するローカル階層の負荷がピークになるおおよその時間帯を把握しておく必要があります。
+分析しているローカル階層の負荷がピークに達したおよその時間を把握しておく必要があります。
 
 .手順
-. advanced モードに切り替えます。
+. advancedモードに切り替えます。
 +
 `set advanced`
 
@@ -26,7 +26,7 @@ summary: 既存のローカル階層（アグリゲート）をFlash Poolロー�
 `statistics show-periodic -object disk:raid_group -instance _raid_group_name_ -counter disk_busy|user_read_latency -interval 1 -iterations 60`
 
 +
-Flash Pool キャッシュを追加してレイテンシを短縮する処理がこのアグリゲートに適しているかどうかを判断することができます。
+Flash Poolキャッシュを追加してレイテンシを短縮することがこのアグリゲートに適しているかどうかを判断できます。
 
 +
 次のコマンドは、アグリゲート「 aggr1 」の最初の RAID グループの統計情報を表示します。
@@ -34,21 +34,21 @@ Flash Pool キャッシュを追加してレイテンシを短縮する処理が
 +
 `statistics show-periodic -object disk:raid_group -instance /aggr1/plex0/rg0 -counter disk_busy|user_read_latency -interval 1 -iterations 60`
 
-. Automated Workload Analyzer （ AWA ）を起動します。
+. Automated Workload Analyzer（AWA）を起動します。
 +
 `storage automated-working-set-analyzer start -node _node_name_ -aggregate _aggr_name_`
 
 +
-指定されたアグリゲートに関連付けられているボリュームのワークロードデータの収集が開始されます。
+指定したアグリゲートに関連付けられているボリュームのワークロードデータの収集が開始されます。
 
-. advanced モードを終了します。
+. advancedモードを終了します。
 +
 `set admin`
 
 +
-ピーク負荷が間隔をあけて複数回発生するまで AWA の実行を許可します。AWA は、指定されたアグリゲートに関連付けられているボリュームのワークロードの統計情報を収集し、期間内で最長 1 週間にわたってデータを分析します。複数の週にわたって AWA を実行すると、直近の週に収集されたデータのみレポートされます。キャッシュサイズの推定値は、データ収集期間内に確認された最も高い負荷に基づいています。データ収集期間全体の負荷が高くなくてもかまいません。
+ピーク負荷が1つ以上の間隔で発生するまで、AWAの実行を許可します。AWAは、指定したアグリゲートに関連付けられているボリュームのワークロードの統計情報を収集し、期間内で最大1週間にわたってデータを分析します。AWAを複数の週にわたって実行すると、直近の週から収集されたデータのみがレポートされます。キャッシュサイズの見積もりは、データ収集期間中に確認された最も高い負荷に基づいています。データ収集期間全体で負荷が高くなる必要はありません。
 
-. advanced モードに切り替えます。
+. advancedモードに切り替えます。
 +
 `set advanced`
 
@@ -63,7 +63,7 @@ Flash Pool キャッシュを追加してレイテンシを短縮する処理が
 +
 すべてのワークロードデータがフラッシュされ、分析に使用できなくなります。
 
-. advanced モードを終了します。
+. advancedモードを終了します。
 +
 `set admin`
 

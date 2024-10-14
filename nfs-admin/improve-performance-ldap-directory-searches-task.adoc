@@ -2,68 +2,68 @@
 permalink: nfs-admin/improve-performance-ldap-directory-searches-task.html 
 sidebar: sidebar 
 keywords: improve, performance, ldap, directory, netgroup, host, search, ptr, forward, reverse, rfc 5952, export rule, 
-summary: LDAP 環境がホスト単位のネットグループ検索を許可するように設定されている場合は、この機能を利用するように ONTAP を設定し、ホスト単位のネットグループ検索を実行することができます。これにより、ネットグループ検索の処理速度を大幅に引き上げ、ネットグループ検索時のレイテンシによる NFS クライアントアクセスの問題を減らすことができます。 
+summary: LDAP環境がホスト単位のネットグループ検索を許可するように設定されている場合は、この機能を利用するようにONTAPを設定し、ホスト単位のネットグループ検索を実行できます。これにより、ネットグループ検索にかかる時間が大幅に短縮され、ネットグループ検索時のレイテンシによるNFSクライアントアクセスの問題が軽減されます。 
 ---
-= LDAP ディレクトリのホスト単位ネットグループ検索のパフォーマンスを向上させます
+= LDAPディレクトリのホスト単位のネットグループ検索のパフォーマンスの向上
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-LDAP 環境がホスト単位のネットグループ検索を許可するように設定されている場合は、この機能を利用するように ONTAP を設定し、ホスト単位のネットグループ検索を実行することができます。これにより、ネットグループ検索の処理速度を大幅に引き上げ、ネットグループ検索時のレイテンシによる NFS クライアントアクセスの問題を減らすことができます。
+LDAP環境がホスト単位のネットグループ検索を許可するように設定されている場合は、この機能を利用するようにONTAPを設定し、ホスト単位のネットグループ検索を実行できます。これにより、ネットグループ検索にかかる時間が大幅に短縮され、ネットグループ検索時のレイテンシによるNFSクライアントアクセスの問題が軽減されます。
 
 .必要なもの
-LDAPディレクトリにはが含まれている必要があります `netgroup.byhost` 地図。
+LDAPディレクトリにマップが含まれている必要があり `netgroup.byhost`ます。
 
-DNS サーバには、 NFS クライアントのフォワード（ A ）およびリバース（ PTR ）ルックアップレコードの両方が含まれている必要があります。
+DNSサーバには、NFSクライアントのフォワード（A）ルックアップレコードとリバース（PTR）ルックアップレコードの両方が含まれている必要があります。
 
-ネットグループ内の IPv6 アドレスを指定するときは、常に RFC 5952 で指定されているとおりに各アドレスを短縮および圧縮する必要があります。
+ネットグループでIPv6アドレスを指定する場合は、常にRFC 5952で指定されているとおりに各アドレスを短縮および圧縮する必要があります。
 
-.このタスクについて
-NISサーバは、と呼ばれる3つの個別のマップにネットグループ情報を格納します `netgroup`、 `netgroup.byuser`および `netgroup.byhost`。の目的 `netgroup.byuser` および `netgroup.byhost` マップはネットグループ検索を高速化するためのものです。ONTAP は、マウントの応答時間を短縮するために NIS サーバ上でホスト単位のネットグループ検索を実行できます。
+.タスクの内容
+NISサーバは、 `netgroup.byuser`、および `netgroup.byhost`という3つの独立したマップにネットグループ情報を格納します `netgroup`。マップと `netgroup.byhost`マップの目的は `netgroup.byuser`、ネットグループの検索速度を上げることです。ONTAPでは、マウントの応答時間を短縮するために、NISサーバ上でホスト単位のネットグループ検索を実行できます。
 
-デフォルトでは、LDAPディレクトリにはそのようなはありません `netgroup.byhost` NISサーバと同様のマッピングただし、サードパーティのツールを使用すると、NISをインポートできます `netgroup.byhost` LDAPディレクトリにマッピングして、ホスト単位の高速ネットグループ検索を有効にします。ホスト単位のネットグループ検索を許可するようにLDAP環境を設定している場合は、を使用してONTAP LDAPクライアントを設定できます `netgroup.byhost` ホスト単位のネットグループ検索を高速化するために、名前、DN、および検索範囲をマッピングします。
+デフォルトでは、LDAPディレクトリにはNISサーバのようなマップがありません `netgroup.byhost`。ただし、サードパーティのツールを使用すれば、NISマップをLDAPディレクトリにインポートして、ホスト単位の高速ネットグループ検索を有効にすることができます `netgroup.byhost`。ホスト単位のネットグループ検索を許可するようにLDAP環境を設定している場合は、ONTAP LDAPクライアントにマップ名、DN、および検索範囲を設定して、ホスト単位のネットグループ検索を高速化できます `netgroup.byhost`。
 
-ホスト単位のネットグループ検索の結果をより迅速に受け取ることで、 ONTAP クライアントがエクスポートへのアクセスを要求した場合、より高速にエクスポートルールを処理できます。これにより、ネットグループ検索による遅延の問題によってアクセスが遅延する可能性が低下します。
+ホスト単位のネットグループ検索の結果をより速く受け取ることで、ONTAPクライアントがエクスポートへのアクセスを要求したときに、エクスポートルールをより迅速に処理できるようになります。これにより、ネットグループ検索のレイテンシの問題が原因でアクセスが遅延する可能性が低くなります。
 
 .手順
-. NISの完全な識別名を取得します `netgroup.byhost` LDAPディレクトリにインポートしたマップ。
+. LDAPディレクトリにインポートしたNISマップの完全な識別名を取得します `netgroup.byhost`。
 +
-マップ DN は、インポートに使用したサードパーティツールによって異なります。最高のパフォーマンスを得るには、正確なマップ DN を指定する必要があります。
+マップDNは、インポートに使用したサードパーティツールによって異なります。最高のパフォーマンスを得るには、正確なマップDNを指定する必要があります。
 
-. 権限レベルを advanced に設定します。 `set -privilege advanced`
+. 権限レベルをadvancedに設定します。 `set -privilege advanced`
 . Storage Virtual Machine（SVM）のLDAPクライアント設定でホスト単位のネットグループ検索を有効にします。 `vserver services name-service ldap client modify -vserver vserver_name -client-config config_name -is-netgroup-byhost-enabled true -netgroup-byhost-dn netgroup-by-host_map_distinguished_name -netgroup-byhost-scope netgroup-by-host_search_scope`
 +
-`-is-netgroup-byhost-enabled` {`true` `false`｝LDAPディレクトリのホスト単位のネットグループ検索を有効または無効にします。デフォルトはです `false`。
+`-is-netgroup-byhost-enabled`{`true` `false`｝LDAPディレクトリのホスト単位のネットグループ検索を有効または無効にします。デフォルトはです `false`。
 
 +
-`-netgroup-byhost-dn` `netgroup-by-host_map_distinguished_name` の識別名を指定します `netgroup.byhost` LDAPディレクトリにマッピングします。これにより、ホスト単位のネットグループ検索のベース DN が無効になります。このパラメータを指定しない場合、 ONTAP は代わりにベース DN を使用します。
+`-netgroup-byhost-dn` `netgroup-by-host_map_distinguished_name`LDAPディレクトリ内のマップの識別名を指定します `netgroup.byhost`。この値は、ホスト単位のネットグループ検索のベースDNを上書きします。このパラメータを指定しない場合、ONTAPは代わりにベースDNを使用します。
 
 +
-`-netgroup-byhost-scope` {`base`|`onelevel` `subtree`｝は、ホスト単位のネットグループ検索の検索範囲を指定します。このパラメータを指定しない場合、デフォルトのが使用されます `subtree`。
+`-netgroup-byhost-scope`{`base`|`onelevel` `subtree`｝は、ホスト単位のネットグループ検索の検索範囲を指定します。このパラメータを指定しない場合のデフォルトのはです `subtree`。
 
 +
-LDAPクライアント設定がまだ存在しない場合は、を使用して新しいLDAPクライアント設定を作成するときにこれらのパラメータを指定することで、ホスト単位のネットグループ検索を有効にできます `vserver services name-service ldap client create` コマンドを実行します
+LDAPクライアント設定がまだ存在しない場合は、コマンドを使用して新しいLDAPクライアント設定を作成するときにこれらのパラメータを指定することで、ホスト単位のネットグループ検索を有効にできます `vserver services name-service ldap client create`。
 
 +
 [NOTE]
 ====
-ONTAP 9.2以降では、フィールドが表示されます `-ldap-servers` フィールドを置き換えます `-servers`。この新しいフィールドには、 LDAP サーバのホスト名または IP アドレスを指定できます。
+ONTAP 9 .2以降では、 `-ldap-servers`フィールドがフィールドに置き換わります `-servers`。この新しいフィールドには、LDAPサーバのホスト名またはIPアドレスを指定できます。
 
 ====
-. admin 権限レベルに戻ります。 `set -privilege admin`
+. admin権限レベルに戻ります。 `set -privilege admin`
 
 
 .例
-次のコマンドは、「ldap_corp」という名前の既存のLDAPクライアント設定を変更して、を使用したホスト単位のネットグループ検索を有効にします `netgroup.byhost` 「`nisMapName="netgroup.byhost"、dc=corp、dc=example、dc=com`」という名前のマップとデフォルトの検索範囲 `subtree`：
+次のコマンドは、「'ldap_corp'」という既存のLDAPクライアント設定を変更し、「'nisMapName="netgroup.byhost"、dc=corp、dc=example、dc=com`」というマップとデフォルトの検索範囲を `subtree`使用して、ホスト単位のネットグループ検索を有効にし `netgroup.byhost`ます。
 
 [listing]
 ----
 cluster1::*> vserver services name-service ldap client modify -vserver vs1 -client-config ldap_corp -is-netgroup-byhost-enabled true -netgroup-byhost-dn nisMapName="netgroup.byhost",dc=corp,dc=example,dc=com
 ----
-.完了後
-。 `netgroup.byhost` および `netgroup` クライアントアクセスの問題を回避するために、ディレクトリ内のマップは常に同期されている必要があります。
+.終了後
+ `netgroup.byhost`ディレクトリ内のマップと `netgroup`マップは、クライアントアクセスに関する問題を回避するために、常に同期されている必要があります。
 
 .関連情報
 https://datatracker.ietf.org/doc/html/rfc5952["IETF RFC 5952 ：『 A Recommendation for IPv6 Address Text Representation 』"]

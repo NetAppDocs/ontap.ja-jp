@@ -2,7 +2,7 @@
 permalink: system-admin/access-cluster-ssh-task.html 
 sidebar: sidebar 
 keywords: access, ssh, cluster, administrative, task 
-summary: 管理タスクを実行するために、クラスタへの問題 SSH 要求を行うことができます。SSHはデフォルトで有効になっています。 
+summary: クラスタにSSH要求を発行して管理タスクを実行できます。SSHはデフォルトで有効になっています。 
 ---
 = SSHを使用したクラスタへのアクセス
 :allow-uri-read: 
@@ -11,51 +11,51 @@ summary: 管理タスクを実行するために、クラスタへの問題 SSH 
 
 
 [role="lead"]
-管理タスクを実行するために、ONTAPクラスタへのSSH要求を問題できます。SSHはデフォルトで有効になっています。
+ONTAPクラスタにSSH要求を発行して管理タスクを実行できます。SSHはデフォルトで有効になっています。
 
-.作業を開始する前に
-* を使用するように設定されたユーザアカウントが必要です `ssh` アクセス方法として。
+.開始する前に
+* アクセス方法としてを使用するように設定されたユーザアカウントが必要 `ssh`です。
 +
-。 `-application` のパラメータ `security login` コマンドは、ユーザアカウントのアクセス方法を指定します。。 `security login` https://docs.netapp.com/us-en/ontap-cli/security-login-create.html#description["マニュアルページ"^] 追加情報 を含む。
+コマンドのパラメータ `security login`は、 `-application`ユーザアカウントのアクセス方法を指定します。詳細については、を `security login` https://docs.netapp.com/us-en/ontap-cli/security-login-create.html#description["マニュアルページ"^]参照してください。
 
-* Active Directory（AD）のドメインユーザアカウントを使用してクラスタにアクセスする場合は、CIFS対応のStorage VMでクラスタの認証トンネルが設定されている必要があり、さらにADのドメインユーザアカウントが `ssh` アクセス方法としておよび `domain` を認証方法として指定します。
+* Active Directory（AD）のドメインユーザアカウントを使用してクラスタにアクセスする場合は、CIFS対応のStorage VMでクラスタの認証トンネルが設定されている必要があり、さらにADのドメインユーザアカウントがアクセス方式および `domain`認証方式としてを使用してクラスタに追加されている必要があり `ssh`ます。
 
 
-.このタスクについて
-* OpenSSH 5.7 以降のクライアントを使用する必要があります。
-* サポートされているプロトコルは SSH v2 だけです。 SSH v1 はサポートされていません。
+.タスクの内容
+* OpenSSH 5.7以降のクライアントを使用する必要があります。
+* サポートされているプロトコルはSSH v2だけです。SSH v1はサポートされていません。
 * ONTAPでは、1つのノードで同時に最大64のSSHセッションがサポートされています。
 +
-クラスタ管理 LIF がノード上に存在する場合、クラスタ管理 LIF はこの制限をノード管理 LIF と共有します。
+クラスタ管理LIFがノード上にある場合、クラスタ管理LIFはこの制限をノード管理LIFと共有します。
 
 +
-着信接続の速度が 1 秒あたり 10 を超えると、サービスは一時的に 60 秒間無効になります。
+着信接続のレートが1秒あたり10を超える場合、サービスは60秒間一時的に無効になります。
 
 * ONTAP は、 SSH に対して AES および 3DES 暗号化アルゴリズム（ _cipher_ とも呼ばれる）のみをサポートしています。
 +
-AES では、 128 ビット、 192 ビット、 256 ビットのキー長がサポートされます。3DES のキーの長さは DES 同様に 56 ビットですが、 3 回繰り返されます。
+AESは、128ビット、192ビット、および256ビットのキー長でサポートされます。3DESのキー長は元のDESと同様に56ビットですが、3回繰り返されます。
 
-* FIPS モードが有効な場合、 SSH クライアントを接続するには、 Elliptic Curve Digital Signature Algorithm （ ECDSA ）公開鍵アルゴリズムとネゴシエートする必要があります。
-* ONTAP CLI に Windows ホストからアクセスする場合は、 PuTTY などのサードパーティのユーティリティを使用できます。
-* Windows AD ユーザ名を使用して ONTAP にログインする場合、 ONTAP で AD ユーザ名とドメイン名が作成されたときと同じように大文字と小文字を区別する必要があります。
+* FIPSモードが有効な場合、SSHクライアントを接続するには、Elliptic Curve Digital Signature Algorithm（ECDSA）公開鍵アルゴリズムとネゴシエートする必要があります。
+* WindowsホストからONTAP CLIにアクセスする場合は、PuTTYなどのサードパーティのユーティリティを使用できます。
+* Windows ADユーザ名を使用してONTAPにログインする場合は、ONTAPでADユーザ名とドメイン名が作成されたときと同じ大文字または小文字を使用する必要があります。
 +
-AD のユーザ名とドメイン名では、大文字と小文字は区別されませんが、ただし、 ONTAP のユーザ名では大文字と小文字が区別されます。ONTAP で作成されたユーザ名と、 AD で作成されたユーザ名の大文字小文字表記が違うと、ログインに失敗します。
+ADのユーザ名とドメイン名では大文字と小文字は区別されません。ただし、ONTAPユーザ名では大文字と小文字が区別されます。ONTAPで作成されたユーザ名とADで作成されたユーザ名の大文字小文字表記が一致しないと、ログインに失敗します。
 
 
 
 .SSH認証オプション
-* ONTAP 9.3以降では、を実行できます link:../authentication/setup-ssh-multifactor-authentication-task.html["SSH多要素認証を有効にします"^] ローカル管理者アカウントの場合。
+* ONTAP 9 .3以降では、ローカル管理者アカウントを使用できますlink:../authentication/setup-ssh-multifactor-authentication-task.html["SSH多要素認証を有効にします"^]。
 +
-SSH 多要素認証が有効な場合は、公開鍵とパスワードを使用してユーザが認証されます。
+SSH多要素認証が有効な場合、ユーザは公開鍵とパスワードを使用して認証されます。
 
-* ONTAP 9.4以降では、次のことが可能です link:../authentication/grant-access-nis-ldap-user-accounts-task.html["SSH多要素認証を有効にします"^] LDAPおよびNISのリモートユーザ。
-* ONTAP 9.13.1以降では、必要に応じてSSH認証プロセスに証明書の検証を追加して、ログインのセキュリティを強化できます。これを行うには、 link:../authentication/manage-ssh-public-keys-and-certificates.html["X.509証明書を公開鍵に関連付けます"^] アカウントが使用します。SSH公開鍵とX.509証明書の両方を使用してSSHを使用してログインすると、ONTAPは、SSH公開鍵で認証する前にX.509証明書の有効性をチェックします。証明書の有効期限が切れているか失効している場合、SSHログインは拒否され、SSH公開鍵は自動的に無効になります。
-* ONTAP 9.14.1以降では、ONTAP管理者は次の操作を実行できます。 link:../authentication/configure-cisco-duo-mfa-task.html["SSH認証プロセスへのCisco Duo 2要素認証の追加"^] ログインのセキュリティを強化します。Cisco Duo認証を有効にした後の最初のログイン時に、ユーザはSSHセッションのオーセンティケータとして機能するデバイスを登録する必要があります。
-* ONTAP 9.15.1以降では、管理者は次の操作を実行できます。 link:../authentication/dynamic-authorization-overview.html["動的許可の設定"^] ユーザの信頼スコアに基づいて、SSHユーザに追加の適応型認証を提供する。
+* ONTAP 9 .4以降では、LDAPおよびNISのリモートユーザに対応できますlink:../authentication/grant-access-nis-ldap-user-accounts-task.html["SSH多要素認証を有効にします"^]。
+* ONTAP 9.13.1以降では、必要に応じてSSH認証プロセスに証明書の検証を追加して、ログインのセキュリティを強化できます。これを行うには、link:../authentication/manage-ssh-public-keys-and-certificates.html["X.509証明書を公開鍵に関連付けます"^]アカウントが使用します。SSH公開鍵とX.509証明書の両方を使用してSSHを使用してログインすると、ONTAPは、SSH公開鍵で認証する前にX.509証明書の有効性をチェックします。証明書の有効期限が切れているか失効している場合、SSHログインは拒否され、SSH公開鍵は自動的に無効になります。
+* ONTAP 9 .14.1以降では、ONTAP管理者はログインセキュリティを強化できますlink:../authentication/configure-cisco-duo-mfa-task.html["SSH認証プロセスへのCisco Duo 2要素認証の追加"^]。Cisco Duo認証を有効にした後の最初のログイン時に、ユーザはSSHセッションのオーセンティケータとして機能するデバイスを登録する必要があります。
+* ONTAP 9 .15.1以降では、管理者は、ユーザの信頼スコアに基づいて、SSHユーザに追加の適応認証を提供できlink:../authentication/dynamic-authorization-overview.html["動的許可の設定"^]ます。
 
 
 .手順
-. ONTAPクラスタのネットワークにアクセスできるホストから、 `ssh` 次のいずれかの形式でコマンドを実行します。
+. ONTAPクラスタのネットワークにアクセスできるホストから、次のいずれかの形式でコマンドを入力し `ssh`ます。
 +
 ** `*ssh _username@hostname_or_IP_ [_command_]*`
 ** `*ssh -l _username hostname_or_IP_ [_command_]*`
@@ -63,11 +63,11 @@ SSH 多要素認証が有効な場合は、公開鍵とパスワードを使用�
 
 
 
-ADドメインユーザアカウントを使用している場合は、を指定する必要があります `_username_` 形式はです `_domainname\\AD_accountname_` （ドメイン名のあとにバックスラッシュが2つ付いている場合）または `"_domainname\AD_accountname_"` （二重引用符で囲み、ドメイン名のあとにバックスラッシュ1つで囲みます）。
+ADのドメインユーザアカウントを使用している場合は、（ドメイン名のあとにバックスラッシュ2つ）または `"_domainname\AD_accountname_"`（二重引用符で囲み、ドメイン名のあとにバックスラッシュ1つ）の形式で `_domainname\\AD_accountname_`指定する必要があります `_username_`。
 
-`_hostname_or_IP_` は、クラスタ管理LIFまたはノード管理LIFのホスト名またはIPアドレスです。クラスタ管理 LIF を使用することを推奨します。IPv4 または IPv6 アドレスを使用できます。
+`_hostname_or_IP_`は、クラスタ管理LIFまたはノード管理LIFのホスト名またはIPアドレスです。クラスタ管理LIFを使用することを推奨します。IPv4またはIPv6アドレスを使用できます。
 
-`_command_` SSHインタラクティブセッションでは必要ありません。
+`_command_`SSHインタラクティブセッションでは必要ありません。
 
 .SSH要求の例
 次の例は、「 joe 」という名前のユーザアカウントで、クラスタ管理 LIF が 10.72.137.28 のクラスタにアクセスする SSH 要求を問題で実行する方法を示しています。
@@ -131,4 +131,4 @@ node2                 true    true
 2 entries were displayed.
 ----
 .関連情報
-link:../authentication/index.html["管理者認証と RBAC"]
+link:../authentication/index.html["カンリシヤニンシヨウトRBAC"]

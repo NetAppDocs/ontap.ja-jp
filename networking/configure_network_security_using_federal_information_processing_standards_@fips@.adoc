@@ -4,7 +4,7 @@ permalink: networking/configure_network_security_using_federal_information_proce
 keywords: fips 140-2, compliant, ssl, connections, tlsv1.2, tlsv1.1, tlsv1, enable fips, disable fips, compliance status, SSL 
 summary: すべての SSL 接続に対応した Federal Information Processing Standard （ FIPS ；連邦情報処理標準） 140-2 が準拠しています 
 ---
-= 連邦情報処理標準（ FIPS ）を使用したネットワークセキュリティの設定
+= 連邦情報処理標準（FIPS）を使用したネットワークセキュリティの設定
 :hardbreaks:
 :allow-uri-read: 
 :nofooter: 
@@ -14,19 +14,19 @@ summary: すべての SSL 接続に対応した Federal Information Processing S
 
 
 [role="lead"]
-ONTAP は、すべての SSL 接続に対する連邦情報処理標準（ FIPS ） 140-2 に準拠しています。ONTAP では、 SSL FIPS モードを有効または無効にしたり、 SSL プロトコルをグローバルに設定したり、 RC4 などの弱い暗号を無効にしたりできます。
+ONTAPは、すべてのSSL接続について、連邦情報処理標準（FIPS）140-2に準拠しています。ONTAPでは、SSL FIPSモードをオンまたはオフにしたり、SSLプロトコルをグローバルに設定したり、RC4などの弱い暗号を無効にしたりできます。
 
-デフォルトでは、 ONTAP の SSL は、次のプロトコルを使用して FIPS 準拠が無効、 SSL プロトコルが有効な状態で設定されます。
+デフォルトでは、次のコマンドを使用して、ONTAPのSSLはFIPS準拠を無効にし、SSLプロトコルを有効にして設定されます。
 
-* TLSv1（ONTAP 9.11.1以降）
+* TLSv1.3（ONTAP 9 .11.1以降）
 * TLSv1.2
 * TLSv1.1
 * TLSv1
 
 
-SSL FIPS モードがイネーブルの場合、 ONTAP から ONTAP 外部のクライアントまたはサーバコンポーネントへの SSL 通信には、 FIPS 準拠の SSL 用暗号が使用されます。
+SSL FIPSモードが有効な場合、ONTAPからONTAPの外部のクライアントまたはサーバコンポーネントへのSSL通信では、SSL用のFIPS準拠の暗号が使用されます。
 
-管理者アカウントが SSH 公開鍵を使用して SVM にアクセスできるようにする場合は、 SSL FIPS モードを有効にする前に、ホストキーアルゴリズムがサポートされていることを確認する必要があります。
+管理者アカウントがSSH公開鍵を使用してSVMにアクセスできるようにする場合は、SSL FIPSモードを有効にする前に、ホストキーのアルゴリズムがサポートされていることを確認する必要があります。
 
 *注：ONTAP 9.11.1以降では、ホストキーアルゴリズムのサポートが変更されています。
 
@@ -42,41 +42,35 @@ SSL FIPS モードがイネーブルの場合、 ONTAP から ONTAP 外部のク
  a| 
 ECDSA - sha2 - nistp256
  a| 
-rsa-sha2-512+
-rsa-sha2-256+
-SSH-ed25519以降
-SSH-DSS+
-SSH-RSA
+rsa-sha2-512+ rsa-sha2-256+ ssh-ed25519 + ssh-dss+ssh-rsa
 
 
 
  a| 
 9.10.1以前
  a| 
-ECDSA-sha2-nistp256+
-SSH-ed25519
+ECDSA - sha2 -nistp256 + ssh-ed25519
  a| 
-SSH-DSS+
-SSH-RSA
+SSH-DSS + ssh-rsa
 
 |===
-FIPS を有効にする前に、サポートされるキーアルゴリズムを使用していない既存の SSH 公開鍵アカウントをサポート対象のキータイプで再設定する必要があります。再設定しないと、管理者認証は失敗します。
+FIPSを有効にする前に、サポートされているキーアルゴリズムがない既存のSSH公開鍵アカウントをサポートされているキータイプで再設定する必要があります。そうしないと、管理者認証が失敗します。
 
-詳細については、を参照してください link:../authentication/enable-ssh-public-key-accounts-task.html["SSH 公開鍵アカウントを有効にします"]。
+詳細については、を参照してください link:../authentication/enable-ssh-public-key-accounts-task.html["SSH公開鍵アカウントの有効化"]。
 
-SSL FIPSモードの設定の詳細については、を参照してください `security config modify` のマニュアルページ。
+SSL FIPSモードの設定の詳細については、のマニュアルページを参照して `security config modify`ください。
 
 
 
 == FIPSを有効にする
 
-システムのインストールまたはアップグレードの直後に、すべてのセキュアユーザがセキュリティ設定を調整することを推奨します。SSL FIPS モードがイネーブルの場合、 ONTAP から ONTAP 外部のクライアントまたはサーバコンポーネントへの SSL 通信には、 FIPS 準拠の SSL 用暗号が使用されます。
+システムのインストールまたはアップグレードの直後に、すべてのセキュアなユーザがセキュリティ設定を調整することをお勧めします。SSL FIPSモードが有効な場合、ONTAPからONTAPの外部のクライアントまたはサーバコンポーネントへのSSL通信では、SSL用のFIPS準拠の暗号が使用されます。
 
 
 NOTE: FIPSが有効な場合、RSAキーの長さが4096の証明書をインストールまたは作成することはできません。
 
 .手順
-. advanced 権限レベルに切り替えます。
+. advanced権限レベルに切り替えます。
 +
 `set -privilege advanced`
 
@@ -84,12 +78,12 @@ NOTE: FIPSが有効な場合、RSAキーの長さが4096の証明書をインス
 +
 `security config modify -interface SSL -is-fips-enabled true`
 
-. 続行するかどうかを尋ねられたら、と入力します `y`
-. ONTAP 9.8 以前を実行している場合は、クラスタ内の各ノードを 1 つずつ手動でリブートします。ONTAP 9.9.1以降では、リブートは必要ありません。
+. 続行するかどうかを尋ねられたら、 `y`
+. ONTAP 9 .8以前を実行している場合は、クラスタ内の各ノードを1つずつ手動でリブートします。ONTAP 9.9.1以降では、リブートは必要ありません。
 
 
 .例
-ONTAP 9.9.1 以降を実行している場合は、警告メッセージは表示されません。
+ONTAP 9 .9.1以降を実行している場合は、警告メッセージは表示されません。
 
 ....
 security config modify -interface SSL -is-fips-enabled true
@@ -102,25 +96,25 @@ Do you want to continue? {y|n}: y
 ....
 
 
-== FIPS を無効にする
+== FIPSの無効化
 
-古いシステム構成を実行し続けている状況で、 ONTAP の設定で下位互換性を確保する場合は、 FIPS が無効な場合にのみ SSLv3 を有効にすることができます。
+古いシステム構成を実行していて、ONTAPを下位互換性のある方法で設定したい場合は、FIPSが無効になっている場合にのみSSLv3を有効にできます。
 
 .手順
-. advanced 権限レベルに切り替えます。
+. advanced権限レベルに切り替えます。
 +
 `set -privilege advanced`
 
-. 次のように入力して FIPS を無効に
+. FIPSを無効にするには、
 +
 `security config modify -interface SSL -is-fips-enabled false`
 
-. 続行するかどうかを尋ねられたら、と入力します `y`。
-. ONTAP 9.8 以前を実行している場合は、クラスタ内の各ノードを手動でリブートします。ONTAP 9.9.1以降では、リブートは必要ありません。
+. 続行するかどうかを尋ねられたら、と入力し `y`ます。
+. ONTAP 9 .8以前を実行している場合は、クラスタ内の各ノードを手動でリブートします。ONTAP 9.9.1以降では、リブートは必要ありません。
 
 
 .例
-ONTAP 9.9.1 以降を実行している場合は、警告メッセージは表示されません。
+ONTAP 9 .9.1以降を実行している場合は、警告メッセージは表示されません。
 
 ....
 security config modify -interface SSL -supported-protocols SSLv3
@@ -133,14 +127,14 @@ Do you want to continue? {y|n}: y
 ....
 
 
-== FIPS 準拠ステータスを表示します
+== FIPS準拠ステータスの表示
 
-クラスタ全体で現在のセキュリティ設定が実行されているかどうかを確認することができます。
+クラスタ全体で現在のセキュリティ設定が実行されているかどうかを確認できます。
 
 .手順
-. クラスタ内の各ノードを 1 つずつリブートします。
+. クラスタ内の各ノードを1つずつリブートします。
 +
-すべてのクラスタノードを同時にリブートしないでください。クラスタ内のすべてのアプリケーションで新しいセキュリティ設定が実行されていること、および FIPS のオン / オフモード、プロトコル、暗号に対する変更がすべて反映されていることを確認するには、リブートが必要です。
+すべてのクラスタノードを同時にリブートしないでください。クラスタ内のすべてのアプリケーションで新しいセキュリティ設定が実行されるようにするには、リブートが必要です。また、FIPSのオン/オフモード、プロトコル、および暗号に対するすべての変更を行うには、リブートが必要です。
 
 . 現在の準拠ステータスを表示します。
 +

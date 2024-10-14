@@ -4,7 +4,7 @@ permalink: snapmirror-active-sync/convert-active-sync-task.html
 keywords: SM-BC, SMBC, convert, SnapMirror synchronous, existing, snapmirror active sync 
 summary: SnapMirror関係をSnapMirrorアクティブ同期に変換します。 
 ---
-= 既存のSnapMirror関係をSnapMirrorアクティブな同期関係に変換する
+= 既存のSnapMirror関係をSnapMirrorのアクティブな同期関係に変換する
 :hardbreaks:
 :allow-uri-read: 
 :nofooter: 
@@ -14,27 +14,27 @@ summary: SnapMirror関係をSnapMirrorアクティブ同期に変換します。
 
 
 [role="lead"]
-SnapMirror保護を設定している場合は、関係をSnapMirrorアクティブ同期に変換できます。ONTAP 9.15.1以降では、対称アクティブ/アクティブ保護を使用するように関係を変換できます。
+SnapMirror保護を設定している場合は、関係をSnapMirrorアクティブ同期に変換できます。ONTAP 9.15.1以降では、対称アクティブ / アクティブ保護を使用するように関係を変換できます。
 
 
 
-== 既存のSnapMirror関係を非対称のSnapMirrorアクティブな同期関係に変換する
+== 既存のSnapMirror関係から非対称のSnapMirrorアクティブ同期関係への変換
 
-ソースクラスタとデスティネーションクラスタの間に既存のSnapMirror同期関係がある場合は、その関係を非対称SnapMirrorのアクティブな同期関係に変換できます。これにより、ミラーボリュームを整合グループに関連付けることができ、マルチボリュームワークロード全体でRPOをゼロにすることができます。また、SnapMirrorのアクティブな同期関係を確立する前の特定の時点にリバートする必要がある場合は、既存のSnapMirror Snapshotを保持できます。
+ソース クラスタとデスティネーション クラスタの間にすでにSnapMirror同期関係がある場合は、非対称のSnapMirrorアクティブ同期関係に変換できます。そうすることで、ミラー ボリュームを整合性グループに関連付けることができ、複数のボリュームにわたるワークロード全体でRPOゼロを確保できます。また、SnapMirrorアクティブ同期関係を確立する前に特定の時点にリバートする必要がある場合には、既存のSnapMirror Snapshotを保持できます。
 
-.このタスクについて
+.タスクの内容
 * プライマリクラスタとセカンダリクラスタのクラスタ管理者およびSVM管理者である必要があります。
-* SnapMirror ポリシーを変更して、ゼロ RPO をゼロ RTO 同期に変換することはできません。
-* を実行する前に、LUNのマッピングが解除されていることを確認する必要があります `snapmirror create` コマンドを実行します
+* SnapMirrorポリシーを変更してRPOゼロの同期をRTOゼロの同期に変換することはできません。
+* コマンドを実行する前に、LUNのマッピングが解除されていることを確認する必要があります `snapmirror create`。
 +
-セカンダリボリュームの既存のLUNがマッピングされており、 `AutomatedFailover` ポリシーが設定され、 `snapmirror create` コマンドによってエラーがトリガーされる。
+セカンダリボリューム上の既存のLUNがマッピングされていて、ポリシーが設定されている場合 `AutomatedFailover`、 `snapmirror create`エラーがトリガーされます。
 
 
 
-.作業を開始する前に
+.開始する前に
 * プライマリクラスタとセカンダリクラスタの間に、RPOゼロのSnapMirror同期関係が存在している必要があります。
 * RTOゼロのSnapMirror関係を作成するには、デスティネーションボリューム上のすべてのLUNのマッピングを解除する必要があります。
-* SnapMirror Active SyncでサポートされるのはSANプロトコルのみです（NFS / CIFSはサポートされません）。NAS アクセス用に整合性グループのコンスティチュエントがマウントされていないことを確認します。
+* SnapMirrorアクティブ同期でサポートされるのはSANプロトコルのみです（NFS / CIFSはサポートされません）。整合性グループのコンスティチュエントがNASアクセス用にマウントされていないことを確認します。
 
 
 .手順
@@ -42,7 +42,7 @@ SnapMirror保護を設定している場合は、関係をSnapMirrorアクティ
 +
 `SiteB::>snapmirror update -destination-path vs1_dst:vol1`
 
-. SnapMirror の更新が正常に完了したことを確認します。
+. SnapMirrorの更新が正常に完了したことを確認します。
 +
 `SiteB::>snapmirror show`
 
@@ -53,14 +53,14 @@ SnapMirror保護を設定している場合は、関係をSnapMirrorアクティ
 +
 `SiteB::>snapmirror quiesce -destination-path vs1_dst:vol2`
 
-. RPO ゼロの同期関係をそれぞれ削除します。
+. RPOゼロの各同期関係を削除します。
 +
 `SiteB::>snapmirror delete -destination-path vs1_dst:vol1`
 
 +
 `SiteB::>snapmirror delete -destination-path vs1_dst:vol2`
 
-. ソース SnapMirror 関係を解放しますが、共通の Snapshot コピーが保持されます。
+. ソースSnapMirror関係を解放し、共通のSnapshotコピーは保持します。
 +
 `SiteA::>snapmirror release -relationship-info-only true -destination-path vs1_dst:vol1`
 
@@ -75,20 +75,20 @@ SnapMirror保護を設定している場合は、関係をSnapMirrorアクティ
 +
 `SiteB::> snapmirror resync -destination-path vs1_dst:/cg/cg_dst`
 
-. ホスト LUN の I/O パスを再スキャンして、 LUN へのすべてのパスをリストアします。
+. ホストのLUN I/Oパスを再スキャンして、LUNへのすべてのパスをリストアします。
 
 
 
 
 == 既存のSnapMirror関係を対称アクティブ/アクティブに変換します。
 
-ONTAP 9.15.1以降では、既存のSnapMirror関係をSnapMirrorアクティブな同期の対称アクティブ/アクティブ関係に変換できます。
+ONTAP 9 .15.1以降では、既存のSnapMirror関係をSnapMirrorのアクティブな同期の対称アクティブ/アクティブ関係に変換できます。
 
-.作業を開始する前に
+.開始する前に
 * ONTAP 9.15.1以降が実行されている必要があります。
 * プライマリクラスタとセカンダリクラスタの間に、RPOゼロのSnapMirror同期関係が存在している必要があります。
 * RTOゼロのSnapMirror関係を作成するには、デスティネーションボリューム上のすべてのLUNのマッピングを解除する必要があります。
-* SnapMirror Active SyncでサポートされるのはSANプロトコルのみです（NFS / CIFSはサポートされません）。NAS アクセス用に整合性グループのコンスティチュエントがマウントされていないことを確認します。
+* SnapMirrorアクティブ同期でサポートされるのはSANプロトコルのみです（NFS / CIFSはサポートされません）。整合性グループのコンスティチュエントがNASアクセス用にマウントされていないことを確認します。
 
 
 .手順
@@ -96,7 +96,7 @@ ONTAP 9.15.1以降では、既存のSnapMirror関係をSnapMirrorアクティブ
 +
 `SiteB::>snapmirror update -destination-path vs1_dst:vol1`
 
-. SnapMirror の更新が正常に完了したことを確認します。
+. SnapMirrorの更新が正常に完了したことを確認します。
 +
 `SiteB::>snapmirror show`
 
@@ -107,14 +107,14 @@ ONTAP 9.15.1以降では、既存のSnapMirror関係をSnapMirrorアクティブ
 +
 `SiteB::>snapmirror quiesce -destination-path vs1_dst:vol2`
 
-. RPO ゼロの同期関係をそれぞれ削除します。
+. RPOゼロの各同期関係を削除します。
 +
 `SiteB::>snapmirror delete -destination-path vs1_dst:vol1`
 
 +
 `SiteB::>snapmirror delete -destination-path vs1_dst:vol2`
 
-. ソース SnapMirror 関係を解放しますが、共通の Snapshot コピーが保持されます。
+. ソースSnapMirror関係を解放し、共通のSnapshotコピーは保持します。
 +
 `SiteA::>snapmirror release -relationship-info-only true -destination-path vs1_dst:vol1`
 
@@ -151,5 +151,5 @@ SiteA::> igroup initiator add-proximal-vserver -vserver vsA -initiator host2 -pr
 +
 `SiteB::> snapmirror resync -destination-path vs1_dst:/cg/cg_dst`
 
-. ホスト LUN の I/O パスを再スキャンして、 LUN へのすべてのパスをリストアします。
+. ホストのLUN I/Oパスを再スキャンして、LUNへのすべてのパスをリストアします。
 

@@ -4,7 +4,7 @@ sidebar: sidebar
 keywords: create, snapvault, relationship, flexgroup, volumes 
 summary: SnapVault 関係を設定し、その関係に SnapVault ポリシーを割り当てて、 SnapVault バックアップを作成することができます。 
 ---
-= FlexGroup ボリュームの SnapVault 関係を作成
+= FlexGroupボリュームのSnapVault関係を作成する
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
@@ -17,9 +17,9 @@ SnapVault 関係を設定し、その関係に SnapVault ポリシーを割り�
 FlexGroup ボリュームの SnapVault 関係の作成に関する考慮事項を確認しておく必要があります。
 
 .手順
-. タイプがのデスティネーションFlexGroup ボリュームを作成します `DP` ソースFlexGroup と同じ数のコンスティチュエントを含むデータセンターを作成します。
+. ソースFlexGroupと同じ数のコンスティチュエントで構成されるタイプのデスティネーションFlexGroupボリュームを作成し `DP`ます。
 +
-.. ソースクラスタから、ソースFlexGroup ボリュームのコンスティチュエントの数を確認します。 `volume show -volume volume_name* -is-constituent true`
+.. ソースクラスタから、ソースFlexGroupボリュームのコンスティチュエントの数を確認します。 `volume show -volume volume_name* -is-constituent true`
 +
 [listing]
 ----
@@ -36,7 +36,7 @@ vss       src__0006    aggr1        online     RW         25TB    10.64TB   57%
 vss       src__0007    Aggr_cmode   online     RW         25TB    10.63TB   57%
 ...
 ----
-.. デスティネーションクラスタから、タイプがのデスティネーションFlexGroup ボリュームを作成します `DP` ソースFlexGroup と同じ数のコンスティチュエントで構成されています。
+.. デスティネーションクラスタから、ソースFlexGroupと同じ数のコンスティチュエントで構成されるタイプのデスティネーションFlexGroupボリュームを作成し `DP`ます。
 +
 [listing]
 ----
@@ -46,7 +46,7 @@ Warning: The FlexGroup volume "dst" will be created with the following number of
 Do you want to continue? {y|n}: y
 [Job 766] Job succeeded: Successful
 ----
-.. デスティネーションクラスタから、デスティネーションFlexGroup ボリュームのコンスティチュエントの数を確認します。 `volume show -volume volume_name* -is-constituent true`
+.. デスティネーションクラスタから、デスティネーションFlexGroupボリュームのコンスティチュエントの数を確認します。 `volume show -volume volume_name* -is-constituent true`
 +
 [listing]
 ----
@@ -67,10 +67,10 @@ vsd       dst__0007    Aggr_cmode   online     RW         25TB    10.63TB   57%
 
 . ジョブスケジュールを作成します。 `job schedule cron create -name job_name -month month -dayofweek day_of_week -day day_of_month -hour hour -minute minute`
 +
-の場合 `-month`、 `-dayofweek`および `-hour`を指定できます `all` 毎月、曜日、および時間ごとにジョブを実行します。
+ `-dayofweek`、および `-hour`では `-month`、ジョブを毎月、曜日、および時間ごとに実行するように指定できます `all`。
 
 +
-次の例は、という名前のジョブスケジュールを作成します `my_weekly` 土曜日の午前3時に実行されます。
+次の例は、土曜日の午前3時に実行するという名前のジョブスケジュールを作成します `my_weekly`。
 
 +
 [listing]
@@ -79,23 +79,23 @@ cluster1::> job schedule cron create -name my_weekly -dayofweek "Saturday" -hour
 ----
 . SnapVault ポリシーを作成し、 SnapVault ポリシーのルールを定義します。
 +
-.. タイプがのカスタムポリシーを作成します `vault` SnapVault 関係の場合： `snapmirror policy create -vserver svm_name -policy policy_name -type vault`
-.. 初期化処理と更新処理の際に転送するSnapshotコピーを決定するSnapVault ポリシーのルールを定義します。 `snapmirror policy add-rule -vserver svm_name -policy policy_for_rule - snapmirror-label snapmirror-label -keep retention_count -schedule schedule`
+.. SnapVault関係のタイプがのカスタムポリシーを作成し `vault`ます。 `snapmirror policy create -vserver svm_name -policy policy_name -type vault`
+.. 初期化処理と更新処理の際に転送するSnapshotコピーを決定するSnapVaultポリシーのルールを定義します。 `snapmirror policy add-rule -vserver svm_name -policy policy_for_rule - snapmirror-label snapmirror-label -keep retention_count -schedule schedule`
 
 
 +
-カスタムポリシーを作成しない場合は、を指定する必要があります `XDPDefault` SnapVault 関係のポリシー。
+カスタムポリシーを作成しない場合は、SnapVault関係にポリシーを指定する必要があります `XDPDefault`。
 
-. SnapVault 関係を作成します。 `snapmirror create -source-path src_svm:src_flexgroup -destination-path dest_svm:dest_flexgroup -type XDP -schedule schedule_name -policy XDPDefault`
+. SnapVault関係を作成します。 `snapmirror create -source-path src_svm:src_flexgroup -destination-path dest_svm:dest_flexgroup -type XDP -schedule schedule_name -policy XDPDefault`
 +
-ONTAP 9.4以前では、でポリシーが指定されていない場合 `snapmirror create` コマンドを入力します `MirrorAllSnapshots` デフォルトではポリシーが使用されます。ONTAP 9.5では、でポリシーが指定されていない場合 `snapmirror create` コマンドを入力します `MirrorAndVault` デフォルトではポリシーが使用されます。
+ONTAP 9 .4以前では、コマンドでポリシーが指定されていない場合 `snapmirror create`、 `MirrorAllSnapshots`デフォルトでポリシーが使用されます。ONTAP 9 .5では、コマンドでポリシーが指定されていない場合 `snapmirror create`、 `MirrorAndVault`デフォルトでポリシーが使用されます。
 
 +
 [listing]
 ----
 cluster2::> snapmirror create -source-path vss:srcFG -destination-path vsd:dstFG -type XDP -schedule Daily -policy XDPDefault
 ----
-. デスティネーションクラスタから、ベースライン転送を実行してSnapVault 関係を初期化します。 `snapmirror initialize -destination-path dest_svm:dest_flexgroup`
+. デスティネーションクラスタから、ベースライン転送を実行してSnapVault関係を初期化します。 `snapmirror initialize -destination-path dest_svm:dest_flexgroup`
 +
 [listing]
 ----

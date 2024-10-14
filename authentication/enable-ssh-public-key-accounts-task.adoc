@@ -4,29 +4,29 @@ sidebar: sidebar
 keywords: enable, ssh, public key, accounts 
 summary: 管理者アカウントが SSH 公開鍵を使用して管理またはデータ SVM にアクセスできるようにするには、 security login create コマンドを使用します。 
 ---
-= SSH 公開鍵アカウントを有効にします
+= SSH公開鍵アカウントの有効化
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-を使用できます `security login create` コマンドを使用して、管理者アカウントがSSH公開鍵を使用して管理またはデータSVMにアクセスできるようにします。
+コマンドを使用して、管理者アカウントがSSH公開鍵を使用して管理またはデータSVMにアクセスできるようにすることができます `security login create`。
 
-.このタスクについて
-* アカウントが SVM にアクセスするためには、アカウントに公開鍵を関連付けておく必要があります。
+.タスクの内容
+* アカウントがSVMにアクセスするためには、アカウントに公開鍵を関連付けておく必要があります。
 +
 xref:manage-public-key-authentication-concept.adoc[ユーザアカウントへの公開鍵の関連付け]
 
 +
 このタスクは、アカウントアクセスを有効にする前後どちらでも実行できます。
 
-* ログインアカウントに割り当てるアクセス制御ロールが不明な場合は、を使用します `security login modify` コマンドを使用してあとでロールを追加します。
+* ログインアカウントに割り当てるアクセス制御ロールが不明な場合は、あとでコマンドを使用してロールを追加できます `security login modify`。
 
 
-クラスタでFIPSモードを有効にする場合は、サポートされているキーアルゴリズムのない既存のSSH公開鍵アカウントを、サポートされるキータイプで再設定する必要があります。  FIPSを有効にする前にアカウントを再設定する必要があります。そうしないと、管理者認証が失敗します。
+クラスタでFIPSモードを有効にする場合は、サポートされているキーアルゴリズムのない既存のSSH公開鍵アカウントを、サポートされるキータイプで再設定する必要があります。FIPSを有効にする前にアカウントを再設定する必要があります。そうしないと、管理者認証が失敗します。
 
-次の表に、ONTAP SSH接続でサポートされるホストキータイプアルゴリズムを示します。  これらのキータイプは、SSH公開認証の設定には適用されません。
+次の表に、ONTAP SSH接続でサポートされるホストキータイプアルゴリズムを示します。これらのキータイプは、SSH公開認証の設定には適用されません。
 
 [cols="30,30,30"]
 |===
@@ -40,37 +40,28 @@ xref:manage-public-key-authentication-concept.adoc[ユーザアカウントへ�
  a| 
 ECDSA - sha2 - nistp256
  a| 
-ECDSA-sha2-nistp256+
-rsa-sha2-512+
-rsa-sha2-256+
-SSH-ed25519以降
-SSH-DSS+
-SSH-RSA
+ecdsa-sha2-nistp256 + rsa-sha2-512 + rsa-sha2-256 + ssh-ed25519 + ssh-dss+ ssh-rsa
 
 
 
  a| 
 9.10.1以前
  a| 
-ECDSA-sha2-nistp256+
-SSH-ed25519
+ECDSA - sha2 -nistp256 + ssh-ed25519
  a| 
-ECDSA-sha2-nistp256+
-SSH-ed25519以降
-SSH-DSS+
-SSH-RSA
+ecdsa-sha2-nistp256 + ssh-ed25519 + ssh-dss+ ssh-rsa
 
 |===
 
-NOTE: ONTAP 9.11.1以降では、ssh-ed25519ホストキーアルゴリズムのサポートが廃止されました。
+NOTE: ssh-ed25519ホスト・キー・アルゴリズムのサポートは、ONTAP 9 .11.1以降で削除されました。
 
 詳細については、を参照してください link:../networking/configure_network_security_using_federal_information_processing_standards_@fips@.html["FIPS を使用してネットワークセキュリティを設定する"]。
 
-.作業を開始する前に
+.開始する前に
 このタスクを実行するには、クラスタ管理者である必要があります。
 
 .ステップ
-. ローカル管理者アカウントが SSH 公開鍵を使用して SVM にアクセスできるようにします。
+. ローカル管理者アカウントがSSH公開鍵を使用してSVMにアクセスできるようにします。
 +
 `security login create -vserver _SVM_name_ -user-or-group-name user_or_group_name -application _application_ -authmethod _authentication_method_ -role _role_ -comment _comment_`
 
@@ -78,7 +69,7 @@ NOTE: ONTAP 9.11.1以降では、ssh-ed25519ホストキーアルゴリズムの
 コマンド構文全体については、を参照してください link:config-worksheets-reference.html["ワークシート"]。
 
 +
-次のコマンドは、SVM管理者アカウントを有効にします `svmadmin1` を使用します `vsadmin-volume` SVMにアクセスするためのロール``engData1`` SSH公開鍵の使用：
+次のコマンドは、事前定義のロールが割り当てられた `vsadmin-volume`SVM管理者アカウントが、SSH公開鍵を使用してSVMにアクセス``engData1``できるようにし `svmadmin1`ます。
 
 +
 [listing]
@@ -87,7 +78,7 @@ cluster1::>security login create -vserver engData1 -user-or-group-name svmadmin1
 ----
 
 
-.完了後
-管理者アカウントに公開鍵が関連付けられていない場合は、アカウントが SVM にアクセスする前に関連付けておく必要があります。
+.終了後
+管理者アカウントに公開鍵が関連付けられていない場合は、アカウントがSVMにアクセスする前に関連付けておく必要があります。
 
 xref:manage-public-key-authentication-concept.adoc[ユーザアカウントへの公開鍵の関連付け]

@@ -4,7 +4,7 @@ sidebar: sidebar
 keywords: troubleshoot, name, service, issue 
 summary: ネームサービスの問題でクライアントでアクセスエラーが発生した場合は、 vserver services name-service getxxbyyy コマンドファミリーを使用して、さまざまなネームサービス検索を手動で実行したり、検索の詳細や結果を調べたりして、トラブルシューティングに役立てることができます。 
 ---
-= ネームサービスの問題をトラブルシューティングする
+= ネームサービスに関する問題のトラブルシューティング
 :hardbreaks:
 :allow-uri-read: 
 :icons: font
@@ -12,14 +12,14 @@ summary: ネームサービスの問題でクライアントでアクセスエ�
 
 
 [role="lead"]
-ネームサービスの問題でクライアントでアクセスエラーが発生した場合は、を使用できます `vserver services name-service getxxbyyy` さまざまなネームサービス検索を手動で実行し、検索の詳細と結果を調べてトラブルシューティングに役立てるためのコマンドファミリー。
+ネームサービスの問題でクライアントでアクセスエラーが発生した場合は、コマンドファミリーを使用してさまざまなネームサービス検索を手動で実行し、検索の詳細や結果を調べてトラブルシューティングに役立てることができます `vserver services name-service getxxbyyy`。
 
-.このタスクについて
+.タスクの内容
 * 各コマンドでは、次の情報を指定できます。
 +
 ** 検索を実行するノードまたは Storage Virtual Machine （ SVM ）の名前。
 +
-これにより、特定のノードまたは SVM でネームサービス検索をテストして、想定されるネームサービス設定問題の検索を絞り込むことができます。
+これにより、特定のノードまたはSVMでネームサービス検索をテストして、ネームサービス設定の問題の可能性を絞り込むことができます。
 
 ** 検索に使用されるソースを表示するかどうか。
 +
@@ -27,8 +27,8 @@ summary: ネームサービスの問題でクライアントでアクセスエ�
 
 
 
-* ONTAP は、設定されているネームサービススイッチの順序に基づいて、検索を実行するためのサービスを選択します。
-* これらのコマンドは advanced 権限レベルで使用できます。
+* ONTAPは、設定されているネームサービススイッチの順序に基づいて、検索を実行するためのサービスを選択します。
+* これらのコマンドはadvanced権限レベルで使用できます。
 
 
 .手順
@@ -44,19 +44,19 @@ summary: ネームサービスの問題でクライアントでアクセスエ�
  a| 
 ホスト名のIPアドレス
  a| 
-`vserver services name-service getxxbyyy getaddrinfo`     `vserver services name-service getxxbyyy gethostbyname` （IPv4アドレスのみ）
+`vserver services name-service getxxbyyy getaddrinfo` `vserver services name-service getxxbyyy gethostbyname` （IPv4アドレスのみ）
 
 
 
  a| 
-グループIDごとのグループのメンバー
+グループのメンバー（グループID別）
  a| 
 `vserver services name-service getxxbyyy getgrbygid`
 
 
 
  a| 
-グループ名ごとのグループのメンバー
+グループのメンバー（グループ名別）
  a| 
 `vserver services name-service getxxbyyy getgrbyname`
 
@@ -72,22 +72,21 @@ summary: ネームサービスの問題でクライアントでアクセスエ�
  a| 
 IPアドレスのホスト名
  a| 
-`vserver services name-service getxxbyyy getnameinfo`     `vserver services name-service getxxbyyy gethostbyaddr` （IPv4アドレスのみ）
+`vserver services name-service getxxbyyy getnameinfo` `vserver services name-service getxxbyyy gethostbyaddr` （IPv4アドレスのみ）
 
 
 
  a| 
-ユーザ名別のユーザ情報
+ユーザ情報（ユーザ名別）
  a| 
-`vserver services name-service getxxbyyy getpwbyname`     RBACユーザの名前解決をテストするには、を指定します `-use-rbac` パラメータの形式 `true`。
+`vserver services name-service getxxbyyy getpwbyname`パラメータをに `true`指定すると、RBACユーザの名前解決をテストできます `-use-rbac`。
 
 
 
  a| 
-ユーザIDごとのユーザ情報
+ユーザ情報（ユーザID別）
  a| 
-`vserver services name-service getxxbyyy getpwbyuid`
-RBACユーザの名前解決をテストするには、を指定します `-use-rbac` パラメータの形式 `true`。
+`vserver services name-service getxxbyyy getpwbyuid`パラメータをに `true`指定すると、RBACユーザの名前解決をテストできます `-use-rbac`。
 
 
 
@@ -128,7 +127,7 @@ pw_gecos:
 pw_dir: /home/jsmith
 pw_shell: /bin/bash
 ----
-次の例は、ldap1というユーザのユーザ情報の取得を試みることでSVM vs1のLDAP検索をテストします。
+次の例は、ldap1という名前のユーザのユーザ情報の取得を試みることでSVM vs1のLDAP検索をテストします。
 
 [listing]
 ----
@@ -158,14 +157,14 @@ dnshost0 is a member of lnetgroup136
 
 
  a| 
-ホスト名または IP アドレスの検索に失敗したか、正しくない結果が得られました
+ホスト名またはIPアドレスの検索に失敗したか、正しくない結果が返されました
  a| 
-DNS設定
+DNS構成
 
 
 
  a| 
-検索で間違ったソースが照会されました
+ルックアップで不正なソースが照会されました
  a| 
 ネームサービススイッチの設定
 
@@ -176,18 +175,18 @@ DNS設定
  a| 
 ** ネームサービススイッチの設定
 ** ソースの設定（ローカルファイル、NISドメイン、LDAPクライアント）
-** ネットワーク設定（ LIF 、ルートなど）
+** ネットワーク設定（LIFやルートなど）
 
 
 
 
  a| 
-ホスト名の検索に失敗したかタイムアウトになり、 DNS の短縮名（例： host1 ）が DNS サーバで解決されない
+ホスト名の検索に失敗するかタイムアウトし、DNSの短縮名（host1など）がDNSサーバで解決されない
  a| 
-Top-Level Domain（TLD；最上位レベルのドメイン）クエリのDNS設定。を使用して、TLDクエリを無効にできます `-is-tld-query-enabled false` オプションをに設定します `vserver services name-service dns modify` コマンドを実行します
+Top-Level Domain（TLD；最上位レベルドメイン）クエリのDNS設定。TLDクエリを無効にするには、コマンドのオプションを `vserver services name-service dns modify`使用し `-is-tld-query-enabled false`ます。
 
 |===
 
 
 .関連情報
-https://www.netapp.com/pdf.html?item=/media/16328-tr-4668pdf.pdf["ネットアップテクニカルレポート 4668 ：『 Name Services Best Practices Guide 』"^]
+https://www.netapp.com/pdf.html?item=/media/16328-tr-4668pdf.pdf["NetAppテクニカルレポート4668：『ネームサービスベストプラクティスガイド』"^]

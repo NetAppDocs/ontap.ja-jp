@@ -4,7 +4,7 @@ sidebar: sidebar
 keywords: provision, flexgroup, volume, automatic, create, flex group, aggregate, space 
 summary: FlexGroupボリュームを作成するときに、アグリゲートを自動的に選択してONTAPでFlexGroupをプロビジョニングするように選択できます。アグリゲートは、パフォーマンスを最適化するためのベストプラクティスに基づいて選択されます。 
 ---
-= FlexGroup ボリュームを自動的にプロビジョニング
+= FlexGroupボリュームを自動的にプロビジョニングする
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
@@ -13,45 +13,45 @@ summary: FlexGroupボリュームを作成するときに、アグリゲート�
 [role="lead"]
 FlexGroupボリュームを作成するときに、アグリゲートを選択してONTAPでFlexGroupボリュームを自動的にプロビジョニングするように選択できます。アグリゲートは、パフォーマンスと容量が最適になるようにベストプラクティスに基づいて選択されます。
 
-.作業を開始する前に
-クラスタの各ノードにアグリゲートが少なくとも 1 つ必要です。
+.開始する前に
+クラスタ内の各ノードにアグリゲートが少なくとも1つ必要です。
 
 [NOTE]
 ====
-ONTAP 9.5 で FabricPool 用の FlexGroup ボリュームを作成するには、各ノードに FabricPool であるアグリゲートが少なくとも 1 つ必要です。
+ONTAP 9でFabricPool用のFlexGroupボリュームを作成するには、各ノードにFabricPoolであるアグリゲートが少なくとも1つ必要です。
 
 ====
-.このタスクについて
-ONTAP は、各ノードから使用可能なスペースが大きい順に 2 つのアグリゲートを選択して FlexGroup ボリュームを作成します。使用可能なアグリゲートが 2 つない場合、 ONTAP はノードごとに 1 つのアグリゲートを選択して FlexGroup ボリュームを作成します。
+.タスクの内容
+ONTAPは、各ノードで使用可能なスペースが最も多い2つのアグリゲートを選択してFlexGroupボリュームを作成します。2つのアグリゲートを使用できない場合、ONTAPはノードごとに1つのアグリゲートを選択してFlexGroupボリュームを作成します。
 
 ONTAP 9.15.1以降では、FlexGroupボリュームを自動的にプロビジョニングする際に、ONTAPで分散配置（BP）を使用してアグリゲートとFlexGroupコンスティチュエントのレイアウトが選択されます。BPの1つの側面は、ギャランティが「none」のFlexGroupボリュームを作成する場合に、アグリゲートのオーバープロビジョニングを制限することです。FlexGroupボリューム全体のサイズはアグリゲート上の空きスペースの量によって制限されますが、この制限は「volume」のFlexGroupボリュームの制限よりも高くなります。REST APIまたはONTAP CLIを使用してFlexGroupボリュームを作成する場合 `auto-provision-as` 、スペース不足が原因でプロビジョニングに失敗することがあります。これを回避するには、FlexGroupボリュームのサイズを小さくするか、 link:create-task.html["FlexGroupボリュームの作成と手動でのアグリゲートの選択"] パラメータを使用し `aggr-list` ます。
 
 .手順
-. FlexGroup ボリュームをプロビジョニングします。
+. FlexGroupボリュームをプロビジョニングします。
 +
 |===
 
 
-| 使用するポート | 使用するコマンド 
+| 使用する機能 | 使用するコマンド 
 
 
  a| 
-ONTAP 9.2以降
+ONTAP 9 .2以降
  a| 
 `volume create -vserver svm_name -volume fg_vol_name –auto-provision-as flexgroup -size fg_size [–encrypt true] [-qos-policy-group qos_policy_group_name] [-support-tiering true]`
 
-ONTAP 9.5以降では、FabricPool 用のFlexGroup ボリュームを作成できます。FabricPool でFlexGroup ボリュームを自動的にプロビジョニングするには、を設定する必要があります `-support-tiering` パラメータの値 `true`。ボリュームギャランティは常にに設定する必要があります `none` FabricPool の場合。FlexGroup ボリュームには、階層化ポリシーと階層化の最小クーリング期間も指定できます。
+ONTAP 9 5以降では、FabricPool用のFlexGroupボリュームを作成できます。FabricPoolでFlexGroupボリュームを自動的にプロビジョニングするには、パラメータをに `true`設定する必要があります `-support-tiering`。FabricPoolのボリュームギャランティは常にに設定する必要があります `none`。FlexGroupボリュームに対して階層化ポリシーと階層化の最小クーリング期間を指定することもできます。
 
 link:../disks-aggregates/index.html["ディスクおよびアグリゲートの管理"]
 
-ONTAP 9.3 以降では、 FlexGroup ボリュームにスループットの上限（最大 QoS ）を指定して、 FlexGroup ボリュームが消費できるパフォーマンスリソースを制限できます。ONTAP 9.4 以降では、 FlexGroup ボリュームにスループットの下限（最小 QoS ）とアダプティブ QoS を指定できます。
+ONTAP 9 .3以降では、FlexGroupボリュームにスループットの上限（最大QoS）を指定して、FlexGroupボリュームで消費できるパフォーマンスリソースを制限できます。ONTAP 9 .4以降では、FlexGroupボリュームにスループットの下限（最小QoS）とアダプティブQoSを指定できます。
 
 link:../performance-admin/index.html["パフォーマンス管理"]
 
-ONTAP 9.2以降では、を設定できます `-encrypt` パラメータの値 `true` FlexGroup ボリュームで暗号化を有効にする場合。暗号化されたボリュームを作成するには、ボリューム暗号化ライセンスとキー管理ツールをインストールしておく必要があります。
+ONTAP 9 .2以降では、FlexGroupボリュームで暗号化を有効にする場合、パラメータをに `true`設定でき `-encrypt`ます。暗号化されたボリュームを作成するには、ボリューム暗号化ライセンスとキー管理ツールをインストールしておく必要があります。
 
 
-NOTE: 暗号化は FlexGroup の作成時に有効にする必要があります。既存の FlexGroup ボリュームで暗号化を有効にすることはできません。
+NOTE: 暗号化はFlexGroupボリュームの作成時に有効にする必要があります。既存のFlexGroupボリュームで暗号化を有効にすることはできません。
 
 link:../encryption-at-rest/index.html["保存データの暗号化"]
 
@@ -64,10 +64,10 @@ ONTAP 9.1
 
 |===
 +
-。 `size` パラメータは、FlexGroup ボリュームのサイズ（KB、MB、GB、TB、またはPB）を指定します。
+パラメータは `size`、FlexGroupボリュームのサイズ（KB、MB、GB、TB、またはPB）を指定します。
 
 +
-次の例は、 ONTAP 9.2 で 400TB の FlexGroup ボリュームをプロビジョニングする方法を示しています。
+次の例は、ONTAP 9で400TBのFlexGroupボリュームをプロビジョニングする方法を示しています。2
 
 +
 [listing]
@@ -79,7 +79,7 @@ Do you want to continue? {y|n}: y
 [Job 34] Job succeeded: Successful
 ----
 +
-次の例は、スループットの上限が設定された QoS ポリシーグループを作成して FlexGroup に適用する方法を示しています。
+次の例は、スループットの上限を設定するQoSポリシーグループを作成してFlexGroupボリュームに適用する方法を示しています。
 
 +
 [listing]
@@ -96,7 +96,7 @@ Do you want to continue? {y|n}: y
 [Job 34] Job succeeded: Successful
 ----
 +
-次の例は、 ONTAP 9.5 の FabricPool のアグリゲートに 400TB の FlexGroup ボリュームをプロビジョニングする方法を示しています。
+次の例は、ONTAP 9のFabricPool内のアグリゲートで400TBのFlexGroupボリュームをプロビジョニングする方法を示しています。5
 
 +
 [listing]
@@ -108,12 +108,12 @@ Do you want to continue? {y|n}: y
 [Job 34] Job succeeded: Successful
 ----
 +
-クラスタの各ノードに 8 つのコンスティチュエントで構成される FlexGroup ボリュームが作成されます。コンスティチュエントは、各ノードの最も大きい 2 つのアグリゲートに均等に分散されます。
+クラスタのノードごとに8つのコンスティチュエントで構成されるFlexGroupボリュームが作成されます。コンスティチュエントは、各ノードの最も大きい2つのアグリゲートに均等に分散されます。
 
 +
-デフォルトでは、FlexGroup ボリュームはを使用して作成されます `volume` スペースギャランティの設定（AFF システムの場合を除く）。AFF システムの場合、デフォルトでは、FlexGroup ボリュームはを使用して作成されます `none` スペースギャランティ：
+デフォルトでは、AFFシステムの場合を除き、FlexGroupボリュームはスペースギャランティ設定で作成され `volume`ます。AFFシステムの場合、デフォルトではスペースギャランティが設定されてFlexGroupボリュームが作成され `none`ます。
 
-. ジャンクションパスを使用してFlexGroup ボリュームをマウントします。 `volume mount -vserver vserver_name -volume vol_name -junction-path junction_path`
+. ジャンクションパスを使用してFlexGroupボリュームをマウントします。 `volume mount -vserver vserver_name -volume vol_name -junction-path junction_path`
 +
 [listing]
 ----
@@ -121,10 +121,10 @@ cluster1::> volume mount -vserver vs0 -volume fg2 -junction-path /fg2
 ----
 
 
-.完了後
-クライアントから FlexGroup ボリュームをマウントする必要があります。
+.終了後
+FlexGroupボリュームはクライアントからマウントする必要があります。
 
-ONTAP 9.6 以前を実行していて、 Storage Virtual Machine （ SVM ）で NFSv3 と NFSv4 の両方が設定されている場合、クライアントからの FlexGroup ボリュームのマウントが失敗することがあります。このような場合は、クライアントから FlexGroup ボリュームをマウントする際に、 NFS バージョンを明示的に指定する必要があります。
+ONTAP 9 .6以前を実行していて、Storage Virtual Machine（SVM）でNFSv3とNFSv4の両方が設定されている場合、クライアントからのFlexGroupボリュームのマウントが失敗することがあります。その場合は、クライアントからFlexGroupボリュームをマウントする際に、NFSバージョンを明示的に指定する必要があります。
 
 [listing]
 ----

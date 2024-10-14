@@ -2,7 +2,7 @@
 sidebar: sidebar 
 permalink: s3-snapmirror/index.html 
 keywords: s3 snapmirror buckets, snapmirror buckets SVM, s3 snapmirror data protection, hybrid cloud bundle, s3 snapmirror relationship, VM peering, cluster and storage VM peering, Fan-in deployments, data protection, s3 snapmirror policy, peering 
-summary: ONTAP 9.10.1 以降では、使い慣れた SnapMirror ミラーリングとバックアップ機能を使用して ONTAP S3 オブジェクトストア内のバケットを保護できます。 
+summary: ONTAP 9 .10.1以降では、使い慣れたSnapMirrorのミラーリングとバックアップの機能を使用して、ONTAP S3オブジェクトストアのバケットを保護できます。 
 ---
 = SnapMirror S3の概要
 :hardbreaks:
@@ -22,46 +22,46 @@ SnapMirror S3では、ONTAP S3バケットから次のデスティネーショ�
 
 [cols="50,25,25"]
 |===
-| ターゲット | アクティブなミラーとテイクオーバーをサポートしているか | バックアップとリストアをサポートするかどうか 
+| ターゲット | アクティブなミラーとテイクオーバーのサポート | バックアップとリストアのサポート 
 
 
  a| 
-ONTAP S3の略
+ONTAP S3
 
-* 同じ SVM 内のバケット
-* 同一クラスタ上の異なる SVM にあるバケット
-* 異なるクラスタの SVM のバケット
+* 同じSVM内のバケット
+* 同じクラスタの異なるSVMのバケット
+* 異なるクラスタのSVM内のバケット
 
-| はい。 | はい。 
-
-
-| StorageGRID | いいえ | はい。 
+| 〇 | 〇 
 
 
-| AWS S3 | いいえ | はい。 
+| StorageGRID | いいえ | 〇 
 
 
-| Cloud Volumes ONTAP for Azure | はい。 | はい。 
+| AWS S3 | いいえ | 〇 
 
 
-| Cloud Volumes ONTAP for AWS | はい。 | はい。 
+| Cloud Volumes ONTAP for Azure | 〇 | 〇 
 
 
-| Cloud Volumes ONTAP for Google Cloud の略 | はい。 | はい。 
+| Cloud Volumes ONTAP for AWS | 〇 | 〇 
+
+
+| Cloud Volumes ONTAP for Google Cloud | 〇 | 〇 
 |===
-ONTAP S3 サーバ上の既存のバケットを保護することも、データ保護をすぐに有効にして新しいバケットを作成することもできます。
+ONTAP S3サーバ上の既存のバケットを保護することも、新しく作成したバケットですぐにデータ保護を有効にすることもできます。
 
 
 
 == SnapMirror S3の要件
 
-* ONTAPバージョン
+* ONTAPのバージョン
 +
-ソースクラスタとデスティネーションクラスタでONTAP 9.10.1以降が実行されている必要があります。
+ソースクラスタとデスティネーションクラスタでONTAP 9 .10.1以降が実行されている必要があります。
 
 * ライセンス
 +
-では、次のライセンスを使用できます。 link:../system-admin/manage-licenses-concept.html["ONTAP One"] ONTAPのソースシステムとデスティネーションシステムには、次のようなアクセスを提供するためのソフトウェアスイートが必要です。
+のアクセスを提供するには、ONTAPソースシステムとデスティネーションシステムに次のライセンスがソフトウェアスイートに含まれているlink:../system-admin/manage-licenses-concept.html["ONTAP One"]必要があります。
 
 +
 ** ONTAP S3プロトコルとストレージ
@@ -69,31 +69,31 @@ ONTAP S3 サーバ上の既存のバケットを保護することも、デー�
 ** AWS S3などのサードパーティのオブジェクトストアをターゲットとするSnapMirror S3（で使用可能link:../data-protection/install-snapmirror-cloud-license-task.html["ONTAP One互換バンドル"]）
 
 
-* ONTAP S3の略
+* ONTAP S3
 +
-** ONTAP S3 サーバでソースとデスティネーションの SVM が実行されている必要があります。
-** TLS アクセス用の CA 証明書は、 S3 サーバをホストするシステムにインストールすることを推奨しますが、必須ではありません。
+** ONTAP S3サーバでソースとデスティネーションのSVMが実行されている必要があります。
+** TLSアクセス用のCA証明書をS3サーバをホストするシステムにインストールすることを推奨しますが、必須ではありません。
 +
 *** S3サーバの証明書への署名に使用したCA証明書が、S3サーバをホストするクラスタの管理Storage VMにインストールされている必要があります。
-*** 自己署名 CA 証明書、または外部 CA ベンダーが署名した証明書を使用できます。
-*** ソースまたはデスティネーションの Storage VM が HTTPS をリスンしていない場合は、 CA 証明書をインストールする必要はありません。
+*** 自己署名CA証明書または外部CAベンダーが署名した証明書を使用できます。
+*** ソースまたはデスティネーションのStorage VMがHTTPSをリスンしていない場合は、CA証明書をインストールする必要はありません。
 
 
 
 
-* ピアリング（ ONTAP S3 ターゲット用）
+* ピアリング（ONTAP S3ターゲット用）
 +
 ** クラスタ間LIFが設定されている（リモートONTAPターゲット用）必要があり、ソースクラスタとデスティネーションクラスタのクラスタ間LIFが、ソースとデスティネーションのS3サーバのデータLIFに接続できるようになります。
-** ソースクラスタとデスティネーションクラスタ間にピア関係が設定されている（リモート ONTAP ターゲットの場合）。
-** ソースとデスティネーションの Storage VM 間にピア関係が設定されている（すべての ONTAP ターゲット用）。
+** ソースクラスタとデスティネーションクラスタがピア関係にある（リモートONTAPターゲットの場合）。
+** ソースとデスティネーションのStorage VMがピア関係にある（すべてのONTAPターゲットに対して）。
 
 
-* SnapMirror ポリシー
+* SnapMirrorポリシー
 +
 ** すべてのSnapMirror S3関係にS3固有のSnapMirrorポリシーが必要ですが、複数の関係に同じポリシーを使用できます。
 ** 独自のポリシーを作成するか、次の値を含むデフォルトの * Continuous * ポリシーをそのまま使用できます。
 +
-*** スロットル（スループット / 帯域幅の上限） - 無制限
+*** Throttle（スループット/帯域幅の上限）-無制限。
 *** 目標復旧時点までの時間： 1 時間（ 3600 秒）
 
 
@@ -107,16 +107,16 @@ NOTE: 2つのS3バケットがSnapMirror関係にある場合、オブジェク�
 * rootユーザキーSnapMirror S3関係にはStorage VMのrootユーザアクセスキーが必要です。ONTAPではデフォルトで割り当てられません。SnapMirror S3関係の初回作成時には、キーがソースとデスティネーションの両方のStorage VMに存在することを確認し、存在しない場合は再生成する必要があります。それらのキーを再生成する必要がある場合は、アクセスキーとシークレットキーのペアを使用するすべてのクライアントおよびSnapMirrorオブジェクトストアの設定が新しいキーで更新されていることを確認する必要があります。
 
 
-S3 サーバの設定については、次のトピックを参照してください。
+S3サーバの設定については、次のトピックを参照してください。
 
-* link:../task_object_provision_enable_s3_server.html["Storage VM で S3 サーバを有効にします"]
-* link:../s3-config/index.html["S3 の設定プロセスについて"]
+* link:../task_object_provision_enable_s3_server.html["Storage VMでS3サーバを有効にする"]
+* link:../s3-config/index.html["S3の設定プロセスの概要"]
 
 
-クラスタと Storage VM のピアリングについては、次のトピックを参照してください。
+クラスタとStorage VMのピアリングについては、次のトピックを参照してください。
 
-* link:../task_dp_prepare_mirror.html["ミラーとバックアップの準備（ System Manager 、手順 1~6 ）"]
-* link:../peering/index.html["クラスタと SVM のピアリング（ CLI ）"]
+* link:../task_dp_prepare_mirror.html["ミラーリングとバックアップの準備（System Manager、手順1~6）"]
+* link:../peering/index.html["クラスタとSVMのピアリング（CLI）"]
 
 
 
@@ -131,9 +131,9 @@ SnapMirror S3は、ファンイン環境（複数のソースバケットと1つ
 
 == S3バケットへのアクセスを制御
 
-新しいバケットを作成するときは、ユーザとグループを作成してアクセスを制御できます。詳細については、次のトピックを参照してください。
+新しいバケットを作成するときに、ユーザとグループを作成してアクセスを制御できます。詳細については、次のトピックを参照してください。
 
-* link:../task_object_provision_add_s3_users_groups.html["S3 ユーザとグループの追加（ System Manager ）"]
-* link:../s3-config/create-s3-user-task.html["S3 ユーザを作成（ CLI ）"]
-* link:../s3-config/create-modify-groups-task.html["S3 グループの作成または変更（ CLI ）"]
+* link:../task_object_provision_add_s3_users_groups.html["S3のユーザとグループの追加（System Manager）"]
+* link:../s3-config/create-s3-user-task.html["S3ユーザの作成（CLI）"]
+* link:../s3-config/create-modify-groups-task.html["S3グループの作成と変更（CLI）"]
 

@@ -11,23 +11,23 @@ summary: ONTAP メディエーターサービスをインストールして実�
 
 
 [role="lead"]
-ONTAP メディエーターサービスをインストールして実行したら、メディエーターの機能を使用するには、ONTAP ストレージシステムで追加の設定タスクを実行する必要があります。
+ONTAP Mediatorサービスをインストールして実行したら、Mediatorの機能を使用するために、ONTAPストレージ システムで追加の設定タスクを実行する必要があります。
 
-* MetroCluster IP 構成で ONTAP メディエーターサービスを使用する場合は、を参照してください link:https://docs.netapp.com/us-en/ontap-metrocluster/install-ip/task_configuring_the_ontap_mediator_service_from_a_metrocluster_ip_configuration.html["MetroCluster IP 構成での ONTAP メディエーターサービスの設定"^]。
-* SnapMirrorアクティブ同期を使用するには、を参照してください。 link:../snapmirror-active-sync/mediator-install-task.html["ONTAP メディエーターサービスをインストールし、 ONTAP クラスタの設定を確認します"]。
-
-
+* MetroCluster IP構成でONTAPメディエーターサービスを使用するには、を参照してくださいlink:https://docs.netapp.com/us-en/ontap-metrocluster/install-ip/task_configuring_the_ontap_mediator_service_from_a_metrocluster_ip_configuration.html["MetroCluster IP構成でのONTAPメディエーターサービスの設定"^]。
+* SnapMirrorアクティブ同期を使用するには、を参照してくださいlink:../snapmirror-active-sync/mediator-install-task.html["ONTAPメディエーターサービスをインストールし、ONTAPクラスタ構成を確認"]。
 
 
-== ONTAP メディエーターのセキュリティポリシーを設定します
 
-ONTAP メディエーターサーバでは、いくつかの設定可能なセキュリティ設定がサポートされます。  すべての設定のデフォルト値は、low_space_threshold_mib：10読み取り専用ファイルで提供されます。
+
+== ONTAPメディエーターのセキュリティポリシーの設定
+
+ONTAPメディエーターサーバでは、いくつかの設定可能なセキュリティ設定がサポートされます。すべての設定のデフォルト値は、low_space_threshold_mib：10読み取り専用ファイルで提供されます。
 
 `/opt/netapp/lib/ontap_mediator/server_config/ontap_mediator.user_config.yaml`
 
-に配置されているすべての値 `ontap_mediator.user_config.yaml` デフォルト値は上書きされ、ONTAP メディエーターのすべてのアップグレードで維持されます。
+に設定した値はすべて `ontap_mediator.user_config.yaml`デフォルト値よりも優先され、ONTAPメディエーターのすべてのアップグレードで維持されます。
 
-を変更した後 `ontap_mediator.user_config.yaml`ONTAP メディエーターサービスを再起動します。
+変更したら `ontap_mediator.user_config.yaml`、ONTAPメディエーターサービスを再起動します。
 
 `systemctl restart ontap_mediator`
 
@@ -38,7 +38,7 @@ ONTAP メディエーターサーバでは、いくつかの設定可能なセ�
 次の属性を設定できます。
 
 
-NOTE: その他のデフォルト値 `ontap_mediator.config.yaml` 変更しないでください。
+NOTE: のその他のデフォルト値は `ontap_mediator.config.yaml`変更しないでください。
 
 * *デフォルトの自己署名証明書の代わりにサードパーティのSSL証明書をインストールするための設定*
 +
@@ -53,10 +53,10 @@ x509_passin_pwd: 'pass:ontap'             # passphrase for the signed client cer
 ....
 * *ブルートフォースパスワード推測攻撃に対する保護を提供する設定*
 +
-この機能を有効にするには、の値を設定します `window_seconds` および `retry_limit`
+この機能を有効にするには、およびの値を設定します `window_seconds`。 `retry_limit`
 
 +
-例
+例：
 
 +
 --
@@ -96,9 +96,9 @@ password_special_chars: 1      # min. non-letter, non-digit
 
 password_nonletter_chars: 2    # min. non-letter characters (digits, specials, anything)
 ....
-* *で必要な空き容量を制御する設定 `/opt/netapp/lib/ontap_mediator` ディスク。*
+* *ディスク上の必要な空き容量を制御する設定 `/opt/netapp/lib/ontap_mediator`。*
 +
-スペースが設定されたしきい値を下回ると、サービスは警告イベントを問題 します。
+スペースが設定されたしきい値を下回ると、サービスは警告イベントを発行します。
 
 +
 ....
@@ -106,7 +106,7 @@ low_space_threshold_mib: 10
 ....
 * * RESERVE_LOG_SPACEを制御する設定。*
 +
-ONTAPメディエーターサーバのデフォルトのインストールでは、ログ用に独立したディスクスペースが作成されます。  Mediatorのロギングに明示的に使用される、合計700MBのディスクスペースを含む新しい固定サイズのファイルがインストーラによって作成されます。
+ONTAPメディエーターサーバのデフォルトのインストールでは、ログ用に独立したディスクスペースが作成されます。Mediatorのロギングに明示的に使用される、合計700MBのディスクスペースを含む新しい固定サイズのファイルがインストーラによって作成されます。
 
 +
 この機能を無効にしてデフォルトのディスク容量を使用するには、次の手順に従います。
@@ -135,6 +135,6 @@ RESERVE_LOG_SPACE=0
 
 +
 
-NOTE: ディスクスペースを切り替えても、既存のログは消去されません。  以前のログはすべてバックアップされ、Mediatorの切り替えと再起動のあとに現在のディスクスペースに移動されます。
+NOTE: ディスクスペースを切り替えても、既存のログは消去されません。以前のログはすべてバックアップされ、Mediatorの切り替えと再起動のあとに現在のディスクスペースに移動されます。
 
 

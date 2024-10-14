@@ -2,26 +2,26 @@
 permalink: s3-config/enable-ontap-s3-access-local-fabricpool-task.html 
 sidebar: sidebar 
 keywords: enable, ontap, s3 access, local, fabricpool, tiering 
-summary: ONTAP S3 をローカルの FabricPool 大容量階層として使用するには、作成したバケットに基づいてオブジェクトストアを定義し、パフォーマンス階層のアグリゲートにオブジェクトストアを接続して FabricPool を作成する必要があります。 
+summary: ONTAP S3をローカルのFabricPool大容量階層として使用するには、作成したバケットに基づいてオブジェクトストアを定義し、そのオブジェクトストアを高パフォーマンス階層のアグリゲートに接続してFabricPoolを作成する必要があります。 
 ---
-= ローカルの FabricPool 階層化のために ONTAP S3 アクセスを有効にします
+= ローカルFabricPool階層化用のONTAP S3アクセスの有効化
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-ONTAP S3 をローカルの FabricPool 大容量階層として使用するには、作成したバケットに基づいてオブジェクトストアを定義し、パフォーマンス階層のアグリゲートにオブジェクトストアを接続して FabricPool を作成する必要があります。
+ONTAP S3をローカルのFabricPool大容量階層として使用するには、作成したバケットに基づいてオブジェクトストアを定義し、そのオブジェクトストアを高パフォーマンス階層のアグリゲートに接続してFabricPoolを作成する必要があります。
 
-.作業を開始する前に
-ONTAP S3サーバ名とバケット名を確認し、（と）クラスタLIFを使用してS3サーバを作成しておく必要があります `-vserver Cluster` パラメータ）。
+.開始する前に
+ONTAP S3サーバ名とバケット名を確認し、（パラメータを指定して）クラスタLIFを使用してS3サーバを作成しておく必要があります `-vserver Cluster`。
 
-.このタスクについて
-オブジェクトストアの設定には、 S3 サーバとバケットの名前や認証要件など、ローカルの大容量階層の情報が含まれています。
+.タスクの内容
+オブジェクトストアの設定には、S3サーバとバケットの名前や認証要件など、ローカルの大容量階層に関する情報が格納されます。
 
-作成したオブジェクトストア設定は、別のオブジェクトストアまたはバケットに再関連付けしないでください。ローカル階層には複数のバケットを作成できますが、 1 つのバケットに複数のオブジェクトストアを作成することはできません。
+作成したオブジェクトストア設定を別のオブジェクトストアまたはバケットに再関連付けしないでください。ローカル階層用に複数のバケットを作成できますが、1つのバケットに複数のオブジェクトストアを作成することはできません。
 
-ローカルの大容量階層には FabricPool ライセンスは必要ありません。
+ローカルの大容量階層にはFabricPoolライセンスは必要ありません。
 
 .手順
 . ローカルの大容量階層用のオブジェクトストアを作成します。
@@ -29,10 +29,10 @@ ONTAP S3サーバ名とバケット名を確認し、（と）クラスタLIFを
 `storage aggregate object-store config create -object-store-name _store_name_ -ipspace Cluster -provider-type ONTAP_S3 -server _S3_server_name_ -container-name _bucket_name_ -access-key _access_key_ -secret-password password`
 
 +
-** 。 `-container-name` は、作成したS3バケットです。
-** 。 `-access-key` パラメータは、ONTAP S3サーバへの要求を承認します。
-** 。 `-secret-password` パラメータ（シークレットアクセスキー）は、ONTAP S3サーバへの要求を認証します。
-** を設定できます `-is-certificate-validation-enabled` パラメータの値 `false` をクリックしてONTAP S3の証明書のチェックを無効にします。
+** は、 `-container-name`作成したS3バケットです。
+** パラメータは `-access-key`、ONTAP S3サーバへの要求を承認します。
+** パラメータ（シークレットアクセスキー）は、 `-secret-password`ONTAP S3サーバへの要求を認証します。
+** パラメータをに `false`設定すると、ONTAP S3の証明書のチェックを無効にできます `-is-certificate-validation-enabled`。
 
 
 +
@@ -46,16 +46,16 @@ cluster1::> storage aggregate object-store config create
 +
 `storage aggregate object-store config show`
 
-. オプション： link:../fabricpool/determine-data-inactive-reporting-task.html["Inactive Data Reporting でボリューム内のアクセス頻度の低いデータの量を確認"]。
+. オプション： link:../fabricpool/determine-data-inactive-reporting-task.html["Inactive Data Reportingを使用してボリューム内のアクセス頻度の低いデータの量を確認する"]。
 +
-ボリューム内のアクセス頻度の低いデータの量を確認すると、 FabricPool のローカル階層化にどのアグリゲートを使用するかを決定するのに役立ちます。
+ボリューム内のアクセス頻度の低いデータの量を確認すると、FabricPoolのローカル階層化に使用するアグリゲートを決定するのに役立ちます。
 
 . オブジェクトストアをアグリゲートに接続します。
 +
 `storage aggregate object-store attach -aggregate _aggr_name_ -object-store-name _store_name_`
 
 +
-を使用できます `allow-flexgroup *true*` FlexGroup ボリュームのコンスティチュエントを含むアグリゲートを接続するオプション。
+オプションを使用すると、FlexGroupボリュームのコンスティチュエントを含むアグリゲートを接続できます `allow-flexgroup *true*`。
 
 +
 [listing]

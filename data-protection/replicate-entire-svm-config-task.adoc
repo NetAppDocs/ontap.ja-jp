@@ -4,7 +4,7 @@ sidebar: sidebar
 keywords: replicate, entire, svm, storage vm, disaster, protection, configuration, snapmirror, snap mirror, replication, mirror vault policy, snapshot 
 summary: SVMディザスタリカバリ（SVM DR）関係を作成して、あるSVMの設定を別のSVMにレプリケートすることができます。プライマリサイトで災害が発生した場合は、デスティネーションSVMを簡単にアクティブ化できます。 
 ---
-= SVM の設定全体をレプリケート
+= SVMの設定全体をレプリケートする
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
@@ -13,16 +13,15 @@ summary: SVMディザスタリカバリ（SVM DR）関係を作成して、あ�
 [role="lead"]
 SVMディザスタリカバリ（SVM DR）関係を作成して、あるSVMの設定を別のSVMにレプリケートすることができます。プライマリサイトで災害が発生した場合は、デスティネーションSVMを簡単にアクティブ化できます。
 
-.作業を開始する前に
-ソースクラスタとデスティネーションクラスタ、および SVM のピア関係が確立されている必要があります。
-詳細については、を参照してください link:../peering/create-cluster-relationship-93-later-task.html["クラスタピア関係を作成"] および link:../peering/create-intercluster-svm-peer-relationship-93-later-task.html["SVM のクラスタ間ピア関係を作成します"]。
+.開始する前に
+ソースとデスティネーションのクラスタとSVMのピア関係が確立されている必要があります。詳細については、およびを参照してlink:../peering/create-cluster-relationship-93-later-task.html["クラスタピア関係を作成します。"]link:../peering/create-intercluster-svm-peer-relationship-93-later-task.html["SVM のクラスタ間ピア関係を作成します"]ください。
 
 コマンド構文全体については、マニュアルページを参照してください。
 
-.このタスクについて
+.タスクの内容
 このワークフローでは、デフォルトポリシーまたはカスタムレプリケーションポリシーをすでに使用していることを前提としています。
 
-ONTAP 9.9.1以降では、mirror-vaultポリシーを使用すると、ソースSVMとデスティネーションSVMで異なるSnapshotポリシーを作成でき、デスティネーションのSnapshotコピーがソースのSnapshotコピーで上書きされることはありません。詳細については、を参照してください link:snapmirror-svm-replication-concept.html["SnapMirror SVM レプリケーションの概要"]。
+9.1以降でONTAP 9は、mirror-vaultポリシーを使用すると、ソースとデスティネーションのSVMで異なるSnapshotポリシーを作成でき、デスティネーションのSnapshotコピーがソースのSnapshotコピーで上書きされることはありません。詳細については、を参照してください link:snapmirror-svm-replication-concept.html["SnapMirror SVMレプリケーションの概要"]。
 
 デスティネーションからこの手順を実行します。ソースStorage VMでSMBを設定している場合などに新しい保護ポリシーを作成する必要がある場合は、ポリシーを作成して* Identity preserve *オプションを使用する必要があります。詳細は、を参照してください link:create-custom-replication-policy-concept.html["カスタムのデータ保護ポリシーを作成する"]。
 
@@ -31,61 +30,61 @@ ONTAP 9.9.1以降では、mirror-vaultポリシーを使用すると、ソース
 
 [role="tabbed-block"]
 ====
-.System Manager の略
+.System Manager
 --
 . デスティネーションクラスタで、 * Protection > Relationships * をクリックします。
 . [関係]*で、*[保護]*をクリックし、*[Storage VM（DR）]*を選択します。
-. 保護ポリシーを選択します。カスタムの保護ポリシーを作成した場合は、ポリシーを選択し、レプリケートするソースクラスタと Storage VM を選択します。新しい Storage VM 名を入力して、新しいデスティネーション Storage VM を作成することもできます。
+. 保護ポリシーを選択します。カスタムの保護ポリシーを作成した場合は選択し、レプリケートするソースクラスタとStorage VMを選択します。新しいデスティネーションStorage VM名を入力して新しいデスティネーションStorage VMを作成することもできます。
 . 必要に応じて、デスティネーションの設定を変更してID保持を上書きし、ネットワークインターフェイスおよびプロトコルを含めるか除外するかを指定します。
 . [ 保存（ Save ） ] をクリックします。
 
 
 --
-.CLI の使用
+.CLI
 --
-. デスティネーション SVM を作成します。
+. デスティネーションSVMを作成します。
 +
 [source, cli]
 ----
 vserver create -vserver <SVM_name> -subtype dp-destination
 ----
 +
-SVM 名はソースクラスタとデスティネーションクラスタの間で一意である必要があります。
+SVM名は、ソースクラスタとデスティネーションクラスタで一意である必要があります。
 
 +
-次の例は、という名前のデスティネーションSVMを作成します `svm_backup`：
+次の例は、という名前のデスティネーションSVMを作成し `svm_backup`ます。
 
 +
 [listing]
 ----
 cluster_dst:> vserver create -vserver svm_backup -subtype dp-destination
 ----
-. デスティネーションクラスタから、を使用してSVMピア関係を作成します `vserver peer create` コマンドを実行します
+. デスティネーションクラスタから、コマンドを使用してSVMピア関係を作成し `vserver peer create`ます。
 +
 詳細については、を参照してください link:../peering/create-intercluster-svm-peer-relationship-93-later-task.html["SVM のクラスタ間ピア関係を作成します"]。
 
-. レプリケーションジョブスケジュールを作成
+. レプリケーションジョブスケジュールを作成します。
 +
 [source, cli]
 ----
 job schedule cron create -name <job_name> -month <month> -dayofweek <day_of_week> -day <day_of_month> -hour <hour> -minute <minute>
 ----
 +
-の場合 `-month`、 `-dayofweek`および `-hour`を指定できます `all` 毎月、曜日、および時間ごとにジョブを実行します。
+ `-dayofweek`、および `-hour`では `-month`、ジョブを毎月、曜日、および時間ごとに実行するように指定できます `all`。
 
 +
 
-NOTE: SVM SnapMirror関係にあるFlexVol ボリュームに対してサポートされる最小スケジュール（RPO）は15分です。SVM SnapMirror関係にあるFlexGroup ボリュームに対してサポートされる最小スケジュール（RPO）は30分です。
+NOTE: SVM SnapMirror関係のFlexVolボリュームでサポートされる最小スケジュール（RPO）は15分です。SVM SnapMirror関係にあるFlexGroupボリュームに対してサポートされる最小スケジュール（RPO）は30分です。
 
 +
-次の例は、という名前のジョブスケジュールを作成します `my_weekly` 土曜日の午前3時に実行されます。
+次の例は、土曜日の午前3時に実行するという名前のジョブスケジュールを作成します `my_weekly`。
 
 +
 [listing]
 ----
 cluster_dst::> job schedule cron create -name my_weekly -dayofweek saturday -hour 3 -minute 0
 ----
-. デスティネーション SVM またはデスティネーションクラスタから、レプリケーション関係を作成します。
+. デスティネーションSVMまたはデスティネーションクラスタから、レプリケーション関係を作成します。
 +
 [source, cli]
 ----
@@ -93,10 +92,10 @@ snapmirror create -source-path <SVM_name>: -destination-path <SVM_name>: -type <
 ----
 +
 
-NOTE: で、SVM名のあとにコロン（：）を入力する必要があります `-source-path` および `-destination-path` オプション（ Options ）
+NOTE: オプションと `-destination-path`オプションで、SVM名のあとにコロン（：）を入力する必要があります `-source-path`。
 
 +
-次の例は、デフォルトのを使用して、SnapMirror DR関係を作成します `MirrorAllSnapshots` ポリシー：
+次の例は、デフォルトのポリシーを使用してSnapMirror DR関係を作成し `MirrorAllSnapshots`ます。
 
 +
 [listing]
@@ -104,7 +103,7 @@ NOTE: で、SVM名のあとにコロン（：）を入力する必要があり�
 cluster_dst::> snapmirror create -source-path svm1: -destination-path svm_backup: -type XDP -schedule my_daily -policy MirrorAllSnapshots -identity-preserve true
 ----
 +
-次の例は、デフォルトを使用して、ユニファイドレプリケーション関係を作成します `MirrorAndVault` ポリシー：
+次の例は、デフォルトのポリシーを使用してユニファイドレプリケーション関係を作成し `MirrorAndVault`ます。
 
 +
 [listing]
@@ -112,7 +111,7 @@ cluster_dst::> snapmirror create -source-path svm1: -destination-path svm_backup
 cluster_dst:> snapmirror create -source-path svm1: -destination-path svm_backup: -type XDP -schedule my_daily -policy MirrorAndVault -identity-preserve true
 ----
 +
-ポリシータイプがのカスタムポリシーを作成しているとします `async-mirror`次の例は、SnapMirror DR関係を作成します。
+ポリシータイプがのカスタムポリシーを作成した場合 `async-mirror`、次の例はSnapMirror DR関係を作成します。
 
 +
 [listing]
@@ -120,14 +119,14 @@ cluster_dst:> snapmirror create -source-path svm1: -destination-path svm_backup:
 cluster_dst::> snapmirror create -source-path svm1: -destination-path svm_backup: -type XDP -schedule my_daily -policy my_mirrored -identity-preserve true
 ----
 +
-ポリシータイプがのカスタムポリシーを作成しているとします `mirror-vault`次の例は、ユニファイドレプリケーション関係を作成します。
+ポリシータイプがのカスタムポリシーを作成した場合、 `mirror-vault`次の例はユニファイドレプリケーション関係を作成します。
 
 +
 [listing]
 ----
 cluster_dst::> snapmirror create -source-path svm1: -destination-path svm_backup: -type XDP -schedule my_daily -policy my_unified -identity-preserve true
 ----
-. デスティネーション SVM を停止します。
+. デスティネーションSVMを停止します。
 +
 [source, cli]
 ----
@@ -141,7 +140,7 @@ vserver stop -vserver <SVM_name>
 ----
 cluster_dst::> vserver stop -vserver svm_backup
 ----
-. デスティネーション SVM またはデスティネーションクラスタから、 SVM レプリケーション関係を初期化します。
+. デスティネーションSVMまたはデスティネーションクラスタから、SVMレプリケーション関係を初期化します。
 +
 [source, cli]
 ----
@@ -149,10 +148,10 @@ snapmirror initialize -source-path <SVM_name>: -destination-path <SVM_name>:
 ----
 +
 
-NOTE: で、SVM名のあとにコロン（：）を入力する必要があります `-source-path` および `-destination-path` オプション（ Options ）
+NOTE: オプションと `-destination-path`オプションで、SVM名のあとにコロン（：）を入力する必要があります `-source-path`。
 
 +
-次の例は、ソースSVM間の関係を初期化します。 `svm1`およびデスティネーションSVM `svm_backup`：
+次の例は、ソースSVMとデスティネーションSVM `svm_backup`の間の関係を初期化し `svm1`ます。
 
 +
 [listing]

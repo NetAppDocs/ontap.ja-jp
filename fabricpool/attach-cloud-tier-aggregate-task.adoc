@@ -2,7 +2,7 @@
 permalink: fabricpool/attach-cloud-tier-aggregate-task.html 
 sidebar: sidebar 
 keywords: attaching, cloud, tier, aggregate 
-summary: クラウド階層として使用するオブジェクトストアのセットアップが完了したら、使用するアグリゲートを FabricPool に接続して指定します。ONTAP 9.5 以降では、対象となる FlexGroup ボリュームコンスティチュエントを含むアグリゲートを接続することもできます。 
+summary: クラウド階層として使用するオブジェクトストアのセットアップが完了したら、使用するアグリゲートをFabricPoolに接続して指定します。ONTAP 9 .5以降では、対象となるFlexGroupボリュームコンスティチュエントを含むアグリゲートを接続することもできます。 
 ---
 = クラウド階層をローカル階層（アグリゲート）に接続する
 :allow-uri-read: 
@@ -11,25 +11,25 @@ summary: クラウド階層として使用するオブジェクトストアの�
 
 
 [role="lead"]
-クラウド階層として使用するオブジェクトストアのセットアップが完了したら、使用するローカル階層（アグリゲート）をFabricPool に接続して指定します。ONTAP 9.5以降では、対象となるFlexGroup ボリュームコンスティチュエントを含むローカル階層（アグリゲート）を接続することもできます。
+クラウド階層として使用するオブジェクトストアのセットアップが完了したら、使用するローカル階層（アグリゲート）をFabricPoolに接続して指定します。ONTAP 9 .5以降では、対象となるFlexGroupボリュームコンスティチュエントを含むローカル階層（アグリゲート）を接続することもできます。
 
-.このタスクについて
+.タスクの内容
 ローカル階層へのクラウド階層の接続は永続的な操作です。接続後にローカル階層からクラウド階層の接続を解除することはできません。ただし、を使用しlink:../fabricpool/create-mirror-task.html["FabricPoolミラー"]て別のクラウド階層にローカル階層を接続することもできます。
 
-.作業を開始する前に
-ONTAP CLI を使用して FabricPool 用のアグリゲートをセットアップする場合は、既存のアグリゲートを使用する必要があります。
+.開始する前に
+ONTAP CLIを使用してFabricPool用のアグリゲートを設定する場合は、アグリゲートがすでに存在している必要があります。
 
 [NOTE]
 ====
-System Managerを使用してFabricPool のローカル階層をセットアップする場合は、ローカル階層を作成し、FabricPool に使用するように設定できます。
+System Managerを使用してFabricPoolのローカル階層をセットアップする場合は、ローカル階層を作成してFabricPoolで使用するようにセットアップすることができます。
 
 ====
 .手順
-ONTAP System ManagerまたはONTAP CLIを使用して、FabricPool オブジェクトストアにローカル階層（アグリゲート）を接続できます。
+ONTAP System ManagerまたはONTAP CLIを使用して、FabricPoolオブジェクトストアにローカル階層（アグリゲート）を接続できます。
 
 [role="tabbed-block"]
 ====
-.System Manager の略
+.System Manager
 --
 . [ストレージ]>[階層]*に移動し、クラウド階層を選択してをクリックします image:icon_kabob.gif["メニューオプションアイコン"]。
 . ローカル階層の接続*を選択します。
@@ -39,16 +39,16 @@ ONTAP System ManagerまたはONTAP CLIを使用して、FabricPool オブジェ�
 
 
 --
-.CLI の使用
+.CLI
 --
-.CLIを使用してアグリゲートにオブジェクトストアを接続するには、次の手順を実行します。
-. * オプション * ：ボリューム内のアクセス頻度の低いデータの量を確認するには、の手順に従います link:determine-data-inactive-reporting-task.html["Inactive Data Reporting によるボリューム内のアクセス頻度の低いデータ量の確認"]。
+.CLIを使用してオブジェクトストアをアグリゲートに接続するには、次の手順を実行します。
+. *オプション*：ボリューム内のアクセス頻度の低いデータの量を確認するには、の手順に従いますlink:determine-data-inactive-reporting-task.html["Inactive Data Reportingによるボリューム内のアクセス頻度の低いデータ量の確認"]。
 +
-ボリューム内のアクセス頻度の低いデータの量を確認すると、 FabricPool に使用するアグリゲートを決定するのに役立ちます。
+ボリューム内のアクセス頻度の低いデータの量を確認すると、FabricPoolに使用するアグリゲートを決定するのに役立ちます。
 
-. を使用してオブジェクトストアをアグリゲートに接続します `storage aggregate object-store attach` コマンドを実行します
+. コマンドを使用して、オブジェクトストアをアグリゲートに接続し `storage aggregate object-store attach`ます。
 +
-FabricPool で使用したことがないアグリゲートで、既存のボリュームが含まれている場合は、デフォルトのボリュームが割り当てられます `snapshot-only` 階層化ポリシー：
+FabricPoolで使用されたことがないアグリゲートで、既存のボリュームが含まれている場合、ボリュームにはデフォルトの階層化ポリシーが割り当てられ `snapshot-only`ます。
 
 +
 [listing]
@@ -57,9 +57,9 @@ cluster1::> storage aggregate object-store attach -aggregate myaggr
 -object-store-name Amazon01B1
 ----
 +
-を使用できます `allow-flexgroup` `true` FlexGroup ボリュームのコンスティチュエントを含むアグリゲートを接続するオプション。
+オプションを使用すると、FlexGroupボリュームのコンスティチュエントを含むアグリゲートを接続できます `allow-flexgroup` `true`。
 
-. を使用してオブジェクトストアの情報を表示し、接続したオブジェクトストアが使用可能であることを確認します `storage aggregate object-store show` コマンドを実行します
+. コマンドを使用して、オブジェクトストアの情報を表示し、接続したオブジェクトストアが使用可能であることを確認します `storage aggregate object-store show`。
 +
 [listing]
 ----

@@ -2,99 +2,95 @@
 permalink: s3-multiprotocol/enable-access-nas-data-task.html 
 sidebar: sidebar 
 keywords: tr-4814, s3, svm, nfs, smb, dns, authentication, protocol, configuration, nas, certificate, authority, installation, lifs 
-summary: S3プロトコルアクセスを有効にするには、NAS対応のSVMがS3対応サーバと同じ要件を満たしていることを確認する（オブジェクトストアサーバの追加、ネットワークと認証の要件の確認を含む）ことが必要です。 
+summary: S3プロトコルアクセスを有効にするには、NAS対応のSVMがS3対応サーバと同じ要件（オブジェクトストアサーバの追加など）を満たしていることを確認し、ネットワークと認証の要件を確認します。 
 ---
-= NASデータへのS3プロトコルアクセスを有効にします
+= NASデータへのS3プロトコルアクセスを有効にする
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-S3プロトコルアクセスを有効にするには、NAS対応のSVMがS3対応サーバと同じ要件を満たしていることを確認する（オブジェクトストアサーバの追加、ネットワークと認証の要件の確認を含む）ことが必要です。
+S3プロトコルアクセスを有効にするには、NAS対応のSVMがS3対応サーバと同じ要件（オブジェクトストアサーバの追加など）を満たしていることを確認し、ネットワークと認証の要件を確認します。
 
-ONTAP を新規にインストールする場合は、クライアントにNASデータを提供するようにSVMを設定したあとに、SVMへのS3プロトコルアクセスを有効にすることを推奨します。NASプロトコルの設定については、以下を参照してください。
+ONTAPを新規にインストールする場合は、クライアントにNASデータを提供するようにSVMを設定したあとに、そのSVMへのS3プロトコルアクセスを有効にすることを推奨します。NASプロトコルの設定については、以下を参照してください。
 
-* link:../nfs-config/index.html["NFS構成"]
+* link:../nfs-config/index.html["NFSの設定"]
 * link:../smb-config/index.html["SMBの設定"]
 
 
-.作業を開始する前に
+.開始する前に
 S3プロトコルを有効にする前に、次の項目を設定する必要があります。
 
 * S3プロトコルおよび目的のNASプロトコル（NFS、SMB、またはその両方）のライセンスが設定されています。
-* SVMが目的のNASプロトコル用に設定されている。
-* NFSサーバとSMBサーバが存在します。
-* DNSおよびその他の必要なサービスが設定されていること。
-* NASデータをクライアントシステムにエクスポートまたは共有しています。
+* 必要なNASプロトコル用にSVMが設定されている。
+* NFSサーバまたはSMBサーバが存在します。
+* DNSおよびその他の必要なサービスが設定されている。
+* NASデータがクライアントシステムにエクスポートまたは共有されています。
 
 
-.このタスクについて
-S3 クライアントから S3 対応 SVM への HTTPS トラフィックを有効にするには、認証局（ CA ）証明書が必要です。次の3つのソースのCA証明書を使用できます。
+.タスクの内容
+S3クライアントからS3対応SVMへのHTTPSトラフィックを有効にするには、認証局（CA）証明書が必要です。次の3つのソースからのCA証明書を使用できます。
 
-* 新しいONTAP 自己署名証明書をSVMに作成します。
-* 既存のONTAP 自己署名証明書がSVMに存在している。
+* SVM上の新しいONTAP自己署名証明書。
+* SVM上の既存のONTAP自己署名証明書。
 * サードパーティの証明書。
 
 
-NASデータの提供に使用するS3 / NASバケットにも同じデータLIFを使用できます。特定のIPアドレスが必要な場合は、を参照してください link:../s3-config/create-data-lifs-task.html["データ LIF を作成します。"]。S3データトラフィックをLIFで有効にするには、S3サービスデータポリシーが必要です。SVMの既存のサービスポリシーを変更して、S3を含めることができます。
+NASデータの提供に使用するデータLIFをS3 / NASバケットにも使用できます。特定のIPアドレスが必要な場合は、を参照してくださいlink:../s3-config/create-data-lifs-task.html["データLIFを作成する"]。LIFでS3データトラフィックを有効にするには、S3サービスデータポリシーが必要です。SVMの既存のサービスポリシーにS3を含めるように変更できます。
 
-S3オブジェクトサーバを作成するときは、クライアントがS3アクセスに使用する完全修飾ドメイン名（FQDN）としてS3サーバ名を入力できるように準備しておく必要があります。S3サーバのFQDNの先頭をバケット名にすることはできません。
+S3オブジェクトサーバを作成するときは、クライアントがS3アクセスに使用するFully Qualified Domain Name（FQDN；完全修飾ドメイン名）としてS3サーバ名を入力する準備をしておく必要があります。S3サーバのFQDNの1文字目をバケット名にすることはできません。
 
 [role="tabbed-block"]
 ====
-.System Manager の略
+.System Manager
 --
 . NASプロトコルが設定されているStorage VMでS3を有効にします。
 +
 .. [ストレージ]>[Storage VM]*をクリックし、NAS対応Storage VMを選択して[設定]をクリックし、[S3]の下をクリックし image:icon_gear.gif["アクションアイコン"] ます。
-.. 証明書のタイプを選択します。システムで生成された証明書と独自の証明書のどちらを選択した場合も、クライアントアクセスには証明書が必要です。
-.. ネットワークインターフェイスを入力してください。
+.. 証明書のタイプを選択します。システムで生成された証明書を選択した場合でも独自の証明書を選択した場合でも、クライアントアクセスに必要になります。
+.. ネットワークインターフェイスを入力します。
 
 
-. システムで生成された証明書を選択した場合は、新しい Storage VM の作成を確認すると証明書情報が表示されます。[ ダウンロード ] をクリックし、クライアントアクセス用に保存します。
+. システム生成の証明書を選択した場合は、新しいStorage VMの作成を確認した時点で証明書の情報が表示されます。[ ダウンロード ] をクリックし、クライアントアクセス用に保存します。
 +
-** シークレットキーは今後表示されません。
+** 今後シークレットキーは表示されません。
 ** 証明書情報が再度必要な場合は、 [* ストレージ ] 、 [Storage VMs] の順にクリックし、 Storage VM を選択して、 [* 設定 ] をクリックします。
 
 
 
 
 --
-.CLI の使用
+.CLI
 --
 . SVMでS3プロトコルが許可されていることを確認します。+
 `vserver show -fields allowed-protocols`
-. このSVMの公開鍵証明書を記録します。[+]
-新しいONTAP自己署名証明書が必要な場合は、を参照してください。 link:../s3-config/create-install-ca-certificate-svm-task.html["CA 証明書を作成して SVM にインストールします"]。
-. サービスデータポリシーを更新します
+. このSVMの公開鍵証明書を記録します。+新しいONTAP自己署名証明書が必要な場合は、を参照してくださいlink:../s3-config/create-install-ca-certificate-svm-task.html["CA証明書を作成してSVMにインストールする"]。
+. サービスデータポリシーを更新する
 +
 .. SVMのサービスデータポリシーを表示します。+
 `network interface service-policy show -vserver _svm_name_`
-.. とがない場合は、を追加し `data-core` `data-s3-server services` ます。+
+.. とがない場合は、を `data-s3-server services`追加し `data-core`ます。+
 `network interface service-policy add-service -vserver _svm_name_ -policy _policy_name_ -service data-core,data-s3-server`
 
 
 . SVMのデータLIFが要件を満たしていることを確認します。+
 `network interface show -vserver _svm_name_`
-. S3サーバを作成します：+
+. S3サーバを作成します。+
 `vserver object-store-server create -vserver _svm_name_ -object-store-server _s3_server_fqdn_ -certificate-name _ca_cert_name_ -comment text [additional_options]`
 
 
-S3 サーバの作成時またはあとからいつでも追加のオプションを指定できます。
+追加のオプションは、S3サーバの作成時または作成後いつでも指定できます。
 
-* HTTPS は、ポート 443 でデフォルトで有効になっています。ポート番号は、-secure-listener-portオプションを使用して変更できます。[+]
-HTTPS を有効にすると、 SSL/TLS との適切な統合に CA 証明書が必要になります。ONTAP 9.15.1以降では、S3オブジェクトストレージでTLS 1.3がサポートされます。
-* HTTP はデフォルトではディセーブルです。イネーブルにすると、サーバはポート 80 をリッスンします。is-http-enabledオプションを指定して有効にするか、-listener-portオプションを使用してポート番号を変更できます。[+]
-HTTP が有効な場合は、すべての要求と応答がクリアテキストでネットワーク経由で送信されます。
+* HTTPSはポート443ではデフォルトで有効になっています。ポート番号は、-secure-listener-portオプションを使用して変更できます。+ HTTPSを有効にすると、SSL/TLSとの適切な統合にCA証明書が必要になります。ONTAP 9 .15.1以降では、S3オブジェクトストレージでTLS 1.3がサポートされます。
+* HTTPはデフォルトでは無効になっています。有効にすると、サーバはポート80でリスンします。is-http-enabledオプションを指定して有効にするか、-listener-portオプションを使用してポート番号を変更できます。+ HTTPを有効にすると、すべての要求と応答がクリアテキストでネットワーク経由で送信されます。
 
 
-. S3が必要に応じて設定されていることを確認します。+
+. S3が設定されていることを確認します。+
 `vserver object-store-server show`
 
 
-*例*+
-次のコマンドは、すべてのオブジェクトストレージサーバの設定値を検証します。+
+*例*+次のコマンドは、すべてのオブジェクトストレージサーバの設定値を検証します。+
 `cluster1::> vserver object-store-server show`
 
 [listing]

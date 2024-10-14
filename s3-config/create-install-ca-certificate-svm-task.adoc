@@ -2,27 +2,27 @@
 permalink: s3-config/create-install-ca-certificate-svm-task.html 
 sidebar: sidebar 
 keywords: create, install, ca certificate, svm 
-summary: S3 クライアントから S3 対応 SVM への HTTPS トラフィックを有効にするには、認証局（ CA ）証明書が必要です。 
+summary: S3クライアントからS3対応SVMへのHTTPSトラフィックを有効にするには、認証局（CA）証明書が必要です。 
 ---
-= CA 証明書を作成して SVM にインストールします
+= CA証明書を作成してSVMにインストールする
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-S3 クライアントから S3 対応 SVM への HTTPS トラフィックを有効にするには、認証局（ CA ）証明書が必要です。
+S3クライアントからS3対応SVMへのHTTPSトラフィックを有効にするには、認証局（CA）証明書が必要です。
 
-.このタスクについて
-HTTP のみを使用するように S3 サーバを設定することは可能ですが、 CA 証明書が不要なクライアントを設定することも可能です。ただし、 ONTAP S3 サーバへの HTTPS トラフィックを CA 証明書を使用して保護することを推奨します。
+.タスクの内容
+HTTPのみを使用するようにS3サーバを設定したり、CA証明書を必要とせずにクライアントを設定したりすることも可能ですが、ONTAP S3サーバへのHTTPSトラフィックをCA証明書で保護することを推奨します。
 
-IP トラフィックがクラスタ LIF のみを経由するローカル階層化の場合、 CA 証明書は必要ありません。
+IPトラフィックがクラスタLIFのみを経由するローカル階層化では、CA証明書は必要ありません。
 
-この手順に記載されている手順では、 ONTAP 自己署名証明書を作成してインストールします。サードパーティベンダーの CA 証明書もサポートされています。詳細については、管理者認証のドキュメントを参照してください。
+この手順では、ONTAP自己署名証明書を作成してインストールします。サードパーティベンダーのCA証明書もサポートされています。詳細については、管理者認証のドキュメントを参照してください。
 
-link:../authentication/index.html["管理者認証と RBAC"]
+link:../authentication/index.html["カンリシヤニンシヨウトRBAC"]
 
-を参照してください `security certificate` 追加の設定オプションのマニュアルページ
+その他の設定オプションについては、マニュアルページを参照して `security certificate`ください。
 
 .手順
 . 自己署名デジタル証明書を作成します。
@@ -30,13 +30,13 @@ link:../authentication/index.html["管理者認証と RBAC"]
 `security certificate create -vserver _svm_name_ -type root-ca -common-name _ca_cert_name_`
 
 +
-。 `-type root-ca` オプションは、認証局（CA）として機能して他の証明書に署名するための自己署名デジタル証明書を作成してインストールします。
+オプションは `-type root-ca`、認証局（CA）として機能して他の証明書に署名するための自己署名デジタル証明書を作成してインストールします。
 
 +
-。 `-common-name` オプションを指定すると、SVMの認証局（CA）名が作成され、証明書の完全な名前を生成するときに使用されます。
+オプションを使用 `-common-name`すると、SVMの認証局（CA）名が作成され、証明書の完全な名前を生成するときに使用されます。
 
 +
-デフォルトの証明書サイズは 2048 ビットです。
+デフォルトの証明書サイズは2048ビットです。
 
 +
 例
@@ -49,22 +49,22 @@ cluster-1::> security certificate create -vserver svm1.example.com -type root-ca
 The certificate's generated name for reference: svm1_ca_159D1587CE21E9D4_svm1_ca
 ----
 +
-生成された証明書の名前が表示されたら、この手順の以降の手順で名前を保存してください。
+生成された証明書の名前が表示されたら、以降の手順で使用するために保存しておきます。
 
 . 証明書署名要求を生成します。
 +
 `security certificate generate-csr -common-name _s3_server_name_ [additional_options]`
 
 +
-。 `-common-name` 署名要求のパラメータには、S3サーバ名（FQDN）を指定する必要があります。
+ `-common-name`署名要求のパラメータには、S3サーバ名（FQDN）を指定する必要があります。
 
 +
-必要に応じて、 SVM の場所やその他の詳細情報を指定できます。
+必要に応じて、SVMの場所やその他の詳細情報を指定できます。
 
 +
-今後の参照用に、証明書要求と秘密鍵のコピーを保管するように求められます。
+あとで参照できるように、証明書要求と秘密鍵のコピーを保管するように求められます。
 
-. SVM_CA を使用して CSR に署名し、 S3 サーバの証明書を生成します。
+. SVM_CAを使用してCSRに署名し、S3サーバの証明書を生成します。
 +
 `security certificate sign -vserver _svm_name_ -ca _ca_cert_name_ -ca-serial _ca_cert_serial_number_ [additional_options]`
 
@@ -72,20 +72,20 @@ The certificate's generated name for reference: svm1_ca_159D1587CE21E9D4_svm1_ca
 前の手順で使用したコマンドオプションを入力します。
 
 +
-** `-ca` --ステップ1で入力したCAの共通名。
-** `-ca-serial` --ステップ1のCAシリアル番号。たとえば、 CA 証明書の名前が svm1_ca_159D1587CE21E9D4_svm1_ca の場合、シリアル番号は 159D1587CE21E9D4 です。
+** `-ca`--ステップ1で入力したCAの共通名。
+** `-ca-serial`--ステップ1のCAシリアル番号。たとえば、CA証明書の名前がsvm1_ca_159D1587CE21E9D4_svm1_caの場合、シリアル番号は159D1587CE21E9D4です。
 
 
 +
-デフォルトでは、署名済み証明書の有効期限は 365 日です。別の値を選択し、他の署名の詳細を指定できます。
+デフォルトでは、署名済み証明書の有効期限は365日です。別の値を選択したり、他の署名の詳細を指定したりできます。
 
 +
-プロンプトが表示されたら、手順 2 で保存した証明書要求文字列をコピーして入力します。
+プロンプトが表示されたら、手順2で保存した証明書要求文字列をコピーして入力します。
 
 +
 署名済み証明書が表示されます。あとで使用できるように保存しておきます。
 
-. S3 対応 SVM に署名済み証明書をインストールします。
+. S3対応SVMに署名済み証明書をインストールします。
 +
 `security certificate install -type server -vserver _svm_name_`
 
@@ -96,14 +96,14 @@ The certificate's generated name for reference: svm1_ca_159D1587CE21E9D4_svm1_ca
 証明書チェーンが必要な場合は、中間証明書を入力できます。
 
 +
-秘密鍵と CA 署名デジタル証明書が表示されたら、あとで参照できるように保存します。
+秘密鍵とCA署名デジタル証明書が表示されたら、あとで参照できるように保存します。
 
 . 公開鍵証明書を取得します。
 +
 `security certificate show -vserver _svm_name_ -common-name _ca_cert_name_ -type root-ca -instance`
 
 +
-公開鍵証明書を保存しておき、以降のクライアント側の設定に使用します。
+クライアント側の設定用に公開鍵証明書を保存しておきます。
 
 +
 例

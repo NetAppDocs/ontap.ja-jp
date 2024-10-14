@@ -4,7 +4,7 @@ sidebar: sidebar
 keywords: cifs, client, environment, storage, virtual, machine, svm, multiprotocol, storage, system, windows, account, root, privilege, svm, sufficient, user, right, map the administrators group to root 
 summary: 環境内のクライアントがすべて CIFS クライアントで、 Storage Virtual Machine （ SVM ）がマルチプロトコルストレージシステムとしてセットアップされている場合は、 SVM 上のファイルにアクセスするための root 権限を持つ Windows アカウントが少なくとも 1 つ必要です。 十分なユーザ権限がないため、この SVM を管理できません。 
 ---
-= Administrators グループをルートにマッピングします
+= ルートへのAdministratorsグループのマッピング
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
@@ -13,30 +13,30 @@ summary: 環境内のクライアントがすべて CIFS クライアントで�
 [role="lead"]
 環境内のクライアントがすべて CIFS クライアントで、 Storage Virtual Machine （ SVM ）がマルチプロトコルストレージシステムとしてセットアップされている場合は、 SVM 上のファイルにアクセスするための root 権限を持つ Windows アカウントが少なくとも 1 つ必要です。 十分なユーザ権限がないため、この SVM を管理できません。
 
-.このタスクについて
-ただし、ストレージシステムがNTFS専用としてセットアップされている場合は `/etc` ディレクトリには、AdministratorsグループがONTAP 構成ファイルにアクセスできるようにするファイルレベルのACLが設定されています。
+.タスクの内容
+ただし、ストレージシステムがNTFS専用としてセットアップされている場合は `/etc`、ディレクトリにファイルレベルのACLがあり、AdministratorsグループはこのACLを使用してONTAP構成ファイルにアクセスできます。
 
 .手順
-. 権限レベルを advanced に設定します。 `set -privilege advanced`
+. 権限レベルをadvancedに設定します。 `set -privilege advanced`
 . 必要に応じて、 Administrators グループをルートにマッピングする CIFS サーバオプションを設定します。
 +
 |===
-| 状況 | 作業 
+| 状況 | そしたら...。 
 
 
  a| 
 管理者グループメンバーをルートにマッピングします
  a| 
-`vserver cifs options modify -vserver _vserver_name_ -is-admin-users-mapped-to-root-enabled true`     がなくても、Administratorsグループ内のすべてのアカウントはrootとみなされます `/etc/usermap.cfg` アカウントをrootにマッピングするエントリ。Administrators グループに属するアカウントを使用してファイルを作成する場合、 UNIX クライアントからファイルを表示するときに、ファイルはルートによって所有されます。
+`vserver cifs options modify -vserver _vserver_name_ -is-admin-users-mapped-to-root-enabled true`アカウントをrootにマッピングするエントリがない場合でも、Administratorsグループ内のすべてのアカウントはrootとみなされ `/etc/usermap.cfg`ます。Administrators グループに属するアカウントを使用してファイルを作成する場合、 UNIX クライアントからファイルを表示するときに、ファイルはルートによって所有されます。
 
 
 
  a| 
 Administrators グループメンバーのルートへのマッピングを無効にします
  a| 
-`vserver cifs options modify -vserver _vserver_name_ -is-admin-users-mapped-to-root-enabled false`     Administratorsグループ内のアカウントがrootにマッピングされなくなります。ルートへのマッピングは、単一のユーザに対して明示的にのみ実行できます。
+`vserver cifs options modify -vserver _vserver_name_ -is-admin-users-mapped-to-root-enabled false`Administratorsグループ内のアカウントがrootにマッピングされなくなります。ルートへのマッピングは、単一のユーザに対して明示的にのみ実行できます。
 
 |===
 . オプションが目的の値に設定されていることを確認します。 `vserver cifs options show -vserver _vserver_name_`
-. admin 権限レベルに戻ります。 `set -privilege admin`
+. admin権限レベルに戻ります。 `set -privilege admin`
 

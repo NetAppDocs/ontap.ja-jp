@@ -4,19 +4,19 @@ sidebar: sidebar
 keywords: svm capacity, size, auto size, auto size alert, space, limit 
 summary: ONTAP 9 .13.1以降では、SVMに容量制限を設定できます。 
 ---
-= SVMの容量制限を管理します
+= SVMの容量制限を管理します。
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-ONTAP 9.13.1以降では、Storage VM（SVM）に最大容量を設定できます。また、SVMの容量レベルがしきい値に近づいたときにアラートを設定することもできます。
+ONTAP 9 .13.1以降では、Storage VM（SVM）に最大容量を設定できます。また、SVMの容量レベルがしきい値に近づいたときにアラートを設定することもできます。
 
-.このタスクについて
-SVM上の容量は、FlexVol、FlexGroup 、FlexClone、FlexCache の合計として計算されます。削除後にボリュームが制限状態、オフライン状態、またはリカバリキュー内にある場合でも、ボリュームは容量の計算に影響します。ボリュームで自動拡張が設定されている場合は、ボリュームの最大オートサイズの値がSVMのサイズに合わせて計算されます。自動拡張を設定しない場合は、ボリュームの実際のサイズが計算されます。
+.タスクの内容
+SVM上の容量は、FlexVol、FlexGroup、FlexClone、FlexCacheの合計として計算されます。削除後にボリュームが制限状態、オフライン状態、またはリカバリキュー内にある場合でも、ボリュームは容量の計算に影響します。ボリュームで自動拡張が設定されている場合は、ボリュームの最大オートサイズの値がSVMのサイズに合わせて計算されます。自動拡張を設定しない場合は、ボリュームの実際のサイズが計算されます。
 
-次の表に、その方法を示します `autosize-mode` パラメータは容量の計算に影響します。
+次の表に、パラメータが容量の計算に与える影響を示し `autosize-mode`ます。
 
 |===
 
@@ -24,17 +24,17 @@ SVM上の容量は、FlexVol、FlexGroup 、FlexClone、FlexCache の合計と�
 | `autosize-mode off` | サイズパラメーターは計算に使用されます 
 
 
-| `autosize-mode grow` | 。 `max-autosize` パラメータは計算に使用されます 
+| `autosize-mode grow` |  `max-autosize`パラメーターは計算に使用されます 
 
 
-| `autosize-mode grow-shrink` | 。 `max-autosize` パラメータは計算に使用されます 
+| `autosize-mode grow-shrink` |  `max-autosize`パラメーターは計算に使用されます 
 |===
-.作業を開始する前に
+.開始する前に
 * SVM数の上限を設定するには、クラスタ管理者である必要があります。
-* ストレージ制限は、データ保護ボリュームを含むSVM、SnapMirror関係にあるボリューム、またはMetroCluster 構成には設定できません。
+* ストレージ制限は、データ保護ボリュームを含むSVM、SnapMirror関係にあるボリューム、またはMetroCluster構成には設定できません。
 * SVMを移行する際、ソースSVMでストレージの制限を有効にすることはできません。移行処理を完了するには、ソースのストレージ制限を無効にしてから移行を完了してください。
-* SVMの容量はとは異なります xref:../volumes/quotas-concept.html[クォータ]。クォータは最大サイズを超えることはできません。
-* SVMで他の処理を実行中のときは、ストレージ制限を設定することはできません。を使用します `job show vservser _svm_name_` コマンドを使用して既存のジョブを表示します。ジョブが完了したら、もう一度コマンドを実行してください。
+* SVMの容量はとはxref:../volumes/quotas-concept.html[クォータ]異なります。クォータは最大サイズを超えることはできません。
+* SVMで他の処理を実行中のときは、ストレージ制限を設定することはできません。既存のジョブを表示するには、コマンドを使用し `job show vservser _svm_name_`ます。ジョブが完了したら、もう一度コマンドを実行してください。
 
 
 
@@ -43,21 +43,21 @@ SVM上の容量は、FlexVol、FlexGroup 、FlexClone、FlexCache の合計と�
 
 容量制限に達すると、次の処理が失敗します。
 
-* LUN、ネームスペース、またはボリュームを作成しています
+* LUN、ネームスペース、またはボリュームの作成
 * LUN、ネームスペース、またはボリュームのクローニング
-* LUN、ネームスペース、またはボリュームを変更しています
+* LUN、ネームスペース、またはボリュームの変更
 * LUN、ネームスペース、またはボリュームのサイズの拡張
-* LUN、ネームスペース、またはボリュームを拡張する
-* LUN、ネームスペース、またはボリュームをリホストします
+* LUN、ネームスペース、またはボリュームの拡張
+* LUN、ネームスペース、またはボリュームのリホスト
 
 
 
 
-== 新しいSVMに容量制限を設定します
+== 新しいSVMに容量制限を設定する
 
 [role="tabbed-block"]
 ====
-.System Manager の略
+.System Manager
 --
 .手順
 . [ストレージ]*>*[Storage VMs]*を選択します。
@@ -71,10 +71,10 @@ SVMの最大容量サイズを指定します。
 
 
 --
-.CLI の使用
+.CLI
 --
 .手順
-. SVMを作成ストレージの制限を設定するには、を指定します `storage-limit` 価値。ストレージ制限のしきい値アラートを設定するには、の割合を指定します `-storage-limit-threshold-alert`。
+. SVMを作成ストレージの制限を設定するには、値を指定し `storage-limit`ます。ストレージ制限のしきい値アラートを設定するには、の割合を指定します `-storage-limit-threshold-alert`。
 +
 `vserver create -vserver _vserver_name_ -aggregate _aggregate_name_ -rootvolume _root_volume_name_ -rootvolume-security-style {unix|ntfs|mixed} -storage-limit _value_ [GiB|TIB] -storage-limit-threshold-alert _percentage_ [-ipspace IPspace_name] [-language <language>] [-snapshot-policy _snapshot_policy_name_] [-quota-policy _quota_policy_name_] [-comment _comment_]`
 
@@ -85,7 +85,7 @@ SVMの最大容量サイズを指定します。
 +
 `vserver show -vserver _vserver_name_`
 
-. ストレージの上限を無効にする場合は、を使用してSVMを変更します `-storage-limit` パラメータをゼロに設定：
+. ストレージの上限を無効にする場合は、パラメータを0に設定してSVMを変更し `-storage-limit`ます。
 +
 `vserver modify -vserver _vserver_name_ -storage-limit 0`
 
@@ -103,7 +103,7 @@ SVMの最大容量サイズを指定します。
 
 [role="tabbed-block"]
 ====
-.System Manager の略
+.System Manager
 --
 .手順
 . [ストレージ]*>*[Storage VMs]*を選択します。
@@ -116,17 +116,17 @@ SVMの最大容量サイズを指定します。
 
 
 --
-.CLI の使用
+.CLI
 --
 .手順
-. SVMをホストするクラスタで、を問題 します `vserver modify` コマンドを実行しますに数値を指定してください `-storage-limit` にパーセント値を入力します `-storage-limit-threshold-alert`。
+. SVMをホストしているクラスタで、コマンドを実行し `vserver modify`ます。には数値、にはパーセント値を `-storage-limit-threshold-alert`指定します `-storage-limit`。
 +
 `vserver modify -vserver _vserver_name_ -storage-limit _value_ [GiB|TIB] -storage-limit-threshold-alert _percentage_`
 
 +
 しきい値を指定しないと、容量の90%となるデフォルトのアラートが生成されます。しきい値アラートを無効にするには、値を0にします。
 
-. ストレージの上限を無効にする場合は、を使用してSVMを変更します `-storage-limit` ゼロに設定：
+. ストレージの上限を無効にする場合は、が0に設定されているSVMを変更し `-storage-limit`ます。
 +
 `vserver modify -vserver _vserver_name_ -storage-limit 0`
 
@@ -136,16 +136,16 @@ SVMの最大容量サイズを指定します。
 ====
 
 
-== 容量の上限に達しています
+== 容量の上限に達している
 
-最大容量またはアラートしきい値に達した場合は、を参照してください `vserver.storage.threshold` EMSメッセージを表示するか、System Managerの* Insights *ページで実行可能な対処方法を確認してください。考えられる解決策は次のとおりです。
+最大容量やアラートしきい値に達したときは、EMSメッセージを確認するか、System Managerの* Insights *ページで、考えられる対処方法を確認できます `vserver.storage.threshold`。考えられる解決策は次のとおりです。
 
-* SVMの最大容量制限を編集しています
-* ボリュームリカバリキューをパージしてスペースを解放します
-* ボリュームにスペースを確保するには、Snapshotを削除します
+* SVMの最大容量制限の編集
+* スペースを解放するためのボリュームリカバリキューのパージ
+* ボリュームにスペースを確保するためのSnapshotの削除
 
 
 .追加情報
-* xref:../concepts/capacity-measurements-in-sm-concept.adoc[System Manager で測定される容量]
-* xref:../task_admin_monitor_capacity_in_sm.html[System Manager で容量を監視]
+* xref:../concepts/capacity-measurements-in-sm-concept.adoc[System Managerでの容量測定]
+* xref:../task_admin_monitor_capacity_in_sm.html[System Managerで容量を監視する]
 

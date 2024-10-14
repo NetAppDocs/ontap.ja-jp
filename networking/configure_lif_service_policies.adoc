@@ -4,7 +4,7 @@ permalink: networking/configure_lif_service_policies.html
 keywords: create service policy, assign service policy, service policy commands, configure lif service policies, create and assign a service policy for lifs, configure lif service policies, create a service policy for lifs, network interface service show, service-policy create, assign a service policy to a lif, examples, commands for managing lif service policies 
 summary: LIF のサービスポリシーを作成して割り当てます 
 ---
-= LIF のサービスポリシーを設定
+= LIFのサービスポリシーを設定する
 :hardbreaks:
 :allow-uri-read: 
 :nofooter: 
@@ -14,20 +14,20 @@ summary: LIF のサービスポリシーを作成して割り当てます
 
 
 [role="lead"]
-LIF のサービスポリシーを設定して、 LIF を使用する単一のサービスまたは一連のサービスを指定できます。
+LIFのサービスポリシーを設定して、LIFを使用する単一のサービスまたは一連のサービスを指定できます。
 
 
 
-== LIF のサービスポリシーを作成
+== LIFのサービスポリシーを作成します。
 
-LIF のサービスポリシーを作成することができます。1 つ以上の LIF にサービスポリシーを割り当てることで、 1 つまたは一連のサービスのトラフィックの処理を LIF に許可することができます。
+LIFのサービスポリシーを作成できます。1つ以上のLIFにサービスポリシーを割り当てることで、1つまたは一連のサービスのトラフィックをLIFで伝送できるようにすることができます。
 
-を実行するにはadvanced権限が必要です `network interface service-policy create` コマンドを実行します
+このコマンドを実行するには、高度なPrivilegesが必要です `network interface service-policy create`。
 
-.このタスクについて
-データ SVM とシステム SVM の両方でデータトラフィックと管理トラフィックの管理に使用できる組み込みのサービスとサービスポリシーを用意しています。ほとんどのユースケースでは、カスタムサービスポリシーを作成するのではなく、組み込みのサービスポリシーを使用して対応できます。
+.タスクの内容
+データSVMとシステムSVMの両方のデータトラフィックと管理トラフィックの管理に組み込みのサービスとサービスポリシーを使用できます。ほとんどのユースケースでは、カスタムサービスポリシーを作成するのではなく、組み込みのサービスポリシーを使用して問題を解決できます。
 
-これらの組み込みのサービスポリシーは必要に応じて変更できます。
+これらの組み込みのサービスポリシーは、必要に応じて変更できます。
 
 .手順
 . クラスタで使用可能なサービスを表示します。
@@ -36,10 +36,10 @@ LIF のサービスポリシーを作成することができます。1 つ以�
 network interface service show
 ....
 +
-サービスとは、 LIF がアクセスするアプリケーション、およびクラスタで提供されるアプリケーションです。各サービスには、アプリケーションがリスンしている TCP ポートと UDP ポートが 0 個以上含まれます。
+サービスとは、LIFがアクセスするアプリケーションと、クラスタが提供するアプリケーションのことです。各サービスには、アプリケーションがリスンしているTCPおよびUDPポートが0個以上含まれています。
 
 +
-次のデータサービスと管理サービスも利用できます。
+次の追加データサービスと管理サービスを使用できます。
 
 +
 ....
@@ -61,7 +61,7 @@ management-https            tcp:443
 management-ssh              tcp:22
 12 entries were displayed.
 ....
-. クラスタに存在するサービスポリシーを表示します。
+. クラスタ内のサービスポリシーを表示します。
 +
 ....
 cluster1::> network interface service-policy show
@@ -107,8 +107,8 @@ Do you wish to continue? (y or n): y
 cluster1::> network interface service-policy create -vserver <svm_name> -policy <service_policy_name> -services <service_name> -allowed-addresses <IP_address/mask,...>
 ....
 +
-** 「 SERVICE_NAME 」は、ポリシーに含めるサービスのリストを指定します。
-** 「 ip_address /mask 」には、サービスポリシー内のサービスへのアクセスを許可するアドレスのサブネットマスクのリストを指定します。デフォルトでは、指定されたすべてのサービスがデフォルトの許可アドレスリスト 0.0.0.0/0 で追加され、すべてのサブネットからのトラフィックが許可されます。デフォルト以外の許可アドレスリストを指定した場合、そのポリシーを使用する LIF は、指定したマスクと一致しないソースアドレスを使用するすべての要求をブロックするように設定されます。
+** 「service_name」には、ポリシーに含めるサービスのリストを指定します。
+** 「ip_address/mask」には、サービスポリシー内のサービスへのアクセスを許可するアドレスのサブネットマスクのリストを指定します。デフォルトでは、指定されたすべてのサービスが、すべてのサブネットからのトラフィックを許可するデフォルトの許可アドレスリスト0.0.0.0/0で追加されます。デフォルト以外の許可アドレスリストを指定すると、ポリシーを使用するLIFは、指定したマスクのいずれにも一致しないソースアドレスからの要求をすべてブロックするように設定されます。
 +
 次の例は、_nfs_or_SMB_servicesを含むSVM用のデータサービスポリシーsvm1_data_policy__を作成する方法を示しています。
 
@@ -184,53 +184,53 @@ vs0
 ....
 
 
-.完了後
-LIF の作成時または既存の LIF の変更時にサービスポリシーを割り当てます。
+.終了後
+LIFの作成時または既存のLIFの変更時に、サービスポリシーを割り当てます。
 
 
 
-== LIF にサービスポリシーを割り当てます
+== LIFへのサービスポリシーの割り当て
 
-LIF の作成時または変更時に、 LIF にサービスポリシーを割り当てることができます。サービスポリシーは、 LIF で使用できる一連のサービスを定義します。
+LIFへのサービスポリシーの割り当ては、LIFの作成時または変更時に実行できます。サービスポリシーは、LIFで使用できる一連のサービスを定義します。
 
-.このタスクについて
-管理 SVM とデータ SVM の LIF にサービスポリシーを割り当てることができます。
+.タスクの内容
+管理SVMとデータSVMのLIFにサービスポリシーを割り当てることができます。
 
 .ステップ
-LIF にサービスポリシーをいつ割り当てるかに応じて、次のいずれかを実行します。
+サービスポリシーをいつLIFに割り当てるかに応じて、次のいずれかの操作を実行します。
 
 [cols="25,75"]
 |===
-| 実行する作業 | サービスポリシーを割り当てています ... 
+| 状況 | サービスポリシーを割り当てています ... 
 
 
-| LIF を作成する | network interface create -vserver SVM_name -lif <LIF_name> -home-node <node_name > -home-port <port_name> ｛ （ -address <IP_address> -netmask <IP_address> ） -subnet-name <subnet_name> ｝ -service-policy <service_policy_name> 
+| LIFの作成 | network interface create -vserver SVM_name -lif <LIF_name> -home-node <node_name > -home-port <port_name> ｛ （ -address <IP_address> -netmask <IP_address> ） -subnet-name <subnet_name> ｝ -service-policy <service_policy_name> 
 
 
-| LIF の変更 | network interface modify -vserver <svm_name> -lif <lif_name> -service -policy <service_policy_name> 
+| LIFの変更 | network interface modify -vserver <svm_name> -lif <lif_name> -service -policy <service_policy_name> 
 |===
-LIF のサービスポリシーを指定する際に、 LIF のデータプロトコルとロールを指定する必要はありません。ロールとデータプロトコルを指定して LIF を作成することもできます。
+LIFのサービスポリシーを指定する場合、LIFのデータプロトコルとロールを指定する必要はありません。ロールとデータプロトコルを指定してLIFを作成することもできます。
 
 
-NOTE: サービスポリシーは、サービスポリシーの作成時に指定した同じ SVM に含まれる LIF でのみ使用できます。
+NOTE: サービスポリシーは、サービスポリシーの作成時に指定したものと同じSVM内のLIFでのみ使用できます。
 
 
 
 === 例
 
-次の例は、 LIF のサービスポリシーを default-management に変更する方法を示しています。
+次の例は、LIFのサービスポリシーをdefault-managementに変更する方法を示しています。
 
 ....
 cluster1::> network interface modify -vserver cluster1 -lif lif1 -service-policy default-management
 ....
 
 
-== LIF のサービスポリシーを管理するためのコマンド
+== LIFのサービスポリシーの管理用コマンド
 
-を使用します `network interface service-policy` LIFのサービスポリシーを管理するコマンド。
+LIFのサービスポリシーを管理するには、コマンドを使用し `network interface service-policy`ます。
 
-.作業を開始する前に
-アクティブなSnapMirror関係にあるLIFのサービスポリシーを変更すると、レプリケーションスケジュールが中断されます。LIFをクラスタ間から非クラスタ間（またはその逆）に変換した場合、変更はピアクラスタにレプリケートされません。LIFサービスポリシーの変更後にピアクラスタを更新するには、まず `snapmirror abort` 操作Then xref:../data-protection/resynchronize-relationship-task.html[レプリケーション関係を再同期する]。
+.開始する前に
+アクティブなSnapMirror関係にあるLIFのサービスポリシーを変更すると、レプリケーションスケジュールが中断されます。LIFをクラスタ間から非クラスタ間（またはその逆）に変換した場合、変更はピアクラスタにレプリケートされません。LIFサービスポリシーの変更後にピアクラスタを更新するには、最初にこの処理を実行し `snapmirror abort`てxref:../data-protection/resynchronize-relationship-task.html[レプリケーション関係を再同期する]ください。
 
 |===
 | 状況 | 使用するコマンド 
@@ -293,7 +293,7 @@ cluster1::> network interface modify -vserver cluster1 -lif lif1 -service-policy
 
 
  a| 
-既存のサービスポリシーを表示します
+既存のサービスポリシーを表示する
  a| 
 `network interface service-policy show`
 

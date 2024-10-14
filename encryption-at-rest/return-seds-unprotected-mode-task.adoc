@@ -2,33 +2,33 @@
 permalink: encryption-at-rest/return-seds-unprotected-mode-task.html 
 sidebar: sidebar 
 keywords: returning, fips, drive, unprotected, mode 
-summary: FIPS ドライブまたは SED は、ノードの認証キー ID がデフォルト以外の値に設定されている場合にのみ不正アクセスから保護されます。FIPS ドライブまたは SED を非保護モードに戻すには、 storage encryption disk modify コマンドを使用してキー ID をデフォルトの値に設定します。 
+summary: FIPSドライブまたはSEDは、ノードの認証キーIDがデフォルト以外の値に設定されている場合にのみ不正アクセスから保護されます。FIPS ドライブまたは SED を非保護モードに戻すには、 storage encryption disk modify コマンドを使用してキー ID をデフォルトの値に設定します。 
 ---
-= FIPS ドライブまたは SED を非保護モードに戻します
+= FIPSドライブまたはSEDを非保護モードに戻します。
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-FIPS ドライブまたは SED は、ノードの認証キー ID がデフォルト以外の値に設定されている場合にのみ不正アクセスから保護されます。を使用して、FIPSドライブまたはSEDを非保護モードに戻すことができます `storage encryption disk modify` キーIDをデフォルトに設定するコマンド。
+FIPSドライブまたはSEDは、ノードの認証キーIDがデフォルト以外の値に設定されている場合にのみ不正アクセスから保護されます。FIPSドライブまたはSEDを非保護モードに戻すには、コマンドを使用して `storage encryption disk modify`キーIDをデフォルトに設定します。
 
-HA ペアで暗号化 SAS ドライブまたは NVMe ドライブ（ SED 、 NSE 、 FIPS ）を使用している場合は、システムを初期化する前に、 HA ペア内のすべてのドライブでこのプロセスに従う必要があります（ブートオプション 4 または 9 ）。そうしないと、ドライブを転用した場合にデータが失われる可能性があります。
+HAペアで暗号化SASドライブまたはNVMeドライブ（SED、NSE、FIPS）を使用している場合は、システムを初期化する前に、HAペア内のすべてのドライブでこのプロセスを実行する必要があります（ブートオプション4または9）。これを行わないと、ドライブを転用した場合にデータが失われる可能性があります。
 
-.作業を開始する前に
+.開始する前に
 このタスクを実行するには、クラスタ管理者である必要があります。
 
 .手順
-. 権限レベルを advanced に設定します。
+. 権限レベルをadvancedに設定します。
 +
 `set -privilege advanced`
 
-. FIPS ドライブが FIPS 準拠モードの場合は、ノードの FIPS 認証キー ID をデフォルトの MSID である 0x0 に戻します。
+. FIPSドライブがFIPS準拠モードの場合は、ノードのFIPS認証キーIDをデフォルトのMSIDである0x0に戻します。
 +
 `storage encryption disk modify -disk _disk_id_ -fips-key-id 0x0`
 
 +
-を使用できます `security key-manager query` キーIDを表示するコマンド。
+キーIDは、コマンドを使用して表示できます `security key-manager query`。
 
 +
 [listing]
@@ -40,13 +40,13 @@ Info: Starting modify on 14 disks.
       storage encryption disk show-status command.
 ----
 +
-次のコマンドで、処理が成功したことを確認します。
+コマンドを使用して、処理が成功したことを確認します。
 
 +
 `storage encryption disk show-status`
 
 +
-show -statusコマンドを繰り返して、「Disksでした」と「Disks done」の番号が同じになるようにします。
+「Disks Begin」と「Disks Done」の数値が同じになるまで、show-statusコマンドを繰り返します。
 
 +
 [listing]
@@ -59,15 +59,15 @@ Node        Support Request  Timestamp           Time (sec)  Begun   Done  Succe
 cluster1    true    modify   1/18/2022 15:29:38    3           14     5         5
 1 entry was displayed.
 ----
-. ノードのデータ認証キー ID をデフォルトの MSID である 0x0 に戻します。
+. ノードのデータ認証キーIDをデフォルトのMSIDである0x0に戻します。
 +
 `storage encryption disk modify -disk _disk_id_ -data-key-id 0x0`
 
 +
-の値 `-data-key-id` SASドライブまたはNVMeドライブを非保護モードに戻すかどうかに関係なく、0x0に設定する必要があります。
+SASドライブとNVMeドライブのどちらを非保護モードに戻すかに関係なく、の値は `-data-key-id`0x0に設定する必要があります。
 
 +
-を使用できます `security key-manager query` キーIDを表示するコマンド。
+キーIDは、コマンドを使用して表示できます `security key-manager query`。
 
 +
 [listing]
@@ -79,32 +79,32 @@ Info: Starting modify on 14 disks.
       storage encryption disk show-status command.
 ----
 +
-次のコマンドで、処理が成功したことを確認します。
+コマンドを使用して、処理が成功したことを確認します。
 
 +
 `storage encryption disk show-status`
 
 +
-番号が同じになるまで、 show -status コマンドを繰り返します。「disks begin」と「disks done」の数値が同じであれば、処理は完了です。
+番号が同じになるまで、show-statusコマンドを繰り返します。処理が完了するのは、「ディスクの開始」と「ディスクの終了」の番号が同じ場合です。
 
 
 
 
 
-== メンテナンスモード
+== メンテナンスモオト
 
-ONTAP 9.7以降では、FIPSドライブのキーを保守モードから変更できます。保守モードは、前のセクションのONTAP CLI手順を使用できない場合にのみ使用してください。
+ONTAP 9 .7以降では、保守モードからFIPSドライブのキーを変更できます。保守モードは、前述のONTAP CLIの手順を使用できない場合にのみ使用してください。
 
 .手順
 . ノードのFIPS認証キーIDをデフォルトのMSIDである0x0に戻します。
 +
 `disk encrypt rekey_fips 0x0 _disklist_`
 
-. ノードのデータ認証キー ID をデフォルトの MSID である 0x0 に戻します。
+. ノードのデータ認証キーIDをデフォルトのMSIDである0x0に戻します。
 +
 `disk encrypt rekey 0x0 _disklist_`
 
-. FIPS認証キーのキーが変更されたことを確認します。
+. FIPS認証キーのキーが正常に変更されたことを確認します。
 +
 `disk encrypt show_fips`
 
@@ -113,7 +113,7 @@ ONTAP 9.7以降では、FIPSドライブのキーを保守モードから変更�
 `disk encrypt show`
 
 +
-出力には、デフォルトのMSID 0x0キーIDまたはキーサーバが保持する64文字の値が表示される可能性があります。。 `Locked?` フィールドはデータロックを表します。
+出力には、デフォルトのMSID 0x0キーIDまたはキーサーバが保持する64文字の値が表示される可能性があります。 `Locked?`フィールドはデータロックを参照します。
 
 
 

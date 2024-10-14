@@ -2,30 +2,30 @@
 permalink: san-admin/configure-svm-nvme-task.html 
 sidebar: sidebar 
 keywords: configure, svm, nvme 
-summary: ノードで NVMe プロトコルを使用する場合は、 SVM を NVMe 専用に設定する必要があります。 
+summary: ノードでNVMeプロトコルを使用する場合は、SVMをNVMe専用に設定する必要があります。 
 ---
-= NVMe用のStorage VMを設定する
+= NVMe用のStorage VMの設定
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-ノードで NVMe プロトコルを使用する場合は、 SVM を NVMe 専用に設定する必要があります。
+ノードでNVMeプロトコルを使用する場合は、SVMをNVMe専用に設定する必要があります。
 
-.作業を開始する前に
-FC アダプタまたはイーサネットアダプタで NVMe がサポートされている必要があります。サポートされるアダプタの一覧については、を参照してください https://hwu.netapp.com["NetApp Hardware Universe の略"^]。
+.開始する前に
+FCアダプタまたはイーサネットアダプタでNVMeがサポートされている必要があります。サポートされているアダプタについては、を https://hwu.netapp.com["NetApp Hardware Universe"^]参照してください。
 
 .手順
 [role="tabbed-block"]
 ====
-.System Manager の略
+.System Manager
 --
 ONTAP System Manager（9.7以降）でNVMe用のStorage VMを設定します。
 
 [cols="2"]
 |===
-| 新しいStorage VMにNVMeを設定してください | 既存のStorage VMにNVMeを設定 
+| 新しいStorage VMにNVMeを設定するには | 既存のStorage VMにNVMeを設定するには 
 
 
  a| 
@@ -43,18 +43,18 @@ ONTAP System Manager（9.7以降）でNVMe用のStorage VMを設定します。
 
 |===
 --
-.CLI の使用
+.CLI
 --
-ONTAP CLIを使用して、NVMe用のStorage VMを設定します。
+ONTAP CLIを使用してNVMe用のStorage VMを設定します。
 
-. 既存の SVM を使用しない場合は、作成します。
+. 既存のSVMを使用しない場合は作成します。
 +
 [source, cli]
 ----
 vserver create -vserver <SVM_name>
 ----
 +
-.. SVM が作成されたことを確認します。
+.. SVMが作成されたことを確認します。
 +
 [source, cli]
 ----
@@ -62,7 +62,7 @@ vserver show
 ----
 
 
-. クラスタに NVMe または TCP 対応アダプタがインストールされていることを確認します。
+. クラスタにNVMeまたはTCP対応アダプタがインストールされていることを確認します。
 +
 NVMeの場合：
 
@@ -79,54 +79,54 @@ TCPの場合：
 ----
 network port show
 ----
-. ONTAP 9.7 以前を実行している場合は、 SVM からすべてのプロトコルを削除します。
+. ONTAP 9.7以前を実行している場合は、SVMからすべてのプロトコルを削除します。
 +
 [source, cli]
 ----
 vserver remove-protocols -vserver <SVM_name> -protocols iscsi,fcp,nfs,cifs,ndmp
 ----
 +
-ONTAP 9.8 以降では、 NVMe を追加するときに他のプロトコルを削除する必要はありません。
+ONTAP 9.8以降では、NVMeを追加するときに他のプロトコルを削除する必要はありません。
 
-. SVM に NVMe プロトコルを追加します。
+. SVMにNVMeプロトコルを追加します。
 +
 [source, cli]
 ----
 vserver add-protocols -vserver <SVM_name> -protocols nvme
 ----
-. ONTAP 9.7 以前を実行している場合は、 SVM で許可されているプロトコルが NVMe だけであることを確認します。
+. ONTAP 9.7以前を実行している場合は、SVMで許可されているプロトコルがNVMeだけであることを確認します。
 +
 [source, cli]
 ----
 vserver show -vserver <SVM_name> -fields allowed-protocols
 ----
 +
-に表示されるプロトコルはNVMeのみです `allowed protocols` 列（Column）：
+列にはNVMeプロトコルのみが表示されます `allowed protocols`。
 
-. NVMe サービスを作成します。
+. NVMeサービスを作成します。
 +
 [source, cli]
 ----
 vserver nvme create -vserver <SVM_name>
 ----
-. NVMe サービスが作成されたことを確認します。
+. NVMeサービスが作成されたことを確認します。
 +
 [source, cli]
 ----
 vserver nvme show -vserver <SVM_name>
 ----
 +
-。 `Administrative Status` SVMのがと表示されている必要があります `up`。
+SVMのが `Administrative Status`と表示されます `up`。
 
-. NVMe/FC LIF を作成します。
+. NVMe/FC LIFを作成します。
 +
-** ONTAP 9.9.1以前の場合、FC：
+** ONTAP 9 .9.1以前の場合、FC：
 +
 [source, cli]
 ----
 network interface create -vserver <SVM_name> -lif <lif_name> -address <ip address> -netmask <netmask_value> -role data -data-protocol fc-nvme -home-node <home_node> -home-port <home_port>
 ----
-** ONTAP 9.10.1以降、FCまたはTCPの場合：
+** ONTAP 9 .10.1以降、FCまたはTCPの場合：
 +
 [source, cli]
 ----
@@ -134,15 +134,15 @@ network interface create -vserver <SVM_name> -lif <lif_name> -address <ip addres
 ----
 
 
-. HA パートナーノードに NVMe/FC LIF を作成します。
+. HAパートナーノードにNVMe/FC LIFを作成します。
 +
-** ONTAP 9.9.1以前の場合、FC：
+** ONTAP 9 .9.1以前の場合、FC：
 +
 [source, cli]
 ----
 network interface create -vserver <SVM_name> -lif <lif_name> -role data -data-protocol fc-nvme -home-node <home_node> -home-port <home_port>
 ----
-** ONTAP 9.10.1以降、FCまたはTCPの場合：
+** ONTAP 9 .10.1以降、FCまたはTCPの場合：
 +
 [source, cli]
 ----
@@ -150,20 +150,20 @@ network interface create -vserver <SVM_name> -lif <lif_name> -service-policy <de
 ----
 
 
-. NVMe/FC LIF が作成されたことを確認します。
+. NVMe/FC LIFが作成されたことを確認します。
 +
 [source, cli]
 ----
 network interface show -vserver <SVM_name>
 ----
-. LIF と同じノードにボリュームを作成します。
+. LIFと同じノードにボリュームを作成します。
 +
 [source, cli]
 ----
 vol create -vserver <SVM_name> -volume <vol_name> -aggregate <aggregate_name> -size <volume_size>
 ----
 +
-自動効率化ポリシーに関する警告メッセージが表示された場合は無視してかまいません。
+auto効率化ポリシーに関する警告メッセージが表示された場合は、無視してかまいません。
 
 
 

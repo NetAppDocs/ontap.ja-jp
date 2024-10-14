@@ -2,28 +2,28 @@
 permalink: san-admin/restore-all-luns-volume-snapvault-backup-task.html 
 sidebar: sidebar 
 keywords: ontap 9.2, restore, luns, in a volume, snapvault, backup 
-summary: ボリューム内の 1 つ以上の LUN を SnapVault バックアップからリストアする必要がある場合は、ボリューム全体をリストアできます。ボリュームをリストアする場合は、ボリューム内のすべての LUN が対象になります。 
+summary: ボリューム内の1つ以上のLUNをSnapVaultバックアップからリストアする必要がある場合は、ボリューム全体をリストアできます。ボリュームをリストアする場合は、ボリューム内のすべての LUN が対象になります。 
 ---
-= ボリューム内のすべての LUN を SnapVault バックアップからリストアします
+= ボリューム内のすべてのLUNをSnapVaultバックアップからリストア
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-ボリューム内の 1 つ以上の LUN を SnapVault バックアップからリストアする必要がある場合は、ボリューム全体をリストアできます。ボリュームをリストアする場合は、ボリューム内のすべての LUN が対象になります。
+ボリューム内の1つ以上のLUNをSnapVaultバックアップからリストアする必要がある場合は、ボリューム全体をリストアできます。ボリュームをリストアする場合は、ボリューム内のすべての LUN が対象になります。
 
 .必要なもの
 SnapVault 関係が初期化されていて、 SnapVault セカンダリボリュームに、リストアに使用する適切な Snapshot コピーが含まれている必要があります。
 
-.このタスクについて
+.タスクの内容
 ボリューム全体をリストアすると、ボリュームの状態は、リストアに使用した Snapshot コピーが作成された時点の状態に戻ります。Snapshot コピーの作成後にボリュームに追加された LUN がある場合、その LUN はリストアの過程で削除されます。
 
 ボリュームのリストア後も、 LUN と igroup とのマッピングはリストアの直前と同じ状態が維持されます。LUN のマッピングは、 Snapshot コピー作成時点のマッピングとは異なる場合があります。ホストクラスタによる LUN の永続的予約は維持されます。
 
 .手順
 . ボリューム内のすべての LUN に対する I/O を停止します。
-. を実行します `snapmirror show` コマンドを実行して、SnapVault セカンダリボリュームが含まれているセカンダリボリュームを確認します。
+. コマンドを実行し `snapmirror show`て、SnapVaultセカンダリボリュームが含まれているセカンダリボリュームを確認します。
 +
 [listing]
 ----
@@ -37,7 +37,7 @@ vserverA:srcvolA
                         Snapmirrored
                                 Idle       -         true    -
 ----
-. を実行します `volume snapshot show` コマンドを使用して、リストア元のSnapshotコピーを特定します。
+. コマンドを実行し `volume snapshot show`て、リストア元のSnapshotコピーを特定します。
 +
 [listing]
 ----
@@ -51,7 +51,7 @@ vserverB
                  snap1.2013-02-10_0015 valid  112KB     0%    0%
                  snap2.2013-02-11_0010  valid  164KB     0%    0%
 ----
-. を実行します `snapmirror restore` コマンドを入力し、を指定します `-source-snapshot` 使用するSnapshotコピーを指定するオプション。
+. コマンドを実行し `snapmirror restore`、使用するSnapshotコピーを指定するオプションを指定し `-source-snapshot`ます。
 +
 リストア先として指定するのは、リストア先の元のボリュームです。
 
@@ -76,7 +76,7 @@ Do you want to continue? {y|n}: y
 
 次の例では、 Snapshot コピーの作成後に lun_D という名前の LUN がボリュームに追加されています。Snapshot コピーからボリューム全体をリストアしたあと、 lun_D は表示されなくなります。
 
-を参照してください `lun show` コマンドの出力では、プライマリボリュームsrcvolA内のLUNと、SnapVault セカンダリボリュームdstvolB内のそれらのLUNの読み取り専用コピーを確認できます。SnapVault バックアップに lun_D のコピーはありません。
+コマンド出力では `lun show`、プライマリボリュームsrcvolA内のLUNと、SnapVaultセカンダリボリュームdstvolB内のこれらのLUNの読み取り専用コピーを確認できます。SnapVault バックアップに lun_D のコピーはありません。
 
 [listing]
 ----

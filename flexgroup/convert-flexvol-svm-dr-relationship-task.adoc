@@ -2,29 +2,28 @@
 permalink: flexgroup/convert-flexvol-svm-dr-relationship-task.html 
 sidebar: sidebar 
 keywords: convert, flexvol, flexgroup, svm-dr 
-summary: ONTAP 9.10.1 以降では、 FlexVol ボリュームを SVM-DR ソース上の FlexGroup ボリュームに変換できます。 
+summary: SVM.10.1以降でONTAP 9は、FlexVol volumeをSVM-DRソースのFlexGroupボリュームに変換できます。 
 ---
-= FlexGroup ボリュームを SVM-DR 関係内で FlexVol ボリュームに変換します
+= SVM-DR関係内のFlexVol volumeからFlexGroupボリュームへの変換
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-ONTAP 9.10.1 以降では、 FlexVol ボリュームを SVM-DR ソース上の FlexGroup ボリュームに変換できます。
+SVM.10.1以降でONTAP 9は、FlexVol volumeをSVM-DRソースのFlexGroupボリュームに変換できます。
 
 .必要なもの
-* 変換する FlexVol がオンラインになっている必要があります。
-* FlexVol ボリュームの処理と設定が変換プロセスに対応している必要があります。
+* 変換するFlexVol volumeがオンラインになっている必要があります。
+* FlexVol volumeの処理と設定は、変換プロセスと互換性がある必要があります。
 +
-FlexVol ボリュームに互換性の問題があり、ボリューム変換がキャンセルされた場合は、エラーメッセージが生成されます。対処方法を実行し、変換を再試行できます。
-詳細については、を参照してください link:convert-flexvol-concept.html["FlexVol ボリュームを FlexGroup ボリュームに変換する際の考慮事項"]
+FlexVol volumeに互換性がない場合にボリュームの変換がキャンセルされると、エラーメッセージが生成されます。対処方法を実行してから変換を再試行できます。詳細については、を参照してください。link:convert-flexvol-concept.html["FlexVolボリュームをFlexGroupボリュームに変換する場合の考慮事項"]
 
 
 
 .手順
 . advanced権限モードでログインします。 `set -privilege advanced`
-. デスティネーションから、 SVM-DR 関係を更新します。
+. デスティネーションから、SVM-DR関係を更新します。
 +
 [source, cli]
 ----
@@ -36,22 +35,22 @@ snapmirror update -destination-path <destination_svm_name>: -source-path <source
 オプションで、SVM名のあとにコロン（：）を入力する必要があります `-destination-path` 。
 
 ====
-. SVM-DR 関係が SnapMirrored 状態であり、かつ切断されていないことを確認します。
+. SVM-DR関係がSnapMirrored状態であり、Broken-offになっていないことを確認します。
 +
 [source, cli]
 ----
 snapmirror show
 ----
-. デスティネーション SVM から、 FlexVol ボリュームで変換の準備が完了していることを確認します。
+. デスティネーションSVMから、FlexVol volumeを変換する準備が完了していることを確認します。
 +
 [source, cli]
 ----
 volume conversion start -vserver <svm_name> -volume <vol_name> -check-only true
 ----
 +
-このコマンドで「This is a destination SVMDR volume」以外のエラーが発生した場合は、該当する対処方法を実行し、コマンドをもう一度実行して変換を続行します。
+このコマンドで「This is a destination SVMDR volume」以外のエラーが生成された場合は、適切に対処してコマンドを再度実行し、変換を続行できます。
 
-. デスティネーションから、 SVM-DR 関係の転送を無効にします。
+. デスティネーションから、SVM-DR関係の転送を無効にします。
 +
 [source, cli]
 ----
@@ -84,7 +83,7 @@ vserver  volume     state    volume-style-extended
 -------  ---------  ------   ---------------------
 vs0      my_volume  online   flexgroup
 ----
-. デスティネーションクラスタから、関係の転送を再開します。
+. デスティネーション クラスタから、関係の転送を再開します。
 +
 [source, cli]
 ----
@@ -96,7 +95,7 @@ snapmirror resume -destination-path <dest_svm>:
 オプションで、SVM名のあとにコロン（：）を入力する必要があります `-destination-path` 。
 
 ====
-. デスティネーションクラスタから更新を実行して、変換をデスティネーションに伝播します。
+. デスティネーション クラスタから更新を実行して、デスティネーションに変換を反映します。
 +
 [source, cli]
 ----
@@ -108,13 +107,13 @@ snapmirror update -destination-path <dest_svm>:
 オプションで、SVM名のあとにコロン（：）を入力する必要があります `-destination-path` 。
 
 ====
-. SVM-DR 関係が SnapMirrored 状態であり、かつ切断されていないことを確認します。
+. SVM-DR関係がSnapMirroredの状態で、解除されていないことを確認します。
 +
 [source, cli]
 ----
 snapmirror show
 ----
-. 変換がデスティネーションで行われたことを確認します。
+. デスティネーションで変換が行われたことを確認します。
 +
 [source, cli]
 ----

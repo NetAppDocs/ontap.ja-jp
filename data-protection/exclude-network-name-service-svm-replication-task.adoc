@@ -4,78 +4,78 @@ sidebar: sidebar
 keywords: exclude, network, name service, other settings, svm replication 
 summary: snapmirror create コマンドの -identity-preserve false オプションを使用すると、 SVM のボリュームとセキュリティ設定だけをレプリケートできます。一部のプロトコルとネームサービスの設定も保持されます。 
 ---
-= ネットワーク、ネームサービス、およびその他の設定を SVM レプリケーション対象から除外します
+= ネットワーク、ネームサービス、およびその他の設定をSVMレプリケーション対象から除外する
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-を使用できます `-identity-preserve false` のオプション `snapmirror create` SVMのボリュームとセキュリティ設定のみをレプリケートするコマンド。一部のプロトコルとネームサービスの設定も保持されます。
+コマンドのオプションを `snapmirror create`使用すると、SVMのボリュームとセキュリティ設定だけをレプリケートできます `-identity-preserve false`。一部のプロトコルとネームサービスの設定も保持されます。
 
-.このタスクについて
-保持されているプロトコルおよびネームサービスの設定のリストについては、を参照してください link:snapmirror-svm-replication-concept.html#configurations-replicated-in-svm-disaster-recovery-relationships["SVM DR 関係でレプリケートされる設定"]。
+.タスクの内容
+保持されるプロトコルとネームサービスの設定のリストについては、を参照してくださいlink:snapmirror-svm-replication-concept.html#configurations-replicated-in-svm-disaster-recovery-relationships["SVM DR関係でレプリケートされる設定"]。
 
 コマンド構文全体については、マニュアルページを参照してください。
 
-.作業を開始する前に
-ソースクラスタとデスティネーションクラスタ、および SVM のピア関係が確立されている必要があります。
+.開始する前に
+ソースとデスティネーションのクラスタとSVMのピア関係が確立されている必要があります。
 
-詳細については、を参照してください link:../peering/create-cluster-relationship-93-later-task.html["クラスタピア関係を作成"] および link:../peering/create-intercluster-svm-peer-relationship-93-later-task.html["SVM のクラスタ間ピア関係を作成します"]。
+詳細については、およびを参照してlink:../peering/create-cluster-relationship-93-later-task.html["クラスタピア関係を作成します。"]link:../peering/create-intercluster-svm-peer-relationship-93-later-task.html["SVM のクラスタ間ピア関係を作成します"]ください。
 
 .手順
-. デスティネーション SVM を作成します。
+. デスティネーションSVMを作成します。
 +
 `vserver create -vserver _SVM_ -subtype dp-destination`
 
 +
-SVM 名はソースクラスタとデスティネーションクラスタの間で一意である必要があります。
+SVM名は、ソースクラスタとデスティネーションクラスタで一意である必要があります。
 
 +
-次の例は、という名前のデスティネーションSVMを作成します `svm_backup`：
+次の例は、という名前のデスティネーションSVMを作成し `svm_backup`ます。
 
 +
 [listing]
 ----
 cluster_dst:> vserver create -vserver svm_backup -subtype dp-destination
 ----
-. デスティネーションクラスタから、を使用してSVMピア関係を作成します `vserver peer create` コマンドを実行します
+. デスティネーションクラスタから、コマンドを使用してSVMピア関係を作成し `vserver peer create`ます。
 +
 詳細については、を参照してください link:../peering/create-intercluster-svm-peer-relationship-93-later-task.html["SVM のクラスタ間ピア関係を作成します"]。
 
-. レプリケーションジョブスケジュールを作成
+. レプリケーションジョブスケジュールを作成します。
 +
 `job schedule cron create -name _job_name_ -month _month_ -dayofweek _day_of_week_ -day _day_of_month_ -hour _hour_ -minute _minute_`
 
 +
-の場合 `-month`、 `-dayofweek`および `-hour`を指定できます `all` 毎月、曜日、および時間ごとにジョブを実行します。
+ `-dayofweek`、および `-hour`では `-month`、ジョブを毎月、曜日、および時間ごとに実行するように指定できます `all`。
 
 +
 [NOTE]
 ====
-SVM SnapMirror関係にあるFlexVol ボリュームに対してサポートされる最小スケジュール（RPO）は15分です。SVM SnapMirror関係にあるFlexGroup ボリュームに対してサポートされる最小スケジュール（RPO）は30分です。
+SVM SnapMirror関係のFlexVolボリュームでサポートされる最小スケジュール（RPO）は15分です。SVM SnapMirror関係にあるFlexGroupボリュームに対してサポートされる最小スケジュール（RPO）は30分です。
 
 ====
 +
-次の例は、という名前のジョブスケジュールを作成します `my_weekly` 土曜日の午前3時に実行されます。
+次の例は、土曜日の午前3時に実行するという名前のジョブスケジュールを作成します `my_weekly`。
 
 +
 [listing]
 ----
 cluster_dst::> job schedule cron create -name my_weekly -dayofweek "Saturday" -hour 3 -minute 0
 ----
-. ネットワーク、ネームサービス、およびその他の設定を除外するレプリケーション関係を作成します。
+. ネットワーク、ネームサービス、およびその他の設定を除外してレプリケーション関係を作成します。
 +
 `snapmirror create -source-path _SVM_: -destination-path _SVM_: -type DP|XDP -schedule schedule -policy policy -identity-preserve false`
 
 +
 [NOTE]
 ====
-で、SVM名のあとにコロン（：）を入力する必要があります `-source-path` および `-destination-path` オプション（ Options ）以下の例を参照してください。    このコマンドはデスティネーション SVM またはデスティネーションクラスタから実行する必要があります。
+オプションと `-destination-path`オプションで、SVM名のあとにコロン（：）を入力する必要があります `-source-path`。以下の例を参照してください。このコマンドはデスティネーションSVMまたはデスティネーションクラスタから実行する必要があります。
 
 ====
 +
-次の例は、デフォルトのを使用して、SnapMirror DR関係を作成します `MirrorAllSnapshots` ポリシー：この関係では、ネットワーク、ネームサービス、およびその他の設定が SVM レプリケーションから除外されます。
+次の例は、デフォルトのポリシーを使用して、SnapMirror DR関係を作成し `MirrorAllSnapshots`ます。この関係では、ネットワーク、ネームサービス、およびその他の設定がSVMレプリケーション対象から除外されます。
 
 +
 [listing]
@@ -83,7 +83,7 @@ cluster_dst::> job schedule cron create -name my_weekly -dayofweek "Saturday" -h
 cluster_dst::> snapmirror create -source-path svm1: -destination-path svm_backup: -type XDP -schedule my_daily -policy MirrorAllSnapshots -identity-preserve false
 ----
 +
-次の例は、デフォルトを使用して、ユニファイドレプリケーション関係を作成します `MirrorAndVault` ポリシー：この関係では、ネットワーク、ネームサービス、およびその他の設定が除外されます。
+次の例は、デフォルトのポリシーを使用して、ユニファイドレプリケーション関係を作成し `MirrorAndVault`ます。この関係から、ネットワーク、ネームサービス、およびその他の設定が除外されます。
 
 +
 [listing]
@@ -91,7 +91,7 @@ cluster_dst::> snapmirror create -source-path svm1: -destination-path svm_backup
 cluster_dst:> snapmirror create svm1: -destination-path svm_backup: -type XDP -schedule my_daily -policy MirrorAndVault -identity-preserve false
 ----
 +
-ポリシータイプがのカスタムポリシーを作成しているとします `async-mirror`次の例は、SnapMirror DR関係を作成します。この関係では、ネットワーク、ネームサービス、およびその他の設定が SVM レプリケーションから除外されます。
+ポリシータイプがのカスタムポリシーを作成した場合 `async-mirror`、次の例はSnapMirror DR関係を作成します。この関係では、ネットワーク、ネームサービス、およびその他の設定がSVMレプリケーション対象から除外されます。
 
 +
 [listing]
@@ -99,14 +99,14 @@ cluster_dst:> snapmirror create svm1: -destination-path svm_backup: -type XDP -s
 cluster_dst::> snapmirror create -source-path svm1: -destination-path svm_backup: -type XDP -schedule my_daily -policy my_mirrored -identity-preserve false
 ----
 +
-ポリシータイプがのカスタムポリシーを作成しているとします `mirror-vault`次の例は、ユニファイドレプリケーション関係を作成します。この関係では、ネットワーク、ネームサービス、およびその他の設定が SVM レプリケーションから除外されます。
+ポリシータイプがのカスタムポリシーを作成した場合 `mirror-vault`、次の例はユニファイドレプリケーション関係を作成します。この関係では、ネットワーク、ネームサービス、およびその他の設定がSVMレプリケーション対象から除外されます。
 
 +
 [listing]
 ----
 cluster_dst::> snapmirror create -source-path svm1: -destination-path svm_backup: -type XDP -schedule my_daily -policy my_unified -identity-preserve false
 ----
-. デスティネーション SVM を停止します。
+. デスティネーションSVMを停止します。
 +
 `vserver stop`
 
@@ -114,22 +114,22 @@ cluster_dst::> snapmirror create -source-path svm1: -destination-path svm_backup
 `_SVM name_`
 
 +
-次の例は、 dvs1 という名前のデスティネーション SVM を停止します。
+次の例は、dvs1という名前のデスティネーションSVMを停止します。
 
 +
 [listing]
 ----
 destination_cluster::> vserver stop -vserver dvs1
 ----
-. SMB を使用する場合は、 SMB サーバも設定する必要があります。
+. SMBを使用する場合は、SMBサーバも設定する必要があります。
 +
-を参照してください link:create-smb-server-task.html["SMB のみ： SMB サーバの作成"]。
+を参照して link:create-smb-server-task.html["SMB のみ： SMB サーバの作成"]
 
-. デスティネーション SVM またはデスティネーションクラスタから、 SVM レプリケーション関係を初期化します。
+. デスティネーションSVMまたはデスティネーションクラスタから、SVMレプリケーション関係を初期化します。
 +
 `snapmirror initialize -source-path _SVM_name_: -destination-path _SVM_name_:`
 
 
 
-.完了後
-災害発生時のデータアクセス用に、デスティネーション SVM でネットワークとプロトコルを設定する必要があります。
+.終了後
+災害発生時のデータアクセス用に、デスティネーションSVMでネットワークとプロトコルを設定する必要があります。

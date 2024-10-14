@@ -2,55 +2,55 @@
 permalink: system-admin/configure-discovery-cluster-management-switches-task.html 
 sidebar: sidebar 
 keywords: configuring, discovery, cluster, management, network, switches, cisco, discovery, protocol, cdp, switch, health 
-summary: クラスタスイッチヘルスモニタは、 Cisco Discovery Protocol （ CDP ）を使用して、クラスタと管理ネットワークスイッチの検出を自動的に試みます。ヘルスモニタがスイッチを自動的に検出できない場合、または CDP を自動検出に使用することを望まない場合は、ヘルスモニタを設定する必要があります。 
+summary: クラスタスイッチヘルスモニタは、Cisco Discovery Protocol（CDP）を使用してクラスタおよび管理ネットワークスイッチの検出を自動的に試みます。ヘルスモニタがスイッチを自動的に検出できない場合、またはCDPを自動検出に使用しない場合は、ヘルスモニタを設定する必要があります。 
 ---
-= クラスタと管理ネットワークスイッチの検出を設定します
+= クラスタと管理ネットワークスイッチの検出を設定します。
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-クラスタスイッチヘルスモニタは、 Cisco Discovery Protocol （ CDP ）を使用して、クラスタと管理ネットワークスイッチの検出を自動的に試みます。ヘルスモニタがスイッチを自動的に検出できない場合、または CDP を自動検出に使用することを望まない場合は、ヘルスモニタを設定する必要があります。
+クラスタスイッチヘルスモニタは、Cisco Discovery Protocol（CDP）を使用してクラスタおよび管理ネットワークスイッチの検出を自動的に試みます。ヘルスモニタがスイッチを自動的に検出できない場合、またはCDPを自動検出に使用しない場合は、ヘルスモニタを設定する必要があります。
 
-.このタスクについて
-。 `system cluster-switch show` コマンドは、ヘルスモニタが検出したスイッチをリスト表示します。想定していたスイッチがこのリストに表示されない場合、ヘルスモニタは自動的にスイッチを検出できません。
+.タスクの内容
+コマンドは `system cluster-switch show`、ヘルスモニタが検出したスイッチをリスト表示します。想定していたスイッチがこのリストに表示されない場合、ヘルスモニタはそのスイッチを自動的に検出できません。
 
 .手順
 . CDPを自動検出に使用する場合は、次の手順を実行します。
 +
-.. スイッチで Cisco Discovery Protocol （ CDP ）が有効になっていることを確認します。
+.. スイッチでCisco Discovery Protocol（CDP）が有効になっていることを確認します。
 +
 手順については、スイッチのマニュアルを参照してください。
 
-.. クラスタ内の各ノードで次のコマンドを実行し、 CDP が有効か無効かを確認します。
+.. クラスタ内の各ノードで次のコマンドを実行して、CDPが有効か無効かを確認します。
 +
 `*run -node _node_name_ -command options cdpd.enable*`
 
 +
-CDP が有効になっている場合は、手順 d に進みますCDP が無効になっている場合は、手順 c に進みます
+CDPが有効な場合は手順dに、無効な場合は手順cに進みます。
 
-.. 次のコマンドを実行して CDP を有効にします。
+.. 次のコマンドを実行して、CDPを有効にします。
 +
 `*run -node _node_name_ -command options cdpd.enable on*`
 
 +
-5 分待ってから次の手順に進みます。
+5分待ってから次の手順に進みます。
 
-.. を使用します `system cluster-switch show` コマンドを使用して、ONTAP がスイッチを自動的に検出できるようになったかどうかを確認します。
+.. コマンドを使用し `system cluster-switch show`て、ONTAPがスイッチを自動的に検出できるようになったことを確認します。
 
 
-. ヘルスモニタがスイッチを自動的に検出できない場合は、を使用します `system cluster-switch create` スイッチの検出を設定するコマンドは次のとおりです。
+. ヘルスモニタがスイッチを自動的に検出できない場合は、コマンドを使用し `system cluster-switch create`てスイッチの検出を設定します。
 +
 [listing]
 ----
 cluster1::> system cluster-switch create -device switch1 -address 192.0.2.250 -snmp-version SNMPv2c -community cshm1! -model NX5020 -type cluster-network
 ----
 +
-5 分待ってから次の手順に進みます。
+5分待ってから次の手順に進みます。
 
-. を使用します `system cluster-switch show` コマンドを使用して、情報を追加したスイッチをONTAP が検出できることを確認します。
+. コマンドを使用し `system cluster-switch show`て、情報を追加したスイッチをONTAPが検出できることを確認します。
 
 
-.完了後
+.終了後
 ヘルスモニタがスイッチを監視できることを確認します。

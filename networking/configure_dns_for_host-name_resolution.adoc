@@ -4,7 +4,7 @@ permalink: networking/configure_dns_for_host-name_resolution.html
 keywords: configure, configuring, configuration, setup, set, setting, dns, local, remote, host, name, host-name, resolution, configure dns for host-name resolution, nsswitch.conf, configure an svm and data lifs for host-name resolution using an external dns server, vserver services name-service dns, vserver services name-service dns create, network interface modify -lif lifname -dns-zone, network interface create -lif lifname -dns-zone, vserver services name-service dns check, configure the name service switch table for host-name resolution 
 summary: ホスト情報を取得するには、 DNS を使用してローカルソースまたはリモートソースにアクセスします 
 ---
-= ホスト名解決に使用する DNS を設定します
+= ホスト名解決に使用するDNSの設定
 :hardbreaks:
 :allow-uri-read: 
 :nofooter: 
@@ -14,34 +14,34 @@ summary: ホスト情報を取得するには、 DNS を使用してローカル
 
 
 [role="lead"]
-ホスト情報を取得するには、 DNS を使用してローカルソースまたはリモートソースにアクセスします。これらのソースのいずれかまたは両方にアクセスするために DNS を設定する必要があります。
+ホスト情報を取得するには、DNSを使用してローカルまたはリモートのソースにアクセスします。これらのソースの一方または両方にアクセスするようにDNSを設定する必要があります。
 
-ONTAP がクライアントに適切なアクセスを許可するには、ホスト情報を検索できなければなりません。ネームサービスを設定して、 ONTAP がホスト情報を取得するためにローカルまたは外部の DNS サービスにアクセスできるようにします。
+ONTAPがクライアントに適切なアクセスを許可するには、ホスト情報を検索できる必要があります。ネームサービスを設定して、ONTAPがホスト情報を取得するためにローカルまたは外部のDNSサービスにアクセスできるようにする必要があります。
 
-ONTAP では、に相当するテーブルにネームサービス設定情報が格納されます `/etc/nsswitch.conf` UNIXシステム上のファイル。
+ONTAPでは、UNIXシステムのファイルに相当するテーブルにネームサービス設定情報が格納されます `/etc/nsswitch.conf`。
 
 
 
-== 外部 DNS サーバを使用して、ホスト名解決のために SVM とデータ LIF を設定する
+== 外部DNSサーバを使用してホスト名解決用にSVMとデータLIFを設定する
 
-を使用できます `vserver services name-service dns` コマンドを使用してSVMでDNSを有効にし、ホスト名解決にDNSを使用するように設定します。ホスト名は外部 DNS サーバを使用して解決されます。
+コマンドを使用して、SVMでDNSを有効にし、ホスト名解決にDNSを使用するように設定でき `vserver services name-service dns`ます。ホスト名は外部DNSサーバを使用して解決されます。
 
-.作業を開始する前に
-ホスト名を検索するために、サイト規模の DNS サーバが使用可能である必要があります。
+.開始する前に
+ホスト名検索にサイト規模のDNSサーバが使用できる必要があります。
 
-単一点障害を回避するには、複数の DNS サーバを設定する必要があります。。 `vserver services name-service dns create` 入力したDNSサーバ名が1つだけの場合は警告が表示されます。
+単一点障害を回避するには、複数のDNSサーバを設定する必要があります。 `vserver services name-service dns create`入力したDNSサーバ名が1つだけの場合は、コマンドによって警告が表示されます。
 
-.このタスクについて
-を参照してください xref:configure_dynamic_dns_services.html[動的 DNS サービスを設定する] SVMでの動的DNSの設定に関する詳細については、を参照してください。
+.タスクの内容
+SVMでの動的DNSの設定の詳細については、を参照してくださいxref:configure_dynamic_dns_services.html[動的DNSサービスの設定]。
 
 .手順
-. SVM で DNS を有効にします。
+. SVMでDNSを有効にします。
 +
 ....
 vserver services name-service dns create -vserver <vserver_name> -domains <domain_name> -name-servers <ip_addresses> -state enabled
 ....
 +
-次のコマンドは、 SVM vs1 で外部 DNS サーバを有効にします。
+次のコマンドは、vs1というSVMで外部DNSサーバを有効にします。
 
 +
 ....
@@ -49,9 +49,9 @@ vserver services name-service dns create -vserver vs1.example.com -domains examp
 ....
 +
 
-NOTE: 。 `vserver services name-service dns create` コマンドは設定の自動検証を実行し、ONTAP がネームサーバに接続できない場合はエラーメッセージを報告します。
+NOTE: コマンドは `vserver services name-service dns create`設定の自動検証を実行し、ONTAPがネームサーバに接続できない場合はエラーメッセージを報告します。
 
-. を使用してネームサーバのステータスを検証します `vserver services name-service dns check` コマンドを実行します
+. コマンドを使用して、ネームサーバのステータスを検証し `vserver services name-service dns check`ます。
 +
 ....
 vserver services name-service dns check -vserver vs1.example.com
@@ -63,16 +63,16 @@ vs1.example.com     10.0.0.51       up           Response time (msec): 2
 ....
 
 
-DNSに関連するサービスポリシーの詳細については、を参照してください。 link:lifs_and_service_policies96.html["ONTAP 9.6 以降の LIF とサービスポリシー"]。
+DNSに関連するサービスポリシーの詳細については、を参照してくださいlink:lifs_and_service_policies96.html["ONTAP 9 .6以降のLIFとサービスポリシー"]。
 
 
 
-== ホスト名解決用のネームサービススイッチテーブルを設定します
+== ホスト名解決のためのネームサービススイッチテーブルの設定
 
-ONTAP がホスト情報を取得するためにローカルまたは外部のネームサービスにアクセスできるようにするには、ネームサービススイッチテーブルを正しく設定する必要があります。
+ONTAPがホスト情報を取得するためにローカルまたは外部のネームサービスにアクセスできるようにするには、ネームサービススイッチテーブルを正しく設定する必要があります。
 
-.作業を開始する前に
-環境内のホストのマッピングでどのネームサービスを使用するかを決めておく必要があります。
+.開始する前に
+環境内のホストマッピングに使用するネームサービスを決めておく必要があります。
 
 .手順
 . ネームサービススイッチテーブルに必要なエントリを追加します。

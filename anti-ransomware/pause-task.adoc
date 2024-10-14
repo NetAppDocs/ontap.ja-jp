@@ -4,7 +4,7 @@ permalink: anti-ransomware/pause-task.html
 keywords: anti-ransomware, ransomware, pause, autonomous, protection, arp 
 summary: 異常なワークロードイベントが発生する可能性がある場合は、Autonomous Ransomware Protectionの分析をいつでも一時的に中断して再開できます。 
 ---
-= Autonomous Ransomware Protectionを一時停止して、ワークロードイベントを分析対象から除外します
+= Autonomous Ransomware Protectionを一時停止してワークロードイベントを分析対象から除外
 :hardbreaks:
 :toclevels: 1
 :allow-uri-read: 
@@ -16,39 +16,39 @@ summary: 異常なワークロードイベントが発生する可能性があ�
 
 
 [role="lead"]
-通常とは異なるワークロードイベントが発生すると予想される場合は、一時的にRansomware Protection（ARP）分析を一時的に一時停止して再開できます。
+異常なワークロードイベントが発生する可能性がある場合は、Autonomous Ransomware Protection（ARP）分析をいつでも一時的に中断して再開できます。
 
-ONTAP 9.13.1以降では、マルチ管理者検証（MAV）をイネーブルにして、複数の認証済みユーザ管理者がARPを一時停止する必要があります。 link:../multi-admin-verify/enable-disable-task.html["詳細はこちら。"^]。
+ONTAP 9 .13.1以降では、複数の認証済みユーザ管理者がARPを一時停止するように、Multi-admin Verification（MAV;マルチ管理者検証）をイネーブルにできます。link:../multi-admin-verify/enable-disable-task.html["詳細"^]です。
 
-.このタスクについて
-ARPの一時停止中は、イベントはログに記録されず、新しい書き込みに対するアクションも記録されません。ただし、分析処理はバックグラウンドで以前のログに対して続行されます。
+.タスクの内容
+ARPの一時停止中は、イベントはログに記録されず、新しい書き込みに対するアクションも記録されません。ただし、以前のログについてはバックグラウンドで分析処理が続行されます。
 
 
-NOTE: ARP無効機能を使用して分析を一時停止しないでください。これにより、ボリュームのARPが無効になり、学習されたワークロードの動作に関する既存の情報はすべて失われます。これには学習期間の再開が必要です。
+NOTE: ARP無効機能を使用して分析を一時停止しないでください。これにより、ボリュームのARPが無効になり、学習したワークロードの動作に関する既存の情報がすべて失われます。これには、学習期間の再起動が必要になります。
 
 .手順
 ARPは、System ManagerまたはONTAP CLIを使用して一時停止できます。
 
 [role="tabbed-block"]
 ====
-.System Manager の略
+.System Manager
 --
 . [ストレージ]>[ボリューム]*を選択し、ARPを一時停止するボリュームを選択します。
 . [Volumes]の概要の[** Security*]タブで、[Anti-ransomware]ボックスの*[Pause anti-ransomware]*を選択します。
 +
 
-NOTE: ONTAP 9.13.1以降では、MAVを使用してARP設定を保護している場合、一時停止操作によって、1人以上の追加管理者の承認を得るように求められます。 link:../multi-admin-verify/request-operation-task.html["すべての管理者から承認を受ける必要があります"] MAV承認グループに関連付けられているか、操作が失敗します。
+NOTE: ONTAP 9 .13.1以降では、MAVを使用してARP設定を保護している場合、一時停止操作によって、1人以上の追加管理者の承認を得るように求められます。link:../multi-admin-verify/request-operation-task.html["すべての管理者から承認を受ける必要があります"]MAV承認グループに関連付けられているか、操作が失敗します。
 
 
 
 --
-.CLI の使用
+.CLI
 --
-. ボリュームのARPを一時停止します。
+. ボリュームでARPを一時停止します。
 +
 `security anti-ransomware volume pause -vserver _svm_name_ -volume _vol_name_`
 
-. 処理を再開するには、を使用します `resume` コマンドを実行します
+. 処理を再開するには、次のコマンドを使用し `resume`ます。
 +
 `security anti-ransomware volume resume -vserver _svm_name_ -volume _vol_name_`
 
@@ -61,15 +61,15 @@ MAVを使用していて、予定されている一時停止操作で追加の�
 +
 `security multi-admin-verify request show`
 
-.. リクエストを承認します。
+.. 要求を承認します。
 +
 `security multi-admin-verify request approve -index[_number returned from show request_]`
 
 +
-最後のグループ承認者に対する応答は、ボリュームが変更され、ARPの状態が一時停止されたことを示します。
+最後のグループの承認者には、ボリュームが変更され、ARPが一時停止状態になった旨の応答が返されます。
 
 +
-MAVを使用していて、MAVグループ承認者である場合は、一時停止操作要求を拒否できます。
+MAVを使用していて、MAVグループの承認者である場合、一時停止処理の要求を却下できます。
 
 +
 `security multi-admin-verify request veto -index[_number returned from show request_]`

@@ -11,10 +11,10 @@ summary: ONTAP CLIを使用して、NFSクライアント用のデータLIFでTL
 
 
 [role="lead"]
-NFSクライアントとONTAPの間でネットワーク経由で送信されるすべてのデータを暗号化するようにNFS over TLSを設定すると、NFS接続のセキュリティを強化できます。これにより、NFS接続のセキュリティが向上します。有効になっている既存のStorage VMでこの設定を行うことができます： link:../task_nas_enable_linux_nfs.html["NFS"]。
+NFSクライアントとONTAPの間でネットワーク経由で送信されるすべてのデータを暗号化するようにNFS over TLSを設定すると、NFS接続のセキュリティを強化できます。これにより、NFS接続のセキュリティが向上します。これは、が有効になっている既存のStorage VMで設定できますlink:../task_nas_enable_linux_nfs.html["NFS"]。
 
 
-NOTE: ONTAP 9.15.1では、NFS over TLSがパブリックプレビューとして提供されています。プレビュー版として、ONTAP 9.15.1では本番ワークロードでNFS over TLSはサポートされていません。
+NOTE: ONTAP 9では、TLS経由のNFSがパブリックプレビューとして提供されています。15.1プレビュー版として、ONTAP 9の本番ワークロードではNFS over TLSはサポートされていません。15.1
 
 
 
@@ -22,8 +22,8 @@ NOTE: ONTAP 9.15.1では、NFS over TLSがパブリックプレビューとし�
 
 NFSクライアントに対してTLS暗号化を有効にすると、転送中のデータのセキュリティを強化できます。
 
-.作業を開始する前に
-* を参照してください link:tls-nfs-strong-security-concept.html["要件"] （NFS over TLSの場合）を参照してください。
+.開始する前に
+* 作業を開始する前に、『for NFS over TLS』を参照してくださいlink:tls-nfs-strong-security-concept.html["要件"]。
 * この手順のコマンドの詳細については、ONTAPのマニュアルページを参照してください。
 
 
@@ -35,7 +35,7 @@ NFSクライアントに対してTLS暗号化を有効にすると、転送中�
 ----
 vserver nfs tls interface enable -vserver <STORAGE_VM> -lif <LIF_NAME> -certificate-name <CERTIFICATE_NAME>
 ----
-. を使用します `vserver nfs tls interface show` コマンドを使用して結果を表示します。
+. コマンドを使用し `vserver nfs tls interface show`て結果を表示します。
 +
 [source, console]
 ----
@@ -44,7 +44,7 @@ vserver nfs tls interface show
 
 
 .例
-次のコマンドは、でNFS over TLSを有効にします。 `data1` SVMノLIF `vs1` Storage VM：
+次のコマンドは、Storage VMのLIF `vs1`でNFS over TLSを有効にし `data1`ます。
 
 [source, console]
 ----
@@ -64,11 +64,11 @@ vs2            data2         10.0.1.2        disabled   -
 ....
 
 
-== TLSを無効にする
+== TLSの無効化
 
-転送中のデータのセキュリティを強化する必要がなくなった場合は、NFSクライアントのTLSを無効にすることができます。
+転送中データのセキュリティ強化が必要なくなった場合は、NFSクライアントのTLSを無効にできます。
 
-.作業を開始する前に
+.開始する前に
 この手順のコマンドの詳細については、ONTAPのマニュアルページを参照してください。
 
 .手順
@@ -79,7 +79,7 @@ vs2            data2         10.0.1.2        disabled   -
 ----
 vserver nfs tls interface disable -vserver <STORAGE_VM> -lif <LIF_NAME>
 ----
-. を使用します `vserver nfs tls interface show` コマンドを使用して結果を表示します。
+. コマンドを使用し `vserver nfs tls interface show`て結果を表示します。
 +
 [source, console]
 ----
@@ -88,7 +88,7 @@ vserver nfs tls interface show
 
 
 .例
-次のコマンドは、でNFS over TLSを無効にします。 `data1` SVMノLIF `vs1` Storage VM：
+次のコマンドは、Storage VMのLIF `vs1`でNFS over TLSを無効にし `data1`ます。
 
 [source, console]
 ----
@@ -110,20 +110,20 @@ vs2            data2         10.0.1.2        disabled   -
 
 == TLS設定の編集
 
-NFS over TLSの既存の設定を変更できます。たとえば、この手順を使用してTLS証明書を更新できます。
+既存のNFS over TLS設定を変更できます。たとえば、この手順を使用してTLS証明書を更新できます。
 
-.作業を開始する前に
+.開始する前に
 この手順のコマンドの詳細については、ONTAPのマニュアルページを参照してください。
 
 .手順
 . NFSクライアントのTLS設定を変更するStorage VMと論理インターフェイス（LIF）を選択してください。
-. 設定を変更します。を指定する場合 `status` の `enable`を指定する必要があります。 `certificate-name` パラメータ括弧<>の値は、環境の情報で置き換えます。
+. 設定を変更します。を指定する場合は `status` `enable`、パラメータも指定する必要があり `certificate-name`ます。括弧<>の値は、環境の情報で置き換えます。
 +
 [source, console]
 ----
 vserver nfs tls interface modify -vserver <STORAGE_VM> -lif <LIF_NAME> -status <STATUS> -certificate-name <CERTIFICATE_NAME>
 ----
-. を使用します `vserver nfs tls interface show` コマンドを使用して結果を表示します。
+. コマンドを使用し `vserver nfs tls interface show`て結果を表示します。
 +
 [source, console]
 ----
@@ -132,7 +132,7 @@ vserver nfs tls interface show
 
 
 .例
-次のコマンドは、SVM上のNFS over TLSの設定を変更します。 `data2` SVMノLIF `vs2` Storage VM：
+次のコマンドは、Storage VMのLIFの `vs2`NFS over TLSの設定を変更します `data2`。
 
 [source, console]
 ----

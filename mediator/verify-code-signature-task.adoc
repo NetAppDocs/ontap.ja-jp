@@ -2,9 +2,9 @@
 permalink: mediator/verify-code-signature-task.html 
 sidebar: sidebar 
 keywords: mediator, new, release, update, install, verify, code, signature 
-summary: メディエーターのインストールパッケージをインストールする前に、ONTAP メディエーターコードの署名を確認する必要があります。 
+summary: ONTAPメディエーターのインストールパッケージをインストールする前に、メディエーターコードの署名を確認する必要があります。 
 ---
-= ONTAP メディエーターコードの署名を確認します
+= ONTAPメディエーターコード署名の確認
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
@@ -13,11 +13,11 @@ summary: メディエーターのインストールパッケージをインス�
 [role="lead"]
 ONTAPメディエーターインストールパッケージをインストールする前に、ONTAPメディエーターコードの署名を確認する必要があります。
 
-.作業を開始する前に
+.開始する前に
 ONTAPメディエーターコードの署名を確認する前に、システムが次の要件を満たしている必要があります。
 
-* 基本的な検証のためのOpenSSLバージョン1.0.2～3.0
-* Time Stamping Authority（TSA）操作用のOpenSSLバージョン1.1.0以降
+* OpenSSLバージョン1.0.2～3.0（基本検証用）
+* タイムスタンプ局（TSA）操作用のOpenSSLバージョン1.1.0以降
 * OCSP検証のためのパブリックインターネットアクセス
 
 
@@ -27,13 +27,13 @@ ONTAPメディエーターコードの署名を確認する前に、システム
 |===
 
 
-| ファイル。 | 説明 
+| ファイル | 説明 
 
 
  a| 
 `ONTAP-Mediator-production.pub`
  a| 
-署名の検証に使用する公開鍵
+署名の検証に使用される公開鍵
 
 
 
@@ -61,7 +61,7 @@ ONTAPメディエーターコードの署名を確認する前に、システム
  a| 
 `ontap-mediator-1.8.0.sig`
  a| 
-SHA-256はハッシュ化され、CSC-prodキーを使用してRSA署名されます（インストーラの署名）
+SHA-256はハッシュ化され、CSC-prodキーを使用してRSA署名されます（インストーラの署名）。
 
 
 
@@ -93,7 +93,7 @@ TSRのパブリック証明書CAチェーン
 
 |===
 .手順
-. 失効チェックをオンにします `csc-prod-ONTAP-Mediator.pem` Online Certificate Status Protocol（OCSP）を使用します。
+. Online Certificate Status Protocol（OCSP）を使用して、で失効チェックを実行します `csc-prod-ONTAP-Mediator.pem`。
 +
 .. 開発者証明書ではURIが指定されていない可能性があるため、証明書の登録に使用するOCSP URLを検索します。
 +
@@ -115,13 +115,13 @@ openssl ocsp -issuer csc-prod-chain-ONTAP-Mediator.pem -CAfile csc-prod-chain-ON
 ----
 
 
-. CSCの信頼チェーンと、ローカルホストに対する有効期限を確認します。
+. CSCの信頼チェーンと有効期限をローカルホストと照合して確認します。
 +
 `openssl verify`
 
 +
 
-NOTE: 。 `openssl` パスのバージョンは有効である必要があります `cert.pem` （自己署名ではありません）。
+NOTE:  `openssl`パスのバージョンは有効な（自己署名ではない）必要があります `cert.pem`。
 
 +
 [listing]
@@ -129,14 +129,13 @@ NOTE: 。 `openssl` パスのバージョンは有効である必要がありま
 openssl verify -untrusted csc-prod-chain-ONTAP-Mediator.pem -CApath ${OPENSSLDIR} csc-prod-ONTAP-Mediator.pem  # Failure action: The Code-Signature-Check certificate has expired or is invalid. Download a newer version of the ONTAP Mediator.
 openssl verify -untrusted tsa-prod-chain-ONTAP-Mediator.pem -CApath ${OPENSSLDIR} tsa-prod-ONTAP-Mediator.pem  # Failure action: The Time-Stamp certificate has expired or is invalid. Download a newer version of the ONTAP Mediator.
 ----
-. を確認します `ontap-mediator-1.8.0.sig.tsr` および `ontap-mediator-1.8.0.tsr` 関連する証明書を使用しているファイル：
+. 関連付けられた証明書を使用してファイルと `ontap-mediator-1.8.0.tsr`ファイルを確認し `ontap-mediator-1.8.0.sig.tsr`ます。
 +
 `openssl ts -verify`
 
 +
 
-NOTE: `.tsr` ファイルには、インストーラとコード署名に関連付けられたタイムスタンプ応答が含まれます。タイムスタンプにTSAからの有効な署名があり、入力ファイルが変更されていないことが確認されます。
-検証はマシン上でローカルに実行されます。TSAサーバへのアクセスは不要です。
+NOTE: `.tsr`ファイルには、インストーラとコード署名に関連付けられたタイムスタンプ応答が含まれています。タイムスタンプにTSAからの有効な署名があり、入力ファイルが変更されていないことが確認されます。検証はマシン上でローカルに実行されます。独立して、TSAサーバーにアクセスする必要はありません。
 
 +
 [listing]
@@ -144,7 +143,7 @@ NOTE: `.tsr` ファイルには、インストーラとコード署名に関連�
 openssl ts -verify -data ontap-mediator-1.8.0.sig -in ontap-mediator-1.8.0.sig.tsr -CAfile tsa-prod-chain-ONTAP-Mediator.pem -untrusted tsa-prod-ONTAP-Mediator.pem
 openssl ts -verify -data ontap-mediator-1.8.0 -in ontap-mediator-1.8.0.tsr -CAfile tsa-prod-chain-ONTAP-Mediator.pem -untrusted tsa-prod-ONTAP-Mediator.pem
 ----
-. キーに対して署名を確認します。
+. キーに対する署名を確認します。
 +
 `openssl -dgst -verify`
 

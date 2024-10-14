@@ -2,9 +2,9 @@
 sidebar: sidebar 
 permalink: task_nas_enable_nfs_and_smb.html 
 keywords: ontap, netapp, provision nas storage, linux, windows, NFS, SMB, SMB, CIFS, enable NFS, enable SMB, configure DNS, modify storage VM, configure DNS, configure name server, configure Kerberos, map user names 
-summary: Storage VM を変更して、 NFS サーバと SMB サーバが Linux クライアントや Windows クライアントにデータを提供できるようにします。 
+summary: LinuxおよびWindowsクライアントにデータを提供できるように、Storage VMを変更してNFSサーバとSMBサーバを有効にします。 
 ---
-= NFS と SMB の両方を使用して、 Windows と Linux の両方で NAS ストレージを有効にします
+= NFSとSMBの両方を使用したWindowsとLinuxのNASストレージの有効化
 :hardbreaks:
 :toclevels: 1
 :allow-uri-read: 
@@ -16,17 +16,17 @@ summary: Storage VM を変更して、 NFS サーバと SMB サーバが Linux �
 
 
 [role="lead"]
-Storage VMを作成または変更して、NFSサーバとSMBサーバがLinuxクライアントやWindowsクライアントにデータを提供できるようにします。
+Storage VMを作成または変更して、NFSサーバとSMBサーバがLinuxクライアントとWindowsクライアントにデータを提供できるようにします。
 
-新規または既存のStorage VMが、この手順を使用してNFSプロトコルとSMBプロトコルの両方を提供できるようにします。
+この手順を使用して、新規または既存のStorage VMがNFSプロトコルとSMBプロトコルの両方を提供できるようにします。
 
 image:workflow_nas_enable_nfs_and_smb.png["ワークフローの概要：1 NFSの有効化2 SMBの有効化3 root volエクスポートポリシーを開く4 DNSの設定5ネームサービスの設定6必要に応じて暗号化を設定7必要に応じてUNIXとWindowsのユーザ名をマッピング"]
 
-.作業を開始する前に
+.開始する前に
 環境で必要なネットワークサービス、認証サービス、またはセキュリティサービスの設定の詳細をメモしておいてください。
 
 .手順
-. Storage VMでNFSとSMBを有効にする
+. Storage VMでNFSとSMBを有効にします。
 +
 .. 新しいStorage VMの場合：* Storage > Storage VM*をクリックし、* Add *をクリックしてStorage VM名を入力し、* SMB / CIFS、NFS、S3 *タブで* SMB / CIFSの有効化*と* NFSの有効化*を選択します。
 .. 次の情報を入力します。
@@ -36,11 +36,11 @@ image:workflow_nas_enable_nfs_and_smb.png["ワークフローの概要：1 NFS�
 *** Active Directoryドメイン
 
 
-.. 組織単位を確認します。
-.. DNS値を確認します。
+.. 組織単位を確定します。
+.. DNS値を確定します。
 .. デフォルトの言語を確認します。
 .. ネットワークインターフェイスを追加
-.. Storage VM管理者アカウント情報を更新する（オプション）。
+.. Storage VM管理者アカウント情報の更新（オプション）
 .. 既存のStorage VMの場合：* Storage > Storage VM*をクリックし、Storage VMを選択して* Settings *をクリックします。NFSまたはSMBがまだ有効になっていない場合は、次のサブ手順を実行します。
 +
 *** [NFS]*の下にあるをクリックします image:icon_gear.gif["アクションアイコン"] 。
@@ -49,30 +49,30 @@ image:workflow_nas_enable_nfs_and_smb.png["ワークフローの概要：1 NFS�
 
 
 
-. Storage VM ルートボリュームのエクスポートポリシーを開きます。
+. Storage VMルートボリュームのエクスポートポリシーを開きます。
 +
-.. Storage > Volumes * をクリックし、 Storage VM のルートボリューム（デフォルトは _volume-name_root_） を選択し、 * Export Policy * に表示されるポリシーをクリックします。
-.. ルールを追加するには、 [ * 追加 ] をクリックします。
+.. [ストレージ]>[ボリューム]*をクリックし、Storage VMのルートボリューム（デフォルトでは_volume-name_root_）を選択し、*[エクスポートポリシー]*に表示されるポリシーをクリックします。
+.. [追加]*をクリックしてルールを追加します。
 +
 *** クライアント仕様= `0.0.0.0/0`
-*** アクセスプロトコル = nfs
-*** アクセスの詳細= NFS読み取り専用
+*** アクセスプロトコル= NFS
+*** アクセスの詳細 = NFS読み取り専用
 
 
 
 
-. ホスト名解決に使用する DNS を設定します。
+. ホスト名解決に使用するDNSを設定します。
 +
 .. [ストレージ]>[Storage VM]*をクリックし、Storage VMを選択して*[設定]*をクリックし、*[DNS]*の下をクリックします image:icon_gear.gif["アクションアイコン"] 。
-.. DNS の設定が完了したら、 DNS サーバに切り替えて SMB サーバをマッピングします。
+.. DNSの設定が完了したら、DNSサーバに切り替えてSMBサーバをマッピングします。
 +
-*** フォワードルックアップ（ A - アドレスレコード）とリバースルックアップ（ PTR - ポインタレコード）のエントリを作成して、 SMB サーバ名をデータネットワークインターフェイスの IP アドレスにマッピングします。
-*** NetBIOS エイリアスを使用する場合は、エイリアスの正規名（ CNAME リソースレコード）のルックアップエントリを作成して、各エイリアスを SMB サーバのデータネットワークインターフェイスの IP アドレスにマッピングします。
+*** フォワードルックアップ（A -アドレスレコード）とリバースルックアップ（PTR -ポインタレコード）のエントリを作成して、SMBサーバ名をデータネットワークインターフェイスのIPアドレスにマッピングします。
+*** NetBIOSエイリアスを使用する場合は、エイリアスの正規名（CNAMEリソースレコード）ルックアップエントリを作成して、各エイリアスをSMBサーバのデータネットワークインターフェイスのIPアドレスにマッピングします。
 
 
 
 
-. 必要に応じてネームサービスを設定します。
+. ネームサービスを必要に応じて設定します。
 +
 .. [ストレージ]>[Storage VM]*をクリックし、Storage VMを選択して*[設定]*をクリックし、[LDAP]または[NIS]をクリックし image:icon_gear.gif["アクションアイコン"] ます。
 .. ネームサービススイッチファイルに変更を反映します。*[ネームサービススイッチ]*の下にあるをクリックします image:icon_pencil.gif["編集アイコン"] 。
@@ -82,14 +82,14 @@ image:workflow_nas_enable_nfs_and_smb.png["ワークフローの概要：1 NFS�
 +
 [role="tabbed-block"]
 ====
-.NFSクライアント用のTLSの設定
+.NFSクライアントのTLSの設定
 --
 
-NOTE: ONTAP 9.15.1では、NFS over TLSがパブリックプレビューとして提供されています。プレビュー版として、ONTAP 9.15.1では本番ワークロードでNFS over TLSはサポートされていません。
+NOTE: ONTAP 9では、TLS経由のNFSがパブリックプレビューとして提供されています。15.1プレビュー版として、ONTAP 9の本番ワークロードではNFS over TLSはサポートされていません。15.1
 
 .手順
-.. を参照してください link:nfs-admin/tls-nfs-strong-security-concept.html["要件"^] （NFS over TLSの場合）を参照してください。
-.. Storage > Storage VM* をクリックし、 Storage VM を選択して、 * Settings * をクリックします。
+.. 作業を開始する前に、『for NFS over TLS』を参照してくださいlink:nfs-admin/tls-nfs-strong-security-concept.html["要件"^]。
+.. [ストレージ]>[Storage VM]*をクリックし、Storage VMを選択して*[設定]*をクリックします。
 .. [NFS]タイルで、*[NFS over TLS設定]*をクリックします。
 .. [NFS over TLS設定]*領域で、TLSを有効にするNFSネットワークインターフェイスを選択します。
 .. そのインターフェイスのをクリックし image:icon_kabob.gif["メニューオプションアイコン"] ます。
@@ -108,7 +108,7 @@ NOTE: ONTAP 9.15.1では、NFS over TLSがパブリックプレビューとし�
 .Kerberosの設定
 --
 .手順
-.. Storage > Storage VM* をクリックし、 Storage VM を選択して、 * Settings * をクリックします。
+.. [ストレージ]>[Storage VM]*をクリックし、Storage VMを選択して*[設定]*をクリックします。
 .. [Kerberos]タイル内をクリックし image:icon_arrow.gif["矢印アイコン"] 、*[追加]*をクリックします。
 
 
@@ -116,6 +116,6 @@ NOTE: ONTAP 9.15.1では、NFS over TLSがパブリックプレビューとし�
 ====
 . 必要に応じてUNIXとWindowsのユーザ名をマッピングします。*[ネームマッピング]*でをクリックし、*[追加]*をクリックし image:icon_arrow.gif["矢印アイコン"] ます。
 +
-この処理は、WindowsとUNIXのユーザアカウントが暗黙的にマッピングされない場合にのみ実行します。小文字のWindowsユーザ名がUNIXユーザ名と一致している場合は、この処理を実行します。ユーザ名は、LDAP、NIS、またはローカルユーザを使用してマッピングできます。一致しない 2 組のユーザセットがある場合、ネームマッピングを設定する必要があります。
+この処理は、WindowsとUNIXのユーザアカウントが暗黙的にマッピングされない場合にのみ実行します。小文字のWindowsユーザ名がUNIXユーザ名と一致している場合は、この処理を実行します。ユーザ名は、LDAP、NIS、またはローカルユーザを使用してマッピングできます。一致しないユーザセットが2つある場合は、ネームマッピングを設定する必要があります。
 
 

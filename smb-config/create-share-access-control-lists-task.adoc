@@ -2,53 +2,53 @@
 permalink: smb-config/create-share-access-control-lists-task.html 
 sidebar: sidebar 
 keywords: configure, configuring, share, permission, create, access, control, list, acl, smb, enable, level, access, user, group, create smb share access control lists 
-summary: SMB 共有の Access Control List （ ACL ；アクセス制御リスト）を作成して共有権限を設定すると、ユーザとグループの共有へのアクセスレベルを制御できます。 
+summary: SMB共有のAccess Control List（ACL；アクセス制御リスト）を作成して共有権限を設定すると、ユーザとグループの共有へのアクセスレベルを制御できます。 
 ---
-= SMB 共有のアクセス制御リストを作成
+= SMB共有のアクセス制御リストの作成
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-SMB 共有の Access Control List （ ACL ；アクセス制御リスト）を作成して共有権限を設定すると、ユーザとグループの共有へのアクセスレベルを制御できます。
+SMB共有のAccess Control List（ACL；アクセス制御リスト）を作成して共有権限を設定すると、ユーザとグループの共有へのアクセスレベルを制御できます。
 
-.作業を開始する前に
+.開始する前に
 共有へのアクセスを許可するユーザまたはグループを決めておく必要があります。
 
-.このタスクについて
-ローカルまたはドメインの Windows ユーザまたはグループ名を使用して共有レベルの ACL を設定できます。
+.タスクの内容
+ローカルまたはドメインのWindowsユーザまたはグループの名前を使用して、共有レベルのACLを設定できます。
 
-新しいACLを作成する前に、デフォルトの共有ACLを削除する必要があります `Everyone / Full Control`は、セキュリティリスクをもたらします。
+新しいACLを作成する前に、デフォルトの共有ACLを削除する必要があり `Everyone / Full Control`ます。これにより、セキュリティリスクが発生します。
 
-ワークグループモードでは、ローカルドメイン名は SMB サーバ名です。
+ワークグループモードでは、ローカルドメイン名はSMBサーバ名です。
 
 .手順
 . デフォルトの共有ACLを削除します。``vserver cifs share access-control delete -vserver _vserver_name_ -share _share_name_ -user-or-group everyone``
-. 新しい ACL を設定します。
+. 新しいACLを設定します。
 +
 |===
 | 設定する ACL に使用するアカウント | 入力するコマンド 
 
 
  a| 
-Windows ユーザ
+Windowsユーザ
  a| 
 `vserver cifs share access-control create -vserver _vserver_name_ -share _share_name_ -user-group-type windows -user-or-group _Windows_domain_name\\user_name_ -permission access_right`
 
 
 
  a| 
-Windows グループ
+Windowsグループ
  a| 
 `vserver cifs share access-control create -vserver _vserver_name_ -share _share_name_ -user-group-type windows -user-or-group _Windows_group_name_ -permission access_right`
 
 |===
-. を使用して、共有に適用されたACLが正しいことを確認します `vserver cifs share access-control show` コマンドを実行します
+. コマンドを使用して、共有に適用されたACLが正しいことを確認します `vserver cifs share access-control show`。
 
 
 .例
-次のコマンドは、を示しています `Change` 「vs1.example.com`"SVM:」上の「sales」共有に対する「Sales Team」Windowsグループへの権限
+次のコマンドは、「vs1.example.com`"SVM:」上の「sales」共有の「sales Team」Windowsグループに権限を与えます `Change`。
 
 [listing]
 ----
@@ -61,7 +61,7 @@ Vserver          Name        Name                    Type        Permission
 vs1.example.com  c$          BUILTIN\Administrators  windows     Full_Control
 vs1.example.com  sales       DOMAIN\"Sales Team"     windows     Change
 ----
-以下のコマンドで説明します `Change` 「Tiger Team」という名前のローカルWindowsグループおよびへの権限 `Full_Control` SVM「vs1」の「datavol5」共有に対する「Sue Chang」という名前のWindowsローカルユーザの権限：
+次のコマンドは、SVM「vs1」上の「datavol5」共有に対する「Tiger Team」という名前のローカルWindowsグループへの権限と「See Chang」という名前のローカルWindowsユーザへの権限 `Full_Control`を付与します `Change`。
 
 [listing]
 ----

@@ -2,7 +2,7 @@
 permalink: data-protection/snapmirror-disaster-recovery-concept.html 
 sidebar: sidebar 
 keywords: asynchronous, snapmirror, disaster, recovery basics 
-summary: SnapMirror は、地理的に離れたサイトのプライマリストレージからセカンダリストレージへのフェイルオーバー用に設計されたディザスタリカバリテクノロジです。名前のとおり、 SnapMirror はセカンダリストレージに作業データのレプリカ（ミラー）を作成します。プライマリサイトで災害が発生した場合でも、セカンダリストレージからデータを引き続き提供できます。 
+summary: SnapMirrorは、地理的に離れたサイトのプライマリストレージからセカンダリストレージへのフェイルオーバー用に設計されたディザスタリカバリテクノロジです。名前が示すように、SnapMirrorは作業データのレプリカ（ミラー）をセカンダリストレージに作成し、プライマリサイトで災害が発生した場合でも、セカンダリストレージから引き続きデータを提供できます。 
 ---
 = SnapMirror非同期ディザスタリカバリの基本
 :allow-uri-read: 
@@ -11,19 +11,19 @@ summary: SnapMirror は、地理的に離れたサイトのプライマリスト
 
 
 [role="lead"]
-SnapMirror は、地理的に離れたサイトのプライマリストレージからセカンダリストレージへのフェイルオーバー用に設計されたディザスタリカバリテクノロジです。名前が示すように、 SnapMirror はセカンダリストレージに作業データのレプリカ（ _mirror ）を作成します。このデータから、プライマリサイトで災害が発生した場合にもデータの提供を継続できます。
+_ SnapMirror _は、地理的に離れたサイトのプライマリストレージからセカンダリストレージへのフェイルオーバー用に設計されたディザスタリカバリテクノロジです。名前が示すように、 SnapMirror はセカンダリストレージに作業データのレプリカ（ _mirror ）を作成します。このデータから、プライマリサイトで災害が発生した場合にもデータの提供を継続できます。
 
-プライマリサイトから引き続きデータを提供できる場合は、必要なデータをプライマリサイトに戻すことができます。ミラーからクライアントを提供することはありません。フェイルオーバーの事例で示すように、ミラーリングされたストレージからデータを効率的に提供するには、セカンダリシステム上のコントローラがプライマリシステム上のコントローラと同じであるか、ほぼ同じである必要があります。
+プライマリサイトから引き続きデータを提供できる場合は、必要なデータをプライマリサイトに戻すだけで、ミラーからクライアントを提供することはできません。フェイルオーバーのユースケースが示すように、ミラーリングされたストレージからデータを効率的に提供するには、セカンダリシステムのコントローラがプライマリシステムのコントローラと同等またはほぼ同等である必要があります。
 
 
 
 == データ保護関係
 
-データのミラーリングはボリュームレベルで行われます。プライマリストレージのソースボリュームとセカンダリストレージのデスティネーションボリュームの関係は、 _data 保護関係と呼ばれます。 _ ボリュームが存在するクラスタと、ボリュームからデータを提供する SVM は _peered になります。 _a ピア関係を設定することで、クラスタと SVM の交換が可能になります データをセキュアに保護
+データはボリュームレベルでミラーリングされます。プライマリストレージのソースボリュームとセカンダリストレージのデスティネーションボリュームの関係は、 _data 保護関係と呼ばれます。 _ ボリュームが存在するクラスタと、ボリュームからデータを提供する SVM は _peered になります。 _a ピア関係を設定することで、クラスタと SVM の交換が可能になります データをセキュアに保護
 
-https://docs.netapp.com/us-en/ontap-system-manager-classic/peering/index.html["クラスタと SVM のピアリング"^]
+https://docs.netapp.com/us-en/ontap-system-manager-classic/peering/index.html["クラスタとSVMのピアリング"^]
 
-次の図は、 SnapMirror データ保護関係を示しています。
+次の図は、SnapMirrorデータ保護関係を示しています。
 
 image:snapmirror-for-dp-pg.gif["SnapMirrorデータ保護関係の図"]
 
@@ -31,41 +31,41 @@ image:snapmirror-for-dp-pg.gif["SnapMirrorデータ保護関係の図"]
 
 == データ保護関係の範囲
 
-ボリューム間またはボリュームを所有する SVM 間で直接データ保護関係を作成できます。SVM のデータ保護関係では、 SVM のすべてまたは一部の設定が NFS エクスポートおよび SMB 共有から RBAC にレプリケートされます。また、 SVM が所有するボリューム内のデータもレプリケートされます。
+データ保護関係は、ボリューム間で直接作成することも、ボリュームを所有するSVM間で作成することもできます。SVM のデータ保護関係では、 SVM のすべてまたは一部の設定が NFS エクスポートおよび SMB 共有から RBAC にレプリケートされます。また、 SVM が所有するボリューム内のデータもレプリケートされます。
 
-SnapMirrorは、特殊なデータ保護アプリケーションにも使用できます。
+SnapMirrorは、次の特殊なデータ保護アプリケーションにも使用できます。
 
 * SVM ルートボリュームの負荷共有ミラーコピーを作成すると、ノードに障害やフェイルオーバーが発生したときに引き続きデータにアクセスできます。
 * SnapLock ボリューム間のデータ保護関係： WORM ファイルをセカンダリストレージにレプリケートできます。
 +
-link:../snaplock/index.html["SnapLock テクノロジを使用したアーカイブとコンプライアンス"]
+link:../snaplock/index.html["SnapLockテクノロジを使用したアーカイブとコンプライアンス"]
 
 * ONTAP 9 .13.1以降では、SnapMirror非同期を使用して保護できますxref:../consistency-groups/index.html[整合グループ]。ONTAP 9 14.1以降では、SnapMirror非同期を使用して、整合性グループ関係を使用して、ボリューム単位のSnapshotをデスティネーションクラスタにレプリケートできます。詳細については、を参照してください xref:../consistency-groups/protect-task.html#configure-snapmirror-asynchronous[SnapMirror非同期保護の設定]。
 
 
 
 
-== SnapMirror データ保護関係を初期化する方法
+== SnapMirrorデータ保護関係を初期化する方法
 
 SnapMirror を初めて起動すると、ソース・ボリュームからデスティネーション・ボリュームへの _ ベースライン転送 _ が実行されます。関係の _SnapMirror ポリシー _ は、ベースラインおよび更新の内容を定義します。
 
-デフォルトのSnapMirrorポリシーに基づくベースライン転送 `MirrorAllSnapshots` 次の手順を実行します。
+デフォルトのSnapMirrorポリシーに基づくベースライン転送 `MirrorAllSnapshots`では、次の手順を実行します。
 
-* ソースボリュームの Snapshot コピーを作成します。
-* Snapshot コピーおよびコピーが参照するすべてのデータブロックをデスティネーションボリュームに転送します。
+* ソースボリュームのSnapshotコピーを作成します。
+* Snapshotコピーおよびコピーが参照するすべてのデータブロックをデスティネーションボリュームに転送します。
 * 「アクティブ」ミラーが破損した場合に備えて、ソースボリューム上の最新ではない残りの Snapshot コピーをデスティネーションボリュームに転送します。
 
 
 
 
-== SnapMirror データ保護関係を更新する方法
+== SnapMirrorデータ保護関係を更新する方法
 
-更新は、設定したスケジュールに従って非同期に行われます。保持処理によって、ソース上の Snapshot ポリシーがミラーリングされます。
+更新は、設定したスケジュールに従って非同期に行われます。保持では、ソース上のSnapshotポリシーがミラーリングされます。
 
-をクリックします `MirrorAllSnapshots` ポリシーでは、SnapMirrorはソースボリュームのSnapshotコピーを作成し、そのSnapshotコピーと前回の更新後に作成されたすべてのSnapshotコピーを転送します。をクリックします `snapmirror policy show` コマンドを使用します `MirrorAllSnapshots` ポリシーでは、次の点に注意してください。
+ポリシーに基づく更新のたびに `MirrorAllSnapshots`、SnapMirrorはソースボリュームのSnapshotコピーを作成し、そのSnapshotコピーと前回の更新後に作成されたすべてのSnapshotコピーを転送します。次のポリシーのコマンドの `MirrorAllSnapshots`出力では `snapmirror policy show`、次の点に注意してください。
 
-* `Create Snapshot` は「true」で、これを示します `MirrorAllSnapshots` SnapMirrorによる関係の更新時にSnapshotコピーが作成されます。
-* `MirrorAllSnapshots` には、「sm_created」および「all_source_snapshots」というルールがあります。これは、SnapMirrorが関係を更新するときに、SnapMirrorで作成されたSnapshotコピーと前回の更新以降に作成されたすべてのSnapshotコピーが転送されることを示します。
+* `Create Snapshot`は「true」です。これは、SnapMirrorが関係を更新するときにSnapshotコピーが作成されることを示します。 `MirrorAllSnapshots`
+* `MirrorAllSnapshots`には、「sm_created」および「all_source_snapshots」というルールが設定されています。これは、SnapMirrorが関係を更新するときに、SnapMirrorで作成されたSnapshotコピーと前回の更新以降に作成されたすべてのSnapshotコピーが転送されることを示します。
 
 
 [listing]
@@ -93,9 +93,9 @@ cluster_dst::> snapmirror policy show -policy MirrorAllSnapshots -instance
 ----
 
 
-== MirrorLatest ポリシー
+== MirrorLatestポリシー
 
-事前に設定されている `MirrorLatest` ポリシーはとまったく同じように機能します `MirrorAllSnapshots`ただし、初期化および更新の際に転送されるのは、SnapMirrorで作成されたSnapshotコピーだけです。
+事前設定され `MirrorLatest`たポリシーはとまったく同じように機能し `MirrorAllSnapshots`ますが、初期化および更新の際に転送されるのはSnapMirrorで作成されたSnapshotコピーだけです。
 
 [listing]
 ----

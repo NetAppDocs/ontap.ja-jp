@@ -11,9 +11,9 @@ summary: ONTAP 9.14.1以降では、FPolicyで永続的ストアを設定して�
 
 
 [role="lead"]
-永続的ストアを使用すると、クライアントI/O処理とFPolicy通知処理を分離して、クライアントのレイテンシを低減できます。ONTAP 9.14.1以降では、FPolicyを使用して link:persistent-stores.html["永続的ストア"] SVM内の非同期非必須ポリシーのファイルアクセスイベントをキャプチャする。同期（必須または非必須）および非同期の必須構成はサポートされていません。
+永続的ストアを使用すると、クライアントI/O処理とFPolicy通知処理を分離して、クライアントのレイテンシを低減できます。14.1以降では、ONTAP 9の必須ではない非同期ポリシーのファイルアクセスイベントをキャプチャするようにを設定できlink:persistent-stores.html["永続的ストア"]ます。同期（必須または非必須）および非同期の必須構成はサポートされていません。
 
-ONTAP 9.15.1以降では、FPolicyの永続的ストアの設定が簡易化されています。。 `persistent-store create` コマンドを実行すると、SVM用のボリュームの作成が自動化され、永続的ストア用のボリュームが設定されます。
+ONTAP 9 .15.1以降では、FPolicyの永続的ストアの設定が簡素化されています。 `persistent-store create`コマンドは、SVM用のボリュームの作成を自動化し、永続的ストア用のボリュームを設定します。
 
 永続ストアを作成するには、ONTAPのリリースに応じて次の2つの方法があります。
 
@@ -25,11 +25,11 @@ ONTAP 9.15.1以降では、FPolicyの永続的ストアの設定が簡易化さ�
 
 
 
-== 永続ストアの作成（ONTAP 9.15.1以降）
+== 永続ストアの作成（ONTAP 9 .15.1以降）
 
-ONTAP 9.15.1以降では、 `fpolicy persistent-store create` インラインボリュームの作成および設定を行うFPolicy永続ストアを作成するコマンド。ONTAPは、外部ユーザプロトコルアクセス（CIFS / NFS）からボリュームを自動的にブロックします。
+.15.1以降では、コマンドを使用して、インラインボリュームの作成および設定を行うONTAP 9 `fpolicy persistent-store create`永続ストアを作成します。ONTAPは、外部ユーザプロトコルアクセス（CIFS / NFS）からボリュームを自動的にブロックします。
 
-.作業を開始する前に
+.開始する前に
 * 永続的ストアを作成するSVMには、アグリゲートが少なくとも1つ必要です。
 * SVMで使用可能なアグリゲートへのアクセスと、ボリュームを作成するための十分な権限が必要です。
 
@@ -40,14 +40,14 @@ ONTAP 9.15.1以降では、 `fpolicy persistent-store create` インラインボ
 `vserver fpolicy persistent-store create -vserver <vserver> -persistent-store <name> -volume <volume_name> -size <size> -autosize-mode <off|grow|grow_shrink>`
 
 +
-** 。 `vserver` parameterは、SVMの名前です。
-** 。 `persistent-store` parameterは、永続ストアの名前です。
-** 。 `volume` parameterは、永続的ストアボリュームの名前です。
+**  `vserver`パラメータは、SVMの名前です。
+**  `persistent-store`パラメータは、永続ストアの名前です。
+**  `volume`パラメータは、永続的ストアボリュームの名前です。
 +
 
-NOTE: 既存の空のボリュームを使用する場合は、 `volume show` コマンドを使用して検索し、volumeパラメータで指定します。
+NOTE: 既存の空のボリュームを使用する場合は、コマンドを使用してボリューム `volume show`を検索し、volumeパラメータで指定します。
 
-** 。 `size` パラメータは、外部サーバ（パートナーアプリケーション）に配信されないイベントを保持する期間に基づいています。
+** この `size`パラメータは、外部サーバ（パートナーアプリケーション）に配信されないイベントを保持する期間に基づいています。
 +
 たとえば、1秒あたり30Kの通知があるクラスタで30分間のイベントを維持する場合は、次のコマンドを実行します。
 
@@ -55,13 +55,13 @@ NOTE: 既存の空のボリュームを使用する場合は、 `volume show` �
 必要なボリュームサイズ= 30000 x 30 x 60 x 0.6KB（通知レコードの平均サイズ）= 32400000 KB =~32GB
 
 +
-おおよその通知速度を確認するには、FPolicyパートナーアプリケーションに連絡するか、FPolicyカウンタを利用します。 `requests_dispatched_rate`。
+おおよその通知速度を確認するには、FPolicyパートナーアプリケーションに連絡するか、FPolicyカウンタを利用します `requests_dispatched_rate`。
 
 +
 
 NOTE: 既存のボリュームを使用する場合、sizeパラメータはオプションです。sizeパラメータに値を指定すると、指定したサイズに一致するボリュームが変更されます。
 
-** 。 `autosize-mode` パラメータは、ボリュームのオートサイズモードを指定します。次のオートサイズモードがサポートされています。
+** パラメータは `autosize-mode`、ボリュームのオートサイズモードを指定します。サポートされるオートサイズモードは次のとおりです。
 +
 *** off -使用済みスペースの量に応じてボリュームのサイズが拡張または縮小されません。
 *** grow -ボリュームの使用済みスペースが拡張しきい値を超えると、ボリュームは自動的に拡張されます。
@@ -70,12 +70,12 @@ NOTE: 既存のボリュームを使用する場合、sizeパラメータはオ�
 
 
 
-. FPolicyポリシーを作成し、そのポリシーに永続ストア名を追加します。詳細については、を参照してください link:create-fpolicy-policy-task.html["FPolicy ポリシーを作成します"]。
+. FPolicyポリシーを作成し、そのポリシーに永続ストア名を追加します。詳細については、を参照してください link:create-fpolicy-policy-task.html["FPolicyポリシーを作成する"]。
 
 
 
 
-== 永続ストアの作成（ONTAP 9.14.1）
+== 永続ストアの作成（ONTAP 9 .14.1）
 
 ボリュームを作成し、そのボリュームを使用する永続的ストアを作成できます。作成したボリュームを外部ユーザプロトコルアクセス（CIFS / NFS）からブロックできます。
 
@@ -85,15 +85,15 @@ NOTE: 既存のボリュームを使用する場合、sizeパラメータはオ�
 `volume create -vserver <SVM Name> -volume <volume> -state <online> -policy <default> -unix-permissions <777> -size <value> -aggregate <aggregate name> -snapshot-policy <none>`
 
 +
-（ボリュームを作成するための）十分なRBAC権限を持つ管理者ユーザは、必要なサイズのボリュームを（volume CLIコマンドまたはREST APIを使用して）作成し、そのボリュームの名前を `-volume` 永続的ストアでは、CLIコマンドまたはREST APIを作成します。
+十分なRBAC Privileges（ボリュームの作成）を持つ管理者ユーザは、必要なサイズのボリュームを（volume CLIコマンドまたはREST APIを使用して）作成し、永続的ストアのcreate CLIコマンドまたはREST APIでとしてボリュームの名前を指定する必要があります `-volume`。
 
 +
-** 。 `vserver` parameterは、SVMの名前です。
-** 。 `volume` parameterは、永続的ストアボリュームの名前です。
-** 。 `state` ボリュームを使用できるようにするには、パラメータをonlineに設定する必要があります。
-** 。 `policy` FPolicyサービスポリシーがすでに設定されている場合は、パラメータがに設定されます。そうでない場合は、 `volume modify` あとでコマンドを実行してポリシーを追加します。
-** 。 `unix-permissions` パラメータはオプションです。
-** 。 `size` パラメータは、外部サーバ（パートナーアプリケーション）に配信されないイベントを保持する期間に基づいています。
+**  `vserver`パラメータは、SVMの名前です。
+**  `volume`パラメータは、永続的ストアボリュームの名前です。
+** ボリュームを使用できるようにするには、 `state`パラメータをonlineに設定する必要があります。
+**  `policy`FPolicyサービスポリシーをすでに設定している場合、パラメータはに設定されます。そうでない場合は、あとでコマンドを使用してポリシーを追加できます `volume modify`。
+**  `unix-permissions`パラメータはオプションです。
+** この `size`パラメータは、外部サーバ（パートナーアプリケーション）に配信されないイベントを保持する期間に基づいています。
 +
 たとえば、1秒あたり30Kの通知があるクラスタで30分間のイベントを維持する場合は、次のコマンドを実行します。
 
@@ -101,12 +101,12 @@ NOTE: 既存のボリュームを使用する場合、sizeパラメータはオ�
 必要なボリュームサイズ= 30000 x 30 x 60 x 0.6KB（通知レコードの平均サイズ）= 32400000 KB =~32GB
 
 +
-おおよその通知速度を確認するには、FPolicyパートナーアプリケーションに連絡するか、FPolicyカウンタを利用します。 `requests_dispatched_rate`。
+おおよその通知速度を確認するには、FPolicyパートナーアプリケーションに連絡するか、FPolicyカウンタを利用します `requests_dispatched_rate`。
 
 ** FlexVolボリュームの場合はaggregateパラメータが必要です。それ以外の場合は必須ではありません。
-** 。 `snapshot-policy` パラメータはnoneに設定する必要があります。これにより、スナップショットが誤ってリストアされて現在のイベントが失われることがなくなり、イベント処理の重複を防ぐことができます。
+**  `snapshot-policy`パラメータはnoneに設定する必要があります。これにより、スナップショットが誤ってリストアされて現在のイベントが失われることがなくなり、イベント処理の重複を防ぐことができます。
 +
-既存の空のボリュームを使用する場合は、 `volume show` コマンドを使用して検索し、 `volume modify` コマンドを使用して必要な変更を行います。ポリシー、サイズ、 `snapshot-policy` 永続ストアのパラメータが正しく設定されている。
+既存の空のボリュームを使用する場合は、コマンドを使用してボリュームを検索し、コマンドを使用し `volume show`て必要な変更を行います。 `volume modify`永続ストアのポリシー、サイズ、およびパラメータが正しく設定されていることを確認します `snapshot-policy`。
 
 
 
@@ -115,10 +115,10 @@ NOTE: 既存のボリュームを使用する場合、sizeパラメータはオ�
 `vserver fpolicy persistent store create -vserver <SVM> -persistent-store <PS_name> -volume <volume>`
 
 +
-** 。 `vserver` parameterは、SVMの名前です。
-** 。 `persistent-store` parameterは、永続ストアの名前です。
-** 。 `volume` parameterは、永続的ストアボリュームの名前です。
+**  `vserver`パラメータは、SVMの名前です。
+**  `persistent-store`パラメータは、永続ストアの名前です。
+**  `volume`パラメータは、永続的ストアボリュームの名前です。
 
 
-. FPolicyポリシーを作成し、そのポリシーに永続ストア名を追加します。詳細については、を参照してください link:create-fpolicy-policy-task.html["FPolicy ポリシーを作成します"]。
+. FPolicyポリシーを作成し、そのポリシーに永続ストア名を追加します。詳細については、を参照してください link:create-fpolicy-policy-task.html["FPolicyポリシーを作成する"]。
 

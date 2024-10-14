@@ -2,21 +2,21 @@
 permalink: data-protection/create-snapshot-policy-task.html 
 sidebar: sidebar 
 keywords: create, snapshot, policy 
-summary: Snapshot ポリシーは、 Snapshot コピーを作成するタイミング、保持するコピーの数、および Snapshot コピーに名前を付ける方法を指定します。たとえば、毎日午前 12 時 10 分に 1 つの Snapshot コピーを作成し、直近の 2 つのコピーを保持して、「 daily. timestamp 」という名前を付けることができます。 Snapshot ポリシーには最大 5 つのジョブスケジュールを含めることができます。 
+summary: Snapshotポリシーは、Snapshotコピーを作成するタイミング、保持するコピーの数、およびSnapshotコピーに名前を付ける方法を指定します。たとえば、毎日午前12時10分に1つのSnapshotコピーを作成し、最新の2つのコピーを保持して、「daily.timestamp」という名前を付けるとします。Snapshotポリシーには最大5つのジョブ スケジュールを設定できます。 
 ---
-= Snapshot ポリシーを作成します
+= Snapshotポリシーを作成します。
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-Snapshot ポリシーは、 Snapshot コピーを作成するタイミング、保持するコピーの数、および Snapshot コピーに名前を付ける方法を指定します。たとえば、毎日午前12時10分に1つのSnapshotコピーを作成し、最新の2つのコピーを保持して、「毎日」という名前を付けることができます.`_timestamp_`.`" Snapshotポリシーには最大5つのジョブスケジュールを含めることができます。
+Snapshotポリシーは、Snapshotコピーを作成するタイミング、保持するコピーの数、およびSnapshotコピーに名前を付ける方法を指定します。たとえば、毎日午前12時10分にSnapshotコピーを1つ作成し、最新の2つのコピーを保持して「daily」という名前を付けることができます.`_timestamp_`。Snapshotポリシーには、最大5つのジョブスケジュールを含めることができます。
 
-.このタスクについて
+.タスクの内容
 この手順は、FAS、AFF、および現在のASAシステムに適用されます。ASA R2システム（ASA A1K、ASA A70、またはASA A90）がある場合は、に従ってlink:https://docs.netapp.com/us-en/asa-r2/data-protection/policies-schedules.html#create-a-snapshot-policy["以下の手順を実行します"^]スナップショットポリシーを作成します。ASA R2システムは、SANのみのお客様に特化したシンプルなONTAPエクスペリエンスを提供します。
 
-デフォルトでは、 ONTAP が Snapshot コピーの名前を作成する際には、ジョブスケジュール名にタイムスタンプを追加します。
+デフォルトでは、ONTAPはジョブスケジュール名にタイムスタンプを追加してSnapshotコピーの名前を作成します。
 
 [listing]
 ----
@@ -24,38 +24,38 @@ daily.2017-05-14_0013/              hourly.2017-05-15_1106/
 daily.2017-05-15_0012/              hourly.2017-05-15_1206/
 hourly.2017-05-15_1006/             hourly.2017-05-15_1306/
 ----
-必要に応じて、プレフィックスをジョブスケジュール名に置き換えることができます。
+必要に応じて、プレフィックスをジョブスケジュール名に置き換えることもできます。
 
-。 `snapmirror-label` オプションはSnapMirrorレプリケーション用です。詳細については、を参照してください link:define-rule-policy-task.html["ポリシーのルールを定義する"]。
+ `snapmirror-label`オプションはSnapMirrorレプリケーション用です。詳細については、を参照してください link:define-rule-policy-task.html["ポリシーのルールの定義"]。
 
 .手順
 System ManagerまたはONTAP CLIを使用して、Snapshotコピーポリシーを作成できます。この手順では、ローカルクラスタにのみSnapshotコピーポリシーが作成されます。
 
 [role="tabbed-block"]
 ====
-.System Manager の略
+.System Manager
 --
 . [保護]>[概要]*に移動し、*[ローカルポリシー設定]*を展開します。
 . [Snapshotポリシー]*ペインで、をクリックしますimage:icon_arrow.gif["矢印アイコン"]。
 . [Snapshotポリシー]*タブで、をクリックしますimage:icon_add.gif["追加アイコン"]。
 . [Snapshotポリシーの追加]*ウィンドウで、ポリシー名を入力し、範囲を選択します。
-. をクリックします image:icon_add.gif["追加アイコン"]。
+. をクリックします。image:icon_add.gif["追加アイコン"]
 . スケジュールを選択するには、現在表示されているスケジュール名をクリックし、をクリックしimage:icon_dropdown_arrow.gif["ドロップダウンアイコン"]て、別のスケジュールを選択します。
 . 保持するSnapshotコピーの最大数を入力し、必要に応じてSnapMirrorラベルとSnapLockの保持期間を入力します。
 . [ 保存（ Save ） ] をクリックします。
 
 
 --
-.CLI の使用
+.CLI
 --
-. Snapshot ポリシーを作成します
+. Snapshotポリシーを作成します。
 +
 [source, cli]
 ----
 volume snapshot policy create -vserver <SVM> -policy <policy_name> -enabled true|false -schedule1 <schedule1_name> -count1 <copies_to_retain> -prefix1 <snapshot_prefix> -snapmirror-label1 <snapshot_label> ... -schedule5 <schedule5_name> -count5 <copies_to_retain> -prefix5 <snapshot_prefix> -snapmirror-label5 <snapshot_label>
 ----
 +
-次の例は、という名前のSnapshotポリシーを作成します `snap_policy_daily` これはAで実行されます `daily` スケジュール：このポリシーには最大5つのSnapshotコピーが含まれ、それぞれにという名前が付けられます `daily`.`_timestamp_` およびSnapMirrorラベル `daily`：
+次の例は、スケジュールに基づいて実行する `daily`というSnapshotポリシーを作成します `snap_policy_daily`。このポリシーには最大5つのSnapshotコピーが含まれ、それぞれに名前とSnapMirrorラベルが `daily`付いて `daily`.`_timestamp_`います。
 
 +
 [listing]

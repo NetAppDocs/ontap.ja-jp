@@ -12,20 +12,20 @@ summary: APIを使用して、S3ユーザがS3クライアントにアクセス�
 
 
 [role="lead"]
-ONTAP 9.14.1以降では、ONTAP管理者がカスタムロールを作成してローカルグループ、ドメイングループ、またはLightweight Directory Access Protocol（LDAP）グループに付与し、それらのグループに属するユーザがS3クライアントアクセス用に独自のアクセスキーとシークレットキーを生成できるようにすることができます。
+ONTAP 9 .14.1以降では、ONTAP管理者としてカスタムロールを作成し、ローカルグループ、ドメイングループ、またはLightweight Directory Access Protocol（LDAP）グループに付与して、それらのグループに属するユーザがS3クライアントアクセス用の独自のアクセスキーとシークレットキーを生成できるようにすることができます。
 
 カスタムロールを作成してアクセスキーを生成するAPIを呼び出すユーザに割り当てるには、Storage VMでいくつかの設定手順を実行する必要があります。
 
-.作業を開始する前に
+.開始する前に
 次の点を確認します。
 
-. S3サーバを含むS3対応Storage VMが作成されている。を参照してください link:../s3-config/create-svm-s3-task.html["S3 用の SVM を作成します"]。
-. そのStorage VMにバケットが作成されている。を参照してください link:../s3-config/create-bucket-task.html["バケットを作成する"]。
-. Storage VMにDNSが設定されています。を参照してください link:../networking/configure_dns_services_manual.html["DNS サービスを設定する"]。
-. LDAPサーバの自己署名ルート認証局（CA）証明書がStorage VMにインストールされている。を参照してください link:../nfs-config/install-self-signed-root-ca-certificate-svm-task.html["自己署名ルート CA 証明書を SVM にインストールします"]。
-. Storage VMでTLSが有効になっているLDAPクライアントが設定されています。を参照してください link:../nfs-config/create-ldap-client-config-task.html["LDAP クライアント設定を作成します"] および。
-. クライアント設定をSVMに関連付けます。を参照してください link:../nfs-config/enable-ldap-svms-task.html["LDAP クライアント設定を SVM に関連付けます"] および https://docs.netapp.com/us-en/ontap-cli//vserver-services-name-service-ldap-create.html["vserver services name-service ldap createを使用して"]。
-. データStorage VMを使用している場合は、管理ネットワークインターフェイス（LIF）とVM上に、LIFのサービスポリシーを作成します。を参照してください https://docs.netapp.com/us-en/ontap-cli/network-interface-create.html["ネットワークインターフェイスの作成"] および https://docs.netapp.com/us-en/ontap-cli//network-interface-service-policy-create.html["network interface service-policy createを実行します"] コマンド
+. S3サーバを含むS3対応Storage VMが作成されている。を参照して link:../s3-config/create-svm-s3-task.html["S3用のSVMの作成"]
+. そのStorage VMにバケットが作成されている。を参照して link:../s3-config/create-bucket-task.html["バケットを作成する"]
+. Storage VMにDNSが設定されています。を参照して link:../networking/configure_dns_services_manual.html["DNSサービスの設定"]
+. LDAPサーバの自己署名ルート認証局（CA）証明書がStorage VMにインストールされている。を参照して link:../nfs-config/install-self-signed-root-ca-certificate-svm-task.html["自己署名ルートCA証明書をSVMにインストールする"]
+. Storage VMでTLSが有効になっているLDAPクライアントが設定されています。およびを参照してくださいlink:../nfs-config/create-ldap-client-config-task.html["LDAPクライアント設定を作成する"]。
+. クライアント設定をSVMに関連付けます。および https://docs.netapp.com/us-en/ontap-cli//vserver-services-name-service-ldap-create.html["vserver services name-service ldap createを使用して"]を参照してくださいlink:../nfs-config/enable-ldap-svms-task.html["LDAPクライアント設定をSVMに関連付ける"]。
+. データStorage VMを使用している場合は、管理ネットワークインターフェイス（LIF）とVM上に、LIFのサービスポリシーを作成します。コマンドと https://docs.netapp.com/us-en/ontap-cli//network-interface-service-policy-create.html["network interface service-policy createを実行します"]コマンドを参照してください https://docs.netapp.com/us-en/ontap-cli/network-interface-create.html["ネットワークインターフェイスの作成"]。
 
 
 
@@ -40,27 +40,26 @@ ns-switch modify -vserver <vserver-name> -database group -sources files,ldap
 ns-switch modify -vserver <vserver-name> -database passwd -sources files,ldap
 ----
 +
-このコマンドの詳細については、を参照してください link:https://docs.netapp.com/us-en/ontap-cli/vserver-services-name-service-ns-switch-modify.html["vserver services name-service ns-switch modify"] コマンドを実行します
+このコマンドの詳細については、コマンドを参照してlink:https://docs.netapp.com/us-en/ontap-cli/vserver-services-name-service-ns-switch-modify.html["vserver services name-service ns-switch modify"]ください。
 
-. S3ユーザREST APIエンドポイントへのアクセスを含むカスタムロールを作成します。
-`security login rest-role create -vserver <vserver-name> -role <custom-role-name> -api "/api/protocols/s3/services/*/users" -access <access-type>`
-この例では、を使用しています `s3-role` Storage VMのユーザ用にロールが生成されました `svm-1`をクリックします。読み取り、作成、更新のすべてのアクセス権が付与されます。
+. S3ユーザREST APIエンドポイントへのアクセスを含むカスタムロールを作成：
+`security login rest-role create -vserver <vserver-name> -role <custom-role-name> -api "/api/protocols/s3/services/*/users" -access <access-type>`この例では `s3-role`、Storage VM上のユーザに対してロールが生成され `svm-1`、読み取り、作成、更新のすべてのアクセス権が付与されます。
 +
 [listing]
 ----
 security login rest-role create -vserver svm-1 -role s3role -api "/api/protocols/s3/services/*/users" -access all
 ----
 +
-このコマンドの詳細については、を参照してください link:https://docs.netapp.com/us-en/ontap-cli/security-login-rest-role-create.html["security login rest -role create"] コマンドを実行します
+このコマンドの詳細については、コマンドを参照してlink:https://docs.netapp.com/us-en/ontap-cli/security-login-rest-role-create.html["security login rest -role create"]ください。
 
-. security loginコマンドを使用してLDAPユーザグループを作成し、S3ユーザREST APIエンドポイントにアクセスするための新しいカスタムロールを追加します。このコマンドの詳細については、を参照してください link:https://docs.netapp.com/us-en/ontap-cli//security-login-create.html["security login create を実行します"] コマンドを実行します
+. security loginコマンドを使用してLDAPユーザグループを作成し、S3ユーザREST APIエンドポイントにアクセスするための新しいカスタムロールを追加します。このコマンドの詳細については、コマンドを参照してlink:https://docs.netapp.com/us-en/ontap-cli//security-login-create.html["security login create"]ください。
 +
 [listing]
 ----
 security login create -user-or-group-name <ldap-group-name> -application http -authentication-method nsswitch -role <custom-role-name> -is-ns-switch-group yes
 ----
 +
-この例では、LDAPグループ `ldap-group-1` が作成された場所 `svm-1`、およびカスタムロール `s3role` APIエンドポイントにアクセスするために追加され、高速バインドモードでLDAPアクセスを有効にします。
+この例では、LDAPグループを `ldap-group-1`に作成し `svm-1`、APIエンドポイントにアクセスするためのカスタムロールを `s3role`追加し、高速バインドモードでLDAPアクセスを有効にします。
 
 +
 [listing]
@@ -68,27 +67,27 @@ security login create -user-or-group-name <ldap-group-name> -application http -a
 security login create -user-or-group-name ldap-group-1 -application http -authentication-method nsswitch -role s3role -is-ns-switch-group yes -second-authentication-method none -vserver svm-1 -is-ldap-fastbind yes
 ----
 +
-詳細については、を参照してください link:../nfs-admin/ldap-fast-bind-nsswitch-authentication-task.html["nsswitch認証にLDAP高速バインドを使用できます"]。
+詳細については、を参照してください link:../nfs-admin/ldap-fast-bind-nsswitch-authentication-task.html["nsswitch認証にLDAP高速バインドを使用する"]。
 
 
 
-ドメインまたはLDAPグループにカスタムロールを追加すると、そのグループのユーザにONTAPへの制限付きアクセスが許可されます。 `/api/protocols/s3/services/{svm.uuid}/users` エンドポイント。APIを呼び出すことで、ドメインまたはLDAPグループのユーザは、S3クライアントにアクセスするための独自のアクセスキーとシークレットキーを生成できます。キーを生成できるのは自分だけで、他のユーザーには生成できません。
+ドメインまたはLDAPグループにカスタムロールを追加すると、そのグループのユーザはONTAPエンドポイントへの制限付きアクセスが許可されます `/api/protocols/s3/services/{svm.uuid}/users`。APIを呼び出すことで、ドメインまたはLDAPグループのユーザは、S3クライアントにアクセスするための独自のアクセスキーとシークレットキーを生成できます。キーを生成できるのは自分だけで、他のユーザーには生成できません。
 
 
 
 == S3ユーザまたはLDAPユーザとして、独自のアクセスキーを生成
 
-ONTAP 9.14.1以降では、S3クライアントにアクセスするための独自のアクセスキーとシークレットキーを生成できます（管理者が独自のキーを生成するロールをユーザに許可している場合）。次のONTAP REST APIエンドポイントを使用すると、自分専用のキーを生成できます。
+ONTAP 9 14.1以降では、S3クライアントにアクセスするための独自のアクセスキーとシークレットキーを生成できます（管理者が独自のキーを生成するロールをユーザに許可している場合）。次のONTAP REST APIエンドポイントを使用すると、自分専用のキーを生成できます。
 
 .HTTPメソッドとエンドポイント
-このREST API呼び出しでは、次のメソッドとエンドポイントを使用します。このエンドポイントの他のメソッドの詳細については、リファレンスを参照してください。 https://docs.netapp.com/us-en/ontap-automation/reference/api_reference.html#access-a-copy-of-the-ontap-rest-api-reference-documentation["APIドキュメント"]。
+このREST API呼び出しでは、次のメソッドとエンドポイントを使用します。このエンドポイントの他のメソッドの詳細については、リファレンスを参照して https://docs.netapp.com/us-en/ontap-automation/reference/api_reference.html#access-a-copy-of-the-ontap-rest-api-reference-documentation["APIドキュメント"]ください。
 
 [cols="25,75"]
 |===
-| HTTP メソッド | パス 
+| HTTPメソッド | パス 
 
 
-| 投稿（ Post ） | /api/protocols/s3/services/｛svm.uuid｝/users 
+| 投稿 | /api/protocols/s3/services/｛svm.uuid｝/users 
 |===
 .カールの例
 [source, curl]
@@ -101,7 +100,7 @@ curl
 --header "Authorization: Basic $BASIC_AUTH"
 --data '{"name":"_name_"}'
 ----
-.JSON 出力例
+.JSON出力の例
 [listing]
 ----
 {

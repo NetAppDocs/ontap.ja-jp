@@ -2,7 +2,7 @@
 permalink: snaplock/delete-worm-files-concept.html 
 sidebar: sidebar 
 keywords: delete, worm, file, privileged, delete, enterprise, mode, retention, period, overview 
-summary: privileged delete機能を使用して、保持期間中にEnterpriseモードのWORMファイルを削除できます。この機能を使用する前に、SnapLock 管理者アカウントを作成し、そのアカウントを使用して機能を有効にする必要があります。 
+summary: privileged delete機能を使用して、保持期間中にEnterpriseモードのWORMファイルを削除できます。この機能を使用するには、SnapLock管理者アカウントを作成し、そのアカウントを使用して機能を有効にする必要があります。 
 ---
 = WORMファイルの削除の概要
 :allow-uri-read: 
@@ -11,27 +11,26 @@ summary: privileged delete機能を使用して、保持期間中にEnterprise�
 
 
 [role="lead"]
-privileged delete機能を使用して、保持期間中にEnterpriseモードのWORMファイルを削除できます。
-この機能を使用する前に、SnapLock 管理者アカウントを作成し、そのアカウントを使用して機能を有効にする必要があります。
+privileged delete機能を使用して、保持期間中にEnterpriseモードのWORMファイルを削除できます。この機能を使用するには、SnapLock管理者アカウントを作成し、そのアカウントを使用して機能を有効にする必要があります。
 
 
 
-== SnapLock 管理者アカウントを作成します
+== SnapLock管理者アカウントの作成
 
-privileged delete を実行するには、 SnapLock 管理者の権限が必要です。これらの権限は vsadmin-snaplock ロールで定義されています。このロールが割り当てられていない場合は、クラスタ管理者に依頼して、 SnapLock 管理者ロールを持つ SVM 管理者アカウントを作成してもらいます。
+privileged deleteを実行するには、SnapLock管理者Privilegesが必要です。これらのPrivilegesは、SnapLockロールで定義されます。このロールが割り当てられていない場合は、クラスタ管理者に依頼して、 SnapLock 管理者ロールを持つ SVM 管理者アカウントを作成してもらいます。
 
 .必要なもの
 * このタスクを実行するには、クラスタ管理者である必要があります。
-* セキュアな接続（ SSH 、コンソール、または ZAPI ）でログインする必要があります。
+* セキュアな接続（SSH、コンソール、またはZAPI）でログインしておく必要があります。
 
 
 .手順
-. SnapLock 管理者ロールを持つ SVM 管理者アカウントを作成します。
+. SnapLock管理者ロールを持つSVM管理者アカウントを作成します。
 +
 `*security login create -vserver _SVM_name_ -user-or-group-name _user_or_group_name_ -application _application_ -authmethod _authentication_method_ -role _role_ -comment _comment_*`
 
 +
-次のコマンドは、SVM管理者アカウントを有効にします `SnapLockAdmin` を使用します `vsadmin-snaplock` アクセスするロール `SVM1` パスワードの使用：
+次のコマンドは、事前定義されたロールが割り当てられた `vsadmin-snaplock`SVM管理者アカウントにパスワードを使用したアクセスを `SVM1`許可し `SnapLockAdmin`ます。
 
 +
 [listing]
@@ -42,25 +41,25 @@ cluster1::> security login create -vserver SVM1 -user-or-group-name SnapLockAdmi
 
 
 
-== privileged delete 機能を有効にします
+== privileged delete機能を有効にする
 
-privileged delete 機能は、削除する WORM ファイルが格納されている Enterprise ボリュームに対して明示的に有効にする必要があります。
+privileged delete機能は、削除するWORMファイルが格納されているEnterpriseボリュームで明示的に有効にする必要があります。
 
-.このタスクについて
-の値 `-privileged-delete` オプションでは、privileged deleteを有効にするかどうかを指定指定できる値はです `enabled`、 `disabled`および `permanently-disabled`。
+.タスクの内容
+オプションの値 `-privileged-delete`によって、privileged deleteが有効かどうかが決まります。指定できる値は `enabled`、 `disabled`、および `permanently-disabled`です。
 
 [NOTE]
 ====
- `permanently-disabled` は、終了状態です。ボリュームで状態をに設定したあとにprivileged deleteを有効にすることはできません `permanently-disabled`。
+ `permanently-disabled`は、終了状態です。ボリュームで状態をに設定したあとにprivileged deleteを有効にすることはできません `permanently-disabled`。
 
 ====
 .手順
-. SnapLock Enterprise ボリュームに対して privileged delete を有効にします。
+. SnapLock Enterpriseボリュームに対してprivileged deleteを有効にします。
 +
 `*volume snaplock modify -vserver _SVM_name_ -volume _volume_name_ -privileged-delete disabled|enabled|permanently-disabled*`
 
 +
-次のコマンドは、Enterpriseボリュームに対してprivileged delete機能を有効にします `dataVol` オン `SVM1`：
+次のコマンドは、の `SVM1`Enterpriseボリュームに対してprivileged delete機能を有効にし `dataVol`ます。
 
 +
 [listing]
@@ -71,25 +70,25 @@ SVM1::> volume snaplock modify -vserver SVM1 -volume dataVol -privileged-delete 
 
 
 
-== EnterpriseモードのWORMファイルを削除します
+== EnterpriseモードのWORMファイルの削除
 
-privileged delete 機能を使用して、保持期間中に Enterprise モードの WORM ファイルを削除できます。
+privileged delete機能を使用すると、保持期間中にEnterpriseモードのWORMファイルを削除できます。
 
 .必要なもの
-* このタスクを実行するには、 SnapLock 管理者である必要があります。
-* Enterprise ボリュームで、 SnapLock 監査ログを作成し、 privileged delete 機能を有効にしておく必要があります。
+* このタスクを実行するには、SnapLock管理者である必要があります。
+* EnterpriseボリュームでSnapLock監査ログを作成し、privileged delete機能を有効にしておく必要があります。
 
 
-.このタスクについて
-privileged delete 処理を使用して、期限切れの WORM ファイルを削除することはできません。を使用できます `volume file retention show` コマンドを使用して、削除するWORMファイルの保持期限を表示します。詳細については、コマンドのマニュアルページを参照してください。
+.タスクの内容
+privileged delete処理を使用して、期限切れのWORMファイルを削除することはできません。コマンドを使用して、削除するWORMファイルの保持期限を表示できます `volume file retention show`。詳細については、コマンドのマニュアルページを参照してください。
 
 .ステップ
-. Enterprise ボリュームの WORM ファイルを削除します。
+. EnterpriseボリュームのWORMファイルを削除します。
 +
 `*volume file privileged-delete -vserver _SVM_name_ -file _file_path_*`
 
 +
-次のコマンドは、ファイルを削除します `/vol/dataVol/f1` 指定します``SVM1``：
+次のコマンドは、SVM上の``SVM1``ファイルを削除し `/vol/dataVol/f1`ます。
 
 +
 [listing]

@@ -2,28 +2,28 @@
 permalink: revert/task_disabling_qtrees_in_flexgroup_volumes_before_reverting.html 
 sidebar: sidebar 
 keywords: ontap, revert, reverting, reversion, disable, disabling, qtree, functionality, function, flexgroup, volumes 
-summary: ONTAP 9.3 より前のバージョンでは、 FlexGroup ボリュームの qtree がサポートされません。ONTAP 9.3 を以前のバージョンの ONTAP にリバートする前に、 FlexGroup ボリュームの qtree 機能を無効にする必要があります。 
+summary: FlexGroupボリュームのqtreeは、ONTAP 9より前のバージョンではサポートされません。3.ONTAP 9 .3から以前のバージョンのONTAPにリバートする前に、FlexGroupボリュームのqtree機能を無効にする必要があります。 
 ---
-= リバート前に FlexGroup ボリュームの qtree 機能を無効にする
+= リバート前にFlexGroupボリュームのqtree機能を無効にする
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-ONTAP 9.3 より前のバージョンでは、 FlexGroup ボリュームの qtree がサポートされません。ONTAP 9.3 を以前のバージョンの ONTAP にリバートする前に、 FlexGroup ボリュームの qtree 機能を無効にする必要があります。
+FlexGroupボリュームのqtreeは、ONTAP 9より前のバージョンではサポートされません。3.ONTAP 9 .3から以前のバージョンのONTAPにリバートする前に、FlexGroupボリュームのqtree機能を無効にする必要があります。
 
-qtree を作成するか、デフォルトの qtree の security-style および oplock-mode 属性を変更すると、 qtree 機能が有効になります。
+qtree機能は、qtreeを作成するか、デフォルトのqtreeのsecurity-style属性とoplock-mode属性を変更すると有効になります。
 
-. qtree 機能が有効になっている各 FlexGroup ボリューム内の、デフォルト以外のすべての qtree を特定して削除します。
+. qtree機能が有効になっている各FlexGroupボリュームで、デフォルト以外のすべてのqtreeを特定して削除します。
 +
-.. advanced 権限レベルにログインします。 `set -privilege advanced`
-.. qtree 機能が有効になっている FlexGroup ボリュームがないか確認してください。
+.. advanced権限レベルにログインします。 `set -privilege advanced`
+.. qtree機能が有効になっているFlexGroupボリュームがないか確認します。
 +
-ONTAP 9.6以降： `volume show -is-qtree-caching-enabled true`
+ONTAP 9 .6以降の場合は、次を使用します。 `volume show -is-qtree-caching-enabled true`
 
 +
-ONTAP 9.5以前の場合： `volume show -is-flexgroup-qtree-enabled true`
+ONTAP 9 .5以前の場合は、次を使用します。 `volume show -is-flexgroup-qtree-enabled true`
 
 +
 [listing]
@@ -33,9 +33,9 @@ Vserver   Volume       Aggregate    State      Type       Size  Available Used%
 --------- ------------ ------------ ---------- ---- ---------- ---------- -----
 vs0       fg           -            online     RW        320MB    220.4MB   31%
 ----
-.. qtree機能が有効になっているFlexGroup ボリュームごとに、デフォルト以外のqtreeをすべて削除します。 `volume qtree delete -vserver svm_name -volume volume_name -qtree qtree_name`
+.. qtree機能が有効になっているFlexGroupボリュームごとに、デフォルト以外のqtreeをすべて削除します。 `volume qtree delete -vserver svm_name -volume volume_name -qtree qtree_name`
 +
-デフォルトの qtree の属性を変更したために qtree 機能が有効になっている場合や、 qtree が 1 つもない場合は、この手順を省略できます。
+デフォルトのqtreeの属性を変更したためにqtree機能が有効になっていて、qtreeが1つもない場合は、この手順を省略できます。
 
 +
 [listing]
@@ -46,13 +46,13 @@ WARNING: Are you sure you want to delete qtree qtree4 in volume fg vserver vs0? 
 ----
 
 
-. 各FlexGroup ボリュームでqtree機能を無効にします。 `volume flexgroup qtree-disable -vserver svm_name -volume volume_name`
+. 各FlexGroupボリュームでqtree機能を無効にします。 `volume flexgroup qtree-disable -vserver svm_name -volume volume_name`
 +
 [listing]
 ----
 cluster1::*> volume flexgroup qtree-disable -vserver vs0 -volume fg
 ----
-. qtree 機能が有効になっている Snapshot コピーを特定し、削除します。
+. qtree機能が有効になっているSnapshotコピーを特定して削除します。
 +
 .. qtree機能が有効になっているSnapshotコピーがないか確認します。 `volume snapshot show -vserver vserver_name -volume volume_name -fields is-flexgroup-qtree-enabled`
 +
@@ -68,7 +68,7 @@ vs0     fg     snapmirror.0241f354-a865-11e7-a1c0-00a098a71764_2147867740.2017-1
 ----
 .. qtree機能が有効になっているSnapshotコピーをすべて削除します。 `volume snapshot delete -vserver svm_name -volume volume_name -snapshot snapshot_name -force true -ignore-owners true`
 +
-削除する必要がある Snapshot コピーは、通常の Snapshot コピーと、 SnapMirror 関係用に作成された Snapshot コピーです。ONTAP 9.2 以前を実行しているデスティネーションクラスタを使用して FlexGroup ボリュームの SnapMirror 関係を作成した場合は、ソース FlexGroup ボリュームの qtree 機能が有効なときに作成された Snapshot コピーをすべて削除する必要があります。
+削除する必要があるSnapshotコピーには、通常のSnapshotコピーと、SnapMirror関係用に作成されたSnapshotコピーが含まれます。デスティネーションクラスタでONTAP 9 .2以前を実行しているFlexGroupボリュームのSnapMirror関係を作成した場合は、ソースFlexGroupボリュームのqtree機能が有効になっているときに作成されたSnapshotコピーをすべて削除する必要があります。
 
 +
 [listing]
@@ -80,4 +80,4 @@ cluster1::> volume snapshot delete -vserver vs0 -volume fg -snapshot daily.2017-
 
 
 .関連情報
-link:../flexgroup/index.html["FlexGroup ボリューム管理"]
+link:../flexgroup/index.html["FlexGroupホリユウムノカンリ"]

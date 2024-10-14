@@ -4,7 +4,7 @@ sidebar: sidebar
 keywords: ontap, revert, reverting, reversion, downgrade, downgrading, verifying, verify, cluster, health 
 summary: クラスタをリバートまたはダウングレードしたら、ノードが正常に機能していてクラスタに追加するための条件を満たしていること、およびクラスタがクォーラムにあることを確認する必要があります。 
 ---
-= ダウングレードまたはリバート後にクラスタとストレージの健全性を確認
+= ダウングレードまたはリバート後のクラスタとストレージの健全性の確認
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
@@ -15,9 +15,9 @@ summary: クラスタをリバートまたはダウングレードしたら、�
 
 
 
-== クラスタの健常性を確認
+== クラスタの健全性を確認
 
-. クラスタ内のノードがオンラインで、クラスタに追加するための条件を満たしていることを確認します。 `cluster show`
+. クラスタ内のノードがオンラインであり、クラスタに参加するための条件を満たしていることを確認します。 `cluster show`
 +
 [listing]
 ----
@@ -28,17 +28,17 @@ node0                 true    true
 node1                 true    true
 ----
 +
-正常に機能していないノードや条件を満たしていないノードがある場合は、 EMS ログでエラーを確認して適切に修正します。
+正常でないノードや条件を満たしていないノードがある場合は、EMSログでエラーを確認して対処します。
 
-. 権限レベルをadvancedに設定+
+. 権限レベルをadvancedに設定します。+
 `set -privilege advanced`
 +
-入力するコマンド `y` 続行します。
+と入力し `y`て続行します。
 
-. 各 RDB プロセスの構成の詳細を確認します。
+. 各RDBプロセスの設定の詳細を確認します。
 +
-** リレーショナルデータベースのエポックとデータベースのエポックが各ノードで一致すること。
-** リングごとのクォーラムマスターがすべてのノードで同じであることが必要です。
+** リレーショナルデータベースのエポックとデータベースのエポックは、各ノードで一致している必要があります。
+** リングごとのクォーラムマスターがすべてのノードで同じである必要があります。
 +
 各リングのクォーラムマスターが異なる場合があることに注意してください。
 
@@ -56,27 +56,27 @@ node1                 true    true
 
 
  a| 
-ボリュームロケーションデータベース
+ボリューム ロケーション データベース
  a| 
 `cluster ring show -unitname vldb`
 
 
 
  a| 
-仮想インターフェイスマネージャ
+仮想インターフェイス マネージャ
  a| 
 `cluster ring show -unitname vifmgr`
 
 
 
  a| 
-SAN 管理デーモン
+SAN管理デーモン
  a| 
 `cluster ring show -unitname bcomd`
 
 |===
 +
-次の例は、ボリュームロケーションデータベースのプロセスを示しています。
+次の例は、ボリューム ロケーション データベースのプロセスを示しています。
 
 
 
@@ -92,10 +92,10 @@ node2     vldb     154      154      14847    node0     secondary
 node3     vldb     154      154      14847    node0     secondary
 4 entries were displayed.
 ----
-. admin 権限レベルに戻ります。 `set -privilege admin`
-. SAN 環境を使用している場合は、各ノードが SAN クォーラムにあることを確認します。 `event log show  -severity informational -message-name scsiblade.*`
+. admin権限レベルに戻ります。 `set -privilege admin`
+. SAN環境を使用している場合は、各ノードがSANクォーラムにあることを確認します。 `event log show  -severity informational -message-name scsiblade.*`
 +
-各ノードの最新の scsiblade イベントメッセージに、 SCSI ブレードがクォーラムにあることが示されます。
+各ノードの最新のscsibladeイベントメッセージに、SCSIブレードがクォーラムにあることが示されます。
 
 +
 [listing]
@@ -113,7 +113,7 @@ link:../system-admin/index.html["システム管理"]
 
 
 
-== ストレージの健常性を確認
+== ストレージの健全性を確認
 
 クラスタをリバートまたはダウングレードしたら、ディスク、アグリゲート、およびボリュームのステータスを確認する必要があります。
 
@@ -121,7 +121,7 @@ link:../system-admin/index.html["システム管理"]
 +
 [cols="2*"]
 |===
-| 確認する項目 | 手順 
+| 確認する項目 | 操作 
 
 
  a| 
@@ -136,14 +136,14 @@ link:../system-admin/index.html["システム管理"]
  a| 
 メンテナンス中または再構築中のディスク
  a| 
-.. 保守、保留、または再構築の状態のディスクを表示します。 `storage disk show -state maintenance|pending|reconstructing`
+.. メンテナンス、保留、または再構築中の状態のディスクを表示します。 `storage disk show -state maintenance|pending|reconstructing`
 .. メンテナンスまたは再構築の処理が完了するまで待ってから次に進みます。
 
 
 |===
-. ストレージアグリゲートを含む物理ストレージと論理ストレージの状態を表示して、すべてのアグリゲートがオンラインであることを確認します。 `storage aggregate show -state !online`
+. 物理ストレージと論理ストレージ（ストレージのアグリゲートを含む）の状態を表示して、すべてのアグリゲートがオンラインであることを確認します。 `storage aggregate show -state !online`
 +
-このコマンドを実行すると、オンラインでないアグリゲートが表示されます。メジャーアップグレードまたはリバートの実行前と実行後には、すべてのアグリゲートがオンラインになっている必要があります。
+このコマンドを実行すると、オンラインでないアグリゲートが表示されます。メジャーアップグレードまたはリバートの実行前と実行後に、すべてのアグリゲートがオンラインになっている必要があります。
 
 +
 [listing]
@@ -151,9 +151,9 @@ link:../system-admin/index.html["システム管理"]
 cluster1::> storage aggregate show -state !online
 There are no entries matching your query.
 ----
-. 次のコマンドを実行して、すべてのボリュームがオンラインであることを確認します。 _not_online `volume show -state !online`
+. _not_onlineであるボリュームを表示して、すべてのボリュームがオンラインであることを確認します。 `volume show -state !online`
 +
-メジャーアップグレードまたはリバートの実行前と実行後には、すべてのボリュームがオンラインになっている必要があります。
+メジャーアップグレードまたはリバートの実行前と実行後に、すべてのボリュームがオンラインになっている必要があります。
 
 +
 [listing]
@@ -163,7 +163,7 @@ There are no entries matching your query.
 ----
 . 整合性のないボリュームがないことを確認します。 `volume show -is-inconsistent true`
 +
-サポート技術情報の記事を参照してください link:https://kb.netapp.com/Advice_and_Troubleshooting/Data_Storage_Software/ONTAP_OS/Volume_Showing_WAFL_Inconsistent["「WAFL inconsistent」を示すボリューム"] を参照してください。
+整合性のないボリュームへの対処方法については、ナレッジベースの記事を参照してlink:https://kb.netapp.com/Advice_and_Troubleshooting/Data_Storage_Software/ONTAP_OS/Volume_Showing_WAFL_Inconsistent["「WAFL inconsistent」を示すボリューム"]ください。
 
 
 

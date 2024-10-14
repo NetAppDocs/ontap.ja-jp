@@ -4,7 +4,7 @@ permalink: networking/migrate_a_lif.html
 keywords: move the lif, change lif port, migrate a lif, migrate a LIF to a different port on the same node or a different node within the cluster 
 summary: LIF を同じノードの別のポートやクラスタ内の別のノードに移行する 
 ---
-= LIF を移行
+= LIFを移行する
 :hardbreaks:
 :allow-uri-read: 
 :nofooter: 
@@ -14,23 +14,23 @@ summary: LIF を同じノードの別のポートやクラスタ内の別のノ�
 
 
 [role="lead"]
-ポートで障害が発生した場合やメンテナンスを行う場合など、同じノードの別のポートやクラスタ内の別のノードに LIF を移行しなければならないことがあります。LIF の移行は LIF のフェイルオーバーと似ていますが、 LIF の移行は手動で行います。 LIF のフェイルオーバーは、 LIF の現在のネットワークポートのリンク障害に対応して LIF を自動的に移行する機能です。
+ポートで障害が発生した場合やメンテナンスが必要な場合は、同じノードの別のポートやクラスタ内の別のノードにLIFを移行しなければならないことがあります。LIFの移行はLIFのフェイルオーバーと似ていますが、LIFの移行は手動操作です。一方、LIFのフェイルオーバーは、LIFの現在のネットワークポートでリンク障害が発生した場合にLIFを自動的に移行する処理です。
 
-.作業を開始する前に
-* LIF のフェイルオーバーグループを設定しておく必要があります。
-* デスティネーションのノードおよびポートが動作していて、ソースポートと同じネットワークにアクセスできる必要があります。
+.開始する前に
+* LIFのフェイルオーバーグループを設定しておく必要があります。
+* デスティネーションのノードとポートが動作していて、ソースポートと同じネットワークにアクセスできる必要があります。
 
 
-.このタスクについて
-* BGP LIF はホームポートに配置され、他のノードやポートに移行することはできません。
-* ノードから NIC を削除する前に、 NIC に属しているポートでホストされている LIF をクラスタ内の他のポートに移行する必要があります。
-* クラスタ LIF を移行するコマンドは、そのクラスタ LIF がホストされているノードで実行する必要があります。
-* ノードを対象とした管理 LIF 、クラスタ LIF 、クラスタ間 LIF など、ノードを対象とした LIF をリモートノードに移行することはできません。
-* NFSv4 の LIF をノード間で移行する場合は、その LIF が新しいポートで使用できるようになるまで、 45 秒ほどかかります。
+.タスクの内容
+* BGP LIFはホームポートに配置され、他のノードやポートに移行することはできません。
+* ノードからNICを削除する前に、NICに属しているポートでホストされているLIFをクラスタ内の他のポートに移行する必要があります。
+* クラスタLIFを移行するコマンドは、そのクラスタLIFがホストされているノードから実行する必要があります。
+* ノードを対象としたLIF（ノードを対象とした管理LIF、クラスタLIF、クラスタ間LIFなど）はリモートノードに移行できません。
+* NFSv4のLIFをノード間で移行した場合、そのLIFが新しいポートで使用できるようになるまでに最大45秒かかります。
 +
-この問題を回避するには、 NFSv4.1 を使用します。
+この問題を回避するには、遅延が発生しないNFSv4.1を使用します。
 
-* iSCSI LIFは、ONTAP 9.11.1以降を実行しているオールフラッシュSANアレイ（ASA）プラットフォームで移行できます。
+* iSCSI LIFは、ONTAP 9 .11.1以降を実行しているオールフラッシュSANアレイ（ASA）プラットフォームで移行できます。
 +
 iSCSI LIFの移行は、ホームノードまたはHAパートナーのポートに限定されます。
 
@@ -38,20 +38,20 @@ iSCSI LIFの移行は、ホームノードまたはHAパートナーのポート
 +
 この制限を回避するには、デスティネーションノードにiSCSI LIFを作成する必要があります。詳細はこちらをご覧ください link:../networking/create_a_lif.html["iSCSI LIFを作成しています"]。
 
-* NFS over RDMA用のLIF（ネットワークインターフェイス）を移行する場合は、デスティネーションポートがRoCEに対応していることを確認する必要があります。ONTAP 9.10.1以降を実行してCLIでLIFを移行するか、ONTAP 9.12.1を実行してSystem Managerで移行する必要があります。System ManagerでRoCE対応のデスティネーションポートを選択したら、* RoCEポートを使用する*の横にあるチェックボックスをオンにして、移行を正常に完了する必要があります。の詳細を確認してください link:../nfs-rdma/configure-lifs-task.html["NFS over RDMA用のLIFを設定しています"]。
-* VMware VAAI のコピーオフロード処理は、ソース LIF またはデスティネーション LIF を移行すると失敗します。コピーオフロードについては、以下を参照してください。
+* RDMA経由のNFSのLIF（ネットワークインターフェイス）を移行する場合は、デスティネーションポートがRoCEに対応していることを確認する必要があります。を使用してを移行するには、.10.1以降を実行している必要があります。ONTAP 9を使用して移行するには、ONTAP 9 .12.1を実行している必要があります。System ManagerでRoCE対応のデスティネーションポートを選択したら、* RoCEポートを使用する*の横にあるチェックボックスをオンにして、移行を正常に完了する必要があります。詳細については、をご覧ください link:../nfs-rdma/configure-lifs-task.html["NFS over RDMA用のLIFを設定しています"]。
+* ソースLIFまたはデスティネーションLIFを移行すると、VMware VAAIのコピーオフロード処理が失敗します。コピーオフロードの詳細：
 +
 ** link:../nfs-admin/support-vmware-vstorage-over-nfs-concept.html["NFS環境"]
-** link:../san-admin/storage-virtualization-vmware-copy-offload-concept.html["SAN 環境"]
+** link:../san-admin/storage-virtualization-vmware-copy-offload-concept.html["SAN環境"]
 
 
 
 
-実行する手順 は、System ManagerまたはCLIを使用するインターフェイスによって異なります。
+実行する手順は、使用するインターフェイス（System ManagerまたはCLI）によって異なります。
 
 [role="tabbed-block"]
 ====
-.System Manager の略
+.System Manager
 --
 * System Managerを使用して、ネットワーク・インターフェイス*を移行します
 
@@ -63,19 +63,19 @@ iSCSI LIFの移行は、ホームノードまたはHAパートナーのポート
 NOTE: iSCSI LIFの場合、*[インターフェイスの移行]*ダイアログボックスで、HAパートナーのデスティネーションノードとポートを選択します。
 
 +
-iSCSI LIFを永続的に移行する場合は、チェックボックスを選択します。iSCSI LIFは完全に移行される前にオフラインにする必要があります。また、iSCSI LIFが完全に移行されたあとは、元に戻すことはできません。リバートオプションはありません。
+iSCSI LIFを永続的に移行する場合は、チェックボックスを選択します。iSCSI LIFは完全に移行される前にオフラインにする必要があります。また、iSCSI LIFが永続的に移行されたあとは、元に戻すことはできません。リバートオプションはありません。
 
 . [* Migrate （移行） ] をクリックします
 . 変更を保存します。
 
 
 --
-.CLI の使用
+.CLI
 --
 * LIFの移行にはCLIを使用してください*
 
 .ステップ
-特定の LIF を移行するかすべての LIF を移行するかに応じて、該当する操作を実行します。
+特定のLIFを移行するかすべてのLIFを移行するかに応じて、該当する処理を実行します。
 
 [cols="30,70"]
 |===
@@ -104,12 +104,12 @@ iSCSI LIFを永続的に移行する場合は、チェックボックスを選�
 `network interface migrate-all -node <node> -port <port>`
 
 |===
-次の例は、という名前のLIFを移行する方法を示しています `datalif1` 指定します `vs0` をポートに追加します `e0d` オン `node0b`：
+次の例は、SVM上の `vs0`というLIFをの `node0b`ポートに `e0d`移行する方法を示してい `datalif1`ます。
 
 ....
 network interface migrate -vserver vs0 -lif datalif1 -dest-node node0b -dest-port e0d
 ....
-次の例は、現在（ローカル）のノードからすべてのデータ LIF とクラスタ管理 LIF を移行する方法を示しています。
+次の例は、現在の（ローカル）ノードからすべてのデータLIFとクラスタ管理LIFを移行する方法を示しています。
 
 ....
 network interface migrate-all -node local

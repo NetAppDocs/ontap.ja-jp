@@ -2,16 +2,16 @@
 permalink: san-admin/clone-luns-active-volume-task.html 
 sidebar: sidebar 
 keywords: clone, luns, active, volume 
-summary: アクティブボリュームの LUN をクローニングして、 LUN のコピーを作成できます。こうして作成された FlexClone LUN は、アクティブボリューム内の元の LUN の読み書き可能なコピーです。 
+summary: アクティブボリューム内のLUNをクローニングして、LUNのコピーを作成できます。これらのFlexClone LUNは、アクティブボリューム内の元のLUNの読み書き可能なコピーです。 
 ---
-= アクティブボリュームから LUN のクローンを作成します
+= アクティブボリュームからのLUNのクローニング
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-アクティブボリュームの LUN をクローニングして、 LUN のコピーを作成できます。こうして作成された FlexClone LUN は、アクティブボリューム内の元の LUN の読み書き可能なコピーです。
+アクティブボリューム内のLUNをクローニングして、LUNのコピーを作成できます。これらのFlexClone LUNは、アクティブボリューム内の元のLUNの読み書き可能なコピーです。
 
 
 NOTE: この手順は、FAS、AFF、および現在のASAシステムに適用されます。ASA R2システム（ASA A1K、ASA A70、またはASA A90）を使用している場合は、次の手順に従ってlink:https://docs.netapp.com/us-en/asa-r2/manage-data/data-cloning.html["以下の手順を実行します"^]データをクローニングします。ASA R2システムは、SANのみのお客様に特化したシンプルなONTAPエクスペリエンスを提供します。
@@ -19,12 +19,12 @@ NOTE: この手順は、FAS、AFF、および現在のASAシステムに適用�
 .必要なもの
 FlexCloneライセンスがインストールされている必要があります。このライセンスはに含まれていlink:../system-admin/manage-licenses-concept.html#licenses-included-with-ontap-one["ONTAP One"]ます。
 
-.このタスクについて
-スペースリザーブされた FlexClone LUN には、親のスペースリザーブ LUN と同量のスペースが必要です。FlexClone LUN のスペースをリザーブしない場合は、 FlexClone LUN に対する変更を保存するために十分なスペースがボリュームにあることを確認する必要があります。
+.タスクの内容
+スペースリザーブFlexClone LUNには、親のスペースリザーブLUNと同じ量のスペースが必要です。FlexClone LUNのスペースをリザーブしない場合は、FlexClone LUNに対する変更に対応できるだけの十分なスペースがボリュームにあることを確認する必要があります。
 
 .手順
-. クローンを作成する前に、 LUN が igroup にマッピングされていないこと、またはに書き込まれていないことを確認する必要があります。
-. を使用します `lun show` コマンドを実行してLUNが存在することを確認します。
+. クローンを作成する前に、LUNがigroupにマッピングされていないこと、または書き込まれていないことを確認しておく必要があります。
+. コマンドを使用し `lun show`て、LUNが存在することを確認します。
 +
 `lun show -vserver vs1`
 
@@ -35,14 +35,14 @@ Vserver  Path              State     Mapped    Type     Size
 -------- ----------------- --------- --------- -------- -------
 vs1      /vol/vol1/lun1    online   unmapped  windows  47.07MB
 ----
-. を使用します `volume file clone create` コマンドを使用してFlexClone LUNを作成します。
+. コマンドを使用し `volume file clone create`て、FlexClone LUNを作成します。
 +
 `volume file clone create -vserver vs1 -volume vol1 -source-path lun1 -destination-path/lun1_clone`
 
 +
-FlexClone LUNを自動削除に使用できるようにする必要がある場合は、を含めます `-autodelete true`。セミシックプロビジョニングを使用してこの FlexClone LUN をボリューム内に作成する場合は、すべての FlexClone LUN で自動削除を有効にする必要があります。
+FlexClone LUNを自動削除できるようにする必要がある場合は、を含めます `-autodelete true`。セミシックプロビジョニングを使用してボリュームにこのFlexClone LUNを作成する場合は、すべてのFlexClone LUNに対して自動削除を有効にする必要があります。
 
-. を使用します `lun show` コマンドを実行して、LUNが作成されたことを確認します。
+. コマンドを使用し `lun show`て、LUNが作成されたことを確認します。
 +
 `lun show -vserver vs1`
 

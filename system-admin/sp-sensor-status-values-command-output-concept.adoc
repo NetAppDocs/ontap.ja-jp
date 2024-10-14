@@ -4,18 +4,18 @@ sidebar: sidebar
 keywords: understand, discrete, sp, sensor, status, values, command, output, cli, hexedecimal, format 
 summary: ディスクリートセンサーにはしきい値がありません。SP CLI の system sensors コマンド出力の current 列に表示される値には実際の意味はなく、 SP では無視されます。system sensors コマンド出力の Status 列に、ディスクリートセンサーのステータス値が 16 進形式で表示されます。 
 ---
-= system sensors コマンド出力でのディスクリート SP センサーのステータス値について説明します
+= system sensorsコマンド出力のディスクリートSPセンサーのステータス値について
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-ディスクリートセンサーにはしきい値がありません。の下に表示されます `Current` 列をクリックします `system sensors` コマンド出力には実際の意味はないため、SPでは無視されます。。 `Status` の列 `system sensors` コマンド出力には、ディスクリートセンサーのステータス値が16進形式で表示されます。
+ディスクリートセンサーにはしきい値がありません。SP CLIコマンド出力の列の `system sensors`下に表示されるこれらの読み取り値は `Current`、実際の意味を持たないため、SPでは無視されます。コマンド出力の列には `system sensors`、 `Status`ディスクリートセンサーのステータス値が16進形式で表示されます。
 
 ディスクリートセンサーの例としては、ファン、電源ユニット（ PSU ）エラー、システムエラーのセンサーがあります。ディスクリートセンサーの具体的なリストは、プラットフォームによって異なります。
 
-SP CLIを使用できます `system sensors get` `sensor_name` コマンドを使用して、ほとんどのディスクリートセンサーのステータス値を解釈できます。次の例は、と入力した結果を示しています `system sensors get` `sensor_name` ディスクリートセンサーCPU0_ErrorおよびIO_Slot1_Presentの場合：
+SP CLIのコマンドを使用すると、ほとんどのディスクリートセンサーのステータス値を解釈できます `system sensors get` `sensor_name`。次の例は、ディスクリートセンサーCPU0_ErrorおよびIO_Slot1_Presentに対してを実行した結果を示してい `system sensors get` `sensor_name`ます。
 
 [listing]
 ----
@@ -37,15 +37,15 @@ Sensor ID              : IO_Slot1_Present (0x74)
  States Asserted       : Availability State
                         [Device Present]
 ----
-ただし、 `system sensors get` `sensor_name` コマンドを実行すると、ほとんどのディスクリートセンサーのステータス情報が表示されますが、System_FW_Status、System_Watchdog、PSU1_Input_Type、およびPSU2_Input_Typeディスクリートセンサーのステータス情報は表示されません。これらのセンサーのステータス情報は、次の情報を使用して解釈できます。
+コマンドで `system sensors get` `sensor_name`はほとんどのディスクリートセンサーのステータス情報が表示されますが、System_FW_Status、System_Watchdog、PSU1_Input_Type、およびPSU2_Input_Typeディスクリートセンサーのステータス情報は提供されません。これらのセンサーのステータス情報は、次の情報を使用して解釈できます。
 
 
 
 == System_FW_Status の場合
 
-System_FW_Statusセンサーの状態は、の形式で表示されます `0xAABB`。の情報を組み合わせることができます `AA` および `BB` センサの状態を確認します。
+System_FW_Statusセンサーの状態は、の形式で表示されます `0xAABB`。と `BB`の情報を組み合わせて、センサーの状態を判断できます `AA`。
 
-`AA` 次のいずれかの値を指定できます。
+`AA`次のいずれかの値を指定できます。
 
 |===
 | 値 | センサの状態 
@@ -71,7 +71,7 @@ System_FW_Statusセンサーの状態は、の形式で表示されます `0xAAB
 システムファームウェア実行中です
 
 |===
-`BB` 次のいずれかの値を指定できます。
+`BB`次のいずれかの値を指定できます。
 
 |===
 | 値 | センサの状態 
@@ -129,12 +129,12 @@ BIOS を起動しています
  a| 
 20
  a| 
-LOADER を実行しています
+LOADER が実行されています
 
 
 
  a| 
-21.
+21
  a| 
 LOADER がプライマリ BIOS ファームウェアをプログラミングしています。システムの電源を切らないでください
 
@@ -155,14 +155,14 @@ ONTAP が実行されています
 
 
  a| 
-60ドルだ
+60
  a| 
 SP によってシステムの電源が切断されました
 
 
 
  a| 
-61歳
+61
  a| 
 SP によってシステムの電源がオンになりました
 
@@ -183,9 +183,9 @@ SP watchdog 電源再投入
 
 
  a| 
-64歳
+64
  a| 
-SP watchdog コールドリセット
+SP watchdogコールドリセット
 
 |===
 たとえば、 System_FW_Status センサーのステータス 0x042F は、「システムファームウェアが進行中（ 04 ）で、 ONTAP が実行中（ 2F ）」という意味です。
@@ -216,7 +216,7 @@ System_Watchdog センサーの状態は次のいずれかです。
  a| 
 0x0180
  a| 
-タイマーが切れました
+タイマー期限切れ
 
 
 
@@ -230,17 +230,17 @@ System_Watchdog センサーの状態は次のいずれかです。
  a| 
 0x0480
  a| 
-電源をオフにします
+電源オフ
 
 
 
  a| 
 0x0880
  a| 
-電源を再投入します
+電源再投入
 
 |===
-たとえば、 System_Watchdog センサーのステータス 0x0880 は、 watchdog タイムアウトが発生したことを意味し、システムの電源の再投入につながります。
+たとえば、System_Watchdogセンサーのステータス0x0880は、ウォッチドッグタイムアウトが発生し、システムの電源が再投入されたことを意味します。
 
 
 
@@ -255,7 +255,7 @@ System_Watchdog センサーの状態は次のいずれかです。
  a| 
 0x01 xx
  a| 
-220V PSU タイプ
+220V PSUタイプ
 
 
 

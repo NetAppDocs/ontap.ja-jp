@@ -4,44 +4,44 @@ sidebar: sidebar
 keywords: vserver, cifs, create, command, smb, server, svm, specify, active, directory, ad, domain, create an smb server in an active directory domain 
 summary: vserver cifs create コマンドを使用すると、 SVM 上に SMB サーバを作成し、所属先の Active Directory （ AD ）ドメインを指定できます。 
 ---
-= Active Directory ドメイン内に SMB サーバを作成します
+= Active DirectoryドメインにSMBサーバを作成する
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-を使用できます `vserver cifs create` コマンドを使用してSVM上にSMBサーバを作成し、所属先のActive Directory（AD）ドメインを指定します。
+コマンドを使用すると、SVM上にSMBサーバを作成し、所属先のActive Directory（AD）ドメインを指定できます `vserver cifs create`。
 
-.作業を開始する前に
-データ処理に使用している SVM および LIF が、 SMB プロトコルを許可するように設定されている必要があります。LIF は、 SVM 上で設定されている DNS サーバ、および SMB サーバの追加先ドメインの AD ドメインコントローラに接続できる必要があります。
+.開始する前に
+データ処理に使用するSVMおよびLIFが、SMBプロトコルを許可するように設定されている必要があります。LIFは、SVM上で設定されているDNSサーバ、およびSMBサーバの追加先ドメインのADドメインコントローラに接続できる必要があります。
 
-SMB サーバの追加先となる AD ドメイン内のマシンアカウントの作成を許可されているユーザなら誰でも、 SVM 上に SMB サーバを作成できます。これには、他のドメインのユーザを含めることができます。
+SMBサーバの追加先のADドメイン内のマシンアカウントの作成を許可されているすべてのユーザが、SVM上にSMBサーバを作成できます。これには、他のドメインのユーザを含めることができます。
 
-ONTAP 9.7 以降では、権限がある Windows アカウントの名前とパスワードの代わりに、 keytab ファイルの URI を AD 管理者から提供される場合があります。URIを受け取ったら、に含めます `-keytab-uri` パラメータと `vserver cifs` コマンド
+ONTAP 9 .7以降では、権限のあるWindowsアカウントの名前とパスワードを指定する代わりに、keytabファイルのURIをAD管理者から提供することができます。URIを受け取ったら、コマンドのパラメータ `vserver cifs`にそのURIを含め `-keytab-uri`ます。
 
-.このタスクについて
-Activity Directory ドメインで SMB サーバを作成する場合の条件は次のとおりです。
+.タスクの内容
+Activity DirectoryドメインにSMBサーバを作成する場合は、次の点に注意してください。
 
-* ドメインを指定するときは Fully Qualified Domain Name （ FQDN ；完全修飾ドメイン名）を使用する必要があります。
-* デフォルト設定では、 SMB サーバマシンアカウントは Active Directory CN=Computer オブジェクトに追加されます。
-* を使用して、SMBサーバを別の組織単位（OU）に追加することもできます `-ou` オプション
-* 必要に応じて、 SMB サーバの 1 つ以上の NetBIOS エイリアス（最大 200 個）をカンマで区切って追加できます。
+* ドメインを指定するときは、Fully Qualified Domain Name（FQDN；完全修飾ドメイン名）を使用する必要があります。
+* デフォルト設定では、SMBサーバマシンアカウントはActive Directory CN=Computerオブジェクトに追加されます。
+* オプションを使用すると、SMBサーバを別の組織単位（OU）に追加できます `-ou`。
+* 必要に応じて、SMBサーバの1つ以上のNetBIOSエイリアス（最大200）をカンマで区切って追加できます。
 +
-SMB サーバの NetBIOS エイリアスを設定すると、他のファイルサーバのデータを SMB サーバに統合して、 SMB サーバが元のファイルサーバの名前に応答するようにする場合に役立ちます。
+SMBサーバのNetBIOSエイリアスを設定すると、他のファイルサーバのデータをSMBサーバに統合し、SMBサーバが元のサーバの名前に応答するようにする場合に役立ちます。
 
 
 
-。 `vserver cifs` マニュアルページには、追加のオプションパラメータと命名要件が記載されています。
+その他のオプションのパラメータと命名要件については、のマニュアルページを参照して `vserver cifs`ください。
 
 [NOTE]
 ====
-ONTAP 9.1 以降では、 SMB バージョン 2.0 からドメインコントローラ（ DC ）への接続を有効にすることができます。これは、ドメインコントローラで SMB 1.0 を無効にしている場合は必須です。ONTAP 9.2 以降では、 SMB 2.0 がデフォルトで有効になります。
+SMB.1以降では、ONTAP 9バージョン2.0からドメインコントローラ（DC）への接続を有効にすることができます。この処理は、ドメインコントローラでSMB 1.0を無効にしている場合に必要です。SMB.2以降では、ONTAP 9 2.0がデフォルトで有効になります。
 
 ====
-ONTAP 9.8 以降では、ドメインコントローラへの接続を暗号化するように指定できます。ONTAP では、ドメインコントローラの通信に暗号化が必要です `-encryption-required-for-dc-connection` オプションはに設定されています `true`;デフォルトはです `false`。このオプションを設定すると、 SMB3 でのみ暗号化がサポートされるため、 SMB3 プロトコルのみが使用されます。。
+ONTAP 9 .8以降では、ドメインコントローラへの接続を暗号化するように指定できます。ONTAPオプションがに設定され `true`ている場合、ドメインコントローラの通信に暗号化が必要です `-encryption-required-for-dc-connection`。デフォルトはです。 `false`暗号化はONTAP 3でしかサポートされないため、このオプションを設定するとSMB3プロトコルのみがSMB-DC接続に使用されます。です。
 
-link:../smb-admin/index.html["SMBの管理"] SMB サーバ設定オプションの詳細については、を参照してください。
+link:../smb-admin/index.html["SMBの管理"]SMBサーバ設定オプションの詳細については、を参照してください。
 
 .手順
 . クラスタでSMBのライセンスが有効になっていることを確認します。 `system license show -package cifs`
@@ -49,7 +49,7 @@ link:../smb-admin/index.html["SMBの管理"] SMB サーバ設定オプション�
 SMBライセンスはに含まれていlink:../system-admin/manage-licenses-concept.html#licenses-included-with-ontap-one["ONTAP One"]ます。ONTAP Oneをお持ちでなく、ライセンスがインストールされていない場合は、営業担当者にお問い合わせください。
 
 +
-SMB サーバを認証のみに使用する場合は、 CIFS ライセンスは必要ありません。
+SMBサーバを認証のみに使用する場合は、CIFSライセンスは必要ありません。
 
 . ADドメインにSMBサーバを作成します。 `+vserver cifs create -vserver vserver_name -cifs-server smb_server_name -domain FQDN [-ou organizational_unit][-netbios-aliases NetBIOS_name, ...][-keytab-uri {(ftp|http)://hostname|IP_address}][-comment text]+`
 +
@@ -71,7 +71,7 @@ cluster1::> vserver cifs create -vserver vs1.example.com -cifs-server smb_server
 ----
 cluster1::> vserver cifs create -vserver vs1.mydomain.com -cifs-server smb_server02 -domain mydomain.com -keytab-uri http://admin.mydomain.com/ontap1.keytab
 ----
-. を使用してSMBサーバの設定を確認します `vserver cifs show` コマンドを実行します
+. コマンドを使用して、SMBサーバの設定を確認します `vserver cifs show`。
 +
 この例では、「 `s MB_SERVER01' 」という名前の SMB サーバが SVM vs1.example.com 上に作成され、「 example.com`" ドメイン」に追加されたことがコマンド出力に示されています。
 
@@ -90,11 +90,11 @@ Default Site Used by LIFs Without Site Membership:
                           CIFS Server Description: -
                           List of NetBIOS Aliases: -
 ----
-. 必要に応じて、ドメインコントローラとの暗号化通信を有効にします（ONTAP 9.8以降）。 `vserver cifs security modify -vserver svm_name -encryption-required-for-dc-connection true`
+. 必要に応じて、ドメインコントローラ（ONTAP 9 .8以降）との暗号化通信を有効にします。 `vserver cifs security modify -vserver svm_name -encryption-required-for-dc-connection true`
 
 
 .例
-次のコマンドは、 SVM vs2.example.com の「 example.com`" 」ドメインに「 'MB_Server02' 」という名前の SMB サーバを作成します。マシン・アカウントは '`OU=eng 、 OU=corp 、 DC=example 、 DC=com コンテナに作成されますSMB サーバには NetBIOS エイリアスが割り当てられます。
+次のコマンドは、 SVM vs2.example.com の「 example.com`" 」ドメインに「 'MB_Server02' 」という名前の SMB サーバを作成します。マシン・アカウントは '`OU=eng 、 OU=corp 、 DC=example 、 DC=com コンテナに作成されますSMBサーバにはNetBIOSエイリアスが割り当てられます。
 
 [listing]
 ----
@@ -111,10 +111,10 @@ Default Site Used by LIFs Without Site Membership:
                           CIFS Server Description: -
                           List of NetBIOS Aliases: OLD_CIFS_SERVER01
 ----
-次のコマンドは、別のドメインのユーザ（ここでは信頼できるドメインの管理者）が、 SVM vs3.example.com 上に「 smb_server03 」という名前の SMB サーバを作成できるようにします。。 `-domain` optionは、SMBサーバを作成するホームドメイン（DNSの設定で指定）の名前を指定します。。 `username` オプションは、信頼できるドメインの管理者を指定します。
+次のコマンドは、別のドメインのユーザ（ここでは信頼できるドメインの管理者）が、 SVM vs3.example.com 上に「 smb_server03 」という名前の SMB サーバを作成できるようにします。オプションは `-domain`、SMBサーバを作成するホームドメイン（DNSの設定で指定）の名前を指定します。オプションは `username`、信頼できるドメインの管理者を指定します。
 
-* ホームドメイン： example.com
-* 信頼できるドメイン： trust.lab.com
+* ホームドメイン：example.com
+* 信頼できるドメイン：trust.lab.com
 * 信頼できるドメインのユーザ名： Administrator1
 
 

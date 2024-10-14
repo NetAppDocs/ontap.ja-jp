@@ -2,36 +2,36 @@
 permalink: s3-multiprotocol/enable-client-users-task.html 
 sidebar: sidebar 
 keywords: s3, nas, vserver, configuration, nas, certificate, linux, unix, installation 
-summary: S3クライアントユーザがNASデータにアクセスできるようにするには、S3ユーザ名を対応するNASユーザにマッピングし、バケットサービスポリシーを使用してNASデータへのアクセス権を付与する必要があります。 
+summary: S3クライアントユーザがNASデータにアクセスできるようにするには、S3ユーザ名を対応するNASユーザにマッピングし、バケットのサービスポリシーを使用してNASデータにアクセスする権限をユーザに付与する必要があります。 
 ---
-= S3クライアントユーザを有効にします
+= S3クライアントユーザを有効にする
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-S3クライアントユーザがNASデータにアクセスできるようにするには、S3ユーザ名を対応するNASユーザにマッピングし、バケットサービスポリシーを使用してNASデータへのアクセス権を付与する必要があります。
+S3クライアントユーザがNASデータにアクセスできるようにするには、S3ユーザ名を対応するNASユーザにマッピングし、バケットのサービスポリシーを使用してNASデータにアクセスする権限をユーザに付与する必要があります。
 
-.作業を開始する前に
-クライアントアクセス用のユーザ名（Linux/UNIX、Windows、S3クライアントユーザ）がすでに存在している必要があります。
+.開始する前に
+クライアントアクセスのユーザ名（Linux / UNIX、Windows、S3クライアントユーザ）がすでに存在している必要があります。
 
 S3の一部の機能はであることに注意してlink:index.html#nas-functionality-not-currently-supported-by-s3-nas-buckets["S3 NASバケットではサポートされない"]ください。
 
-.このタスクについて
-S3ユーザ名を対応するLinux/UNIXまたはWindowsユーザにマッピングすると、NASファイルに対する許可チェックがS3クライアントからアクセスされたときに実施されます。S3からNASへのマッピングは、単一の名前またはPOSIXの正規表現で指定できるS3ユーザ名_Pattern_、およびLinux/UNIXまたはWindowsのユーザ名_Replacement _を指定して指定します。
+.タスクの内容
+S3ユーザ名を対応するLinux/UNIXまたはWindowsユーザにマッピングすると、NASファイルがS3クライアントからアクセスされたときにNASファイルの認証チェックが有効になります。S3からNASへのマッピングは、単一の名前またはPOSIXの正規表現で指定できるS3ユーザ名_Pattern_、およびLinux/UNIXまたはWindowsのユーザ名_Replacement _を指定して指定します。
 
-ネームマッピングがない場合は、デフォルトのネームマッピングが使用され、S3ユーザ名自体がUNIXユーザ名およびWindowsユーザ名として使用されます。UNIXおよびWindowsのデフォルトのユーザ名マッピングは、を使用して変更できます `vserver object-store-server modify` コマンドを実行します
+ネームマッピングが存在しない場合は、デフォルトのネームマッピングが使用され、S3ユーザ名自体がUNIXユーザ名およびWindowsユーザ名として使用されます。UNIXおよびWindowsのデフォルトのユーザ名マッピングは、コマンドを使用して変更できます `vserver object-store-server modify`。
 
-ローカルのネームマッピング構成のみがサポートされます。LDAPはサポートされません。
+ローカルのネームマッピング設定のみがサポートされます。LDAPはサポートされません。
 
-S3ユーザをNASユーザにマッピングすると、ユーザにアクセスを許可するリソース（ディレクトリとファイル）と、ユーザがアクセスを許可された操作、または許可されなかった操作を指定する権限を付与できます。
+S3ユーザをNASユーザにマッピングしたら、ユーザに権限を付与できます。ユーザがアクセスできるリソース（ディレクトリとファイル）と、そのユーザに対して実行を許可または許可しないアクションを指定できます。
 
 [role="tabbed-block"]
 ====
-.System Manager の略
+.System Manager
 --
-. UNIXまたはWindowsクライアント（あるいはその両方）のローカルネームマッピングを作成します。
+. UNIXクライアントまたはWindowsクライアント（またはその両方）のローカルネームマッピングを作成します。
 +
 .. Storage > Buckets *をクリックし、S3 / NAS対応のStorage VMを選択します。
 .. [設定]*を選択し、*[ネームマッピング]*（*[ホストユーザとグループ]*）をクリックします image:../media/icon_arrow.gif["矢印アイコン"] 。
@@ -54,14 +54,14 @@ S3ユーザをNASユーザにマッピングすると、ユーザにアクセス
 
 
 --
-.CLI の使用
+.CLI
 --
-. UNIXまたはWindowsクライアント（あるいはその両方）のローカルネームマッピングを作成します。[+]
+. UNIXクライアントまたはWindowsクライアント（またはその両方）のローカルネームマッピングを作成します。+
 `vserver name-mapping create -vserver svm_name> -direction {s3-win|s3-unix} -position _integer_ -pattern _s3_user_name_ -replacement _nas_user_name_`
 +
-** `-position` -マッピング評価の優先順位番号。1または2を入力します。
-** `-pattern` - S3ユーザ名または正規表現
-** `-replacement` - WindowsまたはUNIXのユーザ名
+** `-position`-マッピング評価のプライオリティ番号。1または2を入力します。
+** `-pattern`- S3ユーザ名または正規表現
+** `-replacement`- WindowsまたはUNIXのユーザ名
 
 
 
@@ -70,19 +70,19 @@ S3ユーザをNASユーザにマッピングすると、ユーザにアクセス
 `vserver name-mapping create -direction s3-win -position 1 -pattern s3_user_1 -replacement win_user_1
 vserver name-mapping create -direction s3-unix -position 2 -pattern s3_user_1 -replacement unix_user_1`
 
-. クライアントアクセスを許可するバケットポリシーを作成します。[+]
+. クライアントアクセスを許可するバケットポリシーを作成します。+
 `vserver object-store-server bucket policy add-statement -vserver svm_name -bucket bucket_name -effect {deny|allow}  -action list_of_actions -principal list_of_users_or_groups -resource [-sid alphanumeric_text]`
 +
-** `-effect {deny|allow}` -ユーザがアクションを要求したときにアクセスを許可するか拒否するかを指定します。
+** `-effect {deny|allow}`-ユーザが操作を要求したときにアクセスを許可するか拒否するかを指定します。
 ** `-action <Action>, ...`-許可または拒否されるリソース操作を指定しますオブジェクトストアサーバで現在S3 NASバケットに対してサポートされている一連のリソース処理は、GetObject、PutObject、DeleteObject、ListBucket、GetBucketAcl、GetObjectAcl、およびGetBucketLocationです。このパラメータではワイルドカードを使用できます。
-** `-principal <Objectstore Principal>, ...` -オブジェクトストアサーバのユーザまたはグループに対してアクセスを要求するユーザを検証します。
+** `-principal <Objectstore Principal>, ...`-このパラメータで指定したオブジェクトストアサーバのユーザまたはグループに対して、アクセスを要求しているユーザを検証します。
 +
-*** オブジェクトストアサーバグループは、グループ名にプレフィックスグループ/を追加することによって指定します。
-*** `-principal` -（ハイフン文字）は、すべてのユーザにアクセスを許可します。
+*** オブジェクトストアサーバグループを指定するには、グループ名にプレフィックスグループ/を追加します。
+*** `-principal`-（ハイフン文字）は、すべてのユーザにアクセス権を付与します。
 
 
-** `-resource <text>, ...` -許可または拒否の権限を設定するバケット、フォルダ、またはオブジェクトを指定します。このパラメータではワイルドカードを使用できます。
-** `[-sid <SID>]` -オブジェクトストアサーバのバケットポリシーステートメントのオプションのテキストコメントを指定します。
+** `-resource <text>, ...`-権限の許可/拒否を設定するバケット、フォルダ、またはオブジェクトを指定します。このパラメータではワイルドカードを使用できます。
+** `[-sid <SID>]`-オブジェクトストアサーバのバケットポリシーのステートメントのテキストコメント（オプション）を指定します。
 
 
 

@@ -4,7 +4,7 @@ sidebar: sidebar
 keywords: restore, single file, lun, nvme, namespace, snapmirror, destination, snapshot, copy, snap mirror, baseline, 
 summary: 単一ファイル、LUN、一連のファイルまたはLUNをSnapshotコピーからリストアしたり、NVMeネームスペースをSnapMirrorデスティネーションボリュームからリストアしたりできます。NVMe.7以降では、SnapMirror同期デスティネーションからONTAP 9ネームスペースをリストアすることもできます。ファイルは元のソースボリュームにリストアすることも、別のボリュームにリストアすることもできます。 
 ---
-= 単一ファイル、 LUN 、または NVMe のネームスペースを SnapMirror デスティネーションからリストアします
+= SnapMirrorデスティネーションから単一ファイル、LUN、NVMeネームスペースをリストア
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
@@ -16,15 +16,15 @@ summary: 単一ファイル、LUN、一連のファイルまたはLUNをSnapshot
 .必要なもの
 SnapMirror同期デスティネーション（ONTAP 9 .5以降でサポート）からファイルまたはLUNをリストアするには、まず関係を削除して解放する必要があります。
 
-.このタスクについて
-ファイルまたは LUN のリストア先のボリューム（デスティネーションボリューム）は読み書き可能なボリュームである必要があります。
+.タスクの内容
+ファイルまたはLUNのリストア先のボリューム（デスティネーションボリューム）が読み書き可能ボリュームである必要があります。
 
 * ソースボリュームとデスティネーションボリュームに共通の Snapshot コピーがある場合（通常、リストア先が元のソースボリュームである場合と同様）、 SnapMirror は _incremental restore_x を実行します。
 * それ以外の場合、 SnapMirror は _ ベースラインリストアを実行します。これにより、指定された Snapshot コピーおよびコピーが参照するすべてのデータブロックがデスティネーションボリュームに転送されます。
 
 
 .手順
-. デスティネーションボリューム内の Snapshot コピーの一覧を表示します。
+. デスティネーションボリューム内のSnapshotコピーの一覧を表示します。
 +
 `volume snapshot show -vserver <SVM> -volume volume`
 
@@ -32,7 +32,7 @@ SnapMirror同期デスティネーション（ONTAP 9 .5以降でサポート）
 コマンド構文全体については、マニュアルページを参照してください。
 
 +
-次の例は、上のSnapshotコピーを示しています `vserverB:secondary1` 目的地：
+次の例は、デスティネーション上のSnapshotコピーを示してい `vserverB:secondary1`ます。
 
 +
 [listing]
@@ -52,7 +52,7 @@ vserverB    secondary1  hourly.2013-01-25_0005  valid   224KB     0%    0%
 
 7 entries were displayed.
 ----
-. 単一ファイルまたは LUN 、あるいは一連のファイルまたは LUN を、 SnapMirror デスティネーションボリューム内の Snapshot コピーからリストアします。
+. 単一ファイルまたはLUN、あるいは一連のファイルまたはLUNをSnapMirrorデスティネーションボリューム内のSnapshotコピーからリストアします。
 +
 `snapmirror restore -source-path <SVM:volume>|<cluster://SVM/volume>, ... -destination-path <SVM:volume>|<cluster://SVM/volume>, ... -source-snapshot snapshot -file-list <source_file_path,@destination_file_path>`
 
@@ -62,11 +62,11 @@ vserverB    secondary1  hourly.2013-01-25_0005  valid   224KB     0%    0%
 +
 [NOTE]
 ====
-このコマンドはデスティネーション SVM またはデスティネーションクラスタから実行する必要があります。
+このコマンドはデスティネーションSVMまたはデスティネーションクラスタから実行する必要があります。
 
 ====
 +
-ファイルをリストアするコマンドの例を次に示します `file1` および `file2` Snapshotコピーから削除します `daily.2013-01-25_0010` （元のデスティネーションボリューム内） `secondary1`を元のソースボリュームのアクティブファイルシステム内の同じ場所に移動します `primary1`：
+次のコマンドは、ファイルと `file2`ファイルを元のデスティネーションボリューム内の `secondary1`Snapshotコピーから `daily.2013-01-25_0010`、元のソースボリュームのアクティブファイルシステム内の同じ場所に `primary1`リストアします `file1`。
 
 +
 [listing]
@@ -77,10 +77,10 @@ cluster_dst::> snapmirror restore -source-path vserverB:secondary1 -destination-
 [Job 3479] Job is queued: snapmirror restore for the relationship with destination vserverA:primary1
 ----
 +
-ファイルをリストアするコマンドの例を次に示します `file1` および `file2` Snapshotコピーから削除します `daily.2013-01-25_0010` （元のデスティネーションボリューム内） `secondary1`を元のソースボリュームのアクティブファイルシステム内の別の場所に移動します `primary1`。
+次のコマンドは、ファイルと `file2`ファイルを元のデスティネーションボリューム内の `secondary1`Snapshotコピーから `daily.2013-01-25_0010`、元のソースボリュームのアクティブファイルシステム内の別の場所に `primary1`リストアします `file1`。
 
 +
-@ マークに続くパスがデスティネーションファイルのパスで、元のソースボリュームのルートからのパスを指定しています。この例では、 `file1` がにリストアされます `/dir1/file1.new` file2はにリストアされます `/dir2.new/file2` オン `primary1`：
+@記号に続くパスがデスティネーションファイルのパスで、元のソースボリュームのルートからのパスが指定されています。この例では、 `file1`がにリストアされ、file2が `/dir2.new/file2`にリストアされ `/dir1/file1.new` `primary1`ます。
 
 +
 [listing]
@@ -91,10 +91,10 @@ cluster_dst::> snapmirror restore -source-path vserverB:secondary1 -destination-
 [Job 3479] Job is queued: snapmirror restore for the relationship with destination vserverA:primary1
 ----
 +
-ファイルをリストアするコマンドの例を次に示します `file1` および `file3` Snapshotコピーから削除します `daily.2013-01-25_0010` （元のデスティネーションボリューム内） `secondary1`を元のソースボリュームのアクティブファイルシステム内の別の場所に移動します `primary1`、およびリストアを実行します `file2` 移動元 `snap1` をアクティブファイルシステム内の同じ場所に移動します `primary1`。
+次に、ファイルと `file3`ファイルを元のデスティネーションボリューム内の `secondary1`Snapshotコピーから `daily.2013-01-25_0010`元のソースボリュームのアクティブファイルシステム内の別の場所に `primary1`リストアし、から `snap1`のアクティブファイルシステム内の同じ場所 `primary1`にリストアするコマンドを `file1`示します。 `file2`
 
 +
-この例では、ファイルです `file1` がにリストアされます `/dir1/file1.new` および `file3` がにリストアされます `/dir3.new/file3`：
+この例では、ファイルが `file1`にリストアされ `/dir1/file1.new`、 `file3`にリストアされ `/dir3.new/file3`ます。
 
 +
 [listing]

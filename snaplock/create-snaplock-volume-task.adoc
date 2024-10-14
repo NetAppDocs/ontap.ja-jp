@@ -2,47 +2,47 @@
 permalink: snaplock/create-snaplock-volume-task.html 
 sidebar: sidebar 
 keywords: snaplock, volume, shanpshot, copy, create, complianceclock, file, worm, compliance, enterprise 
-summary: 'WORM 状態にコミットするファイルまたは Snapshot コピーに対しては、 SnapLock ボリュームを作成する必要があります。ONTAP 9.10.1 以降では、アグリゲートの種類に関係なく、作成するすべてのボリュームがデフォルトで SnapLock 以外のボリュームとして作成されます。を使用する必要があります `-snaplock-type` SnapLock タイプとしてComplianceまたはEnterpriseを指定してSnapLock ボリュームを明示的に作成するオプション。デフォルトでは、SnapLock タイプはに設定されています `non-snaplock`。' 
+summary: 'WORM状態にコミットするファイルまたはSnapshotコピー用にSnapLockボリュームを作成する必要があります。ONTAP 9 .10.1以降では、アグリゲートタイプに関係なく、作成するすべてのボリュームがデフォルトでSnapLock以外のボリュームとして作成されます。SnapLockタイプとしてComplianceまたはEnterpriseを指定してSnapLockボリュームを明示的に作成するには、オプションを使用する必要があります `-snaplock-type`。デフォルトでは、SnapLockタイプはに設定されてい `non-snaplock`ます。' 
 ---
-= SnapLock ボリュームを作成してマウント
+= SnapLockボリュームの作成とマウント
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-WORM 状態にコミットするファイルまたは Snapshot コピーに対しては、 SnapLock ボリュームを作成する必要があります。ONTAP 9.10.1 以降では、アグリゲートの種類に関係なく、作成するすべてのボリュームがデフォルトで SnapLock 以外のボリュームとして作成されます。を使用する必要があります `-snaplock-type` SnapLock タイプとしてComplianceまたはEnterpriseを指定してSnapLock ボリュームを明示的に作成するオプション。デフォルトでは、SnapLock タイプはに設定されています `non-snaplock`。
+WORM状態にコミットするファイルまたはSnapshotコピー用にSnapLockボリュームを作成する必要があります。ONTAP 9 .10.1以降では、アグリゲートタイプに関係なく、作成するすべてのボリュームがデフォルトでSnapLock以外のボリュームとして作成されます。SnapLockタイプとしてComplianceまたはEnterpriseを指定してSnapLockボリュームを明示的に作成するには、オプションを使用する必要があります `-snaplock-type`。デフォルトでは、SnapLockタイプはに設定されてい `non-snaplock`ます。
 
-.作業を開始する前に
-* SnapLock アグリゲートがオンラインになっている必要があります。
-* そうするべきだlink:../system-admin/manage-license-task.html["SnapLockライセンスがインストールされていることの確認"]ノードにSnapLockライセンスがインストールされていない場合はlink:../system-admin/install-license-task.html["をインストールします"]、ライセンスが必要です。このライセンスはに含まれていlink:../system-admin/manage-licenses-concept.html["ONTAP One"]ます。ONTAP Oneよりも前のリリースでは、SnapLockライセンスはSecurity and Compliance Bundleに含まれていました。Security and Compliance Bundleの提供は終了しましたが、引き続き有効です。現在は必須ではありませんが、既存のお客様は選択できますlink:../system-admin/download-nlf-task.html["ONTAP Oneへのアップグレード"]。
+.開始する前に
+* SnapLockアグリゲートがオンラインになっている必要があります。
+* そうするべきだlink:../system-admin/manage-license-task.html["SnapLockライセンスがインストールされていることの確認"]ノードにSnapLockライセンスがインストールされていない場合はlink:../system-admin/install-license-task.html["インストール"]、ライセンスが必要です。このライセンスはに含まれていlink:../system-admin/manage-licenses-concept.html["ONTAP One"]ます。ONTAP Oneよりも前のリリースでは、SnapLockライセンスはSecurity and Compliance Bundleに含まれていました。Security and Compliance Bundleの提供は終了しましたが、引き続き有効です。現在は必須ではありませんが、既存のお客様は選択できますlink:../system-admin/download-nlf-task.html["ONTAP Oneへのアップグレード"]。
 * link:../snaplock/initialize-complianceclock-task.html["ノードのコンプライアンスクロックを初期化する必要があります"]です。
 
 
-.このタスクについて
-適切な SnapLock 権限を使用すれば、いつでも Enterprise ボリュームの削除や名前変更を行うことができます。Compliance ボリュームの削除は保持期間が終了するまでは実行できません。Compliance ボリュームの名前は一切変更できません。
+.タスクの内容
+適切なSnapLock権限があれば、エンタープライズボリュームの削除や名前変更はいつでも実行できます。Complianceボリュームは保持期間が経過するまで削除できません。Complianceボリュームの名前は変更できません。
 
-SnapLock ボリュームはクローニングできますが、 SnapLock ボリューム上のファイルはクローニングできません。クローンボリュームの SnapLock タイプは親ボリュームと同じになります。
+SnapLockボリュームはクローニングできますが、SnapLockボリューム上のファイルはクローニングできません。クローンボリュームのSnapLockタイプは親ボリュームと同じになります。
 
 [NOTE]
 ====
-SnapLockボリュームではLUNはサポートされません。SnapLockでは、SnapLock以外のボリュームで作成されたSnapshotコピーをSnapLockバックアップ関係の一部として保護するためにSnapLockに転送する場合にのみ、LUNがサポートされます。読み取り/書き込みSnapLockボリュームではLUNはサポートされません。ただし、Snapshotコピーの改ざんは、SnapMirrorのソースボリュームと、LUNを含むデスティネーションボリュームの両方でサポートされます。
+SnapLockボリュームではLUNはサポートされません。SnapLockでは、SnapLock以外のボリュームで作成されたSnapshotコピーをSnapLockバックアップ関係の一部として保護するためにSnapLockに転送する場合にのみ、LUNがサポートされます。読み取り/書き込みSnapLockボリュームではLUNはサポートされません。ただし、改ざん防止Snapshotコピーは、SnapMirrorのソースボリュームと、LUNを含むデスティネーションボリュームの両方でサポートされます。
 
 ====
-この作業は、ONTAP システムマネージャまたはONTAP CLIを使用して実行します。
+このタスクは、ONTAPシステムマネージャまたはONTAP CLIを使用して実行します。
 
 [role="tabbed-block"]
 ====
-.System Manager の略
+.System Manager
 --
-ONTAP 9.12.1以降では、System Managerを使用してSnapLock ボリュームを作成できます。
+ONTAP 9 12.1以降では、System Managerを使用してSnapLockボリュームを作成できます。
 
 .手順
 . [*Storage]>[Volumes]に移動し、[*Add]をクリックします。
 . [ボリュームの追加*]ウィンドウで、[*その他のオプション*]をクリックします。
 . ボリュームの名前とサイズなど、新しいボリューム情報を入力します。
 . 「* SnapLock を有効にする*」を選択し、SnapLock タイプとして「Compliance」または「Enterprise」を選択します。
-. [ファイルの自動コミット*]セクションで、[変更済み]を選択し、ファイルが自動的にコミットされるまでに変更されないようにする時間を入力します。最小値は 5 分、最大値は 10 年です。
+. [ファイルの自動コミット*]セクションで、[変更済み]を選択し、ファイルが自動的にコミットされるまでに変更されないようにする時間を入力します。最小値は5分、最大値は10年です。
 . [*データ保持期間]セクションで、最小保持期間と最大保持期間を選択します。
 . デフォルトの保持期間を選択します。
 . [ 保存（ Save ） ] をクリックします。
@@ -50,19 +50,19 @@ ONTAP 9.12.1以降では、System Managerを使用してSnapLock ボリューム
 
 
 --
-.CLI の使用
+.CLI
 --
-. SnapLock ボリュームを作成します。
+. SnapLockボリュームを作成します。
 +
 [source, cli]
 ----
 volume create -vserver <SVM_name> -volume <volume_name> -aggregate <aggregate_name> -snaplock-type <compliance|enterprise>
 ----
 +
-すべてのオプションの一覧については、コマンドのマニュアルページを参照してください。次のオプションは、SnapLock ボリュームに対しては使用できません。 `-nvfail`、 `-atime-update`、 `-is-autobalance-eligible`、 `-space-mgmt-try-first`および `vmalign`。
+すべてのオプションの一覧については、コマンドのマニュアルページを参照してください。SnapLockボリュームには、、 `-atime-update` `-is-autobalance-eligible`、、 `-space-mgmt-try-first`およびは `vmalign`使用できません `-nvfail`。
 
 +
-次のコマンドは、SnapLock を作成します `Compliance` という名前のボリューム `vol1` オン `aggr1` オン `vs1`：
+次のコマンドは、 `aggr1`on `vs1`という名前のSnapLockボリュームを `vol1`作成し `Compliance`ます。
 
 +
 [listing]
@@ -75,20 +75,20 @@ cluster1::> volume create -vserver vs1 -volume vol1 -aggregate aggr1 -snaplock-t
 ====
 
 
-== SnapLock ボリュームをマウント
+== SnapLockボリュームのマウント
 
-NAS クライアントからアクセスできるように、 SnapLock ボリュームを SVM ネームスペースのジャンクションパスにマウントすることができます。
+NASクライアントからアクセスできるように、SnapLockボリュームをSVMネームスペースのジャンクションパスにマウントできます。
 
 .必要なもの
-SnapLock ボリュームはオンラインである必要があります。
+SnapLockボリュームはオンラインである必要があります。
 
-.このタスクについて
-* SnapLock ボリュームは SVM のルートにしかマウントできません。
-* 通常のボリュームを SnapLock ボリュームにマウントすることはできません。
+.タスクの内容
+* SnapLockボリュームはSVMのルートにのみマウントできます。
+* 通常のボリュームをSnapLockボリュームの下にマウントすることはできません。
 
 
 .手順
-. SnapLock ボリュームをマウントします。
+. SnapLockボリュームをマウントします。
 +
 `*volume mount -vserver _SVM_name_ -volume _volume_name_ -junction-path _path_*`
 
@@ -96,7 +96,7 @@ SnapLock ボリュームはオンラインである必要があります。
 すべてのオプションの一覧については、コマンドのマニュアルページを参照してください。
 
 +
-次のコマンドは、という名前のSnapLock ボリュームをマウントします `vol1` ジャンクションパスに移動します `/sales` を参照してください `vs1` ネームスペース：
+次のコマンドは、という名前のSnapLockをネームスペースの `vs1`ジャンクションパスに `/sales`マウントし `vol1`ます。
 
 +
 [listing]

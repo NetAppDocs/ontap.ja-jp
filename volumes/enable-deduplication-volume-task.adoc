@@ -4,36 +4,36 @@ sidebar: sidebar
 keywords: enable, deduplication, volume, FlexVol, postprocess, inline 
 summary: FlexVol volumeで重複排除（ポストプロセスまたはインライン）を有効にして、ストレージ効率を向上させます。 
 ---
-= ボリュームで重複排除を有効にします
+= ボリュームで重複排除を有効にする
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-FlexVol で重複排除を有効にしてストレージ効率を向上させることができます。ポストプロセス重複排除はすべてのボリュームで、インライン重複排除は AFF または Flash Pool アグリゲート内のボリュームで有効にできます。
+FlexVol volumeで重複排除を有効にしてストレージ効率を高めることができます。ポストプロセス重複排除はすべてのボリュームで有効にし、インライン重複排除はAFFアグリゲートまたはFlash Poolアグリゲートに配置されたボリュームで有効にすることができます。
 
-他のタイプのボリュームでインライン重複排除を有効にする場合は、技術情報アーティクルを参照してください link:https://kb.netapp.com/Advice_and_Troubleshooting/Data_Storage_Software/ONTAP_OS/How_to_enable_volume_inline_deduplication_on_Non-AFF_(All_Flash_FAS)_aggregates["AFF以外の（オールフラッシュFAS ）アグリゲートでボリュームのインライン重複排除を有効にする方法"^]。
+他のタイプのボリュームでインライン重複排除を有効にする場合は、ナレッジベースの記事を参照してlink:https://kb.netapp.com/Advice_and_Troubleshooting/Data_Storage_Software/ONTAP_OS/How_to_enable_volume_inline_deduplication_on_Non-AFF_(All_Flash_FAS)_aggregates["AFF以外の（オールフラッシュFAS ）アグリゲートでボリュームのインライン重複排除を有効にする方法"^]ください。
 
-.作業を開始する前に
-FlexVol ボリュームの場合、ボリュームおよびアグリゲート内に重複排除メタデータ用の十分な空きスペースがあることを確認しておく必要があります。重複排除メタデータ用に、アグリゲート内に最小限の空きスペースが必要です。アグリゲート内のすべての重複排除対象 FlexVol ボリュームまたはデータコンスティチュエントの総物理データ量の 3% に相当するスペースです。各 FlexVol またはデータ構成要素では総物理データ量の 4% に相当する空きスペースを確保する必要があるため、合計で 7% が必要になります。
+.開始する前に
+FlexVol volumeの場合、ボリュームおよびアグリゲート内に重複排除メタデータ用の十分な空きスペースがあることを確認しておく必要があります。重複排除メタデータには、アグリゲート内に最小限の空きスペースが必要です。アグリゲート内の重複排除機能が有効なすべてのFlexVolまたはデータコンスティチュエントについて、物理データの合計量の3%に相当します。各FlexVol volumeまたはデータコンスティチュエントには総物理データ量の4%に相当する空きスペースを確保する必要があるため、合計で7%が必要です。
 
 [NOTE]
 ====
-ONTAP 9.2 以降では、 AFF システムでインライン重複排除がデフォルトで有効になります。
+ONTAP 9 .2以降では、AFFシステムでインライン重複排除がデフォルトで有効になります。
 
 ====
 .選択肢
-* を使用します `volume efficiency on` ポストプロセス重複排除を有効にするコマンド。
+* コマンドを使用し `volume efficiency on`て、ポストプロセス重複排除を有効にします。
 +
-次のコマンドは、ボリューム VolA でポストプロセス重複排除を有効にします。
+次のコマンドは、ボリュームVolAでポストプロセス重複排除を有効にします。
 
 +
 `volume efficiency on -vserver vs1 -volume VolA`
 
-* を使用します `volume efficiency on` コマンドのあとにを入力します `volume efficiency modify` コマンドにを指定します `-inline-deduplication` オプションをに設定します `true` ポストプロセス重複排除とインライン重複排除の両方を有効にします。
+* コマンドのあとにオプションをに設定し `true`てコマンドを `-inline-deduplication`実行し `volume efficiency on`、 `volume efficiency modify`ポストプロセス重複排除とインライン重複排除の両方を有効にします。
 +
-次のコマンドは、ボリューム VolA でポストプロセス重複排除とインライン重複排除の両方を有効にします。
+次のコマンドは、ボリュームVolAでポストプロセス重複排除とインライン重複排除の両方を有効にします。
 
 +
 `volume efficiency on -vserver vs1 -volume VolA`
@@ -41,9 +41,9 @@ ONTAP 9.2 以降では、 AFF システムでインライン重複排除がデ�
 +
 `volume efficiency modify -vserver vs1 -volume VolA -inline-dedupe true`
 
-* を使用します `volume efficiency on` コマンドのあとにを入力します `volume efficiency modify` コマンドにを指定します `-inline-deduplication` オプションをに設定します `true` および `-policy` オプションをに設定します `inline-only` インライン重複排除のみを有効にする場合。
+* コマンドを実行し、 `volume efficiency modify`オプションをに、オプションをに設定し `true`てコマンドを `-inline-deduplication`実行し `volume efficiency on`、 `-policy`オプションをに設定し `inline-only`てインライン重複排除のみを有効にします。
 +
-次のコマンドは、ボリューム VolA でインライン重複排除だけを有効にします。
+次のコマンドは、ボリュームVolAでインライン重複排除のみを有効にします。
 
 +
 `volume efficiency on -vserver vs1 -volume VolA`
@@ -53,6 +53,6 @@ ONTAP 9.2 以降では、 AFF システムでインライン重複排除がデ�
 
 
 
-.完了後
+.終了後
 ボリューム効率化の設定を表示して、設定が変更されたことを確認します。
 `volume efficiency show -instance`

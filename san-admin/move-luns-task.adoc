@@ -2,52 +2,52 @@
 permalink: san-admin/move-luns-task.html 
 sidebar: sidebar 
 keywords: system manager, ontap 9.2, move, lun 
-summary: Storage Virtual Machine （ SVM ）内のボリューム間で LUN を移動できますが、 SVM 間で LUN を移動することはできません。SVM 内のボリューム間で移動される LUN はただちに移動され、接続が失われることはありません。 
+summary: Storage Virtual Machine（SVM）内のボリューム間でLUNを移動できますが、SVM間でLUNを移動することはできません。SVM内のボリューム間で移動されたLUNはただちに移動され、接続が失われることはありません。 
 ---
-= LUN を移動します
+= LUNの移動
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-Storage Virtual Machine （ SVM ）内のボリューム間で LUN を移動できますが、 SVM 間で LUN を移動することはできません。SVM 内のボリューム間で移動される LUN はただちに移動され、接続が失われることはありません。
+Storage Virtual Machine（SVM）内のボリューム間でLUNを移動できますが、SVM間でLUNを移動することはできません。SVM内のボリューム間で移動されたLUNはただちに移動され、接続が失われることはありません。
 
 .必要なもの
-LUNでSelective LUN Map（SLM；選択的LUNマップ）を使用している場合は、 link:modify-slm-reporting-nodes-task.html["SLMレポートノードリストの変更"] LUNを移動する前に、デスティネーションノードとそのHAパートナーを追加します。
+LUNでSelective LUN Map（SLM；選択的LUNマップ）を使用している場合は、LUNを移動する前に、デスティネーションノードとそのHAパートナーを含める必要がありlink:modify-slm-reporting-nodes-task.html["SLMレポートノードリストの変更"]ます。
 
-.このタスクについて
-重複排除、圧縮、コンパクションなどの Storage Efficiency 機能は、 LUN の移動時には保持されません。これらは、 LUN の移動の完了後に再適用する必要があります。
+.タスクの内容
+重複排除、圧縮、コンパクションなどのStorage Efficiency機能は、LUNの移動時には維持されません。LUNの移動の完了後に再適用する必要があります。
 
-Snapshot コピーによるデータ保護はボリュームレベルで行われます。そのため、移動した LUN にはデスティネーションボリュームのデータ保護形式が適用されます。デスティネーションボリューム用の Snapshot コピーが確立されていない場合、 LUN の Snapshot コピーは作成されません。また、 LUN のすべての Snapshot コピーは、これらの Snapshot コピーが削除されないかぎり、元のボリュームに保持されます。
+Snapshotコピーによるデータ保護はボリュームレベルで行われます。そのため、移動したLUNにはデスティネーションボリュームのデータ保護形式が適用されます。デスティネーションボリューム用のSnapshotコピーが確立されていない場合、LUNのSnapshotコピーは作成されません。また、LUNのすべてのSnapshotコピーは、Snapshotコピーが削除されるまで元のボリュームに残ります。
 
-次のボリュームに LUN を移動することはできません。
+次のボリュームにはLUNを移動できません。
 
-* SnapMirror デスティネーションボリューム
-* SVM ルートボリューム
+* SnapMirrorデスティネーションボリューム
+* SVMルートボリューム
 
 
-次のタイプの LUN は移動できません。
+次のタイプのLUNは移動できません。
 
-* ファイルから作成された LUN
-* NVFail 状態の LUN
-* 負荷共有関係にある LUN
-* プロトコルエンドポイントクラスの LUN
+* ファイルから作成されたLUN
+* NVFail状態のLUN
+* 負荷共有関係にあるLUN
+* プロトコルエンドポイントクラスのLUN
 
 
 [NOTE]
 ====
-サイズが 1TB 以上で os_type が Solaris の LUN では、 LUN の移動時にホストでタイムアウトが発生する場合があります。このタイプの LUN では、移動を開始する前に LUN をアンマウントする必要があります。
+1TB以上のos_type Solaris LUNの場合、LUNの移動中にホストでタイムアウトが発生することがあります。このタイプのLUNでは、移動を開始する前にLUNをアンマウントする必要があります。
 
 ====
 .手順
 [role="tabbed-block"]
 ====
-.System Manager の略
+.System Manager
 --
-ONTAP System Manager（9.7以降）を搭載したLUNを移動します。
+ONTAP System Manager（9.7以降）でLUNを移動します。
 
-ONTAP 9.10.1 以降では、単一の LUN を移動するときに System Manager で新しいボリュームを作成できます。  ONTAP 9.8 および 9.9.8.1 では、 LUN の移動を開始する前に、 LUN の移動先のボリュームが存在している必要があります。
+ONTAP 9 .10.1以降では、単一のLUNを移動する際にSystem Managerを使用して新しいボリュームを作成できます。ONTAP 9 .8および9.9.1では、LUNの移動を開始する前に、LUNの移動先となるボリュームを用意しておく必要があります。
 
 手順
 
@@ -57,24 +57,24 @@ ONTAP 9.10.1 以降では、単一の LUN を移動するときに System Manage
 ONTAP 9.10.1 では、 LUN を既存のボリューム * または新しいボリューム * に移動するように選択します。
 
 +
-新しいボリュームを作成する場合は、ボリュームの仕様を指定します。
+新しいボリュームの作成を選択した場合は、ボリュームの仕様を指定します。
 
 . [ 移動（ Move ） ] をクリックします。
 
 
 --
-.CLI の使用
+.CLI
 --
 ONTAP CLIを使用してLUNを移動します。
 
-. LUN を移動します。
+. LUNを移動します。
 +
 [source, cli]
 ----
 lun move start
 ----
 +
-ごく短時間、移動した LUN が元のボリュームと移動後のボリュームの両方に表示されます。これは移動が完了するまでの一時的な状態で、想定内の動作です。
+ごく短時間、元のボリュームとデスティネーションボリュームの両方でLUNが表示されます。これは移動が完了するまでの一時的な状態で、想定内の動作です。
 
 . 移動のステータスを追跡し、正常に完了したことを確認します。
 +
@@ -87,5 +87,5 @@ lun move show
 --
 ====
 .関連情報
-* link:selective-lun-map-concept.html["選択的 LUN マップ"]
+* link:selective-lun-map-concept.html["選択的LUNマップ"]
 

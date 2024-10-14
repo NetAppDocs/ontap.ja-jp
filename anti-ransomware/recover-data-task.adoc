@@ -2,9 +2,9 @@
 sidebar: sidebar 
 permalink: anti-ransomware/recover-data-task.html 
 keywords: Restore data after an attack, anti-ransomware backup, restore data from snapshot copies, potential ransomware attack, ransomware attack, recovery snapshot copies are deleted, recover deleted snapshot copies, autonomous, ransomware, protection, arp 
-summary: ARPが攻撃の可能性を検出すると、Snapshotコピーが作成されます。これらのランサムウェア対策コピーやその他の Snapshot コピーからデータをリストアできます。 
+summary: ARPが攻撃の可能性を検出すると、Snapshotコピーが作成されます。これらのランサムウェア対策コピーやその他のSnapshotコピーからデータをリストアできます。 
 ---
-= ランサムウェア攻撃のあとにデータをリストア
+= ランサムウェア攻撃後にデータをリストア
 :hardbreaks:
 :toclevels: 1
 :allow-uri-read: 
@@ -16,21 +16,21 @@ summary: ARPが攻撃の可能性を検出すると、Snapshotコピーが作成
 
 
 [role="lead"]
-Autonomous Ransomware Protection（ARP；自律型ランサムウェア対策）で、 `Anti_ransomware_backup` ランサムウェアの潜在的な脅威を検出した場合。これらのARP Snapshotコピーまたはボリュームの別のSnapshotコピーのいずれかを使用して、データをリストアできます。
+Autonomous Ransomware Protection（ARP）は、ランサムウェアの潜在的な脅威を検出したときにという名前のSnapshotコピーを作成します `Anti_ransomware_backup`。これらのARP Snapshotコピーまたはボリュームの別のSnapshotコピーのいずれかを使用して、データをリストアできます。
 
-.このタスクについて
-ボリュームに SnapMirror 関係が設定されている場合は、 Snapshot コピーからリストアしたあと、すぐにボリュームのすべてのミラーコピーを手動でレプリケートします。レプリケートしないと、ミラーコピーを使用できなくなり、削除および再作成が必要になることがあります。
+.タスクの内容
+ボリュームにSnapMirror関係がある場合は、Snapshotコピーからリストアしたあとすぐに、ボリュームのすべてのミラーコピーを手動でレプリケートします。ミラーコピーを使用しないと、ミラーコピーを使用できなくなり、削除および再作成が必要になる可能性があります。
 
-以外のSnapshotからリストアするには `Anti_ransomware_backup` スナップショットシステム攻撃が特定された後、最初にARPスナップショットを解放する必要があります。
+システム攻撃が特定された後でSnapshot以外のSnapshotからリストアするには `Anti_ransomware_backup`、まずARP Snapshotを解放する必要があります。
 
-システム攻撃が報告されていない場合は、最初に `Anti_ransomware_backup` その後、Snapshotコピーを使用して、選択したSnapshotコピーからボリュームをリストアします。
+システム攻撃が報告されなかった場合は、まずSnapshotコピーからリストアしてから、選択したSnapshotコピーからボリュームを次回リストアする必要があります `Anti_ransomware_backup`。
 
 .手順
 データは、System ManagerまたはONTAP CLIを使用してリストアできます。
 
 [role="tabbed-block"]
 ====
-.System Manager の略
+.System Manager
 --
 .システム攻撃後の復元
 . ARPスナップショットから復元するには、手順2に進みます。以前のSnapshotコピーからリストアするには、まずARP Snapshotのロックを解除する必要があります。
@@ -59,7 +59,7 @@ Autonomous Ransomware Protection（ARP；自律型ランサムウェア対策）
 
 
 --
-.CLI の使用
+.CLI
 --
 .システム攻撃後の復元
 . ARP Snapshotコピーからリストアするには、手順2に進みます。以前のSnapshotコピーからデータをリストアするには、ARP Snapshotのロックを解除する必要があります。
@@ -68,21 +68,20 @@ Autonomous Ransomware Protection（ARP；自律型ランサムウェア対策）
 NOTE: Anti-Ransomware SnapLockは、 `volume snap restore`以下に説明するコマンドを使用している場合にのみ、以前のSnapshotコピーからリストアする前に解放する必要があります。FlexClone、Single File Snap Restore、またはその他の方法を使用してデータをリストアする場合は、この作業は必要ありません。
 
 +
-攻撃を「誤検知」および「疑いのないもの」としてマークします。
-`anti-ransomware volume attack clear-suspect -vserver _svm_name_ -volume _vol_name_ [_extension identifiers_] -false-positive true`
-拡張機能を識別するには、次のいずれかのパラメータを使用します。
-`[-seq-no _integer_]` 疑わしいリスト内のファイルのシーケンス番号。
-`[-extension _text_, … ]` ファイル拡張子
-`[-start-time _date_time_ -end-time _date_time_]` 消去されるファイル範囲の開始時刻と終了時刻。形式は「MM/DD/YYYY HH:MM:SS」です。
+攻撃を「false positive」および「clear suspect」としてマークします。
+`anti-ransomware volume attack clear-suspect -vserver _svm_name_ -volume _vol_name_ [_extension identifiers_] -false-positive true`次のパラメータのいずれかを使用して拡張子を識別します。疑わしいリスト内のファイルのシーケンス番号
+`[-extension _text_, … ]`。
+`[-seq-no _integer_]`クリアするファイル範囲のファイル拡張子の
+`[-start-time _date_time_ -end-time _date_time_]`開始時間と終了時間。形式は「MM/DD/YYYY HH:MM:SS」です。
 
-. ボリューム内の Snapshot コピーの一覧を表示します。
+. ボリューム内のSnapshotコピーの一覧を表示します。
 +
 [source, cli]
 ----
 volume snapshot show -vserver <SVM> -volume <volume>
 ----
 +
-次の例は、のSnapshotコピーを示しています `vol1`：
+次の例は、のSnapshotコピーを示してい `vol1`ます。
 
 +
 [listing]
@@ -102,14 +101,14 @@ vs1	    vol1   hourly.2013-01-25_0005  valid   224KB     0%    0%
 
 7 entries were displayed.
 ----
-. Snapshot コピーからボリュームの内容をリストアします。
+. Snapshotコピーからボリュームの内容をリストアします。
 +
 [source, cli]
 ----
 volume snapshot restore -vserver <SVM> -volume <volume> -snapshot <snapshot>
 ----
 +
-次の例は、の内容をリストアします `vol1`：
+次の例は、の内容をリストアし `vol1`ます。
 
 +
 [listing]
@@ -119,14 +118,14 @@ cluster1::> volume snapshot restore -vserver vs0 -volume vol1 -snapshot daily.20
 
 
 .システム攻撃が特定されなかった場合のリストア
-. ボリューム内の Snapshot コピーの一覧を表示します。
+. ボリューム内のSnapshotコピーの一覧を表示します。
 +
 [source, cli]
 ----
 volume snapshot show -vserver <SVM> -volume <volume>
 ----
 +
-次の例は、のSnapshotコピーを示しています `vol1`：
+次の例は、のSnapshotコピーを示してい `vol1`ます。
 
 +
 [listing]
@@ -146,14 +145,14 @@ vs1	    vol1   hourly.2013-01-25_0005  valid   224KB     0%    0%
 
 7 entries were displayed.
 ----
-. Snapshot コピーからボリュームの内容をリストアします。
+. Snapshotコピーからボリュームの内容をリストアします。
 +
 [source, cli]
 ----
 volume snapshot restore -vserver <SVM> -volume <volume> -snapshot <snapshot>
 ----
 +
-次の例は、の内容をリストアします `vol1`：
+次の例は、の内容をリストアし `vol1`ます。
 
 +
 [listing]

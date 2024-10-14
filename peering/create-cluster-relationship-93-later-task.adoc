@@ -4,7 +4,7 @@ sidebar: sidebar
 keywords: create, cluster, peer, relationship, System Manager, cli 
 summary: データを保護する前に、ローカルクラスタとリモートクラスタの間にクラスタピア関係を作成します。データのバックアップやディザスタリカバリを目的としてリモートクラスタにデータをレプリケートします。 
 ---
-= クラスタピア関係を作成
+= クラスタピア関係を作成します。
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
@@ -13,28 +13,28 @@ summary: データを保護する前に、ローカルクラスタとリモー�
 [role="lead"]
 データバックアップやディザスタリカバリを目的としてリモートクラスタにデータをレプリケートしてデータを保護するには、ローカルクラスタとリモートクラスタの間にクラスタピア関係を作成する必要があります。
 
-.このタスクについて
+.タスクの内容
 この手順は、FAS、AFF、および現在のASAシステムに適用されます。ASA R2システム（ASA A1K、ASA A70、またはASA A90）を使用している場合は、に従ってlink:https://docs.netapp.com/us-en/asa-r2/data-protection/snapshot-replication.html["以下の手順を実行します"^]Snapshotレプリケーションのセットアップを作成します。ASA R2システムは、SANのみのお客様に特化したシンプルなONTAPエクスペリエンスを提供します。
 
-いくつかのデフォルトの保護ポリシーが用意されています。カスタムポリシーを使用する場合は、保護ポリシーを作成しておく必要があります。
+いくつかのデフォルトの保護ポリシーを使用できます。カスタムの保護ポリシーを使用する場合は、保護ポリシーを作成しておく必要があります。
 
-.作業を開始する前に
+.開始する前に
 * ONTAP CLIを使用している場合は、次のいずれかの方法でピア関係にあるクラスタ内の各ノードにクラスタ間LIFを作成しておく必要があります。
 +
-** link:configure-intercluster-lifs-share-data-ports-task.html["共有データポートにクラスタ間 LIF を設定します"]
+** link:configure-intercluster-lifs-share-data-ports-task.html["共有データポートにクラスタ間LIFを設定"]
 ** link:configure-intercluster-lifs-use-dedicated-ports-task.html["専用データポートにクラスタ間LIFを設定"]
-** link:configure-intercluster-lifs-use-ports-own-networks-task.html["カスタム IPspace にクラスタ間 LIF を設定します"]
+** link:configure-intercluster-lifs-use-ports-own-networks-task.html["カスタムIPspaceでのクラスタ間LIFの設定"]
 
 
-* クラスタで ONTAP 9.3 以降が実行されている必要があります。（クラスタで ONTAP 9.2 以前が実行されている場合は、の手順を参照してください link:https://library.netapp.com/ecm/ecm_download_file/ECMLP2494079["このアーカイブ済みドキュメント"^]. ）
+* クラスタでONTAP 9 .3以降が実行されている必要があります。（クラスタでONTAP 9 .2以前が実行されている場合は、の手順を参照してlink:https://library.netapp.com/ecm/ecm_download_file/ECMLP2494079["このアーカイブ済みドキュメント"^]ください）。
 
 
 .手順
-この作業は、ONTAP システムマネージャまたはONTAP CLIを使用して実行します。
+このタスクは、ONTAPシステムマネージャまたはONTAP CLIを使用して実行します。
 
 [role="tabbed-block"]
 ====
-.System Manager の略
+.System Manager
 --
 . ローカルクラスタで、*[クラスタ]>[設定]*をクリックします。
 . [クラスタ間設定]*セクションで、*[ネットワークインターフェイスの追加]*をクリックし、IPアドレスとサブネットマスクを入力してクラスタのクラスタ間ネットワークインターフェイスを追加します。
@@ -50,7 +50,7 @@ summary: データを保護する前に、ローカルクラスタとリモー�
 
 
 --
-.CLI の使用
+.CLI
 --
 . デスティネーションクラスタで、ソースクラスタとのピア関係を作成します。
 +
@@ -59,16 +59,16 @@ summary: データを保護する前に、ローカルクラスタとリモー�
 cluster peer create -generate-passphrase -offer-expiration <MM/DD/YYYY HH:MM:SS|1...7days|1...168hours> -peer-addrs <peer_LIF_IPs> -initial-allowed-vserver-peers <svm_name|*> -ipspace <ipspace>
 ----
 +
-両方を指定する場合は `-generate-passphrase` および `-peer-addrs`にクラスタ間LIFが指定されているクラスタのみ `-peer-addrs` 生成されたパスワードを使用できます。
+と `-peer-addrs`の両方を指定した場合 `-generate-passphrase`は、でクラスタ間LIFが指定されているクラスタのみが、 `-peer-addrs`生成されたパスワードを使用できます。
 
 +
-は無視してかまいません `-ipspace` オプション（カスタムIPspaceを使用しない場合）。コマンド構文全体については、マニュアルページを参照してください。
+カスタムIPspaceを使用しない場合は、このオプションを無視してかまいません `-ipspace`。コマンド構文全体については、マニュアルページを参照してください。
 
 +
-ONTAP 9.6以降でピア関係を作成する場合に、クラスタ間ピアリング通信を暗号化しないようにするには、を使用する必要があります `-encryption-protocol-proposed none` 暗号化を無効にするオプション。
+ONTAP 9 .6以降でピア関係を作成する場合に、クラスタ間ピアリング通信を暗号化しないようにするには、オプションを使用して暗号化を無効にする必要があります `-encryption-protocol-proposed none`。
 
 +
-次の例は、リモートクラスタを指定せずにクラスタピア関係を作成し、SVMとのピア関係を事前承認します `vs1` および `vs2` ローカルクラスタ：
+次の例は、リモートクラスタを指定せずにクラスタピア関係を作成し、SVMと `vs2`ローカルクラスタのピア関係を事前承認します `vs1`。
 
 +
 [listing]
@@ -84,7 +84,7 @@ cluster02::> cluster peer create -generate-passphrase -offer-expiration 2days -i
 Warning: make a note of the passphrase - it cannot be displayed again.
 ----
 +
-次の例は、クラスタ間 LIF の IP アドレス 192.140.112.103 および 192.140.112.104 でリモートクラスタとのクラスタピア関係を作成し、ローカルクラスタのすべての SVM とのピア関係を事前承認します。
+次の例は、クラスタ間LIFのIPアドレス192.140.112.103および192.140.112.104でリモートクラスタとのクラスタピア関係を作成し、ローカルクラスタの任意のSVMとのピア関係を事前承認します。
 
 +
 [listing]
@@ -100,7 +100,7 @@ cluster02::> cluster peer create -generate-passphrase -peer-addrs 192.140.112.10
 Warning: make a note of the passphrase - it cannot be displayed again.
 ----
 +
-次の例は、リモートクラスタを指定せずにクラスタピア関係を作成し、SVMとのピア関係を事前承認します``vs1`` および `vs2` ローカルクラスタ：
+次の例は、リモートクラスタを指定せずにクラスタピア関係を作成し、SVMと `vs2`ローカルクラスタのピア関係を事前承認します``vs1``。
 
 +
 [listing]
@@ -125,7 +125,7 @@ cluster peer create -peer-addrs <peer_LIF_IPs> -ipspace <ipspace>
 コマンド構文全体については、マニュアルページを参照してください。
 
 +
-次の例は、クラスタ間 LIF の IP アドレス 192.140.112.101 および 192.140.112.102 でローカルクラスタをリモートクラスタに対して認証します。
+次の例は、クラスタ間LIFのIPアドレス192.140.112.101および192.140.112.102でローカルクラスタをリモートクラスタに対して認証します。
 
 +
 [listing]
@@ -143,7 +143,7 @@ Clusters cluster02 and cluster01 are peered.
 +
 プロンプトが表示されたら、ピア関係のパスフレーズを入力します。
 
-. クラスタピア関係が作成されたことを確認します。
+. クラスタ ピア関係が作成されたことを確認します。
 +
 [source, cli]
 ----
@@ -200,12 +200,12 @@ cluster01-02
 ====
 
 
-== ONTAP でこれを行うその他の方法
+== ONTAPで実行するその他の方法
 
 [cols="2"]
 |===
 | 実行するタスク | 参照するコンテンツ 
 
 
-| System Manager Classic （ ONTAP 9.7 以前で使用可能） | link:https://docs.netapp.com/us-en/ontap-system-manager-classic/volume-disaster-prep/index.html["ボリュームのディザスタリカバリの準備の概要"^] 
+| System Manager Classic（ONTAP 9 .7以前で使用可能） | link:https://docs.netapp.com/us-en/ontap-system-manager-classic/volume-disaster-prep/index.html["ボリュームのディザスタリカバリの準備の概要"^] 
 |===

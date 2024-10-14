@@ -2,36 +2,36 @@
 permalink: s3-audit/select-buckets-task.html 
 sidebar: sidebar 
 keywords: s3 audit, select, buckets 
-summary: 監査を有効にした SVM で監査するバケットを指定する必要があります。 
+summary: 監査が有効なSVMでは、監査対象のバケットを指定する必要があります。 
 ---
-= S3 監査に使用するバケットを選択します
+= S3監査のバケットを選択
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-監査を有効にした SVM で監査するバケットを指定する必要があります。
+監査が有効なSVMでは、監査対象のバケットを指定する必要があります。
 
 .必要なもの
-* SVM で S3 監査が有効になっている。
+* S3監査が有効になっているSVM。
 
 
-.このタスクについて
-S3監査の設定はSVM単位で有効になりますが、監査が有効になっているSVMSでバケットを選択する必要があります。SVM にバケットを追加し、新しいバケットを監査する場合は、この手順でバケットを選択する必要があります。SVM の監査対象外のバケットで S3 監査を有効にすることもできます。
+.タスクの内容
+S3 監査の設定は SVM 単位で有効になりますが、監査用に有効になっている SVM 内のバケットを選択する必要があります。SVMにバケットを追加し、新しいバケットを監査する場合は、この手順でバケットを選択する必要があります。SVMの監査で未監査のバケットをS3監査用に有効にすることもできます。
 
-監査の設定は、で削除されるまでバケットの設定が維持されます `vserver object-store-server audit object-select delete` コマンドを実行します
+監査の設定は、コマンドで削除するまでバケットの設定が維持され `vserver object-store-server audit object-select delete`ます。
 
 .手順
-S3 監査用のバケットを選択します。
+S3監査のバケットを選択：
 
 `vserver object-store-server audit event-selector create -vserver _svm_name_ -bucket _bucket_name_ [[-access] {read-only|write-only|all}] [[-permission] {allow-only|deny-only|all}]`
 
-* `-access` -監査するイベントアクセスのタイプを指定します。 `read-only`、 `write-only` または `all` （デフォルトはです `all`）。
-* `-permission` -監査するイベント権限のタイプを指定します。 `allow-only`、 `deny-only` または `all` （デフォルトはです `all`）。
+* `-access`-監査対象のイベントアクセスのタイプ（、 `write-only`または） `all`を指定します `read-only`（デフォルトは `all`）。
+* `-permission`-監査するイベント権限のタイプ（、 `deny-only`または） `all`を指定します。 `allow-only` `all`
 
 
 .例
-次の例は、読み取り専用アクセスで許可されたイベントのみをログするバケットの監査設定を作成します。
+次の例は、読み取り専用アクセスで許可されたイベントのみをログに記録するバケットの監査設定を作成します。
 
 `cluster1::> vserver object-store-server audit event-selector create -vserver vs1 -bucket test-bucket -access read-only -permission allow-only`

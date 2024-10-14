@@ -12,20 +12,20 @@ summary: APIを使用して、S3ユーザがS3クライアントにアクセス�
 
 
 [role="lead"]
-ONTAP 9.14.1以降では、外部ディレクトリのサービスがONTAP S3オブジェクトストレージに統合されました。この統合により、外部ディレクトリサービスによるユーザとアクセスの管理が簡素化されます。
+ONTAP 9 .14.1以降では、外部ディレクトリのサービスがONTAP S3オブジェクトストレージに統合されました。この統合により、外部ディレクトリサービスによるユーザとアクセスの管理が簡素化されます。
 
-外部ディレクトリサービスに属するユーザグループに、ONTAPオブジェクトストレージ環境へのアクセスを提供できます。Lightweight Directory Access Protocol（LDAP）は、Active Directoryなどのディレクトリサービスと通信するためのインターフェイスで、IDおよびアクセス管理（IAM）のデータベースとサービスを提供します。アクセスを提供するには、ONTAP S3環境でLDAPグループを設定する必要があります。アクセスの設定が完了すると、グループメンバーにONTAP S3バケットへの権限が付与されます。LDAPの詳細については、を参照してください。 link:../nfs-config/using-ldap-concept.html["LDAP の使用方法の概要"]。
+外部ディレクトリサービスに属するユーザグループに、ONTAPオブジェクトストレージ環境へのアクセスを提供できます。Lightweight Directory Access Protocol（LDAP）は、Active Directoryなどのディレクトリサービスと通信するためのインターフェイスで、IDおよびアクセス管理（IAM）のデータベースとサービスを提供します。アクセスを提供するには、ONTAP S3環境でLDAPグループを設定する必要があります。アクセスの設定が完了すると、グループ メンバーにONTAP S3バケットに対する権限が付与されます。LDAPの詳細については、を参照してくださいlink:../nfs-config/using-ldap-concept.html["LDAPノシヨウホウホウノカイヨウ"]。
 
 また、Active Directoryユーザグループを高速バインドモードに設定して、ユーザクレデンシャルを検証し、サードパーティおよびオープンソースのS3アプリケーションをLDAP接続を介して認証できるようにすることもできます。
 
-.作業を開始する前に
+.開始する前に
 LDAPグループを設定し、グループアクセスの高速バインドモードを有効にする前に、次のことを確認してください。
 
-. S3サーバを含むS3対応Storage VMが作成されている。を参照してください link:../s3-config/create-svm-s3-task.html["S3 用の SVM を作成します"]。
-. そのStorage VMにバケットが作成されている。を参照してください link:../s3-config/create-bucket-task.html["バケットを作成する"]。
-. Storage VMにDNSが設定されています。を参照してください link:../networking/configure_dns_services_manual.html["DNS サービスを設定する"]。
-. LDAPサーバの自己署名ルート認証局（CA）証明書がStorage VMにインストールされている。を参照してください link:../nfs-config/install-self-signed-root-ca-certificate-svm-task.html["自己署名ルート CA 証明書を SVM にインストールします"]。
-. SVMでTLSを有効にしてLDAPクライアントが設定されている。を参照してください link:../nfs-config/create-ldap-client-config-task.html["LDAP クライアント設定を作成します"] および link:../nfs-config/enable-ldap-svms-task.html["情報を取得するためのLDAPクライアント設定とSVMの関連付け"]。
+. S3サーバを含むS3対応Storage VMが作成されている。を参照して link:../s3-config/create-svm-s3-task.html["S3用のSVMの作成"]
+. そのStorage VMにバケットが作成されている。を参照して link:../s3-config/create-bucket-task.html["バケットを作成する"]
+. Storage VMにDNSが設定されています。を参照して link:../networking/configure_dns_services_manual.html["DNSサービスの設定"]
+. LDAPサーバの自己署名ルート認証局（CA）証明書がStorage VMにインストールされている。を参照して link:../nfs-config/install-self-signed-root-ca-certificate-svm-task.html["自己署名ルートCA証明書をSVMにインストールする"]
+. SVMでTLSを有効にしてLDAPクライアントが設定されている。およびを参照してくださいlink:../nfs-config/create-ldap-client-config-task.html["LDAPクライアント設定を作成する"]link:../nfs-config/enable-ldap-svms-task.html["情報を取得するためのLDAPクライアント設定とSVMの関連付け"]。
 
 
 
@@ -40,16 +40,16 @@ ns-switch modify -vserver <vserver-name> -database group -sources files,ldap
 ns-switch modify -vserver <vserver-name> -database passwd -sources files,ldap
 ----
 +
-このコマンドの詳細については、を参照してください link:https://docs.netapp.com/us-en/ontap-cli/vserver-services-name-service-ns-switch-modify.html["vserver services name-service ns-switch modify"] コマンドを実行します
+このコマンドの詳細については、コマンドを参照してlink:https://docs.netapp.com/us-en/ontap-cli/vserver-services-name-service-ns-switch-modify.html["vserver services name-service ns-switch modify"]ください。
 
-. オブジェクトストアバケットポリシーのステートメントを `principal` アクセスを許可するLDAPグループにを設定します。
+. オブジェクトストアバケットポリシーのステートメントを作成し、アクセスを許可するLDAPグループを設定し `principal`ます。
 +
 [listing]
 ----
 object-store-server bucket policy statement create -bucket <bucket-name> -effect allow -principal nasgroup/<ldap-group-name> -resource <bucket-name>, <bucket-name>/*
 ----
 +
-例：次の例では、 `buck1`。このポリシーは、LDAPグループへのアクセスを許可します。 `group1` リソース（バケットとそのオブジェクト）に `buck1`。
+例：次の例は、用のバケットポリシーステートメントを作成します `buck1`。このポリシーは、LDAPグループにリソース（バケットとそのオブジェクト）への `buck1`アクセスを許可し `group1`ます。
 
 +
 [listing]
@@ -57,7 +57,7 @@ object-store-server bucket policy statement create -bucket <bucket-name> -effect
 vserver object-store-server bucket policy add-statement -bucket buck1 -effect allow -action
 GetObject,PutObject,DeleteObject,ListBucket,GetBucketAcl,GetObjectAcl,ListBucketMultipartUploads,ListMultipartUploadParts, ListBucketVersions,GetObjectTagging,PutObjectTagging,DeleteObjectTagging,GetBucketVersioning,PutBucketVersioning -principal nasgroup/group1 -resource buck1, buck1/*
 ----
-. LDAPグループのユーザが `group1` S3クライアントからS3処理を実行できます。
+. LDAPグループのユーザがS3クライアントからS3処理を実行できることを確認します `group1`。
 
 
 
@@ -72,15 +72,13 @@ ns-switch modify -vserver <vserver-name> -database group -sources files,ldap
 ns-switch modify -vserver <vserver-name> -database passwd -sources files,ldap
 ----
 +
-このコマンドの詳細については、を参照してください link:https://docs.netapp.com/us-en/ontap-cli/vserver-services-name-service-ns-switch-modify.html["vserver services name-service ns-switch modify"] コマンドを実行します
+このコマンドの詳細については、コマンドを参照してlink:https://docs.netapp.com/us-en/ontap-cli/vserver-services-name-service-ns-switch-modify.html["vserver services name-service ns-switch modify"]ください。
 
 . S3バケットにアクセスするLDAPユーザの権限がバケットポリシーで定義されていることを確認します。詳細については、を参照してください link:../s3-config/create-modify-bucket-policy-task.html["バケットポリシーを変更する"]。
 . LDAPグループのユーザが次の処理を実行できることを確認します。
 +
 .. S3クライアントでアクセスキーを次の形式で設定します。
-`"NTAPFASTBIND" + base64-encode(user-name:password)`
-例 `"NTAPFASTBIND"` +base64 -エンコード(ldapuser:password)。結果は次のようになります。
-                      `NTAPFASTBINDbGRhcHVzZXI6cGFzc3dvcmQ=`
+`"NTAPFASTBIND" + base64-encode(user-name:password)`例 `"NTAPFASTBIND"`：+base64-encode（ldapuser：password）。 `NTAPFASTBINDbGRhcHVzZXI6cGFzc3dvcmQ=`
 +
 
 NOTE: S3クライアントからシークレットキーの入力を求められることがあります。シークレットキーがない場合は、16文字以上のパスワードを入力できます。

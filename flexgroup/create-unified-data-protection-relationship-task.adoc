@@ -2,26 +2,26 @@
 permalink: flexgroup/create-unified-data-protection-relationship-task.html 
 sidebar: sidebar 
 keywords: create, unified, data, protection, relationship, flexgroup, volume, snap shot, snapshot, policy, policies, mirrorandvault, mirror-vault, mirrorallsnapshot, back up, backup, snapvault, snap vault 
-summary: ONTAP 9.3 以降では、 SnapMirror の一元化されたデータ保護関係を作成して設定することで、同じデスティネーションボリュームにディザスタリカバリとアーカイブを設定することができます。 
+summary: ONTAP 9 3以降では、SnapMirrorの一元化されたデータ保護関係を作成して設定し、同じデスティネーションボリュームでディザスタリカバリとアーカイブを設定できます。 
 ---
-= FlexGroup ボリュームの一元化されたデータ保護関係を作成
+= FlexGroupボリュームの一元化されたデータ保護関係を作成する
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-ONTAP 9.3 以降では、 SnapMirror の一元化されたデータ保護関係を作成して設定することで、同じデスティネーションボリュームにディザスタリカバリとアーカイブを設定することができます。
+ONTAP 9 3以降では、SnapMirrorの一元化されたデータ保護関係を作成して設定し、同じデスティネーションボリュームでディザスタリカバリとアーカイブを設定できます。
 
 .必要なもの
-FlexGroup ボリュームの一元化されたデータ保護関係の作成に関する考慮事項を確認しておく必要があります。
+FlexGroupボリュームの一元化されたデータ保護関係の作成に関する考慮事項を確認しておく必要があります。
 
-link:snapvault-backup-concept.html["FlexGroup ボリュームの SnapVault バックアップ関係および一元化されたデータ保護関係を作成する際の考慮事項について説明します"]
+link:snapvault-backup-concept.html["FlexGroupのSnapVaultバックアップ関係および一元化されたデータ保護関係の作成に関する考慮事項"]
 
 .手順
-. タイプがのデスティネーションFlexGroup ボリュームを作成します `DP` ソースFlexGroup と同じ数のコンスティチュエントを含むデータセンターを作成します。
+. ソースFlexGroupと同じ数のコンスティチュエントで構成されるタイプのデスティネーションFlexGroupボリュームを作成し `DP`ます。
 +
-.. ソースクラスタから、ソースFlexGroup ボリュームのコンスティチュエントの数を確認します。 `volume show -volume volume_name* -is-constituent true`
+.. ソースクラスタから、ソースFlexGroupボリュームのコンスティチュエントの数を確認します。 `volume show -volume volume_name* -is-constituent true`
 +
 [listing]
 ----
@@ -38,7 +38,7 @@ vss       srcFG__0006    aggr1        online     RW         25TB    10.64TB   57
 vss       srcFG__0007    Aggr_cmode   online     RW         25TB    10.63TB   57%
 ...
 ----
-.. デスティネーションクラスタから、タイプがのデスティネーションFlexGroup ボリュームを作成します `DP` ソースFlexGroup と同じ数のコンスティチュエントで構成されています。
+.. デスティネーションクラスタから、ソースFlexGroupと同じ数のコンスティチュエントで構成されるタイプのデスティネーションFlexGroupボリュームを作成し `DP`ます。
 +
 [listing]
 ----
@@ -48,7 +48,7 @@ Warning: The FlexGroup volume "dstFG" will be created with the following number 
 Do you want to continue? {y|n}: y
 [Job 766] Job succeeded: Successful
 ----
-.. デスティネーションクラスタから、デスティネーションFlexGroup ボリュームのコンスティチュエントの数を確認します。 `volume show -volume volume_name* -is-constituent true`
+.. デスティネーションクラスタから、デスティネーションFlexGroupボリュームのコンスティチュエントの数を確認します。 `volume show -volume volume_name* -is-constituent true`
 +
 [listing]
 ----
@@ -69,28 +69,28 @@ vsd       dstFG__0007    Aggr_cmode   online     RW         25TB    10.63TB   57
 
 . ジョブスケジュールを作成します。 `job schedule cron create -name job_name -month month -dayofweek day_of_week -day day_of_month -hour hour -minute minute`
 +
-をクリックします `-month`、 `-dayofweek`および `-hour` オプションを指定できます `all` ジョブを毎月、毎日、および1時間ごとに実行します。
+ `-month`オプション、 `-dayofweek`および `-hour`オプションでは、ジョブを毎月、毎日、および1時間ごとに実行するように指定できます `all`。
 
 +
-次の例は、という名前のジョブスケジュールを作成します `my_weekly` 土曜日の午前3時に実行されます。
+次の例は、土曜日の午前3時に実行するという名前のジョブスケジュールを作成します `my_weekly`。
 
 +
 [listing]
 ----
 cluster1::> job schedule cron create -name my_weekly -dayofweek "Saturday" -hour 3 -minute 0
 ----
-. タイプがのカスタムポリシーを作成します `mirror-vault`をクリックし、ミラーとバックアップポリシーのルールを定義します。
+. タイプがのカスタムポリシーを作成し `mirror-vault`、ミラーとバックアップポリシーのルールを定義します。
 +
-.. タイプがのカスタムポリシーを作成します `mirror-vault` 一元化されたデータ保護関係の場合： `snapmirror policy create -vserver svm_name -policy policy_name -type mirror-vault`
+.. 一元化されたデータ保護関係用のタイプのカスタムポリシーを作成し `mirror-vault`ます。 `snapmirror policy create -vserver svm_name -policy policy_name -type mirror-vault`
 .. 初期化と更新の際にどのSnapshotコピーを転送するかを決定する、ミラーとバックアップポリシーのルールを定義します。 `snapmirror policy add-rule -vserver svm_name -policy policy_for_rule - snapmirror-label snapmirror-label -keep retention_count -schedule schedule`
 
 
 +
-カスタムポリシーを指定しない場合は、 `MirrorAndVault` ポリシーは一元化されたデータ保護関係に使用されます。
+カスタムポリシーを指定しない場合、その `MirrorAndVault`ポリシーは一元化されたデータ保護関係に使用されます。
 
 . 一元化されたデータ保護関係を作成します。 `snapmirror create -source-path src_svm:src_flexgroup -destination-path dest_svm:dest_flexgroup -type XDP -schedule schedule_name -policy MirrorAndVault`
 +
-ONTAP 9.4以前では、でポリシーが指定されていない場合 `snapmirror create` コマンドを入力します `MirrorAllSnapshots` デフォルトではポリシーが使用されます。ONTAP 9.5では、でポリシーが指定されていない場合 `snapmirror create` コマンドを入力します `MirrorAndVault` デフォルトではポリシーが使用されます。
+ONTAP 9 .4以前では、コマンドでポリシーが指定されていない場合 `snapmirror create`、 `MirrorAllSnapshots`デフォルトでポリシーが使用されます。ONTAP 9 .5では、コマンドでポリシーが指定されていない場合 `snapmirror create`、 `MirrorAndVault`デフォルトでポリシーが使用されます。
 
 +
 [listing]

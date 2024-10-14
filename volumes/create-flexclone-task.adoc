@@ -4,18 +4,18 @@ sidebar: sidebar
 keywords: create, flexclone volume, flexclone, flexgroup, snapmirror, volume 
 summary: データ保護FlexCloneボリュームは、SnapMirrorデスティネーションボリュームまたはSnapVaultセカンダリボリュームである親FlexVol volumeから作成できます。 
 ---
-= FlexClone ボリュームを作成します
+= FlexCloneボリュームを作成する
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-データ保護 FlexClone ボリュームは、 SnapMirror デスティネーションから作成するか、 SnapVault セカンダリボリュームである親の FlexVol から作成できます。ONTAP 9.7以降では、FlexGroup ボリュームからFlexCloneボリュームを作成できます。FlexClone ボリュームの作成後は、 FlexClone ボリュームが存在する間は親ボリュームを削除できません。
+データ保護FlexCloneボリュームは、SnapMirrorデスティネーションボリュームまたはSnapVaultセカンダリボリュームである親FlexVol volumeから作成できます。ONTAP 9 .7以降では、FlexGroupボリュームからFlexCloneボリュームを作成できます。FlexCloneボリュームの作成後は、FlexCloneボリュームが存在する間は親ボリュームを削除できません。
 
-.作業を開始する前に
-* クラスタに FlexClone ライセンスがインストールされている必要があります。このライセンスは、 link:https://docs.netapp.com/us-en/ontap/system-admin/manage-licenses-concept.html#licenses-included-with-ontap-one["ONTAP One"]。
-* クローニングするボリュームはオンライン状態である必要があります。
+.開始する前に
+* クラスタにFlexCloneライセンスがインストールされている必要があります。このライセンスはに含まれていlink:https://docs.netapp.com/us-en/ontap/system-admin/manage-licenses-concept.html#licenses-included-with-ontap-one["ONTAP One"]ます。
+* クローニングするボリュームがオンラインである必要があります。
 
 
 
@@ -23,25 +23,25 @@ NOTE: MetroCluster構成では、ボリュームをFlexCloneボリュームと�
 
 
 
-== FlexVol またはFlexGroup のFlexCloneボリュームを作成します
+== FlexVolまたはFlexGroupのFlexCloneボリュームを作成する
 
 .ステップ
-. FlexClone ボリュームを作成します。
+. FlexCloneボリュームを作成します。
 +
 `volume clone create`
 
 +
 
-NOTE: 読み書き可能な親ボリュームから読み書き可能な FlexClone ボリュームを作成する場合、ベースの Snapshot コピーを指定する必要はありません。クローンのベース Snapshot コピーを特に指定しない場合、 ONTAP によって Snapshot コピーが作成されます。親ボリュームがデータ保護ボリュームである場合は、 FlexClone ボリュームを作成するためのベースの Snapshot コピーを指定する必要があります。
+NOTE: 読み書き可能な親ボリュームから読み書き可能なFlexCloneボリュームを作成する場合は、ベースのSnapshotコピーを指定する必要はありません。クローンのベースSnapshotコピーとして使用するSnapshotコピーを特に指定しない場合、ONTAPによってSnapshotコピーが作成されます。親ボリュームがデータ保護ボリュームの場合は、FlexCloneボリュームを作成するためのベースのSnapshotコピーを指定する必要があります。
 
 
 
 .例
-* 次のコマンドを実行すると、親ボリューム vol1 から、読み書き可能 FlexClone ボリューム vol1_clone が作成されます。
+* 次のコマンドは、親ボリュームvol1から読み書き可能FlexCloneボリュームvol1_cloneを作成します。
 +
 `volume clone create -vserver vs0 -flexclone vol1_clone -type RW -parent-volume vol1`
 
-* 次のコマンドを実行すると、ベース Snapshot コピー snap1 を使用して、親ボリューム dp_vol からデータ保護 FlexClone ボリューム vol_dp_clon が作成されます。
+* 次に、ベースのSnapshotコピーsnap1を使用して、親ボリュームdp_volからデータ保護FlexCloneボリュームvol_dp_cloneを作成するコマンドを示します。
 +
 `volume clone create -vserver vs1 -flexclone vol_dp_clone -type DP -parent-volume dp_vol -parent-snapshot snap1`
 
@@ -49,29 +49,29 @@ NOTE: 読み書き可能な親ボリュームから読み書き可能な FlexClo
 
 
 
-== 任意のSnapLock タイプのFlexCloneを作成
+== 任意のSnapLockタイプのFlexCloneを作成する
 
-ONTAP 9.13.1以降では、次の3つのSnapLock タイプのいずれかを指定できます。 `compliance`、 `enterprise`、 `non-snaplock`（RWボリュームのFlexCloneを作成する場合）。デフォルトでは、FlexCloneボリュームは親ボリュームと同じSnapLock タイプで作成されます。ただし、を使用してデフォルトの設定を上書きできます `snaplock-type` FlexCloneボリュームの作成時のオプション。
+ `non-snaplock`RWボリュームのFlexCloneを作成するときに、RW .13.1以降でONTAP 9は、 `enterprise`3つのSnapLockタイプのいずれかを指定でき `compliance`ます。デフォルトでは、FlexCloneボリュームは親ボリュームと同じSnapLockタイプで作成されます。ただし、FlexCloneボリュームの作成時にオプションを使用すると、デフォルトの設定を上書きでき `snaplock-type`ます。
 
-を使用する `non-snaplock` パラメータと `snaplock-type` オプションを使用すると、SnapLock の親ボリュームからSnapLockタイプ以外のFlexCloneボリュームを作成して、必要に応じてデータを迅速にオンラインに戻すことができます。
+パラメータにオプションを指定 `snaplock-type`する `non-snaplock`と、SnapLockの親ボリュームからSnapLockタイプ以外のFlexCloneボリュームを作成して、必要に応じてデータを迅速にオンラインに戻すことができます。
 
 詳細については、をご覧ください link:../snaplock/index.html["SnapLock"]。
 
-.作業を開始する前に
-SnapLock タイプが親ボリュームと異なる場合は、FlexCloneボリュームに次の制限事項があることに注意してください。
+.開始する前に
+SnapLockタイプが親ボリュームと異なる場合は、FlexCloneボリュームに関する次の制限事項に注意する必要があります。
 
-* RWタイプのクローンのみがサポートされます。SnapLock タイプが親ボリュームと異なるDPタイプのクローンはサポートされません。
-* SnapLockボリュームではLUNがサポートされないため、snaplock-typeオプションを「non-snaplock」以外の値に設定してLUNを含むボリュームをクローニングすることはできません。
-* MetroCluster のミラーされたアグリゲートではSnapLock Complianceボリュームがサポートされないため、MetroCluster のミラーされたアグリゲート上のボリュームをCompliance SnapLock タイプでクローニングすることはできません。
-* リーガルホールドを使用するSnapLock Complianceボリュームを別のSnapLock タイプでクローニングすることはできません。リーガルホールドは、SnapLock Complianceボリュームでのみサポートされます。
-* SVM DRはSnapLock ボリュームをサポートしません。SVM DR関係の一部であるSVMのボリュームからSnapLock クローンを作成しようとすると失敗します。
-* FabricPool のベストプラクティスでは、クローンの階層化ポリシーは親と同じにすることを推奨しています。ただし、FabricPool対応ボリュームのSnapLock Complianceクローンに、親と同じ階層化ポリシーを使用することはできません。階層化ポリシーはに設定する必要があります `none`。階層化ポリシーが以外の親からSnapLock Complianceクローンを作成しようとしています `none` 失敗します。
+* RWタイプのクローンのみがサポートされます。SnapLockタイプが親ボリュームと異なるDPタイプのクローンはサポートされません。
+* SnapLockではLUNがサポートされないため、SnapLockタイプオプションを「non-lun SnapLock」以外の値に設定してLUNを含むボリュームをクローニングすることはできません。
+* MetroClusterのミラーされたアグリゲートではSnapLock Complianceボリュームがサポートされないため、MetroClusterのミラーされたアグリゲート上のボリュームをCompliance SnapLockタイプでクローニングすることはできません。
+* リーガルホールドのSnapLock Complianceボリュームを別のSnapLockタイプでクローニングすることはできません。リーガルホールドはSnapLock Complianceボリュームでのみサポートされます。
+* SVM DRはSnapLockボリュームをサポートしません。SVM DR関係の一部であるSVMのボリュームからSnapLockクローンを作成しようとすると失敗します。
+* FabricPoolのベストプラクティスでは、クローンの階層化ポリシーは親と同じにすることを推奨しています。ただし、FabricPool対応ボリュームのSnapLock Complianceクローンに、親と同じ階層化ポリシーを使用することはできません。階層化ポリシーはに設定する必要があり `none`ます。階層化ポリシーが以外の親からSnapLock Complianceクローンを作成しようとする `none`と失敗します。
 
 
 .手順
-. SnapLock タイプのFlexCloneボリュームを作成します。 `volume clone create -vserver _svm_name_ -flexclone _flexclone_name_ -type RW [ -snaplock-type {non-snaplock|compliance|enterprise} ]`
+. SnapLockタイプのFlexCloneボリュームを作成します。 `volume clone create -vserver _svm_name_ -flexclone _flexclone_name_ -type RW [ -snaplock-type {non-snaplock|compliance|enterprise} ]`
 +
-例
+例：
 
 +
 [listing]

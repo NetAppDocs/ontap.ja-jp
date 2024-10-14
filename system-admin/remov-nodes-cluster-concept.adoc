@@ -2,69 +2,69 @@
 permalink: system-admin/remov-nodes-cluster-concept.html 
 sidebar: sidebar 
 keywords: remove, node, cluster, failover, partner, erase, inaccessible 
-summary: クラスタから不要なノードを一度に 1 つずつ削除できます。ノードを削除したら、フェイルオーバーパートナーも削除する必要があります。ノードを削除すると、そのノードのデータはアクセスできなくなるか、消去されます。 
+summary: クラスタから不要なノードを一度に1つずつ削除できます。ノードを削除したら、フェイルオーバーパートナーも削除する必要があります。ノードを削除すると、そのノードのデータはアクセスできなくなるか、消去されます。 
 ---
-= クラスタからノードを削除します
+= クラスタからノードを削除する
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-クラスタから不要なノードを一度に 1 つずつ削除できます。ノードを削除したら、フェイルオーバーパートナーも削除する必要があります。ノードを削除すると、そのノードのデータはアクセスできなくなるか、消去されます。
+クラスタから不要なノードを一度に1つずつ削除できます。ノードを削除したら、フェイルオーバーパートナーも削除する必要があります。ノードを削除すると、そのノードのデータはアクセスできなくなるか、消去されます。
 
-.作業を開始する前に
+.開始する前に
 クラスタからノードを削除するには、次の条件を満たしている必要があります。
 
-* クラスタ内のノードのうち半数を上回るノードが正常である必要があります。
-* 削除するノード上のすべてのデータを退避しておく必要があります。
+* クラスタ内のノードのうち半数を上回るノードが健全である必要があります。
+* 削除するノード内のすべてのデータを退避しておく必要があります。
 +
-** これには、などが含まれます link:../encryption-at-rest/secure-purge-data-encrypted-volume-concept.html["暗号化されたボリュームからのデータのパージ"]。
+** これには以下が含まれlink:../encryption-at-rest/secure-purge-data-encrypted-volume-concept.html["暗号化されたボリュームからのデータのパージ"]ます。
 
 
-* ルート以外のすべてのボリュームが削除されている必要があります link:../volumes/move-volume-task.html["移動しました"] ノードが所有するアグリゲートから作成します。
-* ルート以外のアグリゲートはすべて削除されています link:../disks-aggregates/commands-manage-aggregates-reference.html["削除済み"] をクリックします。
-* ノードが Federal Information Processing Standard （ FIPS ；連邦情報処理標準）ディスクまたは Self-Encrypting Disk （ SED ；自己暗号化ディスク）を所有している場合は、 link:../encryption-at-rest/return-seds-unprotected-mode-task.html["ディスク暗号化が削除されました"] ディスクを非保護モードに戻します。
+* ルート以外のボリュームはすべて、ノードが所有するアグリゲートに含まれているlink:../volumes/move-volume-task.html["移動しました"]必要があります。
+* ルート以外のすべてのアグリゲートがノードから作成されているlink:../disks-aggregates/commands-manage-aggregates-reference.html["削除済み"]。
+* ノードが連邦情報処理標準（FIPS）ディスクまたは自己暗号化ディスク（SED）を所有している場合はlink:../encryption-at-rest/return-seds-unprotected-mode-task.html["ディスク暗号化が削除されました"]、ディスクを非保護モードに戻します。
 +
-** 必要に応じて、を実行することもできます link:../encryption-at-rest/sanitize-fips-drive-sed-task.html["FIPS ドライブまたは SED を完全消去します"]。
+** 必要な場合もありlink:../encryption-at-rest/sanitize-fips-drive-sed-task.html["FIPS ドライブまたは SED を完全消去します"]ます。
 
 
-* データ LIF が作成されました link:../networking/delete_a_lif.html["削除済み"] または link:../networking/migrate_a_lif.html["再配置済み"] をクリックします。
-* クラスタ管理 LIF が作成されました link:../networking/migrate_a_lif.html["再配置済み"] ノードから、ホームポートが変更されました。
-* すべてのクラスタ間 LIF を確認しておきます link:../networking/delete_a_lif.html["削除されました"]。
+* データLIFはノードまたはlink:../networking/migrate_a_lif.html["再配置済み"]ノードから実行されているlink:../networking/delete_a_lif.html["削除済み"]必要があります。
+* クラスタ管理LIFがノードから削除されlink:../networking/migrate_a_lif.html["再配置済み"]、ホームポートが変更されている。
+* すべてのクラスタ間LIFがになっているlink:../networking/delete_a_lif.html["削除済み"]。
 +
-** クラスタ間 LIF を削除するときに表示される警告は無視してかまいません。
+** クラスタ間LIFを削除する際に表示される警告は無視してかまいません。
 
 
-* ストレージフェイルオーバーは実行されています link:../high-availability/ha_commands_for_enabling_and_disabling_storage_failover.html["無効"] をクリックします。
-* すべての LIF フェイルオーバールールが適用されていることを確認し link:../networking/commands_for_managing_failover_groups_and_policies.html["変更されました"] をクリックしてノードのポートを削除します。
-* ノードのすべての VLAN を設定しておきます link:../networking/configure_vlans_over_physical_ports.html#delete-a-vlan["削除済み"]。
-* 削除するノードにLUNがある場合は、適切な手順を実行してください link:https://docs.netapp.com/us-en/ontap/san-admin/modify-slm-reporting-nodes-task.html["選択的LUNマップ（SLM）のレポートノードリストを変更します"] ノードを削除する前に、
+* ノードに対してストレージフェイルオーバーが実行されている必要がありlink:../high-availability/ha_commands_for_enabling_and_disabling_storage_failover.html["無効"]ます。
+* すべてのLIFフェイルオーバールールでノードのポートを削除しておきlink:../networking/commands_for_managing_failover_groups_and_policies.html["変更済み"]ます。
+* ノード上のすべてのVLANがになっているlink:../networking/configure_vlans_over_physical_ports.html#delete-a-vlan["削除済み"]。
+* 削除するノードにLUNがある場合は、ノードを削除する前に実行する必要がありますlink:https://docs.netapp.com/us-en/ontap/san-admin/modify-slm-reporting-nodes-task.html["選択的LUNマップ（SLM）のレポートノードリストを変更します"]。
 +
-SLMのレポートノードリストからノードとそのHAパートナーを削除しないと、LUNを含むボリュームが別のノードに移動された場合でも、ノードに以前格納されていたLUNへのアクセスが失われる可能性があります。
+SLMのレポートノードリストからノードとそのHAパートナーを削除しないと、LUNを含むボリュームを別のノードに移動しても、そのノードで以前に実行していたLUNへのアクセスが失われる可能性があります。
 
 
 
-ノードを削除中であることをネットアップテクニカルサポートに通知する AutoSupport メッセージを問題 で送信することを推奨します。
+AutoSupportメッセージを発行して、ノードを削除中であることをNetAppテクニカルサポートに通知することを推奨します。
 
 
 IMPORTANT: 、、などの処理は、ONTAPの自動アップグレードの実行中は実行しないで `cluster remove-node` `cluster unjoin` `node rename` ください。
 
-.このタスクについて
-* バージョンが混在したクラスタを実行している場合は、 ONTAP 9.3 以降の advanced 権限のコマンドのいずれかを使用して、バージョンが低い最後のノードを削除できます。
+.タスクの内容
+* バージョンが混在したクラスタを実行している場合は、ONTAP 9以降のadvanced権限のコマンドを使用して、バージョンが低い最後のノードを削除できます。3：
 +
-** ONTAP 9.3： `cluster unjoin -skip-last-low-version-node-check`
-** ONTAP 9.4以降： `cluster remove-node -skip-last-low-version-node-check`
+** ONTAP 9 .3： `cluster unjoin -skip-last-low-version-node-check`
+** ONTAP 9 .4以降： `cluster remove-node -skip-last-low-version-node-check`
 
 
 * 4ノードクラスタから2つのノードを分離すると、残りの2つのノードでクラスタHAが自動的に有効になります。
 
 
 
-NOTE: クラスタからノードを削除する前に、ノードに接続されているすべてのディスクのすべてのシステムデータとユーザデータにユーザがアクセスできないようにする必要があります。ノードが誤ってクラスタから参加解除された場合は、ネットアップサポートにリカバリのオプションを問い合わせてください。
+NOTE: クラスタからノードを削除する前に、ノードに接続されているすべてのディスクのすべてのシステムデータとユーザデータにユーザがアクセスできないようにする必要があります。ノードをクラスタから誤って分離した場合は、NetAppサポートにリカバリのオプションについて問い合わせてください。
 
 .手順
-. 権限レベルを advanced に変更します。
+. 権限レベルをadvancedに変更します。
 +
 [source, cli]
 ----
@@ -76,15 +76,15 @@ set -privilege advanced
 ----
 cluster show -epsilon true
 ----
-. クラスタのノードにイプシロンが設定されていて、そのノードを分離する場合は、分離しないノードにイプシロンを移動します。
+. イプシロンが設定されているクラスタ ノードを削除する場合は、削除しないノードにイプシロンを移動します。
 +
-.. 分離するノードからイプシロンを移動します。
+.. 削除するノードからイプシロンを移動します。
 +
 [source, cli]
 ----
 cluster modify -node <name_of_node_to_be_unjoined> -epsilon false
 ----
-.. 分離しないノードにイプシロンを移動します。
+.. 削除しないノードにイプシロンを移動します。
 +
 [source, cli]
 ----
@@ -92,7 +92,7 @@ cluster modify -node <node_name> -epsilon true
 ----
 
 
-. 現在のマスターノードを特定します。
+. 現在のマスター ノードを特定します。
 +
 [source, cli]
 ----
@@ -124,7 +124,7 @@ cluster modify -node <node_name> -eligibility true
 . クラスタからノードを削除します。
 +
 |===
-| ONTAP バージョン | 使用するコマンド 
+| ONTAPバージョン | 使用するコマンド 
 
 
  a| 
@@ -145,37 +145,37 @@ cluster remove-node*
 ----
 |===
 +
-バージョンが混在したクラスタでバージョンが低い最後のノードを削除する場合は、を使用します `-skip-last-low-version-node-check` パラメータを指定します。
+バージョンが混在したクラスタでバージョンが低い最後のノードを削除する場合は、次のコマンドでパラメータを使用し `-skip-last-low-version-node-check`ます。
 
 +
-次の内容が表示されます。
+次の情報が表示されます。
 
 +
 ** また、ノードのフェイルオーバーパートナーをクラスタから削除する必要があります。
-** ノードを削除してクラスタに再追加する前に、ブートメニューオプション（ 4 ）クリーン構成を使用してすべてのディスクまたはオプションを初期化する（ 9 ）アドバンストドライブパーティショニングの設定を消去してすべてのディスクを初期化する必要があります。
+** ノードを削除したあと、クラスタに再追加する前に、ブートメニューオプション[（4）Clean configuration and initialize all disks]またはオプション[（9）Configure Advanced Drive Partitioning ]を使用して、ノードの設定を消去してすべてのディスクを初期化する必要があります。
 +
-ノードを削除する前に対処が必要な条件がある場合は、エラーメッセージが生成されます。メッセージの内容は、たとえば、削除が必要なノードに共有リソースがある、あるいはノードのクラスタ HA 構成またはストレージフェイルオーバー構成を無効にする必要があるなどの場合があります。
+ノードを削除する前に対処する必要がある条件がある場合は、エラーメッセージが生成されます。メッセージの内容は、たとえば、ノードに削除が必要な共有リソースがある、ノードがクラスタHA構成またはストレージフェイルオーバー構成に含まれているため無効にする必要があるなどの場合があります。
 
 +
-ノードがクォーラムマスターの場合、クラスタのクォーラムがいったん失われて、すぐに戻ります。クォーラムが失われるのは一時的であり、データの操作には影響しません。
+ノードがクォーラムマスターの場合、クラスタは一時的に失われてからクォーラムに戻ります。クォーラムが失われるのは一時的であり、データの操作には影響しません。
 
 
 
-. エラーメッセージにエラー状態が示された場合は、それらの状態に対処し、を再実行します `cluster remove-node` または `cluster unjoin` コマンドを実行します
+. エラーメッセージにエラー状態が示された場合は、その状態に対処し、コマンドまたは `cluster unjoin`コマンドを再実行し `cluster remove-node`ます。
 +
-ノードは、クラスタから正常に削除されると自動的にリブートされます。
+ノードは、クラスタから削除されると自動的にリブートされます。
 
 . ノードを転用する場合は、ノードの設定を消去し、すべてのディスクを初期化します。
 +
-.. ブートプロセス時に、プロンプトが表示されたら Ctrl+C キーを押してブートメニューを表示します。
+.. ブートプロセス中に、プロンプトが表示されたらCtrl+Cキーを押してブートメニューを表示します。
 .. ブートメニューオプション[（4）Clean configuration and initialize all disks]を選択します。
 
 
-. admin 権限レベルに戻ります。
+. admin権限レベルに戻ります。
 +
 [source, cli]
 ----
 set -privilege admin
 ----
-. クラスタからフェイルオーバーパートナーを削除するには、前述の手順を繰り返します。
+. クラスタからフェイルオーバーパートナーを削除するには、上記の手順を繰り返します。
 

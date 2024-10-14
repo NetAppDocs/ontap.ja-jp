@@ -13,29 +13,29 @@ summary: SnapMirrorを使用してソースボリュームとデスティネー�
 [role="lead"]
 SnapMirrorでは、ソースボリュームとデスティネーションボリュームでストレージ効率が維持されます。ただし、デスティネーションボリュームでポストプロセスデータ圧縮が有効になっている場合は除きます。この場合、デスティネーションボリュームではすべてのストレージ効率が失われます。この問題を解決するには、デスティネーションボリュームでポストプロセス圧縮を無効にし、関係を手動で更新してから、Storage Efficiencyを再度有効にする必要があります。
 
-.このタスクについて
-を使用できます `volume efficiency show` コマンドを使用して、ボリュームで効率化が有効になっているかどうかを確認します。詳細については、マニュアルページを参照してください。
+.タスクの内容
+コマンドを使用すると、ボリュームで効率化が有効になっているかどうかを確認できます `volume efficiency show`。詳細については、のマニュアルページを参照してください。
 
-SnapMirrorによってストレージ効率が維持されているかどうかを確認するには、SnapMirror監査ログを表示し、転送の説明を確認します。転送の説明にと表示された場合は `transfer_desc=Logical Transfer with Storage Efficiency`、SnapMirrorでストレージ効率が維持されています。転送の説明にと表示された場合は `transfer_desc=Logical Transfer`、SnapMirrorでストレージ効率が維持されていません。例：
+SnapMirrorがストレージ効率を維持しているかどうかを確認するには、SnapMirror監査ログを表示して転送の説明を確認します。転送の説明にと表示された場合は `transfer_desc=Logical Transfer with Storage Efficiency`、SnapMirrorでストレージ効率が維持されています。転送の説明にと表示された場合は `transfer_desc=Logical Transfer`、SnapMirrorでストレージ効率が維持されていません。例：
 
 [listing]
 ----
 Fri May 22 02:13:02 CDT 2020 ScheduledUpdate[May 22 02:12:00]:cc0fbc29-b665-11e5-a626-00a09860c273 Operation-Uuid=39fbcf48-550a-4282-a906-df35632c73a1 Group=none Operation-Cookie=0 action=End source=<sourcepath> destination=<destpath> status=Success bytes_transferred=117080571 network_compression_ratio=1.0:1 transfer_desc=Logical Transfer - Optimized Directory Mode
 ----
-.作業を開始する前に
-* ソースクラスタとデスティネーションクラスタ、および SVM のピア関係が確立されている必要があります。
+.開始する前に
+* ソースとデスティネーションのクラスタとSVMのピア関係が確立されている必要があります。
 +
-https://docs.netapp.com/us-en/ontap-system-manager-classic/peering/index.html["クラスタと SVM のピアリング"^]
+https://docs.netapp.com/us-en/ontap-system-manager-classic/peering/index.html["クラスタとSVMのピアリング"^]
 
 * デスティネーションボリュームでポストプロセス圧縮を無効にする必要があります。
 * ストレージを使用した論理転送：ONTAP 9.3以降では、Storage Efficiencyを再度有効にするための手動更新が不要になりました。SnapMirrorは、ポストプロセス圧縮が無効になっていることを検出すると、スケジュールされた次回の更新時にStorage Efficiencyを自動的に再度有効にします。ソースとデスティネーションの両方でONTAP 9.3を実行している必要があります。
-* ONTAP 9.3 以降では、デスティネーションボリュームが書き込み可能になったあとで、 AFF システムが Storage Efficiency の設定を FAS システムとは異なる方法で管理します。
+* ONTAP 9 .3以降では、デスティネーションボリュームが書き込み可能になったあとに、AFFシステムでStorage Efficiencyの設定がFASシステムとは異なる方法で管理されます。
 +
-** を使用してデスティネーションボリュームを書き込み可能にしたあと `snapmirror break` コマンドを実行した場合、ボリュームのキャッシングポリシーは自動的に「auto」（デフォルト）に設定されます。
+** コマンドを使用してデスティネーションボリュームを書き込み可能にする `snapmirror break`と、そのボリュームのキャッシングポリシーは自動的に「auto」（デフォルト）に設定されます。
 +
 [NOTE]
 ====
-この動作は FlexVol ボリュームにのみ該当し、 FlexGroup ボリュームには適用されません。
+この動作はFlexVolにのみ該当し、FlexGroupには該当しません。
 
 ====
 ** 再同期時に、キャッシングポリシーは自動的に「 none 」に設定され、重複排除およびインライン圧縮は、元の設定に関係なく自動的に無効になります。必要に応じて、設定を手動で変更する必要があります。
@@ -45,11 +45,11 @@ https://docs.netapp.com/us-en/ontap-system-manager-classic/peering/index.html["�
 
 [NOTE]
 ====
-Storage Efficiency が有効な状態での手動更新には時間がかかる場合があります。この処理はオフピークの時間帯に実行することを推奨します。
+Storage Efficiencyを有効にした状態での手動更新には時間がかかる場合があります。この処理はオフピークの時間帯に実行することを推奨します。
 
 ====
 .手順
-. レプリケーション関係を更新して、 Storage Efficiency を再度有効にします。
+. レプリケーション関係を更新し、Storage Efficiencyを再度有効にします。
 +
 [source, cli]
 ----
@@ -65,7 +65,7 @@ snapmirror update -source-path <SVM:volume>|<cluster://SVM/volume>, ... -destina
 
 ====
 +
-次の例は、ソースボリューム間の関係を更新します `volA` オン `svm1` デスティネーションボリュームを指定します `volA_dst` オン `svm_backup`Storage Efficiencyを再度有効にします。
+次の例は、の `svm1`ソースボリュームとの `svm_backup`デスティネーションボリューム `volA_dst`の間の関係を更新し `volA`、Storage Efficiencyを再度有効にします。
 
 +
 [listing]

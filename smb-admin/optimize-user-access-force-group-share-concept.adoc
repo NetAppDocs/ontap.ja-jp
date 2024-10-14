@@ -2,33 +2,33 @@
 permalink: smb-admin/optimize-user-access-force-group-share-concept.html 
 sidebar: sidebar 
 keywords: create, share, ontap, command, line, data, unix, effective, security, smb, user, group, force-group, predefined, database, force-group, access, how to optimize smb user access with the force-group share setting 
-summary: ONTAP コマンドラインから、 UNIX 対応のセキュリティを使用するデータへの共有を作成するときに、 SMB ユーザがその共有内に作成するすべてのファイルが force-group と呼ばれる同じグループに属するように指定できます。このグループは、 UNIX グループデータベース内に事前に定義されている必要があります。force-group を使用すると、さまざまなグループに属する SMB ユーザがファイルに確実にアクセスできるようになります。 
+summary: ONTAP コマンドラインから、 UNIX 対応のセキュリティを使用するデータへの共有を作成するときに、 SMB ユーザがその共有内に作成するすべてのファイルが force-group と呼ばれる同じグループに属するように指定できます。このグループは、 UNIX グループデータベース内に事前に定義されている必要があります。force-groupを使用すると、さまざまなグループに属するSMBユーザがファイルにアクセスできるようになります。 
 ---
-= force-group 共有設定を使用して、 SMB ユーザアクセスを最適化します
+= force-group共有設定を使用したSMBユーザアクセスの最適化
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-ONTAP コマンドラインから、 UNIX 対応のセキュリティを使用するデータへの共有を作成するときに、 SMB ユーザがその共有内に作成するすべてのファイルが、 _force-group_ と呼ばれる同じグループに属するように指定できます。このグループは、 UNIX グループデータベースで事前に定義されている必要があります。force-group を使用すると、さまざまなグループに属する SMB ユーザがファイルに確実にアクセスできるようになります。
+ONTAP コマンドラインから、 UNIX 対応のセキュリティを使用するデータへの共有を作成するときに、 SMB ユーザがその共有内に作成するすべてのファイルが、 _force-group_ と呼ばれる同じグループに属するように指定できます。このグループは、 UNIX グループデータベースで事前に定義されている必要があります。force-groupを使用すると、さまざまなグループに属するSMBユーザがファイルにアクセスできるようになります。
 
-force-group の指定は、共有が UNIX または mixed qtree 内にある場合にのみ有効です。NTFS セキュリティ形式のボリュームまたは qtree にある共有内のファイルへのアクセスは、 UNIX の GID ではなく Windows の権限によって判断されるため、これらの共有に force-group を設定する必要はありません。
+force-groupの指定が意味を持つのは、共有がUNIXまたはmixed qtree内にある場合のみです。NTFSボリュームまたはqtreeの共有内のファイルへのアクセスはUNIXのGIDではなくWindows権限によって決定されるため、これらの共有にforce-groupを設定する必要はありません。
 
-共有に force-group が指定されている場合、次のようになります。
+共有にforce-groupが指定されている場合、共有は次のようになります。
 
-* この共有にアクセスする force-group 内の SMB ユーザは、 force-group の GID に一時的に変更されます。
+* この共有にアクセスするforce-group内のSMBユーザは、force-groupのGIDに一時的に変更されます。
 +
-この GID を使用すると、通常はプライマリ GID または UID を使用してアクセスできないファイルにこの共有内のファイルにアクセスできるようになります。
+このGIDを使用すると、プライマリGIDまたはUIDでは通常アクセスできない共有内のファイルにアクセスできます。
 
-* SMB ユーザがこの共有内に作成するすべてのファイルは、ファイル所有者のプライマリ GID に関係なく、同じフォースグループに属します。
+* SMBユーザがこの共有内に作成するすべてのファイルは、ファイル所有者のプライマリGIDに関係なく、同じforce-groupに属します。
 
 
-SMB ユーザが、 NFS ユーザによって作成されたファイルにアクセスしようとすると、 SMB ユーザのプライマリ GID によって、権限があるかどうかが判断されます。
+SMBユーザがNFSで作成されたファイルにアクセスしようとすると、SMBユーザのプライマリGIDによってアクセス権が決定されます。
 
-force-group は、 NFS ユーザがこの共有内のファイルにアクセスする方法には影響を与えません。NFS ユーザが作成したファイルは、ファイル所有者から GID を取得します。アクセス権限の決定は、ファイルにアクセスしようとしている NFS ユーザの UID およびプライマリ GID に基づきます。
+force-groupは、NFSユーザがこの共有内のファイルにアクセスする方法には影響しません。NFSで作成されたファイルは、ファイル所有者からGIDを取得します。アクセス権限は、ファイルにアクセスしようとしているNFSユーザのUIDとプライマリGIDに基づいて決定されます。
 
-force-group を使用すると、さまざまなグループに属する SMB ユーザがファイルに確実にアクセスできるようになります。たとえば、会社の Web ページを保存する共有を作成し、 Engineering グループと Marketing グループのユーザに書き込みアクセス権を付与する必要がある場合、共有を作成して、「 webgroup1 」という名前の force-group に書き込み権限を与えます。force-group が指定されているため、 SMB ユーザがこの共有内に作成するすべてのファイルは「 webgroup1 」グループによって所有されます。また、ユーザが共有にアクセスするときは、「 webgroup1 」グループの GID が自動的に割り当てられます。そのため、 Engineering グループと Marketing グループのユーザの権限を管理しなくても、すべてのユーザがこの共有に書き込むことができます。
+force-groupを使用すると、さまざまなグループに属するSMBユーザがファイルにアクセスできるようになります。たとえば、会社の Web ページを保存する共有を作成し、 Engineering グループと Marketing グループのユーザに書き込みアクセス権を付与する必要がある場合、共有を作成して、「 webgroup1 」という名前の force-group に書き込み権限を与えます。force-group が指定されているため、 SMB ユーザがこの共有内に作成するすべてのファイルは「 webgroup1 」グループによって所有されます。また、ユーザが共有にアクセスするときは、「 webgroup1 」グループの GID が自動的に割り当てられます。その結果、すべてのユーザがこの共有に書き込むことができます。エンジニアリング部門とマーケティング部門のユーザのアクセス権を管理する必要はありません。
 
 .関連情報
-xref:create-share-force-group-setting-task.adoc[force-group 共有設定を使用した SMB 共有の作成]
+xref:create-share-force-group-setting-task.adoc[force-group共有設定を使用したSMB共有の作成]

@@ -4,7 +4,7 @@ permalink: networking/create_a_broadcast_domain97.html
 keywords: create, creation, creating, add, adding, broadcast, domain, create a broadcast domain, broadcast domains group network ports in the cluster that belong to the same layer 2 network 
 summary: ブロードキャストドメインは、同じレイヤ 2 ネットワークに属するクラスタ内のネットワークポートをグループ化したものです 
 ---
-= ブロードキャストドメインの作成（ONTAP 9.7以前）
+= ブロードキャストドメインの作成（ONTAP 9 .7以前）
 :hardbreaks:
 :allow-uri-read: 
 :nofooter: 
@@ -14,27 +14,27 @@ summary: ブロードキャストドメインは、同じレイヤ 2 ネット�
 
 
 [role="lead"]
-ONTAP 9.7 以前では、同じレイヤ 2 ネットワークに属するクラスタのネットワークポートをグループ化するブロードキャストドメインを作成します。これらのポートは、 SVM で使用されます。カスタム IPspace のブロードキャストドメインを作成する必要があります。IPspace に作成した SVM では、ブロードキャストドメイン内のポートを使用します。
+ONTAP 9 .7以前では、ブロードキャストドメインを作成して、同じレイヤ2ネットワークに属するクラスタのネットワークポートをグループ化します。作成したポートはSVMで使用できます。カスタムIPspaceのブロードキャストドメインを作成する必要があります。IPspaceに作成されたSVMは、ブロードキャストドメイン内のポートを使用します。
 
 
-NOTE: このタスクは、 ONTAP 9.8 ではなく、 ONTAP 9.1-9.7 に関連しています。
+NOTE: このタスクは、ONTAP 9 8ではなくONTAP 9 .0 ~ 9.7に関連しています。
 
-.作業を開始する前に
+.開始する前に
 このタスクを実行するには、クラスタ管理者である必要があります。
 
-ONTAP 9.8 以降では、ブロードキャストドメインはクラスタの作成処理または参加処理中に自動的に作成されます。ONTAP 9.8 以降を実行している場合は、これらの手順は必要ありません。
+ONTAP 9 .8以降では、ブロードキャストドメインはクラスタの作成時または追加時に自動的に作成されます。ONTAP 9 .8以降を実行している場合は、これらの手順は必要ありません。
 
-ONTAP 9.7 以前では、ブロードキャストドメインに追加するポートが別のブロードキャストドメインに属していない必要がありました。
+ONTAP 9 .7以前では、別のブロードキャストドメインに属しているポートは追加できません。
 
-.このタスクについて
-LIF のフェイルオーバー先のポートは、 LIF のフェイルオーバーグループのメンバーである必要があります。ブロードキャストドメインを作成すると、 ONTAP によって同じ名前のフェイルオーバーグループが自動的に作成されます。フェイルオーバーグループには、ブロードキャストドメインに割り当てられたすべてのポートが含まれます。
+.タスクの内容
+LIFのフェイルオーバー先のポートは、LIFのフェイルオーバーグループのメンバーである必要があります。ブロードキャストドメインを作成すると、同じ名前のフェイルオーバーグループがONTAPによって自動的に作成されます。フェイルオーバーグループには、ブロードキャストドメインに割り当てられているすべてのポートが含まれます。
 
-* すべてのブロードキャストドメイン名が IPspace 内で一意である必要があります。
-* ブロードキャストドメインに追加できるポートは、物理ネットワークポート、 VLAN 、インターフェイスグループ（ ifgrp ）です。
-* 使用するポートが別のブロードキャストドメインに属しているが、使用されていない場合は、を使用します `network port broadcast-domain remove-ports` 既存のブロードキャストドメインからポートを削除するコマンド。
-* ブロードキャストドメインに追加したポートの MTU は、ブロードキャストドメインに設定されている MTU 値に更新されます。
-* 管理トラフィックを処理する e0M ポートを除く、レイヤ 2 ネットワークに接続されているすべてのデバイスの MTU 値が一致している必要があります。
-* IPspace 名を指定しない場合、ブロードキャストドメインは「 Default 」 IPspace に作成されます。
+* ブロードキャストドメイン名はすべてIPspace内で一意である必要があります。
+* ブロードキャストドメインに追加できるポートは、物理ネットワークポート、VLAN、インターフェイスグループ（ifgrp）です。
+* 使用するポートが別のブロードキャストドメインに属しているが、使用されていない場合は、コマンドを使用し `network port broadcast-domain remove-ports`て既存のブロードキャストドメインからポートを削除します。
+* ブロードキャストドメインに追加したポートのMTUは、ブロードキャストドメインに設定されているMTU値に更新されます。
+* MTU値は、管理トラフィックを処理するe0Mポートを除き、そのレイヤ2ネットワークに接続されているすべてのデバイスで同じである必要があります。
+* IPspace名を指定しない場合、ブロードキャストドメインは「Default」IPspaceに作成されます。
 
 
 システムの設定を簡単にするために、同じポートを含む同じ名前のフェイルオーバーグループが自動的に作成されます。
@@ -45,38 +45,38 @@ LIF のフェイルオーバー先のポートは、 LIF のフェイルオー�
 `network port show`
 
 +
-ディスプレイが大きい場合は、を使用します `network port show -broadcast-domain` 未割り当てのポートのみを表示するコマンド。
+大量のポートが表示される場合は、コマンドを使用し `network port show -broadcast-domain`て未割り当てのポートだけを表示します。
 
 . ブロードキャストドメインを作成します。
 +
 `network port broadcast-domain create -broadcast-domain broadcast_domain_name -mtu mtu_value [-ipspace ipspace_name] [-ports ports_list]`
 
 +
-** `_broadcast_domain_name_` は、作成するブロードキャストドメインの名前です。
-** `_mtu_value_` はIPパケットのMTUサイズです。通常は1500と9000です。
+** `_broadcast_domain_name_`は、作成するブロードキャストドメインの名前です。
+** `_mtu_value_`はIPパケットのMTUサイズです。通常は1500と9000です。
 +
 この値は、このブロードキャストドメインに追加するすべてのポートに適用されます。
 
-** `_ipspace_name_` は、このブロードキャストドメインを追加するIPspaceの名前です。
+** `_ipspace_name_`は、このブロードキャストドメインを追加するIPspaceの名前です。
 +
-「 default 」 IPspace は、このパラメータの値を指定しないかぎり使用されます。
+このパラメータの値を指定しないかぎり、「Default」IPspaceが使用されます。
 
-** `_ports_list_` は、ブロードキャストドメインに追加するポートのリストです。
+** `_ports_list_`は、ブロードキャストドメインに追加するポートのリストです。
 +
-ポートはという形式で追加されます `_node_name:port_number_`例えば、 `node1:e0c`。
+ポートは、などの形式で追加され `_node_name:port_number_` `node1:e0c`ます。
 
 
 
-. 必要に応じて、ブロードキャストドメインが作成されたことを確認します。
+. 必要に応じてブロードキャストドメインが作成されたことを確認します。
 `network port show -instance -broadcast-domain _new_domain_`
 
 
 .例
-次のコマンドは、 Default IPspace にブロードキャストドメイン bcast1 を作成し、 MTU を 1500 に設定してポートを 4 つ追加します。
+次のコマンドは、Default IPspaceにブロードキャストドメインbcast1を作成し、MTUを1500に設定してポートを4つ追加します。
 
 `network port broadcast-domain create -broadcast-domain _bcast1_ -mtu _1500_ -ports _cluster1-01:e0e,cluster1-01:e0f,cluster1-02:e0e,cluster1-02:e0f_`
 
-.完了後
-この時点で、サブネットを作成してブロードキャストドメインで使用可能になるIPアドレスのプールを定義するか、SVMとインターフェイスをIPspaceに割り当てることができます。詳細については、を参照してください link:https://docs.netapp.com/us-en/ontap-system-manager-classic/peering/index.html["クラスタと SVM のピアリング"^]。
+.終了後
+この時点で、サブネットを作成してブロードキャストドメインで使用可能になるIPアドレスのプールを定義するか、SVMとインターフェイスをIPspaceに割り当てることができます。詳細については、を参照してください link:https://docs.netapp.com/us-en/ontap-system-manager-classic/peering/index.html["クラスタとSVMのピアリング"^]。
 
-既存のブロードキャストドメインの名前を変更する必要がある場合は、を使用します `network port broadcast-domain rename` コマンドを実行します
+既存のブロードキャストドメインの名前を変更する必要がある場合は、コマンドを使用し `network port broadcast-domain rename`ます。

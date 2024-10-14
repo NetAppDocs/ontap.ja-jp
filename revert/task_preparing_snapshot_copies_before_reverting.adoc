@@ -4,7 +4,7 @@ sidebar: sidebar
 keywords: ontap, revert, reverting, reversion, snapshot, copies, prepare, preparing, disable, delete 
 summary: 以前の ONTAP リリースにリバートする前に、すべての Snapshot コピーポリシーを無効にして、現在のリリースへのアップグレード後に作成された Snapshot コピーを削除する必要があります。 
 ---
-= リバート前に Snapshot コピーを準備する
+= リバート前のSnapshotコピーの準備
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
@@ -22,16 +22,16 @@ SnapMirror 環境でリバートを実行する場合は、次のミラー関係
 .. すべてのデータSVMのSnapshotコピーポリシーを無効にします。 `volume snapshot policy modify -vserver * -enabled false`
 .. 各ノードのアグリゲートに対して Snapshot コピーポリシーを無効にします。
 +
-... run -nodeodnameaggr status コマンドを使用して、ノードのアグリゲートを特定します。
+... run -nodenodenameaggr statusコマンドを使用して、ノードのアグリゲートを特定します。
 ... 各アグリゲートのSnapshotコピーポリシーを無効にします。 `run -node nodename aggr options aggr_name nosnap on`
 ... 残りのノードそれぞれに対して同じ手順を繰り返します。
 
 
 .. 各ノードのルートボリュームに対して Snapshot コピーポリシーを無効にします。
 +
-... run -nodeodevenostatus コマンドを使用して、ノードのルートボリュームを特定します。
+... run -nodenodenamevol statusコマンドを使用して、ノードのルートボリュームを特定します。
 +
-ルートボリュームは、 vol status コマンドの出力で Options 列に root として表記されます。
+ルートボリュームは、vol statusコマンドの出力でOptions列にrootとして表記されます。
 
 +
 [listing]
@@ -48,14 +48,14 @@ vs1::> run -node node1 vol status
 
 .. 現在のリリースへのアップグレード後に作成された Snapshot コピーをすべて削除します。
 +
-... 権限レベルを advanced に設定します。 `set -privilege advanced`
+... 権限レベルをadvancedに設定します。 `set -privilege advanced`
 ... Snapshotを無効にします。``snapshot policy modify -vserver * -enabled false``
 ... ノードの新しいバージョンのSnapshotコピーを削除します。 `volume snapshot prepare-for-revert -node nodename`
 +
 このコマンドは、各データボリューム、ルートアグリゲート、およびルートボリュームの新しいバージョンの Snapshot コピーを削除します。
 
 +
-いずれかの Snapshot コピーを削除できない場合、コマンドは失敗し、 Snapshot コピーの削除前に実施する必要があるアクションがあれば通知されます。必要なアクションを完了し、 volume snapshot prepare-for-revert コマンドを再実行してから、次の手順に進んでください。
+いずれかの Snapshot コピーを削除できない場合、コマンドは失敗し、 Snapshot コピーの削除前に実施する必要があるアクションがあれば通知されます。必要な操作を完了し、volume snapshot prepare-for-revertコマンドを再実行してから、次の手順に進む必要があります。
 
 +
 [listing]
@@ -70,7 +70,7 @@ Warning: This command will delete all Snapshot copies that have the format used 
 新しいバージョンのSnapshotコピーが残っている場合は、強制的に削除します。 `volume snapshot delete {-fs-version 9.0 -node nodename -is-constituent true} -ignore-owners -force`
 
 ... 残りのノードそれぞれについて、手順 c を繰り返します。
-... admin 権限レベルに戻ります。 `set -privilege admin`
+... admin権限レベルに戻ります。 `set -privilege admin`
 
 
 

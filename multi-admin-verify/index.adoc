@@ -2,7 +2,7 @@
 sidebar: sidebar 
 permalink: multi-admin-verify/index.html 
 keywords: ontap, mav, multi admin verify, RBAC, protected, operation, multi-admin, administrator, verification, approval, rules 
-summary: ONTAP 9.11.1以降では、Multi-admin Verification（MAV；マルチ管理者認証）を使用して、一部の処理が指定管理者の承認後にのみ実行されるようにしています。 
+summary: ONTAP 9 .11.1以降では、Multi-admin Verification（MAV；マルチ管理者認証）を使用して、指定された管理者の承認後にのみ一部の操作を実行できるようにしています。 
 ---
 = マルチ管理者検証の概要
 :allow-uri-read: 
@@ -11,44 +11,44 @@ summary: ONTAP 9.11.1以降では、Multi-admin Verification（MAV；マルチ�
 
 
 [role="lead"]
-ONTAP 9.11.1以降では、マルチ管理検証（MAV）を使用して、ボリュームやSnapshotコピーの削除などの特定の処理を、指定した管理者からの承認がないと実行できないようにすることができます。これにより、侵害を受けた管理者、悪意のある管理者、または経験の浅い管理者が、望ましくない変更やデータの削除を行うことを防止でき
+ONTAP 9 .11.1以降では、Multi-Admin Verification（MAV；マルチ管理者認証）を使用して、ボリュームやSnapshotコピーの削除などの特定の処理を、指定した管理者の承認後にのみ実行できるようにすることができます。これにより、侵害された管理者や悪意のある管理者、経験の浅い管理者が望ましくない変更やデータ削除を行うのを防ぐことができます。
 
-マルチ管理者検証の設定は、次のとおりです。
+マルチ管理者検証の構成は次のとおりです。
 
 * link:manage-groups-task.html["1つ以上の管理者承認グループを作成します。"]
-* link:enable-disable-task.html["マルチ管理者検証機能の有効化。"]
+* link:enable-disable-task.html["マルチ管理者検証機能を有効にします。"]
 * link:manage-rules-task.html["ルールを追加または変更する。"]
 
 
-初期設定後、これらの要素はMAV承認グループ（MAV管理者）の管理者のみが変更できます。
+初期設定後にこれらの要素を変更できるのは、MAV承認グループの管理者（MAV管理者）のみです。
 
-マルチ管理者検証がイネーブルの場合、保護されたすべての操作を完了するには、次の手順を実行する必要があります。
+マルチ管理者認証が有効な場合、保護対象処理を完了するには次の手順が必要です。
 
-. ユーザが処理を開始すると、が実行されます link:request-operation-task.html["要求が生成されます。"]
-. 実行する前に、少なくとも1つは必要です link:manage-requests-task.html["MAV管理者は承認する必要があります。"]
+. ユーザが処理を開始すると、 link:request-operation-task.html["要求が生成されます。"]
+. 実行する前に、少なくとも1つlink:manage-requests-task.html["MAV管理者は承認する必要があります。"]
 . 承認されると、ユーザーは操作を完了します。
 
 
 
-NOTE: MAVの管理者の承認なしでマルチ管理者検証機能を無効にする必要がある場合は、ネットアップサポートに連絡して、次の技術情報アーティクルを記載します。 https://kb.netapp.com/Advice_and_Troubleshooting/Data_Storage_Software/ONTAP_OS/How_to_disable_Multi-Admin_Verification_if_MAV_admin_is_unavailable["MAV管理者が利用できない場合にマルチ管理者検証を無効にする方法"^]。
+NOTE: MAV管理者の承認を得ずにマルチ管理者認証機能を無効にする必要がある場合は、NetAppサポートに連絡し、次の記事を記載してください。 https://kb.netapp.com/Advice_and_Troubleshooting/Data_Storage_Software/ONTAP_OS/How_to_disable_Multi-Admin_Verification_if_MAV_admin_is_unavailable["MAV管理者が利用できない場合にマルチ管理者検証を無効にする方法"^]
 
-複数管理者による検証は、自動化の負荷が大きいボリュームやワークフローでは使用しないことを想定しています。自動化された各タスクを完了するには承認が必要なためです。  自動化とMAVを一緒に使用する場合は、特定のMAV操作にクエリを使用することをお勧めします。たとえば、適用できます `volume delete` MAVルールは、自動化が関係しないボリュームにのみ適用され、特定の命名規則を使用して指定できます。
+複数管理者による検証は、高度な自動化を伴うボリュームやワークフローでは使用しません。自動化された各タスクは、処理を完了する前に承認が必要になるためです。自動化とMAVを一緒に使用する場合は、特定のMAV操作にクエリを使用することをお勧めします。たとえば、自動化が関係していないボリュームにのみMAVルールを適用し、特定の命名方式でそれらのボリュームを指定でき `volume delete`ます。
 
 
 NOTE: Cloud Volumes ONTAPでは、マルチ管理者認証は使用できません。
 
 
 
-== マルチ管理者検証の仕組み
+== マルチ管理者認証の仕組み
 
-マルチ管理者検証は、次の要素で構成されます。
+マルチ管理者認証は次の要素で構成されます。
 
-* 承認権限と拒否権を持つ1人以上の管理者のグループ。
+* 承認権と拒否権を持つ1人以上の管理者のグループ。
 * 保護された操作またはコマンドのセット（a_rules table_）
 * a_rulesエンジン_保護されたオペレーションの実行を識別および制御します
 
 
-MAVルールは、Role-Based Access Control（RBAC；ロールベースアクセス制御）ルールのあとに評価されます。このため、保護された操作を実行または承認する管理者は、それらの操作に対する最低限のRBAC権限を持っている必要があります。 link:../authentication/manage-access-control-roles-concept.html["RBACの詳細については、こちらをご覧ください"]。
+MAVルールは、Role-Based Access Control（RBAC；ロールベースアクセス制御）ルールのあとに評価されます。したがって、保護された処理を実行または承認する管理者は、それらの処理に対して最低限必要なRBAC Privilegesをすでに所有している必要があります。link:../authentication/manage-access-control-roles-concept.html["RBACの詳細については、こちらをご覧ください"]です。
 
 
 
@@ -56,19 +56,19 @@ MAVルールは、Role-Based Access Control（RBAC；ロールベースアクセ
 
 マルチ管理者検証を有効にすると、システム定義のルール（_guard-rale_rulesとも呼ばれます）によってMAV処理のセットが確立され、MAVプロセス自体が回避されるリスクが含まれます。これらの操作をルールテーブルから削除することはできません。MAVを有効にすると、アスタリスク（*）で指定された操作は、実行前に1人以上の管理者による承認を必要とします。ただし、* show *コマンドは除きます。
 
-* `security multi-admin-verify modify` 操作 `*`
+* `security multi-admin-verify modify`操作 `*`
 +
-管理者による検証機能の設定を制御します。
+マルチ管理者検証機能の構成を制御します。
 
-* `security multi-admin-verify approval-group` 操作 `*`
+* `security multi-admin-verify approval-group`運用 `*`
 +
-管理者による検証クレデンシャルを使用して、一連の管理者のメンバーシップを制御します。
+マルチ管理者認証資格情報を使用して、管理者セットのメンバーシップを制御します。
 
-* `security multi-admin-verify rule` 操作 `*`
+* `security multi-admin-verify rule`運用 `*`
 +
-管理者による検証が必要な一連のコマンドを制御します。
+複数管理者による検証を必要とする一連のコマンドを制御します。
 
-* `security multi-admin-verify request` 操作
+* `security multi-admin-verify request`運用
 +
 承認プロセスを制御します。
 
@@ -76,7 +76,7 @@ MAVルールは、Role-Based Access Control（RBAC；ロールベースアクセ
 
 
 
-=== ルールで保護されたコマンド
+=== ルール保護コマンド
 
 システム定義の操作に加えて、次のコマンドは、マルチ管理者検証が有効になっている場合にデフォルトで保護されますが、これらのコマンドの保護を解除するルールを変更することができます。
 
@@ -85,114 +85,114 @@ MAVルールは、Role-Based Access Control（RBAC；ロールベースアクセ
 * `set`
 
 
-各ONTAPバージョンには、マルチ管理者認証ルールで保護するために選択できるコマンドが追加されています。保護に使用できるコマンドの完全なリストについては、ONTAPリリースを選択してください。
+各ONTAPバージョンでは、マルチ管理者認証ルールで保護できるコマンドが上記以外にも用意されています。保護可能なコマンドの全一覧を確認するには、お使いのONTAPリリースを選択してください。
 
 [role="tabbed-block"]
 ====
 .9.15.1
 --
-* `cluster date modify` ^3^
-* `cluster log-forwarding create` ^3^
-* `cluster log-forwarding delete` ^3^
-* `cluster log-forwarding modify` ^3^
+* `cluster date modify`^3^
+* `cluster log-forwarding create`^3^
+* `cluster log-forwarding delete`^3^
+* `cluster log-forwarding modify`^3^
 * `cluster peer delete`
-* `cluster time-service ntp server create` ^3^
-* `cluster time-service ntp server delete` ^3^
-* `cluster time-service ntp server key create` ^3^
-* `cluster time-service ntp server key delete` ^3^
-* `cluster time-service ntp server key modify` ^3^
-* `cluster time-service ntp server modify` ^3^
+* `cluster time-service ntp server create`^3^
+* `cluster time-service ntp server delete`^3^
+* `cluster time-service ntp server key create`^3^
+* `cluster time-service ntp server key delete`^3^
+* `cluster time-service ntp server key modify`^3^
+* `cluster time-service ntp server modify`^3^
 * `event config modify`
-* `lun delete` ^3^
-* `security anti-ransomware volume attack clear-suspect` ^1 ^
-* `security anti-ransomware volume disable` ^1 ^
+* `lun delete`^3^
+* `security anti-ransomware volume attack clear-suspect`^1^
+* `security anti-ransomware volume disable`^1^
 * `security anti-ransomware volume event-log modify`^2^
-* `security anti-ransomware volume pause` ^1 ^
+* `security anti-ransomware volume pause`^1^
 * `security anti-ransomware vserver event-log modify`^2^
-* `security audit modify` ^3^
-* `security ipsec config modify` ^3^
-* `security ipsec policy create` ^3^
-* `security ipsec policy delete` ^3^
-* `security ipsec policy modify` ^3^
+* `security audit modify`^3^
+* `security ipsec config modify`^3^
+* `security ipsec policy create`^3^
+* `security ipsec policy delete`^3^
+* `security ipsec policy modify`^3^
 * `security login create`
 * `security login delete`
 * `security login modify`
 * `security key-manager onboard update-passphrase`^3^
-* `security saml-sp create` ^3^
-* `security saml-sp delete` ^3^
-* `security saml-sp modify` ^3^
-* `snaplock legal-hold end` ^3^
-* `storage aggregate delete` ^3^
-* `storage encryption disk destroy` ^3^
-* `storage encryption disk modify` ^3^
-* `storage encryption disk revert-to-original-state` ^3^
-* `storage encryption disk sanitize` ^3^
-* `system bridge run-cli` ^3^
-* `system controller flash-cache secure-erase run` ^3^
-* `system controller service-event delete` ^3^
-* `system health alert delete` ^3^
-* `system health alert modify` ^3^
-* `system health policy definition modify` ^3^
-* `system node autosupport modify` ^3^
-* `system node autosupport trigger modify` ^3^
-* `system node coredump delete` ^3^
-* `system node coredump delete-all` ^3^
-* `system node hardware nvram-encryption modify` ^3^
+* `security saml-sp create`^3^
+* `security saml-sp delete`^3^
+* `security saml-sp modify`^3^
+* `snaplock legal-hold end`^3^
+* `storage aggregate delete`^3^
+* `storage encryption disk destroy`^3^
+* `storage encryption disk modify`^3^
+* `storage encryption disk revert-to-original-state`^3^
+* `storage encryption disk sanitize`^3^
+* `system bridge run-cli`^3^
+* `system controller flash-cache secure-erase run`^3^
+* `system controller service-event delete`^3^
+* `system health alert delete`^3^
+* `system health alert modify`^3^
+* `system health policy definition modify`^3^
+* `system node autosupport modify`^3^
+* `system node autosupport trigger modify`^3^
+* `system node coredump delete`^3^
+* `system node coredump delete-all`^3^
+* `system node hardware nvram-encryption modify`^3^
 * `system node run`
 * `system node systemshell`
-* `system script delete` ^3^
-* `system service-processor ssh add-allowed-addresses` ^3^
-* `system service-processor ssh remove-allowed-addresses` ^3^
-* `system smtape restore` ^3^
-* `system switch ethernet log disable-collection` ^3^
-* `system switch ethernet log modify` ^3^
-* `timezone` ^3^
-* `volume create` ^3^
+* `system script delete`^3^
+* `system service-processor ssh add-allowed-addresses`^3^
+* `system service-processor ssh remove-allowed-addresses`^3^
+* `system smtape restore`^3^
+* `system switch ethernet log disable-collection`^3^
+* `system switch ethernet log modify`^3^
+* `timezone`^3^
+* `volume create`^3^
 * `volume delete`
-* `volume file privileged-delete` ^3^
+* `volume file privileged-delete`^3^
 * `volume flexcache delete`
-* `volume modify` ^3^
-* `volume recovery-queue modify` ^2^
-* `volume recovery-queue purge` ^2^
-* `volume recovery-queue purge-all` ^2^
-* `volume snaplock modify` ^1 ^
+* `volume modify`^3^
+* `volume recovery-queue modify`^2^
+* `volume recovery-queue purge`^2^
+* `volume recovery-queue purge-all`^2^
+* `volume snaplock modify`^1^
 * `volume snapshot autodelete modify`
-* `volume snapshot create` ^3^
+* `volume snapshot create`^3^
 * `volume snapshot delete`
-* `volume snapshot modify` ^3^
+* `volume snapshot modify`^3^
 * `volume snapshot policy add-schedule`
 * `volume snapshot policy create`
 * `volume snapshot policy delete`
 * `volume snapshot policy modify`
 * `volume snapshot policy modify-schedule`
 * `volume snapshot policy remove-schedule`
-* `volume snapshot rename` ^3^
+* `volume snapshot rename`^3^
 * `volume snapshot restore`
-* `vserver audit create` ^3^
-* `vserver audit delete` ^3^
-* `vserver audit disable` ^3^
-* `vserver audit modify` ^3^
-* `vserver audit rotate-log` ^3^
+* `vserver audit create`^3^
+* `vserver audit delete`^3^
+* `vserver audit disable`^3^
+* `vserver audit modify`^3^
+* `vserver audit rotate-log`^3^
 * `vserver create`^2^
-* `vserver delete` ^3^
-* `vserver modify` ^2^
-* `vserver object-store-server audit create` ^3^
-* `vserver object-store-server audit delete` ^3^
-* `vserver object-store-server audit disable` ^3^
-* `vserver object-store-server audit modify` ^3^
-* `vserver object-store-server audit rotate-log` ^3^
-* `vserver options` ^3^
+* `vserver delete`^3^
+* `vserver modify`^2^
+* `vserver object-store-server audit create`^3^
+* `vserver object-store-server audit delete`^3^
+* `vserver object-store-server audit disable`^3^
+* `vserver object-store-server audit modify`^3^
+* `vserver object-store-server audit rotate-log`^3^
+* `vserver options`^3^
 * `vserver peer delete`
-* `vserver security file-directory apply` ^3^
-* `vserver security file-directory remove-slag` ^3^
-* `vserver vscan disable` ^3^
-* `vserver vscan on-access-policy create` ^3^
-* `vserver vscan on-access-policy delete` ^3^
-* `vserver vscan on-access-policy disable` ^3^
-* `vserver vscan on-access-policy modify` ^3^
-* `vserver vscan scanner-pool create` ^3^
-* `vserver vscan scanner-pool delete` ^3^
-* `vserver vscan scanner-pool modify` ^3^
+* `vserver security file-directory apply`^3^
+* `vserver security file-directory remove-slag`^3^
+* `vserver vscan disable`^3^
+* `vserver vscan on-access-policy create`^3^
+* `vserver vscan on-access-policy delete`^3^
+* `vserver vscan on-access-policy disable`^3^
+* `vserver vscan on-access-policy modify`^3^
+* `vserver vscan scanner-pool create`^3^
+* `vserver vscan scanner-pool delete`^3^
+* `vserver vscan scanner-pool modify`^3^
 
 
 --
@@ -200,10 +200,10 @@ MAVルールは、Role-Based Access Control（RBAC；ロールベースアクセ
 --
 * `cluster peer delete`
 * `event config modify`
-* `security anti-ransomware volume attack clear-suspect` ^1 ^
-* `security anti-ransomware volume disable` ^1 ^
+* `security anti-ransomware volume attack clear-suspect`^1^
+* `security anti-ransomware volume disable`^1^
 * `security anti-ransomware volume event-log modify`^2^
-* `security anti-ransomware volume pause` ^1 ^
+* `security anti-ransomware volume pause`^1^
 * `security anti-ransomware vserver event-log modify`^2^
 * `security login create`
 * `security login delete`
@@ -212,32 +212,32 @@ MAVルールは、Role-Based Access Control（RBAC；ロールベースアクセ
 * `system node systemshell`
 * `volume delete`
 * `volume flexcache delete`
-* `volume recovery-queue modify` ^2^
-* `volume recovery-queue purge` ^2^
-* `volume recovery-queue purge-all` ^2^
-* `volume snaplock modify` ^1 ^
+* `volume recovery-queue modify`^2^
+* `volume recovery-queue purge`^2^
+* `volume recovery-queue purge-all`^2^
+* `volume snaplock modify`^1^
 * `volume snapshot autodelete modify`
 * `volume snapshot delete`
 * `volume snapshot policy add-schedule`
 * `volume snapshot policy create`
-* `volume snapshot policy delete` *
+* `volume snapshot policy delete`*
 * `volume snapshot policy modify`
 * `volume snapshot policy modify-schedule`
 * `volume snapshot policy remove-schedule`
 * `volume snapshot restore`
 * `vserver create`^2^
-* `vserver modify` ^2^
+* `vserver modify`^2^
 * `vserver peer delete`
 
 
 --
-.9.13.1.
+.9.13.1
 --
 * `cluster peer delete`
 * `event config modify`
-* `security anti-ransomware volume attack clear-suspect` ^1 ^
-* `security anti-ransomware volume disable` ^1 ^
-* `security anti-ransomware volume pause` ^1 ^
+* `security anti-ransomware volume attack clear-suspect`^1^
+* `security anti-ransomware volume disable`^1^
+* `security anti-ransomware volume pause`^1^
 * `security login create`
 * `security login delete`
 * `security login modify`
@@ -245,12 +245,12 @@ MAVルールは、Role-Based Access Control（RBAC；ロールベースアクセ
 * `system node systemshell`
 * `volume delete`
 * `volume flexcache delete`
-* `volume snaplock modify` ^1 ^
+* `volume snaplock modify`^1^
 * `volume snapshot autodelete modify`
 * `volume snapshot delete`
 * `volume snapshot policy add-schedule`
 * `volume snapshot policy create`
-* `volume snapshot policy delete` *
+* `volume snapshot policy delete`*
 * `volume snapshot policy modify`
 * `volume snapshot policy modify-schedule`
 * `volume snapshot policy remove-schedule`
@@ -274,7 +274,7 @@ MAVルールは、Role-Based Access Control（RBAC；ロールベースアクセ
 * `volume snapshot delete`
 * `volume snapshot policy add-schedule`
 * `volume snapshot policy create`
-* `volume snapshot policy delete` *
+* `volume snapshot policy delete`*
 * `volume snapshot policy modify`
 * `volume snapshot policy modify-schedule`
 * `volume snapshot policy remove-schedule`
@@ -293,60 +293,59 @@ MAVルールは、Role-Based Access Control（RBAC；ロールベースアクセ
 
 
 
-== 複数管理者による承認の仕組み
+== マルチ管理者承認の仕組み
 
-保護された操作がMAV保護されたクラスタで入力されると、操作の実行要求が指定されたMAV管理者グループに送信されます。
+MAVで保護されたクラスタで保護された操作が入力されると、指定されたMAV管理者グループに操作実行要求が送信されます。
 
-次の項目を設定できます。
+次の設定が可能です。
 
 * MAVグループ内の管理者の名前、連絡先情報、および数。
 +
-MAV管理者には、クラスタ管理者権限を持つRBACロールが必要です。
+MAV管理者には、クラスタ管理者権限のあるRBACロールが必要です。
 
 * MAV管理者グループの数。
 +
-** MAVグループは、保護された各操作ルールに割り当てられます。
-** 複数のMAVグループの場合、どのMAVグループが特定のルールを承認するかを設定できます。
+** 保護対象処理ルールごとにMAVグループが割り当てられます。
+** MAVグループが複数ある場合は、どのMAVグループが特定のルールを承認するかを設定できます。
 
 
-* 保護された操作を実行するために必要なMAV承認の数。
+* 保護対象処理を実行するために必要なMAV承認者の数。
 * MAV管理者が承認要求に応答する必要がある_承認の失効_期間。
 * 要求元の管理者が処理を完了する必要がある_実行のexpiry_period。
 
 
-これらのパラメータを設定したら、MAV承認が必要です。
+これらのパラメータを設定したら、変更するにはMAV承認が必要です。
 
-MAV管理者は、保護された操作を実行するための独自の要求を承認できません。そのため、次の
+MAV管理者は、保護された操作の実行要求を自分で承認することはできません。そのため、
 
-* 管理者が1人だけのクラスタではMAVを有効にしないでください。
+* MAVは、管理者が1人だけのクラスタでは有効にしないでください。
 * MAVグループに1人しかいない場合、そのMAV管理者は保護された操作を開始できません。通常の管理者は保護された操作を開始する必要があり、MAV管理者は承認のみを実行できます。
-* MAV管理者が保護された操作を実行できるようにするには、MAV管理者の数が、必要な承認数よりも1人大きくなければなりません。
-たとえば、保護された操作に2つの承認が必要で、MAV管理者がそれらを実行する場合、MAV管理者グループには3人の承認が必要です。
+* MAV管理者が保護された操作を実行できるようにするには、MAV管理者の数が必要な承認の数より1つ多い必要があります。たとえば、保護された操作に2つの承認が必要で、MAV管理者にそれらの承認を実行させる場合、MAV管理者グループには3人のユーザーが必要です。
 
 
-MAV管理者は、（EMSを使用して）Eメールアラートで承認要求を受信するか、要求キューを照会できます。  リクエストを受け取った場合、次の3つのアクションのいずれかを実行できます。
+MAV管理者は、電子メールアラートで承認リクエストを受信することも（EMSを使用して）、リクエストキューを照会することもできます。リクエストを受け取ると、次の3つのアクションのいずれかを実行できます。
 
-* 承認します
+* 承認
 * 拒否（拒否）
-* 無視（操作なし）
+* 無視（アクションなし）
 
 
-MAVルールに関連付けられているすべての承認者に電子メール通知が送信されるのは、次の場合です。
+次の場合、MAVルールに関連付けられたすべての承認者に電子メール通知が送信されます。
 
-* リクエストが作成されました。
+* リクエストが作成されます。
 * リクエストが承認または拒否された場合。
-* 承認されたリクエストが実行されます。
+* 承認されたリクエストが実行されました。
 
 
-リクエスト者が同じ承認グループに属している場合は、リクエストが承認されると電子メールが送信されます。
+リクエスト者が操作の同じ承認グループに属している場合は、リクエストが承認されると電子メールが送信されます。
 
 
-NOTE: リクエスト者は、自分が承認グループに属している場合でも、自分のリクエストを承認することはできません。彼らは電子メール通知を受け取ることができます。承認グループに属していない（つまり、MAV管理者ではない）リクエスタは、電子メール通知を受信しません。
+NOTE: リクエスト者は、自分が承認グループに属している場合でも、自分のリクエストを承認することはできません。彼らは電子メール通知を受け取ることができます。承認グループに属していないリクエスト者（つまり、MAV管理者でないリクエスト者）は、電子メール通知を受信しません。
 
 
 
-== 保護された操作の実行の仕組み
+== 保護された処理の実行の仕組み
 
-保護された操作の実行が承認されると、要求されたユーザーは操作を続行します。処理が拒否された場合、要求元ユーザは処理を続行する前に要求を削除する必要があります。
+保護された操作の実行が承認されると、要求元のユーザーはプロンプトが表示されたときに操作を続行します。処理が拒否された場合、要求元ユーザは処理を続行する前に要求を削除する必要があります。
 
-MAVルールはRBAC権限の後に評価されます。そのため、操作の実行に十分なRBACアクセス許可がないユーザーはMAV要求プロセスを開始できません。
+MAVルールはRBACの権限の後に評価されます。そのため、操作を実行するための十分なRBAC権限を持たないユーザーは、MAV要求プロセスを開始できません。

@@ -4,25 +4,25 @@ sidebar: sidebar
 keywords: delete, snapshot, copies, automatically, flexclone luns, automatic, lun, luns 
 summary: SnapshotコピーとFlexClone LUNを自動的に削除するポリシーを定義して、スペース使用量の管理に役立てることができます。 
 ---
-= Snapshot コピーを自動的に削除する
+= Snapshotコピーの自動削除
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-Snapshot コピーと FlexClone LUN の自動削除ポリシーを定義して有効にすることができます。Snapshot コピーと FlexClone LUN の自動削除はスペース使用の管理に役立ちます。
+SnapshotコピーとFlexClone LUNを自動的に削除するポリシーを定義して有効にすることができます。Snapshot コピーと FlexClone LUN の自動削除はスペース使用の管理に役立ちます。
 
-.このタスクについて
-読み書き可能なボリュームの Snapshot コピーと読み書き可能な親ボリュームの FlexClone LUN について、自動的に削除されるように設定できます。SnapMirror デスティネーションボリュームなど、読み取り専用ボリュームからの Snapshot コピーの自動削除は設定できません。
+.タスクの内容
+読み書き可能なボリュームの Snapshot コピーと読み書き可能な親ボリュームの FlexClone LUN について、自動的に削除されるように設定できます。読み取り専用ボリューム（SnapMirrorデスティネーションボリュームなど）からは、Snapshotコピーの自動削除は設定できません。
 
 .ステップ
-. を使用して、Snapshotコピーの自動削除ポリシーを定義して有効にします `volume snapshot autodelete modify` コマンドを実行します
+. コマンドを使用して、Snapshotコピーの自動削除ポリシーを定義して有効にします `volume snapshot autodelete modify`。
 +
-を参照してください `volume snapshot autodelete modify` のマニュアルページを参照してください。このコマンドで使用できるパラメータについては、ニーズに合わせてポリシーを定義できます。
+このコマンドで使用できるパラメータについては、マニュアルページを参照してください `volume snapshot autodelete modify`。このパラメータを使用して、ニーズに合ったポリシーを定義できます。
 
 +
-次のコマンドは、Snapshotコピーの自動削除を有効にし、トリガーをに設定します `snap_reserve` vs0.example.com Storage Virtual Machine（SVM）に属するvol3ボリュームに対して、次の手順を実行します。
+次のコマンドは、Storage Virtual Machine（SVM）vs0.example.comに属するボリュームvol3に対して、Snapshotコピーの自動削除を有効にし、トリガーをに設定します `snap_reserve`。
 
 +
 [listing]
@@ -31,7 +31,7 @@ cluster1::> volume snapshot autodelete modify -vserver vs0.example.com
 -volume vol3 -enabled true -trigger snap_reserve
 ----
 +
-次に、 Storage Virtual Machine （ SVM ） vs0.example.com に属するボリューム vol3 に対して、 Snapshot コピーと対象としてマークされた FlexClone LUN の自動削除を有効にするコマンドを示します。
+次のコマンドは、Storage Virtual Machine（SVM）vs0.example.comに属するボリュームvol3に対して、Snapshotコピーと対象としてマークされたFlexClone LUNの自動削除を有効にします。
 
 +
 [listing]
@@ -43,9 +43,9 @@ oldest_first -destroy-list lun_clone,file_clone
 +
 [NOTE]
 ====
-アグリゲートレベルの Snapshot コピーの機能は、ボリュームレベルの Snapshot コピーとは異なり、また、 ONTAP によって自動的に管理されます。アグリゲート Snapshot コピーを削除するオプションは常に有効になっており、スペース使用の管理に役立ちます。
+アグリゲートレベルのSnapshotコピーの動作はボリュームレベルのSnapshotコピーとは異なり、ONTAPによって自動的に管理されます。アグリゲート Snapshot コピーを削除するオプションは常に有効になっており、スペース使用の管理に役立ちます。
 
-triggerパラメータがに設定されている場合 `snap_reserve` アグリゲートの場合、Snapshotコピーは、リザーブされているスペースが容量のしきい値を超えるまで維持されます。そのため、triggerパラメータがに設定されていない場合でも同様です `snap_reserve`コマンドでSnapshotコピーに使用されているスペースはと表示されます `0` これらのSnapshotコピーは自動的に削除されるためです。また、アグリゲートで Snapshot コピーによって使用されるスペースは空きスペースとみなされ、コマンドの使用可能なスペースのパラメータに含まれます。
+アグリゲートに対してtriggerパラメータがに設定されている場合、 `snap_reserve`Snapshotコピーはリザーブされているスペースが容量のしきい値を超えるまで維持されます。したがって、triggerパラメータがに設定されていない場合でも、 `snap_reserve`Snapshotコピーは自動的に削除されるため、コマンドでSnapshotコピーによって使用されるスペースはと表示され `0`ます。また、アグリゲートで Snapshot コピーによって使用されるスペースは空きスペースとみなされ、コマンドの使用可能なスペースのパラメータに含まれます。
 
 ====
 

@@ -2,49 +2,49 @@
 permalink: flexcache/create-volume-task.html 
 sidebar: sidebar 
 keywords: creating, flexcache, volume, flex cache, performance, remote cluster, data access, tls encryption, peer permission, 
-summary: 同じクラスタに FlexCache ボリュームを作成すると、ホットオブジェクトにアクセスする際のパフォーマンスが向上します。データセンターが複数の場所にある場合は、リモートクラスタに FlexCache ボリュームを作成することでデータアクセスを高速化できます。 
+summary: 同じクラスタにFlexCacheボリュームを作成すると、ホットオブジェクトにアクセスする際のパフォーマンスが向上します。データセンターが異なる場所にある場合は、リモートクラスタにFlexCacheボリュームを作成してデータアクセスを高速化できます。 
 ---
-= FlexCache ボリュームを作成します
+= FlexCacheボリュームを作成する
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-同じクラスタに FlexCache ボリュームを作成すると、ホットオブジェクトにアクセスする際のパフォーマンスが向上します。データセンターが複数の場所にある場合は、リモートクラスタに FlexCache ボリュームを作成することでデータアクセスを高速化できます。
+同じクラスタにFlexCacheボリュームを作成すると、ホットオブジェクトにアクセスする際のパフォーマンスが向上します。データセンターが異なる場所にある場合は、リモートクラスタにFlexCacheボリュームを作成してデータアクセスを高速化できます。
 
-.このタスクについて
-* ONTAP 9.5以降では、FlexCacheでFlexVolボリュームが元のボリュームとして、FlexGroupボリュームがFlexCacheボリュームとしてサポートされます。
-* ONTAP 9.7以降では、FlexVolボリュームとFlexGroupボリュームの両方が元のボリュームとしてサポートされます。
+.タスクの内容
+* ONTAP 9 .5以降では、FlexCacheでFlexVolボリュームが元のボリュームとして、FlexGroupボリュームがFlexCacheボリュームとしてサポートされます。
+* ONTAP 9 .7以降では、FlexVol volumeボリュームとFlexGroupボリュームの両方が元のボリュームとしてサポートされます。
 * ONTAP 9.14.0以降では、暗号化されたソースから暗号化されていないFlexCacheボリュームを作成できます。
 
 
-.作業を開始する前に
+.開始する前に
 * ONTAP 9.5以降が実行されている必要があります。
 * ONTAP 9 .6以前を実行している場合は、を実行する必要がありますlink:../system-admin/install-license-task.html["FlexCacheライセンスを追加する"]。
 +
-ONTAP 9.7以降ではFlexCacheライセンスは必要ありません。ONTAP 9.7以降では、FlexCache機能がONTAPに組み込まれており、ライセンスやアクティブ化は不要になりました。 
+ONTAP 9 .7以降にはFlexCacheライセンスは必要ありません。ONTAP 9 .7以降では、FlexCache機能がONTAPに含まれているため、ライセンスやアクティブ化は不要になりました。 
 
 
 
 
-NOTE: HA ペアが使用している場合 link:https://docs.netapp.com/us-en/ontap/encryption-at-rest/support-storage-encryption-concept.html["SAS ドライブまたは NVMe ドライブの暗号化（ SED 、 NSE 、 FIPS ）"]、の手順に従ってください link:https://docs.netapp.com/us-en/ontap/encryption-at-rest/return-seds-unprotected-mode-task.html["FIPS ドライブまたは SED を非保護モードに戻します"] システムを初期化する前の HA ペア内のすべてのドライブ（ブートオプション 4 または 9 ）。そうしないと、ドライブを転用した場合にデータが失われる可能性があります。
+NOTE: HAペアでを使用している場合はlink:https://docs.netapp.com/us-en/ontap/encryption-at-rest/support-storage-encryption-concept.html["SAS ドライブまたは NVMe ドライブの暗号化（ SED 、 NSE 、 FIPS ）"]、システムを初期化する前に、HAペア内のすべてのドライブに対応するトピックの手順に従う必要がありますlink:https://docs.netapp.com/us-en/ontap/encryption-at-rest/return-seds-unprotected-mode-task.html["FIPSドライブまたはSEDを非保護モードに戻す"]（ブートオプション4または9）。これを行わないと、ドライブを転用した場合にデータが失われる可能性があります。
 
 .手順
 [role="tabbed-block"]
 ====
-.System Manager の略
+.System Manager
 --
 . FlexCacheボリュームが元のボリュームとは別のクラスタにある場合は、クラスタピア関係を作成します。
 +
-.. ローカルクラスタで、 * Protection > Overview * をクリックします。
+.. ローカルクラスタで、*[保護]>[概要]*をクリックします。
 .. [クラスタ間設定]*を展開し、*[ネットワークインターフェイスの追加]*をクリックして、クラスタのクラスタ間ネットワークインターフェイスを追加します。
 +
 リモートクラスタでこの手順を繰り返します。
 
 .. リモートクラスタで、*[保護]>[概要]*をクリックします。[Cluster Peers]セクション内をクリックし image:icon_kabob.gif["メニューオプションアイコン"] 、*[Generate Passphrase]*をクリックします。
-.. 生成されたパスフレーズをコピーしてローカルクラスタに貼り付けます。
-.. ローカルクラスタで、 [ クラスタピア ] の下の [* ピアクラスタ * ] をクリックし、ローカルクラスタとリモートクラスタをピアリングします。
+.. 生成されたパスフレーズをコピーし、ローカルクラスタに貼り付けてください。
+.. ローカルクラスタで、[クラスタピア]の*[クラスタのピアリング]*をクリックし、ローカルクラスタとリモートクラスタをピアリングします。
 
 
 . SVMピア関係を作成します。
@@ -61,9 +61,9 @@ NOTE: ONTAP 9.8以降を実行していて、QoSを無効にするかカスタ�
 
 
 --
-.CLI の使用
+.CLI
 --
-. 別のクラスタに作成する FlexCache ボリュームを作成する場合は、クラスタピア関係を作成します。
+. FlexCacheボリュームを別のクラスタに作成する場合は、クラスタピア関係を作成します。
 +
 .. デスティネーションクラスタで、データ保護のソースクラスタとのピア関係を作成します。
 +
@@ -72,7 +72,7 @@ NOTE: ONTAP 9.8以降を実行していて、QoSを無効にするかカスタ�
 cluster peer create -generate-passphrase -offer-expiration MM/DD/YYYY HH:MM:SS|1...7days|1...168hours -peer-addrs <peer_LIF_IPs> -initial-allowed-vserver-peers <svm_name>,..|* -ipspace <ipspace_name>
 ----
 +
-ONTAP 9.6 以降では、クラスタピア関係の作成時に TLS 暗号化がデフォルトで有効になります。TLS 暗号化は、元のボリュームと FlexCache ボリュームの間のクラスタ間通信でサポートされます。必要に応じて、クラスタピア関係の TLS 暗号化を無効にすることもできます。
+ONTAP 9 .6以降では、クラスタピア関係の作成時にTLS暗号化がデフォルトで有効になります。TLS暗号化は、元のボリュームとFlexCacheボリュームの間のクラスタ間通信でサポートされます。必要に応じて、クラスタピア関係のTLS暗号化を無効にすることもできます。
 
 +
 [listing]
@@ -108,7 +108,7 @@ Clusters cluster02 and cluster01 are peered.
 ----
 
 
-. FlexCache ボリュームが元のボリュームとは異なるSVMにある場合は、を使用してSVMピア関係を作成します `flexcache` アプリケーションとして：
+. FlexCacheボリュームが元のボリュームとは別のSVMにある場合は、をアプリケーションとしたSVMピア関係を作成し `flexcache`ます。
 +
 .. SVMが別のクラスタにある場合は、ピアリングするSVMのSVM権限を作成します。
 +
@@ -117,7 +117,7 @@ Clusters cluster02 and cluster01 are peered.
 vserver peer permission create -peer-cluster <cluster_name> -vserver <svm-name> -applications flexcache
 ----
 +
-次の例は、すべてのローカル SVM に適用される SVM ピア権限を作成する方法を示しています。
+次の例は、すべてのローカルSVMに適用されるSVMピア権限を作成する方法を示しています。
 
 +
 [listing]
@@ -136,14 +136,14 @@ vserver peer create -vserver <local_SVM> -peer-vserver <remote_SVM> -peer-cluste
 ----
 
 
-. FlexCache ボリュームを作成します。
+. FlexCacheボリュームを作成します。
 +
 [source, cli]
 ----
 volume flexcache create -vserver <cache_svm> -volume <cache_vol_name> -auto-provision-as flexgroup -size <vol_size> -origin-vserver <origin_svm> -origin-volume <origin_vol_name>
 ----
 +
-次の例では、 FlexCache ボリュームを作成し、プロビジョニングする既存のアグリゲートを自動的に選択します。
+次の例は、FlexCacheボリュームを作成し、プロビジョニングする既存のアグリゲートを自動的に選択します。
 
 +
 [listing]
@@ -152,7 +152,7 @@ cluster1::> volume flexcache create -vserver vs_1 -volume fc1 -auto-provision-as
 [Job 443] Job succeeded: Successful
 ----
 +
-次の例では、 FlexCache ボリュームを作成し、ジャンクションパスを設定します。
+次の例は、FlexCacheボリュームを作成し、ジャンクション パスを設定します。
 
 +
 [listing]
@@ -160,7 +160,7 @@ cluster1::> volume flexcache create -vserver vs_1 -volume fc1 -auto-provision-as
 cluster1::> flexcache create -vserver vs34 -volume fc4 -aggr-list aggr34,aggr43 -origin-volume origin1 -size 400m -junction-path /fc4
 [Job 903] Job succeeded: Successful
 ----
-. FlexCache ボリュームと元のボリュームの FlexCache 関係を確認します。
+. FlexCacheボリュームと元のボリュームのFlexCache関係を確認します。
 +
 .. クラスタ内のFlexCache関係を表示します。
 +
@@ -176,8 +176,7 @@ Vserver Volume      Size       Origin-Vserver Origin-Volume Origin-Cluster
 ------- ----------- ---------- -------------- ------------- --------------
 vs_1    fc1         160MB      vs_1           vol_1           cluster1
 ----
-.. 元のクラスタのすべてのFlexCache関係を表示します。
- [+]
+.. 元のクラスタのすべてのFlexCache関係を表示します。+
 `volume flexcache origin show-caches`
 +
 [listing]
@@ -199,7 +198,7 @@ vs_1           vol_1           vs_1             fc1            cluster1
 
 == 結果
 
-FlexCache ボリュームが作成されました。クライアントは、 FlexCache ボリュームのジャンクションパスを使用してボリュームをマウントできます。
+FlexCacheボリュームが作成されました。クライアントは、FlexCacheボリュームのジャンクションパスを使用してボリュームをマウントできます。
 
 .関連情報
-link:../peering/index.html["クラスタと SVM のピアリング"]
+link:../peering/index.html["クラスタとSVMのピアリング"]

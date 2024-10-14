@@ -2,24 +2,24 @@
 sidebar: sidebar 
 permalink: multi-admin-verify/manage-rules-task.html 
 keywords: ontap, mav, multi, admin, multi admin verify, verification, administrator, protected, operation, rules, manage 
-summary: MAV（Multi-admin Verification）ルールを作成して、承認が必要な操作を指定します。操作が開始されるたびに、保護された操作が妨害され、承認の要求が生成されます 
+summary: マルチ管理者認証（MAV）ルールを作成して、承認が必要な操作を指定します。操作が開始されるたびに、保護された操作が妨害され、承認の要求が生成されます 
 ---
-= 保護された操作ルールを管理します
+= 保護されたオペレーションルールの管理
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-MAV（Multi-admin Verification）ルールを作成して、承認が必要な操作を指定します。操作が開始されるたびに、保護された操作が妨害され、承認の要求が生成されます。
+マルチ管理者認証（MAV）ルールを作成して、承認が必要な操作を指定します。操作が開始されるたびに、保護された操作が傍受され、承認要求が生成されます。
 
-ルールは任意の管理者が適切なRBAC機能を使用してMAVを有効にする前に作成できますが、MAVを有効にすると、ルールセットを変更するにはMAV承認が必要になります。
+適切なRBAC機能を持つ管理者は、MAVを有効にする前にルールを作成できますが、MAVを有効にすると、ルールセットを変更するにはMAVの承認が必要になります。
 
-1回の操作で作成できるMAVルールは1つだけです。たとえば、複数のMAVルールを作成することはできません。 `volume-snapshot-delete` ルール。必要なルール制約は1つのルール内に含める必要があります。
+1回の操作で作成できるMAVルールは1つだけです。たとえば、複数のルールを作成することはできません `volume-snapshot-delete`。必要なルール制約は1つのルール内に含める必要があります。
 
-保護するルールを作成できます。 link:../multi-admin-verify/index.html#rule-protected-commands["これらのコマンド"]。各コマンドは、コマンドの保護機能が最初に使用可能になったONTAPバージョン以降で保護できます。
+保護するルールを作成できますlink:../multi-admin-verify/index.html#rule-protected-commands["これらのコマンド"]。各コマンドは、コマンドの保護機能が最初に使用可能になったONTAPバージョン以降で保護できます。
 
-MAV system-defaultコマンドのルール `security multi-admin-verify` link:../multi-admin-verify/index.html#system-defined-rules["コマンド"]を変更することはできません。
+MAV system-defaultコマンドのルールは `security multi-admin-verify` link:../multi-admin-verify/index.html#system-defined-rules["コマンド"]変更できません。
 
 システム定義の操作に加えて、次のコマンドは、マルチ管理者検証が有効になっている場合にデフォルトで保護されますが、これらのコマンドの保護を解除するルールを変更することができます。
 
@@ -32,9 +32,9 @@ MAV system-defaultコマンドのルール `security multi-admin-verify` link:..
 
 == ルール制約
 
-ルールを作成するときに、オプションでを指定できます `-query` 要求をコマンド機能のサブセットに制限するオプション。。 `-query` オプションを使用すると、SVM、ボリューム、Snapshot名などの構成要素を制限することもできます。
+ルールを作成するときに、オプションを指定して要求をコマンド機能のサブセットに制限することもできます `-query`。 `-query`オプションを使用すると、SVM、ボリューム、Snapshot名などの構成要素を制限することもできます。
 
-例えば、 `volume snapshot delete` コマンド、 `-query` 次のように設定できます。 `-snapshot !hourly*,!daily*,!weekly*`つまり、hourly、daily、またはweekly属性のプレフィックスが付いたボリュームSnapshotは、MAV保護から除外されます。
+たとえば、 `volume snapshot delete`コマンドでを `-query`に設定すると `-snapshot !hourly*,!daily*,!weekly*`、hourly、daily、weeklyのいずれかの属性がプレフィックスされたボリュームSnapshotがMAV保護の対象から除外されます。
 
 [listing]
 ----
@@ -48,21 +48,21 @@ vs01    volume snapshot delete                 -         -
 
 NOTE: 除外された構成要素はMAVによって保護されず、管理者はそれらを削除または名前変更できます。
 
-デフォルトでは、ルールは対応するを指定します `security multi-admin-verify request create _“protected_operation”_` 保護されたオペレーションが入力されると、コマンドが自動的に生成されます。このデフォルトを変更して、が必要になるようにすることができます `request create` コマンドは別 々 に入力します。
+デフォルトでは、ルールは、保護された操作が入力されたときに対応するコマンドが自動的に生成されるように指定します `security multi-admin-verify request create _“protected_operation”_`。このデフォルトを変更して、コマンドを個別に入力するように指定でき `request create`ます。
 
-デフォルトでは、ルール固有の例外を指定できますが、ルールは次のグローバルMAV設定を継承します。
+デフォルトでは、ルールには次のグローバルMAV設定が継承されますが、ルール固有の例外を指定することもできます。
 
-* 承認者の必要数
+* 必要な承認者数
 * 承認グループ
 * 承認の有効期限
-* 実行の有効期限
+* 実行有効期間
 
 
 
 
-== System Manager の手順の略
+== System Managerの手順
 
-保護された処理ルールを初めて追加する場合は、System Managerの手順 を参照してください link:enable-disable-task.html#system-manager-procedure["マルチ管理者検証を有効にします。"]
+保護された処理ルールを初めて追加する場合は、System Managerの手順を参照してください。link:enable-disable-task.html#system-manager-procedure["マルチ管理者検証を有効にします。"]
 
 既存のルールセットを変更するには：
 
@@ -70,11 +70,11 @@ NOTE: 除外された構成要素はMAVによって保護されず、管理者�
 . [セキュリティ]*セクションの*[マルチ管理者の承認]*の横にあるを選択します image:icon_gear.gif["アクションアイコン"] 。
 . 少なくとも1つのルールを追加する場合に選択し image:icon_add.gif["追加アイコン"] ます。既存のルールを変更または削除することもできます。
 +
-** operation–サポートされているコマンドをリストから選択します。
-** Query–必要なコマンドオプションと値を入力します。
-** オプションのパラメータ–グローバル設定を適用する場合は空欄のままにします。グローバル設定を上書きする場合は、特定のルールに別の値を割り当てます。
+** 操作–リストからサポートされているコマンドを選択します。
+** クエリ–必要なコマンドオプションと値を入力します。
+** オプションのパラメータ–グローバル設定を適用する場合は空白のままにし、特定のルールに別の値を割り当ててグローバル設定を上書きします。
 +
-*** 必要な承認者の数
+*** 必要な承認者数
 *** 承認グループ
 
 
@@ -84,17 +84,17 @@ NOTE: 除外された構成要素はMAVによって保護されず、管理者�
 
 
 
-== CLI 手順の略
+== CLIの手順
 
 
-NOTE: すべて `security multi-admin-verify rule` コマンドを実行するには、以外のMAV管理者の承認が必要です `security multi-admin-verify rule show`。
+NOTE: を除き、すべての `security multi-admin-verify rule`コマンドを実行する前にMAV管理者の承認が必要です。 `security multi-admin-verify rule show`
 
 [cols="50,50"]
 |===
-| 実行する処理 | 入力するコマンド 
+| 実行する操作 | 入力するコマンド 
 
 
-| ルールを作成します  a| 
+| ルールの作成  a| 
 `security multi-admin-verify rule create -operation _“protected_operation”_ [-query _operation_subset_] [_parameters_]`
 
 
@@ -113,7 +113,7 @@ NOTE: すべて `security multi-admin-verify rule` コマンドを実行する�
 
 
 
-| ルールを削除します  a| 
+| ルールを削除します。  a| 
 `security multi-admin-verify rule delete -operation _“protected_operation”_`
 
 
@@ -122,4 +122,4 @@ NOTE: すべて `security multi-admin-verify rule` コマンドを実行する�
 `security multi-admin-verify rule show`
 
 |===
-コマンド構文の詳細については、を参照してください `security multi-admin-verify rule` マニュアルページ
+コマンド構文の詳細については、マニュアルページを参照して `security multi-admin-verify rule`ください。

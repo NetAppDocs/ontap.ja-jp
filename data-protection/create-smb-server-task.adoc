@@ -2,7 +2,7 @@
 permalink: data-protection/create-smb-server-task.html 
 sidebar: sidebar 
 keywords: cifs, create, server 
-summary: ソース SVM で SMB 構成を使用し、 identity-preserve を false に設定した場合は、デスティネーション SVM 用の SMB サーバを作成する必要があります。SnapMirror 関係の初期化の際、共有などの一部の SMB 構成では SMB サーバが必要です。 
+summary: ソース SVM で SMB 構成を使用し、 identity-preserve を false に設定した場合は、デスティネーション SVM 用の SMB サーバを作成する必要があります。SnapMirror関係の初期化中に共有など、一部のSMB構成ではSMBサーバが必要です。 
 ---
 = SMBのみ：SMBサーバを作成する
 :allow-uri-read: 
@@ -11,17 +11,17 @@ summary: ソース SVM で SMB 構成を使用し、 identity-preserve を false
 
 
 [role="lead"]
-ソースSVMでSMB構成が使用されていて、をに選択した場合 `identity-preserve` 終了： `false`では、デスティネーションSVM用のSMBサーバを作成する必要があります。SnapMirror 関係の初期化の際、共有などの一部の SMB 構成では SMB サーバが必要です。
+ソースSVMでSMB構成が使用されていて、をに `false`選択した場合は `identity-preserve`、デスティネーションSVM用のSMBサーバを作成する必要があります。SnapMirror関係の初期化中に共有など、一部のSMB構成ではSMBサーバが必要です。
 
 .手順
-. を使用して、デスティネーションSVMを起動します `vserver start` コマンドを実行します
+. コマンドを使用して、デスティネーションSVMを起動し `vserver start`ます。
 +
 [listing]
 ----
 destination_cluster::> vserver start -vserver dvs1
 [Job 30] Job succeeded: DONE
 ----
-. デスティネーションSVMがにあることを確認します `running` 状態およびサブタイプはです `dp-destination` を使用します `vserver show` コマンドを実行します
+. コマンドを使用して、 `vserver show`デスティネーションSVMの状態がであること、およびサブタイプがである `dp-destination`ことを確認します `running`。
 +
 [listing]
 ----
@@ -31,13 +31,13 @@ Vserver  Type    Subtype           State      State       Volume     Aggregate
 -------- ------- ----------       ---------- ----------- ---------- ----------
 dvs1     data    dp-destination    running    running       -         -
 ----
-. を使用してLIFを作成します `network interface create` コマンドを実行します
+. コマンドを使用して、LIFを作成し `network interface create`ます。
 +
 [listing]
 ----
 destination_cluster::>network interface create -vserver dvs1 -lif NAS1 -role data -data-protocol cifs -home-node destination_cluster-01 -home-port a0a-101  -address 192.0.2.128 -netmask 255.255.255.128
 ----
-. を使用してルートを作成します `network route create` コマンドを実行します
+. コマンドを使用して、ルートを作成し `network route create`ます。
 +
 [listing]
 ----
@@ -45,30 +45,30 @@ destination_cluster::>network route create -vserver dvs1 -destination 0.0.0.0/0
 -gateway 192.0.2.1
 ----
 +
-link:../networking/networking_reference.html["Network Management の略"]
+link:../networking/networking_reference.html["ネットワーク管理"]
 
-. を使用してDNSを設定します `vserver services dns create` コマンドを実行します
+. コマンドを使用して、DNSを設定し `vserver services dns create`ます。
 +
 [listing]
 ----
 destination_cluster::>vserver services dns create -domains mydomain.example.com -vserver
 dvs1 -name-servers 192.0.2.128 -state enabled
 ----
-. を使用して、優先ドメインコントローラを追加します `vserver cifs domain preferred-dc add` コマンドを実行します
+. コマンドを使用して、優先ドメインコントローラを追加し `vserver cifs domain preferred-dc add`ます。
 +
 [listing]
 ----
 destination_cluster::>vserver cifs domain preferred-dc add -vserver dvs1 -preferred-dc
 192.0.2.128 -domain mydomain.example.com
 ----
-. を使用してSMBサーバを作成します `vserver cifs create` コマンドを実行します
+. コマンドを使用して、SMBサーバを作成し `vserver cifs create`ます。
 +
 [listing]
 ----
 destination_cluster::>vserver cifs create -vserver dvs1 -domain mydomain.example.com
 -cifs-server CIFS1
 ----
-. を使用して、デスティネーションSVMを停止します `vserver stop` コマンドを実行します
+. コマンドを使用して、デスティネーションSVMを停止し `vserver stop`ます。
 +
 [listing]
 ----

@@ -2,86 +2,86 @@
 permalink: flexgroup/create-task.html 
 sidebar: sidebar 
 keywords: create, flexgroup, volume, flex group, aggregate, fabricpool, fabric pool 
-summary: FlexGroup ボリュームを作成するアグリゲートを手動で選択し、各アグリゲートのコンスティチュエントの数を指定して、 FlexGroup ボリュームを作成することができます。 
+summary: FlexGroupを作成するには、FlexGroupを作成するアグリゲートを手動で選択し、各アグリゲートのコンスティチュエントの数を指定します。 
 ---
-= FlexGroup ボリュームを作成します
+= FlexGroupボリュームを作成する
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-FlexGroup ボリュームを作成するアグリゲートを手動で選択し、各アグリゲートのコンスティチュエントの数を指定して、 FlexGroup ボリュームを作成することができます。
+FlexGroupを作成するには、FlexGroupを作成するアグリゲートを手動で選択し、各アグリゲートのコンスティチュエントの数を指定します。
 
-.このタスクについて
-FlexGroup ボリュームを作成するためにアグリゲート内に必要なスペースを把握しておく必要があります。
+.タスクの内容
+FlexGroupボリュームを作成するためにアグリゲート内に必要なスペースを確認しておく必要があります。
 
-FlexGroup ボリュームで最適なパフォーマンスを実現するには、 FlexGroup ボリュームを作成する際に次のガイドラインを考慮する必要があります。
+FlexGroupボリュームを作成するときは、FlexGroupボリュームのパフォーマンスを最大限に高めるために、次のガイドラインを考慮する必要があります。
 
-* FlexGroup ボリュームは、同一のハードウェアシステム上にあるアグリゲートでのみ構成される必要があります。
+* FlexGroupボリュームは、同一のハードウェアシステム上にあるアグリゲートのみにまたがる必要があります。
 +
-同一のハードウェアシステムを使用することで、 FlexGroup ボリューム全体のパフォーマンスを予測できるようになります。
+同一のハードウェアシステムを使用すると、FlexGroupボリューム全体で予測可能なパフォーマンスを提供できます。
 
-* FlexGroup ボリュームは、同じディスクタイプおよび RAID グループ構成のアグリゲートで構成される必要があります。
+* FlexGroupボリュームは、ディスクタイプおよびRAIDグループ構成が同じアグリゲートで構成されている必要があります。
 +
-安定したパフォーマンスを実現するには、すべてのアグリゲートがオール SSD 、オール HDD 、またはオールハイブリッドアグリゲートであることが必要です。また、 FlexGroup ボリュームを構成するすべてのアグリゲートでドライブ数と RAID グループ数が同じであることが必要です。
+一貫したパフォーマンスを実現するには、すべてのアグリゲートがSSD、HDD、またはハイブリッドアグリゲートで構成されている必要があります。また、アグリゲートのドライブ数とRAIDグループ数は、FlexGroupボリューム全体で同じである必要があります。
 
-* FlexGroup ボリュームは、クラスタの一部でのみ構成することができます。
+* FlexGroupボリュームは、クラスタの一部にまたがることができます。
 +
-FlexGroup ボリュームをクラスタ全体にまたがるように設定する必要はありませんが、そのように設定すると、使用可能なハードウェアリソースをより有効に活用できます。
+FlexGroupボリュームをクラスタ全体にまたがるように設定する必要はありませんが、その場合、使用可能なハードウェアリソースをより有効に活用できます。
 
-* FlexGroup ボリュームを作成する場合は、次の特性を持つアグリゲートに FlexGroup ボリュームを導入することを推奨します。
+* FlexGroupボリュームを作成するときは、FlexGroupボリュームを導入するアグリゲートに次の特性があることを推奨します。
 +
 ** シンプロビジョニングを使用する場合は特に、複数のアグリゲート間でほぼ同じ量の空きスペースを使用できます。
 ** FlexGroup ボリュームの作成後に、空きスペースの約 3% がアグリゲートメタデータ用に確保される。
 
 
-* FAS システムの場合は、ノードごとに 2 つのアグリゲートを用意し、 AFF システムの場合は、 FlexGroup ボリュームのノードごとに 1 つのアグリゲートを用意することを推奨します。
-* FlexGroup ボリュームごとに少なくとも 8 つのコンスティチュエントを作成して、 FAS システムの場合は 2 つ以上のアグリゲートに、 AFF システムの場合は 1 つ以上のアグリゲートに分散させる必要があります。
+* FASシステムの場合は、ノードごとに2つのアグリゲートを使用することを推奨します。AFFシステムの場合は、FlexGroupのノードごとに1つのアグリゲートを使用する必要があります。
+* FlexGroupボリュームごとに少なくとも8つのコンスティチュエントを作成し、FASシステムの場合は2つ以上のアグリゲートに、AFFシステムの場合は1つ以上のアグリゲートに分散します。
 
 
-.作業を開始する前に
-* ONTAP 9.13.1以降では、容量分析とアクティビティ追跡を有効にしてボリュームを作成できます。容量またはアクティビティトラッキングを有効にするには、を問題します `volume create` コマンドにを指定します `-analytics-state` または `-activity-tracking-state` をに設定します `on`。
+.開始する前に
+* ONTAP 9.13.1以降では、容量分析とアクティビティ追跡を有効にしてボリュームを作成できます。容量またはアクティビティの追跡を有効にするには、を指定してコマンドを `-analytics-state`実行する `volume create`か、 `-activity-tracking-state`に設定します `on`。
 +
-容量分析とアクティビティ追跡の詳細については、を参照してください https://docs.netapp.com/us-en/ontap/task_nas_file_system_analytics_enable.html["File System Analytics を有効にします"]。
+容量分析とアクティビティ追跡の詳細については、を参照してください https://docs.netapp.com/us-en/ontap/task_nas_file_system_analytics_enable.html["ファイルシステム分析を有効にする"]。
 
 
 
 .手順
-. FlexGroup ボリュームを作成します。 `volume create -vserver svm_name -volume flexgroup_name -aggr-list aggr1,aggr2,.. -aggr-list-multiplier constituents_per_aggr -size fg_size [–encrypt true] [-qos-policy-group qos_policy_group_name]`
+. FlexGroupボリュームを作成します。 `volume create -vserver svm_name -volume flexgroup_name -aggr-list aggr1,aggr2,.. -aggr-list-multiplier constituents_per_aggr -size fg_size [–encrypt true] [-qos-policy-group qos_policy_group_name]`
 +
-** 。 `-aggr-list` パラメータは、FlexGroup ボリュームのコンスティチュエントに使用するアグリゲートのリストを指定します。
+** パラメータは `-aggr-list`、FlexGroupボリュームのコンスティチュエントに使用するアグリゲートのリストを指定します。
 +
-指定したエントリごとに、そのアグリゲート上にコンスティチュエントが 1 つ作成されます。同じアグリゲートを複数回指定すると、そのアグリゲート上に複数のコンスティチュエントを作成できます。
+リスト内の各エントリによって、指定したアグリゲート上にコンスティチュエントが1つ作成されます。同じアグリゲートを複数回指定すると、そのアグリゲート上に複数のコンスティチュエントを作成できます。
 
 +
-FlexGroup 全体で一貫したパフォーマンスが得られるように、すべてのアグリゲートで同じディスクタイプと RAID グループ構成を使用する必要があります。
+FlexGroupボリューム全体で一貫したパフォーマンスが得られるように、ディスク タイプとRAIDグループ構成をすべてのアグリゲートで同じにする必要があります。
 
-** 。 `-aggr-list-multiplier` パラメータは、に表示されるアグリゲートを反復する回数を指定します `-aggr-list` FlexGroup ボリューム作成時のパラメータ。
+** パラメータは `-aggr-list-multiplier`、FlexGroupボリュームの作成時にパラメータで指定したアグリゲートを繰り返し実行する回数を指定します `-aggr-list`。
 +
-のデフォルト値 `-aggr-list-multiplier` パラメータは4です。
+パラメータのデフォルト値 `-aggr-list-multiplier`は4です。
 
-** 。 `size` パラメータは、FlexGroup ボリュームのサイズ（KB、MB、GB、TB、またはPB）を指定します。
+** パラメータは `size`、FlexGroupボリュームのサイズ（KB、MB、GB、TB、またはPB）を指定します。
 ** ONTAP 9.5 以降では、オール SSD アグリゲートのみを使用する FabricPool 用の FlexGroup ボリュームを作成できます。
 +
-FabricPool 用のFlexGroup ボリュームを作成するには、で指定したすべてのアグリゲートを指定します `-aggr-list` パラメータはFabricPool にする必要があります。ボリュームギャランティは常にに設定する必要があります `none` FabricPool の場合。FlexGroup ボリュームには、階層化ポリシーと階層化の最小クーリング期間も指定できます。
+FabricPool用のFlexGroupを作成するには、パラメータで指定するすべてのアグリゲート `-aggr-list`がFabricPoolである必要があります。FabricPoolのボリュームギャランティは常にに設定する必要があります `none`。FlexGroupボリュームに対して階層化ポリシーと階層化の最小クーリング期間を指定することもできます。
 
 +
 xref:../disks-aggregates/index.html[ディスクおよびアグリゲートの管理]
 
-** ONTAP 9.4 以降では、 FlexGroup ボリュームにスループットの下限（最小 QoS ）とアダプティブ QoS を指定できます。
+** ONTAP 9 .4以降では、FlexGroupボリュームにスループットの下限（最小QoS）とアダプティブQoSを指定できます。
 +
 link:../performance-admin/index.html["パフォーマンス管理"]
 
-** ONTAP 9.3 以降では、 FlexGroup ボリュームにスループットの上限（最大 QoS ）を指定して、 FlexGroup ボリュームが消費できるパフォーマンスリソースを制限できます。
-** ONTAP 9.2以降では、を設定できます `-encrypt` パラメータの値 `true` FlexGroup ボリュームで暗号化を有効にする場合。
+** ONTAP 9 .3以降では、FlexGroupボリュームにスループットの上限（最大QoS）を指定して、FlexGroupボリュームで消費できるパフォーマンスリソースを制限できます。
+** ONTAP 9 .2以降では、FlexGroupボリュームで暗号化を有効にする場合、パラメータをに `true`設定でき `-encrypt`ます。
 +
 暗号化されたボリュームを作成するには、ボリューム暗号化ライセンスとキー管理ツールをインストールしておく必要があります。
 
 +
 [NOTE]
 ====
-暗号化は FlexGroup の作成時に有効にする必要があります。既存の FlexGroup ボリュームで暗号化を有効にすることはできません。
+暗号化はFlexGroupボリュームの作成時に有効にする必要があります。既存のFlexGroupボリュームで暗号化を有効にすることはできません。
 
 ====
 +
@@ -101,16 +101,16 @@ Do you want to continue? {y|n}: y
 ----
 
 
-この例の場合、 FabricPool 用の FlexGroup ボリュームを作成するには、すべてのアグリゲート（ aggr1 、 aggr2 、 aggr3 ）が FabricPool 内のアグリゲートである必要があります。ジャンクションパスを使用してFlexGroup ボリュームをマウントします。 `volume mount -vserver vserver_name -volume vol_name -junction-path junction_path`
+この例では、FabricPoolのFlexGroupボリュームを作成する場合、すべてのアグリゲート（aggr1、aggr2、aggr3）がFabricPool内のアグリゲートである必要があります。ジャンクションパスを使用してFlexGroupボリュームをマウントします。 `volume mount -vserver vserver_name -volume vol_name -junction-path junction_path`
 
 [listing]
 ----
 cluster1::> volume mount -vserver vs0 -volume fg2 -junction-path /fg
 ----
-.完了後
-クライアントから FlexGroup ボリュームをマウントする必要があります。
+.終了後
+FlexGroupボリュームはクライアントからマウントする必要があります。
 
-ONTAP 9.6 以前を実行していて、 Storage Virtual Machine （ SVM ）で NFSv3 と NFSv4 の両方が設定されている場合、クライアントからの FlexGroup ボリュームのマウントが失敗することがあります。このような場合は、クライアントから FlexGroup ボリュームをマウントするときに、 NFS バージョンを明示的に指定する必要があります。
+ONTAP 9 .6以前を実行していて、Storage Virtual Machine（SVM）でNFSv3とNFSv4の両方が設定されている場合、クライアントからのFlexGroupボリュームのマウントが失敗することがあります。その場合は、クライアントからFlexGroupをマウントするときに、NFSのバージョンを明示的に指定する必要があります。
 
 [listing]
 ----
@@ -119,4 +119,4 @@ ONTAP 9.6 以前を実行していて、 Storage Virtual Machine （ SVM ）で 
 file1  file2
 ----
 .関連情報
-https://www.netapp.com/pdf.html?item=/media/12385-tr4571pdf.pdf["ネットアップテクニカルレポート 4571 ：『 NetApp FlexGroup Best Practices and Implementation Guide 』"^]
+https://www.netapp.com/pdf.html?item=/media/12385-tr4571pdf.pdf["NetAppテクニカルレポート4571：『NetApp FlexGroupベストプラクティスおよび実装ガイド』"^]

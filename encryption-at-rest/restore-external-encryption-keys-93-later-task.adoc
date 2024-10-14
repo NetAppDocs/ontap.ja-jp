@@ -2,49 +2,44 @@
 permalink: encryption-at-rest/restore-external-encryption-keys-93-later-task.html 
 sidebar: sidebar 
 keywords: restoring, external key management, encryption keys 
-summary: 外部キー管理の暗号化キーを手動でリストアし、別のノードにプッシュすることができます。この処理は、クラスタのキーの作成時に一時的に停止していたノードを再起動する場合などに実行します。 
+summary: 外部キー管理の暗号化キーを手動でリストアし、別のノードにプッシュすることができます。この処理は、クラスタのキーの作成時に一時的に停止していたノードを再起動する場合に実行します。 
 ---
-= 外部キー管理の暗号化キーをリストアします
+= 外部キー管理の暗号化キーのリストア
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-外部キー管理の暗号化キーを手動でリストアし、別のノードにプッシュすることができます。この処理は、クラスタのキーの作成時に一時的に停止していたノードを再起動する場合などに実行します。
+外部キー管理の暗号化キーを手動でリストアし、別のノードにプッシュすることができます。この処理は、クラスタのキーの作成時に一時的に停止していたノードを再起動する場合に実行します。
 
-.このタスクについて
-ONTAP 9.6以降では、を使用できます `security key-manager key query -node node_name` コマンドを実行して、キーのリストアが必要かどうかを確認します。
+.タスクの内容
+ONTAP 9 .6以降では、コマンドを使用してキーのリストアが必要かどうかを確認できます `security key-manager key query -node node_name`。
 
-ONTAP 9.5以前では、を使用できます `security key-manager key show` コマンドを実行して、キーのリストアが必要かどうかを確認します。
+ONTAP 9 .5以前では、コマンドを使用してキーのリストアが必要かどうかを確認できます `security key-manager key show`。
 
 
-NOTE: Flash Cacheモジュールを搭載したシステムでNSEを使用する場合は、NVEまたはNAEも有効にする必要があります。NSEは、Flash Cacheモジュール上のデータを暗号化しません。
+NOTE: Flash Cacheモジュールを搭載したシステムでNSEを使用する場合は、NVEまたはNAEも有効にする必要があります。NSEでは、Flash Cacheモジュール上のデータは暗号化されません。
 
-.作業を開始する前に
-このタスクを実行するには、クラスタ管理者または SVM の管理者である必要があります。
+.開始する前に
+このタスクを実行するには、クラスタ管理者またはSVM管理者である必要があります。
 
 .手順
-. ONTAP 9.8 以降を実行していて、ルートボリュームが暗号化されている場合は、次の手順を実行します。
+. ONTAP 9 .8以降を実行していて、ルートボリュームが暗号化されている場合は、次の手順を実行します。
 +
-ONTAP 9.7 以前を実行している場合、または ONTAP 9.8 以降を実行していて、ルートボリュームが暗号化されていない場合は、この手順を省略してください。
+ONTAP 9 .7以前を実行している場合、またはONTAP 9 .8以降を実行していてルートボリュームが暗号化されていない場合は、この手順を省略します。
 
 +
 .. bootargを設定します。
- [+]
 `setenv kmip.init.ipaddr <ip-address>`
- [+]
 `setenv kmip.init.netmask <netmask>`
- [+]
 `setenv kmip.init.gateway <gateway>`
- [+]
-`setenv kmip.init.interface e0M`
- [+]
+`setenv kmip.init.interface e0M`++
 `boot_ontap`
 .. ノードをブートメニューでブートし、オプションを選択します `(11) Configure node for external key management`。
 .. プロンプトに従って管理証明書を入力します。
 +
-管理証明書の情報をすべて入力すると、システムがブートメニューに戻ります。
+管理証明書の情報をすべて入力すると、システムがブート メニューに戻ります。
 
 .. ブートメニューからオプションを選択します `(1) Normal Boot`。
 
@@ -55,18 +50,18 @@ ONTAP 9.7 以前を実行している場合、または ONTAP 9.8 以降を実�
 |===
 
 
-| ONTAP バージョン | 使用するコマンド 
+| ONTAPバージョン | 使用するコマンド 
 
 
  a| 
-ONTAP 9.6 以降
+ONTAP 9.6以降
  a| 
 `security key-manager external restore -vserver SVM -node node -key-server host_name|IP_address:port -key-id key_id -key-tag key_tag`
 
 
 
  a| 
-ONTAP 9.5 以前
+ONTAP 9.5以前
  a| 
 `security key-manager restore -node node -address IP_address -key-id key_id -key-tag key_tag`
 
@@ -74,11 +69,11 @@ ONTAP 9.5 以前
 +
 [NOTE]
 ====
-`node` デフォルトはすべてのノードです。コマンド構文全体については、マニュアルページを参照してください。このコマンドは、オンボードキー管理が有効な場合はサポートされません。
+`node`デフォルトはすべてのノードです。コマンド構文全体については、マニュアルページを参照してください。このコマンドは、オンボードキー管理が有効になっている場合はサポートされません。
 
 ====
 +
-次のONTAP 9.6のコマンドは、外部キー管理の認証キーをのすべてのノードにリストアします `cluster1`：
+次のONTAP 9 .6コマンドは、外部キー管理の認証キーをのすべてのノードにリストアします `cluster1`。
 
 +
 [listing]

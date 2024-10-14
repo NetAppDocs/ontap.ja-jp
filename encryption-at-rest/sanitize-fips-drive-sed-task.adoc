@@ -2,26 +2,26 @@
 permalink: encryption-at-rest/sanitize-fips-drive-sed-task.html 
 sidebar: sidebar 
 keywords: sanitize, fips, drive, sed, inaccessible, psid, physical secure ID, nrd plus, encrypt 
-summary: 'FIPSドライブまたはSEDのデータに永久にアクセスできない状態にして、そのドライブを新しいデータに使用する場合は、を使用できます `storage encryption disk sanitize` コマンドを使用してドライブを完全消去します。' 
+summary: 'FIPSドライブまたはSEDのデータに永久にアクセスできない状態にし、そのドライブを新しいデータに使用する場合は、コマンドを使用してドライブを完全消去できます `storage encryption disk sanitize`。' 
 ---
-= FIPS ドライブまたは SED を完全消去します
+= FIPSドライブまたはSEDの完全消去
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-FIPSドライブまたはSEDのデータに永久にアクセスできない状態にして、そのドライブを新しいデータに使用する場合は、を使用できます `storage encryption disk sanitize` コマンドを使用してドライブを完全消去します。
+FIPSドライブまたはSEDのデータに永久にアクセスできない状態にし、そのドライブを新しいデータに使用する場合は、コマンドを使用してドライブを完全消去できます `storage encryption disk sanitize`。
 
-.このタスクについて
-自己暗号化ドライブを完全消去すると、ディスク暗号化キーが新しいランダムな値に変更され、電源オンロックの状態が false にリセットされ、キー ID がデフォルト値の Manufacturer Secure ID （ SAS ；メーカーのセキュア ID ） 0x0 （ SAS ドライブ）または null （ NVMe ドライブ）に設定されます。これにより、ディスクのデータにアクセスできない状態になり、データを取得できなくなります。完全消去されたディスクは、初期化されていないスペアディスクとして再利用できます。
+.タスクの内容
+自己暗号化ドライブを完全消去すると、ディスク暗号化キーが新しいランダムな値に変更され、電源オンロックの状態がfalseにリセットされ、キーIDがデフォルト値のManufacturer Secure ID 0x0（SASドライブ）またはnullキー（NVMeドライブ）に設定されます。これにより、ディスクのデータにアクセスできない状態になり、データを取得できなくなります。完全消去したディスクは、初期化されていないスペアディスクとして再利用できます。
 
-.作業を開始する前に
+.開始する前に
 このタスクを実行するには、クラスタ管理者である必要があります。
 
 .手順
-. 保持する必要のあるデータを別のディスク上のアグリゲートにすべて移行します。
-. 完全消去する FIPS ドライブまたは SED のアグリゲートを削除します。
+. 保持する必要があるデータを別のディスク上のアグリゲートに移行します。
+. 完全消去するFIPSドライブまたはSEDのアグリゲートを削除します。
 +
 `storage aggregate delete -aggregate _aggregate_name_`
 
@@ -33,7 +33,7 @@ FIPSドライブまたはSEDのデータに永久にアクセスできない状�
 ----
 cluster1::> storage aggregate delete -aggregate aggr1
 ----
-. 完全消去する FIPS ドライブまたは SED のディスク ID を確認します。
+. 完全消去するFIPSドライブまたはSEDのディスクIDを確認します。
 +
 `storage encryption disk show -fields data-key-id,fips-key-id,owner`
 
@@ -51,12 +51,12 @@ Disk    Mode Data Key ID
 1.10.2  data F1CB30AFF1CB30B00101000000000000CF0EFD81EA9F6324EA97B369351C56AC
 [...]
 ----
-. FIPS ドライブが FIPS 準拠モードの場合は、ノードの FIPS 認証キー ID をデフォルトの MSID である 0x0 に戻します。
+. FIPSドライブがFIPS準拠モードの場合は、ノードのFIPS認証キーIDをデフォルトのMSIDである0x0に戻します。
 +
 `storage encryption disk modify -disk _disk_id_ -fips-key-id 0x0`
 
 +
-を使用できます `security key-manager query` キーIDを表示するコマンド。
+キーIDは、コマンドを使用して表示できます `security key-manager query`。
 
 +
 [listing]
@@ -72,7 +72,7 @@ Info: Starting modify on 1 disk.
 `storage encryption disk sanitize -disk _disk_id_`
 
 +
-このコマンドで完全消去できるのは、ホットスペアディスクと破損ディスクのみです。タイプに関係なくすべてのディスクを完全消去するには、を使用します `-force-all-state` オプションコマンド構文全体については、マニュアルページを参照してください。
+このコマンドを使用して完全消去できるのは、ホットスペアディスクまたは破損ディスクのみです。タイプに関係なくすべてのディスクを完全消去するには、オプションを使用し `-force-all-state`ます。コマンド構文全体については、マニュアルページを参照してください。
 
 +
 
@@ -92,17 +92,15 @@ Info: Starting sanitize on 1 disk.
 ----
 . 完全消去したディスクの障害状態を解除します。
 `storage disk unfail -spare true -disk _disk_id_`
-. ディスクに所有者が設定されているかどうかを確認します。
-`storage disk show -disk _disk_id_`
- [+]
- ディスクに所有者がない場合は、所有者を割り当てます。
+. ディスクに所有者があるかどうかを確認します
+`storage disk show -disk _disk_id_`。+ディスクに所有者がない場合は、所有者を割り当てます。
 `storage disk assign -owner node -disk _disk_id_`
 . 完全消去するディスクを所有するノードのノードシェルに切り替えます。
 +
 `system node run -node _node_name_`
 
 +
-を実行します `disk sanitize release` コマンドを実行します
+コマンドを実行します `disk sanitize release`。
 
 . ノードシェルを終了します。ディスクの障害状態を再度解除します。
 `storage disk unfail -spare true -disk _disk_id_`

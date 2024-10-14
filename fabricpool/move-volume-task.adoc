@@ -2,31 +2,31 @@
 permalink: fabricpool/move-volume-task.html 
 sidebar: sidebar 
 keywords: moving, volume, fabricpool, fabric pool, tiering, policy, policies, block, capacity, cold data, 
-summary: ボリュームを FabricPool に移動する場合は、 move コマンドを使用してボリュームの階層化ポリシーを指定または変更できます。ONTAP 9.8 以降では、 Inactive Data Reporting を有効にして FabricPool 以外のボリュームを移動する場合、 FabricPool はヒートマップを使用して階層化可能なブロックを読み取り、コールドデータを FabricPool デスティネーションの大容量階層に移動します。 
+summary: ボリュームをFabricPoolに移動する場合は、移動時にボリュームの階層化ポリシーを指定または変更できます。ONTAP 9 8以降では、Inactive Data Reportingが有効になっているFabricPool以外のボリュームを移動すると、FabricPoolはヒートマップを使用して階層化可能なブロックを読み取り、コールドデータをFabricPoolデスティネーションの大容量階層に移動します。 
 ---
-= ボリュームを FabricPool に移動します
+= FabricPoolへのボリュームの移動
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-ボリュームを FabricPool に移動する場合は、 move コマンドを使用してボリュームの階層化ポリシーを指定または変更できます。ONTAP 9.8 以降では、 Inactive Data Reporting を有効にして FabricPool 以外のボリュームを移動する場合、 FabricPool はヒートマップを使用して階層化可能なブロックを読み取り、コールドデータを FabricPool デスティネーションの大容量階層に移動します。
+ボリュームをFabricPoolに移動する場合は、移動時にボリュームの階層化ポリシーを指定または変更できます。ONTAP 9 8以降では、Inactive Data Reportingが有効になっているFabricPool以外のボリュームを移動すると、FabricPoolはヒートマップを使用して階層化可能なブロックを読み取り、コールドデータをFabricPoolデスティネーションの大容量階層に移動します。
 
 .必要なもの
 階層化ポリシーを変更することが、データがコールドと認識されてクラウド階層に移動されるまでの時間にどのように影響するかを理解しておく必要があります。
 
 link:tiering-policies-concept.html#what-happens-to-the-tiering-policy-when-you-move-a-volume["ボリュームを移動した場合の階層化ポリシーへの影響"]
 
-.このタスクについて
-FabricPool以外のボリュームでInactive Data Reportingが有効になっている場合は、階層化ポリシーを使用してボリュームを移動したとき `auto` または `snapshot-only` FabricPool はFabricPool に対して、ヒートマップファイルから階層化可能な温度ブロックを読み取り、その温度を使用してコールドデータをFabricPool デスティネーションの大容量階層に直接移動します。
+.タスクの内容
+FabricPool以外のボリュームでInactive Data Reportingが有効になっている場合に階層化ポリシーを使用するボリュームまたは `snapshot-only`FabricPoolに移動する `auto`と、FabricPoolはヒートマップファイルから階層化可能なブロックの温度を読み取り、その温度を使用してコールドデータをFabricPoolデスティネーションの大容量階層に直接移動します。
 
-を使用しないでください `-tiering-policy` オプション（ONTAP 9.8を使用していて、Inactive Data Reportingの情報を使用してデータを大容量階層に直接移動する場合）。このオプションを使用すると、 ONTAP 9.8 より前のリリースの移動動作に従って、 FabricPool は温度データを無視します。
+ONTAP 9 .8を使用していて、Inactive Data Reportingの情報を使用してデータを大容量階層に直接移動する場合は、ボリューム移動オプションは使用しないで `-tiering-policy`ください。このオプションを使用すると温度データが無視され、ONTAP 9より前のリリースの移動動作が実行されます。8.
 
 .ステップ
-. を使用します `volume move start` コマンドを使用してボリュームをFabricPool に移動します。
+. コマンドを使用し `volume move start`て、ボリュームをFabricPoolに移動します。
 +
-。 `-tiering-policy` オプションのパラメータを使用すると、ボリュームの階層化ポリシーを指定できます。
+ `-tiering-policy`オプションのパラメータを使用すると、ボリュームの階層化ポリシーを指定できます。
 
 +
 次のいずれかの階層化ポリシーを指定できます。
@@ -35,15 +35,13 @@ FabricPool以外のボリュームでInactive Data Reportingが有効になっ�
 ** `snapshot-only` （デフォルト）
 ** `auto`
 ** `all`
-** `none`
- [+]
-link:tiering-policies-concept.html#types-of-fabricpool-tiering-policies["FabricPool 階層化ポリシーのタイプ"]
+** `none`+link:tiering-policies-concept.html#types-of-fabricpool-tiering-policies["FabricPool階層化ポリシーの種類"]
 
 
 
 
-.ボリュームをFabricPool に移動する例
-次の例は、「 vs1 」 SVM 内の「 `m yvol2 」という名前のボリュームを「 dest_FabricPool 」 FabricPool 対応アグリゲートに移動します。ボリュームはを使用するように明示的に設定されます `none` 階層化ポリシー：
+.FabricPoolへのボリューム移動例
+次の例は、「 vs1 」 SVM 内の「 `m yvol2 」という名前のボリュームを「 dest_FabricPool 」 FabricPool 対応アグリゲートに移動します。ボリュームは階層化ポリシーを使用するように明示的に設定され `none`ます。
 
 [listing]
 ----

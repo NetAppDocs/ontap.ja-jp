@@ -2,60 +2,60 @@
 permalink: data-protection/restore-volume-snapvault-backup-task.html 
 sidebar: sidebar 
 keywords: restore, content, volume, snapmirror, destination, snap mirror, snapshot, vault, snapvault, read-write, incremental 
-summary: SnapMirror デスティネーションボリューム内の Snapshot コピーからボリューム全体の内容をリストアできます。ボリュームの内容は元のソースボリュームにリストアするか、別のボリュームにリストアできます。 
+summary: SnapMirrorデスティネーションボリューム内のSnapshotコピーからボリューム全体の内容をリストアできます。ボリュームの内容は元のソースボリュームにリストアするか、別のボリュームにリストアできます。 
 ---
-= SnapMirror デスティネーションからボリュームの内容をリストアします
+= SnapMirrorデスティネーションからのボリューム内容のリストア
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-SnapMirror デスティネーションボリューム内の Snapshot コピーからボリューム全体の内容をリストアできます。ボリュームの内容は元のソースボリュームにリストアするか、別のボリュームにリストアできます。
+SnapMirrorデスティネーションボリューム内のSnapshotコピーからボリューム全体の内容をリストアできます。ボリュームの内容は元のソースボリュームにリストアすることも、別のボリュームにリストアすることもできます。
 
-.このタスクについて
+.タスクの内容
 この手順は、FAS、AFF、および現在のASAシステムに適用されます。ASA R2システム（ASA A1K、ASA A70、またはASA A90）を使用している場合は、次の手順に従ってlink:https://docs.netapp.com/us-en/asa-r2/data-protection/restore-data.html["以下の手順を実行します"^]データを復元します。ASA R2システムは、SANのみのお客様に特化したシンプルなONTAPエクスペリエンスを提供します。
 
-リストア処理のデスティネーションボリュームは次のいずれかにする必要があります。
+リストア処理のデスティネーションボリュームは次のいずれかである必要があります。
 
 * 読み書き可能なボリューム。このケースでは、ソースボリュームとデスティネーションボリュームに共通の Snapshot コピーがある（通常、リストア先が元のソースボリュームである）場合、 SnapMirror は _incremental restore_x を実行します。
 +
 [NOTE]
 ====
-共通の Snapshot コピーがない場合、コマンドは失敗します。空の読み書き可能なボリュームにボリュームの内容をリストアすることはできません。
+共通のSnapshotコピーがない場合、コマンドは失敗します。空の読み書き可能なボリュームにボリュームの内容をリストアすることはできません。
 
 ====
 * 空のデータ保護ボリューム。このケースでは、 SnapMirror は _ ベースラインリストア _ を実行します。これにより、指定された Snapshot コピーおよびコピーが参照するすべてのデータブロックがソースボリュームに転送されます。
 
 
-ボリュームの内容のリストアはシステム停止を伴う処理です。リストア処理の実行中は、SnapVaultプライマリボリュームでSMBトラフィックが実行されていない必要があります。
+ボリュームの内容のリストアはシステム停止を伴う処理です。リストア処理を実行しているときに、SnapVaultプライマリ ボリューム上でSMBトラフィックを実行してはなりません。
 
-リストア処理のデスティネーションボリュームで圧縮が有効になっていて、ソースボリュームで圧縮が有効になっていない場合は、デスティネーションボリュームで圧縮を無効にします。リストア処理の完了後に、圧縮を再度有効にする必要があります。
+リストア処理のデスティネーション ボリュームで圧縮が有効になっていて、ソース ボリュームで圧縮が有効になっていない場合は、デスティネーション ボリュームで圧縮を無効にします。リストア処理が完了したら、圧縮を再度有効にする必要があります。
 
-デスティネーションボリュームに対して定義されたクォータルールは、リストアの実行前に非アクティブ化されます。を使用できます `volume quota modify` リストア処理の完了後にクォータルールを再アクティブ化するコマンド。
+デスティネーション ボリュームに対して定義されたクォータ ルールは、リストアの実行前に非アクティブ化されます。コマンドを使用すると、リストア処理の完了後にクォータルールを再アクティブ化できます `volume quota modify`。
 
-ボリューム内のデータが失われた場合や破損した場合、以前の Snapshot コピーからリストアすることでデータをロールバックできます。
+ボリューム内のデータが失われたり破損したりした場合は、以前のSnapshotコピーからリストアしてデータをロールバックできます。
 
-この手順は、ソースボリューム上の現在のデータを、以前のバージョンの Snapshot コピーのデータで置き換えます。このタスクはデスティネーションクラスタで実行する必要があります。
+この手順では、ソースボリュームの現在のデータを以前のバージョンのSnapshotコピーのデータに置き換えます。このタスクはデスティネーションクラスタで実行する必要があります。
 
 .手順
 ボリュームの内容は、System ManagerまたはONTAP CLIを使用してリストアできます。
 
 [role="tabbed-block"]
 ====
-.System Manager の略
+.System Manager
 --
-. [ 保護 ] 、 [ 関係 ] の順にクリックし、ソースボリューム名をクリックします。
+. [保護]>[関係]*をクリックし、ソースボリュームの名前をクリックします。
 . をクリックし image:icon_kabob.gif["メニューオプションアイコン"] 、*[リストア]*を選択します。
-. ソースボリュームは、 * Source * でデフォルトで選択されます。ソース以外のボリュームを選択する場合は、「 * その他のボリューム」をクリックします。
-. 「 * Destination * 」で、リストアする Snapshot コピーを選択します。
-. ソースとデスティネーションが異なるクラスタにある場合は、リモートクラスタで、 * Protection > Relationships * をクリックしてリストアの進捗状況を監視します。
+. [ソース]*では、ソースボリュームがデフォルトで選択されます。ソース以外のボリュームを選択する場合は、「 * その他のボリューム」をクリックします。
+. [デスティネーション]*で、リストアするSnapshotコピーを選択します。
+. ソースとデスティネーションが別 々 のクラスタにある場合は、リモートクラスタで*[保護]>[関係]*をクリックしてリストアの進捗状況を監視します。
 
 
 --
-.CLI の使用
+.CLI
 --
-. デスティネーションボリューム内の Snapshot コピーの一覧を表示します。
+. デスティネーションボリューム内のSnapshotコピーの一覧を表示します。
 +
 [source, cli]
 ----
@@ -65,7 +65,7 @@ volume snapshot show -vserver <SVM> -volume <volume>
 コマンド構文全体については、マニュアルページを参照してください。
 
 +
-次の例は、上のSnapshotコピーを示しています `vserverB:secondary1` 目的地：
+次の例は、デスティネーション上のSnapshotコピーを示してい `vserverB:secondary1`ます。
 
 +
 [listing]
@@ -85,7 +85,7 @@ vserverB    secondary1  hourly.2013-01-25_0005  valid   224KB     0%    0%
 
 7 entries were displayed.
 ----
-. SnapMirror デスティネーションボリューム内の Snapshot コピーからボリュームの内容をリストアします。
+. SnapMirrorデスティネーションボリューム内のSnapshotコピーからボリュームの内容をリストアします。
 +
 `snapmirror restore -source-path <SVM:volume>|<cluster://SVM/volume> -destination-path <SVM:volume>|<cluster://SVM/volume> -source-snapshot <snapshot>`
 
@@ -94,10 +94,10 @@ vserverB    secondary1  hourly.2013-01-25_0005  valid   224KB     0%    0%
 
 +
 
-NOTE: このコマンドは元のソースSVMまたは元のソースクラスタから実行する必要があります。
+NOTE: このコマンドは元のソースSVMまたはソースクラスタから実行する必要があります。
 
 +
-次のコマンドは、元のソースボリュームの内容をリストアします `primary1` Snapshotコピーから削除します `daily.2013-01-25_0010` （元のデスティネーションボリューム内） `secondary1`：
+次のコマンドは、元のデスティネーションボリューム内の `secondary1`Snapshotコピー `daily.2013-01-25_0010`から元のソースボリュームの内容をリストアします `primary1`。
 
 +
 [listing]
@@ -117,12 +117,12 @@ Do you want to continue? {y|n}: y
 ====
 
 
-== ONTAP でこれを行うその他の方法
+== ONTAPで実行するその他の方法
 
 [cols="2"]
 |===
 | 実行するタスク | 参照するコンテンツ 
 
 
-| System Manager Classic （ ONTAP 9.7 以前で使用可能） | link:https://docs.netapp.com/us-en/ontap-system-manager-classic/volume-restore-snapvault/index.html["SnapVault によるボリュームリストアの概要"^] 
+| System Manager Classic（ONTAP 9 .7以前で使用可能） | link:https://docs.netapp.com/us-en/ontap-system-manager-classic/volume-restore-snapvault/index.html["SnapVault によるボリュームリストアの概要"^] 
 |===

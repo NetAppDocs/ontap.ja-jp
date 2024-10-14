@@ -4,34 +4,34 @@ sidebar: sidebar
 keywords: ontap, downgrade, downgrading, snapmirror, operations, quisce 
 summary: ONTAP の無停止ダウングレードを実行する前に、 SnapMirror 処理を休止することを推奨します。 
 ---
-= ダウングレード前に SnapMirror 関係を休止します
+= ダウングレード前にSnapMirror関係を休止する
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-ONTAP のダウングレードを実行する前に、 SnapMirror 処理を休止することを推奨します。
+ONTAPのダウングレードを実行する前に、SnapMirror処理を休止することを推奨します。
 
-. snapmirror show コマンドを使用して、各 SnapMirror 関係のデスティネーションパスを確認します。
-. それぞれのデスティネーションボリュームについて、以降のSnapMirror転送を一時停止します。 `snapmirror quiesce -destination-path destination`
+. SnapMirror showコマンドを使用して、各SnapMirror関係のデスティネーションパスを確認します。
+. 各デスティネーションボリュームについて、以降のSnapMirror転送を一時停止します。 `snapmirror quiesce -destination-path destination`
 +
-SnapMirror 関係のアクティブな転送がない場合、このコマンドのステータスは Quiesced になります。アクティブな転送が関係に含まれる場合、転送が完了するまでステータスは Quiescing になり、完了すると Quiesced になります。
+SnapMirror関係のアクティブな転送がない場合、このコマンドのステータスはQuiescedに設定されます。アクティブな転送が関係にある場合、転送が完了するまでステータスはQuiescingになり、完了するとQuiescedになります。
 
 +
-次の例は、 SVMvs0.example.com からデスティネーションボリューム vol1 への転送を休止します。
+次に、SVMvs0.example.comからデスティネーションボリュームvol1への転送を休止する例を示します。
 
 +
 [listing]
 ----
 cluster1::> snapmirror quiesce -destination-path vs0.example.com:vol1
 ----
-. すべてのSnapMirror関係が休止状態になっていることを確認します。 `snapmirror show -status !Quiesced`
+. すべてのSnapMirror関係が休止されていることを確認します。 `snapmirror show -status !Quiesced`
 +
 このコマンドを実行すると、休止状態でない SnapMirror 関係が表示されます。
 
 +
-次の例では、すべての SnapMirror 関係が休止状態になっています。
+次の例では、すべてのSnapMirror関係が休止状態になっています。
 
 +
 [listing]
@@ -39,7 +39,7 @@ cluster1::> snapmirror quiesce -destination-path vs0.example.com:vol1
 cluster1::> snapmirror show -status !Quiesced
 There are no entries matching your query.
 ----
-. 転送中の SnapMirror 関係がある場合は、次のいずれかを実行します。
+. 転送中のSnapMirror関係がある場合は、次のいずれかを実行します。
 +
 [cols="2*"]
 |===
@@ -47,16 +47,16 @@ There are no entries matching your query.
 
 
  a| 
-転送が完了してから ONTAP ダウングレードを実行します。
+転送が完了してからONTAPダウングレードを実行します。
  a| 
-それぞれの転送が完了すると、関係のステータスが Quiesced に変わります。
+各転送が完了すると、関係のステータスがQuiescedに変わります。
 
 
 
  a| 
-転送を中止します。 `snapmirror abort -destination-path destination -h`    *注：*負荷共有ミラーの転送を中止する場合は、-foreground trueパラメータを使用する必要があります。
+転送を停止します。 `snapmirror abort -destination-path destination -h`*注：*負荷共有ミラーの転送を中止する場合は、-foreground trueパラメータを使用する必要があります。
  a| 
-このコマンドは、 SnapMirror 転送を中止して、正常に転送された最新の Snapshot コピーにデスティネーションボリュームをリストアします。関係のステータスは Quiesced になります。
+このコマンドは、SnapMirror転送を停止し、正常に転送された最後のSnapshotコピーにデスティネーションボリュームをリストアします。関係のステータスはQuiescedになります。
 
 |===
 

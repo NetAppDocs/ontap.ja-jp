@@ -2,21 +2,21 @@
 permalink: nas-audit/create-fpolicy-policy-task.html 
 sidebar: sidebar 
 keywords: create, fpolicy, policy 
-summary: FPolicy ポリシーを作成する際には、外部エンジンと 1 つ以上のイベントをこのポリシーに関連付けます。このポリシーでは、必須のスクリーニングが要求されるかどうか、 FPolicy サーバに Storage Virtual Machine （ SVM ）上のデータへの権限付きアクセスが許可されているかどうか、オフラインファイルのパススルーリードが有効かどうかも指定します。 
+summary: FPolicyポリシーを作成するときは、外部エンジンと1つ以上のイベントをポリシーに関連付けます。また、このポリシーでは、必須のスクリーニングが必要かどうか、FPolicyサーバにStorage Virtual Machine（SVM）上のデータへの権限付きアクセスが許可されているかどうか、オフラインファイルのパススルーリードが有効かどうかを指定します。 
 ---
-= FPolicy ポリシーを作成します
+= FPolicyポリシーを作成する
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-FPolicy ポリシーを作成する際には、外部エンジンと 1 つ以上のイベントをこのポリシーに関連付けます。このポリシーでは、必須のスクリーニングが要求されるかどうか、 FPolicy サーバに Storage Virtual Machine （ SVM ）上のデータへの権限付きアクセスが許可されているかどうか、オフラインファイルのパススルーリードが有効かどうかも指定します。
+FPolicyポリシーを作成するときは、外部エンジンと1つ以上のイベントをポリシーに関連付けます。また、このポリシーでは、必須のスクリーニングが必要かどうか、FPolicyサーバにStorage Virtual Machine（SVM）上のデータへの権限付きアクセスが許可されているかどうか、オフラインファイルのパススルーリードが有効かどうかを指定します。
 
 .必要なもの
-* FPolicy ポリシーワークシートを完成させる必要があります。
-* FPolicy サーバを使用するようにポリシーを設定する場合は、外部エンジンが存在している必要があります。
-* FPolicy ポリシーに関連付ける FPolicy イベントが少なくとも 1 つは存在している必要があります。
+* FPolicyポリシーワークシートを完成させる必要があります。
+* FPolicyサーバを使用するようにポリシーを設定する場合は、外部エンジンが存在している必要があります。
+* FPolicyポリシーに関連付けるFPolicyイベントが少なくとも1つ存在している必要があります。
 * 権限付きデータアクセスを設定する場合は、SVM上にSMBサーバが存在している必要があります。
 * ポリシーの永続ストアを設定するには、エンジンタイプを* async *にし、ポリシーを* non-mandatory *にする必要があります。
 +
@@ -25,36 +25,36 @@ FPolicy ポリシーを作成する際には、外部エンジンと 1 つ以上
 
 
 .手順
-. FPolicy ポリシーを作成します。
+. FPolicyポリシーを作成します。
 +
 `vserver fpolicy policy create -vserver-name vserver_name -policy-name policy_name -engine engine_name -events event_name, [-persistent-store PS_name] [-is-mandatory {true|false}] [-allow-privileged-access {yes|no}] [-privileged-user-name domain\user_name] [-is-passthrough-read-enabled {true|false}]`
 
 +
 ** FPolicy ポリシーには 1 つ以上のイベントを追加できます。
 ** デフォルトでは、必須のスクリーニングが有効になっています。
-** 権限付きアクセスを許可する場合は、を設定します `-allow-privileged-access` パラメータの値 `yes`また、特権アクセスの特権ユーザ名を設定する必要があります。
-** パススルーリードを設定する場合は、を設定します `-is-passthrough-read-enabled` パラメータの値 `true`権限付きデータアクセスも設定する必要があります。
+** パラメータをに `yes`設定して権限付きアクセスを許可する場合 `-allow-privileged-access`は、権限付きアクセスの権限付きユーザ名も設定する必要があります。
+** パラメータをに `true`設定してパススルーリードを設定する場合 `-is-passthrough-read-enabled`は、権限付きデータアクセスも設定する必要があります。
 +
 次のコマンドは、 "event1" というイベントと、 "engine1" という外部エンジンが関連付けられた "policy1 `" という名前のポリシーを作成します。このポリシーでは、ポリシー設定にデフォルト値を使用します。
 `vserver fpolicy policy create -vserver vs1.example.com -policy-name policy1 -events event1 -engine engine1`
 
 +
-次のコマンドは、 "event2`" というイベントと、 "engine2`" という外部エンジンが関連付けられた "policy2`" というポリシーを作成します。このポリシーは、指定されたユーザ名を使用して権限付きアクセスを使用するように設定されています。パススルーリードが有効になっています。
+次のコマンドは、 "event2`" というイベントと、 "engine2`" という外部エンジンが関連付けられた "policy2`" というポリシーを作成します。このポリシーは、指定したユーザ名を使用して権限付きアクセスを使用するように設定されています。パススルーリードが有効になっている場合：
 
 +
 `vserver fpolicy policy create -vserver vs1.example.com -policy-name policy2 -events event2 -engine engine2 -allow-privileged-access yes ‑privileged-user-name example\archive_acct -is-passthrough-read-enabled true`
 
 +
-次のコマンドは ' event3` というイベントが関連付けられた ' ’ native1` という名前のポリシーを作成しますこのポリシーでは標準のエンジンを使用し、デフォルト値をポリシー設定に使用しています。
+次のコマンドは ' event3` というイベントが関連付けられた ' ’ native1` という名前のポリシーを作成しますこのポリシーでは標準のエンジンを使用し、デフォルト値をポリシー設定に使用します。
 
 +
 `vserver fpolicy policy create -vserver vs1.example.com -policy-name native1 -events event3 -engine native`
 
 
 
-. を使用してFPolicyポリシーの設定を確認します `vserver fpolicy policy show` コマンドを実行します
+. コマンドを使用してFPolicyポリシーの設定を確認します `vserver fpolicy policy show`。
 +
-次のコマンドは、次の情報を含む、設定された 3 つの FPolicy ポリシーに関する情報を表示します。
+次のコマンドは、次の情報を含む、設定された3つのFPolicyポリシーに関する情報を表示します。
 
 +
 ** ポリシーに関連付けられている SVM

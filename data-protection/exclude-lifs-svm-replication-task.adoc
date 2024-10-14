@@ -4,42 +4,42 @@ sidebar: sidebar
 keywords: lifs, network, settings, svm, replication 
 summary: ソースとデスティネーションの SVM が異なるサブネットにある場合は、 snapmirror policy create コマンドの -discard-configs network オプションを使用して、 LIF と関連ネットワークの設定を SVM レプリケーション対象から除外できます。 
 ---
-= SVM レプリケーション対象から LIF と関連ネットワークの設定を除外
+= LIFと関連ネットワーク設定をSVMレプリケーション対象から除外
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-ソースとデスティネーションのSVMが異なるサブネットにある場合は、を使用できます `-discard-configs network` のオプション `snapmirror policy create` LIFと関連ネットワーク設定をSVMレプリケーション対象から除外するコマンド。
+ソースとデスティネーションのSVMが異なるサブネットにある場合は、コマンドのオプションを `snapmirror policy create`使用して、LIFと関連ネットワークの設定をSVMレプリケーション対象から除外でき `-discard-configs network`ます。
 
 .必要なもの
-ソースクラスタとデスティネーションクラスタ、および SVM のピア関係が確立されている必要があります。
+ソースとデスティネーションのクラスタとSVMのピア関係が確立されている必要があります。
 
-詳細については、を参照してください link:../peering/create-cluster-relationship-93-later-task.html["クラスタピア関係を作成"] および link:../peering/create-intercluster-svm-peer-relationship-93-later-task.html["SVM のクラスタ間ピア関係を作成します"]。
+詳細については、およびを参照してlink:../peering/create-cluster-relationship-93-later-task.html["クラスタピア関係を作成します。"]link:../peering/create-intercluster-svm-peer-relationship-93-later-task.html["SVM のクラスタ間ピア関係を作成します"]ください。
 
-.このタスクについて
-。 `-identity-preserve` のオプション `snapmirror create` コマンドはに設定する必要があります `true` SVMレプリケーション関係の作成時。
+.タスクの内容
+ `-identity-preserve`SVMレプリケーション関係を作成するときに、コマンドのオプションを `snapmirror create`に設定する必要があります `true`。
 
 コマンド構文全体については、マニュアルページを参照してください。
 
 .手順
-. デスティネーション SVM を作成します。
+. デスティネーションSVMを作成します。
 +
 `vserver create -vserver _SVM_ -subtype dp-destination`
 
 +
-SVM 名はソースクラスタとデスティネーションクラスタの間で一意である必要があります。
+SVM名は、ソースクラスタとデスティネーションクラスタで一意である必要があります。
 
 +
-次の例は、という名前のデスティネーションSVMを作成します `svm_backup`：
+次の例は、という名前のデスティネーションSVMを作成し `svm_backup`ます。
 
 +
 [listing]
 ----
 cluster_dst:> vserver create -vserver svm_backup -subtype dp-destination
 ----
-. デスティネーションクラスタから、を使用してSVMピア関係を作成します `vserver peer create` コマンドを実行します
+. デスティネーションクラスタから、コマンドを使用してSVMピア関係を作成し `vserver peer create`ます。
 +
 詳細については、を参照してください link:../peering/create-intercluster-svm-peer-relationship-93-later-task.html["SVM のクラスタ間ピア関係を作成します"]。
 
@@ -48,16 +48,16 @@ cluster_dst:> vserver create -vserver svm_backup -subtype dp-destination
 `job schedule cron create -name _job_name_ -month _month_ -dayofweek _day_of_week_ -day _day_of_month_ -hour _hour_ -minute _minute_`
 
 +
-の場合 `-month`、 `-dayofweek`および `-hour`を指定できます `all` 毎月、曜日、および時間ごとにジョブを実行します。
+ `-dayofweek`、および `-hour`では `-month`、ジョブを毎月、曜日、および時間ごとに実行するように指定できます `all`。
 
 +
 [NOTE]
 ====
-SVM SnapMirror関係にあるFlexVol ボリュームに対してサポートされる最小スケジュール（RPO）は15分です。SVM SnapMirror関係にあるFlexGroup ボリュームに対してサポートされる最小スケジュール（RPO）は30分です。
+SVM SnapMirror関係のFlexVolボリュームでサポートされる最小スケジュール（RPO）は15分です。SVM SnapMirror関係にあるFlexGroupボリュームに対してサポートされる最小スケジュール（RPO）は30分です。
 
 ====
 +
-次の例は、という名前のジョブスケジュールを作成します `my_weekly` 土曜日の午前3時に実行されます。
+次の例は、土曜日の午前3時に実行するという名前のジョブスケジュールを作成します `my_weekly`。
 
 +
 [listing]
@@ -72,7 +72,7 @@ cluster_dst::> job schedule cron create -name my_weekly -dayofweek "Saturday" -h
 コマンド構文全体については、マニュアルページを参照してください。
 
 +
-次の例は、 LIF を除外する SnapMirror DR 用のカスタムレプリケーションポリシーを作成します。
+次の例は、LIFを除外するSnapMirror DR用のカスタムレプリケーションポリシーを作成します。
 
 +
 [listing]
@@ -80,7 +80,7 @@ cluster_dst::> job schedule cron create -name my_weekly -dayofweek "Saturday" -h
 cluster_dst::> snapmirror policy create -vserver svm1 -policy DR_exclude_LIFs -type async-mirror -discard-configs network
 ----
 +
-次の例は、 LIF を除外するユニファイドレプリケーション用のカスタムレプリケーションポリシーを作成します。
+次の例は、LIFを除外するユニファイドレプリケーション用のカスタムレプリケーションポリシーを作成します。
 
 +
 [listing]
@@ -93,18 +93,18 @@ cluster_dst::> snapmirror policy create -vserver svm1 -policy unified_exclude_LI
 今後のフェイルオーバーとフェイルバックのシナリオに備えて、ソースクラスタに同じカスタムSnapMirrorポリシーを作成することを検討してください。
 
 ====
-. デスティネーション SVM またはデスティネーションクラスタから次のコマンドを実行して、レプリケーション関係を作成します。
+. デスティネーションSVMまたはデスティネーションクラスタから次のコマンドを実行して、レプリケーション関係を作成します。
 +
 `snapmirror create -source-path _SVM_: -destination-path _SVM_: -type DP|XDP -schedule _schedule_ -policy _policy_ -identity-preserve true|false -discard-configs true|false`
 
 +
 [NOTE]
 ====
-で、SVM名のあとにコロン（：）を入力する必要があります `-source-path` および `-destination-path` オプション（ Options ）以下の例を参照してください。
+オプションと `-destination-path`オプションで、SVM名のあとにコロン（：）を入力する必要があります `-source-path`。以下の例を参照してください。
 
 ====
 +
-次の例は、 LIF を除外する SnapMirror DR 関係を作成します。
+次の例は、LIFを除外するSnapMirror DR関係を作成します。
 
 +
 [listing]
@@ -112,14 +112,14 @@ cluster_dst::> snapmirror policy create -vserver svm1 -policy unified_exclude_LI
 cluster_dst::> snapmirror create -source-path svm1: -destination-path svm_backup: -type XDP -schedule my_weekly -policy DR_exclude_LIFs -identity-preserve true
 ----
 +
-次の例は、 LIF を除外する SnapMirror ユニファイドレプリケーション関係を作成します。
+次の例は、LIFを除外するSnapMirrorユニファイドレプリケーション関係を作成します。
 
 +
 [listing]
 ----
 cluster_dst::> snapmirror create -source-path svm1: -destination-path svm_backup: -type XDP -schedule my_weekly -policy unified_exclude_LIFs -identity-preserve true -discard-configs true
 ----
-. デスティネーション SVM を停止します。
+. デスティネーションSVMを停止します。
 +
 `vserver stop`
 
@@ -134,7 +134,7 @@ cluster_dst::> snapmirror create -source-path svm1: -destination-path svm_backup
 ----
 cluster_dst::> vserver stop -vserver svm_backup
 ----
-. デスティネーション SVM またはデスティネーションクラスタから、レプリケーション関係を初期化します。
+. デスティネーションSVMまたはデスティネーションクラスタから、レプリケーション関係を初期化します。
 +
 `snapmirror initialize -source-path _SVM_: -destination-path _SVM_:`
 
@@ -142,7 +142,7 @@ cluster_dst::> vserver stop -vserver svm_backup
 コマンド構文全体については、マニュアルページを参照してください。
 
 +
-次の例は、ソース間の関係を初期化します。 `svm1` 目的地、 `svm_backup`：
+次の例は、ソースとデスティネーションの `svm_backup`間の関係を初期化し `svm1`ます。
 
 +
 [listing]
@@ -151,5 +151,5 @@ cluster_dst::> snapmirror initialize -source-path svm1: -destination-path svm_ba
 ----
 
 
-.完了後
-災害発生時のデータアクセス用に、デスティネーション SVM でネットワークとプロトコルを設定する必要があります。
+.終了後
+災害発生時のデータアクセス用に、デスティネーションSVMでネットワークとプロトコルを設定する必要があります。

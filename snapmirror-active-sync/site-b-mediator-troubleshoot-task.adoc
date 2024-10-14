@@ -14,7 +14,7 @@ summary: サイト B からのメディエーターの接続が到達不能と�
 
 
 [role="lead"]
-ONTAPメディエーターの接続を確認するには、 `snapmirror mediator show` コマンドを実行します接続ステータスが到達不能で、サイトBがサイトAに到達できない場合は、次のような出力が表示されます。解決策 の手順に従って、接続をリストアします
+ONTAPメディエーターの接続を確認するには、コマンドを使用し `snapmirror mediator show`ます。接続ステータスが到達不能で、サイトBがサイトAに到達できない場合は、次のような出力が表示されます。「解決策」の手順に従って、接続をリストアしてください。
 
 ....
 cluster::*> snapmirror mediator show
@@ -41,20 +41,20 @@ Peer Cluster Name         Cluster Serial Number Availability   Authentication
 C1_cluster 			  1-80-000011           Unavailable    ok
 ....
 .解決策
-フェイルオーバーを強制的に実行してサイト B からの I/O を有効にし、サイト B からサイト A への RTO 関係をゼロにしますサイト B で強制フェイルオーバーを実行するには、次の手順を実行します
+フェイルオーバーを強制的に実行してサイトBからのI/Oを可能にし、サイトBからサイトAへのRTOゼロの関係を確立します。サイトBで強制的にフェイルオーバーを実行するには、以下の手順に従います。
 
-. この整合グループに属するすべての LUN のマッピングをサイト B から解除します
-. force オプションを使用して、 SnapMirror 整合グループ関係を削除します。
-. snapmirror breakコマンドを入力します。 (`snapmirror break -destination_path _svm_:_volume_`）を使用して、ボリュームをDPからRWに変換し、サイトBからのI/Oを可能にします。
+. この整合グループに属するすべてのLUNのサイトBへのマッピングを解除します。
+. forceオプションを使用して、SnapMirror整合性グループ関係を削除します。
+. (`snapmirror break -destination_path _svm_:_volume_`整合性グループのコンスティチュエントボリュームに対してSnapMirror breakコマンドを入力してボリュームをDPからRWに変換し、サイトBからのI/Oを可能にします。
 +
-整合グループ内の関係ごとに、snapmirror breakコマンドを問題する必要があります。たとえば、整合グループにボリュームが3つある場合は、ボリュームごとにコマンドを問題します。
+整合性グループ内の関係ごとにSnapMirror breakコマンドを実行する必要があります。たとえば、整合グループにボリュームが3つある場合は、ボリュームごとにコマンドを実行します。
 
-. サイト A のノードをブートして、サイト B からサイト A への RTO 関係をゼロにします
-. サイト A で relationship-info-only を指定して整合グループを解放して共通の Snapshot コピーを保持し、整合グループに属する LUN のマッピングを解除します。
-. Sync ポリシーまたは非同期ポリシーを使用してボリュームレベルの関係を設定し、サイト A のボリュームを RW から DP に変換します。
-. 問題 `snapmirror resync` コマンドを使用して関係を同期します。
-. サイト A の Sync ポリシーが設定された SnapMirror 関係を削除します
-. サイト B で relationship-info-only true を使用して、 Sync ポリシーが設定された SnapMirror 関係を解放します
+. サイトAのノードをブートして、サイトBからサイトAへのRTOゼロの関係を作成します。
+. サイトAでrelationship-info-onlyを使用して整合性グループを解放し、共通のSnapshotコピーを保持して、整合性グループに属するLUNのマッピングを解除します。
+. SyncポリシーまたはAsyncポリシーを使用してボリュームレベルの関係を設定し、サイトAのボリュームをRWからDPに変換します。
+. コマンドを実行し `snapmirror resync`て関係を同期します。
+. サイトAでSyncポリシーが設定されたSnapMirror関係を削除します。
+. サイトBでSyncポリシーが設定されたSnapMirror関係をrelationship-info-only trueを使用して解放します。
 . サイトBとサイトAの間に整合性グループ関係を作成します。
 . ソースクラスタから、整合グループを再同期します。整合性グループの状態がin syncになっていることを確認します。
 . ホストのLUN I/Oパスを再スキャンして、LUNへのすべてのパスをリストアします。

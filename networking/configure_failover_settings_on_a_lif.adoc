@@ -4,7 +4,7 @@ permalink: networking/configure_failover_settings_on_a_lif.html
 keywords: configure, configuring, configuration, setup, set, up, failover, fail, over, group, policy, lif, configure failover settings on a lif, broadcast-domain-wide, system-defined, local-only, sfo-partner-only, disabled, network interface modify -vserver <vserver_name> -lif <lif_name> -failover-policy <failover_policy> -failover-group <failover_group>, examples of configuring failover settings and disabling failover 
 summary: ネットワークポートの特定のグループに LIF をフェイルオーバーするように設定します 
 ---
-= LIF のフェイルオーバーを設定する
+= LIFのフェイルオーバーを設定する
 :hardbreaks:
 :allow-uri-read: 
 :nofooter: 
@@ -14,37 +14,37 @@ summary: ネットワークポートの特定のグループに LIF をフェイ
 
 
 [role="lead"]
-フェイルオーバーポリシーとフェイルオーバーグループを LIF に適用することにより、ネットワークポートの特定のグループに LIF がフェイルオーバーするように設定できます。また、 LIF の別のポートへのフェイルオーバーを無効にすることもできます。
+フェイルオーバーポリシーとフェイルオーバーグループをLIFに適用することで、ネットワークポートの特定のグループにLIFをフェイルオーバーするように設定できます。また、LIFの別のポートへのフェイルオーバーを無効にすることもできます。
 
-.このタスクについて
-* LIF を作成すると、 LIF フェイルオーバーがデフォルトで有効になり、使用可能なターゲットポートのリストが、 LIF のタイプとサービスポリシーに基づくデフォルトのフェイルオーバーグループとフェイルオーバーポリシーによって決まります。
+.タスクの内容
+* LIFを作成すると、LIFのフェイルオーバーがデフォルトで有効になり、使用可能なターゲットポートのリストは、LIFのタイプとサービスポリシーに基づいたデフォルトのフェイルオーバーグループとフェイルオーバーポリシーによって決まります。
 +
-9.5 以降では、 LIF を使用できるネットワークサービスを定義するサービスポリシーを LIF に指定できます。一部のネットワークサービスでは、 LIF のフェイルオーバーが制限されます。
+9.5以降では、LIFを使用できるネットワークサービスを定義するサービスポリシーをLIFに指定できます。一部のネットワークサービスでは、LIFのフェイルオーバーが制限されます。
 
 +
 
-NOTE: フェイルオーバーをさらに制限する方法で LIF のサービスポリシーを変更すると、 LIF のフェイルオーバーポリシーが自動的に更新されます。
+NOTE: フェイルオーバーをさらに制限するようにLIFのサービスポリシーを変更すると、LIFのフェイルオーバーポリシーはシステムによって自動的に更新されます。
 
-* LIF のフェイルオーバーの動作は、 network interface modify コマンドの -failover-group パラメータと -failover-policy パラメータの値を指定することによって変更することができます。
-* LIF の変更によって、 LIF に有効なフェイルオーバーターゲットがなくなる場合は警告メッセージが表示されます。
+* LIFのフェイルオーバーの動作を変更するには、network interface modifyコマンドの-failover-groupパラメータと-failover-policyパラメータの値を指定します。
+* LIFを変更すると、LIFに有効なフェイルオーバーターゲットがなくなるため、警告メッセージが表示されます。
 +
-有効なフェイルオーバーターゲットのない LIF がフェイルオーバーしようとすると、システムが停止する可能性があります。
+有効なフェイルオーバーターゲットのないLIFがフェイルオーバーしようとすると、システムが停止する可能性があります。
 
-* ONTAP 9.11.1以降のオールフラッシュSANアレイ（ASA）プラットフォームでは、新規に作成したStorage VMに新しく作成したiSCSI LIFでiSCSI LIFのフェイルオーバーが自動的に有効になります。
+* All-Flash SAN Array（ASA）プラットフォームでは、Storage.11.1以降で、新規に作成したONTAP 9 VMに新しく作成したiSCSI LIFでiSCSI LIFのフェイルオーバーが自動的に有効になります。
 +
-また、を使用することもできます link:../san-admin/asa-iscsi-lif-fo-task.html["既存のiSCSI LIFでiSCSI LIFフェイルオーバーを手動で有効にする"]ONTAP 9.11.1以降にアップグレードする前に作成されたLIFを意味します。
+また、link:../san-admin/asa-iscsi-lif-fo-task.html["既存のiSCSI LIFでiSCSI LIFフェイルオーバーを手動で有効にする"]ONTAP 9 .11.1以降にアップグレードする前に作成されたLIFを指定することもできます。
 
-* 次に、 -failover-policy の設定によって、フェイルオーバーグループからどのターゲットポートが選択されるかを示します。
+* 次に、-failover-policyの設定が、フェイルオーバーグループから選択されるターゲットポートに与える影響を示します。
 
 
 
-NOTE: iSCSI LIFのフェイルオーバーの場合は、フェイルオーバーポリシーのみ `local-only`、 `sfo-partner-only` および `disabled` がサポートされます。
+NOTE: iSCSI LIFのフェイルオーバーの場合は、フェイルオーバーポリシー `sfo-partner-only`と `disabled`のみが `local-only`サポートされます。
 
-* `broadcast-domain-wide` フェイルオーバーグループ内のすべてのノードのすべてのポートを環境 にします。
-* `system-defined` 環境 は、LIFのホームノードとクラスタ内の他の1つのノード（存在する場合は通常はSFO以外のパートナー）にあるポートのみを対象とします。
-* `local-only` 環境 を実行するのは、LIFのホームノードのポートだけです。
-* `sfo-partner-only` 環境 を実行するのは、LIFのホームノードとそのSFOパートナーのポートだけです。
-* `disabled` LIFにフェイルオーバーが設定されていないことを示します。
+* `broadcast-domain-wide`フェイルオーバーグループ内のすべてのノードのすべてのポートに適用されます。
+* `system-defined`LIFのホームノードおよびクラスタ内の他の1つのノード（通常はSFOパートナー以外のノード（存在する場合））のポートにのみ適用されます。
+* `local-only`LIFのホームノードのポートにのみ適用されます。
+* `sfo-partner-only`LIFのホームノードとそのSFOパートナーのポートにのみ適用されます。
+* `disabled`LIFにフェイルオーバーが設定されていないことを示します。
 
 
 .手順
@@ -57,7 +57,7 @@ network interface modify -vserver <vserver_name> -lif <lif_name> -failover-polic
 
 == フェイルオーバーの設定例、および無効化の例
 
-次のコマンドは、フェイルオーバーポリシーを broadcast-domain-wide に設定し、 SVM vs3 の data1 という LIF のフェイルオーバーターゲットとして、フェイルオーバーグループ fg3 のポートを使用します。
+次のコマンドは、フェイルオーバーポリシーをbroadcast-domain-wideに設定し、SVM vs3のdata1というLIFのフェイルオーバーターゲットとして、フェイルオーバーグループfg3のポートを使用します。
 
 ....
 network interface modify -vserver vs3 -lif data1 -failover-policy broadcast-domain-wide -failover-group fg3
@@ -68,7 +68,7 @@ vserver lif             failover-policy       failover-group
 ------- -------------- ---------------        --------------
 vs3     data1          broadcast-domain-wide  fg3
 ....
-次のコマンドは、 SVM vs3 の data1 という LIF のフェイルオーバーを無効にします。
+次のコマンドは、SVM vs3のdata1というLIFのフェイルオーバーを無効にします。
 
 ....
 network interface modify -vserver vs3 -lif data1 -failover-policy disabled

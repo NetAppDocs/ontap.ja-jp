@@ -2,21 +2,21 @@
 permalink: flexgroup/convert-flexvol-volume-task.html 
 sidebar: sidebar 
 keywords: convert, flexvol, volume, flexgroup, conversion, flex vol, flex group, transitioned, 
-summary: ONTAP 9.7 以降では、 FlexVol ボリュームから FlexGroup ボリュームへのインプレース変換が可能です。データコピーや追加のディスクスペースは必要ありません。 
+summary: ONTAP 9 .7以降では、FlexVol volumeからFlexGroupボリュームへのインプレース変換を実行できます。データコピーや追加のディスクスペースは必要ありません。 
 ---
-= FlexVol ボリュームを FlexGroup ボリュームに変換します
+= FlexVol volumeからFlexGroupボリュームへの変換
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-ONTAP 9.7 以降では、 FlexVol ボリュームから FlexGroup ボリュームへのインプレース変換が可能です。データコピーや追加のディスクスペースは必要ありません。
+ONTAP 9 .7以降では、FlexVol volumeからFlexGroupボリュームへのインプレース変換を実行できます。データコピーや追加のディスクスペースは必要ありません。
 
-.作業を開始する前に
-* ONTAP 9.8以降では、移行したボリュームをFlexGroupボリュームに変換できます。
-* 変換する FlexVol がオンラインになっている必要があります。
-* FlexVol ボリュームの処理と設定が変換プロセスに対応している必要があります。
+.開始する前に
+* 移行したボリュームは、ONTAP 9以降でFlexGroupボリュームに変換できます。8.
+* 変換するFlexVol volumeがオンラインになっている必要があります。
+* FlexVol volumeの処理と設定は、変換プロセスと互換性がある必要があります。
 +
 変換が正常に行われない可能性がある次の条件を確認します。
 
@@ -25,7 +25,7 @@ ONTAP 9.7 以降では、 FlexVol ボリュームから FlexGroup ボリュー�
 +
 移行したボリュームはONTAP 9.8以降で変換できます。
 
-** このボリュームで、SAN LUN、Windows NFS、SMB1など、FlexGroupボリュームでまだサポートされていない設定が有効になっています。 Snapshotの命名/自動削除、vmalign set、SnapLock、スペースSLO、論理スペースの適用/レポート。詳細については、を参照してください link:supported-unsupported-config-concept.html["FlexGroup ボリュームでサポートされる構成とされない構成"]。
+** このボリュームで、SAN LUN、Windows NFS、SMB1など、FlexGroupボリュームでまだサポートされていない設定が有効になっています。 Snapshotの命名/自動削除、vmalign set、SnapLock、スペースSLO、論理スペースの適用/レポート。詳細については、を参照してください link:supported-unsupported-config-concept.html["FlexGroupボリュームでサポートされる構成とサポートされない構成"]。
 ** 変換するFlexVolボリュームが配置されているSVMが現在SVM DRを使用しています。
 ** NetApp FlexCloneボリュームが存在し、FlexVolボリュームが親ボリュームです。変換対象のボリュームを親またはクローンにすることはできません。
 ** ボリュームがNetApp FlexCacheの元のボリュームである。
@@ -51,7 +51,7 @@ ONTAP 9.7 以降では、 FlexVol ボリュームから FlexGroup ボリュー�
 +
 [NOTE]
 ====
-非常に大容量のFlexGroup を変換すると、FlexGroup ボリュームのメンバーコンスティチュエントがいっぱいになり、パフォーマンスの問題が生じる可能性があります。詳細については、TRで「When not to create a FlexGroup volume」を参照してください link:https://www.netapp.com/media/12385-tr4571.pdf["FlexGroup ボリューム-ベストプラクティスおよび実装ガイド"]。
+非常に大規模なFlexGroupを変換すると、FlexGroupボリュームのメンバーコンスティチュエントが非常にいっぱいになり、パフォーマンスの問題が発生する可能性があります。詳細については、TRの「FlexGroupボリュームを作成しないタイミング」セクションを参照してくださいlink:https://www.netapp.com/media/12385-tr4571.pdf["FlexGroup ボリューム-ベストプラクティスおよび実装ガイド"]。
 
 ====
 
@@ -66,7 +66,7 @@ vserver volume    state  volume-style-extended
 ------- --------- ------ ---------------------
 vs0     my_volume online flexvol
 ----
-. FlexVol ボリュームを問題なく変換できるかどうかを確認します。
+. FlexVol volumeを問題なく変換できるかどうかを確認します。
 +
 .. advanced権限モードにログインします。 `set -privilege advanced`
 .. 変換プロセスを確認します。 `volume conversion start -vserver vs1 -volume flexvol -check-only true`
@@ -76,7 +76,7 @@ vs0     my_volume online flexvol
 +
 [NOTE]
 ====
-FlexGroup ボリュームを FlexVol ボリュームに戻すことはできません。
+FlexGroupボリュームをFlexVol volumeに戻すことはできません。
 
 ====
 
@@ -106,7 +106,7 @@ vs0     my_volume online flexgroup
 
 
 .結果
-FlexVol ボリュームが単一メンバーの FlexGroup ボリュームに変換されます。
+FlexVol volumeがシングルメンバーFlexGroupボリュームに変換されます。
 
-.完了後
-必要に応じて、 FlexGroup ボリュームを拡張できます。
+.終了後
+必要に応じて、FlexGroupボリュームを拡張できます。

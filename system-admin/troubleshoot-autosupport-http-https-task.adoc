@@ -2,57 +2,57 @@
 permalink: system-admin/troubleshoot-autosupport-http-https-task.html 
 sidebar: sidebar 
 keywords: troubleshoot, autosupport, message, delivery, http, https, check, settings, resolve, problem 
-summary: HTTP または HTTPS を使用していて、想定される AutoSupport メッセージが送信されない場合は、いくつかの設定を確認することで問題を解決できます。 
+summary: HTTPまたはHTTPSを使用していて、想定されるAutoSupportメッセージがシステムから送信されない場合は、いくつかの設定を確認して問題を解決できます。 
 ---
-= HTTP または HTTPS を使用した AutoSupport メッセージ配信のトラブルシューティング
+= HTTPまたはHTTPS経由のAutoSupportメッセージ配信のトラブルシューティング
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-HTTP または HTTPS を使用していて、想定される AutoSupport メッセージが送信されない場合や自動更新機能が動作しない場合は、いくつかの設定を確認することで問題を解決できます。
+HTTPまたはHTTPSを使用していて、想定されるAutoSupportメッセージがシステムから送信されない場合、または自動更新機能が動作していない場合は、いくつかの設定を確認して問題を解決できます。
 
 .必要なもの
-基本的なネットワーク接続と DNS ルックアップについて、以下の点を確認しておきます。
+基本的なネットワーク接続とDNSルックアップを確認しておく必要があります。
 
-* ノード管理 LIF の動作ステータスおよび管理ステータスが up になっている。
-* 同じサブネット上の機能しているホストに、（ノード上の LIF ではなく）クラスタ管理 LIF から ping を実行できる。
-* サブネットの外部の機能しているホストに、クラスタ管理 LIF から ping を実行できる。
-* サブネットの外部の機能しているホストに、（ IP アドレスではなく）ホストの名前を使用してクラスタ管理 LIF から ping を実行できる。
+* ノード管理LIFの動作ステータスと管理ステータスがupになっている必要があります。
+* 同じサブネット上の機能しているホストに、（ノードのLIFではなく）クラスタ管理LIFからpingを実行できる必要があります。
+* サブネットの外部の機能しているホストに、クラスタ管理LIFからpingを実行できる必要があります。
+* サブネットの外部の機能しているホストに、（IPアドレスではなく）ホストの名前を使用してクラスタ管理LIFからpingを実行できる必要があります。
 
 
-.このタスクについて
-以下の手順は、 AutoSupport でメッセージを生成できているが、 HTTP または HTTPS 経由でメッセージを配信できていないと判断した場合に実行します。
+.タスクの内容
+これらの手順は、AutoSupportでメッセージを生成できるが、HTTPまたはHTTPS経由でメッセージを配信できないと判断した場合に実行します。
 
-エラーが発生したり、この手順の手順を完了できない場合は、問題を特定し、対処してから次の手順に進んでください。
+この手順でエラーが発生した場合、または1つの手順を完了できない場合は、問題を特定して対処してから次の手順に進みます。
 
 .手順
-. AutoSupport サブシステムの詳細なステータスを表示します。
+. AutoSupportサブシステムの詳細なステータスを表示します。
 +
 `system node autosupport check show-details`
 
 +
-たとえば、テストメッセージを送信して AutoSupport デスティネーションへの接続を検証したり、 AutoSupport の設定で発生する可能性のあるエラーのリストを指定したりします。
+これには、テストメッセージを送信してAutoSupportの送信先への接続を確認し、AutoSupport構成設定で発生する可能性のあるエラーのリストを提供することが含まれます。
 
-. ノード管理 LIF のステータスを確認します。
+. ノード管理LIFのステータスを確認します。
 +
 `network interface show -home-node local -role node-mgmt -fields vserver,lif,status-oper,status-admin,address,role`
 
 +
-。 `status-oper` および `status-admin` フィールドは「up」を返す必要があります。
+ `status-oper`フィールドと `status-admin`フィールドは「up」を返す必要があります。
 
-. あとで使用できるように、 SVM 名、 LIF 名、および LIF の IP アドレスを書き留めておきます。
-. DNS が有効になっていて正しく設定されていることを確認します
+. あとで使用できるように、SVM名、LIF名、およびLIFのIPアドレスをメモしておきます。
+. DNSが有効で正しく設定されていることを確認します。
 +
 `vserver services name-service dns show`
 
-. AutoSupport メッセージからエラーが返された場合は、対処します。
+. AutoSupportメッセージから返されたエラーに対処します。
 +
 `system node autosupport history show -node * -fields node,seq-num,destination,last-update,status,error`
 
 +
-返されたエラーのトラブルシューティングについては、を参照してください link:https://kb.netapp.com/Advice_and_Troubleshooting/Data_Storage_Software/ONTAP_OS/ONTAP_AutoSupport_(Transport_HTTPS_and_HTTP)_Resolution_Guide["ONTAP AutoSupport （Transport HTTPSおよびHTTP）解決ガイド"^]。
+返されたエラーのトラブルシューティングについては、を参照してくださいlink:https://kb.netapp.com/Advice_and_Troubleshooting/Data_Storage_Software/ONTAP_OS/ONTAP_AutoSupport_(Transport_HTTPS_and_HTTP)_Resolution_Guide["ONTAP AutoSupport （Transport HTTPSおよびHTTP）解決ガイド"^]。
 
 . クラスタが必要なサーバとインターネットの両方に正常にアクセスできることを確認します。
 +
@@ -61,7 +61,7 @@ HTTP または HTTPS を使用していて、想定される AutoSupport メッ�
 +
 [NOTE]
 ====
-住所 `support.netapp.com` それ自体はpingやtracerouteに応答しませんが、ホップ単位の情報は重要です。
+アドレス `support.netapp.com`自体はping / tracerouteに応答しませんが、ホップ単位の情報は重要です。
 
 ====
 .. `system node autosupport show -fields proxy-url`
@@ -69,21 +69,21 @@ HTTP または HTTPS を使用していて、想定される AutoSupport メッ�
 
 
 +
-これらのルートのいずれかが機能していない場合は、ほとんどのサードパーティ製ネットワーククライアントで検出された「 traceroute 」または「 tracert 」ユーティリティを使用して、クラスタと同じサブネット上の機能しているホストから同じルートを試してください。これにより、問題がネットワーク構成とクラスタ構成のどちらに含まれているかを判断できます。
+これらのルートのいずれかが機能していない場合は、ほとんどのサードパーティ製ネットワーククライアントで検出された「 traceroute 」または「 tracert 」ユーティリティを使用して、クラスタと同じサブネット上の機能しているホストから同じルートを試してください。これにより、ネットワーク構成とクラスタ構成のどちらに問題があるかを判断できます。
 
-. AutoSupport 転送プロトコルに HTTPS を使用する場合は、 HTTPS トラフィックがネットワークから送信可能であることを確認します。
+. AutoSupport転送プロトコルにHTTPSを使用している場合は、HTTPSトラフィックがネットワークから出ることができることを確認します。
 +
-.. クラスタ管理 LIF と同じサブネットに Web クライアントを設定します。
+.. クラスタ管理LIFと同じサブネットにWebクライアントを設定します。
 +
-プロキシサーバ、ユーザ名、パスワード、ポートを含む、すべての設定パラメータの値が AutoSupport の設定と同じであることを確認します。
+プロキシサーバ、ユーザ名、パスワード、ポートを含め、すべての設定パラメータの値がAutoSupport設定と同じであることを確認します。
 
-.. にアクセスします `+https://support.netapp.com+` Webクライアントを使用します。
+.. Webクライアントを使用してにアクセスし `+https://support.netapp.com+`ます。
 +
-アクセスが成功します。成功しない場合は、 HTTPS トラフィックと DNS トラフィックを許可するようにすべてのファイアウォールが設定されていること、およびプロキシサーバが正しく設定されていることを確認します。support.netapp.comの静的な名前解決の設定の詳細については、サポート技術情報の記事を参照してください https://kb.netapp.com/Advice_and_Troubleshooting/Data_Storage_Software/ONTAP_OS/How_would_a_HOST_entry_be_added_in_ONTAP_for_support.netapp.com%3F["ONTAP for support.netapp.com? でホストエントリを追加する方法を説明します"^]
+アクセスが成功するはずです。そうでない場合は、HTTPSおよびDNSトラフィックを許可するようにすべてのファイアウォールが正しく設定されていること、およびプロキシサーバが正しく設定されていることを確認します。support.comに静的な名前解決を設定する方法の詳細NetAppについては、ナレッジベースの記事を参照してください。 https://kb.netapp.com/Advice_and_Troubleshooting/Data_Storage_Software/ONTAP_OS/How_would_a_HOST_entry_be_added_in_ONTAP_for_support.netapp.com%3F["ONTAP for support.netapp.com? でホストエントリを追加する方法を説明します"^]
 
 
 
-. ONTAP 9.10.1 以降では、自動更新機能を有効にした場合、次の URL への HTTPS 接続が確立されていることを確認してください。
+. ONTAP 9 .10.1以降では、自動更新機能を有効にしている場合は、次の追加URLへのHTTPS接続が確立されていることを確認してください。
 +
 ** \https://support-sg-emea.netapp.com
 ** \https://support-sg-naeast.netapp.com

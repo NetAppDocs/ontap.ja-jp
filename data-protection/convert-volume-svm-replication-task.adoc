@@ -2,22 +2,22 @@
 permalink: data-protection/convert-volume-svm-replication-task.html 
 sidebar: sidebar 
 keywords: convert, volume, replication, relationships, svm 
-summary: ソース上の各ボリューム（ルートボリュームを除く）がレプリケートされている場合は、ボリューム間のレプリケーション関係を、そのボリュームを所有する Storage Virtual Machine （ SVM ）間のレプリケーション関係に変換できます。 また、ソースの各ボリューム（ルートボリュームを含む）の名前は、デスティネーションのボリュームと同じになります。 
+summary: ソース上の各ボリューム（ルートボリュームを除く）をレプリケート中で、ソース上の各ボリューム（ルートボリュームを含む）の名前がデスティネーション上のボリュームと同じである場合は、ボリューム間のレプリケーション関係を、そのボリュームを所有するStorage Virtual Machine（SVM）間のレプリケーション関係に変換できます。 
 ---
-= ボリュームのレプリケーション関係を SVM のレプリケーション関係に変換します
+= ボリュームレプリケーション関係をSVMレプリケーション関係に変換する
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-ソース上の各ボリューム（ルートボリュームを除く）がレプリケートされている場合は、ボリューム間のレプリケーション関係を、そのボリュームを所有する Storage Virtual Machine （ SVM ）間のレプリケーション関係に変換できます。 また、ソースの各ボリューム（ルートボリュームを含む）の名前は、デスティネーションのボリュームと同じになります。
+ソース上の各ボリューム（ルートボリュームを除く）をレプリケート中で、ソース上の各ボリューム（ルートボリュームを含む）の名前がデスティネーション上のボリュームと同じである場合は、ボリューム間のレプリケーション関係を、そのボリュームを所有するStorage Virtual Machine（SVM）間のレプリケーション関係に変換できます。
 
-.このタスクについて
-を使用します `volume rename` SnapMirror関係がアイドル状態のときにコマンドを実行し、必要に応じてデスティネーションボリュームの名前を変更します。
+.タスクの内容
+必要に応じて、SnapMirror関係がアイドル状態のときにコマンドを使用して、 `volume rename`デスティネーションボリュームの名前を変更します。
 
 .手順
-. デスティネーション SVM またはデスティネーションクラスタから次のコマンドを実行して、ソースとデスティネーションのボリュームを再同期します。
+. デスティネーションSVMまたはデスティネーションクラスタから次のコマンドを実行して、ソースボリュームとデスティネーションボリュームを再同期します。
 +
 `snapmirror resync -source-path <SVM:volume> -destination-path <SVM:volume> -type DP|XDP -policy <policy>`
 
@@ -31,18 +31,18 @@ summary: ソース上の各ボリューム（ルートボリュームを除く�
 
 ====
 +
-次の例は、ソースボリューム間の関係を再同期します `volA` オン `svm1` デスティネーションボリュームを指定します `volA` オン `svm_backup`：
+次の例は、の `svm1`ソースボリュームとの `svm_backup`デスティネーションボリューム `volA`の間の関係を再同期し `volA`ます。
 
 +
 [listing]
 ----
 cluster_dst::> snapmirror resync -source-path svm1:volA -destination-path svm_backup:volA
 ----
-. の説明に従って、ソースとデスティネーションの SVM 間に SVM レプリケーション関係を作成します link:replicate-entire-svm-config-task.html["SVM 設定のレプリケート"]。
+. の説明に従って、ソースとデスティネーションのSVM間にSVMレプリケーション関係を作成しますlink:replicate-entire-svm-config-task.html["SVMの設定のレプリケート"]。
 +
-を使用する必要があります `-identity-preserve true` のオプション `snapmirror create` コマンドを使用してレプリケーション関係を作成します。
+レプリケーション関係を作成するときは、コマンドのオプションを `snapmirror create`使用する必要があります `-identity-preserve true`。
 
-. デスティネーション SVM を停止します。
+. デスティネーションSVMを停止します。
 +
 `vserver stop -vserver _SVM_`
 
@@ -50,14 +50,14 @@ cluster_dst::> snapmirror resync -source-path svm1:volA -destination-path svm_ba
 コマンド構文全体については、マニュアルページを参照してください。
 
 +
-次の例は、デスティネーションSVMを停止します `svm_backup`：
+次の例は、デスティネーションSVMを停止し `svm_backup`ます。
 
 +
 [listing]
 ----
 cluster_dst::> vserver stop svm_backup
 ----
-. デスティネーション SVM またはデスティネーションクラスタから次のコマンドを実行して、ソースとデスティネーションの SVM を再同期します。
+. デスティネーションSVMまたはデスティネーションクラスタから次のコマンドを実行して、ソースとデスティネーションのSVMを再同期します。
 +
 `snapmirror resync -source-path <SVM>: -destination-path <SVM>: -type DP|XDP -policy <policy>`
 
@@ -67,13 +67,13 @@ cluster_dst::> vserver stop svm_backup
 +
 [NOTE]
 ====
-で、SVM名のあとにコロン（：）を入力する必要があります `-source-path` および `-destination-path` オプション（ Options ）以下の例を参照してください。
+オプションと `-destination-path`オプションで、SVM名のあとにコロン（：）を入力する必要があります `-source-path`。以下の例を参照してください。
 
 再同期の際にベースライン転送は不要ですが、再同期には時間がかかる場合があります。再同期はオフピークの時間帯に実行することを推奨します。
 
 ====
 +
-次の例は、ソースSVM間の関係を再同期します `svm1` およびデスティネーションSVM `svm_backup`：
+次の例は、ソースSVMとデスティネーションSVM `svm_backup`の間の関係を再同期し `svm1`ます。
 
 +
 [listing]

@@ -2,7 +2,7 @@
 :allow-uri-read: 
 
 
-. を使用します `system license show` コマンドを使用してFCまたはiSCSIのライセンスがあることを確認します。
+. コマンドを使用し `system license show`て、FCまたはiSCSIのライセンスがあることを確認します。
 +
 `system license show`
 
@@ -18,7 +18,7 @@ Package           Type    Description           Expiration
  iSCSI             site    iSCSI License         -
  FCP               site    FCP License           -
 ----
-. FCまたはiSCSIのライセンスがない場合は、を使用します `license add` コマンドを実行します
+. FCまたはiSCSIのライセンスがない場合は、コマンドを使用し `license add`ます。
 +
 `license add -license-code _your_license_code_`
 
@@ -34,36 +34,36 @@ Package           Type    Description           Expiration
 `network interface create -vserver _vserver_name_ -lif _lif_name_ -role data -data-protocol iscsi|fc -home-node _node_name_ -home-port _port_name_ -address _ip_address_ -netmask netmask`
 
 +
-ネットアップでは、データを提供するSVMごとに、ノードごとに少なくとも1つのiSCSIまたはFC LIFをサポートしています。ただし、冗長性を確保するには、ノードごとに2つのLIFが必要です。
+データを提供する各SVMで、ノードごとにiSCSIまたはFC LIFが少なくとも1つ必要です。ただし、冗長性を確保するためにはノードごとにLIFが2つ必要です。
 
-. LIFが作成され、動作ステータスがになっていることを確認します `online`：
+. LIFが作成され、動作ステータスがになっていることを確認し `online`ます。
 +
 `network interface show -vserver _vserver_name_ _lif_name_`
 
-. LUN を作成します。
+. LUNを作成します。
 +
 `lun create -vserver vserver_name -volume _volume_name_ -lun _lun_name_ -size _lun_size_ -ostype linux -space-reserve enabled|disabled`
 
 +
-LUN 名は 255 文字以内で、スペースは使用できません。
+LUN名は255文字以内で、スペースは使用できません。
 
 +
 
-NOTE: NVFAIL オプションは、ボリュームで LUN が作成されると、自動的に有効になります。
+NOTE: NVFAILオプションは、ボリュームにLUNが作成されると自動的に有効になります。
 
-. igroup を作成します。
+. igroupを作成します。
 +
 `igroup create -vserver _vserver_name_ -igroup _igroup_name_ -protocol fcp|iscsi|mixed -ostype linux -initiator _initiator_name_`
 
-. LUN を igroup にマッピングします。
+. LUNをigroupにマッピングします。
 +
 `lun mapping create -vserver _vserver_name_ -volume _volume_name_ -lun _lun_name_ -igroup _igroup_name_`
 
-. LUN が正しく設定されていることを確認します。
+. LUNが正しく設定されていることを確認します。
 +
 `lun show -vserver _vserver_name_`
 
-. link:san-admin/create-port-sets-binding-igroups-task.html["ポートセットを作成してigroupにバインドします"] （オプション）。
-. ホストのマニュアルに記載されている手順に従って、特定のホストでブロックアクセスを有効にします。
-. Host Utilities を使用して FC または iSCSI マッピングを完了し、ホスト上の LUN を検出します。
+. link:san-admin/create-port-sets-binding-igroups-task.html["ポートセットを作成してigroupにバインドします"]（オプション）。
+. 特定のホストでブロックアクセスを有効にするには、ホストのマニュアルの手順に従います。
+. Host Utilitiesを使用してFCまたはiSCSIマッピングを完了し、ホスト上のLUNを検出します。
 

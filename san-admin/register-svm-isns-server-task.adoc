@@ -4,55 +4,55 @@ sidebar: sidebar
 keywords: register, svm, isns, server 
 summary: iSNS サーバに登録するように Storage Virtual Machine （ SVM ）を設定するには、 vserver iscsi isns コマンドを使用します。 
 ---
-= SVM を iSNS サーバに登録する
+= SVMをiSNSサーバに登録
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-を使用できます `vserver iscsi isns` iSNSサーバに登録するようにStorage Virtual Machine（SVM）を設定するコマンド。
+iSNSサーバに登録するようにStorage Virtual Machine（SVM）を設定するには、コマンドを使用し `vserver iscsi isns`ます。
 
-.このタスクについて
-。 `vserver iscsi isns create` コマンドは、SVMをiSNSサーバに登録するように設定します。SVM には、 iSNS サーバの設定や管理を行うコマンドはありません。iSNS サーバを管理するには、 iSNS サーバのベンダーが提供するサーバ管理ツールまたはインターフェイスを使用します。
+.タスクの内容
+コマンドは、 `vserver iscsi isns create`SVMをiSNSサーバに登録します。SVM には、 iSNS サーバの設定や管理を行うコマンドはありません。iSNS サーバを管理するには、 iSNS サーバのベンダーが提供するサーバ管理ツールまたはインターフェイスを使用します。
 
 .手順
 . iSNS サーバで、 iSNS サービスが開始しており、サービスを提供可能な状態であることを確認します。
-. データポートに SVM 管理 LIF を作成します。
+. データポートにSVM管理LIFを作成します。
 +
 `network interface create -vserver _SVM_name_ -lif _lif_name_ -role data -data-protocol none -home-node _home_node_name_ -home-port _home_port_ -address _IP_address_ -netmask _network_mask_`
 
-. SVM に iSCSI サービスがない場合は作成します。
+. SVMにiSCSIサービスを作成します（存在しない場合）。
 +
 `vserver iscsi create -vserver _SVM_name_`
 
-. iSCSI サービスが正常に作成されたことを確認します。
+. iSCSIサービスが正常に作成されたことを確認します。
 +
 `iscsi show -vserver _SVM_name_`
 
-. SVM のデフォルトルートが存在していることを確認します。
+. SVMのデフォルトルートが存在することを確認します。
 +
 `network route show -vserver _SVM_name_`
 
-. SVM のデフォルトルートが存在しない場合は、デフォルトルートを作成します。
+. SVMのデフォルトルートが存在しない場合は、デフォルトルートを作成します。
 +
 `network route create -vserver _SVM_name_ -destination _destination_ -gateway _gateway_`
 
-. iSNS サービスに登録するように SVM を設定します。
+. iSNSサービスに登録するようにSVMを設定します。
 +
 `vserver iscsi isns create -vserver _SVM_name_ -address _IP_address_`
 
 +
-IPv4 アドレスファミリーと IPv6 アドレスファミリーの両方がサポートされています。iSNS サーバのアドレスファミリーは、 SVM 管理 LIF のアドレスファミリーと同じである必要があります。
+IPv4アドレスファミリーとIPv6アドレスファミリーの両方がサポートされます。iSNS サーバのアドレスファミリーは、 SVM 管理 LIF のアドレスファミリーと同じである必要があります。
 
 +
-たとえば、 IPv4 アドレスを使用する SVM 管理 LIF を、 IPv6 アドレスを使用する iSNS サーバに接続することはできません。
+たとえば、IPv4アドレスを使用するSVM管理LIFを、IPv6アドレスを使用するiSNSサーバに接続することはできません。
 
-. iSNS サービスが実行されていることを確認します。
+. iSNSサービスが実行されていることを確認します。
 +
 `vserver iscsi isns show -vserver _SVM_name_`
 
-. iSNS サービスが実行されていない場合は、 iSNS サービスを開始します。
+. iSNSサービスが実行されていない場合は開始します。
 +
 `vserver iscsi isns start -vserver _SVM_name_`
 

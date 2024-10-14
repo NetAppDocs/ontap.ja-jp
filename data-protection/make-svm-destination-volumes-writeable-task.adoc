@@ -4,7 +4,7 @@ sidebar: sidebar
 keywords: make, svm, storage vm, destination, volume, writable 
 summary: クライアントにデータを提供する前に、 SVM デスティネーションボリュームを書き込み可能にする必要があります。 
 ---
-= SVM デスティネーションボリュームを書き込み可能にします
+= SVMデスティネーションボリュームを書き込み可能にする
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
@@ -15,12 +15,12 @@ summary: クライアントにデータを提供する前に、 SVM デスティ
 
 この手順は、1つの例外を除き、ボリュームレプリケーションの手順とほとんど同じです。SVMレプリケーション関係の作成時にを設定した場合は `-identity-preserve true` 、デスティネーションSVMをアクティブ化する前にソースSVMを停止する必要があります。
 
-.このタスクについて
+.タスクの内容
 コマンド構文全体については、マニュアルページを参照してください。
 
 [NOTE]
 ====
-ディザスタリカバリのシナリオでは、ソース SVM とそのデータにアクセスできなくなり、前回の再同期後の更新が無効または破損している可能性があるため、ソース SVM からディザスタリカバリのデスティネーション SVM への SnapMirror 更新を実行できません。
+ディザスタリカバリシナリオでは、ソースSVMとそのデータにアクセスできなくなるほか、前回の再同期後の更新に障害が発生したり破損したりする可能性があるため、ソースSVMからディザスタリカバリデスティネーションSVMへのSnapMirror更新を実行できません。
 
 ====
 ONTAP 9.8以降では、System Managerを使用して、災害発生後にデスティネーションStorage VMをアクティブ化できます。デスティネーションStorage VMをアクティブ化すると、SVMデスティネーションボリュームが書き込み可能になり、クライアントにデータを提供できるようになります。
@@ -30,7 +30,7 @@ ONTAP 9.8以降では、System Managerを使用して、災害発生後にデス
 
 [role="tabbed-block"]
 ====
-.System Manager の略
+.System Manager
 --
 . ソースクラスタにアクセスできる場合は、SVMが停止していることを確認します。* Storage > Storage VM*に移動し、SVMの* State *列を確認します。
 . ソースSVMの状態が「実行中」の場合は停止します。を選択し、*[停止]*を選択 image:icon_kabob.gif["メニューオプションアイコン"] します。
@@ -41,9 +41,9 @@ ONTAP 9.8以降では、System Managerを使用して、災害発生後にデス
 
 
 --
-.CLI の使用
+.CLI
 --
-. デスティネーション SVM またはデスティネーションクラスタから、デスティネーションへのスケジュールされた転送を停止します。
+. デスティネーションSVMまたはデスティネーションクラスタから、デスティネーションへのスケジュールされた転送を停止します。
 +
 [source, cli]
 ----
@@ -51,17 +51,17 @@ snapmirror quiesce -source-path <SVM>: -destination-path <SVM>:
 ----
 +
 
-NOTE: で、SVM名のあとにコロン（：）を入力する必要があります `-source-path` および `-destination-path` オプション（ Options ）以下の例を参照してください。
+NOTE: オプションと `-destination-path`オプションで、SVM名のあとにコロン（：）を入力する必要があります `-source-path`。以下の例を参照してください。
 
 +
-次の例は、ソースSVM間のスケジュールされた転送を停止します `svm1` およびデスティネーションSVM `svm_backup`：
+次の例は、ソースSVMとデスティネーションSVM `svm_backup`の間のスケジュールされた転送を停止します `svm1`。
 
 +
 [listing]
 ----
 cluster_dst::> snapmirror quiesce -source-path svm1: -destination-path svm_backup:
 ----
-. デスティネーション SVM またはデスティネーションクラスタから、デスティネーションへの実行中の転送を停止します。
+. デスティネーションSVMまたはデスティネーションクラスタから、デスティネーションへの実行中の転送を停止します。
 +
 [source, cli]
 ----
@@ -69,17 +69,17 @@ snapmirror abort -source-path <SVM>: -destination-path <SVM>:
 ----
 +
 
-NOTE: で、SVM名のあとにコロン（：）を入力する必要があります `-source-path` および `-destination-path` オプション（ Options ）以下の例を参照してください。
+NOTE: オプションと `-destination-path`オプションで、SVM名のあとにコロン（：）を入力する必要があります `-source-path`。以下の例を参照してください。
 
 +
-次の例は、ソースSVM間の実行中の転送を停止します `svm1` およびデスティネーションSVM `svm_backup`：
+次の例は、ソースSVMとデスティネーションSVM `svm_backup`の間の実行中の転送を停止します `svm1`。
 
 +
 [listing]
 ----
 cluster_dst::> snapmirror abort -source-path svm1: -destination-path svm_backup:
 ----
-. デスティネーション SVM またはデスティネーションクラスタから、レプリケーション関係を解除します。
+. デスティネーションSVMまたはデスティネーションクラスタから、レプリケーション関係を解除します。
 +
 [source, cli]
 ----
@@ -87,24 +87,24 @@ snapmirror break -source-path <SVM>: -destination-path <SVM>:
 ----
 +
 
-NOTE: で、SVM名のあとにコロン（：）を入力する必要があります `-source-path` および `-destination-path` オプション（ Options ）以下の例を参照してください。
+NOTE: オプションと `-destination-path`オプションで、SVM名のあとにコロン（：）を入力する必要があります `-source-path`。以下の例を参照してください。
 
 +
-次の例は、ソースSVM間の関係を解除します `svm1` およびデスティネーションSVM `svm_backup`：
+次の例は、ソースSVMとデスティネーションSVM `svm_backup`の間の関係を解除し `svm1`ます。
 
 +
 [listing]
 ----
 cluster_dst::> snapmirror break -source-path svm1: -destination-path svm_backup:
 ----
-. 設定した場合 `-identity-preserve true` SVMレプリケーション関係を作成したら、ソースSVMを停止します。
+. SVMレプリケーション関係の作成時にを設定した場合は `-identity-preserve true`、ソースSVMを停止します。
 +
 [source, cli]
 ----
 vserver stop -vserver <SVM>
 ----
 +
-次の例は、ソースSVMを停止します `svm1`：
+次の例は、ソースSVMを停止し `svm1`ます。
 
 +
 [listing]
@@ -118,7 +118,7 @@ cluster_src::> vserver stop svm1
 vserver start -vserver <SVM>
 ----
 +
-次の例は、デスティネーションSVMを起動します `svm_backup`：
+次の例は、デスティネーションSVMを起動し `svm_backup`ます。
 
 +
 [listing]
@@ -127,8 +127,8 @@ cluster_dst::> vserver start svm_backup
 ----
 
 
-.完了後
-の説明に従って、データアクセス用の SVM デスティネーションボリュームを設定します link:configure-destination-volume-data-access-concept.html["データアクセス用のデスティネーションボリュームを設定"]。
+.終了後
+の説明に従って、データアクセス用のSVMデスティネーションボリュームを設定しますlink:configure-destination-volume-data-access-concept.html["データアクセスのためのデスティネーションボリュームの設定"]。
 
 --
 ====

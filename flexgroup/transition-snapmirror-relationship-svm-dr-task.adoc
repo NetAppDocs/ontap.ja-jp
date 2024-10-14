@@ -2,29 +2,29 @@
 permalink: flexgroup/transition-snapmirror-relationship-svm-dr-task.html 
 sidebar: sidebar 
 keywords: transition, flexgroup, snapmirror, relationship, svm, dr 
-summary: FlexGroup SVM DR 関係を作成するには、既存の FlexGroup Volume SnapMirror 関係を移行します。 
+summary: 既存のFlexGroup SnapMirror関係を移行することで、FlexGroup SVM DR関係を作成できます。 
 ---
-= 既存の FlexGroup SnapMirror 関係を SVM DR に移行します
+= 既存のFlexGroup SnapMirror関係をSVM DRに移行する
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-FlexGroup SVM DR 関係を作成するには、既存の FlexGroup Volume SnapMirror 関係を移行します。
+既存のFlexGroup SnapMirror関係を移行することで、FlexGroup SVM DR関係を作成できます。
 
 .必要なもの
-* FlexGroup Volume SnapMirror 関係は正常な状態です。
-* ソース FlexGroup ボリュームとデスティネーション ボリュームの名前が同じです。
+* FlexGroup Volume SnapMirror関係は正常な状態です。
+* ソースとデスティネーションのFlexGroupボリュームの名前が同じです。
 
 
 .手順
-. SnapMirrorデスティネーションから、FlexGroup レベルのSnapMirror関係を再同期します。 `snapmirror resync`
-. FlexGroup SVM DRのSnapMirror関係を作成FlexGroup Volume SnapMirror関係に設定されているのと同じSnapMirrorポリシーを使用します。 `snapmirror create -destination-path dest_svm: -source-path src_svm: -identity-preserve true -policy MirrorAllSnapshots`
+. SnapMirrorデスティネーションから、FlexGroupレベルのSnapMirror関係を再同期します。 `snapmirror resync`
+. FlexGroup SVM DR SnapMirror関係を作成FlexGroup VolumeのSnapMirror関係に設定されているのと同じSnapMirrorポリシーを使用します。 `snapmirror create -destination-path dest_svm: -source-path src_svm: -identity-preserve true -policy MirrorAllSnapshots`
 +
 [NOTE]
 ====
-を使用する必要があります `-identity-preserve true` のオプション `snapmirror create` コマンドを使用してレプリケーション関係を作成します。
+レプリケーション関係を作成するときは、コマンドのオプションを `snapmirror create`使用する必要があります `-identity-preserve true`。
 
 ====
 . 関係が解除されていることを確認します。 `snapmirror show -destination-path dest_svm: -source-path src_svm:`
@@ -40,7 +40,7 @@ Path        Type  Path        State   Status         Progress  Healthy Updated
 fg_vs:        XDP  fg_vs1_renamed:     Broken-off
                                       Idle           -         true   -
 ----
-. デスティネーション SVM を停止します。 `vserver stop -vserver vs_name`
+. デスティネーションSVMを停止します。 `vserver stop -vserver vs_name`
 +
 [listing]
 ----
@@ -55,6 +55,6 @@ vserver stop -vserver fg_vs_renamed
 snapmirror resync -destination-path fg_vs_renamed: -source-path fg_vs:
 Warning: This Vserver has volumes which are the destination of FlexVol or FlexGroup SnapMirror relationships. A resync on the Vserver SnapMirror relationship will cause disruptions in data access
 ----
-. SVM DRレベルのSnapMirror関係が正常なアイドル状態になっていることを確認します。 `snapmirror show -expand`
+. SVM DRレベルのSnapMirror関係が健全なアイドル状態になっていることを確認します。 `snapmirror show -expand`
 . FlexGroup SnapMirror関係が健全な状態であることを確認します。 `snapmirror show`
 

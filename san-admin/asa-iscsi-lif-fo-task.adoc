@@ -13,9 +13,9 @@ summary: ONTAP 9.11.1以降にアップグレードした場合は、ONTAP 9.10.
 [role="lead"]
 ONTAP 9.11.1以降にアップグレードした場合は、ONTAP 9.10.1以前で作成したすべてのiSCSI LIFでLIFの自動フェイルオーバーを手動で有効にする必要があります。
 
-ONTAP 9.11.1以降では、オールフラッシュSANアレイプラットフォームでiSCSI LIFのLIFの自動フェイルオーバーを有効にすることができます。ストレージフェイルオーバーが発生すると、iSCSI LIFはホームノードまたはポートからHAパートナーノードまたはポートに自動的に移行され、フェイルオーバーの完了後に再び移行されます。  または、iSCSI LIFのポートが正常な状態でなくなった場合、そのLIFは現在のホームノードの正常なポートに自動的に移行され、ポートが正常な状態に戻った時点で元のポートに戻ります。  を使用すると、iSCSIで実行されているSANワークロードは、フェイルオーバー後にI/Oサービスを迅速に再開できます。
+ONTAP 9 .11.1以降では、オールフラッシュSANアレイプラットフォームでiSCSI LIFに対してLIFの自動フェイルオーバーを有効にすることができます。ストレージフェイルオーバーが発生すると、iSCSI LIFはホームノードまたはポートからHAパートナーノードまたはポートに自動的に移行され、フェイルオーバーの完了後に再び移行されます。または、iSCSI LIFのポートが正常な状態でなくなった場合、そのLIFは現在のホームノードの正常なポートに自動的に移行され、ポートが正常な状態に戻った時点で元のポートに戻ります。を使用すると、iSCSIで実行されているSANワークロードは、フェイルオーバー後にI/Oサービスを迅速に再開できます。
 
-ONTAP 9.11.1以降では、次のいずれかの条件に該当する場合、新しく作成したiSCSI LIFでLIFの自動フェイルオーバーがデフォルトで有効になります。
+ONTAP 9 .11.1以降では、次のいずれかの条件に該当する場合、新しく作成したiSCSI LIFでLIFの自動フェイルオーバーがデフォルトで有効になります。
 
 * SVMにiSCSI LIFがありません
 * LIFの自動フェイルオーバーがSVMのすべてのiSCSI LIFで有効になっている
@@ -23,11 +23,11 @@ ONTAP 9.11.1以降では、次のいずれかの条件に該当する場合、�
 
 
 
-== iSCSI LIFの自動フェイルオーバーを有効にする
+== iSCSI LIFの自動フェイルオーバーの有効化
 
-デフォルトでは、ONTAP 9.10.1以前で作成したiSCSI LIFでは、LIFの自動フェイルオーバーは有効になりません。  SVM上にLIFの自動フェイルオーバーが有効になっていないiSCSI LIFがある場合、新しく作成したLIFでもLIFの自動フェイルオーバーは有効になりません。  LIFの自動フェイルオーバーが有効になっておらず、フェイルオーバーが発生するとiSCSI LIFは移行されません。
+ONTAP 9.10.1以前で作成したiSCSI LIFでは、デフォルトでLIFの自動フェイルオーバーが有効になっていません。SVM上にLIFの自動フェイルオーバーが有効になっていないiSCSI LIFがある場合、新しく作成したLIFでもLIFの自動フェイルオーバーは有効になりません。LIFの自動フェイルオーバーが有効になっていない状態でフェイルオーバーが発生すると、iSCSI LIFは移行されません。
 
-の詳細を確認してください link:../networking/configure_lifs_@cluster_administrators_only@_overview.html#lif-failover-and-giveback["LIFのフェイルオーバーとギブバック"]。
+詳細については、をご覧ください link:../networking/configure_lifs_@cluster_administrators_only@_overview.html#lif-failover-and-giveback["LIFのフェイルオーバーとギブバック"]。
 
 .ステップ
 . iSCSI LIFの自動フェイルオーバーを有効にします。
@@ -37,7 +37,7 @@ ONTAP 9.11.1以降では、次のいずれかの条件に該当する場合、�
 network interface modify -vserver <SVM_name> -lif <iscsi_lif> -failover-policy sfo-partner-only -auto-revert true
 ----
 +
-SVMのすべてのiSCSI LIFを更新するには、 `-lif*` ではなく `lif`。
+SVM上のすべてのiSCSI LIFを更新するには、の代わりに `lif`を使用し `-lif*`ます。
 
 
 
@@ -45,7 +45,7 @@ SVMのすべてのiSCSI LIFを更新するには、 `-lif*` ではなく `lif`�
 
 == iSCSI LIFの自動フェイルオーバーを無効にする
 
-ONTAP 9.10.1以前で作成したiSCSI LIFに対するiSCSI LIFの自動フェイルオーバーを以前に有効にしていた場合は、無効にすることもできます。
+ONTAP 9 10.1以前で作成したiSCSI LIFに対するiSCSI LIFの自動フェイルオーバーを有効にしていた場合は、無効にすることもできます。
 
 .ステップ
 . iSCSI LIFの自動フェイルオーバーを無効にします。
@@ -55,13 +55,13 @@ ONTAP 9.10.1以前で作成したiSCSI LIFに対するiSCSI LIFの自動フェ�
 network interface modify -vserver <SVM_name> -lif <iscsi_lif> -failover-policy disabled -auto-revert false
 ----
 +
-SVMのすべてのiSCSI LIFを更新するには、 `-lif*` ではなく `lif`。
+SVM上のすべてのiSCSI LIFを更新するには、の代わりに `lif`を使用し `-lif*`ます。
 
 
 
 .関連情報
-* link:../networking/create_a_lif.html["LIF を作成"]
-* 手動で実行する link:../networking/migrate_a_lif.html["LIFを移行する"]
-* 手動で実行する link:../networking/revert_a_lif_to_its_home_port.html["LIFをホームポートにリバートします。"]
-* link:../networking/configure_failover_settings_on_a_lif.html["LIF のフェイルオーバーを設定する"]
+* link:../networking/create_a_lif.html["LIFの作成"]
+* シユトウlink:../networking/migrate_a_lif.html["LIFを移行する"]
+* シユトウlink:../networking/revert_a_lif_to_its_home_port.html["LIFをホームポートにリバートします。"]
+* link:../networking/configure_failover_settings_on_a_lif.html["LIFのフェイルオーバーを設定する"]
 

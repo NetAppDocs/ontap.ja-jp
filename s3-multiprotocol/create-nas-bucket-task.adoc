@@ -2,65 +2,60 @@
 permalink: s3-multiprotocol/create-nas-bucket-task.html 
 sidebar: sidebar 
 keywords: s3, svm, bucket, object, server, versioning, protocol, filesystems, nas, directories 
-summary: S3 NASバケットは、S3バケット名とNASパスのマッピングです。  
+summary: S3 NASバケットは、S3バケット名とNASパスのマッピングです。 
 ---
-= S3 NASバケットを作成する
+= S3 NASバケットの作成
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-S3 NASバケットは、S3バケット名とNASパスのマッピングです。S3 NASバケットを使用すると、既存のボリュームとディレクトリ構造を持つSVMネームスペースのすべての部分にS3アクセスを提供できます。
+S3 NASバケットは、S3バケット名とNASパスのマッピングです。S3 NASバケットを使用すると、既存のボリュームとディレクトリ構造を持つSVMネームスペースの任意の部分へのS3アクセスを提供できます。
 
-.作業を開始する前に
+.開始する前に
 * NASデータを含むSVMにS3オブジェクトサーバが設定されている。
-* NASデータはに準拠しています link:nas-data-requirements-client-access-reference.html["S3クライアントアクセスの要件"]。
+* NASデータはに準拠していlink:nas-data-requirements-client-access-reference.html["S3クライアントアクセスの要件"]ます。
 
 
-.このタスクについて
-S3 NASバケットは、SVMのルートディレクトリ内のすべてのファイルとディレクトリのセットを指定するように設定できます。
+.タスクの内容
+SVMのルートディレクトリ内の任意のセットのファイルとディレクトリを指定するようにS3 NASバケットを設定できます。
 
-また、次のパラメータを任意に組み合わせて、NASデータへのアクセスを許可または禁止するバケットポリシーを設定することもできます。
+また、次のパラメータを任意に組み合わせてNASデータへのアクセスを許可または禁止するバケットポリシーを設定することもできます。
 
 * ファイルおよびディレクトリ
 * ユーザおよびグループの権限
 * S3処理
 
 
-たとえば、大規模なユーザグループに読み取り専用データアクセスを許可するバケットポリシーと、そのデータのサブセットに対して処理を実行する権限を制限するグループが別々に必要になることがあります。
+たとえば、大規模なユーザグループに読み取り専用データアクセスを許可するバケットポリシーと、そのデータのサブセットに対して限定されたグループに処理の実行を許可するバケットポリシーが必要になる場合があります。
 
-S3 NAS「バケット」はマッピングであり、S3バケットではないため、標準S3バケットの次のプロパティはS3 NASバケットには適用されません。
+S3 NASの「バケット」はマッピングであり、S3バケットではないため、次の標準S3バケットのプロパティはS3 NASバケットには適用されません。
 
-* * aggr-list\aggr-list-multiplier\storage-service-level\volume\size\exclude-aggr-list\qos-policy-group *+
-S3 NASバケットの設定時にボリュームまたはqtreeが作成されません。
+* * aggr-list\aggr-list-multiplier \storage-service-level \volume\size\exclude-aggr-list\qos-policy-group *+ S3 NASバケットの設定時にボリュームまたはqtreeが作成されません。
 * * role\is-protected\is-protected-on-\ is-protected-on-cloud *+ S3 ONTAPバケットは、SnapMirror S3を使用して保護またはミラーリングされませんが、代わりにボリューム単位で使用できる通常のSnapMirror保護が使用されます。
-* *バージョン管理状態*+
-NASボリュームには通常、異なるバージョンを保存するためのSnapshotテクノロジが用意されています。ただし、バージョン管理は現在S3 NASバケットでは使用できません。
-* * logical-used\ object-count *+
-NASボリュームについては、volumeコマンドを使用して同等の統計情報を使用できます。
+* *バージョン管理状態*+ NASボリュームには、通常、異なるバージョンを保存するためのスナップショット・テクノロジーが備わっています。ただし、S3 NASバケットでは現在バージョン管理を使用できません。
+* * logical-used\object-count *+と同等の統計情報は、volumeコマンドを使用してNASボリュームに対して利用できます。
 
 
 [role="tabbed-block"]
 ====
-.System Manager の略
+.System Manager
 --
-NAS対応Storage VMに新しいS3 NASバケットを追加
+NAS対応Storage VMに新しいS3 NASバケットを追加します。
 
 . [ * ストレージ ] 、 [ バケット ] の順にクリックし、 [ * 追加 ] をクリックします。
 . S3 NASバケットの名前を入力してStorage VMを選択し、サイズを入力せずに* More Options *をクリックします。
-. 有効なパス名を入力するか、[参照]をクリックして有効なパス名のリストから選択します。[+]
-有効なパス名を入力すると、S3 NAS設定に関連しないオプションは非表示になります。
-. S3ユーザをNASユーザとグループにすでにマッピングしている場合は、権限を設定し、* Save *をクリックします。[+]
-この手順で権限を設定する前に、S3ユーザをNASユーザにマッピングしておく必要があります。
+. 有効なパス名を入力するか、[参照]をクリックして有効なパス名のリストから選択します。+有効なパス名を入力すると、S3 NAS設定に関係のないオプションは表示されません。
+. S3ユーザをNASユーザとグループにすでにマッピングしている場合は、権限を設定し、* Save *をクリックします。+この手順で権限を設定する前に、S3ユーザをNASユーザにマッピングしておく必要があります。
 
 
 それ以外の場合は、* Save *をクリックしてS3 NASバケットの設定を完了します。
 
 --
-.CLI の使用
+.CLI
 --
-NASファイルシステムを含むSVMにS3 NASバケットを作成します。[+]
+NASファイルシステムを含むSVMにS3 NASバケットを作成します。+
 `vserver object-store-server bucket create -vserver _svm_name_ -bucket _bucket_name_ -type nas -nas-path _junction_path_ [-comment _text_]`
 
 例：+

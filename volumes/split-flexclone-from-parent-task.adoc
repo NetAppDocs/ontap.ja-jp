@@ -2,36 +2,36 @@
 permalink: volumes/split-flexclone-from-parent-task.html 
 sidebar: sidebar 
 keywords: split, flexclone, volume, parent, volume, clone 
-summary: FlexCloneボリュームを親ボリュームからスプリットして、クローンを通常のFlexVolボリュームにすることができます。 
+summary: FlexCloneボリュームを親からスプリットして、クローンを通常のFlexVol volumeにすることができます。 
 ---
-= FlexClone ボリュームを親ボリュームからスプリットします
+= FlexCloneボリュームを親ボリュームからスプリットします。
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-FlexCloneボリュームを親ボリュームからスプリットして、クローンを通常のFlexVolボリュームにすることができます。
+FlexCloneボリュームを親からスプリットして、クローンを通常のFlexVol volumeにすることができます。
 
 クローンスプリット処理はバックグラウンドで実行されます。スプリット中は、クローンおよび親のデータにアクセスできます。ONTAP 9.4以降では、スペース効率が維持されます。スプリットプロセスではメタデータのみが更新され、IOは最小限に抑えられます。データブロックはコピーされません。
 
-.このタスクについて
-* FlexCloneボリュームの新しいSnapshotコピーは、スプリット処理中は作成できません。
-* データ保護関係に属しているFlexCloneボリュームや負荷共有ミラーに属しているFlexCloneボリュームは、親ボリュームからスプリットすることはできません。
+.タスクの内容
+* スプリット処理中は、FlexCloneボリュームの新しいSnapshotコピーを作成できません。
+* データ保護関係に属しているか負荷共有ミラーに属しているFlexCloneボリュームは、親ボリュームからスプリットすることはできません。
 * スプリットの実行中にFlexCloneボリュームをオフラインにすると、スプリット処理が中断されます。FlexCloneボリュームをオンラインに戻すと、スプリット処理が再開されます。
-* スプリットの実行後、親FlexVolボリュームとクローンの両方で、それぞれのボリュームギャランティに基づいたスペースの完全な割り当てが必要になります。
-* FlexCloneボリュームを親ボリュームからスプリットしたあとは、この2つを再び結合することはできません。
-* ONTAP 9.4 以降では、 AFF システム上のボリュームのギャランティが none である場合、 FlexClone ボリュームのスプリット処理では物理ブロックが共有され、データはコピーされません。そのため、ONTAP 9.4以降では、AFFシステムのFlexCloneボリュームのスプリットは、他のFASシステムのFlexCloneスプリット処理よりも高速です。AFF システムでの FlexClone スプリット処理の向上には、次の利点があります。
+* スプリット後は、親FlexVol volumeとクローンの両方で、それぞれのボリュームギャランティに基づいたスペースの完全な割り当てが必要になります。
+* FlexCloneを親ボリュームからスプリットしたあとは、この2つを再結合することはできません。
+* ONTAP 9 .4以降では、AFFシステムのボリュームギャランティがnonである場合、FlexCloneのスプリット処理では物理ブロックが共有され、データはコピーされません。したがって、AFFシステムのFlexCloneボリュームのスプリットは、ONTAP 9 .4以降の他のFASシステムのFlexCloneスプリット処理よりも高速です。AFFシステムでのFlexCloneスプリット処理の改善には、次の利点があります。
 +
 ** 親からクローンをスプリットしたあともストレージ効率が維持されます。
-** 既存の Snapshot コピーは削除されません。
+** 既存のSnapshotコピーは削除されません。
 ** 処理時間が短縮されます。
-** FlexClone ボリュームをクローン階層の任意のポイントからスプリットできます。
+** FlexCloneボリュームは、クローン階層の任意のポイントからスプリットできます。
 
 
 
 
-.作業を開始する前に
+.開始する前に
 * クラスタ管理者である必要があります。
 * FlexCloneボリュームは、スプリット処理の開始時にオンラインになっている必要があります。
 * スプリットが成功するには、親ボリュームがオンラインである必要があります。
@@ -54,13 +54,13 @@ Vserver   FlexClone       Estimate
 --------- ------------- ----------
 vs1       clone1           40.73MB
 ----
-. FlexClone ボリュームとその親が含まれているアグリゲートに十分なスペースがあることを確認します。
+. FlexCloneボリュームとその親を含むアグリゲートに十分なスペースがあることを確認します。
 +
-.. FlexClone ボリュームとその親が含まれているアグリゲートの空きスペースの量を確認します。
+.. FlexCloneボリュームとその親を含むアグリゲートの空きスペースの量を確認します。
 +
 `storage aggregate show`
 
-.. 包含アグリゲートで利用可能な空きスペースが不足している場合は、アグリゲートにストレージを追加します。
+.. 包含アグリゲートに十分な空きスペースがない場合は、アグリゲートにストレージを追加します。
 +
 `storage aggregate add-disks`
 
@@ -82,12 +82,12 @@ Warning: Are you sure you want to split clone volume clone1 in Vserver vs1 ?
 {y|n}: y
 [Job 1617] Job is queued: Split clone1.
 ----
-. FlexClone スプリット処理のステータスを監視します。
+. FlexCloneスプリット処理のステータスを監視します。
 +
 `volume clone split show -vserver _vserver_name_ -flexclone _clone_volume_name_`
 
 +
-次の例は、 AFF システムでの FlexClone スプリット処理のステータスを表示します。
+次の例は、AFFシステムでのFlexCloneスプリット処理のステータスを表示します。
 
 +
 [listing]
@@ -99,12 +99,12 @@ Vserver   FlexClone    Processed Total    Scanned  Updated      % Inode   % Bloc
                                                                  Complete  Complete
 vs1       clone1        0         0       411247   153600         0        37
 ----
-. スプリットボリュームが FlexClone ボリュームでなくなったことを確認します。
+. スプリットボリュームがFlexCloneボリュームでなくなったことを確認します。
 +
 `volume show -volume _volume_name_ -fields clone-volume`
 
 +
-の値 `clone-volume` FlexCloneボリューム以外のボリュームの場合、オプションは「false」です。
+FlexClone以外のボリュームの場合、オプションの値 `clone-volume`は「false」です。
 
 +
 次の例は、親からスプリットしたボリューム「Clone1」がFlexCloneボリュームでないかどうかを確認する方法を示しています。

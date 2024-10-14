@@ -2,26 +2,25 @@
 permalink: system-admin/forward-command-history-log-file-destination-task.html 
 sidebar: sidebar 
 keywords: forward, audit, log, destination, cluster, forwarding, splunk, RFC-3164, RFC-5424 
-summary: 監査ログは最大で10箇所に転送できます。たとえば、 Splunk や syslog サーバにログを転送し、監視や分析、バックアップなどの目的で使用できます。 
+summary: 監査ログは最大で10箇所に転送できます。たとえば、Splunkやsyslogサーバにログを転送して、監視、分析、バックアップなどの目的で使用できます。 
 ---
-= 監査ログの送信先を管理します
+= 監査ログのデスティネーションを管理します。
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-監査ログは最大で10箇所に転送できます。たとえば、 Splunk や syslog サーバにログを転送し、監視や分析、バックアップなどの目的で使用できます。
+監査ログは最大で10箇所に転送できます。たとえば、Splunkやsyslogサーバにログを転送して、監視、分析、バックアップなどの目的で使用できます。
 
-.このタスクについて
-転送を設定するには、転送されたログに使用するsyslogまたはSplunkホストのIPアドレス、ポート番号、転送プロトコル、syslog機能を指定する必要があります。 https://datatracker.ietf.org/doc/html/rfc5424["syslogファシリティについて説明します"^]。
+.タスクの内容
+転送を設定するには、syslogホストまたはSplunkホストのIPアドレス、ポート番号、転送プロトコル、転送ログに使用するsyslogファシリティを指定する必要があります。 https://datatracker.ietf.org/doc/html/rfc5424["syslogファシリティについて説明します"^]です。
 
  `-protocol`パラメータを使用して、次のいずれかの送信値を選択できます。
 
-UDP暗号化なし:: セキュリティなしのユーザデータグラムプロトコル（デフォルト）
-TCP暗号化なし:: セキュリティなしのTransmission Control Protocol
-TCP暗号化:: Transport Layer Security（TLS）を使用したTransmission Control Protocol +
-[TCP暗号化プロトコル]が選択されている場合は、[VERIFY SERVER]オプションを使用できます。
+UDP暗号化なし:: セキュリティなしのUser Datagram Protocol（デフォルト）
+TCP暗号化なし:: セキュリティなしの伝送制御プロトコル
+TCP暗号化:: Transmission Control Protocol with Transport Layer Security（TLS）+ A * Verify server *オプションは、TCP暗号化プロトコルが選択されている場合に使用できます。
 
 
 デフォルトのポートはUDPの場合は514、TCPの場合は6514ですが、ネットワークのニーズを満たす任意のポートを指定できます。
@@ -32,20 +31,20 @@ TCP暗号化:: Transport Layer Security（TLS）を使用したTransmission Cont
 RFC-5424:: RFC-5424に基づくsyslog形式（形式：<PRIVAL> version timestamp hostname：MSG）
 
 
-監査ログは、ONTAP CLIから転送できます。ONTAP 9.11.1以降は、System Managerから転送できます。
+監査ログは、ONTAP CLIから転送できます。ONTAP 9 .11.1以降では、System Managerから転送できます。
 
 [role="tabbed-block"]
 ====
-.System Manager の略
+.System Manager
 --
 * 監査ログの送信先を表示するには、* Cluster > Settings *の順に選択します。+ログ送信先の数が*通知管理タイル*に表示されます。クリックする image:../media/icon_kabob.gif["メニューオプションアイコン"] と詳細が表示されます。
 * 監査ログの送信先を追加、変更、または削除するには、[*Events & Jobs]>[Audit Logs]を選択し、画面右上の[*Manage Audit Destinations*]をクリックします。+をクリックする image:icon_add.gif["追加アイコン"]か、*[ホストアドレス]*列内をクリックし image:../media/icon_kabob.gif["メニューオプションアイコン"] て、エントリを編集または削除します。
 
 
 --
-.CLI の使用
+.CLI
 --
-. 監査ログの転送先ごとに、デスティネーション IP アドレスまたはホスト名、およびセキュリティオプションを指定します。
+. 監査ログの転送先ごとに、送信先のIPアドレスまたはホスト名、およびセキュリティオプションを指定します。
 +
 [listing]
 ----
@@ -56,11 +55,11 @@ cluster1::> cluster log-forwarding create -destination 192.168.123.98
 -port 6514 -protocol tcp-encrypted -facility user
 ----
 +
-** 状況に応じて `cluster log-forwarding create` コマンドが接続を確認するためにデスティネーションホストにpingを実行できない場合、エラーが表示されてコマンドが失敗します。推奨されませんが、を使用してください `-force` パラメータを指定すると、接続の検証が省略されます。
-** を設定した場合 `-verify-server` パラメータの値 `true`では、ログの転送先のIDは、証明書を検証することによって検証されます。この値はに設定できます `true` を選択した場合のみ `tcp-encrypted` の値 `-protocol` フィールド。
+** コマンドがデスティネーションホストにpingを送信して接続を確認できない場合、 `cluster log-forwarding create`コマンドはエラーで失敗します。推奨されませんが、 `-force`パラメータを指定してコマンドを実行すると接続の検証が省略されます。
+** パラメータをに `true`設定する `-verify-server`と、ログの転送先の証明書を検証することでIDが検証されます。この値をに設定できる `true`のは、フィールドで値を `-protocol`選択した場合だけ `tcp-encrypted`です。
 
 
-. を使用して、宛先レコードが正しいことを確認します `cluster log-forwarding show` コマンドを実行します
+. コマンドを使用して、送信先レコードが正しいことを確認し `cluster log-forwarding show`ます。
 +
 [listing]
 ----

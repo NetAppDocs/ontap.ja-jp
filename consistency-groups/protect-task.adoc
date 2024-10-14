@@ -4,7 +4,7 @@ sidebar: sidebar
 keywords: application protection, two-phase commit, 2 phase, smbc, async snapmirror, local, remote, snapshot, asynchronous, svm disaster recovery, snapmirror 
 summary: 整合グループを使用して、ローカルSnapshot、SnapMirror非同期、SnapMirrorアクティブ同期、SVMディザスタリカバリを使用してデータを保護します。 
 ---
-= 整合グループを保護します
+= 整合グループの保護
 :hardbreaks:
 :allow-uri-read: 
 :icons: font
@@ -12,60 +12,60 @@ summary: 整合グループを使用して、ローカルSnapshot、SnapMirror�
 
 
 [role="lead"]
-整合グループを使用すると、複数のボリュームにまたがる SAN 、 NAS 、 NVMe のアプリケーションに対して、ローカルとリモートで簡単に保護することができます。
+整合グループを使用すると、複数のボリュームにまたがるSAN、NAS、NVMeアプリケーションに対して、ローカルとリモートの保護を簡単に管理できます。
 
-整合性グループを作成しても、保護は自動的に有効になりません。保護ポリシーは、コンシステンシグループの作成時または作成後に設定できます。次のコマンドを使用して整合グループを保護できます。
+整合グループを作成しても、保護は自動的に有効になりません。保護ポリシーは、コンシステンシグループの作成時または作成後に設定できます。次のコマンドを使用して整合グループを保護できます。
 
 * ローカルSnapshotコピー
 * SnapMirrorアクティブ同期（9.15.1より前のバージョンのONTAPではSnapMirrorビジネス継続性と呼ばれます）
 * xref:index.html#mcc[MetroCluster（9.11.1以降）]
-* 非同期SnapMirror（9.13.1以降）
-* 非同期SVMディザスタリカバリ（9.14.1以降）
+* SnapMirror非同期（9.13.1以降）
+* 非同期SVMディザスタ リカバリ（9.14.1以降）
 
 
-ネストされた整合グループを使用する場合は、親整合グループと子整合グループに異なる保護ポリシーを設定できます。
+ネストされた整合性グループを使用している場合は、親整合性グループと子整合性グループに別々の保護ポリシーを設定できます。
 
-ONTAP 9.11.1以降では、整合グループで <<two-phase,2フェーズの整合グループSnapshotの作成>>。2フェーズSnapshot処理では事前チェックが実行され、Snapshotコピーが正常にキャプチャされたことが確認されます。
+ONTAP 9 .11.1以降では、整合グループが提供されます<<two-phase,2フェーズの整合グループSnapshotの作成>>。2フェーズSnapshot処理では事前チェックが実行され、Snapshotコピーが正常にキャプチャされたことが確認されます。
 
-リカバリは、整合グループ全体、階層構成内の単一の整合グループ、または整合グループ内の個々のボリュームに対して実行できます。リカバリを実行するには、リカバリ元の整合グループを選択し、Snapshotコピーのタイプを選択して、リストア元となるSnapshotコピーを特定します。このプロセスの詳細については、を参照してください link:../task_dp_restore_from_vault.html["以前の Snapshot コピーからボリュームをリストアします"]。
+リカバリは、整合グループ全体、階層構成の単一の整合グループ、または整合グループ内の個 々 のボリュームに対して実行できます。リカバリを実行するには、リカバリする整合グループを選択し、Snapshotコピーのタイプを選択してから、リストアのベースとなるSnapshotコピーを特定します。このプロセスの詳細については、を参照してくださいlink:../task_dp_restore_from_vault.html["以前のSnapshotコピーからボリュームをリストアする"]。
 
 
 
 == ローカルSnapshotポリシーを設定する
 
-ローカルSnapshot保護ポリシーを設定すると、整合性グループのすべてのボリュームに適用するポリシーを作成できます。
+ローカルSnapshot保護ポリシーを設定すると、整合性グループ内のすべてのボリュームにまたがるポリシーを作成できます。
 
-.このタスクについて
-整合グループでサポートされる最小Snapshotコピースケジュールは30分です。これは、 link:https://www.netapp.com/media/12385-tr4571.pdf["FlexGroupニツイテノテスト"^]（整合グループと同じSnapshotインフラを共有）。
+.タスクの内容
+整合グループでサポートされる最小Snapshotコピースケジュールは30分です。これはlink:https://www.netapp.com/media/12385-tr4571.pdf["FlexGroupニツイテノテスト"^]、が整合グループと同じSnapshotインフラを共有するに基づいています。
 
 [role="tabbed-block"]
 ====
-.System Manager の略
+.System Manager
 --
 .手順
 . Storage > Consistency groups * を選択します。
-. コンシステンシ・グループ・メニューから ' 作成したコンシステンシ・グループを選択します
+. [整合グループ]メニューから、作成した整合グループを選択します。
 . コンシステンシ・グループの概要ページの右上にある * 編集 * を選択します
 . スケジュール Snapshot コピー（ローカル） * の横のボックスをオンにします。
-. Snapshot ポリシーを選択します。新しいカスタムポリシーを設定する手順については、を参照してください link:../task_dp_create_custom_data_protection_policies.html["カスタムのデータ保護ポリシーを作成する"]。
+. Snapshotポリシーを選択します。新しいカスタムポリシーを設定するには、を参照してくださいlink:../task_dp_create_custom_data_protection_policies.html["カスタムのデータ保護ポリシーを作成する"]。
 . [ 保存（ Save ） ] を選択します。
 . 整合性グループの概要メニューに戻ります。左側の列の* Snapshotコピー（ローカル）*の横にあるステータスはprotectedと表示されます image:../media/icon_shield.png["シールドアイコン"]。
 
 
 --
-.CLI の使用
+.CLI
 --
-ONTAP 9.14.1以降では、CLIを使用して整合グループの保護ポリシーを変更できます。
+ONTAP 9 14.1以降では、CLIを使用してコンシステンシグループの保護ポリシーを変更できます。
 
-.作業を開始する前に
+.開始する前に
 * このタスクを実行するには、admin権限レベルが必要です。
-* ONTAP 9.14.1では、このタスクを実行するにはクラスタ管理者またはSVM管理者である必要があります。ONTAP 9.15.1以降では、admin権限レベルのすべてのユーザがこのタスクを実行できます。
+* ONTAP 9.14.1では、このタスクを実行するには、クラスタ管理者またはSVMの管理者である必要があります。ONTAP 9.15.1以降では、admin権限レベルのすべてのユーザがこのタスクを実行できます。
 
 
 .ステップ
-. 保護ポリシーを設定または変更するには、次のコマンドを実行します問題。
+. 次のコマンドを実行して、保護ポリシーを設定または変更します。
 +
-子整合性の保護ポリシーを変更する場合は、 `-parent-consistency-group _parent_consistency_group_name_` パラメータ
+子整合性の保護ポリシーを変更する場合は、パラメータを使用して親整合性グループを指定する必要があります `-parent-consistency-group _parent_consistency_group_name_`。
 
 +
 `consistency-group modify -vserver _svm_name_ -consistency-group _consistency_group_name_ -snapshot-policy _policy_name_`
@@ -82,7 +82,7 @@ ONTAP 9.14.1以降では、CLIを使用して整合グループの保護ポリ�
 
 [role="tabbed-block"]
 ====
-.System Manager の略
+.System Manager
 --
 .手順
 . [ストレージ]*>*[整合グループ]*に移動します。
@@ -93,19 +93,19 @@ ONTAP 9.14.1以降では、CLIを使用して整合グループの保護ポリ�
 
 
 --
-.CLI の使用
+.CLI
 --
-ONTAP 9.14.1以降では、CLIを使用して整合グループのオンデマンドSnapshotコピーを作成できます。
+ONTAP 9 14.1以降では、CLIを使用して整合グループのオンデマンドのSnapshotコピーを作成できます。
 
-.作業を開始する前に
+.開始する前に
 * このタスクを実行するには、admin権限レベルが必要です。
-* ONTAP 9.14.1では、このタスクを実行するにはクラスタ管理者またはSVM管理者である必要があります。ONTAP 9.15.1以降では、admin権限レベルのすべてのユーザがこのタスクを実行できます。
+* ONTAP 9.14.1では、このタスクを実行するには、クラスタ管理者またはSVMの管理者である必要があります。ONTAP 9.15.1以降では、admin権限レベルのすべてのユーザがこのタスクを実行できます。
 
 
 .ステップ
 . Snapshotコピーを作成します。
 +
-デフォルトのSnapshotタイプはcrash-consistentです。Snapshotタイプは、オプションの `-type` パラメータ
+デフォルトのSnapshotタイプはクラッシュ整合性です。オプションのパラメータを使用すると、Snapshotタイプを変更できます `-type`。
 
 +
 `consistency-group snapshot create -vserver _svm_name_ -consistency-group _consistency_group_name_ -snapshot _snapshot_name_`
@@ -118,37 +118,37 @@ ONTAP 9.14.1以降では、CLIを使用して整合グループのオンデマ�
 
 == 2フェーズ・コンシステンシ・グループ・スナップショットの作成
 
-ONTAP 9.11.1以降では、整合グループ（CG）Snapshot作成の2フェーズコミットがサポートされます。この2フェーズでは、Snapshotコピーをコミットする前に事前確認が実行されます。この機能は、ONTAP REST APIでのみ使用できます。
+ONTAP 9 .11.1以降では、整合グループで整合グループ（CG）Snapshot作成の2フェーズコミットがサポートされています。この2フェーズでは、Snapshotコピーをコミットする前に事前確認が実行されます。この機能は、ONTAP REST APIでのみ使用できます。
 
-二段階的なCG Snapshot作成はSnapshot作成にのみ使用でき、整合グループのプロビジョニングや整合グループのリストアには使用できません。
+2フェーズでの処理を利用できるのは、整合性グループのSnapshotの作成のみで、整合性グループのプロビジョニングやリストアには使用できません。
 
-2フェーズのCG Snapshotでは、Snapshotの作成プロセスが2つのフェーズに分割されます。
+2フェーズでのCGのSnapshot作成時は、Snapshot作成プロセスが2つのフェーズに分割されます。
 
-. 最初のフェーズでは、事前確認が実行され、Snapshotの作成がトリガーされます。最初のフェーズには、Snapshotコピーが正常にコミットされるまでの時間を指定するタイムアウトパラメータが含まれています。
-. フェーズ1の要求が正常に完了した場合は、最初のフェーズから指定した間隔で第2フェーズを呼び出し、適切なエンドポイントにSnapshotコピーをコミットできます。
+. 最初のフェーズでは、APIによって事前確認が実行され、Snapshot作成が開始されます。最初のフェーズには、Snapshotコピーが正常にコミットされるまでの時間を示すタイムアウト パラメータの設定も含まれます。
+. フェーズ1の要求が正常に完了したら、最初のフェーズから指定した間隔内にフェーズ2を呼び出して、Snapshotコピーを適切なエンドポイントにコミットできます。
 
 
-.作業を開始する前に
-* 2フェーズCG Snapshot作成を使用するには、クラスタ内のすべてのノードでONTAP 9.11.1以降が実行されている必要があります。
+.開始する前に
+* 2フェーズCG Snapshot作成を使用するには、クラスタ内のすべてのノードでONTAP 9 .11.1以降が実行されている必要があります。
 * 1つの整合グループインスタンスでサポートされる整合グループのSnapshot処理のアクティブな呼び出しは、1フェーズか2フェーズかに関係なく、一度に1回だけです。別の処理の実行中にSnapshot処理を開始しようとするとエラーになります。
-* Snapshotの作成を実行するときに、オプションで5~120秒のタイムアウト値を設定できます。タイムアウト値を指定しない場合、処理はデフォルトの7秒でタイムアウトします。APIで、タイムアウト値を `action_timeout` パラメータCLIでは、 `-timeout` フラグ。
+* Snapshotの作成を実行するときに、オプションで5~120秒のタイムアウト値を設定できます。タイムアウト値を指定しない場合、処理はデフォルトの7秒でタイムアウトします。APIで、パラメータを使用してタイムアウト値を設定し `action_timeout`ます。CLIでは、フラグを使用し `-timeout`ます。
 
 
 .手順
-REST APIまたはONTAP 9.14.1以降のONTAP CLIを使用して、2フェーズSnapshotを作成できます。この処理はSystem Managerではサポートされていません。
+REST APIまたはONTAP 9 .14.1以降のONTAP CLIを使用して、2フェーズスナップショットを作成できます。この処理はSystem Managerではサポートされていません。
 
 
 NOTE: APIを使用してSnapshotの作成を呼び出す場合は、APIを使用してSnapshotコピーをコミットする必要があります。CLIを使用してSnapshotの作成を呼び出す場合は、CLIを使用してSnapshotコピーをコミットする必要があります。混在方式はサポートされていません。
 
 [role="tabbed-block"]
 ====
-.CLI の使用
+.CLI
 --
-ONTAP 9.14.1以降では、CLIを使用して2フェーズSnapshotコピーを作成できます。
+ONTAP 9 14.1以降では、CLIを使用して2フェーズSnapshotコピーを作成できます。
 
-.作業を開始する前に
+.開始する前に
 * このタスクを実行するには、admin権限レベルが必要です。
-* ONTAP 9.14.1では、このタスクを実行するにはクラスタ管理者またはSVM管理者である必要があります。ONTAP 9.15.1以降では、admin権限レベルのすべてのユーザがこのタスクを実行できます。
+* ONTAP 9.14.1では、このタスクを実行するには、クラスタ管理者またはSVMの管理者である必要があります。ONTAP 9.15.1以降では、admin権限レベルのすべてのユーザがこのタスクを実行できます。
 
 
 .手順
@@ -156,7 +156,7 @@ ONTAP 9.14.1以降では、CLIを使用して2フェーズSnapshotコピーを�
 +
 `consistency-group snapshot start -vserver _svm_name_ -consistency-group _consistency_group_name_ -snapshot _snapshot_name_ [-timeout _time_in_seconds_ -write-fence {true|false}]`
 
-. Snapshotが作成されたことを確認します。
+. Snapshotが取得されたことを確認します。
 +
 `consistency-group snapshot show`
 
@@ -169,7 +169,7 @@ ONTAP 9.14.1以降では、CLIを使用して2フェーズSnapshotコピーを�
 --
 .API
 --
-. Snapshotの作成を呼び出します。を使用して、コンシステンシグループエンドポイントにPOST要求を送信します `action=start` パラメータ
+. Snapshotの作成を呼び出します。パラメータを使用して、整合性グループエンドポイントにPOST要求を送信します `action=start`。
 +
 [source, curl]
 ----
@@ -195,7 +195,7 @@ For more information about the ONTAP REST API, see link:https://docs.netapp.com/
 ====
 
 
-== コンシステンシグループにリモート保護を設定します
+== 整合グループのリモート保護の設定
 
 整合グループは、SnapMirrorのアクティブな同期機能と、ONTAP 9 .13.1以降のSnapMirror非同期機能を使用してリモート保護を提供します。
 
@@ -203,28 +203,28 @@ For more information about the ONTAP REST API, see link:https://docs.netapp.com/
 
 === SnapMirror Active Syncによる保護の設定
 
-SnapMirrorアクティブ同期を使用すると、整合グループに作成された整合グループのSnapshotコピーをデスティネーションに確実にコピーできます。SnapMirrorアクティブ同期の詳細、またはCLIを使用したSnapMirrorアクティブ同期の設定方法については、を参照してください。 xref:../task_san_configure_protection_for_business_continuity.html[ビジネス継続性の保護を構成します]。
+SnapMirrorのアクティブな同期を使用すると、整合グループに作成された整合グループのSnapshotコピーをデスティネーションに確実にコピーできます。SnapMirrorアクティブ同期の詳細、またはCLIを使用したSnapMirrorアクティブ同期の設定方法については、を参照してくださいxref:../task_san_configure_protection_for_business_continuity.html[ビジネス継続性のための保護の設定]。
 
-.作業を開始する前に
-* NASアクセス用にマウントされたボリュームには、SnapMirrorアクティブな同期関係を確立できません。
+.開始する前に
+* NASアクセス用にマウントされたボリュームでは、SnapMirrorのアクティブな同期関係を確立できません。
 * ソースクラスタとデスティネーションクラスタのポリシーラベルが一致している必要があります。
-* SnapMirrorアクティブな同期では、デフォルトではSnapshotコピーはレプリケートされません。ただし、事前定義されたSnapshotコピーにSnapMirrorラベルのルールを追加する必要があります。 `AutomatedFailOver` ポリシーとSnapshotコピーは、同じラベルで作成されます。
+* SnapMirror Active Syncでは、デフォルトでSnapshotコピーはレプリケートされません。ただし、事前定義されたポリシーにSnapMirrorラベルのルールを追加し、そのラベルでSnapshotコピーを `AutomatedFailOver`作成する必要があります。
 +
-このプロセスの詳細については、を参照してください link:../task_san_configure_protection_for_business_continuity.html["SnapMirrorのアクティブな同期で保護"]。
+このプロセスの詳細については、を参照してくださいlink:../task_san_configure_protection_for_business_continuity.html["SnapMirrorのアクティブな同期で保護"]。
 
-* xref:../data-protection/supported-deployment-config-concept.html[カスケード構成] SnapMirrorアクティブ同期ではサポートされません。
-* ONTAP 9.13.1以降では、システムを停止することなく xref:modify-task.html#add-volumes-to-a-consistency-group[整合グループにボリュームを追加します] アクティブなSnapMirrorアクティブな同期関係を使用している。整合性グループにその他の変更を加える場合は、SnapMirrorのアクティブな同期関係を解除し、整合性グループを変更してから関係を再確立して再同期する必要があります。
+* xref:../data-protection/supported-deployment-config-concept.html[カスケード構成]SnapMirrorアクティブ同期ではサポートされていません。
+* ONTAP 9 .13.1以降では、アクティブなSnapMirrorのアクティブな同期関係を無停止で使用できますxref:modify-task.html#add-volumes-to-a-consistency-group[整合グループにボリュームを追加します]。整合性グループにその他の変更を加える場合は、SnapMirrorのアクティブな同期関係を解除し、整合性グループを変更してから関係を再確立して再同期する必要があります。
 
 
 
-TIP: CLIを使用したSnapMirrorアクティブ同期の設定については、を参照してください。 xref:../task_san_configure_protection_for_business_continuity.html[SnapMirrorのアクティブな同期で保護]。
+TIP: SnapMirrorアクティブ同期をCLIで設定するには、を参照してくださいxref:../task_san_configure_protection_for_business_continuity.html[SnapMirrorのアクティブな同期で保護]。
 
 .System Managerでの手順
-. が完了していることを確認します link:../snapmirror-active-sync/prerequisites-reference.html["SnapMirrorアクティブ同期を使用するための前提条件"]。
+. が完了していることを確認しlink:../snapmirror-active-sync/prerequisites-reference.html["SnapMirrorアクティブ同期を使用するための前提条件"]ます。
 . Storage > Consistency groups * を選択します。
-. コンシステンシ・グループ・メニューから ' 作成したコンシステンシ・グループを選択します
+. [整合グループ]メニューから、作成した整合グループを選択します。
 . 概要ページの右上で、 [ * その他 * ] 、 [ * 保護 * ] の順に選択します。
-. ソース側の情報はSystem Managerで自動的に入力されます。デスティネーションに適したクラスタと Storage VM を選択します。保護ポリシーを選択します。「関係の初期化」がオンになっていることを確認します。
+. ソース側の情報はSystem Managerで自動的に入力されます。デスティネーションに適したクラスタとStorage VMを選択します。保護ポリシーを選択します。「関係の初期化」がオンになっていることを確認します。
 . [ 保存（ Save ） ] を選択します。
 . 整合グループを初期化して同期する必要があります。[整合グループ]*メニューに戻って、同期が正常に完了したことを確認します。の横に* SnapMirror（リモート）*ステータスが表示されます `Protected` image:../media/icon_shield.png["シールドアイコン"]。
 
@@ -233,37 +233,37 @@ TIP: CLIを使用したSnapMirrorアクティブ同期の設定については�
 
 === SnapMirror非同期の設定
 
-ONTAP 9.13.1以降では、単一の整合グループにSnapMirror非同期保護を設定できます。ONTAP 9.14.1以降では、SnapMirror非同期を使用して、整合性グループ関係を使用して、ボリューム単位のSnapshotコピーをデスティネーションクラスタにレプリケートできます。
+ONTAP 9 .13.1以降では、単一の整合グループに対してSnapMirror非同期保護を設定できます。ONTAP 9 14.1以降では、SnapMirror非同期を使用して、整合性グループ関係を使用して、ボリューム単位のSnapshotコピーをデスティネーションクラスタにレプリケートできます。
 
-.このタスクについて
-ボリューム単位のSnapshotコピーをレプリケートするには、ONTAP 9.14.1以降を実行している必要があります。MirrorAndVaultポリシーとVaultポリシーの場合は、ボリューム単位のSnapshotポリシーのSnapMirrorラベルが整合性グループのSnapMirrorポリシールールと一致している必要があります。ボリューム単位のSnapshotは、整合グループのSnapMirrorポリシーのkeepの値に従います。keepは、整合グループのSnapshotとは別に計算されます。たとえば、デスティネーションに2つのSnapshotコピーを保持するポリシーがある場合、ボリューム単位のSnapshotコピーを2つと整合グループのSnapshotコピーを2つ作成できます。
+.タスクの内容
+ボリューム単位のSnapshotコピーをレプリケートするには、ONTAP 9 14.1以降を実行している必要があります。MirrorAndVaultポリシーとVaultポリシーの場合は、ボリューム単位のSnapshotポリシーのSnapMirrorラベルが整合性グループのSnapMirrorポリシールールと一致している必要があります。ボリューム単位のSnapshotは、整合グループのSnapMirrorポリシーのkeepの値に従います。keepは、整合グループのSnapshotとは別に計算されます。たとえば、デスティネーションに2つのSnapshotコピーを保持するポリシーがある場合、ボリューム単位のSnapshotコピーを2つと整合グループのSnapshotコピーを2つ作成できます。
 
-ボリューム単位のSnapshotコピーとSnapMirror関係を再同期する場合は、ボリューム単位のSnapshotコピーを `-preserve` フラグ。整合グループのSnapshotコピーよりも新しい、ボリューム単位のSnapshotコピーが保持されます。整合性グループSnapshotコピーがない場合、再同期処理でボリューム単位のSnapshotコピーを転送することはできません。
+ボリューム単位のSnapshotコピーとSnapMirror関係を再同期する場合、フラグを指定してボリューム単位のSnapshotコピーを保持できます `-preserve`。整合グループのSnapshotコピーよりも新しい、ボリューム単位のSnapshotコピーが保持されます。整合性グループSnapshotコピーがない場合、再同期処理でボリューム単位のSnapshotコピーを転送することはできません。
 
-.作業を開始する前に
-* SnapMirror非同期保護は、単一の整合グループでのみ使用できます。階層型整合グループではサポートされません。階層整合グループを単一の整合グループに変換するには、を参照してください xref:modify-geometry-task.html[整合グループのアーキテクチャを変更]。
+.開始する前に
+* SnapMirror非同期保護は、単一の整合グループでのみ使用できます。階層型整合グループではサポートされません。階層整合グループを単一の整合グループに変換するには、を参照してくださいxref:modify-geometry-task.html[整合グループのアーキテクチャを変更]。
 * ソースクラスタとデスティネーションクラスタのポリシーラベルが一致している必要があります。
-* システムを停止することはありません xref:modify-task.html#add-volumes-to-a-consistency-group[整合グループにボリュームを追加します] アクティブなSnapMirror非同期関係を使用しています。整合性グループにその他の変更を加える場合は、SnapMirror関係を解除し、整合性グループを変更してから関係を再確立して再同期する必要があります。
+* アクティブなSnapMirror非同期関係では、システムを停止することはできませんxref:modify-task.html#add-volumes-to-a-consistency-group[整合グループにボリュームを追加します]。整合性グループにその他の変更を加える場合は、SnapMirror関係を解除し、整合性グループを変更してから関係を再確立して再同期する必要があります。
 * SnapMirror非同期による保護が有効になっている整合グループには制限が異なります。詳細については、を参照してください xref:limits.html[整合グループの制限]。
-* 複数のボリュームに対して非同期SnapMirror保護関係を設定している場合は、既存のSnapshotコピーを保持しながら、それらのボリュームを整合グループに変換できます。ボリュームを正常に変換するには：
+* 複数のボリュームに対してSnapMirror非同期保護関係を設定している場合は、既存のSnapshotコピーを保持しながら、それらのボリュームを整合グループに変換できます。ボリュームを正常に変換するには：
 +
 ** ボリュームの共通のSnapshotコピーがある必要があります。
-** 既存のSnapMirror関係を解除する必要があります。 xref:configure-task.html[ボリュームを単一の整合グループに追加します]をクリックし、次のワークフローを使用して関係を再同期します。
+** 既存のSnapMirror関係を解除し、xref:configure-task.html[ボリュームを単一の整合グループに追加します]次のワークフローを使用して関係を再同期する必要があります。
 
 
 
 
 .手順
 . デスティネーションクラスタで、*[ストレージ]>[整合グループ]*を選択します。
-. コンシステンシ・グループ・メニューから ' 作成したコンシステンシ・グループを選択します
+. [整合グループ]メニューから、作成した整合グループを選択します。
 . 概要ページの右上で、 [ * その他 * ] 、 [ * 保護 * ] の順に選択します。
-. ソース側の情報はSystem Managerで自動的に入力されます。デスティネーションに適したクラスタと Storage VM を選択します。保護ポリシーを選択します。「関係の初期化」がオンになっていることを確認します。
+. ソース側の情報はSystem Managerで自動的に入力されます。デスティネーションに適したクラスタとStorage VMを選択します。保護ポリシーを選択します。「関係の初期化」がオンになっていることを確認します。
 +
 非同期ポリシーを選択するときは、**転送スケジュールを上書き**するオプションがあります。
 
 +
 
-NOTE: SnapMirror非同期を使用する整合グループでサポートされる最小スケジュール（目標復旧時点（RPO）は30分です。
+NOTE: SnapMirror非同期整合グループでサポートされる最小スケジュール（目標復旧時点（RPO）は30分です。
 
 . [ 保存（ Save ） ] を選択します。
 . 整合グループを初期化して同期する必要があります。[整合グループ]*メニューに戻って、同期が正常に完了したことを確認します。の横に* SnapMirror（リモート）*ステータスが表示されます `Protected` image:../media/icon_shield.png["シールドアイコン"]。
@@ -273,33 +273,33 @@ NOTE: SnapMirror非同期を使用する整合グループでサポートされ�
 
 === SVMディザスタリカバリの設定
 
-ONTAP 9.14.1以降 xref:../data-protection/snapmirror-svm-replication-concept.html#[SVM ディザスタリカバリ] 整合グループがサポートされるため、整合グループの情報をソースクラスタからデスティネーションクラスタにミラーリングできます。
+ONTAP 9 14.1以降xref:../data-protection/snapmirror-svm-replication-concept.html#[SVMディザスタリカバリ]では整合グループがサポートされ、ソースクラスタからデスティネーションクラスタに整合グループ情報をミラーリングできます。
 
-すでに整合グループが含まれているSVMでSVMディザスタリカバリを有効にする場合は、次のSVM設定ワークフローに従って xref:../task_dp_configure_storage_vm_dr.html[System Manager の略] または xref:../data-protection/replicate-entire-svm-config-task.html[ONTAP CLI]。
+すでに整合グループが含まれているSVMでSVMディザスタリカバリを有効にする場合は、またはのSVM設定ワークフローに従ってxref:../data-protection/replicate-entire-svm-config-task.html[ONTAP CLI]ください。xref:../task_dp_configure_storage_vm_dr.html[System Manager]
 
-アクティブで正常な状態のSVMディザスタリカバリ関係が確立されたSVMに整合性グループを追加する場合は、デスティネーションクラスタからSVMディザスタリカバリ関係を更新する必要があります。詳細については、を参照してください xref:../data-protection/update-replication-relationship-manual-task.html[レプリケーション関係を手動で更新]。関係は、整合グループを拡張するたびに更新する必要があります。
+アクティブで正常な状態のSVMディザスタリカバリ関係が確立されたSVMに整合性グループを追加する場合は、デスティネーションクラスタからSVMディザスタリカバリ関係を更新する必要があります。詳細については、を参照してください xref:../data-protection/update-replication-relationship-manual-task.html[レプリケーション関係を手動で更新する]。関係は、整合グループを拡張するたびに更新する必要があります。
 
-.制限
+.制限事項
 * SVMディザスタリカバリでは、階層型整合グループはサポートされません。
 * SVMディザスタリカバリでは、SnapMirror非同期で保護された整合グループはサポートされません。SVMディザスタリカバリを設定する前に、SnapMirror関係を解除する必要があります。
-* 両方のクラスタでONTAP 9.14.1以降が実行されている必要があります。
+* 両方のクラスタでONTAP 9 14.1以降が実行されている必要があります。
 * 整合グループを含むSVMディザスタリカバリ構成では、ファンアウト関係はサポートされません。
-* その他の制限については、 xref:limits.html[整合グループの制限]。
+* その他の制限については、を参照してくださいxref:limits.html[整合グループの制限]。
 
 
 
 
-== 関係を可視化します
+== 関係を視覚化
 
-System Managerの*[保護]>[関係]*メニューにLUNマップが表示されます。ソース関係を選択すると、ソース関係が System Manager に表示され、視覚的に確認できます。ボリュームを選択すると、これらの関係をより深く掘り下げて、含まれる LUN およびイニシエータグループの関係のリストを確認できます。この情報は、個 々 のボリュームビューからExcelブックとしてダウンロードできます。ダウンロード処理はバックグラウンドで実行されます。
+System Managerの*[保護]>[関係]*メニューにLUNマップが表示されます。ソース関係を選択すると、ソース関係が可視化されて表示されます。ボリュームを選択すると、それらの関係をさらに掘り下げて、含まれているLUNおよびイニシエータグループ関係のリストを確認できます。この情報は、個 々 のボリュームビューからExcelブックとしてダウンロードできます。ダウンロード処理はバックグラウンドで実行されます。
 
 .関連情報
-* link:clone-task.html["整合グループをクローニングする"]
-* link:../task_dp_configure_snapshot.html["Snapshot コピーを設定します"]
+* link:clone-task.html["整合グループのクローニング"]
+* link:../task_dp_configure_snapshot.html["Snapshotコピーの設定"]
 * link:../task_dp_create_custom_data_protection_policies.html["カスタムのデータ保護ポリシーを作成する"]
-* link:../task_dp_recover_snapshot.html["Snapshot コピーからリカバリします"]
-* link:../task_dp_restore_from_vault.html["以前の Snapshot コピーからボリュームをリストアします"]
-* link:../snapmirror-active-sync/index.html["SnapMirror Active Syncの概要"]
+* link:../task_dp_recover_snapshot.html["Snapshotコピーからのリカバリ"]
+* link:../task_dp_restore_from_vault.html["以前のSnapshotコピーからボリュームをリストアする"]
+* link:../snapmirror-active-sync/index.html["SnapMirrorアクティブ同期の概要"]
 * link:https://docs.netapp.com/us-en/ontap-automation/["ONTAP 自動化に関するドキュメント"^]
 * xref:../data-protection/snapmirror-disaster-recovery-concept.html[SnapMirror非同期ディザスタリカバリの基本]
 

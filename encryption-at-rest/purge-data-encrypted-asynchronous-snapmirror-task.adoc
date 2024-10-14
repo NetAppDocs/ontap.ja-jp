@@ -13,65 +13,63 @@ summary: ONTAP 9 .8以降では、セキュアパージを使用して、SnapMir
 [role="lead"]
 ONTAP 9 .8以降では、セキュアパージを使用して、SnapMirror非同期関係にあるNVE対応ボリュームで無停止でデータを「スクラビング」できます。
 
-.作業を開始する前に
+.開始する前に
 * このタスクを実行するには、クラスタ管理者である必要があります。
-* このタスクを実行するには advanced 権限が必要です。
+* このタスクには高度なPrivilegesが必要です。
 
 
-.このタスクについて
-削除されたファイルのデータ量によっては、セキュアパージが完了するまでに数分から数時間かかることがあります。を使用できます `volume encryption secure-purge show` コマンドを使用して処理のステータスを表示します。を使用できます `volume encryption secure-purge abort` コマンドを入力して処理を終了します。
+.タスクの内容
+削除されたファイル内のデータ量によっては、セキュアパージが完了するまでに数分から数時間かかることがあります。処理のステータスは、コマンドを使用して確認できます `volume encryption secure-purge show`。処理を終了するには、コマンドを使用し `volume encryption secure-purge abort`ます。
 
 
-NOTE: SAN ホストでセキュアパージを実行するには、パージするファイルを含む LUN 全体を削除するか、パージするファイルに属するブロックの LUN で穴を開ける必要があります。LUN を削除できない場合や、ホストオペレーティングシステムで LUN のパンチ穴がサポートされていない場合は、セキュアパージを実行できません。
+NOTE: SANホストでセキュアパージを実行するには、パージするファイルを含むLUN全体を削除するか、パージするファイルに属するブロックに対してLUNに穴を開ける必要があります。LUNを削除できない場合や、ホストオペレーティングシステムでLUNのホールパンチングがサポートされていない場合は、セキュアパージを実行できません。
 
 .手順
 . ストレージシステムで、advanced権限レベルに切り替えます。
 +
 `set -privilege advanced`
 
-. セキュアパージするファイルまたは LUN を削除します。
+. セキュアパージを実行するファイルまたはLUNを削除します。
 +
-** NAS クライアントで、セキュアパージするファイルを削除します。
-** SAN ホストで、パージするファイルに属するブロックのために、 LUN から安全にパージまたはパンチ穴を開ける LUN を削除します。
+** NASクライアントで、セキュアパージを実行するファイルを削除します。
+** SANホストで、セキュアパージを実行するLUNを削除するか、パージするファイルに属するブロックに対してLUNでホールパンチングを実行します。
 
 
-. 非同期関係のデスティネーションボリュームを安全にパージするように準備します。
+. 非同期関係のデスティネーションボリュームをセキュアパージする準備をします。
 +
 `volume encryption secure-purge start -vserver _SVM_name_ -volume _volume_name_ -prepare true`
 
 +
 SnapMirror非同期関係の各ボリュームに対してこの手順を繰り返します。
 
-. セキュアにパージするファイルが Snapshot コピーにある場合は、 Snapshot コピーを削除します。
+. セキュアパージを実行するファイルがSnapshotコピーに含まれている場合は、Snapshotコピーを削除します。
 +
 `snapshot delete -vserver _SVM_name_ -volume _volume_name_ -snapshot`
 
-. セキュアパージの対象となるファイルがベース Snapshot コピー内にある場合は、次の手順を実行します。
+. セキュアパージを実行するファイルがベースSnapshotコピーに含まれている場合は、次の手順を実行します。
 +
 .. SnapMirror非同期関係のデスティネーションボリュームにSnapshotコピーを作成します。
 +
 `volume snapshot create -snapshot snapshot_name -vserver _SVM_name_ -volume _volume_name_`
 
-.. SnapMirror を更新してベースの Snapshot コピーをフォワードします。
+.. SnapMirrorを更新してベースのSnapshotコピーを転送します。
 +
 `snapmirror update -source-snapshot _snapshot_name_ -destination-path _destination_path_`
 
 +
 SnapMirror非同期関係の各ボリュームに対してこの手順を繰り返します。
 
-.. ベース Snapshot コピーの数に 1 を加えた値と同じ手順（ a ）および（ b ）を繰り返します。
+.. 手順（a）と（b）を、ベースSnapshotコピーの数に1を足した数だけ繰り返します。
 +
-たとえば、 2 つのベース Snapshot コピーがある場合は、手順（ a ）と（ b ）を 3 回繰り返します。
+たとえば、ベースSnapshotコピーが2つある場合は、手順（a）と（b）を3回繰り返します。
 
-.. ベースのSnapshotコピーが存在することを確認します。
- [+]
+.. ベースのSnapshotコピーが存在することを確認します。+
 `snapshot show -vserver _SVM_name_ -volume _volume_name_`
-.. ベースのSnapshotコピーを削除します。
- [+]
+.. ベースのSnapshotコピーを削除します。+
 `snapshot delete -vserver _svm_name_ -volume _volume_name_ -snapshot snapshot`
 
 
-. 削除したファイルを安全にパージします。
+. 削除したファイルのセキュアパージを実行します。
 +
 `volume encryption secure-purge start -vserver _svm_name_ -volume _volume_name_`
 

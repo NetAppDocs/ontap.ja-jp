@@ -2,61 +2,59 @@
 permalink: san-admin/configure-svm-fc-task.html 
 sidebar: sidebar 
 keywords: configure, svm, for fc 
-summary: FC 用に Storage Virtual Machine （ SVM ）を設定するには、 SVM 用の LIF を作成し、それらの LIF に FC プロトコルを割り当てる必要があります。 
+summary: FC用にStorage Virtual Machine（SVM）を設定するには、SVM用のLIFを作成し、それらのLIFにFCプロトコルを割り当てる必要があります。 
 ---
-= FC 用に SVM を設定
+= FC用のSVMの設定
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-FC 用に Storage Virtual Machine （ SVM ）を設定するには、 SVM 用の LIF を作成し、それらの LIF に FC プロトコルを割り当てる必要があります。
+FC用にStorage Virtual Machine（SVM）を設定するには、SVM用のLIFを作成し、それらのLIFにFCプロトコルを割り当てる必要があります。
 
-.作業を開始する前に
+.開始する前に
 FCライセンス（link:../system-admin/manage-licenses-concept.html#licenses-included-with-ontap-one["ONTAP Oneに付属"]）があり、有効になっている必要があります。FCライセンスが有効になっていない場合、LIFとSVMはオンラインとして表示されますが、動作ステータスはになります。 `down`LIFとSVMを動作させるには、FCサービスを有効にする必要があります。イニシエータをホストするには、SVM内のすべてのFC LIFで単一イニシエータゾーニングを使用する必要があります。
 
-.このタスクについて
-ネットアップでは、 FC プロトコルを使用してデータを提供するそれぞれの SVM について、各ノードに少なくとも 1 つの FC LIF をサポートしています。  ノードごとに 1 つの LIF を接続した構成では、ノードごとに 2 つの LIF と 2 つのファブリックを使用する必要があります。これにより、ノードレイヤとファブリックで冗長性が確保されます。
+.タスクの内容
+NetAppでは、FCプロトコルを使用してデータを提供する各SVMについて、ノードごとに少なくとも1つのFC LIFがサポートされます。ノードごとに1つのLIFを接続した状態で、ノードごとに2つのLIFと2つのファブリックを使用する必要があります。これにより、ノードレイヤとファブリックで冗長性が確保されます。
 
 .手順
 [role="tabbed-block"]
 ====
-.System Manager の略
+.System Manager
 --
 ONTAP System Manager（9.7以降）でiSCSI用のStorage VMを設定します。
 
 [cols="2"]
 |===
-| をクリックして新しいStorage VMにFCを設定してください | 既存のStorage VMにFCを設定 
+| 新しいStorage VMでFCを設定する方法 | 既存のStorage VMにFCを設定するには 
 
 
  a| 
 . System Managerで、* Storage > Storage VM*をクリックし、* Add *をクリックします。
 . Storage VMの名前を入力してください。
 . アクセスプロトコル*として「* FC」を選択します。
-. [FCを有効にする]をクリックします。
-+ FCポートが自動的に割り当てられます。
+. [FCを有効にする]をクリックします。+ FCポートが自動的に割り当てられます。
 . [ 保存（ Save ） ] をクリックします。
 
  a| 
 . System Manager で、 * Storage > Storage VM* をクリックします。
 . 設定するStorage VMをクリックします。
 . [Settings]*タブをクリックし、FCプロトコルの横にあるをクリックし image:icon_gear.gif["アクションアイコン"] ます。
-. Enable FC（FCを有効にする）をクリックし、ネットワークインタフェースのIPアドレスとサブネットマスクを入力します。
-+ FCポートが自動的に割り当てられます。
+. Enable FC（FCを有効にする）をクリックし、ネットワークインタフェースのIPアドレスとサブネットマスクを入力します。+ FCポートが自動的に割り当てられます。
 . [ 保存（ Save ） ] をクリックします。
 
 
 |===
 --
-.CLI の使用
+.CLI
 --
-. SVM で FC サービスを有効にします。
+. SVMでFCサービスを有効にします。
 +
 `vserver fcp create -vserver _vserver_name_ -status-admin up`
 
-. FC を提供する各ノードの SVM 用に 2 つの LIF を作成します。
+. FCを提供する各ノードのSVM用のLIFを2つ作成します。
 +
 ** ONTAP 9.6以降：
 +
@@ -68,7 +66,7 @@ ONTAP System Manager（9.7以降）でiSCSI用のStorage VMを設定します。
 
 
 
-. LIFが作成され、動作ステータスがになっていることを確認します `online`：
+. LIFが作成され、動作ステータスがになっていることを確認し `online`ます。
 +
 `network interface show -vserver _vserver_name_ _lif_name_`
 
@@ -77,8 +75,8 @@ ONTAP System Manager（9.7以降）でiSCSI用のStorage VMを設定します。
 --
 ====
 .関連情報
-https://mysupport.netapp.com/site/global/dashboard["ネットアップサポート"^]
+https://mysupport.netapp.com/site/global/dashboard["NetAppのサポート"^]
 
-https://mysupport.netapp.com/matrix["NetApp Interoperability Matrix Tool で確認できます"^]
+https://mysupport.netapp.com/matrix["NetApp Interoperability Matrix Tool"^]
 
-xref:lifs-cluster-concept.adoc[クラスタ SAN 環境での LIF に関する注意事項]
+xref:lifs-cluster-concept.adoc[クラスタSAN環境でのLIFに関する考慮事項]

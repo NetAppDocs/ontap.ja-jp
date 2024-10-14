@@ -2,52 +2,52 @@
 permalink: nfs-admin/enable-ldap-rfc2307bis-support-task.html 
 sidebar: sidebar 
 keywords: enable, ldap, rfc2307bis, support 
-summary: LDAP を使用するとともに、ネストされたグループメンバーシップを使用するための追加機能を必要とする場合は、 ONTAP を設定して LDAP の RFC2307bis サポートを有効にすることができます。 
+summary: LDAPを使用する必要があり、ネストされたグループメンバーシップを使用するための追加機能が必要な場合は、ONTAPを設定してLDAPのRFC2307bisサポートを有効にすることができます。 
 ---
-= LDAP の RFC2307bis サポートを有効にする
+= LDAPのRFC2307bisサポートを有効にする
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-LDAP を使用するとともに、ネストされたグループメンバーシップを使用するための追加機能を必要とする場合は、 ONTAP を設定して LDAP の RFC2307bis サポートを有効にすることができます。
+LDAPを使用する必要があり、ネストされたグループメンバーシップを使用するための追加機能が必要な場合は、ONTAPを設定してLDAPのRFC2307bisサポートを有効にすることができます。
 
 .必要なもの
-デフォルトの LDAP クライアントスキーマのうち、使用するいずれか 1 つのコピーを作成しておく必要があります。
+デフォルトのLDAPクライアントスキーマのいずれかのコピーを作成しておく必要があります。
 
-.このタスクについて
-LDAP クライアントスキーマでは、グループオブジェクトによって memberUid 属性が使用されます。この属性には複数の値を含めることができ、そのグループに属するユーザの名前を一覧表示できます。RFC2307bis 対応の LDAP クライアントスキーマでは、グループオブジェクトによって uniqueMember 属性が使用されます。この属性には、 LDAP ディレクトリ内の別のオブジェクトの完全な Distinguished Name （ DN ；識別名）を含めることができます。これにより、グループに他のグループをメンバーとして追加できるため、ネストされたグループを使用できます。
+.タスクの内容
+LDAPクライアントスキーマでは、グループオブジェクトはmemberUid属性を使用します。この属性には複数の値を含めることができ、そのグループに属するユーザの名前がリストされます。RFC2307bis対応のLDAPクライアントスキーマでは、グループオブジェクトでuniqueMember属性が使用されます。この属性には、LDAPディレクトリ内の別のオブジェクトの完全な識別名（DN）を含めることができます。これにより、グループに他のグループをメンバーとして追加できるため、ネストされたグループを使用できます。
 
-このユーザは、ネストされたグループを含めて 256 を超えるグループのメンバーになることはできません。ONTAP は、この 256 グループの上限を超えるグループをすべて無視します。
+ユーザは、ネストされたグループを含めて256を超えるグループのメンバーになることはできません。ONTAPでは、この256グループ制限を超えるグループは無視されます。
 
-デフォルトでは、 RFC2307bis サポートが無効になっています。
+デフォルトでは、RFC2307bisサポートは無効になっています。
 
 [NOTE]
 ====
-MS-AD-BIS スキーマを使用して LDAP クライアントを作成すると、 ONTAP では RFC2307bis サポートが自動的に有効になります。
+MS-AD-BISスキーマを使用してLDAPクライアントを作成すると、ONTAPでRFC2307bisサポートが自動的に有効になります。
 
 ====
-追加情報の場合は、を参照してください https://www.netapp.com/pdf.html?item=/media/19423-tr-4835.pdf["ネットアップテクニカルレポート 4835 ：『 How to Configure LDAP in ONTAP 』"]。
+詳細については、を参照してください https://www.netapp.com/pdf.html?item=/media/19423-tr-4835.pdf["ネットアップテクニカルレポート 4835 ：『 How to Configure LDAP in ONTAP 』"]。
 
 .手順
-. 権限レベルを advanced に設定します。
+. 権限レベルをadvancedに設定します。
 +
 `set -privilege advanced`
 
-. コピーした RFC2307 LDAP クライアントスキーマを変更して、 RFC2307bis のサポートを有効にします。
+. コピーしたRFC2307 LDAPクライアントスキーマを変更して、RFC2307bisのサポートを有効にします。
 +
 `vserver services name-service ldap client schema modify -vserver vserver_name -schema schema-name -enable-rfc2307bis true`
 
-. LDAP サーバでサポートされているオブジェクトクラスに一致するように、スキーマを変更します。
+. LDAPサーバでサポートされているオブジェクトクラスに一致するようにスキーマを変更します。
 +
 `vserver services name-service ldap client schema modify -vserver vserver-name -schema schema_name -group-of-unique-names-object-class object_class`
 
-. LDAP サーバでサポートされている属性名に一致するように、スキーマを変更します。
+. LDAPサーバでサポートされている属性名に一致するようにスキーマを変更します。
 +
 `vserver services name-service ldap client schema modify -vserver vserver-name -schema schema_name -unique-member-attribute attribute_name`
 
-. admin 権限レベルに戻ります。
+. admin権限レベルに戻ります。
 +
 `set -privilege admin`
 

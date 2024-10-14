@@ -2,7 +2,7 @@
 permalink: smb-admin/file-directory-policies-local-users-groups-concept.html 
 sidebar: sidebar 
 keywords: guideline, mind, apply, file-directory, policies, policy, storage, virtual, machine, svm, disaster, recovery, destination, id, discard, configuration, local, user, dacl, sacl, entries, entry, guidelines for applying file-directory policies that use local users of groups on the svm disaster recovery destination 
-summary: ファイルとディレクトリのポリシー設定がセキュリティ記述子、 DACL 、 SACL エントリのいずれかでローカルユーザまたはグループを使用する場合、 ID 破棄設定の Storage Virtual Machine （ SVM ）ディザスタリカバリデスティネーションでファイルとディレクトリのポリシーを適用する前に注意すべきいくつかのガイドラインがあります。 
+summary: ファイルとディレクトリのポリシー設定でセキュリティ記述子、DACL、SACLエントリのいずれかでローカルユーザまたはグループを使用する場合、ID破棄設定のStorage Virtual Machine（SVM）ディザスタリカバリデスティネーションでファイルとディレクトリのポリシーを適用する前に注意する必要がある一定のガイドラインがあります。 
 ---
 = SVM ディザスタリカバリデスティネーションでローカルユーザまたはグループを使用するファイルとディレクトリのポリシーを適用する際のガイドライン
 :allow-uri-read: 
@@ -11,7 +11,7 @@ summary: ファイルとディレクトリのポリシー設定がセキュリ�
 
 
 [role="lead"]
-ファイルとディレクトリのポリシー設定がセキュリティ記述子、 DACL 、 SACL エントリのいずれかでローカルユーザまたはグループを使用する場合、 ID 破棄設定の Storage Virtual Machine （ SVM ）ディザスタリカバリデスティネーションでファイルとディレクトリのポリシーを適用する前に注意すべきいくつかのガイドラインがあります。
+ファイルとディレクトリのポリシー設定でセキュリティ記述子、DACL、SACLエントリのいずれかでローカルユーザまたはグループを使用する場合、ID破棄設定のStorage Virtual Machine（SVM）ディザスタリカバリデスティネーションでファイルとディレクトリのポリシーを適用する前に注意する必要がある一定のガイドラインがあります。
 
 ソースクラスタのソース SVM が、ソース SVM からデスティネーションクラスタのデスティネーション SVM にデータと設定をレプリケートする SVM ディザスタリカバリ構成を設定できます。
 
@@ -49,9 +49,9 @@ Vserver      User Name                Full Name      Description
 vs1_dst      CIFS1_DST\Administrator                 Built-in administrator account
 vs1_dst      CIFS1_DST\user1          -              -
 ----
-ローカルユーザおよびグループデータベースでローカルユーザおよびグループ名が自動的に変更されても、ファイルとディレクトリのポリシー設定（を使用してCLIで設定するポリシー）のローカルユーザまたはグループ名は自動的に変更されません `vserver security file-directory` コマンドファミリー）。
+ローカルユーザおよびグループデータベースでローカルユーザおよびグループ名が自動的に変更されても、ファイルとディレクトリのポリシー設定（コマンドファミリーを使用してCLIで設定するポリシー）のローカルユーザまたはグループ名は自動的に変更されません `vserver security file-directory`。
 
-たとえば、「vs1」の場合、が配置されているDACLエントリを設定しているとします `-account` パラメータが「CIFS1\user1」に設定されている場合、デスティネーションSVMでデスティネーションのCIFSサーバ名が反映されて設定が自動的に変更されることはありません。
+たとえば、「vs1」について、パラメータが「`CIFS1\user1`」に設定されたDACLエントリを設定している場合 `-account`、デスティネーションSVMで設定がデスティネーションのCIFSサーバ名を反映するように自動的に変更されることはありません。
 
 [listing]
 ----
@@ -75,7 +75,7 @@ Vserver: vs1_dst
     --------------   -------  -------            -----------
     **CIFS1**\user1          allow    full-control      this-folder
 ----
-を使用する必要があります `vserver security file-directory modify` CIFSサーバ名を手動でデスティネーションCIFSサーバ名に変更するコマンド
+CIFSサーバ名を手動でデスティネーションCIFSサーバ名に変更するには、コマンドを使用する必要があります `vserver security file-directory modify`。
 
 
 
@@ -85,11 +85,11 @@ Vserver: vs1_dst
 
 * セキュリティ記述子
 +
-必要に応じて、セキュリティ記述子の所有者とセキュリティ記述子の所有者のプライマリグループを指定できます。セキュリティ記述子で所有者とプライマリグループのエントリにローカルユーザまたはグループを使用する場合、デスティネーション SVM にアカウント名を使用するようにセキュリティ記述子を変更する必要があります。を使用できます `vserver security file-directory ntfs modify` コマンドを使用してアカウント名に必要な変更を行います。
+必要に応じて、セキュリティ記述子の所有者とセキュリティ記述子の所有者のプライマリグループを指定できます。セキュリティ記述子で所有者とプライマリグループのエントリにローカルユーザまたはグループを使用する場合、デスティネーション SVM にアカウント名を使用するようにセキュリティ記述子を変更する必要があります。アカウント名に必要な変更を加えるには、コマンドを使用し `vserver security file-directory ntfs modify`ます。
 
-* DACL エントリ
+* DACLエントリ
 +
-各 DACL エントリは、アカウントと関連付ける必要があります。ローカルユーザまたはグループアカウントを使用する DACL は、すべてデスティネーション SVM 名を使用するように変更する必要があります。既存の DACL エントリのアカウント名は変更できないため、ローカルユーザまたはグループが設定されたすべての DACL エントリをセキュリティ記述子から削除し、訂正したデスティネーションアカウント名を設定した新しい DACL エントリを作成し、その新しい DACL エントリを適切なセキュリティ記述子と関連付ける必要があります。
+各DACLエントリは、アカウントに関連付ける必要があります。ローカルユーザまたはグループアカウントを使用する DACL は、すべてデスティネーション SVM 名を使用するように変更する必要があります。既存のDACLエントリのアカウント名は変更できないため、ローカルユーザまたはグループが設定されたすべてのDACLエントリをセキュリティ記述子から削除し、修正したデスティネーションアカウント名を使用して新しいDACLエントリを作成し、それらの新しいDACLエントリを適切なセキュリティ記述子と関連付ける必要があります。
 
 * SACLエントリ
 +

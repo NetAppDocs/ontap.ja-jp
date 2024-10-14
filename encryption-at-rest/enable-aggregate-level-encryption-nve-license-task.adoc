@@ -2,7 +2,7 @@
 permalink: encryption-at-rest/enable-aggregate-level-encryption-nve-license-task.html 
 sidebar: sidebar 
 keywords: enabling, aggregate-level, encryption, nve, ve license, license 
-summary: ONTAP 9.7 以降では、 VE ライセンスとオンボードキー管理または外部キー管理を使用している場合、新しく作成したアグリゲートとボリュームがデフォルトで暗号化されます。ONTAP 9.6 以降では、アグリゲートレベルの暗号化を使用して、暗号化するボリュームの包含アグリゲートにキーを割り当てることができます。アグリゲートに作成するボリュームはデフォルトで暗号化されます。このデフォルトの設定は、ボリュームを暗号化するときに無効にすることができます。 
+summary: ONTAP 9 .7以降では、VEライセンスを持ち、オンボードまたは外部のキー管理を使用している場合、新しく作成したアグリゲートとボリュームはデフォルトで暗号化されます。ONTAP 9 6以降では、アグリゲートレベルの暗号化を使用して、暗号化するボリュームの包含アグリゲートにキーを割り当てることができます。アグリゲートに作成するボリュームはデフォルトで暗号化されます。このデフォルトの設定は、ボリュームを暗号化するときに無効にすることができます。 
 ---
 = VEライセンスでアグリゲートレベルの暗号化を有効にする
 :allow-uri-read: 
@@ -13,14 +13,14 @@ summary: ONTAP 9.7 以降では、 VE ライセンスとオンボードキー管
 [role="lead"]
 ONTAP 9 .7以降ではlink:../encryption-at-rest/install-license-task.html["VEライセンス"]、およびオンボードまたは外部のキー管理を使用している場合、新しく作成したアグリゲートとボリュームはデフォルトで暗号化されます。ONTAP 9 6以降では、アグリゲートレベルの暗号化を使用して、暗号化するボリュームの包含アグリゲートにキーを割り当てることができます。
 
-.このタスクについて
-アグリゲートレベルの重複排除をインラインまたはバックグラウンドで実行する場合は、アグリゲートレベルの暗号化を使用する必要があります。そうしないと、 NVE でアグリゲートレベルの重複排除がサポートされません。
+.タスクの内容
+アグリゲートレベルの重複排除をインラインまたはバックグラウンドで実行する場合は、アグリゲートレベルの暗号化を使用する必要があります。そうしないと、NVEでアグリゲートレベルの重複排除がサポートされません。
 
-アグリゲートレベルの暗号化が有効になっているアグリゲートは、 _NAE アグリゲートと呼ばれます（ NetApp Aggregate Encryption の場合）。NAEアグリゲート内のすべてのボリュームは、NAEまたはNVE暗号化を使用して暗号化する必要があります。アグリゲートレベルの暗号化では、アグリゲート内に作成したボリュームはデフォルトでNAE暗号化を使用して暗号化されます。デフォルトの設定を変更して、NVE暗号化を使用することもできます。
+アグリゲートレベルの暗号化が有効になっているアグリゲートは、 _NAE アグリゲートと呼ばれます（ NetApp Aggregate Encryption の場合）。NAEアグリゲート内のすべてのボリュームは、NAEまたはNVE暗号化で暗号化する必要があります。アグリゲートレベルの暗号化では、アグリゲート内に作成するボリュームはデフォルトでNAE暗号化で暗号化されます。デフォルトを上書きしてNVE暗号化を使用することもできます。
 
-NAE アグリゲートではプレーンテキストボリュームがサポートされません。
+NAEアグリゲートではプレーンテキストボリュームはサポートされません。
 
-.作業を開始する前に
+.開始する前に
 このタスクを実行するには、クラスタ管理者である必要があります。
 
 .手順
@@ -34,28 +34,28 @@ NAE アグリゲートではプレーンテキストボリュームがサポー�
 
 
  a| 
-ONTAP 9.7 以降で NAE アグリゲートを作成します
+ONTAP 9 .7以降でNAEアグリゲートを作成する
  a| 
 `storage aggregate create -aggregate _aggregate_name_ -node _node_name_`
 
 
 
  a| 
-ONTAP 9.6 で NAE アグリゲートを作成します
+ONTAP 9 .6を使用してNAEアグリゲートを作成します。
  a| 
 `storage aggregate create -aggregate _aggregate_name_ -node _node_name_ -encrypt-with-aggr-key true`
 
 
 
  a| 
-非 NAE アグリゲートを NAE アグリゲートに変換します
+NAE以外のアグリゲートをNAEアグリゲートに変換する
  a| 
 `storage aggregate modify -aggregate _aggregate_name_ -node _node_name_ -encrypt-with-aggr-key true`
 
 
 
  a| 
-NAE アグリゲートを非 NAE アグリゲートに変換します
+NAEアグリゲートをNAE以外のアグリゲートに変換する
  a| 
 `storage aggregate modify -aggregate _aggregate_name_ -node _node_name_ -encrypt-with-aggr-key false`
 
@@ -64,16 +64,16 @@ NAE アグリゲートを非 NAE アグリゲートに変換します
 コマンド構文全体については、マニュアルページを参照してください。
 
 +
-次のコマンドは、でアグリゲートレベルの暗号化を有効にします `aggr1`：
+次のコマンドは、でアグリゲートレベルの暗号化を有効にし `aggr1`ます。
 
 +
-** ONTAP 9.7 以降
+** ONTAP 9 .7以降：
 +
 [listing]
 ----
 cluster1::> storage aggregate create -aggregate aggr1
 ----
-** ONTAP 9.6 以前：
+** ONTAP 9 .6以前：
 +
 [listing]
 ----
@@ -89,7 +89,7 @@ cluster1::> storage aggregate create -aggregate aggr1 -encrypt-with-aggr-key tru
 コマンド構文全体については、マニュアルページを参照してください。
 
 +
-次のコマンドは、を確認します `aggr1` 暗号化が有効：
+次のコマンドは、暗号化が有効になっていることを確認し `aggr1`ます。
 
 +
 [listing]
@@ -103,7 +103,7 @@ aggr1                true
 ----
 
 
-.完了後
-を実行します `volume create` コマンドを使用して暗号化ボリュームを作成します。
+.終了後
+コマンドを実行し `volume create`て暗号化されたボリュームを作成します。
 
 ノードの暗号化キーを保存するために KMIP サーバを使用している場合、ボリュームを暗号化すると、 ONTAP によって暗号化キーがサーバに自動的に「プッシュ」されます。

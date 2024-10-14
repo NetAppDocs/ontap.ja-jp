@@ -14,12 +14,12 @@ summary: ONTAP 9.8 以降では、障害のある NIC をスロットから取�
 
 
 [role="lead"]
-このトピックは 環境 ONTAP 9.8以降です。障害の発生した NIC をスロットから取り外したり、メンテナンスのために NIC を別のスロットに移したりしなければならない場合があります。
+このトピックはONTAP 9.8以降が対象です。障害の発生したNICをスロットから取り外したり、メンテナンス時にNICを別のスロットに移したりしなければならない場合があります。
 
 .手順
 . ノードの電源をオフにします。
-. NIC をスロットから物理的に取り外します。
-. ノードの電源をオンにします。
+. NICをスロットから物理的に取り外します。
+. ノードの電源を投入します。
 . ポートが削除されたことを確認します。
 +
 ....
@@ -27,25 +27,25 @@ network port show
 ....
 +
 
-NOTE: ONTAP は、すべてのインターフェイスグループからポートを自動的に削除します。ポートがインターフェイスグループの唯一のメンバーであった場合は、インターフェイスグループが削除されます。
+NOTE: ポートはすべてのインターフェイス グループから自動的に削除されます。ポートがインターフェイス グループの唯一のメンバーであった場合、そのインターフェイス グループは削除されます。
 
-. ポートに VLAN が設定されている場合は、ポートが取り外されます。次のコマンドを使用すると、削除された VLAN を表示できます。
+. ポートにVLANが設定されていた場合は、VLANが孤立状態になります。孤立状態のVLANは、次のコマンドを使用して確認できます。
 +
 ....
 cluster controller-replacement network displaced-vlans show
 ....
 +
 
-NOTE: 。 `displaced-interface show`、 `displaced-vlans show`および `displaced-vlans restore` コマンドは一意であり、で始まる完全修飾コマンド名は必要ありません `cluster controller-replacement network`。
+NOTE:  `displaced-interface show`、 `displaced-vlans show`、および `displaced-vlans restore`の各コマンドは一意であり、で始まる完全修飾コマンド名は必要ありません `cluster controller-replacement network`。
 
-. これらの VLAN は削除されますが、次のコマンドを使用してリストアできます。
+. これらのVLANは削除されますが、次のコマンドを使用してリストアできます。
 +
 ....
 displaced-vlans restore
 ....
-. ポートに LIF が設定されている場合は、同じブロードキャストドメインの別のポート上のそれらの LIF に新しいホームポートが ONTAP によって自動的に選択されます。同じ Filer 上に適切なホーム・ポートが見つからない場合、これらの LIF は取り外されたと見なされます。削除した LIF を表示するには、次のコマンドを使用します。
+. ポートにLIFが設定されている場合は、同じブロードキャストドメイン内の別のポートの新しいホームポートがONTAPによって自動的に選択されます。同じFilerに適切なホーム・ポートが見つからない場合、それらのLIFは削除されたとみなされます。削除されたLIFは、次のコマンドを使用して確認できます。
 +
 `displaced-interface show`
 
-. 同じノードのブロードキャストドメインに新しいポートを追加すると、 LIF のホームポートは自動的にリストアされます。または、を使用してホームポートを設定することもできます `network interface modify -home-port -home-node or use the displaced- interface restore` コマンドを実行します
+. 同じノードのブロードキャストドメインに新しいポートを追加すると、LIFのホームポートは自動的にリストアされます。または、コマンドを使用してホームポートを設定することもできます `network interface modify -home-port -home-node or use the displaced- interface restore`。
 

@@ -2,41 +2,41 @@
 permalink: data-protection/reactivate-original-source-svm-task.html 
 sidebar: sidebar 
 keywords: reactivate, original, source, svm, quick resync, resynchronize, reverse resync 
-summary: デスティネーションからデータを提供する必要がなくなった場合は、ソース SVM とデスティネーション SVM 間で元のデータ保護関係を再確立できます。手順は、 1 つの例外を除いて、ボリュームレプリケーション用の手順とほとんど同じです。ソース SVM を再アクティブ化するには、デスティネーション SVM を停止する必要があります。 
+summary: デスティネーションからデータを提供する必要がなくなった場合は、ソースSVMとデスティネーションSVMの間で元のデータ保護関係を再確立できます。この手順は、1つの例外を除き、ボリュームレプリケーションの手順とほとんど同じです。ソースSVMを再アクティブ化する前に、デスティネーションSVMを停止する必要があります。 
 ---
-= 元のソース SVM を再アクティブ化する
+= 元のソースSVMを再アクティブ化する
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-デスティネーションからデータを提供する必要がなくなった場合は、ソース SVM とデスティネーション SVM 間で元のデータ保護関係を再確立できます。手順は、 1 つの例外を除いて、ボリュームレプリケーション用の手順とほとんど同じです。ソース SVM を再アクティブ化するには、デスティネーション SVM を停止する必要があります。
+デスティネーションからデータを提供する必要がなくなった場合は、ソースSVMとデスティネーションSVMの間で元のデータ保護関係を再確立できます。この手順は、1つの例外を除き、ボリュームレプリケーションの手順とほとんど同じです。ソースSVMを再アクティブ化する前に、デスティネーションSVMを停止する必要があります。
 
-.作業を開始する前に
-デスティネーションボリュームからデータを提供している間にそのサイズを拡張した場合は、ソースボリュームを再アクティブ化する前に、元のソースボリュームを十分拡張できるように max-autosize を手動で増やす必要があります。
+.開始する前に
+デスティネーションボリュームからのデータの提供中にデスティネーションボリュームのサイズを拡張した場合は、ソースボリュームを再アクティブ化する前に、元のソースボリュームを十分に拡張できるようにmax-autosizeを手動で増やす必要があります。
 
-link:destination-volume-grows-automatically-concept.html["デスティネーションボリュームが自動的に拡張される状況"]
+link:destination-volume-grows-automatically-concept.html["デスティネーションボリュームが自動的に拡張されるタイミング"]
 
-.このタスクについて
+.タスクの内容
 ONTAP 9 .11.1以降では、 `-quick-resync true` `snapmirror resync`SVM DR関係の逆再同期を実行する際にコマンドのCLIオプションを使用することで、ディザスタリカバリのリハーサル中の再同期時間を短縮できます。迅速な再同期を行うと、Data Warehouseの再構築とリストアの処理が省略されるため、本番環境への復帰にかかる時間を短縮できます。
 
 
-NOTE: クイック再同期では、デスティネーションボリュームのストレージ効率は維持されません。クイック再同期を有効にすると、デスティネーションボリュームで使用されるボリュームスペースが増加する可能性があります。
+NOTE: クイック再同期では、デスティネーションボリュームのストレージ効率が維持されません。クイック再同期を有効にすると、デスティネーションボリュームで使用されるボリュームスペースが増える可能性があります。
 
-この手順は、元のソースボリュームにあるベースラインが損なわれていないことを前提としています。ベースラインが損なわれている場合は、手順を実行する前に、データの提供元のボリュームと元のソースボリュームの間の関係を作成して初期化する必要があります。
+この手順は、元のソースボリュームのベースラインが損なわれていないことを前提としています。ベースラインが損なわれている場合は、この手順を実行する前に、データの提供元のボリュームと元のソースボリュームの間の関係を作成して初期化する必要があります。
 
-ONTAP 9.8 以降では、災害発生後に System Manager を使用してソース Storage VM を再アクティブ化できます。ソース Storage VM を再アクティブ化すると、デスティネーション Storage VM が停止し、ソースからデスティネーションへのレプリケーションが再度有効化されます。
+ONTAP 9 8以降では、System Managerを使用して災害発生後にソースStorage VMを再アクティブ化できます。ソースStorage VMを再アクティブ化すると、デスティネーションStorage VMが停止し、ソースからデスティネーションへのレプリケーションが再度有効になります。
 
 System Managerを使用してソースStorage VMを再アクティブ化すると、System Managerはバックグラウンドで次の処理を実行します。
 
-* SnapMirror resyncを使用して、元のデスティネーションから元のソースへの反転SVM DR関係を作成します
-* デスティネーションSVMを停止します
-* SnapMirror関係を更新します
-* SnapMirror関係を解除します
-* 元のSVMを再起動します
-* 元のソースから元のデスティネーションへのSnapMirror再同期を実行します
-* SnapMirror関係をクリーンアップします
+* SnapMirror再同期を使用して、元のデスティネーションから元のソースへの逆方向のSVM DR関係を作成します。
+* デスティネーションSVMを停止します。
+* SnapMirror関係を更新します。
+* SnapMirror関係を解除します。
+* 元のSVMを再起動します。
+* 元のソースから元のデスティネーションへのSnapMirror再同期を実行します。
+* SnapMirror関係をクリーンアップします。
 
 
 .手順
@@ -45,7 +45,7 @@ System Managerを使用してソースStorage VMを再アクティブ化する�
 [role="tabbed-block"]
 ====
 --
-.System Manager の略
+.System Manager
 . デスティネーションクラスタで、*[保護]>[関係]*をクリックし、必要な保護関係を特定します。
 . ソース関係の名前にカーソルを合わせ、をクリックし image:icon_kabob.gif["メニューオプションアイコン"]、*[ソースStorage VMの再アクティブ化]*を選択します。
 . [ソースStorage VMの再アクティブ化]*ウィンドウで、*[再アクティブ化]*をクリックします。
@@ -53,9 +53,9 @@ System Managerを使用してソースStorage VMを再アクティブ化する�
 
 
 --
-.CLI の使用
+.CLI
 --
-. 元のソース SVM または元のソースクラスタから、元の SVM DR 関係と同じ設定、ポリシー、および ID 保持設定を使用して、リバース SVM DR 関係を作成します。
+. 元のソースSVMまたはソースクラスタから、元のSVM DR関係と同じ設定、ポリシー、およびidentity-preserve設定を使用して、反転したSVM DR関係を作成します。
 +
 [source, cli]
 ----
@@ -63,17 +63,17 @@ snapmirror create -source-path <SVM>: -destination-path <SVM>:
 ----
 +
 
-NOTE: で、SVM名のあとにコロン（：）を入力する必要があります `-source-path` および `-destination-path` オプション（ Options ）以下の例を参照してください。
+NOTE: オプションと `-destination-path`オプションで、SVM名のあとにコロン（：）を入力する必要があります `-source-path`。以下の例を参照してください。
 
 +
-次の例は、データの提供元であるSVM間の関係を作成します。 `svm_backup`および元のソースSVM `svm1`：
+次の例は、データの提供元のSVMと元のソースSVM `svm1`の間に関係を作成します `svm_backup`。
 
 +
 [listing]
 ----
 cluster_src::> snapmirror create -source-path svm_backup: -destination-path svm1:
 ----
-. 元のソース SVM または元のソースクラスタから次のコマンドを実行して、データ保護関係を反転します。
+. 元のソースSVMまたはソースクラスタから次のコマンドを実行して、データ保護関係を反転します。
 +
 [source, cli]
 ----
@@ -81,17 +81,17 @@ snapmirror resync -source-path <SVM>: -destination-path <SVM>:
 ----
 +
 
-NOTE: で、SVM名のあとにコロン（：）を入力する必要があります `-source-path` および `-destination-path` オプション（ Options ）以下の例を参照してください。
+NOTE: オプションと `-destination-path`オプションで、SVM名のあとにコロン（：）を入力する必要があります `-source-path`。以下の例を参照してください。
 
 +
 再同期の際にベースライン転送は不要ですが、再同期には時間がかかる場合があります。再同期はオフピークの時間帯に実行することを推奨します。
 
 +
 
-NOTE: ソースとデスティネーションに共通の Snapshot コピーが存在しない場合、このコマンドは失敗します。使用 `snapmirror initialize` をクリックして関係を再初期化してください。
+NOTE: ソースとデスティネーションに共通のSnapshotコピーが存在しない場合、コマンドは失敗します。を使用し `snapmirror initialize`て関係を再初期化します。
 
 +
-次の例は、元のソースSVM間の関係を反転します。 `svm1`およびデータの提供元のSVM `svm_backup`：
+次の例は、元のソースSVMとデータの提供元のSVM `svm_backup`の間の関係を反転します `svm1`。
 
 +
 [listing]
@@ -106,21 +106,21 @@ quick-resyncオプションの使用例：
 ----
 cluster_src::> snapmirror resync -source-path svm_backup: -destination-path svm1: -quick-resync true
 ----
-. 元のソース SVM へのデータアクセスを再確立する準備ができたら、元のデスティネーション SVM を停止して、元のデスティネーション SVM に現在接続されているクライアントをすべて切断します。
+. 元のソースSVMへのデータアクセスを再確立する準備ができたら、元のデスティネーションSVMを停止して、元のデスティネーションSVMに現在接続されているクライアントをすべて切断します。
 +
 [source, cli]
 ----
 vserver stop -vserver <SVM>
 ----
 +
-次の例は、現在データを提供している元のデスティネーション SVM を停止します。
+次の例は、現在データを提供している元のデスティネーションSVMを停止します。
 
 +
 [listing]
 ----
 cluster_dst::> vserver stop svm_backup
 ----
-. を使用して、元のデスティネーションSVMの状態がstoppedであることを確認します `vserver show` コマンドを実行します
+. コマンドを使用して、元のデスティネーションSVMの状態がstoppedであることを確認します `vserver show`。
 +
 [listing]
 ----
@@ -130,7 +130,7 @@ Vserver        Type    Subtype    State      State       Volume     Aggregate
 --------       ------- ---------- ---------- ----------- ---------- ----------
 svm_backup     data    default    stopped    stopped     rv         aggr1
 ----
-. 元のソース SVM または元のソースクラスタから次のコマンドを実行して、反転した関係の最終更新を実行し、元のデスティネーション SVM から元のソース SVM にすべての変更を転送します。
+. 元のソースSVMまたはソースクラスタから次のコマンドを実行して反転した関係を最後に更新し、元のデスティネーションSVMから元のソースSVMにすべての変更を転送します。
 +
 [source, cli]
 ----
@@ -138,17 +138,17 @@ snapmirror update -source-path <SVM>: -destination-path <SVM>:
 ----
 +
 
-NOTE: で、SVM名のあとにコロン（：）を入力する必要があります `-source-path` および `-destination-path` オプション（ Options ）以下の例を参照してください。
+NOTE: オプションと `-destination-path`オプションで、SVM名のあとにコロン（：）を入力する必要があります `-source-path`。以下の例を参照してください。
 
 +
-次の例は、データの提供元である元のデスティネーションSVMの間の関係を更新します,`svm_backup`および元のソースSVM `svm1`：
+次の例は、データの提供元である元のデスティネーションSVMと元のソースSVM `svm1`の間の関係を更新します,`svm_backup`。
 
 +
 [listing]
 ----
 cluster_src::> snapmirror update -source-path svm_backup: -destination-path svm1:
 ----
-. 元のソース SVM または元のソースクラスタから次のコマンドを実行して、反転した関係のスケジュールされた転送を停止します。
+. 元のソースSVMまたはソースクラスタから次のコマンドを実行して、反転した関係のスケジュールされた転送を停止します。
 +
 [source, cli]
 ----
@@ -156,17 +156,17 @@ snapmirror quiesce -source-path <SVM>: -destination-path <SVM>:
 ----
 +
 
-NOTE: で、SVM名のあとにコロン（：）を入力する必要があります `-source-path` および `-destination-path` オプション（ Options ）以下の例を参照してください。
+NOTE: オプションと `-destination-path`オプションで、SVM名のあとにコロン（：）を入力する必要があります `-source-path`。以下の例を参照してください。
 
 +
-次の例は、データの提供元のSVM間のスケジュールされた転送を停止します。 `svm_backup`および元のSVM `svm1`：
+次の例は、データの提供元のSVMと元のSVM `svm1`の間のスケジュールされた転送を停止します `svm_backup`。
 
 +
 [listing]
 ----
 cluster_src::> snapmirror quiesce -source-path svm_backup: -destination-path svm1:
 ----
-. 最後の更新が完了し、関係のステータスが「 Quiesced 」と表示されたら、元のソース SVM または元のソースクラスタから次のコマンドを実行して、反転した関係を解除します。
+. 最後の更新が完了し、関係のステータスが「Quiesced」になったら、元のソースSVMまたはソースクラスタから次のコマンドを実行して反転した関係を解除します。
 +
 [source, cli]
 ----
@@ -174,31 +174,31 @@ snapmirror break -source-path <SVM>: -destination-path <SVM>:
 ----
 +
 
-NOTE: で、SVM名のあとにコロン（：）を入力する必要があります `-source-path` および `-destination-path` オプション（ Options ）以下の例を参照してください。
+NOTE: オプションと `-destination-path`オプションで、SVM名のあとにコロン（：）を入力する必要があります `-source-path`。以下の例を参照してください。
 
 +
-次の例は、データの提供元であった元のデスティネーションSVM間の関係を解除します。 `svm_backup`および元のソースSVM `svm1`：
+次の例は、データの提供元であった元のデスティネーションSVMと元のソースSVM `svm1`の間の関係を解除します `svm_backup`。
 
 +
 [listing]
 ----
 cluster_src::> snapmirror break -source-path svm_backup: -destination-path svm1:
 ----
-. 元のソース SVM が以前に停止されていた場合は、元のソースクラスタから元のソース SVM を起動します。
+. 元のソースSVMを停止していた場合は、元のソースクラスタから元のソースSVMを起動します。
 +
 [source, cli]
 ----
 vserver start -vserver <SVM>
 ----
 +
-次の例は、元のソース SVM を起動します。
+次の例は、元のソースSVMを起動します。
 
 +
 [listing]
 ----
 cluster_src::> vserver start svm1
 ----
-. 元のデスティネーション SVM または元のデスティネーションクラスタから、元のデータ保護関係を再確立します。
+. 元のデスティネーションSVMまたはデスティネーションクラスタから、元のデータ保護関係を再確立します。
 +
 [source, cli]
 ----
@@ -206,17 +206,17 @@ snapmirror resync -source-path <SVM>: -destination-path <SVM>:
 ----
 +
 
-NOTE: で、SVM名のあとにコロン（：）を入力する必要があります `-source-path` および `-destination-path` オプション（ Options ）以下の例を参照してください。
+NOTE: オプションと `-destination-path`オプションで、SVM名のあとにコロン（：）を入力する必要があります `-source-path`。以下の例を参照してください。
 
 +
-次の例は、元のソースSVM間の関係を再確立します。 `svm1`および元のデスティネーションSVM `svm_backup`：
+次の例は、元のソースSVMと元のデスティネーションSVM `svm_backup`の間の関係を再確立し `svm1`ます。
 
 +
 [listing]
 ----
 cluster_dst::> snapmirror resync -source-path svm1: -destination-path svm_backup:
 ----
-. 元のソース SVM または元のソースクラスタから次のコマンドを実行して、反転したデータ保護関係を削除します。
+. 元のソースSVMまたはソースクラスタから次のコマンドを実行して、反転したデータ保護関係を削除します。
 +
 [source, cli]
 ----
@@ -224,17 +224,17 @@ snapmirror delete -source-path <SVM>: -destination-path <SVM>:
 ----
 +
 
-NOTE: で、SVM名のあとにコロン（：）を入力する必要があります `-source-path` および `-destination-path` オプション（ Options ）以下の例を参照してください。
+NOTE: オプションと `-destination-path`オプションで、SVM名のあとにコロン（：）を入力する必要があります `-source-path`。以下の例を参照してください。
 
 +
-次の例は、元のデスティネーションSVM間の反転した関係を削除します。 `svm_backup`および元のソースSVM `svm1`：
+次の例は、元のデスティネーションSVMと元のソースSVM `svm1`の間の反転した関係を削除します `svm_backup`。
 
 +
 [listing]
 ----
 cluster_src::> snapmirror delete -source-path svm_backup: -destination-path svm1:
 ----
-. 元のデスティネーション SVM または元のデスティネーションクラスタから、反転したデータ保護関係を解放します。
+. 元のデスティネーションSVMまたはデスティネーションクラスタから、反転したデータ保護関係を解放します。
 +
 [source, cli]
 ----
@@ -242,7 +242,7 @@ snapmirror release -source-path <SVM>: -destination-path <SVM>:
 ----
 +
 
-NOTE: で、SVM名のあとにコロン（：）を入力する必要があります `-source-path` および `-destination-path` オプション（ Options ）以下の例を参照してください。
+NOTE: オプションと `-destination-path`オプションで、SVM名のあとにコロン（：）を入力する必要があります `-source-path`。以下の例を参照してください。
 
 +
 次の例は、元のデスティネーションSVM svm_backupと元のソースSVMの間の反転した関係をリリースします。 `svm1`
@@ -254,8 +254,8 @@ cluster_dst::> snapmirror release -source-path svm_backup: -destination-path svm
 ----
 
 
-.完了後
-を使用します `snapmirror show` コマンドを実行して、SnapMirror関係が作成されたことを確認します。コマンド構文全体については、マニュアルページを参照してください。
+.終了後
+コマンドを使用し `snapmirror show`て、SnapMirror関係が作成されたことを確認します。コマンド構文全体については、マニュアルページを参照してください。
 
 --
 ====

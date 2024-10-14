@@ -2,7 +2,7 @@
 permalink: upgrade/concept_upgrade_methods.html 
 sidebar: sidebar 
 keywords: upgrade, methods, andu, ndu, automated, automatic, system manager, cli, nondisruptive, disruptive, rolling upgrade, rolling update, batch upgrades, batch upgrade, rolling, batch 
-summary: アップグレード方法は構成によって異なります。  可能な場合は、 System Manager を使用した自動無停止アップグレード（ ANDU ）を推奨します。 
+summary: アップグレードに使用する方法は、構成によって異なります。可能な場合は、System Managerを使用した自動無停止アップグレード（ANDU）を使用することを推奨します。 
 ---
 = ONTAPソフトウェアのアップグレード方法
 :allow-uri-read: 
@@ -11,22 +11,22 @@ summary: アップグレード方法は構成によって異なります。  可
 
 
 [role="lead"]
-[System Manage]を使用して、ONTAPソフトウェアの自動アップグレードを実行できます。または、ONTAPのコマンドラインインターフェイス（CLI）を使用して、自動アップグレードまたは手動アップグレードを実行することもできます。ONTAPをアップグレードする方法は、構成、現在のONTAPのバージョン、およびクラスタ内のノード数によって異なります。NetAppでは、別のアプローチが必要な構成でないかぎり、System Managerを使用して自動アップグレードを実行することを推奨しています。たとえば、ONTAP 9.3以降を実行している4ノードのMetroCluster構成では、System Managerを使用して自動アップグレード（自動無停止アップグレードまたはANDUと呼ばれることもあります）を実行する必要があります。8ノードのMetroCluster構成でONTAP 9.2以前を実行している場合は、CLIを使用して手動アップグレードを実行する必要があります。
+System Managerを使用して、ONTAPソフトウェアの自動アップグレードを実行できます。または、ONTAPのコマンドライン インターフェイス（CLI）を使用して、自動アップグレードや手動アップグレードを実行することも可能です。ONTAPをアップグレードする方法は、構成、現在のONTAPバージョン、クラスタ内のノード数によって異なります。NetAppは、別のアプローチが求められる構成でないかぎり、System Managerを使用して自動アップグレードを実行することを推奨しています。たとえば、ONTAP 9.3以降が実行されている4ノードのMetroCluster構成では、System Managerを使用して自動アップグレード（自動無停止アップグレード[ANDU]と呼ばれることもあります）を実行するようにしてください。ONTAP 9.2以前が実行されている8ノードのMetroCluster構成では、CLIを使用して手動アップグレードを実行する必要があります。
 
 
 NOTE: BlueXP  を使用してONTAP 9.15.1以降にアップグレードする場合は、の手順に従います link:https://docs.netapp.com/us-en/bluexp-software-updates/get-started/software-updates.html["BlueXP  のドキュメントに記載されているアップグレード手順"^]。
 
-アップグレードは、ローリングアップグレードプロセスまたはバッチアップグレードプロセスを使用して実行できます。どちらも無停止で実行できます。
+アップグレードは、ローリング アップグレード プロセスかバッチ アップグレード プロセスを使用して実行できます。どちらも無停止で実行できます。
 
-自動アップグレードの場合、ONTAPはターゲットONTAPイメージを各ノードに自動的にインストールし、クラスタの無停止アップグレードが可能なことを確認するためにクラスタコンポーネントを検証してから、ノード数に基づいてバッチアップグレードまたはローリングアップグレードをバックグラウンドで実行します。手動アップグレードの場合、クラスタ内の各ノードをアップグレードする準備ができていることを管理者が手動で確認してから、ローリングアップグレードを実行します。
+自動アップグレードでは、ONTAPによってターゲットのONTAPイメージが各ノードに自動的にインストールされ、クラスタのコンポーネントが検証されてクラスタを無停止でアップグレードできることが確認されてから、ノードの数に基づいて、バッチ アップグレードかローリング アップグレードがバックグラウンドで実行されます。手動アップグレードでは、管理者がクラスタ内の各ノードをアップグレードする準備ができていることを手動で確認してから、ローリング アップグレードの手順を実行します。
 
-.ONTAPローリングアップグレード
-8ノード未満のクラスタでは、ローリングアップグレードプロセスがデフォルトです。  ローリングアップグレードプロセスでは、ノードをオフラインにしてアップグレードし、その間ノードのストレージをパートナーにテイクオーバーします。アップグレードが完了すると、パートナーノードから元の所有者ノードに制御がギブバックされ、パートナーノードで同じ処理が実行されます。HA ペアのそれぞれについて、すべての HA ペアがターゲットリリースに切り替わるまで順番にアップグレードを行います。
+.ONTAPのローリング アップグレード
+8ノード未満のクラスタでは、ローリング アップグレード プロセスがデフォルトです。ローリング アップグレード プロセスでは、ノードを1つずつオフラインにしてノードのストレージをパートナーにフェイルオーバーし、その間にアップグレードを実行します。一方のノードのアップグレードが完了したら、パートナー ノードから元の所有者ノードに制御を戻し、パートナー ノードで同じ処理を行います。HAペアのそれぞれについて、すべてのHAペアがターゲット リリースに切り替わるまで順番にアップグレードを行います。
 
-.ONTAPノバッチアップグレード
-バッチアップグレードプロセスは、8ノード以上のクラスタのデフォルトです。  バッチアップグレードプロセスでは、クラスタを2つのバッチに分割します。  各バッチに複数のHAペアが含まれます。最初のバッチでは、各HAペアの最初のノードを、バッチに含まれる他のすべてのHAペアの最初のノードと同時にアップグレードします。
+.ONTAPのバッチ アップグレード
+8ノード以上のクラスタでは、バッチ アップグレード プロセスがデフォルトです。バッチ アップグレード プロセスでは、クラスタを2つのバッチに分割します。各バッチには複数のHAペアが含まれます。最初のバッチでは、各HAペアの最初のノードを、そのバッチに含まれる他のすべてのHAペアの最初のノードと同時にアップグレードします。
 
-次の例では、各バッチにHAペアが2つあります。  バッチアップグレードを開始すると、ノードAとノードCが同時にアップグレードされます。
+次の例では、各バッチにHAペアが2つあります。バッチ アップグレードを開始すると、ノードAとノードCが同時にアップグレードされます。
 
 image:batch_upgrade_set_1_ieops-1607.png["バッチアップグレード手順1"]
 
@@ -56,12 +56,12 @@ image:batch_upgrade_set_4_ieops-1620.png["バッチアップグレード手順4"
 
 [cols="4"]
 |===
-| 設定 | ONTAPバージョン | ノードの数 | 推奨されるアップグレード方式 
+| 構成 | ONTAPのバージョン | ノード数 | 推奨されるアップグレード方式 
 
 
-| 標準 | 9.0以降 | 2以上  a| 
-* xref:task_upgrade_andu_sm.html[System Manager を使用した自動無停止アップグレード]
-* xref:task_upgrade_andu_cli.html[CLI を使用した自動無停止アップグレード]
+| 標準 | 9.0以降 | 2つ以上  a| 
+* xref:task_upgrade_andu_sm.html[System Managerヲシヨウシタムテイシ]
+* xref:task_upgrade_andu_cli.html[CLIを使用した自動無停止アップグレード]
 
 
 
@@ -70,25 +70,25 @@ image:batch_upgrade_set_4_ieops-1620.png["バッチアップグレード手順4"
 
 
 | MetroCluster | 9.3以降 | 8  a| 
-* xref:task_upgrade_andu_cli.html[CLI を使用した自動無停止アップグレード]
+* xref:task_upgrade_andu_cli.html[CLIを使用した自動無停止アップグレード]
 * xref:task_updating_a_four_or_eight_node_mcc.html[CLIを使用した4ノードまたは8ノードMetroClusterの手動による無停止化]
 
 
 
 
-| MetroCluster | 9.3以降 | 2/4  a| 
-* xref:task_upgrade_andu_sm.html[System Manager を使用した自動無停止アップグレード]
-* xref:task_upgrade_andu_cli.html[CLI を使用した自動無停止アップグレード]
+| MetroCluster | 9.3以降 | 2、4  a| 
+* xref:task_upgrade_andu_sm.html[System Managerヲシヨウシタムテイシ]
+* xref:task_upgrade_andu_cli.html[CLIを使用した自動無停止アップグレード]
 
 
 
 
-| MetroCluster | 9.2 以前 | 4、8 | xref:task_updating_a_four_or_eight_node_mcc.html[CLIを使用した4ノードまたは8ノードMetroClusterの手動による無停止化] 
+| MetroCluster | 9.2以前 | 4つまたは8つ | xref:task_updating_a_four_or_eight_node_mcc.html[CLIを使用した4ノードまたは8ノードMetroClusterの手動による無停止化] 
 
 
-| MetroCluster | 9.2 以前 | 2. | xref:task_updating_a_two_node_metrocluster_configuration_in_ontap_9_2_and_earlier.html[CLIを使用した2ノードMetroClusterの手動無停止アップグレード] 
+| MetroCluster | 9.2以前 | 2 | xref:task_updating_a_two_node_metrocluster_configuration_in_ontap_9_2_and_earlier.html[CLIを使用した2ノードMetroClusterの手動無停止アップグレード] 
 |===
 設定に関係なく、すべてのパッチアップグレードではSystem Managerを使用したANDUのアップグレードが推奨されます。
 
 
-NOTE: A xref:task_updating_an_ontap_cluster_disruptively.html[手動による停止を伴うアップグレード] 任意の構成で実行できます。  ただし、停止を伴うアップグレードを実行するには、アップグレード中にクラスタをオフラインにする必要があります。SAN 環境を使用している場合は、停止を伴うアップグレードを実行する前に、すべての SAN クライアントをシャットダウンまたは一時停止できるように準備しておく必要があります。停止を伴うアップグレードは、 ONTAP CLI を使用して実行します。
+NOTE: はxref:task_updating_an_ontap_cluster_disruptively.html[手動による停止を伴うアップグレード]、任意の構成に対して実行できます。ただし、停止を伴うアップグレードを実行するには、アップグレード中にクラスタをオフラインにする必要があります。SAN環境を使用している場合は、停止を伴うアップグレードを実行する前に、すべてのSANクライアントをシャットダウンまたは一時停止できるよう準備してください。停止を伴うアップグレードはONTAP CLIを使用して実行します。

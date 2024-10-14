@@ -4,29 +4,29 @@ sidebar: sidebar
 keywords: move, volume 
 summary: FlexVol volumeを同じStorage Virtual Machine（SVM）内の別のアグリゲート、ノード、またはその両方に移動して、ストレージ容量を分散します。 
 ---
-= ボリュームを移動する
+= ボリュームの移動
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-ストレージ容量に不均衡があるときは、 FlexVol ボリュームを同じ Storage Virtual Machine （ SVM ）内で別のアグリゲート、ノード、またはその両方に移動してストレージ容量のバランスを調整することができます。
+ストレージ容量に不均衡がある場合は、FlexVol volumeを同じStorage Virtual Machine（SVM）内の別のアグリゲート、ノード、またはその両方に移動してストレージ容量のバランスを調整できます。
 
-.このタスクについて
-デフォルトでは、カットオーバー処理が 30 秒以内に完了しないと再試行されます。を使用して、デフォルトの動作を調整できます `-cutover-window` および `-cutover-action` advanced権限レベルのアクセスが必要なパラメータ。詳細については、を参照してください `volume move start` のマニュアルページ。
+.タスクの内容
+デフォルトでは、カットオーバー処理が30秒以内に完了しないと再試行されます。デフォルトの動作は、パラメータと `-cutover-action`パラメータを使用して調整でき `-cutover-window`ます。どちらのパラメータにもadvanced権限レベルが必要です。詳細については、のマニュアルページを参照して `volume move start`ください。
 
 .手順
-. データ保護ミラーを移動する際にミラー関係を初期化していない場合は、を使用してミラー関係を初期化します `snapmirror initialize` コマンドを実行します
+. データ保護ミラーを移動する際にミラー関係を初期化していない場合は、コマンドを使用してミラー関係を初期化し `snapmirror initialize`ます。
 +
 ボリュームを移動するには、データ保護のミラー関係を初期化する必要があります。
 
-. を使用して、ボリュームの移動先となるアグリゲートを特定します `volume move target-aggr show` コマンドを実行します
+. コマンドを使用して、ボリュームの移動先として使用できるアグリゲートを確認します `volume move target-aggr show`。
 +
 ボリュームに使用できるスペースが十分にあるアグリゲート、つまり利用可能なサイズが移動するボリュームよりも大きいアグリゲートを選択する必要があります。
 
 +
-次の例では、表示されたどのアグリゲートにも vs2 ボリュームを移動できます。
+次の例は、表示されている任意のアグリゲートにvs2ボリュームを移動できることを示しています。
 
 +
 [listing]
@@ -41,8 +41,8 @@ node12a_aggr1    10.36GB          hdd
 node12a_aggr4    10.36GB          hdd
 5 entries were displayed.
 ----
-. を使用して、目的のアグリゲートにボリュームを移動できることを確認します `volume move start -perform-validation-only` 検証チェックを実行するコマンド。
-. を使用してボリュームを移動します `volume move start` コマンドを実行します
+. コマンドを使用して検証チェックを実行し、目的のアグリゲートにボリュームを移動できることを確認し `volume move start -perform-validation-only`ます。
+. コマンドを使用してボリュームを移動し `volume move start`ます。
 +
 SVM vs2 上の user_max ボリュームを node12a_aggr3 アグリゲートに移動するコマンドを次に示します。移動はバックグラウンドプロセスとして実行されます。
 
@@ -52,7 +52,7 @@ SVM vs2 上の user_max ボリュームを node12a_aggr3 アグリゲートに�
 cluster1::> volume move start -vserver vs2 -volume user_max
 -destination-aggregate node12a_aggr3
 ----
-. を使用して、ボリューム移動処理のステータスを確認します `volume move show` コマンドを実行します
+. コマンドを使用して、ボリューム移動処理のステータスを確認します `volume move show`。
 +
 次の例は、レプリケーションフェーズを完了し、カットオーバーフェーズにあるボリューム移動の状態を示しています。
 
@@ -66,6 +66,6 @@ Vserver   Volume     State    Move Phase  Percent-Complete Time-To-Complete
 vs2       user_max   healthy  cutover     -                -
 ----
 +
-ボリューム移動がに表示されなくなると、これで完了です `volume move show` コマンド出力。
+コマンド出力に表示されなくなると、ボリューム移動は完了 `volume move show`です。
 
 

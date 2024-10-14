@@ -4,7 +4,7 @@ sidebar: sidebar
 keywords: verfiy, domain, account, default, unix, server, smb, share, user 
 summary: Hyper-V および SQL Server では、継続的可用性を備えた共有への SMB 接続を作成する際にドメインアカウントを使用します。接続を作成するには、コンピュータアカウントが UNIX ユーザに正しくマッピングされている必要があります。そのための最も便利な方法は、コンピュータアカウントをデフォルトの UNIX ユーザにマッピングすることです。 
 ---
-= ドメインアカウントがデフォルトの UNIX ユーザにマッピングされていることを確認します
+= ドメインアカウントがデフォルトのUNIXユーザにマッピングされていることを確認する
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
@@ -13,10 +13,10 @@ summary: Hyper-V および SQL Server では、継続的可用性を備えた共
 [role="lead"]
 Hyper-V および SQL Server では、継続的可用性を備えた共有への SMB 接続を作成する際にドメインアカウントを使用します。接続を作成するには、コンピュータアカウントが UNIX ユーザに正しくマッピングされている必要があります。そのための最も便利な方法は、コンピュータアカウントをデフォルトの UNIX ユーザにマッピングすることです。
 
-.このタスクについて
+.タスクの内容
 Hyper-V および SQL Server は、ドメインコンピュータアカウントを使用して SMB 接続を作成します。また、 SQL Server は、 SMB 接続を作成するサービスアカウントとしてドメインユーザアカウントを使用します。
 
-Storage Virtual Machine（SVM）を作成すると、「pcuser」という名前のデフォルトユーザがONTAP によって自動的に作成されます（UIDはになります） `65534`）および「pcuser」という名前のグループ（GIDはです `65534`をクリックし、デフォルトユーザを"`pcuser`"グループに追加します。クラスタを Data ONTAP 8.2 にアップグレードする前に使用していた SVM で Hyper-V over SMB 解決策を設定する場合は、デフォルトのユーザとグループが存在していない可能性があります。デフォルトの UNIX ユーザを設定していない場合は、 CIFS サーバのデフォルトの UNIX ユーザを設定する前に、デフォルトのユーザとグループを作成する必要があります。
+Storage Virtual Machine（SVM）を作成すると、ONTAPによってデフォルトユーザ「pcuser」（UIDが）とグループ「pcuser」（GIDが `65534`）が自動的に作成され `65534`、デフォルトユーザが「pcuser」グループに追加されます。クラスタをData ONTAP 8 2にアップグレードする前に使用していたSVMでHyper-V over SMBソリューションを設定する場合は、デフォルトのユーザとグループが存在していない可能性があります。デフォルトの UNIX ユーザを設定していない場合は、 CIFS サーバのデフォルトの UNIX ユーザを設定する前に、デフォルトのユーザとグループを作成する必要があります。
 
 .手順
 . デフォルトの UNIX ユーザが存在するかどうかを確認します。
@@ -29,19 +29,15 @@ Storage Virtual Machine（SVM）を作成すると、「pcuser」という名前
 
 . デフォルトユーザオプションが設定されておらず、デフォルトの UNIX ユーザとして指定できる UNIX ユーザも存在しない場合は、デフォルトの UNIX ユーザとデフォルトのグループを作成し、デフォルトのユーザをそのグループに追加します。
 +
-通常、デフォルトユーザにはユーザ名「`pcuser`」が与えられ、のUIDを割り当てる必要があります `65534`。デフォルトのグループには ' 通常 ' グループ名として pcuser が与えられますグループに割り当てるGIDはである必要があります `65534`。
+通常、デフォルトユーザにはユーザ名「`pcuser`」が与えられ、のUIDを割り当てる必要があります。 `65534`デフォルトのグループには ' 通常 ' グループ名として pcuser が与えられますグループに割り当てるGIDはである必要があり `65534`ます。
 
 +
-.. デフォルトグループを作成します。
-[+]
+.. デフォルトグループを作成します。+
 `*vserver services unix-group create -vserver _vserver_name_ -name pcuser -id 65534*`
-.. デフォルトユーザを作成し、デフォルトグループに追加します。
-[+]
+.. デフォルトユーザを作成し、デフォルトグループに追加します。+
 `*vserver services unix-user create -vserver _vserver_name_ -user pcuser -id 65534 -primary-gid 65534*`
 .. デフォルトのユーザとデフォルトグループが正しく設定されていることを確認します。
-[+]
-`*vserver services unix-user show -vserver _vserver_name_*`
-[+]
+`*vserver services unix-user show -vserver _vserver_name_*`++
 `*vserver services unix-group show -vserver _vserver_name_ -members*`
 
 
@@ -57,9 +53,9 @@ Storage Virtual Machine（SVM）を作成すると、「pcuser」という名前
 
 
 
-. アプリケーションサーバのコンピュータアカウントがデフォルトのユーザに正しくマッピングされていることを確認するには、SVMの共有にドライブをマッピングし、を使用してWindowsユーザとUNIXユーザのマッピングを確認します `vserver cifs session show` コマンドを実行します
+. アプリケーションサーバのコンピュータアカウントがデフォルトのユーザに正しくマッピングされていることを確認するには、SVMの共有にドライブをマッピングし、コマンドを使用してWindowsユーザとUNIXユーザのマッピングを確認します `vserver cifs session show`。
 +
-このコマンドの使用の詳細については、マニュアルページを参照してください。
+このコマンドの使用方法の詳細については、マニュアルページを参照してください。
 
 
 

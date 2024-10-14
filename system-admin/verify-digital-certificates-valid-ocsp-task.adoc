@@ -2,35 +2,35 @@
 permalink: system-admin/verify-digital-certificates-valid-ocsp-task.html 
 sidebar: sidebar 
 keywords: verfiy, digital, certificate, valid, ocsp, online, status, protocol, transport, layer, security, tls, enable, disable 
-summary: ONTAP 9.2 以降では、 Online Certificate Status Protocol （ OCSP ）を有効にすることで、 Transport Layer Security （ TLS ）通信を使用する ONTAP アプリケーションでデジタル証明書のステータスを受信できます。OCSP による証明書のステータスチェックは、特定のアプリケーションに対していつでも有効または無効にできます。デフォルトでは、 OCSP による証明書のステータスチェックは無効になっています。 
+summary: OCSP.2以降でONTAP 9は、オンライン証明書ステータスプロトコル（OCSP）を使用すると、Transport Layer Security（TLS）通信を使用するONTAPアプリケーションがデジタル証明書ステータスを受信できるようになります。OCSPによる証明書のステータスチェックは、特定のアプリケーションについていつでも有効または無効にすることができます。デフォルトでは、OCSPによる証明書のステータスチェックは無効になっています。 
 ---
-= OCSP を使用してデジタル証明書が有効であることを確認します
+= OCSPを使用してデジタル証明書が有効であることを確認する
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-ONTAP 9.2 以降では、 Online Certificate Status Protocol （ OCSP ）を有効にすることで、 Transport Layer Security （ TLS ）通信を使用する ONTAP アプリケーションでデジタル証明書のステータスを受信できます。OCSP による証明書のステータスチェックは、特定のアプリケーションに対していつでも有効または無効にできます。デフォルトでは、 OCSP による証明書のステータスチェックは無効になっています。
+OCSP.2以降でONTAP 9は、オンライン証明書ステータスプロトコル（OCSP）を使用すると、Transport Layer Security（TLS）通信を使用するONTAPアプリケーションがデジタル証明書ステータスを受信できるようになります。OCSPによる証明書のステータスチェックは、特定のアプリケーションについていつでも有効または無効にすることができます。デフォルトでは、OCSPによる証明書のステータスチェックは無効になっています。
 
 .必要なもの
 このタスクを実行するには、advanced権限レベルのアクセス権が必要です。
 
-.このタスクについて
-OCSP は、次のアプリケーションをサポートしています。
+.タスクの内容
+OCSPは次のアプリケーションをサポートしています。
 
 * AutoSupport
-* イベント管理システム（ EMS ）
+* Event Management System（EMS；イベント管理システム）
 * LDAP over TLS
-* Key Management Interoperability Protocol （ KMIP ）
+* Key Management Interoperability Protocol（KMIP）
 * 監査ログ
 * FabricPool
 * SSH（ONTAP 9.13.1以降）
 
 
 .手順
-. 権限レベルを advanced に設定します。 `set -privilege advanced`。
-. 特定の ONTAP アプリケーションで OCSP による証明書のステータスチェックを有効または無効にするには、次の該当するコマンドを使用します。
+. 権限レベルをadvancedに設定します。 `set -privilege advanced`
+. 特定のONTAPアプリケーションでOCSPによる証明書のステータスチェックを有効または無効にするには、該当するコマンドを使用します。
 +
 |===
 | 一部のアプリケーションで OCSP による証明書のステータスチェックを有効または無効にする場合 | 使用するコマンド 
@@ -44,13 +44,13 @@ OCSP は、次のアプリケーションをサポートしています。
 
 
  a| 
-無効
+無効にする
  a| 
 `security config ocsp disable -app` `app name`
 
 |===
 +
-次のコマンドは、 AutoSupport および EMS の OCSP サポートを有効にします。
+次のコマンドは、AutoSupportおよびEMSのOCSPサポートを有効にします。
 
 +
 [listing]
@@ -58,17 +58,17 @@ OCSP は、次のアプリケーションをサポートしています。
 cluster::*> security config ocsp enable -app asup,ems
 ----
 +
-OCSP を有効にすると、アプリケーションは次のいずれかの応答を受信します。
+OCSPが有効な場合、アプリケーションは次のいずれかの応答を受信します。
 
 +
 ** Good - 証明書は有効で、通信可能な状態です。
 ** Revoked - 証明書は発行元の認証局によって永続的に信頼できないと判断されており、通信不可能な状態です。
 ** Unknown - サーバが証明書に関するステータス情報を持っていないため、通信不可能な状態です。
-** OCSP server information is missing in the certificate - TLS 通信は続行していますが、サーバで OCSP が無効であると判断されているため、ステータスチェックは実行されません。
+** OCSP server information is missing in the certificate -サーバはOCSPが無効になっているかのように動作し、TLS通信を続行しますが、ステータスチェックは行われません。
 ** No response from OCSP server - アプリケーションを実行できない状態です。
 
 
-. TLS を使用するすべてのアプリケーションで OCSP による証明書のステータスチェックを有効または無効にするには、次の該当するコマンドを使用します。
+. TLS通信を使用するすべてのアプリケーションでOCSPによる証明書のステータスチェックを有効または無効にするには、該当するコマンドを使用します。
 +
 |===
 | すべてのアプリケーションで OCSP による証明書のステータスチェックを有効または無効にする場合 | 使用するコマンド 
@@ -84,7 +84,7 @@ OCSP を有効にすると、アプリケーションは次のいずれかの応
 
 
  a| 
-無効
+無効にする
  a| 
 `security config ocsp disable`
 
@@ -92,9 +92,9 @@ OCSP を有効にすると、アプリケーションは次のいずれかの応
 
 |===
 +
-有効にすると、指定した証明書が「有効」、「失効」、「不明」のいずれであるかを示す署名済みの応答が、すべてのアプリケーションに送信されます。証明書のステータスが revoked の場合は、アプリケーションは実行できません。アプリケーションが OCSP サーバから応答を受信できない場合、または OCSP サーバにアクセスできない場合、アプリケーションは続行できません。
+有効にすると、すべてのアプリケーションが、指定された証明書が有効、失効、または不明であることを示す署名付き応答を受信します。証明書が失効している場合は、アプリケーションを続行できません。アプリケーションがOCSPサーバからの応答を受信できない場合、またはサーバに到達できない場合、アプリケーションは続行できません。
 
-. を使用します `security config ocsp show` コマンドを使用して、OCSPをサポートするすべてのアプリケーションとそのサポートステータスを表示します。
+. OCSPをサポートするすべてのアプリケーションとそのサポートステータスを表示するには、コマンドを使用し `security config ocsp show`ます。
 +
 [listing]
 ----

@@ -2,43 +2,43 @@
 permalink: system-admin/enable-sp-bmc-automatic-network-config-task.html 
 sidebar: sidebar 
 keywords: enable, sp, bmc, automatic, network, configuration 
-summary: SP ネットワークを手動で設定するよりも、自動ネットワーク設定を使用するように SP を設定することを推奨します。SP ネットワークの自動設定はクラスタ全体が対象なので、個々のノードの SP ネットワークを手動で管理する必要がありません。 
+summary: SP ネットワークを手動で設定するよりも、自動ネットワーク設定を使用するように SP を設定することを推奨します。SPの自動ネットワーク設定はクラスタ全体で行われるため、個 々 のノードのSPネットワークを手動で管理する必要はありません。 
 ---
-= SP / BMC の自動ネットワーク設定を有効にします
+= SP / BMCの自動ネットワーク設定を有効にする
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-SP ネットワークを手動で設定するよりも、自動ネットワーク設定を使用するように SP を設定することを推奨します。SP ネットワークの自動設定はクラスタ全体が対象なので、個々のノードの SP ネットワークを手動で管理する必要がありません。
+SP ネットワークを手動で設定するよりも、自動ネットワーク設定を使用するように SP を設定することを推奨します。SPの自動ネットワーク設定はクラスタ全体で行われるため、個 々 のノードのSPネットワークを手動で管理する必要はありません。
 
 [NOTE]
 ====
-このタスクでは、 SP と BMC の両方を環境に設定します。
+このタスクは、SPとBMCの両方に適用されます。
 
 ====
-* SP 自動ネットワーク設定には、クラスタ内に定義済みで、 SP ネットワークインターフェイスとリソースが競合しないサブネットを使用する必要があります。
+* SPの自動ネットワーク設定に使用するサブネットは、クラスタで定義済みであり、SPネットワークインターフェイスとリソースが競合していない必要があります。
 +
-。 `network subnet show` コマンドは、クラスタのサブネット情報を表示します。
+コマンドは `network subnet show`、クラスタのサブネット情報を表示します。
 
 +
-サブネットの関連付けを強制するパラメータ（ `-force-update-lif-associations` のパラメータ `network subnet` コマンド）はネットワークLIFでのみサポートされ、SPネットワークインターフェイスではサポートされません。
+サブネットの関連付けを強制するパラメータ（ `-force-update-lif-associations`コマンドのパラメータ `network subnet`）は、ネットワークLIFでのみサポートされ、SPネットワークインターフェイスではサポートされません。
 
 * SP に IPv6 接続を設定する場合、 ONTAP に対して IPv6 が設定済みで、有効になっている必要があります。
 +
-。 `network options ipv6 show` コマンドは、ONTAP のIPv6設定の現在の状態を表示します。
+ `network options ipv6 show`コマンドは、ONTAPのIPv6設定の現在の状態を表示します。
 
 
 
 .手順
-. を使用して、SPで使用するサブネットのIPv4またはIPv6アドレスファミリーと名前を指定します `system service-processor network auto-configuration enable` コマンドを実行します
-. を使用して、SPの自動ネットワーク設定を表示します `system service-processor network auto-configuration show` コマンドを実行します
-. その後クォーラム内のすべてのノードに対してSP IPv4またはIPv6ネットワークインターフェイスを無効または再度有効にする場合は、を使用します `system service-processor network modify` コマンドにを指定します `-address-family` [`IPv4`|`IPv6`]および `-enable` [`true`|`false`]パラメータを指定します。
+. コマンドを使用して、SPで使用するサブネットのIPv4またはIPv6アドレスファミリーと名前を指定します `system service-processor network auto-configuration enable`。
+. コマンドを使用して、SPの自動ネットワーク設定を表示します `system service-processor network auto-configuration show`。
+. その後、クォーラム内のすべてのノードに対してSP IPv4またはIPv6ネットワークインターフェイスを無効または再度有効にする場合は、コマンドで [`IPv4`|`IPv6`] [`true`|`false`パラメータと `-enable`]パラメータを指定して `-address-family`使用し `system service-processor network modify`ます。
 +
 SP 自動ネットワーク設定が有効になっている場合、クォーラム内のノードの SP IP アドレスを変更することはできません。実行できるのは、 SP IPv4 または IPv6 ネットワークインターフェイスの有効化または無効化だけです。
 
 +
-ノードがクォーラムのメンバーでない場合は、を実行して、SPのIPアドレスを含むノードのSPネットワーク設定を変更できます `system service-processor network modify` ノードから、およびノードのSP自動ネットワーク設定を上書きすることを確認します。ただし、ノードがクォーラムに参加すると、指定したサブネットに基づいてノードに対して SP の自動再設定が実行されます。
+ノードがクォーラムのメンバーでない場合は、ノードからを実行し、そのノードのSP自動ネットワーク設定を上書きすることを確認して、SP IPアドレスを含むノードのSPネットワーク設定を変更できます。 `system service-processor network modify`ただし、ノードがクォーラムに参加すると、指定したサブネットに基づいてノードに対して SP の自動再設定が実行されます。
 
 

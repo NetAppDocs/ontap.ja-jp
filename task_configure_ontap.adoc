@@ -2,9 +2,9 @@
 sidebar: sidebar 
 permalink: task_configure_ontap.html 
 keywords: install, installing, cluster, set up, setup, configure, disk, data ports, guided setup, local tiers, aggregate, vserver, volume, configuring ONTAP on a new cluster, configuring a new cluster, assign a node-management IP address, node, DNS server, host name, hostname, NTP server, synchronize time, create a local tier, configure protocol, SSD, provision storage, add LUN, add volume, add namespace, volume, vserver, configure ONTAP on a new cluster, configuration 
-summary: System Manager では、クラスタのセットアップとストレージの設定を簡単に行うことができます。 
+summary: System Managerのシンプルで簡単なワークフローを使用して、クラスタのセットアップとストレージの設定を行うことができます。 
 ---
-= System Managerを使用して新しいクラスタにONTAPを設定します
+= System Managerを使用した新しいクラスタでのONTAPの設定
 :hardbreaks:
 :toclevels: 1
 :allow-uri-read: 
@@ -16,26 +16,25 @@ summary: System Manager では、クラスタのセットアップとストレ�
 
 
 [role="lead"]
-System Manager のシンプルで簡単なワークフローで、新しいクラスタをセットアップしてストレージを設定できます。
+System Managerのシンプルで簡単なワークフローを使用して、新しいクラスタのセットアップとストレージの設定を行うことができます。
 
-.このタスクについて
+.タスクの内容
 この手順は、FAS、AFF、および現在のASAシステムに適用されます。ASA R2システム（ASA A1K、ASA A70、またはASA A90）がある場合は、link:https://docs.netapp.com/us-en/asa-r2/install-setup/initialize-ontap-cluster.html["以下の手順を実行します"^]System Managerを使用してONTAPクラスタをセットアップします。ASA R2システムは、SANのみのお客様に特化したシンプルなONTAPエクスペリエンスを提供します。
 
-特定の MetroCluster 環境やクラスタで IPv6 ネットワークアドレスを必要とする場合など、新しいクラスタの設定に ONTAP CLI の使用が必要になることがあります。をクリックします link:./software_setup/concept_set_up_the_cluster.html["こちらをご覧ください"] これらの要件の詳細、および ONTAP CLI を使用したクラスタのセットアップ手順については、を参照してください。
+特定のMetroCluster環境やIPv6ネットワークアドレスを必要とするクラスタなど、場合によっては、ONTAP CLIを使用して新しいクラスタをセットアップしなければならないことがあります。をクリックするlink:./software_setup/concept_set_up_the_cluster.html["ここをクリック"]と、これらの要件の詳細と、ONTAP CLIを使用したクラスタセットアップの手順が表示されます。
 
-.作業を開始する前に
-* 使用しているプラットフォームモデルの設置とセットアップの手順に従って、新しいストレージシステムを設置し、ケーブル接続して電源をオンにしておく必要があります。
-を参照してください https://docs.netapp.com/us-en/ontap-systems/index.html["AFFおよびFASのドキュメント"^]。
+.開始する前に
+* 使用しているプラットフォームモデルの設置とセットアップの手順に従って、新しいストレージシステムを設置し、ケーブル接続して電源をオンにしておく必要があります。を参照してください https://docs.netapp.com/us-en/ontap-systems/index.html["AFFおよびFASのドキュメント"^]。
 * クラスタ内通信用に、クラスタの各ノードにクラスタネットワークインターフェイスが設定されている必要があります。
-* System Manager の次のサポート要件を確認しておく必要があります。
+* System Managerをサポートする次の要件に注意してください。
 +
-** CLI を使用して手動でノード管理を設定すると、 System Manager では IPv4 のみがサポートされ、 IPv6 はサポートされません。ただし、ハードウェアのセットアップが完了したあとに、 DHCP を使用して IP アドレスが自動的に割り当てられ、 Windows 検出が行われたあとに System Manager を起動した場合は、 System Manager で IPv6 管理アドレスを設定できます。
+** CLIを使用してノード管理を手動でセットアップする場合、System ManagerではIPv4のみがサポートされ、IPv6はサポートされません。ただし、ハードウェアのセットアップ完了後にIPアドレスが自動割り当てされたDHCPとWindows検出を使用してSystem Managerを起動した場合は、System ManagerでIPv6管理アドレスを設定できます。
 +
-ONTAP 9.6 以前では、 System Manager で IPv6 ネットワークを必要とする導入はサポートされません。
+ONTAP 9 .6以前では、IPv6ネットワークを必要とする環境はSystem Managerでサポートされません。
 
-** MetroCluster セットアップがサポートされるのは、各サイトにノードが 2 つある MetroCluster IP 構成です。
+** MetroClusterのセットアップでは、各サイトにノードが2つあるMetroCluster IP構成がサポートされます。
 +
-ONTAP 9.7 以前では、 System Manager で MetroCluster 構成の新しいクラスタセットアップがサポートされません。
+ONTAP 9 .7以前のSystem Managerでは、MetroCluster構成用の新しいクラスタセットアップはサポートされません。
 
 
 
@@ -54,16 +53,16 @@ image:workflow_configure_ontap_on_new_cluster.gif["System Managerを使用して
 
 
 
-== ノード管理 IP アドレスを割り当て
+== ノード管理IPアドレスを割り当てる
 
 
 
-=== Windows システム
+=== Windowsシステム
 
-Windows コンピュータは、コントローラと同じサブネットに接続する必要があります。これにより、システムにノード管理 IP アドレスが自動的に割り当てられます。
+Windowsコンピュータをコントローラと同じサブネットに接続する必要があります。これにより、システムにノード管理IPアドレスが自動的に割り当てられます。
 
 .ステップ
-. Windows システムで、 * Network * ドライブを開いてノードを検出します。
+. Windowsシステムで*[ネットワーク]*ドライブを開き、ノードを検出します。
 . ノードをダブルクリックしてクラスタセットアップウィザードを起動します。
 
 
@@ -71,20 +70,20 @@ Windows コンピュータは、コントローラと同じサブネットに接
 
 === その他のシステム
 
-クラスタ内のいずれかのノードにノード管理 IP アドレスを設定する必要があります。このノード管理 IP アドレスを使用して、クラスタセットアップウィザードを起動できます。
+クラスタのいずれかのノードのノード管理IPアドレスを設定する必要があります。そのノード管理IPアドレスを使用してクラスタ セットアップ ウィザードを起動できます。
 
-を参照してください link:./software_setup/task_create_the_cluster_on_the_first_node.html["第 1 ノードへのクラスタの作成"] ノード管理 IP アドレスの割り当てについては、を参照してください。
+ノード管理IPアドレスの割り当てについては、を参照してくださいlink:./software_setup/task_create_the_cluster_on_the_first_node.html["第1ノードでのクラスタの作成"]。
 
 
 
-== クラスタを初期化
+== クラスタの初期化
 
-クラスタを初期化するには、クラスタの管理パスワードを設定し、クラスタ管理ネットワークとノード管理ネットワークをセットアップします。DNS サーバなどのサービスを設定してホスト名を解決したり、 NTP サーバを設定して時間を同期したりすることもできます。
+クラスタを初期化するには、クラスタの管理パスワードを設定し、クラスタ管理ネットワークとノード管理ネットワークを設定します。ホスト名を解決するDNSサーバや時刻を同期するNTPサーバなどのサービスを設定することもできます。
 
 .手順
-. Web ブラウザで、設定したノード管理 IP アドレスを入力します。 "https://node-management-IP"[]
+. Webブラウザで、設定したノード管理IPアドレスを入力します。"https://node-management-IP"[]
 +
-System Manager は、クラスタ内の残りのノードを自動的に検出します。
+クラスタの残りのノードはSystem Managerで自動的に検出されます。
 
 . [ストレージシステムの初期化]*で、クラスタ名と管理パスワードを入力します。
 . [ネットワーク]*で、クラスタ管理IPアドレス、サブネットマスク、およびゲートウェイを入力します。
@@ -94,33 +93,33 @@ System Manager は、クラスタ内の残りのノードを自動的に検出�
 
 
 .次のステップ
-クラスタを初期化したら、次の操作を実行できます link:./software_setup/task_check_cluster_with_config_advisor.html["Active IQ Config Advisorを実行して構成を検証し、一般的な構成エラーがないかどうかを確認"]。
+クラスタを初期化したら、次のlink:./software_setup/task_check_cluster_with_config_advisor.html["Active IQ Config Advisorを実行して構成を検証し、一般的な構成エラーがないかどうかを確認"]操作を実行できます。
 
 
 
-== ローカル階層を作成します
+== ローカル階層の作成
 
-ノードの使用可能なディスクまたは SSD からローカル階層を作成してください。System Manager では、ハードウェアに基づいて最適なティア構成が自動的に計算されます。
-
-.手順
-. [Dashboard] をクリックし、 [* Prepare Storage] をクリックします。
-+
-ローカル階層に対するストレージの推奨事項を承認します。
-
-
-
-
-
-== プロトコルを設定する
-
-クラスタで有効になっているライセンスに応じて、クラスタで必要なプロトコルを有効にすることができます。次に、ストレージへのアクセスに使用するネットワークインターフェイスを作成します。
+ノード内の使用可能なディスクまたはSSDを使用してローカル階層を作成します。ハードウェアに基づいて、最適な階層構成がSystem Managerによって自動的に計算されます。
 
 .手順
-. [ * ダッシュボード * ] をクリックし、 [ * プロトコルの設定 * ] をクリックします。
+. [ダッシュボード]*をクリックし、*[ストレージの準備]*をクリックします。
 +
-** SAN アクセス用に iSCSI または FC を有効にします。
-** NAS アクセス用に NFS または SMB を有効化
-** FC-NVMe アクセスに対して NVMe を有効にします。
+ローカル階層に対して推奨されたストレージを受け入れます。
+
+
+
+
+
+== プロトコルの設定
+
+クラスタで有効になっているライセンスに応じて、必要なプロトコルを有効にすることができます。その後、ストレージへのアクセスに使用するネットワークインターフェイスを作成します。
+
+.手順
+. [ダッシュボード]*をクリックし、*[プロトコルの設定]*をクリックします。
++
+** SANアクセスの場合はiSCSIまたはFCを有効にします。
+** NASアクセスの場合はNFSまたはSMBを有効にします。
+** FC-NVMeアクセスの場合はNVMeを有効にします。
 
 
 
@@ -129,20 +128,20 @@ System Manager は、クラスタ内の残りのノードを自動的に検出�
 
 == ストレージのプロビジョニング
 
-プロトコルを設定したら、ストレージをプロビジョニングできます。表示されるオプションは、インストールされているライセンスによって異なります。
+プロトコルを設定したら、ストレージをプロビジョニングできます。表示されるオプションは、インストールされているライセンスに応じて異なります。
 
 .手順
-. [Dashboard] をクリックし、 [* Provision Storage] をクリックします。
+. [ダッシュボード]*をクリックし、*[ストレージのプロビジョニング]*をクリックします。
 +
-** 終了： link:concept_san_provision_overview.html["SAN アクセスをプロビジョニング"]をクリックし、 * LUN の追加 * をクリックします。
-** 終了： link:concept_nas_provision_overview.html["NASアクセスのプロビジョニング"]をクリックし、 * ボリュームの追加 * をクリックします。
-** 終了： link:concept_nvme_provision_overview.html["NVMe ストレージをプロビジョニングする"]をクリックし、 [ 名前空間の追加 ] をクリックします。
+** に移動しlink:concept_san_provision_overview.html["SANアクセスのプロビジョニング"]、*[LUNの追加]*をクリックします。
+** に移動しlink:concept_nas_provision_overview.html["NASアクセスのプロビジョニング"]、*[ボリュームの追加]*をクリックします。
+** に移動link:concept_nvme_provision_overview.html["NVMe ストレージをプロビジョニングする"]するには、*[ネームスペースの追加]*をクリックします。
 
 
 
 
 
 
-== 新しいクラスタのビデオで ONTAP を設定
+== 新しいクラスタでのONTAPの設定に関するビデオ
 
 video::6WjyADPXDZ0[youtube,width=848,height=480]

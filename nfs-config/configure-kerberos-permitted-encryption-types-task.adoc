@@ -4,29 +4,29 @@ sidebar: sidebar
 keywords: configure, nfs, kerberos, permitted, encryption, types 
 summary: デフォルトでは、 ONTAP は、 DES 、 3DES 、 AES-128 、および AES-256 の暗号化タイプをサポートします。許可される暗号化タイプを SVM ごとに設定して、セキュリティ要件を特定の環境に適用するには、 vserver nfs modify コマンドと -permitted-enc-types パラメータを使用します。 
 ---
-= NFS Kerberos で許可されている暗号化タイプを設定する
+= NFS Kerberosで許可される暗号化タイプの設定
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-デフォルトでは、 ONTAP は、 DES 、 3DES 、 AES-128 、および AES-256 の暗号化タイプをサポートします。を使用して、SVMごとに許可される暗号化タイプを、特定の環境のセキュリティ要件に合わせて設定できます `vserver nfs modify` コマンドにを指定します `-permitted-enc-types` パラメータ
+デフォルトでは、 ONTAP は、 DES 、 3DES 、 AES-128 、および AES-256 の暗号化タイプをサポートします。コマンドでパラメータを指定する `-permitted-enc-types`と、SVMごとに許可される暗号化タイプを、特定の環境のセキュリティ要件に合わせて設定できます `vserver nfs modify`。
 
-.このタスクについて
-クライアントの互換性を最大にするために、 ONTAP はデフォルトで弱い DES 暗号化と強い AES 暗号化の両方をサポートしています。つまり、たとえば、セキュリティの向上を必要としていて環境でこの機能がサポートされている場合は、この手順を使用して、 DES と 3DES を無効にしてクライアントに AES 暗号化のみの使用を要求できます。
+.タスクの内容
+クライアントの互換性を最大限に高めるために、ONTAPはデフォルトで弱いDES暗号化と強いAES暗号化の両方をサポートしています。つまり、たとえば、セキュリティを強化する必要があり、環境でサポートされている場合は、この手順を使用してDESと3DESを無効にし、クライアントにAES暗号化のみの使用を要求できます。
 
 使用可能な最も強力な暗号化を使用する必要があります。ONTAP の場合は AES-256 です。この暗号化レベルが環境でサポートされていることを、 KDC 管理者に確認する必要があります。
 
-* SVM 上で AES 全体（ AES-128 と AES-256 の両方）を有効または無効にすると、システムが停止します。元の DES プリンシパル / keytab ファイルが削除され、 SVM のすべての LIF 上で Kerberos 構成を無効にすることが必要になるからです。
+* SVMでAES全体（AES-128とAES-256の両方）を有効または無効にすると、システムが停止します。元のDESプリンシパル/ keytabファイルが削除され、SVMのすべてのLIFでKerberos設定を無効にする必要があるためです。
 +
-この変更を行う前に、 SVM 上で NFS クライアントが AES 暗号化に依存していないことを確認する必要があります。
+この変更を行う前に、SVMでNFSクライアントがAES暗号化を使用していないことを確認する必要があります。
 
 * DES や 3DES の有効化または無効化は、 LIF での Kerberos 設定の変更を一切必要としません。
 
 
 .ステップ
-. 許可されている必要な暗号化タイプを有効または無効にします。
+. 許可されている暗号化タイプを有効または無効にします。
 +
 |===
 | 有効または無効にする対象 | 実行する手順 
@@ -35,14 +35,12 @@ summary: デフォルトでは、 ONTAP は、 DES 、 3DES 、 AES-128 、お�
  a| 
 DES または 3DES
  a| 
-.. SVMのNFS Kerberosで許可される暗号化タイプを設定します。
- [+]
+.. SVMのNFS Kerberosで許可されている暗号化タイプを設定します。+
 `vserver nfs modify -vserver _vserver_name_ -permitted-enc-types _encryption_types_`
 +
 暗号化タイプが複数ある場合はカンマで区切ります。
 
-.. 変更が成功したことを確認します。
- [+]
+.. 変更が成功したことを確認します。+
 `vserver nfs show -vserver _vserver_name_ -fields permitted-enc-types`
 
 
@@ -51,26 +49,20 @@ DES または 3DES
  a| 
 AES-128またはAES-256
  a| 
-.. Kerberosが有効になっているSVMとLIFを特定します。
- [+]
+.. Kerberosが有効になっているSVMとLIFを特定します。+
 `vserver nfs kerberos interface show`
-.. 変更対象のNFS Kerberosで許可されている暗号化タイプが設定されているSVM上のすべてのLIFでKerberosを無効にします。
- [+]
+.. 変更対象のNFS Kerberosで許可されている暗号化タイプが設定されているSVM上のすべてのLIFでKerberosを無効にします。+
 `vserver nfs kerberos interface disable -lif _lif_name_`
-.. SVMのNFS Kerberosで許可される暗号化タイプを設定します。
- [+]
+.. SVMのNFS Kerberosで許可されている暗号化タイプを設定します。+
 `vserver nfs modify -vserver _vserver_name_ -permitted-enc-types _encryption_types_`
 +
 暗号化タイプが複数ある場合はカンマで区切ります。
 
-.. 変更が成功したことを確認します。
- [+]
+.. 変更が成功したことを確認します。+
 `vserver nfs show -vserver _vserver_name_ -fields permitted-enc-types`
-.. SVM上のすべてのLIFでKerberosを再度有効にします。
- [+]
+.. SVM上のすべてのLIFでKerberosを再度有効にします。+
 `vserver nfs kerberos interface enable -lif _lif_name_ -spn _service_principal_name_`
-.. すべてのLIFでKerberosが有効になっていることを確認します。
- [+]
+.. すべてのLIFでKerberosが有効になっていることを確認します。+
 `vserver nfs kerberos interface show`
 
 

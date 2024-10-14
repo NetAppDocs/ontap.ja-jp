@@ -2,59 +2,59 @@
 permalink: smb-admin/add-home-directory-share-task.html 
 sidebar: sidebar 
 keywords: smb, home, directory, feature, add, property, share, properties, property, add a home directory share 
-summary: SMB ホームディレクトリ機能を使用する場合、共有プロパティにホームディレクトリプロパティを含む共有を少なくとも 1 つ追加する必要があります。 
+summary: SMBホームディレクトリ機能を使用する場合は、ホームディレクトリプロパティが設定された共有を少なくとも1つ追加する必要があります。 
 ---
-= ホームディレクトリ共有を追加します
+= ホームディレクトリ共有を追加する
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-SMB ホームディレクトリ機能を使用する場合、共有プロパティにホームディレクトリプロパティを含む共有を少なくとも 1 つ追加する必要があります。
+SMBホームディレクトリ機能を使用する場合は、ホームディレクトリプロパティが設定された共有を少なくとも1つ追加する必要があります。
 
-.このタスクについて
-ホームディレクトリ共有は、共有の作成時にを使用して作成できます `vserver cifs share create` コマンドを入力するか、を使用して、既存の共有をいつでもホームディレクトリ共有に変更できます `vserver cifs share modify` コマンドを実行します
+.タスクの内容
+ホームディレクトリ共有は、共有の作成時にコマンドを使用して作成できます `vserver cifs share create`。既存の共有をホームディレクトリ共有に変更するには、コマンドを使用します `vserver cifs share modify`。
 
-ホームディレクトリ共有を作成するには、を含める必要があります `homedirectory` の値 `-share-properties` オプションは、共有を作成または変更するときに使用します。共有名と共有パスは変数を使用して指定できます。変数はユーザがそれぞれのホームディレクトリに接続するときに動的に変換されます。パスで使用できる変数はです `%w`、 `%d`および `%u`Windowsユーザ名、ドメイン、マッピングされたUNIXユーザ名にそれぞれ対応します。
+ホームディレクトリ共有を作成するには、共有を作成または変更するときにオプションに値 `-share-properties`を指定する必要があります `homedirectory`。共有名と共有パスは変数を使用して指定できます。変数はユーザがホームディレクトリに接続するときに動的に拡張されます。パスに使用できる変数は、 `%w`、 `%d`、および `%u`です。それぞれ、Windowsユーザ名、ドメイン、およびマッピングされたUNIXユーザ名に対応します。
 
 .手順
-. ホームディレクトリ共有を追加：+
+. ホームディレクトリ共有を追加します。+
 `vserver cifs share create -vserver _vserver_name_ -share-name _share_name_ -path _path_ -share-properties homedirectory[,...]`
 +
-`-vserver` `vserver` 検索パスを追加するCIFS対応のStorage Virtual Machine（SVM）を指定します。
+`-vserver` `vserver`検索パスを追加するCIFS対応のStorage Virtual Machine（SVM）を指定します。
 
 +
-`-share-name _share-name_` ホームディレクトリ共有名を指定します。
+`-share-name _share-name_`ホームディレクトリ共有名を指定します。
 
 +
-共有名にリテラル文字列が含まれている場合は、必須の変数の1つに加えて、必要な変数も含まれています `%w`、 `%u`または `%d`ONTAP がリテラル文字列を変数として処理しないようにするには、リテラル文字列の前に%（パーセント）文字を付ける必要があります（例： `%%w`）。
+必要な変数の1つに加えて、リテラル文字列 `%u`、、またはの `%d`いずれかが共有名に含まれている場合は `%w`、リテラル文字列の前に%（パーセント）文字を付けて、ONTAPがリテラル文字列を変数として処理しないようにする必要があります（例： `%%w`）。
 
 +
-** 共有名にはどちらかを使用する必要があります `%w` または `%u` 変数（Variable）：
-** 共有名にはさらにを含めることができます `%d` 変数（例： `%d`/`%w`）または共有名の静的な部分（例：home1_/`%w`）。
+** 共有名には変数またはの `%u`いずれかを使用する必要があります `%w`。
+** 共有名には、さらに変数（など `%d`/`%w`）を含めることも、静的な部分（例：home1_/`%w`）を含めることもできます `%d`。
 ** 管理者が、他のユーザのホームディレクトリに接続するために、またはユーザが他のユーザのホームディレクトリに接続するのを許可するために共有を使用する場合は、動的な共有名のパターンの先頭にチルダ（ ~ ）を付ける必要があります。
 +
-。 `vserver cifs home-directory modify` は、を設定してこのアクセスを有効にする場合に使用します `-is-home-dirs-access-for-admin-enabled` オプションをに設定します `true`）またはadvancedオプションを設定します `-is-home-dirs-access-for-public-enabled` 終了： `true`。
+ `vserver cifs home-directory modify`このアクセスを有効にするには、オプションを `true`に設定する `-is-home-dirs-access-for-admin-enabled`か、アドバンストオプションをに `true`設定します `-is-home-dirs-access-for-public-enabled`。
 
 
 
 +
-`-path` `path` ホームディレクトリの相対パスを指定します。
+`-path` `path`ホームディレクトリの相対パスを指定します。
 
 
 
-`-share-properties homedirectory[,...]` その共有の共有プロパティを指定します。を指定する必要があります `homedirectory` 価値。追加の共有プロパティをカンマで区切って指定できます。
+`-share-properties homedirectory[,...]`その共有の共有プロパティを指定します。値を指定する必要があり `homedirectory`ます。追加の共有プロパティをカンマで区切って指定できます。
 
-. を使用して、ホームディレクトリ共有が追加されたことを確認します `vserver cifs share show` コマンドを実行します
+. コマンドを使用して、ホームディレクトリ共有が追加されたことを確認します `vserver cifs share show`。
 
 
 .例
-次のコマンドは、という名前のホームディレクトリ共有を作成します `%w`。。 `oplocks`、 `browsable`および `changenotify` 共有プロパティは、に加えて設定します `homedirectory` 共有プロパティ。
+次のコマンドは、という名前のホームディレクトリ共有を作成し `%w`ます。 `oplocks` `browsable`、、および `changenotify`共有プロパティは、共有プロパティに加えて設定され `homedirectory`ます。
 
 [NOTE]
 ====
-この例で表示されているのは、 SVM の共有の出力の一部です。出力は省略されています。
+この例で表示されているのは、SVM上のすべての共有の出力ではありません。出力は省略されています。
 
 ====
 [listing]
@@ -70,7 +70,7 @@ vs1        %w       %w           oplocks        -        Everyone / Full Control
                                  homedirectory
 ----
 .関連情報
-xref:add-home-directory-search-path-task.adoc[ホームディレクトリ検索パスを追加しています]
+xref:add-home-directory-search-path-task.adoc[ホームディレクトリ検索パスの追加]
 
 xref:requirements-automatic-node-referrals-concept.adoc[自動ノードリファーラルの使用に関する要件とガイドライン]
 

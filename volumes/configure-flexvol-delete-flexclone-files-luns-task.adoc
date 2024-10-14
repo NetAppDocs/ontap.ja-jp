@@ -4,7 +4,7 @@ sidebar: sidebar
 keywords: configure, flexvol volume, automatically, delete, flexclone files, flexclone luns, flexvol, volume, automatic, file, autodelete 
 summary: ボリュームの空きスペースが一定のしきい値を下回ったときに、FlexCloneファイルおよびFlexClone LUNを自動的に削除するようにFlexVol volumeを有効にすることができます。 
 ---
-= FlexClone ファイルおよび FlexClone LUN を自動的に削除するように FlexVol を設定する
+= FlexCloneファイルおよびFlexClone LUNを自動的に削除するようにFlexVol volumeを設定する
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
@@ -14,16 +14,15 @@ summary: ボリュームの空きスペースが一定のしきい値を下回�
 ボリュームの空きスペースが一定のしきい値を下回ったときに、FlexCloneファイルおよびFlexClone LUNを自動的に削除するようにFlexVol volumeを有効にすることができます。
 
 .必要なもの
-* FlexVol ボリュームに FlexClone ファイルおよび FlexClone LUN が含まれていて、オンラインになっている必要があります。
-* FlexVol ボリュームを読み取り専用ボリュームにすることはできません。
+* FlexVol volumeにFlexCloneファイルとFlexClone LUNが含まれていて、オンラインになっている必要があります。
+* FlexVol volumeを読み取り専用ボリュームにすることはできません。
 
 
 .手順
-. を使用して、FlexVol ボリューム内のFlexCloneファイルおよびFlexClone LUNの自動削除を有効にします `volume snapshot autodelete modify` コマンドを実行します
+. コマンドを使用して、FlexVol volumeでFlexCloneファイルおよびFlexClone LUNの自動削除を有効にします `volume snapshot autodelete modify`。
 +
-** をクリックします `-trigger` パラメータを指定することもできます `volume` または `snap_reserve`。
-** をクリックします `-destroy-list` パラメータは常に指定する必要があります `lun_clone,file_clone` 削除するクローンのタイプが1つだけであるかどうかは関係ありません。
-次の例は、ボリューム vol1 で FlexClone ファイルおよび FlexClone LUN の自動削除を有効にし、ボリュームの 25% が空きスペースになるまでスペースが再生されるようにします。
+** パラメータには `-trigger`、またはを `snap_reserve`指定できます `volume`。
+** パラメータには `-destroy-list`、1種類のクローンのみを削除するかどうかに関係なく、常に指定する必要があり `lun_clone,file_clone`ます。次の例は、ボリュームvol1でFlexCloneファイルとFlexClone LUNの自動削除を有効にし、ボリュームの25%が空きスペースになるまでスペースが再生されるようにする方法を示しています。
 +
 [listing]
 ----
@@ -34,14 +33,14 @@ Volume modify successful on volume:vol1
 +
 [NOTE]
 ====
-FlexVol ボリュームの自動削除を有効にする際に、の値を設定した場合 `-commitment` パラメータの値 `destroy`を使用して、すべてのFlexCloneファイルおよびFlexClone LUNを削除します `-autodelete` パラメータをに設定します `true` ボリュームの空きスペースが指定したしきい値を下回った場合に削除されることがあります。ただし、FlexCloneファイルとFlexClone LUNはを使用します `-autodelete` パラメータをに設定します `false` は削除されません。
+FlexVolボリュームで自動削除を有効にする際にパラメータの値をに `destroy`設定する `-commitment`と、ボリュームの空きスペースが指定したしきい値を下回った場合に、パラメータがに設定された `true`すべてのFlexCloneファイルおよびFlexClone LUNが `-autodelete`削除される可能性があります。ただし、パラメータがに設定されて `false`いるFlexCloneファイルとFlexClone LUN `-autodelete`は削除されません。
 
 ====
 
 
-. を使用して、FlexVol ボリュームでFlexCloneファイルおよびFlexClone LUNの自動削除が有効になっていることを確認します `volume snapshot autodelete show` コマンドを実行します
+. コマンドを使用して、FlexVol volumeでFlexCloneファイルおよびFlexClone LUNの自動削除が有効になっていることを確認します `volume snapshot autodelete show`。
 +
-次の例では、ボリューム vol1 で FlexClone ファイルおよび FlexClone LUN の自動削除が有効になっています。
+次の例は、ボリュームvol1でFlexCloneファイルとFlexClone LUNの自動削除が有効になっていることを示しています。
 
 +
 [listing]
@@ -60,14 +59,14 @@ cluster1::> volume snapshot autodelete show -vserver vs1 -volume vol1
      *Destroy List: lun_clone,file_clone*
 Is Constituent Volume: false
 ----
-. 次の手順を実行して、ボリューム内の削除対象とする FlexClone ファイルおよび FlexClone LUN の自動削除を有効にします。
+. 次の手順を実行して、削除するボリューム内のFlexCloneファイルおよびFlexClone LUNで自動削除が有効になっていることを確認します。
 +
-.. を使用して、特定のFlexCloneファイルまたはFlexClone LUNの自動削除を有効にします `volume file clone autodelete` コマンドを実行します
+.. コマンドを使用して、特定のFlexCloneファイルまたはFlexClone LUNの自動削除を有効にします `volume file clone autodelete`。
 +
-を使用して、特定のFlexCloneファイルまたはFlexClone LUNを強制的に自動削除することができます `volume file clone autodelete` コマンドにを指定します `-force` パラメータ
+コマンドでパラメータを指定する `-force`と、特定のFlexCloneファイルまたはFlexClone LUNを強制的に自動削除できます `volume file clone autodelete`。
 
 +
-次の例は、ボリューム vol1 に含まれる FlexClone LUN lun1_clone の自動削除が有効になっていることを示します。
+次の例は、ボリュームvol1に含まれるFlexClone LUN lun1_cloneの自動削除が有効になっていることを示しています。
 
 +
 [listing]
@@ -75,11 +74,11 @@ Is Constituent Volume: false
 cluster1::> volume file clone autodelete -vserver vs1 -clone-path /vol/vol1/lun1_clone -enabled true
 ----
 +
-FlexClone ファイルおよび FlexClone LUN の作成時に自動削除を有効にすることができます。
+自動削除は、FlexCloneファイルおよびFlexClone LUNの作成時に有効にすることができます。
 
-.. を使用して、FlexCloneファイルまたはFlexClone LUNで自動削除が有効になっていることを確認します `volume file clone show-autodelete` コマンドを実行します
+.. コマンドを使用して、FlexCloneファイルまたはFlexClone LUNで自動削除が有効になっていることを確認します `volume file clone show-autodelete`。
 +
-次の例は、 FlexClone LUN lun1_clone で自動削除が有効になっていることを示します。
+次の例は、FlexClone LUN lun1_cloneで自動削除が有効になっていることを示しています。
 
 +
 [listing]
@@ -92,6 +91,6 @@ Clone Path: vol/vol1/lun1_clone
 
 
 +
-コマンドの使用の詳細については、該当するマニュアルページを参照してください。
+コマンドの使用方法の詳細については、該当するマニュアルページを参照してください。
 
 

@@ -4,7 +4,7 @@ sidebar: sidebar
 keywords: reverse, snapmirror, relation, flexgroup, volume, disaster, recovery 
 summary: 災害によって SnapMirror 関係のソース FlexGroup が機能しなくなった場合、ソース FlexGroup ボリュームの修理や交換を行う間、デスティネーション FlexGroup ボリュームを使用してデータを提供できます。ソース FlexGroup ボリュームがオンラインになったら、元のソース FlexGroup ボリュームを読み取り専用のデスティネーションにして、 SnapMirror 関係を反転できます。 
 ---
-= ディザスタリカバリ時に FlexGroup ボリューム間の SnapMirror 関係を反転する
+= ディザスタリカバリ時にFlexGroupボリューム間のSnapMirror関係を反転する
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
@@ -13,19 +13,19 @@ summary: 災害によって SnapMirror 関係のソース FlexGroup が機能し
 [role="lead"]
 災害によって SnapMirror 関係のソース FlexGroup が機能しなくなった場合、ソース FlexGroup ボリュームの修理や交換を行う間、デスティネーション FlexGroup ボリュームを使用してデータを提供できます。ソース FlexGroup ボリュームがオンラインになったら、元のソース FlexGroup ボリュームを読み取り専用のデスティネーションにして、 SnapMirror 関係を反転できます。
 
-.このタスクについて
+.タスクの内容
 再同期が実行される前に、デスティネーションボリュームのアクティブなクォータルールは非アクティブ化され、削除されます。
 
-を使用できます `volume quota policy rule create` および `volume quota modify` 再同期処理の完了後にクォータルールを作成して再アクティブ化するコマンド。
+再同期処理の完了後に、コマンドと `volume quota modify`コマンドを使用してクォータルールを作成し、再アクティブ化できます `volume quota policy rule create`。
 
 .手順
-. 元のデスティネーションFlexGroup ボリュームで、ソースFlexGroup ボリュームとデスティネーションFlexGroup ボリュームの間のデータ保護ミラー関係を削除します。 `snapmirror delete -destination-path svm_name:volume_name`
+. 元のデスティネーションFlexGroupボリュームで、ソースFlexGroupボリュームとデスティネーションFlexGroupボリュームの間のデータ保護ミラー関係を削除します。 `snapmirror delete -destination-path svm_name:volume_name`
 +
 [listing]
 ----
 cluster2::> snapmirror delete -destination-path vsd:dst
 ----
-. 元のソースFlexGroup ボリュームで、ソースFlexGroup ボリュームから関係の情報を削除します。 `snapmirror release -destination-path svm_name:volume_name -relationship-info-only`
+. 元のソースFlexGroupボリュームで、ソースFlexGroupボリュームから関係の情報を削除します。 `snapmirror release -destination-path svm_name:volume_name -relationship-info-only`
 +
 SnapMirror 関係を削除したあと、再同期処理を実行する前に、ソース FlexGroup ボリュームから関係の情報を削除する必要があります。
 
@@ -34,13 +34,13 @@ SnapMirror 関係を削除したあと、再同期処理を実行する前に、
 ----
 cluster1::> snapmirror release -destination-path vsd:dst -relationship-info-only true
 ----
-. 新しいデスティネーションFlexGroup で、ミラー関係を作成します。 `snapmirror create -source-path src_svm_name:volume_name -destination-path dst_svm_name:volume_name -type XDP -policy MirrorAllSnapshots`
+. 新しいデスティネーションFlexGroupで、ミラー関係を作成します。 `snapmirror create -source-path src_svm_name:volume_name -destination-path dst_svm_name:volume_name -type XDP -policy MirrorAllSnapshots`
 +
 [listing]
 ----
 cluster1::> snapmirror create -source-path vsd:dst -destination-path vss:src -type XDP -policy MirrorAllSnapshots
 ----
-. 新しいデスティネーションFlexGroup ボリュームで、ソースFlexGroup を再同期します。 `snapmirror resync -source-path svm_name:volume_name`
+. 新しいデスティネーションFlexGroupボリュームで、ソースFlexGroupを再同期します。 `snapmirror resync -source-path svm_name:volume_name`
 +
 [listing]
 ----
@@ -76,6 +76,6 @@ vsd:dst__0008 XDP  vss:src__0008  Snapmirrored
 ...
 ----
 +
-各コンスティチュエントのSnapMirror関係のステータスはになります `Snapmirrored` は、再同期が成功したことを示します。
+各コンスティチュエントのSnapMirror関係のステータスがになり、再同期が成功したことが示さ `Snapmirrored`れます。
 
 

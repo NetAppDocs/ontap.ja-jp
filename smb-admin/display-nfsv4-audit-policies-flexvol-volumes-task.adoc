@@ -4,7 +4,7 @@ sidebar: sidebar
 keywords: display, information, nfsv4, audit, policies, policy, flexvol, volume, ontap, cli, security, style, permission, applied, apply, system, access, control, lists, sacl, result, validate, security, display information about nfsv4 audit policies on flexvol volumes using cli 
 summary: セキュリティ形式と有効なセキュリティ形式、適用されている権限、システムアクセス制御リスト（ SACL ）に関する情報など、 ONTAP CLI を使用して FlexVol の NFSv4 監査ポリシーに関する情報を表示できます。この結果を使用して、セキュリティ設定の検証や、監査に関する問題のトラブルシューティングを行うことができます。 
 ---
-= CLI を使用して、 FlexVol の NFSv4 監査ポリシーに関する情報を表示する
+= CLIを使用してFlexVolのNFSv4監査ポリシーに関する情報を表示する
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
@@ -13,22 +13,22 @@ summary: セキュリティ形式と有効なセキュリティ形式、適用�
 [role="lead"]
 セキュリティ形式と有効なセキュリティ形式、適用されている権限、システムアクセス制御リスト（ SACL ）に関する情報など、 ONTAP CLI を使用して FlexVol の NFSv4 監査ポリシーに関する情報を表示できます。この結果を使用して、セキュリティ設定の検証や、監査に関する問題のトラブルシューティングを行うことができます。
 
-.このタスクについて
-Storage Virtual Machine （ SVM ）の名前、および監査情報を表示するファイルまたはディレクトリのパスを入力する必要があります。出力は要約形式または詳細なリストで表示できます。
+.タスクの内容
+Storage Virtual Machine （ SVM ）の名前、および監査情報を表示するファイルまたはディレクトリのパスを入力する必要があります。出力は要約形式で表示することも、詳細なリストとして表示することもできます。
 
 * UNIX セキュリティ形式のボリュームおよび qtree では、監査ポリシーに NFSv4 SACL のみが使用されます。
 * mixed セキュリティ形式のボリュームにある UNIX セキュリティ形式のファイルとディレクトリには、 NFSv4 監査ポリシーを適用できます。
 +
-mixed セキュリティ形式のボリュームおよび qtree には、 UNIX ファイル権限、モードビットまたは NFSv4 ACL 、および NTFS ファイル権限を使用する一部のファイルおよびディレクトリを含めることができます。
+mixedセキュリティ形式のボリュームおよびqtreeは、UNIXファイル権限（モードビットまたはNFSv4 ACL）を使用するファイルおよびディレクトリと、NTFSファイル権限を使用するファイルおよびディレクトリを格納できます。
 
 * mixed セキュリティ形式のボリュームの最上位では、 UNIX または NTFS 対応のセキュリティを有効にすることができ、 NFSv4 SACL が含まれる場合と含まれない場合があります。
-* ACL 出力は、 NTFS または NFSv4 セキュリティが適用されたファイルとフォルダについてのみ表示されます。
+* ACL出力は、NTFSまたはNFSv4セキュリティが適用されたファイルとフォルダについてのみ表示されます。
 +
-このフィールドは、モードビットのアクセス権のみ（ NFSv4 ACL はなし）が適用されている UNIX セキュリティ形式のファイルおよびフォルダでは空になります。
+このフィールドは、モードビットの権限のみ（NFSv4 ACLはなし）が適用されているUNIXセキュリティ形式のファイルやフォルダでは空になります。
 
-* ACL 出力の所有者とグループの出力フィールドは、 NTFS セキュリティ記述子の場合にのみ適用されます。
+* ACL出力の所有者とグループの出力フィールドは、NTFSセキュリティ記述子の場合にのみ適用されます。
 * ストレージレベルのアクセス保護セキュリティは、ボリュームのルートまたは qtree の有効なセキュリティ形式が UNIX であっても、 mixed セキュリティ形式のボリュームまたは qtree で設定できるため、 ストレージレベルのアクセス保護が設定されているボリュームまたは qtree パスの出力には、標準の NFSv4 ファイルおよびディレクトリの SACL とストレージレベルのアクセス保護の NTFS SACL の両方が表示される場合があります。
-* ストレージレベルのアクセス保護セキュリティは、SVMでCIFSサーバが設定されている場合、UNIXのボリュームまたはqtreeでサポートされるため、で指定したボリュームまたはqtreeに適用されるストレージレベルのアクセス保護セキュリティに関する情報が出力に含まれることがあります `-path` パラメータ
+* ストレージレベルのアクセス保護セキュリティは、SVMでCIFSサーバが設定されている場合、UNIXのボリュームまたはqtreeでサポートされるため、パラメータで指定したボリュームまたはqtreeに適用されるストレージレベルのアクセス保護セキュリティに関する情報が出力に含まれることがあります `-path`。
 
 
 .手順
@@ -39,14 +39,14 @@ mixed セキュリティ形式のボリュームおよび qtree には、 UNIX �
 
 
  a| 
-要約形式で表示されます
+要約形式
  a| 
 `vserver security file-directory show -vserver vserver_name -path path`
 
 
 
  a| 
-詳細が表示されます
+詳細を表示
  a| 
 `vserver security file-directory show -vserver vserver_name -path path -expand-mask true`
 
@@ -54,7 +54,7 @@ mixed セキュリティ形式のボリュームおよび qtree には、 UNIX �
 
 
 .例
-次の例は、パスに関するセキュリティ情報を表示します `/lab` （SVM vs1）。この UNIX セキュリティ形式のパスには NFSv4 SACL が設定されています。
+次の例は、SVM vs1のパスに関するセキュリティ情報を表示します `/lab`。この UNIX セキュリティ形式のパスには NFSv4 SACL が設定されています。
 
 [listing]
 ----

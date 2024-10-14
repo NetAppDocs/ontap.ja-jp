@@ -2,22 +2,22 @@
 permalink: revert/task_enabling_and_reverting_lifs_to_home_ports_completing_post_reversion_tasks.html 
 sidebar: sidebar 
 keywords: ontap, revert, reverting, reversion, downgrade, downgrading, enable, enabling, lifs, home, ports 
-summary: リブートを実行すると、一部の LIF が割り当てられているフェイルオーバーポートに移行されることがあります。クラスタをリバートしたら、ホームポートにない LIF を有効にしてリバートする必要があります。 
+summary: リブート時に、割り当てられているフェイルオーバーポートに一部のLIFが移行されることがあります。クラスタをリバートしたあと、ホームポートにないLIFを有効にしてリバートする必要があります。 
 ---
-= リバート後に LIF を有効にしてホームポートにリバートする
+= リバート後にLIFを有効にしてホームポートにリバートする
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-リブートを実行すると、一部の LIF が割り当てられているフェイルオーバーポートに移行されることがあります。クラスタをリバートしたら、ホームポートにない LIF を有効にしてリバートする必要があります。
+リブート時に、割り当てられているフェイルオーバーポートに一部のLIFが移行されることがあります。クラスタをリバートしたあと、ホームポートにないLIFを有効にしてリバートする必要があります。
 
-ホームポートが動作している場合は、 network interface revert コマンドによって、現在ホームポートにない LIF がホームポートにリバートされます。LIF のホームポートは LIF の作成時に指定します。指定されているホームポートは、 network interface show コマンドを使用して確認できます。
+network interface revertコマンドを実行すると、ホームポートにないLIFがホームポートにリバートされます（ホームポートが稼働している場合）。LIFのホームポートはLIFの作成時に指定します。指定されているホームポートは、network interface showコマンドを使用して確認できます。
 
 . すべてのLIFのステータスを表示します。 `network interface show`
 +
-Storage Virtual Machine （ SVM ）のすべての LIF のステータスを表示する例を次に示します。
+Storage Virtual Machine（SVM）のすべてのLIFのステータスを表示する例を次に示します。
 
 +
 [listing]
@@ -38,7 +38,7 @@ vs0
 8 entries were displayed.
 ----
 +
-Status Admin ステータスが down になっている LIF や Is home ステータスが false になっている LIF がある場合は次の手順に進みます。
+Status AdminステータスがdownになっているLIFやIs homeステータスがfalseになっているLIFがある場合は、次の手順に進みます。
 
 . データLIFを有効にします。 `network interface modify {-role data} -status-admin up`
 +
@@ -49,7 +49,7 @@ cluster1::> network interface modify {-role data} -status-admin up
 ----
 . LIFをそれぞれのホームポートにリバートします。 `network interface revert *`
 +
-このコマンドを実行すると、すべての LIF がそれぞれのホームポートにリバートされます。
+このコマンドを実行すると、すべてのLIFがそれぞれのホームポートにリバートされます。
 
 +
 [listing]
@@ -59,7 +59,7 @@ cluster1::> network interface revert *
 ----
 . すべてのLIFがそれぞれのホームポートにあることを確認します。 `network interface show`
 +
-次の例では、 SVM vs0 のすべての LIF がそれぞれのホームポートにあります。
+次の例では、SVM vs0のすべてのLIFがそれぞれのホームポートにあります。
 
 +
 [listing]

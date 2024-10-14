@@ -2,9 +2,9 @@
 permalink: san-admin/create-nvme-namespace-subsystem-task.html 
 sidebar: sidebar 
 keywords: create, nvme, namespace, subsystem 
-summary: NVMe プロトコルを使用するシステムでは、 NVMe のネームスペースとサブシステムを 1 つ以上作成する必要があります。各ネームスペースを NVMe サブシステムにマッピングして、ホストシステムからのデータアクセスを許可することができます。 
+summary: NVMeプロトコルを使用するシステムの場合は、NVMeネームスペースとサブシステムを1つ以上作成する必要があります。各ネームスペースをNVMeサブシステムにマッピングして、ホストシステムからのデータアクセスを許可できます。 
 ---
-= NVMe ストレージをプロビジョニングする
+= NVMeストレージのプロビジョニング
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
@@ -13,17 +13,17 @@ summary: NVMe プロトコルを使用するシステムでは、 NVMe のネー
 [role="lead"]
 次の手順に従って、既存のStorage VMでNVMe対応ホスト用のネームスペースを作成し、ストレージをプロビジョニングします。
 
-.このタスクについて
+.タスクの内容
 この手順は、FAS、AFF、および現在のASAシステムに適用されます。ASA R2システム（ASA A1K、ASA A70、またはASA A90）を使用しlink:https://docs.netapp.com/us-en/asa-r2/manage-data/provision-san-storage.html["以下の手順を実行します"^]ている場合は、に従ってストレージをプロビジョニングします。ASA R2システムは、SANのみのお客様に特化したシンプルなONTAPエクスペリエンスを提供します。
 
-ONTAP 9.8 以降では、ストレージをプロビジョニングすると QoS がデフォルトで有効になります。QoS を無効にするか、プロビジョニングプロセス中またはあとからカスタムの QoS ポリシーを選択できます。
+ONTAP 9 8以降では、ストレージのプロビジョニング時にデフォルトでQoSが有効になります。プロビジョニングプロセス中またはあとで、QoSを無効にしたり、カスタムのQoSポリシーを選択したりできます。
 
-.作業を開始する前に
-Storage VM が NVMe 用に設定され、 FC または TCP 転送がすでにセットアップされている必要があります。
+.開始する前に
+Storage VMがNVMe用に設定されていて、FCまたはTCP転送のセットアップが完了している必要があります。
 
 [role="tabbed-block"]
 ====
-.System Manager の略
+.System Manager
 --
 ONTAP System Manager（9.7以降）を使用して、NVMeプロトコルを使用してストレージを提供するネームスペースを作成します。
 
@@ -33,45 +33,45 @@ ONTAP System Manager（9.7以降）を使用して、NVMeプロトコルを使�
 新しいサブシステムを作成する必要がある場合は、 * その他のオプション * をクリックします。
 
 . ONTAP 9.8 以降を実行していて、 QoS を無効にする場合やカスタムの QoS ポリシーを選択する場合は、「その他のオプション」をクリックし、「 * ストレージおよび最適化 * 」で「 * パフォーマンスサービスレベル * 」を選択します。
-. FC スイッチを WWPN でゾーニングイニシエータごとに 1 つのゾーンを使用し、各ゾーンにすべてのターゲットポートを含めます。
+. FCスイッチをWWPNでゾーニングします。イニシエータごとに1つのゾーンを使用し、各ゾーンにすべてのターゲットポートを含めます。
 . ホストで、新しいネームスペースを検出します。
 . ネームスペースを初期化し、ファイルシステムでフォーマットします。
-. ホストがネームスペースに対してデータの書き込みと読み取りを実行できることを確認します。
+. ホストがネームスペースのデータを読み書きできることを確認します。
 
 
 --
-.CLI の使用
+.CLI
 --
-ONTAP のCLIを使用して、NVMeプロトコルを使用してストレージを提供するネームスペースを作成します。
+ONTAP CLIを使用して、NVMeプロトコルを使用してストレージを提供するネームスペースを作成します。
 
-この手順 は、NVMeプロトコル用に設定済みの既存のStorage VMにNVMeネームスペースとサブシステムを作成し、ネームスペースをサブシステムにマッピングしてホストシステムからのデータアクセスを許可します。
+この手順では、NVMeプロトコル用に設定済みの既存のStorage VMにNVMeネームスペースとサブシステムを作成し、ネームスペースをサブシステムにマッピングしてホストシステムからのデータアクセスを許可します。
 
-NVMe用にStorage VMを設定する必要がある場合は、を参照してください link:configure-svm-nvme-task.html["NVMe 用に SVM を設定します"]。
+Storage VMをNVMe用に設定する必要がある場合は、を参照してくださいlink:configure-svm-nvme-task.html["NVMe用のSVMの設定"]。
 
 .手順
-. SVM が NVMe 用に設定されていることを確認します。
+. SVMがNVMe用に設定されていることを確認します。
 +
 [source, cli]
 ----
 vserver show -vserver <svm_name> -fields allowed-protocols
 ----
 +
-`NVMe` がの下に表示されます `allowed-protocols` 列（Column）：
+`NVMe`が列の下に表示されます `allowed-protocols`。
 
-. NVMe ネームスペースを作成します。
+. NVMeネームスペースを作成します。
 +
 [source, cli]
 ----
 vserver nvme namespace create -vserver <svm_name> -path <path> -size <size_of_namespace> -ostype <OS_type>
 ----
-. NVMe サブシステムを作成します。
+. NVMeサブシステムを作成します。
 +
 [source, cli]
 ----
 vserver nvme subsystem create -vserver <svm_name> -subsystem <name_of_subsystem> -ostype <OS_type>
 ----
 +
-NVMe サブシステムの名前では大文字と小文字が区別されます。1~96文字で指定する必要があります。特殊文字を使用できます。
+NVMeサブシステム名では大文字と小文字が区別されます。1~96文字で指定する必要があります。特殊文字を使用できます。
 
 . サブシステムが作成されたことを確認します。
 +
@@ -80,10 +80,10 @@ NVMe サブシステムの名前では大文字と小文字が区別されます
 vserver nvme subsystem show -vserver <svm_name>
 ----
 +
-。 `nvme` の下にサブシステムが表示されます `Subsystem` 列（Column）：
+ `nvme`列の下にサブシステムが表示され `Subsystem`ます。
 
-. ホストから NQN を取得します。
-. ホストの NQN をサブシステムに追加します。
+. ホストからNQNを取得します。
+. ホストNQNをサブシステムに追加します。
 +
 [source, cli]
 ----
@@ -96,7 +96,7 @@ vserver nvme subsystem host add -vserver <svm_name> -subsystem <subsystem_name> 
 vserver nvme subsystem map add -vserver <svm_name> -subsystem <subsystem_name> -path <path>
 ----
 +
-ネームスペースは、 1 つのサブシステムにのみマッピングできます。
+ネームスペースは1つのサブシステムにのみマッピングできます。
 
 . ネームスペースがサブシステムにマッピングされていることを確認します。
 +
@@ -105,7 +105,7 @@ vserver nvme subsystem map add -vserver <svm_name> -subsystem <subsystem_name> -
 vserver nvme namespace show -vserver <svm_name> -instance
 ----
 +
-サブシステムがと表示されます `Attached subsystem`。
+サブシステムがと表示され `Attached subsystem`ます。
 
 
 

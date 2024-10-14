@@ -4,7 +4,7 @@ sidebar: sidebar
 keywords: examples, ontap, export, policies, implementation, 7-mode 
 summary: エクスポートポリシーの例を確認すると、 ONTAP でのエクスポートポリシーの動作について理解を深めることができます。 
 ---
-= ONTAP エクスポートポリシーの例
+= ONTAPエクスポートポリシーの例
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
@@ -17,7 +17,7 @@ summary: エクスポートポリシーの例を確認すると、 ONTAP での�
 
 == 7-Mode エクスポートの ONTAP 実装例
 
-次の例は、に表示される7-Modeエクスポートを示しています `/etc/export` ファイル：
+次の例は、ファイルに出力されている7-Modeエクスポートを示してい `/etc/export`ます。
 
 [listing]
 ----
@@ -27,13 +27,13 @@ summary: エクスポートポリシーの例を確認すると、 ONTAP での�
 このエクスポートをクラスタエクスポートポリシーとして再現するには、 3 つのエクスポートルールを含むエクスポートポリシーを作成し、そのエクスポートポリシーをボリューム vol1 に割り当てる必要があります。
 
 |===
-| ルール | 要素（ Element ） | 価値 
+| ルール | 要素 | 値 
 
 
  a| 
-ルール 1
+ルール1
  a| 
-`-clientmatch` （クライアント仕様）
+`-clientmatch`（クライアント仕様）
  a| 
 `@readonly_netgroup`
 
@@ -56,7 +56,7 @@ summary: エクスポートポリシーの例を確認すると、 ONTAP での�
  a| 
 `-rorule`（読み取り専用アクセスを許可）
  a| 
-`sys` （クライアントはAUTH_SYSで認証されます）
+`sys`（クライアントはAUTH_SYSで認証されます）
 
 
 
@@ -161,25 +161,19 @@ summary: エクスポートポリシーの例を確認すると、 ONTAP での�
 `none`
 
 |===
-. exp_vol1 というエクスポートポリシーを作成します。
+. exp_vol1というエクスポートポリシーを作成します。
 +
 `vserver export-policy create -vserver NewSVM -policyname exp_vol1`
 
 . 基本コマンドに対して、次のパラメータを指定して 3 つのルールを作成します。
 +
-** 基本コマンド：
- [+]
+** 基本コマンド：+
 `vserver export-policy rule create -vserver NewSVM -policyname exp_vol1`
 ** ルールパラメータ：
- [+]
-`-clientmatch @readonly_netgroup -ruleindex 1 -protocol nfs -rorule sys -rwrule never -superuser none`
- [+]
- `-clientmatch @rootaccess_netgroup -ruleindex 2 -protocol nfs -rorule sys -rwrule sys -superuser sys`
- [+]
- `-clientmatch @readwrite_netgroup1,@readwrite_netgroup2 -ruleindex 3 -protocol nfs -rorule sys -rwrule sys -superuser none`
+`-clientmatch @readonly_netgroup -ruleindex 1 -protocol nfs -rorule sys -rwrule never -superuser none`+++ `-clientmatch @rootaccess_netgroup -ruleindex 2 -protocol nfs -rorule sys -rwrule sys -superuser sys` `-clientmatch @readwrite_netgroup1,@readwrite_netgroup2 -ruleindex 3 -protocol nfs -rorule sys -rwrule sys -superuser none`
 
 
-. ボリューム vol1 にポリシーを割り当てます。
+. ボリュームvol1にポリシーを割り当てます。
 +
 `volume modify -vserver NewSVM -volume vol1 -policy exp_vol1`
 
@@ -189,7 +183,7 @@ summary: エクスポートポリシーの例を確認すると、 ONTAP での�
 
 == 7-Mode エクスポートの統合の例
 
-次の例は、7-Modeを示しています `/etc/export` 10個のqtreeごとに1行で構成されるファイル：
+次の例は、qtree 10個につき1行で構成された7-Modeのファイルを示してい `/etc/export`ます。
 
 [listing]
 ----
@@ -205,7 +199,7 @@ summary: エクスポートポリシーの例を確認すると、 ONTAP での�
 /vol/vol1/q_2240 -sec=sys,rw=host2057s,root=host2057s
 /vol/vol1/q_2241 -sec=sys,rw=host2057s,root=host2057s
 ----
-ONTAP では、qtreeごとに2つのポリシーのうちの1つ（を含むルールが設定されたポリシー）が必要です `-clientmatch host1519s`、またはを含むルールを持つ1つ `-clientmatch host2057s`。
+ONTAPでは、qtreeごとに、を含むルールが設定されたポリシーとを含むルールが設定 `-clientmatch host2057s`されたポリシーのどちらかが必要です。 `-clientmatch host1519s`
 
 . exp_vol1q1 と exp_vol1q2 という 2 つのエクスポートポリシーを作成します。
 +

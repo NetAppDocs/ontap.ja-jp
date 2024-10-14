@@ -4,7 +4,7 @@ sidebar: sidebar
 keywords: reactivate, original, source, volume 
 summary: デスティネーションからデータを提供する必要がなくなった場合は、ソースボリュームとデスティネーションボリュームの間で元のデータ保護関係を再確立できます。 
 ---
-= 元のソースボリュームを再有効化
+= 元のソースボリュームを再アクティブ化
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
@@ -13,9 +13,9 @@ summary: デスティネーションからデータを提供する必要がな�
 [role="lead"]
 デスティネーションからデータを提供する必要がなくなった場合は、ソースボリュームとデスティネーションボリュームの間で元のデータ保護関係を再確立できます。
 
-.このタスクについて
-* 以下の手順は、元のソースボリュームにあるベースラインが損なわれていないことを前提としています。ベースラインが損なわれている場合は、手順を実行する前に、データの提供元のボリュームと元のソースボリュームの間の関係を作成して初期化する必要があります。
-* XDP SnapMirror 関係のバックグラウンド準備とデータウェアハウジングフェーズには時間がかかることがあります。長時間にわたってステータスが「 preparing 」と報告されている SnapMirror 関係が表示されることは珍しくありません。
+.タスクの内容
+* 次の手順は、元のソースボリュームのベースラインが損なわれていないことを前提としています。ベースラインが損なわれている場合は、この手順を実行する前に、データの提供元のボリュームと元のソースボリュームの間の関係を作成して初期化する必要があります。
+* XDP SnapMirror関係のバックグラウンド準備とデータウェアハウジングフェーズには時間がかかることがあります。ステータスが「準備中」と長時間報告されるSnapMirror関係が表示されることも珍しくありません。
 
 
 .手順
@@ -29,18 +29,18 @@ summary: デスティネーションからデータを提供する必要がな�
 +
 [NOTE]
 ====
-このコマンドは元のソースSVMまたは元のソースクラスタから実行する必要があります。再同期の際にベースライン転送は不要ですが、再同期には時間がかかる場合があります。再同期はオフピークの時間帯に実行することを推奨します。ソースとデスティネーションに共通の Snapshot コピーが存在しない場合、このコマンドは失敗します。使用 `snapmirror initialize` 関係を再初期化してください。
+このコマンドは元のソースSVMまたはソースクラスタから実行する必要があります。再同期の際にベースライン転送は不要ですが、再同期には時間がかかる場合があります。再同期はオフピークの時間帯に実行することを推奨します。ソースとデスティネーションに共通のSnapshotコピーが存在しない場合、このコマンドは失敗します。を使用し `snapmirror initialize` て関係を再初期化します。
 
 ====
 +
-次の例は、元のソースボリューム間の関係を反転します。 `volA` オン `svm1`、およびデータの提供元のボリューム、 `volA_dst` オン `svm_backup`：
+次の例は、上の `svm1`元のソースボリュームとデータの提供元のボリューム `volA_dst`の間の関係を反転し `volA` `svm_backup`ます。
 
 +
 [listing]
 ----
 cluster_src::> snapmirror resync -source-path svm_backup:volA_dst -destination-path svm1:volA
 ----
-. 元のソースへのデータアクセスを再確立する準備ができたら、元のデスティネーションボリュームへのアクセスを停止します。そのためには、元のデスティネーションSVMを停止します。
+. 元のソースへのデータアクセスを再確立する準備ができたら、元のデスティネーションボリュームへのアクセスを停止します。その方法の1つとして、元のデスティネーションSVMを停止します。
 +
 `vserver stop -vserver _SVM_`
 
@@ -50,7 +50,7 @@ cluster_src::> snapmirror resync -source-path svm_backup:volA_dst -destination-p
 +
 [NOTE]
 ====
-このコマンドは元のデスティネーションSVMまたは元のデスティネーションクラスタから実行する必要があります。このコマンドは、元のデスティネーションSVM全体へのユーザアクセスを停止します。必要に応じて、元のデスティネーションボリュームへのアクセスを停止できます。
+このコマンドは元のデスティネーションSVMまたはデスティネーションクラスタから実行する必要があります。このコマンドは、元のデスティネーションSVM全体へのユーザアクセスを停止します。他の方法を使用して元のデスティネーションボリュームへのアクセスを停止することもできます。
 
 ====
 +
@@ -71,18 +71,18 @@ cluster_dst::> vserver stop svm_backup
 +
 [NOTE]
 ====
-このコマンドは元のソースSVMまたは元のソースクラスタから実行する必要があります。
+このコマンドは元のソースSVMまたはソースクラスタから実行する必要があります。
 
 ====
 +
-次の例は、データの提供元のボリューム間の関係を更新します。 `volA_dst` オン `svm_backup`および元のソースボリューム `volA` オン `svm1`：
+次の例は、の `svm_backup`データの提供元のボリュームとの元のソースボリュームの `volA`間の関係を更新します `volA_dst` `svm1`。
 
 +
 [listing]
 ----
 cluster_src::> snapmirror update -source-path svm_backup:volA_dst -destination-path svm1:volA
 ----
-. 元のソースSVMまたは元のソースクラスタから、反転した関係のスケジュールされた転送を停止します。
+. 元のソースSVMまたはソースクラスタから、反転した関係のスケジュールされた転送を停止します。
 +
 `snapmirror quiesce -source-path _SVM:volume_ -destination-path _SVM:volume_`
 
@@ -92,11 +92,11 @@ cluster_src::> snapmirror update -source-path svm_backup:volA_dst -destination-p
 +
 [NOTE]
 ====
-このコマンドは元のソースSVMまたは元のソースクラスタから実行する必要があります。
+このコマンドは元のソースSVMまたはソースクラスタから実行する必要があります。
 
 ====
 +
-次の例は、元のデスティネーションボリューム間のスケジュールされた転送を停止します。 `volA_dst` オン `svm_backup`および元のソースボリューム `volA` オン `svm1`：
+次の例は、の `svm_backup`元のデスティネーションボリュームとの元のソースボリューム `volA`の間のスケジュールされた転送を停止します `volA_dst` `svm1`。
 
 +
 [listing]
@@ -117,14 +117,14 @@ cluster_src::> snapmirror quiesce -source-path svm_backup:volA_dst -destination-
 
 ====
 +
-次の例は、元のデスティネーションボリューム間の関係を解除します。 `volA_dst` オン `svm_backup`および元のソースボリューム `volA` オン `svm1`：
+次の例は、の `svm_backup`元のデスティネーションボリュームとの元のソースボリュームの `volA`間の関係を解除し `volA_dst` `svm1`ます。
 
 +
 [listing]
 ----
 cluster_scr::> snapmirror break -source-path svm_backup:volA_dst -destination-path svm1:volA
 ----
-. 元のソースSVMまたは元のソースクラスタから、反転したデータ保護関係を削除します。
+. 元のソースSVMまたはソースクラスタから、反転したデータ保護関係を削除します。
 +
 `snapmirror delete -source-path _SVM:volume_ -destination-path _SVM:volume_`
 
@@ -134,29 +134,29 @@ cluster_scr::> snapmirror break -source-path svm_backup:volA_dst -destination-pa
 +
 [NOTE]
 ====
-このコマンドは元のソースSVMまたは元のソースクラスタから実行する必要があります。
+このコマンドは元のソースSVMまたはソースクラスタから実行する必要があります。
 
 ====
 +
-次の例は、元のソースボリューム間の反転した関係を削除します。 `volA` オン `svm1`、およびデータの提供元のボリューム、 `volA_dst` オン `svm_backup`：
+次の例は、上の `svm1`元のソースボリュームとデータの提供元のボリューム `volA_dst`の間の反転した関係を削除します `volA` `svm_backup`。
 
 +
 [listing]
 ----
 cluster_src::> snapmirror delete -source-path svm_backup:volA_dst -destination-path svm1:volA
 ----
-. 元のデスティネーションSVMまたは元のデスティネーションクラスタから反転した関係を解放します。
+. 元のデスティネーションSVMまたはデスティネーションクラスタから反転した関係を解放します。
 +
 `snapmirror release -source-path _SVM:volume_ -destination-path _SVM:volume_`
 
 +
 [NOTE]
 ====
-このコマンドは元のデスティネーションSVMまたは元のデスティネーションクラスタから実行する必要があります。
+このコマンドは元のデスティネーションSVMまたはデスティネーションクラスタから実行する必要があります。
 
 ====
 +
-次の例は、元のデスティネーションボリューム間の反転した関係を解放します。 `volA_dst` オン `svm_backup`および元のソースボリューム `volA` オン `svm1`：
+次の例は、上の `svm_backup`元のデスティネーションボリュームと上の `svm1`元のソースボリューム `volA`の間の反転した関係をリリースします `volA_dst`。
 
 +
 [listing]
@@ -171,7 +171,7 @@ cluster_dst::> snapmirror release -source-path svm_backup:volA_dst -destination-
 コマンド構文全体については、マニュアルページを参照してください。
 
 +
-次の例は、元のソースボリューム間の関係を再確立します。 `volA` オン `svm1`、および元のデスティネーションボリューム `volA_dst` オン `svm_backup`：
+次の例は、の `svm1`元のソースボリュームとの元のデスティネーションボリューム `volA_dst`の間の関係を再確立し `volA` `svm_backup`ます。
 
 +
 [listing]
@@ -195,5 +195,5 @@ cluster_dst::> vserver start svm_backup
 ----
 
 
-.完了後
-を使用します `snapmirror show` コマンドを実行して、SnapMirror関係が作成されたことを確認します。コマンド構文全体については、マニュアルページを参照してください。
+.終了後
+コマンドを使用し `snapmirror show`て、SnapMirror関係が作成されたことを確認します。コマンド構文全体については、マニュアルページを参照してください。

@@ -2,18 +2,18 @@
 permalink: snaplock/create-snaplock-aggregate-task.html 
 sidebar: sidebar 
 keywords: create, snaplock, aggregate, compliance, enterprise, mode, volumes 
-summary: 'ボリュームを使用します `-snaplock-type` ComplianceまたはEnterprise SnapLock ボリュームのタイプを指定するオプション。ONTAP 9.10.1 よりも前のリリースでは、別の SnapLock アグリゲートを作成する必要があります。ONTAP 9.10.1 以降では、 SnapLock ボリュームと非 SnapLock ボリュームを同じアグリゲート上に配置できるため、 ONTAP 9.10.1 を使用している場合に別の SnapLock アグリゲートを作成する必要がなくなりました。' 
+summary: 'volumeオプションを使用 `-snaplock-type`して、ComplianceまたはEnterprise SnapLockボリュームのタイプを指定します。ONTAP 9 .10.1より前のリリースでは、独立したSnapLockアグリゲートを作成する必要があります。ONTAP 9 .10.1以降では、SnapLockボリュームとSnapLock以外のボリュームを同じアグリゲート上に配置できます。そのため、ONTAP 9 .10.1を使用している場合は、SnapLockアグリゲートを別途作成する必要はありません。' 
 ---
-= SnapLock アグリゲートを作成する
+= SnapLockアグリゲートを作成する
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-ボリュームを使用します `-snaplock-type` ComplianceまたはEnterprise SnapLock ボリュームのタイプを指定するオプション。ONTAP 9.10.1 よりも前のリリースでは、別の SnapLock アグリゲートを作成する必要があります。ONTAP 9.10.1 以降では、 SnapLock ボリュームと非 SnapLock ボリュームを同じアグリゲート上に配置できるため、 ONTAP 9.10.1 を使用している場合に別の SnapLock アグリゲートを作成する必要がなくなりました。
+volumeオプションを使用 `-snaplock-type`して、ComplianceまたはEnterprise SnapLockボリュームのタイプを指定します。ONTAP 9 .10.1より前のリリースでは、独立したSnapLockアグリゲートを作成する必要があります。ONTAP 9 .10.1以降では、SnapLockボリュームとSnapLock以外のボリュームを同じアグリゲート上に配置できます。そのため、ONTAP 9 .10.1を使用している場合は、SnapLockアグリゲートを別途作成する必要はありません。
 
-.作業を開始する前に
+.開始する前に
 * このタスクを実行するには、クラスタ管理者である必要があります。
 * link:../system-admin/install-license-task.html["ライセンスをインストールする必要があります"]ノードのSnapLock。このライセンスはに含まれていlink:../system-admin/manage-licenses-concept.html#licenses-included-with-ontap-one["ONTAP One"]ます。
 * link:../snaplock/initialize-complianceclock-task.html["ノードのコンプライアンスクロックを初期化する必要があります"]です。
@@ -21,35 +21,35 @@ summary: 'ボリュームを使用します `-snaplock-type` Complianceまたは
 
 
 .アップグレード時の考慮事項
-ONTAP 9.10.1 にアップグレードすると、既存の SnapLock アグリゲートおよび非 SnapLock アグリゲートが SnapLock ボリュームと非 SnapLock ボリュームの両方の存在をサポートするようにアップグレードされますが、既存の SnapLock ボリュームの属性は自動的には更新されません。たとえば、データコンパクション、ボリューム間重複排除、およびボリューム間バックグラウンド重複排除のフィールドは変更されません。既存のアグリゲートに作成された新しい SnapLock ボリュームのデフォルト値は SnapLock 以外のボリュームと同じで、新しいボリュームおよびアグリゲートのデフォルト値はプラットフォームごとに異なります。
+ONTAP 9 .10.1にアップグレードすると、既存のSnapLockアグリゲートとSnapLock以外のアグリゲートは、SnapLockボリュームとSnapLock以外のボリュームの両方をサポートするようにアップグレードされますが、既存のSnapLockボリュームの属性は自動的には更新されません。たとえば、data-compaction、cross-volume-dedupe、cross-volume-background-dedupeの各フィールドは変更されません。既存のアグリゲートに作成される新しいSnapLockボリュームのデフォルト値は、SnapLock以外のボリュームと同じです。また、新しいボリュームおよびアグリゲートのデフォルト値はプラットフォームによって異なります。
 
 .リバートに関する考慮事項
-9.10.1 より前のバージョンの ONTAP にリバートする必要がある場合は、すべての SnapLock Compliance ボリューム、 SnapLock Enterprise ボリューム、および SnapLock ボリュームをそれぞれ独自の SnapLock アグリゲートに移動する必要があります。
+ONTAP 9.10.1より前のバージョンにリバートする必要がある場合は、SnapLock Compliance、SnapLock Enterprise、およびSnapLockのすべてのボリュームをそれぞれ専用のSnapLockアグリゲートに移動する必要があります。
 
-.このタスクについて
-* FlexArray LUN に対して Compliance アグリゲートを作成することはできませんが、 FlexArray Compliance アグリゲートは SnapLock LUN でサポートされます。
-* SyncMirror オプションを使用して Compliance アグリゲートを作成することはできません。
-* ミラーされた Compliance アグリゲートを MetroCluster 構成に作成できるのは、アグリゲートを SnapLock 監査ログボリュームのホストとして使用する場合だけです。
+.タスクの内容
+* FlexArray LUN用にComplianceアグリゲートを作成することはできませんが、SnapLock ComplianceアグリゲートはFlexArray LUNでサポートされています。
+* SyncMirrorオプションを使用してComplianceアグリゲートを作成することはできません。
+* ミラーされたComplianceアグリゲートをMetroCluster構成で作成できるのは、そのアグリゲートをSnapLock監査ログボリュームのホストとして使用する場合だけです。
 +
 [NOTE]
 ====
-MetroCluster 構成では、ミラーされたアグリゲートとミラーされていないアグリゲートで SnapLock Enterprise がサポートされます。SnapLock Compliance は、ミラーされていないアグリゲートでのみサポートされます。
+MetroCluster構成では、SnapLock Enterpriseはミラーされたアグリゲートとミラーされていないアグリゲートでサポートされます。SnapLock Complianceは、ミラーされていないアグリゲートでのみサポートされます。
 
 ====
 
 
 .手順
-. SnapLock アグリゲートを作成します。
+. SnapLockアグリゲートを作成します。
 +
 [source, cli]
 ----
 storage aggregate create -aggregate <aggregate_name> -node <node_name> -diskcount <number_of_disks> -snaplock-type <compliance|enterprise>
 ----
 +
-すべてのオプションの一覧については、コマンドのマニュアルページを参照してください。
+すべてのオプションについては、コマンドのマニュアルページを参照してください。
 
 +
-次のコマンドは、SnapLock を作成します `Compliance` という名前のアグリゲート `aggr1` 3本のディスクをオンにします `node1`：
+次のコマンドでは、3本のディスクを含む `node1`という名前のSnapLockアグリゲートが `aggr1`作成され `Compliance`ます。
 
 +
 [listing]

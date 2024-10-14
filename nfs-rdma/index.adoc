@@ -2,34 +2,34 @@
 permalink: nfs-rdma/index.html 
 sidebar: sidebar 
 keywords: NFS over RDMA, GPU, NVIDIA GDX 
-summary: NFS over RDMA は RDMA アダプタを使用し、ストレージシステムメモリとホストシステムメモリの間でデータを直接コピーできるため、 CPU の中断やオーバーヘッドは発生しません。 
+summary: NFS over RDMAはRDMAアダプタを使用するため、ストレージシステムメモリとホストシステムメモリの間でデータを直接コピーできるため、CPUの中断やオーバーヘッドを回避できます。 
 ---
-= RDMA経由のNFS
+= NFS over RDMA
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-NFS over RDMA は RDMA アダプタを使用し、ストレージシステムメモリとホストシステムメモリの間でデータを直接コピーできるため、 CPU の中断やオーバーヘッドは発生しません。
+NFS over RDMAはRDMAアダプタを使用するため、ストレージシステムメモリとホストシステムメモリの間でデータを直接コピーできるため、CPUの中断やオーバーヘッドを回避できます。
 
-NFS over RDMA 構成は、レイテンシの影響を受けやすいワークロードや、マシンラーニングや分析などの広帯域幅ワークロードを使用するお客様向けに設計されています。NVIDIA は、 GPU Direct Storage （ GDS ）を有効にするために RDMA 経由の NFS を拡張しました。GDSはRDMAを使用してストレージシステムとGPUメモリ間でデータを直接転送することで、CPUとメインメモリを完全にバイパスすることで、GPU対応のワークロードをさらに高速化します。
+NFS over RDMA構成は、機械学習や分析など、レイテンシの影響を受けやすいワークロードや広帯域ワークロードを抱えているお客様向けに設計されています。NVIDIAでは、RDMA経由でNFSを拡張してGPUダイレクトストレージ（GDS）を実現しました。GDSは、CPUとメインメモリをすべてバイパスし、RDMAを使用してストレージシステムとGPUメモリの間でデータを直接転送することで、GPU対応のワークロードをさらに高速化します。
 
-ONTAP 9.10.1以降では、Mellanox CX-5アダプタまたはCX-6アダプタを使用すると、NFSv4.0プロトコルでNFS over RDMA構成がサポートされます。このアダプタを使用すると、バージョン2のRoCEプロトコルを使用したRDMAがサポートされます。GDS は、 Mellanox NIC カードと MOFED ソフトウェアを搭載した NVIDIA Tesla および Ampere ファミリー GPU のみを使用してサポートされます。以降のONTAPリリースでサポートされるNFSバージョンについては、要件の表を参照してください。
+RDMA .10.1以降では、over RDMA構成がMellanox CX-5またはCX-6アダプタで使用されている場合にNFSv4.0プロトコルでサポートされます。このアダプタを使用すると、バージョン2のONTAP 9プロトコルを使用するRDMAがサポートされます。GDSは、Mellanox NICカードとMOFEDソフトウェアを搭載したNVIDIA TeslaおよびAmpereファミリのGPUでのみサポートされます。以降のONTAPリリースでサポートされるNFSバージョンについては、要件の表を参照してください。
 
 
 NOTE: NFSマウントサイズが64kを超えると、NFS over RDMA構成のパフォーマンスが不安定になります。
 
 .要件
-* ストレージシステムでONTAP 9.10.1以降が実行されている必要があります。
+* ストレージシステムでONTAP 9 10.1以降が実行されている必要があります。
 * 使用するNFSのバージョンに対応した正しいバージョンのONTAPを実行していることを確認します。
 +
 [cols="2"]
 |===
-| NFS バージョン | ONTAPのサポート 
+| NFSバージョン | ONTAPのサポート 
 
 
-| NFSv4.0 | ONTAP 9.10.1 以降 
+| NFSv4.0 | ONTAP 9.10.1以降 
 
 
 | NFSv4.1 | ONTAP 9.14.1以降 
@@ -38,43 +38,43 @@ NOTE: NFSマウントサイズが64kを超えると、NFS over RDMA構成のパ�
 | NFSv3 | ONTAP 9.15.1以降 
 |===
 +
-** ONTAP 9.12.1以降では、System Managerを使用してRDMA経由のNFSを設定できます。ONTAP 9.10.1および9.11.1では、CLIを使用してRDMA上のNFSを設定する必要があります。
+** ONTAP 9.12.1以降では、System Managerを使用してNFS over RDMAを設定できます。ONTAP 9.10.1および9.11.1では、CLIを使用してNFS over RDMAを設定する必要があります。
 
 
-* HAペアの両方のノードのバージョンを同じにする必要があります。
-* ストレージシステムコントローラにはRDMAがサポートされている必要があります。
+* HAペアの両方のノードでバージョンが同じである必要があります。
+* ストレージ システム コントローラでRDMAがサポートされている必要があります。
 +
 [cols="2"]
 |===
-| ONTAPで開始しています... | 次のコントローラがRDMAをサポートしています... 
+| ONTAPのバージョン | RDMAをサポートするコントローラ 
 
 
 | 9.10.1以降  a| 
 ** AFF A400
-** AFF A700の略
-** AFF A800
+** AFF A700用
+** AFF A800用
 
 
 
 
 | ONTAP 9.14.1以降  a| 
 ** AFF Cシリーズ
-** AFF A900 の略
+** AFF A900用
 
 
 |===
-* RDMAでサポートされるハードウェア（例 Mellanox CX-5またはCX-6）
-* RDMA をサポートするには、データ LIF を設定する必要があります。
-* クライアントで Mellanox RDMA 対応 NIC カードと Mellanox OFED （ MOFED ）ネットワークソフトウェアを使用している必要があります。
+* RDMA対応ハードウェア（Mellanox CX-5やCX-6など）で構成されたストレージアプライアンス。
+* データLIFは、RDMAをサポートするように設定する必要があります。
+* クライアントでMellanox RDMA対応NICカードとMellanox OFED（MOFED）ネットワークソフトウェアを使用している必要があります。
 
 
 
-NOTE: インターフェイスグループはNFS over RDMAではサポートされません。
+NOTE: インターフェイスグループは、RDMA経由のNFSではサポートされません。
 
 .次のステップ
-* xref:./configure-nics-task.adoc[NFS over RDMA 用に NIC を設定します]
-* xref:./configure-lifs-task.adoc[NFS over RDMA 用に LIF を設定します]
-* xref:./configure-nfs-task.adoc[NFS over RDMA の NFS 設定]
+* xref:./configure-nics-task.adoc[NFS over RDMA用のNICの設定]
+* xref:./configure-lifs-task.adoc[RDMA経由のNFS用のLIFの設定]
+* xref:./configure-nfs-task.adoc[NFS over RDMAのNFS設定]
 
 
 .関連情報

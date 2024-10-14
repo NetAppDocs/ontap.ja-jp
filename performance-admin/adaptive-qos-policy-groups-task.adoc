@@ -2,58 +2,58 @@
 permalink: performance-admin/adaptive-qos-policy-groups-task.html 
 sidebar: sidebar 
 keywords: use, adaptive, qos, policy, groups 
-summary: アダプティブ QoS ポリシーグループを使用すると、ボリュームサイズの変更に合わせてスループットの上限や下限を自動的に調整し、 TB または GB あたりの IOPS を一定に保つことができます。これは、何百何千という数のワークロードを管理する大規模な環境では大きなメリットです。 
+summary: アダプティブ QoS ポリシーグループを使用すると、ボリュームサイズの変更に合わせてスループットの上限や下限を自動的に調整し、 TB または GB あたりの IOPS を一定に保つことができます。これは、数百、数千のワークロードを管理する大規模な環境では大きなメリットです。 
 ---
-= アダプティブ QoS ポリシーグループを使用する
+= アダプティブQoSポリシーグループを使用する
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-アダプティブ QoS ポリシーグループを使用すると、ボリュームサイズの変更に合わせてスループットの上限や下限を自動的に調整し、 TB または GB あたりの IOPS を一定に保つことができます。これは、何百何千という数のワークロードを管理する大規模な環境では大きなメリットです。
+アダプティブ QoS ポリシーグループを使用すると、ボリュームサイズの変更に合わせてスループットの上限や下限を自動的に調整し、 TB または GB あたりの IOPS を一定に保つことができます。これは、数百、数千のワークロードを管理する大規模な環境では大きなメリットです。
 
-.作業を開始する前に
-* ONTAP 9.3以降が実行されている必要があります。アダプティブ QoS ポリシーグループは ONTAP 9.3 以降で使用できます。
+.開始する前に
+* ONTAP 9.3以降が実行されている必要があります。アダプティブQoSポリシーグループは、ONTAP 9以降で使用できます。3.
 * ポリシーグループを作成するには、クラスタ管理者である必要があります。
 
 
-.このタスクについて
-ストレージオブジェクトは、アダプティブまたは非アダプティブどちらかのポリシーグループのメンバーにすることができますが、両方のメンバーにすることはできません。SVM はストレージオブジェクトとポリシーで同じである必要があります。ストレージオブジェクトはオンラインである必要があります。
+.タスクの内容
+ストレージオブジェクトはアダプティブポリシーグループまたは非アダプティブポリシーグループのメンバーにすることはできますが、両方のメンバーにすることはできません。SVMはストレージオブジェクトとポリシーで同じである必要があります。ストレージオブジェクトはオンラインである必要があります。
 
-アダプティブ QoS ポリシーグループは常に非共有です。定義されているスループットの上限または下限の環境各メンバーワークロードを個別に定義します。
+アダプティブQoSポリシーグループは常に非共有です。定義されているスループットの上限または下限は、各メンバーワークロードに個別に適用されます。
 
-ストレージオブジェクトサイズに対するスループット制限の比率は、以下に示すフィールドの組み合わせによって決まります。
+ストレージオブジェクトサイズに対するスループット制限の比率は、次のフィールドの組み合わせによって決まります。
 
-* `expected-iops` は、割り当て済み（TB / GB）あたりの最小想定IOPSです。
+* `expected-iops`は、割り当て済み（TB / GB）あたりの最小想定IOPSです。
 +
 [NOTE]
 ====
  `expected-iops`は、AFFプラットフォームでのみ保証されます。 `expected-iops`FabricPoolについては、階層化ポリシーが「none」に設定されていて、ブロックがクラウドにない場合にのみ保証されます。 `expected-iops`は、SnapMirror同期関係にないボリュームに対して保証されます。
 
 ====
-* `peak-iops` は、割り当て済みまたは使用済み（TB / GB）あたりの最大IOPSです。
-* `expected-iops-allocation` expected-iopsに割り当てスペース（デフォルト）と使用スペースのどちらを使用するかを示します。
+* `peak-iops`は、割り当て済みまたは使用済み（TB / GB）あたりの最大IOPSです。
+* `expected-iops-allocation`expected-iopsに割り当てスペース（デフォルト）と使用スペースのどちらを使用するかを示します。
 +
 [NOTE]
 ====
-`expected-iops-allocation` ONTAP 9.5以降で使用できます。ONTAP 9.4 以前ではサポートされません。
+`expected-iops-allocation`ONTAP 9 .5以降で使用できます。ONTAP 9 .4以前ではサポートされていません。
 
 ====
-* `peak-iops-allocation` に割り当てスペースと使用済みスペース（デフォルト）のどちらを使用するかを示します `peak-iops`。
-*  `absolute-min-iops` は、絶対最小IOPSです。このフィールドは非常に小さいストレージオブジェクトで使用します。両方を上書きします `peak-iops` および / または `expected-iops` いつ `absolute-min-iops` が計算されたよりも大きい `expected-iops`。
+* `peak-iops-allocation`に割り当てスペースと使用済みスペース（デフォルト）のどちらを使用するかを示します `peak-iops`。
+*  `absolute-min-iops`は、絶対最小IOPSです。このフィールドは、非常に小さいストレージオブジェクトで使用できます。が計算値より大きい場合は `absolute-min-iops`、および/または `expected-iops`の両方が `expected-iops`上書きされ `peak-iops`ます。
 +
-たとえば、を設定した場合です `expected-iops` を1、000 IOPS/TBに設定し、ボリュームサイズが1GB未満である場合は、を計算します `expected-iops` 分数IOPになります。計算された `peak-iops` さらに小さな割合になりますこれを回避するには、を設定します `absolute-min-iops` 現実的な値に。
+たとえば、TBあたり1、000 IOPS/TBに設定した場合、ボリュームサイズが1GB未満の場合は `expected-iops`、フラクショナルIOPが計算され `expected-iops`ます。計算された割合は `peak-iops`さらに小さい割合になります。これを回避するには、を現実的な値に設定し `absolute-min-iops`ます。
 
-* `block-size` アプリケーションI/Oブロックサイズを指定します。デフォルトは32Kです。有効な値は、 8K 、 16K 、 32K 、 64K 、 ANY です。ANY は、ブロックサイズが適用されないことを意味します。
+* `block-size`アプリケーションI/Oブロックサイズを指定します。デフォルトは32Kです。有効な値は、8K、16K、32K、64K、ANYです。anyは、ブロックサイズが適用されないことを意味します。
 
 
-次の表に示す 3 種類のアダプティブ QoS ポリシーグループがデフォルトで用意されています。これらのポリシーグループはボリュームに直接適用することができます。
+次の表に示す3つのデフォルトのアダプティブQoSポリシーグループがあります。これらのポリシーグループはボリュームに直接適用できます。
 
 |===
 
 
-| デフォルトのポリシーグループ | 想定 IOPS/TB | 最大 IOPS/TB | 絶対最小 IOPS 
+| デフォルトのポリシーグループ | 想定IOPS/TB | 最大IOPS/TB | 絶対最小 IOPS 
 
 
  a| 
@@ -61,7 +61,7 @@ summary: アダプティブ QoS ポリシーグループを使用すると、ボ
  a| 
 6,144
  a| 
-一二、二八八
+12,288
  a| 
 1000
 
@@ -70,11 +70,11 @@ summary: アダプティブ QoS ポリシーグループを使用すると、ボ
  a| 
 `performance`
  a| 
-2 、 048
+2,048
  a| 
-四、〇 九六
+4,096
  a| 
-500ドル
+500
 
 
 
@@ -85,44 +85,44 @@ summary: アダプティブ QoS ポリシーグループを使用すると、ボ
  a| 
 512
  a| 
-七五
+75
 
 |===
-下位のオブジェクトまたは子オブジェクトがポリシーグループに属している場合は、そのストレージオブジェクトをポリシーグループに割り当てることはできません。次の表に、制限事項を示します。
+そのストレージオブジェクトまたは子オブジェクトがポリシーグループに属している場合、そのストレージオブジェクトをポリシーグループに割り当てることはできません。次の表に、制限事項を示します。
 
 |===
-| 割り当て内容 | 以下のオブジェクトはポリシーグループに割り当てできない 
+| 割り当て内容 | 割り当てることができない項目 
 
 
  a| 
-SVM をポリシーグループに割り当てます
+SVM
  a| 
 SVM に含まれているストレージオブジェクトのポリシーグループへの割り当て
 
 
 
  a| 
-ボリューム：ポリシーグループに割り当てます
+ボリューム
  a| 
-そのボリュームを含む SVM または子 LUN
+そのボリュームを含むSVMまたは子LUN
 
 
 
  a| 
 LUN
  a| 
-その LUN を含むボリュームまたは SVM
+そのLUNを含むボリュームまたはSVM
 
 
 
  a| 
-ファイルをポリシーグループに追加します
+ファイル
  a| 
-そのファイルを含むボリュームまたは SVM
+そのファイルを含むボリュームまたはSVM
 
 |===
 .手順
-. アダプティブ QoS ポリシーグループを作成します。
+. アダプティブQoSポリシーグループを作成します。
 +
 `qos adaptive-policy-group create -policy group _policy_group_ -vserver _SVM_ -expected-iops _number_of_iops_/TB|GB -peak-iops _number_of_iops_/TB|GB -expected-iops-allocation-space|used-space -peak-iops-allocation allocated-space|used-space -absolute-min-iops _number_of_iops_ -block-size 8K|16K|32K|64K|ANY`
 
@@ -132,18 +132,18 @@ LUN
 +
 [NOTE]
 ====
-`-expected-iops-allocation` および `-block-size` ONTAP 9.5以降で使用できます。ONTAP 9.4 以前ではこれらのオプションがサポートされません。
+`-expected-iops-allocation`および `-block-size`は、ONTAP 9 .5以降で使用できます。これらのオプションは、ONTAP 9 .4以前ではサポートされていません。
 
 ====
 +
-次のコマンドは、アダプティブQoSポリシーグループを作成します `adpg-app1` を使用 `-expected-iops` TBあたり300 IOPS/TBに設定 `-peak-iops` TBあたり1、000 IOPSに設定 `-peak-iops-allocation` をに設定します `used-space`および `-absolute-min-iops` 50 IOPSに設定：
+次のコマンドは、300 IOPS/TB `-peak-iops`、1、000 IOPS/TB、、 `used-space`および `-absolute-min-iops`50 IOPSに設定され `-peak-iops-allocation`た `-expected-iops`アダプティブQoSポリシーグループを作成し `adpg-app1`ます。
 
 +
 [listing]
 ----
 cluster1::> qos adaptive-policy-group create -policy group adpg-app1 -vserver vs2 -expected-iops 300iops/tb -peak-iops 1000iops/TB -peak-iops-allocation used-space -absolute-min-iops 50iops
 ----
-. アダプティブ QoS ポリシーグループをボリュームに適用します。
+. アダプティブQoSポリシーグループをボリュームに適用します。
 +
 `volume create -vserver SVM -volume _volume_ -aggregate _aggregate_ -size _number_of_ TB|GB -qos-adaptive-policy-group _policy_group_`
 
@@ -151,7 +151,7 @@ cluster1::> qos adaptive-policy-group create -policy group adpg-app1 -vserver vs
 コマンド構文全体については、マニュアルページを参照してください。
 
 +
-次のコマンドは、アダプティブQoSポリシーグループを適用します `adpg-app1` ボリュームに移動します `app1`：
+次のコマンドは、アダプティブQoSポリシーグループをボリューム `app1`に適用し `adpg-app1`ます。
 
 +
 [listing]
@@ -159,7 +159,7 @@ cluster1::> qos adaptive-policy-group create -policy group adpg-app1 -vserver vs
 cluster1::> volume create -vserver vs1 -volume app1 -aggregate aggr1 -size 2TB -qos-adaptive-policy-group adpg-app1
 ----
 +
-次のコマンドは、デフォルトのアダプティブQoSポリシーグループを適用します `extreme` 新しいボリュームに移動します `app4` および既存のボリュームに追加します `app5`。ポリシーグループの環境 ボリュームに対して定義されたスループットの上限 `app4` および `app5` 個別：
+次のコマンドは、デフォルトのアダプティブQoSポリシーグループを新しい `app4`ボリュームと既存のボリューム `app5`に適用し `extreme`ます。ポリシーグループに対して定義されたスループットの上限は、ボリュームに `app5`個別に適用され `app4`ます。
 
 +
 [listing]

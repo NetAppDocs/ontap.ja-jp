@@ -2,37 +2,37 @@
 permalink: smb-admin/enable-disable-required-signing-incoming-traffic-task.html 
 sidebar: sidebar 
 keywords: enforce, requirement, client, smb, message, enabling, enable, require, sign, disable, enable or disable require smb signing for incoming smb traffic 
-summary: SMB メッセージへのクライアントによる署名を強制するには、 SMB 署名要求を有効にします。有効にすると、 ONTAP は有効な署名のある SMB メッセージのみを受け入れます。SMB 署名を許可するが要求しない場合は、 SMB 署名要求を無効にできます。 
+summary: SMBメッセージへのクライアントによる署名を強制するには、SMB署名要求を有効にします。有効にすると、ONTAPは有効な署名のあるSMBメッセージのみを受け入れます。SMB署名を許可するが要求しない場合は、SMB署名要求を無効にすることができます。 
 ---
-= 受信 SMB トラフィックの SMB 署名要求を有効または無効にします
+= 受信SMBトラフィックのSMB署名要求を有効または無効にする
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-SMB メッセージへのクライアントによる署名を強制するには、 SMB 署名要求を有効にします。有効にすると、 ONTAP は有効な署名のある SMB メッセージのみを受け入れます。SMB 署名を許可するが要求しない場合は、 SMB 署名要求を無効にできます。
+SMBメッセージへのクライアントによる署名を強制するには、SMB署名要求を有効にします。有効にすると、ONTAPは有効な署名のあるSMBメッセージのみを受け入れます。SMB署名を許可するが要求しない場合は、SMB署名要求を無効にすることができます。
 
-.このタスクについて
-デフォルトでは、 SMB 署名要求は無効になっています。SMB 署名要求はいつでも有効または無効にできます。
+.タスクの内容
+デフォルトでは、SMB署名要求は無効になっています。SMB署名要求はいつでも有効または無効にできます。
 
 [NOTE]
 ====
-次の状況では、 SMB 署名はデフォルトで無効になりません。
+次の状況では、SMB署名はデフォルトで無効になりません。
 
-. SMB 署名要求が有効になっており、クラスタが SMB 署名をサポートしていないバージョンの ONTAP にリバートされた。
-. その後、クラスタが SMB 署名をサポートするバージョンの ONTAP にアップグレードされた。
+. SMB署名要求が有効になっており、クラスタがSMB署名をサポートしていないバージョンのONTAPにリバートされた。
+. その後、クラスタがSMB署名をサポートするバージョンのONTAPにアップグレードされた。
 +
-このような場合は、サポートされているバージョンの ONTAP で最初に行われた SMB 署名の設定が、リバートとその後のアップグレードを通して維持されます。
+この場合、サポートされているバージョンのONTAPで最初に設定されたSMB署名の設定は、リバートとその後のアップグレードを通じて保持されます。
 
 
 
 ====
-Storage Virtual Machine（SVM）ディザスタリカバリ関係を設定する際にで選択した値 `-identity-preserve` のオプション `snapmirror create` コマンドは、デスティネーションSVMにレプリケートされる設定の詳細を決定します。
+Storage Virtual Machine（SVM）ディザスタリカバリ関係をセットアップする際にコマンドのオプション `snapmirror create`で選択した値 `-identity-preserve`によって、デスティネーションSVMにレプリケートされる設定の詳細が決まります。
 
-を設定した場合は `-identity-preserve` オプションをに設定します `true` （ID保持）。SMB署名のセキュリティ設定がデスティネーションにレプリケートされます。
+このオプションを（ID保持）に `true`設定する `-identity-preserve`と、SMB署名のセキュリティ設定がデスティネーションにレプリケートされます。
 
-を設定した場合は `-identity-preserve` オプションをに設定します `false` （ID保持なし）。SMB署名のセキュリティ設定はデスティネーションにレプリケートされません。この場合、デスティネーションの CIFS サーバセキュリティ設定はデフォルト値に設定されます。ソース SVM で SMB 署名要求を有効にしている場合は、デスティネーション SVM で SMB 署名要求を手動で有効にする必要があります。
+このオプションを（非ID保持）に `false`設定する `-identity-preserve`と、SMB署名のセキュリティ設定はデスティネーションにレプリケートされません。この場合、デスティネーションのCIFSサーバセキュリティ設定はデフォルト値に設定されます。ソースSVMでSMB署名要求を有効にした場合は、デスティネーションSVMでSMB署名要求を手動で有効にする必要があります。
 
 .手順
 . 次のいずれかを実行します。
@@ -49,16 +49,16 @@ Storage Virtual Machine（SVM）ディザスタリカバリ関係を設定する
 
 
  a| 
-無効
+無効にする
  a| 
 `vserver cifs security modify -vserver _vserver_name_ -is-signing-required false`
 
 |===
-. での値を確認して、SMB署名要求が有効か無効かを確認します `Is Signing Required` 次のコマンドの出力のフィールドは、目的の値に設定されます。 `vserver cifs security show -vserver _vserver_name_ -fields is-signing-required`
+. 次のコマンドの出力で、フィールドの値が目的の値に設定されているかどうかを判断して、SMB署名要求が有効または無効になっていることを確認し `Is Signing Required`ます。 `vserver cifs security show -vserver _vserver_name_ -fields is-signing-required`
 
 
 .例
-次の例は、 SVM vs1 で SMB 署名要求を有効にします。
+次の例では、SVM vs1でSMB署名要求を有効にします。
 
 [listing]
 ----

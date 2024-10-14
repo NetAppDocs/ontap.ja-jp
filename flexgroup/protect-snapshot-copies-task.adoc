@@ -2,27 +2,27 @@
 permalink: flexgroup/protect-snapshot-copies-task.html 
 sidebar: sidebar 
 keywords: protect, flexgroup, volume, snapshot, copy, flex group, snap shot, manually, manual, automatically, automatic, policy 
-summary: Snapshot コピーの作成を自動的に管理する Snapshot ポリシーを作成したり、 FlexGroup ボリュームの Snapshot コピーを手動で作成したりできます。FlexGroup ボリュームの有効な Snapshot コピーが作成されるのは、 FlexGroup が ONTAP ボリュームの各コンスティチュエントの Snapshot コピーを正常に作成できたあとのみです。 
+summary: Snapshotコピーの作成を自動的に管理するSnapshotポリシーを作成することも、FlexGroupボリュームのSnapshotコピーを手動で作成することもできます。FlexGroupボリュームの有効なSnapshotコピーは、ONTAPがFlexGroupボリュームの各コンスティチュエントのSnapshotコピーを正常に作成できるまで作成されません。 
 ---
-= Snapshot コピーを使用して FlexGroup ボリュームを保護する
+= Snapshotコピーを使用したFlexGroupボリュームの保護
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-Snapshot コピーの作成を自動的に管理する Snapshot ポリシーを作成したり、 FlexGroup ボリュームの Snapshot コピーを手動で作成したりできます。FlexGroup ボリュームの有効な Snapshot コピーが作成されるのは、 FlexGroup が ONTAP ボリュームの各コンスティチュエントの Snapshot コピーを正常に作成できたあとのみです。
+Snapshotコピーの作成を自動的に管理するSnapshotポリシーを作成することも、FlexGroupボリュームのSnapshotコピーを手動で作成することもできます。FlexGroupボリュームの有効なSnapshotコピーは、ONTAPがFlexGroupボリュームの各コンスティチュエントのSnapshotコピーを正常に作成できるまで作成されません。
 
-.このタスクについて
-* Snapshot ポリシーに複数の FlexGroup ボリュームが関連付けられている場合は、 FlexGroup ボリュームのスケジュールが重ならないようにする必要があります。
-* ONTAP 9.8 以降、 FlexGroup ボリュームでサポートされる Snapshot コピーの最大数は 1023 です。
+.タスクの内容
+* 1つのSnapshotポリシーに複数のFlexGroupを関連付ける場合は、FlexGroupのスケジュールが重ならないようにする必要があります。
+* ONTAP 9 8以降では、FlexGroupボリュームでサポートされるSnapshotコピーの最大数は1023です。
 
 
 
-NOTE: ONTAP 9.8以降では `volume snapshot show` FlexGroup 用のコマンドでは、最も新しい所有ブロックが計算されるのではなく、論理ブロックを使用してSnapshotコピーのサイズが報告されます。この新しいサイズ計算方法では、 Snapshot コピーのサイズが以前のバージョンの ONTAP での計算よりも大きく表示される場合があります。
+NOTE: ONTAP 9 .8以降では、FlexGroupボリュームに対するコマンドで、 `volume snapshot show`最も新しい所有ブロックが計算されるのではなく、論理ブロックを使用してSnapshotコピーのサイズが報告されます。この新しいサイズ計算方法では、Snapshotコピーのサイズが以前のバージョンのONTAPよりも大きく表示されることがあります。
 
 .手順
-. Snapshot ポリシーを作成するか、手動で Snapshot コピーを作成します。
+. Snapshotポリシーを作成するか、Snapshotコピーを手動で作成します。
 +
 |===
 
@@ -31,31 +31,31 @@ NOTE: ONTAP 9.8以降では `volume snapshot show` FlexGroup 用のコマンド�
 
 
  a| 
-スナップショットポリシー
+Snapshotポリシー
  a| 
 `volume snapshot policy create`
 
 
-NOTE: FlexGroup ボリュームの Snapshot ポリシーに関連付けるスケジュールは、間隔を 30 分よりも長くする必要があります。
+NOTE: FlexGroupボリュームのSnapshotポリシーに関連付けるスケジュールは、間隔を30分よりも長くする必要があります。
 
-FlexGroup ボリュームを作成すると、が表示されます `default` SnapshotポリシーがFlexGroup ボリュームに適用されます。
+FlexGroupボリュームを作成すると、 `default`SnapshotポリシーがFlexGroupボリュームに適用されます。
 
 
 
  a| 
-Snapshot コピーを手動で作成
+手動でのSnapshotコピー
  a| 
 `volume snapshot create`
 
 
-NOTE: FlexGroup ボリュームの Snapshot コピーを作成したあとに、 Snapshot コピーの属性を変更することはできません。属性を変更する場合は、 Snapshot コピーを削除して作成し直す必要があります。
+NOTE: FlexGroupのSnapshotコピーを作成したあとで、Snapshotコピーの属性を変更することはできません。属性を変更する場合は、Snapshotコピーを削除してから再作成する必要があります。
 
 |===
 
 
-Snapshot コピーの作成中は、 FlexGroup ボリュームへのクライアントアクセスが一時的に休止されます。
+Snapshotコピーの作成時には、FlexGroupボリュームへのクライアントアクセスが一時的に休止されます。
 
-. FlexGroup ボリュームの有効なSnapshotコピーが作成されたことを確認します。 `volume snapshot show -volume volume_name -fields state`
+. FlexGroupボリュームの有効なSnapshotコピーが作成されたことを確認します。 `volume snapshot show -volume volume_name -fields state`
 +
 [listing]
 ----
@@ -64,7 +64,7 @@ vserver volume snapshot               state
 ------- ------ ---------------------- -----
 fg_vs   fg     hourly.2016-08-23_0505 valid
 ----
-. FlexGroup ボリュームのコンスティチュエントのSnapshotコピーを表示します。 `volume snapshot show -is-constituent true`
+. FlexGroupボリュームのコンスティチュエントのSnapshotコピーを表示します。 `volume snapshot show -is-constituent true`
 +
 [listing]
 ----

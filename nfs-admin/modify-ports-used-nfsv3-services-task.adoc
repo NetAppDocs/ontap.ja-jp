@@ -2,48 +2,48 @@
 permalink: nfs-admin/modify-ports-used-nfsv3-services-task.html 
 sidebar: sidebar 
 keywords: modify, port, nfsv3, service 
-summary: ストレージシステム上の NFS サーバは、マウントデーモンや Network Lock Manager などのサービスを使用して、特定のデフォルトネットワークポート経由で NFS クライアントと通信します。デフォルトポートは、ほとんどの NFS 環境で正しく機能するので変更する必要はありませんが、別の NFS ネットワークポートを NFSv3 環境で使用する場合はそうすることができます。 
+summary: ストレージシステム上のNFSサーバは、マウントデーモンやNetwork Lock Managerなどのサービスを使用して、特定のデフォルトネットワークポートを介してNFSクライアントと通信します。ほとんどのNFS環境ではデフォルトポートは正しく機能し、変更は必要ありませんが、NFSv3環境で別のNFSネットワークポートを使用する場合は変更できます。 
 ---
-= NFSv3 サービスで使用されるポートを変更します
+= NFSv3サービスに使用するポートを変更します。
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-ストレージシステム上の NFS サーバは、マウントデーモンや Network Lock Manager などのサービスを使用して、特定のデフォルトネットワークポート経由で NFS クライアントと通信します。デフォルトポートは、ほとんどの NFS 環境で正しく機能するので変更する必要はありませんが、別の NFS ネットワークポートを NFSv3 環境で使用する場合はそうすることができます。
+ストレージシステム上のNFSサーバは、マウントデーモンやNetwork Lock Managerなどのサービスを使用して、特定のデフォルトネットワークポートを介してNFSクライアントと通信します。ほとんどのNFS環境ではデフォルトポートは正しく機能し、変更は必要ありませんが、NFSv3環境で別のNFSネットワークポートを使用する場合は変更できます。
 
 .必要なもの
-ストレージシステムで NFS ポートを変更するには、すべての NFS クライアントがシステムに再接続する必要があるため、変更に先立ってこの情報をユーザに伝えておく必要があります。
+ストレージシステムでNFSポートを変更するには、すべてのNFSクライアントがシステムに再接続する必要があるため、変更を行う前にこの情報をユーザに伝えておく必要があります。
 
-.このタスクについて
-NFS マウントデーモン、 Network Lock Manager （ NLM ；ネットワークロックマネージャ）、 Network Status Monitor （ NSM ；ネットワークステータスモニタ）、および NFS クォータデーモンの各サービスで使用されるポートを Storage Virtual Machine （ SVM ）ごとに設定できます。ポート番号の変更は、 TCP と UDP の両方でデータにアクセスする NFS クライアントに影響します。
+.タスクの内容
+NFSマウントデーモン、Network Lock Manager（NLM；ネットワークロックマネージャ）、Network Status Monitor（ネットワークステータスモニタ）、およびNFSクォータデーモンの各サービスで使用されるポートをStorage Virtual Machine（SVM）ごとに設定できます。ポート番号の変更は、TCPとUDPの両方でデータにアクセスするNFSクライアントに影響します。
 
-NFSv4 および NFSv4.1 のポートは変更できません。
+NFSv4およびNFSv4.1のポートは変更できません。
 
 .手順
-. 権限レベルを advanced に設定します。
+. 権限レベルをadvancedに設定します。
 +
 `set -privilege advanced`
 
-. NFS へのアクセスを無効にします。
+. NFSへのアクセスを無効にします。
 +
 `vserver nfs modify -vserver vserver_name -access false`
 
-. 特定の NFS サービスの NFS ポートを設定します。
+. 特定のNFSサービスのNFSポートを設定します。
 +
 `vserver nfs modify -vserver vserver_namenfs_port_parameterport_number`
 
 +
 [cols="3*"]
 |===
-| NFS ポートのパラメータ | 説明 | デフォルトのポート 
+| NFS ポートのパラメータ | 説明 | デフォルトポート 
 
 
  a| 
 `-mountd-port`
  a| 
-NFS マウントデーモン
+NFSマウントデーモン
  a| 
 635
 
@@ -52,7 +52,7 @@ NFS マウントデーモン
  a| 
 `-nlm-port`
  a| 
-Network Lock Manager の略
+ネットワークロックマネージャ
  a| 
 4045
 
@@ -61,7 +61,7 @@ Network Lock Manager の略
  a| 
 `-nsm-port`
  a| 
-Network Status Monitor サービスの略
+ネットワークステータスモニタ
  a| 
 4046
 
@@ -70,27 +70,27 @@ Network Status Monitor サービスの略
  a| 
 `-rquotad-port`
  a| 
-NFS クォータデーモン
+NFSクォータデーモン
  a| 
 4049
 
 |===
 +
-デフォルトポートに加えて、 1 、 024~65 、 535 の範囲のポート番号を使用できます。各 NFS サービスは一意のポートを使用する必要があります。
+デフォルトのポート以外に、使用できるポート番号の範囲は1024~65535です。各NFSサービスは一意のポートを使用する必要があります。
 
-. NFS へのアクセスを有効にします。
+. NFSへのアクセスを有効にします。
 +
 `vserver nfs modify -vserver vserver_name -access true`
 
-. を使用します `network connections listening show` ポート番号の変更を確認するコマンド。
-. admin 権限レベルに戻ります。
+. コマンドを使用し `network connections listening show`て、ポート番号の変更を確認します。
+. admin権限レベルに戻ります。
 +
 `set -privilege admin`
 
 
 
 .例
-次のコマンドは、 vs1 という SVM で NFS マウントデーモンのポートを 1113 に設定します。
+次のコマンドは、vs1というSVMでNFSマウントデーモンのポートを1113に設定します。
 
 ....
 vs1::> set -privilege advanced

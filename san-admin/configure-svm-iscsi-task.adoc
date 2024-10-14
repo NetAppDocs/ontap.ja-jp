@@ -2,60 +2,58 @@
 permalink: san-admin/configure-svm-iscsi-task.html 
 sidebar: sidebar 
 keywords: configure, svm, iscsi 
-summary: iSCSI 用に Storage Virtual Machine （ SVM ）を設定するには、 SVM 用の LIF を作成し、それらの LIF に iSCSI プロトコルを割り当てる必要があります。 
+summary: iSCSI用にStorage Virtual Machine（SVM）を設定するには、SVM用のLIFを作成し、それらのLIFにiSCSIプロトコルを割り当てる必要があります。 
 ---
-= SVM を iSCSI 用に設定
+= SVMをiSCSI用に設定する
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-iSCSI 用に Storage Virtual Machine （ SVM ）を設定するには、 SVM 用の LIF を作成し、それらの LIF に iSCSI プロトコルを割り当てる必要があります。
+iSCSI用にStorage Virtual Machine（SVM）を設定するには、SVM用のLIFを作成し、それらのLIFにiSCSIプロトコルを割り当てる必要があります。
 
-.このタスクについて
-iSCSI プロトコルを使用してデータを提供するそれぞれの SVM について、各ノードに少なくとも 1 つの iSCSI LIF が必要です。冗長性を確保するには、各ノードに少なくとも 2 つの LIF を作成する必要があります。
+.タスクの内容
+iSCSIプロトコルを使用してデータを提供する各SVMについて、各ノードに少なくとも1つのiSCSI LIFが必要です。冗長性を確保するために、ノードごとに少なくとも2つのLIFを作成する必要があります。
 
 .手順
 [role="tabbed-block"]
 ====
-.System Manager の略
+.System Manager
 --
 ONTAP System Manager（9.7以降）でiSCSI用のStorage VMを設定します。
 
 [cols="2"]
 |===
-| 新しいStorage VMでiSCSIを設定 | 既存のStorage VMでiSCSIを設定 
+| 新しいStorage VMでiSCSIを設定する方法 | 既存のStorage VMでiSCSIを設定する方法 
 
 
  a| 
 . System Managerで、* Storage > Storage VM*をクリックし、* Add *をクリックします。
 . Storage VMの名前を入力してください。
 . アクセスプロトコル*として「* iSCSI *」を選択します。
-. Enable iSCSI（iSCSIを有効にする）をクリックし、ネットワークインタフェースのIPアドレスとサブネットマスクを入力します。
-+各ノードに少なくとも2つのネットワークインターフェイスが必要です。
+. Enable iSCSI（iSCSIを有効にする）をクリックし、ネットワークインタフェースのIPアドレスとサブネットマスクを入力します。+各ノードに少なくとも2つのネットワークインターフェイスが必要です。
 . [ 保存（ Save ） ] をクリックします。
 
  a| 
 . System Manager で、 * Storage > Storage VM* をクリックします。
 . 設定するStorage VMをクリックします。
 . [設定]*タブをクリックし、iSCSIプロトコルの横にあるをクリックし image:icon_gear.gif["アクションアイコン"] ます。
-. Enable iSCSI（iSCSIを有効にする）をクリックし、ネットワークインタフェースのIPアドレスとサブネットマスクを入力します。
-+各ノードに少なくとも2つのネットワークインターフェイスが必要です。
+. Enable iSCSI（iSCSIを有効にする）をクリックし、ネットワークインタフェースのIPアドレスとサブネットマスクを入力します。+各ノードに少なくとも2つのネットワークインターフェイスが必要です。
 . [ 保存（ Save ） ] をクリックします。
 
 
 |===
 --
-.CLI の使用
+.CLI
 --
-ONTAP CLIを使用してiSCSI用のStorage VMを設定します。
+ONTAP CLIを使用してiSCSI用にStorage VMを設定します。
 
-. SVM が iSCSI トラフィックをリスンするようにします。
+. SVMがiSCSIトラフィックをリスンするようにします。
 +
 `vserver iscsi create -vserver _vserver_name_ -target-alias _vserver_name_`
 
-. iSCSI に使用する各ノードに、 SVM 用の LIF を作成します。
+. iSCSIに使用する各ノードにSVM用のLIFを作成します。
 +
 ** ONTAP 9.6以降：
 +
@@ -67,15 +65,15 @@ ONTAP CLIを使用してiSCSI用のStorage VMを設定します。
 
 
 
-. LIF が正しく設定されたことを確認します。
+. LIFが正しく設定されたことを確認します。
 +
 `network interface show -vserver _vserver_name_`
 
-. iSCSI が正常に稼働していること、およびその SVM のターゲット IQN を確認します。
+. iSCSIが稼働していること、およびそのSVMのターゲットIQNを確認します。
 +
 `vserver iscsi show –vserver _vserver_name_`
 
-. ホストから、 LIF への iSCSI セッションを作成します。
+. ホストから、LIFへのiSCSIセッションを作成します。
 
 
 --

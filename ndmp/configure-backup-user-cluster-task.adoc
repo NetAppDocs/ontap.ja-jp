@@ -2,43 +2,43 @@
 permalink: ndmp/configure-backup-user-cluster-task.html 
 sidebar: sidebar 
 keywords: configure, backup, user, cluster 
-summary: バックアップアプリケーションからSVMを対象としたNDMPを認証するには、十分な権限を持つ管理ユーザとNDMPパスワードが必要です。 
+summary: バックアップアプリケーションからSVMを対象としたNDMPを認証するには、十分なPrivilegesとNDMPパスワードを持つ管理ユーザが必要です。 
 ---
-= NDMP認証のバックアップユーザを有効にします
+= NDMP認証のバックアップユーザを有効にする
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-バックアップアプリケーションからSVMを対象としたNDMPを認証するには、十分な権限を持つ管理ユーザとNDMPパスワードが必要です。
+バックアップアプリケーションからSVMを対象としたNDMPを認証するには、十分なPrivilegesとNDMPパスワードを持つ管理ユーザが必要です。
 
-.このタスクについて
-バックアップ管理ユーザ用のNDMPパスワードを生成する必要があります。バックアップ管理者ユーザは、クラスタレベルまたはSVMレベルで有効にすることができます。必要に応じて、新しいユーザを作成することもできます。デフォルトでは、次のロールを持つユーザがNDMPバックアップに対して認証できます。
+.タスクの内容
+バックアップ管理者ユーザ用のNDMPパスワードを生成する必要があります。バックアップ管理ユーザはクラスタレベルまたはSVMレベルで有効にすることができ、必要に応じて新しいユーザを作成することもできます。デフォルトでは、次のロールのユーザがNDMPバックアップを認証できます。
 
-* クラスタ全体： `admin` または `backup`
-* 個 々 のSVM： `vsadmin` または `vsadmin-backup`
+* クラスタ全体： `admin`または `backup`
+* 個 々 のSVM： `vsadmin`または `vsadmin-backup`
 
 
-NISユーザまたはLDAPユーザを使用する場合は、それぞれのサーバ上にそのユーザが存在している必要があります。Active Directory ユーザは使用できません。
+NISまたはLDAPユーザを使用する場合は、そのユーザがそれぞれのサーバ上に存在している必要があります。Active Directoryユーザは使用できません。
 
 .手順
 . 現在の管理者ユーザと権限を表示します。
 +
 `security login show`
 
-. 必要に応じて、を使用して新しいNDMPバックアップユーザを作成します `security login create` コマンドおよびクラスタ全体または個 々 のSVMの権限に該当するロール。
+. 必要に応じて、コマンドと、クラスタ全体または個 々 のSVM Privilegesに適したロールを使用して、新しいNDMPバックアップユーザを作成し `security login create`ます。
 +
-には、ローカルバックアップユーザの名前、またはNISまたはLDAPユーザの名前を指定できます `-user-or-group-name` パラメータ
+パラメータには、ローカルバックアップユーザの名前、またはNISまたはLDAPユーザの名前を指定できます `-user-or-group-name`。
 
 +
-次に、バックアップユーザを作成するコマンドを示します `backup_admin1` を使用 `backup` クラスタ全体での役割：
+次のコマンドでは、ロールが割り当てられた `backup`バックアップユーザがクラスタ全体に対して作成され `backup_admin1`ます。
 
 +
 `cluster1::> security login create -user-or-group-name backup_admin1 -application ssh -authmethod password -role backup`
 
 +
-次に、バックアップユーザを作成するコマンドを示します `vsbackup_admin1` を使用 `vsadmin-backup` 個 々 のSVMのロール：
+次のコマンドを実行すると、個 々 のSVMにロールが割り当てられた `vsadmin-backup`バックアップユーザが作成され `vsbackup_admin1`ます。
 
 +
 `cluster1::> security login create -user-or-group-name vsbackup_admin1 -application ssh -authmethod password -role vsadmin-backup`
@@ -46,9 +46,9 @@ NISユーザまたはLDAPユーザを使用する場合は、それぞれのサ�
 +
 新しいユーザのパスワードを入力し、確認のためにもう一度入力します。
 
-. を使用して管理SVMのパスワードを生成します `vserver services ndmp generate password` コマンドを実行します
+. コマンドを使用して、管理SVMのパスワードを生成します `vserver services ndmp generate password`。
 +
-生成されたパスワードは、バックアップアプリケーションによる NDMP 接続の認証で必要になります。
+生成されたパスワードは、バックアップアプリケーションによるNDMP接続の認証に使用する必要があります。
 
 +
 [listing]

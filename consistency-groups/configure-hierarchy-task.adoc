@@ -63,14 +63,15 @@ ONTAP 9.10.1~9.12.1では、新しいストレージオブジェクトの唯一�
 * ONTAP 9.14.1では、このタスクを実行するには、クラスタ管理者またはSVMの管理者である必要があります。ONTAP 9.15.1以降では、admin権限レベルのすべてのユーザがこのタスクを実行できます。
 
 
+CLIで新しいボリュームを含む階層整合グループを作成する場合は、子整合グループをそれぞれ個別に作成する必要があります。
+
 .ステップ
 . コマンドを使用して、新しい整合グループを作成し `consistency-group create`ます。
 +
-パラメータは、 `volume-count`各子整合性グループ内のボリューム数を設定します。最大5つの子整合グループからなる親整合グループを作成できます。
+`consistency-group create -vserver <SVM_name> -consistency-group <consistency_group_name> -parent-consistency-group <parent_consistency_group_name> -volume-prefix <volume_prefix> -volume-count <number_of_volumes> -size <size>`
 
-+
-`consistency-group create -vserver _SVM_name_ -consistency-group _consistency_group_name_ -parent-consistency-group _parent_consistency_group_name_ -cg-count _number_of_child_consistency_groups_ -volume _volume_prefix_ -volume-count _number_ -size _size_ -export-policy _policy_name_ -storage-service extreme`
-
+. CLIのプロンプトが表示されたら、新しい親整合グループの作成を確認します。と入力し `y`ます。
+. 必要に応じて、手順1を繰り返して子整合グループをさらに作成します。
 
 
 --
@@ -115,7 +116,7 @@ ONTAP 9 14.1以降では、CLIを使用して階層整合グループを作成�
 .手順
 . 新しい親整合グループをプロビジョニングし、新しい子整合グループにボリュームを割り当てます。
 +
-`consistency-group create -vserver _svm_name_ -consistency-group _child_consistency_group_name_ -parent-consistency-group _parent_consistency_group_name_ -volumes _volume_names_`
+`consistency-group create -vserver <svm_name> -consistency-group <child_consistency_group_name> -parent-consistency-group <parent_consistency_group_name> -volumes <volume_names>`
 
 . と入力して `y`、新しい親整合グループと子整合グループの作成を確定します。
 

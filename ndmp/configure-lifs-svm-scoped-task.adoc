@@ -2,19 +2,99 @@
 permalink: ndmp/configure-lifs-svm-scoped-task.html 
 sidebar: sidebar 
 keywords: configure, lifs 
-summary: データリソースとテープリソースの間のデータ接続、および管理SVMとバックアップアプリケーションの間の制御接続の確立に使用されるLIFを特定する必要があります。LIFを特定したら、LIFに対してファイアウォールポリシーとフェイルオーバーポリシーが設定されていることを確認し、優先インターフェイスロールを指定する必要があります。 
+summary: データリソースとテープリソースの間のデータ接続、および管理SVMとバックアップアプリケーションの間の制御接続の確立に使用されるLIFを特定する必要があります。LIFを特定したら、サービスポリシーとフェイルオーバーポリシーが設定されていることを確認する必要があります。 
 ---
 = LIFの設定
 :allow-uri-read: 
-:icons: font
-:imagesdir: ../media/
 
 
 [role="lead"]
-データリソースとテープリソースの間のデータ接続、および管理SVMとバックアップアプリケーションの間の制御接続の確立に使用されるLIFを特定する必要があります。LIFを特定したら、LIFに対してファイアウォールポリシーとフェイルオーバーポリシーが設定されていることを確認し、優先インターフェイスロールを指定する必要があります。
+データリソースとテープリソースの間のデータ接続、および管理SVMとバックアップアプリケーションの間の制御接続の確立に使用されるLIFを特定する必要があります。LIFを特定したら、サービスポリシーとフェイルオーバーポリシーが設定されていることを確認する必要があります。
 
-ONTAP 9 10.1以降では、ファイアウォールポリシーが廃止され、LIFのサービスポリシーに全面的に置き換えられました。詳細については、を参照してください link:../networking/lifs_and_service_policies96.html["ONTAP 9 .6以降のLIFとサービスポリシー"]。
 
+NOTE: ONTAP 9 10.1以降では、ファイアウォールポリシーが廃止され、LIFのサービスポリシーに全面的に置き換えられました。詳細については、を参照してください link:../networking/manage_supported_traffic.html["サポートされるトラフィックの管理"]。
+
+[role="tabbed-block"]
+====
+.ONTAP 9 .10.1以降
+--
+.手順
+. コマンドでパラメータを指定して `-service-policy`、ノードでホストされているクラスタ間LIFを特定します `network interface show`。
++
+`network interface show -service-policy default-intercluster`
+
+. コマンドでパラメータを指定して `-service-policy`、ノードでホストされている管理LIFを特定します `network interface show`。
++
+`network interface show -service-policy default-management`
+
+. クラスタ間LIFにサービスが含まれていることを確認し `backup-ndmp-control`ます。
++
+`network interface service-policy show`
+
+. すべてのLIFのフェイルオーバーポリシーが適切に設定されていることを確認します。
++
+.. コマンドを使用して、 `network interface show -failover`クラスタ管理LIFのフェイルオーバーポリシーがに設定されていること、およびクラスタ間LIFとノード管理LIFのポリシーがに設定され `local-only`ていることを確認し `broadcast-domain-wide`ます。
++
+次のコマンドは、クラスタ管理LIF、クラスタ間LIF、およびノード管理LIFのフェイルオーバーポリシーを表示します。
+
++
+[listing]
+----
+cluster1::> network interface show -failover
+
+           Logical          Home            Failover    Failover
+Vserver    Interface        Node:Port       Policy      Group
+-------    --------------   --------------  ----------  --------
+cluster    cluster1_clus1   cluster1-1:e0a  local-only  cluster
+                                                     Failover Targets:
+                   	                                 .......
+cluster1   cluster_mgmt     cluster1-1:e0m  broadcast-  Default
+                                          domain-wide
+                                                     Failover Targets:
+                                                     .......
+           IC1              cluster1-1:e0a  local-only  Default
+                                                     Failover Targets:
+           IC2              cluster1-1:e0b  local-only  Default
+                                                     Failover Targets:
+                                                     .......
+cluster1-1 c1-1_mgmt1       cluster1-1:e0m  local-only  Default
+                                                     Failover Targets:
+                                                     ......
+cluster1-2 c1-2_mgmt1       cluster1-2:e0m  local-only  Default
+                                                     Failover Targets:
+                                                     ......
+----
+.. フェイルオーバーポリシーが適切に設定されていない場合は、コマンドでパラメータを指定し `-failover-policy`てフェイルオーバーポリシーを変更します `network interface modify`。
++
+[listing]
+----
+cluster1::> network interface modify -vserver cluster1 -lif IC1 -failover-policy local-only
+----
+
+
+. コマンドでパラメータを指定し `preferred-interface-role`て、データ接続に必要なLIFを指定し `vserver services ndmp modify`ます。
++
+[listing]
+----
+cluster1::> vserver services ndmp modify -vserver cluster1 -preferred-interface-role intercluster,cluster-mgmt,node-mgmt
+----
+. コマンドを使用して、クラスタに優先インターフェイスロールが設定されていることを確認します `vserver services ndmp show`。
++
+[listing]
+----
+cluster1::> vserver services ndmp show -vserver cluster1
+
+                Vserver: cluster1
+                NDMP Version: 4
+                .......
+                .......
+Preferred Interface Role: intercluster, cluster-mgmt, node-mgmt
+----
+
+
+--
+.ONTAP 9 .9以前
+--
 .手順
 . コマンドでパラメータを指定して `-role`、クラスタ間LIF、クラスタ管理LIF、およびノード管理LIFを特定します `network interface show`。
 +
@@ -25,11 +105,11 @@ ONTAP 9 10.1以降では、ファイアウォールポリシーが廃止され�
 ----
 cluster1::> network interface show -role intercluster
 
-            Logical           Status     Network            Current       Current Is
-Vserver     Interface         Admin/Oper Address/Mask       Node          Port    Home
------------ ----------        ---------- ------------------ ------------- ------- ----
-cluster1    IC1               up/up      192.0.2.65/24      cluster1-1    e0a     true
-cluster1    IC2               up/up      192.0.2.68/24      cluster1-2    e0b     true
+            Logical      Status     Network            Current       Current Is
+Vserver     Interface    Admin/Oper Address/Mask       Node          Port    Home
+----------- ----------   ---------- ------------------ ------------- ------- ----
+cluster1    IC1          up/up      192.0.2.65/24      cluster1-1    e0a     true
+cluster1    IC2          up/up      192.0.2.68/24      cluster1-2    e0b     true
 ----
 +
 次のコマンドは、クラスタ管理LIFを表示します。
@@ -39,10 +119,10 @@ cluster1    IC2               up/up      192.0.2.68/24      cluster1-2    e0b   
 ----
 cluster1::> network interface show -role cluster-mgmt
 
-            Logical           Status     Network            Current       Current Is
-Vserver     Interface         Admin/Oper Address/Mask       Node          Port    Home
------------ ----------        ---------- ------------------ ------------- ------- ----
-cluster1    cluster_mgmt      up/up      192.0.2.60/24      cluster1-2    e0M     true
+            Logical       Status     Network            Current     Current Is
+Vserver     Interface     Admin/Oper Address/Mask       Node        Port    Home
+----------- ----------    ---------- ------------------ ----------- ------- ----
+cluster1    cluster_mgmt  up/up      192.0.2.60/24      cluster1-2  e0M     true
 ----
 +
 次のコマンドは、ノード管理LIFを表示します。
@@ -52,13 +132,13 @@ cluster1    cluster_mgmt      up/up      192.0.2.60/24      cluster1-2    e0M   
 ----
 cluster1::> network interface show -role node-mgmt
 
-            Logical           Status     Network            Current       Current Is
-Vserver     Interface         Admin/Oper Address/Mask       Node          Port    Home
------------ ----------        ---------- ------------------ ------------  ------  ------
-cluster1    cluster1-1_mgmt1  up/up      192.0.2.69/24      cluster1-1    e0M     true
-            cluster1-2_mgmt1  up/up      192.0.2.70/24      cluster1-2    e0M     true
+            Logical           Status     Network         Current       Current Is
+Vserver     Interface         Admin/Oper Address/Mask    Node          Port    Home
+----------- ----------        ---------- --------------- ------------  ------  ------
+cluster1    cluster1-1_mgmt1  up/up      192.0.2.69/24   cluster1-1    e0M     true
+            cluster1-2_mgmt1  up/up      192.0.2.70/24   cluster1-2    e0M     true
 ----
-. クラスタ間LIF、クラスタ管理LIF（cluster-mgmt）LIF、およびノード管理LIF（node-mgmt）LIFでNDMPに対してファイアウォールポリシーが有効になっていることを確認します。
+. クラスタ間(`node-mgmt`LIF、クラスタ管理LIF(`cluster-mgmt`、およびノード管理LIFでNDMPに対してファイアウォールポリシーが有効になっていることを確認します。
 +
 .. コマンドを使用して、NDMPに対してファイアウォールポリシーが有効になっていることを確認します `system services firewall policy show`。
 +
@@ -74,7 +154,7 @@ Vserver     Policy       Service    Allowed
 cluster     cluster      dns        0.0.0.0/0
                          http       0.0.0.0/0
                          https      0.0.0.0/0
-                        ** ndmp       0.0.0.0/0**
+                         ndmp       0.0.0.0/0
                          ndmps      0.0.0.0/0
                          ntp        0.0.0.0/0
                          rsh        0.0.0.0/0
@@ -96,7 +176,7 @@ Vserver     Policy       Service    Allowed
 cluster1    intercluster dns        -
                          http       -
                          https      -
-                         **ndmp       0.0.0.0/0, ::/0**
+                         ndmp       0.0.0.0/0, ::/0
                          ndmps      -
                          ntp        -
                          rsh        -
@@ -117,7 +197,7 @@ Vserver     Policy       Service    Allowed
 cluster1-1  mgmt         dns        0.0.0.0/0, ::/0
                          http       0.0.0.0/0, ::/0
                          https      0.0.0.0/0, ::/0
-                         **ndmp       0.0.0.0/0, ::/0**
+                         ndmp       0.0.0.0/0, ::/0
                          ndmps      0.0.0.0/0, ::/0
                          ntp        0.0.0.0/0, ::/0
                          rsh        -
@@ -155,18 +235,18 @@ cluster    cluster1_clus1     cluster1-1:e0a    local-only            cluster
                                                      Failover Targets:
                    	                                 .......
 
-**cluster1   cluster_mgmt       cluster1-1:e0m    broadcast-domain-wide Default**
+cluster1   cluster_mgmt       cluster1-1:e0m    broadcast-domain-wide Default
                                                      Failover Targets:
                                                      .......
-           **IC1                 cluster1-1:e0a    local-only           Default**
+           IC1                 cluster1-1:e0a    local-only           Default
                                                      Failover Targets:
-           **IC2                 cluster1-1:e0b    local-only           Default**
+           IC2                 cluster1-1:e0b    local-only           Default
                                                      Failover Targets:
                                                      .......
-**cluster1-1 cluster1-1_mgmt1   cluster1-1:e0m    local-only            Default**
+cluster1-1 cluster1-1_mgmt1   cluster1-1:e0m    local-only            Default
                                                      Failover Targets:
                                                      ......
-**cluster1-2 cluster1-2_mgmt1   cluster1-2:e0m    local-only            Default**
+cluster1-2 cluster1-2_mgmt1   cluster1-2:e0m    local-only            Default
                                                      Failover Targets:
                                                      ......
 ----
@@ -197,3 +277,6 @@ cluster1::> vserver services ndmp show -vserver cluster1
             Preferred Interface Role: intercluster, cluster-mgmt, node-mgmt
 ----
 
+
+--
+====

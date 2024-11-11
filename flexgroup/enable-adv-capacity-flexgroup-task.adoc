@@ -1,0 +1,144 @@
+---
+permalink: flexgroup/enable-adv-capacity-flexgroup-task.html 
+sidebar: sidebar 
+keywords: flexgroup advanced capacity balancing, flexgroup granular data distribution, gdd, flexgroup, volume, balancing 
+summary: ONTAP 9 .16.1以降では、高度な容量分散機能が導入され、大容量ファイルが拡張されて1つのメンバーボリュームのスペースが消費された場合に、FlexGroupメンバーボリューム間でデータが分散されます。 
+---
+= ファイルデータの再分散によるONTAP FlexGroupボリュームのバランス調整
+:allow-uri-read: 
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+ONTAP 9 .16.1以降では、高度な容量分散を有効にして、大容量ファイルが拡張されて1つのメンバーボリュームのスペースが消費された場合に、FlexGroupメンバーボリューム間でデータを分散させることができます。
+
+高度な容量バランシングにより、ONTAP 9 .12.1で導入されたきめ細かなデータ機能が拡張され、ONTAPはファイルを他のメンバーに移動できるようになりlink:manage-flexgroup-rebalance-task.html["FlexGroupボリュームのリバランシング"]ます。ONTAP 9 .16.1以降では、オプションを使用して高度な容量バランシングを有効にすると、 `-granular-data advanced`「基本的な」ファイルリバランシング機能と高度な容量機能の両方がアクティブになります。
+
+[NOTE]
+====
+ファイルのリバランシングと高度な容量のバランシングは、どちらもデフォルトで無効になっています。これらの機能を有効にすると、無効にすることはできません。容量の分散を無効にする必要がある場合は、高度な容量の分散を有効にする前に作成されたSnapshotからリストアする必要があります。
+
+====
+高度な容量分散は、新しい書き込みが10GB（ボリュームの空きスペースの1%）に達するとトリガーされます。
+
+
+
+== ファイルの分散方法
+
+ファイルが作成または拡張されて容量の高度な分散が行われるようになると、ファイルは1GB~10GBのストライプでメンバーFlexGroupボリュームに分散されます。
+
+高度な容量バランシングを有効にすると、ONTAPは既存の大容量ファイルをさかのぼってストライプしません。高度な容量分散を有効にした後も既存の大容量ファイルが引き続き拡張される場合は、ファイルのサイズと使用可能なスペースに応じて、既存の大容量ファイルの新しいコンテンツがメンバーFlexGroupボリュームにストライピングされることがあります。
+
+高度な容量バランシングによってストライプ幅が決定される1つの方法は、メンバーボリュームで使用可能な空きスペースの量を使用することです。高度な容量分散により、使用可能な空きスペースの1%のファイルストライプが作成されます。つまり、使用可能なスペースが増えるとストライプのサイズが大きくなり、FlexGroupがいっぱいになるとストライプのサイズが小さくなります。
+
+メンバーボリュームで使用可能なスペースに加えて、高度な容量分散では、他のいくつかの要因を使用してストライプ幅が決定されます。
+
+* 最小ストライプ幅：これまでに選択された最小ストライプ幅は1GBです。
+* 最大ストライプ幅：最大ストライプ幅は10GBです。
+* 細分性：ストライプは常に1GBの倍数で作成されます。
+
+
+
+
+== サポートされるプロトコル
+
+高度な容量分散は、次のプロトコルでサポートされます。
+
+* NFSv3、NFSv4、NFSv4.1
+* pNFS
+* SMB
+
+
+
+
+== 高度な容量分散を有効にする
+
+デフォルトでは、高度な容量分散は無効になっています。FlexGroup容量を自動的に分散するには、高度な容量分散を有効にする必要があります。一度有効にするとこの機能を無効にすることはできませんが、高度な容量分散を有効にする前に作成されたSnapshotからリストアすることは可能です。
+
+.開始する前に
+* クラスタ内のすべてのノードでONTAP 9 .16.1以降が実行されている必要があります。
+* 高度な容量分散が有効になっている場合、ONTAP 9 16.1より前のリリースにリバートすることはできません。リバートが必要な場合は、高度な容量分散を有効にする前に作成されたSnapshotからリストアする必要があります。
+* (`vserver nfs -vstorage enabled`SVMでNFSコピーオフロードが有効になっている場合）、FlexGroupボリュームで高度な容量分散を有効にすることはできません。同様に、SVM内のいずれかのFlexGroupボリュームで高度な容量バランシングを有効にしている場合、NFSコピーオフロードを有効にすることはできません。
+* FlexCacheライトバックでは、高度な容量分散はサポートされていません。
+
+
+.タスクの内容
+詳細なデータオプション（基本またはアドバンスト）を使用してDPデスティネーションボリュームを作成する場合、SnapMirror転送が完了するまでデスティネーションには設定が「disabled」と表示されます。転送が完了すると、DPデスティネーションに詳細なデータが「有効」と表示されます。
+
+
+
+=== FlexGroupの作成時に高度な容量分散を有効にする
+
+.手順
+System ManagerまたはONTAP CLIを使用して、新しいFlexGroupボリュームを作成するときに容量の高度な分散を有効にすることができます。
+
+[role="tabbed-block"]
+====
+.System Manager
+--
+. [ストレージ]>[ボリューム]*に移動し、をクリックしますimage:icon_add_blue_bg.gif["追加アイコン"]。
+. [ボリュームの追加]*ウィンドウで、ボリュームの名前とサイズを入力します。次に*[その他のオプション]*をクリックします。
+. [ストレージと最適化]*で、*[ボリュームデータをクラスタ全体に分散（FlexGroup）]*を選択します。
+. [Advanced capacity balancing]*を選択します。
+. ボリュームの設定を完了し、*[保存]*をクリックします。
+
+
+--
+.CLI
+--
+. 高度な容量バランシングを有効にしてボリュームを作成します。
++
+[source, cli]
+----
+volume create -vserver <svm name> -volume <volume name> -size <volume size> -auto-provision-as flexgroup -junction-path /<path> -granular-data advanced
+----
++
+例：
+
++
+[listing]
+----
+volume create -vserver vs0 -volume newvol -size 1TB -auto-provision-as flexgroup -junction-path /newvol -granular-data advanced
+----
+
+
+--
+====
+
+
+=== 既存のFlexGroupボリュームで高度な容量分散を有効にする
+
+.手順
+System ManagerまたはONTAP CLIを使用して、高度な容量分散を有効にすることができます。
+
+[role="tabbed-block"]
+====
+.System Manager
+--
+. [ストレージ]>[ボリューム]*に移動し、をクリックしimage:icon_kabob.gif["メニューオプションアイコン"]て*[編集]>[ボリューム]*を選択します。
+. [ボリュームの編集]*ウィンドウの*[ストレージと最適化]*で、*[高度な容量バランシング]*を選択します。
+. [ 保存（ Save ） ] をクリックします。
+
+
+--
+.CLI
+--
+. 既存のFlexGroupボリュームを変更して、高度な容量分散を有効にします。
++
+[source, cli]
+----
+volume modify -vserver <svm name> -volume <volume name> -granular-data advanced
+----
++
+例：
+
++
+[listing]
+----
+volume modify -vserver vs0 -volume newvol  -granular-data advanced
+----
+
+
+--
+====

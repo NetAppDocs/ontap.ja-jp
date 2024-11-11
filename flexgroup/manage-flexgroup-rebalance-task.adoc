@@ -4,7 +4,7 @@ sidebar: sidebar
 keywords: enable, storage, rebalance, modify, stop, status, flexgroup, volume 
 summary: ONTAP 9 12.1以降では、FlexGroup内のあるコンスティチュエントから別のコンスティチュエントにファイルを無停止で移動することで、FlexGroupボリュームのリバランシングを実行できます。 
 ---
-= FlexGroupボリュームのリバランシング
+= ファイルの移動によるFlexGroupボリュームのリバランシング
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
@@ -23,6 +23,8 @@ FlexGroupのリバランシングは、新しいファイルの追加やファ�
 リバランシングは、クラスタ内のすべてのノードでONTAP 9.12.1以降のリリースが実行されている場合にのみ使用できます。リバランシング処理を実行するFlexGroupボリュームでは、詳細データ機能を有効にする必要があります。この機能を有効にすると、このボリュームを削除するか、設定を有効にする前に作成されたSnapshotコピーからリストアしないかぎり、ONTAP 9.11.1以前のバージョンにリバートできなくなります。
 
 ONTAP 9.14.1以降では、ONTAPに導入されたアルゴリズムにより、ユーザが操作しなくても、詳細データ機能が有効になっているボリューム内のファイルが、システムの停止を伴わずプロアクティブに移動されます。このアルゴリズムは、きわめて特殊な限られたシナリオで作動し、パフォーマンスのボトルネックを軽減します。このアルゴリズムが機能するシナリオには、クラスタ内の1つのノード上の特定のファイル セットに対する書き込み負荷が非常に高い場合や、非常にホットな親ディレクトリ内のファイルが継続的に増加している場合などがあります。
+
+ONTAP 9 .16.1以降では、を有効にして、FlexGroupメンバーボリューム間で大容量ファイルのデータを再分散することもできますlink:enable-adv-capacity-flexgroup-task.html["高度な容量分散"]。
 
 
 
@@ -95,6 +97,10 @@ FlexGroupのリバランシングを有効にする前に、FlexGroupボリュ�
 * コマンドを使用してFlexGroupボリュームを作成する場合 `volume create`
 * コマンドを使用して既存のFlexGroupボリュームを変更して設定を有効にする `volume modify`
 * コマンドを使用してFlexGroupのリバランシングが開始されたときに自動的に設定する `volume rebalance`
++
+
+NOTE: ONTAP 9 .16.1以降を使用していて、ONTAP CLIのオプションまたはSystem Managerを使用して有効にしている `granular-data advanced`場合はlink:enable-adv-capacity-flexgroup-task.html["FlexGroupの高度な容量分散"]、FlexGroupのリバランシングも有効になります。
+
 
 
 .手順
@@ -118,7 +124,12 @@ NOTE: 「*リバランス*」オプションは、FlexGroupステータスが残
 --
 .CLI
 --
-. 自動リバランシングを開始します。 `volume rebalance start -vserver _SVM_name_ -volume _volume_name_`
+. 自動リバランシングを開始します。
++
+[source, cli]
+----
+volume rebalance start -vserver <SVM name> -volume <volume name>
+----
 +
 必要に応じて、次のオプションを指定できます。
 
@@ -178,7 +189,12 @@ NOTE: 「*リバランス*」オプションは、FlexGroupステータスが残
 --
 .CLI
 --
-. 自動リバランシングを変更します。 `volume rebalance modify -vserver _SVM_name_ -volume _volume_name_`
+. 自動リバランシングを変更します。
++
+[source, cli]
+----
+volume rebalance modify -vserver <SVM name> -volume <volume name>
+----
 +
 次のオプションを1つ以上指定できます。
 
@@ -225,7 +241,12 @@ FlexGroupのリバランシングを有効またはスケジュール設定し�
 --
 .CLI
 --
-. FlexGroupのリバランシングを停止します。 `volume rebalance stop -vserver _SVM_name_ -volume _volume_name_`
+. FlexGroup のリバランシングを停止します。
++
+[source, cli]
+----
+volume rebalance stop -vserver <SVM name> -volume <volume name>
+----
 
 
 --
@@ -249,7 +270,12 @@ FlexGroupリバランシング処理のステータス、FlexGroupリバラン�
 --
 .CLI
 --
-. FlexGroupリバランシング処理のステータスを表示します。 `volume rebalance show`
+. FlexGroup のリバランシング処理のステータスを表示します。
++
+[source, cli]
+----
+volume rebalance show
+----
 +
 リバランシング状態の例：
 

@@ -1,8 +1,8 @@
 ---
 sidebar: sidebar 
 permalink: anti-ransomware/enable-default-task.html 
-keywords: system manager, cli, enable, anti-ransomware, anti ransomware, antiransom, antiransomware, autonomous, ransomware, protection, arp, default, volumes, configure, storage volumes, enable anti-ransomware in system manager, modify, storage VM, SVM, create 
-summary: ONTAP 9.10.1以降では、新しいボリュームがランサムウェア対策の対象としてデフォルトで有効になるようにSVMを設定できます。 
+keywords: ransomware, arp, enable, set up, autonomous ransomware protection, default, volume default 
+summary: ONTAP 9 .10.1以降では、新しいボリュームでAutonomous Ransomware Protection（ARP；自律型ランサムウェア対策）がデフォルトで有効になるようにSVMを設定できます。 
 ---
 = 新しいボリュームでAutonomous Ransomware Protectionをデフォルトで有効にする
 :hardbreaks:
@@ -16,72 +16,82 @@ summary: ONTAP 9.10.1以降では、新しいボリュームがランサムウ�
 
 
 [role="lead"]
-ONTAP 9 .10.1以降では、ラーニングモードのAutonomous Ransomware Protection（ARP；自律型ランサムウェア対策）で新しいボリュームがデフォルトで有効になるようにStorage VM（SVM）を設定できます。
+ONTAP 9 .10.1以降では、Autonomous Ransomware Protection（ARP；自律型ランサムウェア対策）で新しいボリュームがデフォルトで有効になるようにStorage VM（SVM）を設定できます。この設定は、System ManagerまたはCLIを使用して変更できます。
+
+デフォルトのARPを設定せずに新規または既存のボリュームを個別に設定する場合は、こちらを参照してくださいlink:enable-task.html["関連するARP手順"]。
 
 .タスクの内容
-デフォルトでは、新しいボリュームは無効モードでARPを使用して作成されます。この設定は、System ManagerおよびCLIを使用して変更できます。デフォルトで有効になっているボリュームは、ラーニング（またはドライラン）モードでARPに設定されます。
+デフォルトでは、新しいボリュームは無効モードでARPを使用して作成されます。ARPは、NASボリューム用のARP機能を有効にしたあとにSVMに作成された新しいボリュームでのみデフォルトで有効になります。
 
-ARPは、設定の変更後にSVMで作成されたボリュームでのみ有効になります。既存のボリュームでは、ARPは有効になりません。方法をご確認くださいlink:enable-task.html["既存のボリュームでARPを有効にします"]。
+既存のボリュームではARPは自動的に有効になりません。この手順で説明する設定の変更は、新しいボリュームにのみ影響します。方法をご確認くださいlink:enable-task.html["既存のボリュームのARPを有効にする"]。
 
-ONTAP 9 13.1以降、ARP分析にアダプティブラーニングが追加され、ラーニングモードからアクティブモードへの切り替えが自動的に行われます。詳細については、を参照してください link:index.html#learning-and-active-modes["学習モードとアクティブモード"]。
+* * ONTAP 9 .10.1～9.15.1およびFlexGroupボリュームを使用するARP *デフォルトでは、ARPが有効になっている新しいボリュームは（「ドライラン」）モードに設定されていlink:index.html#learning-and-active-modes["ラーニングモード"]ます。このモードでは、システムはワークロードを分析して通常の動作の特性を特定します。ラーニングモードは、手動（すべてのARPバージョン）または自動（ARP 9.13.1以降）でアクティブモードに移行できます。ARP 9.13.1以降では、ARP分析にアダプティブラーニングが追加され、ラーニングモードからアクティブモードへの切り替えが自動的に行われるようになりました。
+* * FlexVolボリュームを使用しているONTAP 9 .16.1以降の場合* ARPを有効にすると、ARP/AI保護はすぐにアクティブモードで開始されます。学習期間は必要ありません。
+
 
 .開始する前に
 * ONTAPのバージョンに対応したがxref:index.html[正しいライセンス]インストールされている必要があります。
 * ボリュームの使用率が100%未満である必要があります。
 * ジャンクションパスがアクティブである必要があります。
-* ONTAP 9 13.1以降では、ランサムウェア対策に複数の認証されたユーザー管理者が必要になるように、Multi-Admin Verification（MAV）を有効にすることをお勧めします。link:../multi-admin-verify/enable-disable-task.html["詳細"^]です。
+* ONTAP 9 13.1以降では、ランサムウェア対策に複数の認証されたユーザー管理者が必要になるように、Multi-Admin Verification（MAV）を有効にすることをお勧めします。link:../multi-admin-verify/enable-disable-task.html["詳細"]です。
 
 
-.ARPをラーニングモードからアクティブモードに切り替えます。
-[%collapsible]
-====
-ONTAP 9 .13.1以降、アダプティブラーニングがARP分析に追加されました。学習モードからアクティブモードへの切り替えは自動的に行われます。ARPによるラーニングモードからアクティブモードへの自動切り替えは、次のオプションの設定に基づいて決定されます。
-
-[listing]
-----
- -anti-ransomware-auto-switch-minimum-incoming-data-percent
- -anti-ransomware-auto-switch-duration-without-new-file-extension
- -anti-ransomware-auto-switch-minimum-learning-period
- -anti-ransomware-auto-switch-minimum-file-count
- -anti-ransomware-auto-switch-minimum-file-extension
-----
-30日間の学習後、これらの条件の1つまたは複数が満たされていない場合でも、ボリュームは自動的にアクティブモードに切り替わります。つまり、自動切り替えが有効な場合、ボリュームは最大30日後にアクティブモードに切り替わります。最大値の30日は固定であり、変更できません。
-
-デフォルト値を含むARP設定オプションの詳細については、を参照してくださいlink:https://docs.netapp.com/us-en/ontap-cli/security-anti-ransomware-volume-auto-switch-to-enable-mode-show.html["ONTAPコマンド リファレンス"^]。
-
-====
 .手順
-デフォルトでは、System ManagerまたはONTAP CLIを使用してARPを有効にできます。
+System ManagerまたはONTAP CLIを使用して、新しいボリュームに対してデフォルトでARPを有効にすることができます。
 
 [role="tabbed-block"]
 ====
 .System Manager
 --
 . [ストレージ]>[Storage VM]*を選択し、ARPで保護するボリュームを含むStorage VMを選択します。
-. *[設定]*タブに移動します。[Security（セキュリティ）]*で、[Anti-ransomware（ランサムウェア対策）]*タイルを探し、image:icon_pencil.gif["編集アイコン"]
+. *[設定]*タブに移動します。[Security（セキュリティ）]*で、[Anti-ransomware（ランサムウェア対策）]*タイルを探し、を選択しますimage:icon_pencil.gif["編集アイコン"]。
 . NASボリュームのARPを有効にするには、このボックスをオンにします。Storage VM内の対応するすべてのNASボリュームでARPを有効にするには、追加のボックスをオンにします。
 +
 
-NOTE: ONTAP 9.13.1にアップグレードした場合は、*十分な学習後に自動的に学習モードからアクティブモードに切り替える*設定が自動的に有効になります。これにより、ARPは最適な学習期間間隔を決定し、アクティブモードへの切り替えを自動化できます。手動でアクティブモードに移行する場合は、この設定をオフにします。
+NOTE: ONTAP 9 .16.1では、新しいFlexVolボリュームに対してアクティブモードが自動的に有効になるため、学習期間は必要ありません。
 
++
+
+NOTE: 既存のボリュームでは、ラーニングモードとアクティブモードは新しく書き込まれたデータにのみ適用され、ボリューム内の既存のデータには適用されません。ARPを有効にしたボリュームでは、以前の通常のデータトラフィックの特性が新しいデータに基づいて想定されるため、既存のデータはスキャンおよび分析されません。
+
+. ARP 9.13.1以降にアップグレードした場合は、必要に応じて*十分な学習後に自動的に学習からアクティブモードに切り替える*を選択します。これにより、ARPは最適な学習期間間隔を決定し、アクティブモードへの切り替えを自動化できます。
 
 
 --
 .CLI
 --
-. 既存のSVMを変更して、新しいボリュームでデフォルトでARPを有効にします。
-`vserver modify -vserver _svm_name_ -anti-ransomware-default-volume-state dry-run`
+* 既存のSVMを変更して、新しいボリュームでデフォルトでARPを有効にします。
 +
-CLIでは、新しいボリュームに対してデフォルトでARPを有効にして新しいSVMを作成することもできます。
-`vserver create -vserver svm_name -anti-ransomware-default-volume-state dry-run [_other parameters as needed_]`
+** ONTAP 9 .15.1以前およびFlexGroupボリュームの場合は、デフォルトの状態を（ラーニングモード）に設定し `dry-run`ます。
++
+`vserver modify -vserver <svm_name> -anti-ransomware-default-volume-state dry-run`
 
+** ARP / AIボリュームとFlexVolボリュームがあるONTAP 9 .16.1以降では、デフォルトの状態を（アクティブモード）に設定し `active`ます。
 +
-ONTAP 9 .13.1以降にアップグレードした場合は、アクティブ状態への変更が自動的に行われるように、アダプティブラーニングがイネーブルになります。この動作を自動的に有効にしない場合は、次のコマンドを使用します。
+`vserver modify -vserver <svm_name> -anti-ransomware-default-volume-state active`
 
+
+
+* 新しいボリュームに対してデフォルトでARPを有効にして、新しいSVMを作成します。
 +
-`vserver modify _svm_name_ -anti-ransomware-auto-switch-from-learning-to-enabled false`
+** ONTAP 9 .15.1以前およびFlexGroupボリュームの場合は、デフォルトの状態を（ラーニングモード）に設定し `dry-run`ます。
++
+`vserver create -vserver <svm_name> -anti-ransomware-default-volume-state dry-run <other parameters as needed>`
+
+** ARP / AIボリュームとFlexVolボリュームがあるONTAP 9 .16.1以降では、デフォルトの状態を（アクティブモード）に設定し `active`ます。
++
+`vserver modify -vserver <svm_name> -anti-ransomware-default-volume-state active`
+
+
+
+* ONTAP 9 .13.1以降にアップグレードした場合、デフォルトの状態がであると、 `dry-run`アダプティブラーニングがイネーブルになり、アクティブ状態への変更が自動的に行われます。この動作を自動的に有効にしない場合は、既存のSVMを変更します。
++
+`vserver modify <svm_name> -anti-ransomware-auto-switch-from-learning-to-enabled false`
 
 
 
 --
 ====
+.関連情報
+* link:switch-learning-to-active-mode.html["学習期間後にアクティブモードに切り替える"]
+

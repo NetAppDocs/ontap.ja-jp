@@ -120,7 +120,7 @@ SVMの移行を開始する前に、次の前提条件を満たしている必�
 * ソースクラスタのすべてのノードでONTAP 9 .10.1以降が実行されている必要があります。特定のONTAPアレイコントローラのサポートについては、を参照してくださいlink:https://hwu.netapp.com/["Hardware Universe"^]。
 * ソースクラスタ内のすべてのノードで同じバージョンのONTAPが実行されている必要があります。
 * デスティネーションクラスタ内のすべてのノードで同じバージョンのONTAPが実行されている必要があります。
-* デスティネーションクラスタは、ソースクラスタと同じかそれよりも新しいメジャーなEffective Cluster Version（ECV；有効なクラスタバージョン）が2つ以下である必要があります。
+* デスティネーションクラスタのONTAPのバージョンは、ソースクラスタと同じか、新しいメジャーバージョンが2つ以下である必要があります。
 * ソースクラスタとデスティネーションクラスタで、データLIFへのアクセス用に同じIPサブネットがサポートされている必要があります。
 * ソースSVMに含まれているボリュームの数がよりも少ない必要がありxref:Maximum supported volumes per SVM[このリリースでサポートされるデータボリュームの最大数]ます。
 * デスティネーションにボリューム配置用の十分なスペースが必要
@@ -207,10 +207,10 @@ SVMの移行は、FabricPoolのボリュームで次のプラットフォーム�
 | 負荷共有ミラー | サポート対象外 |  
 
 
-| MetroCluster SVM | サポート対象外 | SVMの移行ではMetroCluster SVMの移行がサポートされませんが、SnapMirrorの非同期レプリケーションを使用するlink:https://www.netapp.com/media/83785-tr-4966.pdf["MetroCluster構成のSVMを移行する"]こともできます。MetroCluster構成でSVMを移行する手順は、無停止方式である_not_aであることに注意してください。 
+| MetroCluster SVM | ONTAP 9 .16.1 | MetroCluster以外のHAペアからMetroCluster構成に、またはMetroCluster構成からMetroCluster以外のHAペアにSVMを移行できます。MetroCluster構成間でSVMを移行することはできませんMetroCluster。[注] ONTAP 9の移行では、SVM.16.1より前のリリースではMetroCluster SVMの移行はサポートされません。SnapMirrorの非同期レプリケーションをに使用できる場合がありますlink:https://www.netapp.com/media/83785-tr-4966.pdf["MetroCluster構成のSVMを移行する"^]。MetroCluster構成でSnapMirror非同期を使用してSVMを移行する方法は_disruptive_migrationであることに注意してください。 
 
 
-| NetAppアグリゲート暗号化（NAE） | サポート対象外 | 暗号化されていないソースから暗号化されたデスティネーションへの移行はサポートされていません。 
+| NetAppアグリゲート暗号化（NAE） | サポート対象外 | NAEを使用するエンドポイントでは移行はサポートされません。 
 
 
 | NDMP構成 | サポート対象外 |  
@@ -222,7 +222,7 @@ SVMの移行は、FabricPoolのボリュームで次のプラットフォーム�
 | NFSトSMBカンサロク | ONTAP 9 .13.1  a| 
 [NOTE]
 ====
-監査ログリダイレクトは、クラウドモードでのみ使用できます。監査を有効にしたオンプレミスのSVM移行の場合は、ソースSVMで監査を無効にしてから移行を実行する必要があります。
+監査を有効にしたオンプレミスのSVM移行の場合は、ソースSVMで監査を無効にしてから移行を実行する必要があります。
 
 ====
 SVM移行前：
@@ -262,7 +262,7 @@ SMBの移行にはシステムの停止が伴い、移行後にクライアン�
 
 
 
-| SnapMirrorのクラウド関係 | ONTAP 9 12.1 | ONTAP 9 12.1以降では、SnapMirrorクラウド関係が設定されたSVMを移行する場合、デスティネーションクラスタにがlink:../data-protection/snapmirror-licensing-concept.html#snapmirror-cloud-license["SnapMirrorクラウドライセンス"]インストールされており、クラウドにミラーリングされるボリューム内の容量を移動するための十分な容量がデスティネーションクラスタに必要です。 
+| SnapMirrorのクラウド関係 | ONTAP 9 12.1 | ONTAP 9 12.1以降では、SnapMirrorクラウド関係が確立されたオンプレミスのSVMを移行する場合、デスティネーションクラスタにがインストールされており、クラウドにミラーリングされるボリューム内の容量の移動に対応できる十分な容量がデスティネーションクラスタにlink:../data-protection/snapmirror-licensing-concept.html#snapmirror-cloud-license["SnapMirrorクラウドライセンス"]必要です。 
 
 
 | SnapMirror非同期デスティネーション | ONTAP 9 12.1 |  
@@ -300,16 +300,16 @@ SnapMirrorソースを移行した場合、ONTAPでは、SnapMirrorの更新が�
 | SnapMirror同期 | サポート対象外 |  
 
 
-| Snapshotコピー | ONTAP 9 10.1 |  
+| スナップショット | ONTAP 9 10.1 |  
 
 
-| Snapshotコピー ロックによる改ざんの防止 | ONTAP 9 .14.1 | 改ざん防止機能を備えたSnapshotコピーロックは、SnapLockとは異なります。SnapLockはサポートされません。 
+| 改ざん防止スナップショットロック | ONTAP 9 .14.1 | 改ざん防止スナップショットロックは、SnapLockと同等ではありません。SnapLock EnterpriseとSnapLock Complianceはサポートされていません。 
 
 
 | 仮想IP LIF / BGP | サポート対象外 |  
 
 
-| Virtual Storage Console 7.0以降 | サポート対象外 | VSCはVSC 7.0以降に含まれてい https://docs.netapp.com/us-en/ontap-tools-vmware-vsphere/index.html["ONTAP Tools for VMware vSphere 仮想アプライアンス"^]ます。 
+| Virtual Storage Console 7.0以降 | サポート対象外 |  
 
 
 | ホリユウムクロン | サポート対象外 |  
@@ -369,17 +369,17 @@ SnapMirrorソースを移行した場合、ONTAPでは、SnapMirrorの更新が�
 | 制限 | 不可 | 許容 | サポート対象外 
 
 
-| Snapshotコピー属性変更 | 許容 | 許容 | サポート対象外 
+| Snapshot属性の変更 | 許容 | 許容 | サポート対象外 
 
 
-| Snapshotコピー自動削除の変更 | 許容 | 許容 | サポート対象外 
+| Snapshotの自動削除の変更 | 許容 | 許容 | サポート対象外 
 
 
-| Snapshotコピーの作成 | 許容 | 許容 | サポート対象外 
+| Snapshotの作成 | 許容 | 許容 | サポート対象外 
 
 
-| Snapshotコピーの削除 | 許容 | 許容 | サポート対象外 
+| Snapshotの削除 | 許容 | 許容 | サポート対象外 
 
 
-| Snapshotコピーからファイルをリストア | 許容 | 許容 | サポート対象外 
+| Snapshotからファイルをリストア | 許容 | 許容 | サポート対象外 
 |===

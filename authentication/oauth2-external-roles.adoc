@@ -1,0 +1,90 @@
+---
+sidebar: sidebar 
+permalink: authentication/oauth2-external-roles.html 
+keywords: oauth 2.0, oauth2, external roles, external role mapping 
+summary: 外部ロールは、ONTAPで使用するように設定されたIdentifyプロバイダで定義されます。ONTAP CLIを使用して、これらの外部ロールとONTAPロールのマッピング関係を作成および管理できます。 
+---
+= 外部ロールのマッピング
+:hardbreaks:
+:allow-uri-read: 
+:nofooter: 
+:icons: font
+:linkattrs: 
+:imagesdir: ./media/
+
+
+[role="lead"]
+外部ロールは、ONTAPで使用するように設定されたIdentifyプロバイダで定義されます。ONTAP CLIを使用して、これらの外部ロールとONTAPロールのマッピング関係を作成および管理できます。
+
+
+NOTE: ONTAP REST APIを使用して外部ロールマッピング機能を設定することもできます。詳細は、を https://docs.netapp.com/us-en/ontap-automation/["ONTAP の自動化"^]参照してください。
+
+.関連情報
+* https://docs.netapp.com/us-en/ontap-cli/["ONTAP CLIコマンド"^]です。
+
+
+
+
+== アクセストークンの外部ロール
+
+これは、2つの外部ロールを含むJSONアクセストークンの一部です。
+
+[listing]
+----
+  ...
+  "appidacr": "1",
+  "family_name": "User",
+  "name": "Test User 1",
+  "oid": "4c2215c7-6d52-40a7-ce71-096fa41379ba",
+  "roles": [
+    "Global Administrator",
+    "Application Administrator"
+  ],
+  "ver": "1.0",
+  ...
+----
+
+
+== 構成
+
+外部ロールマッピング機能は、ONTAPコマンドラインインターフェイスを使用して管理できます。
+
+
+
+=== 作成
+
+ロールマッピング設定は、コマンドを使用して定義できます `security login external-role-mapping create`。このコマンドおよび関連するオプションを実行するには、ONTAP * admin *権限レベルである必要があります。
+
+.パラメータ
+グループマッピングの作成に使用するパラメータを次に示します。
+
+[cols="30,70"]
+|===
+| パラメータ | 説明 
+
+
+| `external-role` | 外部のアイデンティティプロバイダで定義されているロールの名前。 
+
+
+| `provider` | アイデンティティプロバイダの名前。これはシステムの識別子である必要があります。 
+
+
+| `ontap-role` | 外部ロールがマッピングされている既存のONTAPロールを示します。 
+|===
+.例
+[listing]
+----
+security login external-role-mapping create -external-role "Global Administrator" -provider entra -ontap-role admin
+----
+
+
+=== その他のCLI処理
+
+このコマンドでは、次のような追加の処理がサポートされます。
+
+* - 表示
+* 変更
+* 削除
+
+
+詳細については、ONTAPコマンドリファレンスドキュメントまたはONTAP CLIのマニュアルページを参照してください。

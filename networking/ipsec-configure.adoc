@@ -1,40 +1,29 @@
 ---
 sidebar: sidebar 
-permalink: networking/configure_ip_security_@ipsec@_over_wire_encryption.html 
-keywords: ipsec, security, internet protocol, on wire, in transit, encrypt, encryption, secure, enable ipsec, security ipsec config show, ipsec config modify, ipsec config show, security ipsec policy create, protocols, local-ports, remote-ports, spd, security policy database,ipsec identities 
-summary: 転送中もデータの安全性と暗号化を維持するために、 ONTAP は転送モードで IPSec プロトコルを使用します 
+permalink: networking/ipsec-configure.html 
+keywords: ip security, ipsec, data-in-motion, in-flight, encryption, security ipsec config show, ipsec config modify, ipsec config show, security ipsec policy create, local-ports, remote-ports, spd, security policy database,ipsec identities 
+summary: ONTAPクラスタで転送中のIPSec暗号化を設定してアクティブにするには、いくつかのタスクを実行する必要があります。 
 ---
-= IP Security（IPsec）のネットワーク上での暗号化の設定
+= ONTAPでのIPセキュリティの設定
 :hardbreaks:
 :allow-uri-read: 
 :nofooter: 
 :icons: font
 :linkattrs: 
-:imagesdir: ./media/
+:imagesdir: ../media/
 
 
 [role="lead"]
-ONTAPは、転送モードでインターネットプロトコルセキュリティ(IPsec)を使用して、転送中もデータの安全性と暗号化を継続的に確保します。IPSecは、NFS、iSCSI、SMBプロトコルを含むすべてのIPトラフィックに対してデータ暗号化を提供します。
+ONTAPクラスタで転送中のIPSec暗号化を設定してアクティブにするには、いくつかのタスクを実行する必要があります。
 
-ONTAP 9 12.1以降では、フロントエンドホストプロトコルIPsecのサポートは、MetroCluster IPおよびMetroClusterファブリック接続構成で使用できます。MetroClusterクラスタでのIPSecのサポートはフロントエンドホストトラフィックに限定され、MetroClusterクラスタ間LIFではサポートされません。
 
-IPsec.10.1以降では、ONTAP 9による認証に事前共有キー（PSK）または証明書のいずれかを使用できます。以前は、IPsecではPSKのみがサポートされていました。
-
-ONTAP 9 9.1以降では、IPSecで使用される暗号化アルゴリズムがFIPS 140-2に準拠しています。このアルゴリズムは、ONTAPのNetApp暗号モジュールによって生成され、FIPS 140-2の検証が行われます。
-
-ONTAP 9 .8以降では、ONTAPはトランスポートモードでIPsecをサポートしています。
-
-IPsecを設定すると、リプレイ攻撃や中間者（MITM）攻撃に対処するための予防策によって、クライアントとONTAP間のネットワークトラフィックが保護されます。
-
-NetApp SnapMirrorおよびクラスタピアリングトラフィックの暗号化では、引き続きIPsecよりもクラスタピアリング暗号化（CPE）、トランスポート層セキュリティ（TLS）が推奨され、ネットワークを介してセキュアに転送されます。これは、TLSの方がIPsecよりもパフォーマンスが優れているためです。
-
-クラスタでIPsec機能が有効になっている場合、ネットワークでは、保護対象のトラフィックと照合し、保護の詳細（暗号スイートや認証方式など）を指定するためにSecurity Policy Database（SPD；セキュリティポリシーデータベース）エントリが必要になります。各クライアントには、対応するSPDエントリも必要です。
+NOTE: IPSecを設定する前に、を確認してくださいlink:../networking/ipsec-prepare.html["IPセキュリティを使用する準備"]。たとえば、ONTAP 9 .16.1以降で使用可能なIPsecハードウェアオフロード機能を使用するかどうかを決定する必要がある場合があります。
 
 
 
 == クラスタでIPSecを有効にする
 
-クラスタでIPSecを有効にすると、転送中もデータのセキュリティと暗号化を継続的に確保できます。
+クラスタでIPSecを有効にすると、転送中もデータが継続的に暗号化されてセキュアになるようにすることができます。
 
 .手順
 . IPsecがすでに有効になっているかどうかを確認します。
@@ -47,6 +36,9 @@ NetApp SnapMirrorおよびクラスタピアリングトラフィックの暗号
 . IPSecを有効にします。
 +
 `security ipsec config modify -is-enabled true`
+
++
+IPSecハードウェアオフロード機能は、ブーリアンパラメータを使用してイネーブルにできます `is-offload-enabled`。
 
 . 検出コマンドを再度実行します。
 +
@@ -116,7 +108,7 @@ ONTAP IPアドレスとクライアントIPアドレス間のすべてのトラ�
 ... PSKを入力する場合は、パラメータを指定し、<enter>キーを押して事前共有キーの入力と確認を求めるプロンプトを表示します。
 +
 
-NOTE: `local-identity`ホストとクライアントの両方でstrongSwanを使用し、ホストまたはクライアントに対してワイルドカードポリシーが選択されていない場合、および `remote-identity`パラメータはオプションです。
+NOTE:  `local-identity`ホストとクライアントの両方でstrongSwanを使用し、ホストまたはクライアントに対してワイルドカードポリシーが選択されていない場合、パラメータと `remote-identity`パラメータはオプションです。
 
 ... PKIを入力する場合は、、 `local-identity`、 `remote-identity`パラメータも入力する必要があり `cert-name`ます。リモート側の証明書IDが不明な場合、または複数のクライアントIDが予想される場合は、特別なIDを入力し `ANYTHING`ます。
 
@@ -132,7 +124,7 @@ Enter the preshared key for IPsec Policy _test34_ on Vserver _vs1_:
 ....
 security ipsec policy create -vserver vs1 -name test34 -local-ip-subnets 192.168.134.34/32 -remote-ip-subnets 192.168.134.44/32 -local-ports 2049 -protocols tcp -auth-method PKI -cert-name my_nfs_server_cert -local-identity CN=netapp.ipsec.lif1.vs0 -remote-identity ANYTHING
 ....
-ONTAPとクライアントの両方が一致するIPsecポリシーを設定し、認証クレデンシャル（PSKまたは証明書）が両側に配置されるまで、IPトラフィックはクライアントとサーバの間を流れません。詳細については、クライアント側のIPsec設定を参照してください。
+ONTAPとクライアントの両方が一致するIPsecポリシーを設定し、認証クレデンシャル（PSKまたは証明書）が両側に配置されるまで、IPトラフィックはクライアントとサーバの間を流れません。
 
 
 
@@ -145,8 +137,9 @@ PKI / 証明書を使用する認証方式では、ローカルとリモート�
 .タスクの内容
 ONTAP内では、SPDエントリを変更するか、SPDポリシーの作成時にIDを指定します。SPDには、IPアドレスまたは文字列形式のID名を指定できます。
 
-.ステップ
-既存のSPD ID設定を変更するには、次のコマンドを使用します。
+.手順
+. 既存のSPD ID設定を変更するには、次のコマンドを使用します。
+
 
 `security ipsec policy modify`
 
@@ -209,11 +202,12 @@ NOTE: サブネット設定で単一のポリシーエントリを使用する�
 
 
 
-== IPSec統計
+== IPSec統計を表示します。
 
-ネゴシエーションを使用すると、ONTAP SVMのIPアドレスとクライアントのIPアドレスの間に、IKEセキュリティアソシエーション（SA）と呼ばれるセキュリティチャネルを確立できます。IPsec SAは、実際のデータ暗号化および復号化作業を行うために、両方のエンドポイントにインストールされます。
+ネゴシエーションを使用すると、ONTAP SVMのIPアドレスとクライアントのIPアドレスの間に、IKEセキュリティアソシエーション（SA）と呼ばれるセキュリティチャネルを確立できます。IPsec SAは、実際のデータ暗号化および復号化作業を行うために、両方のエンドポイントにインストールされます。statisticsコマンドを使用して、IPsec SAとIKE SAの両方のステータスを確認できます。
 
-statisticsコマンドを使用して、IPsec SAとIKE SAの両方のステータスを確認できます。
+
+NOTE: IPSecハードウェアオフロード機能を使用している場合は、コマンドでいくつかの新しいカウンタが表示され `security ipsec config show-ipsecsa`ます。
 
 .コマンド例
 IKE SAサンプルコマンド：

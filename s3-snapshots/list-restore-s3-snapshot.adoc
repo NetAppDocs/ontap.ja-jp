@@ -1,0 +1,100 @@
+---
+sidebar: sidebar 
+permalink: s3-snapshots/list-restore-s3-snapshot.html 
+keywords: s3 snapshots, list, restore, browse S3 snapshots 
+summary: ONTAP S3のSnapshot機能を使用すると、S3クライアントからバケットのS3 Snapshotのコンテンツを表示、参照、リストアできます。 
+---
+= S3 Snapshotの表示とリストア
+:hardbreaks:
+:toclevels: 1
+:allow-uri-read: 
+:toclevels: 1
+:nofooter: 
+:icons: font
+:linkattrs: 
+:imagesdir: ../media/
+
+
+[role="lead"]
+ONTAP S3のSnapshot機能を使用すると、S3クライアントからバケットのS3 Snapshotのコンテンツを表示および参照できます。また、S3 SnapshotからS3クライアント上の単一のオブジェクト、一連のオブジェクト、またはバケット全体をリストアできます。
+
+.開始する前に
+バケットのONTAP S3 Snapshotを表示、参照、およびリストアするには、Snapshotが作成されている必要があります。また、S3プロトコルクライアントからS3ベースバケットにアクセスできる必要があります。
+
+
+
+== S3 Snapshotのリストと表示
+
+S3 Snapshotの詳細を表示して比較し、エラーを特定できます。ONTAP CLIを使用すると、S3バケットに作成されたすべてのSnapshotを表示できます。
+
+.手順
+. S3 Snapshotを表示します。
++
+[listing]
+----
+vserver object-store-server bucket snapshot show
+----
++
+クラスタ上のすべてのバケットに対して作成されたS3 Snapshotの名前、Storage VM、バケット、作成時間、およびの情報を確認できます `instance-uuid`。
+
+. バケット名を指定して、そのバケットに対して作成されたすべてのS3 Snapshotの名前、作成時間、およびそのバケットに対して作成されたすべてのS3 Snapshotを表示することもできます `instance-uuid`。
++
+[listing]
+----
+vserver object-store-server bucket snapshot show -vserver <svm_name> -bucket <bucket_name>
+----
+
+
+
+
+== S3 Snapshotのコンテンツを参照する
+
+環境で障害や問題が発生した場合は、S3バケットのSnapshotの内容を参照してエラーを特定できます。また、S3のSnapshotを参照して、リストアするエラーのないコンテンツを特定することもできます。
+
+S3 Snapshotは、S3クライアントにSnapshotバケットとして提供されます。Snapshotバケット名の形式は、です `<base_bucket_name>-s3snap-<snapshot_name>`。S3 API処理を使用して、Storage VM内のすべてのSnapshotバケットを表示できます `ListBuckets`。
+
+S3 snapshotバケットはベースバケットのアクセスポリシーを継承し、読み取り専用の処理のみをサポートします。ベースバケットにアクセスする権限がある場合は、S3 Snapshotバケットに対して読み取り専用のS3 API処理（ `HeadObject`、 `GetObject`、 `GetObjectTagging` `ListObjects`、、 `ListObjectVersions`、 `GetObjectAcl`、および `CopyObject`。
+
+
+NOTE: S3 Snapshotバケットでこの `CopyObject`処理がサポートされるのは、ソースバケットのSnapshotコピーである場合のみです。Snapshotのストレージデスティネーションである場合はサポートされません。
+
+これらの操作の詳細については、を参照してくださいlink:../s3-config/ontap-s3-supported-actions-reference.html["ONTAP S3でサポートされる操作"]。
+
+
+
+== S3 Snapshotからコンテンツをリストア
+
+S3クライアントでリストア処理を実行して、Snapshotバケットから元のバケットまたは別のバケットにコンテンツをコピーすることで、単一のオブジェクト、一連のオブジェクト、またはバケット全体をリカバリできます。スナップショットを参照して、コピーするスナップショットコンテンツを決定できます。
+
+バケット全体、プレフィックスが付いたオブジェクト、または単一のオブジェクトをリストアするには、コマンドを使用し `aws s3 cp`ます。
+
+.手順
+. ベースS3バケットのSnapshotを作成します。
++
+[listing]
+----
+vserver object-store-server bucket snapshot create -vserver <svm_name> -bucket <base_bucket_name> -snapshot <snapshot_name>
+----
+. Snapshotを使用してベースバケットをリストアします。
++
+** バケット全体をリストアします。Snapshotバケット名は、の形式で指定し `<base_bucket_name>-s3snap-<snapshot_name>`ます。
++
+[listing]
+----
+aws --endpoint http://<IP> s3 cp s3://<snapshot-bucket-name> s3://<base-bucket>  --recursive
+----
+** ディレクトリ内のオブジェクトを次のプレフィックスでリストアし `dir1`ます。
++
+[listing]
+----
+aws --endpoint http://<IP> s3 cp s3://<snapshot-bucket-name>/dir1 s3://<base_bucket_name>/dir1 --recursive
+----
+** 次の名前の単一オブジェクトをリストアし `web.py`ます。
++
+[listing]
+----
+aws --endpoint http://<IP> s3 cp s3:// <snapshot-bucket-name>/web.py s3://<base_bucket_name>/web.py
+----
+
+
+

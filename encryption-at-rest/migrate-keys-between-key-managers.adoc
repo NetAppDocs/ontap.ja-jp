@@ -1,0 +1,157 @@
+---
+permalink: encryption-at-rest/migrate-keys-between-key-managers.html 
+sidebar: sidebar 
+keywords: onboard key manager, external key manager, configure, migrate keys, store keys, authentication keys, encryption keys 
+summary: データの暗号化キーは、ONTAPのオンボードキーマネージャ、外部キーマネージャ、またはその両方（いずれか一方のケース）を使用して管理できます。 
+---
+= キー管理ツール間でONTAPデータ暗号化キーを移行する
+:allow-uri-read: 
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+データ暗号化キーは、ONTAPのオンボードキーマネージャまたは外部キー管理ツール（またはその両方）を使用して管理できます。外部キー管理ツールはStorage VMレベルでのみ有効にできます。ONTAPクラスタレベルでは、オンボードキーマネージャまたは外部キーマネージャを有効にできます。
+
+[cols="2,2"]
+|===
+| キー管理ツールを有効にする場所 | 使用できる機能 
+
+
+| クラスタレベルのみ  a| 
+オンボードキーマネージャまたは外部キー管理ツール
+
+
+
+| SVMレベルのみ | 外部キー管理ツールのみ 
+
+
+ a| 
+クラスタレベルとSVMレベルの両方
+ a| 
+次のいずれかのキー管理ツールの組み合わせ：
+
+* オプション1
++
+クラスタレベル：オンボードキーマネージャ
+
++
+SVMレベル：外部キー管理ツール
+
+* オプション2
++
+クラスタレベル：外部キー管理ツール
+
++
+SVMレベル：外部キー管理ツール
+
+
+
+|===
+
+
+== ONTAPクラスタレベルでのキー管理ツール間でのキーの移行
+
+ONTAP 9 16.1以降では、ONTAPのコマンドラインインターフェイス（CLI）を使用して、クラスタレベルのキー管理ツール間でキーを移行できます。
+
+[role="tabbed-block"]
+====
+.オンボードキーマネージャから外部キーマネージャへ
+--
+.手順
+. 権限レベルをadvancedに設定します。
++
+[source, cli]
+----
+set -privilege advanced
+----
+. 非アクティブな外部キー管理ツールの設定を作成します。
++
+[source, cli]
+----
+security key-manager external create-config
+----
+. 外部キー管理ツールに切り替えます。
++
+[source, cli]
+----
+security key-manager keystore enable -vserver <svm_name> -type KMIP
+----
+. オンボードキーマネージャの設定を削除します。
++
+[source, cli]
+----
+security key-manager keystore delete-config -vserver <svm_name> -type OKM
+----
+. 権限レベルをadminに設定します。
++
+[source, cli]
+----
+set -privilege admin
+----
+
+
+--
+.ガイブキーカンリツールカラオンボードキーカンリツールヘ
+--
+.手順
+. 権限レベルをadvancedに設定します。
++
+[source, cli]
+----
+set -privilege advanced
+----
+. 非アクティブなオンボードキーマネージャの設定を作成します。
++
+[source, cli]
+----
+security key-manager onboard create-config
+----
+. オンボードキーマネージャの設定を有効にします。
++
+[source, cli]
+----
+security key-manager keystore enable -vserver <svm_name> -type OKM
+----
+. 外部キー管理ツールの設定を削除します。
++
+[source, cli]
+----
+security key-manager keystore delete-config -vserver <svm_name> -type KMIP
+----
+. 権限レベルをadminに設定します。
++
+[source, cli]
+----
+set -privilege admin
+----
+
+
+--
+====
+
+
+== ONTAPクラスタレベルとStorage VMレベルのキー管理ツール間でキーを移行
+
+ONTAPのコマンドラインインターフェイス（CLI）を使用して、クラスタレベルのキー管理ツールとStorage VMレベルのキー管理ツールの間でキーを移行できます。
+
+.手順
+. 権限レベルをadvancedに設定します。
++
+[source, cli]
+----
+set -privilege advanced
+----
+. キーを移行します。
++
+[source, cli]
+----
+security key-manager key migrate -from-vserver <svm_name> -to-vserver <svm_name>
+----
+. 権限レベルをadminに設定します。
++
+[source, cli]
+----
+set -privilege admin
+----
+

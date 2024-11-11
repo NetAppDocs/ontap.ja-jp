@@ -1,0 +1,64 @@
+---
+permalink: nvme/set-up-tls-secure-channel-nvme-task.html 
+sidebar: sidebar 
+keywords: manage, nvme, secure, encryption, in-flight, tls secure channel, tcp, tls, encrypt, enable, set up 
+summary: ONTAP 9 .16.1以降では、NVMe/TCP接続用のTLSセキュアチャネルを有効または無効にすることができます。 
+---
+= NVMe/TCP用のTLSセキュアチャネルのセットアップ
+:allow-uri-read: 
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+ONTAP 9 .16.1以降では、NVMe/TCP接続用にTLSセキュアチャネルを設定できます。System ManagerまたはONTAP CLIを使用して、TLSが有効になっている新しいNVMeサブシステムを追加するか、既存のNVMeサブシステムに対してTLSを有効にすることができます。
+
+[role="tabbed-block"]
+====
+.System Manager
+--
+NVMe.16.1以降では、サブシステムの作成または更新、ネームスペースの作成またはクローニング、新しいONTAP 9ネームスペースを使用した整合性グループの追加時に、System Managerを使用してNVMe/TCP接続用のTLSを設定できます。
+
+.手順
+. System Managerで、*[ホスト]>[NVMeサブシステム]*をクリックし、*[追加]*をクリックします。
+. NVMeサブシステム名を追加し、Storage VMとホストオペレーティングシステムを選択します。
+. ホストのNQNを入力します。
+. [Host NQN]の横にある*[Require Transport Layer Security（TLS）]*を選択します。
+. 事前共有キー（PSK）を指定します。
+. [ 保存（ Save ） ] をクリックします。
+. TLSセキュアチャネルが有効になっていることを確認するには、*[システムマネージャ]>[ホスト]>[NVMeサブシステム]>[グリッド]>[ピークビュー]*を選択します。
+
+
+--
+.CLI
+--
+.手順
+. TLSセキュアチャネルをサポートするNVMeサブシステムホストを追加します。引数を使用して事前共有キー（PSK）を指定することも、引数を使用して生成されたPSKを使用すること `tls-generated-psk`もできます `tls-configured-psk`。
++
+[source, cli]
+----
+vserver nvme subsystem host add -vserver <svm_name> -subsystem <subsystem> -host-nqn <host_nqn> {-tls-configured-psk <key_text> | -tls-generated-psk true}
+----
+. NVMeサブシステムホストがTLSセキュアチャネル用に設定されていることを確認します。オプションで引数を使用すると、そのキータイプを使用しているホストのみを表示でき `tls-key-type`ます。
++
+[source, cli]
+----
+vserver nvme subsystem host show -vserver <svm_name> -subsystem <subsystem> -host-nqn <host_nqn> -tls-key-type {none|configured|generated}
+----
+. NVMeサブシステムのホストコントローラがTLSセキュアチャネル用に設定されていることを確認します。必要に応じて、 `tls-identity`、、または `tls-cipher`引数を使用して、それらのTLS属性を持つコントローラのみを表示でき `tls-key-type`ます。
++
+[source, cli]
+----
+vserver nvme subsystem controller show -vserver <svm_name> -subsystem <subsystem> -host-nqn <host_nqn> -tls-key-type {none|configured|generated} -tls-identity <text> -tls-cipher {none|TLS_AES_128_GCM_SHA256|TLS_AES_256_GCM_SHA384}
+----
+
+
+--
+====
+.詳細
+これらのコマンドについては、ONTAPのマニュアルページを参照してください。
+
+* https://docs.netapp.com/us-en/ontap-cli/vserver-nvme-subsystem-host-add.html["Vserver nvmeサブシステムhost add"^]
+* https://docs.netapp.com/us-en/ontap-cli/vserver-nvme-subsystem-host-show.html["vserver nvme subsystem host show」コマンドを使用します"^]
+* https://docs.netapp.com/us-en/ontap-cli/vserver-nvme-subsystem-controller-show.html["vserver nvme subsystem controller show」というコマンドを使用します"^]
+

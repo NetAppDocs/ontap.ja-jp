@@ -1,0 +1,39 @@
+---
+permalink: revert/task-disable-tls-nvme-host.html 
+sidebar: sidebar 
+keywords: ontap, revert, reversion, reverting, tls, nvme, host, controller, subsystem, tls secure channel 
+summary: NVMeホストでTLSをサポートしない以前のバージョンのONTAPにリバートする前に、NVMeホストでTLSを無効にする必要があります。 
+---
+= リバート前にNVMeホストでTLSセキュアチャネルを無効にする
+:allow-uri-read: 
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+ONTAP 9 .16.1以降では、NVMe/TCP接続用にTLSセキュアチャネルを設定できます。NVMe/TCP接続用のTLSセキュアチャネルをONTAP 9 16.1以降のリリースで設定している場合は、ONTAPをNVMe/TCP用のTLSセキュアチャネルをサポートしないバージョンにリバートする前に、NVMeホストでTLS設定を無効にする必要があります。
+
+.手順
+. ホストからTLSセキュアチャネル設定を削除します。
++
+[source, cli]
+----
+vserver nvme subsystem host unconfigure-tls-for-revert -vserver <svm_name> -subsystem <subsystem> -host-nqn <host_nqn>
+----
++
+このコマンドはサブシステムからホストを削除し、TLS設定を使用せずにサブシステムにホストを再作成します。
+
+. TLSセキュアチャネルがホストから削除されたことを確認します。
++
+[source, cli]
+----
+vserver nvme subsystem host show
+----
+
+
+.詳細
+これらのコマンドについては、ONTAPのマニュアルページを参照してください。
+
+* https://docs.netapp.com/us-en/ontap-cli/vserver-nvme-subsystem-host-unconfigure-tls-for-revert.html["vserver nvme subsystem host unconfigure-tls-for-revert"^]
+* https://docs.netapp.com/us-en/ontap-cli/vserver-nvme-subsystem-host-show.html["vserver nvme subsystem host show」コマンドを使用します"^]
+

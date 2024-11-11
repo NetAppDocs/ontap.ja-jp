@@ -1,0 +1,66 @@
+---
+sidebar: sidebar 
+permalink: authentication-access-control/disable-webauthn-mfa-task.html 
+keywords: mfa, multi-factor, authentication, authorization, webauthn, FIDO2, hardware key, disable, system manager 
+summary: System Managerユーザに対してWebAuthn MFAを有効にしている場合は、いつでも無効にすることができます。 
+---
+= ONTAP System ManagerユーザのWebAuthn MFAを無効にする
+:hardbreaks:
+:allow-uri-read: 
+:nofooter: 
+:icons: font
+:linkattrs: 
+:imagesdir: ./media/
+
+
+[role="lead"]
+ONTAP管理者は、System ManagerまたはONTAP CLIでユーザまたはグループを編集することで、ユーザまたはグループのWebAuthn MFAを無効にできます。
+
+
+
+== 既存のユーザまたはグループに対してWebAuthn MFAを無効にする
+
+既存のユーザまたはグループのWebAuthn MFAはいつでも無効にできます。
+
+
+NOTE: 登録済みクレデンシャルを無効にしても、クレデンシャルは保持されます。今後クレデンシャルを再度有効にすると、同じクレデンシャルが使用されるため、ユーザがログイン時に再登録する必要はありません。
+
+[role="tabbed-block"]
+====
+.System Manager
+--
+. [* Cluster]>[Settings]（設定）*を選択します。
+. [ユーザとロール]*の横にある矢印アイコンを選択します。
+. ユーザとグループのリストで、編集するユーザまたはグループを選択します。
+. そのユーザの* MFA for HTTP *列で* Disabled *を選択します。
+. [ 保存（ Save ） ] を選択します。
+
+
+--
+.CLI
+--
+. 既存のユーザまたはグループを変更して、そのユーザまたはグループのWebAuthn MFAを無効にします。
++
+次の例では、2番目の認証方式として「none」を選択してWebAuthn MFAを無効にしています。
+
++
+[source, console]
+----
+security login modify -user-or-group-name <user_or_group_name> \
+                     -authentication-method domain \
+                     -second-authentication-method none \
+                     -application http \
+                     -role admin
+----
+
+
+--
+====
+
+
+== 詳細
+
+このコマンドについては、ONTAPのマニュアルページを参照してください。
+
+* https://docs.netapp.com/us-en/ontap-cli/security-login-modify.html["security login modify"^]
+

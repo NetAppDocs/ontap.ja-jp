@@ -1,0 +1,73 @@
+---
+sidebar: sidebar 
+permalink: anti-ransomware/switch-learning-to-active-mode.html 
+keywords: ransomware, arp, mode, switch, active, learning, autonomous ransomware protection 
+summary: Autonomous Ransomware Protection（ARP）9.15.1以前では、ARP対応ボリュームをラーニングモードからアクティブモードに手動または自動で切り替えます。 
+---
+= 学習期間後にARPアクティブモードに切り替える
+:allow-uri-read: 
+
+
+[role="lead"]
+Autonomous Ransomware Protection（ARP）9.15.1以前またはARPがFlexGroupボリュームで実行されている場合は、ARP対応ボリュームをラーニングモードからアクティブモードに手動または自動で切り替えます。ARPが推奨される最低30日間のラーニングモードの実行を完了したら、手動でアクティブモードに切り替えることができます。ONTAP 9 .13.1以降では、ARPによって最適な学習期間間隔が自動的に決定され、30日前にスイッチが自動化されます。
+
+ONTAP 9 .16.1以降が搭載されたFlexVolボリュームでARPを使用している場合、ARP / AI機能はラーニング期間を必要とせず、デフォルトでアクティブモードが選択されます。
+
+
+NOTE: 既存のボリュームでは、ラーニングモードとアクティブモードは新しく書き込まれたデータにのみ適用され、ボリューム内の既存のデータには適用されません。ARPを有効にしたボリュームでは、以前の通常のデータトラフィックの特性が新しいデータに基づいて想定されるため、既存のデータはスキャンおよび分析されません。
+
+
+
+== 学習期間後に手動でアクティブモードに切り替える
+
+FlexGroupボリュームを含むONTAP 9 .10.1~9.15.1およびARPの場合、System ManagerまたはONTAP CLIを使用して、ARPラーニングモードからアクティブモードに手動で移行することができます。
+
+[role="tabbed-block"]
+====
+.System Manager
+--
+.手順
+. [ストレージ]>[ボリューム]*を選択し、アクティブモードにする準備ができたボリュームを選択します。
+. [Volumes]概要の*[Security]*タブで、[Anti-ransomware]ボックスで*[Switch to active mode]*を選択します。
+. ボリュームのARP状態は、* Anti-ransomware *ボックスで確認できます。
+
+
+--
+.CLI
+--
+.手順
+. 学習期間が終了したら、保護されているボリュームを変更してアクティブ モードに切り替えます（自動的に切り替えられていない場合）。
++
+`security anti-ransomware volume enable -volume <vol_name> -vserver <svm_name>`
+
++
+modify volumeコマンドを使用して、アクティブ モードに切り替えることもできます。
+
++
+`volume modify -volume <vol_name> -vserver <svm_name> -anti-ransomware-state active`
+
+. ボリュームのARPの状態を確認します。
++
+`security anti-ransomware volume show`
+
+
+
+--
+====
+
+
+== 学習モードからアクティブモードへの自動切り替え
+
+ONTAP 9 13.1以降、アダプティブラーニングがARP分析に追加され、ラーニングモードからアクティブモードへの切り替えが自動的に行われます。ARPによるラーニングモードからアクティブモードへの自動切り替えは、次のオプションの設定に基づいて決定されます。
+
+[listing]
+----
+ -anti-ransomware-auto-switch-minimum-incoming-data-percent
+ -anti-ransomware-auto-switch-duration-without-new-file-extension
+ -anti-ransomware-auto-switch-minimum-learning-period
+ -anti-ransomware-auto-switch-minimum-file-count
+ -anti-ransomware-auto-switch-minimum-file-extension
+----
+30日間の学習後、これらの条件の1つまたは複数が満たされていない場合でも、ボリュームは自動的にアクティブモードに切り替わります。つまり、自動切り替えが有効な場合、ボリュームは最大30日後にアクティブモードに切り替わります。最大値の30日は固定であり、変更できません。
+
+デフォルト値を含むARP設定オプションの詳細については、を参照してくださいlink:https://docs.netapp.com/us-en/ontap-cli/security-anti-ransomware-volume-auto-switch-to-enable-mode-show.html["ONTAPコマンド リファレンス"^]。

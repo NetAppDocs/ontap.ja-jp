@@ -1,8 +1,8 @@
 ---
 permalink: update/enable-automatic-updates-task.html 
 sidebar: sidebar 
-keywords: ontap, enable, upgrade, update, automatic, automated, firmware, bmc, sp, system, timezone database, timezone 
-summary: 自動更新を有効にすると、ONTAPは手動操作なしでファームウェアとタイムゾーンデータベースの更新をダウンロードしてインストールできます。 
+keywords: ontap, enable, upgrade, update, automatic, automated, firmware, ransomware, bmc, sp, system, timezone database, timezone 
+summary: 自動更新を有効にすると、ONTAPは手動操作なしでファームウェア、システム、およびセキュリティ更新プログラムをダウンロードしてインストールできます。 
 ---
 = 自動更新を有効にする
 :allow-uri-read: 
@@ -11,22 +11,76 @@ summary: 自動更新を有効にすると、ONTAPは手動操作なしでファ
 
 
 [role="lead"]
-ONTAP 9 .10.1以降では、自動更新を有効にして、ONTAPが手動操作なしでファームウェア更新をダウンロードおよびインストールできるようにすることができます。
+自動更新を有効にすると、ONTAPは手動操作なしでファームウェア、システム、およびセキュリティ更新プログラムをダウンロードしてインストールできます。
 
-ONTAP 9 .13.1以降、これらの自動更新にはタイムゾーンデータベースの自動更新も含まれています。
+自動更新を利用できるかどうかは、ONTAPのバージョンによって異なります。
 
+[cols="25,50,25"]
+|===
+| ONTAPバージョン | 利用可能な自動更新 | デフォルトで有効になっているのは… 
+
+
+| 9.16.1以降  a| 
+* 人工知能（ARP / AI）による自律型ランサムウェア対策
+* ONTAPタイムゾーンデータベース
+* ストレージデバイス、ディスク、およびディスクシェルフのストレージファームウェア
+* サービスプロセッサおよびBMCモジュール用のSP / BMCファームウェア
+
+| 通知を表示 
+
+
+| 9.13.1以降  a| 
+* ONTAPタイムゾーンデータベース
+* ストレージデバイス、ディスク、およびディスクシェルフのストレージファームウェア
+* サービスプロセッサおよびBMCモジュール用のSP / BMCファームウェア
+
+| 自動更新 
+
+
+| 9.10.1以降  a| 
+* ストレージデバイス、ディスク、およびディスクシェルフのストレージファームウェア
+* サービスプロセッサおよびBMCモジュール用のSP / BMCファームウェア
+
+| 自動更新 
+|===
 .開始する前に
-最新のサポート契約が必要です。これは、*[システムの詳細]*ページで確認できますlink:https://mysupport.netapp.com/site/["NetApp Support Site"^]。
+* 最新のサポート契約が必要です。これは、*[システムの詳細]*ページで確認できますlink:https://mysupport.netapp.com/site/["NetApp Support Site"^]。
+* 自動更新を有効にするには、最初にHTTPSでAutoSupportを有効にする必要があります。クラスタでAutoSupportが有効になっていない場合や、別の転送プロトコルを使用してクラスタでAutoSupportを有効にしている場合は、この手順の実行中にHTTPSで有効にするオプションが表示されます。
+
+
+
+NOTE: AutoSupport OnDemandはデフォルトで有効になり、HTTPS転送プロトコルを使用してテクニカルサポートにメッセージを送信するように設定すると機能します。
 
 .タスクの内容
-自動更新を有効にするには、最初にHTTPSでAutoSupportを有効にする必要があります。クラスタでAutoSupportが有効になっていない場合や、別の転送プロトコルを使用してクラスタでAutoSupportを有効にしている場合は、この手順の実行中にHTTPSで有効にするオプションが表示されます。
+ONTAPのバージョンに応じて、ファームウェア、システム、またはセキュリティファイルの*自動更新を有効にする*ページのデフォルト設定は、自動的に更新するか、通知を表示するように設定されます。バージョン固有の適切な手順を実行する前に、これらの設定が環境に適していることを確認してください。
 
 .手順
-. System Manager で、 * Events （イベント） * をクリックします。
-. [概要]*セクションの*[自動更新を有効にする]*の横にある*[操作]>[有効にする]*をクリックします。
-. AutoSupportでHTTPSが有効になっていない場合は、を選択して有効にします。
+[role="tabbed-block"]
+====
+.ONTAP 9.16.1以降
+--
+. System Managerで、*[クラスタ]>[設定]*に移動します。
+. HTTPSでAutoSupport OnDemandを有効にしていない場合は、をクリックしimage:icon_kabob.gif["メニューオプションアイコン"]て、必要な設定を有効にして続行します。
+. [ソフトウェアの更新]*セクションで、*[有効化]*をクリックします。
+. 更新タイプごとに実行するアクションを指定します。
++
+各更新タイプの更新を自動的に更新するか、通知を表示するか、または更新を自動的に却下するかを選択できます。
+
 . 利用条件に同意し、*[保存]*を選択します。
 
 
+--
+.ONTAP 9.15.1以前
+--
+. System Manager で、 * Events （イベント） * をクリックします。
+. [概要]*セクションの*[自動更新を有効にする]*の横にある*[操作]>[有効にする]*をクリックします。
+. AutoSupportでHTTPSが有効になっていない場合は、有効にする場合に選択します。
+. 利用条件に同意し、*[保存]*を選択します。
+
+
+--
+====
 .関連情報
-link:../system-admin/troubleshoot-autosupport-http-https-task.html["HTTPまたはHTTPS経由のAutoSupportメッセージ配信のトラブルシューティング"]
+* link:../system-admin/requirements-autosupport-reference.html["AutoSupportを使用する準備"]
+* link:../system-admin/troubleshoot-autosupport-http-https-task.html["HTTPまたはHTTPS経由のAutoSupportメッセージ配信のトラブルシューティング"]
+

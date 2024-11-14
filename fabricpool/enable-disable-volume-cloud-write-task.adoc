@@ -13,7 +13,7 @@ summary: ONTAP 9.14.1以降では、FabricPoolの新規または既存のボリ�
 [role="lead"]
 ONTAP 9 14.1以降では、FabricPoolの新規または既存のボリュームに対してクラウドへの直接書き込みを有効または無効にすることで、NFSクライアントが階層化スキャンを待たずにクラウドに直接データを書き込むことができます。SMBクライアントは、クラウドの書き込みが有効なボリュームの高パフォーマンス階層に引き続き書き込みます。cloud-writeモードはデフォルトで無効になっています。
 
-クラウドに直接書き込む機能は、ローカル階層でクラスタでサポートできない大量のデータがクラスタに転送されるなど、移行のような場合に役立ちます。cloud-writeモードを使用しない場合は、移行中に少量のデータが転送されてから階層化され、移行が完了するまで再び転送されて階層化されます。cloud-writeモードを使用すると、データがローカル階層に転送されないため、この種の管理は不要になります。
+クラウドに直接書き込む機能は、ローカル階層でクラスタでサポートできない大量のデータがクラスタに転送されるなど、移行のような場合に役立ちます。クラウド書き込みモードを使用しない場合は、移行中に少量のデータが転送されてから階層化され、移行が完了するまで再び転送されて階層化されます。クラウド書き込みモードを使用すると、データがローカル階層に転送されないため、この種の管理は不要になります。
 
 .開始する前に
 * クラスタ管理者またはSVM管理者である必要があります。
@@ -33,11 +33,11 @@ ONTAP 9 14.1以降では、FabricPoolの新規または既存のボリューム�
 ----
 set -privilege advanced
 ----
-. ボリュームを作成し、cloud-writeモードを有効にします。
+. ボリュームを作成し、クラウド書き込みモードを有効にします。
 +
 [source, cli]
 ----
-volume create -volume <volume name> -is-cloud-write-enabled <true|false> -aggregate <local tier name>
+volume create -vserver <svm name> -volume <volume name> -is-cloud-write-enabled <true|false> -aggregate <local tier name>
 ----
 +
 次の例は、FabricPoolローカル階層（aggr1）に、クラウド書き込みを有効にしてvol1という名前のボリュームを作成します。
@@ -45,7 +45,7 @@ volume create -volume <volume name> -is-cloud-write-enabled <true|false> -aggreg
 +
 [listing]
 ----
-volume create -volume vol1 -is-cloud-write-enabled true -aggregate aggr1
+volume create -vserver vs1 -volume vol1 -is-cloud-write-enabled true -aggregate aggr1
 ----
 
 
@@ -60,19 +60,19 @@ volume create -volume vol1 -is-cloud-write-enabled true -aggregate aggr1
 ----
 set -privilege advanced
 ----
-. ボリュームを変更してcloud-writeモードを有効にします。
+. ボリュームを変更してクラウド書き込みモードを有効にします。
 +
 [source, cli]
 ----
-volume modify -volume <volume name> -is-cloud-write-enabled <true|false> -aggregate <local tier name>
+volume modify -vserver <svm name> -volume <volume name> -is-cloud-write-enabled true
 ----
 +
-次の例は、FabricPoolローカル階層（aggr1）でクラウド書き込みを有効にしたvol1という名前のボリュームを変更します。
+次の例は、vol1という名前のボリュームを変更して、クラウドへの書き込みを有効にします。
 
 +
 [listing]
 ----
-volume modify -volume vol1 -is-cloud-write-enabled true -aggregate aggr1
+volume modify -vserver vs1 -volume vol1 -is-cloud-write-enabled true
 ----
 
 
@@ -87,18 +87,18 @@ volume modify -volume vol1 -is-cloud-write-enabled true -aggregate aggr1
 ----
 set -privilege advanced
 ----
-. cloud-writeモードを無効にします。
+. ボリュームでクラウド書き込みモードを無効にします。
 +
 [source, cli]
 ----
-volume modify -volume <volume name> -is-cloud-write-enabled <true|false> -aggregate <aggregate name>
+volume modify -vserver <svm name> -volume <volume name> -is-cloud-write-enabled false
 ----
 +
-次の例は、vol1という名前のボリュームを作成し、クラウド書き込みを有効にします。
+次の例は、vol1という名前のボリュームでクラウド書き込みモードを無効にします。
 
 +
 [listing]
 ----
-volume modify -volume vol1 -is-cloud-write-enabled false -aggregate aggr1
+volume modify -vserver vs1 -volume vol1 -is-cloud-write-enabled false
 ----
 

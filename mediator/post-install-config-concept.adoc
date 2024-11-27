@@ -21,9 +21,9 @@ ONTAP Mediatorサービスをインストールして実行したら、Mediator�
 
 == ONTAPメディエーターのセキュリティポリシーの設定
 
-ONTAPメディエーターサーバでは、いくつかの設定可能なセキュリティ設定がサポートされます。すべての設定のデフォルト値は、low_space_threshold_mib：10読み取り専用ファイルで提供されます。
+ONTAPメディエーターサーバでは、いくつかの設定可能なセキュリティ設定がサポートされます。すべての設定のデフォルト値は、読み取り専用ファイルで提供され `low_space_threshold_mib: 10`ます。
 
-`/opt/netapp/lib/ontap_mediator/server_config/ontap_mediator.user_config.yaml`
+`/opt/netapp/lib/ontap_mediator/ontap_mediator/server_config/ontap_mediator.user_config.yaml`
 
 に設定した値はすべて `ontap_mediator.user_config.yaml`デフォルト値よりも優先され、ONTAPメディエーターのすべてのアップグレードで維持されます。
 
@@ -35,40 +35,93 @@ ONTAPメディエーターサーバでは、いくつかの設定可能なセキ
 
 == ONTAPメディエーターの属性を変更します。
 
-次の属性を設定できます。
+このセクションで説明するONTAPメディエーターの属性は、必要に応じて変更できます。
 
 
-NOTE: のその他のデフォルト値は `ontap_mediator.config.yaml`変更しないでください。
+NOTE: ONTAPメディエーターのアップグレード時には変更後の値が維持されないため、のその他のデフォルト値は `ontap_mediator.config.yaml`変更しないでください。
 
-* *デフォルトの自己署名証明書の代わりにサードパーティのSSL証明書をインストールするための設定*
-+
-....
-cert_path: '/opt/netapp/lib/ontap_mediator/ontap_mediator/server_config/ontap_mediator_server.crt'
-key_path: '/opt/netapp/lib/ontap_mediator/ontap_mediator/server_config/ontap_mediator_server.key'
-ca_cert_path: '/opt/netapp/lib/ontap_mediator/ontap_mediator/server_config/ca.crt'
-ca_key_path: '/opt/netapp/lib/ontap_mediator/ontap_mediator/server_config/ca.key'
-ca_serial_path: '/opt/netapp/lib/ontap_mediator/ontap_mediator/server_config/ca.srl'
-cert_valid_days: '1095'                   # Used to set the expiration on client certs to 3 years
-x509_passin_pwd: 'pass:ontap'             # passphrase for the signed client cert
-....
-* *ブルートフォースパスワード推測攻撃に対する保護を提供する設定*
-+
-この機能を有効にするには、およびの値を設定します `window_seconds`。 `retry_limit`
+ONTAPメディエーターの属性を変更するには、必要な変数をファイルにコピーして `ontap_mediator.user_config.yaml`デフォルトの設定を上書きします。
 
-+
+
+
+=== サードパーティのSSL証明書のインストール
+
+デフォルトの自己署名証明書をサードパーティのSSL証明書に置き換える必要がある場合は、次のファイルの特定の属性を変更します。
+
+* `/opt/netapp/lib/ontap_mediator/ontap_mediator/server_config/ontap_mediator.config.yaml`
+* `/opt/netapp/lib/ontap_mediator/uwsgi/ontap_mediator.ini`
+
+
+これらのファイル内の変数を使用して、ONTAPメディエーターサービスで使用される証明書ファイルが制御されます。
+
+次の表に示すデフォルトの変数は、ファイルに含まれて `/opt/netapp/lib/ontap_mediator/ontap_mediator/server_config/ontap_mediator.config.yaml`います。
+
+[cols="2*"]
+|===
+| 変数 | パス 
+
+
+| `cert_path` | `/opt/netapp/lib/ontap_mediator/ontap_mediator/server_config/ontap_mediator_server.crt` 
+
+
+| `key_path` | `/opt/netapp/lib/ontap_mediator/ontap_mediator/server_config/ontap_mediator_server.key` 
+
+
+| `ca_cert_path` | `/opt/netapp/lib/ontap_mediator/ontap_mediator/server_config/ca.crt` 
+
+
+| `ca_key_path` | `/opt/netapp/lib/ontap_mediator/ontap_mediator/server_config/ca.key` 
+
+
+| `ca_serial_path` | `/opt/netapp/lib/ontap_mediator/ontap_mediator/server_config/ca.srl` 
+
+
+| `cert_valid_days` | `1095` 
+
+
+| `x509_passin_pwd` | `pass:ontap` 
+|===
+* `cert_valid_days`は、クライアント証明書の有効期限を設定するために使用されます。最大値は3年（1095日）です。
+* `x509_passin_pwd`は、署名済みクライアント証明書のパスフレーズです。
+
+
+次の表に示すデフォルトの変数は、ファイルに含まれて `/opt/netapp/lib/ontap_mediator/uwsgi/ontap_mediator.ini`います。
+
+[cols="2*"]
+|===
+| 変数 | パス 
+
+
+| `mediator_cert` | `/opt/netapp/lib/ontap_mediator/ontap_mediator/server_config/ontap_mediator_server.crt` 
+
+
+| `mediator_key` | `/opt/netapp/lib/ontap_mediator/ontap_mediator/server_config/ontap_mediator_server.key` 
+
+
+| `ca_cert_path` | `/opt/netapp/lib/ontap_mediator/ontap_mediator/server_config/ca.crt` 
+|===
+これらの属性を変更する場合は、ONTAPメディエーターサービスを再起動して変更を適用します。デフォルトの証明書をサードパーティの証明書に置き換える方法の詳細については、を参照してくださいlink:../mediator/manage-task.html#replace-self-signed-certificates-with-trusted-third-party-certificates["自己署名証明書を信頼できるサードパーティの証明書に置き換える"]。
+
+
+
+=== パスワード攻撃からの保護
+
+次の設定は、ブルートフォースパスワード推測攻撃に対する保護を提供します。
+
+この機能を有効にするには、およびの `retry_limit`値を設定し `window_seconds`ます。
+
 例：
 
-+
 --
-** 5分間の猶予期間を設けて推測し、失敗回数をゼロにリセットします。
+* 5分間の猶予期間を設けて推測し、失敗回数をゼロにリセットします。
 +
 `authentication_lock_window_seconds: 300`
 
-** 期間内に5つの障害が発生した場合は、アカウントをロックします。
+* 期間内に5つの障害が発生した場合は、アカウントをロックします。
 +
 `authentication_retry_limit: 5`
 
-** 各試行を拒否する前に発生する遅延を設定することで、ブルートフォースパスワード推測攻撃の影響を軽減し、攻撃の速度を低下させます。
+* 各試行を拒否する前に発生する遅延を設定することで、ブルートフォースパスワード推測攻撃の影響を軽減し、攻撃の速度を低下させます。
 +
 `authentication_failure_delay_seconds: 5`
 
@@ -81,8 +134,12 @@ authentication_retry_limit: null          # number of retries to allow before lo
 
 
 --
-* * ONTAP メディエーターAPIユーザーアカウントのパスワードの複雑さのルールを制御するフィールド*
-+
+
+
+=== パスワードの複雑さに関するルール
+
+次のフィールドは、ONTAPメディエーターAPIユーザアカウントのパスワードの複雑さのルールを制御します。
+
 ....
 password_min_length: 8
 
@@ -96,45 +153,44 @@ password_special_chars: 1      # min. non-letter, non-digit
 
 password_nonletter_chars: 2    # min. non-letter characters (digits, specials, anything)
 ....
-* *ディスク上の必要な空き容量を制御する設定 `/opt/netapp/lib/ontap_mediator`。*
-+
+
+
+=== 空きスペースの制御
+
+ディスク上の必要な空き容量を制御する設定があり `/opt/netapp/lib/ontap_mediator`ます。
+
 スペースが設定されたしきい値を下回ると、サービスは警告イベントを発行します。
 
-+
 ....
 low_space_threshold_mib: 10
 ....
-* * RESERVE_LOG_SPACEを制御する設定。*
-+
-ONTAPメディエーターサーバのデフォルトのインストールでは、ログ用に独立したディスクスペースが作成されます。Mediatorのロギングに明示的に使用される、合計700MBのディスクスペースを含む新しい固定サイズのファイルがインストーラによって作成されます。
 
-+
+
+=== リザーブログスペースの制御
+
+reserve_log_spaceは、特定の設定によって制御されます。デフォルトでは、ONTAPメディエーターサーバをインストールすると、ログ用に独立したディスクスペースが作成されます。Mediatorのログに明示的に使用される、合計700MBのディスクスペースを含む新しい固定サイズのファイルがインストーラによって作成されます。
+
 この機能を無効にしてデフォルトのディスク容量を使用するには、次の手順に従います。
 
-+
 --
-.. 次のファイルでRESERVE_LOG_SPACEの値を「1」から「0」に変更します。
+. 次のファイルで、reserve_log_spaceの値を1から0に変更します。
 +
 `/opt/netapp/lib/ontap_mediator/tools/mediator_env`
 
-.. Mediatorを再起動します。
+. Mediatorを再起動します。
 +
-... `cat /opt/netapp/lib/ontap_mediator/tools/mediator_env | grep "RESERVE_LOG_SPACE"`
+.. `cat /opt/netapp/lib/ontap_mediator/tools/mediator_env | grep "RESERVE_LOG_SPACE"`
 +
 ....
 RESERVE_LOG_SPACE=0
 ....
-... `systemctl restart ontap_mediator`
+.. `systemctl restart ontap_mediator`
 
 
 
 
 --
-+
-この機能を再度有効にするには、値を「0」から「1」に変更してMediatorを再起動します。
+この機能を再度有効にするには、値を0から1に変更してMediatorを再起動します。
 
-+
 
 NOTE: ディスクスペースを切り替えても、既存のログは消去されません。以前のログはすべてバックアップされ、Mediatorの切り替えと再起動のあとに現在のディスクスペースに移動されます。
-
-

@@ -4,18 +4,24 @@ sidebar: sidebar
 keywords: ontap, revert, reverting, reversion, downgrade, downgrading, enable, enabling, lifs, home, ports 
 summary: リブート時に、割り当てられているフェイルオーバーポートに一部のLIFが移行されることがあります。クラスタをリバートしたあと、ホームポートにないLIFを有効にしてリバートする必要があります。 
 ---
-= リバート後にLIFを有効にしてホームポートにリバートする
+= ONTAPのリバート後にLIFを有効にしてホームポートにリバートする
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-リブート時に、割り当てられているフェイルオーバーポートに一部のLIFが移行されることがあります。クラスタをリバートしたあと、ホームポートにないLIFを有効にしてリバートする必要があります。
+リブート時に、割り当てられているフェイルオーバーポートに一部のLIFが移行されることがあります。ONTAPクラスタをリバートしたあと、ホームポートにないLIFを有効にしてリバートする必要があります。
 
 network interface revertコマンドを実行すると、ホームポートにないLIFがホームポートにリバートされます（ホームポートが稼働している場合）。LIFのホームポートはLIFの作成時に指定します。指定されているホームポートは、network interface showコマンドを使用して確認できます。
 
-. すべてのLIFのステータスを表示します。 `network interface show`
+.手順
+. すべてのLIFのステータスを表示します。
++
+[source, cli]
+----
+network interface show
+----
 +
 Storage Virtual Machine（SVM）のすべてのLIFのステータスを表示する例を次に示します。
 
@@ -40,24 +46,24 @@ vs0
 +
 Status AdminステータスがdownになっているLIFやIs homeステータスがfalseになっているLIFがある場合は、次の手順に進みます。
 
-. データLIFを有効にします。 `network interface modify {-role data} -status-admin up`
+. データLIFを有効にします。
 +
-[listing]
+[source, cli]
 ----
-cluster1::> network interface modify {-role data} -status-admin up
-8 entries were modified.
+network interface modify {-role data} -status-admin up
 ----
-. LIFをそれぞれのホームポートにリバートします。 `network interface revert *`
+. LIFをそれぞれのホームポートにリバートします。
 +
-このコマンドを実行すると、すべてのLIFがそれぞれのホームポートにリバートされます。
-
+[source, cli]
+----
+network interface revert *
+----
+. すべてのLIFがそれぞれのホームポートにあることを確認します。
 +
-[listing]
+[source, cli]
 ----
-cluster1::> network interface revert *
-8 entries were acted on.
+network interface show
 ----
-. すべてのLIFがそれぞれのホームポートにあることを確認します。 `network interface show`
 +
 次の例では、SVM vs0のすべてのLIFがそれぞれのホームポートにあります。
 

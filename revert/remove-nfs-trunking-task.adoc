@@ -4,22 +4,30 @@ sidebar: sidebar
 keywords: nfsv4.1, trunking, revert 
 summary: クライアント接続のトランキングを有効にしていて、ONTAP 9 12.1より前のリリースにリバートする場合は、リバート前にすべてのNFSv4.1サーバでトランキングを無効にする必要があります。 
 ---
-= ONTAP 9からリバートする前にNFSv4.1セッショントランキング設定を削除します。14.1以降
+= ONTAP 9.14.1からリバートする前にNFSv4.1セッショントランキングを無効にする
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-クライアント接続のトランキングを有効にしていて、ONTAP 9 14.1より前のリリースにリバートする場合は、リバート前にすべてのNFSv4.1サーバでトランキングを無効にする必要があります。
+クライアント接続のトランキングを有効にしている場合は、ONTAP 9.14.1からリバートする前に、NFSv4.1サーバでトランキングを無効にする必要があります。
 
 コマンドを入力すると、 `revert-to`続行する前にトランキングを無効にするように求める警告メッセージが表示されます。
 
-以前のONTAPリリースにリバートすると、トランク接続を使用するクライアントは単一の接続にフォールバックされます。データのスループットには影響しますが、システム停止は発生しません。リバートの動作は、SVMのNFSv4.1トランキングオプションをenabledからdisabledに変更した場合と同じです。
+ONTAP 9.13.1にリバートすると、トランク接続を使用するクライアントは、単一の接続を使用するようにフォールバックされます。データのスループットには影響しますが、システム停止は発生しません。リバートの動作は、SVMのNFSv4.1トランキングオプションをenabledからdisabledに変更した場合と同じです。
 
 .手順
-. NFSv4.1サーバでトランキングを無効にします。+
-`vserver nfs modify -vserver _svm_name_ -v4.1-trunking disabled`
-. NFSが必要に応じて設定されていることを確認します。+
-`vserver nfs show -vserver _svm_name_`
+. NFSv4.1サーバでトランキングを無効にします。
++
+[source, cli]
+----
+vserver nfs modify -vserver _svm_name_ -v4.1-trunking disabled
+----
+. NFSが必要に応じて設定されていることを確認します。
++
+[source, cli]
+----
+vserver nfs show -vserver _svm_name_
+----
 

@@ -4,78 +4,52 @@ sidebar: sidebar
 keywords: ontap, revert, reverting, revision, plan, planning, pre-checks 
 summary: 環境によっては、リバートを開始する前に特定の要因について考慮する必要があります。 
 ---
-= リバート前のチェック
+= 使用しているONTAPのバージョンに応じたリバート前のタスク
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-環境によっては、リバート前に考慮が必要な項目がいくつかあります。次の表で、特に考慮が必要な項目を確認してください。
+ONTAPのバージョンによっては、リバートプロセスを開始する前に追加の準備作業が必要になる場合があります。
 
 [cols="2*"]
 |===
-| 確認する項目 | 回答が * はい * の場合、次の操作を実行します ... 
+| リバート元 | リバートプロセスを開始する前に実行する処理 
 
 
-| クラスタでSnapMirrorが実行されているか。  a| 
-* link:concept_consideration_for_reverting_systems_with_snapmirror_synchronous_relationships.html["SnapMirror同期関係が設定されたシステムをリバートする際の考慮事項の確認"]
-* link:concept_reversion_requirements_for_snapmirror_and_snapvault_relationships.html["SnapMirror関係とSnapVault関係のリバート要件の確認"]
+| ONTAP 9の任意のバージョン  a| 
+* link:terminate-smb-sessions.html["継続的可用性を備えていないSMBセッションを終了する"]です。
+* link:concept_reversion_requirements_for_snapmirror_and_snapvault_relationships.html["SnapMirror関係とSnapVault関係のリバート要件の確認"]です。
+* link:task_reverting_systems_with_deduplicated_volumes.html["重複排除ボリュームに十分な空きスペースがあることを確認する"]です。
+* link:task_preparing_snapshot_copies_before_reverting.html["スナップショットの準備"]です。
+* link:task_setting_autocommit_periods_for_snaplock_volumes_before_reverting.html["SnapLockボリュームの自動コミット期間を時間に設定する"]です。
+* MetroCluster構成の場合は、をlink:task_disable_asuo.html["自動計画外スイッチオーバーを無効にする"]参照してください。
 
 
 
 
-| クラスタでSnapLockが実行されているか。 | link:task_setting_autocommit_periods_for_snaplock_volumes_before_reverting.html["自動コミット期間の設定"] 
+| ONTAP 9 .16.1  a| 
+* NVMe / TCP接続用にTLSが設定されている場合は、をlink:task-disable-tls-nvme-host.html["NVMeホストでTLS設定を無効にする"]参照してください。
+* qtreeの拡張パフォーマンス監視を有効にしている場合は、をlink:disable-extended-qtree-performance-monitoring.html["無効にする"]参照してください。
+* CORSを使用してONTAP s3バケットにアクセスする場合は、をlink:remove-cors-configuration.html["CORS設定の削除"]参照してください。
 
 
-| FlexCloneボリュームをスプリットしていますか。 | link:task_reverting_the_physical_block_sharing_in_split_flexclone_volumes.html["リバース物理ブロック共有"] 
 
 
-| FlexGroupボリュームはありますか。 | link:task_disabling_qtrees_in_flexgroup_volumes_before_reverting.html["qtree機能を無効にする"] 
+| ONTAP 9 .14.1 | クライアント接続のトランキングを有効にしている場合は、をlink:remove-nfs-trunking-task.html["NFSv4.1サーバでトランキングを無効にする"]参照してください。 
 
 
-| ワークグループモードのCIFSサーバがあるか。 | link:task_identifying_and_moving_cifs_servers_in_workgroup_mode.html["ワークグループモードのCIFSサーバの移動または削除"] 
+| ONTAP 9 12.1  a| 
+* NASデータ用のS3クライアントアクセスを設定済みの場合は、link:remove-nas-bucket-task.html["S3 NASバケット設定を削除します。"]
+* NVMeプロトコルを実行し、インバンド認証を設定している場合は、をlink:disable-in-band-authentication.html["インバンド認証を無効にする"]参照してください。
+* MetroCluster構成の場合は、をlink:task-disable-ipsec.html["IPSecを無効にする"]参照してください。
 
 
-| 重複排除機能が有効なボリュームがあるかどうか | link:task_reverting_systems_with_deduplicated_volumes.html["ボリュームに十分な空きスペースがあることを確認する"] 
 
 
-| Snapshotコピーがあるか | link:task_preparing_snapshot_copies_before_reverting.html["Snapshotコピーの準備"] 
+| ONTAP 9.11.1 | Autonomous Ransomware Protection（ARP；自律型ランサムウェア対策）を設定している場合は、link:anti-ransomware-license-task.html["ARPライセンスの確認"] 
 
 
-| ONTAP 8.3.xにリバートしますか。 | link:identify-user-sha2-hash-user-accounts.html["SHA-2ハッシュ関数を使用するユーザアカウントを特定する"] 
-
-
-| ランサムウェア対策はONTAP 9 .11.1以降に設定されていますか？ | link:anti-ransomware-license-task.html["ランサムウェア対策ライセンスを確認する"] 
-
-
-| ONTAP 9.12.1以降でS3マルチプロトコル アクセスは設定されているか | link:remove-nas-bucket-task.html["S3 NASバケット設定を削除する"] 
-
-
-| ONTAP 9.14.1以降でNFSv4.1セッション トランキングは設定されているか | link:remove-nfs-trunking-task.html["NFSv4.1セッション トランキングの設定を削除する"] 
-
-
-| ONTAP 9用のNVMeホストにTLSセキュアチャネルが設定されていますか。 | link:task-disable-tls-nvme-host.html["NVMeホスト設定からTLSを削除する"] 
-
-
-| qtree拡張パフォーマンス監視が使用されているか。 | link:../volumes/qtrees-partition-your-volumes-concept.html["qtreeとONTAP FlexVol volumeパーティショニング"] 
-
-
-| Cross-Origin Resource Sharing（CORS）が設定されているか。 | link:../s3-config/cors-integration.html["CORSとONTAPの統合"] 
-|===
-
-
-== MetroClusterのリバート前チェック
-
-MetroCluster構成によっては、リバート前に考慮が必要な項目がいくつかあります。次の表で、特に考慮が必要な項目を確認してください。
-
-[cols="2*"]
-|===
-| 確認する項目 | 回答が * はい * の場合、次の操作を実行します ... 
-
-
-| 2ノードまたは4ノードのMetroCluster構成を使用していますか。 | link:task_disable_asuo.html["自動計画外スイッチオーバーを無効にする"] 
-
-
-| 4ノードまたは8ノードのMetroCluster IPまたはファブリック接続構成でONTAP 9 12.1以降を実行していますか。 | link:task-disable-ipsec.html["IPSecを無効にする"] 
+| ONTAP 9.6 | SnapMirror同期関係がある場合は、link:concept_consideration_for_reverting_systems_with_snapmirror_synchronous_relationships.html["リバートのために関係を準備する"]。 
 |===

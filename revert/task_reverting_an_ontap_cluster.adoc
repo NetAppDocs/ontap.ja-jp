@@ -11,19 +11,39 @@ summary: クラスタをオフラインにして以前のONTAPリリースにリ
 
 
 [role="lead"]
-クラスタをオフラインにして以前のONTAPリリースにリバートするには、ストレージフェイルオーバーとデータLIFを無効にし、リバートの前提条件を満たしていることを確認してから、ノードのクラスタ設定とファイルシステム設定をリバートします。この処理をクラスタの他の各ノードに対して繰り返す必要があります。
+ONTAPクラスタをリバートするとシステムが停止します。リバート中はクラスタをオフラインにする必要があります。テクニカルサポートの支援なしで本番環境クラスタをリバートしないでください。
 
-リバートとを完了しておく必要がありますlink:task_things_to_verify_before_revert.html["検証"]link:concept_pre_revert_checks.html["事前チェック"]。
+新しいクラスタまたはテストクラスタをリバートするには、ストレージフェイルオーバーとデータLIFを無効にし、リバートの前提条件を指定してから、クラスタ内の各ノードでクラスタとファイルシステムの設定をリバートする必要があります。
 
-クラスタをリバートするには、クラスタをオフラインにした状態でリバートを行う必要があります。
+.始める前に。
+* の作業を完了しておく必要がありますlink:task_things_to_verify_before_revert.html["リバート前の検証"]。
+* 必要なの手順を完了しておく必要がありますlink:concept_pre_revert_checks.html["特定のONTAPバージョンの事前チェック"]。
 
-. 権限レベルをadvancedに設定します。 `set -privilege advanced`
+
+
+
+== 手順1：クラスタをリバート用に準備する
+
+クラスタノードをリバートする前に、ターゲットのONTAPイメージがインストールされていることを確認し、クラスタ内のすべてのデータLIFを無効にする必要があります。
+
+.手順
+. 権限レベルをadvancedに設定します。
++
+[source, cli]
+----
+set -privilege advanced
+----
 +
 続行するかどうかを尋ねられたら、「* y *」と入力します。
 
-. ターゲットのONTAPソフトウェアがインストールされていることを確認します。 `system image show`
+. ターゲットのONTAP ソフトウェアがインストールされていることを確認します。
 +
-次の例では、両方のノードに代替イメージとしてバージョン9.1がインストールされています。
+[source, cli]
+----
+system image show
+----
++
+次の例では、両方のノードに代替イメージとしてバージョン9.13.1がインストールされています。
 
 +
 [listing]
@@ -33,29 +53,71 @@ cluster1::*> system image show
 Node     Image   Default Current Version    Date
 -------- ------- ------- ------- --------   -------------------
 node0
-         image1  true    true    9.2        MM/DD/YYYY TIME
-         image2  false   false   9.1        MM/DD/YYYY TIME
+         image1  true    true    9.14.1      MM/DD/YYYY TIME
+         image2  false   false   9.13.1      MM/DD/YYYY TIME
 node1
-         image1  true    true    9.2        MM/DD/YYYY TIME
-         image2  false   false   9.1        MM/DD/YYYY TIME
+         image1  true    true    9.14.1      MM/DD/YYYY TIME
+         image2  false   false   9.13.1      MM/DD/YYYY TIME
 4 entries were displayed.
 ----
-. クラスタ内のすべてのデータLIFを無効にします。 `network interface modify {-role data} -status-admin down`
-. クラスタ間FlexCache関係があるかどうかを確認します。 `flexcache origin show-caches -relationship-type inter-cluster`
-. クラスタ間フラッシュが存在する場合は、キャッシュクラスタのデータLIFを無効にします。 `network interface modify -vserver vserver_name -lif lif_name -status-admin down`
-. クラスタが2つのノードだけで構成されている場合は、クラスタHAを無効にします。 `cluster ha modify -configured false`
-. [[step-5]] HAペアのノードのストレージフェイルオーバーをいずれかのノードから無効にします。 `storage failover modify -node nodename -enabled false`
+. クラスタ内のすべてのデータLIFを無効にします。
 +
-ストレージフェイルオーバーを無効にする必要があるのは、HAペアに対して1回だけです。ノードのストレージフェイルオーバーを無効にすると、ノードのパートナーでもストレージフェイルオーバーが無効になります。
+[source, cli]
+----
+network interface modify {-role data} -status-admin down
+----
+. クラスタ間FlexCache 関係があるかどうかを確認します。
++
+[source, cli]
+----
+flexcache origin show-caches -relationship-type inter-cluster
+----
+. クラスタ間フラッシュが存在する場合は、キャッシュクラスタのデータLIFを無効にします。
++
+[source, cli]
+----
+network interface modify -vserver <vserver_name> -lif <lif_name> -status-admin down
+----
 
-. [[step-6]]リバートするノードにログインします。
+
+
+
+== 手順2：クラスタノードをリバートする
+
+クラスタをリバートするには、HAペアの最初のノードをリバートしてから、パートナーノードをリバートする必要があります。その後、すべてのノードがリバートされるまで、クラスタ内のHAペアごとにこの手順を繰り返します。MetroCluster構成を使用している場合は、構成内の両方のクラスタで上記の手順を繰り返す必要があります。
+
+[role="tabbed-block"]
+====
+.4ノード以上
+--
+.手順
+. リバートするノードにログインします。
 +
 ノードをリバートするには、ノードのノード管理LIFを介してクラスタにログインする必要があります。
 
-. ノードのターゲットONTAPソフトウェアイメージをデフォルトのイメージとして設定します。 `system image modify -node nodename -image target_image -isdefault true`
-. ターゲットのONTAPソフトウェアイメージが、リバートするノードのデフォルトのイメージとして設定されたことを確認します。 `system image show`
+. HAペアのノードのストレージフェイルオーバーを無効にします。
 +
-次の例では、node0でデフォルトのイメージとしてバージョン9.1が設定されています。
+[source, cli]
+----
+storage failover modify -node <nodename> -enabled false
+----
++
+ストレージフェイルオーバーを無効にする必要があるのは、HAペアに対して1回だけです。ノードのストレージフェイルオーバーを無効にすると、ノードのパートナーでもストレージフェイルオーバーが無効になります。
+
+. ノードのターゲットONTAP ソフトウェアイメージをデフォルトのイメージとして設定します。
++
+[source, cli]
+----
+system image modify -node <nodename> -image <target_image> -isdefault true
+----
+. ターゲットのONTAP ソフトウェアイメージが、リバートするノードのデフォルトのイメージとして設定されたことを確認します。
++
+[source, cli]
+----
+system image show
+----
++
+次の例では、node0でデフォルトのイメージとしてバージョン9.13.1が設定されています。
 
 +
 [listing]
@@ -65,59 +127,56 @@ cluster1::*> system image show
 Node     Image   Default Current Version    Date
 -------- ------- ------- ------- --------   -------------------
 node0
-         image1  false   true    9.2        MM/DD/YYYY TIME
-         image2  true    false   9.1        MM/DD/YYYY TIME
+         image1  false   true    9.14.1      MM/DD/YYYY TIME
+         image2  true    false   9.13.1      MM/DD/YYYY TIME
 node1
-         image1  true    true    9.2        MM/DD/YYYY TIME
-         image2  false   false   9.1        MM/DD/YYYY TIME
+         image1  true    true    9.14.1      MM/DD/YYYY TIME
+         image2  false   false   9.13.1      MM/DD/YYYY TIME
 4 entries were displayed.
 ----
-. クラスタが2つのノードだけで構成されている場合は、ノードにイプシロンが設定されていないことを確認します。
+. ノードをリバートする準備が完了していることを確認します。
 +
-.. ノードにイプシロンが現在設定されているかどうかを確認します。 `cluster show -node nodename`
-+
-次の例は、ノードにイプシロンが設定されていることを示しています。
-
-+
-[listing]
+[source, cli]
 ----
-cluster1::*> cluster show -node node1
-
-          Node: node1
-          UUID: 026efc12-ac1a-11e0-80ed-0f7eba8fc313
-       Epsilon: true
-   Eligibility: true
-        Health: true
+system node revert-to -node <nodename> -check-only true -version 9.x
 ----
-.. ノードにイプシロンが設定されている場合は、イプシロンをパートナーに転送できるように、イプシロンをfalseに設定します。 `cluster modify -node nodenameA -epsilon false`
-.. パートナーノードでイプシロンをtrueに設定して、イプシロンをパートナーに転送します。 `cluster modify -node nodenameB -epsilon true`
-
-
-. ノードをリバートする準備が完了していることを確認します。 `system node revert-to -node nodename -check-only true -version 9.x`
 +
-check-onlyパラメータを指定すると、リバート前に対処する必要がある前提条件がすべて特定されます。次に例を示します。
+パラメータを `check-only`指定すると、リバート前に対処する必要がある前提条件（Snapshotポリシーの無効化、新しいバージョンのONTAPへのアップグレード後に作成されたSnapshotコピーの削除など）が特定されます。
 
+. ノードのクラスタ構成をリバートします。
 +
-** ストレージフェイルオーバーを無効にします
-** Snapshotポリシーの無効化
-** 新しいバージョンの ONTAP へのアップグレード後に作成された Snapshot コピーを削除する
-
-
-. すべての前提条件を満たしていることを確認します。 `system node revert-to -node nodename -check-only true -version 9.x`
-. ノードのクラスタ構成をリバートします。 `system node revert-to -node nodename -version 9.x`
+[source, cli]
+----
+system node revert-to -node <nodename> -version 9.x
+----
 +
-versionオプションは、ターゲットリリースを表します。たとえば、確認したインストール済みのソフトウェアがONTAP 9 .1の場合、-versionオプションの値は9.1になります。
+オプションは、 `-version`リバート先のONTAPリリースを指定します。たとえば、9.14.1から9.13.1にリバートする場合、オプションの正しい値 `-version`は9.13.1です。
 
 +
 クラスタ設定がリバートされ、クラスタシェルからログアウトされます。
 
-. もう一度クラスタシェルにログインし、ノードシェルに切り替えます。 `run -node nodename`
+. ログインプロンプトが表示されたら、システムシェルにログインするかどうかを確認するメッセージが表示されたら、「* No *」と入力します。
++
+ログインプロンプトが表示されるまで、30分以上かかることがあります。
+
+. adminでクラスタシェルにログインします。
+. ノードシェルに切り替えます。
++
+[source, cli]
+----
+run -node <nodename>
+----
 +
 クラスタシェルに再度ログインしたあと、ノードシェルコマンドを使用できるようになるまでに数分かかることがあります。そのため、コマンドが失敗した場合は、数分待ってからもう一度実行してください。
 
-. ノードのファイルシステム設定をリバートします。 `revert_to 9.x`
+. ノードのファイルシステム設定をリバートします。
 +
-このコマンドは、ノードのファイルシステム設定をリバートする準備が完了していることを確認してから、リバートします。前提条件が特定された場合は、それに対処してからrevert_toコマンドを再実行する必要があります。
+[source, cli]
+----
+revert_to 9.x
+----
++
+このコマンドは、ノードのファイルシステム設定をリバートする準備が完了していることを確認してから、リバートします。前提条件が特定された場合は、それらに対処してからコマンドを再実行する必要があります `revert_to`。
 
 +
 
@@ -129,7 +188,12 @@ autobootがtrueの場合、コマンドの完了時にノードがONTAPでリブ
 +
 autobootがfalseに設定されている場合は、コマンドの完了時にLoaderプロンプトが表示されます。と入力し `yes`てリバートし、を使用してノードを手動でリブートします。 `boot_ontap`
 
-. ノードがリブートしたら、新しいソフトウェアが実行されていることを確認します。 `system node image show`
+. ノードがリブートしたら、新しいソフトウェアが実行されていることを確認します。
++
+[source, cli]
+----
+system node image show
+----
 +
 次の例では、image1が新しいONTAPバージョンで、node0で現在のバージョンとして設定されています。
 
@@ -148,12 +212,215 @@ node1
          image2  false   true    Y.Y.Y      MM/DD/YYYY TIME
 4 entries were displayed.
 ----
-. [[step-16]]各ノードのリバートステータスがcompleteになっていることを確認します。 `system node upgrade-revert show -node nodename`
+. ノードのリバートステータスがcompleteであることを確認します。
++
+[source, cli]
+----
+system node upgrade-revert show -node <nodename>
+----
 +
 ステータスが「complete」、「not needed」、または「There are no table entries returned」のいずれかになっている必要があります。
 
-. HAペアのもう一方のノードで~を<<step-16>>繰り返します<<step-6>>。
-. クラスタが2つのノードだけで構成されている場合は、クラスタHAを再度有効にします。 `cluster ha modify -configured true`
-. [[step-19]]ストレージフェイルオーバーを無効にしていた場合は、両方のノードで再度有効にします。 `storage failover modify -node nodename -enabled true`
-. MetroCluster構成の残りの各HAペアおよび両方のクラスタに対して、～を<<step-19>>繰り返し<<step-5>>ます。
+. HAペアのもう一方のノードで上記の手順を繰り返してから、残りのHAペアについても同じ手順を繰り返します。
++
+MetroCluster構成を使用している場合は、構成内の両方のクラスタで上記の手順を繰り返す必要があります。
 
+. すべてのノードをリバートしたら、クラスタのハイアベイラビリティを再度有効にします。
++
+[source, cli]
+----
+cluster ha modify -configured true
+----
+
+
+--
+.2ノードクラスタ
+--
+. リバートするノードにログインします。
++
+ノードをリバートするには、ノードのノード管理LIFを介してクラスタにログインする必要があります。
+
+. クラスタのハイアベイラビリティ（HA）を無効にします。
++
+[source, cli]
+----
+cluster ha modify -configured false
+----
+. ストレージフェイルオーバーを無効にします。
++
+[source, cli]
+----
+storage failover modify -node <nodename> -enabled false
+----
++
+ストレージフェイルオーバーを無効にする必要があるのは、HAペアに対して1回だけです。ノードのストレージフェイルオーバーを無効にすると、ノードのパートナーでもストレージフェイルオーバーが無効になります。
+
+. ノードのターゲットONTAP ソフトウェアイメージをデフォルトのイメージとして設定します。
++
+[source, cli]
+----
+system image modify -node <nodename> -image <target_image> -isdefault true
+----
+. ターゲットのONTAP ソフトウェアイメージが、リバートするノードのデフォルトのイメージとして設定されたことを確認します。
++
+[source, cli]
+----
+system image show
+----
++
+次の例では、node0でデフォルトのイメージとしてバージョン9.1が設定されています。
+
++
+[listing]
+----
+cluster1::*> system image show
+                 Is      Is                 Install
+Node     Image   Default Current Version    Date
+-------- ------- ------- ------- --------   -------------------
+node0
+         image1  false   true    9.2        MM/DD/YYYY TIME
+         image2  true    false   9.1        MM/DD/YYYY TIME
+node1
+         image1  true    true    9.2        MM/DD/YYYY TIME
+         image2  false   false   9.1        MM/DD/YYYY TIME
+4 entries were displayed.
+----
+. ノードにイプシロンが現在設定されているかどうかを確認します。
++
+[source, cli]
+----
+cluster show -node <nodename>
+----
++
+次の例は、ノードにイプシロンが設定されていることを示しています。
+
++
+[listing]
+----
+cluster1::*> cluster show -node node1
+
+          Node: node1
+          UUID: 026efc12-ac1a-11e0-80ed-0f7eba8fc313
+       Epsilon: true
+   Eligibility: true
+        Health: true
+----
++
+.. ノードにイプシロンが設定されている場合は、イプシロンをパートナーに転送できるように、イプシロンをfalseに設定します。
++
+[source, cli]
+----
+cluster modify -node <nodename> -epsilon false
+----
+.. パートナーノードでイプシロンをtrueに設定して、イプシロンをパートナーに転送します。
++
+[source, cli]
+----
+cluster modify -node <node_partner_name> -epsilon true
+----
+
+
+. ノードをリバートする準備が完了していることを確認します。
++
+[source, cli]
+----
+system node revert-to -node <nodename> -check-only true -version 9.x
+----
++
+パラメータは、 `check-only`Snapshotポリシーを無効にしたり、新しいバージョンのONTAPへのアップグレード後に作成されたSnapshotコピーを削除したりするなど、リバート前に対処する必要がある条件を示します。
+
+. ノードのクラスタ構成をリバートします。
++
+[source, cli]
+----
+system node revert-to -node <nodename> -version 9.x
+----
++
+オプションは、 `-version`リバート先のONTAPリリースを指定します。たとえば、9.14.1から9.13.1にリバートする場合、オプションの正しい値 `-version`は9.13.1です。
+
++
+クラスタ設定がリバートされ、クラスタシェルからログアウトされます。
+
+. ログインプロンプトが表示されたら、システムシェルにログインするかどうかを確認するメッセージが表示されたらと入力します `No`。
++
+ログインプロンプトが表示されるまで、30分以上かかることがあります。
+
+. adminでクラスタシェルにログインします。
+. ノードシェルに切り替えます。
++
+[source, cli]
+----
+run -node <nodename>
+----
++
+クラスタシェルに再度ログインしたあと、ノードシェルコマンドを使用できるようになるまでに数分かかることがあります。そのため、コマンドが失敗した場合は、数分待ってからもう一度実行してください。
+
+. ノードのファイルシステム設定をリバートします。
++
+[source, cli]
+----
+revert_to 9.x
+----
++
+このコマンドは、ノードのファイルシステム設定をリバートする準備が完了していることを確認してから、リバートします。前提条件が特定された場合は、それらに対処してからコマンドを再実行する必要があります `revert_to`。
+
++
+
+NOTE: システムコンソールを使用してリバートプロセスを監視すると、ノードシェルよりも詳細な情報が表示されます。
+
++
+autobootがtrueの場合、コマンドの完了時にノードがONTAPでリブートされます。
+
++
+autobootがfalseに設定されている場合は、コマンドの完了時にLoaderプロンプトが表示されます。と入力し `yes`てリバートし、を使用してノードを手動でリブートします。 `boot_ontap`
+
+. ノードがリブートしたら、新しいソフトウェアが実行されていることを確認します。
++
+[source, cli]
+----
+system node image show
+----
++
+次の例では、image1が新しいONTAPバージョンで、node0で現在のバージョンとして設定されています。
+
++
+[listing]
+----
+cluster1::*> system node image show
+                 Is      Is                 Install
+Node     Image   Default Current Version    Date
+-------- ------- ------- ------- --------   -------------------
+node0
+         image1  true    true    X.X.X       MM/DD/YYYY TIME
+         image2  false   false   Y.Y.Y      MM/DD/YYYY TIME
+node1
+         image1  true    false   X.X.X      MM/DD/YYYY TIME
+         image2  false   true    Y.Y.Y      MM/DD/YYYY TIME
+4 entries were displayed.
+----
+. ノードのリバートステータスが完了になっていることを確認します。
++
+[source, cli]
+----
+system node upgrade-revert show -node <nodename>
+----
++
+ステータスが「complete」、「not needed」、または「There are no table entries returned」のいずれかになっている必要があります。
+
+. HAペアのもう一方のノードで、上記の手順を繰り返します。
+. 両方のノードをリバートしたら、クラスタのハイアベイラビリティを再度有効にします。
++
+[source, cli]
+----
+cluster ha modify -configured true
+----
+. 両方のノードでストレージフェイルオーバーを再度有効にします。
++
+[source, cli]
+----
+storage failover modify -node <nodename> -enabled true
+----
+
+
+--
+====

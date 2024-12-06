@@ -4,46 +4,74 @@ sidebar: sidebar
 keywords: ontap, revert, reverting, reversion, systems, deduplication, deduplicated, volumes 
 summary: ONTAP 9のいずれかのバージョンからリバートする前に、リバート処理に使用する十分な空きスペースがボリュームにあることを確認する必要があります。 
 ---
-= リバート前に重複排除機能が有効なボリュームに十分な空きスペースがあることを確認する
+= ONTAPをリバートする前に重複排除機能が有効なボリュームの空きスペースを確認する
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-ONTAP 9のいずれかのバージョンからリバートする前に、リバート処理に使用する十分な空きスペースがボリュームにあることを確認する必要があります。
+ONTAP 9のいずれかのバージョンからONTAPクラスタをリバートする前に、リバート処理に使用する十分な空きスペースがボリュームにあることを確認する必要があります。
 
 ゼロのブロックのインライン検出によって実現した削減に対応できる十分なスペースがボリュームに必要です。ナレッジベースの記事を参照してください link:https://kb.netapp.com/Advice_and_Troubleshooting/Data_Storage_Software/ONTAP_OS/How_to_see_space_savings_from_deduplication%2C_compression%2C_and_compaction_in_ONTAP_9["ONTAP 9での重複排除、圧縮、およびコンパクションによるスペース削減効果の確認方法"]。
 
 リバートするボリュームで重複排除とデータ圧縮の両方を有効にした場合は、重複排除をリバートする前にデータ圧縮をリバートする必要があります。
 
-. volume efficiency showコマンドに-fieldsオプションを指定して、ボリュームで実行されている効率化処理の進捗状況を表示します。
+.手順
+. ボリュームで実行されている効率化処理の進捗状況を表示します。
 +
-次のコマンドは、効率化処理の進捗状況を表示します。 `volume efficiency show -fields vserver,volume,progress`
-
-. volume efficiency stopコマンドに-allオプションを指定して、アクティブな重複排除処理とキューに登録されている重複排除処理をすべて停止します。
+[source, cli]
+----
+volume efficiency show -fields vserver,volume,progress
+----
+. アクティブな重複排除処理とキューに登録されている重複排除処理をすべて停止
 +
-次のコマンドは、ボリュームVolAのアクティブな重複排除処理とキューに登録されている重複排除処理をすべて停止します。 `volume efficiency stop -vserver vs1 -volume VolA -all`
-
-. set -privilege advancedコマンドを使用して、advanced権限レベルでログインします。
-. volume efficiency revert-toコマンドに-versionオプションを指定して、ボリュームの効率化メタデータをONTAPの特定のバージョンにダウングレードします。
+[source, cli]
+----
+volume efficiency stop -vserver <svm_name> -volume <volume_name> -all
+----
+. 権限レベルをadvancedに設定します。
 +
-次のコマンドは、ボリュームONTAP 9の効率化メタデータをVolAからVol.xにリバートします。 `volume efficiency revert-to -vserver vs1 -volume VolA -version 9.x`
+[source, cli]
+----
+set -privilege advanced
+----
+. ボリュームの効率化メタデータをONTAPの目的のバージョンにダウングレードします。
++
+[source, cli]
+----
+volume efficiency revert-to -vserver <svm_name> -volume <volume_name> -version <version>
+----
++
+次の例は、ボリュームVolAの効率化メタデータをONTAP 9.xにリバートします。
 
++
+[listing]
+----
+volume efficiency revert-to -vserver vs1 -volume VolA -version 9.x
+----
 +
 
 NOTE: volume efficiency revert-toコマンドは、このコマンドを実行するノードに存在するボリュームをリバートします。ノード間でのボリュームのリバートは行いません。
 
-. volume efficiency showコマンドに-op-statusオプションを指定して、ダウングレードの進捗状況を監視します。
+. ダウングレードの進捗を監視します。
 +
-次のコマンドは、ダウングレードのステータスを監視および表示します。 `volume efficiency show -vserver vs1 -op-status Downgrading`
-
-. リバートに失敗した場合は、volume efficiency showコマンドに-instanceオプションを指定して、リバートに失敗した理由を確認します。
+[source, cli]
+----
+volume efficiency show -vserver <svm_name> -op-status Downgrading
+----
+. リバートに失敗した場合は、インスタンスを表示して、リバートに失敗した理由を確認します。
 +
-次のコマンドは、すべてのフィールドに関する詳細情報を表示します。 `volume efficiency show -vserver vs1 -volume vol1 - instance`
-
-. リバート処理の完了後、admin権限レベルに戻ります。 `set -privilege admin`
+[source, cli]
+----
+volume efficiency show -vserver <svm_name> -volume <volume_name> - instance
+----
+. リバート処理の完了後、admin権限レベルに戻ります。
 +
-link:../volumes/index.html["論理ストレージ管理"]
+[source, cli]
+----
+set -privilege admin
+----
 
 
+詳細については、をご覧ください link:../volumes/index.html["論理ストレージ管理"]。

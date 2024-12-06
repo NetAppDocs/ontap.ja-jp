@@ -4,7 +4,7 @@ sidebar: sidebar
 keywords: ontap, revert, reverting, reversion, snapshot, copy, copies, policy, policies, enable, restart 
 summary: 以前のバージョンの ONTAP にリバートした場合は、 Snapshot コピーの作成を再開するために、 Snapshot コピーポリシーを有効にする必要があります。 
 ---
-= リバート後にSnapshotコピーポリシーを有効にする
+= ONTAPリバート後にSnapshotコピーポリシーを有効にする
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
@@ -15,17 +15,22 @@ summary: 以前のバージョンの ONTAP にリバートした場合は、 Sna
 
 以前のバージョンの ONTAP にリバートする前に無効にした Snapshot スケジュールを再度有効にします。
 
+.手順
 . すべてのデータSVMのSnapshotコピーポリシーを有効にします。
 +
-`volume snapshot policy modify -vserver * -enabled true`
-
-+
-`snapshot policy modify pg-rpo-hourly -enable true`
-
-. 各ノードについて、run -nodenodenamevolオプションroot_vol_namenosnap offコマンドを使用して、ルートボリュームのSnapshotコピーポリシーを有効にします。
-+
-[listing]
+[source, cli]
 ----
-cluster1::> run -node node1 vol options vol0 nosnap off
+volume snapshot policy modify -vserver * -enabled true
+----
++
+[source, cli]
+----
+snapshot policy modify pg-rpo-hourly -enable true
+----
+. 各ノードについて、ルートボリュームのSnapshotコピーポリシーを有効にします。
++
+[source, cli]
+----
+run -node <node_name> vol options <volume_name> nosnap off
 ----
 

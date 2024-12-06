@@ -1,0 +1,75 @@
+---
+permalink: revert/terminate-smb-sessions.html 
+sidebar: sidebar 
+keywords: ontap, revert, reversion, reverting, downgrade, downgrading, preparation 
+summary: クラスタのアップグレードの準備には、さまざまな構成設定が影響する可能性が 
+---
+= ONTAPをリバートする前に特定のSMBセッションを終了する
+:allow-uri-read: 
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+ONTAP 9のいずれかのバージョンからONTAPクラスタをリバートする前に、継続的可用性に対応していないSMBセッションを特定して正常に終了する必要があります。
+
+Hyper-VクライアントまたはMicrosoft SQL ServerクライアントがSMB 3.0プロトコルを使用してアクセスする、継続的可用性を備えたSMB共有は、アップグレードまたはダウングレードの前に終了する必要はありません。
+
+.手順
+. 継続的可用性に対応していない、確立済みのSMBセッションを特定します。
++
+[source, cli]
+----
+vserver cifs session show -continuously-available No -instance
+----
++
+このコマンドは、継続的可用性が確保されていないSMBセッションに関する詳細情報を表示します。ONTAPのダウングレードを開始する前に終了する必要があります。
+
++
+[listing]
+----
+cluster1::> vserver cifs session show -continuously-available No -instance
+
+                        Node: node1
+                     Vserver: vs1
+                  Session ID: 1
+               Connection ID: 4160072788
+Incoming Data LIF IP Address: 198.51.100.5
+      Workstation IP address: 203.0.113.20
+    Authentication Mechanism: NTLMv2
+                Windows User: CIFSLAB\user1
+                   UNIX User: nobody
+                 Open Shares: 1
+                  Open Files: 2
+                  Open Other: 0
+              Connected Time: 8m 39s
+                   Idle Time: 7m 45s
+            Protocol Version: SMB2_1
+      Continuously Available: No
+1 entry was displayed.
+----
+. 必要に応じて、特定した各SMBセッションで開いているファイルを確認します。
++
+[source, cli]
+----
+vserver cifs session file show -session-id session_ID
+----
++
+[listing]
+----
+cluster1::> vserver cifs session file show -session-id 1
+
+Node:       node1
+Vserver:    vs1
+Connection: 4160072788
+Session:    1
+File    File      Open Hosting                               Continuously
+ID      Type      Mode Volume          Share                 Available
+------- --------- ---- --------------- --------------------- ------------
+1       Regular   rw   vol10           homedirshare          No
+Path: \TestDocument.docx
+2       Regular   rw   vol10           homedirshare          No
+Path: \file1.txt
+2 entries were displayed.
+----
+

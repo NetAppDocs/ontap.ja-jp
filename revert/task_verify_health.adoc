@@ -2,22 +2,31 @@
 permalink: revert/task_verify_health.html 
 sidebar: sidebar 
 keywords: ontap, revert, reverting, reversion, downgrade, downgrading, verifying, verify, cluster, health 
-summary: クラスタをリバートまたはダウングレードしたら、ノードが正常に機能していてクラスタに追加するための条件を満たしていること、およびクラスタがクォーラムにあることを確認する必要があります。 
+summary: ONTAPクラスタをリバートしたら、ノードが正常に機能していてクラスタに追加するための条件を満たしていること、およびクラスタがクォーラムにあることを確認する必要があります。 
 ---
-= ダウングレードまたはリバート後のクラスタとストレージの健全性の確認
+= ONTAPリバート後のクラスタとストレージの健全性の確認
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-クラスタをダウングレードまたはリバートしたら、ノードが正常に機能していてクラスタに追加するための条件を満たしていること、およびクラスタがクォーラムにあることを確認する必要があります。また、ディスク、アグリゲート、およびボリュームのステータスも確認する必要があります。
+ONTAPクラスタをリバートしたら、ノードが正常に機能していてクラスタに追加するための条件を満たしていること、およびクラスタがクォーラムにあることを確認する必要があります。また、ディスク、アグリゲート、およびボリュームのステータスも確認する必要があります。
 
 
 
 == クラスタの健全性を確認
 
-. クラスタ内のノードがオンラインであり、クラスタに参加するための条件を満たしていることを確認します。 `cluster show`
+.手順
+. クラスタ内のノードがオンラインであり、クラスタに参加するための条件を満たしていることを確認します。
++
+[source, cli]
+----
+cluster show
+----
++
+この例では、クラスタは正常に機能しており、すべてのノードがクラスタに参加する資格を持っています。
+
 +
 [listing]
 ----
@@ -30,8 +39,12 @@ node1                 true    true
 +
 正常でないノードや条件を満たしていないノードがある場合は、EMSログでエラーを確認して対処します。
 
-. 権限レベルをadvancedに設定します。+
-`set -privilege advanced`
+. 権限レベルをadvancedに設定します。
++
+[source, cli]
+----
+set -privilege advanced
+----
 +
 と入力し `y`て続行します。
 
@@ -51,34 +64,40 @@ node1                 true    true
  a| 
 管理アプリケーション
  a| 
-`cluster ring show -unitname mgmt`
-
+[source, cli]
+----
+cluster ring show -unitname mgmt
+----
 
 
  a| 
 ボリューム ロケーション データベース
  a| 
-`cluster ring show -unitname vldb`
-
+[source, cli]
+----
+cluster ring show -unitname vldb
+----
 
 
  a| 
 仮想インターフェイス マネージャ
  a| 
-`cluster ring show -unitname vifmgr`
-
+[source, cli]
+----
+cluster ring show -unitname vifmgr
+----
 
 
  a| 
 SAN管理デーモン
  a| 
-`cluster ring show -unitname bcomd`
-
+[source, cli]
+----
+cluster ring show -unitname bcomd
+----
 |===
 +
 次の例は、ボリューム ロケーション データベースのプロセスを示しています。
-
-
 
 +
 [listing]
@@ -92,8 +111,20 @@ node2     vldb     154      154      14847    node0     secondary
 node3     vldb     154      154      14847    node0     secondary
 4 entries were displayed.
 ----
-. admin権限レベルに戻ります。 `set -privilege admin`
-. SAN環境を使用している場合は、各ノードがSANクォーラムにあることを確認します。 `event log show  -severity informational -message-name scsiblade.*`
+
+
+. admin権限レベルに戻ります。
++
+[source, cli]
+----
+set -privilege admin
+----
+. SAN環境を使用している場合は、各ノードがSANクォーラムにあることを確認します。
++
+[source, cli]
+----
+event log show  -severity informational -message-name scsiblade.*
+----
 +
 各ノードの最新のscsibladeイベントメッセージに、SCSIブレードがクォーラムにあることが示されます。
 
@@ -117,6 +148,7 @@ link:../system-admin/index.html["システム管理"]
 
 クラスタをリバートまたはダウングレードしたら、ディスク、アグリゲート、およびボリュームのステータスを確認する必要があります。
 
+.手順
 . ディスクのステータスを確認します。
 +
 [cols="2*"]
@@ -127,7 +159,12 @@ link:../system-admin/index.html["システム管理"]
  a| 
 破損ディスク
  a| 
-.. 破損ディスクを表示します。 `storage disk show -state broken`
+.. 破損ディスクを表示します。
++
+[source, cli]
+----
+storage disk show -state broken
+----
 .. 破損ディスクを取り外すか交換します。
 
 
@@ -136,12 +173,22 @@ link:../system-admin/index.html["システム管理"]
  a| 
 メンテナンス中または再構築中のディスク
  a| 
-.. メンテナンス、保留、または再構築中の状態のディスクを表示します。 `storage disk show -state maintenance|pending|reconstructing`
+.. メンテナンス、保留、または再構築中の状態のディスクを表示します。
++
+[source, cli]
+----
+storage disk show -state maintenance|pending|reconstructing
+----
 .. メンテナンスまたは再構築の処理が完了するまで待ってから次に進みます。
 
 
 |===
-. 物理ストレージと論理ストレージ（ストレージのアグリゲートを含む）の状態を表示して、すべてのアグリゲートがオンラインであることを確認します。 `storage aggregate show -state !online`
+. 物理ストレージと論理ストレージ（ストレージのアグリゲートを含む）の状態を表示して、すべてのアグリゲートがオンラインであることを確認します。
++
+[source, cli]
+----
+storage aggregate show -state !online
+----
 +
 このコマンドを実行すると、オンラインでないアグリゲートが表示されます。メジャーアップグレードまたはリバートの実行前と実行後に、すべてのアグリゲートがオンラインになっている必要があります。
 
@@ -151,7 +198,12 @@ link:../system-admin/index.html["システム管理"]
 cluster1::> storage aggregate show -state !online
 There are no entries matching your query.
 ----
-. _not_onlineであるボリュームを表示して、すべてのボリュームがオンラインであることを確認します。 `volume show -state !online`
+. 次のコマンドを実行して、すべてのボリュームがオンラインであることを確認します。 _not_online
++
+[source, cli]
+----
+volume show -state !online
+----
 +
 メジャーアップグレードまたはリバートの実行前と実行後に、すべてのボリュームがオンラインになっている必要があります。
 
@@ -161,7 +213,12 @@ There are no entries matching your query.
 cluster1::> volume show -state !online
 There are no entries matching your query.
 ----
-. 整合性のないボリュームがないことを確認します。 `volume show -is-inconsistent true`
+. 整合性のないボリュームがないことを確認します。
++
+[source, cli]
+----
+volume show -is-inconsistent true
+----
 +
 整合性のないボリュームへの対処方法については、ナレッジベースの記事を参照してlink:https://kb.netapp.com/Advice_and_Troubleshooting/Data_Storage_Software/ONTAP_OS/Volume_Showing_WAFL_Inconsistent["「WAFL inconsistent」を示すボリューム"]ください。
 
@@ -169,3 +226,9 @@ There are no entries matching your query.
 
 .関連情報
 link:../disks-aggregates/index.html["ディスクおよびアグリゲートの管理"]
+
+
+
+== クライアントアクセスの確認（SMBとNFS）
+
+設定されているプロトコルについて、SMBクライアントとNFSクライアントからのアクセスをテストして、クラスタにアクセスできることを確認します。

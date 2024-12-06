@@ -4,7 +4,7 @@ sidebar: sidebar
 keywords: revert, reverting, reversion, ipv6, firewall, entries, verify 
 summary: ONTAP 9 のいずれかのバージョンからのリバートを実行すると、ファイアウォールポリシーの一部のサービスのデフォルトの IPv6 ファイアウォールエントリが失われる可能性があります。必要なファイアウォールエントリがシステムにリストアされていることを確認する必要があります。 
 ---
-= IPv6ファイアウォールエントリを確認する
+= ONTAPリバート後のIPv6ファイアウォールエントリの確認
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
@@ -13,7 +13,13 @@ summary: ONTAP 9 のいずれかのバージョンからのリバートを実行
 [role="lead"]
 ONTAP 9 のいずれかのバージョンからのリバートを実行すると、ファイアウォールポリシーの一部のサービスのデフォルトの IPv6 ファイアウォールエントリが失われる可能性があります。必要なファイアウォールエントリがシステムにリストアされていることを確認する必要があります。
 
-. すべてのファイアウォールポリシーをデフォルトのポリシーと比較して、正しいことを確認します。 `system services firewall policy show`
+.手順
+. すべてのファイアウォールポリシーをデフォルトのポリシーと比較して、正しいことを確認します。
++
+[source, cli]
+----
+system services firewall policy show
+----
 +
 次の例は、デフォルトのポリシーを示しています。
 
@@ -44,18 +50,16 @@ data
 .
 .
 ----
-. 新しいファイアウォールポリシーを作成して、不足しているデフォルトのIPv6ファイアウォールエントリを手動で追加します。 `system services firewall policy create`
+. 新しいファイアウォールポリシーを作成して、不足しているデフォルトのIPv6ファイアウォールエントリを手動で追加します。
 +
-[listing]
+[source, cli]
 ----
-cluster1::*> system services firewall policy create -policy newIPv6
--service ssh -action allow -ip-list ::/0
+system services firewall policy create -policy <policy_name> -service ssh -action allow -ip-list <ip_list>
 ----
-. 新しいポリシーをLIFに適用してネットワークサービスへのアクセスを許可します。 `network interface modify`
+. 新しいポリシーをLIFに適用してネットワークサービスへのアクセスを許可します。
 +
-[listing]
+[source, cli]
 ----
-cluster1::*> network interface modify -vserver VS1 -lif LIF1
--firewall-policy newIPv6
+network interface modify -vserve <svm_name> -lif <lif_name> -firewall-policy <policy_name>
 ----
 

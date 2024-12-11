@@ -1,8 +1,8 @@
 ---
-sidebar: sidebar 
 permalink: system-admin/requirements-autosupport-reference.html 
-keywords: requirements, autosupport, messages, http, https, smtp, smtps 
-summary: セキュリティを最大限に高め、AutoSupportの最新機能をサポートするには、HTTPSとTLSv1.2またはセキュアなSMTPを使用してAutoSupportメッセージを配信する必要があります。 
+sidebar: sidebar 
+keywords: requirements, autosupport, messages, https, smtp, smtps, tls, email, proxy, certificate, validation 
+summary: セキュリティを最大限に高め、AutoSupportの最新機能をサポートするには、HTTPSとTLSv1.2またはSMTPSを使用してAutoSupportメッセージを配信する必要があります。 
 ---
 = AutoSupportを使用する準備
 :allow-uri-read: 
@@ -17,63 +17,49 @@ AutoSupportメッセージをNetAppに配信するようにONTAPクラスタを�
 
 == NetAppへのAutoSupportメッセージの配信
 
-AutoSupportメッセージは、HTTPまたはSMTPプロトコルを使用してNetAppに配信できます。セキュリティを強化するには、HTTPでTLSを使用します。ONTAP 9.15.1以降では、SMTPでTLSを使用することもできます。
+AutoSupportメッセージは、HTTPSまたはSMTPプロトコルを使用してNetAppに配信できます。ONTAP 9.15.1以降では、SMTPでTLSを使用することもできます。
 
 
-TIP: 可能な場合は常にHTTPでTLS（HTTPS）を使用してください。
+TIP: AutoSupport OnDemandとの通信および大容量ファイルのアップロードには、可能な限りHTTPSを使用してください。
 
 次の点にも注意してください。
 
 * AutoSupportメッセージに対して設定できる、NetAppへの配信チャネルは1つだけです。2つのプロトコルを使用してAutoSupportメッセージをNetAppに配信することはできません。
 * AutoSupportでは、プロトコルごとに最大ファイル サイズが制限されます。AutoSupportメッセージのサイズが設定した制限を超えると、できる限り多くのメッセージが配信されますが、切り捨てが発生します。
-* 必要に応じて、最大ファイル サイズを変更できます。詳細については、コマンドを参照してください `system node autosupport modify`。
+* 必要に応じて最大ファイルサイズを変更できます。^]コマンドの詳細については[`system node autosupport modify`、ONTAPコマンドリファレンスを参照してください。
 * どちらのプロトコルも、名前が解決されるアドレスファミリーに基づいて、IPv4またはIPv6経由で転送できます。
 * AutoSupportメッセージを送信するためにONTAPによって確立されたTCP接続は、一時的で短命です。
 
 
 
 
-=== HTTP
+=== HTTPS
 
 これは最も堅牢な機能を提供します。次の点に注意してください。
 
 * AutoSupport OnDemandと大容量ファイルの転送はサポートされません。
-* 最初にHTTP PUT要求が試行されます。要求の転送中にエラーが発生した場合に、停止した場所から要求が再開されます。
-* サーバがPUTをサポートしていない場合は、代わりにHTTP POSTメソッドが使用されます。
-* HTTP転送のデフォルトの制限は50MBです。
-* セキュアでないHTTPプロトコルはポート80を使用します。
+* 最初にHTTPS PUT要求が試行されます。要求の転送中にエラーが発生した場合に、停止した場所から要求が再開されます。
+* サーバがPUTをサポートしていない場合は、代わりにHTTPS POSTメソッドが使用されます。
+* HTTPS転送のデフォルトの制限は50MBです。
+* HTTPSプロトコルはポート443を使用します。
 
 
 
 
 === SMTP
 
-原則として、何らかの理由でHTTPS / HTTPが許可されていないかサポートされていない場合にのみSMTPを使用してください。次の点に注意してください。
+原則として、SMTPを使用するのは、HTTPSが許可されていないかサポートされていない場合のみにしてください。次の点に注意してください。
 
 * AutoSupport OnDemandと大容量ファイルの転送はサポートされません。
 * SMTPサインイン クレデンシャルが設定されている場合は、暗号化されずにクリア テキストで送信されます。
-* HTTP転送のデフォルトの制限は5MBです。
+* デフォルトの転送制限は5MBです。
 * セキュアでないSMTPプロトコルはポート25を使用します。
 
 
+.TLSによるSMTPセキュリティの向上
+SMTPを使用する場合、すべてのトラフィックは暗号化されず、簡単に傍受して読み取ることができます。ONTAP 9.15.1以降では、SMTP（SMTPS）でTLSを使用することもできます。この場合、TCP接続の確立後にセキュアチャネルをアクティブにする_explicit tls_が使用されます。
 
-
-=== TLSによるセキュリティの向上
-
-HTTPまたはSMTPを使用すると、すべてのトラフィックは暗号化されず、簡単に傍受して読み取ることができます。HTTPを使用する場合は、常にTLS（HTTPS）も使用するようにプロトコルを設定する必要があります。
-
-
-NOTE: ONTAP 9.15.1以降では、SMTPでTLS（SMTPS）を使用することもできます。この場合、TCP接続の確立後にセキュアチャネルをアクティブにする_explicit tls_が使用されます。
-
-.セキュアなプロトコル用のポート
-一般に、これらのプロトコルのセキュアバージョンには次のポートが使用されます。
-
-* HTTPS -ポート443
-* SMTPS -ポート587
-
-
-.証明書の検証
-TLSでは、サーバからダウンロードした証明書は、ルートCA証明書に基づいてONTAPによって検証されます。HTTPSまたはSMTPSを使用する前に、ルート証明書がONTAPにインストールされていることを確認する必要があります。詳細については、を参照してください <<サーバ証明書のインストール>> 。
+通常、SMTPSには次のポートが使用されます。ポート587
 
 
 
@@ -81,9 +67,11 @@ TLSでは、サーバからダウンロードした証明書は、ルートCA証
 
 AutoSupportを設定する際は、さらにいくつかの考慮事項があります。
 
+これらの考慮事項に関連するコマンドの詳細については、を参照してくださいlink:../system-admin/setup-autosupport-task.html["AutoSupportのセットアップ"]。
 
 
-=== Eメールを使用したローカル コピーの送信
+
+=== 電子メールを使用してローカルコピーを送信する
 
 NetAppへのAutoSupportメッセージの配信に使用されるプロトコルに関係なく、各メッセージのコピーを1つ以上のローカルEメール アドレスに送信することもできます。たとえば、社内のサポート部門やパートナー組織にメッセージを送信できます。
 
@@ -94,17 +82,17 @@ NOTE: SMTP（またはSMTPS）を使用してNetAppにメッセージを配信�
 
 === HTTPプロキシ
 
-ネットワーク設定によっては、HTTPSプロトコルでプロキシURLの追加設定が必要になる場合があります。HTTPSを使用してテクニカル サポートにAutoSupportメッセージを送信する際にプロキシを使用する場合は、そのプロキシのURLを指定する必要があります。プロキシでデフォルト（ポート3128）以外のポートが使用されている場合、プロキシのポートを指定できます。また、必要に応じてプロキシ認証のユーザ名とパスワードも指定できます。
+ネットワークの設定によっては、HTTPSプロトコルでプロキシURLの追加の設定が必要になる場合があります。テクニカルサポートへのAutoSupportメッセージの送信にHTTPSを使用していて、プロキシを使用している場合は、プロキシのURLを指定する必要があります。プロキシがデフォルト以外のポート（ポート3128）を使用する場合は、そのプロキシのポートを指定できます。必要に応じて、プロキシ認証のユーザ名とパスワードを指定することもできます。
 
 
 
 == サーバ証明書のインストール
 
-TLS（HTTPSまたはSMTPS）を使用する場合は、ONTAPでサーバ証明書を検証できることを確認する必要があります。この検証は、サーバ証明書に署名したCAに基づいて実行されます。
+TLS（HTTPSまたはSMTPS）では、サーバからダウンロードした証明書がルートCA証明書に基づいてONTAPによって検証されます。HTTPSまたはSMTPSを使用する前に、ルート証明書がONTAPにインストールされていること、およびONTAPがサーバ証明書を検証できることを確認する必要があります。この検証は、サーバ証明書に署名したCAに基づいて実行されます。
 
-ONTAPには、豊富なルートCA証明書が事前にインストールされています。そのため多くの場合、サーバの証明書は、追加の設定をしなくてもONTAPによってすぐに認識されます。ただし、サーバ証明書の署名方法によっては、ルートCA証明書と中間証明書のインストールが必要になる場合があります。
+ONTAPには、豊富なルートCA証明書が事前にインストールされています。多くの場合、サーバの証明書は追加の設定なしでONTAPによってすぐに認識されます。サーバ証明書の署名方法によっては、ルートCA証明書と中間証明書のインストールが必要になる場合があります。
 
-必要な場合は、次の手順に従って証明書をインストールします。必要な証明書は、すべてクラスタ レベルでインストールする必要があります。
+必要に応じて、次の手順に従って証明書をインストールします。必要な証明書はすべてクラスタレベルでインストールする必要があります。
 
 .手順
 [role="tabbed-block"]
@@ -125,29 +113,41 @@ ONTAPには、豊富なルートCA証明書が事前にインストールされ�
 --
 . インストールを開始します。
 +
-`security certificate install -type server-ca`
-
+[source, cli]
+----
+security certificate install -type server-ca
+----
 . 次のコンソール メッセージを探します。
 +
-`Please enter Certificate: Press <Enter> when done`
-
+[listing]
+----
+Please enter Certificate: Press <Enter> when done
+----
 . テキスト エディタで証明書ファイルを開きます。
 . 次の行を含めて、証明書全体をコピーします。
 +
-`-----BEGIN CERTIFICATE-----`
-
+[listing]
+----
+-----BEGIN CERTIFICATE-----
+----
 +
-`-----END CERTIFICATE-----`
-
+[listing]
+----
+-----END CERTIFICATE-----
+----
 . コマンド プロンプトの末尾に証明書を貼り付けます。
 . Enter*キーを押してインストールを完了します。
-. 次のいずれかを使用して証明書がインストールされていることを確認します。
+. 次のいずれかのコマンドを実行して、証明書がインストールされていることを確認します。
 +
-`security certificate show-user-installed`
-
+[source, cli]
+----
+security certificate show-user-installed
+----
 +
-`security certificate show`
-
+[source, cli]
+----
+security certificate show
+----
 
 
 --

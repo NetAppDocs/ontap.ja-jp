@@ -1,7 +1,7 @@
 ---
 permalink: fabricpool/object-tagging-user-created-custom-tags-task.html 
 sidebar: sidebar 
-keywords: object, tagging, user-created, custom tags, fabricpool, fabric pool, sort 
+keywords: object, tagging, user-created, custom tags, fabricpool, fabric pool, sort, fabricpool sorting, fabricpool data 
 summary: ONTAP 9 8以降では、FabricPoolでユーザが作成したカスタムタグを使用したオブジェクトのタグ付けがサポートされています。これにより、オブジェクトの分類やソートが可能になり、管理が容易になります。admin権限レベルのユーザは、新しいオブジェクトタグの作成、既存のタグの変更、削除、表示を行うことができます。 
 ---
 = ユーザ作成のカスタムタグを使用したオブジェクトのタグ付けの概要
@@ -12,3 +12,173 @@ summary: ONTAP 9 8以降では、FabricPoolでユーザが作成したカスタ�
 
 [role="lead"]
 ONTAP 9 8以降では、FabricPoolでユーザが作成したカスタムタグを使用したオブジェクトのタグ付けがサポートされています。これにより、オブジェクトの分類やソートが可能になり、管理が容易になります。admin権限レベルのユーザは、新しいオブジェクトタグの作成、既存のタグの変更、削除、表示を行うことができます。
+
+
+
+== ボリューム作成時に新しいタグを割り当てる
+
+作成する新しいボリュームから階層化される新しいオブジェクトに1つ以上のタグを割り当てる場合は、新しいオブジェクトタグを作成します。タグを使用すると、階層化オブジェクトを分類およびソートしてデータ管理を容易にすることができます。ONTAP 9 8以降では、System Managerを使用してオブジェクトタグを作成できます。
+
+.タスクの内容
+タグは、StorageGRIDに接続されたFabricPoolにのみ設定できます。これらのタグはボリュームの移動中も保持されます。
+
+* ボリュームあたり最大4つのタグを指定できます。
+* CLIでは、各オブジェクトタグはキーと値のペアを等号で区切って指定する必要があります。
+* CLIでは、複数のタグをカンマで区切る必要があります。
+* 各タグ値の最大文字数は127文字です。
+* 各タグキーの1文字目はアルファベットかアンダースコアにする必要があります。
++
+キーに使用できる文字は英数字とアンダースコアのみです。最大文字数は127文字です。
+
+
+
+オブジェクトタグは、ONTAP System ManagerまたはONTAP CLIで割り当てることができます。
+
+.手順
+[role="tabbed-block"]
+====
+.System Manager
+--
+. [ストレージ]>[階層]に移動します。
+. タグ付けするボリュームを含むストレージ階層を探します。
+. [* Volumes （ボリューム） ] タブをクリックします
+. タグを付けるボリュームを探し、*オブジェクトタグ*列で*クリックしてタグを入力*を選択します。
+. キーと値を入力します。
+. [ 適用（ Apply ） ] をクリックします。
+
+
+--
+.CLI
+--
+. コマンドでオプションを指定して `-tiering-object-tags`、指定したタグを使用して `volume create`新しいボリュームを作成します。複数のタグをカンマで区切って指定できます。
++
+[listing]
+----
+volume create [ -vserver <vserver name> ] -volume <volume_name> -tiering-object-tags <key1=value1> [,<key2=value2>,<key3=value3>,<key4=value4> ]
+----
++
+次の例は、3つのオブジェクトタグを使用するfp_volume1という名前のボリュームを作成します。
+
++
+[listing]
+----
+vol create -volume fp_volume1 -vserver vs0 -tiering-object-tags project=fabricpool,type=abc,content=data
+----
+
+
+--
+====
+
+
+== 既存のタグの変更
+
+タグの名前を変更したり、オブジェクトストア内の既存のオブジェクトのタグを置き換えたり、あとで追加する予定の新しいオブジェクトに別のタグを追加したりできます。
+
+.手順
+[role="tabbed-block"]
+====
+.System Manager
+--
+. [ストレージ]>[階層]に移動します。
+. 変更するタグを含むボリュームが含まれているストレージ階層を探します。
+. [* Volumes （ボリューム） ] タブをクリックします
+. 変更するタグが付いたボリュームを探し、*オブジェクトタグ*列でタグ名をクリックします。
+. タグを変更します。
+. [ 適用（ Apply ） ] をクリックします。
+
+
+--
+.CLI
+--
+.  `volume modify`コマンドにオプションを指定して `-tiering-object-tags`、既存のタグを変更します。
++
+[listing]
+----
+volume modify [ -vserver <vserver name> ] -volume <volume_name> -tiering-object-tags <key1=value1> [ ,<key2=value2>,
+<key3=value3>,<key4=value4> ]
+----
++
+次の例では、既存のタグtype=abcの名前をtype=xyzに変更します。
+
++
+[listing]
+----
+vol create -volume fp_volume1 -vserver vs0 -tiering-object-tags project=fabricpool,type=xyz,content=data
+----
+
+
+--
+====
+
+
+== タグの削除
+
+ボリュームまたはオブジェクトストア内のオブジェクトに対して設定されていなくなったオブジェクトタグは、削除できます。
+
+.手順
+[role="tabbed-block"]
+====
+.System Manager
+--
+. [ストレージ]>[階層]に移動します。
+. 削除するタグを含むボリュームが含まれているストレージ階層を探します。
+. [* Volumes （ボリューム） ] タブをクリックします
+. 削除するタグが付いたボリュームを探し、*オブジェクトタグ*列でタグ名をクリックします。
+. タグを削除するには、ごみ箱のアイコンをクリックします。
+. [ 適用（ Apply ） ] をクリックします。
+
+
+--
+.CLI
+--
+.  `volume modify`(`""`既存のタグを削除するには、コマンドでオプションのあとに空の値を指定し `-tiering-object-tags`ます）。
++
+次の例は、fp_volume1の既存のタグを削除します。
+
++
+[listing]
+----
+vol modify -volume fp_volume1 -vserver vs0 -tiering-object-tags ""
+----
+
+
+--
+====
+
+
+== ボリュームの既存のタグを表示する
+
+新しいタグをリストに追加する前に、ボリュームの既存のタグを表示して使用可能なタグを確認できます。
+
+.手順
+.  `volume show`コマンドでオプションを指定して `tiering-object-tags`、ボリューム上の既存のタグを表示します。
++
+[listing]
+----
+volume show [ -vserver <vserver name> ] -volume <volume_name> -fields tiering-object-tags
+----
+
+
+
+
+== FabricPoolボリュームでのオブジェクトのタグ付けステータスの確認
+
+1つ以上のFabricPoolでタグ付けが完了しているかどうかを確認できます。
+
+.手順
+. コマンドでオプションを指定して `-fields needs-object-retagging`、 `vol show`タグ付けが進行中かどうか、完了しているかどうか、または設定されていないかどうかを確認します。
++
+[listing]
+----
+vol show -fields needs-object-retagging  [ -instance | -volume <volume name>]
+----
++
+次のいずれかの値が表示されます。
+
++
+** `true`：このボリュームに対してオブジェクトタグ付けスキャナがまだ実行されていないか、再実行する必要があります。
+** `false`：このボリュームのオブジェクトタグ付けスキャナによるタグ付けが完了しました
+** `+<->+`：オブジェクトタグ付けスキャナはこのボリュームには適用されません。ボリュームがFabricPoolにない場合に発生します。
+
+
+

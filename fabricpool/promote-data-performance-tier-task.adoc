@@ -13,8 +13,91 @@ summary: ONTAP 9.8 以降では、 advanced 権限レベルのクラスタ管理
 [role="lead"]
 ONTAP 9 8以降では、advanced権限レベルのクラスタ管理者は、との `cloud-retrieval-policy`設定を組み合わせて使用して、クラウド階層からパフォーマンス階層にデータをプロアクティブに昇格できます `tiering-policy`。
 
-
-
-== タスクの内容
-
+.タスクの内容
 この処理は、ボリュームでFabricPoolの使用を停止する場合や、階層化ポリシーが設定されている場合に、リストアしたSnapshotコピーのデータを高パフォーマンス階層に戻す場合に実行 `snapshot-only`します。
+
+
+
+== FabricPoolボリュームのすべてのデータを高パフォーマンス階層に昇格
+
+クラウド階層内のFabricPoolボリューム上のすべてのデータをプロアクティブに読み出して、高パフォーマンス階層に昇格することができます。
+
+.手順
+. コマンドを使用して `volume modify` `none`、および `cloud-retrieval-policy`をに `promote`設定し `tiering-policy`ます。
++
+[listing]
+----
+volume modify -vserver <vserver-name> -volume <volume-name> -tiering-policy none -cloud-retrieval-policy promote
+----
+
+
+
+
+== ファイルシステムのデータを高パフォーマンス階層に昇格
+
+クラウド階層内のリストアされたSnapshotコピーからアクティブなファイルシステムのデータをプロアクティブに読み出して、高パフォーマンス階層に昇格することができます。
+
+.手順
+. コマンドを使用して `volume modify` `snapshot-only`、および `cloud-retrieval-policy`をに `promote`設定し `tiering-policy`ます。
++
+[listing]
+----
+volume modify -vserver <vserver-name> -volume <volume-name> -tiering-policy snapshot-only cloud-retrieval-policy promote
+----
+
+
+
+
+== 高パフォーマンス階層への昇格ステータスの確認
+
+高パフォーマンス階層への昇格ステータスを確認して、処理がいつ完了するかを確認できます。
+
+.手順
+. volume `object-store`コマンドにオプションを指定して `tiering`、高パフォーマンス階層への昇格のステータスを確認します。
++
+[listing]
+----
+volume object-store tiering show [ -instance | -fields <fieldname>, ... ] [ -vserver <vserver name> ] *Vserver
+[[-volume] <volume name>] *Volume [ -node <nodename> ] *Node Name [ -vol-dsid <integer> ] *Volume DSID
+[ -aggregate <aggregate name> ] *Aggregate Name
+----
++
+[listing]
+----
+volume object-store tiering show v1 -instance
+
+                                  Vserver: vs1
+                                   Volume: v1
+                                Node Name: node1
+                              Volume DSID: 1023
+                           Aggregate Name: a1
+                                    State: ready
+                      Previous Run Status: completed
+                 Aborted Exception Status: -
+               Time Scanner Last Finished: Mon Jan 13 20:27:30 2020
+                 Scanner Percent Complete: -
+                      Scanner Current VBN: -
+                         Scanner Max VBNs: -
+      Time Waiting Scan will be scheduled: -
+                           Tiering Policy: snapshot-only
+     Estimated Space Needed for Promotion: -
+                        Time Scan Started: -
+  Estimated Time Remaining for scan to complete: -
+                    Cloud Retrieve Policy: promote
+----
+
+
+
+
+== スケジュールされた移行と階層化を開始
+
+ONTAP 9 8以降では、デフォルトの階層化スキャンを待たずにいつでも階層化スキャン要求をトリガーできます。
+
+.手順
+. 移行と階層化を要求するには、 `volume object-store`コマンドにオプションを指定し `trigger`ます。
++
+[listing]
+----
+volume object-store tiering trigger [ -vserver <vserver name> ] *VServer Name [-volume] <volume name> *Volume Name
+----
+

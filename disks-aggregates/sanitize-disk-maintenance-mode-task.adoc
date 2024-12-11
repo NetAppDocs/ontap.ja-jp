@@ -49,35 +49,35 @@ Loaderプロンプトが表示されます。
 NOTE: ディスクのパーティショニングを解除するコマンドはdiagレベルでのみ使用でき、NetAppサポートから指示があった場合にのみ実行してください。続行する前に、NetAppサポートに問い合わせることを強く推奨します。ナレッジベースの記事も参照できます。link:https://kb.netapp.com/Advice_and_Troubleshooting/Data_Storage_Systems/FAS_Systems/How_to_unpartition_a_spare_drive_in_ONTAP["ONTAP でスペアドライブのパーティショニングを解除する方法"^]
 
 +
-`disk unpartition _disk_name_`
+`disk unpartition <disk_name>`
 
 . 指定したディスクを完全消去します。
 +
-`disk sanitize start [-p _pattern1_|-r [-p _pattern2_|-r [-p _pattern3_|-r]]] [-c _cycle_count_] _disk_list_`
+`disk sanitize start [-p <pattern1>|-r [-p <pattern2>|-r [-p <pattern3>|-r]]] [-c <cycle_count>] <disk_list>`
 
 +
 
 NOTE: 完全消去中は、ノードの電源をオフにしたり、ストレージの接続を切断したり、ターゲットディスクを取り外したりしないでください。完全消去のフォーマットフェーズで処理が中断された場合は、ディスクを完全消去してスペアプールに戻す前に、フォーマットフェーズを再開して完了する必要があります。完全消去プロセスを中止する必要がある場合は、コマンドを使用します `disk sanitize abort`。指定したディスクで完全消去のフォーマットフェーズが進行中の場合、フェーズが完了するまで中止は実行されません。
 
 +
- `-p` `_pattern1_` `-p` `_pattern2_` `-p` `_pattern3_`1~3サイクルのユーザ定義の上書きパターンを16進数で指定します。このパターンは、完全消去するディスクに順に適用されます。デフォルトのパターンは3つのパスで、最初のパスに0x55、2番目のパスに0xaa、3番目のパスに0x3Cを使用します。
+ `-p` `<pattern1>` `-p` `<pattern2>` `-p` `<pattern3>`1~3サイクルのユーザ定義の上書きパターンを16進数で指定します。このパターンは、完全消去するディスクに順に適用されます。デフォルトのパターンは3つのパスで、最初のパスに0x55、2番目のパスに0xaa、3番目のパスに0x3Cを使用します。
 
 +
 `-r`パターン化された上書きを、一部またはすべてのパスのランダムな上書きに置き換えます。
 
 +
-`-c` `_cycle_count_`指定した上書きパターンを適用する回数を指定します。デフォルト値は1サイクルです。最大値は7サイクルです。
+`-c` `<cycle_count>`指定した上書きパターンを適用する回数を指定します。デフォルト値は1サイクルです。最大値は7サイクルです。
 
 +
-`_disk_list_`完全消去するスペアディスクのIDを、スペースで区切って指定します。
+`<disk_list>`完全消去するスペアディスクのIDを、スペースで区切って指定します。
 
 . 必要に応じて、ディスク完全消去プロセスのステータスを確認します。
 +
-`disk sanitize status [_disk_list_]`
+`disk sanitize status [<disk_list>]`
 
 . 完全消去プロセスが完了したら、各ディスクのディスクをスペアステータスに戻します。
 +
-`disk sanitize release _disk_name_`
+`disk sanitize release <disk_name>`
 
 . メンテナンスモードを終了します。
 
@@ -86,7 +86,7 @@ NOTE: 完全消去中は、ノードの電源をオフにしたり、ストレ�
 .ディスクをノードシェルノードシェルのコマンドによって完全消去する（すべてのONTAP 9リリース）
 [%collapsible]
 ====
-すべてのバージョンのONTAP 9で、ノードシェルコマンドを使用してディスク完全消去を有効にすると、一部の下位レベルのONTAPコマンドが無効になります。ノードで有効にしたディスク完全消去を無効にすることはできません。
+ノードでノードシェルコマンドを使用してディスク完全消去機能を有効にしたあとに無効にすることはできません。
 
 .開始する前に
 * ディスクはスペアディスクである必要があります。ノードに所有されていて、ローカル階層（アグリゲート）で使用されていないディスクを指定する必要があります。
@@ -112,11 +112,11 @@ NOTE: ディスクのパーティショニングを解除するコマンドはdi
 
 --
 +
-`disk unpartition _disk_name_`
+`disk unpartition <disk_name>`
 
 . 完全消去するディスクを所有するノードのノードシェルに切り替えます。
 +
-`system node run -node _node_name_`
+`system node run -node <node_name>`
 
 . ディスク完全消去を有効にします。
 +
@@ -131,34 +131,34 @@ NOTE: ディスクのパーティショニングを解除するコマンドはdi
 
 . 指定したディスクを完全消去します。
 +
-`disk sanitize start [-p pattern1|-r [-p pattern2|-r [-p pattern3|-r]]] [-c cycle_count] disk_list`
+`disk sanitize start [-p <pattern1>|-r [-p <pattern2>|-r [-p <pattern3>|-r]]] [-c <cycle_count>] <disk_list>`
 
 +
 
 NOTE: 完全消去中は、ノードの電源をオフにしたり、ストレージの接続を切断したり、ターゲットディスクを取り外したりしないでください。完全消去のフォーマットフェーズで処理が中断された場合は、ディスクを完全消去してスペアプールに戻す前に、フォーマットフェーズを再開して完了する必要があります。完全消去プロセスを中止する必要がある場合は、 disk sanitize abort コマンドを使用します。指定したディスクで完全消去のフォーマットフェーズが進行中の場合、フェーズが完了するまで中止は実行されません。
 
 +
-`-p pattern1 -p pattern2 -p pattern3`1~3サイクルのユーザ定義の上書きパターンを16進数で指定します。このパターンは、完全消去するディスクに順に適用されます。デフォルトのパターンは3つのパスで、最初のパスに0x55、2番目のパスに0xaa、3番目のパスに0x3Cを使用します。
+`-p <pattern1> -p <pattern2> -p <pattern3>`1~3サイクルのユーザ定義の上書きパターンを16進数で指定します。このパターンは、完全消去するディスクに順に適用されます。デフォルトのパターンは3つのパスで、最初のパスに0x55、2番目のパスに0xaa、3番目のパスに0x3Cを使用します。
 
 +
 `-r`パターン化された上書きを、一部またはすべてのパスのランダムな上書きに置き換えます。
 
 +
-`-c cycle_count`指定した上書きパターンを適用する回数を指定します。
+`-c <cycle_count>`指定した上書きパターンを適用する回数を指定します。
 
 +
 デフォルト値は1サイクルです。最大値は7サイクルです。
 
 +
-`disk_list`完全消去するスペアディスクのIDを、スペースで区切って指定します。
+`<disk_list>`完全消去するスペアディスクのIDを、スペースで区切って指定します。
 
 . ディスク完全消去プロセスのステータスを確認するには、次のコマンドを入力します。
 +
-`disk sanitize status [disk_list]`
+`disk sanitize status [<disk_list>]`
 
 . 完全消去プロセスが完了したら、ディスクのステータスをスペアに戻します。
 +
-`disk sanitize release _disk_name_`
+`disk sanitize release <disk_name>`
 
 . ノードシェルのadmin権限レベルに戻ります。
 +
@@ -192,11 +192,11 @@ NOTE: 完全消去中は、ノードの電源をオフにしたり、ストレ�
 
 .. 完全消去した未割り当てのディスクを各ディスクの適切なノードに割り当てます。
 +
-`storage disk assign -disk _disk_name_ -owner _node_name_`
+`storage disk assign -disk <disk_name> -owner <node_name>`
 
 .. 各ディスクのディスクをスペア状態に戻します。
 +
-`storage disk unfail -disk _disk_name_ -s -q`
+`storage disk unfail -disk <disk_name> -s -q`
 
 .. adminモードに戻ります。
 +

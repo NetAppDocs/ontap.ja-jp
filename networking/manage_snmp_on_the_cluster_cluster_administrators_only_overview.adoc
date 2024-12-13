@@ -1,0 +1,73 @@
+---
+sidebar: sidebar 
+permalink: networking/manage_snmp_on_the_cluster_cluster_administrators_only_overview.html 
+keywords: 'manage, managing, snmp, monitor, monitoring, troubleshooting, error detection, traps, overview, configure snmp to monitor svms in your cluster, snmp, trap, traphosts, asynchronous, notification, notify, alert, message, thresholds, failures, errors, fail, rfc 1215, built in, built-in, standard, snmp traps, use snmp traps to periodically check for operational thresholds or failures, standard snmp traps, system snmp authtrap, rfc 1215, coldstart, warmstart, linkdown, linkup, authenticationfailure, built-in snmp traps, traphost, diskfailedshutdown, cputoobusy, and volumenearlyfull, introducing, introduction, overview, mib, management information base, text, structure, netapp.mib, what mibs are, introducing management information bases (mibs), snmp objects and traps, object identifiers, oids, traps.dat' 
+summary: クラスタの SVM を監視するように SNMP を設定します 
+---
+= SNMPの概要
+:hardbreaks:
+:allow-uri-read: 
+:nofooter: 
+:icons: font
+:linkattrs: 
+:imagesdir: ../media/
+
+
+[role="lead"]
+クラスタのSVMを監視するようにSNMPを設定すると、問題を発生前に回避したり、発生時に対応したりすることができます。SNMPを管理するには、SNMPユーザを設定し、すべてのSNMPイベントのSNMPトラップの送信先（管理ワークステーション）を設定する必要があります。データLIFでは、SNMPはデフォルトで無効になっています。
+
+データSVMに、読み取り専用SNMPユーザを作成して管理できます。データLIFは、SVMでSNMP要求を受信するように設定する必要があります。
+
+SNMPネットワーク管理ワークステーションまたはマネージャは、SVM SNMPエージェントに情報を照会できます。SNMPエージェントは情報を収集し、SNMPマネージャに転送します。SNMPエージェントはまた、特定のイベントの発生時にトラップ通知を生成します。SVM上のSNMPエージェントの権限は読み取り専用権限であるため、設定操作や、トラップに応答して対処するために使用することはできません。ONTAPはSNMPバージョンv1、v2c、およびv3と互換性のあるSNMPエージェントを備えています。SNMPv3は、パスフレーズと暗号化を使用して高度なセキュリティを提供します。
+
+ONTAPシステムでのSNMPサポートの詳細については、を参照してください https://www.netapp.com/pdf.html?item=/media/16417-tr-4220pdf.pdf["TR-4220 ：『 SNMP Support in Data ONTAP 』"^]。
+
+
+
+== MIBの概要
+
+管理情報ベース（MIB）は、SNMPのオブジェクトとトラップが記述されたテキスト ファイルです。
+
+MIBは、ストレージ システムの管理データの構造を表し、オブジェクト識別子（OID）を含む階層状のネームスペースを使用します。各OIDは、SNMPを使用して読み取り可能な変数を識別します。
+
+MIBは構成ファイルではなく、ONTAPはこれらのファイルを読み取らないため、SNMP機能はMIBによる影響を受けません。ONTAPには次のMIBファイルが用意されています。
+
+* NetAppカスタムMIB(`netapp.mib`）
+
+
+ONTAPは、IPv4とIPv6の両方のデータを表示するIPv6（RFC 2465）、TCP（RFC 4022）、UDP（RFC 4113）、およびICMP（RFC 2466）MIBをサポートしています。
+
+ONTAPでは、ファイル内のオブジェクト識別子（OID）とオブジェクトの簡略名の簡単な相互参照も提供されています `traps.dat`。
+
+
+NOTE: ONTAP の MIB および「 traps.dat 」ファイルの最新バージョンは、NetApp Support Siteから入手できます。ただし、サポートサイトにあるファイルのバージョンが、お使いのONTAPバージョンのSNMP機能に必ずしも対応しているとは限りません。これらのファイルは、最新バージョンのONTAPのSNMP機能を評価するのに役立ちます。
+
+
+
+== SNMPトラツフ
+
+SNMPトラップは、SNMPエージェントからSNMPマネージャに非同期通知として送信されたシステム監視情報をキャプチャします。
+
+SNMPトラップには、標準、ビルトイン、およびユーザ定義の3種類があります。ONTAPでは、ユーザ定義トラップはサポートされていません。
+
+トラップを使用して、MIBで定義されている動作しきい値または障害を定期的にチェックできます。しきい値に達するか障害が検出されると、SNMPエージェントはトラップホストにイベントを警告するメッセージ（トラップ）を送信します。
+
+
+NOTE: ONTAPはSNMPv1トラップをサポートしており、ONTAP 9 SNMP.1トラップを開始しています。ONTAPでは、SNMPv2cトラップおよびINFORMはサポートされていません。
+
+
+
+== 標準SNMPトラップ
+
+これらのトラップはRFC 1215で定義されています。ONTAPでサポートされているSNMPトラップは、coldStart、warmStart、linkDown、linkUp、およびauthenticationFailureの5つです。
+
+
+NOTE: authenticationFailureトラップはデフォルトでディセーブルになっています。トラップを有効にするには、コマンドを使用する必要があり `system snmp authtrap` ます。詳細については、次のマニュアルページを参照してください。 link:../concepts/manual-pages.html["ONTAPコマンド リファレンス"]
+
+
+
+== ビルトインSNMPトラップ
+
+ビルトイントラップはONTAPで事前定義されており、イベントが発生するとトラップホストリストのネットワーク管理ステーションに自動的に送信されます。diskFailedShutdown、cpuTooBusy、volumeNearlyFullなどのトラップは、カスタムMIBで定義されています。
+
+各ビルトイントラップは、一意のトラップコードによって識別されます。

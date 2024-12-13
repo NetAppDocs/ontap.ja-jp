@@ -1,0 +1,85 @@
+---
+sidebar: sidebar 
+permalink: networking/configure_ipspaces_cluster_administrators_only_overview.html 
+keywords: ipspace, ipspaces, introduction, introducing, overview, ipv4, ipv6, routing, route, domain, configure ipspaces overview, example, sample, ipspace, example of using ipspaces, sample using ipspaces, hosts.equiv, standard, property, properties, ipspace, special, ipspaces, svm, cluster, default, understanding, cluster, initialization, initialized, introducing, introduction, overview, standard properties of ipspaces, introducing the default and cluster ipspaces created during cluster initialization, default ipspace, cluster ipspace, system svm 
+summary: IPspace は、 Storage Virtual Machine （ SVM ）が実装される、個別の IP アドレススペースを定義します 
+---
+= IPspaceの設定の概要
+:hardbreaks:
+:allow-uri-read: 
+:nofooter: 
+:icons: font
+:linkattrs: 
+:imagesdir: ../media/
+
+
+[role="lead"]
+IPspaceを使用すると、単一のONTAPクラスタを設定し、複数の管理上分離されたネットワーク ドメインのクライアントが、たとえ同じIPアドレス範囲を使用している場合でもアクセスできるようにすることができます。これにより、クライアント トラフィックを分離してプライバシーとセキュリティを確保することができます。
+
+IPspaceは、Storage Virtual Machine（SVM）が実装される、個別のIPアドレス スペースを定義します。あるIPspaceに対して定義されたポートとIPアドレスは、そのIPspace内でのみ有効です。IPspace内のSVMごとに個別のルーティング テーブルが保持されるため、SVMやIPspaceをまたがってトラフィックがルーティングされることはありません。
+
+
+NOTE: IPspaceのルーティング ドメインでは、IPv4およびIPv6のアドレスがサポートされます。
+
+単一の組織のストレージを管理する場合は、IPspaceを設定する必要はありません。単一のONTAPクラスタで複数企業のストレージを管理していて、ユーザ間のネットワーク設定がないことが確実な場合も、IPspaceを使用する必要はありません。多くの場合、Storage Virtual Machine （SVM）を専用のIPルーティング テーブルと一緒に使用することで、IPspaceを使用しなくても固有のネットワーク設定を分離できます。
+
+
+
+== IPspaceの使用例
+
+ここでは、IPspaceの一般的な用途として、ストレージ サービス プロバイダ（SSP）が、その顧客のA社とB社をSSPのONTAPクラスタに接続する必要があり、両方の会社が同じプライベートIPアドレスの範囲を使用する場合を取り上げます。
+
+SSPは、クラスタに顧客用のSVMを作成し、2つのSVMからA社のネットワークへの専用ネットワーク パス、別の2つのSVMからB社のネットワークへの専用ネットワーク パスを提供します。
+
+次の図に、この導入形態を示します。これは、両社で非プライベートIPアドレスの範囲を使用する場合に機能します。しかし、図に示すように両社が同じプライベートIPアドレスの範囲を使用すると問題が発生します。
+
+image:ontap_nm_image9.jpeg["IPspaceの例"]
+
+両社がプライベートIPアドレスサブネット10.0.0.0を使用しているため、次の問題が発生します。
+
+* 両社がそれぞれのSVMに同じIPアドレスを使用する場合、SSPにあるクラスタ内のSVMでIPアドレスの競合が発生します。
+* 両社がそれぞれのSVMに異なるIPアドレスを使用することに合意した場合でも、問題が生じる可能性があります。
+* たとえば、Aのネットワーク内のいずれかのクライアントがBのネットワーク内のクライアントと同じIPアドレスを持っている場合、Aのアドレス空間内のクライアント宛てのパケットはBのアドレス空間内のクライアントにルーティングされ、その逆も同様です。
+* 両社が相互に排他的なアドレススペースを使用する場合（たとえば、Aが10.0.0.0、ネットワークマスクが255.128.0.0、Bが10.128.0.0、ネットワークマスクが255.128.0.0など）、SSPはクラスタに静的ルートを設定して、トラフィックをAとBのネットワークに適切にルーティングする必要があります。
+* このソリューションは、拡張性（静的ルートが原因）もセキュア（ブロードキャストトラフィックがクラスタのすべてのインターフェイスに送信される）もありません。これらの問題を解決するために、SSPはクラスタに2つのIPspace（会社ごとに1つずつ）を定義します。トラフィックがIPspaceをまたがってルーティングされることはないため、すべてのSVMが10.0.0.0というアドレススペースに設定されていても、次の図に示すように、それぞれの会社のデータがそれぞれのネットワークにセキュアにルーティングされます。
+
+
+image:ontap_nm_image10.jpeg["IPspaceの例"]
+
+また、さまざまな構成ファイル（ファイル、ファイル、 `/etc/hosts.equiv` `the /etc/rc`ファイルなど）で参照されるIPアドレス `/etc/ hosts`は、そのIPspaceに対して相対的です。そのため、IPspaceを使用すると、SSPが複数のSVMの設定と認証データに同じIPアドレスを設定しても競合することはありません。
+
+
+
+== IPspaceの標準プロパティ
+
+クラスタの最初の作成時に特別なIPspaceがデフォルトで作成されます。さらに、IPspaceごとに特別なStorage Virtual Machine（SVM）が作成されます。
+
+クラスタの初期化時に2つのIPspaceが自動的に作成されます。
+
+* 「デフォルト」のIPspace
++
+このIPspaceは、ポート、サブネット、およびデータ提供用SVMのコンテナです。クライアントごとに個別のIPspaceを作成する必要がない設定の場合は、すべてのSVMをこのIPspaceに作成できます。このIPspaceには、クラスタ管理ポートとノード管理ポートも含まれています。
+
+* 「クラスタ」IPspace
++
+このIPspaceには、クラスタ内のすべてのノードのすべてのクラスタポートが含まれます。クラスタの作成時に自動的に作成されます。このIPspaceは、内部のプライベート クラスタ ネットワークへの接続を提供します。ノードをクラスタに追加すると、追加したノードのクラスタ ポートが「Cluster」IPspaceに追加されます。
+
+
+
+IPspaceごとに「システム」SVMが1つ存在します。IPspaceを作成すると、デフォルトのシステムSVMがIPspaceと同じ名前で作成されます。
+
+* 「Cluster」IPspaceのシステムSVMは、内部プライベート クラスタ ネットワークのノード間でクラスタ トラフィックを伝送します。
++
+このSVMの管理はクラスタ管理者が担当し、「Cluster」という名前が割り当てられます。
+
+* 「Default」IPspaceのシステムSVMは、クラスタ間トラフィックを含めた、クラスタとノードの管理トラフィックを伝送します。
++
+このSVMの管理はクラスタ管理者が担当し、クラスタと同じ名前が使用されます。
+
+* ユーザが作成するカスタムIPspaceのシステムSVMは、そのSVMの管理トラフィックを伝送します。
++
+このSVMの管理はクラスタ管理者が担当し、IPspaceと同じ名前が使用されます。
+
+
+
+1つのIPspaceにクライアント用のSVMを1つ以上配置できます。各クライアントSVMは専用のデータ ボリュームと設定を持ち、他のSVMからは独立して管理されます。

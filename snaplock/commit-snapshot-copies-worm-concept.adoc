@@ -2,16 +2,16 @@
 permalink: snaplock/commit-snapshot-copies-worm-concept.html 
 sidebar: sidebar 
 keywords: snaplock, commit, snapshot, copy, worm, snapvault, protect, snapmirror, clone, snaplock type 
-summary: SnapLock for SnapVaultを使用すると、セカンダリストレージ上のSnapshotコピーをWORM方式で保護できます。SnapLockの基本タスクはすべてSnapVaultデスティネーションで実行します。 
+summary: SnapLock for SnapVaultを使用すると、セカンダリストレージ上のSnapshotをWORM方式で保護できます。SnapLockの基本タスクはすべてSnapVaultデスティネーションで実行します。 
 ---
-= SnapVaultデスティネーションでSnapshotコピーをWORM状態にコミットする
+= SnapVaultデスティネーションでのSnapshotのWORM状態へのコミット
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-SnapLock for SnapVaultを使用すると、セカンダリストレージ上のSnapshotコピーをWORM方式で保護できます。SnapLockの基本タスクはすべてSnapVaultデスティネーションで実行します。デスティネーションボリュームは自動的に読み取り専用でマウントされるため、SnapshotコピーをWORM状態に明示的にコミットする必要はありません。したがって、スケジュール設定されたSnapshotコピーをデスティネーションボリュームでSnapMirrorポリシーを使用して作成することはサポートされていません。
+SnapLock for SnapVaultを使用すると、セカンダリストレージ上のSnapshotをWORM方式で保護できます。SnapLockの基本タスクはすべてSnapVaultデスティネーションで実行します。デスティネーションボリュームは自動的に読み取り専用でマウントされるため、SnapshotをWORM状態に明示的にコミットする必要はありません。
 
 .開始する前に
 * System Managerを使用して関係を設定する場合は、ソースとデスティネーションの両方のクラスタでONTAP 9.15.1以降が実行されている必要があります。
@@ -32,20 +32,20 @@ SnapLock for SnapVaultを使用すると、セカンダリストレージ上のS
 ソースボリュームでは、NetAppまたはNetApp以外のストレージを使用できます。NetApp以外のストレージの場合は、FlexArray仮想化を使用する必要があります。
 
 
-NOTE: WORM状態にコミットされたSnapshotコピーの名前は変更できません。
+NOTE: WORM状態にコミットされたSnapshotの名前は変更できません。
 
 SnapLockボリュームはクローニングできますが、SnapLockボリューム上のファイルはクローニングできません。
 
 
-NOTE: SnapLockボリュームではLUNはサポートされません。SnapLockでは、SnapLock以外のボリュームで作成されたSnapshotコピーをSnapLockバックアップ関係の一部として保護するためにSnapLockに転送する場合にのみ、LUNがサポートされます。読み取り/書き込みSnapLockボリュームではLUNはサポートされません。ただし、改ざん防止Snapshotコピーは、SnapMirrorのソースボリュームと、LUNを含むデスティネーションボリュームの両方でサポートされます。
+NOTE: SnapLockボリュームではLUNはサポートされません。SnapLockでは、SnapLock以外のボリュームで作成されたSnapshotをSnapLockバックアップ関係の一部として保護するためにSnapLockに転送する場合にのみ、LUNがサポートされます。読み取り/書き込みSnapLockボリュームではLUNはサポートされません。ただし、改ざん防止Snapshotは、SnapMirrorのソースボリュームと、LUNを含むデスティネーションボリュームの両方でサポートされます。
 
 ONTAP 9 .10.1以降では、SnapLockボリュームとSnapLock以外のボリュームを同じアグリゲート上に配置できます。そのため、ONTAP 9 .10.1を使用している場合は、SnapLockアグリゲートを別途作成する必要はありません。Compliance SnapLockまたはEnterprise SnapLockのボリュームタイプを指定するには、ボリューム「-Enterprise-type」オプションを使用します。ONTAP 9 10.1より前のONTAPリリースでは、SnapLockモード（ComplianceまたはEnterprise）がアグリゲートから継承されます。バージョンに依存しないデスティネーションボリュームはサポートされません。デスティネーションボリュームの言語設定は、ソースボリュームの言語設定と一致している必要があります。
 
-バックアップデスティネーションであるSnapLockには、デフォルトの保持期間が割り当てられています。この期間の最初の値は、SnapLock Enterpriseボリュームの場合は最小0年、SnapLock Complianceボリュームの場合は最大30年です。各NetApp Snapshotコピーは、最初はこのデフォルトの保持期間でコミットされます。保持期間は、必要に応じてあとから延長できます。詳細については、を参照してください link:set-retention-period-task.html["保持期限の設定の概要を確認します"]。
+バックアップデスティネーションであるSnapLockには、デフォルトの保持期間が割り当てられています。この期間の最初の値は、SnapLock Enterpriseボリュームの場合は最小0年、SnapLock Complianceボリュームの場合は最大30年です。各NetApp Snapshotは、最初はこのデフォルトの保持期間でコミットされます。保持期間は、必要に応じてあとから延長できます。詳細については、を参照してください link:set-retention-period-task.html["保持期限の設定の概要を確認します"]。
 
-14.1以降では、ONTAP 9 SnapMirror関係のSnapMirrorポリシーに特定のSnapMirrorラベルの保持期間を指定できます。これにより、ソースボリュームからデスティネーションボリュームにレプリケートされたSnapshotコピーがルールで指定された保持期間に保持されます。保持期間を指定しない場合は、デスティネーションボリュームのデフォルトの保持期間が使用されます。
+ONTAP 9.14.1以降では、SnapMirror関係のSnapMirrorポリシーに特定のSnapMirrorラベルの保持期間を指定できます。これにより、ソースボリュームからデスティネーションボリュームにレプリケートされたSnapshotが、ルールで指定された保持期間に保持されます。保持期間を指定しない場合は、デスティネーションボリュームのデフォルトの保持期間が使用されます。
 
-Snapshot.13.1以降では、ボリュームクローン作成処理の実行時にオプションを「SnapLock」に設定してONTAP 9 FlexCloneを作成し、そのSnapshotコピーを「parent-snapshot」として指定することで、ロックされたSnapshotコピーをSnapLockバックアップ関係のデスティネーションSnapLockボリュームに瞬時にリストアできます `snaplock-type`。詳細については、をご覧ください link:../volumes/create-flexclone-task.html?q=volume+clone["SnapLock タイプのFlexCloneボリュームを作成します"]。
+ONTAP 9.13.1以降では、ボリュームクローン作成処理の実行時にオプションをに設定し `non-snaplock`てFlexCloneを作成し、そのSnapshotを「parent-snapshot」として指定することで、SnapLockバックアップ関係のデスティネーションSnapLockボリュームでロックされたSnapshotを瞬時にリストアできます。 `snaplock-type`詳細については、をご覧ください link:../volumes/create-flexclone-task.html?q=volume+clone["SnapLock タイプのFlexCloneボリュームを作成します"]。
 
 MetroCluster構成の場合は、次の点に注意してください。
 
@@ -93,7 +93,7 @@ cluster2::> volume create -vserver SVM2 -volume dstvolB -aggregate node01_aggr -
 . デスティネーションクラスタで、link:set-retention-period-task.html["デフォルトの保持期間を設定する"]を実行します。
 . link:../data-protection/create-replication-relationship-task.html["新しいレプリケーション関係を作成"]SnapLock以外のソースと作成した新しいSnapLockデスティネーション間。
 +
-この例では、のポリシーを使用して `XDPDefault`、デスティネーションSnapLockボリュームとの新しいSnapMirror関係を作成し `dstvolB`、dailyおよびweeklyというラベルのSnapshotコピーを毎時スケジュールにバックアップします。
+この例では、ポリシーを使用して、dailyおよびweeklyというラベルのSnapshotを毎時スケジュールでバックアップするように、 `XDPDefault`デスティネーションSnapLockボリュームとの新しいSnapMirror関係を作成し `dstvolB`ます。
 
 +
 [listing]
@@ -118,9 +118,9 @@ snapmirror initialize -destination-path <destination_path>
 ----
 cluster2::> snapmirror initialize -destination-path SVM2:dstvolB
 ----
-. 関係が初期化されアイドル状態になったら、デスティネーションでコマンドを使用して `snapshot show`、レプリケートされたSnapshotコピーに適用されているSnapLock有効期限を確認します。
+. 関係が初期化されアイドル状態になったら、デスティネーションでコマンドを使用して `snapshot show`、レプリケートされたSnapshotに適用されているSnapLock有効期限を確認します。
 +
-この例では、SnapMirrorラベルとSnapLockの有効期限が設定されたボリューム上のSnapshotコピーを表示して `dstvolB`います。
+この例では、SnapMirrorラベルとSnapLockの有効期限が設定されたボリューム上のSnapshotを表示して `dstvolB`います。
 
 +
 [listing]

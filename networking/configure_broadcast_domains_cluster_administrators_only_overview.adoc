@@ -1,0 +1,49 @@
+---
+sidebar: sidebar 
+permalink: networking/configure_broadcast_domains_cluster_administrators_only_overview.html 
+keywords: broadcast, domain, overview, introduction, introducing, configure broadcast domains overview for ontap 9.8 and later, broadcast domains group network ports that belong to the same layer 2 network, example, sample, broadcast, domains, example of using broadcast domains, sample broadcast domain 
+summary: ブロードキャストドメインは、同じレイヤ 2 ネットワークに属するネットワークポートをグループ化したものです 
+---
+= ブロードキャストドメインの概要（ONTAP 9 .8以降）
+:hardbreaks:
+:allow-uri-read: 
+:nofooter: 
+:icons: font
+:linkattrs: 
+:imagesdir: ../media/
+
+
+[role="lead"]
+ブロードキャストドメインは、同じレイヤ2ネットワークに属するネットワークポートをグループ化するためのものです。グループ化したポートは、データトラフィックまたは管理トラフィック用のStorage Virtual Machine（SVM）で使用できます。
+
+ブロードキャストドメインはIPspace内にあります。クラスタの初期化では、デフォルトのブロードキャストドメインが2つ作成されます。
+
+* 「Default」ブロードキャストドメインには、「Default」IPspace内のポートが含まれています。
++
+これらのポートは、主にデータの提供に使用されます。クラスタ管理ポートとノード管理ポートも、このブロードキャスト ドメインに含まれています。
+
+* 「Cluster」ブロードキャスト ドメインには、「Cluster」IPspace内にあるポートが含まれています。
++
+これらのポートはクラスタ通信に使われ、クラスタの全ノードのすべてのクラスタ ポートが含まれています。
+
++
+必要に応じて、ブロードキャスト ドメインがDefault IPspaceに追加で作成されます。「Default」ブロードキャスト ドメインには、管理LIFのホーム ポートと、そのポートへのレイヤ2の到達可能性があるポートがすべて含まれています。追加のブロードキャスト ドメインの名前は、「Default-1」、「Default-2」などとなります。
+
+
+
+
+
+== ブロードキャスト ドメインの使用例
+
+ブロードキャスト ドメインは、同じIPspace内にあり、相互にレイヤ2の到達可能性があるネットワーク ポートの集まりです。一般にクラスタ内の複数のノードのポートが含まれます。
+
+次の図は、4ノード クラスタの3つのブロードキャスト ドメインにポートを割り当てている例を示します。
+
+* 「Cluster」ブロードキャストドメインは、クラスタの初期化時に自動的に作成され、クラスタ内の各ノードのポートaとbが含まれます。
+* 「default」ブロードキャストドメインもクラスタの初期化時に自動的に作成され、クラスタ内の各ノードのポートcとdが含まれます。
+* クラスタの初期化時に、レイヤ2ネットワークの到達可能性に基づいて追加のブロードキャストドメインが自動的に作成されます。これらの追加のブロードキャストドメインの名前は、Default-1、Default-2のようになります。
+
+
+image:Broadcast_Domains.png["ブロードキャストドメインのイメージ"]
+
+各ブロードキャストドメインと同じ名前で、同じネットワークポートを持つフェイルオーバーグループが自動的に作成されます。このフェイルオーバーグループはシステムによって自動的に管理されます。つまり、ブロードキャストドメインのポートが追加または削除されると、そのフェイルオーバーグループのポートも自動的に追加または削除されます。

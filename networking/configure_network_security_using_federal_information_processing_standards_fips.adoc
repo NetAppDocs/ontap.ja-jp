@@ -1,0 +1,153 @@
+---
+sidebar: sidebar 
+permalink: networking/configure_network_security_using_federal_information_processing_standards_fips.html 
+keywords: fips 140-2, compliant, ssl, connections, tlsv1.2, tlsv1.1, tlsv1, enable fips, disable fips, compliance status, SSL 
+summary: すべての SSL 接続に対応した Federal Information Processing Standard （ FIPS ；連邦情報処理標準） 140-2 が準拠しています 
+---
+= 連邦情報処理標準（FIPS）を使用したネットワークセキュリティの設定
+:hardbreaks:
+:allow-uri-read: 
+:nofooter: 
+:icons: font
+:linkattrs: 
+:imagesdir: ../media/
+
+
+[role="lead"]
+ONTAPは、すべてのSSL接続について、連邦情報処理標準（FIPS）140-2に準拠しています。ONTAPでは、SSL FIPSモードをオンまたはオフにしたり、SSLプロトコルをグローバルに設定したり、RC4などの弱い暗号を無効にしたりできます。
+
+デフォルトでは、次のコマンドを使用して、ONTAPのSSLはFIPS準拠を無効にし、SSLプロトコルを有効にして設定されます。
+
+* TLSv1.3（ONTAP 9 .11.1以降）
+* TLSv1.2
+* TLSv1.1
+* TLSv1
+
+
+SSL FIPSモードが有効な場合、ONTAPからONTAPの外部のクライアントまたはサーバコンポーネントへのSSL通信では、SSL用のFIPS準拠の暗号が使用されます。
+
+管理者アカウントがSSH公開鍵を使用してSVMにアクセスできるようにする場合は、SSL FIPSモードを有効にする前に、ホストキーのアルゴリズムがサポートされていることを確認する必要があります。
+
+*注：ONTAP 9.11.1以降では、ホストキーアルゴリズムのサポートが変更されています。
+
+[cols="30,30,30"]
+|===
+
+
+| ONTAP リリース | サポートされているキータイプ | サポートされていないキータイプです 
+
+
+ a| 
+9.11.1以降
+ a| 
+ECDSA - sha2 - nistp256
+ a| 
+rsa-sha2-512+ rsa-sha2-256+ ssh-ed25519 + ssh-dss+ssh-rsa
+
+
+
+ a| 
+9.10.1以前
+ a| 
+ECDSA - sha2 -nistp256 + ssh-ed25519
+ a| 
+SSH-DSS + ssh-rsa
+
+|===
+FIPSを有効にする前に、サポートされているキーアルゴリズムがない既存のSSH公開鍵アカウントをサポートされているキータイプで再設定する必要があります。そうしないと、管理者認証が失敗します。
+
+詳細については、を参照してください link:../authentication/enable-ssh-public-key-accounts-task.html["SSH公開鍵アカウントの有効化"]。
+
+SSL FIPSモードの設定の詳細については、のマニュアルページを参照して `security config modify`ください。
+
+
+
+== FIPSを有効にする
+
+システムのインストールまたはアップグレードの直後に、すべてのセキュアなユーザがセキュリティ設定を調整することをお勧めします。SSL FIPSモードが有効な場合、ONTAPからONTAPの外部のクライアントまたはサーバコンポーネントへのSSL通信では、SSL用のFIPS準拠の暗号が使用されます。
+
+
+NOTE: FIPSが有効な場合、RSAキーの長さが4096の証明書をインストールまたは作成することはできません。
+
+.手順
+. advanced権限レベルに切り替えます。
++
+`set -privilege advanced`
+
+. FIPSを有効にします。
++
+`security config modify -interface SSL -is-fips-enabled true`
+
+. 続行するかどうかを尋ねられたら、 `y`
+. ONTAP 9 .8以前を実行している場合は、クラスタ内の各ノードを1つずつ手動でリブートします。ONTAP 9.9.1以降では、リブートは必要ありません。
+
+
+.例
+ONTAP 9 .9.1以降を実行している場合は、警告メッセージは表示されません。
+
+....
+security config modify -interface SSL -is-fips-enabled true
+
+Warning: This command will enable FIPS compliance and can potentially cause some non-compliant components to fail. MetroCluster and Vserver DR require FIPS to be enabled on both sites in order to be compatible.
+Do you want to continue? {y|n}: y
+
+Warning: When this command completes, reboot all nodes in the cluster. This is necessary to prevent components from failing due to an inconsistent security configuration state in the cluster. To avoid a service outage, reboot one node at a time and wait for it to completely initialize before rebooting the next node. Run "security config status show" command to monitor the reboot status.
+Do you want to continue? {y|n}: y
+....
+
+
+== FIPSの無効化
+
+古いシステム構成を実行していて、ONTAPを下位互換性のある方法で設定したい場合は、FIPSが無効になっている場合にのみSSLv3を有効にできます。
+
+.手順
+. advanced権限レベルに切り替えます。
++
+`set -privilege advanced`
+
+. FIPSを無効にするには、
++
+`security config modify -interface SSL -is-fips-enabled false`
+
+. 続行するかどうかを尋ねられたら、と入力し `y`ます。
+. ONTAP 9 .8以前を実行している場合は、クラスタ内の各ノードを手動でリブートします。ONTAP 9.9.1以降では、リブートは必要ありません。
+
+
+.例
+ONTAP 9 .9.1以降を実行している場合は、警告メッセージは表示されません。
+
+....
+security config modify -interface SSL -supported-protocols SSLv3
+
+Warning: Enabling the SSLv3 protocol may reduce the security of the interface, and is not recommended.
+Do you want to continue? {y|n}: y
+
+Warning: When this command completes, reboot all nodes in the cluster. This is necessary to prevent components from failing due to an inconsistent security configuration state in the cluster. To avoid a service outage, reboot one node at a time and wait for it to completely initialize before rebooting the next node. Run "security config status show" command to monitor the reboot status.
+Do you want to continue? {y|n}: y
+....
+
+
+== FIPS準拠ステータスの表示
+
+クラスタ全体で現在のセキュリティ設定が実行されているかどうかを確認できます。
+
+.手順
+. クラスタ内の各ノードを1つずつリブートします。
++
+すべてのクラスタノードを同時にリブートしないでください。クラスタ内のすべてのアプリケーションで新しいセキュリティ設定が実行されるようにするには、リブートが必要です。また、FIPSのオン/オフモード、プロトコル、および暗号に対するすべての変更を行うには、リブートが必要です。
+
+. 現在の準拠ステータスを表示します。
++
+`security config show`
+
+
+
+....
+security config show
+
+          Cluster                                              Cluster Security
+Interface FIPS Mode  Supported Protocols     Supported Ciphers Config Ready
+--------- ---------- ----------------------- ----------------- ----------------
+SSL       false      TLSv1_2, TLSv1_1, TLSv1 ALL:!LOW:!aNULL:  yes
+                                             !EXP:!eNULL
+....

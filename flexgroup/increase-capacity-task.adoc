@@ -2,7 +2,7 @@
 permalink: flexgroup/increase-capacity-task.html 
 sidebar: sidebar 
 keywords: increase, size, flexgroup, volume, flex group 
-summary: FlexGroupのサイズを拡張するには、FlexGroupの既存のコンスティチュエントに容量を追加するか、新しいコンスティチュエントでFlexGroupを拡張します。 
+summary: FlexGroupのサイズを拡張するには、FlexGroupの既存のコンスティチュエントに容量を追加するか、新しいメンバーボリュームを含むFlexGroupを拡張します。 
 ---
 = FlexGroupボリュームのサイズを拡張する
 :allow-uri-read: 
@@ -11,19 +11,19 @@ summary: FlexGroupのサイズを拡張するには、FlexGroupの既存のコ�
 
 
 [role="lead"]
-FlexGroupのサイズを拡張するには、FlexGroupの既存のコンスティチュエントに容量を追加するか、新しいコンスティチュエントでFlexGroupを拡張します。
+FlexGroupのサイズを拡張するには、FlexGroupの既存のメンバーボリューム（コンスティチュエント）に容量を追加するか、新しいメンバーボリュームでFlexGroupを拡張します。1つのFlexGroupボリュームに含めることができるメンバーボリュームは200個までです。
 
-.必要なもの
+.開始する前に
 アグリゲートに十分なスペースが必要です。
 
 .タスクの内容
-スペースを追加する場合は、FlexGroupボリューム全体のサイズを増やすことができます。FlexGroupボリュームのサイズを拡張すると、FlexGroupボリュームの既存のコンスティチュエントのサイズが変更されます。
+スペースを追加する場合は、FlexGroupボリューム全体のサイズを増やすことができます。FlexGroupボリュームのサイズを拡張すると、FlexGroupボリュームの既存のメンバーボリュームのサイズが変更されます。
 
-パフォーマンスの向上が必要な場合は、FlexGroupボリュームを拡張できます。FlexGroupボリュームを拡張して新しいコンスティチュエントを追加する状況は次のとおりです。
+パフォーマンスの向上が必要な場合は、FlexGroupボリュームを拡張できます。FlexGroupボリュームの拡張と新しいメンバーボリュームの追加が必要になる状況は次のとおりです。
 
 * クラスタに新しいノードが追加された。
 * 既存のノードに新しいアグリゲートが作成された。
-* FlexGroupボリュームの既存のコンスティチュエントがハードウェアの最大FlexVolサイズに達しているため、FlexGroupボリュームのサイズを変更できません。
+* FlexGroupボリュームの既存のメンバーボリュームがハードウェアの最大FlexVolサイズ（有効になっている場合は100TBまたは300TB）に達しているlink:../volumes/enable-large-vol-file-support-task.html["大容量のサポート"]ため、メンバーボリュームを追加しないとFlexGroupボリュームのサイズを変更できません。
 
 
 ONTAP 9 3より前のリリースでは、SnapMirror関係の確立後にFlexGroupボリュームを拡張することはできません。ONTAP 9よりも前のリリースでSnapMirror関係の解除後にソースFlexGroupボリュームを拡張した場合は、デスティネーションFlexGroupボリュームへのベースライン転送をもう一度実行する必要があります。ONTAP 9 .3以降では、SnapMirror関係にあるFlexGroupボリュームを拡張できます。
@@ -40,7 +40,7 @@ ONTAP 9 3より前のリリースでは、SnapMirror関係の確立後にFlexGro
  a| 
 FlexGroupボリュームの容量
  a| 
-FlexGroupボリュームのコンスティチュエントのサイズを変更します。
+FlexGroupボリュームのメンバーボリュームのサイズを変更します。
 
 `volume modify -vserver vserver_name -volume fg_name -size new_size`
 
@@ -49,7 +49,7 @@ FlexGroupボリュームのコンスティチュエントのサイズを変更�
  a| 
 FlexGroupボリュームのパフォーマンス
  a| 
-新しいコンスティチュエントを追加してFlexGroupボリュームを拡張します。
+新しいメンバーボリューム（コンスティチュエント）を追加してFlexGroupボリュームを拡張します。
 
 `+volume expand -vserver vserver_name -volume fg_name -aggr-list aggregate name,... [-aggr-list-multiplier constituents_per_aggr]+`
 
@@ -60,10 +60,10 @@ ONTAP 9でFabricPool用のFlexGroupボリュームを拡張するには、新し
 |===
 
 
-可能なかぎり、FlexGroupボリュームの容量を増やす必要があります。FlexGroupボリュームを拡張する必要がある場合は、一貫したパフォーマンスを確保するために、既存のFlexGroupボリュームのコンスティチュエントの倍数でコンスティチュエントを追加します。たとえば、既存のFlexGroupボリュームに16個のコンスティチュエントがあり、ノードごとに8個のコンスティチュエントがある場合は、コンスティチュエントを8個または16個追加して既存のFlexGroupボリュームを拡張できます。
+可能なかぎり、FlexGroupボリュームの容量を増やす必要があります。FlexGroupボリュームを拡張する必要がある場合は、一貫したパフォーマンスを確保するために、既存のFlexGroupボリュームのメンバーボリュームと同じ倍数のメンバーボリュームを追加する必要があります。たとえば、既存のFlexGroupボリュームに16個のメンバーボリュームがあり、ノードごとに8個のメンバーボリュームがある場合は、既存のFlexGroupボリュームを8個または16個のメンバーボリュームだけ拡張できます。
 
 .例
-* 既存のコンスティチュエントの容量拡張の例 *
+*既存のメンバーボリュームの容量拡張の例*
 
 次の例は、FlexGroupボリュームvolXに20TBのスペースを追加する方法を示しています。
 
@@ -71,14 +71,14 @@ ONTAP 9でFabricPool用のFlexGroupボリュームを拡張するには、新し
 ----
 cluster1::> volume modify -vserver svm1 -volume volX -size +20TB
 ----
-FlexGroupボリュームに16個のコンスティチュエントがある場合は、各コンスティチュエントのスペースが1.25TB増加します。
+FlexGroupに16個のメンバーボリュームがある場合、各メンバーボリュームのスペースは1.25TB増加します。
 
-* 新しいコンスティチュエントを追加してパフォーマンスを向上させる例 *
+*新しいメンバーボリュームの追加によるパフォーマンス向上の例*
 
-次の例は、FlexGroupボリュームvolXにさらに2つのコンスティチュエントを追加する方法を示しています。
+次の例は、FlexGroupボリュームvolXにさらに2つのメンバーボリュームを追加する方法を示しています。
 
 [listing]
 ----
 cluster1::> volume expand -vserver vs1 -volume volX -aggr-list aggr1,aggr2
 ----
-新しいコンスティチュエントのサイズは、既存のコンスティチュエントと同じです。
+新しいメンバーボリュームのサイズは、既存のメンバーボリュームのサイズと同じです。

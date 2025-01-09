@@ -83,6 +83,9 @@ xref:../san-admin/provision-storage.html[LUNの作成とigroupのマッピング
 
 ONTAPメディエーターをインストールしてクラスタ構成を確認したら、クラスタの監視用にONTAPメディエーターを初期化する必要があります。ONTAPメディエーターは、System ManagerまたはONTAP CLIを使用して初期化できます。
 
+
+NOTE: ONTAPメディエーター1.8以前では、CA証明書はです `ca.crt`。ONTAPメディエーター1.9以降では、必要な証明書はです `intermediate.crt`。
+
 [role="tabbed-block"]
 ====
 .System Manager
@@ -104,8 +107,8 @@ IMPORTANT: ONTAP 9 .8~9.14.1では、SnapMirrorアクティブ同期をSnapMirro
 
 . 証明書の入力は、次の2つの方法で指定できます。
 +
-** *オプション（A）*：*インポート*を選択して、ファイルに移動し `.crt`てインポートします。
-** *オプション（b）*：ファイルの内容をコピーし `.crt`、*証明書*フィールドに貼り付けます。
+** *オプション（A）*：*インポート*を選択して、ファイルに移動し `intermediate.crt`てインポートします。
+** *オプション（b）*：ファイルの内容をコピーし `intermediate.crt`、*証明書*フィールドに貼り付けます。
 +
 すべての詳細を正しく入力すると、指定した証明書がすべてのピアクラスタにインストールされます。
 
@@ -141,7 +144,7 @@ Mediatorを使用してSnapMirrorのアクティブな同期関係を監視し�
 +
 [listing]
 ----
-[root@ontap-mediator server_config]# cat ca.crt
+[root@ontap-mediator server_config]# cat intermediate.crt
 -----BEGIN CERTIFICATE-----
 MIIFxTCCA62gAwIBAgIJANhtjk6HFCiOMA0GCSqGSIb3DQEBCwUAMHgxFTATBgNV
 BAoMDE5ldEFwcCwgSW5jLjELMAkGA1UEBhMCVVMxEzARBgNVBAgMCkNhbGlmb3Ju
@@ -161,7 +164,7 @@ p+jdg5bG61cxkuvbRm7ykFbih1b88/Sgu5XJg2KRhjdISF98I81N+Fo=
 ----
 [root@ontap-mediator ~]# cd /opt/netapp/lib/ontap_mediator/ontap_mediator/server_config
 
-[root@ontap-mediator server_config]# cat ca.crt
+[root@ontap-mediator server_config]# cat intermediate.crt
 -----BEGIN CERTIFICATE-----
 MIIFxTCCA62gAwIBAgIJANhtjk6HFCiOMA0GCSqGSIb3DQEBCwUAMHgxFTATBgNV
 BAoMDE5ldEFwcCwgSW5jLjELMAkGA1UEBhMCVVMxEzARBgNVBAgMCkNhbGlmb3Ju
@@ -283,7 +286,7 @@ image:configure-mediator-system-manager.png["System Managerのメディエータ
 ONTAP CLIを使用して自己署名証明書をサードパーティの証明書に置き換えることで、プライマリクラスタまたはセカンダリクラスタからONTAPメディエーターを再初期化できます。
 
 .手順
-. すべてのクラスタで自己署名証明書を使用していた場合は、以前にインストールした自己署名証明書を削除して `ca.crt`ください。次の例では、2つのクラスタがあります。
+. すべてのクラスタで自己署名証明書を使用していた場合は、以前にインストールした自己署名証明書を削除して `intermediate.crt`ください。次の例では、2つのクラスタがあります。
 +
 * 例 *
 
@@ -319,12 +322,12 @@ Info: [Job 136] 'mediator remove' job queued
 C1_test_cluster::*> snapmirror mediator show
 This table is currently empty.
 ----
-. 下位CAから証明書を取得する方法については、で説明されている手順を参照してください link:../mediator/manage-task.html["自己署名証明書を信頼できるサードパーティ証明書に置き換える"] 。 `ca.crt`自己署名証明書を信頼できるサードパーティ証明書に置き換える
+. 下位CA（と呼ばれる）から証明書を取得する方法については、の手順を参照してくださいlink:../mediator/manage-task.html["自己署名証明書を信頼できるサードパーティ証明書に置き換える"]。 `intermediate.crt`自己署名証明書を信頼できるサードパーティ証明書に置き換える
 +
 
-NOTE: には、 `ca.crt`ファイルに定義されているPKI権限に送信する必要がある要求から派生する特定のプロパティがあります `/opt/netapp/lib/ontap_mediator/ontap_mediator/server_config/openssl_ca.cnf`。
+NOTE: には、 `intermediate.crt`ファイルに定義されているPKI権限に送信する必要がある要求から派生する特定のプロパティがあります `/opt/netapp/lib/ontap_mediator/ontap_mediator/server_config/openssl_ca.cnf`。
 
-. ONTAPメディエーターLinux VM /ホストソフトウェアのインストール先から新しいサードパーティ製ONTAPメディエーターCA証明書を追加し `ca.crt`ます。
+. ONTAPメディエーターLinux VM /ホストソフトウェアのインストール先から新しいサードパーティ製ONTAPメディエーターCA証明書を追加し `intermediate.crt`ます。
 +
 * 例 *
 
@@ -332,7 +335,7 @@ NOTE: には、 `ca.crt`ファイルに定義されているPKI権限に送信�
 [listing]
 ----
 [root@ontap-mediator ~]# cd /opt/netapp/lib/ontap_mediator/ontap_mediator/server_config
-[root@ontap-mediator server_config]# cat ca.crt
+[root@ontap-mediator server_config]# cat intermediate.crt
 -----BEGIN CERTIFICATE-----
 MIIFxTCCA62gAwIBAgIJANhtjk6HFCiOMA0GCSqGSIb3DQEBCwUAMHgxFTATBgNV
 BAoMDE5ldEFwcCwgSW5jLjELMAkGA1UEBhMCVVMxEzARBgNVBAgMCkNhbGlmb3Ju
@@ -340,7 +343,7 @@ BAoMDE5ldEFwcCwgSW5jLjELMAkGA1UEBhMCVVMxEzARBgNVBAgMCkNhbGlmb3Ju
 p+jdg5bG61cxkuvbRm7ykFbih1b88/Sgu5XJg2KRhjdISF98I81N+Fo=
 -----END CERTIFICATE-----
 ----
-. ファイルをピアクラスタに追加します `ca.crt`。すべてのピアクラスタについて、この手順を繰り返します。
+. ファイルをピアクラスタに追加します `intermediate.crt`。すべてのピアクラスタについて、この手順を繰り返します。
 +
 * 例 *
 

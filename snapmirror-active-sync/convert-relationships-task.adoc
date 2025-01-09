@@ -20,7 +20,7 @@ ONTAP 9 .15.1以降では、SnapMirrorアクティブ同期保護のタイプ（
 
 == 対称アクティブ/アクティブ関係への変換
 
-SnapMirrorのアクティブな同期関係をaysnchronous保護で変換して、対称アクティブ/アクティブを使用することができます。
+非同期保護を使用してSnapMirrorのアクティブな同期関係を変換し、対称アクティブ/アクティブを使用することができます。
 
 .開始する前に
 * 両方のクラスタでONTAP 9 .15.1以降が実行されている必要があります。
@@ -91,11 +91,11 @@ SnapMirrorのアクティブな同期関係をaysnchronous保護で変換して�
 .統一された構成の手順
 . SnapMirrorポリシーをからに `AutomatedFailoverDuplex`変更し `AutomatedFailover`ます。
 +
-`snapmirror modify -destination-path _destination_path_ -policy AutomatedFailoverDuplex`
+`snapmirror modify -destination-path <destination_path> -policy AutomatedFailoverDuplex`
 
 . ポリシーを変更すると再同期がトリガーされます。再同期が完了してから、関係が次のようになっていることを確認し `Insync`ます。
 +
-`snapmirror show -destination-path _destination_path_`
+`snapmirror show -destination-path <destination_path>`
 
 . 既存のホストがローカルのプライマリクラスタの場合は、ホストを2番目のクラスタに追加し、各クラスタへのそれぞれのアクセスとの接続を確立します。
 . セカンダリサイトで、リモートホストに関連付けられたigroupのLUNマップを削除します。
@@ -104,11 +104,11 @@ SnapMirrorのアクティブな同期関係をaysnchronous保護で変換して�
 NOTE: igroupにレプリケートされていないLUNのマッピングが含まれていないことを確認します。
 
 +
-`SiteB::> lun mapping delete -vserver _svm_name_ -igroup _igroup_ -path <>`
+`SiteB::> lun mapping delete -vserver <svm_name> -igroup <igroup> -path <>`
 
 . プライマリサイトで、既存のホストのイニシエータ設定を変更して、ローカルクラスタのイニシエータの近接パスを設定します。
 +
-`SiteA::> igroup initiator add-proximal-vserver -vserver _svm_name_ -initiator _host_ -proximal-vserver _server_`
+`SiteA::> igroup initiator add-proximal-vserver -vserver <svm_name> -initiator <host> -proximal-vserver <server>`
 
 . 新しいホスト用の新しいigroupとイニシエータを追加し、ホストとローカルサイトのアフィニティを設定します。igroupレプリケーションを有効にして設定をレプリケートし、リモートクラスタのホストローカル性を反転
 +
@@ -124,11 +124,11 @@ SiteA::> igroup initiator add-proximal-vserver -vserver vsA -initiator host2 -pr
 .不均一な構成の手順
 . SnapMirrorポリシーをからに `AutomatedFailoverDuplex`変更し `AutomatedFailover`ます。
 +
-`snapmirror modify -destination-path _destination_path_ -policy AutomatedFailoverDuplex`
+`snapmirror modify -destination-path <destination_path> -policy AutomatedFailoverDuplex`
 
 . ポリシーを変更すると再同期がトリガーされます。再同期が完了してから、関係が次のようになっていることを確認し `Insync`ます。
 +
-`snapmirror show -destination-path _destination_path_`
+`snapmirror show -destination-path <destination_path>`
 
 . 既存のホストがプライマリクラスタに対してローカルである場合は、ホストを2番目のクラスタに追加し、各クラスタへのそれぞれのアクセスとの接続を確立します。
 . セカンダリサイトで、リモートホストに関連付けられたigroupのLUNマップを削除します。
@@ -137,18 +137,18 @@ SiteA::> igroup initiator add-proximal-vserver -vserver vsA -initiator host2 -pr
 NOTE: igroupにレプリケートされていないLUNのマッピングが含まれていないことを確認します。
 
 +
-`SiteB::> lun mapping delete -vserver _svm_name_ -igroup _igroup_ -path <>`
+`SiteB::> lun mapping delete -vserver <svm_name> -igroup <igroup> -path <>`
 
 . プライマリサイトで、既存のホストのイニシエータ設定を変更して、ローカルクラスタのイニシエータの近接パスを設定します。
 +
-`SiteA::> igroup initiator add-proximal-vserver -vserver _Svm_name_ -initiator _host_ -proximal-vserver _server_`
+`SiteA::> igroup initiator add-proximal-vserver -vserver <svm_name> -initiator <host> -proximal-vserver <server>`
 
 . セカンダリサイトで、新しいホスト用の新しいigroupとイニシエータを追加し、ローカルサイトへのホストアフィニティを設定します。LUNをigroupにマッピングします。
 +
 ``
-SiteB::> igroup create -vserver _svm_name_ -igroup _igroup_name_
-SiteB::> igroup add -vserver _svm_name_ -igroup  _igroup_name_ -initiator _host_name_
-SiteB::> lun mapping create -igroup  _igroup_name_ -path _path_name_
+SiteB::> igroup create -vserver <svm_name> -igroup <igroup>
+SiteB::> igroup add -vserver <svm_name> -igroup  <igroup> -initiator <host_name>
+SiteB::> lun mapping create -igroup  <igroup> -path <path_name>
 ``
 
 . ホスト上のパスを検出し、優先クラスタからストレージLUNへのアクティブ/最適化パスがホストにあることを確認する
@@ -165,30 +165,30 @@ SiteB::> lun mapping create -igroup  _igroup_name_ -path _path_name_
 
 .手順
 . すべてのVMワークロードを、ソースクラスタのローカルホストに移動します。
-. VMインスタンスを管理していないホストのigroup設定を削除し、igroupのレプリケーションを終了するようにigroup設定を変更します。
+. VMインスタンスを管理していないホストのigroup設定を削除し、igroup設定を変更してigroupのレプリケーションを終了します。
 +
-`code`
+`igroup modify -vserver <svm_name> -igroup <igroup> -replication-peer -`
 
 . セカンダリサイトで、LUNのマッピングを解除します。
 +
-`SiteB::> lun mapping delete -vserver _svm_name_ -igroup _igroup_name_ -path <>`
+`SiteB::> lun mapping delete -vserver <svm_name> -igroup <igroup> -path <>`
 
 . セカンダリサイトで、対称アクティブ/アクティブ関係を削除します。
 +
-`SiteB::> snapmirror delete -destination-path _destination_path_`
+`SiteB::> snapmirror delete -destination-path <destination_path>`
 
 . プライマリサイトで、対称アクティブ/アクティブ関係を解放します。
-`SiteA::> snapmirror release -destination-path _destination_path_ -relationship-info-only true`
-. セカンダリサイトから、関係を再同期するというポリシーを使用して、同じ一連のボリュームに対する関係を作成し `AutomatedFailover`ます。
+`SiteA::> snapmirror release -destination-path <destination_path> -relationship-info-only true`
+. セカンダリサイトで、ポリシーを使用して同じ一連のボリュームに対する関係を作成し `AutomatedFailover`、関係を再同期します。
 +
 ``
-SiteB::> snapmirror create -source-path _source_path_ -destination-path _destination_path_ -cg-item-mappings _source:@destination_ -policy AutomatedFailover
-SiteB::> snapmirror resync -destination-path vs1:/cg/cg1_dst
+SiteB::> snapmirror create -source-path <source_path> -destination-path <destination_path> -cg-item-mappings <source:@destination> -policy AutomatedFailover
+SiteB::> snapmirror resync -destination-path vs1:/cg/cg1_dst -policy <policy_type>
 ``
 
 +
 
-NOTE: セカンダリサイトの整合性グループは、関係を再作成する前に必要ですlink:../consistency-groups/delete-task.html["削除対象"]。デスティネーションボリュームlink:https://kb.netapp.com/onprem/ontap/dp/SnapMirror/How_to_change_a_volume_type_from_RW_to_DP["DPタイプに変換する必要があります"^]。
+NOTE: セカンダリサイトの整合性グループは、関係を再作成する前に必要ですlink:../consistency-groups/delete-task.html["削除対象"]。デスティネーションボリュームlink:https://kb.netapp.com/onprem/ontap/dp/SnapMirror/How_to_change_a_volume_type_from_RW_to_DP["DPタイプに変換する必要があります"^]。ボリュームをDPに変換するには、ポリシー `MirrorAndVault`以外のコマンド、、 `MirrorAllSnapshots`または `Sync`を指定して-`AutomatedFailover`実行し `snapmirror resync`ます。
 
 . 関係のミラー状態が関係ステータスがである `Insync`ことを確認します `Snapmirrored`。
 +

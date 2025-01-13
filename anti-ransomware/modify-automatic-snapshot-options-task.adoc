@@ -19,19 +19,31 @@ summary: ランサムウェア攻撃の疑いがある場合に自動的に生�
 ONTAP 9 .11.1以降では、CLIを使用して、ランサムウェア攻撃の疑いがある場合に自動的に生成されるAutonomous Ransomware Protection（ARP）Snapshotの保持設定を制御できます。
 
 .開始する前に
-変更できるのはノードSVM上のARP Snapshotオプションのみです。
+ARP SnapshotオプションはノードSVM上でのみ変更でき、他のノードSVM上では変更できません。link:../system-admin/types-svms-concept.html["SVMタイフ"]
 
 .手順
-. 現在のARPスナップショット設定をすべて表示するには、次のように入力します。
-`vserver options -vserver <svm_name> -option-name arw*`
+. 現在のARPスナップショット設定をすべて表示します。
++
+[source, cli]
+----
+options -option-name arw*
+----
 +
 
-NOTE:  `vserver options`コマンドは非表示のコマンドです。マニュアルページを表示するには、ONTAP CLIでと入力します `man vserver options`。
+NOTE: マニュアルページを表示するには、ONTAP CLIでと入力します `man options`。
 
-. 選択した現在のARPスナップショット設定を表示するには、次のように入力します
-`vserver options -vserver <svm_name> -option-name <arw_setting_name>`
-. ARPスナップショット設定を変更するには、次のように入力します。
-`vserver options -vserver <svm_name> -option-name <arw_setting_name> -option-value <arw_setting_value>`
+. 選択した現在のARPスナップショット設定を表示：
++
+[source, cli]
+----
+options -option-name <arw_setting_name>
+----
+. ARPスナップショット設定を変更します。
++
+[source, cli]
+----
+options -option-name <arw_setting_name> -option-value <arw_setting_value>
+----
 +
 次の設定を変更できます。
 
@@ -42,17 +54,17 @@ NOTE:  `vserver options`コマンドは非表示のコマンドです。マニ�
 
 
 | `arw.snap.max.count`  a| 
-一度にボリューム内に存在できるARP Snapshotの最大数を指定します。古いコピーは削除され、ARPスナップショットの総数がこの指定された制限内に収まるようになります。 `-option-value`パラメータには、3~8の整数を指定できます。デフォルト値は6です。
+一度にボリューム内に存在できるARP Snapshotの最大数を指定します。古いコピーは削除され、ARPスナップショットの総数がこの指定された制限内に収まるようになります。
 
 
 
 | `arw.snap.create.interval.hours`  a| 
-ARPスナップショット間のinterval_in hours_betweenを指定します。データエントロピーベースの攻撃が疑われ、最後に作成されたARPスナップショットが指定された間隔よりも古い場合、新しいARPスナップショットが作成されます。 `-option-value`パラメータには、1~48の整数を指定できます。デフォルト値は4です。
+ARPスナップショット間のinterval_in hours_betweenを指定します。データエントロピーベースの攻撃が疑われ、最後に作成されたARPスナップショットが指定された間隔よりも古い場合、新しいARPスナップショットが作成されます。
 
 
 
 | `arw.snap.normal.retain.interval.hours`  a| 
-ARPスナップショットを保持する期間（時間単位）を指定します。ARPスナップショットが保持しきい値に達すると、他のARPスナップショットコピーが削除される前に作成されます。保持しきい値よりも古いARPスナップショットは1つしか存在できません。 `-option-value`パラメータには、4~96の整数を指定できます。デフォルト値は48です。
+ARPスナップショットを保持する期間（時間単位）を指定します。ARPスナップショットが保持しきい値に達すると、他のARPスナップショットコピーが削除される前に作成されます。保持しきい値よりも古いARPスナップショットは1つしか存在できません。
 
 
 
@@ -60,22 +72,22 @@ ARPスナップショットを保持する期間（時間単位）を指定し�
 ARPスナップショットを保持できる最大期間（日数）を指定します。ボリュームで攻撃が報告されていない場合、この期間よりも古いARPスナップショットは削除されます。
 
 
-NOTE: 中程度の脅威が検出された場合、ARPスナップショットの最大保持間隔は無視されます。脅威に対応して作成されたARPスナップショットは、脅威に対応するまで保持されます。脅威を誤検出としてマークすると、ONTAPはそのボリュームのARPスナップショットを削除します。 `-option-value`パラメータには、1~365の整数を指定できます。デフォルト値は5です。
+NOTE: 中程度の脅威が検出された場合、ARPスナップショットの最大保持間隔は無視されます。脅威に対応して作成されたARPスナップショットは、脅威に対応するまで保持されます。脅威を誤検出としてマークすると、ONTAPはそのボリュームのARPスナップショットを削除します。
 
 
 
 | `arw.snap.create.interval.hours.post.max.count`  a| 
-ボリュームにすでに最大数のARP Snapshotが含まれている場合の、ARP Snapshotの間隔（interval_in hours_between）を指定します。最大数に達すると、新しいコピー用のスペースを確保するためにARPスナップショットが削除されます。このオプションを使用すると、古いコピーを保持するために、新しいARPスナップショットの作成速度を下げることができます。ボリュームにすでに最大数のARP Snapshotが含まれている場合は、ではなく、このオプションで指定した間隔が次回のARP Snapshot作成に使用され `arw.snap.create.interval.hours`ます。 `-option-value`パラメータには、4~48の整数を指定できます。デフォルト値は8です。
+ボリュームにすでに最大数のARP Snapshotが含まれている場合の、ARP Snapshotの間隔（interval_in hours_between）を指定します。最大数に達すると、新しいコピー用のスペースを確保するためにARPスナップショットが削除されます。このオプションを使用すると、古いコピーを保持するために、新しいARPスナップショットの作成速度を下げることができます。ボリュームにすでに最大数のARP Snapshotが含まれている場合は、ではなく、このオプションで指定した間隔が次回のARP Snapshot作成に使用され `arw.snap.create.interval.hours`ます。
 
 
 
 | `arw.surge.snap.interval.days`  a| 
-IOサージに応答して作成されるARPスナップショット間のinterval_in days_betweenを指定します。ONTAPは、IOトラフィックが急増し、最後に作成されたARPスナップショットがこの指定された間隔よりも古い場合に、ARPスナップショットサージコピーを作成します。このオプションは、ARPサージスナップショットの保持期間（日数_）も指定します。 `-option-value`パラメータには、1~365の整数を指定できます。デフォルト値は5です。
+IOサージに応答して作成されるARPスナップショット間のinterval_in days_betweenを指定します。ONTAPは、IOトラフィックが急増し、最後に作成されたARPスナップショットがこの指定された間隔よりも古い場合に、ARPスナップショットサージコピーを作成します。このオプションは、ARPサージスナップショットの保持期間（日数_）も指定します。
 
 
 
 | `arw.snap.new.extns.interval.hours`  a| 
-このオプションは、新しいファイル拡張子が検出されたときに作成されるARP Snapshotの間隔（interval_in hours_between）を指定します。新しいファイル拡張子が監視されると、新しいARPスナップショットが作成されます。新しいファイル拡張子を監視したときに作成された以前のスナップショットは、この指定された間隔よりも古いものです。新しいファイル拡張子を頻繁に作成するワークロードでは、この間隔はARPスナップショットの頻度を制御するのに役立ちます。このオプションはとは独立して存在し `arw.snap.create.interval.hours`、データエントロピーベースのARPスナップショットの間隔を指定します。 `-option-value`パラメータには、24～8760の整数を指定できます。デフォルト値は48です。
+このオプションは、新しいファイル拡張子が検出されたときに作成されるARP Snapshotの間隔（interval_in hours_between）を指定します。新しいファイル拡張子が監視されると、新しいARPスナップショットが作成されます。新しいファイル拡張子を監視したときに作成された以前のスナップショットは、この指定された間隔よりも古いものです。新しいファイル拡張子を頻繁に作成するワークロードでは、この間隔はARPスナップショットの頻度を制御するのに役立ちます。このオプションはとは独立して存在し `arw.snap.create.interval.hours`、データエントロピーベースのARPスナップショットの間隔を指定します。
 
 |===
 

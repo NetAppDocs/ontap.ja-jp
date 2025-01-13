@@ -2,26 +2,28 @@
 sidebar: sidebar 
 permalink: anti-ransomware/respond-abnormal-task.html 
 keywords: abnormal activity, data entropy, unusual file extensions, potential ransomware attack, false positive, ransomware attack, abnormal activity notification, ransomware alert, detected abnormal volume, suspected file types, attack report, anti-ransomware attack, ransomware ems 
-summary: ARP通知に応答して、ランサムウェア攻撃が進行中かどうかを確認します。 
+summary: ONTAPでのARP通知の仕組みや、ランサムウェア攻撃が発生しているかどうか、対応方法を確認できます。 
 ---
 = 異常な活動への対応
-:hardbreaks:
-:toclevels: 1
 :allow-uri-read: 
-:toclevels: 1
-:nofooter: 
 :icons: font
-:linkattrs: 
 :imagesdir: ../media/
 
 
 [role="lead"]
-Autonomous Ransomware Protection（ARP）は、保護されたボリューム内の異常なアクティビティを検出すると警告を発行します。通知を評価して、アクティビティが許容可能か（false positive）、または攻撃が悪意のあるものと思われるかどうかを判断する必要があります。
+Autonomous Ransomware Protection（ARP）は、保護されたボリューム内の異常なアクティビティを検出すると警告を発行します。通知を評価して、アクティビティが許容可能か（false positive）、または攻撃が悪意のあるものと思われるかどうかを判断する必要があります。攻撃を分類したら、疑わしいファイルに関する警告と通知をクリアできます。
+
+ONTAPは異常を検出すると、最適なリカバリポイントを作成するためのボリュームも作成しますlink:index.html#threat-assessment-and-arp-snapshots["ARPスナップショット"]。ARPスナップショットは、デフォルトで2～5日間保持されます。
+
+攻撃を分類すると、これらのARPスナップショットは即座に削除されるか（ONTAP 9.15.1以前）、分類操作によって開始される短縮期間（ONTAP 9.16.1以降）のいずれかで保持されます。
+
+
+NOTE: ONTAP 9.11.1以降では、ARP Snapshotのを変更できますxref:modify-automatic-snapshot-options-task.html[保持設定]。
 
 .タスクの内容
 ARPは、高いデータエントロピー、データ暗号化を伴う異常なボリュームアクティビティ、異常なファイル拡張子の組み合わせを検出すると、疑わしいファイルのリストを表示します。
 
-警告が表示されたら、次の2つの方法のいずれかでファイルアクティビティを指定して応答します。
+ARP警告が発行されたら、次のいずれかの方法でファイルアクティビティを指定して応答します。
 
 * *偽陽性*
 +
@@ -44,7 +46,7 @@ NOTE: ボリューム全体をリストアする場合、クリアする通知�
 ARPはアクティブモードで実行されている必要があります。
 
 .手順
-異常なタスクには、System ManagerまたはONTAP CLIを使用して対応できます。
+System ManagerまたはONTAP CLIを使用して、異常なアクティビティに対応できます。
 
 [role="tabbed-block"]
 ====
@@ -54,13 +56,12 @@ ARPはアクティブモードで実行されている必要があります。
 +
 警告は*[イベント]*メニューの*[概要]*ペインに表示されます。
 
-. 「Detected abnormal volume activity」というメッセージが表示されたら、疑わしいファイルを確認します。
+. 異常なボリュームアクティビティの検出に関するメッセージが表示されたら、疑わしいファイルタイプを表示します。
 +
-[セキュリティ]*タブで、*[疑わしいファイルの種類の表示]*を選択します。
+[セキュリティ]*タブで、疑わしいファイルタイプを確認するオプションを選択します。
 
 . [Suspected File Types]ダイアログボックスで、各ファイルタイプを確認し、「False Positive」または「Potential Ransomware Attack」としてマークします。
-
-
++
 [cols="25,75"]
 |===
 
@@ -68,23 +69,42 @@ ARPはアクティブモードで実行されている必要があります。
 | 選択した値 | 対処方法 
 
 
-| 誤検出  a| 
-[Update]*および[Clear Suspect File Types]*を選択して、決定を記録し、通常のARPモニタリングを再開します。
-
+ a| 
+誤検出
+ a| 
+.. [更新]*および[疑わしいファイルの種類をクリア]*を選択して、決定内容を記録します。
++
 
 NOTE: ONTAP 9 .13.1以降では、MAVを使用してARP設定を保護している場合、clear-suspect操作によって、1人以上の追加管理者の承認を得るように求められます。link:../multi-admin-verify/request-operation-task.html["すべての管理者から承認を受ける必要があります"]MAV承認グループに関連付けられているか、操作が失敗します。
 
++
+この操作により、疑わしいファイルに関する警告通知がクリアされます。その後、ARPはボリュームの通常の監視を再開します。ONTAP 9.15.1以前では、疑わしいファイルタイプをクリアすると、ARPスナップショットが自動的に削除されます。ONTAP 9.16.1以降のARP / AIでは、カテゴリ化処理によってトリガーされる短い保持期間が経過すると、ARP Snapshotが自動的に削除されます。
 
 
-| ランサムウェア攻撃の可能性 | 攻撃に対応し、保護されたデータをリストアします。次に、* Update *および* Clear Suspect File Types *を選択して、決定を記録し、通常のARPモニタリングを再開します。ボリューム全体をリストアした場合、疑わしいファイルタイプをクリアする必要はありません。 
+
+
+
+ a| 
+ランサムウェア攻撃の可能性
+ a| 
+.. 攻撃に応答し、link:recover-data-task.html["保護されたデータのリストア"]
+.. [Update]*および[Clear Suspect File Types]*を選択して、決定を記録し、通常のARPモニタリングを再開します。
+
+
+このアクションにより、攻撃レポートがクリアされます。ボリューム全体をリストアした場合、ファイルタイプが疑われる通知はクリアされません。ONTAP 9.15.1以前では、ボリュームのリストア後にARP Snapshotが自動的に削除されます。ONTAP 9.16.1以降のARP / AIでは、カテゴリ化処理によってトリガーされる短い保持期間が経過すると、ARP Snapshotが自動的に削除されます。
+
 |===
+
+
 --
 .CLI
 --
 . ランサムウェア攻撃の疑いがあるという通知を受け取ったら、攻撃の時間と重大度を確認します。
 +
-`security anti-ransomware volume show -vserver _svm_name_ -volume _vol_name_`
-
+[source, cli]
+----
+security anti-ransomware volume show -vserver <svm_name> -volume <vol_name>
+----
 +
 出力例：
 
@@ -101,55 +121,76 @@ Number of Attacks: 1
 EMSメッセージを確認することもできます。
 
 +
-`event log show -message-name callhome.arw.activity.seen`
-
+[source, cli]
+----
+event log show -message-name callhome.arw.activity.seen
+----
 . 攻撃レポートを生成し、出力先をメモします。
 +
-`security anti-ransomware volume attack generate-report -volume _vol_name_ -dest-path _file_location_/`
+[source, cli]
+----
+security anti-ransomware volume attack generate-report -vserver <svm_name> -volume <vol_name> -dest-path <[svm_name:]vol_name/[sub-dir-name]>`
+----
++
+コマンド例：
 
++
+[listing]
+----
+security anti-ransomware volume attack generate-report -vserver vs0 -volume vol1 -dest-path vs0:vol1
+----
 +
 出力例：
 
 +
-`Report "report_file_vs0_vol1_14-09-2021_01-21-08" available at path "vs0:vol1/"`
-
+[listing]
+----
+Report "report_file_vs0_vol1_14-09-2021_01-21-08" available at path "vs0:vol1/"
+----
 . 管理クライアントシステムでレポートを表示します。例：
 +
 ....
-[root@rhel8 mnt]# cat report_file_vs0_vol1_14-09-2021_01-21-08
-
-19  "9/14/2021 01:03:23"   test_dir_1/test_file_1.jpg.lckd
-20  "9/14/2021 01:03:46"   test_dir_2/test_file_2.jpg.lckd
-21  "9/14/2021 01:03:46"   test_dir_3/test_file_3.png.lckd`
+cat report_file_vs0_vol1_14-09-2021_01-21-08
 ....
 . ファイル拡張子の評価に基づいて、次のいずれかの操作を実行します。
 +
 ** False positive
 +
-次のコマンドを入力して決定を記録し、許可された拡張子のリストに新しい拡張子を追加して、通常のランサムウェア対策の監視を再開します。
-`anti-ransomware volume attack clear-suspect -vserver _svm_name_ -volume _vol_name_ [_extension identifiers_] -false-positive true`
+次のコマンドを実行して決定事項を記録し、許可される拡張子のリストに新しい拡張子を追加してから、通常の自律型ランサムウェア対策の監視を再開します。
 
 +
-次のいずれかのパラメータを使用して、拡張子を識別します。疑わしいリスト内のファイルのシーケンス番号
-`[-extension _text_, … ]`。
-`[-seq-no _integer_]`クリアするファイル範囲のファイル拡張子の
-`[-start-time _date_time_ -end-time _date_time_]`開始時間と終了時間。形式は「MM/DD/YYYY HH:MM:SS」です。
+[source, cli]
+----
+anti-ransomware volume attack clear-suspect -vserver <svm_name> -volume <vol_name> [<extension identifiers>] -false-positive true
+----
++
+特定の拡張子のみをfalse positiveとして識別するには、次のオプションパラメータを使用します。
+
++
+*** `[-extension <text>, … ]`:ファイル拡張子
++
+この操作により、 `clear-suspect`疑わしいファイルに関する警告通知がクリアされます。その後、ARPはボリュームの通常の監視を再開します。ONTAP 9.15.1以前では、疑わしいファイルタイプをクリアすると、ARPスナップショットが自動的に削除されます。ONTAP 9.16.1以降のARP / AIでは、カテゴリ化処理によってトリガーされる短い保持期間が経過すると、ARP Snapshotが自動的に削除されます。
+
+
 
 ** ランサムウェア攻撃の可能性
 +
-攻撃に応答し、link:../anti-ransomware/recover-data-task.html["ARPによって作成されたバックアップスナップショットからデータをリカバリします"]データがリカバリされたら、次のコマンドを入力して決定事項を記録し、通常のARPモニタリングを再開します。
+攻撃に応答し、link:../anti-ransomware/recover-data-task.html["ARPによって作成されたバックアップスナップショットからデータをリカバリします"]データがリカバリされたら、次のコマンドを実行して決定内容を記録し、通常のARPモニタリングを再開します。
 
 +
-`anti-ransomware volume attack clear-suspect -vserver _svm_name_ -volume _vol_name_ [_extension identifiers_] -false-positive false`
+[source, cli]
+----
+anti-ransomware volume attack clear-suspect -vserver <svm_name> -volume <vol_name> [<extension identifiers>] -false-positive false
+----
++
+特定の拡張機能のみをランサムウェアの可能性があると特定するには、次のオプションパラメータを使用します。
 
 +
-次のいずれかのパラメータを使用して、拡張子を識別します。
-`[-seq-no _integer_]`疑わしいリスト内のファイルのシーケンス番号
-`[-extension _text_, … ]`ファイル拡張子
-`[-start-time _date_time_ -end-time _date_time_]`消去するファイルの範囲の開始時刻と終了時刻。形式は"MM/DD/YYYY HH:MM:SS"です。
-
+*** `[-extension <text>, … ]`:ファイル拡張子
 +
-ボリューム全体をリストアした場合、疑わしいファイルタイプをクリアする必要はありません。ARPによって作成されたバックアップスナップショットが削除され、攻撃レポートがクリアされます。
+この `clear-suspect`操作により、攻撃レポートがクリアされます。ボリューム全体をリストアした場合、ファイルタイプが疑われる通知はクリアされません。ONTAP 9.15.1以前では、ボリュームのリストア後にARP Snapshotが自動的に削除されます。ONTAP 9.16.1以降のARP / AIでは、カテゴリ化処理によってトリガーされる短い保持期間が経過すると、ARP Snapshotが自動的に削除されます。
+
+
 
 
 
@@ -157,12 +198,16 @@ EMSメッセージを確認することもできます。
 +
 .. 要求を表示します。
 +
-`security multi-admin-verify request show`
-
+[source, cli]
+----
+security multi-admin-verify request show
+----
 .. 通常のランサムウェア対策監視の再開要求を承認します。
 +
-`security multi-admin-verify request approve -index[_number returned from show request_]`
-
+[source, cli]
+----
+security multi-admin-verify request approve -index[<number returned from show request>]
+----
 +
 最後のグループ承認者に対する応答は、ボリュームが変更され、誤検出が記録されたことを示します。
 
@@ -170,12 +215,15 @@ EMSメッセージを確認することもできます。
 
 . MAVを使用していて、MAVグループ承認者である場合は、疑わしいリクエストを却下することもできます。
 +
-`security multi-admin-verify request veto -index[_number returned from show request_]`
-
+[source, cli]
+----
+security multi-admin-verify request veto -index[<number returned from show request>]
+----
 
 
 --
 ====
-.詳細情報
+.関連情報
 * link:https://kb.netapp.com/onprem%2Fontap%2Fda%2FNAS%2FUnderstanding_Autonomous_Ransomware_Protection_attacks_and_the_Autonomous_Ransomware_Protection_snapshot#["KB：自律型ランサムウェア対策攻撃と自律型ランサムウェア対策スナップショットについて"^]です。
+* link:modify-automatic-snapshot-options-task.html["自動スナップショットオプションを変更します。"]です。
 

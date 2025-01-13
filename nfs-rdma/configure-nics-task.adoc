@@ -17,20 +17,41 @@ RDMA経由のNFSでは、クライアントシステムとストレージプラ�
 
 == ストレージプラットフォームの構成
 
-X1148 RDMAアダプタがサーバにインストールされている必要があります。HA構成を使用している場合は、フェイルオーバー中もRDMAサービスを継続できるように、フェイルオーバーパートナーに対応するX1148アダプタが必要です。NICはROCEに対応している必要があります。
+ターゲットRNICのサポートについては、を参照してください https://hwu.netapp.com/["NetApp Hardware Universe"^]。
 
-RDMA .10.1以降では、次のコマンドを使用してONTAP 9オフロードプロトコルのリストを表示できます。
-`network port show -rdma-protocols roce`
+ハイアベイラビリティ（HA）構成を使用している場合は、RDMAフェイルオーバーをサポートするために両方のノードで同じRNICを使用する必要があります。NICはRoCEに対応している必要があります。
+
+* ONTAP 9.10.1以降では、次のコマンドを使用して、RDMAオフロードプロトコルのリストを表示できます。
++
+[source, cli]
+----
+network port show -rdma-protocols roce
+----
+* ONTAP 9.16.1以降では、優先度フロー制御（PFC）を使用することを推奨します。次のコマンドを使用してPFCを設定し `network port modify`ます。
++
+[source, cli]
+----
+network port modify -node <nodename> -port <portname> -flowcontrol-admin pfc -pfc-queues-admin 3
+----
+* ONTAP 9.16.1より前のバージョンでは、デフォルトのグローバルフロー制御（GFC）を使用することを推奨します。フロー制御設定が変更されている場合は、次のコマンドを使用してGFCを設定し `network port modify`ます。
++
+[source, cli]
+----
+network port modify -node <nodename> -port <portname> -flowcontrol-admin full
+----
+
 
 
 
 == クライアントシステム構成
 
-クライアントでMellanox RDMA対応NICカード（X1148など）とMellanox OFEDネットワークソフトウェアを使用している必要があります。サポートされているモデルとバージョンについては、Mellanoxのドキュメントを参照してください。クライアントとサーバは直接接続できますが、スイッチのフェイルオーバーパフォーマンスが向上するため、スイッチの使用を推奨します。
+NFS over RDMAでサポートされるクライアントオペレーティングシステムについては、を参照して https://imt.netapp.com/matrix/["ネットアップのInteroperability Matrix（IMT ）"^]ください。RoCE v2でサポートされているRNICについては、それぞれのRNICベンダーのマニュアルを参照してください。
 
-クライアント、サーバ、スイッチ、およびスイッチ上のすべてのポートは、ジャンボフレームを使用して設定する必要があります。また、優先度フロー制御がすべてのスイッチで有効になっていることを確認します。
+クライアントとサーバは直接接続できますが、フェイルオーバーのパフォーマンスを向上させるためにはスイッチの使用を推奨します。
 
-この構成を確認したら、NFSをマウントできます。
+クライアント、サーバ、スイッチ、およびスイッチ上のすべてのポートは、ジャンボフレームを使用して設定する必要があります。クライアントとスイッチのフロー制御設定は、ONTAPのフロー制御設定と一致している必要があります。ONTAP 9.16.1以降では、ONTAP、スイッチ、およびクライアントで優先度フロー制御を有効にして設定することを推奨します。ONTAP 9.16.1より前のバージョンでは、グローバルフロー制御を使用することを推奨します。
+
+この設定を確認したら、RDMAを使用してNFSエクスポートをマウントできます。
 
 [role="tabbed-block"]
 ====
@@ -52,24 +73,24 @@ Managerを使用してoverのネットワークインターフェイスを設定
 --
 . コマンドを使用して、NFSサーバでRDMAアクセスが有効になっているかどうかを確認します。
 +
-`vserver nfs show-vserver _SVM_name_`
+`vserver nfs show-vserver <SVM_name>`
 
 +
 デフォルトでは、 `-rdma`が有効になっている必要があります。有効になっていない場合は、NFSサーバでRDMAアクセスを有効にします。
 
 +
-`vserver nfs modify -vserver _SVM_name_ -rdma enabled`
+`vserver nfs modify -vserver <SVM_name> -rdma enabled`
 
 . RDMA経由でNFSv4.0を使用してクライアントをマウントします。
 +
 .. protoパラメータの入力は、サーバのIPプロトコルのバージョンによって異なります。IPv4の場合は、を使用し `proto=rdma`ます。IPv6の場合は、を使用し `proto=rdma6`ます。
 .. 標準ポート2049ではなく、NFSターゲットポートをとして指定し `port=20049`ます。
 +
-`mount -o vers=4,minorversion=0,proto=rdma,port=20049 _Server_IP_address_:/_volume_path_ _mount_point_`
+`mount -o vers=4,minorversion=0,proto=rdma,port=20049 <Server_IP_address>:/<volume_path> <mount_point>`
 
 
 
-. *オプション*：クライアントをアンマウントする必要がある場合は、次のコマンドを実行します。 `unmount _mount_path_`
+. *オプション*：クライアントをアンマウントする必要がある場合は、次のコマンドを実行します。 `unmount <mount_path>`
 
 
 --

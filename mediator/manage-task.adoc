@@ -470,12 +470,14 @@ image:mediator-certs-index.png["WebサーバのセットアップとONTAPメデ�
 
 [NOTE]
 ====
-* ONTAPメディエーター1.8以前で使用されるCAファイルは `ca.key`、、 `ca.csr`、 `ca.srl`および `ca.crt`です。ONTAPメディエーター1.9以降で必要なファイルは、、 `intermediate.csr`、 `intermediate.srl`および `intermediate.crt`です `intermediate.key`。
 * 次の例は、ONTAPメディエーターサービスに必要な証明書の必要な基準を示しています。この手順とは異なる方法で、PKI認証局から証明書を取得できます。ビジネスニーズに応じて手順を調整します。
 
 
 ====
-.手順
+[role="tabbed-block"]
+====
+.ONTAP Mediator 1.9以降
+--
 . PKI機関が証明書を生成するために使用する秘密鍵とコンフィギュレーションファイルを `openssl_ca.cnf`作成します `intermediate.key`。
 +
 .. 秘密鍵を生成し `intermediate.key`ます。
@@ -517,10 +519,60 @@ NOTE: SnapMirrorビジネス継続性（SM-BC）クラスタの場合は、証�
 
 
 
+--
+.ONTAPメディエーター1.8以前
+--
+. PKI機関が証明書を生成するために使用する秘密鍵とコンフィギュレーションファイルを `openssl_ca.cnf`作成します `ca.key`。
++
+.. 秘密鍵を生成し `ca.key`ます。
++
+* 例 *
+
++
+`openssl genrsa -aes256 -out ca.key 4096`
+
+.. 構成ファイル `openssl_ca.cnf`（にあります `/opt/netapp/lib/ontap_mediator/ontap_mediator/server_config/openssl_ca.cnf`）は、生成された証明書に必要なプロパティを定義します。
+
+
+. 秘密鍵と構成ファイルを使用して、証明書署名要求を作成し `ca.csr`ます。
++
+* 例： *
+
++
+`openssl req -key <private_key_name>.key -new -out <certificate_csr_name>.csr -config <config_file_name>.cnf`
+
++
+[listing]
+----
+[root@scs000216655 server_config]# openssl req -key ca.key -new -config openssl_ca.cnf -out ca.csr
+Enter pass phrase for ca.key:
+[root@scs000216655 server_config]# cat ca.csr
+-----BEGIN CERTIFICATE REQUEST-----
+MIIE6TCCAtECAQAwgaMxCzAJBgNVBAYTAlVTMRMwEQYDVQQIDApDYWxpZm9ybmlh
+...
+erARKhY9z0e8BHPl3g==
+-----END CERTIFICATE REQUEST-----
+----
+. 証明書署名要求をPKI機関に送信し `ca.csr`て署名を求めます。
++
+PKI認証局は要求を検証し、に署名して `.csr`証明書を生成し `ca.crt`ます。さらに、PKI認証局から証明書を取得する必要があり `root_ca.crt that signed the `ca.crt`ます。
+
++
+
+NOTE: SnapMirrorビジネス継続性（SM-BC）クラスタの場合は、証明書と証明書をONTAPクラスタに追加する必要があります `ca.crt` `root_ca.crt` 。を参照して link:../snapmirror-active-sync/mediator-install-task.html["SnapMirror Active Sync用のONTAPメディエーターとクラスタの設定"]
+
+
+
+--
+====
 
 
 === 手順2：サードパーティのCA証明書で署名してサーバ証明書を生成する
 
+[role="tabbed-block"]
+====
+.ONTAP Mediator 1.9以降
+--
 サーバ証明書は、秘密鍵とサードパーティ証明書 `intermediate.crt`によって署名されている必要があります `intermediate.key`。また、構成ファイル `/opt/netapp/lib/ontap_mediator/ontap_mediator/server_config/openssl_server.cnf`には、OpenSSLによって発行されるサーバー証明書に必要なプロパティを指定する特定の属性が含まれています。
 
 サーバ証明書を生成するには、次のコマンドを実行します。
@@ -539,15 +591,47 @@ NOTE: これらのファイルはPKI機関から取得されました。別の�
 `openssl x509 -extfile openssl_server.cnf -extensions v3_req -CA intermediate.crt -CAkey intermediate.key -CAcreateserial -sha512 -days 1095 -req -in ontap_mediator_server.csr -out ontap_mediator_server.crt`
 
 +
-**  `-CAcreateserial`オプションを使用すると、使用している証明書名に応じてファイルまたはファイルが生成され `ca.srl` `intermediate.srl` ます。
+**  `-CAcreateserial`オプションを使用してファイルを生成し `intermediate.srl`ます。
 
 
 
 
+--
+.ONTAPメディエーター1.8以前
+--
+サーバ証明書は、秘密鍵とサードパーティ証明書 `ca.crt`によって署名されている必要があります `ca.key`。また、構成ファイル `/opt/netapp/lib/ontap_mediator/ontap_mediator/server_config/openssl_server.cnf`には、OpenSSLによって発行されるサーバー証明書に必要なプロパティを指定する特定の属性が含まれています。
+
+サーバ証明書を生成するには、次のコマンドを実行します。
+
+.手順
+. サーバ証明書署名要求（CSR）を生成するには、フォルダから次のコマンドを実行し `/opt/netapp/lib/ontap_mediator/ontap_mediator/server_config` ます。
++
+`openssl req -config openssl_server.cnf -extensions v3_req -nodes -newkey rsa:4096 -sha512 -keyout ontap_mediator_server.key -out ontap_mediator_server.csr`
+
+. [[step_2_intermediate_info]] CSRからサーバ証明書を生成するには、フォルダから次のコマンドを実行し `/opt/netapp/lib/ontap_mediator/ontap_mediator/server_config` ます。
++
+
+NOTE: これらのファイルはPKI機関から取得されました。別の証明書名を使用している場合は、および `ca.key`を関連するファイル名に置き換え `ca.crt`ます。
+
++
+`openssl x509 -extfile openssl_server.cnf -extensions v3_req -CA ca.crt -CAkey ca.key -CAcreateserial -sha512 -days 1095 -req -in ontap_mediator_server.csr -out ontap_mediator_server.crt`
+
++
+**  `-CAcreateserial`オプションを使用してファイルを生成し `ca.srl`ます。
+
+
+
+
+--
+====
 
 
 === 手順3：ONTAPメディエーター構成で新しいサードパーティのCA証明書とサーバ証明書を交換する
 
+[role="tabbed-block"]
+====
+.ONTAP Mediator 1.9以降
+--
 証明書の設定は、にある構成ファイルでONTAPメディエーターサービスに提供されます `/opt/netapp/lib/ontap_mediator/ontap_mediator/server_config/ontap_mediator.config.yaml`。このファイルには、次の属性が含まれています。
 
 [listing]
@@ -599,10 +683,70 @@ ca_serial_path: '/opt/netapp/lib/ontap_mediator/ontap_mediator/server_config/int
 
 
 
+--
+.ONTAPメディエーター1.8以前
+--
+証明書の設定は、にある構成ファイルでONTAPメディエーターサービスに提供されます `/opt/netapp/lib/ontap_mediator/ontap_mediator/server_config/ontap_mediator.config.yaml`。このファイルには、次の属性が含まれています。
+
+[listing]
+----
+cert_path: '/opt/netapp/lib/ontap_mediator/ontap_mediator/server_config/ontap_mediator_server.crt'
+key_path: '/opt/netapp/lib/ontap_mediator/ontap_mediator/server_config/ontap_mediator_server.key'
+ca_cert_path: '/opt/netapp/lib/ontap_mediator/ontap_mediator/server_config/ca.crt'
+ca_key_path: '/opt/netapp/lib/ontap_mediator/ontap_mediator/server_config/ca.key'
+ca_serial_path: '/opt/netapp/lib/ontap_mediator/ontap_mediator/server_config/ca.srl'
+----
+* `cert_path`および `key_path`は、サーバ証明書変数です。
+* `ca_cert_path`、 `ca_key_path`、および `ca_serial_path`はCA証明書変数です。
+
+
+.手順
+. すべてのファイルをサードパーティの証明書に置き換えます `ca.*` 。
+. および証明書から証明書チェーンを作成し `ca.crt` `ontap_mediator_server.crt` ます。
++
+`cat ontap_mediator_server.crt ca.crt > ontap_mediator_server_chain.crt`
+
+. ファイルを更新し `/opt/netapp/lib/ontap_mediator/uwsgi/ontap_mediator.ini` ます。
++
+、、およびの値を更新し `mediator_cert` `mediator_key` `ca_certificate`ます。
+
++
+`set-placeholder = mediator_cert = /opt/netapp/lib/ontap_mediator/ontap_mediator/server_config/ontap_mediator_server_chain.crt`
+
++
+`set-placeholder = mediator_key = /opt/netapp/lib/ontap_mediator/ontap_mediator/server_config/ontap_mediator_server.key`
+
++
+`set-placeholder = ca_certificate = /opt/netapp/lib/ontap_mediator/ontap_mediator/server_config/root_ca.crt`
+
++
+**  `mediator_cert`値はファイルのパス `ontap_mediator_server_chain.crt` です。
+**  `mediator_key value`は、ファイル内のキーパスです `ontap_mediator_server.crt` `ontap_mediator_server.key`。
+**  `ca_certificate`値はファイルのパス `root_ca.crt` です。
+
+
+. 新しく生成された証明書の次の属性が正しく設定されていることを確認します。
++
+** Linuxグループ所有者： `netapp:netapp`
+** Linux権限： `600`
+
+
+. ONTAPメディエーターを再起動します。
++
+`systemctl restart ontap_mediator`
+
+
+
+--
+====
 
 
 === 手順4：必要に応じて、サードパーティの証明書に別のパスまたは名前を使用します。
 
+[role="tabbed-block"]
+====
+.ONTAP Mediator 1.9以降
+--
 とは別の名前のサードパーティ証明書を使用することも、サードパーティ証明書を別の場所に保存することもできます `intermediate.*`。
 
 .手順
@@ -683,6 +827,91 @@ NOTE: SnapMirrorビジネス継続性（SM-BC）クラスタの場合は、証�
 
 
 
+--
+.ONTAPメディエーター1.8以前
+--
+とは別の名前のサードパーティ証明書を使用することも、サードパーティ証明書を別の場所に保存することもできます `ca.*`。
+
+.手順
+. ファイル内のデフォルトの変数値を上書きするようにファイルを構成し `/opt/netapp/lib/ontap_mediator/ontap_mediator/server_config/ontap_mediator.user_config.yaml` `ontap_mediator.config.yaml` ます。
++
+PKI権限から取得した秘密鍵をの場所に保存した場合、 `ca.crt` `ca.key` `/opt/netapp/lib/ontap_mediator/ontap_mediator/server_config` `ontap_mediator.user_config.yaml` ファイルは次の例のようになります。
+
++
+
+NOTE: を使用して証明書に署名した場合は、 `ca.crt` `ontap_mediator_server.crt`  `ca.srl` ファイルが生成されます。詳細については、を参照してください <<step_2_intermediate_info,手順2：サードパーティのCA証明書で署名してサーバ証明書を生成する>> 。
+
++
+[listing]
+----
+[root@scs000216655 server_config]# cat  ontap_mediator.user_config.yaml
+
+# This config file can be used to override the default settings in ontap_mediator.config.yaml
+# To override a setting, copy the property key from ontap_mediator.config.yaml to this file and
+# set the property to the desired value. e.g.,
+#
+# The default value for 'default_mailboxes_per_target' is 4 in ontap_mediator.config.yaml
+#
+# To override this value with 6 mailboxes per target, add the following key/value pair
+# below this comment:
+#
+# 'default_mailboxes_per_target': 6
+#
+cert_path: '/opt/netapp/lib/ontap_mediator/ontap_mediator/server_config/ontap_mediator_server.crt'
+key_path: '/opt/netapp/lib/ontap_mediator/ontap_mediator/server_config/ontap_mediator_server.key'
+ca_cert_path: '/opt/netapp/lib/ontap_mediator/ontap_mediator/server_config/ca.crt'
+ca_key_path: '/opt/netapp/lib/ontap_mediator/ontap_mediator/server_config/ca.key'
+ca_serial_path: '/opt/netapp/lib/ontap_mediator/ontap_mediator/server_config/ca.srl'
+
+----
++
+.. 証明書が証明書に署名する証明書を提供する証明書構造を使用している場合は `root_ca.crt` `ca.crt` `ontap_mediator_server.crt` 、および証明書から証明書チェーンを作成し `ca.crt` `ontap_mediator_server.crt` ます。
++
+
+NOTE: この手順の前半で、PKI機関から証明書と証明書を入手しておく必要があります `ca.crt` `ontap_mediator_server.crt` 。
+
++
+`cat ontap_mediator_server.crt ca.crt > ontap_mediator_server_chain.crt`
+
+.. ファイルを更新し `/opt/netapp/lib/ontap_mediator/uwsgi/ontap_mediator.ini` ます。
++
+、、およびの値を更新し `mediator_cert` `mediator_key` `ca_certificate`ます。
+
++
+`set-placeholder = mediator_cert = /opt/netapp/lib/ontap_mediator/ontap_mediator/server_config/ontap_mediator_server_chain.crt`
+
++
+`set-placeholder = mediator_key = /opt/netapp/lib/ontap_mediator/ontap_mediator/server_config/ontap_mediator_server.key`
+
++
+`set-placeholder = ca_certificate = /opt/netapp/lib/ontap_mediator/ontap_mediator/server_config/root_ca.crt`
+
++
+***  `mediator_cert`値はファイルのパス `ontap_mediator_server_chain.crt` です。
+*** この `mediator_key` 値は、ファイル内のキーパス（ `ontap_mediator_server.crt` ）です。 `ontap_mediator_server.key`
+***  `ca_certificate`値はファイルのパス `root_ca.crt` です。
++
+
+NOTE: SnapMirrorビジネス継続性（SM-BC）クラスタの場合は、証明書と証明書をONTAPクラスタに追加する必要があります `ca.crt` `root_ca.crt` 。を参照して link:../snapmirror-active-sync/mediator-install-task.html["SnapMirror Active Sync用のONTAPメディエーターとクラスタの設定"]
+
+
+
+.. 新しく生成された証明書の次の属性が正しく設定されていることを確認します。
++
+*** Linuxグループ所有者： `netapp:netapp`
+*** Linux権限： `600`
+
+
+
+
+. 構成ファイルで証明書が更新されたら、ONTAPメディエーターを再起動します。
++
+`systemctl restart ontap_mediator`
+
+
+
+--
+====
 
 
 == 証明書関連の問題のトラブルシューティング
@@ -695,6 +924,10 @@ NOTE: SnapMirrorビジネス継続性（SM-BC）クラスタの場合は、証�
 
 証明書の有効範囲を確認するには、次のコマンドを使用します。
 
+[role="tabbed-block"]
+====
+.ONTAP Mediator 1.9以降
+--
 [listing]
 ----
 [root@scs000216982 server_config]# openssl x509 -in intermediate.crt -text -noout
@@ -705,12 +938,31 @@ Certificate:
             Not Before: Feb 22 19:57:25 2024 GMT
             Not After : Feb 15 19:57:25 2029 GMT
 ----
+--
+.ONTAPメディエーター1.8以前
+--
+[listing]
+----
+[root@scs000216982 server_config]# openssl x509 -in ca.crt -text -noout
+Certificate:
+    Data:
+...
+        Validity
+            Not Before: Feb 22 19:57:25 2024 GMT
+            Not After : Feb 15 19:57:25 2029 GMT
+----
+--
+====
 
 
 === CA証明書でのX509v3拡張の確認
 
 次のコマンドを使用して、CA証明書のX509v3拡張を確認します。
 
+[role="tabbed-block"]
+====
+.ONTAP Mediator 1.9以降
+--
 で `openssl_ca.cnf`定義されたプロパティは `*v3_ca*`、の `intermediate.crt`ように表示され `X509v3 extensions`ます。
 
 [listing, subs="+quotes"]
@@ -741,6 +993,41 @@ Certificate:
             X509v3 Key Usage: critical
                 Digital Signature, Certificate Sign, CRL Sign
 ----
+--
+.ONTAPメディエーター1.8以前
+--
+で `openssl_ca.cnf`定義されたプロパティは `*v3_ca*`、の `ca.crt`ように表示され `X509v3 extensions`ます。
+
+[listing, subs="+quotes"]
+----
+[root@scs000216982 server_config]# pwd
+/opt/netapp/lib/ontap_mediator/ontap_mediator/server_config
+
+[root@scs000216982 server_config]# cat openssl_ca.cnf
+...
+[ v3_ca ]
+*subjectKeyIdentifier = hash*
+*authorityKeyIdentifier = keyid:always,issuer*
+*basicConstraints = critical, CA:true*
+*keyUsage = critical, cRLSign, digitalSignature, keyCertSign*
+
+[root@scs000216982 server_config]# openssl x509 -in ca.crt -text -noout
+Certificate:
+    Data:
+...
+        *X509v3 extensions:*
+            X509v3 Subject Key Identifier:
+                9F:06:FA:47:00:67:BA:B2:D4:82:70:38:B8:48:55:B5:24:DB:FC:27
+            X509v3 Authority Key Identifier:
+                keyid:9F:06:FA:47:00:67:BA:B2:D4:82:70:38:B8:48:55:B5:24:DB:FC:27
+
+            X509v3 Basic Constraints: critical
+                CA:TRUE
+            X509v3 Key Usage: critical
+                Digital Signature, Certificate Sign, CRL Sign
+----
+--
+====
 
 
 === サーバ証明書およびサブジェクトの代替名のX509v3拡張を確認する
@@ -751,6 +1038,10 @@ Certificate:
 
 変数の正しい値については、ネットワーク管理者に確認してください。
 
+[role="tabbed-block"]
+====
+.ONTAP Mediator 1.9以降
+--
 [listing]
 ----
 [root@scs000216982 server_config]# pwd
@@ -785,6 +1076,45 @@ Certificate:
             X509v3 Subject Alternative Name:
                 DNS:abc.company.com, DNS:abc-v6.company.com, IP Address:1.2.3.4, IP Address:abcd:abcd:abcd:abcd:abcd:abcd
 ----
+--
+.ONTAPメディエーター1.8以前
+--
+[listing]
+----
+[root@scs000216982 server_config]# pwd
+/opt/netapp/lib/ontap_mediator/ontap_mediator/server_config
+
+[root@scs000216982 server_config]# cat openssl_server.cnf
+...
+[ v3_req ]
+basicConstraints       = CA:false
+extendedKeyUsage       = serverAuth
+keyUsage               = keyEncipherment, dataEncipherment
+subjectAltName         = @alt_names
+
+[ alt_names ]
+DNS.1 = abc.company.com
+DNS.2 = abc-v6.company.com
+IP.1 = 1.2.3.4
+IP.2 = abcd:abcd:abcd:abcd:abcd:abcd
+
+[root@scs000216982 server_config]# openssl x509 -in ca.crt -text -noout
+Certificate:
+    Data:
+...
+
+        X509v3 extensions:
+            X509v3 Basic Constraints:
+                CA:FALSE
+            X509v3 Extended Key Usage:
+                TLS Web Server Authentication
+            X509v3 Key Usage:
+                Key Encipherment, Data Encipherment
+            X509v3 Subject Alternative Name:
+                DNS:abc.company.com, DNS:abc-v6.company.com, IP Address:1.2.3.4, IP Address:abcd:abcd:abcd:abcd:abcd:abcd
+----
+--
+====
 
 
 === 秘密鍵が証明書と一致することを確認する
@@ -793,6 +1123,10 @@ Certificate:
 
 キーと証明書に対して、それぞれ次のOpenSSLコマンドを使用します。
 
+[role="tabbed-block"]
+====
+.ONTAP Mediator 1.9以降
+--
 [listing]
 ----
 [root@scs000216982 server_config]# openssl rsa -noout -modulus -in intermediate.key | openssl md5
@@ -801,6 +1135,19 @@ Enter pass phrase for intermediate.key:
 [root@scs000216982 server_config]# openssl x509 -noout -modulus -in intermediate.crt | openssl md5
 (stdin)= 14c6b98b0c7c59012b1de89eee4a9dbc
 ----
+--
+.ONTAPメディエーター1.8以前
+--
+[listing]
+----
+[root@scs000216982 server_config]# openssl rsa -noout -modulus -in ca.key | openssl md5
+Enter pass phrase for ca.key:
+(stdin)= 14c6b98b0c7c59012b1de89eee4a9dbc
+[root@scs000216982 server_config]# openssl x509 -noout -modulus -in ca.crt | openssl md5
+(stdin)= 14c6b98b0c7c59012b1de89eee4a9dbc
+----
+--
+====
 両方の属性が一致する場合、 `-modulus`秘密鍵と証明書のペアに互換性があり、相互に動作できることを示します。
 
 
@@ -809,9 +1156,23 @@ Enter pass phrase for intermediate.key:
 
 サーバ証明書が特定のCA証明書から作成されたことを確認するには、次のコマンドを使用します。
 
+[role="tabbed-block"]
+====
+.ONTAP Mediator 1.9以降
+--
 [listing]
 ----
 [root@scs000216982 server_config]# openssl verify -CAfile intermediate.crt ontap_mediator_server.crt
 ontap_mediator_server.crt: OK
 ----
+--
+.ONTAPメディエーター1.8以前
+--
+[listing]
+----
+[root@scs000216982 server_config]# openssl verify -CAfile ca.crt ontap_mediator_server.crt
+ontap_mediator_server.crt: OK
+----
+--
+====
 Online Certificate Status Protocol（OCSP）検証を使用している場合は、コマンドを使用し link:https://www.openssl.org/docs/manmaster/man1/openssl-verify.html["OpenSSL -検証"^]ます。

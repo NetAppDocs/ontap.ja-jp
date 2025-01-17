@@ -1,52 +1,60 @@
 ---
 permalink: snaplock/snapshot-lock-concept.html 
 sidebar: sidebar 
-keywords: snaplock, snapshot copy, lock, tamperproof 
-summary: ONTAP 9 12.1以降では、SnapLock以外のボリュームにSnapshotコピーをロックして、ランサムウェア攻撃から保護できます。Snapshotコピーをロックすることで、誤って削除したり、悪意を持って削除したりすることがなくなります。 
+keywords: snaplock, snapshot, lock, tamperproof 
+summary: ONTAP 9.12.1以降では、SnapLock以外のボリュームでSnapshotをロックして、ランサムウェア攻撃から保護できます。スナップショットをロックすると、誤ってまたは悪意を持って削除されることがなくなります。 
 ---
-= Snapshotコピーをロックしてランサムウェア攻撃から保護
+= Snapshotをロックしてランサムウェア攻撃から保護
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-ONTAP 9 12.1以降では、SnapLock以外のボリュームにSnapshotコピーをロックして、ランサムウェア攻撃から保護できます。Snapshotコピーをロックすることで、誤って削除したり悪意を持って削除したりすることがなくなります。
+ONTAP 9.12.1以降では、SnapLock以外のボリュームでSnapshotをロックして、ランサムウェア攻撃から保護できます。スナップショットをロックすると、誤ってまたは悪意を持って削除されることがなくなります。
 
-SnapLock Complianceクロック機能を使用すると、Snapshotコピーを指定した期間ロックして、有効期限に達するまで削除できないようにすることができます。Snapshotコピーをロックすると改ざんが防止され、ランサムウェアの脅威から保護されます。ロックされたSnapshotコピーを使用して、ランサムウェア攻撃によってボリュームが侵害された場合にデータをリカバリできます。
+SnapLock Complianceクロック機能を使用すると、Snapshotを指定した期間ロックして、有効期限に達するまで削除できないようにすることができます。Snapshotをロックすることで改ざんを防止し、ランサムウェアの脅威から保護できます。ロックされたSnapshotを使用して、ランサムウェア攻撃によってボリュームが侵害された場合にデータをリカバリできます。
 
-ONTAP 9 14.1以降では、Snapshotコピーロックで、SnapLockヴォールトデスティネーションおよびSnapLock SnapMirror以外のデスティネーションボリュームでのSnapshotコピーの長期保持がサポートされます。Snapshotコピーロックを有効にするには、に関連付けられたSnapMirrorポリシールールを使用して保持期間を設定しxref:Modify an existing policy to apply long-term retention[既存のポリシーラベル]ます。このルールは、ボリュームに設定されているデフォルトの保持期間よりも優先されます。SnapMirrorラベルに保持期間が関連付けられていない場合は、ボリュームのデフォルトの保持期間が使用されます。
+ONTAP 9.14.1以降では、SnapLockヴォールトデスティネーションおよびSnapLock SnapMirror以外のデスティネーションボリュームでの長期保持Snapshotがサポートされます。Snapshotロックを有効にするには、に関連付けられたSnapMirrorポリシールールを使用して保持期間を設定しxref:Modify an existing policy to apply long-term retention[既存のポリシーラベル]ます。このルールは、ボリュームに設定されているデフォルトの保持期間よりも優先されます。SnapMirrorラベルに保持期間が関連付けられていない場合は、ボリュームのデフォルトの保持期間が使用されます。
 
-.Snapshotコピーの改ざん防止の要件と考慮事項
+.改ざん防止スナップショットの要件と考慮事項
 * ONTAP CLIを使用する場合は、クラスタ内のすべてのノードでONTAP 9.12.1以降が実行されている必要があります。System Managerを使用する場合は、すべてのノードでONTAP 9.13.1以降が実行されている必要があります。
 * link:../system-admin/install-license-task.html["SnapLockライセンスがクラスタにインストールされている必要があります。"]です。このライセンスはに含まれていlink:../system-admin/manage-licenses-concept.html#licenses-included-with-ontap-one["ONTAP One"]ます。
 * link:../snaplock/initialize-complianceclock-task.html["クラスタのコンプライアンスクロックを初期化する必要があります。"]です。
-* ボリュームでSnapshotロックが有効になっている場合は、クラスタをONTAP 9より新しいバージョンのONTAPにアップグレードできます。12.1ただし、ロックされたすべてのSnapshotコピーが有効期限に達して削除され、Snapshotコピーロックが無効になるまで、ONTAPを以前のバージョンにリバートすることはできません。
-* Snapshotがロックされている場合、ボリューム有効時間はSnapshotコピーの有効期限に設定されます。複数のSnapshotコピーがロックされている場合、ボリューム有効期限はすべてのSnapshotコピーの最大有効期限を反映します。
-* ロックされたSnapshotコピーの保持期間はSnapshotコピーの保持数よりも優先されます。つまり、ロックされたSnapshotコピーのSnapshotコピーの保持期間が経過していない場合、保持数の制限は適用されません。
-* SnapMirror関係では、ミラーバックアップポリシールールに保持期間を設定できます。デスティネーションボリュームでSnapshotコピーロックが有効になっている場合は、デスティネーションにレプリケートされたSnapshotコピーに保持期間が適用されます。保持期間は保持数よりも優先されます。たとえば、保持数を超えていても、有効期限を過ぎていないSnapshotコピーは保持されます。
-* SnapLock以外のボリューム上のSnapshotコピーの名前は変更できます。SnapMirror関係のプライマリボリュームでのSnapshot名変更処理は、ポリシーがMirrorAllSnapshotsの場合にのみセカンダリボリュームに反映されます。それ以外のポリシータイプの場合、名前を変更したSnapshotコピーは更新時に伝播されません。
-* ONTAP CLIを使用している場合は、ロックされたSnapshotコピーが最新のものである場合にのみ、コマンドを使用してロックされたSnapshotコピーをリストアでき `volume snapshot restore`ます。リストア対象のSnapshotコピーよりもあとのSnapshotコピーがある場合、Snapshotコピーのリストア処理は失敗します。
+* ボリュームでSnapshotロックが有効になっている場合は、クラスタをONTAP 9.12.1より新しいバージョンのONTAPにアップグレードできます。ただし、ロックされたSnapshotがすべて有効期限に達して削除され、Snapshotロックが無効になるまで、ONTAPを以前のバージョンに戻すことはできません。
+* Snapshotがロックされている場合、ボリューム有効期限はSnapshotの有効期限に設定されます。複数のSnapshotがロックされている場合は、すべてのSnapshotの中で最も長い有効時間がボリューム有効時間に反映されます。
+* ロックされたSnapshotの保持期間はSnapshot保持数よりも優先されます。つまり、ロックされたSnapshotのSnapshot保持期間が満了していない場合、保持数の制限は適用されません。
+* SnapMirror関係では、ミラーバックアップポリシールールに保持期間を設定できます。デスティネーションボリュームでSnapshotロックが有効になっている場合は、デスティネーションにレプリケートされたSnapshotに保持期間が適用されます。保持期間は保持数よりも優先されます。たとえば、有効期限を過ぎていないSnapshotは、保持数を超えても保持されます。
+* SnapLock以外のボリューム上のSnapshotの名前を変更できます。SnapMirror関係のプライマリボリュームでのSnapshot名変更処理は、ポリシーがMirrorAllSnapshotsの場合にのみセカンダリボリュームに反映されます。それ以外のポリシータイプの場合、名前を変更したSnapshotは更新時に伝播されません。
+* ONTAP CLIを使用している場合は、ロックされたSnapshotが最新のものである場合にのみ、コマンドを使用してロックされたSnapshotをリストアでき `volume snapshot restore`ます。リストア対象のスナップショットよりもあとに期限切れになっていないスナップショットがある場合、スナップショットのリストア処理は失敗します。
 
 
-.改ざん防止Snapshotコピーでサポートされる機能
+.改ざん防止スナップショットでサポートされる機能
 * link:https://docs.netapp.com/us-en/bluexp-cloud-volumes-ontap/reference-worm-snaplock.html["Cloud Volumes ONTAP"^]
 * FlexGroupホリユウム
 +
-SnapshotコピーロックはFlexGroupボリュームでサポートされます。Snapshotロックは、ルートコンスティチュエントのSnapshotコピーに対してのみ実行されます。FlexGroupボリュームを削除できるのは、ルートコンスティチュエントの有効期限が過ぎている場合のみです。
+FlexGroupボリュームではSnapshotロックがサポートされます。Snapshotのロックは、ルートコンスティチュエントのSnapshotに対してのみ実行されます。FlexGroupボリュームを削除できるのは、ルートコンスティチュエントの有効期限が過ぎている場合のみです。
 
 * FlexVolからFlexGroupへの変換
 +
-ロックされたSnapshotコピーがあるFlexVol volumeをFlexGroupボリュームに変換できます。変換後もSnapshotコピーはロックされたままです。
+ロックされたSnapshotを含むFlexVol volumeをFlexGroupボリュームに変換できます。変換後もスナップショットはロックされたままになります。
+
+* SnapMirror非同期
++
+コンプライアンスクロックは、ソースとデスティネーションの両方で初期化する必要があります。
+
+* SVM DR
++
+コンプライアンスクロックは、ソースとデスティネーションの両方で初期化する必要があります。
 
 * ボリューム クローンとファイル クローン
 +
-ロックされたSnapshotコピーからボリューム クローンとファイル クローンを作成できます。
+ロックされたSnapshotからボリュームクローンとファイルクローンを作成できます。
 
 
 
 .サポートされない機能
-現在、改ざん防止Snapshotコピーでは、次の機能はサポートされていません。
+改ざん防止スナップショットでは、現在次の機能はサポートされていません。
 
 * 整合グループ
 * FabricPool
@@ -60,9 +68,9 @@ SnapshotコピーロックはFlexGroupボリュームでサポートされます
 
 
 
-== ボリューム作成時にSnapshotコピーロックを有効にする
+== ボリューム作成時にSnapshotロックを有効にする
 
-ONTAP 9 12.1以降では、新しいボリュームを作成するとき、またはCLIのコマンドと `volume modify`コマンドでオプションを `volume create`使用して既存のボリュームを変更するときに、Snapshotコピーロックを有効にでき `-snapshot-locking-enabled`ます。ONTAP 9 .13.1以降では、System Managerを使用してSnapshotコピーロックを有効にできます。
+ONTAP 9.12.1以降では、新しいボリュームを作成するとき、またはCLIのコマンドと `volume modify`コマンドでオプションを `volume create`使用して既存のボリュームを変更するときに、Snapshotロックを有効にでき `-snapshot-locking-enabled`ます。ONTAP 9.13.1以降では、System Managerを使用してSnapshotロックを有効にできます。
 
 [role="tabbed-block"]
 ====
@@ -75,24 +83,24 @@ ONTAP 9 12.1以降では、新しいボリュームを作成するとき、ま�
 . SnapLockコンプライアンスクロックがまだ有効になっていない場合は、*[Initialize Compliance Clock]*を選択します。
 . 変更を保存します。
 . [ボリューム]*ウィンドウで、更新したボリュームを選択し、*[概要]*を選択します。
-. SnapLock Snapshotコピーのロック*が「有効」*と表示されていることを確認します。
+. SnapLockスナップショットロック*が*有効*と表示されていることを確認します。
 
 
 --
 .CLI
 --
-. 新しいボリュームを作成し、Snapshotコピーのロックを有効にするには、次のコマンドを入力します。
+. 新しいボリュームを作成してSnapshotロックを有効にするには、次のコマンドを入力します。
 +
 `volume create -vserver _vserver_name_ -volume _volume_name_ -snapshot-locking-enabled true`
 
 +
-次のコマンドは、vol1という名前の新しいボリュームでSnapshotコピーロックを有効にします。
+次のコマンドは、vol1という名前の新しいボリュームでSnapshotロックを有効にします。
 
 +
 [listing]
 ----
 > volume create -volume vol1 -aggregate aggr1 -size 100m -snapshot-locking-enabled true
-Warning: Snapshot copy locking is being enabled on volume “vol1” in Vserver “vs1”. It cannot be disabled until all locked Snapshot copies are past their expiry time. A volume with unexpired locked Snapshot copies cannot be deleted.
+Warning: snapshot locking is being enabled on volume “vol1” in Vserver “vs1”. It cannot be disabled until all locked snapshots are past their expiry time. A volume with unexpired locked snapshots cannot be deleted.
 Do you want to continue: {yes|no}: y
 [Job 32] Job succeeded: Successful
 ----
@@ -102,9 +110,9 @@ Do you want to continue: {yes|no}: y
 ====
 
 
-== 既存のボリュームでSnapshotコピーロックを有効にする
+== 既存のボリュームでSnapshotロックを有効にする
 
-ONTAP 9 12.1以降では、ONTAP CLIを使用して、既存のボリュームでSnapshotコピーロックを有効にできます。ONTAP 9 .13.1以降では、System Managerを使用して既存のボリュームに対してSnapshotコピーロックを有効にできます。
+ONTAP 9.12.1以降では、ONTAP CLIを使用して既存のボリュームでSnapshotロックを有効にできます。ONTAP 9.13.1以降では、System Managerを使用して既存のボリュームに対してSnapshotロックを有効にすることができます。
 
 [role="tabbed-block"]
 ====
@@ -112,20 +120,20 @@ ONTAP 9 12.1以降では、ONTAP CLIを使用して、既存のボリューム�
 --
 . [ストレージ]>[ボリューム]に移動します。
 . を選択 image:icon_kabob.gif["メニューオプションアイコン"] し、*[編集]>[ボリューム]*を選択します。
-. [ボリュームの編集]*ウィンドウで、[Snapshotコピー（ローカル）設定]セクションを探し、*[Snapshotロックの有効化]*を選択します。
+. [ボリュームの編集]*ウィンドウで、[ Snapshot（ローカル）設定]セクションを探して*[ Snapshotロックを有効にする]*を選択します。
 +
 SnapLockライセンスがインストールされていない場合、この選択は表示されません。
 
 . SnapLockコンプライアンスクロックがまだ有効になっていない場合は、*[Initialize Compliance Clock]*を選択します。
 . 変更を保存します。
 . [ボリューム]*ウィンドウで、更新したボリュームを選択し、*[概要]*を選択します。
-. SnapLock Snapshotコピーのロック*が「有効」*と表示されていることを確認します。
+. SnapLockスナップショットロック*が*有効*と表示されていることを確認します。
 
 
 --
 .CLI
 --
-. 既存のボリュームを変更してSnapshotコピーロックを有効にするには、次のコマンドを入力します。
+. 既存のボリュームを変更してSnapshotロックを有効にするには、次のコマンドを入力します。
 +
 `volume modify -vserver _vserver_name_ -volume _volume_name_ -snapshot-locking-enabled true`
 
@@ -135,13 +143,13 @@ SnapLockライセンスがインストールされていない場合、この選
 ====
 
 
-== ロックされたSnapshotコピーポリシーを作成して保持を適用する
+== ロックされたSnapshotポリシーを作成して保持を適用する
 
-12.1以降では、ONTAP 9コピーポリシーを作成して、Snapshotコピーの保持期間を適用し、ポリシーをボリュームに適用して、指定した期間にわたってSnapshotコピーをロックできます。保持期間を手動で設定して、Snapshotコピーをロックすることもできます。ONTAP 9.13.1以降では、System Managerを使用してSnapshotコピー ロック ポリシーを作成し、ボリュームに適用できます。
+ONTAP 9.12.1以降では、Snapshotポリシーを作成してSnapshot保持期間を適用し、そのポリシーをボリュームに適用して、指定した期間Snapshotをロックできます。保持期間を手動で設定してSnapshotをロックすることもできます。ONTAP 9.13.1以降では、System Managerを使用してSnapshotロックポリシーを作成し、ボリュームに適用できます。
 
 
 
-=== Snapshotコピー ロック ポリシーの作成
+=== スナップショットロックポリシーを作成します。
 
 [role="tabbed-block"]
 ====
@@ -152,8 +160,8 @@ SnapLockライセンスがインストールされていない場合、この選
 . [Snapshot Policies]*に移動し、を選択します image:icon_arrow.gif["矢印アイコン"]。
 . [ Snapshotポリシーの追加]*ウィンドウで、ポリシー名を入力します。
 . を選択します image:icon_add.gif["追加アイコン"]。
-. スケジュール名、保持するSnapshotコピーの最大数、SnapLockの保持期間など、Snapshotコピースケジュールの詳細を指定します。
-. [Snapshot保持期間]列にSnapLock 、Snapshotコピーを保持する時間数、日数、月数、または年数を入力します。たとえば、保持期間が5日間のSnapshotコピーポリシーでは、Snapshotコピーが作成されてから5日間はロックされ、その間は削除できません。サポートされる保持期間は次のとおりです。
+. Snapshotスケジュールの詳細（スケジュール名、保持するSnapshotの最大数、SnapLock保持期間など）を指定します。
+. SnapLockの保持期間*列に、Snapshotを保持する時間数、日数、月数、または年数を入力します。たとえば、保持期間が5日のSnapshotポリシーでは、Snapshotが作成されてから5日間ロックされ、その間は削除できません。サポートされる保持期間は次のとおりです。
 +
 ** 年：0～100
 ** 月：0～1200
@@ -167,12 +175,12 @@ SnapLockライセンスがインストールされていない場合、この選
 --
 .CLI
 --
-. Snapshotコピーポリシーを作成するには、次のコマンドを入力します。
+. Snapshotポリシーを作成するには、次のコマンドを入力します。
 +
 `volume snapshot policy create -policy policy_name -enabled true -schedule1 _schedule1_name_ -count1 _maximum_Snapshot_copies -retention-period1 _retention_period_`
 
 +
-次のコマンドは、Snapshotコピーロックポリシーを作成します。
+次のコマンドは、Snapshotロックポリシーを作成します。
 
 +
 [listing]
@@ -180,7 +188,7 @@ SnapLockライセンスがインストールされていない場合、この選
 cluster1> volume snapshot policy create -policy policy_name -enabled true -schedule1 hourly -count1 24 -retention-period1 "1 days"
 ----
 +
-アクティブな保持期間にあるSnapshotコピーは置き換えられません。つまり、期限切れになっていないロックされたSnapshotコピーがある場合、保持数は反映されません。
+アクティブな保持期間にあるSnapshotは置き換えられません。つまり、期限切れになっていないロックされたSnapshotがある場合、保持数は考慮されません。
 
 
 
@@ -196,16 +204,16 @@ cluster1> volume snapshot policy create -policy policy_name -enabled true -sched
 --
 . [ストレージ]>[ボリューム]に移動します。
 . を選択 image:icon_kabob.gif["メニューオプションアイコン"] し、*[編集]>[ボリューム]*を選択します。
-. [ボリュームの編集]*ウィンドウで、*[Snapshotコピーのスケジュール設定]*を選択します。
-. リストからSnapshotコピーロックポリシーを選択します。
-. Snapshotコピーのロックがまだ有効になっていない場合は、*[Snapshotロックを有効にする]*を選択します。
+. [ボリュームの編集]*ウィンドウで、*[ Snapshotのスケジュール設定]*を選択します。
+. リストからロックSnapshotポリシーを選択します。
+. スナップショットのロックがまだ有効になっていない場合は、*スナップショットのロックを有効にする*を選択します。
 . 変更を保存します。
 
 
 --
 .CLI
 --
-. 既存のボリュームにSnapshotコピーロックポリシーを適用するには、次のコマンドを入力します。
+. 既存のボリュームにSnapshotロックポリシーを適用するには、次のコマンドを入力します。
 +
 `volume modify -volume volume_name -vserver vserver_name -snapshot-policy policy_name`
 
@@ -215,31 +223,31 @@ cluster1> volume snapshot policy create -policy policy_name -enabled true -sched
 ====
 
 
-=== Snapshotコピーの手動作成時に保持期間を適用
+=== Snapshotの手動作成時に保持期間を適用
 
-Snapshotコピーの保持期間は、Snapshotコピーを手動で作成するときに適用できます。ボリュームでSnapshotコピーロックが有効になっている必要があります。有効になっていない場合、保持期間の設定は無視されます。
+Snapshotの保持期間は、手動でSnapshotを作成するときに適用できます。ボリュームでSnapshotロックが有効になっている必要があります。有効になっていない場合、保持期間の設定は無視されます。
 
 [role="tabbed-block"]
 ====
 .System Manager
 --
 . [ストレージ]>[ボリューム]*に移動し、ボリュームを選択します。
-. ボリュームの詳細ページで、*[Snapshotコピー]*タブを選択します。
+. ボリュームの詳細ページで、*[Snapshots]*タブを選択します。
 . を選択します image:icon_add.gif["追加アイコン"]。
-. Snapshotコピー名とSnapLockの有効期限を入力します。カレンダーから日付と時刻を選択できます。
+. Snapshot名とSnapLockの有効期限を入力します。カレンダーを選択して、保持期限の日付と時刻を選択できます。
 . 変更を保存します。
-. [ボリューム]>[Snapshotコピー]ページで、*[表示/非表示]*を選択し、*[ SnapLock 有効期限]*を選択して*[ SnapLock 有効期限]*列を表示し、保持期限が設定されていることを確認します。
+. [ボリューム]>[Snapshots]*ページで、*[表示/非表示]*を選択し、*[ SnapLock Expiration Time]*を選択して* SnapLock Expiration Time *列を表示し、保持期限が設定されていることを確認します。
 
 
 --
 .CLI
 --
-. Snapshotコピーを手動で作成してロック保持期間を適用するには、次のコマンドを入力します。
+. スナップショットを手動で作成し、ロック保持期間を適用するには、次のコマンドを入力します。
 +
 `volume snapshot create -volume _volume_name_ -snapshot _snapshot_copy_name_ -snaplock-expiry-time _expiration_date_time_`
 
 +
-次のコマンドでは、新しいSnapshotコピーを作成して保持期間を設定します。
+次のコマンドでは、新しいSnapshotを作成して保持期間を設定します。
 
 +
 [listing]
@@ -252,28 +260,28 @@ cluster1> volume snapshot create -vserver vs1 -volume vol1 -snapshot snap1 -snap
 ====
 
 
-=== 既存のSnapshotコピーに保持期間を適用する
+=== 既存のSnapshotに保持期間を適用する
 
 [role="tabbed-block"]
 ====
 .System Manager
 --
 . [ストレージ]>[ボリューム]*に移動し、ボリュームを選択します。
-. ボリュームの詳細ページで、*[Snapshotコピー]*タブを選択します。
-. Snapshotコピーを選択し、を選択して image:icon_kabob.gif["メニューオプションアイコン"]*[Modify SnapLock Expiration Time]*を選択します。カレンダーを選択して、保持期限の日付と時刻を選択できます。
+. ボリュームの詳細ページで、*[Snapshots]*タブを選択します。
+. Snapshotを選択し、を選択してimage:icon_kabob.gif["メニューオプションアイコン"]*[Modify SnapLock Expiration Time]*を選択します。カレンダーを選択して、保持期限の日付と時刻を選択できます。
 . 変更を保存します。
-. [ボリューム]>[Snapshotコピー]ページで、*[表示/非表示]*を選択し、*[ SnapLock 有効期限]*を選択して*[ SnapLock 有効期限]*列を表示し、保持期限が設定されていることを確認します。
+. [ボリューム]>[Snapshots]*ページで、*[表示/非表示]*を選択し、*[ SnapLock Expiration Time]*を選択して* SnapLock Expiration Time *列を表示し、保持期限が設定されていることを確認します。
 
 
 --
 .CLI
 --
-. 既存のSnapshotコピーに保持期間を手動で適用するには、次のコマンドを入力します。
+. 既存のSnapshotに保持期間を手動で適用するには、次のコマンドを入力します。
 +
 `volume snapshot modify-snaplock-expiry-time -volume _volume_name_ -snapshot _snapshot_copy_name_ -expiry-time _expiration_date_time_`
 
 +
-次の例は、既存のSnapshotコピーに保持期間を適用します。
+次の例は、既存のSnapshotに保持期間を適用します。
 
 +
 [listing]
@@ -288,13 +296,13 @@ cluster1> volume snapshot modify-snaplock-expiry-time -volume vol1 -snapshot sna
 
 === 既存のポリシーの変更による長期保持の適用
 
-SnapMirror関係では、ミラーバックアップポリシールールに保持期間を設定できます。デスティネーションボリュームでSnapshotコピーロックが有効になっている場合は、デスティネーションにレプリケートされたSnapshotコピーに保持期間が適用されます。保持期間は保持数よりも優先されます。たとえば、保持数を超えていても、有効期限を過ぎていないSnapshotコピーは保持されます。
+SnapMirror関係では、ミラーバックアップポリシールールに保持期間を設定できます。デスティネーションボリュームでSnapshotロックが有効になっている場合は、デスティネーションにレプリケートされたSnapshotに保持期間が適用されます。保持期間は保持数よりも優先されます。たとえば、有効期限を過ぎていないSnapshotは、保持数を超えても保持されます。
 
-ONTAP 9.14.1以降では、Snapshotコピーの長期保持を設定するルールを追加することで、既存のSnapMirrorポリシーを変更できます。このルールは、SnapLockバックアップ デスティネーションや非SnapLockのSnapMirrorデスティネーション ボリュームでのデフォルトのボリューム保持期間を上書きするために使用します。
+ONTAP 9.14.1以降では、Snapshotの長期保持を設定するルールを追加することで、既存のSnapMirrorポリシーを変更できます。このルールは、SnapLockヴォールトデスティネーションとSnapLock SnapMirror以外のデスティネーションボリュームのデフォルトのボリューム保持期間を上書きするために使用されます。
 
 . 既存のSnapMirrorポリシーにルールを追加します。
 +
-`snapmirror policy add-rule -vserver <SVM name> -policy <policy name> -snapmirror-label <label name> -keep <number of Snapshot copies> -retention-period [<integer> days|months|years]`
+`snapmirror policy add-rule -vserver <SVM name> -policy <policy name> -snapmirror-label <label name> -keep <number of snapshots> -retention-period [<integer> days|months|years]`
 
 +
 次の例では、「lockvault」という既存のポリシーに6カ月の保持期間を適用するルールを作成します。

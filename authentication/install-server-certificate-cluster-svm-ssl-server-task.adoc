@@ -2,7 +2,7 @@
 permalink: authentication/install-server-certificate-cluster-svm-ssl-server-task.html 
 sidebar: sidebar 
 keywords: generate, install, ca-signed, server, certificate, csr, signing request, signed 
-summary: 本番用システムでは、クラスタまたは SVM を SSL サーバとして認証する際に使用する CA 署名デジタル証明書をインストールすることを推奨します。security certificate generate-csr コマンドを使用して証明書署名要求（ CSR ）を生成し、 security certificate install コマンドを使用して認証局から返された証明書をインストールできます。 
+summary: 本番用システムでは、クラスタまたは SVM を SSL サーバとして認証する際に使用する CA 署名デジタル証明書をインストールすることを推奨します。 
 ---
 = CA署名済みサーバ証明書の生成とインストールの概要
 :allow-uri-read: 
@@ -25,10 +25,12 @@ summary: 本番用システムでは、クラスタまたは SVM を SSL サー�
 .手順
 . CSRを生成します。
 +
-`security certificate generate-csr -common-name FQDN_or_common_name -size 512|1024|1536|2048 -country country -state state -locality locality -organization organization -unit unit -email-addr email_of_contact -hash-function SHA1|SHA256|MD5`
-
+[source, cli]
+----
+security certificate generate-csr -common-name FQDN_or_common_name -size 512|1024|1536|2048 -country country -state state -locality locality -organization organization -unit unit -email-addr email_of_contact -hash-function SHA1|SHA256|MD5
+----
 +
-次のコマンドでは、米国カリフォルニア州サニーベールにある企業（カスタム共通名「s erver1.companyname.com`"」）の「IT」部門の「ソフトウェア」グループが使用する、「SHA256」ハッシュ関数で生成される2、048ビット秘密鍵を使用してCSRを作成します。SVM担当管理者のEメールアドレスは「web@example.com」です。出力にCSRと秘密鍵が表示されます。
+次のコマンドは、ハッシュ関数で生成される2、048ビット秘密鍵を使用してCSRを作成します。この証明書 `SHA256`は、米国カリフォルニア州のサニーベールにあるというカスタム共通名の企業の部門 `server1.companyname.com`内のグループ `IT`が使用します。 `Software`SVM担当者の管理者のEメールアドレスはです `web@example.com`。出力にCSRと秘密鍵が表示されます。
 
 +
 .CSRの作成例
@@ -40,24 +42,13 @@ cluster1::>security certificate generate-csr -common-name server1.companyname.co
 
 Certificate Signing Request :
 -----BEGIN CERTIFICATE REQUEST-----
-MIIBGjCBxQIBADBgMRQwEgYDVQQDEwtleGFtcGxlLmNvbTELMAkGA1UEBhMCVVMx
-CTAHBgNVBAgTADEJMAcGA1UEBxMAMQkwBwYDVQQKEwAxCTAHBgNVBAsTADEPMA0G
-CSqGSIb3DQEJARYAMFwwDQYJKoZIhvcNAQEBBQADSwAwSAJBAPXFanNoJApT1nzS
-xOcxixqImRRGZCR7tVmTYyqPSuTvfhVtwDJbmXuj6U3a1woUsb13wfEvQnHVFNci
-2ninsJ8CAwEAAaAAMA0GCSqGSIb3DQEBCwUAA0EA6EagLfso5+4g+ejiRKKTUPQO
-UqOUEoKuvxhOvPC2w7b//fNSFsFHvXloqEOhYECn/NX9h8mbphCoM5YZ4OfnKw==
+<certificate_value>
 -----END CERTIFICATE REQUEST-----
 
 
 Private Key :
 -----BEGIN RSA PRIVATE KEY-----
-MIIBOwIBAAJBAPXFanNoJApT1nzSxOcxixqImRRGZCR7tVmTYyqPSuTvfhVtwDJb
-mXuj6U3a1woUsb13wfEvQnHVFNci2ninsJ8CAwEAAQJAWt2AO+bW3FKezEuIrQlu
-KoMyRYK455wtMk8BrOyJfhYsB20B28eifjJvRWdTOBEav99M7cEzgPv+p5kaZTTM
-gQIhAPsp+j1hrUXSRj979LIJJY0sNez397i7ViFXWQScx/ehAiEA+oDbOooWlVvu
-xj4aitxVBu6ByVckYU8LbsfeRNsZwD8CIQCbZ1/ENvmlJ/P7N9Exj2NCtEYxd0Q5
-cwBZ5NfZeMBpwQIhAPk0KWQSLadGfsKO077itF+h9FGFNHbtuNTrVq4vPW3nAiAA
-peMBQgEv28y2r8D4dkYzxcXmjzJluUSZSZ9c/wS6fA==
+<key_value>
 -----END RSA PRIVATE KEY-----
 
 NOTE: Keep a copy of your certificate request and private key for future reference.
@@ -81,8 +72,10 @@ CA署名済みサーバ証明書は、コマンドを使用してSVMにインス
 .ステップ
 . CA署名済みサーバ証明書をインストールします。
 +
-`security certificate install -vserver SVM_name -type certificate_type`
-
+[source, cli]
+----
+security certificate install -vserver SVM_name -type certificate_type
+----
 +
 コマンド構文全体については、を参照してください link:config-worksheets-reference.html["ワークシート"]。
 
@@ -93,7 +86,7 @@ ONTAPは、サーバ証明書の証明書チェーンを形成するCAルート�
 
 ====
 +
-次のコマンドは、CA署名済みサーバ証明書と中間証明書をSVM「engData2」にインストールします。
+次のコマンドは、CA署名済みサーバ証明書と中間証明書をSVMにインストールし `engData2`ます。
 
 +
 .CA署名済みサーバ証明書中間証明書のインストール例
@@ -104,37 +97,20 @@ ONTAPは、サーバ証明書の証明書チェーンを形成するCAルート�
 cluster1::>security certificate install -vserver engData2 -type server
 Please enter Certificate: Press <Enter> when done
 -----BEGIN CERTIFICATE-----
-MIIB8TCCAZugAwIBAwIBADANBgkqhkiG9w0BAQQFADBfMRMwEQYDVQQDEwpuZXRh
-cHAuY29tMQswCQYDVQQGEwJVUzEJMAcGA1UECBMAMQkwBwYDVQQHEwAxCTAHBgNV
-BAoTADEJMAcGA1UECxMAMQ8wDQYJKoZIhvcNAQkBFgAwHhcNMTAwNDI2MTk0OTI4
-WhcNMTAwNTI2MTk0OTI4WjBfMRMwEQYDVQQDEwpuZXRhcHAuY29tMQswCQYDVQQG
-EwJVUzEJMAcGA1UECBMAMQkwBwYDVQQHEwAxCTAHBgNVBAoTADEJMAcGA1UECxMA
-MQ8wDQYJKoZIhvcNAQkBFgAwXDANBgkqhkiG9w0BAQEFAANLADBIAkEAyXrK2sry
+<certificate_value>
 -----END CERTIFICATE-----
 
 
 Please enter Private Key: Press <Enter> when done
 -----BEGIN RSA PRIVATE KEY-----
-MIIBPAIBAAJBAMl6ytrK8nQj82UsWeHOeT8gk0BPX+Y5MLycsUdXA7hXhumHNpvF
-C61X2G32Sx8VEa1th94tx+vOEzq+UaqHlt0CAwEAAQJBAMZjDWlgmlm3qIr/n8VT
-PFnnZnbVcXVM7OtbUsgPKw+QCCh9dF1jmuQKeDr+wUMWknlDeGrfhILpzfJGHrLJ
-z7UCIQDr8d3gOG71UyX+BbFmo/N0uAKjS2cvUU+Y8a8pDxGLLwIhANqa99SuSl8U
-DiPvdaKTj6+EcGuXfCXz+G0rfgTZK8uzAiEAr1mnrfYC8KwE9k7A0ylRzBLdUwK9
-AvuJDn+/z+H1Bd0CIQDD93P/xpaJETNz53Au49VE5Jba/Jugckrbosd/lSd7nQIg
-aEMAzt6qHHT4mndi8Bo8sDGedG2SKx6Qbn2IpuNZ7rc=
+<key_value>
 -----END RSA PRIVATE KEY-----
 
 Do you want to continue entering root and/or intermediate certificates {y|n}: y
 
 Please enter Intermediate Certificate: Press <Enter> when done
 -----BEGIN CERTIFICATE-----
-MIIE+zCCBGSgAwIBAgICAQ0wDQYJKoZIhvcNAQEFBQAwgbsxJDAiBgNVBAcTG1Zh
-bGlDZXJ0IFZhbGlkYXRpb24gTmV0d29yazEXMBUGA1UEChMOVmFsaUNlcnQsIElu
-Yy4xNTAzBgNVBAsTLFZhbGlDZXJ0IENsYXNzIDIgUG9saWN5IFZhbGlkYXRpb24g
-QXV0aG9yaXR5MSEwHwYDVQQDExhodHRwOi8vd3d3LnZhbGljZXJ0LmNvbS8xIDAe
-BgkqhkiG9w0BCQEWEWluZm9AdmFsaWNlcnQuY29tMB4XDTA0MDYyOTE3MDYyMFoX
-DTI0MDYyOTE3MDYyMFowYzELMAkGA1UEBhMCVVMxITAfBgNVBAoTGFRoZSBHbyBE
-YWRkeSBHcm91cCwgSW5jLjExMC8GA1UECxMoR28gRGFkZHkgQ2xhc3MgMiBDZXJ0
+<certificate_value>
 -----END CERTIFICATE-----
 
 
@@ -142,14 +118,7 @@ Do you want to continue entering root and/or intermediate certificates {y|n}: y
 
 Please enter Intermediate Certificate: Press <Enter> when done
 -----BEGIN CERTIFICATE-----
-MIIC5zCCAlACAQEwDQYJKoZIhvcNAQEFBQAwgbsxJDAiBgNVBAcTG1ZhbGlDZXJ0
-IFZhbGlkYXRpb24gTmV0d29yazEXMBUGA1UEChMOVmFsaUNlcnQsIEluYy4xNTAz
-BgNVBAsTLFZhbGlDZXJ0IENsYXNzIDIgUG9saWN5IFZhbGlkYXRpb24gQXV0aG9y
-aXR5MSEwHwYDVQQDExhodHRwOi8vd3d3LnZhbGljZXJ0LmNvbS8xIDAeBgkqhkiG
-9w0BCQEWEWluZm9AdmFsaWNlcnQuY29tMB4XDTk5MDYyNjAwMTk1NFoXDTE5MDYy
-NjAwMTk1NFowgbsxJDAiBgNVBAcTG1ZhbGlDZXJ0IFZhbGlkYXRpb24gTmV0d29y
-azEXMBUGA1UEChMOVmFsaUNlcnQsIEluYy4xNTAzBgNVBAsTLFZhbGlDZXJ0IENs
-YXNzIDIgUG9saWN5IFZhbGlkYXRpb24gQXV0aG9yaXR5MSEwHwYDVQQDExhodHRw
+<certificate_value>
 -----END CERTIFICATE-----
 
 

@@ -31,10 +31,27 @@ SVM上の容量は、FlexVol、FlexGroup、FlexClone、FlexCacheの合計とし�
 |===
 .開始する前に
 * SVM数の上限を設定するには、クラスタ管理者である必要があります。
-* ストレージ制限は、データ保護ボリュームを含むSVM、SnapMirror関係にあるボリューム、またはMetroCluster構成には設定できません。
+* ONTAP 9.16.1以降では、データ保護ボリュームを含むSVMに対してストレージの制限を設定できます。これには、次のデータ保護タイプが含まれます。
++
+** カスケードを使用しない非同期DRのFlexVolボリューム
+** 同期DRのFlexVolボリューム（syncポリシーとstrict-syncポリシーの両方）
+** link:../data-protection/restore-volume-snapvault-backup-task.html["リストア"]
+
+
+* SVMのストレージ制限は、次の構成で_not_supportedになります。
++
+** SnapMirrorハツクアツフカンケイ
+** SnapMirrorアクティブ同期
+** FlexGroup
+** 整合グループ
+** SVM DR
+** カスケード
+** MetroCluster
+
+
 * SVMを移行する際、ソースSVMでストレージの制限を有効にすることはできません。移行処理を完了するには、ソースのストレージ制限を無効にしてから移行を完了してください。
 * SVMの容量はとはxref:../volumes/quotas-concept.html[クォータ]異なります。クォータは最大サイズを超えることはできません。
-* SVMで他の処理を実行中のときは、ストレージ制限を設定することはできません。既存のジョブを表示するには、コマンドを使用し `job show vservser _svm_name_`ます。ジョブが完了したら、もう一度コマンドを実行してください。
+* SVMで他の処理を実行中のときは、ストレージ制限を設定することはできません。既存のジョブを表示するには、コマンドを使用し `job show vservser <svm_name>`ます。ジョブが完了したら、もう一度コマンドを実行してください。
 
 
 
@@ -76,18 +93,18 @@ SVMの最大容量サイズを指定します。
 .手順
 . SVMを作成ストレージの制限を設定するには、値を指定し `storage-limit`ます。ストレージ制限のしきい値アラートを設定するには、の割合を指定します `-storage-limit-threshold-alert`。
 +
-`vserver create -vserver _vserver_name_ -aggregate _aggregate_name_ -rootvolume _root_volume_name_ -rootvolume-security-style {unix|ntfs|mixed} -storage-limit _value_ [GiB|TIB] -storage-limit-threshold-alert _percentage_ [-ipspace IPspace_name] [-language <language>] [-snapshot-policy _snapshot_policy_name_] [-quota-policy _quota_policy_name_] [-comment _comment_]`
+`vserver create -vserver <vserver_name> -aggregate <aggregate_name> -rootvolume <root_volume_name> -rootvolume-security-style {unix|ntfs|mixed} -storage-limit <value> [GiB|TIB] -storage-limit-threshold-alert <percentage> [-ipspace IPspace_name] [-language <language>] [-snapshot-policy <snapshot_policy_name>] [-quota-policy <quota_policy_name>] [-comment <comment>]`
 
 +
 しきい値を指定しない場合、デフォルトでは、SVMの容量が90%に達したときにアラートがトリガーされます。しきい値アラートを無効にするには、値を0にします。
 
 . SVMが作成されたことを確認します。
 +
-`vserver show -vserver _vserver_name_`
+`vserver show -vserver <vserver_name>`
 
 . ストレージの上限を無効にする場合は、パラメータを0に設定してSVMを変更し `-storage-limit`ます。
 +
-`vserver modify -vserver _vserver_name_ -storage-limit 0`
+`vserver modify -vserver <vserver_name> -storage-limit 0`
 
 
 
@@ -121,14 +138,14 @@ SVMの最大容量サイズを指定します。
 .手順
 . SVMをホストしているクラスタで、コマンドを実行し `vserver modify`ます。には数値、にはパーセント値を `-storage-limit-threshold-alert`指定します `-storage-limit`。
 +
-`vserver modify -vserver _vserver_name_ -storage-limit _value_ [GiB|TIB] -storage-limit-threshold-alert _percentage_`
+`vserver modify -vserver <vserver_name> -storage-limit <value> [GiB|TIB] -storage-limit-threshold-alert <percentage>`
 
 +
-しきい値を指定しないと、容量の90%となるデフォルトのアラートが生成されます。しきい値アラートを無効にするには、値を0にします。
+しきい値を指定しない場合は、容量の90%を超えるデフォルトのアラートが生成されます。しきい値アラートを無効にするには、値を0にします。
 
 . ストレージの上限を無効にする場合は、が0に設定されているSVMを変更し `-storage-limit`ます。
 +
-`vserver modify -vserver _vserver_name_ -storage-limit 0`
+`vserver modify -vserver <vserver_name> -storage-limit 0`
 
 
 

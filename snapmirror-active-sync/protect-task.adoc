@@ -102,6 +102,16 @@ IMPORTANT: ONTAP 9 .8~9.14.1では、SnapMirrorアクティブ同期をSnapMirro
 .開始する前に
 * 両方のクラスタでONTAP 9 .15.1以降が実行されている必要があります。
 * 対称アクティブ/アクティブ構成には保護ポリシーが必要 `AutomatedFailoverDuplex`です。または、をに `automated-failover-duplex`指定する `-type`こともできますxref:../data-protection/create-custom-replication-policy-concept.html[カスタムのSnapMirrorポリシーを作成する]。
+* ONTAP 9.15.1では、対称アクティブ/アクティブ構成は2ノードクラスタでのみサポートされます。
+* ONTAP 9.16.1 GA以降では、SnapMirror Active Syncで4ノードクラスタの対称アクティブ/アクティブ構成がサポートされます。
++
+** 4ノードクラスタでSnapMirrorアクティブ同期を使用するには、ONTAP 9.16.1 GA以降を実行している必要があります。
+** 4ノード構成を導入する前に、を実行する必要がありxref:../peering/create-cluster-relationship-93-later-task.adoc[クラスタピア関係を作成します。]ます。
+** 4ノードクラスタのを確認しますxref:limits-reference.adoc[制限]。
+** 2ノードクラスタにリバートする場合は、リバート前にSnapMirrorのアクティブな同期関係をクラスタから削除する必要があります。
+** 4ノード構成を使用して、ストレージとコントローラをアップグレードできます。このプロセスは無停止で実行され、ボリュームを新しいノードに移動する間にクラスタを拡張します。詳細については、を参照してください link:upgrade-revert-task.html#refresh-a-cluster["クラスタをリフレッシュします。"]。
+
+
 
 
 .手順
@@ -114,7 +124,7 @@ IMPORTANT: ONTAP 9 .8~9.14.1では、SnapMirrorアクティブ同期をSnapMirro
 +
 .. 整合グループを作成するときは、ホストイニシエータを指定してigroupを作成します。
 .. [**Enable SnapMirror *]チェックボックスをオンにして、ポリシーを選択します `AutomatedFailoverDuplex`。
-.. 表示されるダイアログボックスで、[**replicate initiator groups**]チェックボックスを選択してigroupをレプリケートします。[**Edit proximal settings*]で、ホストの近接SVMを設定します。
+.. 表示されるダイアログボックスで、[**replicate initiator groups**]チェックボックスを選択してigroupをレプリケートします。[**Edit proximity settings*]で、ホストの近接SVMを設定します。
 .. **保存**を選択します。
 
 
@@ -133,7 +143,7 @@ IMPORTANT: ONTAP 9 .8~9.14.1では、SnapMirrorアクティブ同期をSnapMirro
 .. ** Hosts**>** SAN Initiator Groups**に移動します。
 .. 新しいigroupを作成するには、[**+Add*]を選択します。
 .. ** Name **を指定し、** Host Operating System **を選択してから、** Initiator Group Members **を選択します。
-.. **保存**を選択します。
+.. 関係を初期化するには、[**Save*]を選択します。
 
 
 . 新しいigroupをデスティネーションLUNにマッピングします。
@@ -160,12 +170,20 @@ IMPORTANT: ONTAP 9 .8~9.14.1では、SnapMirrorアクティブ同期をSnapMirro
 `snapmirror show -destination-path <destination_path>`
 
 . ホストで、必要に応じて各クラスタにアクセスできるようにホスト接続を設定します。
-. igroup設定を確立します。ローカル クラスタのイニシエータの優先パスを設定します。ピア クラスタの逆のアフィニティに設定をレプリケートするオプションを指定します。
+. igroup設定を確立します。ローカル クラスタのイニシエータの優先パスを設定します。逆アフィニティを実現するために設定をピアクラスタにレプリケートするオプションを指定します。
 +
-`SiteA::> igroup create -vserver <svm_name> -os-type <os_type> -igroup <igroup_name> -replication-peer <peer_svm_name> -initiator <host>`
+`SiteA::> igroup create -vserver <svm_name> -ostype <os_type> -igroup <igroup_name> -replication-peer <peer_svm_name> -initiator <host>`
 
 +
-`SiteA::> igroup add -vserver <svm_name> -igroup <igroup_name> -os-type <os_type> -initiator <host>`
+
+NOTE: ONTAP 9.16.1以降では、このコマンドでパラメータを使用し `-proximal-vserver local`ます。
+
++
+`SiteA::> igroup add -vserver <svm_name> -igroup <igroup_name> -ostype <os_type> -initiator <host>`
+
++
+
+NOTE: ONTAP 9.16.1以降では、このコマンドでパラメータを使用し `-proximal-vserver peer`ます。
 
 . ホストからパスを検出し、優先クラスタからストレージLUNへのアクティブ / 最適化パスがホストに設定されていることを確認します。
 . アプリケーションを導入し、VMワークロードをクラスタ間に分散して、必要な負荷分散を実現します。

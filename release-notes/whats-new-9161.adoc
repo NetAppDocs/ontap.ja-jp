@@ -33,6 +33,20 @@ ONTAPを最新バージョンにアップグレードするには、を参照し
 
 
  a| 
+xref:../snapmirror-active-sync/[マルチノードでのSnapMirrorアクティブ同期のサポート]
+ a| 
+以前の2ノードの制限から拡張されたSnapMirror Active Syncでは、4ノードクラスタがサポートされるため、大規模なワークロードのデータレプリケーションが可能になります。
+
+
+
+ a| 
+xref:../data-protection/cloud-backup-with-snapmirror-task.html[SnapMirrorクラウドでのファンアウト関係の作成のサポート]
+ a| 
+SnapMirror Cloudでは、同じソースボリュームまたはFlexGroupから、異なるオブジェクトストア内の1つまたは複数のバケットへのファンアウト関係がサポートされます。
+
+
+
+ a| 
 xref:../data-protection/cloud-backup-with-snapmirror-task.html[移行したボリュームからのSnapMirrorクラウドバックアップのサポート]
  a| 
 SnapMirror Cloudでは、より効率的な同期プロセスを使用して、クラウドに移行されたボリュームのバックアップをサポートしています。新しい機能では、クラウドに移行されたボリュームから同じデスティネーションオブジェクトストアエンドポイントへのSnapMirrorクラウドバックアップがサポートされます。ベースラインの再処理を実行する必要はありません。FlexVolボリュームとFlexGroupボリュームの両方がサポートされます。
@@ -57,7 +71,7 @@ xref:../encryption-at-rest/migrate-keys-between-key-managers.html[キー管理�
  a| 
 xref:../networking/configure_virtual_ip_vip_lifs.html#set-up-border-gateway-protocol-bgp[BGPピアグループのMD5認証サポート]
  a| 
-ONTAPはBGPピアグループでMD5認証をサポートして、BGPセッションを保護します。MD5がイネーブルの場合、BGPセッションは許可されたピア間でのみ確立および処理されるため、許可されていないアクターによるセッションの中断を防ぐことができます。
+ONTAPはBGPピアグループでMD5認証をサポートして、BGPセッションを保護します。MD5がイネーブルの場合、BGPセッションは許可されたピア間でのみ確立および処理されるため、攻撃者がBGPアップデートをスプーフィングしてネットワークに誤ったルーティング情報を注入しようとするルートハイジャックなどの攻撃を防ぐことができます。
 
 
 
@@ -77,9 +91,19 @@ IPセキュリティ（IPsec）は、クライアントとONTAPノード間の�
 
 
  a| 
+マルチプロトコルS3バケットによるS3オブジェクトのメタデータとタグ付けのサポート
+ a| 
+S3オブジェクトのタグ付けは、マルチプロトコル以外のONTAP S3バケットで使用できます。ONTAP 9.16.1以降では、S3オブジェクトのタグ付けがNASおよびS3マルチプロトコルONTAP S3バケットに拡張されました。タグはS3プロトコルでのみ表示されます。S3クライアントを使用してS3オブジェクトに適用する https://docs.aws.amazon.com/AmazonS3/latest/userguide/object-tagging.html["タグとメタデータ"^]と、ONTAPにオブジェクトまたはファイルとして格納されているデータに対してライフサイクル、バックチャージ、データカテゴリ、カスタムワークフローを定義できます。BedrockやAthenaなどのAWSデータサービスと統合すると、タグ付けとメタデータは、これらのサービスが提供するData Processingの中心になります。
+
+
+NOTE: S3のネイティブバケットでのタグとユーザ定義メタデータのサポートは、ONTAP 9.9.1から開始されました。
+
+
+
+ a| 
 xref:../s3-multiprotocol/index.html[マルチプロトコルS3バケットでのマルチパートアップロードのサポート]
  a| 
-マルチパートアップロードでは、1つのオブジェクトをパーツのセットとしてS3マルチプロトコルバケットにアップロードできます。
+マルチパートアップロードはS3の中核的な機能で、マルチプロトコル以外のONTAP S3バケットでサポートされています。ONTAP 9.16.1以降では、このコア機能がNASおよびS3マルチプロトコルONTAP S3バケットに拡張されました。
 
 
 
@@ -138,9 +162,9 @@ NOTE: 現在、ARP/AI機能はNASのみをサポートしています。自動�
 
 
  a| 
-xref:../nvme/set-up-tls-secure-channel-nvme-task.html[NVMeストレージデバイスとの間で送受信されるデータトラフィックの転送中暗号化のサポート]
+xref:../nvme/set-up-tls-secure-channel-nvme-task.html[NVMe/TCP over TLS 1.3]
  a| 
-ONTAPでは、ネットワークを介してNVMeストレージデバイスとの間で送受信されるデータトラフィックの転送中暗号化がサポートされるようになりました。
+シンプルな構成とIPSecよりも優れたパフォーマンスにより、プロトコルレイヤでNVMe/TCPを「ネットワークを介して」保護します。
 
 
 
@@ -182,16 +206,33 @@ xref:../volumes/qtrees-partition-your-volumes-concept.html[qtreeのパフォー�
 
 
  a| 
+xref:../volumes/manage-svm-capacity.html[ストレージ制限が有効なSVMでのデータ保護ボリュームのサポート]
+ a| 
+ストレージ制限が有効になっているSVMにはデータ保護ボリュームを含めることができます。カスケードを使用しない非同期ディザスタリカバリ関係のFlexVol、同期ディザスタリカバリ関係、およびリストア関係がサポートされます。
+
+[NOTE]
+====
+ONTAP 9.15.1以前のリリースでは、データ保護ボリュームを含むSVM、SnapMirror関係にあるボリューム、またはMetroCluster構成にストレージ制限を設定することはできません。
+
+====
+
+
+ a| 
 xref:../flexgroup/enable-adv-capacity-flexgroup-task.html[FlexGroupの高度な容量分散のサポート]
  a| 
-高度な容量分散機能を有効にすると、大容量ファイルが拡張されて1つのメンバーボリュームのスペースが消費されたときに、FlexGroupメンバーボリューム間でデータが分散されます。
+高度な容量分散機能を有効にすると、大容量ファイルが拡張されて1つのメンバーボリュームのスペースが消費された場合に、ファイル内のデータがFlexGroupメンバーボリューム間で分散されます。
 
 
 
  a| 
 xref:../svm-migrate/index.html[MetroCluster構成の移行におけるSVMデータ移動のサポート]
  a| 
-ONTAPでは、MetroCluster以外のHAペアからMetroCluster構成へ、またはMetroCluster構成からMetroCluster以外のHAペアへのSVMの移行がサポートされるようになりました。MetroCluster構成間でSVMを移行することはできませんMetroCluster。
+ONTAPでサポートされるMetroCluster SVMの移行は次のとおりです。
+
+* MetroCluster以外の構成とMetroCluster IP構成の間でのSVMの移行
+* 2つのMetroCluster IP構成間でのSVMの移行
+* MetroCluster FC構成とMetroCluster IP構成間でのSVMの移行
+
 
 |===
 

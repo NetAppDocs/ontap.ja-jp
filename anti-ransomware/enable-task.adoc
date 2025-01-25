@@ -25,11 +25,8 @@ ONTAP 9 .10.1以降では、既存のボリュームで自律型ランサムウ�
 +
 ARPを学習モードで最低30日間実行することをお勧めします。ONTAP 9 .13.1以降では、ARPによって最適な学習期間間隔が自動的に決定され、30日前にスイッチが自動化されます。
 
-* * FlexVolボリュームを使用しているONTAP 9 .16.1以降の場合* ARPを有効にすると、ARP/AI保護はすぐにアクティブモードで開始されます。学習期間は必要ありません。
+* * FlexVolボリュームを搭載したONTAP 9.16.1以降の場合* ARPを有効にすると、ARP / AI保護が有効になり、すぐにアクティブになります。学習期間は必要ありません。
 
-
-
-NOTE: 既存のボリュームでは、ラーニングモードとアクティブモードは新しく書き込まれたデータにのみ適用され、ボリューム内の既存のデータには適用されません。ARPを有効にしたボリュームでは、以前の通常のデータトラフィックの特性が新しいデータに基づいて想定されるため、既存のデータはスキャンおよび分析されません。
 
 .開始する前に
 * NFSまたはSMB（またはその両方）に対してStorage VM（SVM）が有効になっている必要があります。
@@ -60,7 +57,11 @@ System ManagerまたはONTAP CLIを使用してARPを有効化できます。
 
 NOTE: ONTAP 9 .13.1以降では、ARPによって最適な学習期間間隔が自動的に決定され、スイッチが自動化されます。ラーニングモードからアクティブモードへの移行を手動で制御することができますlink:enable-default-task.html["関連付けられているStorage VMでこの設定を無効にしてください"]。
 
-** ONTAP 9 .16.1以降が搭載されたFlexVolボリュームでARPを使用している場合、ARP / AI機能はラーニング期間を必要とせず、デフォルトでアクティブモードが選択されます。
++
+
+NOTE: 既存のボリュームでは、ラーニングモードとアクティブモードは新しく書き込まれたデータにのみ適用され、ボリューム内の既存のデータには適用されません。ARPを有効にしたボリュームでは、以前の通常のデータトラフィックの特性が新しいデータに基づいて想定されるため、既存のデータはスキャンおよび分析されません。
+
+** ONTAP 9.16.1以降のFlexVolボリュームでARPを使用している場合は、ARP / AI機能がすぐに有効になり、アクティブになります。学習期間は必要ありません。
 
 
 . ボリュームのARP状態は、* Anti-ransomware *ボックスで確認できます。
@@ -77,47 +78,49 @@ CLIを使用してARPを有効にするプロセスは、既存のボリュー�
 .既存のボリュームでARPを有効にする
 . 既存のボリュームを変更してランサムウェアからの保護を有効にします。
 +
-** ONTAP 9 .15.1以前およびFlexGroupボリュームを使用するARPの場合は、ボリュームの状態を（ラーニングモード）に設定し `dry-run`ます。
+[source, cli]
+----
+security anti-ransomware volume dry-run -volume <vol_name> -vserver <svm_name>
+----
 +
-`security anti-ransomware volume dry-run -volume <vol_name> -vserver <svm_name>`
+ONTAP 9.15.1以前およびFlexGroupボリュームでは、新しいボリュームはラーニングモードで開始されます。FlexVolボリュームを使用するONTAP 9.16.1以降では、ARP / AIがすぐに有効になります。いずれの場合も、を値として使用し `dry-run`ます。
 
-** ARP / AIボリュームとFlexVolボリュームがあるONTAP 9 .16.1以降の場合は、ボリュームの状態を（アクティブモード）に設定し `active`ます。
+. ONTAP 9.15.1を使用してONTAP 9.13.1にアップグレードした場合、デフォルトの状態がである `dry-run`と、適応学習がイネーブルになり、状態への変更が `active`自動的に行われます。この動作を自動的に有効にしない場合は、関連付けられているすべてのボリュームでSVMレベルの設定を変更します。
 +
-`security anti-ransomware volume active -volume <vol_name> -vserver <svm_name>`
-
-
-
-. ONTAP 9 .13.1以降にアップグレードした場合、ARPのデフォルトステートがであると、 `dry-run`アクティブステートへの変更が自動的に行われるように、アダプティブラーニングがイネーブルになります。この動作を自動的に有効にしない場合は、関連付けられているすべてのボリュームでSVMレベルの設定を変更します。
-+
-`vserver modify <svm_name> -anti-ransomware-auto-switch-from-learning-to-enabled false`
-
+[source, cli]
+----
+vserver modify <svm_name> -anti-ransomware-auto-switch-from-learning-to-enabled false
+----
 . ボリュームのARPの状態を確認します。
 +
-`security anti-ransomware volume show`
-
+[source, cli]
+----
+security anti-ransomware volume show
+----
 
 
 .新しいボリュームでARPを有効にする
 . データをプロビジョニングする前に、ARPを有効にして新しいボリュームを作成します。
 +
-** ONTAP 9 .15.1以前およびFlexGroupボリュームを使用するARPの場合は、状態を（ラーニングモード）に設定し `dry-run`ます。
+[source, cli]
+----
+volume create -volume <vol_name> -vserver <svm_name> -aggregate <aggr_name> -size <nn> -anti-ransomware-state dry-run -junction-path </path_name>
+----
 +
-`volume create -volume <vol_name> -vserver <svm_name> -aggregate <aggr_name> -size <nn> -anti-ransomware-state dry-run -junction-path </_path_name_>`
+ONTAP 9.15.1以前およびFlexGroupボリュームでは、新しいボリュームはラーニングモードで開始されます。FlexVolボリュームを使用するONTAP 9.16.1以降では、ARP / AIがすぐに有効になります。いずれの場合も、を値として使用し `dry-run`ます。
 
-** ARP / AIボリュームとFlexVolボリュームがあるONTAP 9 .16.1以降の場合は、状態を（アクティブモード）に設定し `active`ます。
+. ONTAP 9.15.1を使用してONTAP 9.13.1にアップグレードした場合、デフォルトの状態がである `dry-run`と、適応学習がイネーブルになり、状態への変更が `active`自動的に行われます。この動作を自動的に有効にしない場合は、関連付けられているすべてのボリュームでSVMレベルの設定を変更します。
 +
-`volume create -volume <vol_name> -vserver <svm_name> -aggregate <aggr_name> -size <nn> -anti-ransomware-state active -junction-path </_path_name_>`
-
-
-
-. ONTAP 9 .13.1以降にアップグレードした場合、ARPのデフォルトステートがであると、 `dry-run`アクティブステートへの変更が自動的に行われるように、アダプティブラーニングがイネーブルになります。この動作を自動的に有効にしない場合は、関連付けられているすべてのボリュームでSVMレベルの設定を変更します。
+[source, cli]
+----
+vserver modify <svm_name> -anti-ransomware-auto-switch-from-learning-to-enabled false
+----
+. ボリュームが状態に設定されていることを確認します `enabled`。
 +
-`vserver modify <svm_name> -anti-ransomware-auto-switch-from-learning-to-enabled false`
-
-. ボリュームのARPの状態を確認します。
-+
-`security anti-ransomware volume show`
-
+[source, cli]
+----
+security anti-ransomware volume show
+----
 
 
 --

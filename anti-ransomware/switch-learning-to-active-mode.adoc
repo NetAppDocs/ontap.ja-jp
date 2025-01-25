@@ -6,12 +6,14 @@ summary: Autonomous Ransomware Protection（ARP）9.15.1以前では、ARP対応
 ---
 = 学習期間後にARPアクティブモードに切り替える
 :allow-uri-read: 
+:icons: font
+:imagesdir: ../media/
 
 
 [role="lead"]
 Autonomous Ransomware Protection（ARP）9.15.1以前またはARPがFlexGroupボリュームで実行されている場合は、ARP対応ボリュームをラーニングモードからアクティブモードに手動または自動で切り替えます。ARPが推奨される最低30日間のラーニングモードの実行を完了したら、手動でアクティブモードに切り替えることができます。ONTAP 9 .13.1以降では、ARPによって最適な学習期間間隔が自動的に決定され、30日前にスイッチが自動化されます。
 
-ONTAP 9 .16.1以降が搭載されたFlexVolボリュームでARPを使用している場合、ARP / AI機能はラーニング期間を必要とせず、デフォルトでアクティブモードが選択されます。
+ONTAP 9.16.1以降のFlexVolボリュームでARPを使用している場合は、ARP / AI保護が有効になり、自動的にアクティブになります。学習期間は必要ありません。
 
 
 NOTE: 既存のボリュームでは、ラーニングモードとアクティブモードは新しく書き込まれたデータにのみ適用され、ボリューム内の既存のデータには適用されません。ARPを有効にしたボリュームでは、以前の通常のデータトラフィックの特性が新しいデータに基づいて想定されるため、既存のデータはスキャンおよび分析されません。
@@ -38,18 +40,24 @@ FlexGroupボリュームを含むONTAP 9 .10.1~9.15.1およびARPの場合、Sys
 .手順
 . 学習期間が終了したら、保護されているボリュームを変更してアクティブ モードに切り替えます（自動的に切り替えられていない場合）。
 +
-`security anti-ransomware volume enable -volume <vol_name> -vserver <svm_name>`
-
+[source, cli]
+----
+security anti-ransomware volume enable -volume <vol_name> -vserver <svm_name>
+----
 +
 modify volumeコマンドを使用して、アクティブ モードに切り替えることもできます。
 
 +
-`volume modify -volume <vol_name> -vserver <svm_name> -anti-ransomware-state active`
-
+[source, cli]
+----
+volume modify -volume <vol_name> -vserver <svm_name> -anti-ransomware-state active
+----
 . ボリュームのARPの状態を確認します。
 +
-`security anti-ransomware volume show`
-
+[source, cli]
+----
+security anti-ransomware volume show
+----
 
 
 --

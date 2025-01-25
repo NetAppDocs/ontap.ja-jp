@@ -51,7 +51,7 @@ SVM上の容量は、FlexVol、FlexGroup、FlexClone、FlexCacheの合計とし�
 
 * SVMを移行する際、ソースSVMでストレージの制限を有効にすることはできません。移行処理を完了するには、ソースのストレージ制限を無効にしてから移行を完了してください。
 * SVMの容量はとはxref:../volumes/quotas-concept.html[クォータ]異なります。クォータは最大サイズを超えることはできません。
-* SVMで他の処理を実行中のときは、ストレージ制限を設定することはできません。既存のジョブを表示するには、コマンドを使用し `job show vservser <svm_name>`ます。ジョブが完了したら、もう一度コマンドを実行してください。
+* SVMで他の処理を実行中のときは、ストレージ制限を設定することはできません。既存のジョブを表示するには、コマンドを使用し `job show vserver <svm_name>`ます。ジョブが完了したら、もう一度コマンドを実行してください。
 
 
 
@@ -93,19 +93,25 @@ SVMの最大容量サイズを指定します。
 .手順
 . SVMを作成ストレージの制限を設定するには、値を指定し `storage-limit`ます。ストレージ制限のしきい値アラートを設定するには、の割合を指定します `-storage-limit-threshold-alert`。
 +
-`vserver create -vserver <vserver_name> -aggregate <aggregate_name> -rootvolume <root_volume_name> -rootvolume-security-style {unix|ntfs|mixed} -storage-limit <value> [GiB|TIB] -storage-limit-threshold-alert <percentage> [-ipspace IPspace_name] [-language <language>] [-snapshot-policy <snapshot_policy_name>] [-quota-policy <quota_policy_name>] [-comment <comment>]`
-
+[source, cli]
+----
+vserver create -vserver <vserver_name> -aggregate <aggregate_name> -rootvolume <root_volume_name> -rootvolume-security-style {unix|ntfs|mixed} -storage-limit <value> [GiB|TIB] -storage-limit-threshold-alert <percentage> [-ipspace <IPspace_name>] [-language <language>] [-snapshot-policy <snapshot_policy_name>] [-quota-policy <quota_policy_name>] [-comment <comment>]
+----
 +
 しきい値を指定しない場合、デフォルトでは、SVMの容量が90%に達したときにアラートがトリガーされます。しきい値アラートを無効にするには、値を0にします。
 
 . SVMが作成されたことを確認します。
 +
-`vserver show -vserver <vserver_name>`
-
-. ストレージの上限を無効にする場合は、パラメータを0に設定してSVMを変更し `-storage-limit`ます。
+[source, cli]
+----
+vserver show -vserver <vserver_name>
+----
+. ストレージの制限を無効にする場合は、SVMのパラメータを0に設定し `-storage-limit`ます。
 +
-`vserver modify -vserver <vserver_name> -storage-limit 0`
-
+[source, cli]
+----
+vserver modify -vserver <vserver_name> -storage-limit 0
+----
 
 
 --
@@ -138,15 +144,19 @@ SVMの最大容量サイズを指定します。
 .手順
 . SVMをホストしているクラスタで、コマンドを実行し `vserver modify`ます。には数値、にはパーセント値を `-storage-limit-threshold-alert`指定します `-storage-limit`。
 +
-`vserver modify -vserver <vserver_name> -storage-limit <value> [GiB|TIB] -storage-limit-threshold-alert <percentage>`
-
+[source, cli]
+----
+vserver modify -vserver <vserver_name> -storage-limit <value> [GiB|TIB] -storage-limit-threshold-alert <percentage>
+----
 +
 しきい値を指定しない場合は、容量の90%を超えるデフォルトのアラートが生成されます。しきい値アラートを無効にするには、値を0にします。
 
-. ストレージの上限を無効にする場合は、が0に設定されているSVMを変更し `-storage-limit`ます。
+. ストレージの上限を無効にする場合は、SVMのを0に設定し `-storage-limit`ます。
 +
-`vserver modify -vserver <vserver_name> -storage-limit 0`
-
+[source, cli]
+----
+vserver modify -vserver <vserver_name> -storage-limit 0
+----
 
 
 --
@@ -162,7 +172,7 @@ SVMの最大容量サイズを指定します。
 * ボリュームにスペースを確保するためのSnapshotの削除
 
 
-.追加情報
+.関連情報
 * xref:../concepts/capacity-measurements-in-sm-concept.adoc[System Managerでの容量測定]
 * xref:../task_admin_monitor_capacity_in_sm.html[System Managerで容量を監視する]
 

@@ -26,7 +26,7 @@ ONTAP 9 .10.1以降では、Autonomous Ransomware Protection（ARP；自律型�
 既存のボリュームではARPは自動的に有効になりません。この手順で説明する設定の変更は、新しいボリュームにのみ影響します。方法をご確認くださいlink:enable-task.html["既存のボリュームのARPを有効にする"]。
 
 * * ONTAP 9 .10.1～9.15.1およびFlexGroupボリュームを使用するARP *デフォルトでは、ARPが有効になっている新しいボリュームは（「ドライラン」）モードに設定されていlink:index.html#learning-and-active-modes["ラーニングモード"]ます。このモードでは、システムはワークロードを分析して通常の動作の特性を特定します。ラーニングモードは、手動（すべてのARPバージョン）または自動（ARP 9.13.1以降）でアクティブモードに移行できます。ARP 9.13.1以降では、ARP分析にアダプティブラーニングが追加され、ラーニングモードからアクティブモードへの切り替えが自動的に行われるようになりました。
-* * FlexVolボリュームを使用しているONTAP 9 .16.1以降の場合* ARPを有効にすると、ARP/AI保護はすぐにアクティブモードで開始されます。学習期間は必要ありません。
+* * FlexVolボリュームを搭載したONTAP 9.16.1以降の場合* ARPを有効にすると、ARP / AI保護が有効になり、すぐにアクティブになります。学習期間は必要ありません。
 
 
 .開始する前に
@@ -48,11 +48,7 @@ System ManagerまたはONTAP CLIを使用して、新しいボリュームに対
 . NASボリュームのARPを有効にするには、このボックスをオンにします。Storage VM内の対応するすべてのNASボリュームでARPを有効にするには、追加のボックスをオンにします。
 +
 
-NOTE: ONTAP 9 .16.1では、新しいFlexVolボリュームに対してアクティブモードが自動的に有効になるため、学習期間は必要ありません。
-
-+
-
-NOTE: 既存のボリュームでは、ラーニングモードとアクティブモードは新しく書き込まれたデータにのみ適用され、ボリューム内の既存のデータには適用されません。ARPを有効にしたボリュームでは、以前の通常のデータトラフィックの特性が新しいデータに基づいて想定されるため、既存のデータはスキャンおよび分析されません。
+NOTE: ONTAP 9.16.1では、これらの操作によって新しいFlexVolボリュームのデフォルトとしてARP / AI保護が有効になるため、学習期間は必要ありません。
 
 . ARP 9.13.1以降にアップグレードした場合は、必要に応じて*十分な学習後に自動的に学習からアクティブモードに切り替える*を選択します。これにより、ARPは最適な学習期間間隔を決定し、アクティブモードへの切り替えを自動化できます。
 
@@ -62,32 +58,36 @@ NOTE: 既存のボリュームでは、ラーニングモードとアクティ�
 --
 * 既存のSVMを変更して、新しいボリュームでデフォルトでARPを有効にします。
 +
-** ONTAP 9 .15.1以前およびFlexGroupボリュームの場合は、デフォルトの状態を（ラーニングモード）に設定し `dry-run`ます。
+
+NOTE: ONTAP 9.15.1以前およびFlexGroupボリュームでは、新しいボリュームはラーニングモードで開始されます。FlexVolボリュームを使用するONTAP 9.16.1以降では、ARP / AIがすぐに有効になります。いずれの場合も、を値として使用し `dry-run`ます。
+
 +
-`vserver modify -vserver <svm_name> -anti-ransomware-default-volume-state dry-run`
-
-** ARP / AIボリュームとFlexVolボリュームがあるONTAP 9 .16.1以降では、デフォルトの状態を（アクティブモード）に設定し `active`ます。
-+
-`vserver modify -vserver <svm_name> -anti-ransomware-default-volume-state active`
-
-
-
+[source, cli]
+----
+vserver modify -vserver <svm_name> -anti-ransomware-default-volume-state dry-run
+----
 * 新しいボリュームに対してデフォルトでARPを有効にして、新しいSVMを作成します。
 +
-** ONTAP 9 .15.1以前およびFlexGroupボリュームの場合は、デフォルトの状態を（ラーニングモード）に設定し `dry-run`ます。
+
+NOTE: ONTAP 9.15.1以前およびFlexGroupボリュームでは、新しいボリュームはラーニングモードで開始されます。FlexVolボリュームを使用するONTAP 9.16.1以降では、ARP / AIがすぐに有効になります。いずれの場合も、を値として使用し `dry-run`ます。
+
 +
-`vserver create -vserver <svm_name> -anti-ransomware-default-volume-state dry-run <other parameters as needed>`
-
-** ARP / AIボリュームとFlexVolボリュームがあるONTAP 9 .16.1以降では、デフォルトの状態を（アクティブモード）に設定し `active`ます。
+[source, cli]
+----
+vserver create -vserver <svm_name> -anti-ransomware-default-volume-state dry-run <other parameters as needed>
+----
+* ONTAP 9.15.1を使用してONTAP 9.13.1にアップグレードした場合、デフォルトの状態がである `dry-run`と、適応学習がイネーブルになり、状態への変更が `active`自動的に行われます。この動作を自動的に有効にしない場合は、既存のSVMを変更します。
 +
-`vserver modify -vserver <svm_name> -anti-ransomware-default-volume-state active`
-
-
-
-* ONTAP 9 .13.1以降にアップグレードした場合、デフォルトの状態がであると、 `dry-run`アダプティブラーニングがイネーブルになり、アクティブ状態への変更が自動的に行われます。この動作を自動的に有効にしない場合は、既存のSVMを変更します。
+[source, cli]
+----
+vserver modify <svm_name> -anti-ransomware-auto-switch-from-learning-to-enabled false
+----
+* ARPが有効なボリュームの状態が表示されることを確認します `enabled`。
 +
-`vserver modify <svm_name> -anti-ransomware-auto-switch-from-learning-to-enabled false`
-
+[source, cli]
+----
+security anti-ransomware volume show
+----
 
 
 --

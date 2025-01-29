@@ -19,16 +19,16 @@ SnapMirror_unified replication _ は、同じデスティネーションボリ�
 
 SnapMirrorと同様に、一元化されたデータ保護機能を初めて起動したときにベースライン転送が実行されます。関係のSnapMirrorポリシーは、ベースラインと更新の内容を定義します。
 
-デフォルトの一元化されたデータ保護ポリシーに基づくベースライン転送では `MirrorAndVault`、ソースボリュームのSnapshotコピーが作成され、そのコピーおよびコピーが参照するデータブロックがデスティネーションボリュームに転送されます。バックアップアーカイブと同様に、一元化されたデータ保護ではベースラインに古いSnapshotコピーは含まれません。
+デフォルトの一元化されたデータ保護ポリシーに基づくベースライン転送では `MirrorAndVault`、ソースボリュームのSnapshotが作成され、そのコピーおよびコピーが参照するデータブロックがデスティネーションボリュームに転送されます。バックアップアーカイブと同様に、一元化されたデータ保護ではベースラインに古いSnapshotは含まれません。
 
 
 
 == 一元化されたデータ保護関係を更新する方法
 
-ポリシーに基づく更新のたびに `MirrorAndVault`、SnapMirrorはソースボリュームのSnapshotコピーを作成し、そのSnapshotコピーと前回の更新後に作成されたすべてのSnapshotコピーを転送します（Snapshotポリシーのルールで定義されたラベルに一致するラベルがある場合）。次のポリシーのコマンドの `MirrorAndVault`出力では `snapmirror policy show`、次の点に注意してください。
+ポリシーに基づく更新のたびに `MirrorAndVault`、SnapMirrorはソースボリュームのSnapshotを作成し、そのSnapshotと前回の更新後に作成されたSnapshot（Snapshotポリシーのルールで定義されたラベルに一致するラベルがある場合）を転送します。次のポリシーのコマンドの `MirrorAndVault`出力では `snapmirror policy show`、次の点に注意してください。
 
-* `Create Snapshot`は「true」です。これは、SnapMirrorが関係を更新するときにSnapshotコピーが作成されることを示します。 `MirrorAndVault`
-* `MirrorAndVault`には、「sm_created」、「daily」、および「weekly」というルールが設定されています。これは、SnapMirrorが関係を更新するときに、SnapMirrorで作成されたSnapshotコピーとソース上のラベルが一致するSnapshotコピーの両方が転送されることを示します。
+* `Create Snapshot`は「true」で、SnapMirrorが関係を更新するときにSnapshotが作成されることを示します `MirrorAndVault`。
+* `MirrorAndVault`には、「sm_created」、「daily」、および「weekly」というルールがあります。これは、SnapMirrorが関係を更新するときに、SnapMirrorで作成されたSnapshotとソース上のラベルが一致するSnapshotの両方が転送されることを示します。
 
 
 [listing]
@@ -59,7 +59,7 @@ cluster_dst::> snapmirror policy show -policy MirrorAndVault -instance
 
 == Unified7year ポリシー
 
-事前設定され `Unified7year`たポリシーはとまったく同じように機能し `MirrorAndVault`ます。ただし、4番目のルールでは、月単位のSnapshotコピーを転送して7年間保持します。
+事前設定された `Unified7year`ポリシーは、とまったく同じように機能します。ただし、4番目のルールでは、 `MirrorAndVault`月単位のSnapshotが転送され、7年間保持されます。
 
 [listing]
 ----
@@ -75,9 +75,9 @@ cluster_dst::> snapmirror policy show -policy MirrorAndVault -instance
 
 == データ破損の可能性からデータを保護
 
-ユニファイドレプリケーションでは、ベースライン転送の内容が、初期化時にSnapMirrorで作成されたSnapshotコピーに制限されます。更新のたびに、SnapMirrorはソースのSnapshotコピーをもう1つ作成し、そのSnapshotコピーおよびSnapshotポリシーのルールで定義されたラベルと一致するラベルを持つすべての新しいSnapshotコピーを転送します。
+ユニファイドレプリケーションでは、ベースライン転送の内容が、初期化時にSnapMirrorで作成されたSnapshotに制限されます。更新のたびに、SnapMirrorはソースのSnapshotをもう1つ作成し、そのSnapshotと、Snapshotポリシーのルールで定義されたラベルに一致するラベルを持つ新しいSnapshotを転送します。
 
-最後に転送されたSnapshotコピーのコピーをデスティネーションに作成することで、更新したSnapshotコピーが破損する可能性を防ぐことができます。この「ローカル・コピー」はソース上の保持ルールに関係なく保持されるため、元は SnapMirror によって転送された Snapshot がソースで使用できなくなった場合でも、そのコピーをデスティネーションで使用できます。
+最後に転送されたSnapshotのコピーをデスティネーションに作成することで、更新されたSnapshotが破損する可能性を防ぐことができます。この「ローカルコピー」はソース上の保持ルールに関係なく保持されるため、SnapMirrorによって転送されたSnapshotがソースで使用できなくなった場合でも、そのコピーをデスティネーションで使用できます。
 
 
 
@@ -85,4 +85,4 @@ cluster_dst::> snapmirror policy show -policy MirrorAndVault -instance
 
 完全なミラーを維持するメリットと、ユニファイドレプリケーションが提供するメリット（セカンダリストレージの容量削減、ベースライン転送数の制限、ネットワークトラフィックの削減）を比較検討する必要があります。
 
-ユニファイドレプリケーションが適切かどうかを判断する際の重要な要素は、アクティブファイルシステムの変更率です。たとえば、データベーストランザクションログの時間単位 Snapshot コピーを保持するボリュームには、従来のミラーの方が適している場合があります。
+ユニファイドレプリケーションが適切かどうかを判断する際の重要な要素は、アクティブファイルシステムの変更率です。たとえば、データベーストランザクションログの時間単位のSnapshotを保持するボリュームには、従来のミラーの方が適している場合があります。

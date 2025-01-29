@@ -2,7 +2,7 @@
 permalink: data-protection/vault-archive-snapmirror-technology-concept.html 
 sidebar: sidebar 
 keywords: vault, archiving, snapmirror, technology 
-summary: SnapMirrorバックアップポリシーは、ONTAP 9 .3以降のSnapVaultテクノロジに代わるものです。SnapMirrorバックアップポリシーは、標準への準拠やその他のガバナンス関連の目的で、ディスクツーディスクのSnapshotコピーのレプリケーションに使用します。SnapMirror関係では、通常、ソースボリューム内のSnapshotコピーだけがデスティネーションに格納されますが、SnapVaultデスティネーションには、より長期間にわたって作成されたポイントインタイムのSnapshotコピーが保持されます。 
+summary: SnapMirrorバックアップポリシーは、ONTAP 9.3以降のSnapVaultテクノロジに代わるものです。SnapMirrorバックアップポリシーは、標準への準拠やその他のガバナンス関連の目的で、ディスクツーディスクのSnapshotレプリケーションに使用します。SnapMirror関係では通常、ソースボリューム内のSnapshotのみがデスティネーションに含まれますが、SnapVaultデスティネーションでは、より長期間にわたって作成されたポイントインタイムSnapshotが保持されます。 
 ---
 = SnapMirrorテクノロジを使用したバックアップアーカイブ
 :allow-uri-read: 
@@ -11,9 +11,9 @@ summary: SnapMirrorバックアップポリシーは、ONTAP 9 .3以降のSnapVa
 
 
 [role="lead"]
-SnapMirrorバックアップポリシーは、ONTAP 9 .3以降のSnapVaultテクノロジに代わるものです。SnapMirrorバックアップポリシーは、標準への準拠やその他のガバナンス関連の目的で、ディスクツーディスクのSnapshotコピーのレプリケーションに使用します。SnapMirror関係では、通常、ソースボリューム内のSnapshotコピーだけがデスティネーションに格納されますが、SnapVaultデスティネーションには、より長期間にわたって作成されたポイントインタイムのSnapshotコピーが保持されます。
+SnapMirrorバックアップポリシーは、ONTAP 9.3以降のSnapVaultテクノロジに代わるものです。SnapMirrorバックアップポリシーは、標準への準拠やその他のガバナンス関連の目的で、ディスクツーディスクのSnapshotレプリケーションに使用します。SnapMirror関係では通常、ソースボリューム内のSnapshotのみがデスティネーションに含まれますが、SnapVaultデスティネーションでは、より長期間にわたって作成されたポイントインタイムSnapshotが保持されます。
 
-たとえば、ビジネスに関する政府会計規制に準拠するために、データの月次Snapshotコピーを20年間にわたって保持することができます。SnapVaultストレージからデータを提供する必要はないため、デスティネーションシステムでは低速で低コストのディスクを使用できます。
+たとえば、ビジネスに関する政府会計規制に準拠するために、データの月次スナップショットを20年間にわたって保持することができます。SnapVaultストレージからデータを提供する必要はないため、デスティネーションシステムでは低速で低コストのディスクを使用できます。
 
 次の図は、SnapMirrorのバックアップデータ保護関係を示しています。
 
@@ -25,18 +25,18 @@ image:snapvault-data-protection.gif["SnapMirrorバックアップデータ保護
 
 関係のSnapMirrorポリシーは、ベースラインと更新の内容を定義します。
 
-デフォルトのバックアップポリシーに基づくベースライン転送では `XDPDefault`、ソースボリュームのSnapshotコピーが作成され、そのコピーおよびコピーが参照するデータブロックがデスティネーションボリュームに転送されます。SnapMirror関係とは異なり、バックアップバックアップのベースラインには古いSnapshotコピーは含まれません。
+デフォルトのバックアップポリシーに基づくベースライン転送では `XDPDefault`、ソースボリュームのSnapshotが作成され、そのコピーおよびコピーが参照するデータブロックがデスティネーションボリュームに転送されます。SnapMirror関係とは異なり、バックアップバックアップにはベースラインに古いSnapshotは含まれません。
 
 
 
 == バックアップデータ保護関係を更新する方法
 
-更新は、設定したスケジュールに従って非同期に行われます。関係のポリシーで定義するルールによって、更新に含める新しいSnapshotコピーと保持するコピーの数が決まります。ポリシーで定義されているラベル ("``s onty,`") は、ソース上の Snapshot ポリシーで定義されている 1 つ以上のラベルと一致する必要があります。そうしないと、レプリケーションが失敗します。
+更新は、設定したスケジュールに従って非同期に行われます。関係のポリシーで定義するルールによって、更新に含める新しいSnapshotと保持するコピーの数が決まります。ポリシーで定義されたラベル（「毎月」など）は、ソースのSnapshotポリシーで定義された1つ以上のラベルと一致する必要があります。そうしないと、レプリケーションが失敗します。
 
-ポリシーに基づく各更新では、 `XDPDefault`SnapMirror前回の更新後に作成されたSnapshotコピーが転送されます（Snapshotコピーのラベルがポリシールールで定義されたラベルに一致する場合）。次のポリシーのコマンドの `XDPDefault`出力では `snapmirror policy show`、次の点に注意してください。
+ポリシーに基づく更新のたびに、 `XDPDefault`SnapMirrorは前回の更新以降に作成されたSnapshotを転送します（Snapshotのラベルがポリシールールで定義されたラベルに一致する場合）。次のポリシーのコマンドの `XDPDefault`出力では `snapmirror policy show`、次の点に注意してください。
 
-* `Create Snapshot`は「false」で、SnapMirrorが関係を更新してもSnapshotコピーが作成されないことを示します。 `XDPDefault`
-* `XDPDefault`には、「daily」および「weekly」というルールが設定されています。SnapMirrorによる関係の更新時に、ソースとラベルが一致するすべてのSnapshotコピーが転送されます。
+* `Create Snapshot`は「false」で、SnapMirrorによる関係の更新時にSnapshotが作成されないことを示します。 `XDPDefault`
+* `XDPDefault`には、「daily」および「weekly」というルールがあります。これは、SnapMirrorが関係を更新するときに、ソース上のラベルが一致するすべてのSnapshotが転送されることを示します。
 
 
 [listing]

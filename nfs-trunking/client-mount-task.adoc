@@ -13,24 +13,28 @@ summary: トランキングをサポートするLinuxおよびVMwareクライア
 [role="lead"]
 トランキングをサポートするLinuxおよびVMwareクライアントは、トランキングが有効になっているONTAP NFSv4.1サーバからボリュームまたはデータ共有をマウントできます。
 
-クライアントでmountコマンドを入力する場合は、トランキンググループ内の各LIFのIPアドレスを入力する必要があります。
-
 詳細はこちらをご覧ください link:index.html#supported-clients["サポートされるクライアント"]。
 
 [role="tabbed-block"]
 ====
 .Linuxクライアントの要件
 --
-ONTAP 9.16.1以降とRed Hat Enterprise Linuxバージョン8.7以降（RHEL 8の場合）または9.2以降（RHEL 9の場合）をLinuxクライアントとして使用している場合、トランキンググループに必要なマウントポイントは1つだけです。オプションを使用して、次のコマンドを使用してエクスポートしたボリュームをマウントし `trunkdiscovery`ます。
+ONTAP 9.16.1以降とRed Hat Enterprise Linuxバージョン8.7以降（RHEL 8の場合）または9.2以降（RHEL 9の場合）をLinuxクライアントとして使用している場合、トランキンググループに必要なマウントポイントは1つだけです。次のオプションを使用して、エクスポートしたボリュームをマウントし `trunkdiscovery`ます。
 
-`mount <lif1_ip>:<volume> </mnt/test1> -o trunkdiscovery,vers=4.1`
+[source, cli]
+----
+mount <lif_ip>:<volume_name> </mount_path> -o trunkdiscovery,vers=4.1
+----
+それ以外の場合は、トランキンググループ内の接続ごとに個別のマウントポイントが必要です。次のようなコマンドを使用して、オプションを使用してエクスポートしたボリュームをマウントします `max_connect`。
 
-それ以外の場合は、トランキンググループ内の接続ごとに個別のマウントポイントが必要です。次のようなコマンドを使用して、エクスポートしたボリュームをマウントします。
-
-`mount <lif1_ip>:<volume> </mnt/test1> -o vers=4.1,max_connect=16`
-
-`mount <lif2_ip>:<volume> </mnt/test2> -o vers=4.1,max_connect=16`
-
+[source, cli]
+----
+mount <lif1_ip>:<volume_name> </mount_path1> -o vers=4.1,max_connect=16
+----
+[source, cli]
+----
+mount <lif2_ip>:<volume_name> </mount_path2> -o vers=4.1,max_connect=16
+----
 version(`vers`）の値は以降である必要があります `4.1`。
 
 この `max_connect`値は、トランキンググループ内の接続数に対応します。

@@ -13,8 +13,6 @@ summary: トランキングされていないクライアント接続をトラ�
 [role="lead"]
 トランキングされていないクライアント接続をトランキングされた接続に変換するには、LinuxクライアントおよびVMwareクライアントの既存のマウントを、LIFに関する情報を使用してアンマウントし、再マウントする必要があります。
 
-クライアントでmountコマンドを入力する場合は、トランキンググループ内の各LIFのIPアドレスを入力する必要があります。
-
 詳細はこちらをご覧ください link:index.html#supported-clients["サポートされるクライアント"]。
 
 
@@ -24,17 +22,25 @@ NOTE: VMwareクライアントをアンマウントすると、データスト�
 ====
 .Linuxクライアントの要件
 --
-トランキンググループ内の接続ごとに、個別のマウントポイントが必要です。
+ONTAP 9.16.1以降とRed Hat Enterprise Linuxバージョン8.7以降（RHEL 8の場合）または9.2以降（RHEL 9の場合）をLinuxクライアントとして使用している場合、トランキンググループに必要なマウントポイントは1つだけです。次のオプションを使用して、エクスポートしたボリュームをマウントし `trunkdiscovery`ます。
 
-次のようなコマンドを使用して、エクスポートしたボリュームをマウントします。
+[source, cli]
+----
+mount <lif_ip>:<volume_name> </mount_path> -o trunkdiscovery,vers=4.1
+----
+それ以外の場合は、トランキンググループ内の接続ごとに個別のマウントポイントが必要です。オプションを使用して、次のようなコマンドを実行し、エクスポートしたボリュームをマウントし `max_connect`ます。
 
-`mount lif1_ip:/vol-test /mnt/test1 -o vers=4.1,max_connect=2`
+[source, cli]
+----
+mount <lif1_ip>:<volume_name> </mount_path1> -o vers=4.1,max_connect=16
+----
+[source, cli]
+----
+mount <lif2_ip>:<volume_name> </mount_path2> -o vers=4.1,max_connect=16
+----
+version(`vers`）の値は以降である必要があります `4.1`。
 
-`mount lif2_ip:/vol-test /mnt/test2 -o vers=4.1,max_connect=2`
-
- `vers`値は以降である必要があり `4.1`ます。
-
-この `max_connect`値は、トランキンググループ内の接続数に対応している必要があります。
+この `max_connect`値は、トランキンググループ内の接続数に対応します。
 
 --
 .VMwareクライアントの要件

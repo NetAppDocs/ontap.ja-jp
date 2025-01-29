@@ -2,31 +2,31 @@
 permalink: data-protection/preserve-snapshot-copy-primary-source-volume-task.html 
 sidebar: sidebar 
 keywords: ensure, snapshot, copy, mirror-vault, deployment 
-summary: snapmirror snapshot-owner create コマンドを使用して、ミラーバックアップ構成のセカンダリにラベル付きの Snapshot コピーを保持できます。これにより、バックアップ関係の更新用の共通の Snapshot コピーが確保されます。 
+summary: mirror-vault環境のセカンダリにラベル付きのSnapshotを保持するには、SnapMirror snapshot-owner createコマンドを使用します。これにより、バックアップ関係の更新に共通のSnapshotが作成されます。 
 ---
-= ONTAPを使用したミラー-ヴォールト構成で共通のSnapshotコピーを確保する
+= ONTAPを使用したミラー-ヴォールト環境で共通のSnapshotを確保
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-コマンドを使用すると、ミラー-ヴォールト構成のセカンダリにラベル付きのSnapshotコピーを保持できます `snapmirror snapshot-owner create`。これにより、バックアップ関係の更新用の共通の Snapshot コピーが確保されます。
+コマンドを使用すると、ミラー-ヴォールト構成のセカンダリにラベル付きSnapshotを保持できます `snapmirror snapshot-owner create`。これにより、バックアップ関係の更新に共通のSnapshotが作成されます。
 
 .タスクの内容
-ミラー - ヴォールトファンアウト構成またはカスケード構成を組み合わせて使用する場合は、ソースボリュームとデスティネーションボリュームに共通の Snapshot コピーが存在しなければ更新が失敗するという点を考慮する必要があります。
+ミラー-ヴォールトファンアウト構成またはカスケード構成を組み合わせて使用する場合は、ソースボリュームとデスティネーションボリュームに共通のSnapshotが存在しないと更新が失敗することに注意してください。
 
-SnapMirror は、更新を実行する前に必ずソースボリュームの Snapshot コピーを作成するため、ミラー - ヴォールトファンアウト構成またはカスケード構成ではミラー関係の問題を使用することはありません。
+ミラー-ヴォールトファンアウト構成またはカスケード構成のミラー関係では、SnapMirrorでは更新の実行前に必ずソースボリュームのSnapshotが作成されるため、これが問題になることはありません。
 
-ただし、バックアップ関係の更新時にソースボリュームの Snapshot コピーが SnapMirror によって作成されないため、 SnapMirror はバックアップ関係の問題になる場合があります。バックアップ関係のソースとデスティネーションの両方に共通のSnapshotコピーを少なくとも1つ確保するには、を使用する必要が `snapmirror snapshot-owner create`あります。
+ただし、SnapMirrorではバックアップ関係の更新時にソースボリュームのSnapshotが作成されないため、バックアップ関係では問題になる可能性があります。バックアップ関係のソースとデスティネーションの両方に共通のSnapshotを少なくとも1つ確保するには、を使用する必要が `snapmirror snapshot-owner create`あります。
 
 .手順
-. ソースボリュームで、保持するラベル付きの Snapshot コピーに所有者を割り当てます。
+. ソースボリュームで、保持するラベル付きのSnapshotに所有者を割り当てます。
 +
 `snapmirror snapshot-owner create -vserver <SVM> -volume <volume> -snapshot <snapshot> -owner <owner>`
 
 +
-次の例は、Snapshotコピーの所有者 `snap1`としてを割り当て `ApplicationA`ます。
+次の例は、Snapshotの所有者として `snap1`を割り当て `ApplicationA`ます。
 
 +
 [listing]
@@ -38,7 +38,7 @@ clust1::> snapmirror snapshot-owner create -vserver vs1 -volume vol1
 +
 または、ミラー関係のスケジュールされた更新が行われるまで待つこともできます。
 
-. ラベル付きの Snapshot コピーをヴォールトデスティネーションに転送します。
+. ラベル付きのSnapshotをSnapVaultデスティネーションに転送します。
 +
 `snapmirror update -source-path <SVM:volume>|<cluster://SVM/volume>, ... -destination-path <SVM:volume>|<cluster://SVM/volume>, ... -source-snapshot snapshot`
 
@@ -46,7 +46,7 @@ clust1::> snapmirror snapshot-owner create -vserver vs1 -volume vol1
 の詳細については `snapmirror update`、をlink:https://docs.netapp.com/us-en/ontap-cli/snapmirror-update.html["ONTAPコマンド リファレンス"^]参照してください。
 
 +
-次の例は、Snapshotコピーを転送します。 `snap1`::
+次の例は、Snapshotを転送します。 `snap1`::
 +
 --
 [listing]
@@ -54,17 +54,17 @@ clust1::> snapmirror snapshot-owner create -vserver vs1 -volume vol1
 clust1::> snapmirror update -vserver vs1 -volume vol1
 -source-snapshot snap1
 ----
-ヴォールト関係の更新時にラベル付きの Snapshot コピーが保持されます。
+ラベルが付いたSnapshotはバックアップ関係の更新時に保持されます。
 
 --
 
 
-. ソースボリュームで、ラベル付きの Snapshot コピーから所有者を削除します。
+. ソースボリュームで、ラベル付きのSnapshotから所有者を削除します。
 +
 `snapmirror snapshot-owner delete -vserver _SVM_ -volume _volume_ -snapshot _snapshot_ -owner _owner_`
 
 +
-次の例は、Snapshotコピーの所有者 `snap1`としてを削除し `ApplicationA`ます。
+次の例は、Snapshotの所有者 `snap1`としてを削除し `ApplicationA`ます。
 
 +
 [listing]

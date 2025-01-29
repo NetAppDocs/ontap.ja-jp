@@ -40,7 +40,7 @@ SnapMirrorは、次の特殊なデータ保護アプリケーションにも使�
 +
 link:../snaplock/index.html["SnapLockテクノロジを使用したアーカイブとコンプライアンス"]
 
-* ONTAP 9 .13.1以降では、SnapMirror非同期を使用して保護できますxref:../consistency-groups/index.html[整合グループ]。ONTAP 9 14.1以降では、SnapMirror非同期を使用して、整合性グループ関係を使用して、ボリューム単位のSnapshotをデスティネーションクラスタにレプリケートできます。詳細については、を参照してください xref:../consistency-groups/protect-task.html#configure-snapmirror-asynchronous[SnapMirror非同期保護の設定]。
+* ONTAP 9 .13.1以降では、SnapMirror非同期を使用して保護できますxref:../consistency-groups/index.html[整合グループ]。ONTAP 9.14.1以降では、SnapMirror非同期を使用して、整合性グループ関係を使用してボリューム単位のSnapshotをデスティネーションクラスタにレプリケートできます。詳細については、を参照してください xref:../consistency-groups/protect-task.html#configure-snapmirror-asynchronous[SnapMirror非同期保護の設定]。
 
 
 
@@ -51,21 +51,21 @@ SnapMirror を初めて起動すると、ソース・ボリュームからデス
 
 デフォルトのSnapMirrorポリシーに基づくベースライン転送 `MirrorAllSnapshots`では、次の手順を実行します。
 
-* ソースボリュームのSnapshotコピーを作成します。
-* Snapshotコピーおよびコピーが参照するすべてのデータブロックをデスティネーションボリュームに転送します。
-* 「アクティブ」ミラーが破損した場合に備えて、ソースボリューム上の最新ではない残りの Snapshot コピーをデスティネーションボリュームに転送します。
+* ソースボリュームのSnapshotを作成します。
+* SnapshotおよびSnapshotが参照するすべてのデータブロックをデスティネーションボリュームに転送します。
+* 「アクティブ」ミラーが破損した場合に備えて、ソースボリューム上の残りの最新でないSnapshotをデスティネーションボリュームに転送します。
 
 
 
 
 == SnapMirrorデータ保護関係を更新する方法
 
-更新は、設定したスケジュールに従って非同期に行われます。保持では、ソース上のSnapshotポリシーがミラーリングされます。
+更新は、設定したスケジュールに従って非同期に行われます。保持期間は、ソース上のSnapshotポリシーをミラーリングします。
 
-ポリシーに基づく更新のたびに `MirrorAllSnapshots`、SnapMirrorはソースボリュームのSnapshotコピーを作成し、そのSnapshotコピーと前回の更新後に作成されたすべてのSnapshotコピーを転送します。次のポリシーのコマンドの `MirrorAllSnapshots`出力では `snapmirror policy show`、次の点に注意してください。
+ポリシーに基づく更新のたびに `MirrorAllSnapshots`、SnapMirrorはソースボリュームのSnapshotを作成し、そのSnapshotと前回の更新後に作成されたすべてのSnapshotを転送します。次のポリシーのコマンドの `MirrorAllSnapshots`出力では `snapmirror policy show`、次の点に注意してください。
 
-* `Create Snapshot`は「true」です。これは、SnapMirrorが関係を更新するときにSnapshotコピーが作成されることを示します。 `MirrorAllSnapshots`
-* `MirrorAllSnapshots`には、「sm_created」および「all_source_snapshots」というルールが設定されています。これは、SnapMirrorが関係を更新するときに、SnapMirrorで作成されたSnapshotコピーと前回の更新以降に作成されたすべてのSnapshotコピーが転送されることを示します。
+* `Create Snapshot`は「true」で、SnapMirrorが関係を更新するときにSnapshotが作成されることを示します `MirrorAllSnapshots`。
+* `MirrorAllSnapshots`には、「sm_created」および「all_source_snapshots」というルールがあります。これは、SnapMirrorが関係を更新するときに、SnapMirrorで作成されたSnapshotと前回の更新以降に作成されたSnapshotの両方が転送されることを示します。
 
 
 [listing]
@@ -95,7 +95,7 @@ cluster_dst::> snapmirror policy show -policy MirrorAllSnapshots -instance
 
 == MirrorLatestポリシー
 
-事前設定され `MirrorLatest`たポリシーはとまったく同じように機能し `MirrorAllSnapshots`ますが、初期化および更新の際に転送されるのはSnapMirrorで作成されたSnapshotコピーだけです。
+事前設定され `MirrorLatest`たポリシーは、SnapMirrorで作成されたSnapshotのみが初期化および更新時に転送される点を除き、とまったく同じように機能し `MirrorAllSnapshots`ます。
 
 [listing]
 ----

@@ -86,7 +86,7 @@ ONTAP 9.12.1以降では、新しいボリュームを作成するとき、ま�
 . SnapLockコンプライアンスクロックがまだ有効になっていない場合は、*[Initialize Compliance Clock]*を選択します。
 . 変更を保存します。
 . [ボリューム]*ウィンドウで、更新したボリュームを選択し、*[概要]*を選択します。
-. SnapLock Snapshotコピーのロック*が「有効」*と表示されていることを確認します。
+. SnapLockスナップショットロック*が*有効*と表示されていることを確認します。
 
 
 --
@@ -94,7 +94,7 @@ ONTAP 9.12.1以降では、新しいボリュームを作成するとき、ま�
 --
 . 新しいボリュームを作成してSnapshotロックを有効にするには、次のコマンドを入力します。
 +
-`volume create -vserver _vserver_name_ -volume _volume_name_ -snapshot-locking-enabled true`
+`volume create -vserver <vserver_name> -volume <volume_name> -snapshot-locking-enabled true`
 
 +
 次のコマンドは、vol1という名前の新しいボリュームでSnapshotロックを有効にします。
@@ -130,7 +130,7 @@ SnapLockライセンスがインストールされていない場合、この選
 . SnapLockコンプライアンスクロックがまだ有効になっていない場合は、*[Initialize Compliance Clock]*を選択します。
 . 変更を保存します。
 . [ボリューム]*ウィンドウで、更新したボリュームを選択し、*[概要]*を選択します。
-. SnapLock Snapshotコピーのロック*が「有効」*と表示されていることを確認します。
+. SnapLock snapshot locking *が* enabled *と表示されていることを確認します。
 
 
 --
@@ -138,7 +138,7 @@ SnapLockライセンスがインストールされていない場合、この選
 --
 . 既存のボリュームを変更してSnapshotロックを有効にするには、次のコマンドを入力します。
 +
-`volume modify -vserver _vserver_name_ -volume _volume_name_ -snapshot-locking-enabled true`
+`volume modify -vserver <vserver_name> -volume <volume_name> -snapshot-locking-enabled true`
 
 
 
@@ -180,7 +180,7 @@ ONTAP 9.12.1以降では、Snapshotポリシーを作成してSnapshot保持期�
 --
 . Snapshotポリシーを作成するには、次のコマンドを入力します。
 +
-`volume snapshot policy create -policy policy_name -enabled true -schedule1 _schedule1_name_ -count1 _maximum_Snapshot_copies -retention-period1 _retention_period_`
+`volume snapshot policy create -policy <policy_name> -enabled true -schedule1 <schedule1_name> -count1 <maximum snapshots> -retention-period1 <retention_period>`
 
 +
 次のコマンドは、Snapshotロックポリシーを作成します。
@@ -188,7 +188,7 @@ ONTAP 9.12.1以降では、Snapshotポリシーを作成してSnapshot保持期�
 +
 [listing]
 ----
-cluster1> volume snapshot policy create -policy policy_name -enabled true -schedule1 hourly -count1 24 -retention-period1 "1 days"
+cluster1> volume snapshot policy create -policy lock_policy -enabled true -schedule1 hourly -count1 24 -retention-period1 "1 days"
 ----
 +
 アクティブな保持期間にあるSnapshotは置き換えられません。つまり、期限切れになっていないロックされたSnapshotがある場合、保持数は考慮されません。
@@ -218,7 +218,7 @@ cluster1> volume snapshot policy create -policy policy_name -enabled true -sched
 --
 . 既存のボリュームにSnapshotロックポリシーを適用するには、次のコマンドを入力します。
 +
-`volume modify -volume volume_name -vserver vserver_name -snapshot-policy policy_name`
+`volume modify -volume <volume_name> -vserver <vserver_name> -snapshot-policy <policy_name>`
 
 
 
@@ -247,7 +247,7 @@ Snapshotの保持期間は、手動でSnapshotを作成するときに適用で�
 --
 . スナップショットを手動で作成し、ロック保持期間を適用するには、次のコマンドを入力します。
 +
-`volume snapshot create -volume _volume_name_ -snapshot _snapshot_copy_name_ -snaplock-expiry-time _expiration_date_time_`
+`volume snapshot create -volume <volume_name> -snapshot <snapshot name> -snaplock-expiry-time <expiration_date_time>`
 
 +
 次のコマンドでは、新しいSnapshotを作成して保持期間を設定します。
@@ -281,7 +281,7 @@ cluster1> volume snapshot create -vserver vs1 -volume vol1 -snapshot snap1 -snap
 --
 . 既存のSnapshotに保持期間を手動で適用するには、次のコマンドを入力します。
 +
-`volume snapshot modify-snaplock-expiry-time -volume _volume_name_ -snapshot _snapshot_copy_name_ -expiry-time _expiration_date_time_`
+`volume snapshot modify-snaplock-expiry-time -volume <volume_name> -snapshot <snapshot name> -snaplock-expiry-time <expiration_date_time>`
 
 +
 次の例は、既存のSnapshotに保持期間を適用します。
@@ -289,7 +289,7 @@ cluster1> volume snapshot create -vserver vs1 -volume vol1 -snapshot snap1 -snap
 +
 [listing]
 ----
-cluster1> volume snapshot modify-snaplock-expiry-time -volume vol1 -snapshot snap2 -expiry-time "11/10/2022 09:00:00"
+cluster1> volume snapshot modify-snaplock-expiry-time -volume vol1 -snapshot snap2 -snaplock-expiry-time "11/10/2022 09:00:00"
 ----
 
 

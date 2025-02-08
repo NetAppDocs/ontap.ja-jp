@@ -1,7 +1,7 @@
 ---
 sidebar: sidebar 
 permalink: networking/ontap_port_usage_on_a_storage_system_overview.html 
-keywords: port, tcp, udp, ontap, external, externally, service, services, introduce, introduction, introducing, overview, ontap port usage overview, ontap port usage, network ports, ontap ports, tcp ports, udp ports, ssh, port 22, telnet, port 23, dns, port 53, http, port 80, rpcbind, port 111, ntp, port 123, msrpc, port 135, netbios-ssn, port 139, snmp, port 161, https, port 443, microsoft-ds, port 445, mount, port 635, named, port 953, nfs, port 2049, nrv, port 2050, iscsi, port 3260, lockd, port 4045, nsm, port 4046, rquotad, port 4049, krb524, port 4444, mdns, port 5353, https, port 5986, port 8443, ndmp, port 10000, cluster peering, port 11104, port 11105, ports 18600 through 18699, cifs witness, port 40001, tls, port 50000, port 65200 
+keywords: port, tcp, udp, http, https, ssh, ontap ports overview, communication ports, port conflicts, ontap ports for inbound traffic, ontap ports for outbound traffic, internal ports 
 summary: 特定のサービスとの ONTAP 通信用に予約されたポート 
 ---
 = ONTAPポートの概要
@@ -14,121 +14,232 @@ summary: 特定のサービスとの ONTAP 通信用に予約されたポート
 
 
 [role="lead"]
-多くのwell-knownポートは、特定のサービスとのONTAP通信用に予約されています。ストレージネットワーク環境のポート値がONTAPポートの値と同じ場合、ポートの競合が発生します。
+いくつかのwell-knownポートは、特定のサービスとのONTAP通信用に予約されています。ストレージネットワーク環境のポートの値がONTAPポートの値と同じ場合、ポートの競合が発生します。
 
-次の表に、ONTAPで使用されるTCPポートとUDPポートを示します。
+
+
+== インバウンドトラフィック
+
+ONTAPストレージのインバウンドトラフィックは、次のプロトコルとポートを使用します。
 
 [cols="25,25,50"]
 |===
 
 
-| サービス | ポート / プロトコル | 説明 
+| プロトコル | ポート | 目的 
 
 
-| SSH | 22/tcp のようになります | Secure ShellログインSecure Shellログイン 
+| すべての ICMP | すべて | インスタンスの ping を実行します 
 
 
-| Telnet | 23/tcp のようになります | リモートログイン 
+| TCP | 22 | クラスタ管理LIFまたはノード管理LIFのIPアドレスへのSecure Shellアクセス 
 
 
-| DNS | 53/tcp のようになります | ロードバランシングDNS 
+| TCP | 80 | クラスタ管理LIFのIPアドレスへのWebページアクセス 
 
 
-| HTTP | 80 / TCP | ハイパーテキスト転送プロトコル 
+| TCP / UDP | 111 | rpcbind、NFSのリモートプロシージャコールrpcbind NFSノリモートプロシージャコール 
 
 
-| rpcbind | 111/tcp のようになります | リモートプロシージャコール 
+| UDP | 123 | NTP、ネットワークタイムプロトコル 
 
 
-| rpcbind | 111/UDP | リモートプロシージャコール 
+| UDP | 135 | MSRPC、Microsoftリモートプロシージャコール 
 
 
-| NTP | 123 / UDP | ネットワークタイムプロトコル 
+| TCP | 139 | NetBIOS-SSN、CIFSテノNetBIOSサアヒスセツシヨン 
 
 
-| 希望小売価格 | 135 / UDP | MSRPC 
+| TCP / UDP | 161-162 | SNMP、簡易ネットワーク管理プロトコル 
 
 
-| NetBIOS-SSN | 139/tcp のようになります | NetBIOSサービスセッション 
+| TCP | 443 | クラスタ管理LIFのIPアドレスへのセキュアなWebページアクセス 
 
 
-| SNMP | 161 / UDP | 簡易ネットワーク管理プロトコル 
+| TCP | 445 | MS Active Domain Services、NetBIOSフレーミングを使用したMicrosoft SMB/CIFS over TCP 
 
 
-| HTTPS | 443/tcp のようになります | HTTP over TLS 
+| TCP / UDP | 635 | リモート・ファイル・システムとローカルであるかのように通信するためのNFSマウント 
 
 
-| Microsoft-DS | 445/tcp のようになります | Microsoft-DS 
+| TCP | 749 | Kerberos 
 
 
-| マウントする | 635/tcp のようになります | NFSマウント 
+| UDP | 953 | 名前デーモン 
 
 
-| マウントする | 635/UDP | NFSマウント 
+| TCP / UDP | 2049 | NFSサーバデーモン 
 
 
-| 名前付き | 953 / UDP | 名前デーモン 
+| TCP | 2050 | NRV、NetAppリモートボリュームプロトコル 
 
 
-| NFS | 2049/UDP | NFSサーバデーモン 
+| TCP | 3260 | iSCSI データ LIF を介した iSCSI アクセス 
 
 
-| NFS | 2049 / TCP | NFSサーバデーモン 
+| TCP / UDP | 4045 | NFSロックデーモン 
 
 
-| NRV | 2050/tcp のようになります | NetAppリモートボリュームプロトコル 
+| TCP / UDP | 4046 | NFS のネットワークステータスモニタ 
 
 
-| iSCSI | 3260/tcp のようになります | iSCSIターゲットポート 
+| UDP | 4049 | NFS RPC rquotad 
 
 
-| ロックド | 4045/tcp のようになります | NFSロックデーモン 
+| UDP | 4444 | KRB524、Kerberos 524 
 
 
-| ロックド | 4045 / UDP | NFSロックデーモン 
+| UDP | 5353 | マルチキャストDNS 
 
 
-| NSM | 4046/tcp のようになります | ネットワークステータスモニタ 
+| TCP | 10000 | Network Data Management Protocol（NDMP；ネットワークデータ管理プロトコル）を使用したバックアップ 
 
 
-| NSM | 4046 / UDP | ネットワークステータスモニタ 
+| TCP | 11104 | クラスタピアリング、SnapMirrorのクラスタ間通信セッションの双方向管理 
 
 
-| rquotad | 4049/UDP | NFS rquotadプロトコル 
+| TCP | 11105 | クラスタピアリング、クラスタ間LIFを使用した双方向のSnapMirrorデータ転送 
+|===
 
 
-| krb524 | 4444 / UDP | Kerberos 524 
+== アウトバウンドトラフィック
 
+ONTAPストレージのアウトバウンドトラフィックは、ビジネスニーズに応じて基本ルールまたは高度なルールを使用して設定できます。
 
-| mDNS | 5353 / UDP | マルチキャストDNS 
 
 
-| HTTPS | 5986/UDP | HTTPSポートリスニングバイナリプロトコル 
+=== 基本的なアウトバウンドルール
 
+すべてのポートは、ICMP、TCP、およびUDPプロトコルを介したすべての発信トラフィックに使用できます。
 
-| HTTPS | 8443/tcp のようになります | 7MTT GUIツール（https経由） 
+[cols="25,25,50"]
+|===
 
 
-| NDMP | 10000/tcp のようになります | ネットワークデータ管理プロトコル 
+| プロトコル | ポート | 目的 
 
 
-| クラスタピアリング | 11104/tcp のようになります | クラスタピアリング、双方向 
+| すべての ICMP | すべて | すべての発信トラフィック 
 
 
-| クラスタピアリング、双方向 | 11105/tcp のようになります | クラスタピアリング 
+| すべての TCP | すべて | すべての発信トラフィック 
 
 
-| NDMP | 18600～18699/TCP | NDMP 
+| すべての UDP | すべて | すべての発信トラフィック 
+|===
 
 
-| NDMP | 30000/tcp のようになります | セキュアソケットを介した制御接続の受け入れ 
+=== 高度なアウトバウンドルール
 
+発信トラフィックに厳格なルールが必要な場合は、次の情報を使用して、ONTAPによる発信通信に必要なポートのみを開くことができます。
 
-| CIFS監視ポート | 40001/tcp のようになります | CIFS監視ポート 
 
 
-| TLS | 50000/tcp のようになります | トランスポートレイヤセキュリティ 
+==== Active Directory
 
+[cols="10,10,30,25,25"]
+|===
 
-| iSCSI | 65200/tcp のようになります | iSCSIポート 
+
+| プロトコル | ポート | ソース | デスティネーション | 目的 
+
+
+| TCP | 88 | ノード管理LIF、データLIF（NFS、CIFS、iSCSI） | Active Directory フォレスト | Kerberos V 認証 
+
+
+| UDP | 137 | ノード管理LIF、データLIF（NFS、CIFS） | Active Directory フォレスト | NetBIOSネームサービス 
+
+
+| UDP | 138 | ノード管理LIF、データLIF（NFS、CIFS） | Active Directory フォレスト | NetBIOS データグラムサービス 
+
+
+| TCP | 139 | ノード管理LIF、データLIF（NFS、CIFS） | Active Directory フォレスト | NetBIOSサービスセッション 
+
+
+| TCP | 389 | ノード管理LIF、データLIF（NFS、CIFS） | Active Directory フォレスト | LDAP 
+
+
+| UDP | 389 | ノード管理LIF、データLIF（NFS、CIFS） | Active Directory フォレスト | LDAP 
+
+
+| TCP | 445 | ノード管理LIF、データLIF（NFS、CIFS） | Active Directory フォレスト | NetBIOS フレーム同期を使用した Microsoft SMB over TCP 
+
+
+| TCP | 464 | ノード管理LIF、データLIF（NFS、CIFS） | Active Directory フォレスト | Kerberos vパスワードの変更と設定（set_change） 
+
+
+| UDP | 464 | ノード管理LIF、データLIF（NFS、CIFS） | Active Directory フォレスト | Kerberos キー管理 
+
+
+| TCP | 749 | ノード管理LIF、データLIF（NFS、CIFS） | Active Directory フォレスト | Kerberos Vパスワードの変更と設定（RPCSEC_GSS） 
+|===
+
+
+==== AutoSupport
+
+[cols="10,10,30,25,25"]
+|===
+
+
+| プロトコル | ポート | ソース | デスティネーション | 目的 
+
+
+| TCP | 80 | ノード管理LIF | support.netapp.com | AutoSupport （転送プロトコルが HTTPS から HTTP に変更された場合のみ） 
+|===
+
+
+==== SNMP
+
+[cols="10,10,30,25,25"]
+|===
+
+
+| プロトコル | ポート | ソース | デスティネーション | 目的 
+
+
+| TCP / UDP | 162 | ノード管理LIF | サーバを監視します | SNMP トラップによる監視 
+|===
+
+
+==== SnapMirror
+
+[cols="10,10,30,25,25"]
+|===
+
+
+| プロトコル | ポート | ソース | デスティネーション | 目的 
+
+
+| TCP | 11104 | クラスタ間LIF | ONTAP クラスタ間 LIF | SnapMirror のクラスタ間通信セッションの管理 
+|===
+
+
+==== その他のサービス
+
+[cols="10,10,30,25,25"]
+|===
+
+
+| プロトコル | ポート | ソース | デスティネーション | 目的 
+
+
+| TCP | 25 | ノード管理LIF | メールサーバ | SMTP アラート。 AutoSupport に使用できます 
+
+
+| UDP | 53 | ノード管理 LIF とデータ LIF （ NFS 、 CIFS ） | DNS | DNS 
+
+
+| UDP | 67 | ノード管理LIF | DHCP | DHCPサーバ 
+
+
+| UDP | 68 | ノード管理LIF | DHCP | 初回セットアップ用の DHCP クライアント 
+
+
+| UDP | 514 | ノード管理LIF | syslogサアハ | syslog 転送メッセージ 
+
+
+| TCP | 5010 | クラスタ間LIF | バックアップエンドポイントまたはリストアエンドポイント | S3 へのバックアップ処理とリストア処理 フィーチャー（ Feature ） 
+
+
+| TCP | 18600～18699 | ノード管理LIF | 宛先サーバ | NDMP コピー 
 |===

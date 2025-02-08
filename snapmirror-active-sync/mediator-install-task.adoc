@@ -14,9 +14,9 @@ summary: SnapMirrorアクティブ同期では、ONTAPメディエーターを�
 
 
 [role="lead"]
-SnapMirror Active Syncでは、フェイルオーバーが発生した場合にデータの可用性を確保するために、ピアクラスタを使用します。ONTAPメディエーターは、ビジネス継続性を確保するための重要なリソースであり、各クラスタの健全性を監視します。SnapMirrorのアクティブな同期を設定するには、まずONTAPメディエーターをインストールし、プライマリクラスタとセカンダリクラスタが適切に設定されていることを確認する必要があります。
+SnapMirror Active Syncでは、フェイルオーバーが発生した場合にピアクラスタを使用してデータを保護します。ONTAPメディエーターは、各クラスタの健常性を監視してビジネス継続性を実現する重要なリソースです。SnapMirrorのアクティブな同期を設定するには、まずONTAPメディエーターをインストールし、プライマリクラスタとセカンダリクラスタが適切に設定されていることを確認する必要があります。
 
-ONTAPメディエーターをインストールしてクラスタを設定したら、SnapMirrorアクティブな同期で使用するONTAPメディエーターを使用する必要があります<<initialize-the-ontap-mediator>>。そうしなければなりませんxref:protect-task.html[SnapMirrorアクティブ同期の整合性グループを作成、初期化、マッピングする]。
+ONTAPメディエーターをインストールしてクラスタを設定したら、を<<initialize-the-ontap-mediator,自己署名証明書を使用してONTAP Mediator for SnapMirrorのアクティブな同期を初期化する>>実行します。そうしなければなりませんxref:protect-task.html[SnapMirrorアクティブ同期の整合性グループを作成、初期化、マッピングする]。
 
 
 
@@ -33,21 +33,21 @@ ONTAPメディエーターは、SnapMirrorのアクティブな同期関係に�
 たとえば、クラスタBがクラスタA、クラスタC、およびクラスタDとピア関係にある場合、各関係にSnapMirrorのアクティブな同期が設定されていれば、3つのクラスタピア関係すべてに一意のONTAPメディエーターインスタンスを関連付けることができます。または、クラスタBは、3つのピア関係すべてに同じONTAPメディエーターインスタンスを使用できます。このシナリオでは、クラスタに対してONTAPメディエーターの同じインスタンスが3回表示されます。
 
 .ONTAPメディエーターの前提条件
-* ONTAPメディエーターには、独自の前提条件が用意されています。メディエーターをインストールする前に、これらの前提条件を満たしている必要があります。
+* ONTAPメディエーターには、独自の前提条件が用意されています。ONTAPメディエーターをインストールする前に、これらの前提条件を満たしている必要があります。
 +
 詳細については、を参照してください link:https://docs.netapp.com/us-en/ontap-metrocluster/install-ip/task_configuring_the_ontap_mediator_service_from_a_metrocluster_ip_configuration.html["ONTAPメディエーターサービスのインストールを準備"^]。
 
-* デフォルトでは、ONTAPメディエーターはTCPポート31784を使用してサービスを提供します。ポート31784が開いていて、ONTAPクラスタとメディエーターの間で使用可能であることを確認してください。
+* デフォルトでは、ONTAPメディエーターはTCPポート31784を使用してサービスを提供します。ポート31784が開いていて、ONTAPクラスタとONTAPメディエーターの間で使用可能であることを確認してください。
 
 
 
 
 == ONTAPメディエーターをインストールしてクラスタ構成を確認
 
-次の各手順を実行します。それぞれの手順で、特定の設定が完了していることを確認します。必要に応じて、各手順に記載されたリンクを使用して詳細を参照できます。
+次の各手順を実行して、ONTAPメディエーターをインストールし、クラスタ構成を確認します。各手順で、特定の設定が完了していることを確認する必要があります。各手順には、実行する必要がある特定の手順へのリンクが含まれています。
 
 .手順
-. ソースクラスタとデスティネーションクラスタが適切に設定されていることを確認する前に、ONTAPメディエーターサービスをインストールしてください。
+. ソースクラスタとデスティネーションクラスタが正しく設定されていることを確認する前に、ONTAPメディエーターサービスをインストールしてください。
 +
 xref:../mediator/index.html[ONTAPメディエーターサービスのインストールまたはアップグレードの準備]
 
@@ -59,11 +59,11 @@ NOTE: クラスタピア関係のSnapMirror Active SyncではデフォルトのI
 +
 xref:../task_dp_prepare_mirror.html[ピア関係の設定]
 
-. 各クラスタにStorage VMが作成されていることを確認します。
+. 各クラスタにSVMが作成されていることを確認します。
 +
 xref:../smb-config/create-svms-data-access-task.html[SVMの作成]
 
-. 各クラスタのStorage VM間にピア関係が確立されていることを確認します。
+. 各クラスタのSVM間にピア関係が確立されていることを確認します。
 +
 xref:../peering/create-intercluster-svm-peer-relationship-93-later-task.html[SVMピア関係の作成]
 
@@ -179,7 +179,7 @@ image:successful-mediator-installation.png["メディエーターの追加が完
 
 ONTAPメディエーターは、ONTAP CLIを使用してプライマリクラスタまたはセカンダリクラスタから初期化できます。一方のクラスタでコマンドを実行する `mediator add`と、もう一方のクラスタにONTAPメディエーターが自動的に追加されます。
 
-Mediatorを使用してSnapMirrorのアクティブな同期関係を監視している場合、有効な自己署名証明書または認証局（CA）証明書がないとONTAPでMediatorを初期化できません。ピアクラスタの証明書ストアに有効な証明書を追加します。メディエーターを使用してMetroCluster IPシステムを監視する場合、初期設定後はHTTPSが使用されないため、証明書は必要ありません。
+ONTAPメディエーターを使用してSnapMirrorのアクティブな同期関係を監視している場合、有効な自己署名証明書または認証局（CA）証明書がないとONTAPでメディエーターを初期化できません。ピアクラスタの証明書ストアに有効な証明書を追加します。ONTAPメディエーターを使用してMetroCluster IPシステムを監視する場合、初期設定後はHTTPSが使用されないため、証明書は必要ありません。
 
 [role="tabbed-block"]
 ====
@@ -408,7 +408,7 @@ ONTAPメディエーターサービスの再初期化が必要になる場合が
 次の手順は、自己署名証明書をサードパーティの証明書に置き換える必要がある場合にONTAPメディエーターを再初期化する手順を示しています。
 
 .タスクの内容
-SM-BCクラスタの自己署名証明書をサードパーティの証明書に置き換え、ONTAPからONTAPメディエーターの設定を削除してから、ONTAPメディエーターを追加する必要があります。
+SnapMirrorアクティブ同期クラスタの自己署名証明書をサードパーティの証明書に置き換え、ONTAPメディエーターの設定をONTAPから削除してから、ONTAPメディエーターを追加する必要があります。
 
 
 
@@ -455,7 +455,7 @@ ONTAP CLIを使用して自己署名証明書をサードパーティの証明�
  C2_test_cluster::*> security certificate delete -vserver C2_test_cluster -common-name ONTAPMediatorCA *
  2 entries were deleted.
 ----
-. 次のコマンドを使用して、以前に設定したONTAPメディエーターをSM-BCクラスタから削除し `-force true`ます。
+. 次のコマンドを使用して、以前に設定したONTAPメディエーターをSnapMirrorアクティブな同期クラスタから削除し `-force true`ます。
 +
 * 例 *
 
@@ -580,7 +580,7 @@ Mediator Address Peer Cluster     Connection Status Quorum Status
  C2_test_cluster::*> security certificate delete -vserver C2_test_cluster -common-name ONTAPMediatorCA *
  2 entries were deleted.
 ----
-. 次のコマンドを使用して、以前に設定したONTAPメディエーターをSM-BCクラスタから削除し `-force true`ます。
+. 次のコマンドを使用して、以前に設定したONTAPメディエーターをSnapMirrorアクティブな同期クラスタから削除し `-force true`ます。
 +
 * 例 *
 

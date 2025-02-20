@@ -13,8 +13,10 @@ summary: 既存のDPタイプの関係をXDPに簡単に変換して、バージ
 [role="lead"]
 XDP 12.1以降にアップグレードする場合ONTAP 9は、アップグレード前にDPタイプの関係をXDPに変換する必要があります。ONTAP 9.12.1以降では、DPタイプの関係はサポートされません。既存のDPタイプの関係を簡単にXDPに変換して、バージョンに依存しないSnapMirrorを活用できます。
 
+ONTAP 9.12.1にアップグレードする前に、ONTAP 9.12.1以降のリリースにアップグレードする前に、既存のDPタイプの関係をXDPに変換する必要があります。
+
 .タスクの内容
-* SnapMirrorは、既存のDPタイプの関係をXDPに自動的に変換しません。関係を変換するには、既存の関係を解除して削除し、新しいXDP関係を作成して関係を再同期する必要があります。背景情報については、を参照してくださいlink:version-flexible-snapmirror-default-concept.html["SnapMirrorのデフォルトはDPからXDPに変更"]。
+* SnapMirrorは、既存のDPタイプの関係をXDPに自動的に変換しません。関係を変換するには、既存の関係を解除して削除し、新しいXDP関係を作成して関係を再同期する必要があります。
 * 変換を計画するときは、XDP SnapMirror関係のバックグラウンド準備とデータウェアハウジングフェーズに時間がかかることに注意してください。ステータスが「準備中」と長時間報告されるSnapMirror関係が表示されることも珍しくありません。
 
 
@@ -266,4 +268,118 @@ volume snapshot autodelete modify -vserver <SVM> -volume <volume> -enabled true
 .終了後
 . コマンドを使用し `snapmirror show`て、SnapMirror関係が作成されたことを確認します。
 . SnapMirror XDPデスティネーションボリュームでSnapMirrorポリシーの定義に従ってSnapshotの更新が開始されたら、ソースクラスタからコマンドの出力を使用し `snapmirror list-destinations`て新しいSnapMirror XDP関係を表示します。
+
+
+.DPタイフノカンケイニカンスルシヨウサイシヨウホウ
+ONTAP 9.3以降では、XDPモードがデフォルトであり、コマンドラインまたは新規または既存のスクリプトでのDPモードの呼び出しは自動的にXDPモードに変換されます。
+
+既存の関係には影響しません。すでにDPタイプの関係は、引き続きDPタイプになります。ONTAP 9.5以降では、データ保護モードを指定しない場合、またはXDPモードを関係タイプとして指定した場合にデフォルトポリシーがMirrorAndVaultになります。次の表は、想定される動作を示しています。
+
+[cols="3*"]
+|===
+
+
+| 指定するモード | タイプ | デフォルトポリシー（ポリシーを指定しない場合） 
+
+
+ a| 
+DP
+ a| 
+XDP
+ a| 
+MirrorAllSnapshots（SnapMirror DR）
+
+
+
+ a| 
+なし
+ a| 
+XDP
+ a| 
+MirrorAndVault（ユニファイドレプリケーション）
+
+
+
+ a| 
+XDP
+ a| 
+XDP
+ a| 
+MirrorAndVault（ユニファイドレプリケーション）
+
+|===
+次の表に示すように、さまざまな状況でXDPに割り当てられたデフォルトポリシーによって、変換時に以前のタイプと同等の機能が維持されます。もちろん、ユニファイドレプリケーションのポリシーなど、必要に応じてさまざまなポリシーを使用できます。
+
+[cols="3*"]
+|===
+
+
+| 指定するモード | ポリシー | 結果 
+
+
+ a| 
+DP
+ a| 
+MirrorAllSnapshots
+ a| 
+SnapMirror DR
+
+
+
+ a| 
+XDPDefault
+ a| 
+SnapVault
+
+
+
+ a| 
+MirrorAndVault
+ a| 
+ユニファイドレプリケーション
+
+
+
+ a| 
+XDP
+ a| 
+MirrorAllSnapshots
+ a| 
+SnapMirror DR
+
+
+
+ a| 
+XDPDefault
+ a| 
+SnapVault
+
+
+
+ a| 
+MirrorAndVault
+ a| 
+ユニファイドレプリケーション
+
+|===
+変換の例外は次のとおりです。
+
+* ONTAP 9 .3以前のSVMデータ保護関係のデフォルトは引き続きDPモードです。
++
+ONTAP 9 .4以降では、SVMデータ保護関係のデフォルトがXDPモードに変更されました。
+
+* ルートボリュームの負荷共有データ保護関係のデフォルトは引き続きDPモードです。
+* ONTAP 9 .4以前のSnapLockデータ保護関係のデフォルトは引き続きDPモードです。
++
+XDP 5以降ONTAP 9では、SnapLockデータ保護関係のデフォルトがXDPモードに変更されました。
+
+* 次のクラスタ全体のオプションを設定した場合、DPの明示的な呼び出しは引き続きデフォルトでDPモードになります。
++
+[listing]
+----
+options replication.create_data_protection_rels.enable on
+----
++
+DPを明示的に呼び出さない場合、このオプションは無視されます。
+
 

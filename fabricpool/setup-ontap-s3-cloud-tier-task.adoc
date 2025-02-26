@@ -1,10 +1,10 @@
 ---
 permalink: fabricpool/setup-ontap-s3-cloud-tier-task.html 
 sidebar: sidebar 
-keywords: setting up, ontap s3, cloud tier 
+keywords: tr-4814, fabricpool, setting up, ontap s3, cloud tier, local tier, tiering, storage tiering, storage tier, lif 
 summary: ONTAP 9 .8以降を実行している場合は、ONTAP S3をFabricPoolのクラウド階層としてセットアップできます。 
 ---
-= ONTAP S3をONTAP FabricPoolクラウド階層としてセットアップする
+= ONTAP S3をFabricPoolクラウド階層としてセットアップする
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
@@ -13,17 +13,22 @@ summary: ONTAP 9 .8以降を実行している場合は、ONTAP S3をFabricPool�
 [role="lead"]
 ONTAP 9 .8以降を実行している場合は、ONTAP S3をFabricPoolのクラウド階層としてセットアップできます。
 
-.必要なもの
-ONTAP S3サーバの名前と、リモートクラスタ上の関連付けられているLIFのIPアドレスを確認しておく必要があります。
+.開始する前に
+* ONTAP S3サーバの名前と、リモートクラスタ上の関連付けられているLIFのIPアドレスを確認しておく必要があります。
++
 
-[NOTE]
-====
-サーバ名は、クライアントアプリケーションによってFully Qualified Domain Name（FQDN；完全修飾ドメイン名）として使用されます。ONTAP以外で、使用中のSVMデータLIFを参照しているDNSレコードを確認します。
+NOTE: サーバ名は、クライアントアプリケーションによってFully Qualified Domain Name（FQDN；完全修飾ドメイン名）として使用されます。ONTAP以外で、使用中のSVMデータLIFを参照しているDNSレコードを確認します。
 
-====
-ローカルクラスタにクラスタ間LIFが必要です。
+* ローカルクラスタにが存在している必要があり<<create-lif,クラスタ内LIF>>ます。
++
+ローカルクラスタの階層化を設定した場合は、ローカル階層（ONTAP CLIではストレージアグリゲートとも呼ばれます）がローカルバケットに接続されます。FabricPoolは、クラスタ内トラフィックにクラスタLIFを使用します。
 
-link:../s3-config/create-intercluster-lifs-remote-fabricpool-tiering-task.html["リモートFabricPool階層化用のクラスタ間LIFの作成"]
++
+
+NOTE: クラスタLIFのリソースが飽和状態になると、パフォーマンスが低下する可能性があります。これを回避するために、NetAppでは、ローカルバケットに階層化する場合は4ノード以上のクラスタを使用し、ローカル階層にはHAペア、ローカルバケットにはHAペアを使用することを推奨しています。単一のHAペアのローカルバケットへの階層化は推奨されません。
+
+* ONTAP S3を使用してリモートのFabricPool容量（クラウド）階層化を有効にするには、FabricPoolクライアントとlink:../s3-config/create-data-lifs-task.html["データLIFの設定"]オブジェクトストアサーバで実行する必要がありますlink:../s3-config/create-intercluster-lifs-remote-fabricpool-tiering-task.html["クラスタ間LIFを設定"]。
+
 
 .タスクの内容
 ONTAP 9 .8以降では、ONTAP S3サーバのロードバランシングが有効になっています。サーバのホスト名が複数のIPアドレスに解決されると、ONTAPは返されたすべてのIPアドレス（最大16個のIPアドレス）を使用してクライアント接続を確立します。接続が確立されると、ラウンドロビン方式でIPアドレスが取得されます。
@@ -65,8 +70,10 @@ S3サーバの名前とIPアドレスをDNSサーバ管理者に渡します。
  a| 
 次のコマンドを入力します。
 
-`dns host create -vserver svm_name -address ip_address -hostname s3_server_name`
-
+[listing]
+----
+dns host create -vserver <svm_name> -address ip_address -hostname <s3_server_name>
+----
 |===
 . コマンドでパラメータを `-provider-type` `ONTAP_S3`使用して、ONTAP S3の設定情報を指定し `storage aggregate object-store config create`ます。
 +
@@ -96,3 +103,8 @@ cluster1::> storage aggregate object-store config create
 
 --
 ====
+[[create-lif]]
+.関連情報
+* link:../smb-config/create-lif-task.html["SMB用のLIFの作成"]
+* link:../nfs-config/create-lif-task.html["NFS用のLIFの作成"]
+

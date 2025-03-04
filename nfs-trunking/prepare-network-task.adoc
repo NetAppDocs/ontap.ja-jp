@@ -2,7 +2,7 @@
 permalink: nfs-trunking/prepare-network-task.html 
 sidebar: sidebar 
 keywords: NFS, servers, network, prepare, NFS trunking, LIF, trunking group, NIC 
-summary: NFSv4.1トランキングを利用するには、トランキンググループ内のLIFが同じノードに配置され、同じノードにホームポートがある必要があります。です。 
+summary: NFSv4.1トランキングを利用するには、トランキンググループ内のLIFが同じノードに配置され、同じノードにホームポートがある必要があります。 
 ---
 = ONTAP NFSトランキング用のネットワークの準備
 :allow-uri-read: 
@@ -14,33 +14,35 @@ NFSv4.1トランキングを利用するには、トランキンググループ�
 .タスクの内容
 LIFとNICを1対1でマッピングするとパフォーマンスが最大限に向上しますが、トランキングを有効にする必要はありません。少なくとも2つのNICをインストールするとパフォーマンスが向上しますが、必須ではありません。
 
-複数のフェイルオーバーグループを設定できますが、トランキングのフェイルオーバーグループにはトランキンググループに含めるLIFだけを指定する必要があります。
+トランキンググループ内のLIFはすべて同じフェイルオーバーグループに属している必要があります。同じノードのフェイルオーバーグループにLIFが設定されている場合、そのノードでコントローラのフェイルオーバーが発生するとLIFがオフラインになることがあります。同じノードのフェイルオーバーグループにLIFが設定されておらず、別のノードにフェイルオーバーされると、トランキングは機能しなくなります。
 
 フェイルオーバーグループの接続（および基盤となるNIC）を追加または削除するときは、常にトランキングフェイルオーバーグループを調整する必要があります。
 
 .開始する前に
-* フェイルオーバーグループを作成する場合は、NICに関連付けられているポート名を確認しておく必要があります。
+* フェイルオーバーグループを作成するには、NICに関連付けられているポート名を確認しておく必要があります。
 * すべてのポートが同じノード上にある必要があります。
 
 
 .手順
 . 使用するネットワークポートの名前とステータスを確認します。
 +
-`network port status`
-
+[source, cli]
+----
+network port show
+----
 . フェイルオーバーグループを作成します。
 +
-`network interface failover-groups create -vserver _svm_name_ -failover-group _failover_group_name_ -targets _ports_list_`
+`network interface failover-groups create -vserver <svm_name> -failover-group <failover_group_name> -targets <ports_list>`
 
 +
 
 NOTE: フェイルオーバーグループは必須ではありませんが、使用することを強く推奨します。
 
 +
-** `_svm_name_`は、NFSサーバが含まれているSVMの名前です。
-** `_ports_list_`は、フェイルオーバーグループに追加するポートのリストです。
+** `<svm_name>`は、NFSサーバが含まれているSVMの名前です。
+** `<ports_list>`は、フェイルオーバーグループに追加するポートのリストです。
 +
-ポートは_node_name：port_number_の形式で追加します（例：node1：e0c）。
+ポートは、のよう `node1:e0c`な形式で追加され `<node_name>:<port_number>`ます。
 
 +
 次のコマンドは、SVM vs1にフェイルオーバーグループfg3を作成し、ポートを3つ追加します。
@@ -55,7 +57,7 @@ NOTE: フェイルオーバーグループは必須ではありませんが、�
 
 . 必要に応じて、トランキンググループのメンバー用のLIFを作成します。
 +
-`network interface create -vserver _svm_name_ -lif _lif_name_ -home-node _node_name_ -home-port _port_name_ -address _IP_address_ -netmask _IP_address_ [-service-policy _policy_] [-auto-revert {true|false}]`
+`network interface create -vserver <svm_name> -lif <lif_name> -home-node <node_name> -home-port <port_name> -address <IP_address> -netmask <IP_address> [-service-policy <policy>] [-auto-revert <true|false>]`
 
 +
 ** `-home-node`- network interface revertコマンドをLIFで実行したときにLIFが戻るノード。
@@ -74,7 +76,7 @@ NOTE: フェイルオーバーグループは必須ではありませんが、�
 次のコマンドは、ノードの `cluster1_01`ポートに `e0c`SVM用 `vs1`にを作成し `lif-A`ます。
 
 +
-`network interface create -vserver vs1 -lif lif-A -service-policy *???* -home-node cluster1_01 -home-port e0c -address 192.0.2.0`
+`network interface create -vserver vs1 -lif lif-A -service-policy default-intercluster -home-node cluster1_01 -home-port e0c -address 192.0.2.0`
 
 +
 詳細はこちらlink:../networking/create_lifs.html["LIFの作成"]
@@ -83,8 +85,10 @@ NOTE: フェイルオーバーグループは必須ではありませんが、�
 
 . LIFが作成されたことを確認します。
 +
-`network interface show`
-
+[source, cli]
+----
+network interface show
+----
 . 設定したIPアドレスに到達できることを確認します。
 +
 [cols="25,75"]

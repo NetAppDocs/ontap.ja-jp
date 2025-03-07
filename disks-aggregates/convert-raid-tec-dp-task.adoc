@@ -2,16 +2,19 @@
 permalink: disks-aggregates/convert-raid-tec-dp-task.html 
 sidebar: sidebar 
 keywords: convert, raid-tec, raid-dp, raid policy 
-summary: ローカル階層（アグリゲート）のサイズを縮小し、トリプルパリティが不要になった場合は、RAIDポリシーをRAID-TECからRAID-DPに変換して、RAIDパリティに必要なディスクの数を減らすことができます。 
+summary: ローカル階層のサイズを縮小し、トリプルパリティが不要になった場合は、RAIDポリシーをRAID-TECからRAID-DPに変換して、RAIDパリティに必要なディスクの数を減らすことができます。 
 ---
-= RAID-TECからRAID-DPへの変換
+= ONTAPでのRAID-TECからRAID-DPへの変換
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-ローカル階層（アグリゲート）のサイズを縮小し、トリプルパリティが不要になった場合は、RAIDポリシーをRAID-TECからRAID-DPに変換して、RAIDパリティに必要なディスクの数を減らすことができます。
+ローカル階層のサイズを縮小し、トリプルパリティが不要になった場合は、RAIDポリシーをRAID-TECからRAID-DPに変換して、RAIDパリティに必要なディスクの数を減らすことができます。
+
+
+NOTE: ONTAP 9.7より前のバージョンでは、ローカル階層を表すために_aggregate_という用語が使用されていました。ONTAPのバージョンに関係なく、ONTAP CLIでは_aggregate_という用語が使用されます。ローカル階層の詳細については、を参照してくださいlink:../disks-aggregates/index.html["ディスクとローカル階層"]。
 
 .開始する前に
 RAID-TECの最大RAIDグループサイズは、RAID-DPの最大RAIDグループサイズよりも大きくなります。最大RAID-TECグループサイズがRAID-DPの制限内に収まらない場合は、RAID-DPに変換できません。
@@ -20,15 +23,15 @@ RAID-TECの最大RAIDグループサイズは、RAID-DPの最大RAIDグループ
 RAIDタイプ間の変換の影響については、コマンドのを参照してください https://docs.netapp.com/us-en/ontap-cli/storage-aggregate-modify.html#parameters["パラメータ"^] `storage aggregate modify` 。
 
 .手順
-. アグリゲートがオンラインで、少なくとも6本のディスクがあることを確認します。
+. ローカル階層がオンラインで、少なくとも6本のディスクがあることを確認します。
 +
 `storage aggregate show-status -aggregate _aggregate_name_`
 
-. アグリゲートをRAID-TECからRAID-DPに変換します。
+. ローカル階層をRAID-TECからRAID-DPに変換します。
 +
 `storage aggregate modify -aggregate _aggregate_name_ -raidtype raid_dp`
 
-. アグリゲートのRAIDポリシーがRAID-DPであることを確認します。
+. ローカル階層のRAIDポリシーがRAID-DPであることを確認します。
 +
 `storage aggregate show _aggregate_name_`
 

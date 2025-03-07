@@ -2,19 +2,22 @@
 permalink: disks-aggregates/create-aggregates-auto-provision-task.html 
 sidebar: sidebar 
 keywords: create, aggregates, auto-provision, add, local tier, automatic, automatically, create, aggregate, auto-provisioning, System Manager, CLI, storage, disk, ownership, assign 
-summary: ローカル階層の自動追加（自動プロビジョニングを使用したアグリゲートの作成）に関するONTAPの推奨事項を受け入れ、ONTAPでローカル階層を追加することができます。 
+summary: ローカル階層の自動追加に関するONTAPの推奨事項を承認し、ONTAPでローカル階層を追加することができます。 
 ---
-= ONTAPでローカル階層を自動的に追加（自動プロビジョニングでアグリゲートを作成）
+= ONTAPでのローカル階層の自動追加
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-ローカル階層を自動的に追加する（自動プロビジョニングを使用してアグリゲートを作成する）ためのベストプラクティスがONTAP 環境に適している場合は、推奨事項を受け入れて、ONTAP にローカル階層を追加させることができます。
+ONTAPで提供されるローカル階層の自動追加に関するベストプラクティスが環境に適している場合は、その推奨事項を承認してONTAPにローカル階層を追加させることができます。
+
+
+NOTE: ONTAP 9.7より前のバージョンでは、ローカル階層を表すために_aggregate_という用語が使用されていました。ONTAPのバージョンに関係なく、ONTAP CLIでは_aggregate_という用語が使用されます。ローカル階層の詳細については、を参照してくださいlink:../disks-aggregates/index.html["ディスクとローカル階層"]。
 
 .開始する前に
-ディスクをローカル階層（アグリゲート）で使用するには、ディスクがノードに所有されている必要があります。ディスク所有権の自動割り当てを使用するようにクラスタが設定されていない場合は、が必要ですlink:manual-assign-disks-ownership-prep-task.html["所有権を手動で割り当てる"]。
+ディスクをローカル階層で使用するには、ディスクがノードに所有されている必要があります。ディスク所有権の自動割り当てを使用するようにクラスタが設定されていない場合は、が必要ですlink:manual-assign-disks-ownership-prep-task.html["所有権を手動で割り当てる"]。
 
 この手順で説明されているコマンドの詳細については、をlink:https://docs.netapp.com/us-en/ontap-cli/["ONTAPコマンド リファレンス"^]参照してください。
 
@@ -66,7 +69,7 @@ System Managerからの推奨事項を承認します。
  a| 
 ローカル階層を手動で設定し、System Managerの推奨事項を使用して「*_ not_*」を設定します。
  a| 
-次のlink:create-aggregates-manual-task.html["ローカル階層を手動で追加（アグリゲートの作成）します"]手順に進みます。
+次のlink:create-aggregates-manual-task.html["ローカル階層を手動で追加する"]手順に進みます。
 
 ** ONTAP 9 .10.1以前の場合は、次の手順に従ってCLIを使用します。
 ** ONTAP 9 .11.1以降では、次の手順に従ってSystem Managerを使用します。
@@ -87,23 +90,23 @@ System Managerからの推奨事項を承認します。
 --
 .CLI
 --
-アグリゲートのレイアウトに関する推奨事項を生成するには、コマンドを実行し `storage aggregate auto-provision`ます。ONTAPの推奨事項を確認して承認したあとにアグリゲートを作成できます。
+コマンドを実行し `storage aggregate auto-provision`て、ローカル階層のレイアウトに関する推奨事項を生成します。ONTAPの推奨事項を確認して承認したあとに、ローカル階層を作成できます。
 
 .開始する前に
 クラスタでONTAP 9 .2以降が実行されている必要があります。
 
 .タスクの内容
-コマンドで生成されるデフォルトの概要には `storage aggregate auto-provision`、作成が推奨されるアグリゲートのリスト（名前や使用可能なサイズなど）が表示されます。リストを確認し、プロンプトに従って推奨されるアグリゲートを作成するかどうかを判断できます。
+コマンドで生成されるデフォルトの概要に、 `storage aggregate auto-provision`作成が推奨されるローカル階層のリスト（名前や使用可能なサイズなど）が表示されます。リストを表示し、プロンプトが表示されたら推奨されるローカル階層を作成するかどうかを確認できます。
 
 オプションを使用すると、次のレポートを表示することもできます `-verbose`。
 
-* 作成する新しいアグリゲートのノードごとの概要、検出されたスペア、アグリゲート作成後の残りのスペアディスクとパーティション
-* 作成する新しいデータアグリゲートと、使用するディスクとパーティションの数
-* 作成する新しいデータアグリゲートでのスペアディスクとパーティションの使用方法を示すRAIDグループのレイアウト
-* アグリゲートの作成後の残りのスペアディスクとパーティションに関する詳細
+* 作成する新しいローカル階層のノードごとの概要、検出されたスペア、およびローカル階層の作成後の残りのスペアディスクとパーティション
+* 作成する新しいデータローカル階層（使用するディスクとパーティションの数を含む）
+* 作成する新しいデータローカル階層でのスペアディスクとパーティションの使用方法を示すRAIDグループのレイアウト
+* ローカル階層の作成後の残りのスペアディスクとパーティションに関する詳細
 
 
-自動プロビジョニング方法に精通していて、環境の準備が整っている場合は、オプションを使用すると、表示や確認を行わずに推奨されるアグリゲートを作成でき `-skip-confirmation`ます。 `storage aggregate auto-provision`コマンドは、CLIセッション設定の影響を受けません `-confirmations`。
+自動プロビジョニング方法に精通していて、環境の準備が整っている場合は、オプションを使用すると、 `-skip-confirmation`表示と確認を行わずに推奨されるローカル階層を作成できます。 `storage aggregate auto-provision`コマンドは、CLIセッション設定の影響を受けません `-confirmations`。
 
 の詳細については `storage aggregate auto-provision`、をlink:https://docs.netapp.com/us-en/ontap-cli/storage-aggregate-auto-provision.html["ONTAPコマンド リファレンス"^]参照してください。
 
@@ -112,7 +115,7 @@ System Managerからの推奨事項を承認します。
 +
 ** オプションなし：標準の概要を表示します
 ** `-verbose`オプション：詳細な概要を表示
-** `-skip-confirmation`オプション：表示も確認もせずに推奨されるアグリゲートを作成する
+** `-skip-confirmation`オプション：表示や確認を行わずに推奨されるローカル階層を作成する
 
 
 . 次のいずれかの手順を実行します。
@@ -127,7 +130,7 @@ System Managerからの推奨事項を承認します。
  a| 
 ONTAP からの推奨事項を受け入れます。
  a| 
-推奨されるアグリゲートの表示を確認し、プロンプトに従って推奨されるアグリゲートを作成します。
+推奨されるローカル階層の表示を確認し、プロンプトに応答して推奨されるローカル階層を作成します。
 
 [listing]
 ----
@@ -152,7 +155,7 @@ myA400-44556677::>
  a| 
 ローカル階層を手動で設定し、ONTAP からの推奨事項を使用する*_ not_*。
  a| 
-に進みますlink:create-aggregates-manual-task.html["ローカル階層を手動で追加（アグリゲートの作成）します"]。
+に進みますlink:create-aggregates-manual-task.html["ローカル階層を手動で追加する"]。
 
 |===
 

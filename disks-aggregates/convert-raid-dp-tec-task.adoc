@@ -2,19 +2,22 @@
 permalink: disks-aggregates/convert-raid-dp-tec-task.html 
 sidebar: sidebar 
 keywords: convert, raid-dp, raid-tec, raid policy 
-summary: トリプルパリティの保護を強化するには、RAID-DPをRAID-TECに変換します。アグリゲートで使用されているディスクのサイズが4TiBを超える場合は、RAID-TECを推奨します。 
+summary: トリプルパリティの保護を強化するには、RAID-DPをRAID-TECに変換します。ローカル階層で使用されているディスクのサイズが4TiBを超える場合は、RAID-TECを推奨します。 
 ---
-= RAID-DPからRAID-TECへの変換
+= ONTAPでのRAID-DPからRAID-TECへの変換
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-トリプルパリティの保護を強化するには、RAID-DPをRAID-TECに変換します。ローカル階層（アグリゲート）で使用されているディスクのサイズが4TiBを超える場合は、RAID-TECを推奨します。
+トリプルパリティの保護を強化するには、RAID-DPをRAID-TECに変換します。ローカル階層で使用されているディスクのサイズが4TiBを超える場合は、RAID-TECを推奨します。
+
+
+NOTE: ONTAP 9.7より前のバージョンでは、ローカル階層を表すために_aggregate_という用語が使用されていました。ONTAPのバージョンに関係なく、ONTAP CLIでは_aggregate_という用語が使用されます。ローカル階層の詳細については、を参照してくださいlink:../disks-aggregates/index.html["ディスクとローカル階層"]。
 
 .開始する前に
-変換するローカル階層（アグリゲート）には少なくとも7本のディスクが必要です。
+変換するローカル階層には少なくとも7本のディスクが必要です。
 
 .タスクの内容
 * ハードディスクドライブ（HDD）のローカル階層をRAID-DPからRAID-TECに変換できます。これには、Flash Poolローカル階層のHDD階層も含まれます。
@@ -22,15 +25,15 @@ summary: トリプルパリティの保護を強化するには、RAID-DPをRAID
 
 
 .手順
-. アグリゲートがオンラインで、少なくとも6本のディスクがあることを確認します。
+. ローカル階層がオンラインで、少なくとも6本のディスクがあることを確認します。
 +
 `storage aggregate show-status -aggregate _aggregate_name_`
 
-. アグリゲートをRAID-DPからRAID-TECに変換します。
+. ローカル階層をRAID-DPからRAID-TECに変換します。
 +
 `storage aggregate modify -aggregate _aggregate_name_ -raidtype raid_tec`
 
-. アグリゲートのRAIDポリシーがRAID-TECであることを確認します。
+. ローカル階層のRAIDポリシーがRAID-TECであることを確認します。
 +
 `storage aggregate show _aggregate_name_`
 

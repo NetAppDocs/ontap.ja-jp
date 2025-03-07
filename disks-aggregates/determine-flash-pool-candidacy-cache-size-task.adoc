@@ -2,16 +2,19 @@
 permalink: disks-aggregates/determine-flash-pool-candidacy-cache-size-task.html 
 sidebar: sidebar 
 keywords: flash pool, candidacy, optimal cache size, local tier, aggregate 
-summary: 既存のローカル階層（アグリゲート）をFlash Poolローカル階層に変換する前に、ローカル階層がI/Oバウンドであるかどうか、およびワークロードと予算に応じた最適なFlash Poolキャッシュサイズを確認できます。また、既存のFlash Poolローカル階層のキャッシュのサイズが正しく設定されているかどうかを確認することもできます。 
+summary: 既存のローカル階層をFlash Poolローカル階層に変換する前に、ローカル階層がI/Oバウンドであるかどうか、およびワークロードと予算に応じた最適なFlash Poolキャッシュサイズを確認できます。また、既存のFlash Poolローカル階層のキャッシュのサイズが正しく設定されているかどうかを確認することもできます。 
 ---
-= Flash Poolの候補と最適なキャッシュサイズを確認する
+= ONTAPでFlash Poolの候補と最適なキャッシュサイズを確認する
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-既存のローカル階層（アグリゲート）をFlash Poolローカル階層に変換する前に、ローカル階層がI/Oバウンドであるかどうか、およびワークロードと予算に応じた最適なFlash Poolキャッシュサイズを確認できます。また、既存のFlash Poolローカル階層のキャッシュのサイズが正しく設定されているかどうかを確認することもできます。
+既存のローカル階層をFlash Poolローカル階層に変換する前に、ローカル階層がI/Oバウンドであるかどうか、およびワークロードと予算に応じた最適なFlash Poolキャッシュサイズを確認できます。また、既存のFlash Poolローカル階層のキャッシュのサイズが正しく設定されているかどうかを確認することもできます。
+
+
+NOTE: ONTAP 9.7より前のバージョンでは、ローカル階層を表すために_aggregate_という用語が使用されていました。ONTAPのバージョンに関係なく、ONTAP CLIでは_aggregate_という用語が使用されます。ローカル階層の詳細については、を参照してくださいlink:../disks-aggregates/index.html["ディスクとローカル階層"]。
 
 .開始する前に
 分析しているローカル階層の負荷がピークに達したおよその時間を把握しておく必要があります。
@@ -21,15 +24,15 @@ summary: 既存のローカル階層（アグリゲート）をFlash Poolロー�
 +
 `set advanced`
 
-. 既存のローカル階層（アグリゲート）がFlash Poolアグリゲートへの変換に適しているかどうかを確認する必要がある場合は、負荷のピーク時におけるアグリゲート内のディスクのビジー率と、それがレイテンシにどのような影響を及ぼすかを確認します。
+. 既存のローカル階層がFlash Poolローカル階層への変換に適しているかどうかを確認する必要がある場合は、負荷のピーク時におけるローカル階層内のディスクのビジー率と、それがレイテンシにどのような影響を及ぼしているかを確認します。
 +
 `statistics show-periodic -object disk:raid_group -instance _raid_group_name_ -counter disk_busy|user_read_latency -interval 1 -iterations 60`
 
 +
-Flash Poolキャッシュを追加してレイテンシを短縮することがこのアグリゲートに適しているかどうかを判断できます。
+Flash Poolキャッシュを追加してレイテンシを削減することがこのローカル階層に適しているかどうかを判断できます。
 
 +
-次のコマンドは、アグリゲート「 aggr1 」の最初の RAID グループの統計情報を表示します。
+次のコマンドは、ローカル階層「aggr1」の最初のRAIDグループの統計を表示します。
 
 +
 `statistics show-periodic -object disk:raid_group -instance /aggr1/plex0/rg0 -counter disk_busy|user_read_latency -interval 1 -iterations 60`
@@ -39,14 +42,14 @@ Flash Poolキャッシュを追加してレイテンシを短縮することが�
 `storage automated-working-set-analyzer start -node _node_name_ -aggregate _aggr_name_`
 
 +
-指定したアグリゲートに関連付けられているボリュームのワークロードデータの収集が開始されます。
+指定したローカル階層に関連付けられているボリュームのワークロードデータの収集が開始されます。
 
 . advancedモードを終了します。
 +
 `set admin`
 
 +
-ピーク負荷が1つ以上の間隔で発生するまで、AWAの実行を許可します。AWAは、指定したアグリゲートに関連付けられているボリュームのワークロードの統計情報を収集し、期間内で最大1週間にわたってデータを分析します。AWAを複数の週にわたって実行すると、直近の週から収集されたデータのみがレポートされます。キャッシュサイズの見積もりは、データ収集期間中に確認された最も高い負荷に基づいています。データ収集期間全体で負荷が高くなる必要はありません。
+ピーク負荷が1つ以上の間隔で発生するまで、AWAの実行を許可します。AWAは、指定したローカル階層に関連付けられているボリュームのワークロードの統計情報を収集し、期間内で最大1週間にわたってデータを分析します。AWAを複数の週にわたって実行すると、直近の週から収集されたデータのみがレポートされます。キャッシュサイズの見積もりは、データ収集期間中に確認された最も高い負荷に基づいています。データ収集期間全体で負荷が高くなる必要はありません。
 
 . advancedモードに切り替えます。
 +

@@ -2,16 +2,19 @@
 permalink: disks-aggregates/assign-aggregates-svms-task.html 
 sidebar: sidebar 
 keywords: assign, aggregate, local tier, svm, storage vm, vserver 
-summary: Storage Virtual Machine（Storage VMまたはSVM、旧Vserver）に1つ以上のローカル階層（アグリゲート）を割り当てた場合、そのSVMのボリュームはそれらのローカル階層にのみ含めることができます。A 
+summary: Storage Virtual Machine（Storage VMまたはSVM、旧Vserver）に1つ以上のローカル階層を割り当てた場合、そのSVMのボリュームはそれらのローカル階層にのみ含めることができます。A 
 ---
-= ローカル階層（アグリゲート）をStorage VM（SVM）に割り当て
+= ONTAPでのStorage VM（SVM）へのローカル階層の割り当て
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-Storage Virtual Machine（Storage VMまたはSVM、旧Vserver）に1つ以上のローカル階層（アグリゲート）を割り当てた場合、そのStorage VM（SVM）のボリュームを含めることができます。
+Storage Virtual Machine（Storage VMまたはSVM、旧Vserver）に1つ以上のローカル階層を割り当てた場合、そのStorage VM（SVM）のボリュームはそれらのローカル階層にのみ含めることができます。
+
+
+NOTE: ONTAP 9.7より前のバージョンでは、ローカル階層を表すために_aggregate_という用語が使用されていました。ONTAPのバージョンに関係なく、ONTAP CLIでは_aggregate_という用語が使用されます。ローカル階層の詳細については、を参照してくださいlink:../disks-aggregates/index.html["ディスクとローカル階層"]。
 
 .開始する前に
 Storage VMとそのStorage VMに割り当てるローカル階層を用意しておく必要があります。
@@ -20,14 +23,14 @@ Storage VMとそのStorage VMに割り当てるローカル階層を用意して
 Storage VMにローカル階層を割り当てると、Storage VM同士の分離に役立ちます。これはマルチテナンシー環境で特に重要になります。
 
 .手順
-. SVMにすでに割り当てられているローカル階層（アグリゲート）のリストを確認します。
+. SVMにすでに割り当てられているローカル階層のリストを確認します。
 +
 `vserver show -fields aggr-list`
 
 +
-SVMに現在割り当てられているアグリゲートが表示されます。割り当てられているアグリゲートがない場合はと表示されます。
+SVMに現在割り当てられているローカル階層が表示されます。ローカル階層が割り当てられていない場合は `-`、が表示されます。
 
-. 要件に応じて、割り当てられているアグリゲートを追加または削除します。
+. 要件に応じて、割り当てられているローカル階層を追加または削除します。
 +
 |===
 
@@ -36,24 +39,24 @@ SVMに現在割り当てられているアグリゲートが表示されます�
 
 
  a| 
-追加のアグリゲートを割り当てる
+追加のローカル階層を割り当てる
  a| 
 `vserver add-aggregates`
 
 
 
  a| 
-アグリゲートの割り当てを解除する
+ローカル階層の割り当て解除
  a| 
 `vserver remove-aggregates`
 
 |===
 +
-表示されているアグリゲートがSVMに割り当てられるか、SVMから削除されます。SVMに割り当てられていないアグリゲートを使用するボリュームがすでにSVMにある場合は、警告メッセージが表示されますが、コマンドは正常に完了します。SVMにすでに割り当てられているアグリゲートとコマンドで指定していないアグリゲートには影響はありません。
+表示されているローカル階層がSVMに割り当てられているか、SVMから削除されています。SVMに割り当てられていないアグリゲートを使用するボリュームがすでにSVMにある場合は、警告メッセージが表示されますが、コマンドは正常に完了します。SVMにすでに割り当てられているローカル階層とコマンドで指定していないローカル階層には影響はありません。
 
 
 
 .例
-次の例では、アグリゲートaggr1およびaggr2がSVM svm1に割り当てられます。
+次の例では、ローカル階層aggr1とaggr2がSVM svm1に割り当てられます。
 
 `vserver add-aggregates -vserver svm1 -aggregates aggr1,aggr2`

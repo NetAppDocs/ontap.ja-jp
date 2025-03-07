@@ -2,19 +2,22 @@
 permalink: disks-aggregates/create-aggregates-manual-task.html 
 sidebar: sidebar 
 keywords: ontap 9, create, aggregates, manually, manual, add, local tier 
-summary: ONTAP のベストプラクティスの推奨事項を使用してローカル階層を追加（アグリゲートを作成）しない場合は、このプロセスを手動で実行できます。 
+summary: ONTAPの推奨ベストプラクティスに基づいてローカル階層を追加しない場合は、プロセスを手動で実行できます。 
 ---
-= ローカル階層の手動追加（アグリゲートの作成）
+= ONTAPでのローカル階層の手動追加
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-ONTAPのベストプラクティスに基づく推奨事項を使用してローカル階層の追加（アグリゲートの作成）を行わない場合は、プロセスを手動で実行できます。
+ONTAPの推奨ベストプラクティスに基づいてローカル階層を追加しない場合は、プロセスを手動で実行できます。
+
+
+NOTE: ONTAP 9.7より前のバージョンでは、ローカル階層を表すために_aggregate_という用語が使用されていました。ONTAPのバージョンに関係なく、ONTAP CLIでは_aggregate_という用語が使用されます。ローカル階層の詳細については、を参照してくださいlink:../disks-aggregates/index.html["ディスクとローカル階層"]。
 
 .開始する前に
-ディスクをローカル階層（アグリゲート）で使用するには、ディスクがノードに所有されている必要があります。ディスク所有権の自動割り当てを使用するようにクラスタが設定されていない場合は、が必要ですlink:manual-assign-disks-ownership-prep-task.html["所有権を手動で割り当てる"]。
+ディスクをローカル階層で使用するには、ディスクがノードに所有されている必要があります。ディスク所有権の自動割り当てを使用するようにクラスタが設定されていない場合は、が必要ですlink:manual-assign-disks-ownership-prep-task.html["所有権を手動で割り当てる"]。
 
 この手順で説明されているコマンドの詳細については、をlink:https://docs.netapp.com/us-en/ontap-cli/["ONTAPコマンド リファレンス"^]参照してください。
 
@@ -63,41 +66,41 @@ Add Local Tier *ページには、ノード上に作成できるローカル階�
 --
 .CLI
 --
-アグリゲートを手動で作成する前に、ディスク構成オプションを確認して作成をシミュレートする必要があります。
+ローカル階層を手動で作成する前に、ディスク構成オプションを確認し、作成をシミュレートする必要があります。
 
 その後、コマンドを実行して結果を確認できます `storage aggregate create`。
 
 .開始する前に
-アグリゲートで必要なディスク数とホットスペアディスクの数を決めておく必要があります。
+ローカル階層で必要なディスク数とホットスペアディスクの数を決めておく必要があります。
 
 .タスクの内容
 ルート/データ/データパーティショニングが有効になっていて、構成に含まれるソリッドステートドライブ（SSD）が24本以下の場合は、データパーティションを別 々 のノードに割り当てることを推奨します。
 
-ルート/データパーティショニングとルート/データ/データパーティショニングが有効になっているシステムでアグリゲートを作成する手順は、パーティショニングされていないディスクを使用するシステムでアグリゲートを作成する手順と同じです。システムでルート/データパーティショニングが有効になっている場合は、ディスクパーティションの数をオプションに指定する必要があります `-diskcount`。ルート/データ/データパーティショニングの場合、オプションは `-diskcount`使用するディスクの数を指定します。
+ルート/データパーティショニングとルート/データ/データパーティショニングが有効になっているシステムでローカル階層を作成する手順は、パーティショニングされていないディスクを使用するシステムでローカル階層を作成する手順と同じです。システムでルート/データパーティショニングが有効になっている場合は、ディスクパーティションの数をオプションに指定する必要があります `-diskcount`。ルート/データ/データパーティショニングの場合、オプションは `-diskcount`使用するディスクの数を指定します。
 
 
-NOTE: FlexGroupで使用する複数のアグリゲートを作成する場合は、アグリゲートのサイズをできるだけ近くにする必要があります。
+NOTE: FlexGroupで使用するローカル階層を複数作成する場合は、ローカル階層のサイズをできるだけ近くにする必要があります。
 
-およびアグリゲートの作成オプションと要件の詳細について `storage aggregate create`は、を参照してlink:https://docs.netapp.com/us-en/ontap-cli/storage-aggregate-create.html["ONTAPコマンド リファレンス"^]ください。
+およびローカル階層の作成オプションと要件の詳細について `storage aggregate create`は、をlink:https://docs.netapp.com/us-en/ontap-cli/storage-aggregate-create.html["ONTAPコマンド リファレンス"^]参照してください。
 
 .手順
-. スペアディスクパーティションのリストを表示して、アグリゲートを作成するための十分な数があることを確認します。
+. スペアディスクパーティションのリストを表示して、ローカル階層を作成するための十分な数のパーティションがあることを確認します。
 +
 `storage aggregate show-spare-disks -original-owner _node_name_`
 
 +
 データパーティションはに表示され `Local Data Usable`ます。ルートパーティションをスペアとして使用することはできません。
 
-. アグリゲートの作成をシミュレートします。
+. ローカル階層の作成をシミュレートします。
 +
 `storage aggregate create -aggregate _aggregate_name_ -node _node_name_ -raidtype raid_dp -diskcount _number_of_disks_or_partitions_ -simulate true`
 
 . シミュレートしたコマンドから警告が表示された場合は、コマンドを調整してシミュレーションを繰り返します。
-. アグリゲートを作成します。
+. ローカル階層を作成します。
 +
 `storage aggregate create -aggregate _aggr_name_ -node _node_name_ -raidtype raid_dp -diskcount _number_of_disks_or_partitions_`
 
-. アグリゲートを表示して、作成されたことを確認します。
+. ローカル階層を表示して、作成されたことを確認します。
 +
 `storage aggregate show-status _aggregate_name_`
 

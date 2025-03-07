@@ -2,21 +2,24 @@
 permalink: disks-aggregates/create-flash-pool-aggregate-physical-ssds-task.html 
 sidebar: sidebar 
 keywords: create, flash, pool, aggregate, local tier, physical, ssds 
-summary: Flash Poolローカル階層（アグリゲート）を作成するには、HDD RAIDグループで構成された既存のローカル階層で該当する機能を有効にし、そのローカル階層に1つ以上のSSD RAIDグループを追加します。そのローカル階層には、SSD RAIDグループ（SSDキャッシュ）とHDD RAIDグループの2セットのRAIDグループが作成されます。 
+summary: Flash Poolローカル階層を作成するには、HDD RAIDグループで構成された既存のローカル階層で該当する機能を有効にし、そのローカル階層に1つ以上のSSD RAIDグループを追加します。そのローカル階層には、SSD RAIDグループ（SSDキャッシュ）とHDD RAIDグループの2セットのRAIDグループが作成されます。 
 ---
-= 物理SSDを使用してFlash Poolローカル階層（アグリゲート）を作成する
+= ONTAPの物理SSDを使用してFlash Poolローカル階層を作成する
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-Flash Poolローカル階層（アグリゲート）を作成するには、HDD RAIDグループで構成された既存のローカル階層で該当する機能を有効にし、そのローカル階層に1つ以上のSSD RAIDグループを追加します。そのローカル階層には、SSD RAIDグループ（SSDキャッシュ）とHDD RAIDグループの2セットのRAIDグループが作成されます。
+Flash Poolローカル階層を作成するには、HDD RAIDグループで構成された既存のローカル階層で該当する機能を有効にし、そのローカル階層に1つ以上のSSD RAIDグループを追加します。そのローカル階層には、SSD RAIDグループ（SSDキャッシュ）とHDD RAIDグループの2セットのRAIDグループが作成されます。
+
+
+NOTE: ONTAP 9.7より前のバージョンでは、ローカル階層を表すために_aggregate_という用語が使用されていました。ONTAPのバージョンに関係なく、ONTAP CLIでは_aggregate_という用語が使用されます。ローカル階層の詳細については、を参照してくださいlink:../disks-aggregates/index.html["ディスクとローカル階層"]。
 
 .タスクの内容
 ローカル階層にSSDキャッシュを追加してFlash Poolローカル階層を作成したあとで、SSDキャッシュを削除してローカル階層を元の構成に戻すことはできません。
 
-SSDキャッシュのRAIDレベルは、デフォルトでは、HDD RAIDグループのRAIDレベルと同じになります。最初のSSD RAIDグループを追加するときに「raidtype」オプションを指定することで、このデフォルト設定を変更できます。
+デフォルトでは、SSDキャッシュのRAIDレベルは、HDD RAIDグループのRAIDレベルと同じです。このデフォルトの設定は、最初のSSD RAIDグループを追加するときにオプションを指定することで変更できます `raidtype`。
 
 .開始する前に
 * Flash Poolローカル階層に変換する、HDDで構成された有効なローカル階層を特定しておく必要があります。
@@ -33,7 +36,7 @@ SSDキャッシュ内で使用するRAIDグループが少ないほど、必要�
 
 
 .手順
-FlashPoolアグリゲートは、System ManagerまたはONTAP CLIを使用して作成できます。
+System ManagerまたはONTAP CLIを使用して、FlashPoolローカル階層を作成できます。
 
 [role="tabbed-block"]
 ====
@@ -56,17 +59,17 @@ ONTAP 9.12.1以降では、System Managerを使用して、物理SSDを使用す
 .CLI
 --
 .手順
-. ローカル階層（アグリゲート）をFlash Poolアグリゲートとして使用できるように指定します。
+. ローカル階層をFlash Poolローカル階層の対象としてマークします。
 +
 `storage aggregate modify -aggregate _aggr_name_ -hybrid-enabled true`
 
 +
-この手順が正常に完了しない場合は、対象のアグリゲートが書き込みキャッシュに対応しているかどうかを確認してください。
+この手順が失敗した場合は、ターゲットのローカル階層が書き込みキャッシュに対応しているかどうかを確認します。
 
-. コマンドを使用して、アグリゲートにSSDを追加し `storage aggregate add`ます。
+. コマンドを使用して、ローカル階層にSSDを追加し `storage aggregate add`ます。
 +
 ** SSDは、IDまたはパラメータと `disktype`パラメータを使用して指定できます `diskcount`。
-** HDDとSSDでチェックサム方式が異なる場合やチェックサムが混在したアグリゲートの場合は、パラメータを使用して、アグリゲートに追加するディスクのチェックサム方式を指定する必要があります `checksumstyle`。
+** HDDとSSDでチェックサム方式が異なる場合やローカル階層がチェックサムが混在したローカル階層の場合は、パラメータを使用してローカル階層に追加するディスクのチェックサム方式を指定する必要があります `checksumstyle`。
 ** SSDキャッシュに別のRAIDタイプを指定するには、パラメータを使用し `raidtype`ます。
 ** キャッシュRAIDグループサイズを使用するRAIDタイプのデフォルトと異なるサイズにする場合は、パラメータを使用してこの時点で変更する必要があります `-cache-raid-group-size`。
 

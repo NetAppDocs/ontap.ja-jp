@@ -2,7 +2,7 @@
 permalink: system-admin/configure-saml-authentication-task.html 
 sidebar: sidebar 
 keywords: tdp, ldap, identity, provider, saml, security, assertion, markup, lanaguage, active, directory, disable, authentication, idp, active directory, troubleshoot, repair 
-summary: ONTAP 9 .3以降では、WebサービスにSecurity Assertion Markup Language（SAML）認証を設定できます。SAML認証を設定して有効にすると、Active DirectoryやLDAPなどのディレクトリサービスプロバイダではなく、外部のアイデンティティプロバイダ（IdP）によってユーザが認証されます。SAML認証が無効な場合は、Active DirectoryやLDAPなどの設定済みのディレクトリサービスプロバイダが認証に使用されます。 
+summary: ONTAP 9.3以降では、WebサービスにSecurity Assertion Markup Language（SAML）認証を設定できます。 
 ---
 = SAML認証の設定
 :allow-uri-read: 
@@ -11,7 +11,7 @@ summary: ONTAP 9 .3以降では、WebサービスにSecurity Assertion Markup La
 
 
 [role="lead"]
-ONTAP 9 .3以降では、WebサービスにSecurity Assertion Markup Language（SAML）認証を設定できます。SAML認証を設定して有効にすると、Active DirectoryやLDAPなどのディレクトリサービスプロバイダではなく、外部のアイデンティティプロバイダ（IdP）によってユーザが認証されます。
+ONTAP 9.3以降では、WebサービスにSecurity Assertion Markup Language（SAML）認証を設定できます。SAML認証を設定して有効にすると、Active DirectoryやLDAPなどのディレクトリサービスプロバイダではなく、外部のアイデンティティプロバイダ（IdP）によってユーザが認証されます。SAML認証が無効な場合は、Active DirectoryやLDAPなどの設定済みのディレクトリサービスプロバイダが認証に使用されます。
 
 
 
@@ -89,7 +89,7 @@ image:workflow_security_mfa_setup.gif["SAMLを使用したマルチファクタ�
 --
 . SAML設定を作成して、ONTAPからIdPメタデータにアクセスできるようにします。
 +
-`*security saml-sp create -idp-uri _idp_uri_ -sp-host _ontap_host_name_*`
+`security saml-sp create -idp-uri <idp_uri> -sp-host <ontap_host_name>`
 
 +
 `idp_uri`は、IdPメタデータのダウンロード元のIdPホストのFTPアドレスまたはHTTPアドレスです。
@@ -122,15 +122,24 @@ IdPの設定の詳細については、IdPのドキュメントを参照して�
 
 . SAMLの設定を有効にします。
 +
-`*security saml-sp modify -is-enabled true*`
+`security saml-sp modify -is-enabled true`
 
 +
 または `ontapi`アプリケーションにアクセスする既存のユーザには `http`、SAML認証が自動的に設定されます。
 
 . SAMLの設定後にまたは `ontapi`アプリケーションのユーザを作成する場合は `http`、新しいユーザの認証方式としてSAMLを指定します。
 +
-.. SAML認証を使用して新しいユーザのログイン方法を作成します。+
-`*security login create -user-or-group-name _user_name_ -application [http | ontapi] -authentication-method saml -vserver _svm_name_*`
+.. SAML認証を使用する新しいユーザのログイン方法を作成します。
++
+
+NOTE:  `user_name`値では大文字と小文字が区別されます。ユーザ名だけを含め、ドメインの一部は含めないでください。
+
++
+`security login create -user-or-group-name <user_name> -application [http | ontapi] -authentication-method saml -vserver <svm_name>`
+
++
+例：
+
 +
 [listing]
 ----
@@ -138,10 +147,13 @@ cluster_12::> security login create -user-or-group-name admin1 -application http
 ----
 .. ユーザエントリが作成されたことを確認します。
 +
-`*security login show*`
+`security login show`
 
 +
-[listing]
+例：
+
++
+[listing, subs="+quotes"]
 ----
 cluster_12::> security login show
 
@@ -159,7 +171,7 @@ admin          service-processor
                            password      admin            no     none
 admin          ssh         password      admin            no     none
 admin1         http        password      backup           no     none
-**admin1       http        saml          backup           -      none**
+**admin1         http        saml          backup           -      none**
 ----
 
 
@@ -190,11 +202,11 @@ admin1         http        password      backup           no     none
 --
 . SAML認証を無効にします。
 +
-`*security saml-sp modify -is-enabled false*`
+`security saml-sp modify -is-enabled false`
 
 . SAML認証を使用する必要がなくなった場合やIdPを変更する場合は、SAMLの設定を削除します。
 +
-`*security saml-sp delete*`
+`security saml-sp delete`
 
 
 
@@ -212,11 +224,14 @@ SAML認証を設定すると、ONTAPはSAMLの設定をノード単位で適用�
 .手順
 . advanced権限レベルにログインします。
 +
-`*set -privilege advanced*`
+`set -privilege advanced`
 
 . SAMLの設定に失敗したノードを特定します。
 +
-`*security saml-sp status show -instance*`
+`security saml-sp status show -instance`
+
++
+例：
 
 +
 [listing]
@@ -242,7 +257,10 @@ SAML Service Provider Enabled: false
 ----
 . 障害が発生したノードでSAMLの設定を修復します。
 +
-`*security saml-sp repair -node _node_name_*`
+`security saml-sp repair -node <node_name>`
+
++
+例：
 
 +
 [listing]
@@ -260,15 +278,18 @@ Webサーバが再起動され、アクティブなHTTP接続またはHTTPS接�
 
 . すべてのノードでSAMLが正しく設定されていることを確認します。
 +
-`*security saml-sp status show -instance*`
+`security saml-sp status show -instance`
 
 +
-[listing]
+例：
+
++
+[listing, subs="+quotes"]
 ----
 cluster_12::*> security saml-sp status show -instance
 
                          Node: node1
-                Update Status: config-success
+                Update Status: **config-success**
                Database Epoch: 9
    Database Transaction Count: 997
                    Error Text:

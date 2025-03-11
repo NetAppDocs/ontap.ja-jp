@@ -2,54 +2,40 @@
 permalink: flexgroup/provide-disaster-recovery-snapmirror-task.html 
 sidebar: sidebar 
 keywords: data, protection, workflow, flexgroup, volumes, snapmirror, snap mirror, disaster recovery, dr, unified, relationship 
-summary: FlexGroupのSnapMirrorディザスタリカバリ（DR）関係を作成できます。ONTAP 9 3以降では、SnapVaultテクノロジを使用したFlexGroupボリュームのバックアップとリストア、およびバックアップとDRに同じデスティネーションを使用する一元化されたデータ保護関係の作成も可能です。 
+summary: FlexGroupのSnapMirrorディザスタリカバリ（DR）関係を作成できます。SnapVaultテクノロジを使用したFlexGroupのバックアップとリストアや、バックアップとDRに同じデスティネーションを使用する一元化されたデータ保護関係の作成も可能です。 
 ---
-= FlexGroupのデータ保護ワークフロー
+= FlexGroupボリュームのデータ保護ワークフローの概要
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-FlexGroupのSnapMirrorディザスタリカバリ（DR）関係を作成できます。ONTAP 9 3以降では、SnapVaultテクノロジを使用したFlexGroupボリュームのバックアップとリストア、およびバックアップとDRに同じデスティネーションを使用する一元化されたデータ保護関係の作成も可能です。
-
-データ保護ワークフローは、クラスタとSVMのピア関係の確認、デスティネーションボリュームの作成、ジョブスケジュールの作成、ポリシーの指定、データ保護関係の作成、関係の初期化で構成されます。
-
-image:flexgroups-data-protection-workflow.gif["FlexGroup ボリュームのディザスタリカバリの準備ワークフロー"]
+FlexGroupのSnapMirrorディザスタリカバリ（DR）関係を作成できます。SnapVaultテクノロジを使用したFlexGroupのバックアップとリストアや、バックアップとDRに同じデスティネーションを使用する一元化されたデータ保護関係の作成も可能です。
 
 .タスクの内容
-SnapMirror関係のタイプは、FlexGroupボリュームの場合は常にです `XDP`。SnapMirror関係によって提供されるデータ保護のタイプは、使用するレプリケーションポリシーによって決まります。作成するレプリケーション関係に必要なタイプのデフォルトポリシーまたはカスタムポリシーを使用できます。次の表に、デフォルトポリシーのタイプとサポートされるカスタムポリシーのタイプをデータ保護関係のタイプ別に示します。
+SnapMirror関係のタイプは、FlexGroupボリュームの場合は常にです `XDP`。SnapMirror関係によって提供されるデータ保護のタイプは、使用するレプリケーションポリシーによって決まります。作成するレプリケーション関係に必要なタイプのデフォルトポリシーまたはカスタムポリシーを使用できます。
 
-|===
+.image:https://raw.githubusercontent.com/NetAppDocs/common/main/media/number-1.png["1"]クラスタとSVMのピアリング
+[role="quick-margin-para"]
+クラスタとSVMのピア関係がまだ確立されていない場合は、とを作成しlink:../peering/create-cluster-relationship-93-later-task.html["クラスタピア"]link:../peering/create-intercluster-svm-peer-relationship-93-later-task.html["SVMピア"]ます。
+
+.image:https://raw.githubusercontent.com/NetAppDocs/common/main/media/number-2.png["2"]ジョブスケジュールを作成する
+[role="quick-margin-para"]
+SnapMirrorの更新がいつ実行されるかを確認する必要がありlink:../data-protection/create-replication-job-schedule-task.html["ジョブスケジュールを作成する"]ます。
+
+.image:https://raw.githubusercontent.com/NetAppDocs/common/main/media/number-3.png["3"]データ保護の種類に応じて、次のいずれかの手順を実行します。
+[role="quick-margin-list"]
+* * SnapMirror DRの場合：*
++
+link:create-snapmirror-relationship-task.html["SnapMirror関係を作成"]関係を作成するときに、タイプがのデフォルトポリシーまたはカスタムポリシーを `async-mirror`選択できます `MirrorAllSnapshots`。
+
+* * SnapMirrorボルトの場合：*
++
+link:create-snapvault-relationship-task.html["SnapMirrorバックアップ関係を作成"]関係を作成するときに、タイプがのデフォルトポリシーまたはカスタムポリシーを `vault`選択できます `XDPDefault`。
+
+* *統合データ保護の場合：*
++
+link:create-unified-data-protection-relationship-task.html["一元化されたデータ保護関係を作成"]関係を作成するときに、タイプがのデフォルトポリシーまたはカスタムポリシーを `mirror-vault`選択できます `MirrorAndVault`。
 
 
-| 関係タイプ | デフォルトポリシー | カスタムポリシータイプ 
-
-
- a| 
-SnapMirror DR
- a| 
-MirrorAllSnapshots
- a| 
-非同期ミラー
-
-
-
- a| 
-SnapVaultバックアップ
- a| 
-XDPDefault
- a| 
-バックアップ
-
-
-
- a| 
-一元化されたデータ保護
- a| 
-MirrorAndVault
- a| 
-ミラー-バックアップ
-
-|===
-MirrorLatestポリシーはFlexGroupボリュームではサポートされません。

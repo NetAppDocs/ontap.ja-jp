@@ -29,45 +29,35 @@ ONTAP 9.15.1以降では、FlexGroupボリュームを自動的にプロビジ�
 .手順
 . FlexGroupボリュームをプロビジョニングします。
 +
-|===
-
-
-| 使用する機能 | 使用するコマンド 
-
-
- a| 
-ONTAP 9 .2以降
- a| 
 `volume create -vserver svm_name -volume fg_vol_name –auto-provision-as flexgroup -size fg_size [–encrypt true] [-qos-policy-group qos_policy_group_name] [-support-tiering true]`
 
++
 ONTAP 9 5以降では、FabricPool用のFlexGroupボリュームを作成できます。FabricPoolでFlexGroupボリュームを自動的にプロビジョニングするには、パラメータをに `true`設定する必要があります `-support-tiering`。FabricPoolのボリュームギャランティは常にに設定する必要があります `none`。FlexGroupボリュームに対して階層化ポリシーと階層化の最小クーリング期間を指定することもできます。
 
++
 link:../disks-aggregates/index.html["ディスクおよびアグリゲートの管理"]
 
-ONTAP 9 .3以降では、FlexGroupボリュームにスループットの上限（最大QoS）を指定して、FlexGroupボリュームで消費できるパフォーマンスリソースを制限できます。ONTAP 9 .4以降では、FlexGroupボリュームにスループットの下限（最小QoS）とアダプティブQoSを指定できます。
++
+FlexGroupボリュームにはスループットの上限（最大QoS）を指定できます。これにより、FlexGroupボリュームで消費できるパフォーマンスリソースが制限されます。ONTAP 9.4以降では、FlexGroupボリュームにスループットの下限（最小QoS）とアダプティブQoSを指定できます。
 
++
 link:../performance-admin/index.html["パフォーマンス管理"]
 
-ONTAP 9 .2以降では、FlexGroupボリュームで暗号化を有効にする場合、パラメータをに `true`設定でき `-encrypt`ます。暗号化されたボリュームを作成するには、ボリューム暗号化ライセンスとキー管理ツールをインストールしておく必要があります。
++
+FlexGroupボリュームで暗号化を有効にする場合は、パラメータをに `true`設定し `-encrypt`ます。暗号化されたボリュームを作成するには、ボリューム暗号化ライセンスとキー管理ツールをインストールしておく必要があります。
 
++
 
 NOTE: 暗号化はFlexGroupボリュームの作成時に有効にする必要があります。既存のFlexGroupボリュームで暗号化を有効にすることはできません。
 
++
 link:../encryption-at-rest/index.html["保存データの暗号化"]
 
-
-
- a| 
-ONTAP 9.1
- a| 
-`volume flexgroup deploy -vserver svm_name -size fg_size`
-
-|===
 +
 パラメータは `size`、FlexGroupボリュームのサイズ（KB、MB、GB、TB、またはPB）を指定します。
 
 +
-次の例は、ONTAP 9で400TBのFlexGroupボリュームをプロビジョニングする方法を示しています。2
+次の例は、400TBのFlexGroupボリュームをプロビジョニングする方法を示しています。
 
 +
 [listing]
@@ -113,7 +103,10 @@ Do you want to continue? {y|n}: y
 +
 デフォルトでは、AFFシステムの場合を除き、FlexGroupボリュームはスペースギャランティ設定で作成され `volume`ます。AFFシステムの場合、デフォルトではスペースギャランティが設定されてFlexGroupボリュームが作成され `none`ます。
 
-. ジャンクションパスを使用してFlexGroupボリュームをマウントします。 `volume mount -vserver vserver_name -volume vol_name -junction-path junction_path`
+. ジャンクションパスを使用してFlexGroupボリュームをマウントします。
++
+`volume mount -vserver vserver_name -volume vol_name -junction-path junction_path`
+
 +
 [listing]
 ----

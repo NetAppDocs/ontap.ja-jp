@@ -2,7 +2,7 @@
 :allow-uri-read: 
 
 
-. コマンドを使用し `system license show`て、FCまたはiSCSIのライセンスがあることを確認します。
+. コマンドを使用し `system license show`て、FCまたはiSCSIのライセンスがあることを確認します。の詳細については `system license show`、をlink:https://docs.netapp.com/us-en/ontap-cli/system-license-show.html["ONTAPコマンド リファレンス"^]参照してください。
 +
 `system license show`
 
@@ -18,7 +18,7 @@ Package           Type    Description           Expiration
  iSCSI             site    iSCSI License         -
  FCP               site    FCP License           -
 ----
-. FCまたはiSCSIのライセンスがない場合は、コマンドを使用し `license add`ます。
+. FCまたはiSCSIのライセンスがない場合は、コマンドを使用し `license add`ます。の詳細については `license add`、をlink:https://docs.netapp.com/us-en/ontap-cli/search.html?q=license+add["ONTAPコマンド リファレンス"^]参照してください。
 +
 `license add -license-code _your_license_code_`
 
@@ -27,25 +27,34 @@ Package           Type    Description           Expiration
 * iSCSIの場合：* `vserver iscsi create -vserver _vserver_name_ -target-alias _vserver_name_`
 
 +
+の詳細については `vserver iscsi create`、をlink:https://docs.netapp.com/us-en/ontap-cli/vserver-iscsi-create.html["ONTAPコマンド リファレンス"^]参照してください。
+
++
 * FCの場合：* `vserver fcp create -vserver _vserver_name_ -status-admin up`
+
++
+の詳細については `vserver fcp create`、をlink:https://docs.netapp.com/us-en/ontap-cli/vserver-fcp-create.html["ONTAPコマンド リファレンス"^]参照してください。
 
 . 各ノードにSVM用のLIFを2つ作成します。
 +
 `network interface create -vserver _vserver_name_ -lif _lif_name_ -role data -data-protocol iscsi|fc -home-node _node_name_ -home-port _port_name_ -address _ip_address_ -netmask netmask`
 
 +
-データを提供する各SVMで、ノードごとにiSCSIまたはFC LIFが少なくとも1つ必要です。ただし、冗長性を確保するためにはノードごとにLIFが2つ必要です。
+NetAppでは、データを提供する各SVMについて、ノードごとに少なくとも1つのiSCSI LIFまたはFC LIFがサポートされます。ただし、冗長性を確保するために、ノードごとに2つのLIFが必要です。の詳細については `network interface create`、をlink:https://docs.netapp.com/us-en/ontap-cli/network-interface-create.html["ONTAPコマンド リファレンス"^]参照してください。
 
 . LIFが作成され、動作ステータスがになっていることを確認し `online`ます。
 +
 `network interface show -vserver _vserver_name_ _lif_name_`
+
++
+の詳細については `network interface show`、をlink:https://docs.netapp.com/us-en/ontap-cli/network-interface-show.html["ONTAPコマンド リファレンス"^]参照してください。
 
 . LUNを作成します。
 +
 `lun create -vserver vserver_name -volume _volume_name_ -lun _lun_name_ -size _lun_size_ -ostype linux -space-reserve enabled|disabled`
 
 +
-LUN名は255文字以内で、スペースは使用できません。
+LUN名は255文字以内で、スペースは使用できません。の詳細については `lun create`、をlink:https://docs.netapp.com/us-en/ontap-cli/lun-create.html["ONTAPコマンド リファレンス"^]参照してください。
 
 +
 
@@ -55,13 +64,22 @@ NOTE: NVFAILオプションは、ボリュームにLUNが作成されると自�
 +
 `igroup create -vserver _vserver_name_ -igroup _igroup_name_ -protocol fcp|iscsi|mixed -ostype linux -initiator _initiator_name_`
 
++
+の詳細については `igroup create`、をlink:https://docs.netapp.com/us-en/ontap-cli/search.html?q=igroup+create["ONTAPコマンド リファレンス"^]参照してください。
+
 . LUNをigroupにマッピングします。
 +
 `lun mapping create -vserver _vserver_name_ -volume _volume_name_ -lun _lun_name_ -igroup _igroup_name_`
 
++
+の詳細については `lun mapping create`、をlink:https://docs.netapp.com/us-en/ontap-cli/lun-mapping-create.html["ONTAPコマンド リファレンス"^]参照してください。
+
 . LUNが正しく設定されていることを確認します。
 +
 `lun show -vserver _vserver_name_`
+
++
+の詳細については `lun show`、をlink:https://docs.netapp.com/us-en/ontap-cli/lun-show.html["ONTAPコマンド リファレンス"^]参照してください。
 
 . link:san-admin/create-port-sets-binding-igroups-task.html["ポートセットを作成してigroupにバインドします"]（オプション）。
 . 特定のホストでブロックアクセスを有効にするには、ホストのマニュアルの手順に従います。

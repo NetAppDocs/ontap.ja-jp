@@ -1,0 +1,74 @@
+---
+permalink: flexcache-hot-spot/flexcache-hotspot-remediation-client-config.html 
+sidebar: sidebar 
+keywords: tr, hotspot, hot-spot, flexcache, hdfa, client configuration 
+summary: ホットスポットの問題を解決するには、CPUのボトルネックを回避するためにクライアントを適切に設定する必要があります。 
+---
+= ONTAP NAS接続を分散するためのクライアントの設定
+:allow-uri-read: 
+
+
+[role="lead"]
+ホットスポットの問題を解決するには、CPUのボトルネックを回避するためにクライアントを適切に設定します。
+
+
+
+== Linuxクライアントノセツテイ
+
+SVM内とSVM間のどちらのHDFA環境を選択した場合でも、Linuxでを使用して、異なるHDFS間でクライアントのロードバランシングが行われるようにする必要があります `autofs`。 `autofs`設定はSVM間とSVM内で異なります。
+
+.開始する前に
+必要であり、適切な依存関係がインストールされている必要があります `autofs`。詳細については、Linuxのマニュアルを参照してください。
+
+.タスクの内容
+ここで説明する手順では、次のエントリを持つサンプルファイルを使用し `/etc/auto_master`ます。
+
+[listing]
+----
+/flexcache auto_hotspot
+----
+これにより、プロセスがディレクトリにアクセスしようとするときに、ディレクトリ `/flexcache`内で `/etc`呼び出されるファイルを検索するように `auto_hotspot`設定され `autofs`ます。ファイルの内容 `auto_hotspot`によって、ディレクトリ内でマウントするNFSサーバとジャンクションパスが決まり `/flexcache`ます。ここで説明する例は、ファイルのさまざまな構成 `auto_hotspot`です。
+
+
+
+=== SVM内HDFA autofs設定
+
+次の例では、の図のマップを作成し `autofs`<<Figure-1,図1>>ます。各キャッシュには同じジャンクションパスがあり、ホスト名には4つのDNS Aレコードがあるため、 `cache`必要なのは1行だけです。
+
+[listing]
+----
+hotspot cache:/hotspot
+----
+この1行だけで、NFSクライアントはホスト名のDNSルックアップを実行し `cache`ます。DNSは、IPをラウンドロビン方式で返すように設定されています。これにより、フロントエンドNAS接続が均等に分散されます。クライアントはIPを受信すると、ジャンクションパスをに `/flexcache/hotspot`マウントします `/hotspot`。SVM1、SVM2、SVM3、SVM4に接続することもできますが、特定のSVMは関係ありません。
+
+.図1：2x2x2のSVM間HDFA
+image:flexcache-hotspot-hdfa-2x2x2-inter-svm-hdfa.png["図1：2x2x2 HDFA"]
+
+
+
+=== SVM内HDFA autofs設定
+
+次の例では、の図のマップを作成し `autofs`<<Figure-2,図2>>ます。HDFジャンクションパス環境に含まれるIPをNFSクライアントがマウントするようにする必要があります。つまり、IP 192.168.0.11以外でマウントしたくないということです `/hotspot1`。これを行うには、マップ内の1つのローカルマウントの場所について、4つのIP/ジャンクションパスのペアをすべてリストし `auto_hotspot`ます。
+
+
+NOTE: (`\`次の例のバックスラッシュ）は、エントリを次の行に続けて読みやすくします。
+
+[listing]
+----
+hotspot     cache1:/hostspot1 \
+            cache2:/hostspot2 \
+            cache3:/hostspot3 \
+            cache4:/hostspot4
+----
+クライアントがにアクセスしようとすると `/flexcache/hotspot`、 `autofs`は4つのホスト名すべてに対して前方検索を実行します。4つのIPがすべてクライアントと同じサブネットにある場合、または別のサブネットにある場合、は `autofs`各IPにNFS NULL pingを発行します。
+
+このNULL pingは、パケットをONTAPのNFSサービスで処理する必要がありますが、ディスクアクセスは必要ありません。最初に返されるpingはIPで、junction-pathが `autofs`mountを選択します。
+
+.図2：SVM内HDFA×4x1x4
+image:flexcache-hotspot-hdfa-4x1x4-intra-svm-hdfa.png["図2：s4x1x4のSVM内HDFA"]
+
+
+
+== Windowsクライアントセツテイ
+
+Windowsクライアントでは、SVM内HDFAを使用する必要があります。SVM内の異なるHDFS間で負荷を分散するには、各HDFに一意の共有名を追加する必要があります。その後、の手順に従って、link:https://learn.microsoft.com/en-us/windows-server/storage/dfs-namespaces/create-a-dfs-namespace["Microsoftのドキュメント"^]同じフォルダに複数のDFSターゲットを実装します。

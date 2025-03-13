@@ -1,0 +1,108 @@
+---
+permalink: flexcache-hot-spot/flexcache-hotspot-remediation-ontap-config.html 
+sidebar: sidebar 
+keywords: tr, hotspot, FlexCache, HDFA, configuration, ONTAP 
+summary: クラスタ内キャッシングを使用するメリットを実現するために、HDFAとデータLIFを設定する 
+---
+= ONTAPでのHDFAとデータLIFの設定
+:allow-uri-read: 
+
+
+[role="lead"]
+このホットスポット修復ソリューションのメリットを実現するには、HDFAとデータLIFを適切に設定する必要があります。このソリューションでは、同じクラスタ内でオリジンとHDFAを使用したクラスタ内キャッシングが使用されます。
+
+次に、2つのHDFAサンプル構成を示します。
+
+* SVM間HDFA×2×2
+* SVM内HDFA×4
+
+
+.タスクの内容
+この高度な設定は、ONTAP CLIを使用して実行します。コマンドでは2つの設定を使用する必要があり `flexcache create`ます。また、が設定されていないことを確認する必要があります。
+
+* `-aggr-list`：HDFを制限するノードまたはノードのサブセットにあるアグリゲート（アグリゲートのリスト）を指定します。
+* `-aggr-list-multiplier`：オプションに表示されたアグリゲートごとに作成するコンスティチュエントの数を確認します `aggr-list`。アグリゲートが2つ表示されている場合にこの値をに設定すると、 `2`コンスティチュエントが4つになります。NetAppでは、アグリゲートあたり最大8個のコンスティチュエントを推奨していますが、16個で十分です。
+* `-auto-provision-as`：タブアウトすると、CLIは自動入力を試み、値をに設定します `flexgroup`。これが設定されていないことを確認してください。表示された場合は、削除します。
+
+
+
+
+== 2x2x2のSVM間HDFA構成を作成
+
+. 図1に示すように、2x2x2のSVM間HDFAの構成を支援するために、準備シートを作成します。
++
+.図1：2x2x2のSVM間HDFAレイアウト
+image:flexcache-hotspot-hdfa-2x2x2-inter-svm-hdfa.png["図1：2x2x2のSVM間HDFAレイアウト"]
+
++
+[cols="1,1,1,1,1,1"]
+|===
+| SVM | HDFあたりのノード数 | アグリゲート | ノードあたりのコンスティチュエン | ジャンクションパス | データLIFのIP 
+
+
+| svm1 | node1、node2 | aggr1、aggr2 | 2 | /ホットスポット | 192.168.0.11、192.168.0.12 
+
+
+| svm2 | node3、node4 | aggr3、aggr4 | 2 | /ホットスポット | 192.168.0.13、192.168.0.14 
+|===
+. HDFSを作成します。次のコマンドを、準備シートの各行に対して1回ずつ、2回実行します。2回目のイテレーションの値と `aggr-list`値を調整して `vserver`ください。
++
+[listing]
+----
+cache::> flexcache create -vserver svm1 -volume hotspot -aggr-list aggr1,aggr2 -aggr-list-multiplier 2 -origin-volume <origin_vol> -origin-vserver <origin_svm> -size <size> -junction-path /hotspot
+----
+. データLIFを作成します。このコマンドを4回実行し、準備シートに記載されているノードにSVMごとに2つのデータLIFを作成します。繰り返しごとに値を適切に調整してください。
++
+[listing]
+----
+cache::> net int create -vserver svm1 -home-port e0a -home-node node1 -address 192.168.0.11 -netmask-length 24
+----
++
+.次のステップ
+次に、HDFAを適切に利用するようにクライアントを設定する必要があります。を参照して link:flexcache-hotspot-remediation-client-config.html["クライアントセツテイ"]
+
+
+
+
+
+== SVM内HDFA（4x1x4）を作成
+
+. 図2に示すように、4x1x4のSVM間HDFAの構成を支援するために、準備シートに必要事項を記入してください。
++
+.図2：4x1x4のSVM内HDFAレイアウト
+image:flexcache-hotspot-hdfa-4x1x4-intra-svm-hdfa.png["図2：4x1x4のSVM内HDFAレイアウト"]
+
++
+[cols="1,1,1,1,1,1"]
+|===
+| SVM | HDFあたりのノード数 | アグリゲート | ノードあたりのコンスティチュエン | ジャンクションパス | データLIFのIP 
+
+
+| svm1 | node1 | アグリゲート1 | 4 | /hotspot1 | 192.168.0.11 
+
+
+| svm1 | ノード2 | aggr2 | 4 | /hotspot2 | 192.168.0.12 
+
+
+| svm1 | node3 | aggr3 | 4 | /hotspot3 | 192.168.0.13 
+
+
+| svm1 | node4 | aggr4 | 4 | /hotspot4 | 192.168.0.14 
+|===
+. HDFSを作成します。次のコマンドを、準備シートの各行に1回ずつ、4回実行します。各イテレーションの値と `junction-path`値は必ず調整して `aggr-list`ください。
++
+[listing]
+----
+cache::> flexcache create -vserver svm1 -volume hotspot1 -aggr-list aggr1 -aggr-list-multiplier 4 -origin-volume <origin_vol> -origin-vserver <origin_svm> -size <size> -junction-path /hotspot1
+----
+. データLIFを作成します。このコマンドを4回実行し、SVMに合計4つのデータLIFを作成します。ノードごとに1つのデータLIFが必要です。繰り返しごとに値を適切に調整してください。
++
+[listing]
+----
+cache::> net int create -vserver svm1 -home-port e0a -home-node node1 -address 192.168.0.11 -netmask-length 24
+----
++
+.次のステップ
+次に、HDFAを適切に利用するようにクライアントを設定する必要があります。を参照して link:flexcache-hotspot-remediation-client-config.html["クライアントセツテイ"]
+
+

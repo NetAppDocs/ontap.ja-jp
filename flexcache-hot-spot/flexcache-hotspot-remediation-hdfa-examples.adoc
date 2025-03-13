@@ -1,0 +1,38 @@
+---
+permalink: flexcache-hot-spot/flexcache-hotspot-remediation-hdfa-examples.html 
+sidebar: sidebar 
+keywords: tr, hotspot, hot-spot, flexcache, hdfa, compare, examples 
+summary: FlexCacheアレイ密度を決定し、ホットスポットの修正にどのように役立つかを理解します。 
+---
+= ONTAP FlexCache密度の決定
+:allow-uri-read: 
+
+
+[role="lead"]
+最初のホットスポット修復設計の決定は、FlexCache密度を把握することです。次の例は4ノードクラスタです。ファイル数が各HDFのすべてのコンスティチュエントに均等に分散されているとします。また、すべてのノードにフロントエンドNAS接続が均等に分散されていると仮定します。
+
+使用できる構成はこれらの例だけではありませんが、スペース要件と使用可能なリソースで許容される数のHDFSを作成するための設計原則を理解しておく必要があります。
+
+
+NOTE: HDFAは、次の構文で表されます。 `HDFs per HDFA x nodes per HDF x constituents per node per HDF`
+
+
+
+== 2x2x2 HDFAノセツテイ
+
+<<Figure-1,図1>>は、2x2x2のHDFA構成の例です。2つのHDFSがそれぞれ2つのノードにまたがり、各ノードに2つのコンスティチュエントボリュームが含まれています。この例では、各クライアントがホットファイルに直接アクセスできる可能性は50%です。4つのクライアントのうち2つがイーストウェストトラフィックを持っています。重要なことは、HDFSが2つになったことです。つまり、ホットファイルには2つの個別のキャッシュがあります。これで、ホットファイルへのアクセスを提供する2つのCPU /ボリュームアフィニティが確立されました。
+
+.図1：2x2x2 HDFA構成
+image:flexcache-hotspot-hdfa-2x2x2.png["図1：2x2x2 HDFA構成"]
+
+
+
+== 4x1x4 HDFAノセツテイ
+
+<<Figure-2,図2>>は、最適な構成を表します。これは、4x1x4のHDFA構成の例です。4つのHDFSがそれぞれ1つのノードに含まれ、各ノードに4つのコンスティチュエントが含まれます。この例では、各クライアントがホットファイルのキャッシュに直接アクセスできることが保証されています。4つの異なるノードに4つのキャッシュファイルがあるため、4つの異なるCPU /ボリュームアフィニティがホットファイルへのサービスアクセスに役立ちます。また、イースト/ウェストトラフィックは生成されません。
+
+.図2：4x1x4 HDFA構成
+image:flexcache-hotspot-hdfa-4x1x4.png["図2：4x1x4 HDFA"]
+
+.次のステップ
+HDFSの密度を決定したら、NFSを使用してHDFSにアクセスする場合は、設計上の別の決定を行う必要がありますlink:flexcache-hotspot-remediation-intra-inter-svm-hdfa.html["SVM間HDFAとSVM内HDFA"]。

@@ -30,7 +30,7 @@ LDAPグループを設定し、グループアクセスの高速バインドモ�
 
 
 
-== 外部ディレクトリサービス用のS3アクセスの設定
+== LDAP用のS3アクセスの設定
 
 . グループのSVMの_name service database_ofとしてldapを指定し、ldapのパスワードを指定します。
 +
@@ -91,23 +91,49 @@ NOTE: S3クライアントからシークレットキーの入力を求められ
 
 
 
-=== UIDとGIDを使用しないユーザに対するActive Directoryのリソース認証
+=== 認証方式がnsswitchで、LDAPが有効になっている例：
+
+[listing]
+----
+$curl -siku <user>:<user_password> -X POST https://<LIF_IP_Address>/api/protocols/s3/services/<SVM_UUID>/users -d {"comment":"<S3_user_name>", "name":<user>,"<key_time_to_live>":"PT6H3M"}'
+----
+
+NOTE: APIを、SVMのデータLIFではなくクラスタ管理LIFに転送します。ユーザに独自のキーの生成を許可する場合、curlを使用するには、ユーザのロールにHTTP権限を追加する必要があります。この権限は、S3 API権限に追加されたものです。
+
+
+
+== Active DirectoryまたはCIFSサーバ用のS3アクセスの設定
 
 バケットポリシーステートメントで指定されたnasgroupまたはnasgroupに含まれるユーザにUIDとGIDが設定されていない場合、これらの属性が見つからないと検索が失敗します。Active DirectoryはUIDではなくSIDを使用します。SIDエントリをUIDにマッピングできない場合は、必要なデータをONTAPに取り込む必要があります。
 
 これには、SVMがActive Directoryで認証され、必要なユーザとグループの情報を取得できるようにを使用しlink:../authentication/enable-ad-users-groups-access-cluster-svm-task.html["vserver active-directory create"]ます。
 
+または、を使用してlink:..authentication/enable-ad-users-groups-access-cluster-svm-task.html["vserver cifs create"]Active DirectoryドメインにSMBサーバを作成します。
+
 検索の失敗を避けるため、NetAppでは、信頼できるドメインをUPN形式でリソースの承認に使用することを推奨しています。 `nasgroup/group@trusted_domain.com`
 
 
 
-=== LDAP高速バインドを使用しない場合に信頼できるドメインユーザのユーザアクセスキーを生成するには
+=== 認証方式がドメインで信頼できるドメインがActive Directoryで設定されている場合にキーを生成する
 
 UPN形式で指定されたユーザを持つエンドポイントを使用します `s3/services/<svm_uuid>/users` 。例：
 
 [listing]
 ----
-$curl -siku FQDN\\user:<user_name> -X POST https://<LIF_IP_Address>/api/protocols/s3/services/<SVM_UUID>/users -d {"comment":"<S3_user_name>", "name":<user[@fqdn](https://github.com/fqdn)>,"<key_time_to_live>":"PT6H3M"}'
+$curl -siku FQDN\\user:<user_password> -X POST https://<LIF_IP_Address>/api/protocols/s3/services/<SVM_UUID>/users -d {"comment":"<S3_user_name>", "name":<user@fqdn>,"<key_time_to_live>":"PT6H3M"}'
 ----
 
-NOTE: APIを、SVMのデータLIFではなくクラスタ管理LIFに転送します。
+NOTE: APIを、SVMのデータLIFではなくクラスタ管理LIFに転送します。ユーザに独自のキーの生成を許可する場合、curlを使用するには、ユーザのロールにHTTP権限を追加する必要があります。この権限は、S3 API権限に追加されたものです。
+
+
+
+=== 認証方式がdomainで、信頼できるドメインがない場合にキーを生成します。
+
+（LDAPが無効になっている場合、またはUIDとGIDが設定されていない非POSIXユーザの場合に可能）。
+
+[listing]
+----
+$curl -siku FQDN\\user:<user_password> -X POST https://<LIF_IP_Address>/api/protocols/s3/services/<SVM_UUID>/users -d {"comment":"<S3_user_name>", "name":<user[@fqdn]>,"<key_time_to_live>":"PT6H3M"}'
+----
+
+NOTE: APIを、SVMのデータLIFではなくクラスタ管理LIFに転送します。ユーザに独自のキーの生成を許可する場合、curlを使用するには、ユーザのロールにHTTP権限を追加する必要があります。この権限は、S3 API権限に追加されたものです。オプションのドメイン値（@FQDN）をユーザ名に追加する必要があるのは、信頼できるドメインがない場合だけです。

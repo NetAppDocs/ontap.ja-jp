@@ -1,0 +1,148 @@
+---
+permalink: san-config/asa-support-limitations.html 
+sidebar: sidebar 
+keywords: all flash san array, asa, san, array, software, configuration, configure, configuring, setup, set up, limitations, restrictions, nvme, mcc ip, persistent ports, host, settings, utilities, ways to identify 
+summary: オールフラッシュSANアレイ（ASA）構成の制限とサポートは、ONTAPのバージョンによって異なります。 
+---
+= オールフラッシュSANアレイ構成の制限とサポート
+:hardbreaks:
+:toclevels: 1
+:allow-uri-read: 
+:toclevels: 1
+:nofooter: 
+:icons: font
+:linkattrs: 
+:imagesdir: ../media/
+
+
+[role="lead"]
+オールフラッシュSANアレイ（ASA）構成の制限とサポートは、ONTAPのバージョンによって異なります。
+
+サポートされる構成の制限に関する最新の詳細については、を参照しlink:https://hwu.netapp.com/["NetApp Hardware Universe"^]てください。
+
+
+NOTE: これらの制限は、現在のASAシステムに適用されます。ASA R2システム（ASA A1K、ASA A90、ASA A70、ASA A50、ASA A30、またはASA A20）を使用している場合は、を参照してくださいlink:https://docs.netapp.com/us-en/asa-r2/manage-data/storage-limits.html["ASA R2システムのストレージ制限"]。
+
+
+
+== SANプロトコルとサポートされるクラスタあたりのノード数
+
+サポートされるSANプロトコルとクラスタあたりの最大ノード数は、MetroCluster以外の構成とMetroCluster構成のどちらを使用しているかによって異なります。
+
+[role="tabbed-block"]
+====
+.MetroCluster以外の構成
+--
+次の表は、MetroCluster以外の構成での、ASAでサポートされるSANプロトコルとクラスタあたりのノード数をまとめたものです。
+
+[cols="3*"]
+|===
+| ONTAPバージョン | プロトコルのサポート | クラスタあたりの最大ノード数 
+
+
+| 9.11.1  a| 
+* NVMe / TCP
+* NVMe/FC
+
+ a| 
+12
+
+
+
+| 9.10.1  a| 
+* NVMe / TCP
+
+ a| 
+2
+
+
+
+.2+| 9.9.1  a| 
+* NVMe/FC
+
+ a| 
+2
+
+
+
+ a| 
+* FC
+* iSCSI
+
+ a| 
+12
+
+
+
+| 9.7  a| 
+* FC
+* iSCSI
+
+ a| 
+2
+
+|===
+--
+.MetroCluster IP構成
+--
+次の表は、MetroCluster IP構成での、ASAでサポートされるSANプロトコルとクラスタあたりのノード数をまとめたものです。
+
+[cols="3*"]
+|===
+| ONTAPバージョン | プロトコルのサポート | クラスタあたりの最大ノード数 
+
+
+| 9.15.1  a| 
+* NVMe / TCP
+
+| 4ノードMetroCluster IP構成ではクラスタあたり2ノード 
+
+
+| 9.12.1  a| 
+* NVMe/FC
+
+ a| 
+4ノードMetroCluster IP構成ではクラスタあたり2ノード
+
+
+
+| 9.9.1  a| 
+* FC
+* iSCSI
+
+ a| 
+8ノードMetroCluster IP構成ではクラスタあたり4ノード
+
+
+
+| 9.7  a| 
+* FC
+* iSCSI
+
+ a| 
+4ノードMetroCluster IP構成ではクラスタあたり2ノード
+
+|===
+--
+====
+
+
+== 永続ポートのサポート
+
+ONTAP 9.8以降、FCプロトコルを使用するように設定されたオールフラッシュSANアレイ（ASA）では永続ポートがデフォルトで有効になります。永続ポートはFCでのみ使用でき、World Wide Port Name（WWPN）で識別されるゾーン メンバーシップが必要です。
+
+永続ポートは、ハイアベイラビリティ（HA）パートナーの対応する物理ポートにシャドウLIFを作成することで、テイクオーバーの影響を軽減します。ノードがテイクオーバーされると、パートナー ノードのシャドウLIFにWWPNなどの元のLIFの識別情報が引き継がれます。テイクオーバーされたノードへのパスのステータスが「障害」に変更される前に、シャドウLIFがホストのMPIOスタックへのアクティブな最適パスとして表示され、I/Oが移行されます。これにより、ストレージ フェイルオーバー処理の実行中も含めてホストが認識するターゲットへのパス数は変わらないため、I/Oの中断が軽減されます。
+
+永続ポートについては、FCPポートの次の特性がHAペア間で同じでなければなりません。
+
+* FCPポートの数
+* FCPポートの名前
+* FCPポートの速度
+* FCP LIFのWWPNベースのゾーニング
+
+
+これらの特性のいずれかがHAペア間で同じでない場合、次のEMSメッセージが生成されます。
+
+`EMS : scsiblade.lif.persistent.ports.fcp.init.error`
+
+永続ポートの詳細については、を参照してくださいlink:https://www.netapp.com/pdf.html?item=/media/10680-tr4080pdf.pdf["NetAppテクニカルレポート4080：『Best Practices for Modern SAN』"^]。

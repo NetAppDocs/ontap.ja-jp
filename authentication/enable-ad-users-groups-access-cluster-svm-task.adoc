@@ -54,6 +54,8 @@ NOTE: ONTAP 9 .14.1以降にアップグレードした場合、以前のリリ�
 
 データSVM用のSMBサーバがすでに設定されている場合は、コマンドを使用して、SVMをADによるクラスタアクセス用のゲートウェイ（_tunnel_）として設定でき `security login domain-tunnel create`ます。
 
+ONTAP 9.16.1より前のバージョンでは、認証トンネルを使用してADでクラスタ管理者アカウントを管理する必要があります。
+
 .開始する前に
 * データSVM用のSMBサーバを設定しておく必要があります。
 * ADドメインのユーザ アカウントにクラスタの管理SVMへのアクセスを許可しておく必要があります。
@@ -65,11 +67,13 @@ NOTE: ONTAP 9 .14.1以降にアップグレードした場合、以前のリリ�
 
 NOTE: Kerberos認証は常に最初に試行されます。失敗した場合は、NTLM認証が試行されます。
 
-.ステップ
+.手順
 . SMB対応のデータSVMをADドメインコントローラがクラスタにアクセスするための認証トンネルとして設定します。
 +
-`security login domain-tunnel create -vserver _svm_name_`
-
+[source, cli]
+----
+security login domain-tunnel create -vserver <svm_name>
+----
 +
 の詳細については `security login domain-tunnel create`、をlink:https://docs.netapp.com/us-en/ontap-cli/security-login-domain-tunnel-create.html["ONTAPコマンド リファレンス"^]参照してください。
 
@@ -80,7 +84,7 @@ NOTE: Kerberos認証は常に最初に試行されます。失敗した場合は
 
 ====
 +
-次のコマンドは、SMB対応のデータSVM「engData」を認証トンネルとして設定します。
+次のコマンドは、SMB対応のデータSVMを認証トンネルとして設定し `engData`ます。
 
 +
 [listing]
@@ -98,19 +102,23 @@ cluster1::>security login domain-tunnel create -vserver engData
 .タスクの内容
 コマンドを入力すると `vserver active-directory create`、ドメイン内の指定した組織単位にコンピュータを追加するための十分なPrivilegesを持つADユーザアカウントのクレデンシャルを入力するように求められます。アカウントのパスワードを空にすることはできません。
 
+ONTAP 9.16.1以降では、この手順を使用してADを使用してクラスタ管理者アカウントを管理できます。
+
 .開始する前に
 このタスクを実行するには、クラスタ管理者またはSVM管理者である必要があります。
 
-.ステップ
+.手順
 . ADドメインにSVM用のコンピュータアカウントを作成します。
 +
-`vserver active-directory create -vserver _SVM_name_ -account-name _NetBIOS_account_name_ -domain _domain_ -ou _organizational_unit_`
+[source, cli]
+----
+vserver active-directory create -vserver <SVM_name> -account-name <NetBIOS_account_name> -domain <domain> -ou <organizational_unit>
+----
++
+ONTAP 9.16.1以降では、この `-vserver`パラメータは管理SVMを指定できます。の詳細については `vserver active-directory create`、をlink:https://docs.netapp.com/us-en/ontap-cli/vserver-active-directory-create.html["ONTAPコマンド リファレンス"^]参照してください。
 
 +
-の詳細については `vserver active-directory create`、をlink:https://docs.netapp.com/us-en/ontap-cli/vserver-active-directory-create.html["ONTAPコマンド リファレンス"^]参照してください。
-
-+
-次のコマンドは、SVM「engData」のドメイン「example.com`"」に「ADSERVER1」という名前のコンピュータアカウントを作成します。コマンドを入力すると、ADユーザアカウントのクレデンシャルの入力を求められます。
+次のコマンドは、SVMの `engData`ドメインに `example.com`という名前のコンピュータアカウントを作成します `ADSERVER1`。コマンドを入力すると、ADユーザアカウントのクレデンシャルの入力を求められます。
 
 +
 [listing]

@@ -31,8 +31,14 @@ SVM管理者は、クラスタ管理者によって割り当てられたPrivileg
 
 スプリット負荷の最大値に達すると、FlexCloneファイルおよびFlexClone LUNの作成要求の受け入れが一時的に停止し、エラーメッセージが表示されます。 `EBUSY`ノードのスプリット負荷が最大値を下回ると、FlexCloneファイルおよびFlexClone LUNの作成要求の受け入れが再開されます。クローンの作成に必要な容量がノードに確保されてから、次の作成要求を行うようにしてください。
 
+FlexClone LUNは親LUNのスペースリザベーション属性を継承します。スペースリザーブFlexClone LUNには、親のスペースリザーブLUNと同じ量のスペースが必要です。FlexClone LUNのスペースをリザーブしない場合は、クローンに対する変更を保存するための十分なスペースがボリュームに必要です。
+
 .手順
-. コマンドを使用して、FlexCloneファイルまたはFlexClone LUNを作成し `volume file clone create`ます。
+. LUNをクローニングする場合は、LUNのマッピングまたは書き込みが行われていないことを確認します。
+. FlexCloneのLUNまたはファイルを作成します。
++
+`volume file clone create -vserver _vserver_name_ -volume _volume_name_ -source-path _source_path_ -destination-path _destination_path_`
+
 +
 次の例は、ボリュームvol1内の親ファイルfile1_sourceのFlexCloneファイルfile1_cloneを作成する方法を示しています。
 
@@ -46,5 +52,45 @@ cluster1::> volume file clone create -vserver vs0 -volume vol1 -source-path /fil
 
 
 
-.関連情報
-link:../concepts/manual-pages.html["ONTAPコマンド リファレンス"]
+
+
+== ボリューム内のSnapshotからFlexClone LUNを作成する
+
+ボリューム内のSnapshotを使用して、LUNのFlexCloneコピーを作成できます。LUNのFlexCloneコピーは読み書き可能です。
+
+.必要なもの
+FlexCloneライセンスがインストールされている必要があります。このライセンスはに含まれていlink:../system-admin/manage-licenses-concept.html#licenses-included-with-ontap-one["ONTAP One"]ます。
+
+.タスクの内容
+FlexClone LUNは親LUNのスペースリザベーション属性を継承します。スペースリザーブFlexClone LUNには、親のスペースリザーブLUNと同じ量のスペースが必要です。FlexClone LUNのスペースをリザーブしない場合は、クローンに対する変更を保存するための十分なスペースがボリュームに必要です。
+
+.手順
+. LUNがマッピングされていないこと、または書き込まれていないことを確認します。
+. LUNを含むボリュームのSnapshotを作成します。
++
+`volume snapshot create -vserver _vserver_name_ -volume _volume_name_ -snapshot _snapshot_name_`
+
++
+クローニングするLUNのSnapshot（元のSnapshot）を作成する必要があります。
+
+. SnapshotからFlexClone LUNを作成します。
++
+`volume file clone create -vserver _vserver_name_ -volume _volume_name_ -source-path _source_path_ -snapshot-name _snapshot_name_ -destination-path _destination_path_`
+
++
+FlexClone LUNを自動削除できるようにする必要がある場合は、を含めます `-autodelete true`。セミシックプロビジョニングを使用してボリュームにこのFlexClone LUNを作成する場合は、すべてのFlexClone LUNに対して自動削除を有効にする必要があります。
+
+. FlexClone LUNが正しいことを確認します。
++
+`lun show -vserver _vserver_name_`
+
++
+[listing]
+----
+
+Vserver Path                      State    Mapped    Type     Size
+------- ----------------------    -------- --------- -------- -------
+vs1     /vol/vol1/lun1_clone      online   unmapped windows   47.07MB
+vs1     /vol/vol1/lun1_snap_clone online   unmapped windows   47.07MB
+----
+

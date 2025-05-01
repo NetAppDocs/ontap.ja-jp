@@ -4,7 +4,7 @@ sidebar: sidebar
 keywords: ontap 9.2, restore, luns, in a volume, snapvault, backup 
 summary: ボリューム内の1つ以上のLUNをSnapVaultバックアップからリストアする必要がある場合は、ボリューム全体をリストアできます。ボリュームをリストアする場合は、ボリューム内のすべての LUN が対象になります。 
 ---
-= ボリューム内のすべてのLUNをSnapVaultバックアップからリストア
+= ボリューム内のすべてのLUNをONTAP SnapVaultバックアップからリストア
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
@@ -23,7 +23,12 @@ SnapVault関係が初期化されていて、SnapVaultセカンダリボリュ�
 
 .手順
 . ボリューム内のすべての LUN に対する I/O を停止します。
-. コマンドを実行し `snapmirror show`て、SnapVaultセカンダリボリュームが含まれているセカンダリボリュームを確認します。
+. SnapVaultセカンダリボリュームが含まれているセカンダリボリュームを確認します。
++
+[source, cli]
+----
+snapmirror show
+----
 +
 [listing]
 ----
@@ -37,7 +42,12 @@ vserverA:srcvolA
                         Snapmirrored
                                 Idle       -         true    -
 ----
-. コマンドを実行して、 `volume snapshot show`リストア元のSnapshotを特定します。
+. リストア元のSnapshotを特定します。
++
+[source, cli]
+----
+volume snapshot show
+----
 +
 [listing]
 ----
@@ -51,7 +61,12 @@ vserverB
                  snap1.2013-02-10_0015 valid  112KB     0%    0%
                  snap2.2013-02-11_0010  valid  164KB     0%    0%
 ----
-. コマンドを実行し `snapmirror restore`、使用するSnapshotを指定するオプションを指定し `-source-snapshot`ます。
+. 使用するSnapshotを指定します。
++
+[source, cli]
+----
+snapmirror restore -destination-path <destination_path> -source-path <source_path> -source-snapshot <snapshot_name>
+----
 +
 リストア先として指定するのは、リストア先の元のボリュームです。
 
@@ -116,5 +131,3 @@ vserverB  /vol/dstvolB/lun_C  online  unmapped windows  300.0GB
 6 entries were displayed.
 ----
 ボリュームが SnapVault セカンダリボリュームからリストアされると、ソースボリュームには lun_D が存在しなくなりますリストア後もソースボリューム内の LUN のマッピングは維持されるため、再マッピングする必要はありません。
-
-の詳細については `lun show`、をlink:https://docs.netapp.com/us-en/ontap-cli/lun-show.html["ONTAPコマンド リファレンス"^]参照してください。

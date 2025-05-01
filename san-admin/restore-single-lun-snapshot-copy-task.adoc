@@ -4,7 +4,7 @@ sidebar: sidebar
 keywords: restore, single lun, snapshot copy 
 summary: ボリューム全体をリストアすることなく、Snapshotから単一のLUNをリストアすることができます。LUN は、元の場所またはボリューム内の新しいパスにリストアできます。この処理では、ボリューム内の他のファイルまたは LUN に影響を与えることなく、単一の LUN だけがリストアされます。ファイルは、ストリームを使用してリストアすることもできます。 
 ---
-= Snapshotからの単一LUNのリストア
+= ONTAPスナップショットから単一のLUNをリストアする
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
@@ -40,38 +40,41 @@ summary: ボリューム全体をリストアすることなく、Snapshotから
 . ホスト上の LUN をアンマウントして、ホストが LUN にアクセスできないようにします。
 . LUNのマッピングを解除します。
 +
-`lun mapping delete -vserver _vserver_name_ -volume _volume_name_ -lun _lun_name_ -igroup _igroup_name_`
-
-+
-の詳細については `lun mapping delete`、をlink:https://docs.netapp.com/us-en/ontap-cli/lun-mapping-delete.html["ONTAPコマンド リファレンス"^]参照してください。
-
+[source, cli]
+----
+lun mapping delete -vserver <SVM_name> -volume <volume_name> -lun <lun_name> -igroup <igroup_name>
+----
 . LUNのリストア先となるSnapshotを決定します。
 +
-`volume snapshot show -vserver _vserver_name_ -volume _volume_name_`
-
+[source, cli]
+----
+volume snapshot show -vserver <SVM_name> -volume <volume_name>
+----
 . LUNをリストアする前に、LUNのSnapshotを作成します。
 +
-`volume snapshot create -vserver _vserver_name_ -volume _volume_name_ -snapshot _snapshot_name_`
-
+[source, cli]
+----
+volume snapshot create -vserver <SVM_name> -volume <volume_name> -snapshot <snapshot_name>
+----
 . ボリューム内の指定した LUN をリストアします。
 +
-`volume snapshot restore-file -vserver _vserver_name_ -volume _volume_name_ -snapshot _snapshot_name_ -path _lun_path_`
-
+[source, cli]
+----
+volume snapshot restore-file -vserver <SVM_name> -volume <volume_name> -snapshot <snapshot_name> -path <lun_path>
+----
 . 画面の手順に従います。
 . 必要に応じて、LUNをオンラインにします。
 +
-`lun modify -vserver _vserver_name_ -path _lun_path_ -state online`
-
-+
-の詳細については `lun modify`、をlink:https://docs.netapp.com/us-en/ontap-cli/lun-modify.html["ONTAPコマンド リファレンス"^]参照してください。
-
+[source, cli]
+----
+lun modify -vserver <SVM_name> -path <lun_path> -state online
+----
 . 必要に応じて、LUNを再マッピングします。
 +
-`lun mapping create -vserver _vserver_name_ -volume _volume_name_ -lun _lun_name_ -igroup _igroup_name_`
-
-+
-の詳細については `lun mapping create`、をlink:https://docs.netapp.com/us-en/ontap-cli/lun-mapping-create.html["ONTAPコマンド リファレンス"^]参照してください。
-
+[souce]
+----
+lun mapping create -vserver <SVM_name> -volume <volume_name> -lun <lun_name> -igroup <igroup_name>
+----
 . ホストから、 LUN を再マウントします。
 . ホストから、 LUN へのアクセスを再開します。
 

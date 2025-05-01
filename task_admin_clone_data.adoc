@@ -18,8 +18,8 @@ summary: ボリュームおよび LUN をクローニングして、テスト用
 [role="lead"]
 ボリュームやLUNをクローニングして、テスト用の書き込み可能な一時的なコピーを作成できます。クローンには、データの現在のポイントインタイムの状態が反映されます。クローンを使用すると、追加のユーザに本番環境のデータへのアクセスを許可することなく、データへのアクセスを許可することもできます。
 
-
-NOTE: ストレージシステムにFlexCloneライセンスがインストールされている必要があります https://docs.netapp.com/us-en/ontap/system-admin/install-license-task.html["インストール済み"]。
+.必要なもの
+ストレージシステムにFlexCloneライセンスがインストールされている必要があります https://docs.netapp.com/us-en/ontap/system-admin/install-license-task.html["インストール済み"]。
 
 
 
@@ -41,9 +41,18 @@ NOTE: ストレージシステムにFlexCloneライセンスがインストー�
 
 == LUNのクローニング
 
-LUNのクローンを作成する手順は次のとおりです。
+アクティブボリューム内のLUNをクローニングして、LUNのコピーを作成できます。これらのFlexClone LUNは、アクティブボリューム内の元のLUNの読み書き可能なコピーです。
+
+スペースリザーブFlexClone LUNには、親のスペースリザーブLUNと同じ量のスペースが必要です。FlexClone LUNのスペースをリザーブしない場合は、FlexClone LUNに対する変更に対応できるだけの十分なスペースがボリュームにあることを確認する必要があります。
+
+
+NOTE: この手順は、FAS、AFF、および現在のASAシステムに適用されます。ASA R2システム（ASA A1K、ASA A90、ASA A70、ASA A50、ASA A30、またはASA A20）を使用している場合は、次の手順に従ってデータをクローニングします。link:https://docs.netapp.com/us-en/asa-r2/manage-data/data-cloning.html["以下の手順を実行します"^]ASA R2システムは、SANのみのお客様に特化したシンプルなONTAPエクスペリエンスを提供します。
 
 .手順
+[role="tabbed-block"]
+====
+.System Manager
+--
 . [*Storage] > [LUNs] をクリックします。
 . クローニングするLUNの名前の横にあるをクリックします image:icon_kabob.gif["メニューオプションアイコン"] 。
 . リストから * Clone * を選択します。
@@ -54,3 +63,43 @@ LUNのクローンを作成する手順は次のとおりです。
 また、 LUN の詳細を表示したときに表示される「 * Overview * 」から LUN のクローンを作成することもできます。
 
 LUNクローンを作成すると、スペースが必要になったときのクローンの削除がSystem Managerで自動的に有効になります。
+
+--
+.CLI
+--
+. クローンを作成する前に、LUNがigroupにマッピングされていないこと、または書き込まれていないことを確認しておく必要があります。
+. コマンドを使用し `lun show`て、LUNが存在することを確認します。
++
+`lun show -vserver vs1`
+
++
+[listing]
+----
+Vserver  Path              State     Mapped    Type     Size
+-------- ----------------- --------- --------- -------- -------
+vs1      /vol/vol1/lun1    online   unmapped  windows  47.07MB
+----
+. コマンドを使用し `volume file clone create`て、FlexClone LUNを作成します。
++
+`volume file clone create -vserver vs1 -volume vol1 -source-path lun1 -destination-path/lun1_clone`
+
++
+FlexClone LUNを自動削除できるようにする必要がある場合は、を含めます `-autodelete true`。セミシックプロビジョニングを使用してボリュームにこのFlexClone LUNを作成する場合は、すべてのFlexClone LUNに対して自動削除を有効にする必要があります。
+
+. コマンドを使用し `lun show`て、LUNが作成されたことを確認します。
++
+`lun show -vserver vs1`
+
++
+[listing]
+----
+
+Vserver  Path                    State    Mapped   Type     Size
+-------- ----------------------- -------- -------- -------- ------
+vs1      /vol/volX/lun1          online   unmapped windows  47.07MB
+vs1      /vol/volX/lun1_clone    online   unmapped windows  47.07MB
+----
+
+
+--
+====

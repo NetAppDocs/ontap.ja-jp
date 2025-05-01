@@ -4,7 +4,7 @@ sidebar: sidebar
 keywords: ontap 9.2, restore, single, lun, snapvault backup 
 summary: 単一の LUN を新しい場所または元の場所にリストアできます。SnapVaultセカンダリボリューム内の任意のSnapshotからリストアできます。LUN を元の場所にリストアするには、まず新しい場所にリストアしてから、元の場所にコピーします。 
 ---
-= SnapVaultバックアップから単一のLUNをリストア
+= ONTAP SnapVaultバックアップから単一のLUNをリストア
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
@@ -25,7 +25,12 @@ summary: 単一の LUN を新しい場所または元の場所にリストアで
 クローン内の LUN のパスとシリアル番号は、元の LUN のものとは異なります。永続的予約は維持されません。
 
 .手順
-. コマンドを実行し `snapmirror show`て、SnapVaultバックアップが含まれているセカンダリボリュームを確認します。
+. SnapVaultバックアップが含まれているセカンダリボリュームを確認します。
++
+[source, cli]
+----
+snapmirror show
+----
 +
 [listing]
 ----
@@ -39,7 +44,12 @@ vserverA:srcvolA
                         Snapmirrored
                                 Idle       -         true    -
 ----
-. コマンドを実行して `volume snapshot show`、LUNのリストア元となるSnapshotを特定します。
+. LUNのリストア元となるSnapshotを特定します。
++
+[source, cli]
+----
+volume snapshot show
+----
 +
 [listing]
 ----
@@ -53,7 +63,12 @@ vserverB
                  snap1.2013-02-10_0015 valid  112KB     0%    0%
                  snap2.2013-02-11_0010  valid  164KB     0%    0%
 ----
-. コマンドを実行し `volume clone create`て、目的のSnapshotから読み書き可能クローンを作成します。
+. 目的のSnapshotから読み書き可能クローンを作成
++
+[source, cli]
+----
+volume clone create -vserver <SVM_name> -flexclone <flexclone_name> -type <type> -parent-volume <parent_volume_name> -parent-snapshot <snapshot_name>
+----
 +
 ボリュームクローンは、 SnapVault バックアップと同じアグリゲート内に作成されます。アグリゲート内に、クローンを格納できるだけの十分なスペースが必要です。
 
@@ -65,7 +80,12 @@ cluster::> volume clone create -vserver vserverB
   -parent-snapshot daily.2013-02-10_0010
 [Job 108] Job succeeded: Successful
 ----
-. コマンドを実行し `lun show`て、ボリュームクローン内のLUNのリストを表示します。
+. ボリュームクローン内のLUNを一覧表示します。
++
+[source, cli]
+----
+lun show -vserver <SVM_name> -volume <flexclone_volume_name>
+----
 +
 [listing]
 ----
@@ -82,7 +102,12 @@ vserverB  /vol/dstvolB_clone/lun_C  online  unmapped windows
 +
 の詳細については `lun show`、をlink:https://docs.netapp.com/us-en/ontap-cli/lun-show.html["ONTAPコマンド リファレンス"^]参照してください。
 
-. 目的のホストのigroupが、SnapVaultバックアップがあるSVM内にまだ存在していない場合は、コマンドを実行し `igroup create`てigroupを作成します。
+. 目的のホストのigroupが、SnapVaultバックアップがあるSVM内にまだ存在していない場合は、igroupを作成します。
++
+[source, cli]
+----
+igroup create -vserver <SVM_name> -igroup <igroup_name> -protocol <protocol> -ostype <os_type> -initiator <initiator_name>
+----
 +
 この例では、 iSCSI プロトコルを使用する Windows ホスト用の igroup を作成しています。
 
@@ -93,7 +118,12 @@ cluster::> igroup create -vserver vserverB -igroup temp_igroup
   -protocol iscsi -ostype windows
   -initiator iqn.1991-05.com.microsoft:hostA
 ----
-. コマンドを実行し `lun mapping create`て、目的のLUNコピーをこのigroupにマッピングします。
+. 目的のLUNコピーをigroupにマッピングします。
++
+[source, cli]
+----
+lun mapping create -vserver <SVM_name> -path <lun_path> -igroup <igroup_name>
+----
 +
 [listing]
 ----

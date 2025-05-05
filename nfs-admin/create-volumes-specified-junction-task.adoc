@@ -2,7 +2,7 @@
 permalink: nfs-admin/create-volumes-specified-junction-task.html 
 sidebar: sidebar 
 keywords: create, data, volume, specify, junction, point 
-summary: ジャンクションポイントは、データボリュームの作成時に指定できます。作成したボリュームはジャンクションポイントに自動的にマウントされ、NASアクセス用の設定にすぐに使用できます。 
+summary: ジャンクションポイントにボリュームを自動的にマウントし、NASアクセスの設定にすぐに使用できるように、データボリュームを作成します。 
 ---
 = ONTAPで指定したジャンクションポイントを使用してデータボリュームを作成する
 :allow-uri-read: 
@@ -22,15 +22,17 @@ summary: ジャンクションポイントは、データボリュームの作�
 
 
 
-NOTE: ジャンクションパスに次の文字を使用することはできません。 * # <> < | ？\
+NOTE: ジャンクションパスに次の文字は使用できません。 `*` `#` `"` `>` `<` `|` `?` `\`
 
-+また、ジャンクションパスの長さは255文字以下にする必要があります。
+また、ジャンクションパスの長さは255文字以下にする必要があります。
 
 .手順
 . ジャンクションポイントを設定してボリュームを作成します。
 +
-`volume create -vserver _vserver_name_ -volume _volume_name_ -aggregate _aggregate_name_ -size {integer[KB|MB|GB|TB|PB]} -security-style {ntfs|unix|mixed} -junction-path _junction_path_`
-
+[source, cli]
+----
+volume create -vserver <vserver_name> -volume <volume_name> -aggregate <aggregate_name> -size {integer[KB|MB|GB|TB|PB]} -security-style {ntfs|unix|mixed} -junction-path <junction_path>
+----
 +
 ジャンクションパスはルート（/）で始まる必要があり、ディレクトリと結合されたボリュームの両方を含めることができます。ジャンクションパスにボリュームの名前を含める必要はありません。ジャンクションパスはボリューム名に依存しません。
 
@@ -45,12 +47,14 @@ NOTE: ジャンクションパスに次の文字を使用することはでき�
 
 . 目的のジャンクションポイントでボリュームが作成されたことを確認します。
 +
-`volume show -vserver _vserver_name_ -volume _volume_name_ -junction`
-
+[source, cli]
+----
+volume show -vserver <vserver_name> -volume <volume_name> -junction
+----
 
 
 .例
-次の例は、ジャンクションパスがである「home4」という名前のボリュームをSVM vs1上に作成し `/eng/home`ます。
+次の例は、ジャンクションパスがであるという名前のボリュームをSVM vs1上に `/eng/home`作成し `home4`ます。
 
 [listing]
 ----

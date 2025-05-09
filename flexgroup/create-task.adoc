@@ -2,7 +2,7 @@
 permalink: flexgroup/create-task.html 
 sidebar: sidebar 
 keywords: create, flexgroup, volume, flex group, aggregate, fabricpool, fabric pool 
-summary: FlexGroupを作成するには、FlexGroupを作成するアグリゲートを手動で選択し、各アグリゲートのコンスティチュエントの数を指定します。 
+summary: FlexGroupボリュームを作成するには、FlexGroupボリュームを作成するローカル階層（アグリゲート）を手動で選択し、各ローカル階層のメンバーボリュームの数を指定します。 
 ---
 = ONTAP FlexGroupボリュームの作成
 :allow-uri-read: 
@@ -11,33 +11,35 @@ summary: FlexGroupを作成するには、FlexGroupを作成するアグリゲ�
 
 
 [role="lead"]
-FlexGroupを作成するには、FlexGroupを作成するアグリゲートを手動で選択し、各アグリゲートのコンスティチュエントの数を指定します。
+FlexGroupボリュームを作成するには、FlexGroupボリュームを作成するローカル階層（アグリゲート）を手動で選択し、各ローカル階層のメンバーボリューム（コンスティチュエント）の数を指定します。
+
+また、ローカル階層を選択し、パフォーマンスと容量が最適化されるようにベストプラクティスに基づいてONTAPでメンバーボリュームの数を設定することで、FlexGroupボリュームをONTAPにすることもできlink:provision-automatically-task.html["自動でプロビジョニング"]ます。
 
 .タスクの内容
-FlexGroupボリュームを作成するためにアグリゲート内に必要なスペースを確認しておく必要があります。
+FlexGroupボリュームを作成するためにローカル階層に必要なスペースを確認しておく必要があります。
 
 FlexGroupボリュームを作成するときは、FlexGroupボリュームのパフォーマンスを最大限に高めるために、次のガイドラインを考慮する必要があります。
 
-* FlexGroupボリュームは、同一のハードウェアシステム上にあるアグリゲートのみにまたがる必要があります。
+* FlexGroupボリュームでは、同一のハードウェアシステム上のローカル階層を使用する必要があります。
 +
 同一のハードウェアシステムを使用すると、FlexGroupボリューム全体で予測可能なパフォーマンスを提供できます。
 
-* FlexGroupボリュームは、ディスクタイプおよびRAIDグループ構成が同じアグリゲートで構成されている必要があります。
+* FlexGroupボリュームは、同じディスクタイプおよびRAIDグループ構成を使用するローカル階層で構成されている必要があります。
 +
-一貫したパフォーマンスを実現するには、すべてのアグリゲートがSSD、HDD、またはハイブリッドアグリゲートで構成されている必要があります。また、アグリゲートのドライブ数とRAIDグループ数は、FlexGroupボリューム全体で同じである必要があります。
+一貫したパフォーマンスを実現するには、すべてのローカル階層がSSD、HDD、またはオールFlash Pool（ハイブリッド）ローカル階層で構成されていることを確認する必要があります。また、ローカル階層のドライブ数とRAIDグループ数がFlexGroupボリューム全体で同じである必要があります。
 
 * FlexGroupボリュームは、クラスタの一部にまたがることができます。
 +
 FlexGroupボリュームをクラスタ全体にまたがるように設定する必要はありませんが、その場合、使用可能なハードウェアリソースをより有効に活用できます。
 
-* FlexGroupボリュームを作成するときは、FlexGroupボリュームを導入するアグリゲートに次の特性があることを推奨します。
+* FlexGroupボリュームを作成する際は、FlexGroupボリュームを導入するローカル階層に次の特性を設定することを推奨します。
 +
-** シンプロビジョニングを使用する場合は特に、複数のアグリゲート間でほぼ同じ量の空きスペースを使用できます。
-** FlexGroup ボリュームの作成後に、空きスペースの約 3% がアグリゲートメタデータ用に確保される。
+** 特にシンプロビジョニングを使用する場合は、複数のローカル階層間でほぼ同じ量の空きスペースを確保する必要があります。
+** FlexGroupボリュームの作成後に、空きスペースの約3%をローカル階層のメタデータ用にリザーブする必要があります。
 
 
-* FASシステムの場合は、ノードごとに2つのアグリゲートを使用することを推奨します。AFFシステムの場合は、FlexGroupのノードごとに1つのアグリゲートを使用する必要があります。
-* FlexGroupボリュームごとに少なくとも8つのコンスティチュエントを作成し、FASシステムの場合は2つ以上のアグリゲートに、AFFシステムの場合は1つ以上のアグリゲートに分散します。
+* FASシステムの場合は、ノードごとに2つのローカル階層を使用することを推奨します。AFFシステムの場合は、FlexGroupボリュームのノードごとに1つのローカル階層を使用する必要があります。
+* FlexGroupボリュームごとに少なくとも8個のメンバーボリュームを作成し、FASシステムの場合は2つ以上のローカル階層に、AFFシステムの場合は1つ以上のローカル階層に分散します。
 
 
 .開始する前に
@@ -48,23 +50,21 @@ FlexGroupボリュームをクラスタ全体にまたがるように設定す�
 
 
 .手順
-. FlexGroupボリュームを作成します。 `volume create -vserver svm_name -volume flexgroup_name -aggr-list aggr1,aggr2,.. -aggr-list-multiplier constituents_per_aggr -size fg_size [–encrypt true] [-qos-policy-group qos_policy_group_name]`
+. FlexGroupボリュームを作成します。 `volume create -vserver svm_name -volume flexgroup_name -aggr-list aggr1,aggr2,.. -aggr-list-multiplier constituents_per_aggr -size fg_size [–encrypt true] [-qos-policy-group qos_policy_group_name] [-granular-data advanced]`
 +
-** パラメータは `-aggr-list`、FlexGroupボリュームのコンスティチュエントに使用するアグリゲートのリストを指定します。
+** パラメータは `-aggr-list`、FlexGroupメンバーボリュームに使用するローカル階層のリストを指定します。
 +
-リスト内の各エントリによって、指定したアグリゲート上にコンスティチュエントが1つ作成されます。同じアグリゲートを複数回指定すると、そのアグリゲート上に複数のコンスティチュエントを作成できます。
+FlexGroupボリューム全体で一貫したパフォーマンスを実現するには、すべてのローカル階層でディスクタイプとRAIDグループ構成を同じにする必要があります。
 
-+
-FlexGroupボリューム全体で一貫したパフォーマンスが得られるように、ディスク タイプとRAIDグループ構成をすべてのアグリゲートで同じにする必要があります。
-
-** パラメータは `-aggr-list-multiplier`、FlexGroupボリュームの作成時にパラメータで指定したアグリゲートを繰り返し実行する回数を指定します `-aggr-list`。
+** パラメータは `-aggr-list-multiplier`、パラメータで指定した各ローカル階層に作成されるメンバーボリュームの数を指定します `-aggr-list`。
 +
 パラメータのデフォルト値 `-aggr-list-multiplier`は4です。
 
 ** パラメータは `size`、FlexGroupボリュームのサイズ（KB、MB、GB、TB、またはPB）を指定します。
-** ONTAP 9.5 以降では、オール SSD アグリゲートのみを使用する FabricPool 用の FlexGroup ボリュームを作成できます。
+** ONTAP 9.16.1以降では、 (`-granular-data advanced`CLIでを有効にすることができます）。ファイルが10GBを超える場合に、複数のFlexGroupメンバーボリュームにデータを書き込むことができますlink:../enable-adv-capacity-flexgroup-task.html["高度な容量分散"]。
+** ONTAP 9.5以降では、FabricPoolが有効なローカル階層を使用してFlexGroupボリュームを作成できます。
 +
-FabricPool用のFlexGroupを作成するには、パラメータで指定するすべてのアグリゲート `-aggr-list`がFabricPoolである必要があります。FabricPoolのボリュームギャランティは常にに設定する必要があります `none`。FlexGroupボリュームに対して階層化ポリシーと階層化の最小クーリング期間を指定することもできます。
+FabricPool用のFlexGroupボリュームを作成するには、パラメータで指定するすべてのローカル階層 `-aggr-list`でFabricPoolを有効にする必要があります。FabricPoolを使用する場合は、ボリュームギャランティを常にに設定する必要があります `none`。FlexGroupボリュームに対して階層化ポリシーと階層化の最小クーリング期間を指定することもできます。
 
 +
 xref:../disks-aggregates/index.html[ディスクおよびアグリゲートの管理]
@@ -101,7 +101,7 @@ Do you want to continue? {y|n}: y
 ----
 
 
-この例では、FabricPoolのFlexGroupボリュームを作成する場合、すべてのアグリゲート（aggr1、aggr2、aggr3）がFabricPool内のアグリゲートである必要があります。ジャンクションパスを使用してFlexGroupボリュームをマウントします。 `volume mount -vserver vserver_name -volume vol_name -junction-path junction_path`
+この例では、FabricPoolのFlexGroupボリュームを作成する場合、すべてのローカル階層（aggr1、aggr2、aggr3）でFabricPoolを有効にする必要があります。ジャンクションパスを使用してFlexGroupボリュームをマウントします。 `volume mount -vserver vserver_name -volume vol_name -junction-path junction_path`
 
 [listing]
 ----

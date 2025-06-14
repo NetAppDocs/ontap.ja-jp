@@ -2,7 +2,7 @@
 permalink: upgrade/remove-ems-lif-service-task.html 
 sidebar: sidebar 
 keywords: ontap, upgrade, after, post, ems, event, management, system, lifs, messages, not, delivered 
-summary: EMSを使用している場合は、ONTAP 9.7以前から9.8以降にアップグレードしたあとに、特定のネットワークサービスポリシーからEMS LIFサービスの削除が必要になることがあります。 
+summary: ONTAP 9.7 以前から 9.8 以降にアップグレードした後、EMS を使用している場合は、特定のネットワーク サービス ポリシーから EMS LIF サービスを削除する必要がある場合があります。 
 ---
 = ONTAPのアップグレード後にネットワークサービスポリシーからEMS LIFサービスを削除する
 :allow-uri-read: 
@@ -11,14 +11,16 @@ summary: EMSを使用している場合は、ONTAP 9.7以前から9.8以降に�
 
 
 [role="lead"]
-ONTAP 9.7以前からONTAP 9.8以降にアップグレードする前にイベント管理システム（EMS）メッセージが設定されている場合、アップグレード後にEMSメッセージが配信されないことがあります。
+ONTAP 9.7 以前から ONTAP 9.8 以降にアップグレードする前にイベント管理システム (EMS) メッセージを設定している場合、アップグレード後に EMS メッセージが配信されない可能性があります。
 
-アップグレードでは、EMS LIFサービスであるmanagement-emsが既存のすべてのサービスポリシーに追加されます。これにより、いずれかのサービスポリシーに関連付けられているLIFからEMSメッセージを送信できます。選択したLIFにイベント通知の送信先に到達できない場合、メッセージは配信されません。
+アップグレード中、  `management-ems` EMS LIFサービスである が、管理SVMとシステムSVMの既存のすべてのサービスポリシーに追加されます。これにより、サービスポリシーに関連付けられた任意のLIFからEMSメッセージを送信できるようになります。選択したLIFがイベント通知の送信先に到達できない場合、メッセージは配信されません。
 
-これを回避するには、アップグレード後に、デスティネーションへの到達可能性を提供しないネットワークサービスポリシーからEMS LIFサービスを削除する必要があります。
+これを防ぐには、アップグレード後に、宛先への到達可能性を提供しないネットワーク サービス ポリシーから EMS LIF サービスを削除する必要があります。
+
+link:../networking/lifs_and_service_policies96.html#service-policies-for-system-svms["ONTAP LIFとサービスポリシーの詳細"]です。
 
 .手順
-. EMSメッセージの送信に使用するLIFと関連するネットワークサービスポリシーを特定します。
+. EMS メッセージを送信できる LIF と関連するネットワーク サービス ポリシーを識別します。
 +
 [source, cli]
 ----
@@ -28,15 +30,11 @@ network interface show -fields service-policy -services management-ems
 [listing]
 ----
 vserver        lif            service-policy
--------------- ------------ ------------------
-cluster-1      cluster_mgmt
-                                      default-management
-cluster-1      node1-mgmt
-                                      default-management
-cluster-1      node2-mgmt
-                                      default-management
-cluster-1      inter_cluster
-                                      default-intercluster
+-------------- ------------   ------------------
+cluster-1      cluster_mgmt   default-management
+cluster-1      node1-mgmt     default-management
+cluster-1      node2-mgmt     default-management
+cluster-1      inter_cluster  default-intercluster
 4 entries were displayed.
 ----
 . 各LIFがEMSデスティネーションに接続されているかどうかを確認します。
@@ -64,7 +62,7 @@ no answer from 10.10.10.10
 ----
 set advanced
 ----
-. 到達可能性がないLIFについては、対応するサービスポリシーからmanagement-ems LIFサービスを削除します。
+. 到達可能性のないLIFの場合は、  `management-ems`対応するサービス ポリシーからの LIF サービス:
 +
 [source, cli]
 ----
@@ -80,6 +78,3 @@ network interface service-policy remove-service -vserver <svm_name> -policy <ser
 network interface show -fields service-policy -services management-ems
 ----
 
-
-.関連リンク
-link:../networking/lifs_and_service_policies96.html#service-policies-for-system-svms["LIFとサービス ポリシー（ONTAP 9.6以降）"]

@@ -2,7 +2,7 @@
 permalink: smb-hyper-v-sql/verify-domain-accounts-map-default-unix-user-task.html 
 sidebar: sidebar 
 keywords: verfiy, domain, account, default, unix, server, smb, share, user 
-summary: Hyper-V および SQL Server では、継続的可用性を備えた共有への SMB 接続を作成する際にドメインアカウントを使用します。接続を作成するには、コンピュータアカウントが UNIX ユーザに正しくマッピングされている必要があります。そのための最も便利な方法は、コンピュータアカウントをデフォルトの UNIX ユーザにマッピングすることです。 
+summary: Hyper-V と SQL Server では、SMB アクセスのためにドメイン コンピュータ アカウントを UNIX ユーザーにマッピングする必要があります。最も簡単な方法は、デフォルトの UNIX ユーザーにマッピングすることです。 
 ---
 = ONTAPでドメインアカウントがデフォルトのUNIXユーザにマッピングされていることを確認する
 :allow-uri-read: 
@@ -16,41 +16,65 @@ Hyper-V および SQL Server では、継続的可用性を備えた共有への
 .タスクの内容
 Hyper-V および SQL Server は、ドメインコンピュータアカウントを使用して SMB 接続を作成します。また、 SQL Server は、 SMB 接続を作成するサービスアカウントとしてドメインユーザアカウントを使用します。
 
-Storage Virtual Machine（SVM）を作成すると、ONTAPによってデフォルトユーザ「pcuser」（UIDが）とグループ「pcuser」（GIDが `65534`）が自動的に作成され `65534`、デフォルトユーザが「pcuser」グループに追加されます。クラスタをData ONTAP 8 2にアップグレードする前に使用していたSVMでHyper-V over SMBソリューションを設定する場合は、デフォルトのユーザとグループが存在していない可能性があります。デフォルトの UNIX ユーザを設定していない場合は、 CIFS サーバのデフォルトの UNIX ユーザを設定する前に、デフォルトのユーザとグループを作成する必要があります。
+ストレージ仮想マシン（SVM）を作成すると、ONTAPは自動的に次の名前のデフォルトユーザーを作成します。  `pcuser` （UIDは `65534` ）と名付けられたグループ `pcuser` （GIDは `65534` ）に追加し、デフォルトのユーザーを `pcuser`グループ。クラスタを Data ONTAP 8.2 にアップグレードする前に存在していた SVM 上で Hyper-V over SMB ソリューションを構成する場合、デフォルトのユーザーとグループが存在しない可能性があります。デフォルトの UNIX ユーザを設定していない場合は、 CIFS サーバのデフォルトの UNIX ユーザを設定する前に、デフォルトのユーザとグループを作成する必要があります。
 
 .手順
 . デフォルトの UNIX ユーザが存在するかどうかを確認します。
 +
-`*vserver cifs options show -vserver _vserver_name_*`
-
+[source, cli]
+----
+vserver cifs options show -vserver <vserver_name>
+----
 . デフォルトユーザオプションが設定されていない場合は、デフォルトの UNIX ユーザとして指定できる UNIX ユーザが存在するかどうかを確認します。
 +
-`*vserver services unix-user show -vserver _vserver_name_*`
-
-. デフォルトユーザオプションが設定されておらず、デフォルトの UNIX ユーザとして指定できる UNIX ユーザも存在しない場合は、デフォルトの UNIX ユーザとデフォルトのグループを作成し、デフォルトのユーザをそのグループに追加します。
+[source, cli]
+----
+vserver services unix-user show -vserver <vserver_name>
+----
+. デフォルト ユーザー オプションが設定されておらず、デフォルト UNIX ユーザーとして指定できる UNIX ユーザーがいない場合は、デフォルト グループとデフォルト UNIX ユーザーを作成し、デフォルト ユーザーをグループに追加します。
 +
-通常、デフォルトユーザにはユーザ名「`pcuser`」が与えられ、のUIDを割り当てる必要があります。 `65534`デフォルトのグループには ' 通常 ' グループ名として pcuser が与えられますグループに割り当てるGIDはである必要があり `65534`ます。
+、デフォルトのグループには通常グループに割り当てるGIDはである必要があり `65534`ます。
 
 +
-.. デフォルトグループを作成します。+
-`*vserver services unix-group create -vserver _vserver_name_ -name pcuser -id 65534*`
-.. デフォルトユーザを作成し、デフォルトグループに追加します。+
-`*vserver services unix-user create -vserver _vserver_name_ -user pcuser -id 65534 -primary-gid 65534*`
+.. デフォルトグループを作成します。
++
+[source, cli]
+----
+vserver services unix-group create -vserver <vserver_name> -name pcuser -id 65534
+----
+.. デフォルトユーザを作成し、デフォルトグループに追加します。
++
+[source, cli]
+----
+vserver services unix-user create -vserver <vserver_name> -user pcuser -id 65534 -primary-gid 65534
+----
 .. デフォルトのユーザとデフォルトグループが正しく設定されていることを確認します。
-`*vserver services unix-user show -vserver _vserver_name_*`++
-`*vserver services unix-group show -vserver _vserver_name_ -members*`
++
+[source, cli]
+----
+vserver services unix-user show -vserver <vserver_name>
+----
++
+[source, cli]
+----
+vserver services unix-group show -vserver <vserver_name> -members
+----
 
 
 . CIFS サーバのデフォルトのユーザが設定されていない場合は、次の手順を実行します。
 +
 .. デフォルトユーザを設定します。
 +
-`*vserver cifs options modify -vserver *vserver_name* -default-unix-user pcuser*`
-
+[source, cli]
+----
+vserver cifs options modify -vserver <vserver_name> -default-unix-user pcuser
+----
 .. デフォルトの UNIX ユーザが正しく設定されていることを確認します。
 +
-`*vserver cifs options show -vserver _vserver_name_*`
-
+[source, cli]
+----
+vserver cifs options show -vserver <vserver_name>
+----
 
 
 . アプリケーションサーバのコンピュータアカウントがデフォルトのユーザに正しくマッピングされていることを確認するには、SVMの共有にドライブをマッピングし、コマンドを使用してWindowsユーザとUNIXユーザのマッピングを確認します `vserver cifs session show`。
@@ -60,7 +84,7 @@ Storage Virtual Machine（SVM）を作成すると、ONTAPによってデフォ�
 
 
 .例
-次のコマンドでは、 CIFS サーバのデフォルトのユーザが設定されていないことがわかりますが、「 pcuser 」ユーザと「 pcuser 」グループは存在します。「 pcuser 」ユーザは、 SVM vs1 上の CIFS サーバのデフォルトのユーザとして割り当てられています。
+が存在します。 `pcuser`ユーザーは、SVM vs1 上の CIFS サーバのデフォルト ユーザーとして割り当てられます。
 
 [listing]
 ----

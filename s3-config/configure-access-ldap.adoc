@@ -105,14 +105,14 @@ Base64を使用してエンコードされたクレデンシャルは簡単に�
 
 [listing]
 ----
-$curl -siku <user>:<user_password> -X POST https://<LIF_IP_Address>/api/protocols/s3/services/<SVM_UUID>/users -d {"comment":"<S3_user_name>", "name":<user>,"<key_time_to_live>":"PT6H3M"}'
+$curl -siku <user>:<user_password> -X POST https://<LIF_IP_Address>/api/protocols/s3/services/<SVM_UUID>/users -d {"comment":"<S3_user_name>", "name":<user>,"key_time_to_live":"PT6H3M"}
 ----
 
 NOTE: APIを、SVMのデータLIFではなくクラスタ管理LIFに転送します。ユーザに独自のキーの生成を許可する場合、curlを使用するには、ユーザのロールにHTTP権限を追加する必要があります。この権限は、S3 API権限に追加されたものです。
 
 
 
-== Active DirectoryまたはCIFSサーバ用のS3アクセスの設定
+== Active Directory または SMB サーバーの S3 アクセスを構成する
 
 バケットポリシーステートメントで指定されたnasgroupまたはnasgroupに含まれるユーザにUIDとGIDが設定されていない場合、これらの属性が見つからないと検索が失敗します。Active DirectoryはUIDではなくSIDを使用します。SIDエントリをUIDにマッピングできない場合は、必要なデータをONTAPに取り込む必要があります。
 
@@ -120,7 +120,7 @@ NOTE: APIを、SVMのデータLIFではなくクラスタ管理LIFに転送し�
 
 または、を使用してlink:../authentication/enable-ad-users-groups-access-cluster-svm-task.html["vserver cifs create"]Active DirectoryドメインにSMBサーバを作成します。
 
-検索の失敗を避けるため、NetAppでは、信頼できるドメインをUPN形式でリソースの承認に使用することを推奨しています。 `nasgroup/group@trusted_domain.com`
+ネームサーバとオブジェクトストアで異なるドメイン名を使用している場合、検索エラーが発生する可能性があります。検索エラーを回避するため、 NetApp、UPN形式のリソース認証に信頼できるドメインを使用することを推奨しています。  `nasgroup/group@trusted_domain.com`信頼されたドメインとは、SMBサーバーの信頼されたドメインリストに追加されたドメインです。 link:../smb-admin/add-remove-replace-trusted-domains-preferred-lists-task.html["優先する信頼ドメインの追加、削除、変更"] SMB サーバー リストに表示されます。
 
 
 
@@ -130,7 +130,7 @@ UPN形式で指定されたユーザを持つエンドポイントを使用し�
 
 [listing]
 ----
-$curl -siku FQDN\\user:<user_password> -X POST https://<LIF_IP_Address>/api/protocols/s3/services/<SVM_UUID>/users -d {"comment":"<S3_user_name>", "name":<user@fqdn>,"<key_time_to_live>":"PT6H3M"}'
+$curl -siku FQDN\\user:<user_password> -X POST https://<LIF_IP_Address>/api/protocols/s3/services/<SVM_UUID>/users -d {"comment":"<S3_user_name>", "name":<user@fqdn>,"key_time_to_live":"PT6H3M"}
 ----
 
 NOTE: APIを、SVMのデータLIFではなくクラスタ管理LIFに転送します。ユーザに独自のキーの生成を許可する場合、curlを使用するには、ユーザのロールにHTTP権限を追加する必要があります。この権限は、S3 API権限に追加されたものです。
@@ -143,7 +143,7 @@ NOTE: APIを、SVMのデータLIFではなくクラスタ管理LIFに転送し�
 
 [listing]
 ----
-$curl -siku FQDN\\user:<user_password> -X POST https://<LIF_IP_Address>/api/protocols/s3/services/<SVM_UUID>/users -d {"comment":"<S3_user_name>", "name":<user[@fqdn]>,"<key_time_to_live>":"PT6H3M"}'
+$curl -siku FQDN\\user:<user_password> -X POST https://<LIF_IP_Address>/api/protocols/s3/services/<SVM_UUID>/users -d {"comment":"<S3_user_name>", "name":<user[@fqdn]>,"key_time_to_live":"PT6H3M"}
 ----
 
 NOTE: APIを、SVMのデータLIFではなくクラスタ管理LIFに転送します。ユーザに独自のキーの生成を許可する場合、curlを使用するには、ユーザのロールにHTTP権限を追加する必要があります。この権限は、S3 API権限に追加されたものです。オプションのドメイン値（@FQDN）をユーザ名に追加する必要があるのは、信頼できるドメインがない場合だけです。

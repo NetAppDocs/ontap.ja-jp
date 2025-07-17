@@ -1,8 +1,8 @@
 ---
 permalink: revert/task_download_and_install_ontap_software_image.html 
 sidebar: sidebar 
-keywords: ontap, software, image, download, downloading, install, installing 
-summary: ONTAP ソフトウェアをダウンロードしてからインストールする必要があります。 
+keywords: ontap, software, revert, image, download, downloading, install, installing 
+summary: 現在のONTAPソフトウェアを元に戻す前に、まずソフトウェアをダウンロードしてインストールする必要があります。 
 ---
 = ONTAPソフトウェアイメージのダウンロードとインストール
 :allow-uri-read: 
@@ -24,7 +24,7 @@ NOTE: NetAppボリューム暗号化を使用するシステムをONTAP 9.5以�
 
 .手順
 . link:http://mysupport.netapp.com/NOW/cgi-bin/software["ソフトウェアのダウンロード"^]NetAppサポートサイトの領域で、対象のONTAPソフトウェアを探します。
-. NetAppサポートサイトからソフトウェアイメージ（97_q_image.tgzなど）をコピーします。
+. ソフトウェアイメージをコピーします（例：  `97_q_image.tgz` ） NetAppサポートサイトから
 +
 イメージは、イメージの提供元となるHTTPサーバまたはFTPサーバ上のディレクトリ、またはローカルフォルダにコピーできます。
 
@@ -53,7 +53,7 @@ advancedプロンプト(`*>`が表示されます）。
 +
 [source, cli]
 ----
-system node image update -node * -package location -replace-package true -setdefault true -background true
+system node image update -node * -package <http://example.com/downloads/image.tgz> -replace-package true -replace {image1|image2} -background true -setdefault true
 ----
 +
 このコマンドは、ソフトウェアイメージをすべてのノードに同時にダウンロードしてインストールします。一度に1つずつ各ノードにイメージをダウンロードしてインストールする場合は、パラメータを指定しない `-background`でください。また、このコマンドでは、拡張クエリを使用して、代替イメージとしてインストールされるターゲットのソフトウェアイメージがノードのデフォルトのイメージになるように変更します。
@@ -62,7 +62,7 @@ system node image update -node * -package location -replace-package true -setdef
 +
 [source, cli]
 ----
-system node image update -node * -package location -replace-package true true -background true -setdefault false
+system node image update -node * -package <http://example.com/downloads/image.tgz> -replace-package true -replace {image1|image2} -background true -setdefault false
 ----
 +
 このコマンドは、ソフトウェアイメージをすべてのノードに同時にダウンロードしてインストールします。一度に1つずつ各ノードにイメージをダウンロードしてインストールする場合は、パラメータを指定しない `-background`でください。また、このコマンドでは、拡張クエリを使用して、代替イメージとして各ノードにインストールされるターゲットのソフトウェアイメージを変更します。
@@ -77,7 +77,7 @@ system node image update -node * -package location -replace-package true true -b
 system node image show-update-progress -node *
 ----
 +
-このコマンドは、ソフトウェアイメージのダウンロードとインストールの現在のステータスを表示します。すべてのノードの* Run Status *が「Exited」、* Exit Status *が「Success」になるまで、このコマンドを繰り返し実行してください。
+このコマンドは、ソフトウェアイメージのダウンロードとインストールの現在のステータスを表示します。すべてのノードの*実行ステータス*が「終了」、*終了ステータス*が「成功」と表示されるまで、このコマンドを実行し続けてください。
 
 +
 system node image updateコマンドが失敗し、エラーまたは警告メッセージが表示されることがあります。エラーや警告を解決したら、コマンドを再度実行できます。
@@ -103,4 +103,8 @@ Status of most recent operation:
         Exit Message:   After a clean shutdown, image2 will be set as the default boot image on node1.
 2 entries were acted on.
 ----
+
+
+.関連情報
+* link:https://docs.netapp.com/us-en/ontap-cli/system-node-image-update.html["システムノードイメージの更新"^]
 

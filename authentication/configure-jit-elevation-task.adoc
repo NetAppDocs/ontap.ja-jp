@@ -1,0 +1,220 @@
+---
+permalink: authentication/configure-jit-elevation-task.html 
+sidebar: sidebar 
+keywords: just in time, just-in-time, privilege elevation, password, security, authentication, JIT, elevation 
+summary: ジャストインタイム権限昇格を設定して、 ONTAPユーザーが特定のタスクを実行するために権限を一時的に昇格できるようにします。 
+---
+= ONTAPでJIT権限の昇格を構成する
+:allow-uri-read: 
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+ONTAP 9.17.1以降、クラスタ管理者はジャストインタイム（JIT）権限昇格を設定して、 ONTAPユーザが特定のタスクを実行するために一時的に権限を昇格できるようにすることができます。ユーザにJITが設定されている場合、一時的にlink:elevate-jit-access-task.html["特権を高める"]タスクを実行するために必要な権限を持つロールに切り替えます。セッション期間が終了すると、ユーザーは元のアクセスレベルに戻ります。
+
+クラスター管理者は、ユーザーがJIT昇格にアクセスできる期間を設定できます。例えば、JIT昇格へのユーザーアクセスを、30日間（_JIT有効期間_）にわたり、1セッションあたり30分（_セッション有効期間_）に制限するように設定できます。30日間の期間中、ユーザーは必要に応じて何度でも権限を昇格できますが、各セッションは30分に制限されます。
+
+JIT 権限昇格は最小権限の原則をサポートしており、ユーザーは昇格された権限を必要とするタスクを、その権限を永続的に付与することなく実行できます。これにより、不正アクセスやシステムへの偶発的な変更のリスクを軽減できます。以下の例は、JIT 権限昇格の一般的なユースケースを示しています。
+
+* 一時的なアクセスを許可する `security login create`そして `security login delete`ユーザーのオンボーディングとオフボーディングを有効にするコマンド。
+* 一時的なアクセスを許可する `system node image update`そして `system node upgrade-revert`更新ウィンドウ中に、コマンドアクセスが無効になります。更新が完了すると、コマンドアクセスは無効になります。
+* 一時的なアクセスを許可する `cluster add-node` 、  `cluster remove-node` 、 そして `cluster modify`クラスタの拡張または再構成を有効にします。クラスタの変更が完了すると、コマンドアクセスは取り消されます。
+* 一時的なアクセスを許可する `volume snapshot restore`復元操作とバックアップターゲットの管理が可能になります。復元または設定が完了すると、コマンドアクセスは取り消されます。
+* 一時的なアクセスを許可する `security audit log show`コンプライアンス チェック中に監査ログのレビューとエクスポートを有効にします。
+
+
+参照 https://docs.netapp.com/us-en/ontap-cli/["ONTAPコマンド リファレンス"^]これらの例のコマンドの詳細については、こちらをご覧ください。より広範なJITの一般的な使用例については、こちらをご覧ください。 <<JITの一般的なユースケース>> 。
+
+クラスタ管理者は、 ONTAPユーザーの JIT アクセスを設定し、クラスタ全体でグローバルに、または特定の SVM に対してデフォルトの JIT 有効期間を設定できます。
+
+.タスクの内容
+* JIT権限の昇格は、SSHを使用してONTAPにアクセスするユーザーのみが利用できます。昇格された権限はユーザーの現在のSSHセッション内でのみ利用可能ですが、必要に応じて複数の同時SSHセッション内で権限を昇格できます。
+* JIT 権限の昇格は、パスワード、nsswitch、またはドメイン認証を使用してログインするユーザーに対してのみサポートされます。多要素認証 (MFA) は JIT 権限の昇格ではサポートされていません。
+
+
+.開始する前に
+* ONTAPクラスタ管理者である必要があります。  `admin`次のタスクを実行するための特権レベル。
+
+
+
+
+== グローバルJIT設定を変更する
+
+デフォルトのJIT設定は、 ONTAPクラスタ全体、または特定のSVMごとに変更できます。これらの設定により、JITアクセスが設定されているユーザーのデフォルトのセッション有効期間と最大JIT有効期間が決まります。
+
+.タスクの内容
+* デフォルト `default-session-validity-period`値は1時間です。この設定は、ユーザーがJITセッションで昇格された権限にアクセスできる時間を決定します。この時間を超えると、再度昇格が必要になります。
+* デフォルト `max-jit-validity-period`値は90日間です。この設定は、設定された開始日以降、ユーザーがJIT昇格にアクセスできる最大期間を決定します。個々のユーザーに対してJITの有効期間を設定できますが、最大JIT有効期間を超えることはできません。
+
+
+.手順
+. 現在の JIT 設定を確認します。
++
+[source, cli]
+----
+security jit-privilege show -vserver <svm_name>
+----
++
+`-vserver`はオプションです。SVMを指定しない場合、コマンドはグローバルJIT設定を表示します。
+
+. JIT 設定をグローバルまたは SVM に対して変更します。
++
+[source, cli]
+----
+security jit-privilege modify -vserver <svm_name> -default-session-validity-period <period> -max-jit-validity-period <period>
+----
++
+SVMを指定しない場合、コマンドはグローバルJIT設定を変更します。次の例では、SVMのデフォルトのJITセッション期間を45分、最大JIT期間を30日に設定します。  `svm1` : + 
+`security jit-privilege modify -vserver svm1 -default-session-validity-period 45m -max-jit-validity-period 30d`
+
++
+この例では、ユーザーは一度に 45 分間 JIT 昇格にアクセスでき、構成された開始日から最大 30 日間 JIT セッションを開始できます。
+
+
+
+
+
+== ユーザーの JIT 権限昇格アクセスを構成する
+
+ONTAPユーザーに JIT 権限の昇格アクセスを割り当てることができます。
+
+.手順
+. ユーザーの現在の JIT アクセスを確認します。
++
+[source, cli]
+----
+security jit-privilege user show -username <username>
+----
++
+`-username`はオプションです。ユーザー名を指定しない場合、コマンドはすべてのユーザーのJITアクセスを表示します。
+
+. ユーザーに新しい JIT アクセスを割り当てます。
++
+[source, cli]
+----
+security jit-privilege create -username <username> -vserver <svm_name> -role <rbac_role> -session-validity-period <period> -jit-validity-period <period> -start-time <date>
+----
++
+** もし `-vserver`指定されていない場合は、クラスター レベルで JIT アクセスが割り当てられます。
+**  `-role`ユーザーが昇格されるRBACロールです。指定しない場合は、  `-role`デフォルトは `admin` 。
+** `-session-validity-period`ユーザーが昇格されたロールにアクセスできる期間です。この期間を過ぎると、新しいJITセッションを開始する必要があります。指定しない場合は、グローバルまたはSVM  `default-session-validity-period`が使用されます。
+** `-jit-validity-period`設定された開始日以降にユーザーがJITセッションを開始できる最大期間です。指定しない場合は、  `session-validity-period`が使用されます。このパラメータはグローバルまたはSVMを超えることはできません。  `max-jit-validity-period` 。
+** `-start-time`ユーザーがJITセッションを開始できる日時です。指定されていない場合は、現在の日時が使用されます。
++
+次の例では、  `ontap_user`アクセスするには `admin`新しい JIT セッションを開始する前に、1 時間ロールを実行します。  `ontap_user` 2025年7月1日午後1時から60日間JITセッションを開始できるようになります。+ 
+`security jit-privilege user create -username ontap_user -role admin -session-validity-period 1h -jit-validity-period 60d -start-time "7/1/25 13:00:00"`
+
+
+
+. 必要に応じて、ユーザーの JIT アクセスを取り消します。
++
+[source, cli]
+----
+security jit-privilege user delete -username <username> -vserver <svm_name>
+----
++
+このコマンドは、ユーザーのJITアクセスを、たとえアクセス期限が切れていなくても取り消します。  `-vserver`が指定されていない場合、JITアクセスはクラスターレベルで取り消されます。ユーザーがアクティブなJITセッションに参加している場合は、セッションが終了します。
+
+
+
+
+
+== JITの一般的なユースケース
+
+以下の表は、JIT権限昇格の一般的なユースケースを示しています。各ユースケースでは、関連するコマンドへのアクセスを提供するためにRBACロールを設定する必要があります。各コマンドは、コマンドとそのパラメータに関する詳細情報が記載されているONTAPコマンドリファレンスにリンクされています。
+
+[cols="1,1a,1"]
+|===
+| ユースケース | コマンド | 詳細 
+
+
+| ユーザーとロールの管理  a| 
+link:https://docs.netapp.com/us-en/ontap-cli/security-login-create.html["security login create"] 、 link:https://docs.netapp.com/us-en/ontap-cli/security-login-delete.html["7a414cbc26ad99f3f688affc1ecabe6f"]
+| オンボーディングまたはオフボーディング中に、一時的に昇格してユーザーを追加/削除したり、役割を変更したりします。 
+
+
+| 証明書管理  a| 
+link:https://docs.netapp.com/us-en/ontap-cli/security-certificate-create.html["9ea06376db2d229da0b3a4c13ce61404"] 、 link:https://docs.netapp.com/us-en/ontap-cli/security-certificate-install.html["セキュリティ証明書のインストール"]
+| 証明書のインストールまたは更新のために短期アクセスを許可します。 
+
+
+| SSH/CLI アクセス制御  a| 
+`link:https://docs.netapp.com/us-en/ontap-cli/security-login-create.html[security login create] -application ssh`
+| トラブルシューティングやベンダー サポートのために、一時的に SSH アクセスを許可します。 
+
+
+| ライセンス管理  a| 
+link:https://docs.netapp.com/us-en/ontap-cli/system-license-add.html["6c25ae7b27db9a62b5c245ad70b9d7cc"] 、 link:https://docs.netapp.com/us-en/ontap-cli/system-license-delete.html["5f3eb0e0b3c2143bc24467a3ed94289e"]
+| 機能のアクティブ化または非アクティブ化中にライセンスを追加または削除する権限を付与します。 
+
+
+| システムのアップグレードとパッチ適用  a| 
+link:https://docs.netapp.com/us-en/ontap-cli/system-node-image-update.html["システムノードイメージの更新"] 、 link:https://docs.netapp.com/us-en/ontap-cli/system-node-upgrade-revert-upgrade.html["3375ab72573f54f214f0e7b4b9759e15"]
+| アップグレードウィンドウに昇格し、その後取り消します。 
+
+
+| ネットワークセキュリティ設定  a| 
+link:https://docs.netapp.com/us-en/ontap-cli/security-login-role-create.html["security login role create"] 、 link:https://docs.netapp.com/us-en/ontap-cli/security-login-role-modify.html["c44e895fab96f3c7a61edd2ebae0fd59"]
+| ネットワーク関連のセキュリティ ロールへの一時的な変更を許可します。 
+
+
+| クラスタ管理  a| 
+link:https://docs.netapp.com/us-en/ontap-cli/cluster-add-node.html["クラスタ追加-ノード"] 、 link:https://docs.netapp.com/us-en/ontap-cli/cluster-remove-node.html["クラスタ削除ノード"] 、 link:https://docs.netapp.com/us-en/ontap-cli/cluster-modify.html["cluster modifyの追加"]
+| クラスターの拡張または再構成のために昇格します。 
+
+
+| SVMの管理  a| 
+link:https://docs.netapp.com/us-en/ontap-cli/vserver-create.html["SVMの作成"] 、 link:https://docs.netapp.com/us-en/ontap-cli/vserver-delete.html["a75eb9196380a98a2a2a693496267088"] 、 link:https://docs.netapp.com/us-en/ontap-cli/vserver-modify.html["vserver modify"]
+| プロビジョニングまたは廃止のために、SVM 管理者権限を一時的に付与します。 
+
+
+| ボリュームの管理  a| 
+link:https://docs.netapp.com/us-en/ontap-cli/volume-create.html["ボリュームの作成"] 、 link:https://docs.netapp.com/us-en/ontap-cli/volume-delete.html["volume delete"] 、 link:https://docs.netapp.com/us-en/ontap-cli/volume-modify.html["ボリュームの変更"]
+| ボリュームのプロビジョニング、サイズ変更、または削除のために昇格します。 
+
+
+| Snapshotの管理  a| 
+link:https://docs.netapp.com/us-en/ontap-cli/volume-snapshot-create.html["ceb6830d4a1748af1adc615d6239b127"] 、 link:https://docs.netapp.com/us-en/ontap-cli/volume-snapshot-delete.html["1cf71c15916b07b46dc8360baf4bd9d5"] 、 link:https://docs.netapp.com/us-en/ontap-cli/volume-snapshot-restore.html["8f381ba1024744332b561ba609495012"]
+| リカバリ中にスナップショットを削除または復元する場合は昇格します。 
+
+
+| ネットワーク設定  a| 
+link:https://docs.netapp.com/us-en/ontap-cli/network-interface-create.html["8e4b4cb9c44fdee9551da126fb754f8a"] 、 link:https://docs.netapp.com/us-en/ontap-cli/network-port-vlan-create.html["733be7dba8f13ff258d7f73e2740324c"]
+| メンテナンス期間中のネットワーク変更の権限を付与します。 
+
+
+| ディスク/アグリゲート管理  a| 
+link:https://docs.netapp.com/us-en/ontap-cli/storage-disk-assign.html["3c698d76925a2f101122edd72990fc94"] 、 link:https://docs.netapp.com/us-en/ontap-cli/storage-aggregate-create.html["1b40ef6e34df7d2fb54b5d639e14412d"] 、 link:https://docs.netapp.com/us-en/ontap-cli/storage-aggregate-add-disks.html["be260f7e87b5ae56c1d81f359067a35f"]
+| ディスクの追加や削除、あるいはアグリゲートの管理を行うために昇格します。 
+
+
+| データ保護  a| 
+link:https://docs.netapp.com/us-en/ontap-cli/snapmirror-create.html["スナップミラー作成"] 、 link:https://docs.netapp.com/us-en/ontap-cli/snapmirror-modify.html["スナップミラーの変更"] 、 link:https://docs.netapp.com/us-en/ontap-cli/snapmirror-restore.html["スナップミラー復元"]
+| SnapMirror関係を構成または復元するために一時的に昇格します。 
+
+
+| パフォーマンス調整  a| 
+link:https://docs.netapp.com/us-en/ontap-cli/qos-policy-group-create.html["QoSポリシーグループの作成"] 、 link:https://docs.netapp.com/us-en/ontap-cli/qos-policy-group-modify.html["92e30cc5fff2e2aead2254497baabf90"]
+| パフォーマンスのトラブルシューティングやチューニングのために昇格します。 
+
+
+| 監査ログへのアクセス  a| 
+link:https://docs.netapp.com/us-en/ontap-cli/security-audit-log-show.html["8886c6249c30eca960ab30fed3c6746b"]
+| コンプライアンス チェック中に監査ログの確認またはエクスポートを行うために一時的に昇格します。 
+
+
+| イベントとアラートの管理  a| 
+link:https://docs.netapp.com/us-en/ontap-cli/event-notification-create.html["64b1a654c15b96443ae00ee82d8ea7ad"] 、 link:https://docs.netapp.com/us-en/ontap-cli/event-notification-modify.html["3289b87193da03bd8309fc4b2ea2e02e"]
+| イベント通知または SNMP トラップを構成またはテストするには、Elevate を使用します。 
+
+
+| コンプライアンス主導のデータアクセス  a| 
+link:https://docs.netapp.com/us-en/ontap-cli/volume-show.html["volume show"] 、 link:https://docs.netapp.com/us-en/ontap-cli/security-audit-log-show.html["8886c6249c30eca960ab30fed3c6746b"]
+| 監査人が機密データやログを確認できるように、一時的な読み取り専用アクセスを許可します。 
+
+
+| 特権アクセスのレビュー  a| 
+link:https://docs.netapp.com/us-en/ontap-cli/security-login-show.html["025c83c1a746b39471a98aa72befe950"] 、 link:https://docs.netapp.com/us-en/ontap-cli/security-login-role-show.html["c964d7ae2ca92e255e3199e128824eb9"]
+| 特権アクセスの確認とレポートのために一時的に昇格します。読み取り専用の昇格アクセスを一定期間のみ許可します。 
+|===

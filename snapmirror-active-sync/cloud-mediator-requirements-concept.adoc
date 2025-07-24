@@ -1,0 +1,122 @@
+---
+sidebar: sidebar 
+permalink: snapmirror-active-sync/cloud-mediator-requirements-concept.html 
+keywords: SM-BC, SMBC, ONTAP, Cloud Mediator, prerequisites, requirements, configuration, firewall, latency, proxy, certificate, snapmirror active sync 
+summary: ONTAP Cloud Mediator をインストールする前に、特定の要件を満たす必要があります。 
+---
+= ONTAP Cloud Mediatorの設定準備
+:hardbreaks:
+:allow-uri-read: 
+:nofooter: 
+:icons: font
+:linkattrs: 
+:imagesdir: ../media/
+
+
+[role="lead"]
+あなたの前にlink:cloud-mediator-config-task.html["ONTAP Cloud Mediatorを構成する"]前提条件が満たされていることを確認する必要があります。
+
+
+
+== ファイアウォールの要件
+
+ドメインコントローラのファイアウォール設定でHTTPSトラフィックを許可する必要があります。  `api.bluexp.netapp.com`両方のクラスターから。
+
+
+
+== プロキシサーバーの要件
+
+SnapMirror Active Sync にプロキシ サーバーを使用する場合は、プロキシ サーバーが作成されており、次のプロキシ サーバー情報があることを確認してください。
+
+* HTTPSプロキシIP
+* ポート
+* ユーザ名
+* パスワード
+
+
+
+
+== レイテンシー
+
+BlueXPクラウド サーバーとSnapMirrorアクティブ同期クラスター ピア間の推奨 ping 遅延は 200 ミリ秒未満です。
+
+
+
+== ルートCA証明書
+
+.クラスタの証明書を確認する
+ONTAPには既知のルートCA証明書がプリインストールされているため、ほとんどの場合、 BlueXPサーバのルートCA証明書をインストールする必要はありません。ONTAPCloud Mediatorの設定を開始する前に、クラスタをチェックして証明書が存在することを確認できます。
+
+例：
+
+[listing]
+----
+C1_cluster% openssl s_client -showcerts -connect api.bluexp.netapp.com:443|egrep "s:|i:"
+depth=2 C = US, O = DigiCert Inc, OU = www.digicert.com, CN = DigiCert Global Root G2
+verify return:1
+depth=1 C = US, O = Microsoft Corporation, CN = Microsoft Azure RSA TLS Issuing CA 04
+verify return:1
+depth=0 C = US, ST = WA, L = Redmond, O = Microsoft Corporation, CN = *.azureedge.net
+verify return:1
+ 0 s:/C=US/ST=WA/L=Redmond/O=Microsoft Corporation/CN=*.azureedge.net
+   i:/C=US/O=Microsoft Corporation/CN=Microsoft Azure RSA TLS Issuing CA 04
+ 1 s:/C=US/O=Microsoft Corporation/CN=Microsoft Azure RSA TLS Issuing CA 04
+   i:/C=US/O=DigiCert Inc/OU=www.digicert.com/CN=DigiCert Global Root G2
+ 2 s:/C=US/O=DigiCert Inc/OU=www.digicert.com/CN=DigiCert Global Root G2
+   i:/C=US/O=DigiCert Inc/OU=www.digicert.com/CN=DigiCert Global Root G2 <====
+
+C1_cluster::> security certificate show -common-name DigiCert*
+Vserver    Serial Number   Certificate Name                       Type
+---------- --------------- -------------------------------------- ------------
+C1_cluster 0CE7E0EXXXXX46FE8FE560FC1BFXXXXX DigiCertAssuredIDRootCA server-ca
+    Certificate Authority: DigiCert Assured ID Root CA
+          Expiration Date: Mon Nov 10 05:30:00 2031
+
+C1_cluster 0B931C3XXXXX67EA6723BFC3AF9XXXXX DigiCertAssuredIDRootG2 server-ca
+    Certificate Authority: DigiCert Assured ID Root G2
+          Expiration Date: Fri Jan 15 17:30:00 2038
+
+C1_cluster 0BA15AFXXXXXA0B54944AFCD24AXXXXX DigiCertAssuredIDRootG3 server-ca
+    Certificate Authority: DigiCert Assured ID Root G3
+          Expiration Date: Fri Jan 15 17:30:00 2038
+
+C1_cluster 083BE05XXXXX46B1A1756AC9599XXXXX DigiCertGlobalRootCA server-ca
+    Certificate Authority: DigiCert Global Root CA
+          Expiration Date: Mon Nov 10 05:30:00 2031
+
+C1_cluster 033AF1EXXXXXA9A0BB2864B11D0XXXXX DigiCertGlobalRootG2 server-ca
+    Certificate Authority: DigiCert Global Root G2
+          Expiration Date: Fri Jan 15 17:30:00 2038
+
+C1_cluster 055556BXXXXXA43535C3A40FD5AXXXXX DigiCertGlobalRootG3 server-ca
+    Certificate Authority: DigiCert Global Root G3
+          Expiration Date: Fri Jan 15 17:30:00 2038
+
+C1_cluster 02AC5C2XXXXX409B8F0B79F2AE4XXXXX DigiCertHighAssuranceEVRootCA server-ca
+    Certificate Authority: DigiCert High Assurance EV Root CA
+          Expiration Date: Mon Nov 10 05:30:00 2031
+
+C1_cluster 059B1B5XXXXX2132E23907BDA77XXXXX DigiCertTrustedRootG4 server-ca
+    Certificate Authority: DigiCert Trusted Root G4
+          Expiration Date: Fri Jan 15 17:30:00 2038
+----
+.プロキシサーバーにインストールされている証明書を確認する
+BlueXPでプロキシを使用してONTAP Cloud Mediator サービスに接続する場合は、プロキシ サーバのルート CA 証明書がONTAPにインストールされていることを確認します。
+
+例：
+
+[listing]
+----
+C1_cluster% openssl s_client -showcerts -proxy <ip:port> -connect api.bluexp.netapp.com:443 |egrep "s:|i:"
+----
+.CA 証明書をダウンロードします。
+必要に応じて、証明機関の Web サイトからルート CA 証明書をダウンロードし、クラスターにインストールできます。
+
+例：
+
+[listing]
+----
+C1_cluster::> security certificate install -type server-ca -vserver C1_cluster
+
+C2_cluster::> security certificate install -type server-ca -vserver C2_cluster
+----

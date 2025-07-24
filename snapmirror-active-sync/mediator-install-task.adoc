@@ -4,13 +4,8 @@ permalink: snapmirror-active-sync/mediator-install-task.html
 keywords: SM-BC, SMBC, cluster, peering, ONTAP Mediator, initialize, snapmirror active sync 
 summary: SnapMirror アクティブ同期では、ONTAP Mediator をインストールして初期化し、適切なクラスタ ピアリングを確保する必要があります。 
 ---
-= SnapMirror Active Sync 用に ONTAP Mediator とクラスタを構成する
-:hardbreaks:
+= SnapMirror Active Sync 用のONTAP Mediator を構成する
 :allow-uri-read: 
-:nofooter: 
-:icons: font
-:linkattrs: 
-:imagesdir: ../media/
 
 
 [role="lead"]
@@ -32,12 +27,14 @@ ONTAP Mediatorは、SnapMirror Active Sync関係にあるONTAPクラスタで使
 
 たとえば、クラスタBがクラスタA、クラスタC、およびクラスタDとピア関係にある場合、各関係にSnapMirrorのアクティブな同期が設定されていれば、3つのクラスタピア関係すべてに一意のONTAPメディエーターインスタンスを関連付けることができます。または、クラスタBは、3つのピア関係すべてに同じONTAPメディエーターインスタンスを使用できます。このシナリオでは、クラスタに対してONTAPメディエーターの同じインスタンスが3回表示されます。
 
+ONTAP 9.17.1以降では、 link:cloud-mediator-config-task.html["ONTAPクラウドメディエーター"]ただし、 SnapMirrorアクティブ同期構成でクラスタの健全性を監視するには、両方のメディエーターを同時に使用することはできません。
+
 .ONTAPメディエーターの前提条件
 * ONTAP Mediatorには独自の前提条件が含まれています。ONTAPMediatorをインストールする前に、これらの前提条件を満たす必要があります。
 +
-詳細については、を参照してください link:https://docs.netapp.com/us-en/ontap-metrocluster/install-ip/task_configuring_the_ontap_mediator_service_from_a_metrocluster_ip_configuration.html["ONTAPメディエーターのインストール準備"^]。
+詳細については、 link:https://docs.netapp.com/us-en/ontap-metrocluster/install-ip/concept_mediator_requirements.html["ONTAP Mediatorサービスのインストールの準備"^] 。
 
-* デフォルトでは、ONTAP Mediator は TCP ポート 31784 を介してサービスを提供します。ONTAP クラスタと ONTAP Mediator の間でポート 31784 が開いていて使用可能であることを確認する必要があります。
+* デフォルトでは、ONTAP MediatorはTCPポート31784を使用してサービスを提供します。ONTAPクラスタとONTAPメディエーターの間でポート 31784 が開いていて使用可能であることを確認する必要があります。
 
 
 
@@ -57,32 +54,8 @@ xref:../mediator/index.html[ONTAP Mediatorのインストールまたはアッ�
 NOTE: クラスタピア関係のSnapMirror Active SyncではデフォルトのIPspaceが必要です。カスタムIPspaceはサポートされません。
 
 +
-xref:../peering/create-cluster-relationship-93-later-task.html[クラスタピア関係の作成]
+link:cluster-config-task.html["SnapMirror Active Sync 用にONTAPクラスタを構成する"]
 
-. 各クラスタにSVMが作成されていることを確認します。
-+
-xref:../smb-config/create-svms-data-access-task.html[SVMの作成]
-
-. 各クラスタのSVM間にピア関係が確立されていることを確認します。
-+
-xref:../peering/create-intercluster-svm-peer-relationship-93-later-task.html[SVMピア関係の作成]
-
-. LUNのボリュームが存在することを確認します。
-+
-xref:../smb-config/create-volume-task.html[ボリュームの作成]
-
-. クラスタ内の各ノードにSAN LIFが少なくとも1つ作成されていることを確認します。
-+
-link:../san-admin/manage-lifs-all-san-protocols-concept.html["クラスタSAN環境でのLIFに関する考慮事項"]
-
-+
-link:../networking/create_a_lif.html["LIFの作成"]
-
-. 必要なLUNが作成され、igroupにマッピングされていることを確認します。igroupは、アプリケーションホストのイニシエータにLUNをマッピングするために使用されます。
-+
-xref:../san-admin/provision-storage.html[LUNの作成とigroupのマッピング]
-
-. アプリケーションホストを再スキャンして新しいLUNを検出します。
 
 
 
@@ -188,7 +161,7 @@ ONTAPメディエーターを使用してSnapMirrorのアクティブ同期関�
 . ONTAPメディエーターLinux VM /ホストソフトウェアのインストール先で、ONTAPメディエーターCA証明書を探します `cd /opt/netapp/lib/ontap_mediator/ontap_mediator/server_config`。
 . ピアクラスタの証明書ストアに有効な認証局を追加します。
 +
-* 例 *
+例：
 
 +
 [listing]
@@ -203,7 +176,7 @@ ONTAPメディエーターを使用してSnapMirrorのアクティブ同期関�
 `security certificate install -type server-ca -vserver <vserver_name>`
 
 +
-* 例 *
+例：
 
 +
 [listing]
@@ -240,7 +213,7 @@ C1_test_cluster::*>
 `security certificate show -common-name <common_name>`
 
 +
-* 例 *
+例：
 
 +
 [listing]
@@ -259,7 +232,7 @@ C1_test_cluster
 `snapmirror mediator add -mediator-address <ip_address> -peer-cluster <peer_cluster_name> -username user_name`
 
 +
-* 例 *
+例：
 
 +
 [listing]
@@ -272,7 +245,7 @@ Enter the password again: ******
 ----
 . 必要に応じて、ジョブIDのステータスを調べ `job show -id`て、SnapMirror Mediator addコマンドが成功したかどうかを確認します。
 +
-* 例 *
+例：
 
 +
 [listing]
@@ -334,7 +307,7 @@ Mediator Address Peer Cluster     Connection Status Quorum Status
 . ONTAPメディエーターLinux VM /ホストソフトウェアのインストール先で、ONTAPメディエーターCA証明書を探します `cd /opt/netapp/lib/ontap_mediator/ontap_mediator/server_config`。
 . ピアクラスタの証明書ストアに有効な認証局を追加します。
 +
-* 例 *
+例：
 
 +
 [listing]
@@ -349,7 +322,7 @@ Mediator Address Peer Cluster     Connection Status Quorum Status
 `security certificate install -type server-ca -vserver <vserver_name>`
 
 +
-* 例 *
+例：
 
 +
 [listing]
@@ -386,7 +359,7 @@ C1_test_cluster::*>
 `security certificate show -common-name <common_name>`
 
 +
-* 例 *
+例：
 
 +
 [listing]
@@ -405,7 +378,7 @@ C1_test_cluster
 `snapmirror mediator add -mediator-address <ip_address> -peer-cluster <peer_cluster_name> -username user_name`
 
 +
-* 例 *
+例：
 
 +
 [listing]
@@ -418,7 +391,7 @@ Enter the password again: ******
 ----
 . 必要に応じて、ジョブIDのステータスを調べ `job show -id`て、SnapMirror Mediator addコマンドが成功したかどうかを確認します。
 +
-* 例 *
+例：
 
 +
 [listing]
@@ -521,7 +494,7 @@ ONTAP CLI を使用して自己署名証明書をサードパーティの証明�
 --
 . すべてのクラスタで自己署名証明書を使用していた場合は、以前にインストールした自己署名証明書を削除して `intermediate.crt`ください。次の例では、2つのクラスタがあります。
 +
-* 例 *
+例：
 
 +
 [listing]
@@ -534,7 +507,7 @@ ONTAP CLI を使用して自己署名証明書をサードパーティの証明�
 ----
 . 次のコマンドを使用して、以前に設定したONTAPメディエーターをSnapMirrorアクティブな同期クラスタから削除し `-force true`ます。
 +
-* 例 *
+例：
 
 +
 [listing]
@@ -562,7 +535,7 @@ NOTE: には、 `intermediate.crt`ファイルに定義されているPKI権限�
 
 . ONTAPメディエーターLinux VM /ホストソフトウェアのインストール先から新しいサードパーティ製ONTAPメディエーターCA証明書を追加し `intermediate.crt`ます。
 +
-* 例 *
+例：
 
 +
 [listing]
@@ -575,7 +548,7 @@ NOTE: には、 `intermediate.crt`ファイルに定義されているPKI権限�
 ----
 . ファイルをピアクラスタに追加します `intermediate.crt`。すべてのピアクラスタについて、この手順を繰り返します。
 +
-* 例 *
+例：
 
 +
 [listing]
@@ -599,7 +572,7 @@ C1_test_cluster::*>
 ----
 . 以前に設定したONTAPメディエーターをSnapMirrorアクティブな同期クラスタから削除します。
 +
-* 例 *
+例：
 
 +
 [listing]
@@ -617,7 +590,7 @@ This table is currently empty.
 ----
 . ONTAP Mediator を再度追加します。
 +
-* 例 *
+例：
 
 +
 [listing]
@@ -646,7 +619,7 @@ Mediator Address Peer Cluster     Connection Status Quorum Status
 --
 . すべてのクラスタで自己署名証明書を使用していた場合は、以前にインストールした自己署名証明書を削除して `ca.crt`ください。次の例では、2つのクラスタがあります。
 +
-* 例 *
+例：
 
 +
 [listing]
@@ -659,7 +632,7 @@ Mediator Address Peer Cluster     Connection Status Quorum Status
 ----
 . 次のコマンドを使用して、以前に設定したONTAPメディエーターをSnapMirrorアクティブな同期クラスタから削除し `-force true`ます。
 +
-* 例 *
+例：
 
 +
 [listing]
@@ -687,7 +660,7 @@ NOTE: には、 `ca.crt`ファイルに定義されているPKI権限に送信�
 
 . ONTAPメディエーターLinux VM /ホストソフトウェアのインストール先から新しいサードパーティ製ONTAPメディエーターCA証明書を追加し `ca.crt`ます。
 +
-* 例 *
+例：
 
 +
 [listing]
@@ -700,7 +673,7 @@ NOTE: には、 `ca.crt`ファイルに定義されているPKI権限に送信�
 ----
 . ファイルをピアクラスタに追加します `intermediate.crt`。すべてのピアクラスタについて、この手順を繰り返します。
 +
-* 例 *
+例：
 
 +
 [listing]
@@ -724,7 +697,7 @@ C1_test_cluster::*>
 ----
 . 以前に設定したONTAPメディエーターをSnapMirrorアクティブな同期クラスタから削除します。
 +
-* 例 *
+例：
 
 +
 [listing]
@@ -742,7 +715,7 @@ This table is currently empty.
 ----
 . ONTAP Mediator を再度追加します。
 +
-* 例 *
+例：
 
 +
 [listing]

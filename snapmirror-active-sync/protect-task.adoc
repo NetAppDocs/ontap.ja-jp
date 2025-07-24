@@ -1,10 +1,10 @@
 ---
 sidebar: sidebar 
 permalink: snapmirror-active-sync/protect-task.html 
-keywords: SM-BC, snapmirror business continuity, consistency group, remote protection, destination 
+keywords: SM-BC, snapmirror business continuity, consistency group, remote protection, destination, scsi, nvme 
 summary: ビジネス継続性のための保護を設定するには、ONTAPソースクラスタでLUNを選択して整合グループに追加します。 
 ---
-= ONTAPでのSnapMirrorアクティブ同期による保護
+= ONTAP SnapMirror Active Syncで保護
 :hardbreaks:
 :toclevels: 1
 :allow-uri-read: 
@@ -43,7 +43,7 @@ SnapMirrorアクティブ同期を使用した非対称保護を設定するに�
 .手順
 ONTAP CLIまたはSystem Managerを使用して整合グループを設定できます。
 
-ONTAP 9.10.1以降では、ONTAPに追加の管理ユーティリティを提供する整合グループエンドポイントと整合グループメニューがSystem Managerに用意されています。ONTAP 9 .10.1以降を使用している場合は、の手順をlink:../consistency-groups/protect-task.html["保護の設定"]参照してSnapMirrorのアクティブな同期関係を作成してくださいlink:../consistency-groups/configure-task.html["整合グループの設定"]。
+ONTAP 9.10.1以降、 ONTAPはSystem Managerにコンシステンシーグループのエンドポイントとメニューを追加し、追加の管理ユーティリティを提供します。ONTAPONTAP以降をご利用の場合は、以下を参照してください。 link:../consistency-groups/configure-task.html["整合グループの設定"]それからlink:../consistency-groups/protect-task.html["保護の設定"] SnapMirrorアクティブ同期関係を作成します。
 
 
 IMPORTANT: ONTAP 9 .8~9.14.1では、SnapMirrorアクティブ同期をSnapMirrorビジネス継続性（SM-BC）と呼びます。
@@ -115,9 +115,16 @@ IMPORTANT: ONTAP 9 .8~9.14.1では、SnapMirrorアクティブ同期をSnapMirro
 ** 4ノード構成を使用して、ストレージとコントローラをアップグレードできます。このプロセスは無停止で実行され、ボリュームを新しいノードに移動する間にクラスタを拡張します。詳細については、を参照してください link:upgrade-revert-task.html#refresh-a-cluster["クラスタをリフレッシュします。"]。
 
 
+* ONTAP 9.17.1 以降では、両方のクラスタがONTAP 9.17.1 以降を実行している場合にのみ、NVMe 名前空間で対称アクティブ/アクティブ保護を設定できます。
 
+
+
+
+== SCSI SnapMirrorアクティブ同期構成を使用して対称アクティブ/アクティブ保護を構成する
 
 .手順
+System Manager またはONTAP CLI を使用して、SCSI プロトコル ホスト マッピングを使用した対称アクティブ/アクティブ保護を設定できます。
+
 [role="tabbed-block"]
 ====
 .System Manager
@@ -193,7 +200,7 @@ NOTE: ONTAP 9.16.1以降では、このコマンドでパラメータを使用�
 
 
 .不均一な構成の手順
-. アプリケーション内のすべてのボリュームをグループ化して新しいSnapMirror関係を作成します。双方向の同期レプリケーションを確立するには、必ず「AutomatedFailOverDuplex」ポリシーを指定してください。
+. アプリケーション内のすべてのボリュームをグループ化して新しいSnapMirror関係を作成します。双方向の同期レプリケーションを確立するためのポリシーを指定して `AutomatedFailOverDuplex`ください。
 +
 `snapmirror create -source-path <source_path> -destination-path <destination_path> -cg-item-mappings <source_volume:@destination_volume> -policy AutomatedFailOverDuplex`
 
@@ -214,6 +221,89 @@ SiteA::> igroup create -vserver <svm_name> -igroup <igroup_name> -initiator <hos
 SiteB::> igroup create -vserver <svm_name> -igroup <igroup_name> -initiator <host_2_name>`
 
 . ホストからパスを検出し、優先クラスタからストレージLUNへのアクティブ / 最適化パスがホストに設定されていることを確認します。
+. アプリケーションを導入し、VMワークロードをクラスタ間に分散して、必要な負荷分散を実現します。
+
+
+--
+====
+
+
+== NVMe SnapMirrorアクティブ同期構成を使用して対称アクティブ/アクティブ保護を構成する
+
+.開始する前に
+対称アクティブ/アクティブ保護を構成するための要件に加えて、NVMe プロトコルを使用するときは、サポートされている構成とサポートされていない構成に注意する必要があります。
+
+* 整合性グループには 1 つ以上のサブシステムを含めることができます。
+* 整合性グループ内のボリュームには、複数のサブシステムからの名前空間マップを設定できます。
+* サブシステムは、複数の整合性グループに属する名前空間マップを持つことはできません。
+* サブシステムには、整合性グループに属する名前空間マップと整合性グループに属さない名前空間マップを混在させることはできません。
+* サブシステムには、同じ整合性グループの一部である名前空間マップが必要です。
+
+
+.手順
+ONTAP 9.17.1 以降では、System Manager またはONTAP CLI を使用してコンシステンシ グループを作成し、NVMe プロトコル ホスト マッピングを使用して対称アクティブ/アクティブ保護を設定できます。
+
+[role="tabbed-block"]
+====
+.System Manager
+--
+. プライマリサイトでは、 link:../consistency-groups/configure-task.html#create-a-consistency-group-with-new-luns-or-volumes["新しいボリュームまたは NVMe 名前空間を使用して整合性グループを作成します。"^]
+. *+追加*を選択し、*新しいNVMe名前空間の使用*を選択します。
+. 一貫性グループ名を入力します。
+. *詳細*を選択します。
+. *保護*セクションで* SnapMirrorを有効にする*を選択し、  `AutomatedFailoverDuplex`ポリシー。
+. *ホスト マッピング* セクションで、*既存の NVMe サブシステム* または *新しい NVMe サブシステム* のいずれかを選択します。
+. 近接SVMを変更するには、「近接」を選択してください。デフォルトではソースSVMが選択されています。
+. 必要に応じて、別の NVMe サブシステムを追加します。
+
+
+--
+.CLI
+--
+. で使用されるすべてのNVMeネームスペースを含むすべてのボリュームをグループ化する新しいSnapMirror関係を作成します。 `AutomatedFailOverDuplex`双方向同期レプリケーションを確立するためのポリシー。
++
+`snapmirror create -source-path <source_path> -destination-path <destination_path> -cg-item-mappings <source_volume:@destination_volume> -policy AutomatedFailOverDuplex`
+
++
+例：
+
++
+[listing]
+----
+DST::> snapmirror create -source-path vs_src:/cg/cg_src_1 -destination-path vs_dst:/cg/cg_dst_1 -cg-item-mappings vs_src_vol1:@vs_dst_vol1,vs_src_vol2:@vs_dst_vol2 -policy AutomatedFailOverDuplex
+----
+. SnapMirror関係を初期化します。
+`snapmirror initialize -destination-path <destination-consistency-group>`
++
+例：
+
++
+[listing]
+----
+DST::> snapmirror initialize -destination-path vs1:/cg/cg_dst_1
+----
+. がおよび `Relationship Status`と表示される `SnapMirrored`のを待って、処理が成功したことを確認します `Mirrored State` `Insync`。
++
+`snapmirror show -destination-path <destination_path>`
+
++
+プライマリ ボリューム内の NVMe 名前空間に関連付けられた NVMe サブシステムは、セカンダリ クラスターに自動的に複製されます。
+
+. ホストで、必要に応じて各クラスタにアクセスできるようにホスト接続を設定します。
+. 各ホストに近接するSVMを指定します。これにより、優先クラスタからのパスを使用してNVMeネームスペースへのホストアクセスが可能になります。これは、プライマリクラスタ内のSVM、またはDRクラスタ内のSVMのいずれかになります。
++
+次のコマンドは、SVM VS_A がホスト H1 に近いことを示し、VS_A を近位 SVM として設定します。
+
++
+`SiteA::> vserver nvme subsystem host add -subsystem ss1 -host-nqn <H1_NQN> -proximal-vservers <VS_A>`
+
++
+次のコマンドは、SVM VS_B がホスト H2 に近いことを示し、VS_B を近位 SVM として設定します。
+
++
+`SiteB::> vserver nvme subsystem host add -subsystem ss1 -host-nqn <H2_NQN> -proximal-vservers <VS_B>`
+
+. ホストからパスを検出し、優先クラスターからストレージへのアクティブ/最適化されたパスがホストにあることを確認します。
 . アプリケーションを導入し、VMワークロードをクラスタ間に分散して、必要な負荷分散を実現します。
 
 

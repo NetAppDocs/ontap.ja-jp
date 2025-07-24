@@ -41,7 +41,7 @@ RTOゼロのSnapMirror同期保護が不要になった場合は、SnapMirrorの
 
 
 
-== 対称アクティブ/アクティブ構成を削除する
+== iSCSIまたはFC対称アクティブ/アクティブ構成を削除します
 
 対称構成は、System ManagerまたはONTAP CLIを使用して削除できます。どちらのインターフェイスでも、には異なる手順がありますxref:index.html#key-concepts[均一なコンフィギュレーションと非均一なコンフィギュレーション]。
 
@@ -129,6 +129,54 @@ SiteB::> igroup delete -vserver <svm_name> -igroup <igroup_name>`
 +
 `SiteA::> snapmirror release -destination-path <destination_path>`
 
+. パスを再検出して、ホストへのローカルパスのみが使用可能であることを確認します。
+
+
+--
+====
+
+
+== NVMe対称アクティブ/アクティブ構成を削除する
+
+[role="tabbed-block"]
+====
+.System Manager
+--
+.手順
+. ソース クラスターで、*保護 > レプリケーション* に移動します。
+. 削除したい関係を見つけて選択image:icon_kabob.gif["メニューオプションアイコン"] *削除*を選択します。
+
+
+--
+.CLI
+--
+. 宛先クラスタから、 SnapMirrorアクティブ同期関係を削除します。
++
+`snapmirror delete -destination-path <destination_path> -unmap-namespace true`
+
++
+例：
+
++
+[listing]
+----
+DST::> snapmirror delete -destination-path vs1:/cg/cg_dst_1 -force true
+----
++
+サブシステムとその名前空間はセカンダリ クラスターから削除されます。
+
+. ソース クラスターから、プライマリ サイトからSnapMirrorアクティブ同期関係を解除します。
++
+`snapmirror release -destination-path <destination_path>`
+
++
+例：
+
++
+[listing]
+----
+SRC::> snapmirror release -destination-path vs1:/cg/cg_dst_1
+----
 . パスを再検出して、ホストへのローカルパスのみが使用可能であることを確認します。
 
 

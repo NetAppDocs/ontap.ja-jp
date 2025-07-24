@@ -4,7 +4,7 @@ sidebar: sidebar
 keywords: multiprotocol, s3, configuration, overview, nfs, smb, multipart 
 summary: ONTAP 9 12.1以降では、S3プロトコルを実行するクライアントが、NFSプロトコルとSMBプロトコルを使用するクライアントに提供されるデータと同じデータに再フォーマットすることなくアクセスできるようになりました。 
 ---
-= ONTAPでのS3マルチプロトコルのサポート
+= ONTAP S3 マルチプロトコルサポートについて学ぶ
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
@@ -17,11 +17,11 @@ S3マルチプロトコル機能は次の2つのユースケースに対応し�
 
 . S3クライアントを使用した既存のNASデータへのアクセス
 +
-従来のNASクライアント（NFSまたはSMB）を使用して作成された既存のデータがNASボリューム（FlexVolまたはFlexGroupボリューム）に格納されている場合は、S3クライアントで分析ツールを使用してデータにアクセスできるようになります。
+既存のデータが従来の NAS クライアント (NFS または SMB) を使用して作成され、NAS ボリューム (FlexVolまたはFlexGroupボリューム) に配置されている場合は、S3 クライアント上の分析ツールを使用してこのデータにアクセスできます。
 
 . NASプロトコルとS3プロトコルの両方を使用してI/Oを実行できる、最新のクライアント向けのバックエンドストレージ
 +
-NASプロトコルとS3プロトコルの両方を使用して同じデータの読み取りと書き込みが可能なSparkやKafkaなどのアプリケーションに、統合アクセスを提供できるようになりました。
+NAS プロトコルと S3 プロトコルの両方を使用して同じデータを読み書きできる Spark や Kafka などのアプリケーションに統合アクセスを提供できます。
 
 
 
@@ -82,7 +82,11 @@ NOTE: S3 NASバケット内のマルチパートオブジェクトは、1MB単�
 
 * AbortMultipartUpload
 * CompleteMultipartUpload
+* CopyObject（ ONTAP 9.17.1以降）
 * CreateMultipartUpload
++
+ONTAP 9.17.1 以降、CreateMultipartUpload はタグ付けとユーザー メタデータのキー/値ペアをサポートします。
+
 * ListMultipartUpload
 * パーツのアップロード
 
@@ -111,7 +115,6 @@ FabricPoolの大容量階層:: S3 NASバケットをFabricPoolの大容量階層
 +
 --
 * ByPassGovernanceRetention
-* CopyObject
 * DeleteBucketLifecycleConfiguration
 * GetBucketLifecycleConfiguration
 * GetBucketObjectLockConfiguration
@@ -134,6 +137,8 @@ NOTE: 具体的には、S3 NASバケットでS3を使用する場合、これら
 AWSユーザメタデータ::
 +
 --
+* ONTAP 9.17.1 以降、マルチパート オブジェクトを含むメタデータがサポートされます。
+* ONTAP 9.16.1 以降、シングルアート オブジェクトを含むメタデータがサポートされます。
 * ONTAP 9.15.1以前では、S3ユーザメタデータの一部として受信されたキーと値のペアは、オブジェクトデータと一緒にディスクに格納されません。
 * ONTAP 9.15.1以前では、プレフィックスが「x-amz-meta」の要求ヘッダーは無視されます。
 
@@ -142,6 +147,8 @@ AWSユーザメタデータ::
 AWSタグ::
 +
 --
+* ONTAP 9.17.1 以降では、マルチパート オブジェクトを含むタグがサポートされます。
+* ONTAP 9.16.1 以降では、シングルアート オブジェクトを含むタグがサポートされます。
 * ONTAP 9.15.1以前のPUT object要求とマルチパートの開始要求では、プレフィックスが「x-amz-tagging」のヘッダーは無視されます。
 * ONTAP 9.15.1以前では、既存のファイルのタグの更新要求（PUT、GET、およびDelete要求に？tagging query-stringを指定）がエラーで拒否されます。
 

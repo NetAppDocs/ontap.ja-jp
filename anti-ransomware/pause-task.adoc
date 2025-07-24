@@ -23,7 +23,7 @@ ONTAP 9.13.1以降では、マルチ管理者検証（MAV）をイネーブル�
 link:../multi-admin-verify/enable-disable-task.html["MAVの詳細については、こちらをご覧ください"]です。
 
 .タスクの内容
-ARPの一時停止中は、イベントはログに記録されず、新しい書き込みに対するアクションも記録されません。ただし、以前のログについてはバックグラウンドで分析処理が続行されます。
+ARP の一時停止中は、新しい書き込みのイベントやアクションは記録されませんが、以前のログの分析操作はバックグラウンドで継続されます。
 
 
 NOTE: ARP無効機能を使用して分析を一時停止しないでください。これにより、ボリュームのARPが無効になり、学習したワークロードの動作に関する既存の情報がすべて失われます。これには、学習期間の再起動が必要になります。
@@ -36,11 +36,12 @@ ARPは、System ManagerまたはONTAP CLIを使用して一時停止できます
 .System Manager
 --
 . [ストレージ]>[ボリューム]*を選択し、ARPを一時停止するボリュームを選択します。
-. [Volumes]の概要の[** Security*]タブで、[Anti-ransomware]ボックスの*[Pause anti-ransomware]*を選択します。
+. ボリュームの概要の *セキュリティ* タブで、*ランサムウェア対策* ボックスの *ランサムウェア対策の一時停止* を選択します。
 +
 
 NOTE: ONTAP 9 .13.1以降では、MAVを使用してARP設定を保護している場合、一時停止操作によって、1人以上の追加管理者の承認を得るように求められます。link:../multi-admin-verify/request-operation-task.html["すべての管理者から承認を受ける必要があります"]MAV承認グループに関連付けられているか、操作が失敗します。
 
+. 監視を再開するには、「*ランサムウェア対策を再開*」を選択します。
 
 
 --
@@ -48,12 +49,16 @@ NOTE: ONTAP 9 .13.1以降では、MAVを使用してARP設定を保護してい�
 --
 . ボリュームでARPを一時停止します。
 +
-`security anti-ransomware volume pause -vserver _svm_name_ -volume _vol_name_`
-
+[source, cli]
+----
+security anti-ransomware volume pause -vserver <svm_name> -volume <vol_name>
+----
 . 処理を再開するには、次のコマンドを使用し `resume`ます。
 +
-`security anti-ransomware volume resume -vserver _svm_name_ -volume _vol_name_`
-
+[source, cli]
+----
+security anti-ransomware volume resume -vserver <svm_name> -volume <vol_name>
+----
 +
 の詳細については `security anti-ransomware volume`、をlink:https://docs.netapp.com/us-en/ontap-cli/search.html?q=security+anti-ransomware+volume+["ONTAPコマンド リファレンス"^]参照してください。
 
@@ -64,12 +69,16 @@ MAVを使用していて、予定されている一時停止操作で追加の�
 +
 .. 要求を表示します。
 +
-`security multi-admin-verify request show`
-
+[source, cli]
+----
+security multi-admin-verify request show
+----
 .. 要求を承認します。
 +
-`security multi-admin-verify request approve -index[_number returned from show request_]`
-
+[source, cli]
+----
+security multi-admin-verify request approve -index[<number returned from show request>]
+----
 +
 最後のグループの承認者には、ボリュームが変更され、ARPが一時停止状態になった旨の応答が返されます。
 
@@ -77,8 +86,10 @@ MAVを使用していて、予定されている一時停止操作で追加の�
 MAVを使用していて、MAVグループの承認者である場合、一時停止処理の要求を却下できます。
 
 +
-`security multi-admin-verify request veto -index[_number returned from show request_]`
-
+[source, cli]
+----
+security multi-admin-verify request veto -index[<number returned from show request>]
+----
 +
 の詳細については `security multi-admin-verify request`、をlink:https://docs.netapp.com/us-en/ontap-cli/search.html?q=security+multi-admin-verify+request["ONTAPコマンド リファレンス"^]参照してください。
 

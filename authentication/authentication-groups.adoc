@@ -1,0 +1,194 @@
+---
+sidebar: sidebar 
+permalink: authentication/authentication-groups.html 
+keywords: oauth 2.0, oauth2, identity mapping, group uuid, group name, group mapping, external roles, role mapping, saml, entra, active directory, adfs, idp 
+summary: ONTAP には、認証サーバまたは SAML IdP に基づいてグループを構成するためのいくつかのオプションが用意されています。グループを、ONTAPがアクセス制御に使用するロールにマッピングできます。 
+---
+= ONTAPでのOAuth 2.0またはSAML IdPグループの使用
+:hardbreaks:
+:allow-uri-read: 
+:nofooter: 
+:icons: font
+:linkattrs: 
+:imagesdir: ../media/
+
+
+[role="lead"]
+ONTAP には、OAuth 2.0 認証サーバーまたは SAML ID プロバイダー (IdP) に基づいてグループを構成するためのいくつかのオプションが用意されています。グループを、ONTAPがアクセス制御に使用するロールにマッピングできます。
+
+ONTAP 9.17.1以降では、SAML IdPが提供するグループ情報をONTAPロールにマッピングできるようになりました。これにより、IdPで定義されたグループに基づいてユーザーにロールを割り当てることができます。詳しくはlink:../system-admin/configure-saml-authentication-task.html["SAML認証の設定"]。ONTAP 9.14.1以降、 ONTAPはOAuth 2.0のグループ名認証をサポートします。ONTAP9.16.1以降、 ONTAPはONTAP 2.0のグループUUID認証とロールマッピングをサポートします。link:../authentication/overview-oauth2.html["ONTAP OAuth 2.0実装の概要"] 。
+
+
+
+== グループの識別方法
+
+認可サーバまたはSAML IdPでグループを設定すると、名前またはUUIDを使用してOAuth 2.0アクセストークンまたはSAMLアサーションでグループが識別され、送信されます。ONTAPを設定する前に、認可サーバまたはSAML IdPがグループをどのように処理するかを把握しておく必要があります。
+
+
+NOTE: アクセストークンに複数のグループが含まれている場合、ONTAPは一致するまで各グループを使用しようとします。
+
+
+
+=== グループ名
+
+Active Directory Federation Service（ADFS）などの多くの認可サーバーやSAML IdPは、グループを名前で識別・表現します。は、ADFSによって生成された、複数のグループを含むJSON OAuth 2.0アクセストークンの一部です。<<名前付きのグループを管理します。>>詳細についてはこちらをご覧ください。
+
+[listing]
+----
+  ...
+  "sub": "User1_TestDev@NICAD5.COM",
+  "group": [
+    "NICAD5\\Domain Users",
+    "NICAD5\\Development Group",
+    "NICAD5\\Production Group"
+  ],
+  "apptype": "Confidential",
+  "appid": "3bff3b2b-8e40-44ba-7c11-d73c3b76e3e8",
+  ...
+----
+
+
+=== グループUUID
+
+Microsoft Entra IDのような一部の認可サーバーとSAML IdPは、UUIDを使用してグループを識別・表現します。は、Entra IDによって生成された、複数のグループを含むOAuth 2.0アクセストークンの一部です。<<UUIDを使用したグループの管理>>詳細についてはこちらをご覧ください。
+
+[listing]
+----
+  ...
+  "appid": "4aff4b4b-8e40-44ba-7c11-d73c3b76e3d7",
+  "appidacr": "1",
+  "groups": [
+    "8ea4c5b0-bcad-4e66-8f1e-cd395474a448",
+    "a8558fc2-a1b2-4cb7-cc41-59bd831840cc"],
+  "name": "admin007 with group membership",
+  ...
+----
+
+
+== 名前付きのグループを管理します。
+
+認証サーバーまたは SAML IdP が名前を使用してグループを識別する場合は、各グループがONTAPクラスターに対して定義されていることを確認する必要があります。セキュリティ環境によっては、グループがすでに定義されている場合があります。
+
+ONTAPグループを定義するCLIコマンドの例を以下に示します。サンプルアクセストークンから取得した名前付きグループを使用していることに注意してください。このコマンドを実行するには、 ONTAPの*admin*権限レベルが必要です。
+
+.例
+[listing]
+----
+security login create -user-or-group-name "NICAD5\\Domain Users" -application http -authentication-method domain -role admin
+----
+使用 `-authentication-method` `domain`または `nsswitch` SAML IdP および OAuth 2.0 認証サーバー グループ用。
+
+
+NOTE: この機能は、ONTAP REST APIを使用して設定することもできます。詳細はこちら https://docs.netapp.com/us-en/ontap-automation/["ONTAP自動化に関するドキュメント"^] 。
+
+
+
+== UUIDを使用したグループの管理
+
+認可サーバまたはSAML IdPがUUID値を使用してグループを表す場合、グループを使用する前に2段階の設定を行う必要があります。ONTAP9.16.1以降では、 2つのマッピング機能が利用可能になり、Entra IDでテストされています。OAuth2.0用のEntra IDはONTAP 9.16.1以降、SAML用のEntra IDはONTAP 9.17.1以降でサポートされています。CLIコマンドを実行するには、 ONTAPの*admin*権限レベルが必要です。
+
+
+NOTE: これらの機能は、ONTAP REST APIを使用して設定することもできます。詳細については、を https://docs.netapp.com/us-en/ontap-automation/["ONTAP自動化に関するドキュメント"^]参照してください。
+
+
+
+=== グループUUIDをグループ名にマッピングする
+
+UUID 値を使用してグループを表す認証サーバーまたは SAML IdP を使用している場合は、グループ UUID をグループ名にマッピングする必要があります。以下では、主なONTAP CLI処理について説明します。
+
+
+
+==== 作成
+
+新しいグループマッピング設定を定義するには、  `security login group create`コマンド。グループのUUIDと名前は、認可サーバーまたはSAML IdPの設定と一致する必要があります。詳細については、  `security login group create`の中でlink:https://docs.netapp.com/us-en/ontap-cli/security-login-group-create.html["ONTAPコマンド リファレンス"^] 。
+
+.パラメータ
+グループマッピングの作成に使用するパラメータを次に示します。
+
+[cols="30,70"]
+|===
+| パラメータ | 説明 
+
+
+| `vserver` | 必要に応じて、グループを関連付けるSVM（SVM）の名前を指定します。省略すると、グループはONTAPクラスタに関連付けられます。 
+
+
+| `name` | ONTAPが使用するグループの一意の名前。 
+
+
+| `type` | この値は、グループの発信元のアイデンティティプロバイダを示します。 
+
+
+| `uuid` | 認可サーバーまたは SAML IdP によって提供されるグループのユニバーサル一意識別子を指定します。 
+|===
+ONTAPのグループを定義する CLI コマンドの例を以下に示します。サンプルアクセストークンの UUID グループを使用していることに注意してください。
+
+.例
+[listing]
+----
+security login group create -vserver ontap-cls-1 -name IAM_Dev -type entra -uuid 8ea4c5b0-bcad-4e66-8f1e-cd395474a448
+----
+グループを作成すると、グループに対して一意の読み取り専用整数識別子が生成されます。
+
+
+
+==== その他のCLI処理
+
+このコマンドでは、次のような追加の処理がサポートされます。
+
+* - 表示
+* 変更
+* 削除
+
+
+オプションを使用すると、グループに対して生成された一意のグループIDを取得できます `show`。の詳細については `show`、をlink:https://docs.netapp.com/us-en/ontap-cli/search.html?q=show["ONTAPコマンド リファレンス"^]参照してください。
+
+
+
+=== グループUUIDをロールにマッピングする
+
+UUID値を使用してグループを表す認可サーバまたはSAML IdPを使用している場合は、グループをロールにマッピングできます。ONTAPONTAP役割ベースのアクセス制御の詳細については、以下を参照してくださいlink:../authentication/manage-access-control-roles-concept.html["ONTAPアクセス制御ロールの管理について"]。  以下では、主なONTAP CLI処理について説明します。コマンドを発行するには、 ONTAP *admin* 権限レベルである必要があります
+
+
+NOTE: まず最初に<<グループUUIDをグループ名にマッピングする,グループUUIDをグループ名にマッピングする>>グループに対して生成された一意の整数 ID を取得します。グループをロールにマッピングするには、IDが必要です。
+
+
+
+==== 作成
+
+新しいロールマッピングを定義するには、  `security login group role-mapping create`コマンド。詳細はこちら `security login group role-mapping create`の中でlink:https://docs.netapp.com/us-en/ontap-cli/security-login-group-role-mapping-create.html["ONTAPコマンド リファレンス"^] 。
+
+.パラメータ
+グループをロールにマッピングするために使用されるパラメータを次に示します。
+
+[cols="30,70"]
+|===
+| パラメータ | 説明 
+
+
+| `group-id` | コマンドを使用して、グループに対して生成される一意のIDを指定します `security login group create`。 
+
+
+| `role` | グループのマッピング先のONTAPロールの名前。 
+|===
+.例
+[listing]
+----
+security login group role-mapping create -group-id 1 -role admin
+----
+
+
+==== その他のCLI処理
+
+このコマンドでは、次のような追加の処理がサポートされます。
+
+* - 表示
+* 変更
+* 削除
+
+
+この手順で説明されているコマンドの詳細については、をlink:https://docs.netapp.com/us-en/ontap-cli/["ONTAPコマンド リファレンス"^]参照してください。
+
+.関連情報
+* link:../authentication/oauth2-external-roles.html["外部ロールのマッピング"]
+

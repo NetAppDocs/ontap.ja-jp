@@ -4,14 +4,14 @@ sidebar: sidebar
 keywords: s3, svm, bucket, object, server, versioning, protocol, filesystems, nas, directories 
 summary: S3 NASバケットは、S3バケット名とNASパスのマッピングです。 
 ---
-= S3 NASバケットの作成
+= ONTAP S3 NASバケットを作成する
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-S3 NASバケットは、S3バケット名とNASパスのマッピングです。S3 NASバケットを使用すると、既存のボリュームとディレクトリ構造を持つSVMネームスペースの任意の部分へのS3アクセスを提供できます。
+S3 NAS バケットは、S3 バケット名と NAS パス間のマッピングです。S3 NASバケットを使用すると、既存のボリュームとディレクトリ構造を持つSVMネームスペースのどこにでもS3アクセスを提供できます。
 
 .開始する前に
 * NASデータを含むSVMにS3オブジェクトサーバが設定されている。
@@ -30,14 +30,19 @@ SVMのルートディレクトリ内の任意のセットのファイルとデ�
 
 たとえば、大規模なユーザグループに読み取り専用データアクセスを許可するバケットポリシーと、そのデータのサブセットに対して限定されたグループに処理の実行を許可するバケットポリシーが必要になる場合があります。
 
-S3 NASの「バケット」はマッピングであり、S3バケットではないため、次の標準S3バケットのプロパティはS3 NASバケットには適用されません。
+ONTAP 9.17.1以降では、ジャンクションパスではなくボリュームにS3 NASバケットを直接リンクできます。デフォルトでは、NASボリューム上のS3バケットはジャンクションパスに関連付けられていますが、これはONTAP管理者がいつでも変更できます。これらの変更は、S3バケットの操作に支障をきたす可能性があります。ONTAPONTAP以降では、  `-is-nas-path-mutable false`オプション `vserver object-store-server bucket create` ONTAP CLIでコマンドを実行して、S3 NASバケットをボリュームにリンクできるようにします。デフォルトでは、  `-is-nas-path-mutable`設定されている `true` 。
+
+S3 NAS「バケット」はマッピングであり、S3 バケットではないため、標準の S3 バケットの次のプロパティは S3 NAS バケットには適用されません。
 
 * * aggr-list\aggr-list-multiplier \storage-service-level \volume\size\exclude-aggr-list\qos-policy-group *+ S3 NASバケットの設定時にボリュームまたはqtreeが作成されません。
-* * role\is-protected\is-protected-on-\ is-protected-on-cloud *+ S3 ONTAPバケットは、SnapMirror S3を使用して保護またはミラーリングされませんが、代わりにボリューム単位で使用できる通常のSnapMirror保護が使用されます。
+* *role \ is -protected \ is -protected-on-ontap \ is -protected-on-cloud* + S3 NAS バケットは、 SnapMirror S3 を使用して保護またはミラーリングされませんが、代わりにボリューム粒度で利用可能な通常のSnapMirror保護が使用されます。
 * *バージョン管理状態*+ NASボリュームには'通常'さまざまなバージョンを保存するためのスナップショット・テクノロジーが用意されていますただし、S3 NASバケットでは現在バージョン管理を使用できません。
 * * logical-used\object-count *+と同等の統計情報は、volumeコマンドを使用してNASボリュームに対して利用できます。
-* *マルチパートオブジェクト*+ ONTAP 9.16.1以降では、が基盤となるFlexGroupボリュームで有効になっている場合、S3 NASバケットでマルチパートオブジェクトがサポートされlink:../flexgroup/enable-adv-capacity-flexgroup-task.html["高度な容量分散"]ます。高度な容量分散は、FlexGroupボリュームでのみ有効にできます。FlexVolでは有効にできません。
+* *マルチパートオブジェクト* + ONTAP 9.16.1以降、S3 NASバケットでマルチパートオブジェクトがサポートされます。 link:../flexgroup/enable-adv-capacity-flexgroup-task.html["高度な容量分散"]基盤となるFlexGroupボリュームで有効になっています。高度な容量バランス調整はFlexGroupボリュームでのみ有効にできます。FlexVolFlexVolでは有効にできません。
 
+
+.手順
+System Manager またはONTAP CLI を使用して NAS バケットを作成できます。
 
 [role="tabbed-block"]
 ====
@@ -56,11 +61,21 @@ NAS対応Storage VMに新しいS3 NASバケットを追加します。
 --
 .CLI
 --
-NASファイルシステムを含むSVMにS3 NASバケットを作成します。+
-`vserver object-store-server bucket create -vserver _svm_name_ -bucket _bucket_name_ -type nas -nas-path _junction_path_ [-comment _text_]`
+. NAS ファイルシステムを含む SVM に S3 NAS バケットを作成します。+ 
+`vserver object-store-server bucket create -vserver <svm_name> -bucket <bucket_name> -type nas -nas-path <junction_path> -is-nas-path-mutable true|false [-comment <text>]`
++
+例1: S3 NASバケットを作成する
 
-例：+
++
 `cluster1::> vserver object-store-server bucket create -bucket testbucket -type nas -path /vol1`
+
++
+例2: S3 NASバケットを作成し、バケットをボリュームにリンクする
+
++
+`vserver object-store-server bucket create -vserver vs1 -bucket nasbucket1 -type nas -nas-path /pathA/dir1 -is-nas-path-mutable false`
+
+
 
 --
 ====

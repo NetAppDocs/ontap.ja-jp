@@ -4,27 +4,36 @@ sidebar: sidebar
 keywords: perform, directory, delete, files, asynchronous, share, flexvol, flex vol, flexgroup, flex group, cancel 
 summary: ONTAP 9.8以降では、volume file async -deleteコマンドを使用して、LinuxおよびWindowsのクライアント共有からバックグラウンドでファイルとディレクトリを削除できます。非同期削除は、FlexVolとFlexGroupの両方のボリュームで実行できます。 
 ---
-= FlexGroups を使用した ONTAP クラスタでディレクトリを非同期的に削除する
+= ONTAP FlexGroupボリュームからディレクトリを非同期的に削除する
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-ONTAP 9 .8以降では、非同期削除機能を使用して、LinuxおよびWindowsクライアントの共有から非同期（バックグラウンド）でディレクトリを削除できます。クラスタ管理者およびSVM管理者は、FlexVolとFlexGroupの両方のボリュームに対して非同期削除処理を実行できます。
+ONTAP 9.8 以降では、Linux および Windows クライアント共有からディレクトリを非同期的に（つまり、バックグラウンドで）削除できます。クラスタ管理者とSVM管理者は、FlexVolとFlexGroupボリュームの両方で非同期削除処理を実行できます。
 
-ONTAP 9 .11.1より前のバージョンのONTAPを使用している場合は、クラスタ管理者またはSVM管理者（advanced権限モードを使用）である必要があります。
+.タスクの内容
+高度な権限モードを使用するクラスタ管理者または SVM 管理者である必要があります。
+
+ONTAP 9.8以降では、ONTAP CLIを使用して非同期削除機能を使用できます。ONTAP9.9.1以降では、System Managerを使用してこの機能を使用できます。このプロセスの詳細については、を参照してくださいlink:../task_nas_file_system_analytics_take_corrective_action.html["FSAのONTAP分析に基づいて是正措置を講じる"]。
 
 ONTAP 9 .11.1以降では、ストレージ管理者がボリュームに対する権限を付与して、NFSクライアントとSMBクライアントによる非同期削除処理を許可できます。詳細については、を参照してください link:manage-client-async-dir-delete-task.html["ディレクトリを非同期で削除するクライアント権限を管理します。"]。
 
-ONTAP 9.8以降では、ONTAP CLIを使用して非同期削除機能を使用できます。ONTAP9.9.1以降では、System Managerを使用してこの機能を使用できます。このプロセスの詳細については、を参照してくださいlink:../task_nas_file_system_analytics_take_corrective_action.html["FSAのONTAP分析に基づいて是正措置を講じる"]。
+使用することができます `volume file async-delete show`進行中の非同期削除ジョブのステータスを確認するコマンドです。ONTAP 9.17.1 以降では、クライアントから発行された非同期削除ジョブのステータスも表示されます。
+
+
+
+== ディレクトリを非同期的に削除する
+
+System Manager またはONTAP CLI を使用して、ディレクトリを非同期的に削除できます。
 
 [role="tabbed-block"]
 ====
 .System Manager
 --
 |===
-| ONTAP 9.8 および 9.9.1 では | ONTAP 9.10.1以降 
+| ONTAP 9.9.1の場合 | ONTAP 9.10.1以降 
 
 
  a| 
@@ -54,22 +63,26 @@ NOTE: ディレクトリとファイルを削除しても、新しいストレ�
 
 . advanced権限モードに切り替えます。
 +
-`-privilege advance`
+`set -privilege advanced`
 
 . FlexVolまたはFlexGroupボリューム上のディレクトリを削除します。
 +
-`volume file async-delete start -vserver vserver_name -volume volume_name -path file_path -throttle throttle`
+`volume file async-delete start -vserver <SVM_name> -volume <volume_name> -path <file_path> -throttle <throttle>`
 
 +
-最小スロットル値は10、最大スロットル値は100、000、デフォルトは5000です。
+最小スロットル値は10、最大スロットル値は100000、デフォルトは5000です。スロットル値が低いほどリソースの使用量が少なくなり、削除速度が遅くなる可能性があります。一方、スロットル値が高いほどリソースの使用量が多くなりますが、削除速度は速くなります。
 
 +
 次の例は、d1という名前のディレクトリにあるd2という名前のディレクトリを削除します。
 
 +
 ....
-cluster::*>volume file async-delete start -vserver vs1 -volume vol1 -path d1/d2
+cluster::*> volume file async-delete start -vserver vs1 -volume vol1 -path d1/d2
 ....
+. (オプション) 進行中の非同期削除ジョブのステータスを確認します。
++
+`volume file async-delete show`
+
 . ディレクトリが削除されたことを確認します。
 +
 `event log show`
@@ -79,17 +92,22 @@ cluster::*>volume file async-delete start -vserver vs1 -volume vol1 -path d1/d2
 
 +
 ....
-cluster-cli::*> event log show
-Time                 Node             Severity      Event
--------------------  ---------------- ------------- --------------------
-MM/DD/YYYY 00:11:11  cluster-vsim     INFORMATIONAL asyncDelete.message.success: Async delete job on path d1/d2 of volume (MSID: 2162149232) was completed.
+cluster::*> event log show
+
+Time                Node             Severity      Event
+------------------- ---------------- ------------- ---------------------------
+7/7/2025 09:04:04   cluster-vsim     NOTICE        asyncDelete.message.success: Async delete job on path d1/d2 of volume (MSID: 2162149232) was completed. Number of files deleted: 7, Number of directories deleted: 5. Total number of bytes deleted: 135168.
 ....
 +
 の詳細については `event log show`、をlink:https://docs.netapp.com/us-en/ontap-cli/event-log-show.html["ONTAPコマンド リファレンス"^]参照してください。
 
 
 
-*ディレクトリ削除ジョブ*をキャンセルします
+--
+====
+
+
+== ディレクトリ削除ジョブのキャンセル
 
 . advanced権限モードに切り替えます。
 +
@@ -104,9 +122,6 @@ MM/DD/YYYY 00:11:11  cluster-vsim     INFORMATIONAL asyncDelete.message.success:
 
 . ディレクトリの削除をキャンセルします。
 +
-`volume file async-delete cancel -vserver _SVM_name_ -volume _volume_name_ -jobid _job_id_`
+`volume file async-delete cancel -vserver <SVM_name> -volume <volume_name> -jobid <job_id>`
 
 
-
---
-====

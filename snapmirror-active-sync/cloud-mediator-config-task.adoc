@@ -1,0 +1,84 @@
+---
+sidebar: sidebar 
+permalink: snapmirror-active-sync/cloud-mediator-config-task.html 
+keywords: SM-BC, SMBC, cluster, peering, ONTAP Cloud Mediator, initialize, snapmirror active sync 
+summary: ONTAP Cloud Mediator をSnapMirror Active Sync と併用する場合は、まずBlueXPサービスとクライアント情報が設定されていることを確認する必要があります。 
+---
+= SnapMirror Active Sync 用のONTAP Cloud Mediator を構成する
+:hardbreaks:
+:allow-uri-read: 
+:nofooter: 
+:icons: font
+:linkattrs: 
+:imagesdir: ../media/
+
+
+[role="lead"]
+ONTAP 9.17.1以降では、 ONTAP Cloud Mediatorを使用して各クラスタの健全性を監視することで、ビジネス継続性を実現できます。ONTAPONTAP Mediatorはクラウドベースのサービスです。ONTAPCloud ONTAPをSnapMirror Active Syncと併用する場合は、まずBlueXPサービスとクライアント情報が設定されていることを確認し、クラスタピアリングが適切に行われていることを確認する必要があります。
+
+ONTAP Mediatorと同様に、 ONTAP Cloud Mediatorは、 SnapMirror Active Sync関係にあるONTAPクラスタで使用される高可用性（HA）メタデータ用の永続的かつフェンスされたストアを提供します。ONTAPONTAP Mediatorは、クォーラムの決定を支援する同期ノードヘルスクエリ機能を提供し、コントローラの稼働状態検出のためのpingプロキシとして機能します。
+
+.開始する前に
+ONTAP Cloud Mediator を設定する前に、次の情報を確認する必要があります。
+
+* クラスターが構成されました。
++
+link:cluster-config-task.html["SnapMirror Active Sync 用にONTAPクラスタを構成する"]
+
+* 有効なBlueXPサブスクリプションをお持ちです。
++
+link:https://docs.netapp.com/us-en/bluexp-setup-admin/task-subscribe-standard-mode.html["BlueXPデータサービスに加入する（標準モード）"]
+
+* BlueXPコンソールからBlueXP組織IDをコピーし、 ONTAP Cloud Mediatorの設定時に使用するBlueXPメンバーサービスアカウントを作成しました。サービスアカウントを作成する際は、組織をONTAP Cloud Mediatorを設定したサブスクリプションに設定する必要があります。カテゴリは*アプリケーション*、ロールタイプは* ONTAP Mediatorセットアップロール*に設定する必要があります。ロールを作成する際に、クライアントIDとクライアントシークレットを保存してください。
++
+link:https://docs.netapp.com/us-en/bluexp-setup-admin/task-iam-manage-members-permissions.html#add-members["BlueXPメンバーとサービスアカウントを追加する"]
+
+
+
+.手順
+System Manager またはONTAP CLI を使用してONTAP Cloud Mediator を追加できます。
+
+[role="tabbed-block"]
+====
+.System Manager
+--
+. *保護 > 概要 > メディエーター* に移動し、*追加* を選択します。
+. *メディエーターの追加* ウィンドウで、メディエーターの種類として *クラウド* を選択し、次の情報を入力します。
++
+** BlueXP組織ID
+** BlueXPクライアントID
+** BlueXPクライアントシークレット
+
+
+. クラスター ピアを選択します。
+. HTTP プロキシを使用しており、まだ構成されていない場合は、ローカル ホストとリモート ホストの HTTP プロキシ情報を入力します。
++
+クラスター ピアごとに異なるプロキシ サーバーを使用することをお勧めします。
+
+. オプション: ONTAPにルート CA 証明書をインストールする必要がある場合 (特にプロキシ サーバを使用している場合)、指定されたテキスト ボックスに証明書を貼り付けます。
+. 「 * 追加」を選択します。
+. *[保護] > [概要]* に移動し、 SnapMirrorアクティブ同期クラスタとONTAP Cloud Mediator 間の関係のステータスを確認します。
+
+
+--
+.CLI
+--
+. ONTAP Cloud Mediator を設定します。 
+`snapmirror mediator add -peer-cluster <peerClusterName> -type cloud -bluexp-org-id <BlueXP Organization ID> -service-account-client-id <Service Account Client ID> -use-http-proxy-local <true|false> -use-http-proxy-remote <true|false>`
+. ONTAP Cloud Mediator のステータスを確認します。 
+`snapmirror mediator show`
++
+例：
+
++
+[listing]
+----
+C1_cluster::> snapmirror mediator show
+Mediator Address Peer Cluster     Connection Status Quorum Status Type
+---------------- ---------------- ----------------- ------------- -------
+0.0.0.0          C2_cluster       connected         true          cloud
+----
+
+
+--
+====

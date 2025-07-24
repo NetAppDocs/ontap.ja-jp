@@ -13,6 +13,8 @@ summary: NVMe を使用する場合は、ネームスペースをサブシステ
 [role="lead"]
 NVMeネームスペースをサブシステムにマッピングすると、ホストからのデータアクセスが可能になります。NVMeネームスペースは、ストレージのプロビジョニング時にサブシステムにマッピングすることも、ストレージのプロビジョニング後にマッピングすることもできます。
 
+ONTAP 9.17.1以降では、 SnapMirror Active Sync構成を使用している場合、ホストをNVMeサブシステムに追加する際に、SVMを近接VServerとしてホストに追加できます。NVMeサブシステム内のネームスペースのアクティブ最適化パスは、近接VServerとして設定されているSVMからのみホストに公開されます。
+
 ONTAP 9 14.1以降では、特定のホストのリソース割り当てに優先順位を付けることができます。デフォルトでは、NVMeサブシステムに追加されたホストには標準優先度が与えられます。ONTAPのコマンドラインインターフェイス（CLI）を使用して、デフォルト優先度を手動で標準から高に変更できます。高い優先度を割り当てられたホストには、より多くのI/Oキュー数とキュー深度が割り当てられます。
 
 
@@ -20,6 +22,10 @@ NOTE: ONTAP 9 .13.1以前でサブシステムに追加されたホストに高�
 
 .開始する前に
 ネームスペースとサブシステムはすでに作成されている必要があります。ネームスペースとサブシステムを作成する必要がある場合は、を参照してくださいlink:create-nvme-namespace-subsystem-task.html["NVMeストレージのプロビジョニング"]。
+
+
+
+== NVMe名前空間をマップする
 
 .手順
 . ホストからNQNを取得します。
@@ -31,6 +37,9 @@ vserver nvme subsystem host add -vserver <SVM_name> -subsystem <subsystem_name> 
 ----
 +
 ホストのデフォルト優先度をregularからhighに変更する場合は、オプションを使用し `-priority high`ます。このオプションは、ONTAP 9.14.1以降で使用できます。の詳細については `vserver nvme subsystem host add`、をlink:https://docs.netapp.com/us-en/ontap-cli/vserver-nvme-subsystem-host-add.html["ONTAPコマンド リファレンス"^]参照してください。
+
++
+SVMを `proximal-vserver` SnapMirrorアクティブ同期構成でホストをNVMeサブシステムに追加する際に、  `-proximal-vservers`オプション。このオプションは、ONTAP 9.17.1以降で使用できます。ソースSVM、デスティネーションSVM、またはその両方を追加できます。このコマンドを実行しているSVMがデフォルトです。
 
 . ネームスペースをサブシステムにマッピングします。
 +

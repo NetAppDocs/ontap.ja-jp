@@ -1,0 +1,128 @@
+---
+sidebar: sidebar 
+permalink: anti-ransomware/respond-san-entropy-eval-period.html 
+keywords: ransomware, arp, san, mode, switch, active, learning, entropy, autonomous ransomware protection 
+summary: ONTAP 9.17.1 以降、ARP では、SAN ボリュームのエントロピー レベルがランサムウェア保護に適しているかどうかを判断するための評価期間が必要になります。 
+---
+= SANボリュームのONTAP ARP評価期間について学ぶ
+:allow-uri-read: 
+
+
+[role="lead"]
+ONTAP 9.17.1以降、ARPはSANボリュームのワークロードのエントロピーレベルがランサムウェア保護に適しているかどうかを判断するために評価期間を必要とします。SANボリュームでARPを有効にすると、評価期間中にデータを継続的に監視し、最適な暗号化しきい値を決定します。ARPは評価対象のSANボリューム内の適切なワークロードと不適切なワークロードを区別し、ワークロードが保護に適していると判断された場合は、評価期間の統計に基づいて暗号化しきい値を自動的に設定します。
+
+
+
+== エントロピー評価を理解する
+
+システムは10分間隔で継続的に暗号化統計を収集します。評価中は、4時間ごとにARPスナップショットも継続的に作成されます。一定間隔内の暗号化率が、このボリュームに対して特定された最適な暗号化しきい値を超えると、アラートがトリガーされ、スナップショットの保持期間が延長されます。
+
+.評価期間が有効であることを確認する
+以下のコマンドを実行し、以下のステータスを確認することで、評価が有効であることを確認できる `evaluation_period`。評価期間はボリュームにLUNまたはVMDKが含まれていない場合、評価ステータスは表示されません。
+
+[source, cli]
+----
+security anti-ransomware volume show -vserver <svm_name> -volume <volume_name>
+----
+応答例:
+
+[listing, subs="+quotes"]
+----
+Vserver Name                                : vs1
+Volume Name                                 : v1
+State                                       : enabled
+Attack Probability                          : none
+Attack Timeline                             : -
+Number of Attacks                           : -
+Attack Detected By                          : -
+*Block device detection status               : evaluation_period*
+----
+.評価期間のデータ収集を監視する
+次のコマンドを実行することで、暗号化検出をリアルタイムで監視できます。このコマンドは、暗号化率の各範囲におけるデータ量を示すヒストグラムを返します。ヒストグラムは10分ごとに更新されます。
+
+[source, cli]
+----
+security anti-ransomware volume entropy-stat show-encryption-percentage-histogram -vserver <svm_name> -name <lun_name> -duration real_time
+----
+応答例:
+
+[listing]
+----
+Vserver     Name              Entropy Range   Seen N Time     Data Written
+----------  ----------------  --------------- --------------  -------------
+vs0         lun1              0-5%            4               100MB
+vs0         lun1              6-10%           10              900MB
+vs0         lun1              11-15%          20              40MB
+vs0         lun1              16-20%          10              70MB
+vs0         lun1              21-25%          60              450MB
+vs0         lun1              26-30%          4               100MB
+vs0         lun1              31-35%          10              900MB
+vs0         lun1              36-40%          20              40MB
+vs0         lun1              41-45%          0               0
+vs0         lun1              46-50%          0               0
+vs0         lun1              51-55%          0               0
+vs0         lun1              56-60%          0               0
+vs0         lun1              61-65%          0               0
+vs0         lun1              66-70%          0               0
+vs0         lun1              71-75%          0               0
+vs0         lun1              76-80%          0               0
+vs0         lun1              81-85%          0               0
+vs0         lun1              86-90%          0               0
+vs0         lun1              91-95%          0               0
+vs0         lun1              96-100%         0               0
+
+20 entries were displayed.
+----
+
+
+== 適切な作業負荷と適応閾値
+
+評価は次のいずれかの結果で終了します。
+
+* *このワークロードはARPに適しています*。ARPは、評価期間中に観測された最大暗号化率の10%を超える値に適応しきい値を自動的に設定します。また、ARPは統計情報の収集を継続し、定期的にARPスナップショットを作成します。
+* *ワークロードはARPに適していません*。ARPは、評価期間中に確認された最大の暗号化率に適応しきい値を自動的に設定します。また、ARPは統計情報の収集を継続し、定期的にARPスナップショットを作成しますが、最終的にはボリューム上でARPを無効にすることを推奨します。
+
+
+.評価結果を決定する
+評価期間が終了すると、ARP は評価結果に基づいて適応しきい値を自動的に設定します。
+
+次のコマンドを実行することで評価結果を確認できます。ボリュームの適合性は、  `Block device detection status`分野：
+
+[source, cli]
+----
+security anti-ransomware volume show  -vserver <svm_name> -volume <volume_name>
+----
+応答例:
+
+[listing, subs="+quotes"]
+----
+Vserver Name                               : vs1
+Volume Name                                : v1
+State                                      : enabled
+Attack Probability                         : none
+Attack Timeline                            : -
+Number of Attacks                          : -
+Attack Detected By                         : -
+*Block device detection status              : Active_suitable_workload*
+
+Block device evaluation start time :  5/16/2025 01:49:01
+----
+評価の結果として採用された値のしきい値を表示することもできます。
+
+[source, cli]
+----
+security anti-ransomware volume attack-detection-parameters show -vserver <svm_name> -volume <volume_name>
+----
+応答例:
+
+[listing, subs="+quotes"]
+----
+
+                                  Vserver Name : vs_1
+
+                                   Volume Name : vm_2
+
+*Block Device Auto Learned Encryption Threshold : 10*
+...
+
+----

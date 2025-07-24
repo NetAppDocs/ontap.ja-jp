@@ -1,0 +1,231 @@
+---
+permalink: encryption-at-rest/manage-keys-barbican-task.html 
+sidebar: sidebar 
+keywords: openstack, barbican, key vault, NVE keys, kms, keys, encryption, netapp volume encryption 
+summary: Barbican KMS を使用してONTAP NVE キーを管理します。 
+---
+= Barbican KMSでONTAPキーを管理する
+:hardbreaks:
+:allow-uri-read: 
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+ONTAP 9.17.1以降では、OpenStackのlink:https://docs.openstack.org/barbican/latest/["バービカンKMS"^] ONTAPの暗号化キーを保護するためにBarbican KMSが提供されています。Barbicanは、キーを安全に保存し、アクセスするためのサービスです。BarbicanKMSは、データSVMのNetAppボリューム暗号化（NVE）キーを保護するために使用できます。Barbicanはlink:https://docs.openstack.org/keystone/latest/["オープンスタックKeystone"^]認証用の OpenStack の ID サービス。
+
+.タスクの内容
+Barbican KMSによる鍵管理は、CLIまたはONTAP REST APIを使用して設定できます。9.17.1リリースでは、Barbican KMSのサポートに以下の制限があります。
+
+* Barbican KMSはNetApp Storage Encryption（NSE）およびNetApp Aggregate Encryption（NAE）ではサポートされていません。代わりに、 link:enable-external-key-management-96-later-nve-task.html["外部KMIP"]またはlink:enable-onboard-key-management-96-later-nve-task.html["オンボード キー マネージャー (OKM)"] NSE および NVE キーの場合。
+* Barbican KMS はMetroCluster構成ではサポートされていません。
+* Barbican KMSはデータSVMに対してのみ設定できます。管理SVMでは使用できません。
+
+
+特に記載がない限り、  `admin`特権レベルでは次の手順を実行できます。
+
+.開始する前に
+* Barbican KMSとOpenStack Keystoneを設定する必要があります。Barbicanで使用するSVMは、BarbicanサーバーとOpenStack Keystoneサーバーへのネットワークアクセスが必要です。
+* BarbicanおよびOpenStack Keystoneサーバーにカスタム認証局（CA）を使用している場合は、CA証明書を次のようにインストールする必要があります。  `security certificate install -type server-ca -vserver <admin_svm>` 。
+
+
+
+
+== Barbican KMS構成を作成してアクティブ化する
+
+SVM に新しい Barbican KMS 構成を作成し、アクティブ化することができます。SVMには複数の非アクティブな Barbican KMS 構成を含めることができますが、一度にアクティブ化できるのは 1 つだけです。
+
+.手順
+. SVM の新しい非アクティブな Barbican KMS 構成を作成します。
++
+[source, cli]
+----
+security key-manager external barbican create-config -vserver <svm_name> -config-name <unique_config_name> -key-id <key_id> -keystone-url <keystone_url> -application-cred-id <keystone_applications_credentials_id>
+----
++
+** `-key-id`は、Barbican鍵暗号化鍵（KEK）の鍵識別子です。以下のURLを含む完全なURLを入力してください。  `https://` 。
+
+
++
+
+NOTE: 一部のURLには疑問符（？）が含まれています。疑問符はONTAPコマンドラインのアクティブヘルプを起動します。クエスチョンマーク付きのURLを入力するには、まず、以下のコマンドでアクティブ・ヘルプを無効にする必要がある `set -active-help false`。アクティブ・ヘルプは、後でコマンド `set -active-help true`。link:https://docs.netapp.com/us-en/ontap-cli/set.html["ONTAPコマンド リファレンス"] 。
+
++
+** `-keystone-url` OpenStack Keystone認証ホストのURLです。  `https://` 。
+** `-application-cred-id`アプリケーション資格情報 ID です。
++
+このコマンドを入力すると、アプリケーション認証情報の秘密キーの入力を求められます。このコマンドは、非アクティブなBarbican KMS構成を作成します。
+
++
+次の例では、新しい非アクティブなBarbican KMS構成を作成します。  `config1` SVMの場合 `svm1` ：
+
++
+[listing]
+----
+cluster1::> security key-manager external barbican create-config -vserver svm1 -config-name config1 -keystone-url https://172.21.76.152:5000/v3 -application-cred-id app123 -key-id https://172.21.76.153:9311/v1/secrets/<id_value>
+
+Enter the Application Credentials Secret for authentication with Keystone: <key_value>
+----
+
+
+. 新しい Barbican KMS 構成をアクティブ化します。
++
+[source, cli]
+----
+security key-manager keystore enable -vserver <svm_name> -config-name <unique_config_name> -keystore barbican
+----
++
+このコマンドを使用すると、Barbican KMS構成を切り替えることができます。SVM上に既にアクティブなBarbican KMS構成がある場合は、その構成は非アクティブになり、新しい構成がアクティブになります。
+
+. 新しい Barbican KMS 構成がアクティブであることを確認します。
++
+[source, cli]
+----
+security key-manager external barbican check -vserver <svm_name> -node <node_name>
+----
++
+このコマンドは、SVMまたはノード上のアクティブなBarbican KMS構成のステータスを表示します。例えば、SVMが `svm1`ノード上 `node1`アクティブな Barbican KMS 構成がある場合、次のコマンドはその構成のステータスを返します。
+
++
+[listing]
+----
+cluster1::> security key-manager external barbican check -node node1
+
+Vserver: svm1
+Node: node1
+
+Category: service_reachability
+              Status: OK
+
+Category: kms_wrapped_key_status
+              Status: OK
+----
+
+
+
+
+== Barbican KMS構成の資格情報と設定を更新する
+
+アクティブまたは非アクティブな Barbican KMS 構成の現在の設定を表示および更新できます。
+
+.手順
+. SVM の現在の Barbican KMS 構成を表示します。
++
+[source, cli]
+----
+security key-manager external barbican show -vserver <svm_name>
+----
++
+SVM 上の各 Barbican KMS 構成のキー ID、OpenStack Keystone URL、アプリケーション資格情報 ID が表示されます。
+
+. Barbican KMS 構成の設定を更新します。
++
+[source, cli]
+----
+security key-manager external barbican update-config -vserver <svm_name> -config-name <unique_config_name> -timeout <timeout> -verify <true|false> -verify-host <true|false>
+----
++
+このコマンドは、指定された Barbican KMS 構成のタイムアウトと検証設定を更新します。  `timeout` ONTAPがBarbicanからの応答を待つ時間を秒単位で指定します。この時間が過ぎると接続は失敗します。デフォルトは `timeout` 10秒です。  `verify`そして `verify-host`接続前にBarbicanホストのIDとホスト名を検証するかどうかを決定します。デフォルトでは、これらのパラメータは次のように設定されています。  `true` 。その `vserver`そして `config-name`パラメータは必須です。その他のパラメータはオプションです。
+
+. 必要に応じて、アクティブまたは非アクティブな Barbican KMS 構成の資格情報を更新します。
++
+[source, cli]
+----
+security key-manager external barbican update-credentials -vserver <svm_name> -config-name <unique_config_name> -application-cred-id <keystone_applications_credentials_id>
+----
++
+このコマンドを入力すると、新しいアプリケーション資格情報の秘密キーの入力を求められます。
+
+. 必要に応じて、アクティブな Barbican KMS 構成の不足している SVM キー暗号化キー (KEK) を復元します。
++
+.. 失われたSVM KEKを復元するには `security key-manager external barbican restore` ：
++
+[source, cli]
+----
+security key-manager external barbican restore -vserver <svm_name>
+----
++
+このコマンドは、Barbican サーバーと通信して、アクティブな Barbican KMS 構成の SVM KEK を復元します。
+
+
+
+. 必要に応じて、Barbican KMS 構成の SVM KEK のキーを再設定します。
++
+.. 権限レベルをadvancedに設定します。
++
+[source, cli]
+----
+set -privilege advanced
+----
+.. SVM KEKを次のように再鍵化する。  `security key-manager external barbican rekey-internal` ：
++
+[source, cli]
+----
+security key-manager external barbican rekey-internal -vserver <svm_name>
+----
++
+このコマンドは、指定されたSVMの新しいSVM KEKを生成し、ボリューム暗号化キーを新しいSVM KEKで再ラップします。新しいSVM KEKは、アクティブなBarbican KMS構成によって保護されます。
+
+
+
+
+
+
+
+== Barbican KMSとオンボードキーマネージャー間でキーを移行する
+
+Barbican KMSからOnboard Key Manager（OKM）へ、またその逆の方法で鍵を移行できます。OKMの詳細については、以下を参照してください。 link:enable-onboard-key-management-96-later-nse-task.html["ONTAP 9 .6以降でオンボードキー管理を有効にする"] 。
+
+.手順
+. 権限レベルをadvancedに設定します。
++
+[source, cli]
+----
+set -privilege advanced
+----
+. 必要に応じて、Barbican KMS から OKM にキーを移行します。
++
+[source, cli]
+----
+security key-manager key migrate -from-vserver <svm_name> -to-vserver <admin_svm_name>
+----
++
+`svm_name` Barbican KMS 構成の SVM の名前です。
+
+. 必要に応じて、OKM から Barbican KMS にキーを移行します。
++
+[source, cli]
+----
+security key-manager key migrate -from-vserver <admin_svm_name> -to-vserver <svm_name>
+----
+
+
+
+
+== Barbican KMS 構成を無効化して削除する
+
+暗号化されたボリュームのないアクティブな Barbican KMS 構成を無効にしたり、非アクティブな Barbican KMS 構成を削除したりできます。
+
+.手順
+. 権限レベルをadvancedに設定します。
++
+[source, cli]
+----
+set -privilege advanced
+----
+. アクティブな Barbican KMS 構成を無効にします。
++
+[source, cli]
+----
+security key-manager keystore disable -vserver <svm_name>
+----
++
+SVMにNVE暗号化ボリュームが存在する場合は、それらを復号化するか、 <<Barbican KMSとオンボードキーマネージャー間でキーを移行する,キーを移行する>> Barbican KMS 構成を無効にする前に、次の手順に従ってください。新しい Barbican KMS 構成を有効にする場合、NVE ボリュームの復号化やキーの移行は不要であり、現在アクティブな Barbican KMS 構成は無効になります。
+
+. 非アクティブな Barbican KMS 構成を削除します。
++
+[source, cli]
+----
+security key-manager keystore delete -vserver <svm_name> -config-name <unique_config_name> -type barbican
+----
+

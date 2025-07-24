@@ -1,7 +1,7 @@
 ---
 sidebar: sidebar 
 permalink: snapmirror-active-sync/aufo-site-b-troubleshoot-task.html 
-keywords: SM-BC, SMBC, troubleshooting, automatic unplanned failover, aufo, failover, Mediator, quorum, snapmirror active sync 
+keywords: SM-BC, SMBC, troubleshooting, automatic unplanned failover, aufo, failover, Mediator, Cloud Mediator, quorum, snapmirror active sync 
 summary: サイトAで障害が発生しても、サイトBで計画外フェイルオーバーはトリガーされません。 
 ---
 = サイトBで自動計画外フェイルオーバーがトリガーされない
@@ -13,27 +13,29 @@ summary: サイトAで障害が発生しても、サイトBで計画外フェイ
 :imagesdir: ../media/
 
 
-.問題：
 [role="lead"]
+サイト A の障害によってサイト B の計画外のフェイルオーバーがトリガーされない場合は、次の情報を使用します。
+
+.問題：
 サイトAで障害が発生しても、サイトBで計画外フェイルオーバーはトリガーされません。
 
 .考えられる原因1：
-ONTAPメディエーターが設定されていません。これが原因かどうかを確認するには、サイトBのクラスタでコマンドを実行し `snapmirror mediator show`ます。
+ONTAPメディエーターまたはONTAPクラウドメディエーターが設定されていません。これが原因かどうかを確認するには、  `snapmirror mediator show`サイト B クラスターのコマンド。
 
 ....
-Cluster2::*> snapmirror mediator show
+Cluster2::> snapmirror mediator show
 This table is currently empty.
 ....
-この例は、サイトBでONTAPメディエーターが設定されていないことを示しています。
+この例では、Mediator がサイト B で構成されていないことを示しています。
 
 .解決策：
-両方のクラスタにONTAPメディエーターが設定されていて、ステータスが「connected」で、クォーラムがTrueに設定されていることを確認します。
+両方のクラスタにMediatorを設定し、ステータスが「connected」で、クォーラムがTrueに設定されていることを確認します。
 
 .考えられる原因2：
 SnapMirror整合性グループが同期されていません。これが原因かどうかを確認するには、イベントログを表示して、サイトAで障害が発生したときに整合性グループが同期されていたかどうかを確認します。
 
 ....
-cluster::*> event log show -event *out.of.sync*
+cluster::> event log show -event *out.of.sync*
 
 Time                Node             Severity      Event
 ------------------- ---------------- ------------- ---------------------------

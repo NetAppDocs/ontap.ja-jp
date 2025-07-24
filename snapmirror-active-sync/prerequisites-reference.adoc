@@ -4,7 +4,7 @@ permalink: snapmirror-active-sync/prerequisites-reference.html
 keywords: SM-BC, SMBC, prerequisites, planning, software, hardware, licensing, protocols, network, snapmirror active sync 
 summary: SnapMirror Active Sync解決策の導入を計画する際には、いくつかの前提条件を考慮する必要があります。 
 ---
-= ONTAPでのSnapMirrorアクティブ同期の前提条件
+= ONTAP SnapMirrorアクティブ同期の前提条件
 :hardbreaks:
 :allow-uri-read: 
 :nofooter: 
@@ -26,7 +26,7 @@ SnapMirror Active Syncの導入を計画する際には、ハードウェア、�
 |===
 
 
-| クラスタの種類 | サポートされるモデル | サポートされる機能 | サポート対象のノード 
+| クラスタの種類 | サポートされるモデル | サポートされる機能 | サポートされる最大クラスタノード数 
 
 
  a| 
@@ -36,34 +36,35 @@ Aシリーズ、Cシリーズ
  a| 
 自動フェールオーバーデュプレックス（対称アクティブ/アクティブ）、自動フェールオーバー（非対称アクティブ/アクティブ）
  a| 
-2ノードクラスタまたは4ノードクラスタ^1^
+* 2（ONTAP 9.9.1以降）
+* 4（対称AA構成のONTAP 9.16.1）
+
 
 
 
  a| 
-オールSANアレイ（ASA）
+ASA
  a| 
 Aシリーズ、Cシリーズ
  a| 
 自動フェールオーバーデュプレックス（対称AA）、自動フェールオーバー（非対称AA）
  a| 
-2ノードクラスタまたは4ノードクラスタ^1^
+* 2 (ONTAP 9.9.1以降
+* 4（対称AA構成のONTAP 9.16.1）
+
 
 
 
  a| 
 ASA r2
  a| 
--
+すべて
  a| 
 自動フェールオーバーデュプレックス（対称AA）
  a| 
-2ノードのハイアベイラビリティ（HA）クラスタ
+2
 
 |===
-. ONTAP 9.16.1以降では4ノードクラスタがサポートされます。対称AAが必要です。
-
-
 次の表に、クラスタタイプ間のレプリケーション機能の概要を示します。
 
 [cols="33,33,33"]
@@ -92,16 +93,22 @@ ASA
 
 
  a| 
-ASA ^1^
+ASA
  a| 
 ASA r2
  a| 
 いいえ
 
+
+
+ a| 
+ASA r2
+ a| 
+ASA r2
+ a| 
+〇
+
 |===
-. ASAでサポートされるクラスタタイプの詳細については、を参照してくださいlink:../asa/support-limitations.html["オールフラッシュSANアレイ構成の制限とサポート"]。
-
-
 
 
 == ソフトウェア
@@ -116,6 +123,20 @@ ASA r2
 
 
 | ONTAP メディエーターのバージョン | サポートされるLinuxバージョン 
+
+
+ a| 
+1.10
+ a| 
+* Red Hat Enterprise Linux
++
+** 互換性: 9.5 ^1^
+** 推奨: 8.10、9.4、9.6、10
+
+
+* Rocky Linux 8.10、9.6、および 10
+
+
 
 
  a| 
@@ -235,10 +256,33 @@ NOTE: 2019年6月より前にONTAPストレージシステムを購入した場�
 
 == サポートされるプロトコル
 
-* サポートされるプロトコルはSANプロトコルのみです（NFS / SMBはサポートされません）。
-* Fibre ChannelプロトコルとiSCSIプロトコルのみがサポートされます。
-* SnapMirrorアクティブ同期でクラスタ ピア関係を確立するには、デフォルトのIPspaceが必要です。カスタムのIPspaceはサポートされていません。
+SnapMirrorアクティブ同期は SAN プロトコルをサポートします。
 
+* FC および iSCSI プロトコルは、 ONTAP 9.9.1 以降でサポートされます。
+* NVMe プロトコルは、 ONTAP 9.17.1 以降の VMware ワークロードでサポートされます。
++
+
+NOTE: VMware での NVMe/TCP は、VMware バグ ID: TR1049746 の解決に依存します。
+
++
+SnapMirrorアクティブ同期は、NVMe プロトコルでは以下をサポートしません。
+
++
+** 4ノード対称アクティブ/アクティブ構成
+** 一貫性グループのサイズの変更
++
+SnapMirrorアクティブ同期で NVMe プロトコルを使用する場合、整合性グループを拡張または縮小することはできません。
+
+** 同じ整合性グループ内の LUN と名前空間の共存はサポートされていません。
+
+
+
+
+
+
+== IPspace
+
+SnapMirrorアクティブ同期でクラスタ ピア関係を確立するには、デフォルトのIPspaceが必要です。カスタムのIPspaceはサポートされていません。
 
 
 

@@ -2,14 +2,16 @@
 sidebar: sidebar 
 permalink: anti-ransomware/switch-learning-to-active-mode.html 
 keywords: ransomware, arp, mode, switch, active, learning, autonomous ransomware protection 
-summary: Autonomous Ransomware Protection（ARP）9.15.1以前では、ARP対応ボリュームをラーニングモードからアクティブモードに手動または自動で切り替えます。 
+summary: NAS 環境の ARP 9.15.1 以前では、ARP 対応ボリュームを手動または自動で学習モードからアクティブ モードに切り替えます。 
 ---
 = 学習期間後にONTAP ARPでアクティブモードに切り替える
 :allow-uri-read: 
 
 
 [role="lead"]
-Autonomous Ransomware Protection（ARP）9.15.1以前またはARPがFlexGroupボリュームで実行されている場合は、ARP対応ボリュームをラーニングモードからアクティブモードに手動または自動で切り替えます。ARPが推奨される最低30日間のラーニングモードの実行を完了したら、手動でアクティブモードに切り替えることができます。ONTAP 9 .13.1以降では、ARPによって最適な学習期間間隔が自動的に決定され、30日前にスイッチが自動化されます。
+NAS環境では、ARP対応ボリュームを学習モードからアクティブモードに手動または自動で切り替えます。ONTAP9.15.1以前でARPを使用している場合、またはFlexGroupボリュームでARPを実行している場合は、モードを切り替える必要があります。
+
+ARPが推奨される最低30日間の学習モードの実行を完了したら、手動でアクティブ モードに切り替えることができます。ONTAP 9.13.1以降では、ARPによって最適な学習期間が自動的に決定され、30日が経過しなくても自動的に切り替えが行われる場合があります。
 
 ONTAP 9.16.1以降のFlexVolボリュームでARPを使用している場合は、ARP / AI保護が有効になり、自動的にアクティブになります。学習期間は必要ありません。
 
@@ -20,13 +22,18 @@ NOTE: 既存のボリュームでは、ラーニングモードとアクティ�
 
 == 学習期間後に手動でアクティブモードに切り替える
 
-FlexGroupボリュームを含むONTAP 9 .10.1~9.15.1およびARPの場合、System ManagerまたはONTAP CLIを使用して、ARPラーニングモードからアクティブモードに手動で移行することができます。
+ONTAP 9.10.1 ～ 9.15.1 およびFlexGroupボリュームを使用した ARP の場合、学習期間の完了後、System Manager またはONTAP CLI を使用して、ARP 学習モードからアクティブ モードに手動で移行できます。
+
+.タスクの内容
+この手順で説明する学習期間後のアクティブ モードへの手動移行は、NAS 環境に固有のものです。
+
+.手順
+System Manager またはONTAP CLI を使用して、学習モードからアクティブ モードに切り替えることができます。
 
 [role="tabbed-block"]
 ====
 .System Manager
 --
-.手順
 . [ストレージ]>[ボリューム]*を選択し、アクティブモードにする準備ができたボリュームを選択します。
 . [Volumes]概要の*[Security]*タブで、[Anti-ransomware]ボックスで*[Switch to active mode]*を選択します。
 . ボリュームのARP状態は、* Anti-ransomware *ボックスで確認できます。
@@ -35,8 +42,7 @@ FlexGroupボリュームを含むONTAP 9 .10.1~9.15.1およびARPの場合、Sys
 --
 .CLI
 --
-.手順
-. 学習期間が終了したら、保護されているボリュームを変更してアクティブ モードに切り替えます（自動的に切り替えられていない場合）。
+. 保護されたボリュームを変更してアクティブ モードに切り替えます (まだ自動的に行われていない場合)。
 +
 [source, cli]
 ----
@@ -64,7 +70,7 @@ security anti-ransomware volume show
 
 == 学習モードからアクティブモードへの自動切り替え
 
-ONTAP 9.13.1以降、ARP分析にアダプティブラーニングが追加され、ラーニングモードからアクティブモードへの切り替えが自動的に行われます。ARPによるラーニングモードからアクティブモードへの自動切り替えは、次のオプションの設定に基づいて決定されます。
+ONTAP 9.13.1以降、アダプティブ ラーニングがARP分析に追加され、学習モードからアクティブ モードへの切り替えは自動的に行われます。学習モードからアクティブ モードへARPを自動で切り替えるかどうかは、次のオプションの設定に基づいて決まります。
 
 [listing]
 ----
@@ -74,7 +80,7 @@ ONTAP 9.13.1以降、ARP分析にアダプティブラーニングが追加さ�
  -anti-ransomware-auto-switch-minimum-file-count
  -anti-ransomware-auto-switch-minimum-file-extension
 ----
-30日間の学習後、これらの条件の1つまたは複数が満たされていない場合でも、ボリュームは自動的にアクティブモードに切り替わります。つまり、自動切り替えが有効な場合、ボリュームは最大30日後にアクティブモードに切り替わります。最大値の30日は固定であり、変更できません。
+自動切り替えが有効になっている場合、すべての条件が満たされていなくても、最大30日後にボリュームは自動的にアクティブモードに切り替わります。この30日間の制限は固定されており、変更できません。
 
 デフォルト値を含むARP設定オプションの詳細については、を参照してくださいlink:https://docs.netapp.com/us-en/ontap-cli/security-anti-ransomware-volume-auto-switch-to-enable-mode-show.html["ONTAPコマンド リファレンス"^]。
 

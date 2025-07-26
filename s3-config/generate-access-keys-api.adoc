@@ -17,7 +17,7 @@ ONTAP 9 .14.1以降では、ONTAP管理者としてカスタムロールを作�
 カスタムロールを作成してアクセスキーを生成するAPIを呼び出すユーザに割り当てるには、Storage VMでいくつかの設定手順を実行する必要があります。
 
 
-NOTE: LDAPが無効になっている場合は、ユーザにアクセスキーの生成を許可するようにを設定できますlink:configure-access-ldap.html["ドメインベースの認証を使用するActive DirectoryおよびSMB"]。
+NOTE: LDAPが無効になっている場合は、 link:configure-access-ldap.html["ONTAP S3 アクセス用の外部ディレクトリ サービスを構成する"]ユーザーがアクセス キーを生成できるようにします。
 
 .開始する前に
 次の点を確認します。
@@ -35,9 +35,14 @@ NOTE: LDAPが無効になっている場合は、ユーザにアクセスキー�
 
 == アクセスキー生成のためのユーザの設定
 
+.手順
+[role="tabbed-block"]
+====
+.LDAPユーザ
+--
 . グループのStorage VMの_name service database_としてldapを指定し、ldapのパスワードを指定します。
 +
-[listing]
+[source, cli]
 ----
 ns-switch modify -vserver <vserver-name> -database group -sources files,ldap
 ns-switch modify -vserver <vserver-name> -database passwd -sources files,ldap
@@ -55,9 +60,9 @@ security login rest-role create -vserver svm-1 -role s3role -api "/api/protocols
 +
 の詳細については `security login rest-role create`、をlink:https://docs.netapp.com/us-en/ontap-cli/security-login-rest-role-create.html["ONTAPコマンド リファレンス"^]参照してください。
 
-. security loginコマンドを使用してLDAPユーザグループを作成し、S3ユーザREST APIエンドポイントにアクセスするための新しいカスタムロールを追加します。の詳細については `security login create`、をlink:https://docs.netapp.com/us-en/ontap-cli//security-login-create.html["ONTAPコマンド リファレンス"^]参照してください。
+. LDAPユーザーグループを作成します。  `security login`コマンドを実行し、S3 ユーザー REST API エンドポイントにアクセスするための新しいカスタム ロールを追加します。詳細はこちら `security login create`の中でlink:https://docs.netapp.com/us-en/ontap-cli//security-login-create.html["ONTAPコマンド リファレンス"^] 。
 +
-[listing]
+[source, cli]
 ----
 security login create -user-or-group-name <ldap-group-name> -application http -authentication-method nsswitch -role <custom-role-name> -is-ns-switch-group yes
 ----
@@ -77,16 +82,57 @@ security login create -user-or-group-name ldap-group-1 -application http -authen
 
 
 
-ドメインまたはLDAPグループにカスタムロールを追加すると、そのグループのユーザはONTAPエンドポイントへの制限付きアクセスが許可されます `/api/protocols/s3/services/{svm.uuid}/users`。APIを呼び出すことで、ドメインまたはLDAPグループのユーザは、S3クライアントにアクセスするための独自のアクセスキーとシークレットキーを生成できます。キーを生成できるのは自分だけで、他のユーザーには生成できません。
+LDAPグループにカスタムロールを追加すると、そのグループのユーザーはONTAPへの限定的なアクセスが可能になります。  `/api/protocols/s3/services/{svm.uuid}/users`エンドポイント。APIを呼び出すことで、LDAP グループのユーザーは独自のアクセスキーと秘密キーを生成し、S3 クライアントにアクセスできるようになります。生成できるのは自分のキーだけで、他のユーザのキーは生成できません。
 
+--
+.ドメイン ユーザ
+--
+. S3ユーザREST APIエンドポイントへのアクセス権を持つカスタム ロールを作成します。
+
+
+[source, cli]
+----
+security login rest-role create -vserver <vserver-name> -role <custom-role-name> -api "/api/protocols/s3/services/*/users" -access <access-type>
+----
+この例では、  `s3-role`ストレージVM上のユーザーに対してロールが生成される `svm-1`読み取り、作成、更新のすべてのアクセス権が付与されます。
+
+[listing]
+----
+security login rest-role create -vserver svm-1 -role s3role -api "/api/protocols/s3/services/*/users" -access all
+----
+の詳細については `security login rest-role create`、をlink:https://docs.netapp.com/us-en/ontap-cli/security-login-rest-role-create.html["ONTAPコマンド リファレンス"^]参照してください。
+
+. ドメインユーザーグループを作成します。  `security login`コマンドを実行し、S3 ユーザー REST API エンドポイントにアクセスするための新しいカスタム ロールを追加します。詳細はこちら `security login create`の中でlink:https://docs.netapp.com/us-en/ontap-cli//security-login-create.html["ONTAPコマンド リファレンス"^] 。
++
+[source, cli]
+----
+security login create -vserver <vserver-name> -user-or-group-name domain\<group-name> -application http -authentication-method domain -role <custom-role-name>
+----
++
+この例では、ドメイングループ `domain\group1`作成されます `svm-1` 、カスタムロール `s3role` API エンドポイントにアクセスするために追加されます。
+
++
+[listing]
+----
+security login create -user-or-group-name domain\group1 -application http -authentication-method domain -role s3role -vserver svm-1
+----
++
+の詳細については `security login create`、をlink:https://docs.netapp.com/us-en/ontap-cli/security-login-create.html["ONTAPコマンド リファレンス"^]参照してください。
+
+
+
+ドメイングループにカスタムロールを追加すると、そのグループ内のユーザーはONTAPへの限定的なアクセスが可能になります。  `/api/protocols/s3/services/{svm.uuid}/users`エンドポイント。APIを呼び出すことで、ドメイン グループのユーザーは独自のアクセス キーと秘密キーを生成し、S3 クライアントにアクセスできるようになります。生成できるのは自分のキーだけで、他のユーザのキーは生成できません。
+
+--
+====
 
 
 == S3ユーザまたはLDAPユーザとして、独自のアクセスキーを生成
 
 ONTAP 9 14.1以降では、S3クライアントにアクセスするための独自のアクセスキーとシークレットキーを生成できます（管理者が独自のキーを生成するロールをユーザに許可している場合）。次のONTAP REST APIエンドポイントを使用すると、自分専用のキーを生成できます。
 
-.HTTPメソッドとエンドポイント
-このREST API呼び出しでは、次のメソッドとエンドポイントを使用します。このエンドポイントの他のメソッドの詳細については、リファレンスを参照して https://docs.netapp.com/us-en/ontap-automation/reference/api_reference.html#access-a-copy-of-the-ontap-rest-api-reference-documentation["APIドキュメント"]ください。
+.S3 ユーザーを作成し、キーを生成する
+このREST API呼び出しでは、次のメソッドとエンドポイントを使用します。このエンドポイントの詳細については、リファレンスを参照してください。  https://docs.netapp.com/us-en/ontap-automation/reference/api_reference.html#access-a-copy-of-the-ontap-rest-api-reference-documentation["APIドキュメント"] 。
 
 [cols="25,75"]
 |===
@@ -95,6 +141,8 @@ ONTAP 9 14.1以降では、S3クライアントにアクセスするための独
 
 | 投稿 | /api/protocols/s3/services/｛svm.uuid｝/users 
 |===
+ドメイン ユーザーの場合、S3 ユーザー名に次の形式を使用します。  `user@fqdn` 、 どこ `fqdn`ドメインの完全修飾ドメイン名です。
+
 .カールの例
 [source, curl]
 ----
@@ -104,7 +152,7 @@ curl
 --include \
 --header "Accept: */*" \
 --header "Authorization: Basic $BASIC_AUTH"
---data '{"name":"_name_"}'
+--data '{"name":"user1@example.com"}'
 ----
 .JSON出力の例
 [listing]
@@ -112,7 +160,7 @@ curl
 {
   "records": [
     {
-      "access_key": "Pz3SB54G2B_6dsXQPrA5HrTPcf478qoAW6_Xx6qyqZ948AgZ_7YfCf_9nO87YoZmskxx3cq41U2JAH2M3_fs321B4rkzS3a_oC5_8u7D8j_45N8OsBCBPWGD_1d_ccfq",
+      "access_key": "4KX07KF7ML8YNWY01JWG",
       "_links": {
         "next": {
           "href": "/api/resourcelink"
@@ -121,8 +169,48 @@ curl
           "href": "/api/resourcelink"
         }
       },
-      "name": "user-1",
-      "secret_key": "A20_tDhC_cux2C2BmtL45bXB_a_Q65c_96FsAcOdo14Az8V31jBKDTc0uCL62Bh559gPB8s9rrn0868QrF38_1dsV2u1_9H2tSf3qQ5xp9NT259C6z_GiZQ883Qn63X1"
+      "name": "user1@example.com",
+      "secret_key": "<secret_key_value>"
+    }
+  ],
+  "num_records": "1"
+}
+
+----
+.S3 ユーザーのキーを再生成する
+S3 ユーザーがすでに存在する場合は、そのアクセスキーとシークレットキーを再生成できます。このREST API呼び出しでは、次のメソッドとエンドポイントを使用します。
+
+[cols="25,75"]
+|===
+| HTTPメソッド | パス 
+
+
+| PATCH | /api/protocols/s3/services/{svm.uuid}/users/{name} 
+|===
+.カールの例
+[source, curl]
+----
+curl
+--request PATCH \
+--location "https://$FQDN_IP /api/protocols/s3/services/{svm.uuid}/users/{name} " \
+--include \
+--header "Authorization: Basic $BASIC_AUTH" \
+--data '{"regenerate_keys":"True"}'
+----
+.JSON出力の例
+[listing]
+----
+{
+  "records": [
+    {
+      "access_key": "DX12U609DMRVD8U30Z1M",
+      "_links": {
+        "self": {
+          "href": "/api/resourcelink"
+        }
+      },
+      "name": "user1@example.com",
+      "secret_key": "<secret_key_value>"
     }
   ],
   "num_records": "1"

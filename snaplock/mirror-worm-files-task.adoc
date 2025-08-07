@@ -19,6 +19,7 @@ SnapMirrorを使用すると、ディザスタリカバリなどの目的で、�
 .タスクの内容
 * .5以降では、ONTAP 9（データ保護）タイプの関係ではなくXDP（拡張データ保護）タイプのSnapMirror関係を使用してWORMファイルをレプリケートできます。XDPモードはONTAPのバージョンに依存せず、同じブロックに格納されているファイルを区別できるため、レプリケートされたComplianceモードのボリュームの再同期がはるかに簡単になります。既存のDPタイプの関係をXDPタイプの関係に変換する方法については、を参照してくださいlink:../data-protection/index.html["データ保護"]。
 * ComplianceモードのボリュームでDPタイプのSnapMirror関係を再同期する場合、再同期によってデータが失われるとSnapLockで判断されると処理は失敗します。再同期処理に失敗した場合は、コマンドを使用してデスティネーションボリュームのクローンを作成でき `volume clone create`ます。その後、ソースボリュームとクローンを再同期できます。
+* SnapLockボリュームのSnapMirror関係は、 `MirrorAllSnapshots` async-mirror タイプのポリシー。 SnapLockボリュームの保持期間は、保持されるすべての WORM ファイルの最大保持期間によって決まります。宛先はソースの DR コピーであるため、宛先SnapLockボリュームの保持期間はソースと同じになります。
 * SnapLock準拠ボリューム間のXDPタイプのSnapMirror関係では、解除後の再同期がサポートされます。これは、解除後にデスティネーションのデータがソースから分岐していた場合でも同様です。
 +
 再同期では、共通のSnapshotを超えてソースとデスティネーションの間でデータの相違が検出されると、この相違をキャプチャするためにデスティネーションで新しいSnapshotがカットされます。新しいSnapshotと共通のSnapshotの両方が次の保持期間でロックされます。
@@ -78,7 +79,7 @@ ONTAP 9 .12.1以降では、System Managerを使用してWORMファイルのSnap
 
 +
 
-NOTE: ONTAP 9 .10.1以降では、SnapLockボリュームとSnapLock以外のボリュームを同じアグリゲート上に配置できます。そのため、ONTAP 9 .10.1を使用している場合は、SnapLockアグリゲートを別途作成する必要はありません。ComplianceまたはEnterprise SnapLockのボリュームタイプを指定するには、volume SnapLock -typeオプションを使用します。ONTAP 9 10.1より前のONTAPリリースでは、SnapLockモード（ComplianceまたはEnterprise）がアグリゲートから継承されます。バージョンに依存しないデスティネーションボリュームはサポートされません。デスティネーションボリュームの言語設定は、ソースボリュームの言語設定と一致している必要があります。
+NOTE: ONTAP 9.10.1以降では、SnapLockボリュームと非SnapLockボリュームを同じアグリゲートに配置できるため、ONTAP 9.10.1を使用している場合はSnapLockアグリゲートを別々に作成する必要はありません。ボリュームの-snaplock-typeオプションを使用して、SnapLockボリューム タイプ（ComplianceまたはEnterprise）を指定します。ONTAP 9.10.1より前のリリースでは、SnapLockモード（ComplianceまたはEnterprise）はアグリゲートから継承されます。デスティネーション ボリュームの言語設定とソース ボリュームの言語設定が一致している必要があります。
 
 +
 次のコマンドは、という名前の2GBのSnapLockボリュームを `dstvolB` `SVM2`アグリゲート上に `node01_aggr`作成し `Compliance`ます。

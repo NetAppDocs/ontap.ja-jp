@@ -11,7 +11,9 @@ summary: ボリュームの既存の構成要素に容量を追加するか、�
 
 
 [role="lead"]
-FlexGroupのサイズを拡張するには、FlexGroupの既存のメンバーボリューム（コンスティチュエント）に容量を追加するか、新しいメンバーボリュームでFlexGroupを拡張します。1つのFlexGroupボリュームに含めることができるメンバーボリュームは200個までです。
+FlexGroupボリュームのサイズを増やすには、 FlexGroupボリュームの既存のすべてのメンバー ボリューム (構成要素) に容量を追加するか、新しいメンバー ボリュームでFlexGroupボリュームを拡張します。  FlexGroupボリュームには 200 を超えるメンバー ボリュームを含めることはできません。
+
+必要に応じて、 FlexGroupボリューム内の個々のボリュームのサイズを増やすこともできます。
 
 .開始する前に
 アグリゲートに十分なスペースが必要です。
@@ -47,9 +49,9 @@ ONTAP 9.3より前のリリースでは、SnapMirror関係の確立後にFlexGro
  a| 
 FlexGroupボリュームの容量
  a| 
-FlexGroupボリュームのメンバーボリュームのサイズを変更します。
+FlexGroupボリュームのすべてのメンバー ボリュームのサイズを変更します。
 
-`volume modify -vserver vserver_name -volume fg_name -size new_size`
+`volume modify -vserver <svm_name> -volume <fg_name> -size <new_size>`
 
 
 
@@ -95,3 +97,22 @@ FlexGroupに16個のメンバーボリュームがある場合、各メンバー
 cluster1::> volume expand -vserver svm1 -volume fg1 -aggr-list aggr1,aggr2 -aggr-list-multiplier 2
 ----
 新しいメンバーボリュームのサイズは、既存のメンバーボリュームのサイズと同じです。
+
+.個々のボリュームのサイズを増やす
+FlexGroupボリューム内の個々のメンバーボリュームのサイズを増やす場合は、 `volume resize`指示。
+
+.ステップ
+. 単一のFlexGroupメンバー ボリュームのサイズを増やす:
++
+`volume size -volume <volume_name> -vserver <svm1> -new-size <new_size>`
+
++
+次の例では、 FlexGroupメンバー ボリューム FG_0003 のサイズを 3.7 GB に増やします。
+
++
+[listing]
+----
+volume size -volume FG__0003 -vserver svm1 -new-size 3.7GB
+vol size: Volume "svm1:FG__0003" size set to 3.70g.
+----
+

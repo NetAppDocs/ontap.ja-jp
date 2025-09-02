@@ -11,36 +11,57 @@ summary: ノードをリモートから管理するには、ノードのSPにア
 
 
 [role="lead"]
-ノードをリモートから管理するには、ノードのSPにアクセスし、SP CLIコマンドを実行してノード管理タスクを実行します。よく実行されるいくつかのリモートノード管理タスクについては、クラスタ内の別のノードからONTAPコマンドを使用することもできます。一部のSPコマンドはプラットフォーム固有であり、使用しているプラットフォームでは使用できない場合があります。
+SPにアクセスしてSP CLI コマンドを実行するか、 BMCにアクセスしてBMC CLI コマンドを実行することにより、ノード管理タスクをリモートで実行できます。よく実行されるいくつかのリモート ノード管理タスクについては、クラスタ内の別のノードからONTAPコマンドを使用することもできます。一部のSPおよびBMCコマンドはプラットフォーム固有であり、お使いのプラットフォームでは使用できない可能性があります。
+
+特定のコマンド タイプは、 SPコマンド セットとBMCコマンド セットの両方で使用できます。それらの違いは、コマンドラインを入力するときに表示されます。
+
+.例
+* その `help`SPのコマンド: `SP> help`
+* その `help`BMCのコマンド: `BMC> help`
+
+
+詳細はこちら `help`SPおよびBMCで使用できるコマンドオプションlink:https://docs.netapp.com/us-en/ontap/system-admin/online-help-at-sp-bmc-cli-task.html["ONTAP SP / BMC CLIでのヘルプ情報の表示"^]。
+
+対応するONTAP BMC CLIの詳細については、link:https://docs.netapp.com/us-en/ontap/system-admin/bmc-cli-commands-reference.html["ONTAPベースボード管理コントローラでサポートされるCLIコマンド"^] 。
 
 |===
-| 状況 | 使用するSPコマンド | 使用するBMCコマンド | または ONTAP コマンド 
+| 状況 | 使用するSPコマンド | 使用するBMCコマンド | このONTAPコマンドを使用します... 
 
 
  a| 
-使用可能なSPコマンドまたは指定したSPコマンドのサブコマンドを表示する
+SP/ BMC/ ONTAPで利用可能なコマンドまたは指定されたコマンドのサブコマンドを表示します。
  a| 
 `help`[`command`]
  a| 
+`help`[`command`]
  a| 
+N/A
 
 
 
  a| 
-SP CLIの現在の権限レベルを表示する
+SP/ BMC/ ONTAP CLIの現在の権限レベルを表示します
  a| 
 `priv show`
  a| 
+`priv` `show`
  a| 
+N/A
 
 
 
  a| 
-SP CLIの指定されたモードにアクセスするための権限レベルを設定する
+SP/ BMC/ ONTAP CLIの指定されたモードにアクセスするための権限レベルを設定します
  a| 
-`priv set`{`admin` || `advanced` `diag`｝
+`priv set`
+
+{`admin`| `advanced` | `diag` }
  a| 
+`priv set`
+
+{`admin`| `advanced` | `diag` | `test` }
  a| 
+N/A
 
 
 
@@ -49,42 +70,58 @@ SP CLIの指定されたモードにアクセスするための権限レベル�
  a| 
 `date`
  a| 
+`date`
  a| 
 `date`
 
 
 
  a| 
-SPによって記録されるイベントを表示する
+SP/ BMC/ ONTAPによって記録されたイベントを表示します
  a| 
-`events`{`all` `info` ||| `newest` `number` `oldest number` `search keyword`｝
+`events`
+
+{`all`| `info` | `newest` `number` | `oldest number` | `search keyword` }
  a| 
+`events`
+
+{`all`| `info` | `newest` | `oldest` | `search` }
  a| 
+N/A
 
 
 
  a| 
-SPのステータスおよびネットワーク設定情報を表示します。
+SP/ BMC/ ONTAPのステータスとネットワーク構成情報を表示します
  a| 
-`sp status`[`-v` `-d` |]
+`sp status`
 
-オプションを指定する `-v`と、SP統計が詳細形式で表示されます。オプションを使用すると、 `-d`SPデバッグログが表示に追加されます。
+[`-v`| `-d` ]
+
+* その `-v`オプションは、 SP統計を詳細形式で表示します。
+* その `-d`オプションは、 SPデバッグ ログをディスプレイに追加します。
+
  a| 
-`bmc status`[`-v` `-d` |]
+`bmc status`
 
-オプションを指定する `-v`と、SP統計が詳細形式で表示されます。オプションを使用すると、 `-d`SPデバッグログが表示に追加されます。
+[`-v`| `-d` ]
+
+* その `-v`オプションは、 SP統計を詳細形式で表示します。
+* その `-d`オプションは、 SPデバッグ ログをディスプレイに追加します。
+
  a| 
 `system service-processor show`
 
 
 
  a| 
-SPが稼働している時間の長さと、過去1、5、15分間の実行キュー内のジョブの平均数を表示する
+SP/ BMC/ ONTAP の起動時間と、過去 1 分、5 分、15 分間の実行キュー内のジョブの平均数を表示します。
  a| 
 `sp uptime`
  a| 
 `bmc uptime`
  a| 
+N/A
 
 
 
@@ -93,17 +130,28 @@ SPが稼働している時間の長さと、過去1、5、15分間の実行キ�
  a| 
 `system log`
  a| 
+`system log`
+
+[`-a`]
  a| 
+`system log`
+
+(システムコンソールのログを出力します)
 
 
 
  a| 
-SPログアーカイブまたはアーカイブ内のファイルを表示する
+SP/ BMC/ ONTAPログ アーカイブまたはアーカイブ内のファイルを表示します
  a| 
-`sp log history show`[`-archive` {`latest` ||{`all` `archive-name`｝[`-dump` {`all`| `file-name`｝]
+`sp log history show`
+
+[`-archive` {`latest`|{`all` | `archive-name` }][`-dump` {`all` | `file-name` }]
  a| 
-`bmc log history show`[`-archive` {`latest` ||{`all` `archive-name`｝[`-dump` {`all`| `file-name`｝]
+`bmc log history show`
+
+[`-archive` {`latest`|{`all` | `archive-name` }][`-dump` {`all` | `file-name` }]
  a| 
+N/A
 
 
 
@@ -112,6 +160,7 @@ SPログアーカイブまたはアーカイブ内のファイルを表示する
  a| 
 `system power status`
  a| 
+`system power status`
  a| 
 `system node power show`
 
@@ -122,16 +171,22 @@ SPログアーカイブまたはアーカイブ内のファイルを表示する
  a| 
 `system battery show`
  a| 
+`system battery show`
  a| 
+N/A
 
 
 
  a| 
 ACP情報またはエキスパンダセンサーのステータスを表示する
  a| 
-`system acp`[`show` `sensors show` |]
+`system acp`
+
+[`show`| `sensors show` ]
  a| 
+N/A
  a| 
+N/A
 
 
 
@@ -140,7 +195,9 @@ ACP情報またはエキスパンダセンサーのステータスを表示す�
  a| 
 `system fru list`
  a| 
+`system fru list`
  a| 
+N/A
 
 
 
@@ -149,24 +206,39 @@ ACP情報またはエキスパンダセンサーのステータスを表示す�
  a| 
 `system fru show` `fru_id`
  a| 
+`system fru show`
+
+[ `show <id>` ]
  a| 
+N/A
 
 
 
  a| 
 FRUのデータ履歴ログを表示する
  a| 
-`system fru log show`（advanced権限レベル）
+`system fru log show`
+
+（advanced権限レベル）
  a| 
+`system fru log show`
  a| 
+N/A
 
 
 
  a| 
 状態や現在の値など、環境センサーのステータスを表示する
  a| 
-`system sensors`または `system sensors show`
+`system sensors`
+
+または
+
+`system sensors show`
  a| 
+`system sensors`
+
+{`show`| `filter <sensor_string>` }
  a| 
 `system node environment sensors show`
 
@@ -179,56 +251,80 @@ FRUのデータ履歴ログを表示する
 
 は、または `system sensors show`コマンドを使用して `system sensors`取得できます `sensor_name`。
  a| 
+`system sensors`
+
+[ `get` ]
  a| 
+N/A
 
 
 
  a| 
-SPファームウェアのバージョン情報を表示する
+SP/ BMC/ ONTAPファームウェアのバージョン情報を表示する
  a| 
 `version`
  a| 
+`version`
  a| 
 `system service-processor image show`
 
 
 
  a| 
-SPコマンド履歴を表示します。
+SP/ BMC/ ONTAPコマンド履歴を表示する
  a| 
-`sp log audit`（advanced権限レベル）
+`sp log audit`
+
+（advanced権限レベル）
  a| 
 `bmc log audit`
+
+（advanced権限レベル）
  a| 
+N/A
 
 
 
  a| 
-SPデバッグ情報を表示します。
+SP/ BMC/ ONTAPのデバッグ情報を表示する
  a| 
-`sp log debug`（advanced権限レベル）
+`sp log debug`
+
+（advanced権限レベル）
  a| 
-`bmc log debug`（advanced権限レベル）
+`bmc log debug`
+
+（advanced権限レベル）
  a| 
+N/A
 
 
 
  a| 
-SPメッセージファイルを表示する
+SP/ BMC/ ONTAPメッセージファイルを表示する
  a| 
-`sp log messages`（advanced権限レベル）
+`sp log messages`
+
+（advanced権限レベル）
  a| 
-`bmc log messages`（advanced権限レベル）
+`bmc log messages`
+
+（advanced権限レベル）
  a| 
+N/A
 
 
 
  a| 
 watchdogリセットイベントでシステムの詳細情報を収集する設定を表示するか、watchdogリセットイベント中に収集されたシステムの詳細情報を表示するか、収集されたシステム詳細情報をクリアする
  a| 
-`system forensics`[`show` `log dump` ||] `log clear`
+`system forensics`
+
+[`show`| `log dump` | `log clear` ]
  a| 
+N/A
  a| 
+N/A
 
 
 
@@ -237,6 +333,7 @@ watchdogリセットイベントでシステムの詳細情報を収集する設
  a| 
 `system console`
  a| 
+`system console`
  a| 
 `system node run-console`
 
@@ -252,22 +349,29 @@ watchdogリセットイベントでシステムの詳細情報を収集する設
  a| 
 `system power` `on`
  a| 
+`system power` `on`
  a| 
-`system node power on`（advanced権限レベル）
+`system node power on`
+
+（advanced権限レベル）
 
 
 
  a| 
 `system power` `off`
  a| 
+`system power` `off`
  a| 
+N/A
 
 
 
  a| 
 `system power` `cycle`
  a| 
+`system power` `cycle`
  a| 
+N/A
 
 
 
@@ -288,6 +392,7 @@ watchdogリセットイベントでシステムの詳細情報を収集する設
 
 オプションを指定する `-f`と、コアダンプが強制的に作成され、ノードがリセットされます。
  a| 
+`system core`
  a| 
 `system node coredump trigger`
 
@@ -303,12 +408,17 @@ watchdogリセットイベントでシステムの詳細情報を収集する設
  a| 
 オプションでBIOSファームウェアイメージ（primary、backup、current）を指定してノードをリブートし、ノードのブートデバイスイメージの破損などの問題からリカバリする
  a| 
-`system reset`{`primary` || `backup` `current`｝
- a| 
- a| 
-`system node reset`および `-firmware` {`primary`| `backup`| `current`｝パラメータ（advanced権限レベル）
+`system reset`
 
-`system node reset`
+{`primary`| `backup` | `current` }
+ a| 
+`system reset`
+
+{ `current` | `primary` | `backup` }
+ a| 
+`system node reset`と `-firmware` {`primary`| `backup` | `current` } パラメータ
+
+（advanced権限レベル）
 
 
 
@@ -323,13 +433,17 @@ BIOSファームウェアイメージが指定されていない場合は、現�
 
 
  a| 
-バッテリファームウェアの自動更新のステータスを表示するか、次回のSPブート時にバッテリファームウェアの自動更新を有効または無効にする
+バッテリ ファームウェアの自動更新のステータスを表示するか、次回のSP起動時にバッテリ ファームウェアの自動更新を有効または無効にします。
  a| 
-`system battery auto_update`[`status` `enable` ||] `disable`
+`system battery auto_update`
+
+[`status`| `enable` | `disable` ]
 
 （advanced権限レベル）
  a| 
+N/A
  a| 
+N/A
 
 
 
@@ -342,39 +456,56 @@ BIOSファームウェアイメージが指定されていない場合は、現�
 
 が指定されていない場合 `image_URL`、比較にはデフォルトのバッテリファームウェアイメージが使用されます。
  a| 
+`system battery verify`[`image_URL`]
+
+（advanced権限レベル）
+
+が指定されていない場合 `image_URL`、比較にはデフォルトのバッテリファームウェアイメージが使用されます。
  a| 
+N/A
 
 
 
  a| 
 指定した場所のイメージからバッテリファームウェアを更新します。
  a| 
-`system battery flash` `image_URL`
+`system battery flash` [`image_URL`]
 
 （advanced権限レベル）
 
 このコマンドは、何らかの理由でバッテリファームウェアの自動アップグレードプロセスが失敗した場合に使用します。
  a| 
+N/A
  a| 
+N/A
 
 
 
  a| 
-指定した場所のイメージを使用してSPファームウェアを更新する
+指定された場所にあるイメージを使用して、 SP/ BMC/ ONTAPファームウェアを更新します。
  a| 
-`sp update` `image_URL image_URL`最大文字数は200文字です。
+`sp update`
+
+`image_URL`
+
+`image_URL`200文字を超えてはなりません。
  a| 
-`bmc update` `image_URL image_URL`最大文字数は200文字です。
+`bmc update`
+
+`image_URL`
+
+`image_URL`200文字を超えてはなりません。
  a| 
 `system service-processor image update`
 
 
 
  a| 
-SP をリブートします
+SP/ BMC/ ONTAPを再起動します
  a| 
 `sp reboot`
  a| 
+`bmc reboot`
  a| 
 `system service-processor reboot-sp`
 
@@ -383,20 +514,28 @@ SP をリブートします
  a| 
 NVRAMフラッシュコンテンツを消去する
  a| 
-`system nvram flash clear`（advanced権限レベル）
+`system nvram flash clear`
+
+（advanced権限レベル）
 
 このコマンドは、コントローラの電源がオフのときは開始できませ(`system power off`ん）。
  a| 
+N/A
  a| 
+N/A
 
 
 
  a| 
-SP CLIを終了する
+SP/ BMC/ ONTAP CLIを終了します
  a| 
 `exit`
  a| 
+`exit`
  a| 
+N/A
 
 |===
-この手順で説明されているコマンドの詳細については、をlink:https://docs.netapp.com/us-en/ontap-cli/["ONTAPコマンド リファレンス"^]参照してください。
+.関連情報
+* link:https://docs.netapp.com/us-en/ontap-cli/["ONTAPコマンド リファレンス"^]
+

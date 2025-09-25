@@ -1,8 +1,8 @@
 ---
 permalink: mediator/host-maintenance-task.html 
 sidebar: sidebar 
-keywords: mediator, maintain, host, maintenance, package update, kernal upgrade, change hostname, change IP, self-signed certificate, self signed certificate 
-summary: 最適なパフォーマンスを得るには、ONTAPメディエーター用のホストODを定期的に維持する必要があります。 
+keywords: mediator, maintain, host, maintenance, package update, kernel upgrade, change hostname, change IP, self-signed certificate, self signed certificate 
+summary: 最適なパフォーマンスを得るために、 ONTAP Mediator のホスト OS を定期的にメンテナンスしてください。 
 ---
 = ONTAPメディエーター用のホストOSの保守
 :allow-uri-read: 
@@ -11,25 +11,25 @@ summary: 最適なパフォーマンスを得るには、ONTAPメディエータ
 
 
 [role="lead"]
-最適なパフォーマンスを得るには、ONTAPメディエーター用のホストOSを定期的に保守する必要があります。
+最適なパフォーマンスを得るために、 ONTAP Mediator のホスト OS を定期的にメンテナンスしてください。
 
 
 
 == ホストをリブートする
 
-クラスタが正常な状態になったら、ホストを再起動してください。ONTAPメディエーターがオフラインの間は、クラスタが障害に適切に対応できないリスクがあります。再起動が必要な場合は、サービスウィンドウの使用をお勧めします。
+クラスターが正常な場合にのみホストを再起動します。 ONTAP Mediator がオフラインの間、クラスタは障害に応答できません。再起動する前にサービス ウィンドウをスケジュールします。
 
-ONTAPメディエーターはリブート中に自動的に再開され、ONTAPクラスタで以前に設定した関係が再入力されます。
+ONTAP Mediator は再起動時に自動的に再開し、 ONTAPクラスタとの以前に設定された関係を再入力します。
 
 
 
 == ホストパッケージノコウシン
 
-ライブラリやyumパッケージ（カーネルを除く）は安全に更新できますが、有効にするには再起動が必要になる場合があります。再起動が必要な場合は、サービスウィンドウを使用することをお勧めします。
+カーネル以外のライブラリまたは yum パッケージを更新します。変更を有効にするには、必要に応じてホストを再起動します。ホストを再起動する前にサービス ウィンドウをスケジュールします。
 
 パッケージをインストールした場合 `yum-utils`は、コマンドを使用し `needs-restarting`て、パッケージの変更にリブートが必要かどうかを確認します。
 
-実行中のプロセスにはすぐには反映されないため、ONTAPメディエーターの依存関係が更新された場合はリブートする必要があります。
+変更はすぐには有効にならないため、 ONTAP Mediator の依存関係を更新した後は再起動してください。
 
 
 
@@ -40,11 +40,206 @@ SCSTは、使用しているカーネル用にコンパイルされている必�
 .手順
 ホストOSカーネルをアップグレードするには、次の手順を実行します。
 
+
+NOTE: カーネルをアップグレードする前に、OS とONTAP Mediator のバージョンに互換性があることを確認してください。サポートされているバージョンについては、link:whats-new-concept.html#os-support-matrix["OSのサポート対応表"] 。
+
 . ONTAP メディエーターを停止します。
-. SCSTパッケージをアンインストールします。（SCSTにはアップグレードメカニズムはありません）。
+. SCSTパッケージをアンインストールします。<<ホストのメンテナンスを実行する>> 。（SCSTにはアップグレード メカニズムがありません）。
 . OSをアップグレードし、再起動します。
 . SCSTパッケージを再インストールします。
 . ONTAP Mediator を再度有効にします。
+
+
+
+
+== ホストのメンテナンスを実行する
+
+VM カーネルをアップグレードすると、SCST モジュールとの互換性の問題が発生する可能性があります。  SCST を手動でアンインストールして再インストールします。
+
+
+
+=== ステップ1：SCSTをアンインストールする
+
+SCST をアンインストールするには、 ONTAP Mediator バージョンの tar バンドルを使用します。
+
+.手順
+. 適切な SCST バンドル (次の表を参照) をダウンロードして解凍します。
++
+[cols="50,50"]
+|===
+
+
+| バージョン | 使用するtarバンドル 
+
+
+ a| 
+ONTAP Mediator 1.10
+ a| 
+scst-3.9.tar.gz
+
+
+
+ a| 
+ONTAPメディエーター1.9.1
+ a| 
+scst-3.8.0.tar.bz2
+
+
+
+ a| 
+ONTAPメディエーター1.9
+ a| 
+scst-3.8.0.tar.bz2
+
+
+
+ a| 
+ONTAPメディエーター1.8
+ a| 
+scst-3.8.0.tar.bz2
+
+
+
+ a| 
+ONTAPメディエーター1.7
+ a| 
+scst-3.7.0.tar.bz2
+
+
+
+ a| 
+ONTAPメディエーター1.6
+ a| 
+scst-3.7.0.tar.bz2
+
+
+
+ a| 
+ONTAPメディエーター1.5
+ a| 
+scst-3.6.0.tar.bz2
+
+
+
+ a| 
+ONTAPメディエーター1.4
+ a| 
+scst-3.6.0.tar.bz2
+
+
+
+ a| 
+ONTAPメディエーター1.3
+ a| 
+scst-3.5.0.tar.bz2
+
+
+
+ a| 
+ONTAPメディエーター1.1
+ a| 
+scst-3.4.0.tar.bz2
+
+
+
+ a| 
+ONTAPメディエーター1.0
+ a| 
+scst-3.3.0.tar.bz2
+
+|===
++
+.. オープンソースパッケージにアクセスするには、link:https://scst.sourceforge.net/downloads.html["SCST SourceForge ダウンロード"^] 。
+.. *リリースバージョンのダウンロード*を選択します。
+.. バンドルを VM に抽出します。
+
+
+. 以下のアンインストールコマンドを実行します。 `scst`ディレクトリ：
++
+.. `systemctl stop mediator-scst`
+.. `make scstadm_uninstall`
+.. `make iscsi_uninstall`
+.. `make usr_uninstall`
+.. `make scst_uninstall`
+.. `depmod`
+
+
+
+
+
+
+=== ステップ2: SCSTをインストールする
+
+SCSTを手動でインストールするには、インストールされているバージョンのONTAPメディエーターで使用されるSCST tarバンドルが必要です（<<scst-bundle-table,SCSTテーブルARPテーブル>> ）。
+
+
+NOTE: ONTAP Mediator をインストールする前にこの手順を実行します。使用している SCST バージョンがONTAP Mediator インストーラにバンドルされているバージョンよりも新しい場合、インストーラはこの手順をスキップします。
+
+. 以下のインストールコマンドを実行します。 `scst`ディレクトリ：
++
+.. `make 2release`
+.. `make scst_install`
+.. `make usr_install`
+.. `make iscsi_install`
+.. `make scstadm_install`
+.. `depmod`
++
+[NOTE]
+====
+初めてインストールを実行し、 ONTAP Mediator を事前にインストールする場合は、次の手順に進む前に次のコマンドを実行します。
+
+`mkdir -p /opt/netapp/lib/ontap_mediator/ontap_mediator/SCST_mod_keys`
+
+====
+.. `cp scst/src/certs/scst_module_key.der /opt/netapp/lib/ontap_mediator/ontap_mediator/SCST_mod_keys/`
+.. `patch /etc/init.d/scst < /opt/netapp/lib/ontap_mediator/systemd/scst.patch`
++
+
+NOTE: 初回インストール時にONTAP Mediator の前に SCST を事前インストールする場合は、この手順をスキップしてください。インストーラーは関連する SCST パッチを適用します。
+
+
+
+. セキュアブートが有効になっている場合は、リブートする前に、次の手順を実行します。
++
+.. 各ファイル名を決定する `scst_vdisk`、 `scst` 、 そして `iscsi_scst`モジュール:
++
+....
+[root@localhost ~]# modinfo -n scst_vdisk
+[root@localhost ~]# modinfo -n scst
+[root@localhost ~]# modinfo -n iscsi_scst
+....
+.. カーネルのリリースを確認します。
++
+....
+[root@localhost ~]# uname -r
+....
+.. 各モジュール ファイルをカーネルで署名します。
++
+....
+[root@localhost ~]# /usr/src/kernels/<KERNEL-RELEASE>/scripts/sign-file \sha256 \
+/opt/netapp/lib/ontap_mediator/ontap_mediator/SCST_mod_keys/scst_module_key.priv \
+/opt/netapp/lib/ontap_mediator/ontap_mediator/SCST_mod_keys/scst_module_key.der \
+_module-filename_
+....
+.. ファームウェアとともに UEFI キーをインストールします。
++
+UEFIキーのインストール手順は、次の場所にあります。
+
++
+`/opt/netapp/lib/ontap_mediator/ontap_mediator/SCST_mod_keys/README.module-signing`
+
++
+生成されたUEFIキーは次の場所にあります。
+
++
+`/opt/netapp/lib/ontap_mediator/ontap_mediator/SCST_mod_keys/scst_module_key.der`
+
+
+
+. システムを再起動します。
++
+`reboot`
+
 
 
 
@@ -53,12 +248,12 @@ SCSTは、使用しているカーネル用にコンパイルされている必�
 
 .タスクの内容
 * ONTAP Mediator をインストールした Linux ホストでこのタスクを実行します。
-* このタスクは、ONTAP Mediator のインストール後にホストのホスト名または IP アドレスが変更されたために、生成された自己署名証明書が古くなった場合にのみ実行できます。
-* 一時的な自己署名証明書を信頼できるサードパーティ証明書に置き換えたあと、このタスクを使用して証明書を再生成します。自己署名証明書がないと、この手順は失敗します。
+* ONTAP Mediator のインストール後にホスト名または IP アドレスが変更されたために自己署名証明書が古くなった場合にのみ、このタスクを実行してください。
+* 一時的な自己署名証明書が信頼できるサードパーティの証明書に置き換えられた後は、このタスクを使用して証明書を再生成しないでください。自己署名証明書がない場合は、この手順は使用できません。
 
 
 .ステップ
-現在のホストの新しい一時的な自己署名証明書を再生成するには、次の手順を実行します。
+現在のホストの一時的な自己署名証明書を作成します。
 
 . ONTAP メディエーターを再起動します。
 +

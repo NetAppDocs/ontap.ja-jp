@@ -1,0 +1,89 @@
+---
+permalink: volumes/increase-volume-active-file-system-size.html 
+sidebar: sidebar 
+keywords: increase, active, file system, volume, cpu offload, compression offload, dedicated offload processor, storage efficiency, compression 
+summary: 専用オフロード プロセッサ ストレージ効率をサポートしないプラットフォームから専用オフロード ストレージ効率をサポートするプラットフォームにボリュームを移動する場合、ボリュームのスペースが不足しないように、ボリュームを移動する前にボリュームのアクティブ ファイル システムのサイズを増やす必要があります。 
+---
+= 8Kアダプティブ圧縮から移行する前に、 ONTAPボリュームのアクティブファイルシステムを増やす
+:allow-uri-read: 
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+8k アダプティブ圧縮をサポートするプラットフォームは、ボリューム レベルでスペースを節約します。 AFF C シリーズ プラットフォームおよび 32k 圧縮をサポートするプラットフォームは、集約レベルでスペースを節約します。ボリュームを 8k アダプティブ圧縮からAFF C シリーズ プラットフォームまたは 32k 圧縮のプラットフォームに移行する場合は、ボリュームのアクティブ ファイル システムのサイズを 8k 圧縮による節約分だけ増やす必要があります。これにより、ボリュームの移動中にボリュームの空き領域が不足することがなくなります。
+
+次のシステムは 32k 圧縮をサポートしています。
+
+[cols="2"]
+|===
+| プラットフォーム | ONTAPのバージョン 
+
+
+ a| 
+* AFF A1K用
+* AFF A90用
+* AFF A70用
+* FAS90
+* FAS70
+
+| 9.15.1以降 
+
+
+ a| 
+* AFF A50用
+* AFF A30用
+
+| 9.16.1以降 
+|===
+詳細はこちらlink:../concepts/builtin-storage-efficiency-concept.html["32k圧縮をサポートするAFFおよびFASプラットフォーム"] 。
+
+参照link:https://hwu.netapp.com/["Hardware Universe"^]AFF C シリーズ プラットフォームの完全なリストについては、こちらをご覧ください。
+
+.タスクの内容
+ボリューム移動操作を使用してデータを移行する場合は、次の手順を実行します。  SnapMirror操作を使用してデータを移行する場合は、アクティブなファイル システムのサイズを手動で増やす必要はありません。  SnapMirror の宛先ボリュームは、デフォルトでボリュームの自動サイズ設定を使用するため、ボリューム レイヤーではなくアグリゲート レイヤーで圧縮による節約が実現されるため、スペースが不足することは予想されません。
+
+.開始する前に
+ボリューム上で論理スペースレポートと強制が有効になっていない場合は、オプションで有効にすることができます。 `-is-space-reporting-logical`そして `-is-space-enforcement-logical`パラメータを*true*に設定します。ボリュームの移動前にこれらの設定を有効にすると、8k 圧縮から変換するときにボリューム レイヤーでの圧縮節約損失を収容するのに十分なボリュームの大きさがあるかどうかを評価するのに役立ちます。ボリューム上でこれらの設定を有効にする必要があります。これらの設定を SVM レベルで有効にすると、新しく作成されたボリュームにのみ適用されます。
+
+.手順
+. ボリュームの現在のサイズとスナップショット予約を確認します。
++
+[source, cli]
+----
+volume show-space
+----
+. ボリュームの圧縮スペース節約を確認します。
++
+[source, cli]
+----
+volume show -vserver -volume -fields compression-space-saved
+----
+. ボリュームのアクティブファイルシステムのサイズを、表示されている量だけ増やします。 `compression-space-saved`スナップショットの予約も含みます。
++
+[source, cli]
+----
+volume size -vserver <vserver_name> -volume <volume_name> -new-size +<size>
+----
++
+.例
+ボリュームが 100 GB で、スナップショット予約が 20% の場合、アクティブ ファイル システムは 80 GB、スナップショット予約は 20 GB になります。アクティブ ファイル システムを 20 GB 増やすには、全体のボリューム サイズに 25 GB を追加する必要があります。つまり、アクティブ ファイル システムに 20 GB、スナップショット リザーブに 5 GB (20%) を追加します。
+
++
+[listing]
+----
+volume size -vserver svm1 -volume volx -size +20GB
+----
+. ボリュームのサイズが増加したことを確認します。
++
+[source, cli]
+----
+volume show -vserver <vserver_name> -volume <volume_name> -fields size
+----
+
+
+.結果
+ボリュームのアクティブなファイル システムのサイズが増加し、ボリュームを移動する準備が整いました。
+
+.次の手順
+実行するlink:move-volume-task.html["ボリューム移動"]データを移行します。

@@ -357,11 +357,11 @@ Enter pass phrase for intermediate.key:
 ----
 . 証明書署名要求をPKI機関に送信し `intermediate.csr`て署名を求めます。
 +
-PKI認証局は要求を検証し、に署名して `.csr`証明書を生成し `intermediate.crt`ます。さらに、PKI認証局から証明書に署名した証明書を取得する必要があり `root_intermediate.crt` `intermediate.crt` ます。
+PKI機関はリクエストを検証し、署名します。 `.csr` 、証明書を生成する `intermediate.crt`。さらに、 `root_ca.crt`署名した証明書 `intermediate.crt`PKI 機関からの証明書。
 
 +
 
-NOTE: SnapMirrorビジネス継続性（SM-BC）クラスタの場合は、証明書と証明書をONTAPクラスタに追加する必要があります `intermediate.crt` `root_intermediate.crt` 。を参照して link:../snapmirror-active-sync/mediator-install-task.html["SnapMirror Active Sync 用に ONTAP Mediator とクラスタを構成する"]
+NOTE: SnapMirror Business Continuity（SM-BC）クラスタの場合は、 `intermediate.crt`そして `root_ca.crt`ONTAPクラスタに証明書を追加します。見るlink:../snapmirror-active-sync/mediator-install-task.html["SnapMirror Active Sync 用に ONTAP Mediator とクラスタを構成する"]。
 
 
 
@@ -474,7 +474,61 @@ NOTE: これらのファイルはPKI機関から取得されました。別の�
 
 [role="tabbed-block"]
 ====
-.ONTAP Mediator 1.9以降
+.ONTAPメディエーター1.10以降
+--
+証明書の設定は、次の場所にある設定ファイルでONTAPメディエーターに提供されます。  `/opt/netapp/lib/ontap_mediator/ontap_mediator/server_config/ontap_mediator.config.yaml` 。このファイルには、次の属性が含まれています。
+
+[listing]
+----
+cert_path: '/opt/netapp/lib/ontap_mediator/ontap_mediator/server_config/ontap_mediator_server.crt'
+key_path: '/opt/netapp/lib/ontap_mediator/ontap_mediator/server_config/ontap_mediator_server.key'
+ca_cert_path: '/opt/netapp/lib/ontap_mediator/ontap_mediator/server_config/intermediate.crt'
+ca_key_path: '/opt/netapp/lib/ontap_mediator/ontap_mediator/server_config/intermediate.key'
+ca_serial_path: '/opt/netapp/lib/ontap_mediator/ontap_mediator/server_config/intermediate.srl'
+----
+* `cert_path`および `key_path`は、サーバ証明書変数です。
+* `ca_cert_path`、 `ca_key_path`、および `ca_serial_path`はCA証明書変数です。
+
+
+.手順
+. すべてのファイルをサードパーティの証明書に置き換えます `intermediate.*` 。
+. および証明書から証明書チェーンを作成し `intermediate.crt` `ontap_mediator_server.crt` ます。
++
+`cat ontap_mediator_server.crt intermediate.crt > ontap_mediator_server_chain.crt`
+
+. 更新する `/opt/netapp/lib/ontap_mediator/uvicorn/config.json`ファイル。
++
+値を更新する `ssl_keyfile`、 `ssl_certfile` 、 そして `ssl_ca_certs`:
+
++
+`ssl_keyfile`: `/opt/netapp/lib/ontap_mediator/ontap_mediator/server_config/ontap_mediator_server.key`
+
++
+`ssl_certfile`: `/opt/netapp/lib/ontap_mediator/ontap_mediator/server_config/ontap_mediator_server_chain.crt`
+
++
+`ssl_ca_certs`: `/opt/netapp/lib/ontap_mediator/ontap_mediator/server_config/root_ca.crt`
+
++
+** その `ssl_keyfile`値はキーパスです `ontap_mediator_server.crt`ファイル、これは `ontap_mediator_server.key`。
+** その `ssl_certfile`値は、 `ontap_mediator_server_chain.crt`ファイル。
+** その `ssl_ca_certs`値は、 `root_ca.crt`ファイル。
+
+
+. 新しく生成された証明書の次の属性が正しく設定されていることを確認します。
++
+** Linuxグループ所有者： `netapp:netapp`
+** Linux権限： `600`
+
+
+. ONTAP メディエーターを再起動します。
++
+`systemctl restart ontap_mediator`
+
+
+
+--
+.ONTAPメディエーター 1.9.1 および 1.9
 --
 証明書の設定は、次の場所にある設定ファイルでONTAPメディエーターに提供されます。  `/opt/netapp/lib/ontap_mediator/ontap_mediator/server_config/ontap_mediator.config.yaml` 。このファイルには、次の属性が含まれています。
 
@@ -507,12 +561,12 @@ ca_serial_path: '/opt/netapp/lib/ontap_mediator/ontap_mediator/server_config/int
 `set-placeholder = mediator_key = /opt/netapp/lib/ontap_mediator/ontap_mediator/server_config/ontap_mediator_server.key`
 
 +
-`set-placeholder = ca_certificate = /opt/netapp/lib/ontap_mediator/ontap_mediator/server_config/root_intermediate.crt`
+`set-placeholder = ca_certificate = /opt/netapp/lib/ontap_mediator/ontap_mediator/server_config/root_ca.crt`
 
 +
 **  `mediator_cert`値はファイルのパス `ontap_mediator_server_chain.crt` です。
 **  `mediator_key value`は、ファイル内のキーパスです `ontap_mediator_server.crt` `ontap_mediator_server.key`。
-**  `ca_certificate`値はファイルのパス `root_intermediate.crt` です。
+**  `ca_certificate`値はファイルのパス `root_ca.crt` です。
 
 
 . 新しく生成された証明書の次の属性が正しく設定されていることを確認します。
@@ -589,7 +643,7 @@ ca_serial_path: '/opt/netapp/lib/ontap_mediator/ontap_mediator/server_config/ca.
 
 [role="tabbed-block"]
 ====
-.ONTAP Mediator 1.9以降
+.ONTAPメディエーター1.10以降
 --
 とは別の名前のサードパーティ証明書を使用することも、サードパーティ証明書を別の場所に保存することもできます `intermediate.*`。
 
@@ -626,7 +680,90 @@ ca_serial_path: '/opt/netapp/lib/ontap_mediator/ontap_mediator/server_config/int
 
 ----
 +
-.. 証明書が証明書に署名する証明書を提供する証明書構造を使用している場合は `root_intermediate.crt` `intermediate.crt` `ontap_mediator_server.crt` 、および証明書から証明書チェーンを作成し `intermediate.crt` `ontap_mediator_server.crt` ます。
+.. 証明書構造を使用している場合、 `root_ca.crt`証明書は `intermediate.crt`署名する証明書 `ontap_mediator_server.crt`証明書の場合は、 `intermediate.crt`そして `ontap_mediator_server.crt`証明書:
++
+
+NOTE: この手順の前半で、PKI機関から証明書と証明書を入手しておく必要があります `intermediate.crt` `ontap_mediator_server.crt` 。
+
++
+`cat ontap_mediator_server.crt intermediate.crt > ontap_mediator_server_chain.crt`
+
+.. 更新する `/opt/netapp/lib/ontap_mediator/uvicorn/config.json`ファイル。
++
+値を更新する `ssl_keyfile`、 `ssl_certfile` 、 そして `ssl_ca_certs`:
+
++
+`ssl_keyfile`: `/opt/netapp/lib/ontap_mediator/ontap_mediator/server_config/ontap_mediator_server.key`
+
++
+`ssl_certfile`: `/opt/netapp/lib/ontap_mediator/ontap_mediator/server_config/ontap_mediator_server_chain.crt`
+
++
+`ssl_ca_certs`: `/opt/netapp/lib/ontap_mediator/ontap_mediator/server_config/root_ca.crt`
+
++
+*** その `ssl_keyfile`値はキーパスです `ontap_mediator_server.crt`ファイル、これは `ontap_mediator_server.key`。
+*** その `ssl_certfile`値は、 `ontap_mediator_server_chain.crt`ファイル。
+*** その `ssl_ca_certs`値は、 `root_ca.crt`ファイル。
++
+
+NOTE: SnapMirror Business Continuity（SM-BC）クラスタの場合は、 `intermediate.crt`そして `root_ca.crt`ONTAPクラスタに証明書を追加します。見るlink:../snapmirror-active-sync/mediator-install-task.html["SnapMirror Active Sync 用に ONTAP Mediator とクラスタを構成する"]。
+
+
+
+.. 新しく生成された証明書の次の属性が正しく設定されていることを確認します。
++
+*** Linuxグループ所有者： `netapp:netapp`
+*** Linux権限： `600`
+
+
+
+
+. 設定ファイルで証明書が更新されたら、ONTAP Mediator を再起動します。
++
+`systemctl restart ontap_mediator`
+
+
+
+--
+.ONTAPメディエーター 1.9.1 および 1.9
+--
+とは別の名前のサードパーティ証明書を使用することも、サードパーティ証明書を別の場所に保存することもできます `intermediate.*`。
+
+.手順
+. ファイル内のデフォルトの変数値を上書きするようにファイルを構成し `/opt/netapp/lib/ontap_mediator/ontap_mediator/server_config/ontap_mediator.user_config.yaml` `ontap_mediator.config.yaml` ます。
++
+PKI権限から取得した秘密鍵をの場所に保存した場合、 `intermediate.crt` `intermediate.key` `/opt/netapp/lib/ontap_mediator/ontap_mediator/server_config` `ontap_mediator.user_config.yaml` ファイルは次の例のようになります。
+
++
+
+NOTE: を使用して証明書に署名した場合は、 `intermediate.crt` `ontap_mediator_server.crt`  `intermediate.srl` ファイルが生成されます。詳細については、を参照してください <<step_2_intermediate_info_v9,手順2：サードパーティのCA証明書で署名してサーバ証明書を生成する>> 。
+
++
+[listing]
+----
+[root@scs000216655 server_config]# cat  ontap_mediator.user_config.yaml
+
+# This config file can be used to override the default settings in ontap_mediator.config.yaml
+# To override a setting, copy the property key from ontap_mediator.config.yaml to this file and
+# set the property to the desired value. e.g.,
+#
+# The default value for 'default_mailboxes_per_target' is 4 in ontap_mediator.config.yaml
+#
+# To override this value with 6 mailboxes per target, add the following key/value pair
+# below this comment:
+#
+# 'default_mailboxes_per_target': 6
+#
+cert_path: '/opt/netapp/lib/ontap_mediator/ontap_mediator/server_config/ontap_mediator_server.crt'
+key_path: '/opt/netapp/lib/ontap_mediator/ontap_mediator/server_config/ontap_mediator_server.key'
+ca_cert_path: '/opt/netapp/lib/ontap_mediator/ontap_mediator/server_config/intermediate.crt'
+ca_key_path: '/opt/netapp/lib/ontap_mediator/ontap_mediator/server_config/intermediate.key'
+ca_serial_path: '/opt/netapp/lib/ontap_mediator/ontap_mediator/server_config/intermediate.srl'
+
+----
++
+.. 証明書構造を使用している場合、 `root_ca.crt`証明書は `intermediate.crt`署名する証明書 `ontap_mediator_server.crt`証明書の場合は、 `intermediate.crt`そして `ontap_mediator_server.crt`証明書:
 +
 
 NOTE: この手順の前半で、PKI機関から証明書と証明書を入手しておく必要があります `intermediate.crt` `ontap_mediator_server.crt` 。
@@ -645,15 +782,15 @@ NOTE: この手順の前半で、PKI機関から証明書と証明書を入手�
 `set-placeholder = mediator_key = /opt/netapp/lib/ontap_mediator/ontap_mediator/server_config/ontap_mediator_server.key`
 
 +
-`set-placeholder = ca_certificate = /opt/netapp/lib/ontap_mediator/ontap_mediator/server_config/root_intermediate.crt`
+`set-placeholder = ca_certificate = /opt/netapp/lib/ontap_mediator/ontap_mediator/server_config/root_ca.crt`
 
 +
 ***  `mediator_cert`値はファイルのパス `ontap_mediator_server_chain.crt` です。
 *** この `mediator_key` 値は、ファイル内のキーパス（ `ontap_mediator_server.crt` ）です。 `ontap_mediator_server.key`
-***  `ca_certificate`値はファイルのパス `root_intermediate.crt` です。
+***  `ca_certificate`値はファイルのパス `root_ca.crt` です。
 +
 
-NOTE: SnapMirrorビジネス継続性（SM-BC）クラスタの場合は、証明書と証明書をONTAPクラスタに追加する必要があります `intermediate.crt` `root_intermediate.crt` 。を参照して link:../snapmirror-active-sync/mediator-install-task.html["SnapMirror Active Sync 用に ONTAP Mediator とクラスタを構成する"]
+NOTE: SnapMirror Business Continuity（SM-BC）クラスタの場合は、 `intermediate.crt`そして `root_ca.crt`ONTAPクラスタに証明書を追加します。見るlink:../snapmirror-active-sync/mediator-install-task.html["SnapMirror Active Sync 用に ONTAP Mediator とクラスタを構成する"]。
 
 
 

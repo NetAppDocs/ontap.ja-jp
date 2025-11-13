@@ -1,0 +1,38 @@
+---
+permalink: revert/arp-warning-clear-revert.html 
+sidebar: sidebar 
+keywords: ontap, revert, ransomware, protection, security, arp 
+summary: ONTAPをリバートする前に、ARPの異常なアクティビティの警告に応答してください。 
+---
+= ONTAPを復元する前に、Autonomous Ransomware Protection (ARP) のアクティビティ警告を解決する
+:allow-uri-read: 
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+ONTAP 9.17.1 以前に戻す前に、Autonomous Ransomware Protection（ARP）によって報告された異常なアクティビティの警告に応答し、関連する ARP スクリーンショットを削除する必要があります。
+
+.開始する前に
+ARP スナップショットを削除するには、「詳細」権限が必要です。
+
+.手順
+. で報告された異常なアクティビティに関する警告に対応しlink:../anti-ransomware/respond-abnormal-task.html["ARP"]、潜在的な問題を解決します。
+. 元に戻す前に、*疑わしいファイルタイプの更新とクリア* を選択して決定を記録し、通常の ARP 監視を再開し、これらの問題が解決されていることを確認してください。
+. 次のコマンドを実行して、警告に関連付けられている ARP スクリーンショットを一覧表示します。
++
+[source, cli]
+----
+volume snapshot snapshot show -fs-version 9.18
+----
+. 警告に関連する ARP スクリーンショットをすべて削除します。
++
+
+NOTE: このコマンドは、ARP スナップショットだけでなく、現在のバージョンのONTAPで使用されている形式を持つすべてのスナップショットを削除します。このコマンドを実行する前に、削除されるすべてのスナップショットに対して必要なアクションを実行したことを確認してください。
+
++
+[source, cli]
+----
+volume snapshot prepare-for-revert -node <node_name>
+----
+

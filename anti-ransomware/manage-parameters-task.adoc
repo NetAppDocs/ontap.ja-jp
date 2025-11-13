@@ -24,7 +24,7 @@ ONTAP 9.11.1以降では、Autonomous Ransomware Protectionが有効になって
 
 自律ランサムウェア保護（ARP）が学習モードまたは評価モードにある場合、ボリュームの動作に関するベースライン値を作成します。これには、エントロピー、ファイル拡張子、そしてONTAP 9.11.1以降ではIOPSが含まれます。設定されたベースラインは、ランサムウェアの脅威を評価するために使用されます。link:index.html#what-arp-detects["ARPが検出する内容"] 。
 
-特定のボリュームやワークロードでは、異なる検出パラメータが必要です。たとえば、ARP対応ボリュームで多数の種類のファイル拡張子がホストされている場合、以前に見たことのないファイル拡張子のしきい値をデフォルトの20よりも大きい値に変更したり、以前に見たことのないファイル拡張子に基づいて警告を無効にしたりすることができます。ONTAP 9 .11.1以降では、攻撃検出パラメータを変更して、特定のワークロードに適したパラメータにすることができます。
+ボリュームやワークロードによっては、異なる検出パラメータが必要になることがあります。たとえば、ARP 対応ボリュームにはさまざまな種類のファイル拡張子がホストされている可能性があります。その場合、これまでに見たことのないファイル拡張子のしきい値数をデフォルトの 20 より大きい数に変更するか、これまでに見たことのないファイル拡張子に基づく警告を無効にする必要があります。ONTAP 9.11.1以降では、特定のワークロードに合わせて攻撃検出パラメータを変更できます。
 
 ONTAP 9.14.1以降では、ARPが新しいファイル拡張子を監視したとき、およびARPがスナップショットを作成したときにアラートを設定できます。詳細については、を参照してください <<modify-alerts>>。
 
@@ -72,8 +72,8 @@ security anti-ransomware volume attack-detection-parameters show -vserver vs1 -v
                  File Create Rate Surge Notify Percentage : 100
                  File Rename Rate Surge Notify Percentage : 100
                  File Delete Rate Surge Notify Percentage : 100
- Never Seen before File Extensions Count Notify Threshold : 20
-       Never Seen before File Extensions Duration in Hour : 24
+ Never Seen before File Extensions Count Notify Threshold : 5
+       Never Seen before File Extensions Duration in Hour : 48
 ....
 . 表示されているすべてのフィールドはブール値または整数値で変更できます。フィールドを変更するには、  `security anti-ransomware volume attack-detection-parameters modify`指示。
 +
@@ -90,8 +90,10 @@ ARPは、アクティブな場合でも、検出パラメータのベースラ�
 .1回限りの急増を報告する
 . 既知の状況で1回限りのサージが発生していて、ARPで将来の状況でも同様のサージを報告する場合は、ワークロードの動作からサージをクリアします。
 +
-`security anti-ransomware volume workload-behavior clear-surge -vserver <svm_name> -volume <volume_name>`
-
+[source, cli]
+----
+security anti-ransomware volume workload-behavior clear-surge -vserver <svm_name> -volume <volume_name>
+----
 +
 の詳細については `security anti-ransomware volume workload-behavior clear-surge`、をlink:https://docs.netapp.com/us-en/ontap-cli/security-anti-ransomware-volume-workload-behavior-clear-surge.html["ONTAPコマンド リファレンス"^]参照してください。
 
@@ -100,8 +102,10 @@ ARPは、アクティブな場合でも、検出パラメータのベースラ�
 .ベースラインサージの修正
 . 報告されたサージを通常のアプリケーション動作と見なす必要がある場合は、サージを報告してベースラインサージ値を変更します。
 +
-`security anti-ransomware volume workload-behavior update-baseline-from-surge -vserver <svm_name> -volume <volume_name>`
-
+[source, cli]
+----
+security anti-ransomware volume workload-behavior update-baseline-from-surge -vserver <svm_name> -volume <volume_name>
+----
 +
 詳細はこちら `security anti-ransomware volume workload-behavior update-baseline-from-surge`の中でlink:https://docs.netapp.com/us-en/ontap-cli/security-anti-ransomware-volume-workload-behavior-update-baseline-from-surge.html["ONTAPコマンド リファレンス"^] 。
 
@@ -148,24 +152,32 @@ System Manager またはONTAP CLI を使用して、ARP イベントのアラー
 .ボリュームのアラートの設定
 * 新しいファイル拡張子にアラートを設定するには、次の手順を実行します。
 +
-`security anti-ransomware volume event-log modify -vserver <svm_name> -volume <volume_name> -is-enabled-on-new-file-extension-seen true`
-
+[source, cli]
+----
+security anti-ransomware volume event-log modify -vserver <svm_name> -volume <volume_name> -is-enabled-on-new-file-extension-seen true`
+----
 * ARPスナップショットの作成に関するアラートを設定するには、次の手順を実行します。
 +
-`security anti-ransomware volume event-log modify -vserver <svm_name> -volume <volume_name> -is-enabled-on-snapshot-copy-creation true`
-
+[source, cli]
+----
+security anti-ransomware volume event-log modify -vserver <svm_name> -volume <volume_name> -is-enabled-on-snapshot-copy-creation true
+----
 * コマンドを使用して設定を確認し `anti-ransomware volume event-log show`ます。
 
 
 .SVMのアラートを設定する
 * 新しいファイル拡張子にアラートを設定するには、次の手順を実行します。
 +
-`security anti-ransomware vserver event-log modify -vserver <svm_name> -is-enabled-on-new-file-extension-seen true`
-
+[source, cli]
+----
+security anti-ransomware vserver event-log modify -vserver <svm_name> -is-enabled-on-new-file-extension-seen true
+----
 * ARPスナップショットの作成に関するアラートを設定するには、次の手順を実行します。
 +
-`security anti-ransomware vserver event-log modify -vserver <svm_name> -is-enabled-on-snapshot-copy-creation true`
-
+[source, cli]
+----
+security anti-ransomware vserver event-log modify -vserver <svm_name> -is-enabled-on-snapshot-copy-creation true
+----
 * コマンドを使用して設定を確認し `security anti-ransomware vserver event-log show`ます。
 
 

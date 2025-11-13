@@ -14,17 +14,12 @@ summary: インストールプロセスでは、ホストオペレーティン�
 ONTAPメディエーター用のホストOSを新しいバージョンにアップグレードするには、最初にONTAPメディエーターをアンインストールする必要があります。
 
 .タスクの内容
-leapp-upgradeツールを使用してONTAPメディエーターのホストOSを新しいメジャーバージョン（7.xから8.xなど）にアップグレードする場合は、ONTAPメディエーターをアンインストールする必要があります。これは、システムに登録されているリポジトリにインストールされているRPMの新しいバージョンが検出されるためです。
+leapp-upgrade ツールを使用してONTAP Mediator のホスト OS をアップグレードする前に、 ONTAP Mediator をアンインストールします。このツールは、登録されたリポジトリ内の新しい RPM バージョンをチェックします。
 
-.rpmファイルはONTAPメディエーターのインストーラの一部としてインストールされているため、その検索に含まれます。ただし、その.rpmファイルはインストーラの一部として展開され、登録されたリポジトリからダウンロードされなかったため、アップグレードが見つかりません。この場合、leapp-upgradeツールはパッケージをアンインストールします。
-
-サポートケースのトリアージに使用するログファイルを保存するには、OSをアップグレードする前にファイルをバックアップし、ONTAP Mediatorパッケージの再インストール後に復元する必要があります。ONTAP Mediatorパッケージに接続されているONTAPクラスタは、ONTAP Mediatorのインストール後に再接続する必要があります。
-
-
-NOTE: 以下の手順は記載された順番で実行してください。ONTAP Mediatorを再インストールしたら、すぐにontap_mediatorを停止し、ログファイルを置き換えて再起動してください。これは、ログが失われないようにするためです。
+ONTAP Mediator インストーラは、leapp-upgrade ツールが検索に含める .rpm ファイルをインストールします。インストーラーは登録済みのリポジトリからファイルをダウンロードするのではなく、ファイルを解凍するため、ツールはアップグレードを見つけることができません。パッケージをアンインストールするには、leapp-upgrade ツールを使用する必要があります。
 
 .手順
-. ログファイルをバックアップします。
+. ログ ファイルをバックアップします。
 +
 ....
 [rootmediator-host ~]# tar -czf ontap_mediator_file_backup.tgz -C /opt/netapp/lib/ontap_mediator ./log ./ontap_mediator/server_config/ontap_mediator.user_config.yaml
@@ -40,7 +35,7 @@ NOTE: 以下の手順は記載された順番で実行してください。ONTAP
 ./ontap_mediator/server_config/ontap_mediator.user_config.yaml
 [rootmediator-host ~]#
 ....
-. leapp-upgradeツールを使用してアップグレードを実行します。
+. leapp-upgrade ツールを使用してアップグレードを実行します。
 +
 ....
 [rootmediator-host ~]# leapp preupgrade --target 8.4
@@ -53,21 +48,21 @@ NAME="Red Hat Enterprise Linux"
 VERSION="8.4 (Ootpa)"
 [rootmediator-host ~]#
 ....
-. ONTAP Mediatorを再インストールします。
+. ONTAPメディエーターを再インストールします。
 +
 
 NOTE: ログ ファイルが失われないように、ONTAP Mediatorの再インストール後すぐに残りの手順を実行してください。
 
 +
 ....
-[rootmediator-host ~]# ontap-mediator-1.10/ontap-mediator-1.10
+[rootmediator-host ~]# ontap-mediator-1.11.0/ontap-mediator-1.11.0
 
 ONTAP Mediator: Self Extracting Installer
 
   ..<snip installation>..
 [rootmediator-host ~]#
 ....
-. ontap_mediator を停止します。
+. ontap_mediatorを停止します。
 +
 ....
 [rootmediator-host ~]# systemctl stop ontap_mediator
@@ -79,17 +74,19 @@ ONTAP Mediator: Self Extracting Installer
 [rootmediator-host ~]# tar -xf ontap_mediator_log_backup.tgz -C /opt/netapp/lib/ontap_mediator
 [rootmediator-host ~]#
 ....
-. ontap_mediator を起動します。
+. ontap_mediatorを起動します。
 +
 ....
 [rootmediator-host ~]# systemctl start ontap_mediator
 [rootmediator-host ~]#
 ....
-. アップグレードしたONTAP MediatorにすべてのONTAPクラスタを再接続します。
-+
-.MetroCluster over IPの手順
-[%collapsible]
+. すべてのONTAPクラスタをアップグレードしたONTAPメディエーターに再接続します。
+
+
+[role="tabbed-block"]
 ====
+.MetroCluster over IP
+--
 ....
 siteA::> metrocluster configuration-settings mediator show
 Mediator IP     Port    Node                    Configuration Connection
@@ -127,12 +124,10 @@ Mediator IP     Port    Node                    Configuration Connection
                         siteB-node2             true          true
 siteA::>
 ....
-====
-+
-.SnapMirrorアクティブ同期の手順
-[%collapsible]
-====
-SnapMirrorアクティブ同期では、/opt/netappディレクトリ以外にTLS証明書をインストールした場合、証明書を再インストールする必要はありません。デフォルトの自己署名証明書を使用していた場合、または独自の証明書を/opt/netappディレクトリに配置していた場合は、証明書をバックアップしてリストアする必要があります。
+--
+.SnapMirrorアクティブ同期
+--
+SnapMirrorアクティブ同期の場合、/opt/netapp の外部に保存されている TLS 証明書を再インストールする必要はありません。  /opt/netapp に保存されている証明書をバックアップおよび復元します。
 
 ....
 peer1::> snapmirror mediator show
@@ -217,9 +212,8 @@ Mediator Address Peer Cluster     Connection Status Quorum Status
 peer1::>
 
 ....
+--
 ====
-
-
 .関連情報
 * link:https://docs.netapp.com/us-en/ontap-cli/security-certificate-delete.html["セキュリティ証明書の削除"^]
 * link:https://docs.netapp.com/us-en/ontap-cli/security-certificate-install.html["セキュリティ証明書のインストール"^]

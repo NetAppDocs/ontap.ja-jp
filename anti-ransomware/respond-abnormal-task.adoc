@@ -81,7 +81,7 @@ System ManagerまたはONTAP CLIを使用して、異常なアクティビティ
 
 +
 
-NOTE: ONTAP 9 .13.1以降では、MAVを使用してARP設定を保護している場合、clear-suspect操作によって、1人以上の追加管理者の承認を得るように求められます。link:../multi-admin-verify/request-operation-task.html["すべての管理者から承認を受ける必要があります"]MAV承認グループに関連付けられているか、操作が失敗します。
+NOTE: ONTAP 9.13.1 以降、MAV を使用して ARP 設定を保護している場合、明らかに疑わしい操作によって 1 人以上の追加管理者の承認を得るように求められます。link:../multi-admin-verify/request-operation-task.html["すべての管理者から承認を受ける必要があります"] MAV 承認グループに関連付けられていないと、操作は失敗します。
 
 
 
@@ -117,6 +117,7 @@ NOTE: ボリューム全体を復元した場合、クリアする必要があ�
 --
 .CLI
 --
+.攻撃を確認する
 . ランサムウェア攻撃の疑いがあるという通知を受け取ったら、攻撃の時間と重大度を確認します。
 +
 [source, cli]
@@ -172,6 +173,9 @@ Report "report_file_vs0_vol1_14-09-2021_01-21-08" available at path "vs0:vol1/"
 ----
 cat report_file_vs0_vol1_14-09-2021_01-21-08
 ----
+
+
+.行動を起こす
 . ファイル拡張子またはエントロピー スパイクの評価に基づいて、次のいずれかのアクションを実行します。
 +
 ** False positive
@@ -231,6 +235,15 @@ security anti-ransomware volume attack clear-suspect -vserver <svm_name> -volume
 +
 これ `clear-suspect`操作により攻撃レポートがクリアされます。ボリューム全体をリストアした場合、クリアする疑わしいファイルタイプの通知はありません。ONTAP9.16.1以降のONTAP /AIでは、分類操作によってトリガーされた短縮された保持期間の経過後に、ARPスナップショットは自動的に削除されます。9.15.1以前では、ボリュームをリストアするか疑わしいイベントをクリアすると、ARPスナップショットは自動的に削除されますONTAP
 
+. 9.18.1以降では、 `clear-suspect`手術：
++
+[source, cli]
+----
+security anti-ransomware volume show -clear-suspect-status -volume <vol_name> -vserver <svm_name>
+----
+
+
+.MAVオプション
 . MAVを使用していて、想定される操作に追加の承認が必要な場合 `clear-suspect`、各MAVグループ承認者は次の作業を行う必要があります。
 +
 .. 要求を表示します。

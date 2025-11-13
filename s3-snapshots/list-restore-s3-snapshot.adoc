@@ -16,10 +16,17 @@ summary: ONTAP S3のSnapshot機能を使用すると、S3クライアントか�
 
 
 [role="lead"]
-ONTAP S3のSnapshot機能を使用すると、S3クライアントからバケットのS3 Snapshotのコンテンツを表示および参照できます。また、S3 SnapshotからS3クライアント上の単一のオブジェクト、一連のオブジェクト、またはバケット全体をリストアできます。
+ONTAP 9.16.1 以降では、S3 クライアントからバケットの S3 スナップショット データを表示および参照できます。 ONTAP 9.18.1 以降では、S3 スナップショット バケットにONTAP CLI を使用してネイティブにアクセスできるようになりました。さらに、S3 SnapshotからS3クライアント上の単一のオブジェクト、オブジェクトのセット、またはバケット全体をリストアできます。
 
 .開始する前に
-バケットのONTAP S3 Snapshotを表示、参照、およびリストアするには、Snapshotが作成されている必要があります。また、S3プロトコルクライアントからS3ベースバケットにアクセスできる必要があります。
+* ONTAP CLI でバケット スナップショットの復元操作をネイティブに実行するには、クラスタ内のすべてのノードでONTAP 9.18.1 以降が実行されている必要があります。  ONTAP 9.18,1 以降では、S3 ブラウザは不要になりましたが、操作は引き続きサポートされます。
+* 特定のバケットに対して一度に許可されるスナップショット復元操作は 1 つだけです。
+
+
+.タスクの内容
+ONTAP 9.16.1 以降、 ONTAP S3 スナップショット機能は、手動およびスケジュールによるスナップショットの作成と削除、S3 バケットのスナップショット ポリシー、S3 クライアントベースのスナップショット参照など、 ONTAP S3 バケットの基本的なスナップショット機能を提供します。
+
+ONTAP 9.18.1 以降では、ネイティブONTAPスナップショット リストアのサポートが追加され、S3 ブラウザを使用せずにONTAP管理者にポイントインタイム リストア機能が提供されるようになりました。スナップショットには現在のバケット バージョンのみがキャプチャされます。バージョン履歴はキャプチャされず、S3 スナップショット復元操作によって復元されません。
 
 
 
@@ -35,9 +42,9 @@ S3 Snapshotの詳細を表示して比較し、エラーを特定できます。
 vserver object-store-server bucket snapshot show
 ----
 +
-クラスタ上のすべてのバケットに対して作成されたS3 Snapshotの名前、Storage VM、バケット、作成時間、およびの情報を確認できます `instance-uuid`。
+クラスター上のすべてのバケットに対して作成された S3 スナップショットのスナップショット名、ストレージ VM、バケット、作成時刻、インスタンス UUID を表示できます。
 
-. バケット名を指定して、そのバケットに対して作成されたすべてのS3 Snapshotの名前、作成時間、およびそのバケットに対して作成されたすべてのS3 Snapshotを表示することもできます `instance-uuid`。
+. バケット名を指定して、その特定のバケットに対して作成されたすべての S3 スナップショットの名前、作成時刻、インスタンス UUID を表示することもできます。
 +
 [listing]
 ----
@@ -51,9 +58,9 @@ vserver object-store-server bucket snapshot show -vserver <svm_name> -bucket <bu
 
 環境で障害や問題が発生した場合は、S3バケットのSnapshotの内容を参照してエラーを特定できます。また、S3のSnapshotを参照して、リストアするエラーのないコンテンツを特定することもできます。
 
-S3 Snapshotは、S3クライアントにSnapshotバケットとして提供されます。Snapshotバケット名の形式は、です `<base_bucket_name>-s3snap-<snapshot_name>`。S3 API処理を使用して、Storage VM内のすべてのSnapshotバケットを表示できます `ListBuckets`。
+S3 スナップショットは、S3 クライアントにスナップショット バケットとして提供されます。スナップショットバケット名は次のようにフォーマットされます。 `<base_bucket_name>-s3snap-<snapshot_name>` 。ストレージVM内のすべてのスナップショットバケットは、 `ListBuckets` S3 API 操作。
 
-S3 snapshotバケットはベースバケットのアクセスポリシーを継承し、読み取り専用の処理のみをサポートします。ベースバケットにアクセスする権限がある場合は、S3 Snapshotバケットに対して読み取り専用のS3 API処理（ `HeadObject`、 `GetObject`、 `GetObjectTagging` `ListObjects`、、 `ListObjectVersions`、 `GetObjectAcl`、および `CopyObject`。
+S3 スナップショット バケットはベース バケットのアクセス ポリシーを継承し、読み取り専用操作のみをサポートします。削除および書き込みベースの操作は禁止されています。ベースバケットにアクセスする権限がある場合は、S3スナップショットバケットに対して読み取り専用のS3 API操作を実行することもできます。 `HeadObject` 、 `GetObject` 、 `GetObjectTagging` 、 `ListObjects` 、 `ListObjectVersions` 、 `GetObjectAcl` 、 そして `CopyObject`。
 
 
 NOTE: S3 Snapshotバケットでこの `CopyObject`処理がサポートされるのは、ソースバケットのSnapshotである場合のみです。Snapshotのストレージデスティネーションである場合はサポートされません。
@@ -62,16 +69,39 @@ NOTE: S3 Snapshotバケットでこの `CopyObject`処理がサポートされ�
 
 
 
-== S3 Snapshotからコンテンツをリストア
+== ONTAPを使用して S3 スナップショットからバケットを復元する
 
-S3クライアントでリストア処理を実行して、Snapshotバケットから元のバケットまたは別のバケットにコンテンツをコピーすることで、単一のオブジェクト、一連のオブジェクト、またはバケット全体をリカバリできます。スナップショットを参照して、コピーするスナップショットコンテンツを決定できます。
+ONTAP 9.18.1 以降では、 ONTAP CLI を使用してONTAP S3 スナップショットを使用してバケット全体を復元できます。選択したスナップショットが作成された時点で存在していたバケットのバージョンのみを復元できます。
 
-バケット全体、プレフィックスが付いたオブジェクト、または単一のオブジェクトをリストアするには、コマンドを使用し `aws s3 cp`ます。
+.手順
+. バケットを復元するために使用するスナップショットを特定します。
++
+[listing]
+----
+vserver object-store-server bucket snapshot show
+----
+. バケットを復元します。
++
+[listing]
+----
+vserver object-store-server bucket snapshot restore start -vserver <storage VM name> -bucket <bucket name> -snapshot <snapshot name>
+----
+
+
+
+
+== S3 クライアントを使用して S3 バケットのスナップショットからデータを復元する
+
+ONTAPでバケット全体を復元するだけでなく、S3cmd や S3 Browser などの S3 クライアントを使用して、S3 スナップショットから単一のオブジェクト、オブジェクトのセット、またはバケット全体を復元することもできます。
+
+link:index.html#snapshots-on-versioned-and-non-versioned-buckets["バージョン管理されたスナップショットとバージョン管理されていないスナップショットの詳細について説明します。"]
+
+バケット全体、特定のプレフィックスを持つオブジェクト、または単一のオブジェクトを復元するには、 `aws s3 cp`指示。
 
 .手順
 . ベースS3バケットのSnapshotを作成します。
 +
-[listing]
+[source, cli]
 ----
 vserver object-store-server bucket snapshot create -vserver <svm_name> -bucket <base_bucket_name> -snapshot <snapshot_name>
 ----
@@ -79,19 +109,19 @@ vserver object-store-server bucket snapshot create -vserver <svm_name> -bucket <
 +
 ** バケット全体をリストアします。Snapshotバケット名は、の形式で指定し `<base_bucket_name>-s3snap-<snapshot_name>`ます。
 +
-[listing]
+[source, cli]
 ----
 aws --endpoint http://<IP> s3 cp s3://<snapshot-bucket-name> s3://<base-bucket>  --recursive
 ----
 ** ディレクトリ内のオブジェクトを次のプレフィックスでリストアし `dir1`ます。
 +
-[listing]
+[source, cli]
 ----
 aws --endpoint http://<IP> s3 cp s3://<snapshot-bucket-name>/dir1 s3://<base_bucket_name>/dir1 --recursive
 ----
 ** 次の名前の単一オブジェクトをリストアし `web.py`ます。
 +
-[listing]
+[source, cli]
 ----
 aws --endpoint http://<IP> s3 cp s3:// <snapshot-bucket-name>/web.py s3://<base_bucket_name>/web.py
 ----

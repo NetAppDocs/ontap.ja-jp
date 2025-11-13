@@ -21,20 +21,46 @@ ONTAP 9 .10.1以降では、Autonomous Ransomware Protection（ARP；自律型�
 デフォルトのARPを設定せずに新規または既存のボリュームを個別に設定する場合は、こちらを参照してくださいlink:enable-task.html["関連するARP手順"]。
 
 .タスクの内容
-デフォルトでは、新しいボリュームはARPが無効モードに設定された状態で作成されます。ランサムウェア対策機能を有効にした後、SVM で作成された新しいボリュームでは、ARP がデフォルトでのみ有効になります。
+デフォルトでは、新しいボリュームは ARP 機能が無効になった状態で作成されます。  ARP 機能を有効にし、SVM に作成された新しいボリュームでデフォルトで有効になるように設定する必要があります。
 
-既存のボリュームでは、ARPは自動的に有効になりません。この手順で説明する設定変更は、新しいボリュームにのみ適用されます。 link:enable-task.html["既存のボリュームのARPを有効にする"] 。
+ARP が有効になっていない既存のボリュームでは、SVM のデフォルトを変更しても、ARP の有効化ステータスは自動的に変更されません。この手順で説明する SVM 設定の変更は、新しいボリュームにのみ影響します。方法を学ぶlink:enable-task.html["既存のボリュームのARPを有効にする"]。
 
-* *（SAN環境のみ） FlexVolを備えたONTAP 9.17.1以降の場合* System ManagerまたはCLIを使用してARPを有効にすると、ARP/AI機能が自動的に有効になります。SANボリュームで有効にすると、 link:respond-san-entropy-eval-period.html["ARP/AIは評価期間中にデータを継続的に監視します"]ワークロードが ARP に適しているかどうかを判断し、検出に最適な暗号化しきい値を設定します。
-* *(NAS 環境のみ) FlexVolボリュームを備えたONTAP 9.16.1 以降の場合* System Manager または CLI を使用して ARP を有効にすると、ARP/AI 保護が有効になり、すぐにアクティブになります。学習期間は必要ありません。
-* *(NAS環境のみ) ONTAP 9.15.1～9.10.1またはFlexGroupボリュームのARPの場合* デフォルトでは、ARPが有効になっている新しいボリュームは次のように設定されます。 link:index.html#learn-about-arp-modes["ラーニングモード"] （または「ドライラン」状態）では、システムはワークロードを分析して通常の動作を特徴付けます。学習モードからアクティブ モードには、手動（すべてのARPバージョン）または自動（ARP 9.13.1以降）で移行できます。ARP 9.13.1以降、アダプティブ ラーニングがARP分析に追加され、学習モードからアクティブ モードへの切り替えは自動的に行われます。
+ARP を有効にした後、環境とONTAP のバージョンによっては、ARP が移行期間に入る場合があります。
+
+[cols="25,25,50"]
+|===
+| ボリュームタイプ | ONTAPのバージョン | 有効化後の動作 
 
 
+.2+| NASFlexGroup | ONTAP 9.18.1以降 | ARP/AIは学習期間なしですぐにアクティブになります 
+
+
+| ONTAP 9.13.1 から 9.17.1 | ARPは30日間学習モードで開始されます 
+
+
+.2+| NASFlexVol | ONTAP 9.16.1以降 | ARP/AIは学習期間なしですぐにアクティブになります 
+
+
+| ONTAP 9.10.1 から 9.15.1 | ARPは30日間学習モードで開始されます 
+
+
+| SANホリユウム | ONTAP 9.17.1以降 | ARP/AI は直ちにアクティブになり、初期の保守的なしきい値から移行する前に、適切なアラートしきい値を確立するための評価期間を開始します。 
+|===
 .開始する前に
-* そのlink:index.html["正しいライセンス"] ONTAPバージョンに合わせてインストールする必要があります。
-* ボリュームの使用率は 100% 未満である必要があります。
-* （NAS環境のみ）ARPを設定するボリュームは保護されており、アクティブなlink:../concepts/namespaces-junction-points-concept.html["ジャンクションパス"] 。
-* ONTAP 9.13.1 以降では、ランサムウェア対策操作に 2 人以上の認証済みユーザー管理者が必要となるように、マルチ管理者検証 (MAV) を有効にすることをお勧めします。link:../multi-admin-verify/enable-disable-task.html["詳細"] 。
+ARP を有効にする前に、環境に次の条件が満たされていることを確認してください。
+
+.NAS固有の要件
+* NFS または SMB (またはその両方) プロトコルが有効になっているストレージ VM (SVM)。
+* アクティブなlink:../concepts/namespaces-junction-points-concept.html["ジャンクションパス"]ボリューム用。
+
+
+.SAN固有の要件
+* iSCSI、FC、または NVMe プロトコルが有効になっているストレージ VM (SVM)。
+
+
+.一般要件
+* そのlink:index.html#licenses-and-enablement["正しいライセンス"]ONTAPバージョン用。
+* (推奨) マルチ管理者検証 (MAV) が有効 (ONTAP 9.13.1 以降)。見るlink:../multi-admin-verify/enable-disable-task.html["マルチ管理者検証を有効にします"]。
 
 
 .手順
@@ -44,56 +70,44 @@ System ManagerまたはONTAP CLIを使用して、新しいボリュームに対
 ====
 .System Manager
 --
-. *ストレージ*または*クラスター*（環境によって異なります）を選択し、*ストレージ VM* を選択して、ARP で保護するボリュームが含まれているストレージ VM を選択します。
+. *ストレージ* または *クラスター* (環境によって異なります) を選択し、*ストレージ VM* を選択して、ARP で保護するボリュームが含まれるストレージ VM を選択します。
 . *設定*タブに移動します。*セキュリティ*の下にある*ランサムウェア対策*タイルを見つけて選択します。 image:icon_pencil.gif["編集アイコン"] 。
 . ランサムウェア対策（ARP）を有効にするには、チェックボックスをオンにします。ストレージVM内のすべての対象ボリュームでARPを有効にするには、追加のチェックボックスをオンにします。
-. ONTAP 9.13.1 以降の場合は、オプションで「十分な学習が完了したら、学習モードからアクティブ モードに自動的に切り替える」を選択します。そのため、ARPが最適な学習期間を判断して自動的にアクティブ モードへ切り替わります。
+. 推奨学習期間があるONTAPバージョンの場合は、[十分な学習期間後に学習モードからアクティブ モードに自動的に切り替える] を選択します。そのため、ARPが最適な学習期間を判断して自動的にアクティブ モードへ切り替わります。
 
 
 --
 .CLI
 --
-* 既存のSVMを変更して、新しいボリュームでデフォルトでARPを有効にします。
-+
-** ARP/AIのないNAS環境またはFlexGroupボリュームの場合は、  `dry-run`新しいボリュームが学習モードで開始されるように状態を設定します。
-** ONTAP 9.16.1以降を実行しているNAS環境またはONTAP 9.17.1のSAN環境では、  `enabled`州。
-+
+.既存の SVM を変更して、新しいボリュームで ARP をデフォルトで有効にする
+選択 `dry-run`ARPのバージョンによっては<<arp-enablement-default-behavior-table,学習期間>>。それ以外の場合は、 `enabled` 。
+
 [source, cli]
 ----
 vserver modify -vserver <svm_name> -anti-ransomware-default-volume-state <dry-run|enabled>
 ----
+.新しいボリュームに対してデフォルトでARPが有効になっている新しいSVMを作成します
+選択 `dry-run`ARPのバージョンによっては<<arp-enablement-default-behavior-table,学習期間>>。それ以外の場合は、 `enabled` 。
 
-
-* 新しいボリュームに対してデフォルトでARPを有効にして、新しいSVMを作成します。
-+
-** ARP/AIのないNAS環境またはFlexGroupボリュームの場合は、  `dry-run`新しいボリュームが学習モードで開始されるように状態を設定します。
-** ONTAP 9.16.1以降を実行しているNAS環境またはONTAP 9.17.1のSAN環境では、  `enabled`州。
-+
 [source, cli]
 ----
 vserver create -vserver <svm_name> -anti-ransomware-default-volume-state <dry-run|enabled>
 ----
+.既存のSVMを変更して、アクティブモード遷移への自動学習を無効にする
+ONTAP 9.13.1からONTAP 9.15.1にアップグレードし、デフォルトの状態が `dry-run`（学習モード）では、適応学習が有効になり、 `enabled`状態（アクティブモード）は自動的に行われます。この自動切り替えを無効にすると、関連付けられているすべてのボリュームの学習モードからアクティブ モードへの切り替えを手動で制御できるようになります。
 
-
-* ONTAP 9.13.1からONTAP 9.15.1にアップグレードし、デフォルトの状態が `dry-run` （学習モード）では、適応学習が有効になり、  `enabled`状態（アクティブモード）は自動的に行われます。この動作を自動的に有効にしない場合は、既存のSVMを変更します。
-+
 [source, cli]
 ----
 vserver modify <svm_name> -anti-ransomware-auto-switch-from-learning-to-enabled false
 ----
-* ARPが有効なボリュームの状態が表示されることを確認します `enabled`。
-+
+.ARP状態を確認する
 [source, cli]
 ----
 security anti-ransomware volume show
 ----
-+
-の詳細については `security anti-ransomware volume show`、をlink:https://docs.netapp.com/us-en/ontap-cli/security-anti-ransomware-volume-show.html["ONTAPコマンド リファレンス"^]参照してください。
-
-
-
 --
 ====
 .関連情報
 * link:switch-learning-to-active-mode.html["学習期間後にアクティブモードに切り替える"]
+* https://docs.netapp.com/us-en/ontap-cli/security-anti-ransomware-volume-show.html["セキュリティ ランサムウェア対策 ボリューム表示"^]
 

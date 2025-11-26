@@ -1,0 +1,167 @@
+---
+permalink: pnfs/pnfs-commands.html 
+sidebar: sidebar 
+keywords: tr-4063, pnfs, commands, technical report 
+summary: これらのONTAP CLI コマンドを使用して、pNFS の設定、トラブルシューティング、および統計の収集を行います。 
+---
+= pNFS コマンド、統計、イベント ログ
+:allow-uri-read: 
+
+
+[role="lead"]
+これらのONTAP CLI コマンドは、特に pNFS に関係します。これらを使用して、構成、トラブルシューティング、および統計の収集を行うことができます。
+
+
+
+== NFSv4.1を有効にする
+
+[listing]
+----
+nfs modify -vserver SVM -v4.1 enabled
+----
+
+
+== pNFSを有効にする
+
+[listing]
+----
+nfs modify -vserver SVM -v4.1-pnfs enabled
+----
+
+
+== pNFS デバイスを表示する (高度な権限)
+
+[listing]
+----
+pnfs devices show -vserver SVM
+----
+[listing]
+----
+Vserver Name     Mapping ID      Volume MSID     Mapping Status  Generation
+---------------  --------------- --------------- --------------- -------------
+SVM              17              2157024470      notavailable    2
+SVM              18              2157024463      notavailable    2
+SVM              19              2157024469      available       3
+SVM              20              2157024465      available       4
+SVM              21              2157024467      available       3
+SVM              22              2157024462      available       1
+----
+
+
+== pNFS デバイス マッピングを表示する (高度な権限)
+
+[listing]
+----
+pnfs devices mappings show -vserver SVM
+----
+[listing]
+----
+Vserver Name    Mapping ID      Dsid            LIF IP
+--------------  --------------- --------------- --------------------
+SVM             19              2449            10.x.x.x
+SVM             20              2512            10.x.x.y
+SVM             21              2447            10.x.x.x
+SVM             22              2442            10.x.x.y
+----
+
+
+== pNFS 固有のパフォーマンス カウンターをキャプチャする (高度な権限)
+
+[listing]
+----
+statistics start -object nfsv4_1 -vserver SVM -sample-id [optional-name]
+----
+
+
+== pNFS 固有のパフォーマンス カウンターを表示する (高度な権限)
+
+[listing]
+----
+statistics show -object nfsv4_1 -vserver SVM
+----
+
+
+== pNFS 固有のカウンターのリストを表示する (高度な権限)
+
+[listing]
+----
+statistics catalog counter show -object nfsv4_1 -counter *layout*|*device*
+----
+[listing]
+----
+Object: nfsv4_1
+
+Counter                     Description
+--------------------------- ----------------------------------------------
+getdeviceinfo_avg_latency   Average latency of NFSv4.1 GETDEVICEINFO operations.
+getdeviceinfo_error         The number of failed NFSv4.1 GETDEVICEINFO operations.
+getdeviceinfo_percent       Percentage of NFSv4.1 GETDEVICEINFO operations.
+getdeviceinfo_success       The number of successful NFSv4.1 GETDEVICEINFO operations.
+getdeviceinfo_total         Total number of NFSv4.1 GETDEVICEINFO operations.
+getdevicelist_avg_latency   Average latency of NFSv4.1 GETDEVICELIST operations.
+getdevicelist_error         The number of failed NFSv4.1 GETDEVICELIST operations.
+getdevicelist_percent       Percentage of NFSv4.1 GETDEVICELIST operations.
+getdevicelist_success       The number of successful NFSv4.1 GETDEVICELIST operations.
+getdevicelist_total         Total number of NFSv4.1 GETDEVICELIST operations.
+layoutcommit_avg_latency    Average latency of NFSv4.1 LAYOUTCOMMIT operations.
+layoutcommit_error          The number of failed NFSv4.1 LAYOUTCOMMIT operations.
+layoutcommit_percent        Percentage of NFSv4.1 LAYOUTCOMMIT operations.
+layoutcommit_success        The number of successful NFSv4.1 LAYOUTCOMMIT operations.
+layoutcommit_total          Total number of NFSv4.1 LAYOUTCOMMIT operations.
+layoutget_avg_latency       Average latency of NFSv4.1 LAYOUTGET operations.
+layoutget_error             The number of failed NFSv4.1 LAYOUTGET operations.
+layoutget_percent           Percentage of NFSv4.1 LAYOUTGET operations.
+layoutget_success           The number of successful NFSv4.1 LAYOUTGET operations.
+layoutget_total             Total number of NFSv4.1 LAYOUTGET operations.
+layoutreturn_avg_latency    Average latency of NFSv4.1 LAYOUTRETURN operations.
+layoutreturn_error          The number of failed NFSv4.1 LAYOUTRETURN operations.
+layoutreturn_percent        Percentage of NFSv4.1 LAYOUTRETURN operations.
+layoutreturn_success        The number of successful NFSv4.1 LAYOUTRETURN operations.
+layoutreturn_total          Total number of NFSv4.1 LAYOUTRETURN operations.
+----
+
+
+== NFS のアクティブなネットワーク接続を表示する
+
+SVMへの複数のTCP接続が行われているかどうかを確認するには、 `network connections active show` 指示。
+
+たとえば、NFS セッション トランクを表示する場合は、ノードごとに異なるインターフェースを介して同じクライアントからの接続を探します。
+
+[listing]
+----
+cluster::*> network connections active show -node cluster-0* -vserver PNFS
+              Vserver   Interface         Remote
+      CID Ctx Name      Name:Local Port   Host:Port            Protocol/Service
+--------- --- --------- ----------------- -------------------- ----------------
+Node: node-01
+2304333128 14 PNFS      data1:2049        ubuntu22-224:740     TCP/nfs
+2304333144 10 PNFS      data3:2049        ubuntu22-224:864     TCP/nfs
+2304333151  5 PNFS      data1:2049        ubuntu22-226:848     TCP/nfs
+2304333167 15 PNFS      data3:2049        ubuntu22-226:684     TCP/nfs
+Node: node-02
+2497668321 12 PNFS      data2:2049        ubuntu22-224:963     TCP/nfs
+2497668337 18 PNFS      data4:2049        ubuntu22-224:859     TCP/nfs
+2497668344 14 PNFS      data2:2049        ubuntu22-226:675     TCP/nfs
+2497668360  7 PNFS      data4:2049        ubuntu22-226:903     TCP/nfs
+----
+
+
+== 接続されたクライアントの NFS バージョン情報を表示する
+
+NFS接続を表示することもできます。 `nfs connected-clients show` 指示。表示されるクライアントのリストは、過去 48 時間以内にアクティブな NFS トラフィックがあったクライアントであることに注意してください。アイドル状態の NFS クライアントは (まだマウントされている場合でも)、マウントがアクセスされるまで表示されない場合があります。指定することで、最近アクセスしたクライアントのみを表示するようにフィルタリングできます。 `-idle-time` 特徴。
+
+たとえば、pNFS SVM の過去 10 分間にアクティビティがあったクライアントを表示するには、次のコマンドを実行します。
+
+[listing]
+----
+cluster::*> nfs connected-clients show -vserver PNFS -idle-time <10m>
+
+ Node: node-01
+
+Vserver: PNFS Data-Ip: 10.x.x.x Local Remote Client-Ip Protocol Volume Policy Idle-Time Reqs Reqs Trunking
+
+10.x.x.a nfs4.2 PNFS_root default 9m 10s 0 149 false 10.x.x.a nfs4.2 FG_0001 default 9m 10s 135847 0 false 10.x.x.b nfs4.2 PNFS_root default 8m 12s 0 157 false 10.x.x.b nfs4.2 FG_0001 default 8m 12s 52111 0 false
+----
+.関連情報
+* link:pnfs-overview.html["ONTAPのパラレル NFS (pNFS) について学ぶ"]
+

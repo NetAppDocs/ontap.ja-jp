@@ -14,19 +14,18 @@ summary: クラスタを作成して、外部キー管理サーバのサポー�
 
 
 [role="lead"]
-ONTAP 9.11.1以降では、SVMのクラスタ化された外部キー管理サーバへの接続を設定できます。クラスタ化されたキーサーバでは、SVMのプライマリキーサーバとセカンダリキーサーバを指定できます。キーを登録するとき、ONTAPは最初にプライマリキーサーバへのアクセスを試行してから、処理が正常に完了するまでセカンダリサーバへのアクセスを順次試行し、キーの重複を防止します。
+ONTAP 9.11.1 以降では、SVM 上のクラスタ化された外部キー管理サーバへの接続を設定できます。クラスタ化されたキー サーバを使用すると、SVM 上にプライマリ キー サーバとセカンダリ キー サーバを指定できます。キーを登録または取得する場合、 ONTAP はまずプライマリ キー サーバへのアクセスを試行し、その後、操作が正常に完了するまでセカンダリ サーバへのアクセスを順番に試行します。
 
-外部キー サーバは、NSE、NVE、NAE、SEDの各キーに使用できます。1台のSVMに最大4台の外部プライマリKMIPサーバを指定できます。各プライマリ サーバには、最大3台のセカンダリ キー サーバを指定できます。
+NetApp Storage Encryption (NSE)、 NetApp Volume Encryption (NVE)、およびNetApp Aggregate Encryption (NAE) キーには外部キー サーバを使用できます。1台のSVMに最大4台の外部プライマリKMIPサーバを指定できます。各プライマリ サーバには、最大3台のセカンダリ キー サーバを指定できます。
 
-
-
-== 開始する前に
-
-* link:install-ssl-certificates-hardware-task.html["SVMでKMIPキー管理が有効になっている必要があります。"]です。
+.タスクの内容
 * このプロセスでは、KMIPを使用するキーサーバのみがサポートされます。サポートされているキーサーバのリストについては、を参照してくださいlink:http://mysupport.netapp.com/matrix/["NetApp Interoperability Matrix Tool"^]。
+
+
+.開始する前に
+* link:install-ssl-certificates-hardware-task.html["SVMでKMIPキー管理が有効になっている必要があります。"]です。
 * クラスタ内のすべてのノードでONTAP 9 .11.1以降が実行されている必要があります。
-* パラメータ内のserversリストの引数の順序 `-secondary-key-servers`は、外部キー管理（KMIP）サーバのアクセス順序を反映しています。
-* この手順で説明されているコマンドの詳細については、をlink:https://docs.netapp.com/us-en/ontap-cli/["ONTAPコマンド リファレンス"^]参照してください。
+* サーバーの順序は、 `-secondary-key-servers`パラメーターは、外部キー管理 (KMIP) サーバーのアクセス順序を反映します。
 
 
 
@@ -39,20 +38,59 @@ ONTAP 9.11.1以降では、SVMのクラスタ化された外部キー管理サ�
 ====
 .SVMにプライマリキーサーバとセカンダリキーサーバを追加する
 --
-. クラスタでキー管理が有効になっていないことを確認します。
-`security key-manager external show -vserver _svm_name_`SVMですでに最大4つのプライマリキーサーバが有効になっている場合は、新しいプライマリキーサーバを追加する前に既存のいずれかを削除する必要があります。
-. プライマリキー管理ツールを有効にします。
-`security key-manager external enable -vserver _svm_name_ -key-servers _server_ip_ -client-cert _client_cert_name_ -server-ca-certs _server_ca_cert_names_`
-. プライマリ キー サーバを変更してセカンダリ キー サーバを追加します。その `-secondary-key-servers` パラメータは、最大 3 つのキー サーバーのコンマ区切りリストを受け入れます。セカンダリ キー サーバーのポート番号を含めないでください。
-`security key-manager external modify-server -vserver _svm_name_ -key-servers _primary_key_server_ -secondary-key-servers _list_of_key_servers_`
+.手順
+. クラスタ (管理 SVM) に対してキー管理が有効になっていないことを確認します。
++
+`security key-manager external show -vserver <svm_name>`
+
++
+SVMですでに4台のプライマリ キー サーバが有効になっている場合は、新しいプライマリ キー サーバを追加する前に既存のプライマリ キー サーバのいずれかを削除する必要があります。
+
+. プライマリ キー管理ツールを有効にします。
++
+`security key-manager external enable -vserver <svm_name> -key-servers <primary_key_server_ip> -client-cert <client_cert_name> -server-ca-certs <server_ca_cert_names>`
+
++
+** ポートを指定しない場合は、 `-key-servers`パラメータが指定されていない場合は、デフォルトのポート 5696 が使用されます。
++
+
+NOTE: 実行している場合 `security key-manager external enable`MetroCluster構成の管理 SVM に対してコマンドを実行する場合は、両方のクラスタでコマンドを実行する必要があります。個々のデータ SVM に対してコマンドを実行する場合は、両方のクラスターでコマンドを実行する必要はありません。  NetApp、両方のクラスターで同じキー サーバーを使用することを強くお勧めします。
+
+
+
+. プライマリ キー サーバを変更してセカンダリ キー サーバを追加します。その `-secondary-key-servers`パラメータは、最大 3 つのキー サーバーのコンマ区切りリストを受け入れます。
++
+`security key-manager external modify-server -vserver <svm_name> -key-servers <primary_key_server> -secondary-key-servers <list_of_key_servers>`
+
++
+** セカンダリキーサーバーのポート番号を `-secondary-key-servers`パラメータ。プライマリ キー サーバーと同じポート番号を使用します。
++
+
+NOTE: 実行している場合 `security key-manager external`MetroCluster構成の管理 SVM に対してコマンドを実行する場合は、両方のクラスタでコマンドを実行する必要があります。個々のデータ SVM に対してコマンドを実行する場合は、両方のクラスターでコマンドを実行する必要はありません。  NetApp、両方のクラスターで同じキー サーバーを使用することを強くお勧めします。
+
+
+
 
 
 --
 .既存のプライマリキーサーバにセカンダリキーサーバを追加する
 --
-. プライマリ キー サーバを変更してセカンダリ キー サーバを追加します。その `-secondary-key-servers` パラメータは、最大 3 つのキー サーバーのコンマ区切りリストを受け入れます。セカンダリ キー サーバーのポート番号を含めないでください。
-`security key-manager external modify-server -vserver _svm_name_ -key-servers _primary_key_server_ -secondary-key-servers _list_of_key_servers_`セカンダリキーサーバーの詳細については、以下を参照してください。 <<mod-secondary>>。
+.手順
+. プライマリ キー サーバを変更してセカンダリ キー サーバを追加します。その `-secondary-key-servers`パラメータは、最大 3 つのキー サーバーのコンマ区切りリストを受け入れます。
++
+`security key-manager external modify-server -vserver <svm_name> -key-servers <primary_key_server> -secondary-key-servers <list_of_key_servers>`
 
++
+** セカンダリキーサーバーのポート番号を `-secondary-key-servers`パラメータ。プライマリ キー サーバーと同じポート番号を使用します。
++
+
+NOTE: 実行している場合 `security key-manager external modify-server`MetroCluster構成の管理 SVM に対してコマンドを実行する場合は、両方のクラスタでコマンドを実行する必要があります。個々のデータ SVM に対してコマンドを実行する場合は、両方のクラスターでコマンドを実行する必要はありません。  NetApp、両方のクラスターで同じキー サーバーを使用することを強くお勧めします。
+
+
+
+
+
+セカンダリキーサーバーの詳細については、以下を参照してください。 <<mod-secondary>>。
 
 --
 ====
@@ -60,24 +98,64 @@ ONTAP 9.11.1以降では、SVMのクラスタ化された外部キー管理サ�
 
 == クラスタ化されたキーサーバの変更
 
-外部キーサーバクラスタを変更するには、特定のキーサーバのステータス（プライマリまたはセカンダリ）を変更したり、セカンダリキーサーバを追加および削除したり、セカンダリキーサーバのアクセス順序を変更したりします。
-
-
-
-=== プライマリキーサーバとセカンダリキーサーバの変換
-
-プライマリキーサーバをセカンダリキーサーバに変換するには、まずコマンドを使用してそのサーバをSVMから削除する必要があります `security key-manager external remove-servers`。
-
-セカンダリキーサーバをプライマリキーサーバに変換するには、まず既存のプライマリキーサーバからセカンダリキーサーバを削除する必要があります。を参照して <<mod-secondary>>既存のキーを削除するときにセカンダリキーサーバをプライマリサーバに変換すると、削除と変換を完了する前に新しいサーバを追加しようとすると、キーが重複することがあります。
+セカンダリ キー サーバを追加および削除したり、セカンダリ キー サーバのアクセス順序を変更したり、特定のキー サーバの指定 (プライマリまたはセカンダリ) を変更したりすることで、クラスタ化された外部キー サーバを変更できます。  MetroCluster構成でクラスタ化された外部キー サーバを変更する場合、 NetApp両方のクラスタで同じキー サーバを使用することを強くお勧めします。
 
 
 
 === セカンダリキーサーバを変更します。
 
-セカンダリキーサーバーは、 `-secondary-key-servers` パラメータの `security key-manager external modify-server` 指示。その `-secondary-key-servers` パラメータはコンマ区切りのリストを受け入れます。リストに指定されたセカンダリ キー サーバの順序によって、セカンダリ キー サーバのアクセス順序が決まります。アクセス順序は次のコマンドを実行することで変更できます。 `security key-manager external modify-server` セカンダリ キー サーバーが異なる順序で入力されます。セカンダリ キー サーバーのポート番号を含めないでください。
+セカンダリ キー サーバを管理するには、 `security key-manager external modify-server`コマンドの  `-secondary-key-servers`パラメータを使用します。その `-secondary-key-servers` パラメータはコンマ区切りのリストを受け入れます。リストに指定されたセカンダリ キー サーバの順序によって、セカンダリ キー サーバのアクセス順序が決まります。アクセス順序を変更するには、セカンダリ キー サーバを別の順序で入力して  `security key-manager external modify-server`  コマンドを実行します。セカンダリ キー サーバーのポート番号を含めないでください。
 
-セカンダリキーサーバを削除するには、 `-secondary-key-servers`削除するキーサーバを省略して保持するキーサーバを引数に含める必要があります。すべてのセカンダリキーサーバを削除するには、引数（なし）を使用し `-`ます。
 
+NOTE: 実行している場合 `security key-manager external modify-server`MetroCluster構成の管理 SVM に対してコマンドを実行する場合は、両方のクラスタでコマンドを実行する必要があります。個々のデータ SVM に対してコマンドを実行する場合は、両方のクラスターでコマンドを実行する必要はありません。
+
+セカンダリキーサーバーを削除するには、残しておきたいキーサーバーを `-secondary-key-servers`パラメータを選択し、削除したいものを省略します。すべてのセカンダリキーサーバーを削除するには、引数 `-`なしを意味します。
+
+
+
+=== プライマリキーサーバとセカンダリキーサーバの変換
+
+特定のキー サーバーの指定 (プライマリまたはセカンダリ) を変更するには、次の手順に従います。
+
+[role="tabbed-block"]
+====
+.プライマリキーサーバーをセカンダリキーサーバーに変換する
+--
+.手順
+. SVM からプライマリ キー サーバを削除します。
++
+`security key-manager external remove-servers`
+
++
+
+NOTE: 実行している場合 `security key-manager external remove-servers`MetroCluster構成の管理 SVM に対してコマンドを実行する場合は、両方のクラスタでコマンドを実行する必要があります。個々のデータ SVM に対してコマンドを実行する場合は、両方のクラスターでコマンドを実行する必要はありません。
+
+. 実行する<<クラスタ化されたキーサーバを作成する>>以前のプライマリ キー サーバーをセカンダリ キー サーバーとして使用する手順。
+
+
+--
+.セカンダリキーサーバーをプライマリキーサーバーに変換する
+--
+.手順
+. 既存のプライマリ キー サーバーからセカンダリ キー サーバーを削除します。
++
+`security key-manager external modify-server -secondary-key-servers`
+
++
+[NOTE]
+====
+** 実行している場合 `security key-manager external modify-server -secondary-key-servers`MetroCluster構成の管理 SVM に対してコマンドを実行する場合は、両方のクラスタでコマンドを実行する必要があります。個々のデータ SVM に対してコマンドを実行する場合は、両方のクラスターでコマンドを実行する必要はありません。
+** 既存のキー サーバーを削除しながらセカンダリ キー サーバーをプライマリ キー サーバーに変換する場合、削除と変換が完了する前に新しいキー サーバーを追加しようとすると、キーが重複する可能性があります。
+
+
+====
+. 実行する<<クラスタ化されたキーサーバを作成する>>以前のセカンダリ キー サーバーを新しいクラスター化されたキー サーバーのプライマリ キー サーバーとして使用する手順。
+
+
+参照<<mod-secondary>>詳細についてはこちらをご覧ください。
+
+--
+====
 .関連情報
-* link:https://docs.netapp.com/us-en/ontap-cli/search.html?q=security+key-manager+external["セキュリティキーマネージャー外部"^]
+* 詳細はこちら `security key-manager external`の中でlink:https://docs.netapp.com/us-en/ontap-cli/search.html?q=security+key-manager+external["ONTAPコマンド リファレンス"^]
 

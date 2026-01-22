@@ -2,9 +2,9 @@
 sidebar: sidebar 
 permalink: networking/verify_your_network_configuration.html 
 keywords: verify, upgrade, considerations, network, configuration, upgrading, physical, wire, wiring, cable, cabling, layer 2, reachability, port, results, verify your networking configuration after upgrading to ontap 9.8 or later, network port reachability show -detail, repair reachability decision tree, layer 2 reachability, assigned broadcast domain, reachability-status, unexpected ports, unavailable ports, reachability repair 
-summary: ONTAP 9 .8以降にアップグレードしたあとのネットワーク構成の確認 
+summary: ONTAP 9.8以降へのアップグレード後に行うネットワーク設定の確認 
 ---
-= アップグレード後のONTAPネットワーク構成の確認
+= アップグレード後にONTAPネットワーク構成を確認する
 :hardbreaks:
 :allow-uri-read: 
 :nofooter: 
@@ -14,87 +14,87 @@ summary: ONTAP 9 .8以降にアップグレードしたあとのネットワー�
 
 
 [role="lead"]
-ONTAP 9 .7x以前のバージョンからONTAP 9 .8以降にアップグレードしたら、ネットワーク設定を確認する必要があります。アップグレード後、ONTAPはレイヤ2の到達可能性を自動的に監視します。
+ONTAP 9.7x以前のバージョンからONTAP 9.8以降にアップグレードしたら、ネットワーク設定を確認する必要があります。アップグレード後は、ONTAPが自動的にレイヤ2の到達可能性を監視します。
 
-.ステップ
-. 各ポートに想定されるブロードキャストドメインへの到達可能性があることを確認します。
+.手順
+. 各ポートが想定されるブロードキャスト ドメインに到達できることを確認します。
 +
 [source, cli]
 ----
 network port reachability show -detail
 ----
 +
-の詳細については `network port reachability show`、をlink:https://docs.netapp.com/us-en/ontap-cli/network-port-reachability-show.html["ONTAPコマンド リファレンス"^]参照してください。
+ `network port reachability show`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/network-port-reachability-show.html["ONTAPコマンド リファレンス"^]を参照してください。
 
 
 
-このコマンド出力には、到達可能性の結果が表示されます。次のDecision Treeと表を使用して、到達可能性の結果（到達可能性ステータス）を理解し、次に何をすべきかを判断します。
+コマンドの出力に到達可能性の結果が表示されます。次のデシジョン ツリーと表を参照して、到達可能性の結果（到達可能性ステータス）を理解し、次に実行する手順を確認します。
 
-image:ontap_nm_image1.png["到達可能性の修復のデシジョンツリー"]
+image:ontap_nm_image1.png["到達可能性を修復するためのデシジョン ツリー"]
 
 [cols="20,80"]
 |===
 
 
-| プレゼンスステータス | 説明 
+| 到達可能性ステータス | 概要 
 
 
  a| 
-OK
+ok
  a| 
-ポートに割り当てられているブロードキャストドメインにレイヤ 2 の到達可能性があります。
+ポートは、割り当てられたブロードキャスト ドメインへのレイヤー 2 到達可能性を備えています。
 
-到達可能性ステータスが「ok」で、「予期しないポート」がある場合は、1つ以上のブロードキャストドメインをマージすることを検討してください。詳細については、を参照してください link:merge_broadcast_domains.html["ブロードキャストドメインのマージ"]。
+到達可能性ステータスが「ok」であるにもかかわらず、「予期しないポート」が存在する場合は、1つ以上のブロードキャストドメインを統合することを検討してください。詳細については、link:merge_broadcast_domains.html["ブロードキャスト ドメインのマージ"]をご覧ください。
 
-到達可能性ステータスが「ok」で、到達不能なポートがある場合は、1つ以上のブロードキャストドメインをスプリットすることを検討してください。詳細については、を参照してください link:split_broadcast_domains.html["ブロードキャストドメインのスプリット"]。
+到達可能性ステータスが「ok」であるにもかかわらず、「到達不能ポート」が存在する場合は、1つ以上のブロードキャストドメインを分割することを検討してください。詳細については、link:split_broadcast_domains.html["ブロードキャスト ドメインのスプリット"]を参照してください。
 
-到達可能性ステータスが「ok」で、予期しないポートや到達不能なポートがない場合、設定は正しいです。
+到達可能性ステータスが「ok」で、かつ想定外のポートも到達不能なポートも存在しない場合、設定に問題はありません。
 
 
 
  a| 
-誤設定 - 到達可能性
+到達可能性の設定ミス
  a| 
-ポートに割り当てられているブロードキャストドメインにレイヤ 2 に到達できるかどうかは関係ありませんが、ポートは別のブロードキャストドメインにレイヤ 2 に到達できるかどうかは関係ありません。
+ポートは割り当てられたブロードキャスト ドメインに対してレイヤ2到達可能性を持ちませんが、別のブロードキャスト ドメインに対してはレイヤ2到達可能性を持ちます。
 
-ポートの到達可能性を修復できます。次のコマンドを実行すると、到達可能なブロードキャストドメインにポートが割り当てられます。
+ポートの到達可能性を修復します。次のコマンドを実行すると、到達可能性があるブロードキャスト ドメインにポートが割り当てられます。
 
 `network port reachability repair -node -port`
 
-詳細については、を参照してください link:repair_port_reachability.html["ポートの到達可能性を修復"]。
+詳細については、link:repair_port_reachability.html["ポートの到達可能性の修復"]を参照してください。
 
-の詳細については `network port reachability repair`、をlink:https://docs.netapp.com/us-en/ontap-cli/network-port-reachability-repair.html["ONTAPコマンド リファレンス"^]参照してください。
+ `network port reachability repair`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/network-port-reachability-repair.html["ONTAPコマンド リファレンス"^]をご覧ください。
 
 
 
  a| 
 到達不能
  a| 
-既存のどのブロードキャストドメインにもレイヤ 2 で接続できません。
+ポートには、既存のブロードキャストドメインへのレイヤー2到達可能性がありません。
 
-ポートの到達可能性を修復できます。次のコマンドを実行すると、自動的にデフォルトIPspace内に作成された新しいブロードキャストドメインにポートが割り当てられます。
+ポートの到達可能性を修復します。次のコマンドを実行すると、デフォルトIPspaceに新しいブロードキャスト ドメインが自動的に作成され、ポートが割り当てられます。
 
 `network port reachability repair -node -port`
 
-詳細については、を参照してください link:repair_port_reachability.html["ポートの到達可能性を修復"]。
+詳細については、link:repair_port_reachability.html["ポートの到達可能性の修復"]を参照してください。
 
 
 
  a| 
-multi-domain-reachable
+マルチドメイン到達可能性
  a| 
-ポートには、割り当てられたブロードキャストドメインにレイヤ 2 に到達できることがありますが、少なくとも 1 つの他のブロードキャストドメインにレイヤ 2 に到達できることもあります。
+ポートは割り当てられたブロードキャスト ドメインに対してレイヤ2到達可能性を持ちますが、少なくとも1つの他のブロードキャスト ドメインに対してもレイヤ2到達可能性を持ちます。
 
-物理接続とスイッチの設定を調べて、ポートに割り当てられているブロードキャストドメインを1つ以上のブロードキャストドメインにマージする必要がないかどうかを確認します。
+物理的な接続とスイッチの設定に間違いがないか、またはポートに割り当てられているブロードキャスト ドメインを1つ以上のブロードキャスト ドメインとマージする必要がないかを確認します。
 
-詳細については、またはを参照してくださいlink:merge_broadcast_domains.html["ブロードキャストドメインのマージ"]link:repair_port_reachability.html["ポートの到達可能性を修復"]。
+詳細については、link:merge_broadcast_domains.html["ブロードキャスト ドメインのマージ"]またはlink:repair_port_reachability.html["ポートの到達可能性の修復"]を参照してください。
 
 
 
  a| 
 不明
  a| 
-reachable-status が「 unknown 」の場合は、数分待ってからもう一度コマンドを実行してください。
+到達可能性ステータスが「不明」の場合は、数分待ってからコマンドを再試行してください。
 
 |===
-ポートを修理したら、削除されたLIFとVLANを確認して解決する必要があります。ポートがインターフェイスグループに属していた場合は、そのインターフェイスグループの状況についても理解しておく必要があります。詳細については、を参照してください link:repair_port_reachability.html["ポートの到達可能性を修復"]。
+ポートを修復した後は、LIFとVLANの配置がずれていないか確認し、解決する必要があります。ポートがインターフェイスグループに属していた場合は、そのインターフェイスグループに何が起きたのかを把握する必要もあります。詳細については、link:repair_port_reachability.html["ポートの到達可能性の修復"]を参照してください。

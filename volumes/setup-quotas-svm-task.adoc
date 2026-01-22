@@ -4,7 +4,7 @@ sidebar: sidebar
 keywords: set up, quotas on svm 
 summary: 新しいSVMにクォータを設定して、リソース利用率を管理および監視できます。 
 ---
-= SVMにクォータを設定する
+= SVMでのクォータの設定
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
@@ -13,57 +13,57 @@ summary: 新しいSVMにクォータを設定して、リソース利用率を�
 [role="lead"]
 新しいSVMにクォータを設定して、リソース利用率を管理および監視できます。
 
-.タスクの内容
-クォータを設定する際には、大まかに言って次の手順を実行します。
+.タスク概要
+クォータを設定する場合の大まかな手順を示します。
 
-. クォータポリシーを作成します。
-. クォータルールをポリシーに追加する
-. ポリシーをSVMに割り当てる
-. SVM上の各FlexVol volumeでクォータを初期化する
+. クォータ ポリシーを作成します。
+. クォータ ルールをポリシーに追加します。
+. SVMにポリシーを割り当てます。
+. SVM上の各FlexVolでクォータを初期化します。
 
 
 .手順
-. コマンドを入力し `vserver show -instance`て、SVMの作成時に自動的に作成されたデフォルトのクォータポリシーの名前を表示します。
+. SVM の作成時に自動的に作成されたデフォルトのクォータ ポリシーの名前を表示するには、 `vserver show -instance`コマンドを入力します。
 +
-SVMの作成時に名前を指定しなかった場合、名前は「default」です。コマンドを使用すると、デフォルトポリシーに名前を付けることができます `vserver quota policy rename`。
+SVMの作成時に名前が指定されていない場合、名前は「default」になります。 `vserver quota policy rename`コマンドを使用して、デフォルト ポリシーに名前を付けることができます。
 
 +
 [NOTE]
 ====
-コマンドを使用して新しいポリシーを作成することもできます `volume quota policy create`。
+ `volume quota policy create`コマンドを使用して新しいポリシーを作成することもできます。
 
 ====
-. コマンドを使用し `volume quota policy rule create`て、SVM上の各ボリュームに次のクォータルールの_any_ofを作成します。
+.  `volume quota policy rule create`コマンドを使用して、SVM上の各ボリュームに対して次のクォータ ルールの_いずれか_を作成します：
 +
-** すべてのユーザに対するデフォルトのクォータルール
-** 特定のユーザに対する明示的クォータルール
-** すべてのグループに対するデフォルトのクォータルール
-** 特定のグループに対する明示的クォータルール
-** すべての qtree に対するデフォルトのクォータルール
-** 特定の qtree に対する明示的クォータルール
+** すべてのユーザに対するデフォルトのクォータ ルール
+** 特定のユーザに対する明示的なクォータ ルール
+** すべてのグループのデフォルトのクォータ ルール
+** 特定のグループに対する明示的なクォータ ルール
+** すべてのqtreeのデフォルトのクォータ ルール
+** 特定のqtreeに対する明示的なクォータ ルール
 
 
-. コマンドを使用し `volume quota policy rule show`て、クォータルールが正しく設定されていることを確認します。
-. 新しいポリシーを使用する場合は、コマンドを使用し `vserver modify`て新しいポリシーをSVMに割り当てます。
-. コマンドを使用し `volume quota on`て、SVM上の各ボリュームでクォータを初期化します。
+.  `volume quota policy rule show`コマンドを使用して、クォータルールが正しく設定されていることを確認します。
+. 新しいポリシーを作成している場合は、 `vserver modify`コマンドを使用して新しいポリシーをSVMに割り当てます。
+.  `volume quota on`コマンドを使用して、SVM上の各ボリュームのクォータを初期化します。
 +
-初期化プロセスは、次の方法で監視できます。
+初期化処理は、次の方法で監視できます。
 
 +
-** コマンドを使用する場合は `volume quota on`、パラメータを追加してフォアグラウンドのジョブでクォータを実行できます `-foreground`。（デフォルトでは、このジョブはバックグラウンドで実行されます）。
+**  `volume quota on`コマンドを使用する際に、 `-foreground`パラメータを追加することで、クォータオンジョブをフォアグラウンドで実行できます。（デフォルトでは、ジョブはバックグラウンドで実行されます。）
 +
-バックグラウンドでジョブが実行される場合は、コマンドを使用して進捗状況を監視できます `job show`。
+ジョブがバックグラウンドで実行されている場合、 `job show`コマンドを使用して進行状況を監視できます。
 
-** コマンドを使用すると、クォータの初期化のステータスを監視できます `volume quota show`。
+**  `volume quota show`コマンドを使用して、クォータ初期化のステータスを監視できます。
 
 
-. コマンドを使用し `volume quota show -instance`て、初期化に失敗したクォータルールなどの初期化エラーを確認します。
-. コマンドを使用し `volume quota report`てクォータレポートを表示し、適用クォータが想定どおりであることを確認します。
+.  `volume quota show -instance`コマンドを使用して、初期化に失敗したクォータルールなどの初期化エラーを確認します。
+.  `volume quota report`コマンドを使用してクォータレポートを表示し、適用されたクォータが期待どおりであることを確認できます。
 
 
 .関連情報
 * link:https://docs.netapp.com/us-en/ontap-cli/vserver-show.html["vserver show"^]
 * link:https://docs.netapp.com/us-en/ontap-cli/vserver-modify.html["vserver modify"^]
-* link:https://docs.netapp.com/us-en/ontap-cli/job-show.html["ジョブの表示"^]
+* link:https://docs.netapp.com/us-en/ontap-cli/job-show.html["job show"^]
 * link:https://docs.netapp.com/us-en/ontap-cli/search.html?q=volume+quota["ボリュームクォータ"^]
 

@@ -2,87 +2,87 @@
 permalink: nfs-trunking/prepare-network-task.html 
 sidebar: sidebar 
 keywords: NFS, servers, network, prepare, NFS trunking, LIF, trunking group, NIC 
-summary: NFSv4.1トランキングを利用するには、トランキンググループ内のLIFが同じノードに配置され、同じノードにホームポートがある必要があります。 
+summary: NFSv4.1トランキングのメリットを享受するには、トランキング グループ内のLIFが同じノードにあり、ホーム ポートが同じノード上にある必要があります。 
 ---
-= ONTAP NFSトランキング用のネットワークの準備
+= ONTAPのNFSトランキングに向けたネットワークの準備
 :allow-uri-read: 
 
 
 [role="lead"]
-NFSv4.1トランキングを利用するには、トランキンググループ内のLIFが同じノードに配置され、同じノードにホームポートがある必要があります。LIFは、同じノードのフェイルオーバーグループに設定する必要があります。
+NFSv4.1トランキングのメリットを享受するには、トランキング グループ内のLIFが同じノードにあり、ホーム ポートが同じノード上にある必要があります。LIFは、同じノードのフェイルオーバー グループに構成されている必要があります。
 
-.タスクの内容
-LIFとNICを1対1でマッピングするとパフォーマンスが最大限に向上しますが、トランキングを有効にする必要はありません。少なくとも2つのNICをインストールするとパフォーマンスが向上しますが、必須ではありません。
+.タスク概要
+LIFとNICを1対1でマッピングするとパフォーマンスが最大限に向上しますが、トランキングを有効にする必要はありません。少なくとも2枚のNICを取り付けるとパフォーマンス上のメリットが得られますが、必須ではありません。
 
-トランキンググループ内のLIFはすべて同じフェイルオーバーグループに属している必要があります。同じノードのフェイルオーバーグループにLIFが設定されている場合、そのノードでコントローラのフェイルオーバーが発生するとLIFがオフラインになることがあります。同じノードのフェイルオーバーグループにLIFが設定されておらず、別のノードにフェイルオーバーされると、トランキングは機能しなくなります。
+トランキング グループ内のすべてのLIFは、同じフェイルオーバー グループに属している必要があります。同じノードのフェイルオーバー グループにLIFが設定されている場合、そのノードでコントローラ フェイルオーバーが発生すると、LIFがオフラインになる可能性があることに注意してください。同じノードのフェイルオーバー グループにLIFが設定されておらず、別のノードにフェイルオーバーした場合、トランキングは機能しなくなります。
 
-フェイルオーバーグループの接続（および基盤となるNIC）を追加または削除するときは、常にトランキングフェイルオーバーグループを調整する必要があります。
+フェイルオーバー グループからの接続（と基盤になるNIC）を追加または削除する際には、常にトランキング フェイルオーバー グループの調整が必要になります。
 
 .開始する前に
-* フェイルオーバーグループを作成するには、NICに関連付けられているポート名を確認しておく必要があります。
+* フェイルオーバー グループを作成するには、NICに関連付けられているポート名を確認しておく必要があります。
 * すべてのポートが同じノード上にある必要があります。
 
 
 .手順
-. 使用するネットワークポートの名前とステータスを確認します。
+. 使用するネットワーク ポートの名前とステータスを確認します。
 +
 [source, cli]
 ----
 network port show
 ----
-. フェイルオーバーグループを作成します。
+. フェイルオーバー グループを作成します。
 +
 `network interface failover-groups create -vserver <svm_name> -failover-group <failover_group_name> -targets <ports_list>`
 
 +
 
-NOTE: フェイルオーバーグループは必須ではありませんが、使用することを強く推奨します。
+NOTE: フェイルオーバー グループは必須ではありませんが、作成しておくことが強く推奨されます。
 
 +
-** `<svm_name>`は、NFSサーバが含まれているSVMの名前です。
-** `<ports_list>`は、フェイルオーバーグループに追加するポートのリストです。
+** `<svm_name>`は、NFSサーバを含むSVMの名前です。
+** `<ports_list>`は、フェイルオーバー グループに追加されるポートのリストです。
 +
-ポートは、のよう `node1:e0c`な形式で追加され `<node_name>:<port_number>`ます。
+ポートは `<node_name>:<port_number>`の形式で追加されます。例： `node1:e0c`
 
 +
-次のコマンドは、SVM vs1にフェイルオーバーグループfg3を作成し、ポートを3つ追加します。
+次のコマンドは、vs1というSVMにfg3というフェイルオーバー グループを作成してポートを3つ追加します。
 
 +
 `network interface failover-groups create -vserver vs1 -failover-group fg3 -targets cluster1-01:e0c,cluster1-01:e0d,cluster1-01:e0e`
 
 +
-詳細はこちらlink:../networking/configure_failover_groups_and_policies_for_lifs_overview.html["フェイルオーバーグループ："]
+link:../networking/configure_failover_groups_and_policies_for_lifs_overview.html["フェイルオーバーグループ。"]の詳細
 
 +
-の詳細については `network interface failover-groups create`、をlink:https://docs.netapp.com/us-en/ontap-cli/network-interface-failover-groups-create.html["ONTAPコマンド リファレンス"^]参照してください。
+ `network interface failover-groups create`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/network-interface-failover-groups-create.html["ONTAPコマンド リファレンス"^]をご覧ください。
 
 
 
-. 必要に応じて、トランキンググループのメンバー用のLIFを作成します。
+. 必要に応じて、トランキング グループのメンバー用のLIFを作成します。
 +
 `network interface create -vserver <svm_name> -lif <lif_name> -home-node <node_name> -home-port <port_name> -address <IP_address> -netmask <IP_address> [-service-policy <policy>] [-auto-revert <true|false>]`
 
 +
-** `-home-node`- network interface revertコマンドをLIFで実行したときにLIFが戻るノード。
+** `-home-node` - LIFでnetwork interface revertコマンドが実行されたときにLIFが戻るノード。
 +
-オプションを使用して、LIFをホームノードおよびホームポートに自動的にリバートするかどうかを指定することもできます `-auto-revert`。
+ `-auto-revert`オプションを使用して、LIFがホームノードとホームポートに自動的にリバートするかどうかも指定できます。
 
-** `-home-port`は、network interface revertコマンドをLIFに対して実行したときにLIFが戻る物理ポートまたは論理ポートです。
-** IPアドレスは、オプションではなく、オプションと `-netmask`オプション `-subnet`で指定できます `-address`。
-** 別のIPサブネットにクライアントまたはドメインコントローラがある場合は、IPアドレスを割り当てるときに、ゲートウェイへのデフォルトルートの設定が必要になることがあります。SVM内での静的ルートの作成に関する詳細については、をlink:https://docs.netapp.com/us-en/ontap-cli/network-route-create.html["ONTAPコマンド リファレンス"^]参照し `network route create`てください。
-** `-service-policy`- LIFのサービスポリシー。ポリシーを指定しない場合は、デフォルトポリシーが自動的に割り当てられます。コマンドを使用し `network interface service-policy show`て、使用可能なサービスポリシーを確認します。
-** `-auto-revert`-起動時、管理データベースのステータスが変わったとき、ネットワーク接続が確立されたときなどの状況で、データLIFがホームノードに自動的にリバートされるかどうかを指定します。デフォルト設定はfalseですが、環境内のネットワーク管理ポリシーに応じてtrueに設定できます。
+** `-home-port`は、LIFでnetwork interface revertコマンドが実行されたときにLIFが戻る物理ポートまたは論理ポートです。
+** IPアドレスは `-address`オプションと `-netmask`オプションで指定できますが、 `-subnet`オプションでは指定できません。
+** IPアドレスを割り当てる際に、異なるIPサブネット上にクライアントまたはドメインコントローラが存在する場合は、ゲートウェイへのデフォルトルートの設定が必要になることがあります。 `network route create`およびSVM内でのスタティックルートの作成方法の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/network-route-create.html["ONTAPコマンド リファレンス"^]をご覧ください。
+** `-service-policy` - LIFのサービスポリシー。ポリシーが指定されていない場合は、デフォルトのポリシーが自動的に割り当てられます。 `network interface service-policy show`コマンドを使用して、利用可能なサービスポリシーを確認してください。
+** `-auto-revert` - 起動時、管理データベースのステータス変更時、ネットワーク接続時などの状況下で、データLIFをホームノードに自動的に戻すかどうかを指定します。デフォルト設定はfalseですが、環境のネットワーク管理ポリシーに応じてtrueに設定できます。
 +
-トランキンググループ内のすべてのLIFに対してこの手順を繰り返します。
+トランキング グループ内のすべてのLIFについて、この手順を繰り返します。
 
 +
-次のコマンドは、ノードの `cluster1_01`ポートに `e0c`SVM用 `vs1`にを作成し `lif-A`ます。
+次のコマンドは、ノード `cluster1_01`のポート `e0c`上で、SVM `vs1`用の `lif-A`を作成します：
 
 +
 `network interface create -vserver vs1 -lif lif-A -service-policy default-intercluster -home-node cluster1_01 -home-port e0c -address 192.0.2.0`
 
 +
-詳細はこちらlink:../networking/create_lifs.html["LIFの作成"]
+link:../networking/create_lifs.html["LIF の作成。"]の詳細
 
 
 
@@ -96,10 +96,10 @@ network interface show
 +
 [cols="25,75"]
 |===
-| 対象 | 使用方法 
+| 対象 | 方法 
 
 
-| IPv4アドレス | `network ping` 
+| IPv4 アドレス | `network ping` 
 
 
 | IPv6アドレス | `network ping6` 
@@ -107,7 +107,7 @@ network interface show
 
 
 .関連情報
-* link:https://docs.netapp.com/us-en/ontap-cli/network-ping.html["ネットワークping"^]
-* link:https://docs.netapp.com/us-en/ontap-cli/search.html?q=network+interface["ネットワークインターフェイス"^]
+* link:https://docs.netapp.com/us-en/ontap-cli/network-ping.html["network ping"^]
+* link:https://docs.netapp.com/us-en/ontap-cli/search.html?q=network+interface["ネットワーク インターフェイス"^]
 * link:https://docs.netapp.com/us-en/ontap-cli/network-port-show.html["network port show"^]
 

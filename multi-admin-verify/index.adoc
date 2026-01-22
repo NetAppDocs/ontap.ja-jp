@@ -2,21 +2,21 @@
 sidebar: sidebar 
 permalink: multi-admin-verify/index.html 
 keywords: ontap, mav, multi admin verify, RBAC, protected, operation, multi-admin, administrator, verification, approval, rules 
-summary: ONTAP 9 .11.1以降では、Multi-admin Verification（MAV；マルチ管理者認証）を使用して、指定された管理者の承認後にのみ一部の操作を実行できるようにしています。 
+summary: ONTAP 9.11.1以降では、マルチ管理者検証（MAV）を使用して、一部の操作が指定された管理者の承認後にのみ実行されるようにします。 
 ---
-= ONTAPのマルチ管理者認証の詳細
+= ONTAPマルチ管理者検証について学ぶ
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-ONTAP 9.11.1以降では、Multi-Admin Verification（MAV；マルチ管理者認証）を使用して、ボリュームやスナップショットの削除などの特定の処理を、指定した管理者の承認後にのみ実行できるようにすることができます。これにより、侵害された管理者や悪意のある管理者、経験の浅い管理者が望ましくない変更やデータ削除を行うのを防ぐことができます。
+ONTAP 9.11.1以降では、マルチ管理者検証（MAV）を使用して、ボリュームやSnapshotの削除などの特定の処理を、指定された管理者の承認を得た場合にのみ実行できるようにすることができます。これにより、セキュリティ侵害を受けた管理者、悪意のある管理者、または経験の浅い管理者による望ましくない変更やデータの削除を防ぐことができます。
 
-マルチ管理者検証の構成は次のとおりです。
+マルチ管理者認証を設定するには、次の処理を実行します。
 
-* link:manage-groups-task.html["1つ以上の管理者承認グループを作成します。"]
-* link:enable-disable-task.html["マルチ管理者検証機能を有効にします。"]
+* link:manage-groups-task.html["管理者承認グループを1つ以上作成する。"]
+* link:enable-disable-task.html["マルチ管理者認証機能を有効にする。"]
 * link:manage-rules-task.html["ルールを追加または変更する。"]
 
 
@@ -24,15 +24,15 @@ ONTAP 9.11.1以降では、Multi-Admin Verification（MAV；マルチ管理者�
 
 マルチ管理者認証が有効な場合、保護対象処理を完了するには次の手順が必要です。
 
-. ユーザが処理を開始すると、 link:request-operation-task.html["要求が生成されます。"]
-. 操作を実行する前に、少なくとも1つのlink:manage-requests-task.html["MAV管理者は承認する必要があります。"]
-. 承認されると、ユーザーはプロンプトを表示して操作を完了します。
+. ユーザーが操作を開始すると、link:request-operation-task.html["リクエストが生成されます。"]
+. 操作を実行する前に、少なくとも1つのlink:manage-requests-task.html["MAV 管理者の承認が必要です。"]
+. 承認されると、プロンプトが表示され、ユーザは処理を完了します。
 
 
 
-NOTE: MAV管理者の承認なしにマルチ管理者検証機能を無効にする必要がある場合は、 NetAppサポートに連絡して次のことを伝えてください。link:https://kb.netapp.com/Advice_and_Troubleshooting/Data_Storage_Software/ONTAP_OS/How_to_disable_Multi-Admin_Verification_if_MAV_admin_is_unavailable["NetAppナレッジベース: MAV 管理者が利用できない場合にマルチ管理者検証を無効にする方法"^] 。
+NOTE: MAV 管理者の承認なしに複数管理者検証機能を無効にする必要がある場合は、NetApp サポートに連絡して次のことを伝えてくださいlink:https://kb.netapp.com/Advice_and_Troubleshooting/Data_Storage_Software/ONTAP_OS/How_to_disable_Multi-Admin_Verification_if_MAV_admin_is_unavailable["NetApp ナレッジベース：MAV 管理者が利用できない場合にマルチ管理者検証を無効にする方法"^]。
 
-複数管理者による検証は、高度な自動化を伴うボリュームやワークフローでは使用しません。自動化された各タスクは、処理を完了する前に承認が必要になるためです。自動化とMAVを一緒に使用する場合は、特定のMAV操作にクエリを使用することをお勧めします。たとえば、自動化が関係していないボリュームにのみMAVルールを適用し、特定の命名方式でそれらのボリュームを指定でき `volume delete`ます。
+マルチ管理者による検証は、自動化が高度に絡むボリュームやワークフローには適していません。自動化されたタスクはそれぞれ、操作を完了する前に承認が必要になるためです。自動化とMAVを併用する場合は、特定のMAV操作用のクエリを使用することをお勧めします。例えば、 `volume delete`自動化が関係しないボリュームにのみMAVルールを適用し、それらのボリュームに特定の命名スキームを指定するといったことが可能です。
 
 
 NOTE: Cloud Volumes ONTAPでは、マルチ管理者認証は使用できません。
@@ -44,31 +44,31 @@ NOTE: Cloud Volumes ONTAPでは、マルチ管理者認証は使用できませ�
 マルチ管理者認証は次の要素で構成されます。
 
 * 承認権と拒否権を持つ1人以上の管理者のグループ。
-* 保護された操作またはコマンドのセット（a_rules table_）
-* a_rulesエンジン_保護されたオペレーションの実行を識別および制御します
+* _ルール テーブル_ 内の保護された操作またはコマンドのセット。
+* 保護された操作の実行を識別および制御する_ルールエンジン_。
 
 
-MAVルールは、Role-Based Access Control（RBAC；ロールベースアクセス制御）ルールのあとに評価されます。したがって、保護された処理を実行または承認する管理者は、それらの処理に対して最低限必要なRBAC Privilegesをすでに所有している必要があります。link:../authentication/manage-access-control-roles-concept.html["RBACの詳細については、こちらをご覧ください"]です。
+MAVルールは、ロールベース アクセス制御（RBAC）ルールのあとに評価されます。そのため、保護対象処理を実行または承認する管理者は、それらの処理に対する最低限のRBAC権限を保有している必要があります。link:../authentication/manage-access-control-roles-concept.html["RBAC の詳細"]。
 
 
 
 === システム定義のルール
 
-マルチ管理者検証を有効にすると、システム定義のルール（_guard-rale_rulesとも呼ばれます）によってMAV処理のセットが確立され、MAVプロセス自体が回避されるリスクが含まれます。これらの操作をルールテーブルから削除することはできません。MAVを有効にすると、アスタリスク（*）で指定された操作は、実行前に1人以上の管理者による承認を必要とします。ただし、* show *コマンドは除きます。
+マルチ管理者認証が有効化されている場合、システム定義ルール（_ガードレール_ルールとも呼ばれます）によって、MAVプロセス自体の回避リスクを抑制するための一連のMAV操作が確立されます。これらの操作はルールテーブルから削除できません。MAVが有効化されると、アスタリスク（*）で指定された操作は、*show*コマンドを除き、実行前に1人以上の管理者の承認が必要になります。
 
 * `security multi-admin-verify modify`操作 `*`
 +
-マルチ管理者検証機能の構成を制御します。
+マルチ管理者認証機能の設定を制御します。
 
-* `security multi-admin-verify approval-group`運用 `*`
+* `security multi-admin-verify approval-group`操作 `*`
 +
-マルチ管理者認証資格情報を使用して、管理者セットのメンバーシップを制御します。
+マルチ管理者認証のクレデンシャルを有する一連の管理者のメンバーシップを制御します。
 
-* `security multi-admin-verify rule`運用 `*`
+* `security multi-admin-verify rule`操作 `*`
 +
-複数管理者による検証を必要とする一連のコマンドを制御します。
+マルチ管理者認証を必要とする一連のコマンドを制御します。
 
-* `security multi-admin-verify request`運用
+* `security multi-admin-verify request` 操作
 +
 承認プロセスを制御します。
 
@@ -78,10 +78,10 @@ MAVルールは、Role-Based Access Control（RBAC；ロールベースアクセ
 
 === ルール保護コマンド
 
-システム定義の操作に加えて、マルチ管理者検証が有効になっている場合は次のコマンドがデフォルトで保護されますが、ルールを変更してこれらのコマンドの保護を削除できます。
+システム定義の操作に加えて、マルチ管理者検証が有効になっている場合は次のコマンドがデフォルトで保護されますが、ルールを変更してこれらのコマンドの保護を削除できます：
 
-* link:https://docs.netapp.com/us-en/ontap-cli/security-login-password.html["セキュリティログインパスワード"^]
-* link:https://docs.netapp.com/us-en/ontap-cli/security-login-unlock.html["セキュリティログインロック解除"^]
+* link:https://docs.netapp.com/us-en/ontap-cli/security-login-password.html["security login password"^]
+* link:https://docs.netapp.com/us-en/ontap-cli/security-login-unlock.html["security login unlock"^]
 * link:https://docs.netapp.com/us-en/ontap-cli/set.html["設定"^]
 
 
@@ -91,359 +91,359 @@ MAVルールは、Role-Based Access Control（RBAC；ロールベースアクセ
 ====
 .9.17.1
 --
-* `cluster date modify`^3^
-* `cluster log-forwarding create`^3^
-* `cluster log-forwarding delete`^3^
-* `cluster log-forwarding modify`^3^
+* `cluster date modify` ^3^
+* `cluster log-forwarding create` ^3^
+* `cluster log-forwarding delete` ^3^
+* `cluster log-forwarding modify` ^3^
 * `cluster peer delete`
-* `cluster time-service ntp server create`^3^
-* `cluster time-service ntp server delete`^3^
-* `cluster time-service ntp key create`^3^
-* `cluster time-service ntp key delete`^3^
-* `cluster time-service ntp key modify`^3^
-* `cluster time-service ntp server modify`^3^
+* `cluster time-service ntp server create` ^3^
+* `cluster time-service ntp server delete` ^3^
+* `cluster time-service ntp key create` ^3^
+* `cluster time-service ntp key delete` ^3^
+* `cluster time-service ntp key modify` ^3^
+* `cluster time-service ntp server modify` ^3^
 * `event config modify`
 * `event config set-mail-server-password` ^3^
-* `lun delete`^3^
-* `security anti-ransomware volume attack clear-suspect`^1^
-* `security anti-ransomware volume disable`^1^
-* `security anti-ransomware volume event-log modify`^2^
-* `security anti-ransomware volume pause`^1^
-* `security anti-ransomware vserver event-log modify`^2^
-* `security audit modify`^3^
-* `security ipsec config modify`^3^
-* `security ipsec policy create`^3^
-* `security ipsec policy delete`^3^
-* `security ipsec policy modify`^3^
+* `lun delete` ^3^
+* `security anti-ransomware volume attack clear-suspect` ^1^
+* `security anti-ransomware volume disable` ^1^
+* `security anti-ransomware volume event-log modify` ^2^
+* `security anti-ransomware volume pause` ^1^
+* `security anti-ransomware vserver event-log modify` ^2^
+* `security audit modify` ^3^
+* `security ipsec config modify` ^3^
+* `security ipsec policy create` ^3^
+* `security ipsec policy delete` ^3^
+* `security ipsec policy modify` ^3^
 * `security login create`
 * `security login delete`
 * `security login modify`
 * `security login publickey create`
 * `security login publickey delete`
 * `security login publickey modify`
-* `security key-manager onboard update-passphrase`^3^
-* `security saml-sp create`^3^
-* `security saml-sp delete`^3^
-* `security saml-sp modify`^3^
-* `security webauthn credentials delete`^4^
-* `snaplock legal-hold end`^3^
-* `storage aggregate delete`^3^
-* `storage aggregate offline`^4^
-* `storage encryption disk destroy`^3^
-* `storage encryption disk modify`^3^
-* `storage encryption disk revert-to-original-state`^3^
-* `storage encryption disk sanitize`^3^
-* `system bridge run-cli`^3^
-* `system controller flash-cache secure-erase run`^3^
-* `system controller service-event delete`^3^
-* `system health alert delete`^3^
-* `system health alert modify`^3^
-* `system health policy definition modify`^3^
-* `system node autosupport modify`^3^
-* `system node autosupport trigger modify`^3^
-* `system node coredump delete`^3^
-* `system node coredump delete-all`^3^
-* `system node hardware nvram-encryption modify`^3^
+* `security key-manager onboard update-passphrase` ^3^
+* `security saml-sp create` ^3^
+* `security saml-sp delete` ^3^
+* `security saml-sp modify` ^3^
+* `security webauthn credentials delete` ^4^
+* `snaplock legal-hold end` ^3^
+* `storage aggregate delete` ^3^
+* `storage aggregate offline` ^4^
+* `storage encryption disk destroy` ^3^
+* `storage encryption disk modify` ^3^
+* `storage encryption disk revert-to-original-state` ^3^
+* `storage encryption disk sanitize` ^3^
+* `system bridge run-cli` ^3^
+* `system controller flash-cache secure-erase run` ^3^
+* `system controller service-event delete` ^3^
+* `system health alert delete` ^3^
+* `system health alert modify` ^3^
+* `system health policy definition modify` ^3^
+* `system node autosupport modify` ^3^
+* `system node autosupport trigger modify` ^3^
+* `system node coredump delete` ^3^
+* `system node coredump delete-all` ^3^
+* `system node hardware nvram-encryption modify` ^3^
 * `system node run`
 * `system node systemshell`
-* `system script delete`^3^
-* `system service-processor ssh add-allowed-addresses`^3^
-* `system service-processor ssh remove-allowed-addresses`^3^
-* `system smtape restore`^3^
-* `system switch ethernet log disable-collection`^3^
-* `system switch ethernet log modify`^3^
-* `timezone`^3^
-* `volume create`^3^
+* `system script delete` ^3^
+* `system service-processor ssh add-allowed-addresses` ^3^
+* `system service-processor ssh remove-allowed-addresses` ^3^
+* `system smtape restore` ^3^
+* `system switch ethernet log disable-collection` ^3^
+* `system switch ethernet log modify` ^3^
+* `timezone` ^3^
+* `volume create` ^3^
 * `volume delete`
-* `volume encryption conversion start`^4^
-* `volume encryption rekey start`^4^
-* `volume file privileged-delete`^3^
+* `volume encryption conversion start` ^4^
+* `volume encryption rekey start` ^4^
+* `volume file privileged-delete` ^3^
 * `volume flexcache delete`
-* `volume modify`^3^
+* `volume modify` ^3^
 * `volume rename` ^5^
-* `volume recovery-queue modify`^2^
-* `volume recovery-queue purge`^2^
-* `volume recovery-queue purge-all`^2^
-* `volume snaplock modify`^1^
+* `volume recovery-queue modify` ^2^
+* `volume recovery-queue purge` ^2^
+* `volume recovery-queue purge-all` ^2^
+* `volume snaplock modify` ^1^
 * `volume snapshot autodelete modify`
-* `volume snapshot create`^3^
+* `volume snapshot create` ^3^
 * `volume snapshot delete`
-* `volume snapshot modify`^3^
+* `volume snapshot modify` ^3^
 * `volume snapshot policy add-schedule`
 * `volume snapshot policy create`
 * `volume snapshot policy delete`
 * `volume snapshot policy modify`
 * `volume snapshot policy modify-schedule`
 * `volume snapshot policy remove-schedule`
-* `volume snapshot rename`^3^
+* `volume snapshot rename` ^3^
 * `volume snapshot restore`
-* `vserver audit create`^3^
-* `vserver audit delete`^3^
-* `vserver audit disable`^3^
-* `vserver audit modify`^3^
-* `vserver audit rotate-log`^3^
-* `vserver create`^2^
-* `vserver consistency-group create`^4^
-* `vserver consistency-group delete`^4^
-* `vserver consistency-group modify`^4^
-* `vserver consistency-group snapshot create`^4^
-* `vserver consistency-group snapshot delete`^4^
-* `vserver delete`^3^
-* `vserver modify`^2^
-* `vserver object-store-server audit create`^3^
-* `vserver object-store-server audit delete`^3^
-* `vserver object-store-server audit disable`^3^
-* `vserver object-store-server audit modify`^3^
-* `vserver object-store-server audit rotate-log`^3^
-* `vserver object-store-server bucket cors-rule create`^4^
-* `vserver object-store-server bucket cors-rule delete`^4^
-* `vserver options`^3^
+* `vserver audit create` ^3^
+* `vserver audit delete` ^3^
+* `vserver audit disable` ^3^
+* `vserver audit modify` ^3^
+* `vserver audit rotate-log` ^3^
+* `vserver create` ^2^
+* `vserver consistency-group create` ^4^
+* `vserver consistency-group delete` ^4^
+* `vserver consistency-group modify` ^4^
+* `vserver consistency-group snapshot create` ^4^
+* `vserver consistency-group snapshot delete` ^4^
+* `vserver delete` ^3^
+* `vserver modify` ^2^
+* `vserver object-store-server audit create` ^3^
+* `vserver object-store-server audit delete` ^3^
+* `vserver object-store-server audit disable` ^3^
+* `vserver object-store-server audit modify` ^3^
+* `vserver object-store-server audit rotate-log` ^3^
+* `vserver object-store-server bucket cors-rule create` ^4^
+* `vserver object-store-server bucket cors-rule delete` ^4^
+* `vserver options` ^3^
 * `vserver peer delete`
-* `vserver security file-directory apply`^3^
-* `vserver security file-directory remove-slag`^3^
-* `vserver stop`^4^
-* `vserver vscan disable`^3^
-* `vserver vscan on-access-policy create`^3^
-* `vserver vscan on-access-policy delete`^3^
-* `vserver vscan on-access-policy disable`^3^
-* `vserver vscan on-access-policy modify`^3^
-* `vserver vscan scanner-pool create`^3^
-* `vserver vscan scanner-pool delete`^3^
-* `vserver vscan scanner-pool modify`^3^
+* `vserver security file-directory apply` ^3^
+* `vserver security file-directory remove-slag` ^3^
+* `vserver stop` ^4^
+* `vserver vscan disable` ^3^
+* `vserver vscan on-access-policy create` ^3^
+* `vserver vscan on-access-policy delete` ^3^
+* `vserver vscan on-access-policy disable` ^3^
+* `vserver vscan on-access-policy modify` ^3^
+* `vserver vscan scanner-pool create` ^3^
+* `vserver vscan scanner-pool delete` ^3^
+* `vserver vscan scanner-pool modify` ^3^
 
 
 --
 .9.16.1
 --
-* `cluster date modify`^3^
-* `cluster log-forwarding create`^3^
-* `cluster log-forwarding delete`^3^
-* `cluster log-forwarding modify`^3^
+* `cluster date modify` ^3^
+* `cluster log-forwarding create` ^3^
+* `cluster log-forwarding delete` ^3^
+* `cluster log-forwarding modify` ^3^
 * `cluster peer delete`
-* `cluster time-service ntp server create`^3^
-* `cluster time-service ntp server delete`^3^
-* `cluster time-service ntp key create`^3^
-* `cluster time-service ntp key delete`^3^
-* `cluster time-service ntp key modify`^3^
-* `cluster time-service ntp server modify`^3^
+* `cluster time-service ntp server create` ^3^
+* `cluster time-service ntp server delete` ^3^
+* `cluster time-service ntp key create` ^3^
+* `cluster time-service ntp key delete` ^3^
+* `cluster time-service ntp key modify` ^3^
+* `cluster time-service ntp server modify` ^3^
 * `event config modify`
 * `event config set-mail-server-password` ^3^
-* `lun delete`^3^
-* `security anti-ransomware volume attack clear-suspect`^1^
-* `security anti-ransomware volume disable`^1^
-* `security anti-ransomware volume event-log modify`^2^
-* `security anti-ransomware volume pause`^1^
-* `security anti-ransomware vserver event-log modify`^2^
-* `security audit modify`^3^
-* `security ipsec config modify`^3^
-* `security ipsec policy create`^3^
-* `security ipsec policy delete`^3^
-* `security ipsec policy modify`^3^
+* `lun delete` ^3^
+* `security anti-ransomware volume attack clear-suspect` ^1^
+* `security anti-ransomware volume disable` ^1^
+* `security anti-ransomware volume event-log modify` ^2^
+* `security anti-ransomware volume pause` ^1^
+* `security anti-ransomware vserver event-log modify` ^2^
+* `security audit modify` ^3^
+* `security ipsec config modify` ^3^
+* `security ipsec policy create` ^3^
+* `security ipsec policy delete` ^3^
+* `security ipsec policy modify` ^3^
 * `security login create`
 * `security login delete`
 * `security login modify`
 * `security login publickey create`
 * `security login publickey delete`
 * `security login publickey modify`
-* `security key-manager onboard update-passphrase`^3^
-* `security saml-sp create`^3^
-* `security saml-sp delete`^3^
-* `security saml-sp modify`^3^
-* `security webauthn credentials delete`^4^
-* `snaplock legal-hold end`^3^
-* `storage aggregate delete`^3^
-* `storage aggregate offline`^4^
-* `storage encryption disk destroy`^3^
-* `storage encryption disk modify`^3^
-* `storage encryption disk revert-to-original-state`^3^
-* `storage encryption disk sanitize`^3^
-* `system bridge run-cli`^3^
-* `system controller flash-cache secure-erase run`^3^
-* `system controller service-event delete`^3^
-* `system health alert delete`^3^
-* `system health alert modify`^3^
-* `system health policy definition modify`^3^
-* `system node autosupport modify`^3^
-* `system node autosupport trigger modify`^3^
-* `system node coredump delete`^3^
-* `system node coredump delete-all`^3^
-* `system node hardware nvram-encryption modify`^3^
+* `security key-manager onboard update-passphrase` ^3^
+* `security saml-sp create` ^3^
+* `security saml-sp delete` ^3^
+* `security saml-sp modify` ^3^
+* `security webauthn credentials delete` ^4^
+* `snaplock legal-hold end` ^3^
+* `storage aggregate delete` ^3^
+* `storage aggregate offline` ^4^
+* `storage encryption disk destroy` ^3^
+* `storage encryption disk modify` ^3^
+* `storage encryption disk revert-to-original-state` ^3^
+* `storage encryption disk sanitize` ^3^
+* `system bridge run-cli` ^3^
+* `system controller flash-cache secure-erase run` ^3^
+* `system controller service-event delete` ^3^
+* `system health alert delete` ^3^
+* `system health alert modify` ^3^
+* `system health policy definition modify` ^3^
+* `system node autosupport modify` ^3^
+* `system node autosupport trigger modify` ^3^
+* `system node coredump delete` ^3^
+* `system node coredump delete-all` ^3^
+* `system node hardware nvram-encryption modify` ^3^
 * `system node run`
 * `system node systemshell`
-* `system script delete`^3^
-* `system service-processor ssh add-allowed-addresses`^3^
-* `system service-processor ssh remove-allowed-addresses`^3^
-* `system smtape restore`^3^
-* `system switch ethernet log disable-collection`^3^
-* `system switch ethernet log modify`^3^
-* `timezone`^3^
-* `volume create`^3^
+* `system script delete` ^3^
+* `system service-processor ssh add-allowed-addresses` ^3^
+* `system service-processor ssh remove-allowed-addresses` ^3^
+* `system smtape restore` ^3^
+* `system switch ethernet log disable-collection` ^3^
+* `system switch ethernet log modify` ^3^
+* `timezone` ^3^
+* `volume create` ^3^
 * `volume delete`
-* `volume encryption conversion start`^4^
-* `volume encryption rekey start`^4^
-* `volume file privileged-delete`^3^
+* `volume encryption conversion start` ^4^
+* `volume encryption rekey start` ^4^
+* `volume file privileged-delete` ^3^
 * `volume flexcache delete`
-* `volume modify`^3^
-* `volume recovery-queue modify`^2^
-* `volume recovery-queue purge`^2^
-* `volume recovery-queue purge-all`^2^
-* `volume snaplock modify`^1^
+* `volume modify` ^3^
+* `volume recovery-queue modify` ^2^
+* `volume recovery-queue purge` ^2^
+* `volume recovery-queue purge-all` ^2^
+* `volume snaplock modify` ^1^
 * `volume snapshot autodelete modify`
-* `volume snapshot create`^3^
+* `volume snapshot create` ^3^
 * `volume snapshot delete`
-* `volume snapshot modify`^3^
+* `volume snapshot modify` ^3^
 * `volume snapshot policy add-schedule`
 * `volume snapshot policy create`
 * `volume snapshot policy delete`
 * `volume snapshot policy modify`
 * `volume snapshot policy modify-schedule`
 * `volume snapshot policy remove-schedule`
-* `volume snapshot rename`^3^
+* `volume snapshot rename` ^3^
 * `volume snapshot restore`
-* `vserver audit create`^3^
-* `vserver audit delete`^3^
-* `vserver audit disable`^3^
-* `vserver audit modify`^3^
-* `vserver audit rotate-log`^3^
-* `vserver create`^2^
-* `vserver consistency-group create`^4^
-* `vserver consistency-group delete`^4^
-* `vserver consistency-group modify`^4^
-* `vserver consistency-group snapshot create`^4^
-* `vserver consistency-group snapshot delete`^4^
-* `vserver delete`^3^
-* `vserver modify`^2^
-* `vserver object-store-server audit create`^3^
-* `vserver object-store-server audit delete`^3^
-* `vserver object-store-server audit disable`^3^
-* `vserver object-store-server audit modify`^3^
-* `vserver object-store-server audit rotate-log`^3^
-* `vserver object-store-server bucket cors-rule create`^4^
-* `vserver object-store-server bucket cors-rule delete`^4^
-* `vserver options`^3^
+* `vserver audit create` ^3^
+* `vserver audit delete` ^3^
+* `vserver audit disable` ^3^
+* `vserver audit modify` ^3^
+* `vserver audit rotate-log` ^3^
+* `vserver create` ^2^
+* `vserver consistency-group create` ^4^
+* `vserver consistency-group delete` ^4^
+* `vserver consistency-group modify` ^4^
+* `vserver consistency-group snapshot create` ^4^
+* `vserver consistency-group snapshot delete` ^4^
+* `vserver delete` ^3^
+* `vserver modify` ^2^
+* `vserver object-store-server audit create` ^3^
+* `vserver object-store-server audit delete` ^3^
+* `vserver object-store-server audit disable` ^3^
+* `vserver object-store-server audit modify` ^3^
+* `vserver object-store-server audit rotate-log` ^3^
+* `vserver object-store-server bucket cors-rule create` ^4^
+* `vserver object-store-server bucket cors-rule delete` ^4^
+* `vserver options` ^3^
 * `vserver peer delete`
-* `vserver security file-directory apply`^3^
-* `vserver security file-directory remove-slag`^3^
-* `vserver stop`^4^
-* `vserver vscan disable`^3^
-* `vserver vscan on-access-policy create`^3^
-* `vserver vscan on-access-policy delete`^3^
-* `vserver vscan on-access-policy disable`^3^
-* `vserver vscan on-access-policy modify`^3^
-* `vserver vscan scanner-pool create`^3^
-* `vserver vscan scanner-pool delete`^3^
-* `vserver vscan scanner-pool modify`^3^
+* `vserver security file-directory apply` ^3^
+* `vserver security file-directory remove-slag` ^3^
+* `vserver stop` ^4^
+* `vserver vscan disable` ^3^
+* `vserver vscan on-access-policy create` ^3^
+* `vserver vscan on-access-policy delete` ^3^
+* `vserver vscan on-access-policy disable` ^3^
+* `vserver vscan on-access-policy modify` ^3^
+* `vserver vscan scanner-pool create` ^3^
+* `vserver vscan scanner-pool delete` ^3^
+* `vserver vscan scanner-pool modify` ^3^
 
 
 --
 .9.15.1
 --
-* `cluster date modify`^3^
-* `cluster log-forwarding create`^3^
-* `cluster log-forwarding delete`^3^
-* `cluster log-forwarding modify`^3^
+* `cluster date modify` ^3^
+* `cluster log-forwarding create` ^3^
+* `cluster log-forwarding delete` ^3^
+* `cluster log-forwarding modify` ^3^
 * `cluster peer delete`
-* `cluster time-service ntp server create`^3^
-* `cluster time-service ntp server delete`^3^
-* `cluster time-service ntp key create`^3^
-* `cluster time-service ntp key delete`^3^
-* `cluster time-service ntp key modify`^3^
-* `cluster time-service ntp server modify`^3^
+* `cluster time-service ntp server create` ^3^
+* `cluster time-service ntp server delete` ^3^
+* `cluster time-service ntp key create` ^3^
+* `cluster time-service ntp key delete` ^3^
+* `cluster time-service ntp key modify` ^3^
+* `cluster time-service ntp server modify` ^3^
 * `event config modify`
 * `event config set-mail-server-password` ^3^
-* `lun delete`^3^
-* `security anti-ransomware volume attack clear-suspect`^1^
-* `security anti-ransomware volume disable`^1^
-* `security anti-ransomware volume event-log modify`^2^
-* `security anti-ransomware volume pause`^1^
-* `security anti-ransomware vserver event-log modify`^2^
-* `security audit modify`^3^
-* `security ipsec config modify`^3^
-* `security ipsec policy create`^3^
-* `security ipsec policy delete`^3^
-* `security ipsec policy modify`^3^
+* `lun delete` ^3^
+* `security anti-ransomware volume attack clear-suspect` ^1^
+* `security anti-ransomware volume disable` ^1^
+* `security anti-ransomware volume event-log modify` ^2^
+* `security anti-ransomware volume pause` ^1^
+* `security anti-ransomware vserver event-log modify` ^2^
+* `security audit modify` ^3^
+* `security ipsec config modify` ^3^
+* `security ipsec policy create` ^3^
+* `security ipsec policy delete` ^3^
+* `security ipsec policy modify` ^3^
 * `security login create`
 * `security login delete`
 * `security login modify`
 * `security login publickey create`
 * `security login publickey delete`
 * `security login publickey modify`
-* `security key-manager onboard update-passphrase`^3^
-* `security saml-sp create`^3^
-* `security saml-sp delete`^3^
-* `security saml-sp modify`^3^
-* `snaplock legal-hold end`^3^
-* `storage aggregate delete`^3^
-* `storage encryption disk destroy`^3^
-* `storage encryption disk modify`^3^
-* `storage encryption disk revert-to-original-state`^3^
-* `storage encryption disk sanitize`^3^
-* `system bridge run-cli`^3^
-* `system controller flash-cache secure-erase run`^3^
-* `system controller service-event delete`^3^
-* `system health alert delete`^3^
-* `system health alert modify`^3^
-* `system health policy definition modify`^3^
-* `system node autosupport modify`^3^
-* `system node autosupport trigger modify`^3^
-* `system node coredump delete`^3^
-* `system node coredump delete-all`^3^
-* `system node hardware nvram-encryption modify`^3^
+* `security key-manager onboard update-passphrase` ^3^
+* `security saml-sp create` ^3^
+* `security saml-sp delete` ^3^
+* `security saml-sp modify` ^3^
+* `snaplock legal-hold end` ^3^
+* `storage aggregate delete` ^3^
+* `storage encryption disk destroy` ^3^
+* `storage encryption disk modify` ^3^
+* `storage encryption disk revert-to-original-state` ^3^
+* `storage encryption disk sanitize` ^3^
+* `system bridge run-cli` ^3^
+* `system controller flash-cache secure-erase run` ^3^
+* `system controller service-event delete` ^3^
+* `system health alert delete` ^3^
+* `system health alert modify` ^3^
+* `system health policy definition modify` ^3^
+* `system node autosupport modify` ^3^
+* `system node autosupport trigger modify` ^3^
+* `system node coredump delete` ^3^
+* `system node coredump delete-all` ^3^
+* `system node hardware nvram-encryption modify` ^3^
 * `system node run`
 * `system node systemshell`
-* `system script delete`^3^
-* `system service-processor ssh add-allowed-addresses`^3^
-* `system service-processor ssh remove-allowed-addresses`^3^
-* `system smtape restore`^3^
-* `system switch ethernet log disable-collection`^3^
-* `system switch ethernet log modify`^3^
-* `timezone`^3^
-* `volume create`^3^
+* `system script delete` ^3^
+* `system service-processor ssh add-allowed-addresses` ^3^
+* `system service-processor ssh remove-allowed-addresses` ^3^
+* `system smtape restore` ^3^
+* `system switch ethernet log disable-collection` ^3^
+* `system switch ethernet log modify` ^3^
+* `timezone` ^3^
+* `volume create` ^3^
 * `volume delete`
-* `volume file privileged-delete`^3^
+* `volume file privileged-delete` ^3^
 * `volume flexcache delete`
-* `volume modify`^3^
-* `volume recovery-queue modify`^2^
-* `volume recovery-queue purge`^2^
-* `volume recovery-queue purge-all`^2^
-* `volume snaplock modify`^1^
+* `volume modify` ^3^
+* `volume recovery-queue modify` ^2^
+* `volume recovery-queue purge` ^2^
+* `volume recovery-queue purge-all` ^2^
+* `volume snaplock modify` ^1^
 * `volume snapshot autodelete modify`
-* `volume snapshot create`^3^
+* `volume snapshot create` ^3^
 * `volume snapshot delete`
-* `volume snapshot modify`^3^
+* `volume snapshot modify` ^3^
 * `volume snapshot policy add-schedule`
 * `volume snapshot policy create`
 * `volume snapshot policy delete`
 * `volume snapshot policy modify`
 * `volume snapshot policy modify-schedule`
 * `volume snapshot policy remove-schedule`
-* `volume snapshot rename`^3^
+* `volume snapshot rename` ^3^
 * `volume snapshot restore`
-* `vserver audit create`^3^
-* `vserver audit delete`^3^
-* `vserver audit disable`^3^
-* `vserver audit modify`^3^
-* `vserver audit rotate-log`^3^
-* `vserver create`^2^
-* `vserver delete`^3^
-* `vserver modify`^2^
-* `vserver object-store-server audit create`^3^
-* `vserver object-store-server audit delete`^3^
-* `vserver object-store-server audit disable`^3^
-* `vserver object-store-server audit modify`^3^
-* `vserver object-store-server audit rotate-log`^3^
-* `vserver options`^3^
+* `vserver audit create` ^3^
+* `vserver audit delete` ^3^
+* `vserver audit disable` ^3^
+* `vserver audit modify` ^3^
+* `vserver audit rotate-log` ^3^
+* `vserver create` ^2^
+* `vserver delete` ^3^
+* `vserver modify` ^2^
+* `vserver object-store-server audit create` ^3^
+* `vserver object-store-server audit delete` ^3^
+* `vserver object-store-server audit disable` ^3^
+* `vserver object-store-server audit modify` ^3^
+* `vserver object-store-server audit rotate-log` ^3^
+* `vserver options` ^3^
 * `vserver peer delete`
-* `vserver security file-directory apply`^3^
-* `vserver security file-directory remove-slag`^3^
-* `vserver vscan disable`^3^
-* `vserver vscan on-access-policy create`^3^
-* `vserver vscan on-access-policy delete`^3^
-* `vserver vscan on-access-policy disable`^3^
-* `vserver vscan on-access-policy modify`^3^
-* `vserver vscan scanner-pool create`^3^
-* `vserver vscan scanner-pool delete`^3^
-* `vserver vscan scanner-pool modify`^3^
+* `vserver security file-directory apply` ^3^
+* `vserver security file-directory remove-slag` ^3^
+* `vserver vscan disable` ^3^
+* `vserver vscan on-access-policy create` ^3^
+* `vserver vscan on-access-policy delete` ^3^
+* `vserver vscan on-access-policy disable` ^3^
+* `vserver vscan on-access-policy modify` ^3^
+* `vserver vscan scanner-pool create` ^3^
+* `vserver vscan scanner-pool delete` ^3^
+* `vserver vscan scanner-pool modify` ^3^
 
 
 --
@@ -451,11 +451,11 @@ MAVルールは、Role-Based Access Control（RBAC；ロールベースアクセ
 --
 * `cluster peer delete`
 * `event config modify`
-* `security anti-ransomware volume attack clear-suspect`^1^
-* `security anti-ransomware volume disable`^1^
-* `security anti-ransomware volume event-log modify`^2^
-* `security anti-ransomware volume pause`^1^
-* `security anti-ransomware vserver event-log modify`^2^
+* `security anti-ransomware volume attack clear-suspect` ^1^
+* `security anti-ransomware volume disable` ^1^
+* `security anti-ransomware volume event-log modify` ^2^
+* `security anti-ransomware volume pause` ^1^
+* `security anti-ransomware vserver event-log modify` ^2^
 * `security login create`
 * `security login delete`
 * `security login modify`
@@ -466,21 +466,21 @@ MAVルールは、Role-Based Access Control（RBAC；ロールベースアクセ
 * `system node systemshell`
 * `volume delete`
 * `volume flexcache delete`
-* `volume recovery-queue modify`^2^
-* `volume recovery-queue purge`^2^
-* `volume recovery-queue purge-all`^2^
-* `volume snaplock modify`^1^
+* `volume recovery-queue modify` ^2^
+* `volume recovery-queue purge` ^2^
+* `volume recovery-queue purge-all` ^2^
+* `volume snaplock modify` ^1^
 * `volume snapshot autodelete modify`
 * `volume snapshot delete`
 * `volume snapshot policy add-schedule`
 * `volume snapshot policy create`
-* `volume snapshot policy delete`*
+* `volume snapshot policy delete` *
 * `volume snapshot policy modify`
 * `volume snapshot policy modify-schedule`
 * `volume snapshot policy remove-schedule`
 * `volume snapshot restore`
-* `vserver create`^2^
-* `vserver modify`^2^
+* `vserver create` ^2^
+* `vserver modify` ^2^
 * `vserver peer delete`
 
 
@@ -489,9 +489,9 @@ MAVルールは、Role-Based Access Control（RBAC；ロールベースアクセ
 --
 * `cluster peer delete`
 * `event config modify`
-* `security anti-ransomware volume attack clear-suspect`^1^
-* `security anti-ransomware volume disable`^1^
-* `security anti-ransomware volume pause`^1^
+* `security anti-ransomware volume attack clear-suspect` ^1^
+* `security anti-ransomware volume disable` ^1^
+* `security anti-ransomware volume pause` ^1^
 * `security login create`
 * `security login delete`
 * `security login modify`
@@ -502,12 +502,12 @@ MAVルールは、Role-Based Access Control（RBAC；ロールベースアクセ
 * `system node systemshell`
 * `volume delete`
 * `volume flexcache delete`
-* `volume snaplock modify`^1^
+* `volume snaplock modify` ^1^
 * `volume snapshot autodelete modify`
 * `volume snapshot delete`
 * `volume snapshot policy add-schedule`
 * `volume snapshot policy create`
-* `volume snapshot policy delete`*
+* `volume snapshot policy delete` *
 * `volume snapshot policy modify`
 * `volume snapshot policy modify-schedule`
 * `volume snapshot policy remove-schedule`
@@ -516,7 +516,7 @@ MAVルールは、Role-Based Access Control（RBAC；ロールベースアクセ
 
 
 --
-.9.12.1/9.11.1
+.9.12.1 / 9.11.1
 --
 * `cluster peer delete`
 * `event config modify`
@@ -534,7 +534,7 @@ MAVルールは、Role-Based Access Control（RBAC；ロールベースアクセ
 * `volume snapshot delete`
 * `volume snapshot policy add-schedule`
 * `volume snapshot policy create`
-* `volume snapshot policy delete`*
+* `volume snapshot policy delete` *
 * `volume snapshot policy modify`
 * `volume snapshot policy modify-schedule`
 * `volume snapshot policy remove-schedule`
@@ -544,22 +544,22 @@ MAVルールは、Role-Based Access Control（RBAC；ロールベースアクセ
 
 --
 ====
-. 9.13.1の新しいrule-protectedコマンド
-. 9.14.1の新しいrule-protectedコマンド
-. 9.15.1の新しいrule-protectedコマンド
-. 9.16.1の新しいrule-protectedコマンド
+. 9.13.1で新規追加されたルール保護コマンド
+. 9.14.1で新規追加されたルール保護コマンド
+. 9.15.1で新規追加されたルール保護コマンド
+. 9.16.1で新規追加されたルール保護コマンド
 . 9.17.1で新規追加されたルール保護コマンド
 
 
-*このコマンドはCLIでのみ使用でき、一部のリリースではSystem Managerでは使用できません。
+*このコマンドはCLIでのみ使用可能であり、一部のリリースではSystem Managerでは使用できません。
 
 
 
 == マルチ管理者承認の仕組み
 
-MAVで保護されたクラスタで保護された操作が入力されると、指定されたMAV管理者グループに操作実行要求が送信されます。
+保護対象処理がMAVで保護されたクラスタで入力されると、指定されたMAV管理者グループに処理の実行要求が送信されます。
 
-次の設定が可能です。
+設定できる項目は次のとおりです。
 
 * MAVグループ内の管理者の名前、連絡先情報、および数。
 +
@@ -572,53 +572,53 @@ MAV管理者には、クラスタ管理者権限のあるRBACロールが必要�
 
 
 * 保護対象処理を実行するために必要なMAV承認者の数。
-* MAV管理者が承認要求に応答する必要がある_承認の失効_期間。
-* 要求元の管理者が処理を完了する必要がある_実行のexpiry_period。
+* MAV 管理者が承認リクエストに応答しなければならない_承認有効期限_。
+* 要求元の管理者が操作を完了しなければならない_実行有効期限_。
 
 
-これらのパラメータを設定したら、変更するにはMAV承認が必要です。
+設定後にこれらのパラメータを変更するには、MAVの承認が必要です。
 
-MAV管理者は、保護された操作の実行要求を自分で承認することはできません。そのため、
+MAV管理者は、自身が要求した保護対象処理の実行を承認することはできません。そのため、次の点に注意してください。
 
-* MAVは、管理者が1人だけのクラスタでは有効にしないでください。
-* MAVグループに1人しかいない場合、そのMAV管理者は保護された操作を開始できません。通常の管理者は保護された操作を開始する必要があり、MAV管理者は承認のみを実行できます。
-* MAV管理者が保護された操作を実行できるようにするには、MAV管理者の数が必要な承認の数より1つ多い必要があります。たとえば、保護された操作に2つの承認が必要で、MAV管理者にそれらの承認を実行させる場合、MAV管理者グループには3人のユーザーが必要です。
+* 管理者が1人しかいないクラスタでは、MAVを有効にしないでください。
+* MAVグループのメンバーが1人だけの場合、そのMAV管理者は保護対象処理を開始できません。保護対象処理は一般の管理者が開始する必要があり、MAV管理者は承認のみを行うことができます。
+* MAV管理者が保護対象処理を実行できるようにするには、MAV管理者の数が、必要な承認者数よりも1人多くなければなりません。たとえば、ある保護対象処理に2人の承認が必要で、MAV管理者がその処理を実行できるようにするためには、MAV管理者グループに3人のメンバーが必要です。
 
 
-MAV管理者は、電子メールアラートで承認リクエストを受信することも（EMSを使用して）、リクエストキューを照会することもできます。リクエストを受け取ると、次の3つのアクションのいずれかを実行できます。
+承認要求は、（EMSを使用して）Eメール アラートでMAV管理者に送信できるほか、管理者が要求キューを照会することもできます。受信した要求に対し、MAV管理者は次の3つのいずれかの対応を取ることができます。
 
 * 承認
-* 拒否（拒否）
-* 無視（アクションなし）
+* 却下（拒否）
+* 無視（対応なし）
 
 
-次の場合、MAVルールに関連付けられたすべての承認者に電子メール通知が送信されます。
+次の場合、MAVルールに関連付けられているすべての承認者にEメール通知が送信されます。
 
-* リクエストが作成されます。
-* リクエストが承認または拒否された場合。
-* 承認されたリクエストが実行されました。
-
-
-リクエスト者が操作の同じ承認グループに属している場合は、リクエストが承認されると電子メールが送信されます。
+* 要求が作成された場合。
+* 要求が承認または拒否された場合。
+* 承認された要求が実行された場合。
 
 
-NOTE: リクエスト者は、自分のリクエストが承認グループに含まれていても、自分のリクエストを承認することはできません（ただし、自分のリクエストの電子メール通知を受け取ることはできます）。承認グループに属していないリクエスト者（つまり、MAV管理者でないリクエスト者）は、電子メール通知を受信しません。
+処理の要求者が同じ承認グループに属している場合は、要求が承認された場合もEメールが送信されます。
+
+
+NOTE: 要求者は、承認グループに属していても自身の要求は承認できません（ただし、自分の要求のEメール通知を受け取ることはできます）。承認グループに属していない（つまり、MAV管理者ではない）要求者には、Eメール通知は送信されません。
 
 
 
-== 保護された処理の実行の仕組み
+== 保護対象処理が実行される仕組み
 
-保護された操作の実行が承認されると、要求元のユーザーはプロンプトが表示されたときに操作を続行します。処理が拒否された場合、要求元ユーザは処理を続行する前に要求を削除する必要があります。
+保護対象処理の実行が承認された場合、要求元ユーザはプロンプトを確認して処理を続行します。処理が拒否された場合、要求元ユーザは、要求を削除してから次の作業に進む必要があります。
 
-MAVルールはRBACの権限の後に評価されます。そのため、操作を実行するための十分なRBAC権限を持たないユーザーは、MAV要求プロセスを開始できません。
+MAVルールはRBACの権限のあとに評価されます。そのため、処理を実行するための十分なRBACの権限がないユーザはMAV要求プロセスを開始できません。
 
-MAVルールは、保護された操作が実行される前に評価されます。つまり、ルールはシステムの現在の状態に基づいて適用されます。例えば、MAVルールが以下の目的で作成された場合、  `volume modify`クエリで `-size 5GB` 、使用 `volume modify` 5GB のボリュームを 2GB にサイズ変更するには MAV の承認が必要ですが、2GB のボリュームを 5GB にサイズ変更する場合は必要ありません。
+MAVルールは、保護された操作が実行される前に評価されます。つまり、ルールはシステムの現在の状態に基づいて適用されます。例えば、 `volume modify`のクエリが `-size 5GB`のMAVルールを作成した場合、 `volume modify`を使用して5GBのボリュームを2GBにサイズ変更するにはMAVの承認が必要ですが、2GBのボリュームを5GBにサイズ変更する場合はMAVの承認は必要ありません。
 
 .関連情報
-* link:https://docs.netapp.com/us-en/ontap-cli/search.html?q=cluster["クラスタ"^]
-* link:https://docs.netapp.com/us-en/ontap-cli/search.html?q=lun["LUN"^]
+* link:https://docs.netapp.com/us-en/ontap-cli/search.html?q=cluster["cluster"^]
+* link:https://docs.netapp.com/us-en/ontap-cli/search.html?q=lun["lun"^]
 * link:https://docs.netapp.com/us-en/ontap-cli/search.html?q=security["セキュリティ"^]
-* link:https://docs.netapp.com/us-en/ontap-cli/snaplock-legal-hold-end.html["SnapLock リーガルホールドの終了"^]
+* link:https://docs.netapp.com/us-en/ontap-cli/snaplock-legal-hold-end.html["snaplock リーガルホールド終了"^]
 * link:https://docs.netapp.com/us-en/ontap-cli/search.html?q=storage+aggregate["ストレージアグリゲート"^]
 * link:https://docs.netapp.com/us-en/ontap-cli/search.html?q=storage+encryption["ストレージ暗号化"^]
 * link:https://docs.netapp.com/us-en/ontap-cli/search.html?q=system["システム"^]

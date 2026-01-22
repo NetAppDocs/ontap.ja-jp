@@ -2,36 +2,36 @@
 permalink: system-admin/manage-ip-addresses-access-sp-task.html 
 sidebar: sidebar 
 keywords: manage, ip, addresses, access, sp, ssh, connection, node, cluster 
-summary: デフォルトでは、 SP はすべての IP アドレスの管理ホストからの SSH 接続要求を受け付けます。指定した IP アドレスを持つ管理ホストのみからの SSH 接続要求を受け付けるように SP を設定できます。変更内容は、クラスタ内のすべてのノードの SP への SSH アクセスに適用されます。 
+summary: デフォルトでは、SPは任意のIPアドレスを持つ管理ホストからのSSH接続要求を受け入れます。指定したIPアドレスを持つ管理ホストからのSSH接続要求のみを受け入れるようにSPを設定できます。変更は、クラスタ内の任意のノードのSPへのSSHアクセスに適用されます。 
 ---
-= 管理ホストのIPアドレスを追加してONTAPサービスプロセッサにアクセス
+= ONTAPサービスプロセッサにアクセスするための管理ホストIPアドレスを追加します
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-デフォルトでは、 SP はすべての IP アドレスの管理ホストからの SSH 接続要求を受け付けます。指定した IP アドレスを持つ管理ホストのみからの SSH 接続要求を受け付けるように SP を設定できます。変更内容は、クラスタ内のすべてのノードの SP への SSH アクセスに適用されます。
+デフォルトでは、SPは任意のIPアドレスを持つ管理ホストからのSSH接続要求を受け入れます。指定したIPアドレスを持つ管理ホストからのSSH接続要求のみを受け入れるようにSPを設定できます。変更は、クラスタ内の任意のノードのSPへのSSHアクセスに適用されます。
 
 .手順
-. 指定したIPアドレスのみにSPアクセスを許可するには、 `system service-processor ssh add-allowed-addresses`コマンドでパラメータを指定 `-allowed-addresses`します。
+.  `system service-processor ssh add-allowed-addresses`コマンドと `-allowed-addresses`パラメータを使用して、指定したIPアドレスのみにSPアクセスを許可します。
 +
-** パラメータの値は `-allowed-addresses`の形式で指定する必要があります `address`/`netmask`。複数の `address`/`netmask`ペアはカンマで区切る必要があります（例：） `10.98.150.10/24, fd20:8b1e:b255:c09b::/64`。
+**  `-allowed-addresses`パラメータの値は `address`/`netmask`の形式で指定する必要があり、複数の `address`/`netmask`ペアはコンマで区切る必要があります（例： `10.98.150.10/24, fd20:8b1e:b255:c09b::/64`）。
 +
-パラメータをに `0.0.0.0/0, ::/0`設定する `-allowed-addresses`と、すべてのIPアドレスがSPにアクセスできるようになります（デフォルト）。
+ `-allowed-addresses`パラメータを `0.0.0.0/0, ::/0`に設定すると、すべてのIPアドレスがSPにアクセスできるようになります（デフォルト）。
 
-** 指定したIPアドレスのみにSPアクセスを制限してデフォルトを変更すると、ONTAPは、指定したIPアドレスで「すべて許可」のデフォルト設定を置き換えることを確認するプロンプトを表示し(`0.0.0.0/0, ::/0`ます）。
-**  `system service-processor ssh show`コマンドは、SPにアクセスできるIPアドレスを表示します。
+** 指定した IP アドレスのみに SP アクセスを制限してデフォルトを変更すると、ONTAP は、指定した IP アドレスで「`allow all`」デフォルト設定を置き換えるかどうかを確認するプロンプトを表示します(`0.0.0.0/0, ::/0`。
+** この `system service-processor ssh show`コマンドは、SPにアクセスできるIPアドレスを表示します。
 
 
-. 指定したIPアドレスによるSPへのアクセスをブロックするには、パラメータを指定してコマンドを `-allowed-addresses`使用し `system service-processor ssh remove-allowed-addresses`ます。
+. 指定された IP アドレスから SP へのアクセスをブロックする場合は、 `-allowed-addresses`パラメータを指定した `system service-processor ssh remove-allowed-addresses`コマンドを使用します。
 +
-すべての IP アドレスから SP へのアクセスをブロックすると、管理ホストから SP にアクセスできなくなります。
+すべての IP アドレスから SP へのアクセスをブロックすると、どの管理ホストからも SP にアクセスできなくなります。
 
 
 
-.SPにアクセスできるIPアドレスの管理の例
-次の例は、 SP への SSH アクセスのためのデフォルト設定を示しています。ここでは、指定した IP アドレスのみに SP アクセスを制限することで、デフォルトの設定を変更し、指定した IP アドレスをアクセスリストから削除し、すべての IP アドレスに対する SP アクセスをリストアします。
+.SPにアクセスできるIPアドレスを管理する例
+次の例は、SPへのSSHアクセスのデフォルト設定を示し、指定されたIPアドレスのみにSPアクセスを制限してデフォルトを変更し、指定されたIPアドレスをアクセスリストから削除してから、すべてのIPアドレスのSPアクセスを復元します：
 
 [listing]
 ----

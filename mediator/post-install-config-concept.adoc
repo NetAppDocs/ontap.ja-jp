@@ -4,7 +4,7 @@ sidebar: sidebar
 keywords: mediator, new, release, update, install, configuration, post-installation, after installation, metrocluster ip, snapmirror business continuity, snapmirror active sync 
 summary: ONTAP Mediator をインストールして実行した後、Mediator 機能を使用するには、ONTAP ストレージ システムで追加の設定タスクを実行する必要があります。 
 ---
-= インストール後のONTAPメディエーター設定
+= インストール後のONTAP Mediator の設定
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
@@ -13,40 +13,40 @@ summary: ONTAP Mediator をインストールして実行した後、Mediator �
 [role="lead"]
 ONTAP Mediator をインストールして実行した後、ONTAP Mediator の機能を使用するには、ONTAP ストレージ システムで追加の設定タスクを実行する必要があります。
 
-* MetroCluster IP構成でONTAPメディエーターを使用するには、 link:https://docs.netapp.com/us-en/ontap-metrocluster/install-ip/task_configuring_the_ontap_mediator_service_from_a_metrocluster_ip_configuration.html["MetroCluster IP構成からONTAPメディエーターを構成する"^] 。
-* SnapMirrorアクティブ同期を使用するには、を参照してくださいlink:../snapmirror-active-sync/mediator-install-task.html["ONTAPメディエーターをインストールし、ONTAPクラスタ構成を確認します"]。
+* ONTAP Mediator をMetroCluster IP 構成で使用するには、link:https://docs.netapp.com/us-en/ontap-metrocluster/install-ip/task_configuring_the_ontap_mediator_service_from_a_metrocluster_ip_configuration.html["MetroCluster IP設定からONTAP Mediatorを設定する"^]を参照してください。
+* SnapMirrorアクティブ同期を使用するには、link:../snapmirror-active-sync/mediator-install-task.html["ONTAP Mediatorをインストールし、ONTAPクラスタ構成を確認します"]を参照してください。
 
 
 
 
-== ONTAPメディエーターのセキュリティポリシーの設定
+== ONTAP Mediatorのセキュリティ ポリシーの設定
 
-ONTAP Mediator は、いくつかの構成可能なセキュリティ設定をサポートしています。すべての設定のデフォルト値は、読み取り専用ファイルで提供され `low_space_threshold_mib: 10`ます。
+ONTAP Mediatorは、設定可能な複数のセキュリティ設定をサポートしています。すべての設定のデフォルト値は、 `low_space_threshold_mib: 10`読み取り専用ファイルで提供されています：
 
 `/opt/netapp/lib/ontap_mediator/ontap_mediator/server_config/ontap_mediator.user_config.yaml`
 
-に設定した値はすべて `ontap_mediator.user_config.yaml`デフォルト値よりも優先され、ONTAPメディエーターのすべてのアップグレードで維持されます。
+ `ontap_mediator.user_config.yaml`に配置されたすべての値は、デフォルト値を上書きし、すべての ONTAP Mediator アップグレードにわたって維持されます。
 
-変更後 `ontap_mediator.user_config.yaml` ONTAPメディエーターを再起動します。
+変更後 `ontap_mediator.user_config.yaml`、ONTAP Mediator を再起動します。
 
 `systemctl restart ontap_mediator`
 
 
 
-== ONTAPメディエーターの属性を変更します。
+== ONTAP Mediatorの属性の変更
 
-このセクションで説明するONTAPメディエーターの属性は、必要に応じて変更できます。
-
-
-NOTE: ONTAPメディエーターのアップグレード時には変更後の値が維持されないため、のその他のデフォルト値は `ontap_mediator.config.yaml`変更しないでください。
-
-ONTAPメディエーターの属性を変更するには、必要な変数をファイルにコピーして `ontap_mediator.user_config.yaml`デフォルトの設定を上書きします。
+このセクションで説明する ONTAP Mediator 属性は、必要に応じて変更できます。
 
 
+NOTE:  `ontap_mediator.config.yaml`内のその他のデフォルト値は、変更された値がONTAP Mediatorのアップグレード中に維持されないため、変更しないでください。
 
-=== サードパーティのSSL証明書のインストール
+必要な変数を `ontap_mediator.user_config.yaml`ファイルにコピーしてデフォルト設定を上書きすることで、ONTAP Mediator 属性を変更します。
 
-デフォルトの自己署名証明書をサードパーティのSSL証明書に置き換える必要がある場合は、次のファイルの特定の属性を変更します。
+
+
+=== サードパーティのSSL証明書をインストールする
+
+デフォルトの自己署名証明書をサードパーティの SSL 証明書に置き換える必要がある場合は、次のファイル内の特定の属性を変更します：
 
 * `/opt/netapp/lib/ontap_mediator/ontap_mediator/server_config/ontap_mediator.config.yaml`
 * `/opt/netapp/lib/ontap_mediator/uwsgi/ontap_mediator.ini`
@@ -58,7 +58,7 @@ ONTAPメディエーターの属性を変更するには、必要な変数をフ
 ====
 .ONTAP Mediator 1.9以降
 --
-次の表に示すデフォルトの変数は、ファイルに含まれて `/opt/netapp/lib/ontap_mediator/ontap_mediator/server_config/ontap_mediator.config.yaml`います。
+次の表にリストされているデフォルトの変数が `/opt/netapp/lib/ontap_mediator/ontap_mediator/server_config/ontap_mediator.config.yaml`ファイルに含まれています。
 
 [cols="2*"]
 |===
@@ -86,10 +86,10 @@ ONTAPメディエーターの属性を変更するには、必要な変数をフ
 | `x509_passin_pwd` | `pass:ontap` 
 |===
 * `cert_valid_days`は、クライアント証明書の有効期限を設定するために使用されます。最大値は3年（1095日）です。
-* `x509_passin_pwd`は、署名済みクライアント証明書のパスフレーズです。
+* `x509_passin_pwd` は署名されたクライアント証明書のパスフレーズです。
 
 
-次の表に示すデフォルトの変数は、ファイルに含まれて `/opt/netapp/lib/ontap_mediator/uwsgi/ontap_mediator.ini`います。
+次の表にリストされているデフォルトの変数が `/opt/netapp/lib/ontap_mediator/uwsgi/ontap_mediator.ini`ファイルに含まれています。
 
 [cols="2*"]
 |===
@@ -105,9 +105,9 @@ ONTAPメディエーターの属性を変更するには、必要な変数をフ
 | `ca_cert_path` | `/opt/netapp/lib/ontap_mediator/ontap_mediator/server_config/intermediate.crt` 
 |===
 --
-.ONTAPメディエーター1.8以前
+.ONTAP Mediator 1.8 以前
 --
-次の表に示すデフォルトの変数は、ファイルに含まれて `/opt/netapp/lib/ontap_mediator/ontap_mediator/server_config/ontap_mediator.config.yaml`います。
+次の表にリストされているデフォルトの変数が `/opt/netapp/lib/ontap_mediator/ontap_mediator/server_config/ontap_mediator.config.yaml`ファイルに含まれています。
 
 [cols="2*"]
 |===
@@ -135,10 +135,10 @@ ONTAPメディエーターの属性を変更するには、必要な変数をフ
 | `x509_passin_pwd` | `pass:ontap` 
 |===
 * `cert_valid_days`は、クライアント証明書の有効期限を設定するために使用されます。最大値は3年（1095日）です。
-* `x509_passin_pwd`は、署名済みクライアント証明書のパスフレーズです。
+* `x509_passin_pwd` は署名されたクライアント証明書のパスフレーズです。
 
 
-次の表に示すデフォルトの変数は、ファイルに含まれて `/opt/netapp/lib/ontap_mediator/uwsgi/ontap_mediator.ini`います。
+次の表にリストされているデフォルトの変数が `/opt/netapp/lib/ontap_mediator/uwsgi/ontap_mediator.ini`ファイルに含まれています。
 
 [cols="2*"]
 |===
@@ -155,28 +155,28 @@ ONTAPメディエーターの属性を変更するには、必要な変数をフ
 |===
 --
 ====
-これらの属性を変更する場合は、変更を適用するために ONTAP Mediator を再起動します。デフォルトの証明書をサードパーティの証明書に置き換える方法の詳細については、を参照してくださいlink:../mediator/manage-task.html#replace-self-signed-certificates-with-trusted-third-party-certificates["自己署名証明書を信頼できるサードパーティの証明書に置き換える"]。
+これらの属性を変更した場合は、変更を適用するためにONTAP Mediatorを再起動してください。デフォルトの証明書をサードパーティの証明書に置き換える方法の詳細については、link:../mediator/manage-task.html#replace-self-signed-certificates-with-trusted-third-party-certificates["自己署名証明書を信頼できるサードパーティの証明書に置き換える"]を参照してください。
 
 
 
-=== パスワード攻撃からの保護
+=== パスワード攻撃保護
 
 次の設定は、ブルートフォースパスワード推測攻撃に対する保護を提供します。
 
-この機能を有効にするには、およびの `retry_limit`値を設定し `window_seconds`ます。
+この機能を有効にするには、 `window_seconds`と `retry_limit`の値を設定します。
 
 例：
 
 --
-* 5分間の猶予期間を設けて推測し、失敗回数をゼロにリセットします。
+* 類推に使用できる時間を5分に設定し、5分後に失敗回数をゼロにリセットします。
 +
 `authentication_lock_window_seconds: 300`
 
-* 期間内に5つの障害が発生した場合は、アカウントをロックします。
+* 時間内に5回失敗した場合にアカウントをロックします。
 +
 `authentication_retry_limit: 5`
 
-* 各試行を拒否する前に発生する遅延を設定することで、ブルートフォースパスワード推測攻撃の影響を軽減し、攻撃の速度を低下させます。
+* 各試行の拒否を遅延させることで、攻撃をスローダウンさせ、総当たりによるパスワード類推攻撃の影響を軽減します。
 +
 `authentication_failure_delay_seconds: 5`
 
@@ -191,9 +191,9 @@ authentication_retry_limit: null          # number of retries to allow before lo
 --
 
 
-=== パスワードの複雑さに関するルール
+=== パスワードの複雑さのルール
 
-次のフィールドは、ONTAPメディエーターAPIユーザアカウントのパスワードの複雑さのルールを制御します。
+次のフィールドは ONTAP Mediator API ユーザーアカウントのパスワードの複雑さのルールを制御します。
 
 ....
 password_min_length: 8
@@ -210,25 +210,25 @@ password_nonletter_chars: 2    # min. non-letter characters (digits, specials, a
 ....
 
 
-=== 空きスペースの制御
+=== 空き容量の制御
 
-ディスク上の必要な空き容量を制御する設定があり `/opt/netapp/lib/ontap_mediator`ます。
+ `/opt/netapp/lib/ontap_mediator`ディスクに必要な空き容量を制御する設定があります。
 
-スペースが設定されたしきい値を下回ると、サービスは警告イベントを発行します。
+スペースが設定されたしきい値を下回ると、警告イベントが発行されます。
 
 ....
 low_space_threshold_mib: 10
 ....
 
 
-=== リザーブログスペースの制御
+=== 予備ログスペースの制御
 
-reserve_log_spaceは、特定の設定によって制御されます。デフォルトでは、ONTAP Mediator のインストール時にログ用のディスクスペースが別途作成されます。インストーラは、ONTAP Mediator のログ記録専用として、合計 700MB のディスクスペースを持つ新しい固定サイズのファイルを作成します。
+RESERVE_LOG_SPACE は特定の設定によって制御されます。デフォルトでは、ONTAP Mediator のインストール時にログ用に別のディスクスペースが作成されます。インストーラは ONTAP Mediator のログ記録専用として、合計 700MB のディスクスペースを持つ新しい固定サイズのファイルを作成します。
 
-この機能を無効にしてデフォルトのディスク容量を使用するには、次の手順に従います。
+この機能を無効にしてデフォルトのディスク スペースを使用するには、以下の手順に従います。
 
 --
-. 次のファイルで、reserve_log_spaceの値を1から0に変更します。
+. 次のファイルで、RESERVE_LOG_SPACE の値を 1 から 0 に変更します：
 +
 `/opt/netapp/lib/ontap_mediator/tools/mediator_env`
 
@@ -245,7 +245,7 @@ RESERVE_LOG_SPACE=0
 
 
 --
-この機能を再度有効にするには、値を0から1に変更してMediatorを再起動します。
+機能を再度有効にするには、値を 0 から 1 に変更し、Mediator を再起動します。
 
 
-NOTE: ディスクスペースを切り替えても、既存のログは消去されません。以前のログはすべてバックアップされ、Mediatorの切り替えと再起動のあとに現在のディスクスペースに移動されます。
+NOTE: ディスク スペースを切り替えても、既存のログはパージされません。以前のログはすべてバックアップされ、切り替えとMediatorの再起動を行ったあとに現在のディスク スペースに移動されます。

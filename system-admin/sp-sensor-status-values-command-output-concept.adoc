@@ -2,20 +2,20 @@
 permalink: system-admin/sp-sensor-status-values-command-output-concept.html 
 sidebar: sidebar 
 keywords: understand, discrete, sp, sensor, status, values, command, output, cli, hexedecimal, format 
-summary: ディスクリートセンサーにはしきい値がありません。SP CLI の system sensors コマンド出力の current 列に表示される値には実際の意味はなく、 SP では無視されます。system sensors コマンド出力の Status 列に、ディスクリートセンサーのステータス値が 16 進形式で表示されます。 
+summary: 個別センサーにはしきい値がありません。SP CLIのsystem sensorsコマンド出力のCurrent列に表示されるセンサーの読み取り値は、実際の意味を持たないため、SPでは無視されます。system sensorsコマンド出力のStatus列には、個別センサーのステータス値が16進形式で表示されます。 
 ---
-= system sensorコマンド出力のONTAP SPセンサーステータス値
+= ONTAP SPのsystem sensorコマンド出力におけるセンサーステータス値
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-ディスクリートセンサーにはしきい値がありません。SP CLIコマンド出力の列の `system sensors`下に表示されるこれらの読み取り値は `Current`、実際の意味を持たないため、SPでは無視されます。コマンド出力の列には `system sensors`、 `Status`ディスクリートセンサーのステータス値が16進形式で表示されます。
+個別センサーにはしきい値がありません。SP CLI `system sensors`コマンド出力の `Current`列の下に表示される読み取り値は、実際の意味を持たないため、SPによって無視されます。 `system sensors`コマンド出力の `Status`列には、個別センサーのステータス値が16進形式で表示されます。
 
-ディスクリートセンサーの例としては、ファン、電源ユニット（ PSU ）エラー、システムエラーのセンサーがあります。ディスクリートセンサーの具体的なリストは、プラットフォームによって異なります。
+個別センサーの例としては、ファン、電源ユニット（PSU）障害、システム障害などのセンサーが挙げられます。具体的な個別センサーのリストはプラットフォームによって異なります。
 
-SP CLIのコマンドを使用すると、ほとんどのディスクリートセンサーのステータス値を解釈できます `system sensors get` `sensor_name`。次の例は、ディスクリートセンサーCPU0_ErrorおよびIO_Slot1_Presentに対してを実行した結果を示してい `system sensors get` `sensor_name`ます。
+ほとんどの個別センサーのステータス値の解釈には、SP CLI `system sensors get` `sensor_name`コマンドが役立ちます。以下の例は、個別センサー「CPU0_Error」と「IO_Slot1_Present」に `system sensors get` `sensor_name`を入力した結果を示しています。
 
 [listing]
 ----
@@ -37,173 +37,173 @@ Sensor ID              : IO_Slot1_Present (0x74)
  States Asserted       : Availability State
                         [Device Present]
 ----
-コマンドで `system sensors get` `sensor_name`はほとんどのディスクリートセンサーのステータス情報が表示されますが、System_FW_Status、System_Watchdog、PSU1_Input_Type、およびPSU2_Input_Typeディスクリートセンサーのステータス情報は提供されません。これらのセンサーのステータス情報は、次の情報を使用して解釈できます。
+ `system sensors get` `sensor_name`コマンドはほとんどの個別センサーのステータス情報を表示しますが、System_FW_Status、System_Watchdog、PSU1_Input_Type、およびPSU2_Input_Type個別センサーのステータス情報は表示しません。これらのセンサーのステータス値を解釈するには、次の情報を使用できます。
 
 
 
-== System_FW_Status の場合
+== システム_FW_ステータス
 
-System_FW_Statusセンサーの状態は、の形式で表示されます `0xAABB`。と `BB`の情報を組み合わせて、センサーの状態を判断できます `AA`。
+System_FW_Statusセンサーの状態は `0xAABB`の形式で表示されます。 `AA`と `BB`の情報を組み合わせることで、センサーの状態を判定できます。
 
-`AA`次のいずれかの値を指定できます。
+`AA`には、次のいずれかの値を指定できます。
 
 |===
-| 値 | センサの状態 
+| 値 | センサーの状態 
 
 
  a| 
 01
  a| 
-システムファームウェアのエラーです
+システムファームウェアエラー
 
 
 
  a| 
 02
  a| 
-システムファームウェアがハングした
+システムファームウェアのハング
 
 
 
  a| 
 04
  a| 
-システムファームウェア実行中です
+システムファームウェアの進捗状況
 
 |===
-`BB`次のいずれかの値を指定できます。
+`BB`には、次のいずれかの値を指定できます。
 
 |===
-| 値 | センサの状態 
+| 値 | センサーの状態 
 
 
  a| 
 00
  a| 
-システムソフトウェアが正常にシャットダウンされました
+システムソフトウェアが正常にシャットダウンしました
 
 
 
  a| 
 01
  a| 
-メモリを初期化しています
+メモリ初期化中
 
 
 
  a| 
 02
  a| 
-NVMEM を初期化しています（ NVMEM がある場合）
+NVMEM初期化中（NVMEMが存在する場合）
 
 
 
  a| 
 04
  a| 
-メモリコントローラのハブ（ MCH ）値をリストアしています（ NVMEM がある場合）
+メモリ コントローラ ハブ（MCH）値の復元（NVMEMが存在する場合）
 
 
 
  a| 
 05
  a| 
-ユーザがセットアップを開始しました
+ユーザーがセットアップを開始しました
 
 
 
  a| 
 13
  a| 
-オペレーティングシステムまたは LOADER を起動しています
+オペレーティング システムまたはLOADERの起動
 
 
 
  a| 
 1F
  a| 
-BIOS を起動しています
+BIOSが起動しています
 
 
 
  a| 
 20
  a| 
-LOADER が実行されています
+LOADERが実行中です
 
 
 
  a| 
 21
  a| 
-LOADER がプライマリ BIOS ファームウェアをプログラミングしています。システムの電源を切らないでください
+LOADER はプライマリ BIOS ファームウェアをプログラミングしています。システムの電源を切らないでください。
 
 
 
  a| 
 22
  a| 
-LOADER が代替 BIOS ファームウェアをプログラミングしています。システムの電源を切らないでください
+LOADER は代替 BIOS ファームウェアをプログラミングしています。システムの電源を切らないでください。
 
 
 
  a| 
 2F
  a| 
-ONTAP が実行されています
+ONTAPが実行中です
 
 
 
  a| 
 60
  a| 
-SP によってシステムの電源が切断されました
+SPはシステムの電源をオフにしました
 
 
 
  a| 
 61
  a| 
-SP によってシステムの電源がオンになりました
+SPがシステムの電源をオンにしました
 
 
 
  a| 
 62
  a| 
-SP によってシステムがリセットされました
+SPはシステムをリセットしました
 
 
 
  a| 
 63
  a| 
-SP watchdog 電源再投入
+SPウォッチドッグ電源サイクル
 
 
 
  a| 
 64
  a| 
-SP watchdogコールドリセット
+SP watchdogコールド リセット
 
 |===
-たとえば、 System_FW_Status センサーのステータス 0x042F は、「システムファームウェアが進行中（ 04 ）で、 ONTAP が実行中（ 2F ）」という意味です。
+たとえば、System_FW_Status センサー ステータス 0x042F は、「システム ファームウェアの進行状況（04）、ONTAP が実行中（2F）」を意味します。
 
 
 
 == System_Watchdog
 
-System_Watchdog センサーの状態は次のいずれかです。
+System_Watchdog センサーには、次のいずれかの状態が発生します。
 
-* * 0x0080*
+* *0x0080*
 +
-このセンサーの状態は変更されていません
+このセンサーの状態は変化していません
 
 
 
 |===
-| 値 | センサの状態 
+| 値 | センサーの状態 
 
 
  a| 
@@ -230,26 +230,26 @@ System_Watchdog センサーの状態は次のいずれかです。
  a| 
 0x0480
  a| 
-電源オフ
+電源を切る
 
 
 
  a| 
 0x0880
  a| 
-電源再投入
+電源入れ直し
 
 |===
-たとえば、System_Watchdogセンサーのステータス0x0880は、ウォッチドッグタイムアウトが発生し、システムの電源が再投入されたことを意味します。
+たとえば、System_Watchdogセンサーのステータスが0x0880の場合、watchdogタイムアウトが発生し、システムの電源が再投入されたことを意味します。
 
 
 
-== PSU1_Input_TypeおよびPSU2_Input_Type
+== PSU1_Input_Type と PSU2_Input_Type
 
-直流（ DC ）電源の場合、 PSU1_Input_Type および PSU2_Input_Type センサーは適用されません。交流（ AC ）電源の場合、センサーのステータスは次のいずれかの値になります。
+直流（DC）電源の場合、PSU1_Input_TypeおよびPSU2_Input_Typeセンサーは適用されません。交流（AC）電源の場合、センサーのステータスは次のいずれかの値になります：
 
 |===
-| 値 | センサの状態 
+| 値 | センサーの状態 
 
 
  a| 
@@ -265,4 +265,4 @@ System_Watchdog センサーの状態は次のいずれかです。
 110V PSUタイプ
 
 |===
-たとえば、 PSU1_Input_Type センサーのステータス 0x0280 は、 PSU タイプが 110V であるとセンサーが報告していることを意味します。
+たとえば、PSU1_Input_Type センサーステータス 0x0280 は、センサーが PSU タイプが 110V であると報告していることを意味します。

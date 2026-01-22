@@ -2,7 +2,7 @@
 sidebar: sidebar 
 permalink: authentication/oauth2-authorization.html 
 keywords: scopes, self-contained scopes, active directory, ldap, rest role, local users, groups 
-summary: ONTAP OAuth 2.0の実装は、柔軟性と堅牢性を考慮して設計されており、ONTAP環境を保護するために必要な機能を提供します。同時に指定できない設定オプションがいくつかあります。承認の決定は、最終的には、OAuth 2.0アクセストークンに含まれるか、OAuth 2.0アクセストークンから派生したONTAP RESTロールに基づいて行われます。 
+summary: ONTAP OAuth 2.0の実装は、柔軟性と堅牢性を考慮した設計になっていて、ONTAP環境の保護に必要な機能を提供します。これには、同時に指定できない設定オプションがいくつかあります。許可の決定は、最終的にはOAuth 2.0のアクセス トークンに含まれている、またはアクセス トークンから導き出されたONTAP RESTロールに基づいて行われます。 
 ---
 = ONTAPクライアント許可の概要とオプション
 :hardbreaks:
@@ -14,33 +14,33 @@ summary: ONTAP OAuth 2.0の実装は、柔軟性と堅牢性を考慮して設�
 
 
 [role="lead"]
-ONTAP OAuth 2.0の実装は、柔軟性と堅牢性を考慮して設計されており、ONTAP環境を保護するために必要な機能を提供します。同時に指定できない設定オプションがいくつかあります。承認の決定は、最終的には、OAuth 2.0アクセストークンに含まれるか、OAuth 2.0アクセストークンから派生したONTAP RESTロールに基づいて行われます。
+ONTAP OAuth 2.0の実装は、柔軟性と堅牢性を考慮した設計になっていて、ONTAP環境の保護に必要な機能を提供します。これには、同時に指定できない設定オプションがいくつかあります。許可の決定は、最終的にはOAuth 2.0のアクセス トークンに含まれている、またはアクセス トークンから導き出されたONTAP RESTロールに基づいて行われます。
 
 
-CAUTION: OAuth 2.0の認可を設定する場合にのみ使用できlink:../authentication/overview-oauth2.html#selected-terminology["ONTAP RESTロール"]ます。以前のONTAPの従来のロールはサポートされていません。
+CAUTION: OAuth 2.0の認証を設定する場合にのみlink:../authentication/overview-oauth2.html#selected-terminology["ONTAP RESTロール"]を使用できます。以前のONTAPの従来のロールはサポートされていません。
 
-ONTAPは、設定に基づいて、最も適切な1つの許可オプションを適用します。ONTAPによるクライアントアクセスの決定方法の詳細については、を参照してくださいlink:../authentication/oauth2-determine-access.html["ONTAPニヨルアクセスノケツテイホウホウ"]。
+ONTAPは、設定に基づいて最も適切な単一の認証オプションを適用します。ONTAPがクライアントアクセスを決定する方法の詳細については、link:../authentication/oauth2-determine-access.html["ONTAPによるアクセスの制御方法"]を参照してください。
 
 .OAuth 2.0の自己完結型スコープ
-これらのスコープには、1つ以上のカスタムRESTロールが含まれており、それぞれがアクセストークン内の1つの文字列内にカプセル化されています。ONTAPロールの定義には依存しません。認可サーバでスコープ文字列を設定する必要があります。詳細については、を参照してください link:../authentication/oauth2-sc-scopes.html["自己完結型OAuth 2.0スコープ"] 。
+これらのスコープには、1つ以上のカスタムRESTロールが含まれており、それぞれがアクセストークン内の単一の文字列にカプセル化されています。これらはONTAPロール定義とは独立しています。スコープ文字列は認可サーバで設定する必要があります。詳細については、link:../authentication/oauth2-sc-scopes.html["自己完結型OAuth 2.0スコープ"]を参照してください。
 
 .ローカルONTAP RESTロール
-組み込みまたはカスタムの名前付きRESTロールを1つ使用できます。指定したロールのscope構文は、* ontap-role-*<URL-encoded-ONTAP-role-name>です。たとえば、ONTAPロールがスコープ文字列の場合、 `admin`はになります `ontap-role-admin`。
+組み込みまたはカスタムの単一の名前付きRESTロールを使用できます。名前付きロールのスコープ構文は *ontap-role-*<URL-encoded-ONTAP-role-name>です。例えば、ONTAPロールが `admin`の場合、スコープ文字列は `ontap-role-admin`になります。
 
 .ユーザ
-アプリケーション「http」へのアクセスで定義されたアクセストークン内のユーザー名を使用できます。ユーザは、定義された認証方式に基づいて、パスワード、ドメイン（Active Directory）、nsswitch（LDAP）の順にテストされます。
+アプリケーション「http」へのアクセスが定義されたアクセス トークン内のユーザ名を使用できます。ユーザは、定義された認証方法に基づいて、password、domain（Active Directory）、nsswitch（LDAP）の順にテストされます。
 
 .グループ
-認可サーバは、認可にONTAPグループを使用するように設定できます。ローカルONTAPの定義を調べても、アクセスを決定できない場合は、Active Directory（「domain」）またはLDAP（「nsswitch」）グループが使用されます。グループ情報は、次の2つの方法のいずれかで指定できます。
+許可にONTAPグループを使用するように許可サーバを設定できます。ローカルONTAPの定義を調べてもアクセスの可否を判定できない場合は、Active Directory（「domain」）グループかLDAP（「nsswitch」）グループが使用されます。グループ情報は、次の2つの方法のいずれかで指定できます。
 
-* OAuth 2.0スコープ文字列
+* OAuth 2.0のスコープ文字列
 +
-グループメンバーシップを持つユーザがいない場合、クライアントのクレデンシャルフローを使用して機密アプリケーションをサポートします。スコープには* ontap-group-*<URL-encoded-ONTAP-group-name>という名前を付けます。たとえば、グループが「development」の場合、スコープ文字列は「ontap-group-development」になります。
+グループメンバーシップを持つユーザーが存在しないクライアント資格情報フローを使用した機密アプリケーションをサポートします。スコープ名は *ontap-group-*<URL-encoded-ONTAP-group-name> とする必要があります。例えば、グループが「development」の場合、スコープ文字列は「ontap-group-development」になります。
 
-* 「グループ」の主張
+* 「グループ」のクレーム
 +
-これは、リソース所有者(パスワード付与)フローを使用してADFSによって発行されるアクセストークンを対象としています。
+これは、リソース オーナー（パスワード グラント）フローを使用してADFSによって発行されるアクセス トークンが対象です。
 
 
 
-見るlink:../authentication/authentication-groups.html["ONTAPでのOAuth 2.0またはSAML IdPグループの使用"]詳細についてはこちらをご覧ください。
+詳細については、link:../authentication/authentication-groups.html["ONTAP で OAuth 2.0 または SAML IdP グループを使用する"]を参照してください。

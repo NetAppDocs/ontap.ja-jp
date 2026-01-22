@@ -2,36 +2,36 @@
 permalink: flexcache/audit-flexcache-volumes-concept.html 
 sidebar: sidebar 
 keywords: considerations, auditing, flexcache, volumes 
-summary: .7以降では、ONTAPの標準の監査およびONTAP 9によるファイルポリシー管理を使用して、FlexCache関係におけるNFSファイルアクセスイベントを監査できます。 
+summary: ONTAP 9.7以降では、ONTAPの標準の監査とFPolicyを使用したファイル ポリシー管理を使用して、FlexCache関係におけるNFSのファイル アクセス イベントを監査できます。 
 ---
-= ONTAP FlexCacheボリュームの監査について
+= ONTAP FlexCacheボリュームの監査について学ぶ
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-.7以降では、ONTAPの標準の監査およびONTAP 9によるファイルポリシー管理を使用して、FlexCache関係におけるNFSファイルアクセスイベントを監査できます。
+ONTAP 9.7以降では、ONTAPの標準の監査とFPolicyを使用したファイル ポリシー管理を使用して、FlexCache関係におけるNFSのファイル アクセス イベントを監査できます。
 
-ONTAP 9 14.1以降では、NFSまたはSMBを使用するFlexCacheボリュームでFPolicyがサポートされます。以前は、SMBを使用するFlexCacheではFPolicyはサポートされていませんでした。
+ONTAP 9.14.1以降では、NFSまたはSMBを使用するFlexCacheボリュームでFPolicyがサポートされます。以前は、SMBを使用するFlexCacheボリュームではFPolicyはサポートされていませんでした。
 
-標準の監査とFPolicyは、FlexVolボリュームと同じCLIコマンドで設定および管理されます。ただし、FlexCacheボリュームではいくつかの動作が異なります。
+標準の監査とFPolicyは、FlexVolと同じCLIコマンドを使用して設定および管理されます。ただし、FlexCacheボリュームでは一部の動作が異なります。
 
-* * ネイティブ監査 *
+* *ネイティブ監査*
 +
 ** 監査ログのデスティネーションとしてFlexCacheボリュームを使用することはできません。
 ** FlexCacheボリュームの読み取りと書き込みを監査する場合は、キャッシュSVMと元のSVMの両方で監査を設定する必要があります。
 +
-これは、ファイルシステム操作が処理される場所で監査されるためです。つまり、読み取りはキャッシュSVMで監査され、書き込みは元のSVMで監査されます。
+ファイルシステムの操作は処理された場所で監査されるためです。つまり、読み取りはキャッシュSVMで監査され、書き込みは元のSVMで監査されます。
 
-** 書き込み処理の発生元を追跡するために、書き込み元のFlexCacheボリュームを識別するために、SVMのUUIDとMSIDが監査ログに追加されます。
+** 書き込み処理の発生元を追跡するために、書き込み元のFlexCacheボリュームを識別する情報としてSVMのUUIDとMSIDが監査ログに追加されます。
 
 
-* * FPolicy *
+* *FPolicy*
 +
-** FlexCacheボリュームへの書き込みは元のボリュームでコミットされますが、FPolicy設定ではキャッシュボリュームの書き込みを監視します。これは、書き込みが元のボリュームで監査される標準の監査とは異なります。
-** キャッシュと元のSVMでONTAPのFPolicy設定が同じである必要はありませんが、同様の設定を2つ導入することを推奨します。そのためには、元のSVMと同様に設定し、新しいポリシーの範囲をキャッシュSVMに限定して、キャッシュ用の新しいFPolicyポリシーを作成します。
-** FPolicy設定の拡張子のサイズは、20KB（20480バイト）に制限されています。FlexCacheボリュームのFPolicy設定で使用される拡張子のサイズが20KBを超えると、EMSメッセージ `nblade.fpolicy.extn.failed`がトリガーされます。
+** FlexCacheボリュームへの書き込みは元のボリュームでコミットされますが、FPolicy設定はキャッシュ ボリュームの書き込みを監視します。この点は、書き込みが元のボリュームで監査される標準の監査と異なります。
+** キャッシュと元のSVMでFPolicy設定が同じである必要はありませんが、同様の設定を使用することを推奨します。そのためには、元のSVMと同様の設定でキャッシュ用に新しいFPolicyポリシーを作成したうえで、新しいポリシーの範囲をキャッシュSVMに限定します。
+** FPolicy設定における拡張機能のサイズは20KB（20480バイト）に制限されています。FlexCacheボリューム上のFPolicy設定で使用される拡張機能のサイズが20KBを超えると、EMSメッセージ `nblade.fpolicy.extn.failed`がトリガーされます。
 
 
 

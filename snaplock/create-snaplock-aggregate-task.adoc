@@ -2,7 +2,7 @@
 permalink: snaplock/create-snaplock-aggregate-task.html 
 sidebar: sidebar 
 keywords: create, snaplock, aggregate, compliance, enterprise, mode, volumes 
-summary: 'volumeオプションを使用 `-snaplock-type`して、ComplianceまたはEnterprise SnapLockボリュームのタイプを指定します。ONTAP 9 .10.1より前のリリースでは、独立したSnapLockアグリゲートを作成する必要があります。ONTAP 9 .10.1以降では、SnapLockボリュームとSnapLock以外のボリュームを同じアグリゲート上に配置できます。そのため、ONTAP 9 .10.1を使用している場合は、SnapLockアグリゲートを別途作成する必要はありません。' 
+summary: 'ボリューム `-snaplock-type`オプションを使用して、ComplianceまたはEnterpriseのSnapLockボリューム タイプを指定します。ONTAP 9.10.1より前のリリースでは、別個のSnapLockアグリゲートを作成する必要があります。ONTAP 9.10.1以降では、SnapLockボリュームと非SnapLockボリュームが同じアグリゲート上に存在できるようになりました。そのため、ONTAP 9.10.1を使用している場合は、別個のSnapLockアグリゲートを作成する必要はありません。' 
 ---
 = ONTAP SnapLockアグリゲートを作成する
 :allow-uri-read: 
@@ -11,28 +11,28 @@ summary: 'volumeオプションを使用 `-snaplock-type`して、Complianceま�
 
 
 [role="lead"]
-volumeオプションを使用 `-snaplock-type`して、ComplianceまたはEnterprise SnapLockボリュームのタイプを指定します。ONTAP 9 .10.1より前のリリースでは、独立したSnapLockアグリゲートを作成する必要があります。ONTAP 9 .10.1以降では、SnapLockボリュームとSnapLock以外のボリュームを同じアグリゲート上に配置できます。そのため、ONTAP 9 .10.1を使用している場合は、SnapLockアグリゲートを別途作成する必要はありません。
+ボリューム `-snaplock-type`オプションを使用して、ComplianceまたはEnterpriseのSnapLockボリューム タイプを指定します。ONTAP 9.10.1より前のリリースでは、別個のSnapLockアグリゲートを作成する必要があります。ONTAP 9.10.1以降では、SnapLockボリュームと非SnapLockボリュームが同じアグリゲート上に存在できるようになりました。そのため、ONTAP 9.10.1を使用している場合は、別個のSnapLockアグリゲートを作成する必要はありません。
 
 .開始する前に
 * このタスクを実行するには、クラスタ管理者である必要があります。
-* link:../system-admin/install-license-task.html["ライセンスをインストールする必要があります"]ノードのSnapLock。このライセンスはに含まれていlink:../system-admin/manage-licenses-concept.html#licenses-included-with-ontap-one["ONTAP One"]ます。
-* link:../snaplock/initialize-complianceclock-task.html["ノードのコンプライアンスクロックを初期化する必要があります"]です。
-* ディスクを「 root 」、「 data1 」、および「 `d ata2` 」としてパーティショニングした場合、スペアディスクが利用可能であることを確認する必要があります。
+* ノード上のSnapLock link:../system-admin/install-license-task.html["ライセンスをインストールする必要があります"]。このライセンスはlink:../system-admin/manage-licenses-concept.html#licenses-included-with-ontap-one["ONTAP One"]に含まれています。
+* link:../snaplock/initialize-complianceclock-task.html["ノード上のコンプライアンスクロックを初期化する必要があります"]。
+* ディスクを「`root`」、「`data1`」、および「`data2`」としてパーティション分割している場合は、スペアディスクが使用可能であることを確認する必要があります。
 
 
 .アップグレード時の考慮事項
-ONTAP 9 .10.1にアップグレードすると、既存のSnapLockアグリゲートとSnapLock以外のアグリゲートは、SnapLockボリュームとSnapLock以外のボリュームの両方をサポートするようにアップグレードされますが、既存のSnapLockボリュームの属性は自動的には更新されません。たとえば、data-compaction、cross-volume-dedupe、cross-volume-background-dedupeの各フィールドは変更されません。既存のアグリゲートに作成される新しいSnapLockボリュームのデフォルト値は、SnapLock以外のボリュームと同じです。また、新しいボリュームおよびアグリゲートのデフォルト値はプラットフォームによって異なります。
+ONTAP 9.10.1にアップグレードすると、既存のSnapLockおよび非SnapLockアグリゲートがSnapLockボリュームと非SnapLockボリュームの両方をサポートするようにアップグレードされますが、既存のSnapLockボリュームの属性は自動的には更新されません。たとえば、data-compaction、cross-volume-dedupe、cross-volume-background-dedupeの各フィールドは変更されません。既存のアグリゲートに作成された新しいSnapLockボリュームには非SnapLockボリュームと同じデフォルト値が使用され、新しいボリュームとアグリゲートにはプラットフォームに応じて異なるデフォルト値が適用されます。
 
 .リバートに関する考慮事項
-ONTAP 9.10.1より前のバージョンにリバートする必要がある場合は、SnapLock Compliance、SnapLock Enterprise、およびSnapLockのすべてのボリュームをそれぞれ専用のSnapLockアグリゲートに移動する必要があります。
+ONTAP 9.10.1よりも前のバージョンにリバートする必要がある場合は、すべてのSnapLock Complianceボリューム、SnapLock Enterpriseボリューム、およびSnapLockボリュームをそれぞれのSnapLockアグリゲートに移動する必要があります。
 
-.タスクの内容
-* SyncMirrorオプションを使用してComplianceアグリゲートを作成することはできません。
-* ミラーされたComplianceアグリゲートをMetroCluster構成で作成できるのは、そのアグリゲートをSnapLock監査ログボリュームのホストとして使用する場合だけです。
+.タスク概要
+* SyncMirrorオプションを指定してComplianceアグリゲートを作成することはできません。
+* ミラーされたComplianceアグリゲートをMetroCluster構成に作成できるのは、アグリゲートをSnapLock監査ログ ボリュームのホストとして使用する場合だけです。
 +
 [NOTE]
 ====
-MetroCluster構成では、SnapLock Enterpriseはミラーされたアグリゲートとミラーされていないアグリゲートでサポートされます。SnapLock Complianceは、ミラーされていないアグリゲートでのみサポートされます。
+MetroCluster構成では、SnapLock Enterpriseは、ミラーされたアグリゲートとミラーされていないアグリゲートでサポートされます。SnapLock Complianceは、ミラーされていないアグリゲートでのみサポートされます。
 
 ====
 
@@ -45,7 +45,7 @@ MetroCluster構成では、SnapLock Enterpriseはミラーされたアグリゲ�
 storage aggregate create -aggregate <aggregate_name> -node <node_name> -diskcount <number_of_disks> -snaplock-type <compliance|enterprise>
 ----
 +
-次のコマンドでは、3本のディスクを含む `node1`という名前のSnapLockアグリゲートが `aggr1`作成され `Compliance`ます。
+次のコマンドは、 `node1`上の3つのディスクを使用して `aggr1`という名前のSnapLock `Compliance`アグリゲートを作成します：
 
 +
 [listing]
@@ -53,6 +53,6 @@ storage aggregate create -aggregate <aggregate_name> -node <node_name> -diskcoun
 cluster1::> storage aggregate create -aggregate aggr1 -node node1 -diskcount 3 -snaplock-type compliance
 ----
 +
-の詳細については `storage aggregate create`、をlink:https://docs.netapp.com/us-en/ontap-cli/storage-aggregate-create.html["ONTAPコマンド リファレンス"^]参照してください。
+ `storage aggregate create`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/storage-aggregate-create.html["ONTAPコマンド リファレンス"^]をご覧ください。
 
 

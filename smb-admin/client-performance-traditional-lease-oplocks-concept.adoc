@@ -2,21 +2,21 @@
 permalink: smb-admin/client-performance-traditional-lease-oplocks-concept.html 
 sidebar: sidebar 
 keywords: traditional, oplocks, opportunistic, locks, lease, smb, client, client-side, read-ahead, file-sharing, write-behind, information, access, reducing, reduce, network, traffic, improve client performance with traditional and lease oplocks 
-summary: 便宜的 oplock と oplock リースでは、先読み、あと書き、ロックの各情報を SMB クライアント側でキャッシングできるよう、特定のファイル共有シナリオでそのクライアントを有効にします。クライアントは、対象のファイルへのアクセスが必要であることをサーバに定期的に通知することなく、ファイルの読み取りや書き込みを行うことができます。これにより、ネットワークトラフィックが軽減され、パフォーマンスが向上します。 
+summary: 従来のoplock（便宜的ロック）とリースoplockは、特定のファイル共有シナリオにおいて、SMBクライアントが先読み、後書き、およびロック情報をクライアント側でキャッシュすることを可能にします。これにより、クライアントは、サーバーに対象ファイルへのアクセスが必要であることを定期的に通知することなく、ファイルの読み書きを行うことができます。これによりネットワーク トラフィックが削減され、パフォーマンスが向上します。 
 ---
-= 従来のoplockおよびoplockリースでのONTAP SMBクライアントのパフォーマンスの向上
+= 従来の oplock とリース oplock を使用して ONTAP SMB クライアントのパフォーマンスを向上させる方法について説明します。
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-便宜的 oplock と oplock リースでは、先読み、あと書き、ロックの各情報を SMB クライアント側でキャッシングできるよう、特定のファイル共有シナリオでそのクライアントを有効にします。クライアントは、対象のファイルへのアクセスが必要であることをサーバに定期的に通知することなく、ファイルの読み取りや書き込みを行うことができます。これにより、ネットワークトラフィックが軽減され、パフォーマンスが向上します。
+従来のoplock（便宜的ロック）とリースoplockは、特定のファイル共有シナリオにおいて、SMBクライアントが先読み、後書き、およびロック情報をクライアント側でキャッシュすることを可能にします。これにより、クライアントは、サーバーに対象ファイルへのアクセスが必要であることを定期的に通知することなく、ファイルの読み書きを行うことができます。これによりネットワーク トラフィックが削減され、パフォーマンスが向上します。
 
-oplockリースはoplockを強化したもので、SMB 2.1以降のプロトコルで使用できます。oplockリースを使用すると、クライアントが自身を起点とする複数のSMBオープンでクライアントのキャッシュ状態を取得して保持できます。
+oplockリースはoplockを強化したもので、SMB 2.1以降のプロトコルで使用できます。oplockリースでは、クライアントが、自身による複数のSMBオープンにおいてキャッシュ状態を取得、保持できます。
 
-oplock は次の 2 つの方法で制御できます。
+Oplocks は次の 2 つの方法で制御できます：
 
-* 共有プロパティ。共有の作成時にコマンドを使用するか、 `vserver share properties`作成後にコマンドを使用し `vserver cifs share create`ます。
-* qtreeプロパティ。qtreeの作成時にコマンドを使用するか、 `volume qtree oplock`作成後にコマンドを使用し `volume qtree create`ます。
+* 共有プロパティにより、共有の作成時の `vserver cifs share create`コマンド、または作成後の `vserver share properties`コマンドを使用します。
+* qtreeプロパティにより、qtreeの作成時に `volume qtree create`コマンドを使用するか、作成後に `volume qtree oplock`コマンドを使用します。
 

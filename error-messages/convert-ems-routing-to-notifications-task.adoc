@@ -2,19 +2,19 @@
 permalink: error-messages/convert-ems-routing-to-notifications-task.html 
 sidebar: sidebar 
 keywords: update, ems, mapping, notification, filter, event 
-summary: コマンドラインを使用して、廃止された ONTAP コマンドから EMS イベントマッピングを更新します。 
+summary: コマンドラインを使用して、廃止された ONTAP コマンドから EMS イベント マッピングを更新します。 
 ---
-= 廃止されたコマンドからONTAP EMSイベントマッピングを更新する
+= 廃止されたコマンドからの ONTAP EMS イベント マッピングを更新します
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-現在、廃止されたONTAPコマンドセットを使用してEMSイベントの(`event destination` `event route`マッピングが設定されている場合は、次の手順に従って、 `event notification`の各 `event notification destination`コマンドセットを使用するようにマッピングを更新する必要があります `event filter`。
+EMS イベント マッピングが現在、廃止された ONTAP コマンド セット(`event destination` `event route`を使用して設定されている場合、次の手順に従って `event filter` `event notification`および `event notification destination`コマンド セットを使用するようにマッピングを更新する必要があります。
 
 .手順
-. コマンドを使用して、システム内のすべてのイベントの送信先をリストします `event destination show`。
+.  `event destination show`コマンドを使用して、システム内のすべてのイベントの宛先を一覧表示します。
 +
 [listing]
 ----
@@ -30,7 +30,7 @@ test             test@xyz.com      -                  -                  false
 traphost         -                 -                  -                  false
 6 entries were displayed.
 ----
-. 各送信先について、コマンドを使用してマッピングされているイベントを一覧表示します `event route show -destinations <destination name>`。
+. 各宛先について、 `event route show -destinations <destination name>` コマンドを使用して、その宛先にマップされているイベントを一覧表示します。
 +
 [listing]
 ----
@@ -44,13 +44,13 @@ raid.aggr.lock.conflict          INFORMATIONAL  test           0       0
 raid.aggr.log.CP.count           DEBUG          test           0       0
 4 entries were displayed.
 ----
-. これらすべてのイベントのサブセットを含む対応するを作成します `event filter`。たとえば、*イベントのみを含める `raid.aggr.`場合は、フィルタの作成時にパラメータにワイルドカードを使用し `message-name`ます。単一のイベントに対してフィルタを作成することもできます。
+.  `event filter`これらのイベントのサブセットをすべて含む、対応するフィルターを作成してください。例えば、 `raid.aggr.`*イベントのみを含める場合は、フィルターの作成時に `message-name`パラメータにワイルドカードを使用します。また、単一のイベントに対してフィルターを作成することもできます。
 +
-の詳細については `event filter`、をlink:https://docs.netapp.com/us-en/ontap-cli/search.html?q=event+filter["ONTAPコマンド リファレンス"^]参照してください。
+ `event filter`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/search.html?q=event+filter["ONTAPコマンド リファレンス"^]をご覧ください。
 
 +
 
-NOTE: 最大50個のイベントフィルタを作成できます。
+NOTE: イベント フィルタは50個まで作成できます。
 
 +
 [listing]
@@ -68,7 +68,7 @@ test_events
             2        exclude   *                      *               *
 2 entries were displayed.
 ----
-. 各エンドポイント（SMTP/SNMP/syslogなど）用に `event destination`を作成します。 `event notification destination`
+.  `event notification destination`各 `event destination`エンドポイント（SMTP/SNMP/syslog）ごとに作成します。
 +
 [listing]
 ----
@@ -82,9 +82,9 @@ snmp-traphost   snmp        - (from "system snmp traphost")
 2 entries were displayed.
 ----
 +
-および `event destination`の詳細については `event notification destination`、をlink:https://docs.netapp.com/us-en/ontap-cli/search.html?q=event+destination["ONTAPコマンド リファレンス"^]参照してください。
+ `event notification destination`および `event destination`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/search.html?q=event+destination["ONTAPコマンド リファレンス"^]をご覧ください。
 
-. イベントフィルタをイベント通知の送信先にマッピングして、イベント通知を作成します。
+. イベント フィルタをイベント通知の送信先にマッピングして、イベント通知を作成します。
 +
 [listing]
 ----
@@ -97,10 +97,10 @@ ID   Filter Name                     Destinations
 2    asup_events                     dest1
 2 entries were displayed.
 ----
-. マッピングが設定されている `event route`ごとに、手順1～5を繰り返し `event destination`ます。
+.  `event route`マッピングがある `event destination`ごとに手順1～5を繰り返します。
 +
 
-NOTE: SNMPの送信先にルーティングされたイベントは、イベント通知の送信先にマッピングする必要があります `snmp-traphost`。SNMPトラップホストの送信先は、システムで設定されたSNMPトラップホストを使用します。
+NOTE: SNMP 宛先にルーティングされるイベントは、 `snmp-traphost`イベント通知宛先にマッピングする必要があります。SNMP トラップホスト宛先は、システムで設定された SNMP トラップホストを使用します。
 
 +
 [listing]

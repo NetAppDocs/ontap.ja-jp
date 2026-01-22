@@ -2,24 +2,24 @@
 permalink: revert/remove-nas-bucket-task.html 
 sidebar: sidebar 
 keywords: s3, svm, bucket, object, server, filesystems, nas, directories, revert 
-summary: NASデータ用にS3クライアントアクセスを設定している場合に、ONTAP 9.12.1以降からONTAP 9.11.1以前にリバートするには、NASバケット設定を削除し、リバート前にS3ユーザとWindows/UNIXユーザのネームマッピングを削除する必要があります。 
+summary: NASデータに対してS3クライアントアクセスを設定していて、ONTAP 9.12.1以降からONTAP 9.11.1以前に戻す場合は、NASバケット設定を削除し、戻す前にS3ユーザーとWindows/Unixユーザー名のマッピングを削除する必要があります。 
 ---
-= ONTAP 9.12.1からリバートする前にS3 NASバケット設定を削除する
+= ONTAP 9.12.1から戻す前にS3 NASバケットの設定を削除します
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-NASデータ用のS3クライアントアクセスを設定している場合は、ONTAP 9.12.1からリバートする前に、ONTAPコマンドラインインターフェイス（CLI）を使用してNASバケット設定を削除し、ネームマッピング（S3ユーザからWindowsユーザまたはUNIXユーザ）を削除する必要があります。
+NAS データに対して S3 クライアントアクセスを設定している場合は、ONTAP 9.12.1 から戻す前に、ONTAP コマンドラインインターフェイス（CLI）を使用して NAS バケット設定を削除し、名前のマッピング（S3 ユーザーから Windows ユーザーまたは Unix ユーザー）を削除する必要があります。
 
-.タスクの内容
-リバートプロセスでは、次のタスクがバックグラウンドで実行されます。
+.タスク概要
+リバート プロセス中は、以下のタスクがバックグラウンドで実行されます。
 
-* 部分的に完了したシングルトンオブジェクトの作成（非表示ディレクトリ内のすべてのエントリ）をすべて削除します。
-* 非表示のディレクトリをすべて削除します。S3 NASバケットからマッピングされたエクスポートのルートからアクセス可能なボリュームごとに、1つずつがになっている可能性があります。
-* アップロードテーブルを削除します。
-* 設定されているすべてのS3サーバのdefault-unix-userとdefault-windows-userの値を削除します。
+* 途中まで作成されたシングルトン オブジェクト（非表示ディレクトリ内のすべてのエントリ）をすべて削除する。
+* 非表示ディレクトリをすべて削除する。非表示ディレクトリは、S3 NASバケットからマッピングされたエクスポートのルートからアクセスできるボリュームごとに1つある可能性があります。
+* アップロード テーブルを削除する。
+* 設定されているすべてのS3サーバのdefault-unix-userとdefault-windows-userの値を削除する。
 
 
 .手順
@@ -30,30 +30,30 @@ NASデータ用のS3クライアントアクセスを設定している場合は
 vserver object-store-server bucket delete -vserver <svm_name> -bucket <s3_nas_bucket_name>
 ----
 +
-の詳細については `vserver object-store-server bucket delete`、をlink:https://docs.netapp.com/us-en/ontap-cli/vserver-object-store-server-bucket-delete.html["ONTAPコマンド リファレンス"^]参照してください。
+ `vserver object-store-server bucket delete`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/vserver-object-store-server-bucket-delete.html["ONTAPコマンド リファレンス"^]を参照してください。
 
-. UNIXのネームマッピングを削除します。
+. UNIXのネーム マッピングを削除します。
 +
 [source, cli]
 ----
 vserver name-mapping delete -vserver <svm_name> -direction s3-unix
 ----
 +
-の詳細については `vserver name-mapping delete`、をlink:https://docs.netapp.com/us-en/ontap-cli/vserver-name-mapping-delete.html["ONTAPコマンド リファレンス"^]参照してください。
+ `vserver name-mapping delete`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/vserver-name-mapping-delete.html["ONTAPコマンド リファレンス"^]を参照してください。
 
-. Windowsのネームマッピングを削除します。
+. Windowsのネーム マッピングを削除します。
 +
 [source, cli]
 ----
 vserver name-mapping delete -vserver <svm_name> -direction s3-win
 ----
-. SVMからS3プロトコルを削除します。
+. S3プロトコルをSVMから削除します。
 +
 [source, cli]
 ----
 vserver remove-protocols -vserver <svm_name> -protocols s3
 ----
 +
-の詳細については `vserver remove-protocols`、をlink:https://docs.netapp.com/us-en/ontap-cli/vserver-remove-protocols.html["ONTAPコマンド リファレンス"^]参照してください。
+ `vserver remove-protocols`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/vserver-remove-protocols.html["ONTAPコマンド リファレンス"^]を参照してください。
 
 

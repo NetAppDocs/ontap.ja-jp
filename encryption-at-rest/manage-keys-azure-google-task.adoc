@@ -2,33 +2,33 @@
 permalink: encryption-at-rest/manage-keys-azure-google-task.html 
 sidebar: sidebar 
 keywords: Azure, AKV, key vault, NVE keys, third-party, GCP, google cloud, Cloud KMS, AWS, amazon 
-summary: Azure、Google Cloud、AWSのキー管理ツールを使用して、ONTAP暗号化キーの保護を合理化できます。 
+summary: Azure、Google Cloud、または AWS キー マネージャーを使用して、ONTAP 暗号化キーの保護を効率化します。 
 ---
-= クラウドプロバイダーを使用してONTAPデータ SVM の NVE キーを管理する
+= クラウド プロバイダを使用したONTAP データSVMのNVEキーの管理
 :allow-uri-read: 
 
 
 [role="lead"]
-ONTAP 9.10.1以降では、とlink:https://cloud.google.com/kms/docs["Google Cloud Platform のキー管理サービス（ Cloud KMS ）"^]を使用して、クラウドホスト型アプリケーションでONTAP暗号化キーを保護できますlink:https://docs.microsoft.com/en-us/azure/key-vault/general/basic-concepts["Azure キーボールト（ AKV ）"^]。NVEキーは、ONTAP 9 .12.0以降で保護することもできますlink:https://docs.aws.amazon.com/kms/latest/developerguide/overview.html["AWS KMS"^]。
+ONTAP 9.10.1以降では、link:https://docs.microsoft.com/en-us/azure/key-vault/general/basic-concepts["Azure Key Vault（AKV）"^]とlink:https://cloud.google.com/kms/docs["Google Cloud Platform の Key Management Service（Cloud KMS）"^]を使用して、クラウドホスト型アプリケーションでONTAP暗号化キーを保護できます。ONTAP 9.12.0以降では、link:https://docs.aws.amazon.com/kms/latest/developerguide/overview.html["AWSのKMS"^]を使用してNVEキーを保護することもできます。
 
-AWS KMS、AKV、およびCloud KMSを使用して保護link:configure-netapp-volume-encryption-concept.html["NetApp Volume Encryption （ NVE ）キー"]できるのは、データSVMの場合のみです。
+AWS KMS、AKV、Cloud KMS は、データ SVM のlink:configure-netapp-volume-encryption-concept.html["NetApp Volume Encryption（NVE）キー"]の保護にのみ使用できます。
 
-.タスクの内容
-クラウドプロバイダを使用したキー管理は、CLIまたはONTAP REST APIを使用して有効にできます。
+.タスク概要
+クラウド プロバイダによるキー管理は、CLIまたはONTAP REST APIを使用して有効にすることができます。
 
-クラウドプロバイダを使用してキーを保護する場合は、デフォルトではデータSVM LIFがクラウドキー管理エンドポイントとの通信に使用されることに注意してください。ノード管理ネットワークは、クラウドプロバイダの認証サービス（Azureの場合はlogin.microsoftonline.com、Cloud KMSの場合はoauth2.googleapis.com）との通信に使用されます。クラスタネットワークが正しく設定されていないと、クラスタでキー管理サービスが適切に使用されません。
+クラウド プロバイダを使用してキーを保護する場合、クラウドキー管理エンドポイントとの通信にはデフォルトでデータSVM LIFが使用されることに注意してください。クラウド プロバイダの認証サービス（Azureの場合はlogin.microsoftonline.com、Cloud KMSの場合はoauth2.googleapis.com）との通信にはノード管理ネットワークが使用されます。クラスタ ネットワークが正しく設定されていない場合、クラスタはキー管理サービスを適切に使用できません。
 
-クラウドプロバイダのキー管理サービスを利用する場合は、次の制限事項に注意してください。
+クラウド プロバイダのキー管理サービスを利用する場合は、次の制限事項に注意してください。
 
-* クラウドプロバイダのキー管理は、NetApp Storage Encryption（NSE）およびNetApp Aggregate Encryption（NAE）では使用できません。link:enable-external-key-management-96-later-nve-task.html["外部 KMIP"]代わりに使用できます。
-* クラウドプロバイダのキー管理はMetroCluster構成では使用できません。
-* クラウドプロバイダのキー管理は、データSVMでのみ設定できます。
+* クラウド プロバイダ キー管理は、NetApp Storage Encryption（NSE）およびNetApp Aggregate Encryption（NAE）では使用できません。代わりにlink:enable-external-key-management-96-later-nve-task.html["外部KMIP"]を使用できます。
+* クラウド プロバイダによるキー管理は、MetroCluster構成では利用できません。
+* クラウド プロバイダによるキー管理を設定できるのは、データSVMのみです。
 
 
 .開始する前に
-* 適切なクラウドプロバイダでKMSを設定しておく必要があります。
+* 適切なクラウド プロバイダでKMSを設定しておく必要があります。
 * ONTAPクラスタのノードでNVEがサポートされている必要があります。
-* link:../encryption-at-rest/install-license-task.html["Volume Encryption（VE）ライセンスとマルチテナントEncryption Key Management（MTEKM）ライセンスをインストールしておく必要があります。"]です。これらのライセンスはに含まれていlink:../system-admin/manage-licenses-concept.html#licenses-included-with-ontap-one["ONTAP One"]ます。
+* link:../encryption-at-rest/install-license-task.html["ボリューム暗号化（VE）ライセンスとマルチテナント暗号化キー管理（MTEKM）ライセンスがインストールされている必要があります。"]。これらのライセンスはlink:../system-admin/manage-licenses-concept.html#licenses-included-with-ontap-one["ONTAP One"]に含まれています。
 * クラスタ管理者またはSVM管理者である必要があります。
 * データSVMに暗号化されたボリュームが含まれていないことと、キー管理ツールを使用していないことを確認してください。データSVMに暗号化されたボリュームが含まれている場合は、KMSを設定する前にそれらのボリュームを移行する必要があります。
 
@@ -44,26 +44,26 @@ AWS KMS、AKV、およびCloud KMSを使用して保護link:configure-netapp-vol
 .AWS
 --
 .開始する前に
-* 暗号化を管理するIAMロールで使用されるAWS KMSキーの付与を作成する必要があります。IAMロールには、次の処理を許可するポリシーが含まれている必要があります。
+* 暗号化を管理するIAMロールで使用されるAWS KMSキーに対応するグラントを作成する必要があります。IAMロールには、次の処理を許可するポリシーが含まれている必要があります。
 +
 ** `DescribeKey`
 ** `Encrypt`
-** `Decrypt`+詳細については、AWSのドキュメントを参照してくださいlink:https://docs.aws.amazon.com/kms/latest/developerguide/concepts.html#grant["助成金"^]。
+** `Decrypt` + 詳細については、link:https://docs.aws.amazon.com/kms/latest/developerguide/concepts.html#grant["助成金"^]のAWSドキュメントを参照してください。
 
 
 
 
 .ONTAP SVMでAWS KMVを有効にする
-. 作業を開始する前に、AWS KMSからアクセスキーIDとシークレットキーの両方を取得します。
-. 権限レベルをadvancedに設定します。
+. 作業を開始する前に、AWS KMSからアクセスキーIDとシークレット キーを取得しておきます。
+. 権限レベルを advanced に設定します：
 `set -priv advanced`
-. AWS KMSを有効にします。
+. AWS KMS を有効にする：
 `security key-manager external aws enable -vserver _svm_name_ -region _AWS_region_ -key-id _key_ID_ -encryption-context _encryption_context_`
-. プロンプトが表示されたら、シークレットキーを入力します。
-. AWS KMSが正しく設定されたことを確認します。
+. プロンプトが表示されたら、シークレット キーを入力します。
+. AWS KMS が正しく設定されていることを確認します：
 `security key-manager external aws show -vserver _svm_name_`
 +
-の詳細については `security key-manager external aws`、をlink:https://docs.netapp.com/us-en/ontap-cli/search.html?q=security+key-manager+external+aws["ONTAPコマンド リファレンス"^]参照してください。
+ `security key-manager external aws`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/search.html?q=security+key-manager+external+aws["ONTAPコマンド リファレンス"^]を参照してください。
 
 
 
@@ -71,15 +71,15 @@ AWS KMS、AKV、およびCloud KMSを使用して保護link:configure-netapp-vol
 .Azure
 --
 .ONTAP SVMでAzure Key Vaultを有効にする
-. 開始する前に、適切な認証クレデンシャル（クライアントシークレットまたは証明書）をAzureアカウントから取得する必要があります。また、クラスタ内のすべてのノードが正常であることを確認する必要があります。これを確認するには、コマンドを使用し `cluster show`ます。の詳細については `cluster show`、をlink:https://docs.netapp.com/us-en/ontap-cli/cluster-show.html["ONTAPコマンド リファレンス"^]参照してください。
-. 特権レベルをadvancedに設定
+. 始める前に、Azureアカウントから適切な認証クレデンシャル（クライアントシークレットまたは証明書）を取得する必要があります。また、クラスター内のすべてのノードが正常であることを確認する必要があります。これは次のコマンドで確認できます `cluster show`。 `cluster show`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/cluster-show.html["ONTAPコマンド リファレンス"^]を参照してください。
+. 権限レベルを advanced に設定します
 `set -priv advanced`
-. SVMでAKVを有効にする
-`security key-manager external azure enable -client-id _client_id_ -tenant-id _tenant_id_ -name -key-id _key_id_ -authentication-method {certificate|client-secret}`プロンプトが表示されたら、クライアント証明書またはAzureアカウントのクライアントシークレットのいずれかを入力します。
-. AKVが正しく有効になっていることを確認します。
-`security key-manager external azure show vserver _svm_name_`サービスの到達可能性がOKでない場合は、データSVM LIFを介してAKVキー管理サービスへの接続を確立します。
+. SVM で AKV を有効にします。
+`security key-manager external azure enable -client-id _client_id_ -tenant-id _tenant_id_ -name -key-id _key_id_ -authentication-method {certificate|client-secret}`プロンプトが表示されたら、Azure アカウントのクライアント証明書またはクライアント シークレットを入力します。
+. AKV が正しく有効化されていることを確認します：
+`security key-manager external azure show vserver _svm_name_`サービスの到達可能性が正常でない場合は、データ SVM LIF を介して AKV キー管理サービスへの接続を確立します。
 +
-の詳細については `security key-manager external azure`、をlink:https://docs.netapp.com/us-en/ontap-cli/search.html?q=security+key-manager+external+azure["ONTAPコマンド リファレンス"^]参照してください。
+ `security key-manager external azure`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/search.html?q=security+key-manager+external+azure["ONTAPコマンド リファレンス"^]を参照してください。
 
 
 
@@ -87,24 +87,24 @@ AWS KMS、AKV、およびCloud KMSを使用して保護link:configure-netapp-vol
 .Google Cloud
 --
 .ONTAP SVMでCloud KMSを有効にする
-. 作業を開始する前に、Google Cloud KMSアカウント キー ファイルの秘密鍵をJSON形式で取得しておきます。これはGCPアカウントから入手できます。また、クラスタ内のすべてのノードが健全であることを確認する必要があります。これを確認するには、コマンドを使用し `cluster show`ます。の詳細については `cluster show`、をlink:https://docs.netapp.com/us-en/ontap-cli/cluster-show.html["ONTAPコマンド リファレンス"^]参照してください。
-. 特権レベルをadvancedに設定します。
+. 始める前に、Google Cloud KMSアカウントキーファイルの秘密鍵をJSON形式で取得してください。これはGCPアカウントで確認できます。また、クラスタ内のすべてのノードが正常であることを確認する必要があります。これはコマンド `cluster show`で確認できます。 `cluster show`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/cluster-show.html["ONTAPコマンド リファレンス"^]を参照してください。
+. 特権レベルを詳細に設定します：
 `set -priv advanced`
 . SVMでCloud KMSを有効にする
-`security key-manager external gcp enable -vserver _svm_name_ -project-id _project_id_-key-ring-name _key_ring_name_ -key-ring-location _key_ring_location_ -key-name _key_name_`プロンプトが表示されたら、JSONファイルの内容とサービスアカウントの秘密鍵を入力します。
-. Cloud KMS が正しいパラメータで構成されていることを確認します。
-`security key-manager external gcp show vserver _svm_name_`の状態 `kms_wrapped_key_status`なるだろう `"UNKNOWN"`暗号化されたボリュームが作成されていない場合。サービスの到達可能性が「OK」でない場合は、データSVM LIFを使用してGCPキー管理サービスへの接続を確立します。
+`security key-manager external gcp enable -vserver _svm_name_ -project-id _project_id_-key-ring-name _key_ring_name_ -key-ring-location _key_ring_location_ -key-name _key_name_`プロンプトが表示されたら、Service Account Private Keyを含むJSONファイルの内容を入力します
+. Cloud KMS が正しいパラメータで設定されていることを確認してください：
+`security key-manager external gcp show vserver _svm_name_` `kms_wrapped_key_status`のステータスは、暗号化されたボリュームが作成されていない場合、 `"UNKNOWN"`になります。サービス到達可能性が OK でない場合は、データ SVM LIF を介して GCP 鍵管理サービスへの接続を確立してください。
 +
-の詳細については `security key-manager external gcp`、をlink:https://docs.netapp.com/us-en/ontap-cli/search.html?q=security+key-manager+external+gcp["ONTAPコマンド リファレンス"^]参照してください。
+ `security key-manager external gcp`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/search.html?q=security+key-manager+external+gcp["ONTAPコマンド リファレンス"^]を参照してください。
 
 
 
 --
 ====
-データSVMに対して暗号化されたボリュームがすでに設定されていて、対応するNVEキーが管理SVMのオンボードキーマネージャで管理されている場合は、それらのキーを外部のキー管理サービスに移行する必要があります。これにはCLIを使用して次のコマンドを実行します。
-`security key-manager key migrate -from-Vserver _admin_SVM_ -to-Vserver _data_SVM_`データSVMのすべてのNVEキーが正常に移行されるまで、テナントのデータSVM用に暗号化された新しいボリュームを作成できません。
+データSVMに1つ以上の暗号化ボリュームがすでに設定されており、対応するNVEキーが管理SVMのオンボードキーマネージャによって管理されている場合は、それらのキーを外部キー管理サービスに移行する必要があります。CLIでこれを行うには、次のコマンドを実行します：
+`security key-manager key migrate -from-Vserver _admin_SVM_ -to-Vserver _data_SVM_`データSVMのすべてのNVEキーが正常に移行されるまで、テナントのデータSVMに新しい暗号化ボリュームを作成することはできません。
 
 .関連情報
-* link:https://docs.netapp.com/us-en/cloud-manager-cloud-volumes-ontap/task-encrypting-volumes.html["ネットアップのCloud Volumes ONTAP向け暗号化ソリューションを使用したボリュームの暗号化"^]
-* link:https://docs.netapp.com/us-en/ontap-cli/search.html?q=security+key-manager+external+["セキュリティキーマネージャー外部"^]
+* link:https://docs.netapp.com/us-en/cloud-manager-cloud-volumes-ontap/task-encrypting-volumes.html["Cloud Volumes ONTAP の NetApp 暗号化ソリューションによるボリュームの暗号化"^]
+* link:https://docs.netapp.com/us-en/ontap-cli/search.html?q=security+key-manager+external+["セキュリティ キーマネージャー外部"^]
 

@@ -2,21 +2,21 @@
 permalink: encryption-at-rest/return-seds-unprotected-mode-task.html 
 sidebar: sidebar 
 keywords: returning, fips, drive, unprotected, mode 
-summary: FIPSドライブまたはSEDは、ノードの認証キーIDがデフォルト以外の値に設定されている場合にのみ不正アクセスから保護されます。FIPS ドライブまたは SED を非保護モードに戻すには、 storage encryption disk modify コマンドを使用してキー ID をデフォルトの値に設定します。 
+summary: FIPSドライブまたはSEDは、ノードの認証キーIDがデフォルト以外の値に設定されている場合にのみ、不正アクセスから保護されます。storage encryption disk modifyコマンドを使用してキーIDをデフォルトに設定することで、FIPSドライブまたはSEDを非保護モードに戻すことができます。 
 ---
-= ONTAPでFIPSドライブまたはSEDを非保護モードに戻す
+= ONTAP で FIPS ドライブまたは SED を非保護モードに戻す
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-FIPSドライブまたはSEDは、ノードの認証キーIDがデフォルト以外の値に設定されている場合にのみ不正アクセスから保護されます。FIPSドライブまたはSEDを非保護モードに戻すには、コマンドを使用して `storage encryption disk modify`キーIDをデフォルトに設定します。非保護モードのFIPSドライブまたはSEDではデフォルトの暗号化キーが使用され、保護モードのFIPSドライブまたはSEDでは指定したシークレット暗号化キーが使用されます。ドライブに暗号化されたデータがあり、ドライブが非保護モードにリセットされても、データは暗号化されたままになり、公開されません。
+FIPSドライブまたはSEDは、ノードの認証キーIDがデフォルト以外の値に設定されている場合にのみ、不正アクセスから保護されます。 `storage encryption disk modify`コマンドを使用してキーIDをデフォルトに設定することで、FIPSドライブまたはSEDを非保護モードに戻すことができます。非保護モードのFIPSドライブまたはSEDはデフォルトの暗号化キーを使用し、保護モードのFIPSドライブまたはSEDは提供された秘密の暗号化キーを使用します。ドライブ上に暗号化されたデータが存在する場合、ドライブを非保護モードにリセットしても、データは暗号化されたままであり、漏洩することはありません。
 
 
-NOTE: FIPS ドライブまたは SED が非保護モードに戻った後、暗号化されたデータにアクセスできなくなるようにするには、次の手順に従ってください。FIPS とデータ キー ID がリセットされると、元のキーを復元しない限り、既存のデータは復号化できなくなり、アクセスできなくなります。
+NOTE: FIPSドライブまたはSEDが非保護モードに戻った後、暗号化されたデータにアクセスできないようにするには、以下の手順に従ってください。FIPSとデータキーIDがリセットされると、元のキーを復元しない限り、既存のデータは復号化できなくなり、アクセスできなくなります。
 
-HAペアで暗号化SASドライブまたはNVMeドライブ（SED、NSE、FIPS）を使用している場合は、システムを初期化する前に、HAペア内のすべてのドライブでこのプロセスを実行する必要があります（ブートオプション4または9）。これを行わないと、ドライブを転用した場合にデータが失われる可能性があります。
+HAペアでSASドライブまたはNVMeドライブ（SED、NSE、FIPS）の暗号化を使用している場合は、システムを初期化（ブート オプション4または9）する前に、HAペア内のすべてのドライブに対してこのプロセスを実行しておく必要があります。この手順を実行しないと、将来ドライブを転用した場合にデータが失われる可能性があります。
 
 .開始する前に
 このタスクを実行するには、クラスタ管理者である必要があります。
@@ -31,7 +31,7 @@ HAペアで暗号化SASドライブまたはNVMeドライブ（SED、NSE、FIPS�
 `storage encryption disk modify -disk _disk_id_ -fips-key-id 0x0`
 
 +
-キーIDは、コマンドを使用して表示できます `security key-manager query`。
+ `security key-manager query`コマンドを使用してキー ID を表示できます。
 
 +
 [listing]
@@ -43,13 +43,13 @@ Info: Starting modify on 14 disks.
       storage encryption disk show-status command.
 ----
 +
-コマンドを使用して、処理が成功したことを確認します。
+次のコマンドを使用して、処理が成功したことを確認します。
 
 +
 `storage encryption disk show-status`
 
 +
-「Disks Begun」と「Disks Done」の数字が同じになるまで、show-status コマンドを繰り返します。
+「Disks Begun」と「Disks Done」の数字が同じになるまで、show-statusコマンドを繰り返します。
 
 +
 [listing]
@@ -67,10 +67,10 @@ cluster1    true    modify   1/18/2022 15:29:38    3           14     5         
 `storage encryption disk modify -disk _disk_id_ -data-key-id 0x0`
 
 +
-SASドライブとNVMeドライブのどちらを非保護モードに戻すかに関係なく、の値は `-data-key-id`0x0に設定する必要があります。
+SAS ドライブまたは NVMe ドライブを非保護モードに戻す場合は、 `-data-key-id`の値を 0x0 に設定する必要があります。
 
 +
-キーIDは、コマンドを使用して表示できます `security key-manager query`。
+ `security key-manager query`コマンドを使用してキー ID を表示できます。
 
 +
 [listing]
@@ -82,21 +82,21 @@ Info: Starting modify on 14 disks.
       storage encryption disk show-status command.
 ----
 +
-コマンドを使用して、処理が成功したことを確認します。
+次のコマンドを使用して、処理が成功したことを確認します。
 
 +
 `storage encryption disk show-status`
 
 +
-値が同じになるまでshow-statusコマンドを繰り返します。「disks began」と「disks done」の数字が同じであれば、操作は完了です。
+数値が同じになるまで、show-statusコマンドを繰り返します。「disks begun」と「disks done」の数値が同じになったら、操作は完了です。
 
 
 
 
 
-== メンテナンスモオト
+== メンテナンスモード
 
-ONTAP 9 .7以降では、保守モードからFIPSドライブのキーを変更できます。保守モードは、前述のONTAP CLIの手順を使用できない場合にのみ使用してください。
+ONTAP 9.7以降では、FIPSドライブのキー変更をメンテナンス モードから行うことができます。メンテナンス モードは、前のセクションに記載したONTAP CLIの手順を実行できない場合にのみ使用してください。
 
 .手順
 . ノードのFIPS認証キーIDをデフォルトのMSIDである0x0に戻します。
@@ -107,16 +107,16 @@ ONTAP 9 .7以降では、保守モードからFIPSドライブのキーを変更
 +
 `disk encrypt rekey 0x0 _disklist_`
 
-. FIPS認証キーのキーが正常に変更されたことを確認します。
+. FIPS認証キーが正常に変更されたことを確認します。
 +
 `disk encrypt show_fips`
 
-. データ認証キーのキーが変更されたことを確認します。
+. 次のコマンドを使用して、データ認証キーが正常に変更されたことを確認します。
 +
 `disk encrypt show`
 
 +
-出力には、デフォルトのMSID 0x0キーIDまたはキーサーバが保持する64文字の値が表示される可能性があります。 `Locked?`フィールドはデータロックを参照します。
+出力には、デフォルトのMSID 0x0キーID、またはキーサーバーが保持する64文字の値が表示される可能性があります。 `Locked?`フィールドはデータロックを示します。
 
 
 
@@ -128,5 +128,5 @@ Disk       FIPS Key ID                 Locked?
 ----
 .関連情報
 * link:https://docs.netapp.com/us-en/ontap-cli/storage-encryption-disk-modify.html["ストレージ暗号化ディスクの変更"^]
-* link:https://docs.netapp.com/us-en/ontap-cli/storage-encryption-disk-show-status.html["ストレージ暗号化ディスクステータス表示"^]
+* link:https://docs.netapp.com/us-en/ontap-cli/storage-encryption-disk-show-status.html["storage encryption disk show-status"^]
 

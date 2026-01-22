@@ -2,19 +2,19 @@
 permalink: smb-admin/monitor-encryption-statistics-task.html 
 sidebar: sidebar 
 keywords: monitor, smb, encryption, statistics, determine, establish, session, share, connection, encrypt, monitor smb encryption statistics 
-summary: SMB暗号化の統計を監視して、確立されたセッションと共有接続のうち、暗号化されているものと暗号化されていないものを確認できます。 
+summary: SMB暗号化の統計を監視し、確立されたセッションおよび共有接続のうち、暗号化されたものと暗号化されていないものを区別できます。 
 ---
-= ONTAPのSMB暗号化統計情報の監視
+= ONTAP SMB暗号化統計を監視する
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-SMB暗号化の統計を監視して、確立されたセッションと共有接続のうち、暗号化されているものと暗号化されていないものを確認できます。
+SMB暗号化の統計を監視し、確立されたセッションおよび共有接続のうち、暗号化されたものと暗号化されていないものを区別できます。
 
-.タスクの内容
-advanced権限レベルでコマンドを実行する `statistics`と次のカウンタが表示され、暗号化されたSMBセッションおよび共有接続の数を監視できます。
+.タスク概要
+ `statistics`コマンドは、advanced権限レベルで、暗号化されたSMBセッションと共有接続の数を監視するために使用できる次のカウンターを提供します：
 
 |===
 | カウンタ名 | 説明 
@@ -23,21 +23,21 @@ advanced権限レベルでコマンドを実行する `statistics`と次のカ�
  a| 
 `encrypted_sessions`
  a| 
-暗号化されたSMB 3.0セッションの数
+暗号化されたSMB 3.0セッション数
 
 
 
  a| 
 `encrypted_share_connections`
  a| 
-ツリー接続が行われた暗号化された共有の数を示します。
+ツリー接続によって暗号化された共有数
 
 
 
  a| 
 `rejected_unencrypted_sessions`
  a| 
-クライアントの暗号化機能がないために拒否されたセッションセットアップの数
+クライアントに暗号化機能がないために拒否されたセッション セットアップ数
 
 
 
@@ -47,43 +47,43 @@ advanced権限レベルでコマンドを実行する `statistics`と次のカ�
 クライアントに暗号化機能がないために拒否された共有マッピング数
 
 |===
-これらのカウンタでは、次の統計オブジェクトを使用できます。
+これらのカウンタでは、次の統計オブジェクトを利用できます。
 
-* `cifs`すべてのSMB 3.0セッションについてSMB暗号化を監視できます。
+* `cifs`を使用すると、すべての SMB 3.0 セッションの SMB 暗号化を監視できます。
 +
-オブジェクトの出力にはSMB 3.0の統計が表示され `cifs`ます。暗号化されたセッション数をセッションの合計数と比較する場合は、カウンタの出力とカウンタの出力 `established_sessions`を比較できます `encrypted_sessions`。
+SMB 3.0 の統計情報は、 `cifs` オブジェクトの出力に含まれています。暗号化されたセッション数とセッションの総数を比較したい場合は、 `encrypted_sessions` カウンタの出力と `established_sessions` カウンタの出力を比較してください。
 
 +
-暗号化された共有接続の数を共有接続の総数と比較するには、カウンタの出力とカウンタの出力 `connected_shares`を比較します `encrypted_share_connections`。
+暗号化された共有接続の数を共有接続の合計数と比較する場合は、 `encrypted_share_connections`カウンターの出力を `connected_shares`カウンターの出力と比較できます。
 
-* `rejected_unencrypted_sessions`SMB暗号化をサポートしていないクライアントから暗号化を必要とするSMBセッションの確立が試行された回数を示します。
-* `rejected_unencrypted_shares`SMB暗号化をサポートしていないクライアントから暗号化が必要なSMB共有への接続が試行された回数を示します。
+* `rejected_unencrypted_sessions`は、SMB暗号化をサポートしていないクライアントから、暗号化を必要とするSMBセッションを確立しようとした回数を示します。
+* `rejected_unencrypted_shares`は、SMB 暗号化をサポートしていないクライアントから、暗号化を必要とする SMB 共有への接続を試行した回数を示します。
 
 
-データを取得して表示するには、統計サンプルの収集を開始する必要があります。データ収集を停止しなければ、サンプルからデータを表示できます。データ収集を停止すると、固定サンプルが表示されます。データ収集を停止しないと、以前のクエリとの比較に使用できる更新されたデータを取得できます。この比較は、傾向を特定するのに役立ちます。
+データを取得して表示するには、統計サンプルの収集を開始する必要があります。データ収集を停止しなければ、サンプルからデータを表示できます。データ収集を停止すると、固定のサンプル データが表示されます。データ収集を停止しなければ、以前のクエリとの比較に使用できる更新されたデータを入手できます。この比較は、パフォーマンスの傾向を確認するのに役立ちます。
 
 .手順
-. 権限レベルをadvancedに設定します。+
+. 権限レベルを詳細に設定します：+
 `set -privilege advanced`
-. データ収集を開始します。+
+. データ収集を開始する：+
 `statistics start -object {cifs|smb1|smb2} -instance _instance_ -sample-id _sample_ID_ [-node _node_name_]`
 +
-パラメータを指定しない場合は `-sample-id`、サンプルIDが自動的に生成され、このサンプルがCLIセッションのデフォルトのサンプルとして定義されます。の値 `-sample-id`はテキスト文字列です。同じCLIセッションでパラメータを指定せずにこのコマンドを実行すると、 `-sample-id`以前のデフォルトサンプルが上書きされます。
+ `-sample-id`パラメータを指定しない場合、コマンドはサンプル識別子を生成し、このサンプルをCLIセッションのデフォルト サンプルとして定義します。 `-sample-id`の値はテキスト文字列です。同じCLIセッション中にこのコマンドを実行し、 `-sample-id`パラメータを指定しない場合、コマンドは以前のデフォルト サンプルを上書きします。
 
 +
-必要に応じて、統計を収集するノードを指定できます。ノードを指定しない場合、サンプルは、クラスタ内のすべてのノードについて統計情報を収集します。
+オプションで、統計情報を収集するノードを指定できます。ノードを指定しない場合、サンプルは、クラスタ内のすべてのノードについて統計情報を収集します。
 
 +
-の詳細については `statistics start`、をlink:https://docs.netapp.com/us-en/ontap-cli/statistics-start.html["ONTAPコマンド リファレンス"^]参照してください。
+ `statistics start`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/statistics-start.html["ONTAPコマンド リファレンス"^]を参照してください。
 
-. サンプルのデータ収集を停止するには、コマンドを使用し `statistics stop`ます。
+.  `statistics stop`コマンドを使用して、サンプルのデータ収集を停止します。
 +
-詳細はこちら `statistics stop`の中でlink:https://docs.netapp.com/us-en/ontap-cli/statistics-stop.html["ONTAPコマンド リファレンス"^] 。
+ `statistics stop`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/statistics-stop.html["ONTAPコマンド リファレンス"^]を参照してください。
 
-. SMB暗号化統計を表示します。
+. SMB暗号化統計情報を表示します。
 +
 |===
-| 表示する情報 | 入力するコマンド 
+| ...の情報を表示する場合は | 入力する内容 
 
 
  a| 
@@ -115,34 +115,34 @@ advanced権限レベルでコマンドを実行する `statistics`と次のカ�
 
 
  a| 
-拒否された非暗号化セッション
+拒否された暗号化されていないセッション
  a| 
 `show -sample-id _sample_ID_ -counter rejected_unencrypted_sessions|_node_name_ [-node _node_name_]`
 
 
 
  a| 
-拒否された非暗号化共有接続
+拒否された暗号化されていない共有接続
  a| 
 `show -sample-id _sample_ID_ -counter rejected_unencrypted_share|_node_name_ [-node _node_name_]`
 
 |===
 +
-単一のノードの情報のみを表示する場合は、オプションのパラメータを指定します `-node`。
+単一のノードの情報のみを表示する場合は、オプションの `-node`パラメータを指定します。
 
 +
-の詳細については `statistics show`、をlink:https://docs.netapp.com/us-en/ontap-cli/statistics-show.html["ONTAPコマンド リファレンス"^]参照してください。
+ `statistics show`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/statistics-show.html["ONTAPコマンド リファレンス"^]をご覧ください。
 
-. admin権限レベルに戻ります。+
+. admin権限レベルに戻ります：+
 `set -privilege admin`
 
 
 .例
 [%collapsible]
 ====
-次の例は、「vs1」というStorage Virtual Machine（SVM）について、SMB 3.0暗号化統計情報を監視する方法を示しています。
+次の例は、「vs1」というStorage Virtual Machine（SVM）について、SMB 3.0の暗号化統計情報を監視する方法を示します。
 
-次のコマンドは、advanced権限レベルに移行します。
+次のコマンドは、advanced権限レベルへの変更を行います。
 
 [listing]
 ----
@@ -165,7 +165,7 @@ Statistics collection is being started for Sample-id: smbencryption_sample
 cluster1::*> statistics stop -sample-id smbencryption_sample
 Statistics collection is being stopped for Sample-id: smbencryption_sample
 ----
-次のコマンドは、指定したノードについて、暗号化されたSMBセッションと確立されたSMBセッションをサンプルから表示します。
+次のコマンドは、指定したノードについて、暗号化されたSMBセッション数と確立されたセッション数をサンプルから表示します。
 
 [listing]
 ----
@@ -202,7 +202,7 @@ Scope: vsim2
 
 1 entry was displayed.
 ----
-次のコマンドは、指定したノードについて、接続されているSMB共有と暗号化されたSMB共有の数をサンプルから表示します。
+次のコマンドは、指定したノードについて、接続されたSMB共有数と暗号化されたSMB共有数をサンプルから表示します。
 
 [listing]
 ----
@@ -221,7 +221,7 @@ Scope: vsim2
 
 2 entries were displayed.
 ----
-次のコマンドは、指定したノードについて、拒否された暗号化されていないSMB共有接続の数をサンプルから表示します。
+次のコマンドは、指定したノードについて、拒否された暗号化されていないSMB共有接続数をサンプルから表示します。
 
 [listing]
 ----
@@ -242,5 +242,5 @@ Scope: vsim2
 ====
 .関連情報
 * xref:determine-statistics-objects-counters-available-task.adoc[サーバー上で利用可能な統計、オブジェクト、カウンターを決定する]
-* link:../performance-admin/index.html["パフォーマンスの監視と管理の概要"]
+* link:../performance-admin/index.html["パフォーマンスの監視と管理 - 概要"]
 

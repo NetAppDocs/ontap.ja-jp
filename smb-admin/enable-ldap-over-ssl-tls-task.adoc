@@ -2,32 +2,32 @@
 permalink: smb-admin/enable-ldap-over-ssl-tls-task.html 
 sidebar: sidebar 
 keywords: cifs, smb, server, tls, secure, communication, active, directory, ldap, security, enable ldap over tls on the cifs server 
-summary: SMBサーバでActive Directory LDAPサーバとのセキュアな通信にTLSを使用するには、SMBサーバのセキュリティ設定を変更してLDAP over TLSを有効にする必要があります。 
+summary: SMBサーバでActive Directory LDAPサーバとのセキュアな通信にTLSを使用するためには、SMBサーバのセキュリティ設定を変更してLDAP over TLSを有効にする必要があります。 
 ---
-= ONTAP SMBサーバでのLDAP over TLSの有効化
+= ONTAP SMBサーバでLDAP over TLSを有効にする
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-SMBサーバでActive Directory LDAPサーバとのセキュアな通信にTLSを使用するには、SMBサーバのセキュリティ設定を変更してLDAP over TLSを有効にする必要があります。
+SMBサーバでActive Directory LDAPサーバとのセキュアな通信にTLSを使用するためには、SMBサーバのセキュリティ設定を変更してLDAP over TLSを有効にする必要があります。
 
-.10.1以降では、ONTAP 9チャネルバインドがActive Directory（AD）接続とネームサービスLDAP接続の両方でデフォルトでサポートされます。ONTAPは、Start-TLSまたはLDAPSが有効で、セッションセキュリティが署名または封印のいずれかに設定されている場合にのみ、LDAP接続でチャネルバインディングを試行します。ADサーバとのLDAPチャネルバインディングを無効または再度有効にするには、コマンドでパラメータを `vserver cifs security modify`使用し `-try-channel-binding-for-ad-ldap`ます。
+ONTAP 9.10.1以降、Active Directory（AD）とネームサービスのLDAP接続の両方で、LDAPチャネルバインディングがデフォルトでサポートされます。ONTAPは、Start-TLSまたはLDAPSが有効で、セッションセキュリティが署名またはシールに設定されている場合にのみ、LDAP接続でチャネルバインディングを試行します。ADサーバとのLDAPチャネルバインディングを無効化または再有効化するには、 `vserver cifs security modify`コマンドで `-try-channel-binding-for-ad-ldap`パラメータを使用します。
 
 詳細については、以下を参照してください。
 
 * link:../nfs-admin/using-ldap-concept.html["ONTAP NFS SVMのLDAPについて学ぶ"]
-* link:https://support.microsoft.com/en-us/topic/2020-ldap-channel-binding-and-ldap-signing-requirements-for-windows-ef185fb8-00f7-167d-744c-f299a66fc00a["2020 年の Windows 向け LDAP チャネルバインドおよび LDAP 署名の要件"^]です。
+* link:https://support.microsoft.com/en-us/topic/2020-ldap-channel-binding-and-ldap-signing-requirements-for-windows-ef185fb8-00f7-167d-744c-f299a66fc00a["Windows の 2020 年 LDAP チャネル バインディングおよび LDAP 署名要件"^]。
 
 
 .手順
-. Active Directory LDAPサーバとのセキュアなLDAP通信を許可するSMBサーバのセキュリティ設定を行います。 `vserver cifs security modify -vserver _vserver_name_ -use-start-tls-for-ad-ldap true`
-. LDAP over TLSのセキュリティ設定がに設定されていることを確認し `true`ます。 `vserver cifs security show -vserver _vserver_name_`
+. Active Directory LDAPサーバとのセキュアなLDAP通信を許可するSMBサーバのセキュリティ設定を構成します： `vserver cifs security modify -vserver _vserver_name_ -use-start-tls-for-ad-ldap true`
+. LDAP over TLS セキュリティ設定が次のように設定されていることを確認します： `true` `vserver cifs security show -vserver _vserver_name_`
 +
 [NOTE]
 ====
-SVMがネームマッピングやその他のUNIX情報（ユーザ、グループ、ネットグループなど）の照会に同じLDAPサーバを使用する場合は、コマンドを使用してオプションを `vserver services name-service ldap client modify`変更する必要もあります。 `-use-start-tls`
+SVMが名前マッピングやその他のUNIX情報（ユーザ、グループ、ネットグループなど）の照会に同じLDAPサーバを使用する場合は、 `vserver services name-service ldap client modify`コマンドを使用して `-use-start-tls`オプションも変更する必要があります。
 
 ====
 

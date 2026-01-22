@@ -2,22 +2,22 @@
 permalink: nfs-admin/control-root-user-access-ntfs-security-data-task.html 
 sidebar: sidebar 
 keywords: control, root, user, access, ntfs, security, style, data 
-summary: NTFSセキュリティ形式のデータへのNFSクライアントアクセスを許可したり、NTFSクライアントによるNFSセキュリティ形式のデータへのアクセスを許可したりするようにONTAPを設定できます。NFSデータストアでNTFSセキュリティ形式を使用する場合は、rootユーザによるアクセスの処理方法を決定し、それに応じてStorage Virtual Machine（SVM）を設定する必要があります。 
+summary: NFSクライアントにNTFSセキュリティ形式のデータへのアクセスを許可し、NTFSクライアントにNFSセキュリティ形式データへのアクセスを許可するようにONTAPを設定することができます。NFSデータ ストアでNTFSセキュリティ形式を使用する際には、rootユーザによるアクセスの処理方法を決定し、それに応じてStorage Virtual Machine（SVM）を設定する必要があります。 
 ---
-= ONTAP SVMのNTFSセキュリティ形式のデータへのルートユーザーアクセスを制御する
+= ONTAP SVMのNTFSセキュリティ形式のデータへのrootユーザアクセスの制御
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-NTFSセキュリティ形式のデータへのNFSクライアントアクセスを許可したり、NTFSクライアントによるNFSセキュリティ形式のデータへのアクセスを許可したりするようにONTAPを設定できます。NFSデータストアでNTFSセキュリティ形式を使用する場合は、rootユーザによるアクセスの処理方法を決定し、それに応じてStorage Virtual Machine（SVM）を設定する必要があります。
+NFSクライアントにNTFSセキュリティ形式のデータへのアクセスを許可し、NTFSクライアントにNFSセキュリティ形式データへのアクセスを許可するようにONTAPを設定することができます。NFSデータ ストアでNTFSセキュリティ形式を使用する際には、rootユーザによるアクセスの処理方法を決定し、それに応じてStorage Virtual Machine（SVM）を設定する必要があります。
 
-.タスクの内容
-rootユーザがNTFSセキュリティ形式のデータにアクセスする場合は、次の2つのオプションがあります。
+.タスク概要
+rootユーザがNTFSセキュリティ形式のデータにアクセスする際には、次の2つのオプションがあります。
 
-* 他のNFSユーザと同様にrootユーザをWindowsユーザにマッピングし、NTFS ACLに従ってアクセスを管理します。
-* NTFS ACLを無視し、rootにフルアクセスを提供します。
+* その他すべてのNFSユーザと同様にrootユーザをWindowsユーザにマッピングし、NTFS ACLに従ってアクセスを管理する。
+* NTFS ACLを無視してフル アクセスをrootに対して提供する。
 
 
 .手順
@@ -25,33 +25,33 @@ rootユーザがNTFSセキュリティ形式のデータにアクセスする場
 +
 `set -privilege advanced`
 
-. 必要な操作を実行します。
+. 次のうち必要な操作を実行します。
 +
 [cols="35,65"]
 |===
 
 
-| root ユーザへの対処方法 | 入力するコマンド 
+| rootユーザーに次の操作を実行させたい場合... | コマンドを入力してください... 
 
 
  a| 
-Windowsユーザへのマッピング
+Windowsユーザにマッピングする
  a| 
 `vserver nfs modify -vserver vserver_name -ignore-nt-acl-for-root disabled`
 
 
 
  a| 
-NT ACLチェックのバイパス
+NT ACLチェックをバイパスする
  a| 
 `vserver nfs modify -vserver vserver_name -ignore-nt-acl-for-root enabled`
 
 |===
 +
-デフォルトでは、このパラメータは無効になっています。
+このパラメータはデフォルトで無効になっています。
 
 +
-このパラメータが有効になっていてもrootユーザに対するネームマッピングがない場合、ONTAPはデフォルトのSMB管理者のクレデンシャルを監査に使用します。
+このパラメータが有効になっていてもrootユーザに対するネーム マッピングが存在しない場合、ONTAPはデフォルトのSMB管理者のクレデンシャルを監査に使用します。
 
 . admin権限レベルに戻ります。
 +

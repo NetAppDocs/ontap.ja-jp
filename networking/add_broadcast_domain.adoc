@@ -2,9 +2,9 @@
 sidebar: sidebar 
 permalink: networking/add_broadcast_domain.html 
 keywords: broadcast, domain, adding, add, network, ports, cluster, svm, IPspace, mtu 
-summary: ブロードキャストドメインは、同じレイヤ2ネットワークに属するクラスタ内のネットワークポートをグループ化します。作成したポートはSVMで使用できます。 
+summary: ブロードキャスト ドメインは、同じレイヤ2ネットワークに属するクラスタのネットワーク ポートをグループ化したものです。これらのポートは、SVMで使用されます。 
 ---
-= ONTAPブロードキャストドメインの作成
+= ONTAPブロードキャスト ドメインを作成する
 :hardbreaks:
 :allow-uri-read: 
 :nofooter: 
@@ -14,35 +14,35 @@ summary: ブロードキャストドメインは、同じレイヤ2ネットワ�
 
 
 [role="lead"]
-ブロードキャストドメインは、同じレイヤ2ネットワークに属するクラスタ内のネットワークポートをグループ化します。作成したポートはSVMで使用できます。
+ブロードキャスト ドメインは、同じレイヤ2ネットワークに属するクラスタのネットワーク ポートをグループ化したものです。これらのポートは、SVMで使用されます。
 
-ブロードキャストドメインは、クラスタの作成時または追加時に自動的に作成されます。ONTAP 9.12.0以降では、自動的に作成されたブロードキャストドメインに加えて、System Managerで手動でブロードキャストドメインを追加できます。
+ブロードキャスト ドメインはクラスタの作成時および追加時に自動的に作成されます。ONTAP 9.12.0以降では、自動的に作成されるブロードキャスト ドメインのほかに、ブロードキャスト ドメインをSystem Managerで手動で追加できます。
 
 
-NOTE: ブロードキャストドメインの作成手順は、ONTAP 9.7以前のバージョンで異なります。ONTAP 9.7以前を実行するネットワークでブロードキャストドメインを作成する必要がある場合は、を参照してくださいlink:https://docs.netapp.com/us-en/ontap-system-manager-classic/networking-bd/create_a_broadcast_domain97.html["ブロードキャストドメインの作成（ONTAP 9 .7以前）"^]。
+NOTE: ONTAP 9.7以前のバージョンでは、ブロードキャストドメインの作成手順が異なります。ONTAP 9.7以前のバージョンを実行しているネットワークでブロードキャストドメインを作成する必要がある場合は、link:https://docs.netapp.com/us-en/ontap-system-manager-classic/networking-bd/create_a_broadcast_domain97.html["ブロードキャスト ドメインの作成（ONTAP 9.7以前）"^]を参照してください。
 
 .開始する前に
-ブロードキャストドメインに追加するポートは、別のブロードキャストドメインに属していないポートである必要があります。使用するポートが別のブロードキャストドメインに属しているが、使用されていない場合は、元のブロードキャストドメインからそれらのポートを削除します。
+ブロードキャスト ドメインに追加するポートは、他のブロードキャスト ドメインに属していないポートでなければなりません。使用するポートが別のブロードキャスト ドメインに属しているが、使用されていない場合は、元のブロードキャスト ドメインからそのポートを削除します。
 
-.タスクの内容
-* ブロードキャストドメイン名はすべてIPspace内で一意である必要があります。
-* ブロードキャストドメインに追加できるポートは、物理ネットワークポート、VLAN、リンクアグリゲーショングループ/インターフェイスグループ（LAG / ifgrp）です。
-* 使用するポートが別のブロードキャストドメインに属しているが、使用されていない場合は、新しいブロードキャストドメインに追加する前に既存のブロードキャストドメインから削除してください。
-* ブロードキャストドメインに追加されたポートのMaximum Transmission Unit（MTU；最大伝送ユニット）は、ブロードキャストドメインに設定されているMTU値に更新されます。
+.タスク概要
+* どのブロードキャスト ドメイン名もIPspace内で固有でなければなりません。
+* ブロードキャスト ドメインに追加できるポートは、物理ネットワーク ポート、VLAN、リンク アグリゲーション グループ / インターフェイス グループ（LAG / ifgrp）です。
+* 使用するポートが別のブロードキャスト ドメインに属しているものの、使用されていない場合は、そのポートを新しいブロードキャスト ドメインに追加する前に既存のブロードキャスト ドメインから削除してください。
+* ブロードキャスト ドメインに追加したポートの最大転送単位（MTU）は、ブロードキャスト ドメインに設定されているMTU値に更新されます。
 * MTU値は、管理トラフィックを処理するe0Mポートを除き、そのレイヤ2ネットワークに接続されているすべてのデバイスで同じである必要があります。
-* IPspace名を指定しない場合、ブロードキャストドメインは「Default」IPspaceに作成されます。
+* IPspace名を指定しない場合、ブロードキャスト ドメインは「Default」IPspaceに作成されます。
 
 
-システムの設定を簡単にするために、同じポートを含む同じ名前のフェイルオーバーグループが自動的に作成されます。
+システムの設定を単純にするために、同じポートを含み、同じ名前の付いたフェイルオーバー グループが自動的に作成されます。
 
 [role="tabbed-block"]
 ====
 .System Manager
 --
 .手順
-. [ネットワーク]>[概要]>[ブロードキャストドメイン*]を選択します。
-. をクリックし image:icon_add.gif["追加アイコン"]
-. ブロードキャストドメインの名前を指定します。
+. *ネットワーク > 概要 > ブロードキャスト ドメイン*を選択します。
+. image:icon_add.gif["アイコンを追加"]をクリックします
+. ブロードキャスト ドメインの名前を指定します。
 . MTUを設定します。
 . IPspaceを選択します。
 . ブロードキャスト ドメインを保存します。
@@ -53,60 +53,60 @@ NOTE: ブロードキャストドメインの作成手順は、ONTAP 9.7以前�
 --
 .CLI
 --
-ONTAP 9 .8以降を使用している場合は、レイヤ2の到達可能性に基づいてブロードキャストドメインが自動的に作成されます。詳細については、を参照してください link:repair_port_reachability.html["ポートの到達可能性を修復"]。
+ONTAP 9.8以降を使用している場合、ブロードキャスト ドメインはレイヤ2の到達可能性に基づいて自動的に作成されます。詳細については、link:repair_port_reachability.html["ポートの到達可能性の修復"]を参照してください。
 
-ブロードキャストドメインを手動で作成することもできます。
+ブロードキャスト ドメインを手動で作成することもできます。
 
 .手順
-. 現在ブロードキャストドメインに割り当てられていないポートを表示します。
+. 現在ブロードキャスト ドメインに割り当てられていないポートを表示します。
 +
 `network port show`
 
 +
-大量のポートが表示される場合は、コマンドを使用し `network port show -broadcast-domain`て未割り当てのポートだけを表示します。
+表示が大きい場合は、 `network port show -broadcast-domain`コマンドを使用して、割り当てられていないポートのみを表示します。
 
-. ブロードキャストドメインを作成します。
+. ブロードキャスト ドメインを作成します。
 +
 `network port broadcast-domain create -broadcast-domain _broadcast_domain_name_ -mtu _mtu_value_ [-ipspace _ipspace_name_] [-ports _ports_list_]`
 
 +
-.. `broadcast_domain_name`は、作成するブロードキャストドメインの名前です。
-.. `mtu_value`はIPパケットのMTUサイズです。通常は1500と9000です。
+.. `broadcast_domain_name`は、作成するブロードキャスト ドメインの名前です。
+.. `mtu_value`はIPパケットのMTUサイズです。一般的な値は1500と9000です。
 +
-この値は、このブロードキャストドメインに追加するすべてのポートに適用されます。
+この値は、このブロードキャスト ドメインに追加するすべてのポートに設定されます。
 
-.. `ipspace_name`は、このブロードキャストドメインを追加するIPspaceの名前です。
+.. `ipspace_name`は、このブロードキャスト ドメインが追加される IPspace の名前です。
 +
-このパラメータの値を指定しないかぎり、「Default」IPspaceが使用されます。
+このパラメータの値を指定しないと、「Default」IPspaceが使われます。
 
-.. `ports_list`は、ブロードキャストドメインに追加するポートのリストです。
+.. `ports_list`は、ブロードキャスト ドメインに追加されるポートのリストです。
 +
-ポートは、などの形式で追加され `node_name:port_number` `node1:e0c`ます。
+ポートは `node_name:port_number`の形式で追加されます（例： `node1:e0c`）。
 
 
 
-. 必要に応じてブロードキャストドメインが作成されたことを確認します。
+. 必要に応じて、ブロードキャスト ドメインが作成されたことを確認します。
 +
 `network port show -instance -broadcast-domain new_domain`
 
 +
-の詳細については `network port show`、をlink:https://docs.netapp.com/us-en/ontap-cli/network-port-show.html["ONTAPコマンド リファレンス"^]参照してください。
+ `network port show`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/network-port-show.html["ONTAPコマンド リファレンス"^]を参照してください。
 
 
 
 .例
-次のコマンドは、Default IPspaceにブロードキャストドメインbcast1を作成し、MTUを1500に設定してポートを4つ追加します。
+次のコマンドは、「Default」IPspaceにブロードキャスト ドメインbcast1を作成し、MTUを1500に設定してポートを4つ追加します。
 
 `network port broadcast-domain create -broadcast-domain _bcast1_ -mtu _1500_ -ports _cluster1-01:e0e,cluster1-01:e0f,cluster1-02:e0e,cluster1-02:e0f_`
 
-の詳細については `network port broadcast-domain create`、をlink:https://docs.netapp.com/us-en/ontap-cli/network-port-broadcast-domain-create.html["ONTAPコマンド リファレンス"^]参照してください。
+ `network port broadcast-domain create`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/network-port-broadcast-domain-create.html["ONTAPコマンド リファレンス"^]を参照してください。
 
-.終了後
-この時点で、サブネットを作成してブロードキャストドメインで使用可能になるIPアドレスのプールを定義するか、SVMとインターフェイスをIPspaceに割り当てることができます。詳細については、を参照してください link:../peering/index.html["クラスタとSVMのピアリング"]。
+.終了後の操作
+サブネットを作成することで、ブロードキャスト ドメインで使用可能なIPアドレスのプールを定義することも、この時点でSVMとインターフェイスをIPspaceに割り当てることもできます。詳細については、link:../peering/index.html["クラスタとSVMのピアリング"]を参照してください。
 
-既存のブロードキャストドメインの名前を変更する必要がある場合は、コマンドを使用し `network port broadcast-domain rename`ます。
+既存のブロードキャスト ドメインの名前を変更する必要がある場合は、 `network port broadcast-domain rename` コマンドを使用します。
 
-の詳細については `network port broadcast-domain rename`、をlink:https://docs.netapp.com/us-en/ontap-cli/network-port-broadcast-domain-rename.html["ONTAPコマンド リファレンス"^]参照してください。
+ `network port broadcast-domain rename`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/network-port-broadcast-domain-rename.html["ONTAPコマンド リファレンス"^]を参照してください。
 
 --
 ====

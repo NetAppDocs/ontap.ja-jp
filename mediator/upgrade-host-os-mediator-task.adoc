@@ -2,24 +2,24 @@
 permalink: mediator/upgrade-host-os-mediator-task.html 
 sidebar: sidebar 
 keywords: mediator, new, release, update, install, 
-summary: インストールプロセスでは、ホストオペレーティングシステム、ONTAP メディエーターの順にアップグレードします。 
+summary: インストール プロセスの一環として、ホスト オペレーティング システムをアップグレードしてから、ONTAP Mediatorをアップグレードします。 
 ---
-= ホストOSとONTAPメディエーターをアップグレードする
+= ホストOSとONTAP Mediatorをアップグレードする
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-ONTAPメディエーター用のホストOSを新しいバージョンにアップグレードするには、最初にONTAPメディエーターをアンインストールする必要があります。
+ONTAP MediatorのホストOSを新しいバージョンにアップグレードするには、最初にONTAP Mediatorをアンインストールする必要があります。
 
-.タスクの内容
-leapp-upgrade ツールを使用してONTAP Mediator のホスト OS をアップグレードする前に、 ONTAP Mediator をアンインストールします。このツールは、登録されたリポジトリ内の新しい RPM バージョンをチェックします。
+.タスク概要
+leapp-upgrade ツールを使用して ONTAP Mediator のホスト OS をアップグレードする前に、ONTAP Mediator をアンインストールしてください。このツールは、登録済みリポジトリ内の新しい RPM バージョンをチェックします。
 
-ONTAP Mediator インストーラは、leapp-upgrade ツールが検索に含める .rpm ファイルをインストールします。インストーラーは登録済みのリポジトリからファイルをダウンロードするのではなく、ファイルを解凍するため、ツールはアップグレードを見つけることができません。パッケージをアンインストールするには、leapp-upgrade ツールを使用する必要があります。
+ONTAP Mediatorインストーラは.rpmファイルをインストールしますが、leapp-upgradeツールはこのファイルを検索対象に含めます。インストーラは登録済みリポジトリからファイルをダウンロードするのではなく、解凍するため、ツールはアップグレードを見つけることができません。パッケージをアンインストールするには、leapp-upgradeツールを使用する必要があります。
 
 .手順
-. ログ ファイルをバックアップします。
+. ログ ファイルをバックアップします：
 +
 ....
 [rootmediator-host ~]# tar -czf ontap_mediator_file_backup.tgz -C /opt/netapp/lib/ontap_mediator ./log ./ontap_mediator/server_config/ontap_mediator.user_config.yaml
@@ -35,7 +35,7 @@ ONTAP Mediator インストーラは、leapp-upgrade ツールが検索に含め
 ./ontap_mediator/server_config/ontap_mediator.user_config.yaml
 [rootmediator-host ~]#
 ....
-. leapp-upgrade ツールを使用してアップグレードを実行します。
+. leapp-upgrade ツールを使用してアップグレードを実行します：
 +
 ....
 [rootmediator-host ~]# leapp preupgrade --target 8.4
@@ -48,7 +48,7 @@ NAME="Red Hat Enterprise Linux"
 VERSION="8.4 (Ootpa)"
 [rootmediator-host ~]#
 ....
-. ONTAPメディエーターを再インストールします。
+. ONTAP Mediatorを再インストールします：
 +
 
 NOTE: ログ ファイルが失われないように、ONTAP Mediatorの再インストール後すぐに残りの手順を実行してください。
@@ -62,30 +62,30 @@ ONTAP Mediator: Self Extracting Installer
   ..<snip installation>..
 [rootmediator-host ~]#
 ....
-. ontap_mediatorを停止します。
+. ontap_mediatorを停止します：
 +
 ....
 [rootmediator-host ~]# systemctl stop ontap_mediator
 [rootmediator-host ~]#
 ....
-. ログ ファイルを置き換えます。
+. ログ ファイルを置き換えます：
 +
 ....
 [rootmediator-host ~]# tar -xf ontap_mediator_log_backup.tgz -C /opt/netapp/lib/ontap_mediator
 [rootmediator-host ~]#
 ....
-. ontap_mediatorを起動します。
+. ontap_mediatorを起動します：
 +
 ....
 [rootmediator-host ~]# systemctl start ontap_mediator
 [rootmediator-host ~]#
 ....
-. すべてのONTAPクラスタをアップグレードしたONTAPメディエーターに再接続します。
+. すべてのONTAPクラスタをアップグレードしたONTAP Mediatorに再接続します：
 
 
 [role="tabbed-block"]
 ====
-.MetroCluster over IP
+.IP経由のMetroCluster
 --
 ....
 siteA::> metrocluster configuration-settings mediator show
@@ -127,7 +127,7 @@ siteA::>
 --
 .SnapMirrorアクティブ同期
 --
-SnapMirrorアクティブ同期の場合、/opt/netapp の外部に保存されている TLS 証明書を再インストールする必要はありません。  /opt/netapp に保存されている証明書をバックアップおよび復元します。
+SnapMirror Active Sync の場合、/opt/netapp の外部に保存されている TLS 証明書を再インストールする必要はありません。/opt/netapp に保存されている証明書をバックアップして復元してください。
 
 ....
 peer1::> snapmirror mediator show
@@ -215,10 +215,10 @@ peer1::>
 --
 ====
 .関連情報
-* link:https://docs.netapp.com/us-en/ontap-cli/security-certificate-delete.html["セキュリティ証明書の削除"^]
-* link:https://docs.netapp.com/us-en/ontap-cli/security-certificate-install.html["セキュリティ証明書のインストール"^]
-* link:https://docs.netapp.com/us-en/ontap-cli/security-certificate-show.html["security certificate show"^]
-* link:https://docs.netapp.com/us-en/ontap-cli/snapmirror-mediator-add.html["スナップミラーメディエーターの追加"^]
-* link:https://docs.netapp.com/us-en/ontap-cli/snapmirror-mediator-remove.html["スナップミラーメディエーターの削除"^]
-* link:https://docs.netapp.com/us-en/ontap-cli/storage-iscsi-initiator-show.html["ストレージiscsiイニシエーターの表示"^]
+* link:https://docs.netapp.com/us-en/ontap-cli/security-certificate-delete.html["security certificate delete"^]
+* link:https://docs.netapp.com/us-en/ontap-cli/security-certificate-install.html["security certificate install"^]
+* link:https://docs.netapp.com/us-en/ontap-cli/security-certificate-show.html["セキュリティ証明書の表示"^]
+* link:https://docs.netapp.com/us-en/ontap-cli/snapmirror-mediator-add.html["SnapMirror Mediator add"^]
+* link:https://docs.netapp.com/us-en/ontap-cli/snapmirror-mediator-remove.html["SnapMirror Mediator の削除"^]
+* link:https://docs.netapp.com/us-en/ontap-cli/storage-iscsi-initiator-show.html["storage iscsi-initiator show"^]
 

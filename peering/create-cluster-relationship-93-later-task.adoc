@@ -2,70 +2,70 @@
 permalink: peering/create-cluster-relationship-93-later-task.html 
 sidebar: sidebar 
 keywords: create, cluster, peer, relationship, System Manager, cli 
-summary: データを保護する前に、ローカルクラスタとリモートクラスタの間にクラスタピア関係を作成します。データのバックアップやディザスタリカバリを目的としてリモートクラスタにデータをレプリケートします。 
+summary: データのバックアップと災害復旧を目的として、データをリモート クラスタに複製して保護する前に、ローカル クラスタとリモート クラスタの間にクラスタ ピア関係を作成します。 
 ---
-= ONTAPクラスタピア関係を作成します。
+= ONTAPクラスタ ピア関係を作成する
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-データバックアップやディザスタリカバリを目的としてリモートクラスタにデータをレプリケートしてデータを保護するには、ローカルクラスタとリモートクラスタの間にクラスタピア関係を作成する必要があります。
+データ バックアップやディザスタ リカバリ用にリモート クラスタにデータをレプリケートして保護するには、まずローカル クラスタとリモート クラスタの間にクラスタ ピア関係を作成する必要があります。
 
-.タスクの内容
-この手順は、FAS、AFF、および ASA システムに適用されます。ASAASA r2システム（ASA A1K、ASA A90、ASA A70、ASA A50、ASA A30、ASA A20、またはASA C30）をお持ちの場合は、 link:https://docs.netapp.com/us-en/asa-r2/data-protection/snapshot-replication.html["以下の手順を実行します"^]スナップショット レプリケーションを作成してセットアップします。ASAr2 システムは、SAN のみのお客様向けに簡素化された ONTAP エクスペリエンスを提供します。
+.タスク概要
+この手順は、FAS、AFF、およびASAシステムに適用されます。ASA r2システム（ASA A1K、ASA A90、ASA A70、ASA A50、ASA A30、ASA A20、またはASA C30）をご利用の場合は、link:https://docs.netapp.com/us-en/asa-r2/data-protection/snapshot-replication.html["これらの手順"^]に従ってSnapshotレプリケーションをセットアップしてください。ASA r2システムは、SANのみのお客様向けに簡素化されたONTAPエクスペリエンスを提供します。
 
-いくつかのデフォルトの保護ポリシーを使用できます。カスタムの保護ポリシーを使用する場合は、保護ポリシーを作成しておく必要があります。
+デフォルトの保護ポリシーがいくつか用意されています。カスタムの保護ポリシーを使用する場合はあらかじめ作成しておく必要があります。
 
 .開始する前に
-ONTAP CLIを使用している場合は、次のいずれかの方法でピア関係にあるクラスタ内の各ノードにクラスタ間LIFを作成しておく必要があります。
+ONTAP CLIを使用している場合は、以下のいずれかの方法でピアリングするクラスタ内の各ノードにクラスタ間LIFを作成しておく必要があります。
 
-* link:configure-intercluster-lifs-share-data-ports-task.html["共有データポートにクラスタ間LIFを設定"]
-* link:configure-intercluster-lifs-use-dedicated-ports-task.html["専用データポートにクラスタ間LIFを設定"]
+* link:configure-intercluster-lifs-share-data-ports-task.html["共有データ ポートでのクラスタ間LIFの設定"]
+* link:configure-intercluster-lifs-use-dedicated-ports-task.html["専用データ ポートでのクラスタ間LIFの設定"]
 * link:configure-intercluster-lifs-use-ports-own-networks-task.html["カスタムIPspaceでのクラスタ間LIFの設定"]
 
 
 .手順
-このタスクは、ONTAPシステムマネージャまたはONTAP CLIを使用して実行します。
+このタスクは、ONTAP System ManagerまたはONTAP CLIを使用して実行します。
 
 [role="tabbed-block"]
 ====
 .System Manager
 --
-. ローカルクラスタで、*[クラスタ]>[設定]*をクリックします。
-. [クラスタ間設定]*セクションで、*[ネットワークインターフェイスの追加]*をクリックし、IPアドレスとサブネットマスクを入力してクラスタのクラスタ間ネットワークインターフェイスを追加します。
+. ローカル クラスタで、*クラスタ > 設定* をクリックします。
+. *[クラスタ間設定]* セクションで、*[ネットワーク インターフェイスの追加]* をクリックし、IP アドレスとサブネット マスクを入力して、クラスタのクラスタ間ネットワーク インターフェイスを追加します。
 +
-リモートクラスタでこの手順を繰り返します。
+同じ手順をリモート クラスタでも実行します。
 
-. リモートクラスタで、*[クラスタ]>[設定]*をクリックします。
-. [クラスタピア]*セクションをクリックし image:icon_kabob.gif["メニューオプションアイコン"] 、*[パスフレーズの生成]*を選択します。
+. リモート クラスタで、*クラスタ > 設定*をクリックします。
+. *クラスタ ピア* セクションで image:icon_kabob.gif["メニューオプションアイコン"] をクリックし、*パスフレーズの生成* を選択します。
 . リモートONTAPクラスタのバージョンを選択します。
 . 生成されたパスフレーズをコピーします。
-. ローカルクラスタで、*[クラスタピア]*で、*[ピアクラスタ]*をクリックし image:icon_kabob.gif["メニューオプションアイコン"] て*[ピアクラスタ]*を選択します。
-. [クラスタのピアリング]*ウィンドウで、パスフレーズを貼り付け、*[クラスタピアリングの開始]*をクリックします。
+. ローカル クラスタの*クラスタ ピア*で、image:icon_kabob.gif["メニューオプションアイコン"]をクリックして*ピア クラスタ*を選択します。
+. *ピア クラスター* ウィンドウでパスフレーズを貼り付けて、*クラスター ピアリングの開始* をクリックします。
 
 
 --
 .CLI
 --
-. デスティネーションクラスタで、ソースクラスタとのピア関係を作成します。
+. デスティネーション クラスタで、ソース クラスタとのピア関係を作成します。
 +
 [source, cli]
 ----
 cluster peer create -generate-passphrase -offer-expiration <MM/DD/YYYY HH:MM:SS|1...7days|1...168hours> -peer-addrs <peer_LIF_IPs> -initial-allowed-vserver-peers <svm_name|*> -ipspace <ipspace>
 ----
 +
-と `-peer-addrs`の両方を指定した場合 `-generate-passphrase`は、でクラスタ間LIFが指定されているクラスタのみが、 `-peer-addrs`生成されたパスワードを使用できます。
+ `-generate-passphrase`と `-peer-addrs`の両方を指定した場合、 `-peer-addrs`でクラスタ間LIFが指定されているクラスタのみが生成されたパスワードを使用できます。
 
 +
-カスタムIPspaceを使用しない場合は、このオプションを無視してかまいません `-ipspace`。の詳細については `cluster peer create`、をlink:https://docs.netapp.com/us-en/ontap-cli/cluster-peer-create.html["ONTAPコマンド リファレンス"^]参照してください。
+カスタムIPspaceを使用していない場合は、 `-ipspace`オプションを無視できます。link:https://docs.netapp.com/us-en/ontap-cli/cluster-peer-create.html["ONTAPコマンド リファレンス"^]の `cluster peer create`の詳細をご覧ください。
 
 +
-ONTAP 9 .6以降でピア関係を作成する場合に、クラスタ間ピアリング通信を暗号化しないようにするには、オプションを使用して暗号化を無効にする必要があります `-encryption-protocol-proposed none`。
+ONTAP 9.6以降でピアリング関係を作成し、クラスタ間ピアリング通信を暗号化したくない場合は、 `-encryption-protocol-proposed none`オプションを使用して暗号化を無効にする必要があります。
 
 +
-次の例は、リモートクラスタを指定せずにクラスタピア関係を作成し、SVMと `vs2`ローカルクラスタのピア関係を事前承認します `vs1`。
+次の例では、指定されていないリモート クラスタとのクラスタ ピア関係を作成し、ローカル クラスタ上の SVM `vs1`と `vs2`とのピア関係を事前承認します：
 
 +
 [listing]
@@ -81,7 +81,7 @@ cluster02::> cluster peer create -generate-passphrase -offer-expiration 2days -i
 Warning: make a note of the passphrase - it cannot be displayed again.
 ----
 +
-次の例は、クラスタ間LIFのIPアドレス192.140.112.103および192.140.112.104でリモートクラスタとのクラスタピア関係を作成し、ローカルクラスタの任意のSVMとのピア関係を事前承認します。
+次の例は、クラスタ間LIFのIPアドレス192.140.112.103および192.140.112.104でリモート クラスタとのクラスタ ピア関係を作成し、ローカル クラスタのすべてのSVMとのピア関係を事前承認します。
 
 +
 [listing]
@@ -97,7 +97,7 @@ cluster02::> cluster peer create -generate-passphrase -peer-addrs 192.140.112.10
 Warning: make a note of the passphrase - it cannot be displayed again.
 ----
 +
-次の例は、リモートクラスタを指定せずにクラスタピア関係を作成し、SVMと `vs2`ローカルクラスタのピア関係を事前承認します``vs1``。
+次の例では、指定されていないリモート クラスタとのクラスタ ピア関係を作成し、ローカル クラスタ上の SVM``vs1``と `vs2`とのピア関係を事前承認します：
 
 +
 [listing]
@@ -112,17 +112,17 @@ cluster02::> cluster peer create -generate-passphrase -offer-expiration 2days -i
 
 Warning: make a note of the passphrase - it cannot be displayed again.
 ----
-. ソースクラスタで、ソースクラスタをデスティネーションクラスタに対して認証します。
+. ソース クラスタで、ソース クラスタをデスティネーション クラスタに対して認証します。
 +
 [source, cli]
 ----
 cluster peer create -peer-addrs <peer_LIF_IPs> -ipspace <ipspace>
 ----
 +
-の詳細については `cluster peer create`、をlink:https://docs.netapp.com/us-en/ontap-cli/cluster-peer-create.html["ONTAPコマンド リファレンス"^]参照してください。
+ `cluster peer create`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/cluster-peer-create.html["ONTAPコマンド リファレンス"^]を参照してください。
 
 +
-次の例は、クラスタ間LIFのIPアドレス192.140.112.101および192.140.112.102でローカルクラスタをリモートクラスタに対して認証します。
+次の例は、クラスタ間LIFのIPアドレス192.140.112.101および192.140.112.102でローカル クラスタをリモート クラスタに対して認証します。
 
 +
 [listing]
@@ -197,12 +197,12 @@ cluster01-02
 ====
 
 
-== ONTAPで実行するその他の方法
+== ONTAPでこの処理を行うその他の方法
 
 [cols="2"]
 |===
-| 実行するタスク | 参照するコンテンツ 
+| タスクを実行するツール | 参照するコンテンツ 
 
 
-| System Manager Classic（ONTAP 9 .7以前で使用可能） | link:https://docs.netapp.com/us-en/ontap-system-manager-classic/volume-disaster-prep/index.html["ボリュームのディザスタリカバリの準備の概要"^] 
+| System Manager Classic（ONTAP 9.7以前で使用可能） | link:https://docs.netapp.com/us-en/ontap-system-manager-classic/volume-disaster-prep/index.html["ボリューム災害復旧準備の概要"^] 
 |===

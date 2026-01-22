@@ -2,29 +2,29 @@
 permalink: encryption-at-rest/destroy-nse-disks-task.html 
 sidebar: sidebar 
 keywords: fips, drive, sed, inaccessible, destroy, psid, physical secure ID, nrd plus, encrypt, 
-summary: 'FIPSドライブまたはSEDのデータに永久にアクセスできない状態にし、ドライブを再利用する必要もない場合は、コマンドを使用してディスクを破棄できます `storage encryption disk destroy`。' 
+summary: 'FIPS ドライブまたは SED 上のデータを永続的にアクセス不能にし、ドライブを再利用する必要がない場合は、 `storage encryption disk destroy`コマンドを使用してディスクを破棄できます。' 
 ---
-= ONTAPでのFIPSドライブまたはSEDの破棄
+= ONTAPでFIPSドライブまたはSEDを破棄する
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-FIPSドライブまたはSEDのデータに永久にアクセスできない状態にし、ドライブを再利用する必要もない場合は、コマンドを使用してディスクを破棄できます `storage encryption disk destroy`。
+FIPS ドライブまたは SED 上のデータを永続的にアクセス不能にし、ドライブを再利用する必要がない場合は、 `storage encryption disk destroy`コマンドを使用してディスクを破棄できます。
 
-.タスクの内容
-FIPSドライブまたはSEDを破棄すると、ディスク暗号化キーが不明なランダム値に設定され、ドライブが完全にロックされます。これにより、ディスクが実質的に使用できない状態になり、ディスクのデータに永久にアクセスできなくなります。ただし、ディスクのラベルに印刷されているPhysical Secure ID（PSID；物理的なセキュアID）を使用して、ディスクを工場出荷時の設定にリセットすることができます。詳細については、を参照してください link:return-self-encrypting-disks-keys-not-available-task.html["認証キーが失われた場合にFIPSドライブまたはSEDを使用可能な状態に戻す"]。
+.タスク概要
+FIPSドライブまたはSEDを破壊すると、システムはディスク暗号化キーを未知のランダム値に設定し、ドライブを不可逆的にロックします。これにより、ディスクは事実上使用できなくなり、ディスク上のデータにも永久にアクセスできなくなります。ただし、ディスクのラベルに記載されている物理セキュアID（PSID）を使用して、ディスクを工場出荷時の設定にリセットすることができます。詳細については、link:return-self-encrypting-disks-keys-not-available-task.html["認証キーが失われた場合にFIPSドライブまたはSEDを使用可能な状態に戻す"]をご覧ください。
 
 
-NOTE: 障害ディスク返却不要サービス（NRD Plus）を利用している場合を除き、FIPSドライブまたはSEDは破棄しないでください。ディスクを破棄すると保証が無効になります。
+NOTE: （故障）ディスク返却不要サービス（NRD Plus）を契約している場合を除き、FIPSドライブまたはSEDは破棄しないでください。ディスクを破棄すると保証が無効になります。
 
 .開始する前に
 このタスクを実行するには、クラスタ管理者である必要があります。
 
 .手順
-. 保持する必要があるデータを別のディスク上のアグリゲートに移行します。
-. 破棄する FIPS ドライブまたは SED のアグリゲートを削除します。
+. 保持しておく必要があるデータを別のディスクのアグリゲートにすべて移行します。
+. 破棄する FIPS ドライブまたは SED 上のアグリゲートを削除します：
 +
 `storage aggregate delete -aggregate aggregate_name`
 
@@ -34,14 +34,14 @@ NOTE: 障害ディスク返却不要サービス（NRD Plus）を利用してい
 cluster1::> storage aggregate delete -aggregate aggr1
 ----
 +
-の詳細については `storage aggregate delete`、をlink:https://docs.netapp.com/us-en/ontap-cli/storage-aggregate-delete.html["ONTAPコマンド リファレンス"^]参照してください。
+ `storage aggregate delete`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/storage-aggregate-delete.html["ONTAPコマンド リファレンス"^]をご覧ください。
 
-. 破棄する FIPS ドライブまたは SED のディスク ID を確認します。
+. 破棄する FIPS ドライブまたは SED のディスク ID を特定します：
 +
 `storage encryption disk show`
 
 +
-の詳細については `storage encryption disk show`、をlink:https://docs.netapp.com/us-en/ontap-cli/storage-encryption-disk-show.html["ONTAPコマンド リファレンス"^]参照してください。
+ `storage encryption disk show`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/storage-encryption-disk-show.html["ONTAPコマンド リファレンス"^]を参照してください。
 
 +
 [listing]
@@ -54,17 +54,17 @@ Disk    Mode Data Key ID
 1.10.2  data <id_value>
 [...]
 ----
-. ディスクを破棄します。
+. ディスクを破壊します：
 +
 `storage encryption disk destroy -disk disk_id`
 
 +
-の詳細については `storage encryption disk destroy`、をlink:https://docs.netapp.com/us-en/ontap-cli/storage-encryption-disk-destroy.html["ONTAPコマンド リファレンス"^]参照してください。
+ `storage encryption disk destroy`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/storage-encryption-disk-destroy.html["ONTAPコマンド リファレンス"^]をご覧ください。
 
 +
 [NOTE]
 ====
-続行する前に確認のフレーズを入力するように求められます。画面に表示されたフレーズを正確に入力します。
+処理を続行する前に確認のフレーズを入力するように求められます。画面に表示されたフレーズを正確に入力します。
 
 ====
 +
@@ -89,5 +89,5 @@ Info: Starting destroy on 1 disk.
 .関連情報
 * link:https://docs.netapp.com/us-en/ontap-cli/storage-encryption-disk-destroy.html["ストレージ暗号化ディスク破壊"^]
 * link:https://docs.netapp.com/us-en/ontap-cli/storage-encryption-disk-show.html["storage disk show | more"^]
-* link:https://docs.netapp.com/us-en/ontap-cli/storage-encryption-disk-show-status.html["ストレージ暗号化ディスクステータス表示"^]
+* link:https://docs.netapp.com/us-en/ontap-cli/storage-encryption-disk-show-status.html["storage encryption disk show-status"^]
 

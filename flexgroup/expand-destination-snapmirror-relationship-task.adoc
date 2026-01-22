@@ -2,48 +2,48 @@
 permalink: flexgroup/expand-destination-snapmirror-relationship-task.html 
 sidebar: sidebar 
 keywords: expand, destination, flexgroup, volume, snapmirror, relationship 
-summary: デスティネーション FlexGroup ボリュームの拡張と SnapMirror 関係の再確立は、自動または手動で実行できます。デフォルトでは、 SnapMirror 関係は自動拡張用に設定されており、ソースボリュームが拡張されるとデスティネーション FlexGroup ボリュームも自動的に拡張されます。 
+summary: デスティネーションFlexGroupボリュームを拡張し、SnapMirror関係を自動または手動で再確立できます。デフォルトでは、SnapMirror関係は自動拡張に設定されており、ソース ボリュームが拡張されるとデスティネーションFlexGroupボリュームが自動的に拡張されます。 
 ---
-= SnapMirror関係のデスティネーションONTAP FlexGroupボリュームの拡張
+= SnapMirror 関係のデスティネーション ONTAP FlexGroup ボリュームを拡張する
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-デスティネーション FlexGroup ボリュームの拡張と SnapMirror 関係の再確立は、自動または手動で実行できます。デフォルトでは、 SnapMirror 関係は自動拡張用に設定されており、ソースボリュームが拡張されるとデスティネーション FlexGroup ボリュームも自動的に拡張されます。
+デスティネーションFlexGroupボリュームを拡張し、SnapMirror関係を自動または手動で再確立できます。デフォルトでは、SnapMirror関係は自動拡張に設定されており、ソース ボリュームが拡張されるとデスティネーションFlexGroupボリュームが自動的に拡張されます。
 
 .開始する前に
 * ソース FlexGroup ボリュームが拡張されている必要があります。
-* SnapMirror関係は状態である必要があり `SnapMirrored`ます。
+* SnapMirror関係は `SnapMirrored`状態である必要があります。
 +
-SnapMirror 関係が解除または削除されていない必要があります。
+SnapMirror 関係を中断または削除しないでください。
 
 
 
-.タスクの内容
-* デスティネーション FlexGroup ボリュームを作成すると、そのボリュームにはデフォルトで自動拡張が設定されます。
+.タスク概要
+* デスティネーションFlexGroupボリュームが作成されると、ボリュームはデフォルトで自動拡張されるように設定されます。
 +
-必要に応じて、デスティネーション FlexGroup ボリュームを手動拡張に変更できます。
+必要に応じて、手動拡張のデスティネーションFlexGroupボリュームを変更できます。
 
 +
 [NOTE]
 ====
-デスティネーション FlexGroup ボリュームは自動的に拡張することを推奨します。
+ベストプラクティスは、デスティネーションFlexGroupボリュームを自動的に拡張することです。
 
 ====
-* ソースの FlexGroup ボリュームとデスティネーションの FlexGroup ボリュームの拡張が完了し、コンスティチュエントの数が同じになるまでは、すべての SnapMirror 処理が失敗します。
-* SnapMirror 関係を解除または削除したあとにデスティネーション FlexGroup ボリュームを拡張した場合、元の関係を再同期することはできません。
+* ソースのFlexGroupボリュームとデスティネーションのFlexGroupボリュームの両方が拡張され、同じ数のコンスティチュエントを持つまで、すべてのSnapMirror操作は失敗します。
+* デスティネーションのFlexGroupボリュームをSnapMirror関係が解除または削除された後に拡張した場合、元の関係を再同期することはできません。
 +
-デスティネーションFlexGroupボリュームを再利用する場合は、SnapMirror関係の削除後にボリュームを拡張しないでください。
+デスティネーションFlexGroupボリュームを再利用する場合は、SnapMirror関係を削除した後にボリュームを拡張しないでください。
 
 
 
-.選択肢
-* 更新の転送を実行し、デスティネーション FlexGroup ボリュームを自動的に拡張します。
+.オプション
+* 更新転送を実行して、デスティネーションFlexGroupボリュームを自動的に拡張します：
 +
-.. SnapMirror更新の転送を実行します。 `snapmirror update -destination-path svm:vol_name`
-.. SnapMirror関係のステータスが状態になっていることを確認し `SnapMirrored`ます。 `snapmirror show`
+.. SnapMirror 更新転送を実行します： `snapmirror update -destination-path svm:vol_name`
+.. SnapMirror 関係のステータスが `SnapMirrored`状態であることを確認します： `snapmirror show`
 +
 [listing]
 ----
@@ -60,25 +60,25 @@ vs_src:src_fg
 
 
 +
-アグリゲートのサイズと可用性に基づいてアグリゲートが自動的に選択され、ソース FlexGroup のコンスティチュエントに一致する新しいコンスティチュエントがデスティネーション FlexGroup ボリュームに追加されます。拡張の完了後、再同期処理が自動的に開始されます。
+アグリゲートのサイズと可用性に基づいて、アグリゲートが自動的に選択され、ソースFlexGroupボリュームのコンスティチュエントと一致する新しいコンスティチュエントがデスティネーションFlexGroupボリュームに追加されます。拡張後、再同期処理が自動的にトリガされます。
 
-* デスティネーション FlexGroup ボリュームを手動で拡張します。
+* デスティネーション FlexGroup ボリュームを手動で拡張します：
 +
-.. SnapMirror関係が自動拡張モードの場合は、SnapMirror関係を手動拡張モードに設定します。 `snapmirror modify -destination-path svm:vol_name -is-auto-expand-enabled false`
+.. SnapMirror関係が自動拡張モードになっている場合は、SnapMirror関係を手動拡張モードに設定します： `snapmirror modify -destination-path svm:vol_name -is-auto-expand-enabled false`
 +
 [listing]
 ----
 cluster2::> snapmirror modify -destination-path vs_dst:dst_fg -is-auto-expand-enabled false
 Operation succeeded: snapmirror modify for the relationship with destination "vs_dst:dst_fg".
 ----
-.. SnapMirror関係を休止します。 `snapmirror quiesce -destination-path svm:vol_name`
+.. SnapMirror関係を休止する： `snapmirror quiesce -destination-path svm:vol_name`
 +
 [listing]
 ----
 cluster2::> snapmirror quiesce -destination-path vs_dst:dst_fg
 Operation succeeded: snapmirror quiesce for destination "vs_dst:dst_fg".
 ----
-.. デスティネーションFlexGroupボリュームを拡張します。 `+volume expand -vserver vserver_name -volume fg_name -aggr-list aggregate name,... [-aggr-list-multiplier constituents_per_aggr]+`
+.. デスティネーション FlexGroup ボリュームを拡張します： `+volume expand -vserver vserver_name -volume fg_name -aggr-list aggregate name,... [-aggr-list-multiplier constituents_per_aggr]+`
 +
 [listing]
 ----
@@ -88,14 +88,14 @@ Warning: The following number of constituents of size 50GB will be added to Flex
 Do you want to continue? {y|n}: y
 [Job 68] Job succeeded: Successful
 ----
-.. SnapMirror関係を再同期します。 `snapmirror resync -destination-path svm:vol_name`
+.. SnapMirror 関係を再同期します： `snapmirror resync -destination-path svm:vol_name`
 +
 [listing]
 ----
 cluster2::> snapmirror resync -destination-path vs_dst:dst_fg
 Operation is queued: snapmirror resync to destination "vs_dst:dst_fg".
 ----
-.. SnapMirror関係のステータスがになっていることを確認し `SnapMirrored`ます。 `snapmirror show`
+.. SnapMirror 関係のステータスが次のとおりであることを確認します： `SnapMirrored` `snapmirror show`
 +
 [listing]
 ----
@@ -114,7 +114,7 @@ vs_src:src_fg
 
 
 .関連情報
-* link:https://docs.netapp.com/us-en/ontap-cli/snapmirror-quiesce.html["スナップミラーの静止"^]
+* link:https://docs.netapp.com/us-en/ontap-cli/snapmirror-quiesce.html["snapmirror quiesce"^]
 * link:https://docs.netapp.com/us-en/ontap-cli/snapmirror-resync.html["snapmirror resync"^]
 * link:https://docs.netapp.com/us-en/ontap-cli/snapmirror-show.html["snapmirror show"^]
 

@@ -2,40 +2,40 @@
 permalink: smb-config/create-svms-data-access-task.html 
 sidebar: sidebar 
 keywords: svm, cluster, data, access, smb, client, create, create an svm 
-summary: SMBクライアントにデータアクセスを提供するSVMがクラスタ内に1つもない場合は、SVMを作成する必要があります。 
+summary: クラスタ内にSMBクライアントにデータ アクセスを提供するSVMが1つもない場合は、作成する必要があります。 
 ---
-= ONTAP SVMを作成してSMBデータアクセスを提供する
+= SMBデータアクセスを提供するためのONTAP SVMを作成する
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-SMBクライアントにデータアクセスを提供するSVMがクラスタ内に1つもない場合は、SVMを作成する必要があります。
+クラスタ内にSMBクライアントにデータ アクセスを提供するSVMが1つもない場合は、作成する必要があります。
 
 .開始する前に
-* ONTAP 9.13.1以降では、Storage VMに最大容量を設定できます。また、SVMの容量レベルがしきい値に近づいたときにアラートを設定することもできます。詳細については、を参照してください xref:../volumes/manage-svm-capacity.html[SVM容量の管理]。
+* ONTAP 9.13.1以降では、ストレージVMの最大容量を設定できます。また、SVMの容量がしきい値に近づいた場合にアラートを設定することもできます。詳細については、xref:../volumes/manage-svm-capacity.html[SVMの容量の管理]を参照してください。
 
 
 .手順
-. SVMを作成します。 `vserver create -vserver _svm_name_ -rootvolume _root_volume_name_ -aggregate _aggregate_name_ -rootvolume-security-style ntfs -language C.UTF-8 -ipspace _ipspace_name_`
+. SVM を作成します。 `vserver create -vserver _svm_name_ -rootvolume _root_volume_name_ -aggregate _aggregate_name_ -rootvolume-security-style ntfs -language C.UTF-8 -ipspace _ipspace_name_`
 +
-** オプションにはNTFS設定を使用し `-rootvolume-security-style`ます。
-** デフォルトのC.UTF-8オプションを使用し `-language`ます。
-** この `ipspace`設定はオプションです。
+**  `-rootvolume-security-style`オプションには NTFS 設定を使用します。
+** デフォルトの C.UTF-8 `-language` オプションを使用します。
+**  `ipspace`設定はオプションです。
 
 
-. 新しく作成したSVMの設定とステータスを確認します。 `vserver show -vserver _vserver_name_`
+. 新しく作成された SVM の構成とステータスを確認します： `vserver show -vserver _vserver_name_`
 +
- `Allowed Protocols`フィールドにCIFSを含める必要があります。このリストは後で編集できます。
+ `Allowed Protocols`フィールドには CIFS を含める必要があります。このリストは後で編集できます。
 
 +
- `Vserver Operational State`フィールドには状態が表示されている必要があり `running`ます。状態が表示された場合は `initializing`、ルートボリュームの作成などの中間処理が失敗したため、SVMを削除して再作成する必要があります。
+ `Vserver Operational State`フィールドには `running`状態が表示される必要があります。 `initializing`状態が表示される場合、ルート ボリュームの作成などの中間操作が失敗したことを意味し、SVMを削除して再作成する必要があります。
 
 
 
 .例
-次のコマンドは、データアクセス用のSVMをIPspace内に作成し `ipspaceA`ます。
+次のコマンドは、IPspace `ipspaceA`内のデータ アクセス用の SVM を作成します：
 
 [listing]
 ----
@@ -45,7 +45,7 @@ cluster1::> vserver create -vserver vs1.example.com -rootvolume root_vs1 -aggreg
 [Job 2059] Job succeeded:
 Vserver creation completed
 ----
-次のコマンドは、1GBのルートボリュームでSVMが作成され、自動的に起動されて状態になっていることを示しています `running`。ルートボリュームには、ルールが含まれていないデフォルトのエクスポートポリシーがあるため、ルートボリュームは作成時にエクスポートされません。
+次のコマンドは、1GBのルートボリュームを持つSVMが作成され、自動的に起動されて `running`状態になっていることを示しています。ルートボリュームにはルールが含まれていないデフォルトのエクスポート ポリシーが適用されているため、作成時にルートボリュームはエクスポートされません。
 
 [listing]
 ----
@@ -75,4 +75,4 @@ cluster1::> vserver show -vserver vs1.example.com
                                IPspace Name: ipspaceA
 ----
 
-NOTE: ONTAP 9.13.1以降では、アダプティブQoSポリシーグループテンプレートを設定して、SVM内のボリュームにスループットの下限と上限の制限を適用できます。このポリシーはSVMの作成後にのみ適用できます。このプロセスの詳細については、を参照してくださいxref:../performance-admin/adaptive-policy-template-task.html[アダプティブポリシーグループテンプレートの設定]。
+NOTE: ONTAP 9.13.1以降では、アダプティブQoSポリシーグループテンプレートを設定して、SVM内のボリュームにスループットの下限と上限を適用できます。このポリシーは、SVMを作成した後にのみ適用できます。このプロセスの詳細については、xref:../performance-admin/adaptive-policy-template-task.html[アダプティブ ポリシー グループ テンプレートの設定]を参照してください。

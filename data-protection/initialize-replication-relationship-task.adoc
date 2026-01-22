@@ -2,7 +2,7 @@
 permalink: data-protection/initialize-replication-relationship-task.html 
 sidebar: sidebar 
 keywords: initialize, replication, relationship, snapmirror, snap mirror, synchronous, transfer, snapshot copy, 
-summary: すべての関係タイプでは、初期化の際にベースライン転送が実行されます。ベースライン転送ではソースボリュームのSnapshotが作成され、そのコピーおよびコピーが参照するすべてのデータブロックがデスティネーションボリュームに転送されます。それ以外の転送の内容はポリシーによって異なります。 
+summary: どのタイプの関係性においても、初期化時にベースライン転送が実行されます：ソース ボリュームの Snapshot コピーを作成し、そのコピーとそれが参照するすべてのデータ ブロックをデスティネーション ボリュームに転送します。それ以外の場合、転送内容はポリシーによって異なります。 
 ---
 = ONTAP SnapMirrorレプリケーション関係を初期化する
 :allow-uri-read: 
@@ -11,21 +11,21 @@ summary: すべての関係タイプでは、初期化の際にベースライ�
 
 
 [role="lead"]
-すべての関係タイプで初期化を実行すると、_baseline transfer_：が実行され、ソースボリュームのSnapshotが作成されて、そのコピーおよびコピーが参照するすべてのデータブロックがデスティネーションボリュームに転送されます。それ以外の転送の内容はポリシーによって異なります。
+どのタイプの関係性においても、初期化時に_ベースライン転送_が実行されます：つまり、ソース ボリュームのスナップショットを作成し、そのコピーとそれが参照するすべてのデータ ブロックをデスティネーション ボリュームに転送します。それ以外の場合、転送内容はポリシーによって異なります。
 
 .開始する前に
-ソースとデスティネーションのクラスタとSVMのピア関係が確立されている必要があります。
+ソース / デスティネーション クラスタとSVMのピア関係が確立されている必要があります。
 
 link:../peering/index.html["クラスタとSVMのピアリング"]
 
-.タスクの内容
+.タスク概要
 初期化には時間がかかる場合があります。ベースライン転送はオフピークの時間帯に実行することを推奨します。
 
-ONTAP 9 .5以降では、SnapMirror同期関係がサポートされます。
+ONTAP 9.5以降では、SnapMirror同期関係がサポートされます。
 
-ノードの再起動、テイクオーバー/ギブバック、パニックなど、何らかの理由でファイルシステムが再起動された場合、初期化は自動的に再開されず、手動で再起動する必要があることに注意してください。
+ノードの再起動、テイクオーバー/ギブバック、パニックなど、何らかの理由でファイル システムが再起動された場合、初期化は自動的に再開されず、手動で再起動する必要があることに注意してください。
 
-.ステップ
+.手順
 . レプリケーション関係を初期化します。
 +
 `snapmirror initialize -source-path <SVM:volume>|<cluster://SVM/volume>, ... -destination-path <SVM:volume>|<cluster://SVM/volume>, ...`
@@ -33,11 +33,11 @@ ONTAP 9 .5以降では、SnapMirror同期関係がサポートされます。
 +
 [NOTE]
 ====
-このコマンドはデスティネーションSVMまたはデスティネーションクラスタから実行する必要があります。
+このコマンドはデスティネーションSVMまたはデスティネーション クラスタから実行する必要があります。
 
 ====
 +
-次の例は、の `svm1`ソースボリュームとの `svm_backup`デスティネーションボリューム `volA_dst`の間の関係を初期化し `volA`ます。
+次の例では、 `svm1`のソース ボリューム `volA`と `svm_backup`のデスティネーション ボリューム `volA_dst`間の関係を初期化します：
 
 +
 [listing]
@@ -45,6 +45,6 @@ ONTAP 9 .5以降では、SnapMirror同期関係がサポートされます。
 cluster_dst::> snapmirror initialize -source-path svm1:volA -destination-path svm_backup:volA_dst
 ----
 +
-の詳細については `snapmirror initialize`、をlink:https://docs.netapp.com/us-en/ontap-cli/snapmirror-initialize.html["ONTAPコマンド リファレンス"^]参照してください。
+ `snapmirror initialize`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/snapmirror-initialize.html["ONTAPコマンド リファレンス"^]を参照してください。
 
 

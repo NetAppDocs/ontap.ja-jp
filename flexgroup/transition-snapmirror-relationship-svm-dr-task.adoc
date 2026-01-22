@@ -2,35 +2,35 @@
 permalink: flexgroup/transition-snapmirror-relationship-svm-dr-task.html 
 sidebar: sidebar 
 keywords: transition, flexgroup, snapmirror, relationship, svm, dr 
-summary: 既存のFlexGroup SnapMirror関係を移行することで、FlexGroup SVM DR関係を作成できます。 
+summary: FlexGroupボリュームの既存のSnapMirror関係からFlexGroup SVM DR関係を作成することができます。 
 ---
-= ONTAP FlexGroup SnapMirror関係をSVM DRに移行
+= ONTAP FlexGroup SnapMirror関係をSVM DRに移行する
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-既存のFlexGroup SnapMirror関係を移行することで、FlexGroup SVM DR関係を作成できます。
+FlexGroupボリュームの既存のSnapMirror関係からFlexGroup SVM DR関係を作成することができます。
 
 .開始する前に
-* FlexGroup Volume SnapMirror関係は正常な状態です。
-* ソースとデスティネーションのFlexGroupボリュームの名前が同じです。
+* FlexGroupボリュームのSnapMirror関係が健全な状態である。
+* ソースとデスティネーションのFlexGroupボリュームの名前が同じである。
 
 
 .手順
-. SnapMirrorデスティネーションから、FlexGroupレベルのSnapMirror関係を再同期します。 `snapmirror resync`
-. FlexGroup SVM DR SnapMirror関係を作成FlexGroup VolumeのSnapMirror関係に設定されているのと同じSnapMirrorポリシーを使用します。 `snapmirror create -destination-path dest_svm: -source-path src_svm: -identity-preserve true -policy MirrorAllSnapshots`
+. SnapMirrorデスティネーションから、FlexGroupレベルのSnapMirror関係を再同期します： `snapmirror resync`
+. FlexGroup SVM DR SnapMirror関係を作成します。FlexGroupボリュームのSnapMirror関係で設定されているのと同じSnapMirrorポリシーを使用します： `snapmirror create -destination-path dest_svm: -source-path src_svm: -identity-preserve true -policy MirrorAllSnapshots`
 +
 [NOTE]
 ====
-レプリケーション関係を作成するときは、コマンドのオプションを `snapmirror create`使用する必要があります `-identity-preserve true`。
+レプリケーション関係を作成するときは、 `snapmirror create`コマンドの `-identity-preserve true`オプションを使用する必要があります。
 
 ====
 +
-の詳細については `snapmirror create`、をlink:https://docs.netapp.com/us-en/ontap-cli/snapmirror-create.html["ONTAPコマンド リファレンス"^]参照してください。
+ `snapmirror create`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/snapmirror-create.html["ONTAPコマンド リファレンス"^]を参照してください。
 
-. 関係が解除されていることを確認します。 `snapmirror show -destination-path dest_svm: -source-path src_svm:`
+. 関係が切断されたことを確認します： `snapmirror show -destination-path dest_svm: -source-path src_svm:`
 +
 [listing]
 ----
@@ -43,7 +43,7 @@ Path        Type  Path        State   Status         Progress  Healthy Updated
 fg_vs:        XDP  fg_vs1_renamed:     Broken-off
                                       Idle           -         true   -
 ----
-. デスティネーションSVMを停止します。 `vserver stop -vserver vs_name`
+. デスティネーション SVM を停止します。 `vserver stop -vserver vs_name`
 +
 [listing]
 ----
@@ -51,19 +51,19 @@ vserver stop -vserver fg_vs_renamed
 [Job 245] Job is queued: Vserver Stop fg_vs_renamed.
 [Job 245] Done
 ----
-. SVM SnapMirror関係を再同期します。 `snapmirror resync -destination-path dest_svm: -source-path src_svm:`
+. SVM SnapMirror関係を再同期します： `snapmirror resync -destination-path dest_svm: -source-path src_svm:`
 +
 [listing]
 ----
 snapmirror resync -destination-path fg_vs_renamed: -source-path fg_vs:
 Warning: This Vserver has volumes which are the destination of FlexVol or FlexGroup SnapMirror relationships. A resync on the Vserver SnapMirror relationship will cause disruptions in data access
 ----
-. SVM DRレベルのSnapMirror関係が健全なアイドル状態になっていることを確認します。 `snapmirror show -expand`
-. FlexGroup SnapMirror関係が健全な状態であることを確認します。 `snapmirror show`
+. SVM DRレベルのSnapMirror関係が正常なアイドル状態に達していることを確認します： `snapmirror show -expand`
+. FlexGroup SnapMirror関係が正常な状態であることを確認します： `snapmirror show`
 
 
 .関連情報
-* link:https://docs.netapp.com/us-en/ontap-cli/snapmirror-create.html["スナップミラー作成"^]
+* link:https://docs.netapp.com/us-en/ontap-cli/snapmirror-create.html["snapmirror create"^]
 * link:https://docs.netapp.com/us-en/ontap-cli/snapmirror-resync.html["snapmirror resync"^]
 * link:https://docs.netapp.com/us-en/ontap-cli/snapmirror-show.html["snapmirror show"^]
 

@@ -2,7 +2,7 @@
 permalink: volumes/move-volume-task.html 
 sidebar: sidebar 
 keywords: move, volume 
-summary: FlexVol volumeを同じStorage Virtual Machine（SVM）内の別のアグリゲート、ノード、またはその両方に移動して、ストレージ容量を分散します。 
+summary: ストレージ容量のバランスをとるために、FlexVol ボリュームを同じStorage Virtual Machine（SVM）内の別のアグリゲート、ノード、またはその両方に移動します。 
 ---
 = ONTAPボリュームを移動する
 :allow-uri-read: 
@@ -11,34 +11,34 @@ summary: FlexVol volumeを同じStorage Virtual Machine（SVM）内の別のア�
 
 
 [role="lead"]
-ストレージ容量に不均衡がある場合は、FlexVol volumeを同じStorage Virtual Machine（SVM）内の別のアグリゲート、ノード、またはその両方に移動してストレージ容量のバランスを調整できます。
+ストレージ容量に不均衡があるときは、FlexVolを同じStorage Virtual Machine（SVM）内で別のアグリゲート、ノード、またはその両方に移動してストレージ容量のバランスを調整することができます。
 
-.タスクの内容
-デフォルトでは、カットオーバー処理が30秒以内に完了しないと再試行されます。デフォルトの動作は、パラメータと `-cutover-action`パラメータを使用して調整でき `-cutover-window`ます。どちらのパラメータにもadvanced権限レベルが必要です。
+.タスク概要
+デフォルトでは、カットオーバー操作が30秒以内に完了しない場合、再試行されます。デフォルトの動作は `-cutover-window`および `-cutover-action`パラメータを使用して調整できます。これらのパラメータはどちらも高度な権限レベルのアクセスが必要です。
 
 このタスクを実行するには、クラスタ管理者である必要があります。
 
 .開始する前に
-* 8Kアダプティブ圧縮を使用するボリュームを以下のいずれかのプラットフォームに移動する場合は、link:increase-volume-active-file-system-size.html["ボリュームのアクティブファイルシステムのサイズを増やす"]ボリュームを移動する前に。これらのプラットフォームではデータが異なる方法で圧縮されるため、ボリューム レベルではなく集約レベルでスペースが節約されます。この違いのため、ボリュームの移動中にボリュームのスペースが不足するのを防ぐために、ボリュームのアクティブ ファイル システムのサイズを 8k の圧縮節約分だけ増やす必要があります。
+* 8Kアダプティブ圧縮を使用するボリュームを以下のプラットフォームのいずれかに移動する場合は、ボリュームを移動する前にlink:increase-volume-active-file-system-size.html["ボリュームのアクティブ ファイル システムのサイズを増やす"]必要があります。これらのプラットフォームではデータの圧縮方法が異なるため、ボリュームレベルではなくアグリゲートレベルでスペースが節約されます。この違いにより、ボリュームの移動中にボリュームのスペースが不足するのを防ぐため、ボリュームのアクティブ ファイル システムのサイズを8K圧縮による節約分だけ増やす必要があります。
 +
-** 専用オフロードプロセッサのストレージ効率をサポートするAFFおよびFASプラットフォーム
+** 専用オフロード プロセッサのストレージ効率をサポートする AFF および FAS プラットフォーム
 +
-AFFおよびFASプラットフォームの詳細については、link:../concepts/builtin-storage-efficiency-concept.html["専用オフロードプロセッサのストレージ効率"] 。
+link:../concepts/builtin-storage-efficiency-concept.html["専用オフロード プロセッサのストレージ効率"]をサポートする AFF および FAS プラットフォームの詳細をご覧ください。
 
 ** AFF Cシリーズプラットフォーム
 +
-参照link:https://hwu.netapp.com/["Hardware Universe"^]C シリーズ プラットフォームの完全なリストについては、こちらをご覧ください。
+C シリーズ プラットフォームの完全なリストについては、link:https://hwu.netapp.com/["Hardware Universe"^]を参照してください。
 
 
 
-* データ保護ミラーを移動していて、ミラー関係を初期化していない場合は、 `snapmirror initialize`ミラー関係を初期化するコマンド。詳細はこちら `snapmirror initialize`の中でlink:https://docs.netapp.com/us-en/ontap-cli/snapmirror-initialize.html["ONTAPコマンド リファレンス"^] 。
+* データ保護ミラーを移動する際に、ミラー関係を初期化していない場合は、 `snapmirror initialize`コマンドを使用してミラー関係を初期化してください。 `snapmirror initialize`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/snapmirror-initialize.html["ONTAPコマンド リファレンス"^]を参照してください。
 +
 ボリュームを移動するには、データ保護のミラー関係を初期化する必要があります。
 
 
 
 .手順
-. ボリュームを移動できるアグリゲートを決定します。
+. ボリュームを移動できるアグリゲートを決定します：
 +
 [source, cli]
 ----
@@ -48,7 +48,7 @@ volume move target-aggr show
 ボリュームに使用できるスペースが十分にあるアグリゲート、つまり利用可能なサイズが移動するボリュームよりも大きいアグリゲートを選択する必要があります。
 
 +
-次の例は、表示されている任意のアグリゲートにvs2ボリュームを移動できることを示しています。
+次の例では、表示されたどのアグリゲートにもvs2ボリュームを移動できます。
 
 +
 [listing]
@@ -64,7 +64,7 @@ node12a_aggr4    10.36GB          hdd
 5 entries were displayed.
 ----
 +
-の詳細については `volume move target-aggr show`、をlink:https://docs.netapp.com/us-en/ontap-cli/volume-move-target-aggr-show.html["ONTAPコマンド リファレンス"^]参照してください。
+ `volume move target-aggr show`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/volume-move-target-aggr-show.html["ONTAPコマンド リファレンス"^]を参照してください。
 
 . 検証チェックを実行して、ボリュームを目的のアグリゲートに移動できることを確認します。
 +
@@ -73,16 +73,16 @@ node12a_aggr4    10.36GB          hdd
 volume move start -perform-validation-only
 ----
 +
-の詳細については `volume move start`、をlink:https://docs.netapp.com/us-en/ontap-cli/volume-move-start.html["ONTAPコマンド リファレンス"^]参照してください。
+ `volume move start`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/volume-move-start.html["ONTAPコマンド リファレンス"^]を参照してください。
 
-. 音量を移動します:
+. ボリュームを移動します：
 +
 [source, cli]
 ----
 volume move start
 ----
 +
-SVM vs2 上の user_max ボリュームを node12a_aggr3 アグリゲートに移動するコマンドを次に示します。移動はバックグラウンドプロセスとして実行されます。
+SVM vs2上のuser_maxボリュームをnode12a_aggr3アグリゲートに移動するコマンドを次に示します。移動はバックグラウンド プロセスとして実行されます。
 
 +
 [listing]
@@ -90,14 +90,14 @@ SVM vs2 上の user_max ボリュームを node12a_aggr3 アグリゲートに�
 cluster1::> volume move start -vserver vs2 -volume user_max
 -destination-aggregate node12a_aggr3
 ----
-. ボリューム移動操作のステータスを確認します。
+. ボリューム移動操作のステータスを確認します：
 +
 [source, cli]
 ----
 volume move show
 ----
 +
-次の例は、レプリケーションフェーズを完了し、カットオーバーフェーズにあるボリューム移動の状態を示しています。
+次の例は、レプリケーション フェーズを完了し、カットオーバー フェーズにあるボリューム移動の状態を示しています。
 
 +
 [listing]
@@ -109,12 +109,12 @@ Vserver   Volume     State    Move Phase  Percent-Complete Time-To-Complete
 vs2       user_max   healthy  cutover     -                -
 ----
 +
-コマンド出力に表示されなくなると、ボリューム移動は完了 `volume move show`です。
+ボリュームの移動は、 `volume move show`コマンド出力にボリュームが表示されなくなると完了です。
 
 +
-の詳細については `volume move show`、をlink:https://docs.netapp.com/us-en/ontap-cli/volume-move-show.html["ONTAPコマンド リファレンス"^]参照してください。
+ `volume move show`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/volume-move-show.html["ONTAPコマンド リファレンス"^]を参照してください。
 
-. オプションで、圧縮による節約を表示します。
+. オプションで、圧縮による節約を表示します：
 +
 [source, cli]
 ----
@@ -122,7 +122,7 @@ volume show-footprint -vserver <SVM> -volume <volume_name>
 ----
 +
 
-NOTE: ボリュームの移動が完了した直後に自動的に実行される後処理変換スキャンによって、集計レベルでの追加の節約が実現される可能性があります。
+NOTE: ボリュームの移動が完了した直後に自動的に実行される後処理変換スキャンによって、アグリゲート レベルでの追加の削減効果が実現される可能性があります。
 
 
 

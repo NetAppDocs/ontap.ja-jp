@@ -4,7 +4,7 @@ sidebar: sidebar
 keywords: rehost, volumes, snapmirror, relationship 
 summary: SnapMirror関係の一部として定義されているボリュームをリホストできます。関係をリホストする前に考慮する必要があるいくつかの問題があります。 
 ---
-= SnapMirror関係にあるボリュームをリホストする
+= SnapMirror関係にあるボリュームのリホスト
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
@@ -13,29 +13,29 @@ summary: SnapMirror関係の一部として定義されているボリューム�
 [role="lead"]
 SnapMirror関係の一部として定義されているボリュームをリホストできます。関係をリホストする前に考慮する必要があるいくつかの問題があります。
 
-.タスクの内容
+.タスク概要
 * リホストはシステム停止を伴う処理です。
-* リホスト処理が失敗した場合は、ソースボリュームでボリュームポリシーと関連ルールの再設定が必要になることがあります。
-* 次のボリュームポリシー、ポリシールール、および構成はリホスト処理後にソースボリュームから失われるため、リホストしたボリュームで手動で再設定する必要があります。
+* リホスト処理が失敗した場合は、ソース ボリュームでボリュームのポリシーおよび関連するルールを再設定しなければならない場合があります。
+* 次のボリューム ポリシー、ポリシー ルール、および構成はリホスト処理後にソース ボリュームから失われるため、リホスト後のボリュームで手動で再設定する必要があります。
 +
-** ボリュームとqtreeのエクスポートポリシー
+** ボリュームとqtreeのエクスポート ポリシー
 ** ウィルス対策ポリシー
 ** ボリューム効率化ポリシー
-** Quality of Service （ QoS ；サービス品質）ポリシー
+** サービス品質（QoS）ポリシー
 ** Snapshotポリシー
-** クォータルール
-** ns-switch とネームサービスの設定のエクスポートポリシーとルール
-** ユーザ ID とグループ ID
+** クォータ ルール
+** ns-switchおよびネーム サービス構成のエクスポート ポリシーとルール
+** ユーザIDとグループID
 
 
 
 
 .開始する前に
 * ボリュームはオンラインである必要があります。
-* ボリューム管理処理（ボリュームの移動やLUNの移動など）を実行していないことを確認してください。
-* リホストするボリュームへのデータアクセスを停止する必要があります。
-* リホストするボリュームのデータアクセスをサポートするようにターゲット SVM の ns-switch とネームサービスを設定する必要があります。
-* ボリュームのユーザ ID とグループ ID をターゲット SVM で使用可能であるか、またはホストするボリュームで変更する必要があります。
+* ボリューム管理処理（ボリュームの移動、LUNの移動など）を実行中のボリュームはリホストできません。
+* リホストするボリュームへのデータ アクセスを停止する必要があります。
+* リホストするボリュームのデータ アクセスをサポートするようにターゲットSVMのns-switchとネーム サービスを設定する必要があります。
+* ボリュームのユーザIDとグループIDをターゲットSVMで使用可能であるか、またはホストするボリュームで変更する必要があります。
 
 
 .手順
@@ -44,23 +44,23 @@ SnapMirror関係の一部として定義されているボリュームをリホ�
 `snapmirror show`
 
 +
-これは、ボリュームのリホストが失敗した場合にSnapMirror関係タイプに関する情報が失われないようにするための予防的な手順です。
+これは、ボリュームのリホストが失敗した場合にSnapMirror関係のタイプに関する情報が失われないようにするための予防的な手順です。
 
-. デスティネーションクラスタから、SnapMirror関係を削除します。
+. デスティネーション クラスタから、SnapMirror関係を削除します。
 +
 `snapmirror delete`
 
 +
-SnapMirror関係を解除しないでください。解除しないと、デスティネーションボリュームのデータ保護機能が失われ、リホスト処理後に関係を再確立できなくなります。
+SnapMirror関係を切断しないでください。切断すると、デスティネーションボリュームのデータ保護機能が失われ、リホスト処理後に関係を再確立できなくなります。
 
-. ソースクラスタから、SnapMirror関係の情報を削除します。
+. ソース クラスタから、SnapMirror関係情報を削除します。
 +
 `snapmirror release -relationship-info-only true`
 
 +
-パラメータをに `true`設定する `-relationship-info-only`と、Snapshotは削除されずにソースの関係情報が削除されます。
+ `-relationship-info-only`パラメータを `true`に設定すると、Snapshotを削除せずにソース関係情報が削除されます。
 
-. ボリュームがマウントされている場合は、アンマウントします。
+. ボリュームがマウントされている場合は、マウント解除します：
 +
 `volume unmount -vserver <source_svm> -volume <vol_name>`
 
@@ -68,20 +68,20 @@ SnapMirror関係を解除しないでください。解除しないと、デス�
 +
 `set -privilege advanced`
 
-. デスティネーション SVM でボリュームをリホストします。
+. デスティネーションSVMでボリュームをリホストします。
 +
 `volume rehost -vserver <source_svm> -volume <vol_name> -destination-vserver <destination_svm>`
 
-. SVMピア関係が存在しない場合は、ソースSVMとデスティネーションSVMの間にSVMピア関係を作成します。
+. SVMピア関係が存在しない場合は、ソースSVMとデスティネーションSVM間にSVMピア関係を作成します。
 +
 `vserver peer create`
 
-. ソースボリュームとデスティネーションボリューム間にSnapMirror関係を作成します。
+. ソース ボリュームとデスティネーション ボリューム間にSnapMirror関係を作成します。
 +
 `snapmirror create`
 
 +
-DPボリュームをホストしているSVMからコマンドを実行する必要があり `snapmirror create`ます。リホストしたボリュームは、SnapMirror関係のソースまたはデスティネーションにすることができます。
+ `snapmirror create`コマンドは、DPボリュームをホストしているSVMから実行する必要があります。再ホストされたボリュームは、SnapMirror関係のソースまたはデスティネーションとして使用できます。
 
 . SnapMirror関係を再同期します。
 
@@ -89,7 +89,7 @@ DPボリュームをホストしているSVMからコマンドを実行する必
 .関連情報
 * link:https://docs.netapp.com/us-en/ontap-cli/set.html["設定"^]
 * link:https://docs.netapp.com/us-en/ontap-cli/search.html?q=snapmirror["SnapMirror"^]
-* link:https://docs.netapp.com/us-en/ontap-cli/volume-rehost.html["ホリユウムノリホスト"^]
-* link:https://docs.netapp.com/us-en/ontap-cli/volume-unmount.html["ボリュームのアンマウント"^]
+* link:https://docs.netapp.com/us-en/ontap-cli/volume-rehost.html["ボリュームの再ホスト"^]
+* link:https://docs.netapp.com/us-en/ontap-cli/volume-unmount.html["volume unmount"^]
 * link:https://docs.netapp.com/us-en/ontap-cli/vserver-peer-create.html["vserver peer create"^]
 

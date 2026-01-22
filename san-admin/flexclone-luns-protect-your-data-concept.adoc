@@ -2,42 +2,42 @@
 permalink: san-admin/flexclone-luns-protect-your-data-concept.html 
 sidebar: sidebar 
 keywords: use, flexclone, luns, protect, your, data 
-summary: FlexClone LUNは、アクティブボリュームまたはSnapshot内にある別のLUNの書き込み可能なポイントインタイムコピーです。クローンとその親は、相互に影響を及ぼさずに個別に変更できます。 
+summary: FlexClone LUNは、アクティブボリュームまたはスナップショット内の別のLUNのポイントインタイムの書き込み可能なコピーです。クローンとその親は、互いに影響を与えることなく独立して変更できます。 
 ---
-= ONTAP FlexClone LUNでデータを保護
+= ONTAP FlexClone LUNでデータを保護する
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-FlexClone LUNは、アクティブボリュームまたはSnapshot内にある別のLUNの書き込み可能なポイントインタイムコピーです。クローンとその親は、相互に影響を及ぼさずに個別に変更できます。
+FlexClone LUNは、アクティブボリュームまたはスナップショット内の別のLUNのポイントインタイムの書き込み可能なコピーです。クローンとその親は、互いに影響を与えることなく独立して変更できます。
 
-FlexClone LUNを使用すると、LUNの読み取り/書き込みコピーを複数作成できます。
+FlexClone LUNを使用すると、LUNの読み書き可能なコピーを複数作成できます。
 
 .FlexClone LUNを作成する理由
-* テスト用にLUNの一時的なコピーを作成する必要があります。
-* 本番環境のデータへのアクセスを許可せずに、追加のユーザが利用できるデータのコピーを作成する必要があります。
-* 操作や投影のためにデータベースのクローンを作成し、元のデータを変更せずに保持したいと考えています。
-* LUNのデータの特定のサブセット（ボリュームグループ内の特定の論理ボリュームまたはファイルシステム、またはファイルシステム内の特定のファイルまたはファイルセット）にアクセスし、元のLUNの残りのデータをリストアすることなく、そのサブセットを元のLUNにコピーする。これは、LUNとLUNのクローンを同時にマウントできるオペレーティングシステムで機能します。SnapDrive for UNIXでは、コマンドを使用してこれをサポートしてい `snap connect`ます。
-* オペレーティングシステムが同じ複数のSANブートホストが必要な場合。
+* テストを目的としてLUNの一時的なコピーを作成する必要がある場合。
+* 追加のユーザに本番データへのアクセスを許可することなくデータのコピーを提供する場合。
+* 変更や開発用にデータベースのクローンを作成し、元のデータを未変更のまま残す場合。
+* LUNのデータの特定のサブセット（ボリューム グループ内の特定の論理ボリュームまたはファイル システム、あるいはファイル システム内の特定のファイルまたはファイル セット）にアクセスし、それを元のLUNにコピーします。ただし、元のLUNの残りのデータは復元しません。これは、LUNとLUNのクローンの同時マウントをサポートするオペレーティング システムで機能します。SnapDrive for UNIXでは、 `snap connect`コマンドでこれをサポートしています。
+* 同じオペレーティング システムを使用する複数のSANブート ホストが必要な場合。
 
 
-FlexClone LUNは、最初は親LUNとスペースを共有します。デフォルトでは、FlexClone LUNは親LUNのスペースリザーブ属性を継承します。たとえば、親LUNがスペースリザーブなしの場合、FlexClone LUNもデフォルトでスペースリザーブなしになります。ただし、スペースリザーブLUNである親からスペースリザーブなしのFlexClone LUNを作成することはできます。
+FlexClone LUNは、最初は親LUNとスペースを共有します。デフォルトでは、FlexClone LUNは親LUNのスペース リザーブ属性を継承します。たとえば、親LUNがスペース リザーブなしの場合は、FlexClone LUNもデフォルトでスペース リザーブなしになります。ただし、スペース リザーブLUNである親から、スペース リザーブなしのFlexClone LUNを作成することもできます。
 
-LUNクローンを作成するとバックグラウンドでブロック共有が行われ、ブロック共有が完了するまでボリュームSnapshotを作成できません。
+LUNのクローンを作成すると、ブロック共有がバックグラウンドで発生し、ブロック共有が完了するまでボリューム Snapshotを作成することはできません。
 
-コマンドを使用して、ボリュームでFlexClone LUNの自動削除機能を有効にする必要があります `volume snapshot autodelete modify`。そうしないと、FlexClone LUNを自動的に削除するように設定されていても、ボリュームでFlexCloneの自動削除が設定されていない場合、FlexClone LUNは削除されません。
+FlexClone LUNの自動削除機能を有効にするには、 `volume snapshot autodelete modify`コマンドを使用してボリュームを設定する必要があります。FlexClone LUNを自動削除したいのにボリュームがFlexClone自動削除に設定されていない場合、FlexClone LUNは削除されません。
 
-FlexClone LUNを作成すると、FlexClone LUNの自動削除機能はデフォルトで無効になります。FlexClone LUNを自動的に削除するには、FlexClone LUNごとに手動で有効にする必要があります。ボリュームのセミシックプロビジョニングを使用している場合に、このオプションが提供する「ベストエフォート」の書き込み保証が必要な場合は、 _ALL_FlexClone LUN を自動削除できるようにする必要があります。
+FlexClone LUNを作成すると、FlexClone LUNの自動削除機能はデフォルトで無効になります。FlexClone LUNを自動削除するには、各FlexClone LUNでこの機能を手動で有効にする必要があります。セミシックボリュームプロビジョニングを使用しており、このオプションが提供する「ベストエフォート」書き込み保証を利用するには、すべてのFlexClone LUNを自動削除対象にする必要があります。
 
 [NOTE]
 ====
-SnapshotからFlexClone LUNを作成すると、スペース効率に優れたバックグラウンドプロセスを使用して、Snapshotから自動的にLUNがスプリットされます。これにより、LUNがSnapshotに依存したり、追加のスペースを消費したりすることがなくなります。このバックグラウンドスプリットが完了しておらず、Snapshotが自動的に削除された場合、そのFlexClone LUNのFlexClone自動削除機能が無効になっていても、そのFlexClone LUNは削除されます。バックグラウンドスプリットの完了後は、Snapshotが削除されても、FlexClone LUNは削除されません。
+スナップショットからFlexClone LUNを作成すると、LUNはスペース効率に優れたバックグラウンド プロセスを使用してスナップショットから自動的に分割されます。これにより、LUNがスナップショットに依存し続けたり、追加のスペースを消費したりすることがなくなります。このバックグラウンド分割が完了せずにこのスナップショットが自動的に削除された場合、そのFlexClone LUNのFlexClone自動削除機能を無効にしていても、そのFlexClone LUNは削除されます。バックグラウンド分割が完了した後は、そのスナップショットが削除されてもFlexClone LUNは削除されません。
 
 ====
 .関連情報
 * link:../volumes/create-flexclone-file-flexclone-lun-task.html["FlexClone LUNを作成する"]
-* link:../volumes/configure-flexvol-delete-flexclone-files-luns-task.html["FlexClone LUNを自動的に削除するようにFlexVol volumeを設定する"]
-* link:../volumes/prevent-flexclone-file-lun-automatic-deleted-task.html["FlexClone LUNが自動的に削除されないようにする"]
+* link:../volumes/configure-flexvol-delete-flexclone-files-luns-task.html["FlexVol volumeを構成してFlexClone LUNを自動的に削除する"]
+* link:../volumes/prevent-flexclone-file-lun-automatic-deleted-task.html["FlexClone LUN が自動的に削除されないようにする"]
 

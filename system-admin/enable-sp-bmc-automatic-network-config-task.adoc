@@ -2,46 +2,46 @@
 permalink: system-admin/enable-sp-bmc-automatic-network-config-task.html 
 sidebar: sidebar 
 keywords: enable, sp, bmc, automatic, network, configuration 
-summary: SP ネットワークを手動で設定するよりも、自動ネットワーク設定を使用するように SP を設定することを推奨します。SPの自動ネットワーク設定はクラスタ全体で行われるため、個 々 のノードのSPネットワークを手動で管理する必要はありません。 
+summary: SPネットワークを手動で設定するよりも、SPの自動ネットワーク設定を有効にすることを推奨します。SP自動ネットワーク設定はクラスタ全体で行われるため、個々のノードのSPネットワークを手動で管理する必要はありません。 
 ---
-= ONTAP SP / BMCの自動ネットワーク設定を有効にする
+= ONTAP SP/BMC自動ネットワーク構成を有効にする
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-SP ネットワークを手動で設定するよりも、自動ネットワーク設定を使用するように SP を設定することを推奨します。SPの自動ネットワーク設定はクラスタ全体で行われるため、個 々 のノードのSPネットワークを手動で管理する必要はありません。
+SPネットワークを手動で設定するよりも、SPの自動ネットワーク設定を有効にすることを推奨します。SP自動ネットワーク設定はクラスタ全体で行われるため、個々のノードのSPネットワークを手動で管理する必要はありません。
 
 [NOTE]
 ====
-このタスクは、SPとBMCの両方に適用されます。
+この作業は、SPとBMCの両方に当てはまります。
 
 ====
-* SPの自動ネットワーク設定に使用するサブネットは、クラスタで定義済みであり、SPネットワークインターフェイスとリソースが競合していない必要があります。
+* SP自動ネットワーク設定には、クラスタ内に定義済みで、SPネットワーク インターフェイスとリソースが競合しないサブネットを使用する必要があります。
 +
-コマンドは `network subnet show`、クラスタのサブネット情報を表示します。
+ `network subnet show`コマンドは、クラスタのサブネット情報を表示します。
 
 +
-の詳細については `network subnet show`、をlink:https://docs.netapp.com/us-en/ontap-cli/network-subnet-show.html["ONTAPコマンド リファレンス"^]参照してください。
+ `network subnet show`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/network-subnet-show.html["ONTAPコマンド リファレンス"^]を参照してください。
 
 +
-サブネットの関連付けを強制するパラメータ（ `-force-update-lif-associations`コマンドのパラメータ `network subnet`）は、ネットワークLIFでのみサポートされ、SPネットワークインターフェイスではサポートされません。
+サブネットの関連付けを強制するパラメータ（ `-force-update-lif-associations`コマンドの `network subnet`パラメータ）は、ネットワーク LIF でのみサポートされ、SP ネットワーク インターフェイスではサポートされません。
 
-* SP に IPv6 接続を設定する場合、 ONTAP に対して IPv6 が設定済みで、有効になっている必要があります。
+* SPにIPv6接続を使用する場合は、ONTAPに対してIPv6がすでに設定され、有効になっている必要があります。
 +
- `network options ipv6 show`コマンドは、ONTAPのIPv6設定の現在の状態を表示します。の詳細については `network options ipv6 show`、をlink:https://docs.netapp.com/us-en/ontap-cli/network-options-ipv6-show.html["ONTAPコマンド リファレンス"^]参照してください。
+ `network options ipv6 show`コマンドは、ONTAPのIPv6設定の現在の状態を表示します。link:https://docs.netapp.com/us-en/ontap-cli/network-options-ipv6-show.html["ONTAPコマンド リファレンス"^]の `network options ipv6 show`の詳細を確認してください。
 
 
 
 .手順
-. コマンドを使用して、SPで使用するサブネットのIPv4またはIPv6アドレスファミリーと名前を指定します `system service-processor network auto-configuration enable`。
-. コマンドを使用して、SPの自動ネットワーク設定を表示します `system service-processor network auto-configuration show`。
-. その後、クォーラム内のすべてのノードに対してSP IPv4またはIPv6ネットワークインターフェイスを無効または再度有効にする場合は、コマンドで [`IPv4`|`IPv6`] [`true`|`false`パラメータと `-enable`]パラメータを指定して `-address-family`使用し `system service-processor network modify`ます。
+.  `system service-processor network auto-configuration enable`コマンドを使用して、SPが使用するサブネットのIPv4またはIPv6アドレスファミリと名前を指定します。
+.  `system service-processor network auto-configuration show`コマンドを使用して SP 自動ネットワーク構成を表示します。
+. その後、クォーラム内のすべてのノードの SP IPv4 または IPv6 ネットワーク インターフェイスを無効にしたり再度有効にしたりする場合は、 `system service-processor network modify`コマンドに `-address-family` [`IPv4`|`IPv6`]パラメータおよび `-enable` [`true`|`false`]パラメータを指定して使用します。
 +
-SP 自動ネットワーク設定が有効になっている場合、クォーラム内のノードの SP IP アドレスを変更することはできません。実行できるのは、 SP IPv4 または IPv6 ネットワークインターフェイスの有効化または無効化だけです。
+SP自動ネットワーク構成が有効になっている場合、クォーラム内のノードのSP IPアドレスを変更することはできません。SP IPv4またはIPv6ネットワークインターフェースの有効化または無効化のみ可能です。
 
 +
-ノードがクォーラムのメンバーでない場合は、ノードからを実行し、そのノードのSP自動ネットワーク設定を上書きすることを確認して、SP IPアドレスを含むノードのSPネットワーク設定を変更できます。 `system service-processor network modify`ただし、ノードがクォーラムに参加すると、指定したサブネットに基づいてノードに対して SP の自動再設定が実行されます。
+ノードがクォーラム外にある場合、ノードから `system service-processor network modify`を実行し、そのノードの SP 自動ネットワーク構成を上書きすることを確認することで、SP IP アドレスを含むノードの SP ネットワーク構成を変更できます。ただし、ノードがクォーラムに参加すると、指定されたサブネットに基づいてノードの SP 自動再構成が実行されます。
 
 

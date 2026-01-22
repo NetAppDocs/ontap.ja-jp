@@ -2,58 +2,58 @@
 permalink: revert/task_preparing_snapshot_copies_before_reverting.html 
 sidebar: sidebar 
 keywords: ontap, revert, reverting, reversion, snapshot, copies, prepare, preparing, disable, delete 
-summary: 以前のONTAPリリースにリバートする前に、すべてのSnapshotポリシーを無効にし、現在のリリースへのアップグレード後に作成されたSnapshotを削除する必要があります。 
+summary: 以前の ONTAP リリースに戻す前に、すべてのスナップショット ポリシーを無効にし、現在のリリースにアップグレードした後に作成されたスナップショットをすべて削除する必要があります。 
 ---
-= ONTAPクラスタをリバートする前にSnapshotを準備する
+= ONTAPクラスタをリバートする前にSnapshotを準備
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-ONTAP 9のいずれかのバージョンからONTAPクラスタをリバートする前に、すべてのSnapshotポリシーを無効にし、現在のリリースへのアップグレード後に作成されたSnapshotを削除する必要があります。
+ONTAP クラスタを ONTAP 9 の任意のバージョンから戻す前に、すべての Snapshot ポリシーを無効にし、現在のリリースにアップグレードした後に作成された Snapshot をすべて削除する必要があります。
 
-SnapMirror 環境でリバートを実行する場合は、次のミラー関係を事前に削除しておく必要があります。
+SnapMirror環境内で元に戻す場合は、まず次のミラー関係を削除する必要があります：
 
-* すべての負荷共有ミラー関係
-* ONTAP 8.3.x で作成したすべてのデータ保護ミラー関係
-* ONTAP 8.3.x でクラスタが再作成された場合は、すべてのデータ保護ミラー関係
+* すべての負荷分散ミラー関係
+* ONTAP 8.3.xで作成されたデータ保護ミラー関係
+* クラスタが ONTAP 8.3.x で再作成された場合のすべてのデータ保護ミラー関係
 
 
 .手順
-. すべてのデータSVMのSnapshotポリシーを無効にします。
+. すべてのデータSVMのSnapshotポリシーを無効にします：
 +
 [source, cli]
 ----
 volume snapshot policy modify -vserver * -enabled false
 ----
-. 各ノードのアグリゲートのSnapshotポリシーを無効にします。
+. 各ノードのアグリゲートのスナップショットポリシーを無効にします：
 +
-.. ノードのアグリゲートを特定します。
+.. ノードのアグリゲートを特定します：
 +
 [source, cli]
 ----
 run -node <nodename> -command aggr status
 ----
-.. 各アグリゲートのSnapshotポリシーを無効にします。
+.. 各アグリゲートのスナップショットポリシーを無効にします：
 +
 [source, cli]
 ----
 run -node <nodename> -command aggr options aggr_name nosnap on
 ----
-.. 残りのノードそれぞれに対して同じ手順を繰り返します。
+.. 残りの各ノードについて、この手順を繰り返します。
 
 
-. 各ノードのルートボリュームのSnapshotポリシーを無効にします。
+. 各ノードのルートボリュームのスナップショットポリシーを無効にします：
 +
-.. ノードのルートボリュームを特定します。
+.. ノードのルートボリュームを特定します：
 +
 [source, cli]
 ----
 run -node <node_name> -command vol status
 ----
 +
-ルートボリュームは、コマンド出力の* Options *列にrootとして表記されます `vol status`。
+ルート ボリュームは、 `vol status`コマンド出力の *Options* 列の root という単語で識別します。
 
 +
 [listing]
@@ -64,16 +64,16 @@ vs1::> run -node node1 vol status
            vol0 online          raid_dp, flex     root, nvfail=on
                                 64-bit
 ----
-.. ルートボリュームのSnapshotポリシーを無効にします。
+.. ルート ボリュームのスナップショット ポリシーを無効にします：
 +
 [source, cli]
 ----
 run -node <node_name> vol options root_volume_name nosnap on
 ----
-.. 残りのノードそれぞれに対して同じ手順を繰り返します。
+.. 残りの各ノードについて、この手順を繰り返します。
 
 
-. 現在のリリースへのアップグレード後に作成されたSnapshotをすべて削除します。
+. 現在のリリースにアップグレードした後に作成されたすべてのスナップショットを削除します：
 +
 .. 権限レベルをadvancedに設定します。
 +
@@ -81,13 +81,13 @@ run -node <node_name> vol options root_volume_name nosnap on
 ----
 set -privilege advanced
 ----
-.. Snapshotを無効にします。
+.. スナップショットを無効にします：
 +
 [source, cli]
 ----
 snapshot policy modify -vserver * -enabled false
 ----
-.. ノードの新しいバージョンのSnapshotを削除します。
+.. ノードの新しいバージョンのスナップショットを削除します：
 +
 [source, cli]
 ----
@@ -97,7 +97,7 @@ volume snapshot prepare-for-revert -node <node_name>
 このコマンドは、各データボリューム、ルートアグリゲート、およびルートボリューム上の新しいバージョンのSnapshotを削除します。
 
 +
-削除できないSnapshotがあると、コマンドは失敗し、Snapshotを削除する前に実行する必要があるアクションがあれば通知されます。必要な操作を完了してからコマンドを再実行してから、次の手順に進む必要があります `volume snapshot prepare-for-revert`。
+スナップショットを削除できない場合、コマンドは失敗し、スナップショットを削除する前に実行する必要があるアクションが通知されます。必要なアクションを完了してから `volume snapshot prepare-for-revert`コマンドを再実行し、次の手順に進んでください。
 
 +
 [listing]
@@ -107,19 +107,19 @@ cluster1::*> volume snapshot prepare-for-revert -node node1
 Warning: This command will delete all snapshots that have the format used by the current version of ONTAP. It will fail if any snapshot policies are enabled, or
          if any snapshots have an owner. Continue? {y|n}: y
 ----
-.. Snapshotが削除されたことを確認します。
+.. スナップショットが削除されたことを確認します：
 +
 [source, cli]
 ----
 volume snapshot show -node nodename
 ----
-.. 新しいバージョンのSnapshotが残っている場合は、強制的に削除します。
+.. 新しいバージョンのスナップショットが残っている場合は、強制的に削除します：
 +
 [source, cli]
 ----
 volume snapshot delete {-fs-version 9.0 -node nodename -is-constituent true} -ignore-owners -force
 ----
-.. 残りのノードごとに上記の手順を繰り返します。
+.. 残りの各ノードについて、これらの手順を繰り返します。
 .. admin権限レベルに戻ります。
 +
 [source, cli]
@@ -131,4 +131,4 @@ set -privilege admin
 
 
 
-NOTE: これらの手順を MetroCluster 構成内の両方のクラスタで実行する必要があります。
+NOTE: MetroCluster構成内の両方のクラスターでこれらの手順を実行する必要があります。

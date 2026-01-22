@@ -2,80 +2,80 @@
 permalink: data-protection/supported-deployment-config-concept.html 
 sidebar: sidebar 
 keywords: fan-out, fanout, fan out, cascade, data, protection, deployments, snapmirror, snap mirror, snapvault, synchronous, asynchronous, unified, replication, replicate, vault-mirror, vault-vault 
-summary: ファンアウト構成を使用すると、データ保護を複数のセカンダリシステムに拡張できます。カスケード構成を使用すると、データ保護を 3 次システムに拡張できます。 
+summary: ファンアウト展開を使用すると、データ保護を複数のセカンダリ システムに拡張できます。カスケード展開を使用すると、データ保護を三次システムに拡張できます。 
 ---
-= ONTAPデータ保護のファンアウト構成とカスケード構成の詳細
+= ONTAPデータ保護のファンアウトとカスケード展開について学ぶ
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-a_fan-out_deployment を使用すると、データ保護を複数のセカンダリシステムに拡張できます。a_cascade _deployment を使用して、データ保護を 3 次システムに拡張できます。
+ファンアウト型展開を使用すると、データ保護を複数のセカンダリ システムに拡張できます。カスケード型展開を使用すると、データ保護を三次システムに拡張できます。
 
-ファンアウト構成とカスケード構成はどちらも、SnapMirror DR、SnapVault、ユニファイドレプリケーションの任意の組み合わせをサポートします。ONTAP 9.5以降では、SnapMirror同期関係で1つ以上のSnapMirror非同期関係を使用したファンアウト構成がサポートされます。ファンアウト構成でSnapMirror同期関係にできる関係は1つだけで、ソースボリュームからの残りの関係はすべてSnapMirror非同期関係にする必要があります。SnapMirror同期関係はカスケード構成もサポートされます（ONTAP 9.6以降）。ただし、SnapMirror同期関係のデスティネーションボリュームからの関係はSnapMirror非同期関係である必要があります。xref:../snapmirror-active-sync/recover-unplanned-failover-task.html[SnapMirrorアクティブ同期]（ONTAP 9.13.1以降でサポート）では、ファンアウト構成もサポートされます。
-
-
-NOTE: ファンイン導入を使用すると、複数のプライマリシステムと単一のセカンダリシステムの間にデータ保護関係を作成できます。各関係で、セカンダリシステム上の異なるボリュームを使用する必要があります。
+ファンアウトとカスケード展開はどちらも、SnapMirror DR、SnapVault、または統合レプリケーションの任意の組み合わせをサポートします。ONTAP 9.5以降、SnapMirror同期関係は、1つ以上のSnapMirror非同期関係を含むファンアウト展開をサポートします。ファンアウト構成では、1つの関係のみをSnapMirror同期関係にすることができ、ソース ボリュームからのその他すべての関係はSnapMirror非同期関係にする必要があります。SnapMirror同期関係はカスケード展開もサポートします（ONTAP 9.6以降）。ただし、SnapMirror同期関係のデスティネーション ボリュームからの関係は、SnapMirror非同期関係にする必要があります。xref:../snapmirror-active-sync/recover-unplanned-failover-task.html[SnapMirrorアクティブ同期]（ONTAP 9.13.1以降でサポート）も、ファンアウト構成をサポートします。
 
 
-NOTE: ファンアウト構成またはカスケード構成に含まれているボリュームの再同期には時間がかかる可能性があることに注意してください。ステータスが「準備中」と長時間報告されるSnapMirror関係が表示されることも珍しくありません。
+NOTE: ファンイン展開を使用すると、複数のプライマリ システムと単一のセカンダリ システムの間にデータ保護関係を作成できます。各関係では、セカンダリ システム上の異なるボリュームを使用する必要があります。
+
+
+NOTE: ファンアウト構成またはカスケード構成の一部であるボリュームは、再同期に時間がかかる場合があることにご注意ください。SnapMirror関係のステータスが「準備中」と表示される時間が長くなることは珍しくありません。
 
 
 
 == ファンアウト構成の仕組み
 
-SnapMirror は、 _ multiple-mirrors _ および _ mirror -vault_fan-out 構成をサポートします。
+SnapMirrorは_複数ミラー_および_ミラー ボールト_ファンアウト展開をサポートします。
 
-複数ミラーファンアウト構成では、ソースボリュームから複数のセカンダリボリュームへのミラー関係が確立されます。
+複数ミラー ファンアウト構成では、ソース ボリュームから複数のセカンダリ ボリュームへのミラー関係が確立されます。
 
-image:sm-mirror-mirror-fanout.png["データ保護の構成：複数ミラーファンアウト"]
+image:sm-mirror-mirror-fanout.png["データ保護の展開：複数ミラーのミラーファンアウト"]
 
-ミラー-ヴォールトファンアウト構成では、ソースボリュームからセカンダリボリュームへのミラー関係と、別のセカンダリボリュームへのSnapVault関係が確立されます。
+ミラー ボールト ファンアウト導入は、セカンダリ ボリュームへのミラー関係と別のセカンダリ ボリュームへのSnapVault関係を持つソース ボリュームで構成されます。
 
-image:sm-mirror-vault-fanout.png["データ保護の構成：ミラー - ヴォールトファンアウト"]
+image:sm-mirror-vault-fanout.png["データ保護の導入：ミラー - ヴォールト ファンアウト"]
 
-ONTAP 9 5以降では、ファンアウト構成でSnapMirror同期関係を確立できます。ただし、ファンアウト構成で確立できるSnapMirror同期関係は1つだけで、ソースボリュームからのその他の関係はすべてSnapMirror非同期関係にする必要があります。
+ONTAP 9.5以降では、ファンアウト構成でSnapMirror同期関係を確立できます。ただし、ファンアウト構成で確立できるSnapMirror同期関係は1つだけで、ソース ボリュームからの残りの関係はすべてSnapMirror非同期関係にする必要があります。
 
-image:ssm-fanout.gif["データ保護構成：SnapMirror同期関係を使用したファンアウト構成"]
+image:ssm-fanout.gif["データ保護の展開：SnapMirror同期関係によるファンアウト展開"]
 
 
 
 == カスケード構成の仕組み
 
-SnapMirror は、 _ mirror - 、 _ mirror - vault_ 、 _vault - mirror_ 、 _vault-vault-cascade の構成をサポートしています。
+SnapMirrorは、_mirror-mirror_、_mirror-vault_、_vault-mirror_、および_vault-vault_カスケード展開をサポートします。
 
-ミラー-ミラーカスケード構成の関係のチェーンでは、ソースボリュームがセカンダリボリュームにミラーリングされ、そのセカンダリボリュームが3番目のボリュームにミラーリングされます。セカンダリボリュームが使用できなくなった場合は、新しいベースライン転送を実行せずに、プライマリボリュームと3番目のボリュームの間の関係を同期できます。
+ミラー-ミラー カスケード構成の関係のチェーンでは、ソース ボリュームがセカンダリ ボリュームにミラーリングされ、そのセカンダリ ボリュームが3番目のボリュームにミラーリングされます。セカンダリ ボリュームが使用できなくなった場合は、プライマリ ボリュームと3番目のボリュームの間の関係を同期できます。ベースライン転送を新たに実行する必要はありません。
 
-カスケード ボリュームの関係では、長期保存スナップショットは、 ONTAP 9 のすべてのバージョンにおいて、カスケードの最後のSnapMirrorデスティネーションボリュームでのみサポートされます。カスケード内の中間ボリュームで長期保存スナップショットを有効にすると、バックアップとスナップショットが失われます。カスケードの中間ボリュームで長期保存スナップショットが有効になっているサポートされていない構成の場合は、テクニカルサポートに連絡して、 link:https://kb.netapp.com/on-prem/ontap/DP/SnapMirror/SnapMirror-KBs/Cascading_a_volume_with_Long-Term_Retention_(LTR)_snapshots_enabled_is_not_supported["NetAppナレッジベース: 長期保存 (LTR) スナップショットが有効になっているボリュームのカスケード接続はサポートされていません"^] 援助をお願いします。
+カスケード ボリュームの関係において、長期保存Snapshotは、ONTAP 9のすべてのバージョンで、カスケードの最終SnapMirrorデスティネーション ボリュームでのみサポートされます。カスケードの中間ボリュームで長期保存Snapshotを有効にすると、バックアップとSnapshotが失われます。カスケードの中間ボリュームで長期保存Snapshotが有効になっているサポート対象外の構成の場合は、テクニカル サポートに連絡し、link:https://kb.netapp.com/on-prem/ontap/DP/SnapMirror/SnapMirror-KBs/Cascading_a_volume_with_Long-Term_Retention_(LTR)_snapshots_enabled_is_not_supported["NetAppナレッジベース：長期保存（LTR）スナップショットが有効になっているボリュームのカスケードはサポートされていません"^]を参照してサポートを受けてください。
 
-次のONTAPバージョンでは、最終的なSnapMirrorデスティネーションボリュームを除くカスケード内のどのボリュームでも長期保存スナップショットを有効にすることはできません。
+次のONTAPバージョンでは、最終的なSnapMirrorデスティネーション ボリュームを除くカスケード内のどのボリュームでも長期保存Snapshotを有効にすることはできません。
 
 * 9.15.1以降
-* 9.14.1P2およびP4からP14
-* 9.13.1P9からP17
-* 9.12.1 P12からP19
-* 9.11.1P15からP20
-* 9.10.1P18からP20
+* 9.14.1P2およびP4～P14
+* 9.13.1P9～P17
+* 9.12.1 P12～P19
+* 9.11.1P15～P20
+* 9.10.1P18～P20
 * 9.9.1P20
 
 
-詳細はこちらlink:long-term-retention-snapshots-concept.html["長期保存スナップショット"]。
+link:long-term-retention-snapshots-concept.html["長期保存Snapshot"]についての詳細をご覧ください。
 
-ONTAP 9 .6以降では、ミラー-ミラーカスケード構成でSnapMirror同期関係がサポートされます。SnapMirror同期関係を確立できるのは、プライマリボリュームとセカンダリボリュームだけです。セカンダリボリュームと3番目のボリュームの関係は非同期である必要があります。
+ONTAP 9.6以降では、ミラー-ミラー カスケード構成でSnapMirror同期関係がサポートされています。SnapMirror同期関係に含めることができるのは、プライマリ ボリュームとセカンダリ ボリュームだけです。セカンダリ ボリュームとターシャリ ボリュームの関係は非同期でなければなりません。
 
-image:sm-mirror-mirror-cascade.png["SnapMirror の構成：ソースからのミラー - ミラーカスケードチェーン"]
+image:sm-mirror-mirror-cascade.png["SnapMirrorの導入：ソースからミラー-ミラーカスケードチェーン"]
 
-ミラー-ヴォールトカスケード構成の関係のチェーンでは、ソースボリュームがセカンダリボリュームにミラーリングされ、そのセカンダリボリュームが3番目のボリュームに保存されます。
+ミラー ボールト カスケード展開は、ソース ボリュームがセカンダリ ボリュームにミラーリングされ、セカンダリ ボリュームが三次ボリュームにボールトされる関係のチェーンで構成されます。
 
-image:sm-mirror-vault-cascade.png["SnapMirror の構成：ソース - ミラー - ヴォールトカスケードチェーン"]
+image:sm-mirror-vault-cascade.png["SnapMirrorデプロイメント：ソースからミラーボールトへのカスケードチェーン"]
 
-Vault-mirror および Vault-Vault カスケード展開もサポートされています。
+Vault-mirror および vault-vault カスケード展開もサポートされています。
 
-* ヴォールト-ミラーカスケード構成の関係のチェーンでは、ソースボリュームがセカンダリボリュームに保存され、そのセカンダリボリュームが3番目のボリュームにミラーリングされます。
-* ヴォールト - ヴォールトカスケード構成の関係のチェーンでは、ソースボリュームがセカンダリボリュームに保存され、そのセカンダリボリュームが 3 番目のボリュームに保存されます。
+* ボールト ミラー カスケード展開は、ソース ボリュームがセカンダリ ボリュームにボールトされ、セカンダリ ボリュームが三次ボリュームにミラーリングされる関係のチェーンで構成されます。
+* ボールト-ボールト カスケード展開は、ソース ボリュームがセカンダリ ボリュームにボールトされ、セカンダリ ボリュームが三次ボリュームにボールトされる関係のチェーンで構成されます。
 
 
 .関連情報
-* xref:../snapmirror-active-sync/recover-unplanned-failover-task.html[SnapMirrorアクティブな同期を使用してファンアウト構成で保護を再開]
+* xref:../snapmirror-active-sync/recover-unplanned-failover-task.html[SnapMirrorアクティブ同期を使用したファンアウト構成での保護の再開]
 

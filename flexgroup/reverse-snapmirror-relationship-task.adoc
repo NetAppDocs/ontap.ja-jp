@@ -2,54 +2,54 @@
 permalink: flexgroup/reverse-snapmirror-relationship-task.html 
 sidebar: sidebar 
 keywords: reverse, snapmirror, relation, flexgroup, volume, disaster, recovery 
-summary: 災害によって SnapMirror 関係のソース FlexGroup が機能しなくなった場合、ソース FlexGroup ボリュームの修理や交換を行う間、デスティネーション FlexGroup ボリュームを使用してデータを提供できます。ソース FlexGroup ボリュームがオンラインになったら、元のソース FlexGroup ボリュームを読み取り専用のデスティネーションにして、 SnapMirror 関係を反転できます。 
+summary: 災害によってSnapMirror関係のソースFlexGroupボリュームが使用不能になった場合、ソースFlexGroupボリュームの修復や交換を行っている間、デスティネーションのFlexGroupボリュームを使用してデータを提供できます。ソースFlexGroupボリュームがオンラインになった後、元のソースFlexGroupボリュームを読み取り専用のデスティネーションにして、SnapMirror関係を反転できます。 
 ---
-= ディザスタリカバリ時のONTAP FlexGroupボリューム間のSnapMirror関係の反転
+= 災害復旧時にONTAP FlexGroupボリューム間でリバースSnapMirror関係を構築する
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-災害によって SnapMirror 関係のソース FlexGroup が機能しなくなった場合、ソース FlexGroup ボリュームの修理や交換を行う間、デスティネーション FlexGroup ボリュームを使用してデータを提供できます。ソース FlexGroup ボリュームがオンラインになったら、元のソース FlexGroup ボリュームを読み取り専用のデスティネーションにして、 SnapMirror 関係を反転できます。
+災害によってSnapMirror関係のソースFlexGroupボリュームが使用不能になった場合、ソースFlexGroupボリュームの修復や交換を行っている間、デスティネーションのFlexGroupボリュームを使用してデータを提供できます。ソースFlexGroupボリュームがオンラインになった後、元のソースFlexGroupボリュームを読み取り専用のデスティネーションにして、SnapMirror関係を反転できます。
 
-.タスクの内容
-再同期が実行される前に、デスティネーションボリュームのアクティブなクォータルールは非アクティブ化され、削除されます。
+.タスク概要
+再同期が実行される前に、デスティネーション ボリューム上のアクティブなクォータ ルールはすべて非アクティブ化され、クォータ ルールは削除されます。
 
-再同期処理の完了後に、コマンドと `volume quota modify`コマンドを使用してクォータルールを作成し、再アクティブ化できます `volume quota policy rule create`。
+再同期操作が完了したら、 `volume quota policy rule create`コマンドと `volume quota modify`コマンドを使用してクォータ ルールを作成し、再アクティブ化することができます。
 
 .手順
-. 元のデスティネーションFlexGroupボリュームで、ソースFlexGroupボリュームとデスティネーションFlexGroupボリュームの間のデータ保護ミラー関係を削除します。 `snapmirror delete -destination-path svm_name:volume_name`
+. 元のデスティネーションFlexGroupボリュームで、ソースFlexGroupボリュームとデスティネーションFlexGroupボリューム間のデータ保護ミラー関係を削除します： `snapmirror delete -destination-path svm_name:volume_name`
 +
 [listing]
 ----
 cluster2::> snapmirror delete -destination-path vsd:dst
 ----
-. 元のソースFlexGroupボリュームで、ソースFlexGroupボリュームから関係の情報を削除します。 `snapmirror release -destination-path svm_name:volume_name -relationship-info-only`
+. 元のソースFlexGroupボリュームで、ソースFlexGroupボリュームから関係情報を削除します： `snapmirror release -destination-path svm_name:volume_name -relationship-info-only`
 +
-SnapMirror 関係を削除したあと、再同期処理を実行する前に、ソース FlexGroup ボリュームから関係の情報を削除する必要があります。
+SnapMirror関係を削除した後、再同期操作を試みる前に、ソースFlexGroupボリュームから関係情報を削除する必要があります。
 
 +
 [listing]
 ----
 cluster1::> snapmirror release -destination-path vsd:dst -relationship-info-only true
 ----
-. 新しいデスティネーションFlexGroupで、ミラー関係を作成します。 `snapmirror create -source-path src_svm_name:volume_name -destination-path dst_svm_name:volume_name -type XDP -policy MirrorAllSnapshots`
+. 新しいデスティネーションFlexGroupボリュームで、ミラー関係を作成します： `snapmirror create -source-path src_svm_name:volume_name -destination-path dst_svm_name:volume_name -type XDP -policy MirrorAllSnapshots`
 +
 [listing]
 ----
 cluster1::> snapmirror create -source-path vsd:dst -destination-path vss:src -type XDP -policy MirrorAllSnapshots
 ----
 +
-の詳細については `snapmirror create`、をlink:https://docs.netapp.com/us-en/ontap-cli/snapmirror-create.html["ONTAPコマンド リファレンス"^]参照してください。
+ `snapmirror create`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/snapmirror-create.html["ONTAPコマンド リファレンス"^]を参照してください。
 
-. 新しいデスティネーションFlexGroupボリュームで、ソースFlexGroupを再同期します。 `snapmirror resync -source-path svm_name:volume_name`
+. 新しいデスティネーションFlexGroupボリュームで、ソースFlexGroupを再同期します： `snapmirror resync -source-path svm_name:volume_name`
 +
 [listing]
 ----
 cluster1::> snapmirror resync -source-path vsd:dst
 ----
-. SnapMirror転送を監視します。 `snapmirror show -expand`
+. SnapMirror転送を監視します： `snapmirror show -expand`
 +
 [listing]
 ----
@@ -79,14 +79,14 @@ vsd:dst__0008 XDP  vss:src__0008  Snapmirrored
 ...
 ----
 +
-各コンスティチュエントのSnapMirror関係のステータスがになり、再同期が成功したことが示さ `Snapmirrored`れます。
+各構成要素のSnapMirror関係ステータスが `Snapmirrored`として表示され、再同期が成功したことを示します。
 
 
 
 .関連情報
-* link:https://docs.netapp.com/us-en/ontap-cli/snapmirror-create.html["スナップミラー作成"^]
-* link:https://docs.netapp.com/us-en/ontap-cli/snapmirror-delete.html["SnapMirrorの削除"^]
-* link:https://docs.netapp.com/us-en/ontap-cli/snapmirror-release.html["スナップミラーリリース"^]
+* link:https://docs.netapp.com/us-en/ontap-cli/snapmirror-create.html["snapmirror create"^]
+* link:https://docs.netapp.com/us-en/ontap-cli/snapmirror-delete.html["snapmirror delete"^]
+* link:https://docs.netapp.com/us-en/ontap-cli/snapmirror-release.html["snapmirror release"^]
 * link:https://docs.netapp.com/us-en/ontap-cli/snapmirror-resync.html["snapmirror resync"^]
 * link:https://docs.netapp.com/us-en/ontap-cli/snapmirror-show.html["snapmirror show"^]
 

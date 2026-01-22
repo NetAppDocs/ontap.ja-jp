@@ -2,7 +2,7 @@
 permalink: tape-backup/format-tape-config-file-concept.html 
 sidebar: sidebar 
 keywords: format, tape, configuration, file, vendor, id, product, compression, type, drive 
-summary: テープ構成ファイルの形式は、テープドライブのベンダーID、製品ID、圧縮形式の詳細などのフィールドで構成されています。このファイルには、テープドライブの自動ロード機能を有効にしたり、テープドライブのコマンドタイムアウト値を変更したりするためのオプションのフィールドも含まれています。 
+summary: テープ構成ファイルの記述形式は、テープ ドライブのベンダーID、製品ID、圧縮形式の詳細などのフィールドで構成されています。また、このファイルには、テープ ドライブの自動ロード機能を有効にしたり、テープ ドライブのコマンド タイムアウト値を変更したりするためのフィールド（省略可能）も含まれています。 
 ---
 = ONTAPテープ構成ファイルの形式
 :allow-uri-read: 
@@ -11,74 +11,74 @@ summary: テープ構成ファイルの形式は、テープドライブのベ�
 
 
 [role="lead"]
-テープ構成ファイルの形式は、テープドライブのベンダーID、製品ID、圧縮形式の詳細などのフィールドで構成されています。このファイルには、テープドライブの自動ロード機能を有効にしたり、テープドライブのコマンドタイムアウト値を変更したりするためのオプションのフィールドも含まれています。
+テープ構成ファイルの記述形式は、テープ ドライブのベンダーID、製品ID、圧縮形式の詳細などのフィールドで構成されています。また、このファイルには、テープ ドライブの自動ロード機能を有効にしたり、テープ ドライブのコマンド タイムアウト値を変更したりするためのフィールド（省略可能）も含まれています。
 
-次の表に、テープ構成ファイルの形式を示します。
+次の表に、テープ構成ファイルの記述形式を示します。
 
 |===
-| 項目 | サイズ | 説明 
+| 項目 | サイズ | 概要 
 
 
  a| 
-`vendor_id`（文字列）。
+`vendor_id`（文字列）
  a| 
-最大8バイト
+8バイト以下
  a| 
-コマンドで表示されるベンダーID `SCSI Inquiry`。
-
-
-
- a| 
-`product_id`（文字列）。
- a| 
-最大16バイト
- a| 
-コマンドで報告される製品ID `SCSI Inquiry`。
+ `SCSI Inquiry`コマンドによって報告されるベンダー ID。
 
 
 
  a| 
-`id_match_size`（数値）
+`product_id`（文字列）
  a| 
+16バイト以下
  a| 
-識別されるテープドライブの検出に使用される製品IDのバイト数。Inquiryデータの製品IDの最初の文字から始まります。
+ `SCSI Inquiry`コマンドによって報告される製品ID。
 
 
 
  a| 
-`vendor_pretty`（文字列）。
+`id_match_size`（番号）
  a| 
-最大16バイト
  a| 
-このパラメータを使用する場合は、コマンドによって返される文字列を指定します `storage tape show -device-names`。値を指定しないと、INQ_VENDOR_IDと表示されます。
+テープ ドライブの識別に使用される製品IDのバイト数を指定します。このバイト数は、Inquiryコマンドで表示される製品IDの最初の文字から数えます。
 
 
 
  a| 
-`product_pretty`（文字列）。
+`vendor_pretty`（文字列）
  a| 
-最大16バイト
+16バイト以下
  a| 
-このパラメータを使用する場合は、コマンドによって返される文字列を指定します `storage tape show -device-names`。値を指定しないと、INQ_PRODUCT_IDと表示されます。
+このパラメータが存在する場合は、コマンドによって表示される文字列で指定され、 `storage tape show -device-names`それ以外の場合は INQ_VENDOR_ID が表示されます。
+
+
+
+ a| 
+`product_pretty`（文字列）
+ a| 
+16バイト以下
+ a| 
+このパラメータが存在する場合は、コマンドによって表示される文字列で指定され `storage tape show -device-names`、存在しない場合は INQ_PRODUCT_ID が表示されます。
 
 |===
 [NOTE]
 ====
- `vendor_pretty`フィールドと `product_pretty`フィールドはオプションですが、いずれかのフィールドに値が設定されている場合は、もう一方のフィールドにも値が設定されている必要があります。
+ `vendor_pretty`フィールドおよび `product_pretty`フィールドはオプションですが、いずれかのフィールドに値がある場合は、他のフィールドにも値がなければなりません。
 
 ====
-次の表に、、 `m`、、 `h`などのさまざまな圧縮形式の説明、密度コード、および圧縮アルゴリズムを示し `l` `a`ます。
+次の表は、 `l`、 `m`、 `h`、 `a`などのさまざまな圧縮タイプの説明、密度コード、および圧縮アルゴリズムを示しています：
 
 |===
-| 項目 | サイズ | 説明 
+| 項目 | サイズ | 概要 
 
 
  a| 
 `{l | m | h | a}_description=(string)`
  a| 
-最大24バイト
+24バイト以下
  a| 
-ノードシェルコマンドに対して出力される文字列。 `sysconfig -t`特定の密度設定の特性を示します。
+特定の密度設定の特性を説明する、ノードシェル コマンド `sysconfig -t`で印刷される文字列。
 
 
 
@@ -86,7 +86,7 @@ summary: テープ構成ファイルの形式は、テープドライブのベ�
 `{l | m | h | a}_density=(hex codes)`
  a| 
  a| 
-l、m、h、またはaの目的の密度コードに対応するSCSIモードページブロック記述子で設定される密度コード。
+l、m、h、またはaの密度コードに対応し、SCSIモードのページ ブロック記述子内に設定される密度コード。
 
 
 
@@ -94,26 +94,26 @@ l、m、h、またはaの目的の密度コードに対応するSCSIモードペ
 `{l | m | h | a}_algorithm=(hex codes)`
  a| 
  a| 
-密度コードと目的の密度特性に対応する、SCSI圧縮モードページで設定する圧縮アルゴリズム。
+密度コードと目的の密度特性に対応し、SCSI圧縮モード ページ内に設定される圧縮アルゴリズム。
 
 |===
-次の表に、テープ構成ファイルで使用できるオプションのフィールドを示します。
+次の表に、テープ構成ファイル内の省略可能なフィールドを示します。
 
 |===
-| フィールド | 説明 
+| フィールド | 概要 
 
 
  a| 
 `autoload=(Boolean yes/no)`
  a| 
-テープドライブに自動ロード機能がある場合は、このフィールドがに設定され `yes`ます。つまり、テープカートリッジを挿入すると、（start/stop unit）コマンドを実行しなくても、テープドライブの準備が整います。 `SCSI load`このフィールドのデフォルトはです `no`。
+このフィールドは `yes`に設定されます（テープ ドライブに自動ローディング機能がある場合）。つまり、テープ カートリッジを挿入すると、 `SCSI load`（start/stopユニット）コマンドを実行しなくてもテープ ドライブが準備完了状態になります。このフィールドのデフォルトは `no`です。
 
 
 
  a| 
 `cmd_timeout_0x`
  a| 
-個々のタイムアウト値。このフィールドは、テープドライバでデフォルトとして使用されているタイムアウト値とは異なるタイムアウト値を指定する場合にのみ使用する必要があります。このサンプルファイルには、テープドライブで使用されるデフォルトのSCSIコマンドタイムアウト値が記載されています。タイムアウト値は、分（m）、秒（s）、またはミリ秒（ms）で指定できます。
+個々のタイムアウト値。このフィールドは、テープ ドライブのデフォルトのタイムアウト値と異なるタイムアウト値を指定する場合にのみ使用してください。サンプル ファイルには、テープ ドライブのデフォルトのSCSIコマンド タイムアウト値の一覧が記載されています。タイムアウト値は、分（m）、秒（s）、またはミリ秒（ms）で指定できます。
 
 [NOTE]
 ====
@@ -121,48 +121,48 @@ l、m、h、またはaの目的の密度コードに対応するSCSIモードペ
 
 ====
 |===
-テープ構成ファイルはNetAppサポートサイトからダウンロードして表示できます。
+テープ構成ファイルはNetApp サポート サイトからダウンロードして確認できます。
 
-.テープ構成ファイル形式の例
-HP LTO5 Ultriumテープドライブのテープ構成ファイルの形式は次のとおりです。
+.テープ構成ファイルの記述形式の例
+HP LTO5 ULTRIUMテープ ドライブのテープ構成ファイルの記述形式は次のとおりです。
 
-`vendor_id`="HP"
+`vendor_id`＝「HP」
 
-`product_id`="Ultrium 5-SCSI"
+`product_id`＝「Ultrium 5-SCSI」
 
-`id_match_size`= 9
+`id_match_size`=9
 
-`vendor_pretty`="Hewlett-Packard"
+`vendor_pretty`＝「Hewlett-Packard」
 
-`product_pretty`="LTO-5"
+`product_pretty`＝「LTO-5」
 
-`l_description`="LTO-3（ro）/ 4 4 / 800GB "
+`l_description`＝「LTO-3（ro）/4 4/800GB」
 
-`l_density`= 0x00
+`l_density`＝0x00
 
-`l_algorithm`= 0x00
+`l_algorithm`＝0x00
 
-`m_description`="LTO-3（ro）/ 4 8 / 1600GB CMP "
+`m_description`＝「LTO-3（ro）/4 8/1600GB cmp」
 
-`m_density`= 0x00
+`m_density`＝0x00
 
-`m_algorithm`= 0x01
+`m_algorithm`＝0x01
 
-`h_description`="LTO-5 1600GB"
+`h_description`＝「LTO-5 1600GB」
 
-`h_density`= 0x58
+`h_density`＝0x58
 
-`h_algorithm`= 0x00
+`h_algorithm`＝0x00
 
-`a_description`="LTO-5 3200GB CMP"
+`a_description`＝「LTO-5 3200GB cmp」
 
-`a_density`= 0x58
+`a_density`＝0x58
 
-`a_algorithm`= 0x01
+`a_algorithm`＝0x01
 
-`autoload`="はい"
+`autoload`＝「はい」
 
 .関連情報
-* https://mysupport.netapp.com/site/tools/tool-eula/5f4d322319c1ab1cf34fd063["ネットアップのツール：テープデバイス構成ファイル"^]
-* link:https://docs.netapp.com/us-en/ontap-cli/storage-tape-show.html["ストレージテープショー"^]
+* https://mysupport.netapp.com/site/tools/tool-eula/5f4d322319c1ab1cf34fd063["NetAppツール：テープ デバイス構成ファイル"^]
+* link:https://docs.netapp.com/us-en/ontap-cli/storage-tape-show.html["storage tape show"^]
 

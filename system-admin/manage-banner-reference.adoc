@@ -2,61 +2,61 @@
 permalink: system-admin/manage-banner-reference.html 
 sidebar: sidebar 
 keywords: manage, banner, svm, cluster, configure 
-summary: バナーはクラスタレベルまたはSVMレベルで管理したり、バナーの表示方法を変更したりできます。 
+summary: バナーをクラスタまたはSVMレベルで管理し、バナーの表示方法を変更できます 
 ---
-= ONTAPクラスタレベルおよびSVMレベルで表示されるバナーテキストを管理します。
+= ONTAPクラスタおよびSVMレベルで表示されるバナーテキストを管理する
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-バナーはクラスタレベルまたは SVM レベルで管理できます。クラスタ用に設定したバナーは、バナーメッセージが定義されていない SVM に対しても表示されます。以降に SVM 用のバナーを作成すると、その SVM に対しては、クラスタ用のバナーではなくそのバナーが表示されます。
+バナーはクラスタレベルまたはSVMレベルで管理できます。クラスタに設定されたバナーは、バナーメッセージが定義されていないすべてのSVMにも使用されます。その後にSVMに作成されたバナーは、そのSVMのクラスタバナーをオーバーライドします。
 
-.選択肢
-* クラスタレベルのバナーの管理タスクを次に示します。
+.オプション
+* クラスタ レベルでバナーを管理する場合：
 +
 |===
-| 状況 | そしたら...。 
+| 状況 | 操作 
 
 
  a| 
-すべてのログインセッションに対して表示するバナーを作成する
+すべてのログインセッションに表示されるバナーを作成する
  a| 
-クラスタレベルのバナーを設定します。
+クラスタ レベルのバナーを設定します。
 
 `security login banner modify -vserver <cluster_name> { [-message "text"] | [-uri <ftp_or_http_addr>] }`
 
 
 
  a| 
-すべてのログイン（クラスタと SVM の両方）に対するバナーを削除する
+すべての（クラスタおよびSVM）ログインに対してバナーを削除する
  a| 
-バナーを空の文字列 (``) に設定します。
+バナーを空の文字列（``）に設定します：
 
 `security login banner modify -vserver * -message`
 
 
 
  a| 
-SVM管理者が作成したバナーを上書きする
+SVM管理者が作成したバナーを無視する
  a| 
-SVMのバナーメッセージを変更します。
+SVMのバナー メッセージを変更します。
 
 `security login banner modify -vserver <svm_name> { [-message "<text>"] | [-uri <ftp_or_http_addr>] }`
 
 |===
-* SVMレベルのバナーの管理タスクを次に示します。
+* SVMレベルでバナーを管理する場合：
 +
-SVMのコンテキストでは、を指定する `-vserver <svm_name>`必要はありません。
+SVM コンテキストでは `-vserver <svm_name>`の指定は必要ありません。
 
 +
 |===
-| 状況 | そしたら...。 
+| 状況 | 操作 
 
 
  a| 
-クラスタ管理者が指定したバナーの代わりに SVM 用の別のバナーを表示する
+クラスタ管理者が提供したバナーをSVMの別のバナーで上書きする
  a| 
 SVM用のバナーを作成します。
 
@@ -65,18 +65,18 @@ SVM用のバナーを作成します。
 
 
  a| 
-クラスタ管理者が指定したバナーも含め、いずれのバナーも SVM に対して表示されないようにする
+クラスタ管理者が提供するバナーを抑制し、SVMのバナーが表示されないようにします
  a| 
-SVMのSVMバナーを空の文字列に設定します。
+そのSVMのバナーを空の文字列に設定します。
 
 `security login banner modify -vserver <svm_name> -message`
 
 
 
  a| 
-現在 SVM レベルのバナーを使用している SVM でクラスタレベルのバナーを使用している場合
+SVM が現在 SVM レベルのバナーを使用している場合は、クラスタレベルのバナーを使用します。
  a| 
-SVMのバナーをに設定します。 `-`
+SVMバナーを `-`に設定します：
 
 `security login banner modify -vserver <svm_name> -message -`
 

@@ -2,39 +2,39 @@
 permalink: volumes/run-efficiency-operations-manual-task.html 
 sidebar: sidebar 
 keywords: starting deduplication manually, starting data compression manually, efficiency, run, sequential packing 
-summary: ボリュームに対して効率化処理を手動で実行できます。この処理は、効率化処理のスケジュールが適切でない場合に実行できます。 
+summary: ボリュームに対して手動で効率化処理を実行できます。この処理は、効率化処理のスケジュール設定が適切でない場合に実行します。 
 ---
-= 効率化処理を手動で実行する
+= 効率化処理の手動実行
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-ボリュームに対して効率化処理を手動で実行できます。この処理は、効率化処理のスケジュールが適切でない場合に実行できます。
+ボリュームに対して手動で効率化処理を実行できます。この処理は、効率化処理のスケジュール設定が適切でない場合に実行します。
 
 .開始する前に
 手動で実行する効率化処理に応じて、重複排除またはデータ圧縮と重複排除の両方をボリュームで有効にしておく必要があります。
 
-.タスクの内容
-この処理は、 `volume efficiency start`コマンドを使用して実行します。温度に基づくStorage Efficiencyをボリュームで有効にすると、最初に重複排除が実行され、続けてデータ圧縮が実行されます。
+.タスク概要
+この操作は `volume efficiency start`コマンドを使用して実行されます。ボリュームで温度に敏感なストレージ効率が有効になっている場合、最初に重複排除が実行され、その後データ圧縮が実行されます。
 
-重複排除は、実行中にシステムリソースを消費するバックグラウンドプロセスです。ボリューム内のデータの変更頻度が高くない場合は、重複排除の実行頻度を低くすることを推奨します。ストレージシステムで同時に複数の重複排除処理が実行されると、システムリソースの消費量が増加します。
+重複排除は、実行中にシステム リソースを消費するバックグラウンド プロセスです。ボリューム内のデータの変更頻度が高くない場合は、重複排除の実行頻度を低くすることを推奨します。ストレージ システムで複数の重複排除処理が同時に実行されると、システム リソースの消費量が増加します。
 
 ノードあたり、最大8つの重複排除またはデータ圧縮処理を同時に実行できます。これより多くの効率化処理がスケジュール設定されている場合、処理はキューに登録されます。
 
-ONTAP 9 .13.1以降では、温度に基づくストレージ効率化がボリュームで有効になっている場合、既存データに対してvolume efficiencyを実行することで、シーケンシャルパッキングを利用してストレージ効率をさらに向上させることができます。
+ONTAP 9.13.1以降では、ボリュームで温度に基づくストレージ効率化が有効になっている場合、既存データに対してボリューム効率化を実行してシーケンシャル パッキングを活用し、さらなるストレージ効率化を実現できます。
 
 
 
-== 効率化を手動で実行
+== 効率化の手動実行
 
 .手順
-. ボリュームで効率化処理を開始します。 `volume efficiency start`
+. ボリュームの効率化操作を開始します： `volume efficiency start`
 
 
 .例
-+次のコマンドを使用すると、重複排除のみを手動で開始し、続けて論理圧縮とコンテナ圧縮をボリュームVolAに対して実行できます。
++ 次のコマンドを使用すると、ボリューム VolA で重複排除のみ、または重複排除に続いて論理圧縮とコンテナ圧縮を手動で開始できます
 
 +
 
@@ -44,13 +44,13 @@ volume efficiency start -vserver vs1 -volume VolA
 ----
 
 
-== 既存データの再パック
+== 既存データの再パッキング
 
-温度の影響を受けやすいStorage Efficiencyが有効になっているボリュームで、ONTAP 9 .13.1で導入されたシーケンシャルデータパッキングを利用するには、既存データを再パックします。このコマンドを使用するには、advanced権限モードにする必要があります。
+温度に基づくストレージ効率化が有効になっているボリュームで、ONTAP 9.13.1で導入されたシーケンシャル データ パッキングを利用するには、既存データを再パッキングします。このコマンドを実行するにはadvanced権限レベルが必要です。
 
 .手順
-. 権限レベルを設定します。 `set -privilege advanced`
-. 既存データの再パック： `volume efficiency inactive-data-compression start -vserver _vserver_name_ -volume _volume_name_ -scan-mode extended_recompression`
+. 権限レベルを設定します： `set -privilege advanced`
+. 既存のデータを再パックします： `volume efficiency inactive-data-compression start -vserver _vserver_name_ -volume _volume_name_ -scan-mode extended_recompression`
 
 
 .例
@@ -59,5 +59,5 @@ volume efficiency start -vserver vs1 -volume VolA
 volume efficiency inactive-data-compression start -vserver vs1 -volume vol1 -scan-mode extended_recompression
 ----
 .関連情報
-* link:run-efficiency-operations-manual-existing-data-task.html["既存データに対して効率化処理を手動で実行"]
+* link:run-efficiency-operations-manual-existing-data-task.html["既存データに対する効率化処理の手動実行"]
 

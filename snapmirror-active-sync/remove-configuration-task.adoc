@@ -2,9 +2,9 @@
 sidebar: sidebar 
 permalink: snapmirror-active-sync/remove-configuration-task.html 
 keywords: SM-BC, SMBC, removing, protection relationship, snapmirror active sync 
-summary: RTOゼロのSnapMirror同期保護を解除し、SnapMirrorのアクティブな同期関係の設定を削除できます。 
+summary: ゼロRTOSnapMirror同期保護を削除し、SnapMirrorアクティブ同期関係の構成を削除できます。 
 ---
-= ONTAP SnapMirror Active Sync 構成を削除する
+= ONTAP SnapMirror Active Sync構成を削除する
 :hardbreaks:
 :allow-uri-read: 
 :nofooter: 
@@ -14,72 +14,72 @@ summary: RTOゼロのSnapMirror同期保護を解除し、SnapMirrorのアクテ
 
 
 [role="lead"]
-RTOゼロのSnapMirror同期保護が不要になった場合は、SnapMirrorのアクティブな同期関係を削除できます。
+RTOゼロのSnapMirror同期保護が不要になった場合は、SnapMirrorアクティブ同期関係を削除できます。
 
 
 
-== 非対称構成を削除します。
+== 非対称構成の削除
 
-* SnapMirrorのアクティブな同期関係を削除する前に、デスティネーションクラスタのすべてのLUNのマッピングを解除する必要があります。
-* LUNのマッピングが解除されてホストが再スキャンされると、SCSIターゲットがLUNインベントリが変更されたことをホストに通知します。RTOゼロの関係を削除すると、RTOゼロのセカンダリボリューム上の既存のLUNに新しいIDが反映されます。ホストは、セカンダリボリュームのLUNを、ソースボリュームのLUNとは関係のない新しいLUNとして検出します。
-* 関係を削除しても、セカンダリボリュームはDPボリュームのままです。コマンドを実行して、読み取り/書き込みに変換できます `snapmirror break`。
-* 関係が反転されていない場合、フェイルオーバー状態の関係を削除することはできません。
+* SnapMirrorアクティブ同期関係を削除する前に、デスティネーション クラスタのすべてのLUNのマッピングを解除する必要があります。
+* LUNのマッピングが解除されてホストが再スキャンされると、SCSIターゲットはLUNのインベントリが変更されたことをホストに通知します。RTOゼロの関係が削除されたあと、RTOゼロのセカンダリ ボリュームにある既存のLUNに新しいIDが反映されます。ホストは、セカンダリ ボリュームのLUNをソース ボリュームのLUNと関係ない新しいLUNとして検出します。
+* 関係が削除された後も、セカンダリボリュームはDPボリュームのままです。 `snapmirror break`コマンドを発行して、それらを読み取り / 書き込みに変換できます。
+* 関係が反転されていない場合、フェイルオーバー状態のときに関係を削除することはできません。
 
 
 .手順
-. セカンダリクラスタから、ソースエンドポイントとデスティネーションエンドポイントの間のSnapMirrorのアクティブな同期整合性グループ関係を削除します。
+. セカンダリ クラスタから、ソース エンドポイントとデスティネーション エンドポイントの間のSnapMirrorアクティブ同期整合性グループ関係を削除します。
 +
 `destination::>snapmirror delete -destination-path vs1_dst:/cg/cg_dst`
 
-. プライマリクラスタで、整合性グループ関係とその関係用に作成されたSnapshotを解放します。
+. プライマリ クラスタから、整合性グループの関係と、その関係に対して作成された Snapshot を解放します：
 +
 `source::>snapmirror release -destination-path vs1_dst:/cg/cg_dst`
 
-. ホストの再スキャンを実行してLUNインベントリを更新します。
-. ONTAP 9 .10.1以降では、SnapMirror関係を削除しても整合性グループは削除されません。整合グループを削除する場合は、System ManagerまたはONTAP REST APIを使用する必要があります。詳細については、を参照してください xref:../consistency-groups/delete-task.adoc[整合グループを削除する] 。
+. ホストの再スキャンを実行してLUNのインベントリを更新します。
+. ONTAP 9.10.1以降では、SnapMirror関係を削除してもコンシステンシーグループは削除されません。コンシステンシーグループを削除する場合は、System ManagerまたはONTAP REST APIを使用する必要があります。詳細については、xref:../consistency-groups/delete-task.adoc[整合性グループの削除]を参照してください。
 
 
 
 
-== iSCSIまたはFC対称アクティブ/アクティブ構成を削除します
+== iSCSIまたはFC対称アクティブ / アクティブ構成を削除
 
-対称構成は、System ManagerまたはONTAP CLIを使用して削除できます。どちらのインターフェイスでも、には異なる手順がありますxref:index.html#key-concepts[均一なコンフィギュレーションと非均一なコンフィギュレーション]。
+対称構成は、System ManagerまたはONTAP CLIを使用して削除できます。どちらのインターフェースでも、xref:index.html#key-concepts[均一な構成と非均一な構成]の手順は異なります。
 
 [role="tabbed-block"]
 ====
 .System Manager
 --
-.統一された構成の手順
-. プライマリサイトで、リモートホストをigroupから削除し、レプリケーションを終了します。
+.均一な構成の手順
+. プライマリ サイトで、リモート ホストをigroupから削除し、レプリケーションを終了します。
 +
-.. [**Hosts]>[*SAN Initiator Groups]に移動します。
-.. 変更するigroupを選択し、**Edit**します。
-.. リモートイニシエータを削除し、igroupレプリケーションを終了します。**保存**を選択します。
+.. **ホスト** > *SAN イニシエーター グループ* に移動します。
+.. 変更する igroup を選択し、**編集** をクリックします。
+.. リモートイニシエーターを削除し、igroupレプリケーションを終了します。**保存**を選択します。
 
 
-. セカンダリサイトで、LUNのマッピングを解除してレプリケートされた関係を削除します。
+. セカンダリ サイトで、LUNのマッピングを解除してレプリケートされた関係を削除します。
 +
-.. ** Hosts**>** SAN Initiator Groups**に移動します。
-.. SnapMirror関係があるigroupを選択し、**Delete **を選択します。
-.. ダイアログボックスで、[**Unmap the associated LUNs*]ボックスを選択し、[**Delete*]を選択します。
-.. **保護**>**関係**に移動します。
-.. アクティブなSnapMirror同期関係を選択し、**Release**を選択して関係を削除します。
+.. **ホスト** > **SAN イニシエータ グループ** に移動します。
+.. SnapMirror関係のあるigroupを選択し、**削除**します。
+.. ダイアログ ボックスで、[**関連付けられている LUN のマップを解除**] ボックスを選択し、[**削除**] を選択します。
+.. **保護** > **関係**に移動します。
+.. SnapMirror アクティブ同期関係を選択し、**Release** をクリックして関係を削除します。
 
 
 
 
 .不均一な構成の手順
-. プライマリサイトで、リモートホストをigroupから削除し、レプリケーションを終了します。
+. プライマリ サイトで、リモート ホストをigroupから削除し、レプリケーションを終了します。
 +
-.. [**Hosts]>[*SAN Initiator Groups]に移動します。
-.. 変更するigroupを選択し、**Edit**します。
-.. リモートイニシエータを削除し、igroupレプリケーションを終了します。**保存**を選択します。
+.. **ホスト** > *SAN イニシエーター グループ* に移動します。
+.. 変更する igroup を選択し、**編集** をクリックします。
+.. リモートイニシエーターを削除し、igroupレプリケーションを終了します。**保存**を選択します。
 
 
-. セカンダリサイトで、SnapMirrorのアクティブな同期関係を削除します。
+. セカンダリ サイトで、SnapMirrorアクティブ同期関係を削除します。
 +
-.. **保護**>**関係**に移動します。
-.. アクティブなSnapMirror同期関係を選択し、**Release**を選択して関係を削除します。
+.. **保護** > **関係**に移動します。
+.. SnapMirror アクティブ同期関係を選択し、**Release** をクリックして関係を削除します。
 
 
 
@@ -87,70 +87,70 @@ RTOゼロのSnapMirror同期保護が不要になった場合は、SnapMirrorの
 --
 .CLI
 --
-.統一された構成の手順
-. すべてのVMワークロードを、SnapMirrorアクティブ同期のソースクラスタのローカルホストに移動します。
-. ソースクラスタで、igroupからイニシエータを削除し、igroupのレプリケーションを終了するようにigroup設定を変更します。
+.均一な構成の手順
+. すべてのVMワークロードを、SnapMirrorアクティブ同期のソース クラスタのローカル ホストに移動します。
+. ソース クラスタで、igroupからイニシエータを削除し、igroupのレプリケーションを終了するようにigroup設定を変更します。
 +
 `SiteA::> igroup remove -vserver <svm_name> -igroup <igroup_name> -os-type <os_type> -initiator <host2>
 SiteA::> igroup modify -vserver <svm_name> -igroup <igroup_name> -os-type <os_type> -replication-peer "-"`
 
-. セカンダリサイトで、LUNマッピングを削除し、igroup設定を削除します。
+. セカンダリ サイトで、LUNマッピングを削除し、igroup設定を削除します。
 +
 `SiteB::> lun mapping delete -vserver <svm_name> -igroup <igroup_name> -path <>
 SiteB::> igroup delete -vserver <svm_name> -igroup <igroup_name>`
 
-. セカンダリサイトで、SnapMirrorのアクティブな同期関係を削除します。
+. セカンダリ サイトで、SnapMirrorアクティブ同期関係を削除します。
 +
 `SiteB::> snapmirror delete -destination-path _destination_path_`
 
-. プライマリサイトで、プライマリサイトからSnapMirrorのアクティブな同期関係を解放します。
+. プライマリ サイトで、プライマリ サイトからSnapMirrorアクティブ同期関係を解放します。
 +
 `SiteA::> snapmirror release -destination-path <destination_path>`
 
-. パスを再検出して、ホストへのローカルパスのみが使用可能であることを確認します。
+. パスを再検出して、ホストへのローカル パスのみが使用可能であることを確認します。
 
 
 .不均一な構成の手順
-. すべてのVMワークロードを、SnapMirrorアクティブ同期のソースクラスタのローカルホストに移動します。
-. ソースクラスタで、igroupからイニシエータを削除します。
+. すべてのVMワークロードを、SnapMirrorアクティブ同期のソース クラスタのローカル ホストに移動します。
+. ソース クラスタで、igroupからイニシエータを削除します。
 +
 `SiteA::> igroup remove -vserver <svm_name> -igroup <igroup_name> -initiator <host2>`
 
-. セカンダリサイトで、LUNマッピングを削除し、igroup設定を削除します。
+. セカンダリ サイトで、LUNマッピングを削除し、igroup設定を削除します。
 +
 `SiteB::> lun mapping delete -vserver <svm_name> -igroup <igroup_name> -path <>
 SiteB::> igroup delete -vserver <svm_name> -igroup <igroup_name>`
 
-. セカンダリサイトで、SnapMirrorのアクティブな同期関係を削除します。
+. セカンダリ サイトで、SnapMirrorアクティブ同期関係を削除します。
 +
 `SiteB::> snapmirror delete -destination-path <destination_path>`
 
-. プライマリサイトで、プライマリサイトからSnapMirrorのアクティブな同期関係を解放します。
+. プライマリ サイトで、プライマリ サイトからSnapMirrorアクティブ同期関係を解放します。
 +
 `SiteA::> snapmirror release -destination-path <destination_path>`
 
-. パスを再検出して、ホストへのローカルパスのみが使用可能であることを確認します。
+. パスを再検出して、ホストへのローカル パスのみが使用可能であることを確認します。
 
 
 --
 ====
 
 
-== NVMe対称アクティブ/アクティブ構成を削除する
+== NVMe対称アクティブ / アクティブ構成を削除する
 
 [role="tabbed-block"]
 ====
 .System Manager
 --
 .手順
-. ソース クラスターで、*保護 > レプリケーション* に移動します。
-. 削除したい関係を見つけて選択image:icon_kabob.gif["メニューオプションアイコン"] *削除*を選択します。
+. ソース クラスタで、*保護 > レプリケーション* に移動します。
+. 削除する関係を見つけて、image:icon_kabob.gif["メニューオプションアイコン"]を選択し、*削除*を選択します。
 
 
 --
 .CLI
 --
-. 宛先クラスタから、 SnapMirrorアクティブ同期関係を削除します。
+. デスティネーション クラスタから、SnapMirror アクティブ同期関係を削除します。
 +
 `snapmirror delete -destination-path <destination_path> -unmap-namespace true`
 
@@ -163,9 +163,9 @@ SiteB::> igroup delete -vserver <svm_name> -igroup <igroup_name>`
 DST::> snapmirror delete -destination-path vs1:/cg/cg_dst_1 -force true
 ----
 +
-サブシステムとその名前空間はセカンダリ クラスターから削除されます。
+サブシステムとその名前空間はセカンダリ クラスタから削除されます。
 
-. ソース クラスターから、プライマリ サイトからSnapMirrorアクティブ同期関係を解除します。
+. ソース クラスタから、プライマリ サイトのSnapMirror アクティブ同期関係を解放します。
 +
 `snapmirror release -destination-path <destination_path>`
 
@@ -177,13 +177,13 @@ DST::> snapmirror delete -destination-path vs1:/cg/cg_dst_1 -force true
 ----
 SRC::> snapmirror release -destination-path vs1:/cg/cg_dst_1
 ----
-. パスを再検出して、ホストへのローカルパスのみが使用可能であることを確認します。
+. パスを再検出して、ホストへのローカル パスのみが使用可能であることを確認します。
 
 
 --
 ====
 .関連情報
-* link:https://docs.netapp.com/us-en/ontap-cli/snapmirror-break.html["スナップミラーの破損"^]
-* link:https://docs.netapp.com/us-en/ontap-cli/snapmirror-delete.html["SnapMirrorの削除"^]
-* link:https://docs.netapp.com/us-en/ontap-cli/snapmirror-release.html["スナップミラーリリース"^]
+* link:https://docs.netapp.com/us-en/ontap-cli/snapmirror-break.html["snapmirror break"^]
+* link:https://docs.netapp.com/us-en/ontap-cli/snapmirror-delete.html["snapmirror delete"^]
+* link:https://docs.netapp.com/us-en/ontap-cli/snapmirror-release.html["snapmirror release"^]
 

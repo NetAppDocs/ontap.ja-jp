@@ -2,35 +2,35 @@
 permalink: flexgroup/fabricpool-aggregates-existing-volumes-task.html 
 sidebar: sidebar 
 keywords: aggregate, fabricpool, flexgroup, volume 
-summary: ONTAP 9 .5以降では、FlexGroupボリュームでFabricPoolがサポートされます。FabricPool内のアグリゲートを既存のFlexGroupボリュームに使用する場合は、FlexGroupボリュームが配置されているアグリゲートをFabricPool内のアグリゲートに変換するか、FlexGroupボリュームのコンスティチュエントをFabricPool内のアグリゲートに移行します。 
+summary: ONTAP 9.5以降では、FlexGroupボリュームでFabricPoolがサポートされます。FabricPool内のアグリゲートを既存のFlexGroupボリュームに使用する場合は、FlexGroupボリュームが配置されているアグリゲートをFabricPool内のアグリゲートに変換するか、FlexGroupボリュームのコンスティチュエントをFabricPoolのアグリゲートに移行します。 
 ---
-= 既存のONTAP FlexGroupボリュームにFabricPool内のアグリゲートを使用する
+= 既存のONTAP FlexGroupボリュームに対してFabricPoolのアグリゲートを使用する
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-ONTAP 9 .5以降では、FlexGroupボリュームでFabricPoolがサポートされます。FabricPool内のアグリゲートを既存のFlexGroupボリュームに使用する場合は、FlexGroupボリュームが配置されているアグリゲートをFabricPool内のアグリゲートに変換するか、FlexGroupボリュームのコンスティチュエントをFabricPool内のアグリゲートに移行します。
+ONTAP 9.5以降では、FlexGroupボリュームでFabricPoolがサポートされます。FabricPool内のアグリゲートを既存のFlexGroupボリュームに使用する場合は、FlexGroupボリュームが配置されているアグリゲートをFabricPool内のアグリゲートに変換するか、FlexGroupボリュームのコンスティチュエントをFabricPoolのアグリゲートに移行します。
 
 .開始する前に
-* FlexGroupボリュームのスペースギャランティをに設定する必要があります `none`。
+* FlexGroupボリュームのスペース保証を `none`に設定する必要があります。
 * FlexGroupボリュームが配置されているアグリゲートをFabricPool内のアグリゲートに変換する場合は、アグリゲートがSSDディスクのみを使用している必要があります。
 
 
-.タスクの内容
-既存のFlexGroupボリュームがSSD以外のアグリゲートに配置されている場合は、FlexGroupボリュームのコンスティチュエントをFabricPool内のアグリゲートに移行する必要があります。
+.タスク概要
+既存のFlexGroupボリュームが非SSDアグリゲートに配置されている場合は、FlexGroupボリュームのコンスティチュエントをFabricPool内のアグリゲートに移行する必要があります。
 
-.選択肢
+.オプション
 * FlexGroupボリュームが配置されているアグリゲートをFabricPool内のアグリゲートに変換するには、次の手順を実行します。
 +
-.. 既存のFlexGroupボリュームで階層化ポリシーを設定します。 `volume modify -volume flexgroup_name -tiering-policy [auto|snapshot|none|backup]`
+.. 既存のFlexGroupボリュームに階層化ポリシーを設定します： `volume modify -volume flexgroup_name -tiering-policy [auto|snapshot|none|backup]`
 +
 [listing]
 ----
 cluster-2::> volume modify -volume fg1 -tiering-policy auto
 ----
-.. FlexGroupボリュームが配置されているアグリゲートを特定します。 `volume show -volume flexgroup_name -fields aggr-list`
+.. FlexGroupボリュームが存在するアグリゲートを識別します： `volume show -volume flexgroup_name -fields aggr-list`
 +
 [listing]
 ----
@@ -39,9 +39,9 @@ vserver volume aggr-list
 ------- ------ -----------
 vs1     fg1    aggr1,aggr3
 ----
-.. アグリゲートリストに表示された各アグリゲートにオブジェクトストアを接続します。 `storage aggregate object-store attach -aggregate aggregate name -name object-store-name -allow-flexgroup true`
+.. アグリゲート リストにリストされている各アグリゲートにオブジェクト ストアを接続します。 `storage aggregate object-store attach -aggregate aggregate name -name object-store-name -allow-flexgroup true`
 +
-すべてのアグリゲートをオブジェクトストアに接続する必要があります。
+すべてのアグリゲートをオブジェクト ストアに接続する必要があります。
 
 +
 [listing]
@@ -50,17 +50,17 @@ cluster-2::> storage aggregate object-store attach -aggregate aggr1 -object-stor
 ----
 
 
-* FlexGroupボリュームコンスティチュエントをFabricPoolのアグリゲートに移行するには、次の手順を実行します。
+* FlexGroupボリュームのコンスティチュエントをFabricPool内のアグリゲートに移行するには、次の手順を実行します。
 +
-.. 既存のFlexGroupボリュームで階層化ポリシーを設定します。 `volume modify -volume flexgroup_name -tiering-policy [auto|snapshot|none|backup]`
+.. 既存のFlexGroupボリュームに階層化ポリシーを設定します： `volume modify -volume flexgroup_name -tiering-policy [auto|snapshot|none|backup]`
 +
 [listing]
 ----
 cluster-2::> volume modify -volume fg1 -tiering-policy auto
 ----
-.. FlexGroupボリュームの各コンスティチュエントを、同じクラスタ内のFabricPool内のアグリゲートに移動します。 `volume move start -volume constituent-volume -destination-aggregate FabricPool_aggregate -allow-mixed-aggr-types true`
+.. FlexGroupボリュームの各構成要素を、同じクラスター内のFabricPoolのアグリゲートに移動します： `volume move start -volume constituent-volume -destination-aggregate FabricPool_aggregate -allow-mixed-aggr-types true`
 +
-FlexGroupボリュームのすべてのコンスティチュエントをFabricPool内のアグリゲートに移動し（FlexGroupコンスティチュエントが異なるタイプのアグリゲートに配置されている場合）、すべてのコンスティチュエントをクラスタ内のノード間に分散させる必要があります。
+FlexGroupボリュームのすべてのコンスティチュエントをFabricPool内のアグリゲートに移動し（コンスティチュエントが種類の異なる複数のアグリゲートに配置されている場合）、それらのコンスティチュエントをクラスタ内のノード間に分散します。
 
 +
 [listing]
@@ -73,5 +73,5 @@ cluster-2::> volume move start -volume fg1_001 -destination-aggregate FP_aggr1 -
 
 .関連情報
 * link:../disks-aggregates/index.html["ディスクおよびアグリゲートの管理"]
-* link:https://docs.netapp.com/us-en/ontap-cli/storage-aggregate-object-store-attach.html["ストレージ集約オブジェクトストアアタッチ"^]
+* link:https://docs.netapp.com/us-en/ontap-cli/storage-aggregate-object-store-attach.html["storage aggregate object-store attach"^]
 

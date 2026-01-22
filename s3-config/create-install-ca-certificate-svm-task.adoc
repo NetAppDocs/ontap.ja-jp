@@ -4,25 +4,25 @@ sidebar: sidebar
 keywords: create, install, ca certificate, svm 
 summary: S3クライアントからS3対応SVMへのHTTPSトラフィックを有効にするには、認証局（CA）証明書が必要です。 
 ---
-= ONTAP S3対応SVMにCA証明書を作成してインストールする
+= ONTAP S3 対応 SVM に CA 証明書を作成してインストールする
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-S3 クライアントには、S3 対応 SVM に HTTPS トラフィックを送信するための証明機関 (CA) 証明書が必要です。  CA 証明書は、クライアント アプリケーションとONTAPオブジェクト ストア サーバの間に信頼関係を作成します。  ONTAP をリモート クライアントからアクセス可能なオブジェクト ストアとして使用する前に、 ONTAPに CA 証明書をインストールする必要があります。
+S3クライアントは、S3対応SVMにHTTPSトラフィックを送信するために、証明機関（CA）証明書を必要とします。CA証明書は、クライアントアプリケーションとONTAPオブジェクトストアサーバの間に信頼関係を構築します。リモートクライアントからアクセス可能なオブジェクトストアとしてONTAPを使用する前に、ONTAPにCA証明書をインストールする必要があります。
 
-.タスクの内容
-HTTPのみを使用するようにS3サーバを設定したり、CA証明書を必要とせずにクライアントを設定したりすることも可能ですが、ONTAP S3サーバへのHTTPSトラフィックをCA証明書で保護することを推奨します。
+.タスク概要
+HTTPのみを使用するようにS3サーバを設定したり、CA証明書なしでアクセスできるようにクライアントを設定したりすることも可能ですが、ONTAP S3サーバへのHTTPSトラフィックをCA証明書で保護することを推奨します。
 
-IPトラフィックがクラスタLIFのみを経由するローカル階層化では、CA証明書は必要ありません。
+IPトラフィックがクラスタLIFのみを経由するローカルでの階層化では、CA証明書は必要ありません。
 
-この手順では、ONTAP自己署名証明書を作成してインストールします。ONTAPでは自己署名証明書を生成できますが、サードパーティの認証局からの署名済み証明書を使用することを推奨します。詳細については、管理者の認証に関するドキュメントを参照してください。
+この手順では、ONTAPの自己署名証明書を作成してインストールします。自己署名証明書はONTAPに生成させることも可能ですが、サードパーティの認証局が発行する署名済み証明書を使用することが推奨されます。詳細については、管理者の認証に関するドキュメントを参照してください。
 
-link:../authentication/index.html["カンリシヤニンシヨウトRBAC"]
+link:../authentication/index.html["管理者認証とRBAC"]
 
-およびその他の設定オプションの詳細については、をlink:https://docs.netapp.com/us-en/ontap-cli/search.html?q=security+certificate["ONTAPコマンド リファレンス"^]参照して `security certificate`ください。
+ `security certificate`および追加の構成オプションの詳細については、link:https://docs.netapp.com/us-en/ontap-cli/search.html?q=security+certificate["ONTAPコマンド リファレンス"^]を参照してください。
 
 .手順
 . 自己署名デジタル証明書を作成します。
@@ -30,13 +30,13 @@ link:../authentication/index.html["カンリシヤニンシヨウトRBAC"]
 `security certificate create -vserver _svm_name_ -type root-ca -common-name _ca_cert_name_`
 
 +
-オプションは `-type root-ca`、認証局（CA）として機能して他の証明書に署名するための自己署名デジタル証明書を作成してインストールします。
+ `-type root-ca`オプションは、認証局（CA）として機能して他の証明書に署名するための自己署名デジタル証明書を作成してインストールします。
 
 +
-オプションを使用 `-common-name`すると、SVMの認証局（CA）名が作成され、証明書の完全な名前を生成するときに使用されます。
+この `-common-name`オプションは、SVMの認証局（CA）名を作成し、証明書の完全な名前を生成するときに使用されます。
 
 +
-デフォルトの証明書サイズは2048ビットです。
+証明書のデフォルト サイズは2048ビットです。
 
 +
 例
@@ -49,48 +49,48 @@ cluster-1::> security certificate create -vserver svm1.example.com -type root-ca
 The certificate's generated name for reference: svm1_ca_159D1587CE21E9D4_svm1_ca
 ----
 +
-生成された証明書の名前が表示されたら、以降の手順で使用するために保存しておきます。
+生成された証明書の名前が表示されたら、以降の手順で使用するため記録しておきます。
 
 +
-の詳細については `security certificate create`、をlink:https://docs.netapp.com/us-en/ontap-cli/security-certificate-create.html["ONTAPコマンド リファレンス"^]参照してください。
+ `security certificate create`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/security-certificate-create.html["ONTAPコマンド リファレンス"^]をご覧ください。
 
 . 証明書署名要求を生成します。
 +
 `security certificate generate-csr -common-name _s3_server_name_ [additional_options]`
 
 +
- `-common-name`署名要求のパラメータには、S3サーバ名（FQDN）を指定する必要があります。
+署名リクエストの `-common-name`パラメータは、S3サーバー名（FQDN）である必要があります。
 
 +
-必要に応じて、SVMの場所やその他の詳細情報を指定できます。
+必要に応じてSVMの場所やその他の詳細情報を指定できます。
 
 +
-その `-dns-name`パラメータは、DNS 名のリストを提供するサブジェクト代替名拡張を指定するためにクライアントによって要求されることがよくあります。
+ `-dns-name`パラメータは、DNS 名のリストを提供するサブジェクト代替名拡張を指定するために、クライアントによって必要とされることがよくあります。
 
 +
-その `-ipaddr`パラメータは、IP アドレスのリストを提供するサブジェクト代替名拡張を指定するためにクライアントによって要求されることがよくあります。
+ `-ipaddr`パラメータは、IP アドレスのリストを提供するサブジェクト代替名拡張を指定するために、クライアントによって必要とされることがよくあります。
 
 +
-あとで参照できるように、証明書要求と秘密鍵のコピーを保管するように求められます。
+あとで参照できるように、証明書要求と秘密鍵のコピーを保管しておくように求められます。
 
 +
-の詳細については `security certificate generate-csr`、をlink:https://docs.netapp.com/us-en/ontap-cli/security-certificate-generate-csr.html["ONTAPコマンド リファレンス"^]参照してください。
+ `security certificate generate-csr`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/security-certificate-generate-csr.html["ONTAPコマンド リファレンス"^]をご覧ください。
 
 . SVM_CAを使用してCSRに署名し、S3サーバの証明書を生成します。
 +
 `security certificate sign -vserver _svm_name_ -ca _ca_cert_name_ -ca-serial _ca_cert_serial_number_ [additional_options]`
 
 +
-前の手順で使用したコマンドオプションを入力します。
+前の手順で使用したコマンド オプションを入力します。
 
 +
-** `-ca`--ステップ1で入力したCAの共通名。
-** `-ca-serial`--ステップ1のCAシリアル番号。たとえば、CA証明書の名前がsvm1_ca_159D1587CE21E9D4_svm1_caの場合、シリアル番号は159D1587CE21E9D4です。
+** `-ca` -- 手順 1 で入力した CA の共通名。
+** `-ca-serial` -- 手順 1 の CA シリアル番号。たとえば、CA 証明書名が svm1_ca_159D1587CE21E9D4_svm1_ca の場合、シリアル番号は 159D1587CE21E9D4 です。
 +
-デフォルトでは、署名済み証明書の有効期限は365日です。別の値を選択したり、他の署名の詳細を指定したりできます。
+デフォルトでは、署名済み証明書の有効期間は365日です。別の値を選択したり、他の署名の詳細を指定したりできます。
 
 +
-プロンプトが表示されたら、手順2で保存した証明書要求文字列をコピーして入力します。
+プロンプトが表示されたら、手順2で保存した証明書要求の文字列をコピーして入力します。
 
 +
 署名済み証明書が表示されます。あとで使用できるように保存しておきます。
@@ -115,7 +115,7 @@ The certificate's generated name for reference: svm1_ca_159D1587CE21E9D4_svm1_ca
 `security certificate show -vserver _svm_name_ -common-name _ca_cert_name_ -type root-ca -instance`
 
 +
-クライアント側の設定用に公開鍵証明書を保存しておきます。
+クライアント側の設定で使用するため、公開鍵証明書を保存しておきます。
 
 +
 例
@@ -152,7 +152,7 @@ Contact Administrator's Email Address:
 
 
 .関連情報
-* link:https://docs.netapp.com/us-en/ontap-cli/security-certificate-install.html["セキュリティ証明書のインストール"^]
-* link:https://docs.netapp.com/us-en/ontap-cli/security-certificate-show.html["security certificate show"^]
-* link:https://docs.netapp.com/us-en/ontap-cli/security-certificate-sign.html["セキュリティ証明書の署名"^]
+* link:https://docs.netapp.com/us-en/ontap-cli/security-certificate-install.html["security certificate install"^]
+* link:https://docs.netapp.com/us-en/ontap-cli/security-certificate-show.html["セキュリティ証明書の表示"^]
+* link:https://docs.netapp.com/us-en/ontap-cli/security-certificate-sign.html["security certificate sign"^]
 

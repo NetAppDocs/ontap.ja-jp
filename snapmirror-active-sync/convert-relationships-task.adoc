@@ -2,9 +2,9 @@
 sidebar: sidebar 
 permalink: snapmirror-active-sync/convert-relationships-task.html 
 keywords: SM-BC, SMBC, convert, SnapMirror synchronous, zero RPO, zero recovery time objective, zero RTO, existing, snapmirror active sync 
-summary: SnapMirrorのアクティブな同期構成で、対称保護と非対称保護を変換します。 
+summary: SnapMirrorアクティブ同期構成で対称保護と非対称保護を変換します。 
 ---
-= ONTAP SnapMirrorのアクティブ同期関係タイプを変換する
+= ONTAP SnapMirrorアクティブ同期関係タイプを変換する
 :hardbreaks:
 :allow-uri-read: 
 :nofooter: 
@@ -14,132 +14,132 @@ summary: SnapMirrorのアクティブな同期構成で、対称保護と非対�
 
 
 [role="lead"]
-ONTAP 9 .15.1以降では、SnapMirrorアクティブ同期保護のタイプ（非対称から対称アクティブ/アクティブ、またはその逆）を変換できます。
+ONTAP 9.15.1以降では、SnapMirrorアクティブ同期保護のタイプを非対称から対称アクティブ / アクティブに変換できます。その逆も可能です
 
 
 
-== 対称アクティブ/アクティブ関係への変換
+== 対称アクティブ / アクティブ関係への変換
 
-非対称保護を使用した iSCSI または FC SnapMirrorアクティブ同期関係を、対称アクティブ/アクティブを使用するように変換できます。
+iSCSI または FC SnapMirror アクティブ同期関係を非対称保護から対称アクティブ / アクティブに変換できます。
 
 .開始する前に
-* 両方のクラスタでONTAP 9 .15.1以降が実行されている必要があります。
-* 対称アクティブ/アクティブ構成には保護ポリシーが必要 `AutomatedFailoverDuplex`です。または、をに `automated-failover-duplex`指定する `-type`こともできますxref:../data-protection/create-custom-replication-policy-concept.html[カスタムのSnapMirrorポリシーを作成する]。
+* どちらのクラスタでも、ONTAP 9.15.1以降が実行されている必要があります。
+* 対称アクティブ / アクティブ構成には `AutomatedFailoverDuplex`保護ポリシーが必要です。または、 `-type`が `automated-failover-duplex`である場合は、xref:../data-protection/create-custom-replication-policy-concept.html[カスタムSnapMirrorポリシーを作成する]を指定することもできます。
 
 
 [role="tabbed-block"]
 ====
 .System Manager
 --
-.統一された構成の手順
+.均一な構成の手順
 . デスティネーションigroupを削除します。
 +
-.. デスティネーションクラスタで、**Hosts**>** SAN Initiator Groups**に移動します。
-.. SnapMirror関係があるigroupを選択し、**Delete **を選択します。
-.. ダイアログボックスで、[**Unmap the associated LUNs*]ボックスを選択し、[**Delete*]を選択します。
+.. デスティネーション クラスタで、[**ホスト**] > [**SAN イニシエーター グループ**] に移動します。
+.. SnapMirror関係のあるigroupを選択し、**削除**します。
+.. ダイアログ ボックスで、[**関連付けられている LUN のマップを解除**] ボックスを選択し、[**削除**] を選択します。
 
 
-. SnapMirrorのアクティブな同期関係を編集します。
+. SnapMirrorアクティブ同期関係を編集します。
 +
-.. **保護**>**関係**に移動します。
-.. 変更するリレーションシップの横にあるKabobメニューを選択し、**編集**を選択します。
+.. **保護** > **関係**に移動します。
+.. 変更する関係の横にあるケバブ メニューを選択し、**編集**を選択します。
 .. **保護ポリシー**をAutomatedFailoverDuplexに変更します。
-.. を選択する `AutoMatedFailoverDuplex`と、ホストプロキシミティ設定を変更するダイアログボックスが表示されます。イニシエータの場合は、[** Initiator Proximal to *]の適切なオプションを選択してから、[** Initiator Proximal to *]を選択します。
+..  `AutoMatedFailoverDuplex`を選択すると、ホストの近接設定を変更するためのダイアログボックスが表示されます。イニシエーターの場合は、**Initiator proximal to**で適切なオプションを選択し、**Save**をクリックします。
 .. **保存**を選択します。
 
 
-. [**Protection*]メニューで、関係がと表示されたら操作が成功したことを確認します `InSync`。
+. **保護**メニューで、関係が `InSync`と表示されたら操作が成功したことを確認します。
 
 
 .不均一な構成の手順
 . デスティネーションigroupを削除します。
 +
-.. セカンダリサイトで、**Hosts**>**SAN Initiator Groups**に移動します。
-.. SnapMirror関係があるigroupを選択し、**Delete **を選択します。
-.. ダイアログボックスで、[**Unmap the associated LUNs*]ボックスを選択し、[**Delete*]を選択します。
+.. セカンダリ サイトで、**ホスト** > **SAN イニシエーター グループ**に移動します。
+.. SnapMirror関係のあるigroupを選択し、**削除**します。
+.. ダイアログ ボックスで、[**関連付けられている LUN のマップを解除**] ボックスを選択し、[**削除**] を選択します。
 
 
 . 新しいigroupを作成します。
 +
-.. デスティネーションサイトの[** SANイニシエータグループ*]メニューで、[**追加*]を選択します。
-.. ** Name **を指定し、** Host Operating System **を選択してから、** Initiator Group Members **を選択します。
+.. デスティネーション サイトの **SAN イニシエーター グループ** メニューで、**追加** を選択します。
+.. **名前** を入力し、**ホスト オペレーティング システム** を選択して、**イニシエーター グループ メンバー** を選択します。
 .. **保存**を選択します。
 
 
 . 新しいigroupをデスティネーションLUNにマッピングします。
 +
-.. **ストレージ**>** LUNs**に移動します。
+.. **Storage** > **LUN** に移動します。
 .. igroupにマッピングするLUNをすべて選択します。
-.. ** More **を選択してから** Map to Initiator Groups **を選択します。
+.. **詳細**を選択し、**イニシエーター グループにマップ**を選択します。
 
 
-. SnapMirrorのアクティブな同期関係を編集します。
+. SnapMirrorアクティブ同期関係を編集します。
 +
-.. **保護**>**関係**に移動します。
-.. 変更するリレーションシップの横にあるKabobメニューを選択し、**編集**を選択します。
+.. **保護** > **関係**に移動します。
+.. 変更する関係の横にあるケバブ メニューを選択し、**編集**を選択します。
 .. **保護ポリシー**をAutomatedFailoverDuplexに変更します。
-.. AutoMatedFailoverDuplexを選択すると、ホストプロキシミティ設定を変更するオプションが開始されます。イニシエータの場合は、[** Initiator Proximal to *]の適切なオプションを選択してから、[** Initiator Proximal to *]を選択します。
+.. AutoMatedFailoverDuplexを選択すると、ホストの近接設定を変更するオプションが起動します。イニシエーターの場合は、**Initiator proximal to**で適切なオプションを選択し、**Save**をクリックします。
 .. **保存**を選択します。
 
 
-. [**Protection*]メニューで、関係がと表示されたら操作が成功したことを確認します `InSync`。
+. **保護**メニューで、関係が `InSync`と表示されたら操作が成功したことを確認します。
 
 
 --
 .CLI
 --
-.統一された構成の手順
-. SnapMirrorポリシーをからに `AutomatedFailoverDuplex`変更し `AutomatedFailover`ます。
+.均一な構成の手順
+. SnapMirrorポリシーを `AutomatedFailover`から `AutomatedFailoverDuplex`に変更します：
 +
 `snapmirror modify -destination-path <destination_path> -policy AutomatedFailoverDuplex`
 
-. ポリシーを変更すると再同期がトリガーされます。再同期が完了してから、関係が次のようになっていることを確認し `Insync`ます。
+. ポリシーを変更すると再同期が実行されます。再同期が完了するまで待ち、関係が `Insync`であることを確認します：
 +
 `snapmirror show -destination-path <destination_path>`
 
-. 既存のホストがローカルのプライマリクラスタの場合は、ホストを2番目のクラスタに追加し、各クラスタへのそれぞれのアクセスとの接続を確立します。
-. セカンダリサイトで、リモートホストに関連付けられたigroupのLUNマップを削除します。
+. 既存のホストがプライマリ クラスタに対してローカルである場合は、ホストをセカンダリ クラスタに追加し、各クラスタにそれぞれアクセスできるよう接続を確立します。
+. セカンダリ サイトで、リモート ホストに関連付けられているigroupのLUNマップを削除します。
 +
 
-NOTE: igroupにレプリケートされていないLUNのマッピングが含まれていないことを確認します。
+NOTE: レプリケートされていないLUNのマッピングがigroupに含まれていないことを確認します。
 
 +
 `SiteB::> lun mapping delete -vserver <svm_name> -igroup <igroup> -path <>`
 
-. プライマリサイトで、権限レベルをに設定し `advanced`ます。
+. プライマリサイトで、権限レベルを `advanced`に設定します：
 +
 `SiteA::> set -privilege advanced`
 
-. 既存のホストのイニシエータ設定を変更して、ローカルクラスタ上のイニシエータの近接パスを設定します。
+. 既存のホストのイニシエーター構成を変更して、ローカル クラスタ上のイニシエーターの近位パスを設定します。
 +
 `SiteA::*> igroup initiator add-proximal-vserver -vserver <svm_name> -initiator <host> -proximal-vserver <server>`
 
 +
 
-NOTE: この手順が完了したら、権限レベルをadminに戻すことができます。
+NOTE: この手順を完了したら、権限レベルを admin に戻すことができます。
 
-. 新しいホスト用の新しいigroupとイニシエータを追加し、ホストとローカルサイトのアフィニティを設定します。igroupレプリケーションを有効にして設定をレプリケートし、リモートクラスタのホストローカル性を反転
+. 新しいホスト用の新しいigroupとイニシエータを追加し、ホストの近接性を設定してローカル サイトに対するホスト アフィニティを確立します。igroupレプリケーションを有効にして、設定をレプリケートし、リモート クラスタのホストのローカル性を反転させます。
 +
 ``
 SiteA::> igroup modify -vserver vsA -igroup ig1 -replication-peer vsB
 SiteA::> igroup initiator add-proximal-vserver -vserver vsA -initiator host2 -proximal-vserver vsB
 ``
 
-. ホスト上のパスを検出し、優先クラスタからストレージLUNへのアクティブ/最適化パスがホストにあることを確認する
+. ホスト上のパスを検出し、優先クラスタからストレージLUNへのアクティブ / 最適化パスがホストに設定されていることを確認します。
 . アプリケーションを導入し、VMワークロードをクラスタ間に分散します。
 
 
 .不均一な構成の手順
-. SnapMirrorポリシーをからに `AutomatedFailoverDuplex`変更し `AutomatedFailover`ます。
+. SnapMirrorポリシーを `AutomatedFailover`から `AutomatedFailoverDuplex`に変更します：
 +
 `snapmirror modify -destination-path <destination_path> -policy AutomatedFailoverDuplex`
 
-. ポリシーを変更すると再同期がトリガーされます。再同期が完了してから、関係が次のようになっていることを確認し `Insync`ます。
+. ポリシーを変更すると再同期が実行されます。再同期が完了するまで待ち、関係が `Insync`であることを確認します：
 +
 `snapmirror show -destination-path <destination_path>`
 
-. 既存のホストがプライマリクラスタに対してローカルである場合は、ホストを2番目のクラスタに追加し、各クラスタへのそれぞれのアクセスとの接続を確立します。
-. セカンダリサイトで、新しいホスト用の新しいigroupとイニシエータを追加し、ローカルサイトへのホストアフィニティを設定します。LUNをigroupにマッピングします。
+. 既存のホストがプライマリ クラスタに対してローカルである場合は、ホストをセカンダリ クラスタに追加し、各クラスタにそれぞれアクセスできるよう接続を確立します。
+. セカンダリ サイトで、新しいホスト用の新しいigroupとイニシエータを追加し、ホストの近接性を設定してローカル サイトに対するホスト アフィニティを確立します。LUNをigroupにマッピングします。
 +
 ``
 SiteB::> igroup create -vserver <svm_name> -igroup <igroup>
@@ -147,7 +147,7 @@ SiteB::> igroup add -vserver <svm_name> -igroup  <igroup> -initiator <host_name>
 SiteB::> lun mapping create -igroup  <igroup> -path <path_name>
 ``
 
-. ホスト上のパスを検出し、優先クラスタからストレージLUNへのアクティブ/最適化パスがホストにあることを確認する
+. ホスト上のパスを検出し、優先クラスタからストレージLUNへのアクティブ / 最適化パスがホストに設定されていることを確認します。
 . アプリケーションを導入し、VMワークロードをクラスタ間に分散します。
 
 
@@ -155,27 +155,27 @@ SiteB::> lun mapping create -igroup  <igroup> -path <path_name>
 ====
 
 
-== 対称アクティブ/アクティブ関係から非対称iSCSIまたはFC関係に変換する
+== 対称アクティブ / アクティブから非対称iSCSIまたはFC関係に変換する
 
-iSCSI または FC を使用して対称アクティブ/アクティブ保護を構成した場合は、 ONTAP CLI を使用して関係を非対称保護に変換できます。
+iSCSI または FC を使用して対称アクティブ / アクティブ保護を構成した場合は、ONTAP CLI を使用して関係を非対称保護に変換できます。
 
 .手順
-. すべてのVMワークロードを、ソースクラスタのローカルホストに移動します。
-. VMインスタンスを管理していないホストのigroup設定を削除し、igroup設定を変更してigroupのレプリケーションを終了します。
+. すべてのVMワークロードを、ソース クラスタのローカル ホストに移動します。
+. VM インスタンスを管理していないホストの igroup 構成を削除し、igroup 構成を変更して igroup レプリケーションを終了します。
 +
 `igroup modify -vserver <svm_name> -igroup <igroup> -replication-peer -`
 
-. セカンダリサイトで、LUNのマッピングを解除します。
+. セカンダリ サイトで、LUNのマッピングを解除します。
 +
 `SiteB::> lun mapping delete -vserver <svm_name> -igroup <igroup> -path <>`
 
-. セカンダリサイトで、対称アクティブ/アクティブ関係を削除します。
+. セカンダリ サイトで、対称アクティブ / アクティブ関係を削除します。
 +
 `SiteB::> snapmirror delete -destination-path <destination_path>`
 
-. プライマリサイトで、対称アクティブ/アクティブ関係を解放します。
+. プライマリ サイトで、対称アクティブ / アクティブ関係を解除します。
 `SiteA::> snapmirror release -destination-path <destination_path> -relationship-info-only true`
-. セカンダリサイトで、ポリシーを使用して同じ一連のボリュームに対する関係を作成し `AutomatedFailover`、関係を再同期します。
+. セカンダリ サイトから、 `AutomatedFailover`ポリシーを使用して同じボリューム セットへの関係を作成し、関係を再同期します。
 +
 ``
 SiteB::> snapmirror create -source-path <source_path> -destination-path <destination_path> -cg-item-mappings <source:@destination> -policy AutomatedFailover
@@ -184,9 +184,9 @@ SiteB::> snapmirror resync -destination-path vs1:/cg/cg1_dst -policy <policy_typ
 
 +
 
-NOTE: セカンダリサイトの整合性グループは、関係を再作成する前に必要ですlink:../consistency-groups/delete-task.html["削除対象"]。デスティネーションボリュームlink:https://kb.netapp.com/onprem/ontap/dp/SnapMirror/How_to_change_a_volume_type_from_RW_to_DP["DPタイプに変換する必要があります"^]。ボリュームをDPに変換するには、ポリシー `MirrorAndVault`以外のコマンド、、 `MirrorAllSnapshots`または `Sync`を指定して-`AutomatedFailover`実行し `snapmirror resync`ます。
+NOTE: 関係を再作成する前に、セカンダリ サイトの整合性グループにlink:../consistency-groups/delete-task.html["削除される"]が必要です。デスティネーション ボリュームlink:https://kb.netapp.com/onprem/ontap/dp/SnapMirror/How_to_change_a_volume_type_from_RW_to_DP["DP型に変換する必要がある"^]。ボリュームをDPに変換するには、-`AutomatedFailover`以外のポリシー（ `MirrorAndVault`、 `MirrorAllSnapshots`、または `Sync`）を使用して `snapmirror resync`コマンドを実行します。
 
-. 関係のミラー状態が関係ステータスがである `Insync`ことを確認します `Snapmirrored`。
+. 関係ミラー状態が `Snapmirrored`であり、関係ステータスが `Insync`であることを確認します。
 +
 `snapmirror show -destination-path _destination_path_`
 
@@ -194,9 +194,9 @@ NOTE: セカンダリサイトの整合性グループは、関係を再作成�
 
 
 .関連情報
-* link:https://docs.netapp.com/us-en/ontap-cli/snapmirror-delete.html["SnapMirrorの削除"^]
-* link:https://docs.netapp.com/us-en/ontap-cli/snapmirror-modify.html["スナップミラーの変更"^]
-* link:https://docs.netapp.com/us-en/ontap-cli/snapmirror-release.html["スナップミラーリリース"^]
+* link:https://docs.netapp.com/us-en/ontap-cli/snapmirror-delete.html["snapmirror delete"^]
+* link:https://docs.netapp.com/us-en/ontap-cli/snapmirror-modify.html["snapmirror modify"^]
+* link:https://docs.netapp.com/us-en/ontap-cli/snapmirror-release.html["snapmirror release"^]
 * link:https://docs.netapp.com/us-en/ontap-cli/snapmirror-resync.html["snapmirror resync"^]
 * link:https://docs.netapp.com/us-en/ontap-cli/snapmirror-show.html["snapmirror show"^]
 

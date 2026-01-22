@@ -2,7 +2,7 @@
 sidebar: sidebar 
 permalink: networking/modify_a_lif.html 
 keywords: lif attributes, fc lifs, ip lifs, change lifs, change, changing, logical, interface, lif, modify a lif, modify a lif by changing its attributes 
-summary: LIF の属性を変更して LIF を変更する 
+summary: 属性を変更して LIF を変更する 
 ---
 = ONTAP LIFの変更
 :hardbreaks:
@@ -14,81 +14,81 @@ summary: LIF の属性を変更して LIF を変更する
 
 
 [role="lead"]
-LIFの属性は変更できます。これには、ホームノードや現在のノード、管理ステータス、IPアドレス、ネットマスク、フェイルオーバーポリシー、ファイアウォールポリシー、サービスポリシーなどがあります。LIFのアドレスファミリーをIPv4からIPv6に変更することもできます。
+LIFの属性は変更することができます。これには、ホーム ノードや現在のノード、管理ステータス、IPアドレス、ネットマスク、フェイルオーバー ポリシー、ファイアウォール ポリシー、サービス ポリシーなどが含まれます。また、LIFのアドレス ファミリーをIPv4からIPv6に変更することもできます。
 
-.タスクの内容
-* LIFの管理ステータスをdownに変更すると、そのLIFの管理ステータスがupに戻るまで、未処理のNFSv4ロックが維持されます。
+.タスク概要
+* LIFの管理ステータスをdownに変更すると、再びupに戻るまで、現行のNFSv4ロックが維持されたままになります。
 +
-ロックされたファイルに他のLIFがアクセスしようとしたときにロックの競合が発生するのを防ぐには、管理ステータスをdownに設定する前に、NFSv4クライアントを別のLIFに移動する必要があります。
+ロックされたファイルに他のLIFがアクセスしようとしたときにロックの競合が発生するのを防ぐには、LIFの管理ステータスをdownに設定する前に、NFSv4クライアントを別のLIFに移動する必要があります。
 
-* FC LIFで使用されるデータプロトコルは変更できません。ただし、サービスポリシーに割り当てられているサービスを変更したり、IP LIFに割り当てられているサービスポリシーを変更したりすることはできます。
+* FC LIFで使用されているデータ プロトコルを変更することはできません。ただし、サービス ポリシーに割り当てられているサービスや、IP LIFに割り当てられているサービス ポリシーは変更可能です。
 +
-FC LIFで使用されるデータプロトコルを変更するには、LIFを削除して再作成する必要があります。IP LIFのサービスポリシーを変更するために、更新中に短時間の停止が発生します。
+FC LIFで使用されているデータ プロトコルを変更するには、LIFを削除して作成し直す必要があります。IP LIFにサービス ポリシーの変更が適用される間、短時間の停止が発生します。
 
-* ノードを対象とした管理LIFのホームノードと現在のノードは変更できません。
-* サブネットを使用してLIFのIPアドレスとネットワークマスク値を変更すると、指定したサブネットからIPアドレスが割り当てられます。LIFの以前のIPアドレスが別のサブネットから割り当てられている場合は、そのIPアドレスがそのサブネットに返されます。
-* LIFのアドレスファミリーをIPv4からIPv6に変更するには、IPv6アドレスのコロン表記を使用し、パラメータに新しい値を追加する必要があります `-netmask-length`。
-* 自動設定されたリンクローカルIPv6アドレスは変更できません。
-* LIFを変更すると、LIFに有効なフェイルオーバーターゲットがなくなるため、警告メッセージが表示されます。
+* 現在のノード、またはノードを対象とした管理LIFのホーム ノードを変更することはできません。
+* LIFのIPアドレスとネットワーク マスクを変更するためにサブネットを使用すると、指定したサブネットからIPアドレスが割り当てられます。LIFの前のIPアドレスが別のサブネットから割り当てられた場合は、IPアドレスがそのサブネットに戻されます。
+* LIF のアドレスファミリを IPv4 から IPv6 に変更するには、IPv6 アドレスにコロン表記を使用し、 `-netmask-length`パラメータに新しい値を追加する必要があります。
+* 自動構成されたIPv6リンクローカル アドレスは変更できません。
+* LIFの変更によって、LIFに有効なフェイルオーバー ターゲットがなくなる場合は警告メッセージが表示されます。
 +
-有効なフェイルオーバーターゲットのないLIFがフェイルオーバーしようとすると、システムが停止する可能性があります。
+有効なフェイルオーバー ターゲットのないLIFがフェイルオーバーしようとすると、システムが停止する可能性があります。
 
-* ONTAP 9 5以降では、LIFに関連付けられているサービスポリシーを変更できます。
+* ONTAP 9.5以降では、LIFに関連付けられているサービス ポリシーを変更できます。
 +
-.5では、クラスタ間およびONTAP 9ピアサービスでのみサービスポリシーがサポートされます。ONTAP 9 .6では、複数のデータサービスおよび管理サービスのサービスポリシーを作成できます。
+ONTAP 9.5では、クラスタ間およびBGPピアのサービスについてのみサービス ポリシーがサポートされます。ONTAP 9.6では、複数のデータ サービスおよび管理サービスについてサービス ポリシーを作成できます。
 
-* ONTAP 9 .11.1以降では、All-Flash SAN Array（ASA）プラットフォームでiSCSI LIFの自動フェイルオーバーを使用できます。
+* ONTAP 9.11.1以降では、オールフラッシュSANアレイ（ASA）プラットフォームで自動iSCSI LIFフェイルオーバーを使用できます。
 +
-既存のiSCSI LIF（9.11.1以降へのアップグレード前に作成されたLIF）については、フェイルオーバーポリシーをに変更できますlink:../san-admin/asa-iscsi-lif-fo-task.html["iSCSI LIFの自動フェイルオーバーを有効にする"]。
+既存のiSCSI LIF（9.11.1以降にアップグレードする前に作成されたLIF）の場合は、フェイルオーバーポリシーをlink:../san-admin/asa-iscsi-lif-fo-task.html["iSCSI LIFの自動フェイルオーバーを有効にする"]に変更できます。
 
-* ONTAP は、ネットワーク タイム プロトコル (NTP) を使用してクラスタ全体の時間を同期します。LIF IP アドレスを変更した後、同期の失敗を防ぐために NTP 設定を更新する必要がある場合があります。詳細については、link:https://kb.netapp.com/on-prem/ontap/Ontap_OS/OS-Issues/CONTAP-500629["NetAppナレッジベース: LIF IP の変更後に NTP 同期が失敗する"^] 。
+* ONTAPは、ネットワークタイムプロトコル（NTP）を使用してクラスタ全体の時刻を同期します。LIF IPアドレスを変更した後は、同期の失敗を防ぐためにNTP設定の更新が必要になる場合があります。詳細については、link:https://kb.netapp.com/on-prem/ontap/Ontap_OS/OS-Issues/CONTAP-500629["NetAppナレッジベース：LIF IPの変更後にNTP同期が失敗する"^]を参照してください。
 
 
-実行する手順は、使用するインターフェイス（System ManagerまたはCLI）によって異なります。
+実行する手順は、System ManagerとCLIのどちらのインターフェイスを使用するかによって異なります。
 
 [role="tabbed-block"]
 ====
 .System Manager
 --
-* ONTAP 9.12.0以降では、System Managerを使用してネットワークインターフェイス*を編集できます
+*ONTAP 9.12.0以降では、System Managerを使用してネットワークインターフェイスを編集できます*
 
 .手順
-. Network > Overview > Network Interfaces *を選択します。
-. 変更するネットワークインターフェイスの横にある*>[編集]*を選択します image:icon_kabob.gif["メニューオプションアイコン"] 。
-. 1つ以上のネットワークインターフェイス設定を変更します。詳細については、を参照してください link:create_a_lif.html["LIFの作成"]。
+. *ネットワーク > 概要 > ネットワーク インターフェイス*を選択します。
+. 変更したいネットワーク インターフェイスの横にあるimage:icon_kabob.gif["メニューオプションアイコン"] *> 編集*を選択します。
+. ネットワークインターフェイスの設定を1つ以上変更します。詳細については、link:create_a_lif.html["LIFの作成"]を参照してください。
 . 変更を保存します。
 
 
 --
 .CLI
 --
-* LIFの変更にはCLIを使用してください*
+*CLIを使用してLIFを変更する*
 
 .手順
-. コマンドを使用して、LIFの属性を変更します `network interface modify`。
+.  `network interface modify`コマンドを使用してLIFの属性を変更します。
 +
-次の例は、datalif2というLIFのIPアドレスとネットワークマスクを、サブネットclient1_subのIPアドレスとネットワークマスク値を使用して変更する方法を示しています。
+次の例は、datalif2というLIFのIPアドレスとネットワーク マスクを、サブネットclient1_subのIPアドレスとネットワーク マスク値に変更する例を示しています。
 
 +
 ....
 network interface modify -vserver vs1 -lif datalif2 -subnet-name client1_sub
 ....
 +
-次の例は、LIFのサービスポリシーを変更する方法を示しています。
+次の例は、LIFのサービス ポリシーを変更する方法を示しています。
 
 +
 ....
 network interface modify -vserver siteA -lif node1_inter1 -service-policy example
 ....
 +
-の詳細については `network interface modify`、をlink:https://docs.netapp.com/us-en/ontap-cli/network-interface-modify.html["ONTAPコマンド リファレンス"^]参照してください。
+ `network interface modify`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/network-interface-modify.html["ONTAPコマンド リファレンス"^]を参照してください。
 
 . IPアドレスに到達できることを確認します。
 +
 |===
 
 
-| 使用する機能 | 使用する方法 
+| ...を使用している場合 | 次に使用します... 
 
 
  a| 
@@ -105,7 +105,7 @@ IPv6アドレス
 
 |===
 +
-の詳細については `network ping`、をlink:https://docs.netapp.com/us-en/ontap-cli/network-ping.html["ONTAPコマンド リファレンス"^]参照してください。
+ `network ping`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/network-ping.html["ONTAPコマンド リファレンス"^]を参照してください。
 
 
 

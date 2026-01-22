@@ -2,7 +2,7 @@
 permalink: data-protection/create-smb-server-task.html 
 sidebar: sidebar 
 keywords: cifs, create, smb, server 
-summary: ソース SVM で SMB 構成を使用し、 identity-preserve を false に設定した場合は、デスティネーション SVM 用の SMB サーバを作成する必要があります。SnapMirror関係の初期化中に共有など、一部のSMB構成ではSMBサーバが必要です。 
+summary: ソースSVMにSMB設定があり、identity-preserveをfalseに設定することを選択した場合は、デスティネーションSVM用にSMBサーバを作成する必要があります。SMBサーバは、SnapMirror関係の初期化中の共有など、一部のSMB設定に必要です。 
 ---
 = DR関係のONTAP SnapMirrorデスティネーションSVM用のSMBサーバを作成する
 :allow-uri-read: 
@@ -11,10 +11,10 @@ summary: ソース SVM で SMB 構成を使用し、 identity-preserve を false
 
 
 [role="lead"]
-ソースSVMでSMB構成が使用されていて、をに `false`選択した場合は `identity-preserve`、デスティネーションSVM用のSMBサーバを作成する必要があります。SnapMirror関係の初期化中に共有など、一部のSMB構成ではSMBサーバが必要になります。
+ソースSVMにSMB設定があり、 `identity-preserve`を `false`に設定する場合は、デスティネーションSVM用にSMBサーバを作成する必要があります。SMBサーバは、SnapMirror関係の初期化中の共有など、一部のSMB設定で必要です。
 
 .手順
-. コマンドを使用して、デスティネーションSVMを起動し `vserver start`ます。
+.  `vserver start`コマンドを使用してデスティネーション SVM を起動します。
 +
 [listing]
 ----
@@ -22,9 +22,9 @@ destination_cluster::> vserver start -vserver dvs1
 [Job 30] Job succeeded: DONE
 ----
 +
-の詳細については `vserver start`、をlink:https://docs.netapp.com/us-en/ontap-cli/vserver-start.html["ONTAPコマンド リファレンス"^]参照してください。
+ `vserver start`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/vserver-start.html["ONTAPコマンド リファレンス"^]を参照してください。
 
-. コマンドを使用して、 `vserver show`デスティネーションSVMの状態がであること、およびサブタイプがである `dp-destination`ことを確認します `running`。
+.  `vserver show`コマンドを使用して、デスティネーションSVMが `running`状態でサブタイプが `dp-destination`になっていることを確認します。
 +
 [listing]
 ----
@@ -35,18 +35,18 @@ Vserver  Type    Subtype           State      State       Volume     Aggregate
 dvs1     data    dp-destination    running    running       -         -
 ----
 +
-の詳細については `vserver show`、をlink:https://docs.netapp.com/us-en/ontap-cli/vserver-show.html["ONTAPコマンド リファレンス"^]参照してください。
+ `vserver show`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/vserver-show.html["ONTAPコマンド リファレンス"^]を参照してください。
 
-. コマンドを使用して、LIFを作成し `network interface create`ます。
+.  `network interface create`コマンドを使用してLIFを作成します。
 +
 [listing]
 ----
 destination_cluster::>network interface create -vserver dvs1 -lif NAS1 -role data -data-protocol cifs -home-node destination_cluster-01 -home-port a0a-101  -address 192.0.2.128 -netmask 255.255.255.128
 ----
 +
-の詳細については `network interface create`、をlink:https://docs.netapp.com/us-en/ontap-cli/network-interface-create.html["ONTAPコマンド リファレンス"^]参照してください。
+ `network interface create`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/network-interface-create.html["ONTAPコマンド リファレンス"^]を参照してください。
 
-. コマンドを使用して、ルートを作成し `network route create`ます。
+.  `network route create`コマンドを使用してルートを作成します。
 +
 [listing]
 ----
@@ -57,9 +57,9 @@ destination_cluster::>network route create -vserver dvs1 -destination 0.0.0.0/0
 link:../networking/networking_reference.html["ネットワーク管理"]
 
 +
-の詳細については `network route create`、をlink:https://docs.netapp.com/us-en/ontap-cli/network-route-create.html["ONTAPコマンド リファレンス"^]参照してください。
+ `network route create`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/network-route-create.html["ONTAPコマンド リファレンス"^]を参照してください。
 
-. コマンドを使用して、DNSを設定し `vserver services dns create`ます。
+.  `vserver services dns create`コマンドを使用してDNSを設定します。
 +
 [listing]
 ----
@@ -67,9 +67,9 @@ destination_cluster::>vserver services dns create -domains mydomain.example.com 
 dvs1 -name-servers 192.0.2.128 -state enabled
 ----
 +
-の詳細については `vserver services dns create`、をlink:https://docs.netapp.com/us-en/ontap-cli/search.html?q=vserver+services+dns+create["ONTAPコマンド リファレンス"^]参照してください。
+ `vserver services dns create`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/search.html?q=vserver+services+dns+create["ONTAPコマンド リファレンス"^]を参照してください。
 
-. コマンドを使用して、優先ドメインコントローラを追加し `vserver cifs domain preferred-dc add`ます。
+.  `vserver cifs domain preferred-dc add`コマンドを使用して優先ドメイン コントローラを追加します。
 +
 [listing]
 ----
@@ -77,9 +77,9 @@ destination_cluster::>vserver cifs domain preferred-dc add -vserver dvs1 -prefer
 192.0.2.128 -domain mydomain.example.com
 ----
 +
-の詳細については `vserver cifs domain preferred-dc add`、をlink:https://docs.netapp.com/us-en/ontap-cli/vserver-cifs-domain-preferred-dc-add.html["ONTAPコマンド リファレンス"^]参照してください。
+ `vserver cifs domain preferred-dc add`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/vserver-cifs-domain-preferred-dc-add.html["ONTAPコマンド リファレンス"^]を参照してください。
 
-. コマンドを使用して、SMBサーバを作成し `vserver cifs create`ます。
+.  `vserver cifs create`コマンドを使用してSMBサーバーを作成します。
 +
 [listing]
 ----
@@ -87,9 +87,9 @@ destination_cluster::>vserver cifs create -vserver dvs1 -domain mydomain.example
 -cifs-server CIFS1
 ----
 +
-の詳細については `vserver cifs create`、をlink:https://docs.netapp.com/us-en/ontap-cli/vserver-cifs-create.html["ONTAPコマンド リファレンス"^]参照してください。
+ `vserver cifs create`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/vserver-cifs-create.html["ONTAPコマンド リファレンス"^]を参照してください。
 
-. コマンドを使用して、デスティネーションSVMを停止し `vserver stop`ます。
+.  `vserver stop`コマンドを使用してデスティネーション SVM を停止します。
 +
 [listing]
 ----
@@ -97,6 +97,6 @@ destination_cluster::> vserver stop -vserver dvs1
 [Job 46] Job succeeded: DONE
 ----
 +
-の詳細については `vserver stop`、をlink:https://docs.netapp.com/us-en/ontap-cli/vserver-stop.html["ONTAPコマンド リファレンス"^]参照してください。
+ `vserver stop`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/vserver-stop.html["ONTAPコマンド リファレンス"^]を参照してください。
 
 

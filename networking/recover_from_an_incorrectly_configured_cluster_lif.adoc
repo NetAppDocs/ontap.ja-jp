@@ -4,7 +4,7 @@ permalink: networking/recover_from_an_incorrectly_configured_cluster_lif.html
 keywords: misconfigured, misconfigurations, incorrect, incorrectly, switch, switches, switched, cable, physical, wiring, wired, reachability, port, cluster, ontap 9.8 and later, recover from an incorrectly configured cluster lif, how to identify and correct a cluster that has been misconfigured, cluster create, network port, reachability show -detail, reset the home port 
 summary: 誤って設定されたクラスタを特定して修正する方法 
 ---
-= 正しく設定されていないONTAP LIFをリカバリする
+= 誤って設定されたONTAP LIFを回復する
 :hardbreaks:
 :allow-uri-read: 
 :nofooter: 
@@ -14,39 +14,39 @@ summary: 誤って設定されたクラスタを特定して修正する方法
 
 
 [role="lead"]
-クラスタネットワークがスイッチにケーブル接続されているが、Cluster IPspaceに設定されているすべてのポートがCluster IPspaceに設定されている他のポートに到達できない場合、クラスタを作成できません。
+クラスタ ネットワークがスイッチにケーブル接続されていても、Cluster IPspaceに設定されているすべてのポートが相互に到達可能でない場合はクラスタを作成できません。
 
-.タスクの内容
-スイッチクラスタで、クラスタネットワークインターフェイス（LIF）が間違ったポートに設定されている場合、またはクラスタポートが間違ったネットワークに接続されている場合、 `cluster create`コマンドが次のエラーで失敗することがあります。
+.タスク概要
+スイッチ クラスターでは、クラスター ネットワーク インターフェイス（LIF）が間違ったポートに設定されている場合、またはクラスター ポートが間違ったネットワークに接続されている場合、 `cluster create`コマンドは次のエラーで失敗する可能性があります：
 
 ....
 Not all local cluster ports have reachability to one another.
 Use the "network port reachability show -detail" command for more details.
 ....
-の詳細については `cluster create`、をlink:https://docs.netapp.com/us-en/ontap-cli/cluster-create.html["ONTAPコマンド リファレンス"^]参照してください。
+ `cluster create`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/cluster-create.html["ONTAPコマンド リファレンス"^]をご覧ください。
 
-コマンドの結果では `network port show`、クラスタLIFが設定されたポートに接続されているために、複数のポートがクラスタIPspaceに追加されたと表示されることがあります。しかし、  `network port reachability show -detail`コマンドは、どのポートが相互に接続されていないかを明らかにします。
+ `network port show`コマンドの結果には、クラスタLIFが設定されているポートに接続されているため、複数のポートがクラスタIPspaceに追加されたと表示されることがあります。ただし、 `network port reachability show -detail`コマンドの結果には、相互に接続されていないポートが表示されます。
 
-の詳細については `network port show`、をlink:https://docs.netapp.com/us-en/ontap-cli/network-port-show.html["ONTAPコマンド リファレンス"^]参照してください。
+ `network port show`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/network-port-show.html["ONTAPコマンド リファレンス"^]を参照してください。
 
 クラスタLIFが設定されている他のポートに到達できないポートに設定されたクラスタLIFをリカバリするには、次の手順を実行します。
 
 .手順
-. クラスタLIFのホームポートを正しいポートにリセットします。
+. クラスタLIFのホーム ポートを正しいポートにリセットします。
 +
 ....
 network port modify -home-port
 ....
 +
-の詳細については `network port modify`、をlink:https://docs.netapp.com/us-en/ontap-cli/network-port-modify.html["ONTAPコマンド リファレンス"^]参照してください。
+ `network port modify`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/network-port-modify.html["ONTAPコマンド リファレンス"^]をご覧ください。
 
-. クラスタLIFが設定されていないポートをクラスタブロードキャストドメインから削除します。
+. クラスタLIFが設定されていないポートをクラスタのブロードキャスト ドメインから削除します。
 +
 ....
 network port broadcast-domain remove-ports
 ....
 +
-の詳細については `network port broadcast-domain remove-ports`、をlink:https://docs.netapp.com/us-en/ontap-cli/network-port-broadcast-domain-remove-ports.html["ONTAPコマンド リファレンス"^]参照してください。
+ `network port broadcast-domain remove-ports`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/network-port-broadcast-domain-remove-ports.html["ONTAPコマンド リファレンス"^]をご覧ください。
 
 . クラスタを作成します。
 +
@@ -56,8 +56,8 @@ cluster create
 
 
 .結果
-クラスタの作成が完了すると、正しい設定が検出され、正しいブロードキャストドメインにポートが配置されます。
+クラスタの作成が完了すると、正しい設定が検出され、正しいブロードキャスト ドメインにポートが配置されます。
 
 .関連情報
-* link:https://docs.netapp.com/us-en/ontap-cli/network-port-reachability-show.html["network port reachability showの場合"^]
+* link:https://docs.netapp.com/us-en/ontap-cli/network-port-reachability-show.html["ネットワークポート到達性の表示"^]
 

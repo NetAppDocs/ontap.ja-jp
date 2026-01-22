@@ -2,7 +2,7 @@
 permalink: volumes/quota-notifications-concept.html 
 sidebar: sidebar 
 keywords: understanding, quota, notifications 
-summary: クォータ通知は Event Management System （ EMS ；イベント管理システム）に送信されるメッセージであり、 SNMP トラップとしても設定されます。 
+summary: クォータ通知は、イベント管理システム（EMS）に送信され、SNMPトラップとしても構成されるメッセージです。 
 ---
 = クォータ通知について
 :allow-uri-read: 
@@ -11,107 +11,107 @@ summary: クォータ通知は Event Management System （ EMS ；イベント�
 
 
 [role="lead"]
-クォータ通知は Event Management System （ EMS ；イベント管理システム）に送信されるメッセージであり、 SNMP トラップとしても設定されます。
+クォータ通知は、イベント管理システム（EMS）に送信され、SNMPトラップとしても構成されるメッセージです。
 
-通知は次のイベントに対応して送信されます。
+通知は、次のイベントに応じて送信されます：
 
-* つまり、ハードクォータに達したときに、クォータを超えようとしたときです
-* ソフトクォータを超えています
-* ソフトクォータを超過しなくなりました
+* ハード リミットに達した。つまり、それを超過しようとする試みがなされた
+* ソフト クォータを超過した
+* ソフト クォータは超過しなくなりました
 
 
-しきい値は他のソフトクォータとは若干異なります。しきい値を指定した場合に通知がトリガーされるのは、しきい値を超えた場合だけです。しきい値を超えた場合は
+しきい値は他のソフト クォータとは少し異なります。しきい値は、超過した場合にのみ通知をトリガーし、超過が解消されたときには通知をトリガーしません。
 
-ハードクォータ通知は、volume quota modifyコマンドを使用して設定できます。不必要なメッセージが送信されないように、通知を完全にオフにしたり、頻度を変更したりすることができます。
+ハード クォータ通知は、volume quota modifyコマンドを使用して設定できます。通知を完全にオフにしたり、通知頻度を変更して、例えば冗長なメッセージの送信を防ぐこともできます。
 
-ソフトクォータ通知は、冗長なメッセージが生成される可能性は低く、通知が唯一の目的であるため、設定できません。
+ソフト クォータ通知は、冗長なメッセージを生成する可能性が低く、その唯一の目的が通知であるため、設定できません。
 
-次の表に、クォータが EMS システムに送信するイベントを示します。
+次の表は、クォータがEMSシステムに送信するイベントの一覧です：
 
 [cols="2*"]
 |===
-| 発生する状況 | EMS に送信されるイベント 
+| これが発生すると... | このイベントは EMS に送信されます... 
 
 
  a| 
-ツリークォータのハードリミットに達した
+ツリー クォータでハード リミットに達した
  a| 
 `wafl.quota.qtree.exceeded`
 
 
 
  a| 
-ボリューム上のユーザクォータのハードリミットに達した
+ボリュームのユーザ クォータでハード リミットに達した
  a| 
-`wafl.quota.user.exceeded`（UNIXユーザの場合）（Windowsユーザの場合
-`wafl.quota.user.exceeded.win`）
-
-
-
- a| 
-qtree 上のユーザクォータのハードリミットに達した
- a| 
-`wafl.quota.userQtree.exceeded`（UNIXユーザの場合）（Windowsユーザの場合
-`wafl.quota.userQtree.exceeded.win`）
+`wafl.quota.user.exceeded`（UNIXユーザの場合）
+`wafl.quota.user.exceeded.win`（Windowsユーザの場合）
 
 
 
  a| 
-ボリューム上のグループクォータのハードリミットに達した
+qtreeのユーザ クォータでハード リミットに達しました
+ a| 
+`wafl.quota.userQtree.exceeded`（UNIXユーザの場合）
+`wafl.quota.userQtree.exceeded.win`（Windowsユーザの場合）
+
+
+
+ a| 
+ボリュームのグループ クォータでハード リミットに達した
  a| 
 `wafl.quota.group.exceeded`
 
 
 
  a| 
-qtree 上のグループクォータのハードリミットに達した
+qtree のグループ クォータでハード リミットに達しました
  a| 
 `wafl.quota.groupQtree.exceeded`
 
 
 
  a| 
-しきい値を含むソフトリミットを超えている
+しきい値を含むソフト リミットを超えた場合
  a| 
 `quota.softlimit.exceeded`
 
 
 
  a| 
-ソフトリミットを超過しなくなりました
+ソフト リミットを超えなくなりました
  a| 
 `quota.softlimit.normal`
 
 |===
-次の表に、クォータで生成される SNMP トラップを示します。
+次の表は、クォータによって生成されるSNMPトラップの一覧です：
 
 [cols="2*"]
 |===
-| 発生する状況 | 送信される SNMP トラップ 
+| これが発生すると... | この SNMP トラップは送信されます... 
 
 
  a| 
-ハードリミットに達しました
+ハード リミットに達した
  a| 
 quotaExceeded
 
 
 
  a| 
-しきい値を含むソフトリミットを超えている
+しきい値を含むソフト リミットを超えた場合
  a| 
-quotaExceeded および softQuotaExceeded です
+quotaExceededおよびsoftQuotaExceeded
 
 
 
  a| 
-ソフトリミットを超過しなくなりました
+ソフト リミットを超えなくなりました
  a| 
-quotaNormal および softQuotaNormal です
+quotaNormalおよびsoftQuotaNormal
 
 |===
 [NOTE]
 ====
-通知には、 qtree 名ではなく qtree の ID 番号が含まれます。コマンドを使用すると、qtree名をID番号に関連付けることができます `volume qtree show -id`。
+通知にはqtree名ではなくqtree ID番号が含まれます。 `volume qtree show -id`コマンドを使用して、qtree名とID番号を関連付けることができます。
 
 ====

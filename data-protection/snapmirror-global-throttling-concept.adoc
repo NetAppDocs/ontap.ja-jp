@@ -2,58 +2,58 @@
 permalink: data-protection/snapmirror-global-throttling-concept.html 
 sidebar: sidebar 
 keywords: using snapmirror, global, throttling 
-summary: グローバルネットワークスロットルは、すべてのSnapMirror転送とSnapVault転送にノードレベルで使用できます。 
+summary: ノード単位のSnapMirror転送とSnapVault転送にグローバル ネットワーク スロットルを使用できます。 
 ---
-= ONTAP SnapMirrorグローバルスロットルの使用
+= ONTAP SnapMirrorグローバルスロットリングを使用する
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-グローバルネットワークスロットルは、すべてのSnapMirror転送とSnapVault転送にノードレベルで使用できます。
+ノード単位のSnapMirror転送とSnapVault転送にグローバル ネットワーク スロットルを使用できます。
 
-.タスクの内容
-SnapMirrorグローバルスロットルは、送受信のSnapMirror転送およびSnapVault転送で使用する帯域幅を制限します。この制限は、クラスタ内のすべてのノードで適用されます。
+.タスク概要
+SnapMirrorグローバル スロットルは、送受信されるSnapMirror転送およびSnapVault転送で使用する帯域幅を制限します。この制限は、クラスタ内のすべてのノードで適用されます。
 
-たとえば、送信スロットルが100Mbpsに設定されている場合、クラスタ内の各ノードの送信帯域幅は100Mbpsに設定されます。グローバルスロットルを無効にすると、すべてのノードで無効になります。
+たとえば、送信スロットルを100MBpsに設定した場合は、クラスタ内の各ノードで送信帯域幅が100MBpsに設定されます。グローバル スロットルを無効にすると、すべてのノードで無効になります。
 
-データ転送速度はビット/秒（bps）で表されることがよくありますが、スロットル値は1秒あたりのキロバイト数（KBps）で入力する必要があります。
-
-[NOTE]
-====
-ONTAP 9 .9.1以前のリリースでは、このスロットルは転送や負荷共有ミラー転送には影響しません `volume move`。ONTAP 9.10.0以降では、オプションを指定してボリューム移動処理を調整できます。詳細については、を参照してください link:https://kb.netapp.com/on-prem/ontap/Perf/Perf-KBs/How_to_throttle_volume_move_in_ONTAP_9.10_or_later["ONTAP 9.10以降でボリューム移動を調整する方法"^]。
-
-====
-グローバルスロットルは、SnapMirror転送およびSnapVault転送の関係ごとのスロットル機能と連携します。関係ごとのスロットルは、関係ごとの転送の帯域幅の合計がグローバルスロットルの値を超えるまで適用され、超えるとグローバルスロットルが適用されます。スロットル値を指定すると `0`、グローバルスロットルが無効になります。
+データ転送速度は多くの場合ビット/秒（bps）で表されますが、スロットル値はキロバイト/秒（KBps）で入力する必要があります。
 
 [NOTE]
 ====
-SnapMirrorグローバルスロットルは、同期中のSnapMirror同期関係には影響しません。ただし、初期化処理などの非同期転送フェーズを実行する場合や非同期イベントの発生後にSnapMirror同期関係に影響します。そのため、SnapMirror同期関係でグローバルスロットルを有効にすることは推奨されません。
+ONTAP 9.9.1以前のリリースでは、スロットルは `volume move`転送や負荷共有ミラー転送には影響しません。ONTAP 9.10.0以降では、ボリューム移動処理のスロットルを設定するオプションを指定できます。詳細については、link:https://kb.netapp.com/on-prem/ontap/Perf/Perf-KBs/How_to_throttle_volume_move_in_ONTAP_9.10_or_later["ONTAP 9.10以降でボリューム移動を制限する方法"^]を参照してください。
+
+====
+グローバルスロットリングはSnapMirrorおよびSnapVault転送におけるリレーションシップごとのスロットリング機能と連携して機能します。リレーションシップごとのスロットリングは、リレーションシップごとの転送の合計帯域幅がグローバルスロットリングの値を超えるまで適用され、超過後はグローバルスロットリングが適用されます。スロットル値 `0`は、グローバルスロットリングが無効になっていることを意味します。
+
+[NOTE]
+====
+SnapMirrorグローバル スロットルは、同期されているSnapMirror同期関係には影響しません。ただし、初期化処理の実行時や非同期イベントのあとなど、SnapMirror同期関係で非同期転送フェーズが実行される場合には影響します。そのため、SnapMirror同期関係でグローバル スロットルを有効にすることは推奨されません。
 
 ====
 .手順
-. グローバルスロットルを有効にします。
+. グローバル スロットルを有効にします。
 +
 `options -option-name replication.throttle.enable on|off`
 
 +
-次に、でSnapMirrorグローバルスロットルをイネーブルにする例を示し `cluster_dst`ます。
+次の例は、 `cluster_dst`でSnapMirrorグローバル スロットルを有効にする方法を示しています：
 
 +
 [listing]
 ----
 cluster_dst::> options -option-name replication.throttle.enable on
 ----
-. デスティネーションクラスタで受信転送に使用される総帯域幅の最大値を指定します。
+. デスティネーション クラスタで受信転送に使用される最大総帯域幅を指定します。
 +
 `options -option-name replication.throttle.incoming.max_kbs <KBps>`
 
 +
-推奨される最小スロットル帯域幅は4KB/秒（KBps）、最大値は2TB /秒（Tbps）です。このオプションのデフォルト値はで、使用される総帯域幅に制限はあり `unlimited`ません。
+推奨される最小スロットル帯域幅は4キロバイト/秒（KBps）、最大値は2テラバイト/秒（TBps）です。このオプションのデフォルト値は `unlimited`で、使用される総帯域幅に制限がないことを意味します。
 
 +
-次に、受信転送で使用される総帯域幅の最大値を100メガビット/秒（Mbps）に設定する例を示します。
+次の例は、着信転送で使用される最大合計帯域幅を100メガビット/秒（Mbps）に設定する方法を示しています：
 
 +
 [listing]
@@ -63,18 +63,18 @@ cluster_dst::> options -option-name replication.throttle.incoming.max_kbs 12500
 +
 [NOTE]
 ====
-100メガビット/秒（Mbps）= 12500キロバイト/秒（kbps）
+100メガビット/秒（Mbps）= 12500キロバイト/秒（KBps）
 
 ====
-. ソースクラスタで送信転送に使用される総帯域幅の最大値を指定します。
+. ソース クラスタで送信転送に使用される最大総帯域幅を指定します。
 +
 `options -option-name replication.throttle.outgoing.max_kbs <KBps>`
 
 +
-推奨される最小スロットル帯域幅は4kbps、最大スロットル帯域幅は2Tbpsです。このオプションのデフォルト値はで、使用される総帯域幅に制限はあり `unlimited`ません。パラメータ値は、1秒あたりのキロバイト数（kbps）で指定します。
+推奨される最小スロットル帯域幅は4 KBps、最大値は2 TBpsです。このオプションのデフォルト値は `unlimited`で、使用される総帯域幅に制限がないことを意味します。パラメータ値はキロバイト/秒（KBps）単位です。
 
 +
-次の例は、送信転送で使用される合計帯域幅の最大値を100Mbpsに設定する方法を示しています。
+次の例は、送信転送で使用される最大総帯域幅を100Mbpsに設定します。
 
 +
 [listing]

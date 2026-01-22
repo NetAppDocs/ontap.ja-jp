@@ -2,7 +2,7 @@
 permalink: nas-audit/create-fpolicy-policy-task.html 
 sidebar: sidebar 
 keywords: create, fpolicy, policy 
-summary: FPolicyポリシーを作成するときは、外部エンジンと1つ以上のイベントをポリシーに関連付けます。また、このポリシーでは、必須のスクリーニングが必要かどうか、FPolicyサーバにStorage Virtual Machine（SVM）上のデータへの権限付きアクセスが許可されているかどうか、オフラインファイルのパススルーリードが有効かどうかを指定します。 
+summary: FPolicyポリシーを作成する際には、外部エンジンと1つ以上のイベントをこのポリシーに関連付けます。このポリシーでは、必須のスクリーニングが要求されるかどうか、FPolicyサーバにStorage Virtual Machine（SVM）上のデータへの特権アクセスが許可されているかどうか、オフライン ファイルのパススルー リードが有効かどうかも指定します。 
 ---
 = ONTAP FPolicyポリシーを作成する
 :allow-uri-read: 
@@ -11,16 +11,16 @@ summary: FPolicyポリシーを作成するときは、外部エンジンと1つ
 
 
 [role="lead"]
-FPolicyポリシーを作成するときは、外部エンジンと1つ以上のイベントをポリシーに関連付けます。また、このポリシーでは、必須のスクリーニングが必要かどうか、FPolicyサーバにStorage Virtual Machine（SVM）上のデータへの権限付きアクセスが許可されているかどうか、オフラインファイルのパススルーリードが有効かどうかを指定します。
+FPolicyポリシーを作成する際には、外部エンジンと1つ以上のイベントをこのポリシーに関連付けます。このポリシーでは、必須のスクリーニングが要求されるかどうか、FPolicyサーバにStorage Virtual Machine（SVM）上のデータへの特権アクセスが許可されているかどうか、オフライン ファイルのパススルー リードが有効かどうかも指定します。
 
 .開始する前に
-* FPolicyポリシーワークシートを完成させる必要があります。
+* FPolicyポリシー ワークシートを完成させる必要があります。
 * FPolicyサーバを使用するようにポリシーを設定する場合は、外部エンジンが存在している必要があります。
-* FPolicyポリシーに関連付けるFPolicyイベントが少なくとも1つ存在している必要があります。
-* 権限付きデータアクセスを設定する場合は、SVM上にSMBサーバが存在している必要があります。
-* ポリシーの永続ストアを設定するには、エンジンタイプを* async *にし、ポリシーを* non-mandatory *にする必要があります。
+* FPolicyポリシーに関連付けるFPolicyイベントが少なくとも1つは存在している必要があります。
+* 権限付きデータ アクセスを設定する場合は、SVM上にSMBサーバが存在している必要があります。
+* ポリシーの永続ストアを構成するには、エンジン タイプが *async* であり、ポリシーが *non-mandatory* である必要があります。
 +
-詳細については、を参照してください link:create-persistent-stores.html["永続ストアの作成"]。
+詳細については、link:create-persistent-stores.html["永続的ストアの作成"]を参照してください。
 
 
 
@@ -30,38 +30,38 @@ FPolicyポリシーを作成するときは、外部エンジンと1つ以上の
 `vserver fpolicy policy create -vserver-name vserver_name -policy-name policy_name -engine engine_name -events event_name, [-persistent-store PS_name] [-is-mandatory {true|false}] [-allow-privileged-access {yes|no}] [-privileged-user-name domain\user_name] [-is-passthrough-read-enabled {true|false}]`
 
 +
-** FPolicy ポリシーには 1 つ以上のイベントを追加できます。
-** デフォルトでは、必須のスクリーニングが有効になっています。
-** パラメータをに `yes`設定して権限付きアクセスを許可する場合 `-allow-privileged-access`は、権限付きアクセスの権限付きユーザ名も設定する必要があります。
-** パラメータをに `true`設定してパススルーリードを設定する場合 `-is-passthrough-read-enabled`は、権限付きデータアクセスも設定する必要があります。
+** FPolicy ポリシーに 1 つ以上のイベントを追加できます。
+** デフォルトでは、必須スクリーニングが有効になっています。
+**  `-allow-privileged-access`パラメータを `yes`に設定して特権アクセスを許可する場合は、特権アクセス用の特権ユーザー名も設定する必要があります。
+**  `-is-passthrough-read-enabled`パラメータを `true`に設定してパススルー読み取りを構成する場合は、特権データ アクセスも構成する必要があります。
 +
-次のコマンドは、 "event1" というイベントと、 "engine1" という外部エンジンが関連付けられた "policy1 `" という名前のポリシーを作成します。このポリシーでは、ポリシー設定にデフォルト値を使用します。
+次のコマンドは、「`policy1`」という名前のポリシーを作成します。このポリシーには、「`event1`」という名前のイベントと「`engine1`」という名前の外部エンジンが関連付けられています。このポリシーでは、ポリシー設定でデフォルト値を使用します：
 `vserver fpolicy policy create -vserver vs1.example.com -policy-name policy1 -events event1 -engine engine1`
 
 +
-次のコマンドは、 "event2`" というイベントと、 "engine2`" という外部エンジンが関連付けられた "policy2`" というポリシーを作成します。このポリシーは、指定したユーザ名を使用して権限付きアクセスを使用するように設定されています。パススルーリードが有効になっている場合：
+次のコマンドは、「`policy2`」という名前のポリシーを作成します。このポリシーには、「`event2`」という名前のイベントと「`engine2`」という名前の外部エンジンが関連付けられています。このポリシーは、指定されたユーザー名を使用して特権アクセスを使用するように構成されています。パススルー読み取りが有効になっています：
 
 +
 `vserver fpolicy policy create -vserver vs1.example.com -policy-name policy2 -events event2 -engine engine2 -allow-privileged-access yes ‑privileged-user-name example\archive_acct -is-passthrough-read-enabled true`
 
 +
-次のコマンドは ' event3` というイベントが関連付けられた ' ’ native1` という名前のポリシーを作成しますこのポリシーでは標準のエンジンを使用し、デフォルト値をポリシー設定に使用します。
+次のコマンドは、「`event3`」というイベントが関連付けられた「`native1`」というポリシーを作成します。このポリシーはネイティブ エンジンを使用し、ポリシー設定のデフォルト値を使用します：
 
 +
 `vserver fpolicy policy create -vserver vs1.example.com -policy-name native1 -events event3 -engine native`
 
 
 
-. コマンドを使用してFPolicyポリシーの設定を確認します `vserver fpolicy policy show`。
+.  `vserver fpolicy policy show`コマンドを使用して FPolicy ポリシー設定を確認します。
 +
 次のコマンドは、次の情報を含む、設定された3つのFPolicyポリシーに関する情報を表示します。
 
 +
-** ポリシーに関連付けられている SVM
-** ポリシーに関連付けられている外部エンジン
-** ポリシーに関連付けられているイベント
-** スクリーニングを必須にするかどうか
-** 権限付きアクセスが必要かどうか
+** ポリシーに関連付けられた SVM
+** ポリシーに関連付けられた外部エンジン
+** ポリシーに関連するイベント
+** 強制検査が必要かどうか
+** 特権アクセスが必要かどうか
 `vserver fpolicy policy show`
 
 

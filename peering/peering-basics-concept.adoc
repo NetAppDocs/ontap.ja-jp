@@ -2,7 +2,7 @@
 permalink: peering/peering-basics-concept.html 
 sidebar: sidebar 
 keywords: peer, basics 
-summary: ピア関係にあるクラスタおよび SVM は、クラスタ間 LIF （論理インターフェイス）を使用してクラスタ間ネットワーク経由で通信します。インタークラスタ LIF は、「 intercluster-core 」ネットワークインターフェイスサービスをサポートする LIF で、通常は「 default-intercluster 」ネットワークインターフェイスサービスポリシーを使用して作成されます。ピア関係にあるクラスタ内の各ノードでクラスタ間 LIF を作成する必要があります。 
+summary: 'ピア関係にあるクラスタとSVMは、クラスタ間論理インターフェイス（LIF）を使用してクラスタ間ネットワークを介して通信します。クラスタ間LIFは、"intercluster-core"ネットワーク インターフェイス サービスをサポートするLIFであり、通常は"default-intercluster"ネットワーク インターフェイス サービス ポリシーを使用して作成されます。ピア関係にあるクラスタ内のすべてのノードにクラスタ間LIFを作成する必要があります。' 
 ---
 = ONTAPピアリングの基本
 :allow-uri-read: 
@@ -11,20 +11,20 @@ summary: ピア関係にあるクラスタおよび SVM は、クラスタ間 LI
 
 
 [role="lead"]
-SnapMirrorを使用してSnapshotをレプリケートする前に、ソースとデスティネーションのクラスタ間およびソースとデスティネーションのSVM間で_peer relationships_を作成しておく必要があります。ピア関係で定義されるネットワーク接続により、クラスタ間および SVM 間でデータをセキュアにやり取りすることができます。
+SnapMirrorを使用してスナップショットをレプリケートする前に、ソース クラスタとデスティネーション クラスタ間、およびソース SVM とデスティネーション SVM 間に_ピア関係_を作成する必要があります。ピア関係は、クラスタと SVM が安全にデータを交換できるようにするネットワーク接続を定義します。
 
-ピア関係にあるクラスタおよび SVM は、 _intercluster 論理インターフェイス（ LIF ）を使用してクラスタ間ネットワーク経由で通信します。 _ クラスタ間 LIF は、「 intercluster-core 」ネットワークインターフェイスサービスをサポートする LIF で、通常は「 default-intercluster 」ネットワークインターフェイスサービスポリシーを使用して作成されます。ピア関係にあるクラスタ内の各ノードでクラスタ間 LIF を作成する必要があります。
+ピア関係にあるクラスタとSVMは、_クラスタ間論理インターフェイス（LIF）_を使用してクラスタ間ネットワークを介して通信します。クラスタ間LIFは、「intercluster-core」ネットワーク・インターフェイス・サービスをサポートするLIFであり、通常は「default-intercluster」ネットワーク・インターフェイス・サービス・ポリシーを使用して作成されます。ピア関係にあるクラスタ内のすべてのノードにクラスタ間LIFを作成する必要があります。
 
-クラスタ間 LIF は、 LIF が割り当てられているシステム SVM に属するルートを使用します。ONTAP は、クラスタレベルの通信用に IPspace 内にシステム SVM を自動的に作成します。
+クラスタ間LIFは、LIFが割り当てられているシステムSVMに属するルートを使用します。システムSVMは、クラスタレベルの通信用にIPspace内に自動的に作成されます。
 
-ファンアウトとカスケードの両方のトポロジがサポートされます。カスケードトポロジの場合、クラスタ間ネットワークを作成する必要があるのは、プライマリクラスタとセカンダリクラスタの間、およびセカンダリクラスタとターシャリクラスタの間だけです。プライマリクラスタとターシャリクラスタの間にクラスタ間ネットワークを作成する必要はありません。
+ファンアウトとカスケードの両方のトポロジがサポートされます。カスケード トポロジの場合、クラスタ間ネットワークを作成する必要があるのは、プライマリ クラスタとセカンダリ クラスタの間、およびセカンダリ クラスタとターシャリ クラスタの間のみです。プライマリ クラスタとターシャリ クラスタの間にクラスタ間ネットワークを作成する必要はありません。
 
 [NOTE]
 ====
-管理者は、 default-intercluster サービスポリシーから intercluster-core サービスを削除することが可能です（ただし推奨されません）。この場合、「default-intercluster」を使用して作成したLIFは、実際にはクラスタ間LIFにはなりません。default-interclusterサービスポリシーにintercluster-coreサービスが含まれていることを確認するには、次のコマンドを使用します。
+管理者は、default-interclusterサービス ポリシーからintercluster-coreサービスを削除することが可能です（ただし推奨されません）。この場合、「default-intercluster」を使用してLIFを作成しても、そのLIFはクラスタ間LIFにはなりません。default-interclusterサービス ポリシーにintercluster-coreサービスが含まれていることを確認するには、次のコマンドを使用します。
 
 `network interface service-policy show -policy default-intercluster`
 
-の詳細については `network interface service-policy show`、をlink:https://docs.netapp.com/us-en/ontap-cli/network-interface-service-policy-show.html["ONTAPコマンド リファレンス"^]参照してください。
+ `network interface service-policy show`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/network-interface-service-policy-show.html["ONTAPコマンド リファレンス"^]を参照してください。
 
 ====

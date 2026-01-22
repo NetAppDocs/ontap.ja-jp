@@ -2,24 +2,24 @@
 permalink: smb-config/create-server-workgroup-task.html 
 sidebar: sidebar 
 keywords: vserver, cifs, create, command, smb, server, workgroup, create an smb server in a workgroup 
-summary: vserver cifs create コマンドを使用すると、 SVM 上に SMB サーバを作成し、所属先のワークグループを指定できます。 
+summary: vserver cifs create コマンドを使用して、SVM 上に SMB サーバを作成し、そのサーバが属するワークグループを指定できます。 
 ---
-= 指定したワークグループを使用してONTAP SVMにSMBサーバを作成する
+= 指定されたワークグループを持つ ONTAP SVM 上に SMB サーバを作成します
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-コマンドを使用すると、SVM上にSMBサーバを作成し、所属先のワークグループを指定できます `vserver cifs create`。
+ `vserver cifs create`コマンドを使用して、SVM 上に SMB サーバを作成し、そのサーバが属するワークグループを指定できます。
 
 .開始する前に
-データ処理に使用するSVMおよびLIFが、SMBプロトコルを許可するように設定されている必要があります。LIFは、SVMで設定されているDNSサーバに接続できる必要があります。
+データ処理に使用しているSVMおよびLIFが、SMBプロトコルを許可するように設定されている必要があります。LIFは、SVM上で設定されているDNSサーバに接続できる必要があります。
 
-.タスクの内容
-ワークグループモードのSMBサーバでは、SMBの次の機能はサポートされません。
+.タスク概要
+ワークグループ モードのSMBサーバでは、次のSMB機能はサポートされません。
 
-* SMB3カンシフロトコル
+* SMB3監視プロトコル
 * SMB3 CA共有
 * SQL over SMB
 * フォルダ リダイレクト
@@ -28,28 +28,28 @@ summary: vserver cifs create コマンドを使用すると、 SVM 上に SMB �
 * ボリュームSnapshotサービス（VSS）
 
 
-およびオプションの設定パラメータと命名要件の詳細については `vserver cifs`、を参照してlink:https://docs.netapp.com/us-en/ontap-cli/search.html?q=vserver+cifs["ONTAPコマンド リファレンス"^]ください。
+ `vserver cifs`とオプションの構成パラメータおよび命名要件の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/search.html?q=vserver+cifs["ONTAPコマンド リファレンス"^]を参照してください。
 
 .手順
-. クラスタでSMBのライセンスが有効になっていることを確認します。 `system license show -package cifs`
+. クラスタで SMB のライセンスが付与されていることを確認します。 `system license show -package cifs`
 +
-SMBライセンスはに含まれていlink:../system-admin/manage-licenses-concept.html#licenses-included-with-ontap-one["ONTAP One"]ます。ONTAP Oneをお持ちでなく、ライセンスがインストールされていない場合は、営業担当者にお問い合わせください。
+SMB ライセンスはlink:../system-admin/manage-licenses-concept.html#licenses-included-with-ontap-one["ONTAP One"]に含まれています。ONTAP One をお持ちでなく、ライセンスがインストールされていない場合は、営業担当者にお問い合わせください。
 
 +
 SMBサーバを認証のみに使用する場合は、CIFSライセンスは必要ありません。
 
-. ワークグループ内にSMBサーバを作成します。 `vserver cifs create -vserver vserver_name -cifs-server cifs_server_name -workgroup workgroup_name [-comment text]`
+. ワークグループに SMB サーバを作成します： `vserver cifs create -vserver vserver_name -cifs-server cifs_server_name -workgroup workgroup_name [-comment text]`
 +
-次のコマンドは ' ワークグループ "workgroup01" 内に SMB サーバ "'smb_server01" を作成します
+次のコマンドは、ワークグループ "`workgroup01`" に SMB サーバー "`smb_server01`" を作成します：
 
 +
 [listing]
 ----
 cluster1::> vserver cifs create -vserver vs1.example.com -cifs-server SMB_SERVER01 -workgroup workgroup01
 ----
-. コマンドを使用して、SMBサーバの設定を確認します `vserver cifs show`。
+.  `vserver cifs show`コマンドを使用して SMB サーバ構成を確認します。
 +
-次の例では、コマンド出力は、ワークグループ「 workgroup01 」内の SVM vs1.example.com 上に「 'smb_server01' 」という名前の SMB サーバが作成されたことを示しています。
+次の例では、コマンド出力に、"`smb_server01`" という名前の SMB サーバが SVM vs1.example.com のワークグループ "`workgroup01`" に作成されたことが示されています：
 
 +
 [listing]
@@ -70,8 +70,8 @@ Default Site Used by LIFs Without Site Membership: -
 ----
 
 
-.終了後
-ワークグループ内のCIFSサーバの場合は、SVM上にローカルユーザ、および必要に応じてローカルグループを作成する必要があります。
+.終了後の操作
+ワークグループ内のCIFSサーバに関しては、SVM上でローカル ユーザ、およびオプションでローカル グループを作成する必要があります。
 
 .関連情報
 link:../smb-admin/index.html["SMBの管理"]

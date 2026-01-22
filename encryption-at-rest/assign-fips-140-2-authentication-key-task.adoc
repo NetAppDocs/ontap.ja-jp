@@ -2,31 +2,31 @@
 permalink: encryption-at-rest/assign-fips-140-2-authentication-key-task.html 
 sidebar: sidebar 
 keywords: assigning, fips 140-2, authentication key, fips drive 
-summary: storage encryption disk modify コマンドで -fips-key-id オプションを使用して、 FIPS ドライブに FIPS 140-2 認証キーを割り当てることができます。このキーは、クラスタノードでデータアクセス以外のドライブ処理（ドライブに対するDoS攻撃の防止など）に使用されます。 
+summary: storage encryption disk modifyコマンドに-fips-key-idオプションを指定すると、FIPSドライブにFIPS 140-2認証キーを割り当てることができます。クラスタノードは、このキーをデータアクセス以外のドライブ操作（ドライブへのサービス拒否攻撃の防止など）に使用します。 
 ---
 = ONTAP FIPSドライブにFIPS 140-2認証キーを割り当てる
 :allow-uri-read: 
 
 
 [role="lead"]
-コマンドでオプションを指定する `-fips-key-id`と、FIPSドライブにFIPS 140-2認証キーを割り当てることができます `storage encryption disk modify`。このキーは、クラスタノードでデータアクセス以外のドライブ処理（ドライブに対するDoS攻撃の防止など）に使用されます。
+ `storage encryption disk modify`コマンドを `-fips-key-id`オプションとともに使用して、FIPS 140-2認証キーをFIPSドライブに割り当てることができます。クラスタノードは、ドライブへのサービス拒否攻撃の防止など、データアクセス以外のドライブ操作にこのキーを使用します。
 
-.タスクの内容
-セキュリティの設定によっては、データ認証とFIPS 140-2認証に異なるキーを使用する必要がある場合があります。そうでない場合は、FIPS準拠の認証キーをデータアクセスと同じにして使用できます。
+.タスク概要
+セキュリティの設定によっては、データ認証とFIPS 140-2認証に異なるキーを使用する必要がある場合があります。そうでない場合は、FIPS準拠の認証キーをデータ アクセスにも使用できます。
 
-この手順はシステムの停止を伴いません。
+これはシステムの停止を伴わない手順です。
 
 .開始する前に
-ドライブファームウェアがFIPS 140-2準拠をサポートしている必要があります。サポートされるドライブファームウェアのバージョンについては、をlink:https://mysupport.netapp.com/matrix["NetApp Interoperability Matrix Tool"^]参照してください。
+ドライブ ファームウェアはFIPS 140-2準拠をサポートしている必要があります。link:https://mysupport.netapp.com/matrix["NetApp Interoperability Matrix Tool"^]には、サポートされているドライブ ファームウェア バージョンに関する情報が記載されています。
 
 .手順
-. 最初に、データ認証キーが割り当てられていることを確認する必要があります。これは、またはを使用して実行できますxref:assign-authentication-keys-seds-external-task.html[外部キー管理ツール]xref:assign-authentication-keys-seds-onboard-task.html[オンボードキーマネージャ]。コマンドを使用して、キーが割り当てられていることを確認します `storage encryption disk show`。
+. まず、データ認証キーが割り当てられていることを確認する必要があります。これはxref:assign-authentication-keys-seds-external-task.html[外部キー マネージャ]またはxref:assign-authentication-keys-seds-onboard-task.html[オンボード キー マネージャ]を使用して行うことができます。キーが割り当てられていることを確認するには、 `storage encryption disk show`コマンドを使用してください。
 . SEDにFIPS 140-2認証キーを割り当てます。
 +
 `storage encryption disk modify -disk _disk_id_ -fips-key-id _fips_authentication_key_id_`
 
 +
-キーIDは、コマンドを使用して表示できます `security key-manager query`。
+ `security key-manager query`コマンドを使用してキー ID を表示できます。
 
 +
 [source]
@@ -42,7 +42,7 @@ Info: Starting modify on 14 disks.
 `storage encryption disk show -fips`
 
 +
-の詳細については `storage encryption disk show`、をlink:https://docs.netapp.com/us-en/ontap-cli/storage-encryption-disk-show.html["ONTAPコマンド リファレンス"^]参照してください。
+ `storage encryption disk show`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/storage-encryption-disk-show.html["ONTAPコマンド リファレンス"^]を参照してください。
 
 +
 [listing]
@@ -59,5 +59,5 @@ Disk    Mode FIPS-Compliance Key ID
 .関連情報
 * link:https://docs.netapp.com/us-en/ontap-cli/storage-encryption-disk-modify.html["ストレージ暗号化ディスクの変更"^]
 * link:https://docs.netapp.com/us-en/ontap-cli/storage-encryption-disk-show.html["storage disk show | more"^]
-* link:https://docs.netapp.com/us-en/ontap-cli/storage-encryption-disk-show-status.html["ストレージ暗号化ディスクステータス表示"^]
+* link:https://docs.netapp.com/us-en/ontap-cli/storage-encryption-disk-show-status.html["storage encryption disk show-status"^]
 

@@ -2,7 +2,7 @@
 permalink: smb-admin/modify-server-kerberos-security-settings-task.html 
 sidebar: sidebar 
 keywords: modify, cifs, server, kerberos, security, setting, clock, skew, time, ticket, lifetime, renewal, modify the cifs server kerberos security ticket settings 
-summary: 許可されるKerberosクロックスキューの最大時間、Kerberosチケットの有効期間、チケットを更新する最大日数など、CIFSサーバのKerberosセキュリティ設定を変更できます。 
+summary: CIFSサーバのKerberosセキュリティ設定の一部を変更できます。対象となる設定には、Kerberosクロック スキューの許容最大時間やKerberosチケットの有効期間、チケットを更新できる最長有効期間（日数）などがあります。 
 ---
 = ONTAP SMBサーバのKerberosセキュリティ設定を変更する
 :allow-uri-read: 
@@ -11,10 +11,10 @@ summary: 許可されるKerberosクロックスキューの最大時間、Kerber
 
 
 [role="lead"]
-許可されるKerberosクロックスキューの最大時間、Kerberosチケットの有効期間、チケットを更新する最大日数など、CIFSサーバのKerberosセキュリティ設定を変更できます。
+CIFSサーバのKerberosセキュリティ設定の一部を変更できます。対象となる設定には、Kerberosクロック スキューの許容最大時間やKerberosチケットの有効期間、チケットを更新できる最長有効期間（日数）などがあります。
 
-.タスクの内容
-コマンドによるCIFSサーバのKerberos設定の変更では `vserver cifs security modify`、パラメータで指定した単一のStorage Virtual Machine（SVM）の設定のみを変更 `-vserver`できます。Active Directoryのグループポリシーオブジェクト（GPO）を使用すると、同じActive Directoryドメインに属するクラスタ上のすべてのSVMのKerberosセキュリティ設定を一元管理できます。
+.タスク概要
+ `vserver cifs security modify`コマンドを使用してCIFSサーバのKerberos設定を変更すると、 `-vserver`パラメータで指定した単一のストレージ仮想マシン（SVM）の設定のみが変更されます。Active Directoryグループポリシーオブジェクト（GPO）を使用すると、同じActive Directoryドメインに属するクラスタ内のすべてのSVMのKerberosセキュリティ設定を一元管理できます。
 
 .手順
 . 次の操作を1つ以上実行します。
@@ -22,29 +22,29 @@ summary: 許可されるKerberosクロックスキューの最大時間、Kerber
 |===
 
 
-| 状況 | 入力するコマンド 
+| 状況 | 入力する内容 
 
 
  a| 
-Kerberosクロックスキューの許容最大時間を分（9.13.1以降）または秒（9.12.1以前）で指定します。
+Kerberosクロック スキューの許容最大時間を分（9.13.1以降）または秒（9.12.1以前）で指定します。
  a| 
 `vserver cifs security modify -vserver _vserver_name_ -kerberos-clock-skew _integer_in_minutes_`
 
-デフォルト設定は5分です。
+デフォルトの設定は5分です。
 
 
 
  a| 
-Kerberosチケットの有効期間を時間単位で指定します。
+Kerberosチケットの有効期間を時間で指定する。
  a| 
 `vserver cifs security modify -vserver _vserver_name_ -kerberos-ticket-age integer_in_hours`
 
-デフォルト設定は10時間です。
+デフォルトの設定は10時間です。
 
 
 
  a| 
-チケットの最大更新日数を指定します。
+チケットを更新できる最長有効期間を日数で指定する。
  a| 
 `vserver cifs security modify -vserver _vserver_name_ -kerberos-renew-age _integer_in_days_`
 
@@ -53,11 +53,11 @@ Kerberosチケットの有効期間を時間単位で指定します。
 
 
  a| 
-KDC上のソケットのタイムアウトを指定します。このタイムアウトを過ぎると、すべてのKDCが到達不能としてマークされます。
+KDCのソケットのタイムアウトを指定する（この時間を過ぎるとすべてのKDCが到達不能とマークされます）。
  a| 
 `vserver cifs security modify -vserver _vserver_name_ -kerberos-kdc-timeout _integer_in_seconds_`
 
-デフォルト設定は3秒です。
+デフォルトの設定は3秒です。
 
 |===
 . Kerberosセキュリティ設定を確認します。
@@ -67,7 +67,7 @@ KDC上のソケットのタイムアウトを指定します。このタイム�
 
 
 .例
-次の例では、 SVM vs1 の Kerberos セキュリティ設定を「 Kerberos Clock Skew 」に 3 分、「 Kerberos Ticket Age 」に 8 時間に変更しています。
+次の例では、Kerberosセキュリティに次の変更を加えます。SVM vs1の「`Kerberos Clock Skew`」は3分に設定され、「`Kerberos Ticket Age`」は8時間に設定されています（：）
 
 [listing]
 ----

@@ -2,33 +2,33 @@
 permalink: smb-admin/disallow-users-groups-bypass-directory-traverse-task.html 
 sidebar: sidebar 
 keywords: user, traverse, directories, directory, path, file, permission, sechangenotifyprivilege, privilege, local, smb, group, storage, virtual, machine, svm, disallow users or groups from bypassing directory traverse checking 
-summary: トラバースするディレクトリに対する権限がない場合に、ファイルへのパスに含まれるすべてのディレクトリをユーザがトラバースできないようにするには、 Storage Virtual Machine （ SVM ）のローカル SMB ユーザまたはグループから SeChangeNotifyPrivilege 権限を削除します。 
+summary: ユーザーがトラバースするディレクトリに対する権限を持っていないため、ファイルへのパス内のすべてのディレクトリをトラバースできないようにしたい場合は、Storage Virtual Machine（SVM）上のローカルSMBユーザーまたはグループからSeChangeNotifyPrivilege権限を削除できます。 
 ---
-= ユーザーまたはグループが ONTAP SMB ディレクトリ トラバース チェックをバイパスすることを禁止します
+= ユーザーまたはグループがONTAP SMBディレクトリトラバースチェックをバイパスすることを禁止します
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-トラバースするディレクトリに対する権限がないためにファイルへのパスに含まれるすべてのディレクトリをユーザがトラバースできないようにするには、Storage Virtual Machine（SVM）のローカルSMBユーザまたはグループから権限を削除します `SeChangeNotifyPrivilege`。
+ユーザーがトラバースするディレクトリに対する権限を持っていないため、ファイルへのパス内のすべてのディレクトリをトラバースできないようにしたい場合は、ストレージ仮想マシン（SVM）上のローカルSMBユーザーまたはグループから `SeChangeNotifyPrivilege`権限を削除できます。
 
 .開始する前に
-Privilegesを削除するローカルまたはドメインのユーザまたはグループがすでに存在している必要があります。
+権限を削除するローカルまたはドメインのユーザまたはグループがすでに存在している必要があります。
 
-.タスクの内容
-ドメインユーザまたはグループからPrivilegesを削除する場合、ONTAPはドメインコントローラに接続してドメインユーザまたはグループを検証することがあります。ONTAPがドメインコントローラに接続できない場合、コマンドが失敗することがあります。
+.タスク概要
+ドメインのユーザまたはグループの権限を削除する場合、ONTAPでそれらのユーザやグループを検証するために、ドメイン コントローラに接続することがあります。ONTAPがドメイン コントローラに照会できない場合、コマンドが失敗することがあります。
 
 .手順
-. トラバースチェックのバイパスを禁止します。 `vserver cifs users-and-groups privilege remove-privilege -vserver _vserver_name_ -user-or-group-name _name_ -privileges SeChangeNotifyPrivilege`
+. バイパストラバースチェックを禁止する： `vserver cifs users-and-groups privilege remove-privilege -vserver _vserver_name_ -user-or-group-name _name_ -privileges SeChangeNotifyPrivilege`
 +
-コマンドは、パラメータの値で指定したローカルまたはドメインのユーザまたはグループから権限を `-user-or-group-name _name_`削除します `SeChangeNotifyPrivilege`。
+このコマンドは、 `-user-or-group-name _name_`パラメータの値で指定したローカルまたはドメインのユーザーまたはグループから `SeChangeNotifyPrivilege`権限を削除します。
 
-. 指定したユーザまたはグループに対してトラバースチェックのバイパスが無効になっていることを確認します。 `vserver cifs users-and-groups privilege show -vserver _vserver_name_ ‑user-or-group-name _name_`
+. 指定されたユーザーまたはグループで走査チェックのバイパスが無効になっていることを確認します： `vserver cifs users-and-groups privilege show -vserver _vserver_name_ ‑user-or-group-name _name_`
 
 
 .例
-次のコマンドを実行すると、「 EXAMPLE\eng 」グループに属するユーザに対して、ディレクトリのトラバースチェックのバイパスが禁止されます。
+次のコマンドは、「`EXAMPLE\eng`」グループに属するユーザーがディレクトリトラバースチェックをバイパスすることを禁止します：
 
 [listing]
 ----
@@ -45,4 +45,4 @@ Vserver   User or Group Name    Privileges
 vs1       EXAMPLE\eng           -
 ----
 .関連情報
-xref:allow-users-groups-bypass-directory-traverse-task.adoc[ユーザまたはグループにディレクトリのトラバースチェックのバイパスを許可する]
+xref:allow-users-groups-bypass-directory-traverse-task.adoc[ユーザまたはグループに対するディレクトリのトラバース チェックのバイパスの許可]

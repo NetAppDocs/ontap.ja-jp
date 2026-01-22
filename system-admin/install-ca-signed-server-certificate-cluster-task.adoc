@@ -2,7 +2,7 @@
 permalink: system-admin/install-ca-signed-server-certificate-cluster-task.html 
 sidebar: sidebar 
 keywords: install, ca, signed, server, certificate, cluster, ssl, svm, sotrage, virtual, machine, administrator 
-summary: SSL サーバでクラスタまたは Storage Virtual Machine （ SVM ）を SSL クライアントとして認証するためには、 client タイプのデジタル証明書をクラスタまたは SVM にインストールします。次に、 client-ca 証明書をその SSL サーバの管理者に渡してインストールしてもらいます。 
+summary: SSLサーバがクラスタまたはStorage Virtual Machine（SVM）をSSLクライアントとして認証できるようにするには、クラスタまたはSVMにクライアント タイプのデジタル証明書をインストールします。次に、SSLサーバ管理者にclient-ca証明書を提供し、サーバにインストールしてもらいます。 
 ---
 = ONTAPクラスタ用のCA署名サーバ証明書をインストールする
 :allow-uri-read: 
@@ -11,44 +11,44 @@ summary: SSL サーバでクラスタまたは Storage Virtual Machine （ SVM �
 
 
 [role="lead"]
-SSL サーバでクラスタまたは Storage Virtual Machine （ SVM ）を SSL クライアントとして認証するためには、 client タイプのデジタル証明書をクラスタまたは SVM にインストールします。次に、 client-ca 証明書をその SSL サーバの管理者に渡してインストールしてもらいます。
+SSLサーバがクラスタまたはStorage Virtual Machine（SVM）をSSLクライアントとして認証できるようにするには、クラスタまたはSVMにクライアント タイプのデジタル証明書をインストールします。次に、SSLサーバ管理者にclient-ca証明書を提供し、サーバにインストールしてもらいます。
 
 .開始する前に
-SSLサーバのルート証明書を、証明書タイプのクラスタまたはSVMにインストールしておく必要があります `server-ca`。
+ `server-ca`証明書タイプを使用して、クラスタまたはSVMにSSLサーバのルート証明書がすでにインストールされている必要があります。
 
 .手順
-. クライアント認証に自己署名デジタル証明書を使用するには、 `security certificate create`コマンドでパラメータを指定し `type client`ます。
+. クライアント認証に自己署名デジタル証明書を使用するには、 `type client`パラメータを指定して `security certificate create`コマンドを使用します。
 +
-の詳細については `security certificate create`、をlink:https://docs.netapp.com/us-en/ontap-cli/security-certificate-create.html["ONTAPコマンド リファレンス"^]参照してください。
+ `security certificate create`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/security-certificate-create.html["ONTAPコマンド リファレンス"^]をご覧ください。
 
-. クライアント認証に CA 署名デジタル証明書を使用するには、次の手順を実行します。
+. クライアント認証にCA署名デジタル証明書を使用するには、次の手順を実行します：
 +
-.. security certificateコマンドを使用して、デジタル証明書署名要求（CSR）を生成します `generate-csr`。
+.. security certificate `generate-csr`コマンドを使用して、デジタル証明書署名要求（CSR）を生成します。
 +
-証明書要求と秘密鍵を含む CSR 出力が表示され、今後の参照用にファイルにコピーするよう求められます。 ONTAP
+ONTAP は、証明書要求と秘密キーを含む CSR 出力を表示し、将来の参照用に出力をファイルにコピーするように通知します。
 
-.. CSR 出力の証明書要求をデジタル形式（ E メールなど）で信頼できる CA に送信し、署名を求めます。
+.. CSR 出力からの証明書要求を電子形式（電子メールなど）で信頼できる CA に送信し、署名を依頼します。
 +
-秘密鍵と CA 署名証明書のコピーは今後の参照用として保管しておいてください。
+将来の参照用に、秘密キーと CA 署名証明書のコピーを保管しておく必要があります。
 
 +
 要求が処理されると、署名済みのデジタル証明書がCAから送信されます。
 
-.. コマンドでパラメータを指定して `-type client`、CA署名証明書をインストールし `security certificate install`ます。
-.. プロンプトが表示されたら証明書と秘密鍵を入力し、 * Enter * キーを押します。
-.. プロンプトが表示されたら追加のルート証明書または中間証明書を入力し、 * Enter * キーを押します。
+..  `-type client`パラメータを指定した `security certificate install`コマンドを使用して、CA署名証明書をインストールします。
+.. プロンプトが表示されたら証明書と秘密キーを入力し、*Enter*キーを押します。
+.. プロンプトが表示されたら追加のルート証明書または中間証明書を入力し、*Enter*キーを押します。
 +
-信頼できるルート CA から発行された SSL 証明書に至る証明書チェーンに中間証明書がない場合は、クラスタまたは SVM に中間証明書をインストールします。中間証明書は、問題のエンドエンティティのサーバ証明書専用に信頼できるルートから発行される、副次的な証明書です。この結果、信頼できるルート CA から始まり、中間証明書を経て、発行された SSL 証明書で終わる証明書チェーンが形成されます。
+信頼されたルートCAから始まり、お客様に発行されたSSL証明書で終わる証明書チェーンに中間証明書がない場合は、クラスタまたはSVMに中間証明書をインストールします。中間証明書は、エンドエンティティサーバ証明書を発行するために信頼されたルートCAによって発行される従属証明書です。その結果、信頼されたルートCAから始まり、中間証明書を経由して、お客様に発行されたSSL証明書で終わる証明書チェーンが作成されます。
 
 
 
-. クラスタまたはSVMの証明書をSSLサーバの管理者に渡してインストールしてもらいます `client-ca`。
+. クラスタまたは SVM の `client-ca`証明書を SSL サーバーの管理者に提供し、サーバーにインストールしてもらいます。
 +
-security certificate showコマンドと `-type client-ca`パラメータを指定して実行すると、 `-instance`証明書の情報が表示されます `client-ca`。
+ `-instance`および `-type client-ca`パラメータを指定した security certificate show コマンドは、 `client-ca`証明書情報を表示します。
 
 
 
 .関連情報
-* link:https://docs.netapp.com/us-en/ontap-cli/security-certificate-install.html["セキュリティ証明書のインストール"^]
-* link:https://docs.netapp.com/us-en/ontap-cli/security-certificate-show.html["security certificate show"^]
+* link:https://docs.netapp.com/us-en/ontap-cli/security-certificate-install.html["security certificate install"^]
+* link:https://docs.netapp.com/us-en/ontap-cli/security-certificate-show.html["セキュリティ証明書の表示"^]
 

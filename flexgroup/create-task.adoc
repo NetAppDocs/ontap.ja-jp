@@ -2,53 +2,53 @@
 permalink: flexgroup/create-task.html 
 sidebar: sidebar 
 keywords: create, flexgroup, volume, flex group, aggregate, fabricpool, fabric pool 
-summary: FlexGroupボリュームを作成するには、FlexGroupボリュームを作成するローカル階層（アグリゲート）を手動で選択し、各ローカル階層のメンバーボリュームの数を指定します。 
+summary: FlexGroupボリュームを作成するローカル階層（アグリゲート）を手動で選択し、各ローカル階層のメンバー ボリュームの数を指定することによって、FlexGroupボリュームを作成できます。 
 ---
-= ONTAP FlexGroupボリュームの作成
+= ONTAP FlexGroupボリュームを作成する
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-FlexGroupボリュームを作成するには、FlexGroupボリュームを作成するローカル階層（アグリゲート）を手動で選択し、各ローカル階層のメンバーボリューム（コンスティチュエント）の数を指定します。
+FlexGroupボリュームを作成する必要があるローカル層（アグリゲート）を手動で選択し、各ローカル層のメンバー ボリューム（構成要素）の数を指定することによって、FlexGroupボリュームを作成できます。
 
-また、ローカル階層を選択し、パフォーマンスと容量が最適化されるようにベストプラクティスに基づいてONTAPでメンバーボリュームの数を設定することで、FlexGroupボリュームをONTAPにすることもできlink:provision-automatically-task.html["自動でプロビジョニング"]ます。
+あるいは、ローカル階層を選択し、最適なパフォーマンスと容量を実現するためのベスト プラクティスに基づいてメンバー ボリュームの数をONTAPに設定させることで、ONTAPにFlexGroupボリュームをlink:provision-automatically-task.html["自動的にプロビジョニング"]させることもできます。
 
-.タスクの内容
-FlexGroupボリュームを作成するためにローカル階層に必要なスペースを確認しておく必要があります。
+.タスク概要
+FlexGroupボリュームを作成するには、ローカル層に必要なスペースを認識しておく必要があります。
 
-FlexGroupボリュームを作成するときは、FlexGroupボリュームのパフォーマンスを最大限に高めるために、次のガイドラインを考慮する必要があります。
+FlexGroupボリュームで最大のパフォーマンスを実現するには、FlexGroupボリュームを作成する際に次のガイドラインを考慮する必要があります。
 
-* FlexGroupボリュームでは、同一のハードウェアシステム上のローカル階層を使用する必要があります。
+* FlexGroupボリュームでは、同一のハードウェア システム上にあるローカル層を使用する必要があります。
 +
-使用されているハードウェア システムのモデルが同じであれば、FlexGroupボリューム全体のパフォーマンスを容易に予測できます。注意: C シリーズ r1 および C シリーズ r2 システムは同一のシステムではありません。たとえば、 AFF C80 r1 とAFF C80 r2 は同一ではありません。
+同一のハードウェア システムを使用することで、FlexGroup ボリューム全体で予測可能なパフォーマンスを実現できます。注：C-Series r1システムとC-Series r2システムは同一のシステムではありません。たとえば、AFF C80 r1とAFF C80 r2は同一ではありません。
 
-* FlexGroupボリュームは、同じディスクタイプおよびRAIDグループ構成を使用するローカル階層で構成されている必要があります。
+* FlexGroupボリュームは、同じディスク タイプとRAIDグループ構成を使用して、ローカル層にまたがる必要があります。
 +
-一貫したパフォーマンスを実現するには、すべてのローカル階層がSSD、HDD、またはオールFlash Pool（ハイブリッド）ローカル階層で構成されていることを確認する必要があります。また、ローカル階層のドライブ数とRAIDグループ数がFlexGroupボリューム全体で同じである必要があります。
+一貫したパフォーマンスを確保するには、すべてのローカル階層がすべてSSD、すべてHDD、またはすべてFlash Pool（ハイブリッド）ローカル階層で構成されていることを確認する必要があります。さらに、ローカル階層は、FlexGroupボリューム全体で同じ数のドライブとRAIDグループを持つ必要があります。
 
-* FlexGroupボリュームは、クラスタの一部にまたがることができます。
+* FlexGroupボリュームは、クラスタの一部でのみ構成することができます。
 +
-FlexGroupボリュームをクラスタ全体にまたがるように設定する必要はありませんが、その場合、使用可能なハードウェアリソースをより有効に活用できます。
+クラスタ全体にまたがるようにFlexGroupボリュームを設定する必要はありませんが、そのように設定すればハードウェア リソースをより効果的に利用できます。
 
-* FlexGroupボリュームを作成する際は、FlexGroupボリュームを導入するローカル階層に次の特性を設定することを推奨します。
+* FlexGroupボリュームを作成するときは、FlexGroupボリュームがデプロイされるローカル層に次の特性があることが最適です：
 +
-** 特にシンプロビジョニングを使用する場合は、複数のローカル階層間でほぼ同じ量の空きスペースを確保する必要があります。
-** FlexGroupボリュームの作成後に、空きスペースの約3%をローカル階層のメタデータ用にリザーブする必要があります。
+** 特にシン プロビジョニングを使用する場合は、複数のローカル層にわたってほぼ同じ量の空き領域が利用可能である必要があります。
+** FlexGroupボリュームの作成後、空き領域の約3%をローカル層メタデータ用に予約する必要があります。
 
 
-* FASシステムの場合は、ノードごとに2つのローカル階層を使用することを推奨します。AFFシステムの場合は、FlexGroupボリュームのノードごとに1つのローカル階層を使用する必要があります。
-* FlexGroupボリュームごとに少なくとも8個のメンバーボリュームを作成し、FASシステムの場合は2つ以上のローカル階層に、AFFシステムの場合は1つ以上のローカル階層に分散します。
-* ONTAP 9 .9.1以降では、2つ以上のFlexGroupのSnapMirrorファンアウト関係（最大8つのファンアウトレッグ）がサポートされます。System Managerでは、SnapMirrorカスケードFlexGroupボリューム関係はサポートされません。
-* System Manager を使用してFlexGroupボリュームを作成すると、 ONTAPFlexGroupボリュームの作成に必要なローカル階層が自動的に選択されます。
-* ONTAP 9 8以降では、ストレージのプロビジョニング時にデフォルトでQoSが有効になります。プロビジョニングプロセス中またはあとで、QoSを無効にしたり、カスタムのQoSポリシーを選択したりできます。
+* FASシステムの場合は、ノードごとに2つのローカル階層を持つことが最適であり、AFFシステムの場合は、FlexGroupボリュームのノードごとに1つのローカル階層が必要です。
+* 各FlexGroupボリュームについて、FASシステムでは2つ以上のローカル階層に、AFFシステムでは1つ以上のローカル階層に分散される8つ以上のメンバー ボリュームを作成する必要があります。
+* ONTAP 9.9.1以降では、2～8個のFlexGroupボリュームのSnapMirrorファンアウト関係がサポートされます。System Managerでは、FlexGroupボリュームのSnapMirrorカスケード関係はサポートされません。
+* System Manager を使用してFlexGroupボリュームを作成すると、 ONTAP によってFlexGroupボリュームの作成に必要なローカル階層が自動的に選択されます。
+* ONTAP 9.8以降では、QoSはストレージのプロビジョニング時にデフォルトで有効になります。プロビジョニング時またはあとでQoSを無効にしたり、カスタムのQoSポリシーを選択したりすることができます。
 
 
 .開始する前に
-* ONTAP 9.13.1以降では、容量分析とアクティビティ追跡を有効にしてボリュームを作成できます。容量またはアクティビティの追跡を有効にするには、を指定してコマンドを `-analytics-state`実行する `volume create`か、 `-activity-tracking-state`に設定します `on`。
+* ONTAP 9.13.1以降では、容量分析とアクティビティトラッキングを有効にしたボリュームを作成できます。容量またはアクティビティトラッキングを有効にするには、 `-analytics-state`または `-activity-tracking-state`を `on`に設定した `volume create`コマンドを発行します。
 +
-容量分析とアクティビティ追跡の詳細については、を参照してください https://docs.netapp.com/us-en/ontap/task_nas_file_system_analytics_enable.html["ファイルシステム分析を有効にする"]。の詳細については `volume create`、をlink:https://docs.netapp.com/us-en/ontap-cli/volume-create.html["ONTAPコマンド リファレンス"^]参照してください。
+容量分析とアクティビティ追跡の詳細については、 https://docs.netapp.com/us-en/ontap/task_nas_file_system_analytics_enable.html["ファイルシステム分析の有効化"]を参照してください。link:https://docs.netapp.com/us-en/ontap-cli/volume-create.html["ONTAPコマンド リファレンス"^]の `volume create`の詳細を確認してください。
 
 
 
@@ -56,52 +56,52 @@ FlexGroupボリュームをクラスタ全体にまたがるように設定す�
 ====
 .System Manager
 --
-System Manager を使用して、FlexGroup ボリュームを作成できます。
+System Managerを使用してFlexGroupボリュームを作成できます。
 
 .手順
-. *ストレージ > ボリューム*に移動して選択image:icon_add.gif["追加アイコン"] 。
-. *ボリュームの追加*ウィンドウで、ボリュームの名前とサイズを入力し、*その他のオプション*を選択します。
-. *ストレージと最適化*セクションで、*ボリューム データをクラスター全体に分散する (FlexGroup)*を選択します。
+. *ストレージ > ボリューム* に移動し、image:icon_add.gif["アイコンを追加"]を選択します。
+. *ボリュームの追加*ウィンドウで、ボリューム名とサイズを入力し、*その他のオプション*を選択します。
+. *ストレージと最適化*セクションで、*ボリュームデータをクラスター全体に分散する（FlexGroup）*を選択します。
 +
 
-NOTE: ONTAP 9.8以降を実行していて、QoSを無効にするかカスタムQoSポリシーを選択する場合は、*[その他のオプション]*をクリックし、*[ストレージと最適化]*で*[パフォーマンスサービスレベル]*を選択します。
+NOTE: ONTAP 9.8 以降を実行していて、QoS を無効にするか、カスタム QoS ポリシーを選択する場合は、[*その他のオプション*] をクリックし、[*ストレージと最適化*] の下で [*パフォーマンス サービス レベル*] を選択します。
 
-. ボリュームの残りの情報を入力し、「*保存*」を選択します。
+. ボリュームの残りの情報を入力し、*保存*を選択します。
 
 
 --
 .CLI
 --
-. FlexGroup ボリュームを作成します。
+. FlexGroupボリュームを作成します：
 +
 [source, cli]
 ----
 volume create -vserver <svm_name> -volume <flexgroup_name> -aggr-list aggr1,aggr2,.. -aggr-list-multiplier <constituents_per_aggr> -size <fg_size> [–encrypt true] [-qos-policy-group qos_policy_group_name] [-granular-data advanced]
 ----
 +
-** パラメータは `-aggr-list`、FlexGroupメンバーボリュームに使用するローカル階層のリストを指定します。
+**  `-aggr-list`パラメーターは、FlexGroupメンバー ボリュームに使用されるローカル ティアのリストを指定します。
 +
-FlexGroupボリューム全体で一貫したパフォーマンスを実現するには、すべてのローカル階層でディスクタイプとRAIDグループ構成を同じにする必要があります。
+FlexGroupボリューム全体で一貫したパフォーマンスを得るには、すべてのローカル層で同じディスク タイプとRAIDグループ構成を使用する必要があります。
 
-** パラメータは `-aggr-list-multiplier`、パラメータで指定した各ローカル階層に作成されるメンバーボリュームの数を指定します `-aggr-list`。
+**  `-aggr-list-multiplier`パラメーターは、 `-aggr-list`パラメーターでリストされた各ローカル層に作成されるメンバー ボリュームの数を指定します。
 +
-パラメータのデフォルト値 `-aggr-list-multiplier`は4です。
+ `-aggr-list-multiplier`パラメータのデフォルト値は4です。
 
-** パラメータは `size`、FlexGroupボリュームのサイズ（KB、MB、GB、TB、またはPB）を指定します。
-** ONTAP 9.16.1以降では、 (`-granular-data advanced`CLIでを有効にすることができます）。ファイルが10GBを超える場合に、複数のFlexGroupメンバーボリュームにデータを書き込むことができますlink:enable-adv-capacity-flexgroup-task.html["高度な容量分散"]。
-** ONTAP 9.5以降では、FabricPoolが有効なローカル階層を使用してFlexGroupボリュームを作成できます。
+**  `size`パラメータは、FlexGroupボリュームのサイズをKB、MB、GB、TB、またはPBで指定します。
+** ONTAP 9.16.1以降では、ファイルが10GBを超える場合に複数のFlexGroupメンバーボリュームにわたってデータを書き込むようにlink:enable-adv-capacity-flexgroup-task.html["高度な容量バランス調整"] (`-granular-data advanced`（CLIで）を有効にできます。
+** ONTAP 9.5から、FabricPoolが有効なローカル階層を使用してFlexGroupボリュームを作成できます。
 +
-FabricPool用のFlexGroupボリュームを作成するには、パラメータで指定するすべてのローカル階層 `-aggr-list`でFabricPoolを有効にする必要があります。FabricPoolを使用する場合は、ボリュームギャランティを常にに設定する必要があります `none`。FlexGroupボリュームに対して階層化ポリシーと階層化の最小クーリング期間を指定することもできます。
+FabricPool用のFlexGroupボリュームを作成するには、 `-aggr-list`パラメータで指定されたすべてのローカル階層にFabricPoolが有効になっている必要があります。FabricPoolを使用する場合、ボリューム保証は常に `none`に設定する必要があります。FlexGroupボリュームの階層化ポリシーおよび階層化の最小クーリング期間も指定できます。
 
 +
 xref:../disks-aggregates/index.html[ディスクおよびアグリゲートの管理]
 
-** ONTAP 9 .4以降では、FlexGroupボリュームにスループットの下限（最小QoS）とアダプティブQoSを指定できます。
+** ONTAP 9.4以降では、FlexGroupボリュームにスループットの下限（最小QoS）とアダプティブQoSを指定できます。
 +
 link:../performance-admin/index.html["パフォーマンス管理"]
 
-** FlexGroupボリュームのスループット上限 (QoS Max) を指定して、 FlexGroupボリュームが消費できるパフォーマンス リソースを制限できます。
-** FlexGroupボリュームで暗号化を有効にする場合は、パラメータをに `true`設定し `-encrypt`ます。
+** FlexGroupボリュームのスループット上限（QoS Max）を指定して、FlexGroupボリュームが消費できるパフォーマンス リソースを制限できます。
+** FlexGroupボリューム上で暗号化を有効にする場合は、 `-encrypt`パラメータを `true`に設定できます。
 +
 暗号化されたボリュームを作成するには、ボリューム暗号化ライセンスとキー管理ツールをインストールしておく必要があります。
 
@@ -110,7 +110,7 @@ link:../performance-admin/index.html["パフォーマンス管理"]
 NOTE: 暗号化はFlexGroupボリュームの作成時に有効にする必要があります。既存のFlexGroupボリュームで暗号化を有効にすることはできません。
 
 +
-link:../encryption-at-rest/index.html["保存データの暗号化"]
+link:../encryption-at-rest/index.html["保存中のデータを暗号化"]
 
 
 
@@ -126,16 +126,16 @@ Do you want to continue? {y|n}: y
 ----
 
 
-この例では、FabricPoolのFlexGroupボリュームを作成する場合、すべてのローカル階層（aggr1、aggr2、aggr3）でFabricPoolを有効にする必要があります。ジャンクションパスを使用してFlexGroupボリュームをマウントします。 `volume mount -vserver vserver_name -volume vol_name -junction-path junction_path`
+前の例では、FabricPool 用の FlexGroup ボリュームを作成したい場合、すべてのローカル階層（aggr1、aggr2、aggr3）で FabricPool が有効になっている必要があります。FlexGroup ボリュームをジャンクションパスでマウントします： `volume mount -vserver vserver_name -volume vol_name -junction-path junction_path`
 
 [listing]
 ----
 cluster1::> volume mount -vserver vs0 -volume fg2 -junction-path /fg
 ----
-.終了後
-FlexGroupボリュームはクライアントからマウントする必要があります。
+.終了後の操作
+クライアントからFlexGroupボリュームをマウントします。
 
-ONTAP 9 .6以前を実行していて、Storage Virtual Machine（SVM）でNFSv3とNFSv4の両方が設定されている場合、クライアントからのFlexGroupボリュームのマウントが失敗することがあります。その場合は、クライアントからFlexGroupをマウントするときに、NFSのバージョンを明示的に指定する必要があります。
+ONTAP 9.6以前のバージョンでは、Storage Virtual Machine（SVM）でNFSv3とNFSv4の両方が設定されている場合、クライアントからのFlexGroupボリュームのマウントが失敗することがあります。その場合は、クライアントからFlexGroupボリュームをマウントする際に、NFSバージョンを明示的に指定する必要があります。
 
 [listing]
 ----
@@ -146,4 +146,4 @@ file1  file2
 --
 ====
 .関連情報
-https://www.netapp.com/pdf.html?item=/media/12385-tr4571pdf.pdf["NetAppテクニカルレポート4571：『NetApp FlexGroupベストプラクティスおよび実装ガイド』"^]
+https://www.netapp.com/pdf.html?item=/media/12385-tr4571pdf.pdf["NetAppテクニカル レポート4571：『NetAppFlexGroup Best Practices and Implementation Guide』"^]

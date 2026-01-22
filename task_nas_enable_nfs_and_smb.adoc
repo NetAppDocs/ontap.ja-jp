@@ -2,9 +2,9 @@
 sidebar: sidebar 
 permalink: task_nas_enable_nfs_and_smb.html 
 keywords: ontap, netapp, provision nas storage, linux, windows, NFS, SMB, SMB, CIFS, enable NFS, enable SMB, configure DNS, modify storage VM, configure DNS, configure name server, configure Kerberos, map user names 
-summary: LinuxおよびWindowsクライアントにデータを提供できるように、Storage VMを変更してNFSサーバとSMBサーバを有効にします。 
+summary: LinuxおよびWindowsクライアントにデータを提供するために、Storage VMを変更してNFSサーバとSMBサーバを有効にします。 
 ---
-= ONTAP System Manager で NFS と SMB の両方を使用して Windows と Linux の両方で NAS ストレージを有効にする
+= ONTAP System Managerで NFS と SMB の両方を使用して Windows と Linux の両方で NAS ストレージを有効にする
 :hardbreaks:
 :toclevels: 1
 :allow-uri-read: 
@@ -16,20 +16,20 @@ summary: LinuxおよびWindowsクライアントにデータを提供できる�
 
 
 [role="lead"]
-Storage VMを作成または変更して、NFSサーバとSMBサーバがLinuxクライアントとWindowsクライアントにデータを提供できるようにします。
+LinuxおよびWindowsクライアントにデータを提供するために、Storage VMを作成または変更してNFSサーバとSMBサーバを有効にします。
 
-この手順を使用して、新規または既存のStorage VMがNFSプロトコルとSMBプロトコルの両方を提供できるようにします。
+この手順を使用して、新規または既存のStorage VMでNFSとSMBの両方のプロトコルに対応できるようにします。
 
-image:workflow_nas_enable_nfs_and_smb.png["ワークフローの概要：1 NFSの有効化2 SMBの有効化3 root volエクスポートポリシーを開く4 DNSの設定5ネームサービスの設定6必要に応じて暗号化を設定7必要に応じてUNIXとWindowsのユーザ名をマッピング"]
+image:workflow_nas_enable_nfs_and_smb.png["ワークフローの概要：1 NFS を有効にする 2 SMB を有効にする 3 ルートボリュームエクスポートポリシーを開く 4 DNS を構成する 5 ネームサービスを構成する 6 必要に応じて暗号化を構成する 7 必要に応じて UNIX および Windows ユーザー名をマップする"]
 
 .開始する前に
-環境で必要なネットワークサービス、認証サービス、またはセキュリティサービスの設定の詳細をメモしておいてください。
+環境に必要なネットワーク、認証、セキュリティのサービスについて、設定の詳細を忘れないようにメモしておきます。
 
 .手順
 . Storage VMでNFSとSMBを有効にします。
 +
-.. 新しいStorage VMの場合：* Storage > Storage VM*をクリックし、* Add *をクリックしてStorage VM名を入力し、* SMB / CIFS、NFS、S3 *タブで* SMB / CIFSの有効化*と* NFSの有効化*を選択します。
-.. 次の情報を入力します。
+.. 新しいストレージ VM の場合：*ストレージ > ストレージ VM* をクリックし、*追加* をクリックしてストレージ VM 名を入力し、*SMB/CIFS、NFS、S3* タブで *SMB/CIFS を有効にする* と *NFS を有効にする* を選択します。
+.. 次の情報を入力してください：
 +
 *** 管理者の名前とパスワード
 *** サーバ名
@@ -38,24 +38,24 @@ image:workflow_nas_enable_nfs_and_smb.png["ワークフローの概要：1 NFS�
 
 .. 組織単位を確定します。
 .. DNS値を確定します。
-.. デフォルトの言語を確認します。
-.. ネットワークインターフェイスを追加
-.. Storage VM管理者アカウント情報の更新（オプション）
-.. 既存のStorage VMの場合：* Storage > Storage VM*をクリックし、Storage VMを選択して* Settings *をクリックします。NFSまたはSMBがまだ有効になっていない場合は、次のサブ手順を実行します。
+.. デフォルトの言語を確定します。
+.. ネットワーク インターフェイスを追加します。
+.. Storage VMの管理者アカウントの情報を更新します（オプション）。
+.. 既存のストレージVMの場合：*ストレージ > ストレージVM*をクリックし、ストレージVMを選択して*設定*をクリックします。NFSまたはSMBがまだ有効になっていない場合は、以下のサブ手順を実行してください。
 +
-*** [NFS]*の下にあるをクリックします image:icon_gear.gif["アクションアイコン"] 。
-*** [SMB]*でをクリックします image:icon_gear.gif["アクションアイコン"] 。
+*** *NFS*の下にあるimage:icon_gear.gif["アクションアイコン"]をクリックします。
+*** *SMB*の下のimage:icon_gear.gif["アクションアイコン"]をクリックします。
 
 
 
 
-. Storage VMルートボリュームのエクスポートポリシーを開きます。
+. Storage VMルート ボリュームのエクスポート ポリシーを開きます。
 +
-.. [ストレージ]>[ボリューム]*をクリックし、Storage VMのルートボリューム（デフォルトでは_volume-name_root_）を選択し、*[エクスポートポリシー]*に表示されるポリシーをクリックします。
-.. [追加]*をクリックしてルールを追加します。
+.. *[ストレージ] > [ボリューム]*をクリックし、Storage VMのルート ボリューム（デフォルトでは_volume-name_root_）を選択して、*[エクスポート ポリシー]*に表示されるポリシーをクリックします。
+.. *[追加]*をクリックしてルールを追加します。
 +
-*** クライアント仕様= `0.0.0.0/0`
-*** アクセスプロトコル= NFS
+*** クライアント仕様 = `0.0.0.0/0`
+*** アクセス プロトコル = NFS
 *** アクセスの詳細 = NFS読み取り専用
 
 
@@ -63,29 +63,29 @@ image:workflow_nas_enable_nfs_and_smb.png["ワークフローの概要：1 NFS�
 
 . ホスト名解決に使用するDNSを設定します。
 +
-.. [ストレージ]>[Storage VM]*をクリックし、Storage VMを選択して*[設定]*をクリックし、*[DNS]*の下をクリックします image:icon_gear.gif["アクションアイコン"] 。
+.. *ストレージ > ストレージ VM* をクリックし、ストレージ VM を選択して、*設定* をクリックし、*DNS* の下の image:icon_gear.gif["アクションアイコン"] をクリックします。
 .. DNSの設定が完了したら、DNSサーバに切り替えてSMBサーバをマッピングします。
 +
-*** フォワードルックアップ（A -アドレスレコード）とリバースルックアップ（PTR -ポインタレコード）のエントリを作成して、SMBサーバ名をデータネットワークインターフェイスのIPアドレスにマッピングします。
-*** NetBIOSエイリアスを使用する場合は、エイリアスの正規名（CNAMEリソースレコード）ルックアップエントリを作成して、各エイリアスをSMBサーバのデータネットワークインターフェイスのIPアドレスにマッピングします。
+*** フォワード ルックアップ（A - アドレス レコード）とリバース ルックアップ（PTR - ポインタ レコード）のエントリを作成して、SMBサーバ名をデータ ネットワーク インターフェイスのIPアドレスにマッピングします。
+*** NetBIOSエイリアスを使用する場合は、エイリアスの正規名（CNAMEリソース レコード）のルックアップ エントリを作成して、各エイリアスをSMBサーバのデータ ネットワーク インターフェイスのIPアドレスにマッピングします。
 
 
 
 
-. ネームサービスを必要に応じて設定します。
+. 必要に応じて名前サービスを設定します：
 +
-.. [ストレージ]>[Storage VM]*をクリックし、Storage VMを選択して*[設定]*をクリックし、[LDAP]または[NIS]をクリックし image:icon_gear.gif["アクションアイコン"] ます。
-.. ネームサービススイッチファイルに変更を反映します。*[ネームサービススイッチ]*の下にあるをクリックします image:icon_pencil.gif["編集アイコン"] 。
+.. *ストレージ > ストレージ VM* をクリックし、ストレージ VM を選択して、*設定* をクリックし、LDAP または NIS の image:icon_gear.gif["アクションアイコン"] をクリックします。
+.. 名前サービス スイッチ ファイルに変更内容を含めます（*名前サービス スイッチ*の下のimage:icon_pencil.gif["編集アイコン"]をクリック）。
 
 
-. 必要に応じてKerberosを設定します。
+. 必要に応じて、Kerberosを設定します。
 +
-.. [ストレージ]>[Storage VM]*をクリックし、Storage VMを選択して*[設定]*をクリックします。
-.. [Kerberos]タイル内をクリックし image:icon_arrow.gif["矢印アイコン"] 、*[追加]*をクリックします。
+.. *[ストレージ] > [Storage VM]*をクリックし、Storage VMを選択して*[設定]*をクリックします。
+.. Kerberos タイルの image:icon_arrow.gif["矢印アイコン"] をクリックし、* Add * をクリックします。
 
 
-. 必要に応じてUNIXとWindowsのユーザ名をマッピングします。*[ネームマッピング]*でをクリックし、*[追加]*をクリックし image:icon_arrow.gif["矢印アイコン"] ます。
+. 必要に応じて UNIX および Windows ユーザー名をマップします：*名前マッピング*の下のimage:icon_arrow.gif["矢印アイコン"]をクリックし、*追加*をクリックします。
 +
-この処理は、WindowsとUNIXのユーザアカウントが暗黙的にマッピングされない場合にのみ実行します。小文字のWindowsユーザ名がUNIXユーザ名と一致している場合は、この処理を実行します。ユーザ名は、LDAP、NIS、またはローカルユーザを使用してマッピングできます。一致しないユーザセットが2つある場合は、ネームマッピングを設定する必要があります。
+この手順は、WindowsとUNIXのユーザ アカウントが暗黙的にマッピングされない場合にのみ使用します。小文字のWindowsユーザ名がUNIXユーザ名と一致していれば、ユーザ名は暗黙的にマッピングされます。ユーザ名は、LDAP、NIS、またはローカル ユーザを使用してマッピングできます。一致しない2組のユーザ セットがある場合、ネーム マッピングを設定する必要があります。
 
 

@@ -2,7 +2,7 @@
 permalink: data-protection/convert-volume-svm-replication-task.html 
 sidebar: sidebar 
 keywords: convert, volume, replication, relationships, svm 
-summary: ソース上の各ボリューム（ルートボリュームを除く）をレプリケート中で、ソース上の各ボリューム（ルートボリュームを含む）の名前がデスティネーション上のボリュームと同じである場合は、ボリューム間のレプリケーション関係を、そのボリュームを所有するStorage Virtual Machine（SVM）間のレプリケーション関係に変換できます。 
+summary: ソース上の各ボリューム（ルート ボリュームを除く）がレプリケート対象であり、ソース上の各ボリューム（ルート ボリュームを含む）の名前がデスティネーション上のボリュームと同じである場合は、ボリューム間のレプリケーション関係を、そのボリュームを所有するStorage Virtual Machine（SVM）間のレプリケーション関係に変換できます。 
 ---
 = ONTAP SnapMirrorボリュームDR関係をSVM DR関係に変換する
 :allow-uri-read: 
@@ -11,18 +11,18 @@ summary: ソース上の各ボリューム（ルートボリュームを除く�
 
 
 [role="lead"]
-ソース上の各ボリューム（ルートボリュームを除く）をレプリケート中で、ソース上の各ボリューム（ルートボリュームを含む）の名前がデスティネーション上のボリュームと同じである場合は、ボリューム間のレプリケーション関係を、そのボリュームを所有するStorage Virtual Machine（SVM）間のレプリケーション関係に変換できます。
+ソース上の各ボリューム（ルート ボリュームを除く）がレプリケート対象であり、ソース上の各ボリューム（ルート ボリュームを含む）の名前がデスティネーション上のボリュームと同じである場合は、ボリューム間のレプリケーション関係を、そのボリュームを所有するStorage Virtual Machine（SVM）間のレプリケーション関係に変換できます。
 
-.タスクの内容
-必要に応じて、SnapMirror関係がアイドル状態のときにコマンドを使用して、 `volume rename`デスティネーションボリュームの名前を変更します。の詳細については `volume rename`、をlink:https://docs.netapp.com/us-en/ontap-cli/volume-rename.html["ONTAPコマンド リファレンス"^]参照してください。
+.タスク概要
+SnapMirror関係がアイドル状態のときに `volume rename`コマンドを使用して、必要に応じてデスティネーション ボリュームの名前を変更します。link:https://docs.netapp.com/us-en/ontap-cli/volume-rename.html["ONTAPコマンド リファレンス"^]の `volume rename`の詳細を確認してください。
 
 .手順
-. デスティネーションSVMまたはデスティネーションクラスタから次のコマンドを実行して、ソースボリュームとデスティネーションボリュームを再同期します。
+. デスティネーションSVMまたはデスティネーション クラスタから次のコマンドを実行して、ソースとデスティネーションのボリュームを再同期します。
 +
 `snapmirror resync -source-path <SVM:volume> -destination-path <SVM:volume> -type DP|XDP -policy <policy>`
 
 +
-の詳細については `snapmirror resync`、をlink:https://docs.netapp.com/us-en/ontap-cli/snapmirror-resync.html["ONTAPコマンド リファレンス"^]参照してください。
+ `snapmirror resync`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/snapmirror-resync.html["ONTAPコマンド リファレンス"^]を参照してください。
 
 +
 [NOTE]
@@ -31,49 +31,49 @@ summary: ソース上の各ボリューム（ルートボリュームを除く�
 
 ====
 +
-次の例は、の `svm1`ソースボリュームとの `svm_backup`デスティネーションボリューム `volA`の間の関係を再同期し `volA`ます。
+次の例では、 `svm1`のソース ボリューム `volA`と `svm_backup`のデスティネーション ボリューム `volA`間の関係を再同期します：
 
 +
 [listing]
 ----
 cluster_dst::> snapmirror resync -source-path svm1:volA -destination-path svm_backup:volA
 ----
-. の説明に従って、ソースとデスティネーションのSVM間にSVMレプリケーション関係を作成しますlink:replicate-entire-svm-config-task.html["SVMの設定のレプリケート"]。
+. link:replicate-entire-svm-config-task.html["SVMの設定のレプリケート"]の説明に従って、ソース SVM とデスティネーション SVM の間に SVM レプリケーション関係を作成します。
 +
-レプリケーション関係を作成するときは、コマンドのオプションを `snapmirror create`使用する必要があります `-identity-preserve true`。
+レプリケーション関係を作成するときは、 `snapmirror create`コマンドの `-identity-preserve true`オプションを使用する必要があります。
 
 +
-の詳細については `snapmirror create`、をlink:https://docs.netapp.com/us-en/ontap-cli/snapmirror-create.html["ONTAPコマンド リファレンス"^]参照してください。
+ `snapmirror create`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/snapmirror-create.html["ONTAPコマンド リファレンス"^]を参照してください。
 
 . デスティネーションSVMを停止します。
 +
 `vserver stop -vserver _SVM_`
 
 +
-の詳細については `vserver stop`、をlink:https://docs.netapp.com/us-en/ontap-cli/vserver-stop.html["ONTAPコマンド リファレンス"^]参照してください。
+ `vserver stop`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/vserver-stop.html["ONTAPコマンド リファレンス"^]を参照してください。
 
 +
-次の例は、デスティネーションSVMを停止し `svm_backup`ます。
+次の例では、デスティネーション SVM を停止します `svm_backup`：
 
 +
 [listing]
 ----
 cluster_dst::> vserver stop svm_backup
 ----
-. デスティネーションSVMまたはデスティネーションクラスタから次のコマンドを実行して、ソースとデスティネーションのSVMを再同期します。
+. デスティネーションSVMまたはデスティネーション クラスタから次のコマンドを実行して、ソースとデスティネーションのSVMを再同期します。
 +
 `snapmirror resync -source-path <SVM>: -destination-path <SVM>: -type DP|XDP -policy <policy>`
 
 +
 [NOTE]
 ====
-オプションと `-destination-path`オプションで、SVM名のあとにコロン（：）を入力する必要があります `-source-path`。以下の例を参照してください。
+ `-source-path`および `-destination-path`オプションでは、SVM名の後にコロン（：）を入力する必要があります。以下の例をご覧ください。
 
 再同期の際にベースライン転送は不要ですが、再同期には時間がかかる場合があります。再同期はオフピークの時間帯に実行することを推奨します。
 
 ====
 +
-次の例は、ソースSVMとデスティネーションSVM `svm_backup`の間の関係を再同期し `svm1`ます。
+次の例では、ソース SVM `svm1`とデスティネーション SVM `svm_backup`間の関係を再同期します：
 
 +
 [listing]
@@ -83,6 +83,6 @@ cluster_dst::> snapmirror resync -source-path svm1: -destination-path svm_backup
 
 
 .関連情報
-* link:https://docs.netapp.com/us-en/ontap-cli/snapmirror-create.html["スナップミラー作成"^]
+* link:https://docs.netapp.com/us-en/ontap-cli/snapmirror-create.html["snapmirror create"^]
 * link:https://docs.netapp.com/us-en/ontap-cli/snapmirror-resync.html["snapmirror resync"^]
 

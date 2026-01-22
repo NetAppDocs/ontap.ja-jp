@@ -2,47 +2,47 @@
 permalink: smb-admin/join-svm-active-directory-domain-task.html 
 sidebar: sidebar 
 keywords: join, storage, virtual, machine, svm, active, directory, domain, delete, deleting, exist, smb, cifs, server, modify, domain, vserver, cifs, rejoin, join a svm to an active directory domain 
-summary: vserver cifs modify コマンドでドメインを変更すると、既存の SMB サーバを削除することなく Storage Virtual Machine （ SVM ）を Active Directory ドメインに追加することができます。現在のドメインに参加しなおすことも、新しいドメインに参加することもできます。 
+summary: vserver cifs modifyコマンドを使用してドメインを変更することで、既存のSMBサーバを削除せずにStorage Virtual Machine（SVM）をActive Directoryドメインに参加させることができます。現在のドメインに再参加することも、新しいドメインに参加することもできます。 
 ---
-= Active DirectoryドメインへのONTAP SMB SVMの追加
+= ONTAP SMB SVMをActive Directoryドメインに参加させる
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-コマンドを使用してドメインを変更すると、既存のSMBサーバを削除せずにStorage Virtual Machine（SVM）をActive Directoryドメインに追加できます `vserver cifs modify`。現在のドメインに参加しなおすことも、新しいドメインに参加することもできます。
+ `vserver cifs modify`コマンドを使用してドメインを変更することで、既存のSMBサーバを削除せずに、Storage Virtual Machine（SVM）をActive Directoryドメインに参加させることができます。現在のドメインに再参加することも、新しいドメインに参加することもできます。
 
 .開始する前に
-* SVM の DNS 設定が完了している必要があります。
-* SVM の DNS 設定がターゲットドメインを提供できる必要があります。
+* SVM にはすでに DNS 構成が存在している必要があります。
+* SVM の DNS 構成は、ターゲット ドメインに対応できる必要があります。
 +
-DNSサーバには、ドメインLDAPサーバとドメインコントローラサーバのサービスロケーションレコード（SRV）が含まれている必要があります。
+DNSサーバに、ドメインLDAPおよびドメイン コントローラ サーバのサービス ロケーション レコード（SRV）が格納されている必要があります。
 
 
 
-.タスクの内容
-* Active Directoryドメインを変更するには、CIFSサーバの管理ステータスがに設定されている必要があります `down`。
-* コマンドが正常に完了すると、管理ステータスは自動的ににに設定されます `up`。の詳細については `up`、をlink:https://docs.netapp.com/us-en/ontap-cli/up.html["ONTAPコマンド リファレンス"^]参照してください。
-* ドメインに参加する場合、このコマンドの実行には数分かかることがあります。
+.タスク概要
+* Active Directoryドメインの変更を続行するには、CIFSサーバーの管理ステータスを `down`に設定する必要があります。
+* コマンドが正常に完了すると、管理ステータスは自動的に `up`に設定されます。link:https://docs.netapp.com/us-en/ontap-cli/up.html["ONTAPコマンド リファレンス"^]の `up`の詳細を確認してください。
+* ドメインに参加する場合、このコマンドが完了するまでに数分かかることがあります。
 
 
 .手順
-. SVMをCIFSサーバドメインに追加します。 `vserver cifs modify -vserver _vserver_name_ -domain _domain_name_ -status-admin down`
+. SVMをCIFSサーバ ドメインに参加させます。 `vserver cifs modify -vserver _vserver_name_ -domain _domain_name_ -status-admin down`
 +
-の詳細については `vserver cifs modify`、をlink:https://docs.netapp.com/us-en/ontap-cli/vserver-cifs-modify.html["ONTAPコマンド リファレンス"^]参照してください。新しいドメイン用にDNSを再設定する必要がある場合は、の詳細を参照して `vserver dns modify`link:https://docs.netapp.com/us-en/ontap-cli/search.html?q=vserver+dns+modify["ONTAPコマンド リファレンス"^]ください。
+ `vserver cifs modify`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/vserver-cifs-modify.html["ONTAPコマンド リファレンス"^]を参照してください。新しいドメインのDNSを再設定する必要がある場合は、link:https://docs.netapp.com/us-en/ontap-cli/search.html?q=vserver+dns+modify["ONTAPコマンド リファレンス"^]の `vserver dns modify`の詳細を参照してください。
 
 +
-SMBサーバ用のActive Directoryマシンアカウントを作成するには、.comドメイン内のコンテナ `_example_`にコンピュータを追加するための十分なPrivilegesを備えたWindowsアカウントの名前とパスワードを指定する必要があります `ou= _example_ ou`。
+SMBサーバのActive Directoryマシン アカウントを作成するには、 `_example_`.comドメイン内の `ou= _example_ ou`コンテナにコンピュータを追加するための十分な権限を持つWindowsアカウントの名前とパスワードを指定する必要があります。
 
 +
-ONTAP 9 .7以降では、権限のあるWindowsアカウントの名前とパスワードを指定する代わりに、keytabファイルのURIをAD管理者から提供することができます。URIを受け取ったら、コマンドのパラメータ `vserver cifs`にそのURIを含め `-keytab-uri`ます。
+ONTAP 9.7以降、AD管理者は、特権Windowsアカウントの名前とパスワードを提供する代わりに、キータブ ファイルへのURIを提供できるようになりました。URIを受け取ったら、 `vserver cifs`コマンドの `-keytab-uri`パラメータに含めてください。
 
-. CIFSサーバが目的のActive Directoryドメイン内にあることを確認します。 `vserver cifs show`
+. CIFSサーバが目的のActive Directoryドメイン内にあることを確認します： `vserver cifs show`
 
 
 .例
-次の例では、 SVM vs1 上にある SMB サーバ「 CIFSSERVER1 」を keytab 認証を使用して example.com ドメインに追加します。
+次の例では、SVM vs1上のSMBサーバ「`CIFSSERVER1`」が、keytab認証を使用してexample.comドメインに参加します。
 
 [listing]
 ----

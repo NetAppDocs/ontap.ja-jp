@@ -2,26 +2,26 @@
 permalink: smb-config/open-export-policy-svm-root-volume-task.html 
 sidebar: sidebar 
 keywords: default, export, policy, svm, root, volume, rule, client, smb, rule, open the export policy of the svm root volume 
-summary: SVMルートボリュームのデフォルトのエクスポートポリシーには、すべてのクライアントにSMB経由のアクセスを許可するルールが含まれている必要があります。このようなルールを追加しないと、SVMとそのボリュームに対するSMBクライアントのアクセスがすべて拒否されます。 
+summary: SVMルート ボリュームのデフォルトのエクスポート ポリシーには、すべてのクライアントにSMB経由のアクセスを許可するルールが含まれている必要があります。このようなルールを追加しないと、SVMとそのボリュームに対するSMBクライアントのアクセスがすべて拒否されます。 
 ---
-= ONTAP SVMルートボリュームのSMBエクスポートポリシーを開く
+= ONTAP SVMルートボリュームのSMBエクスポート ポリシーを開きます
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-SVMルートボリュームのデフォルトのエクスポートポリシーには、すべてのクライアントにSMB経由のアクセスを許可するルールが含まれている必要があります。このようなルールを追加しないと、SVMとそのボリュームに対するSMBクライアントのアクセスがすべて拒否されます。
+SVMルート ボリュームのデフォルトのエクスポート ポリシーには、すべてのクライアントにSMB経由のアクセスを許可するルールが含まれている必要があります。このようなルールを追加しないと、SVMとそのボリュームに対するSMBクライアントのアクセスがすべて拒否されます。
 
-.タスクの内容
-新しいSVMが作成されると、デフォルトのエクスポートポリシー（default）がSVMのルートボリュームに対して自動的に作成されます。SVM上のデータにクライアントからアクセスできるようにするには、デフォルトのエクスポートポリシーのルールを1つ以上作成する必要があります。
+.タスク概要
+新しいSVMが作成されると、SVMのルート ボリュームに対してデフォルトのエクスポート ポリシー（default）が自動的に作成されます。クライアントがSVM上のデータにアクセスできるようにするには、デフォルトのエクスポート ポリシーにルールを1つ以上作成する必要があります。
 
-デフォルトのエクスポートポリシーですべてのSMBアクセスが開いていることを確認してから、個 々 のボリュームまたはqtreeにカスタムのエクスポートポリシーを作成して個 々 のボリュームへのアクセスを制限します。
+デフォルトのエクスポート ポリシーですべてのSMBアクセスが許可されていることを確認してから、ボリュームまたはqtreeごとにカスタムのエクスポート ポリシーを作成して各ボリュームへのアクセスを制限します。
 
 .手順
-. 既存のSVMを使用している場合は、デフォルトのルートボリュームエクスポートポリシーを確認します。 `vserver export-policy rule show`
+. 既存の SVM を使用している場合は、デフォルトのルート ボリュームのエクスポート ルールを確認します： `vserver export-policy rule show`
 +
-次のようなコマンド出力が表示されます。
+コマンド出力は次のようになります：
 
 +
 [listing]
@@ -42,11 +42,11 @@ User ID To Which Anonymous Users Are Mapped: 65534
                   Allow Creation of Devices: true
 ----
 +
-オープンアクセスを許可するこのようなルールが存在する場合、このタスクは完了です。表示されない場合は、次の手順に進みます。
+オープン アクセスを許可するルールが存在する場合、このタスクは完了です。存在しない場合は、次のステップに進みます。
 
-. SVMルートボリュームのエクスポートルールを作成します。 `vserver export-policy rule create -vserver vserver_name -policyname default -ruleindex 1 -protocol cifs -clientmatch 0.0.0.0/0 -rorule any -rwrule any -superuser any`
-. コマンドを使用してルールの作成を確認します `vserver export-policy rule show`。
+. SVM ルート ボリュームのエクスポート ルールを作成します。 `vserver export-policy rule create -vserver vserver_name -policyname default -ruleindex 1 -protocol cifs -clientmatch 0.0.0.0/0 -rorule any -rwrule any -superuser any`
+.  `vserver export-policy rule show`コマンドを使用してルールの作成を確認します。
 
 
 .結果
-これで、SVMで作成されたすべてのボリュームまたはqtreeに、すべてのSMBクライアントからアクセスできるようになります。
+これで、SVMで作成されたすべてのボリュームまたはqtreeに、SMBクライアントからアクセスできるようになりました。

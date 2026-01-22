@@ -2,56 +2,56 @@
 permalink: error-messages/configure-ems-events-notifications-syslog-task.html 
 sidebar: sidebar 
 keywords: configuring, important, ems, events, forward, notifications, syslog, server 
-summary: 重大度の高いイベントの通知をsyslogサーバに記録するには、重要なアクティビティを示すイベントの通知を転送するようにEMSを設定する必要があります。 
+summary: 重大なイベントの通知をsyslogサーバに記録するには、重要なアクティビティを示すイベントに関する通知を転送するようにEMSを設定する必要があります。 
 ---
-= 重要なONTAP EMSイベントの通知をsyslogサーバに転送するように設定する
+= 重要なONTAP EMSイベントを設定して通知をsyslogサーバーに転送する
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-重大度の高いイベントの通知をsyslogサーバに記録するには、重要なアクティビティを示すイベントの通知を転送するようにEMSを設定する必要があります。
+重大なイベントの通知をsyslogサーバに記録するには、重要なアクティビティを示すイベントに関する通知を転送するようにEMSを設定する必要があります。
 
 .開始する前に
-クラスタでsyslogサーバ名を解決するようにDNSが設定されている必要があります。
+syslogサーバ名を解決するために、クラスタにDNSが設定されている必要があります。
 
-.タスクの内容
-イベント通知用のsyslogサーバがまだない場合は、最初にsyslogサーバを作成する必要があります。他のシステムのイベントを記録するためにすでにsyslogサーバを使用している場合は、重要なイベントの通知にそのsyslogサーバを使用できます。
+.タスク概要
+イベント通知用のsyslogサーバがまだない場合は、先にsyslogサーバを作成する必要があります。他のシステムのイベントを記録するためにすでにsyslogサーバを使用している場合は、重要なイベントの通知にも同じsyslogサーバを使用できます。
 
 このタスクは、クラスタの実行中であれば、ONTAP CLIでコマンドを入力していつでも実行できます。
 
-ONTAP 9 .12.1以降では、Transport Layer Security（TLS）プロトコルを使用して、リモートsyslogサーバ上の指定ポートにEMSイベントを送信できます。次の2つの新しいパラメータを使用できます。
+ONTAP 9.12.1以降では、リモートsyslogサーバの指定したポートにTransport Layer Security（TLS）プロトコル経由でEMSイベントを送信できます。次の2つのパラメータが新しく追加されました。
 
-`tcp-encrypted`:: にを指定する `syslog-transport`と `tcp-encrypted`、ONTAPは証明書を検証してデスティネーションホストのIDを検証します。デフォルト値はです `udp-unencrypted`。
-`syslog-port`:: デフォルト値 `syslog-port`のパラメータは、パラメータの設定によって異なり `syslog-transport`ます。がに設定されて `tcp-encrypted`いる場合、 `syslog-transport`の `syslog-port`デフォルト値は6514です。
+`tcp-encrypted`::  `tcp-encrypted`が `syslog-transport`に指定されている場合、ONTAPは証明書を検証することで宛先ホストのIDを確認します。デフォルト値は `udp-unencrypted`です。
+`syslog-port`:: デフォルト値 `syslog-port`パラメータは、 `syslog-transport`パラメータの設定によって異なります。 `syslog-transport`が `tcp-encrypted`に設定されている場合、 `syslog-port`のデフォルト値は 6514 になります。
 
 
 .手順
-. 重要なイベントのsyslogサーバの送信先を作成します。
+. 重要なイベントの転送先となるsyslogサーバを作成します。
 +
 `event notification destination create -name _syslog-ems_ -syslog _syslog-server-address_ -syslog-transport {udp-unencrypted|tcp-unencrypted|tcp-encrypted}`
 
 +
-ONTAP 9 . 12.1以降では、に次の値を指定でき `syslog-transport`ます。
+ONTAP 9.12.1 以降では、 `syslog-transport`に次の値を指定できます：
 
 +
-** `udp-unencrypted`-セキュリティなしのUser Datagram Protocol（ユーザデータグラムプロトコル）
-** `tcp-unencrypted`-セキュリティなしの伝送制御プロトコル
-** `tcp-encrypted`- Transport Layer Security（TLS）を使用したTransmission Control Protocol（Transmission Control Protocol）
+** `udp-unencrypted` - セキュリティのないユーザー データグラム プロトコル
+** `tcp-unencrypted` - セキュリティのない伝送制御プロトコル
+** `tcp-encrypted` - Transport Layer Security（TLS）を備えた Transmission Control Protocol
 +
-デフォルトのプロトコルはです `udp-unencrypted`。
+デフォルトのプロトコルは `udp-unencrypted`です。
 
 
 
 +
-の詳細については `event notification destination create`、をlink:https://docs.netapp.com/us-en/ontap-cli/event-notification-destination-create.html["ONTAPコマンド リファレンス"^]参照してください。
+ `event notification destination create`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/event-notification-destination-create.html["ONTAPコマンド リファレンス"^]をご覧ください。
 
-. 重要なイベントについて、syslogサーバに通知を転送するように設定します。
+. 重要なイベントの通知をsyslogサーバに転送するように設定します。
 +
 `event notification create -filter-name _important-events_ -destinations _syslog-ems_`
 
 +
-の詳細については `event notification create`、をlink:https://docs.netapp.com/us-en/ontap-cli/event-notification-create.html["ONTAPコマンド リファレンス"^]参照してください。
+ `event notification create`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/event-notification-create.html["ONTAPコマンド リファレンス"^]をご覧ください。
 
 

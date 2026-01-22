@@ -2,49 +2,49 @@
 permalink: data-protection/create-replication-relationship-one-step-task.html 
 sidebar: sidebar 
 keywords: configure, replication, relationship, one step, snapmirror, protect, policy, volumes, job schedule 
-summary: ONTAP 9.3 以降では、 snapmirror protect コマンドを使用して、データ保護関係をワンステップで設定できます。レプリケートするボリュームのリスト、デスティネーションクラスタ上のSVM、ジョブスケジュール、およびSnapMirrorポリシーを指定します。残りはSnapMirror保護によって実行されます。 
+summary: ONTAP 9.3以降では、snapmirror protectコマンドを使用して、データ保護関係をワンステップで設定できます。レプリケートするボリュームのリスト、デスティネーション クラスタ上のSVM、ジョブ スケジュール、SnapMirrorポリシーを指定するだけで、あとはsnapmirror protectが処理します。 
 ---
-= ONTAP SnapMirrorレプリケーション関係をワンステップで設定
+= ONTAP SnapMirrorレプリケーション関係を1ステップで設定する
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-ONTAP 9.3以降では、 `snapmirror protect`データ保護関係を 1 つのステップで構成するコマンド。レプリケートするボリュームのリスト、宛先クラスタ上の SVM、ジョブ スケジュール、およびSnapMirrorポリシーを指定します。 `snapmirror protect`残りはやります。
+ONTAP 9.3以降では、 `snapmirror protect`コマンドを使用してデータ保護関係をワンステップで設定できます。レプリケートするボリュームのリスト、デスティネーション クラスタ上のSVM、ジョブ スケジュール、SnapMirrorポリシーを指定するだけで、 `snapmirror protect`が残りの処理を実行します。
 
 .開始する前に
-* ソースとデスティネーションのクラスタとSVMのピア関係が確立されている必要があります。
+* ソース / デスティネーション クラスタとSVMのピア関係が確立されている必要があります。
 +
 https://docs.netapp.com/us-en/ontap-system-manager-classic/peering/index.html["クラスタとSVMのピアリング"^]
 
-* デスティネーションボリュームの言語は、ソースボリュームの言語と同じである必要があります。
+* デスティネーション ボリューム上の言語は、ソース ボリューム上の言語と同じである必要があります。
 
 
-.タスクの内容
-コマンドは `snapmirror protect`、指定したSVMに関連付けられているアグリゲートを選択します。SVMにアグリゲートが関連付けられていない場合は、クラスタ内のすべてのアグリゲートから選択されます。アグリゲートの選択は、空きスペースの量とアグリゲート上のボリュームの数に基づいて行われます。
+.タスク概要
+この `snapmirror protect`コマンドは、指定されたSVMに関連付けられたアグリゲートを選択します。SVMに関連付けられたアグリゲートがない場合、クラスタ内のすべてのアグリゲートから選択されます。アグリゲートの選択は、アグリゲートの空きスペース量とボリューム数に基づいて行われます。
 
- `snapmirror protect`コマンドは次の手順を実行します。
+ `snapmirror protect`コマンドは次の手順を実行します：
 
-* レプリケートするボリュームのリスト内の各ボリュームについて、適切なタイプとリザーブスペースを持つデスティネーションボリュームを作成します。
+* レプリケートするボリュームのリスト内の各ボリュームについて、適切なタイプとリザーブされたスペースを持つデスティネーション ボリュームを作成します。
 * 指定したポリシーに適したレプリケーション関係を設定します。
 * 関係を初期化します。
 
 
-デスティネーションボリュームの名前は、の形式になり `_source_volume_name_dst_`ます。既存の名前と競合する場合は、コマンドによってボリューム名に数字が追加されます。コマンドオプションでプレフィックスまたはサフィックス（あるいはその両方）を指定できます。サフィックスは、システムが指定したサフィックスを置き換え `dst`ます。
+デスティネーション ボリュームの名前は `_source_volume_name_dst_`という形式です。既存の名前と競合する場合、コマンドはボリューム名に番号を追加します。コマンド オプションでプレフィックスまたはサフィックス（あるいはその両方）を指定できます。サフィックスはシステムが提供する `dst`サフィックスに置き換えられます。
 
-ONTAP 9.4 以降では、宛先ボリュームに最大 1019 個のスナップショットを含めることができます。  ONTAP 9.3 以前では、宛先ボリュームには最大 251 個のスナップショットを含めることができます。
+ONTAP 9.4以降では、デスティネーション ボリュームに最大1019個のSnapshotを保存できます。ONTAP 9.3以前では、デスティネーション ボリュームに最大251個のSnapshotを保存できます。
 
 [NOTE]
 ====
-初期化には時間がかかることがあります。 `snapmirror protect`では、初期化が完了してからジョブが終了するまで待機しません。そのため、初期化がいつ完了するかを確認するには、コマンドではなくコマンドを `job show`使用する必要があり `snapmirror show`ます。
+初期化には時間がかかる場合があります。 `snapmirror protect`ジョブは初期化の完了を待たずに終了します。そのため、初期化が完了したかどうかを確認するには、 `job show`コマンドではなく、 `snapmirror show`コマンドを使用する必要があります。
 
 ====
-ONTAP 9 .5以降では `snapmirror protect`、コマンドを使用してSnapMirror同期関係を作成できます。
+ONTAP 9.5以降では、 `snapmirror protect`コマンドを使用してSnapMirror同期関係を作成できます。
 
-詳細はこちら `snapmirror protect`の中でlink:https://docs.netapp.com/us-en/ontap-cli/snapmirror-protect.html["ONTAPコマンド リファレンス"^] 。
+ `snapmirror protect`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/snapmirror-protect.html["ONTAPコマンド リファレンス"^]を参照してください。
 
-.ステップ
+.手順
 . レプリケーション関係をワンステップで作成して初期化します。
 +
 このコマンドを実行する前に、山かっこ内の変数を必要な値に置き換える必要があります。
@@ -57,11 +57,11 @@ snapmirror protect -path-list <SVM:volume> -destination-vserver <destination_SVM
 +
 [NOTE]
 ====
-このコマンドはデスティネーションSVMまたはデスティネーションクラスタから実行する必要があります。この `-auto-initialize`オプションのデフォルトは「true」です。
+このコマンドは、デスティネーションSVMまたはデスティネーション クラスタから実行する必要があります。 `-auto-initialize`オプションのデフォルトは「`true`」です。
 
 ====
 +
-次の例は、デフォルトのポリシーを使用して、SnapMirror DR関係を作成して初期化し `MirrorAllSnapshots`ます。
+次の例では、デフォルトの `MirrorAllSnapshots`ポリシーを使用してSnapMirror DR関係を作成し、初期化します：
 
 +
 [listing]
@@ -71,11 +71,11 @@ cluster_dst::> snapmirror protect -path-list svm1:volA, svm1:volB -destination-v
 +
 [NOTE]
 ====
-必要に応じてカスタムポリシーを使用できます。詳細については、を参照してください link:create-custom-replication-policy-concept.html["カスタムレプリケーションポリシーの作成"]。
+必要に応じてカスタムポリシーを使用することもできます。詳細については、link:create-custom-replication-policy-concept.html["カスタム レプリケーション ポリシーの作成"]をご覧ください。
 
 ====
 +
-次の例は、デフォルトのポリシーを使用して、SnapVault関係を作成して初期化し `XDPDefault`ます。
+次の例では、デフォルトの `XDPDefault`ポリシーを使用してSnapVault関係を作成し、初期化します：
 
 +
 [listing]
@@ -83,7 +83,7 @@ cluster_dst::> snapmirror protect -path-list svm1:volA, svm1:volB -destination-v
 cluster_dst::> snapmirror protect -path-list svm1:volA, svm1:volB -destination-vserver svm_backup -policy XDPDefault -schedule replication_daily
 ----
 +
-次の例は、デフォルトのポリシーを使用して、ユニファイドレプリケーション関係を作成して初期化し `MirrorAndVault`ます。
+次の例では、デフォルトの `MirrorAndVault`ポリシーを使用して、統合レプリケーション関係を作成して初期化します：
 
 +
 [listing]
@@ -91,7 +91,7 @@ cluster_dst::> snapmirror protect -path-list svm1:volA, svm1:volB -destination-v
 cluster_dst::> snapmirror protect -path-list svm1:volA, svm1:volB -destination-vserver svm_backup -policy MirrorAndVault
 ----
 +
-次の例は、デフォルトの `Sync`ポリシーを使用して、SnapMirror同期関係を作成して初期化します。
+次の例では、デフォルトの `Sync`ポリシーを使用してSnapMirror同期関係を作成し、初期化します：
 
 +
 [listing]
@@ -101,16 +101,16 @@ cluster_dst::> snapmirror protect -path-list svm1:volA, svm1:volB -destination-v
 +
 [NOTE]
 ====
-SnapVaultポリシーとユニファイドレプリケーションポリシーの場合は、デスティネーションで最後に転送されたSnapshotのコピーを作成するスケジュールを定義すると便利です。詳細については、を参照してください link:define-schedule-create-local-copy-destination-task.html["デスティネーションでローカルコピーを作成するスケジュールの定義"]。
+SnapVaultおよび統合レプリケーション ポリシーでは、デスティネーションで最後に転送されたSnapshotのコピーを作成するスケジュールを定義すると便利です。詳細については、link:define-schedule-create-local-copy-destination-task.html["デスティネーションでローカル コピーを作成するスケジュールの定義"]を参照してください。
 
 ====
 
 
-.終了後
-コマンドを使用し `snapmirror show`て、SnapMirror関係が作成されたことを確認します。
+.終了後の操作
+ `snapmirror show`コマンドを使用して、SnapMirror関係が作成されたことを確認します。
 
-の詳細については `snapmirror show`、をlink:https://docs.netapp.com/us-en/ontap-cli/snapmirror-show.html["ONTAPコマンド リファレンス"^]参照してください。
+ `snapmirror show`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/snapmirror-show.html["ONTAPコマンド リファレンス"^]を参照してください。
 
 .関連情報
-* link:https://docs.netapp.com/us-en/ontap-cli/job-show.html["ジョブの表示"^]
+* link:https://docs.netapp.com/us-en/ontap-cli/job-show.html["job show"^]
 

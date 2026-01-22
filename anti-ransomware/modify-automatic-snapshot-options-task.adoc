@@ -11,41 +11,41 @@ summary: 潜在的なランサムウェアの脅威に応じて自動的に生�
 
 
 [role="lead"]
-ONTAP 9 .11.1以降では、CLIを使用して、ランサムウェア攻撃の疑いがある場合に自動的に生成されるAutonomous Ransomware Protection（ARP）Snapshotの保持設定を制御できます。
+ONTAP 9.11.1以降では、CLIを使用して、ランサムウェア攻撃が疑われる場合に自動的に生成される自律型ランサムウェア対策（ARP）Snapshotの保持設定を制御できます。
 
 .開始する前に
-ARPスナップショットオプションを変更できるのは、 link:../system-admin/types-svms-concept.html["ノードSVM"]他の SVM タイプでは適用されません。
+ARP スナップショット オプションを変更できるのはlink:../system-admin/types-svms-concept.html["ノード SVM"]のみで、他の SVM タイプでは変更できません。
 
 .手順
-. 現在のARPスナップショット設定をすべて表示します。
+. 現在のすべての ARP スナップショット設定を表示します：
 +
 [source, cli]
 ----
 options -option-name arw*
 ----
-. 選択した現在のARPスナップショット設定を表示：
+. 選択した現在の ARP スナップショット設定を表示します：
 +
 [source, cli]
 ----
 options -option-name <arw_setting_name>
 ----
-. ARPスナップショット設定を変更します。
+. ARP スナップショット設定を変更します：
 +
 [source, cli]
 ----
 options -option-name <arw_setting_name> -option-value <arw_setting_value>
 ----
 +
-以下の設定を変更できます。
+以下の設定を変更できます：
 
 +
 
-NOTE: ここで説明するコマンドの一部は、 ONTAP 9.17.1以降では廃止されています。ONTAPONTAPで導入されたコマンドは、NAS環境とSAN環境の両方をサポートします。
+NOTE: 記載されているコマンドの一部は、ONTAP 9.17.1以降では廃止されています。ONTAP 9.17.1で導入されたコマンドは、NAS環境とSAN環境の両方をサポートします。
 
 +
 [cols="1,3,1"]
 |===
-| 設定 | 説明 | サポート対象のバージョン 
+| 設定 | 概要 | サポート対象のバージョン 
 
 
 | `arw.snap.max.count`  a| 
@@ -56,35 +56,35 @@ ONTAP 9.11.1以降
 
 
 | `arw.snap.create.interval.hours`  a| 
-ARPスナップショットの間隔（時間単位）を指定します。データエントロピーベースの攻撃が疑われる場合、かつ最後に作成されたARPスナップショットが指定された間隔よりも古い場合、新しいARPスナップショットが作成されます。
+ARPスナップショット間の間隔を_時間単位_で指定します。データエントロピーベースの攻撃が疑われ、最後に作成されたARPスナップショットが指定された間隔よりも古い場合に、新しいARPスナップショットが作成されます。
  a| 
 ONTAP 9.11.1以降
 
 
 
 | `arw.snap.normal.retain.interval.hours`  a| 
-ARPスナップショットを保持する期間（時間単位）を指定します。ARPスナップショットが保持しきい値に達すると、削除されます。
+ARPスナップショットを保持する期間（_時間単位_）を指定します。ARPスナップショットが保持しきい値に達すると、削除されます。
  a| 
-** ONTAP 9.11.1 からONTAP 9.16.1
+** ONTAP 9.11.1からONTAP 9.16.1
 ** ONTAP 9.17.1以降では非推奨
 
 
 
 
 | `arw.snap.max.retain.interval.days`  a| 
-ARPスナップショットを保持できる最大期間（日数）を指定します。ボリュームで攻撃が報告されていない場合、この期間よりも古いARPスナップショットは削除されます。
+ARPスナップショットを保持できる最大期間（日数）を指定します。この期間よりも古いARPスナップショットは、ボリュームへの攻撃が報告されていない場合に削除されます。
 
 
-NOTE: 中程度の脅威が検出された場合、ARPスナップショットの最大保持間隔は無視されます。脅威に対応して作成されたARPスナップショットは、脅威に対応するまで保持されます。脅威を誤検出としてマークすると、ONTAPはそのボリュームのARPスナップショットを削除します。
+NOTE: moderateレベルの脅威が検出された場合、ARP Snapshotの最長保持期間は無視されます。脅威が検出された場合に作成されたARP Snapshotは、脅威に対応するまで保持されます。脅威を誤検出としてマークすると、ONTAPはそのボリュームのARP Snapshotを削除します。
  a| 
-** ONTAP 9.11.1 からONTAP 9.16.1
+** ONTAP 9.11.1からONTAP 9.16.1
 ** ONTAP 9.17.1以降では非推奨
 
 
 
 
 | `arw.snap.create.interval.hours.post.max.count`  a| 
-ボリュームにすでに最大数のARPスナップショットが含まれている場合の、ARPスナップショット間の間隔（時間単位）を指定します。最大数に達すると、ARP Snapshotが削除されて、新しいコピー用のスペースが確保されます。このオプションを使用すると、新しいARP Snapshotの作成速度を遅くして、古いコピーを保持することができます。ボリュームにすでに最大数のARPスナップショットが含まれている場合、このオプションで指定された間隔は、次回のARPスナップショットの作成時に使用されます。  `arw.snap.create.interval.hours` 。
+ボリュームに既に最大数のARPスナップショットが含まれている場合、ARPスナップショット間の間隔（時間単位）を指定します。最大数に達すると、新しいコピー用のスペースを確保するために、ARPスナップショットが削除されます。このオプションを使用すると、古いコピーを保持するために、新しいARPスナップショットの作成速度を低下させることができます。ボリュームに既に最大数のARPスナップショットが含まれている場合、次回のARPスナップショットの作成には、 `arw.snap.create.interval.hours`ではなく、このオプションで指定された間隔が使用されます。
  a| 
 ** ONTAP 9.11.1 から 9.16.1
 ** ONTAP 9.17.1以降では非推奨
@@ -93,7 +93,7 @@ NOTE: 中程度の脅威が検出された場合、ARPスナップショット�
 
 
 | `arw.snap.low.encryption.retain.duration.hours`  a| 
-暗号化アクティビティが少ない期間中に作成された ARP スナップショットの保持期間を時間単位で指定します。
+暗号化アクティビティが少ない期間中に作成された ARP スナップショットの保持期間を_時間単位で_指定します。
  a| 
 ** ONTAP 9.17.1以降
 
@@ -101,16 +101,16 @@ NOTE: 中程度の脅威が検出された場合、ARPスナップショット�
 
 
 | `arw.snap.new.extns.interval.hours`  a| 
-新しいファイル拡張子が検出されたときに作成されるARPスナップショットの間隔（時間単位）を指定します。新しいファイル拡張子が見つかると、新しいARP Snapshotが作成されます。新しいファイル拡張子を監視しているときに作成された以前のSnapshotは、この指定された間隔よりも古いものです。頻繁に新しいファイル拡張子が作成されるワークロードでは、この間隔によってARPスナップショットの頻度を制御できます。このオプションは、  `arw.snap.create.interval.hours`データ エントロピー ベースの ARP スナップショットの間隔を指定します。
+新しいファイル拡張子が検出されたときに作成されるARPスナップショットの間隔（時間単位）を指定します。新しいファイル拡張子が検出されると、新しいARPスナップショットが作成されます。新しいファイル拡張子の検出時に作成された前回のスナップショットは、この指定された間隔よりも古いものです。新しいファイル拡張子が頻繁に作成されるワークロードでは、この間隔によってARPスナップショットの頻度を制御できます。このオプションは `arw.snap.create.interval.hours`とは独立して存在し、データエントロピーベースのARPスナップショットの間隔を指定します。
  a| 
-** ONTAP 9.11.1 からONTAP 9.16.1
+** ONTAP 9.11.1からONTAP 9.16.1
 ** ONTAP 9.17.1以降では非推奨
 
 
 
 
 | `arw.snap.retain.hours.after.clear.suspect.false.alert`  a| 
-管理者が攻撃インシデントを誤検知と判定した後、予防措置としてARPスナップショットを保持する間隔（時間単位）を指定します。この予防措置保持期間が経過すると、スナップショットはオプションで定義された標準保持期間に従って削除されます。  `arw.snap.normal.retain.interval.hours`そして `arw.snap.max.retain.interval.days` 。
+管理者が攻撃インシデントを誤検知とマークした後、予防措置としてARPスナップショットを保持する間隔（時間単位）を指定します。この予防措置保持期間が経過すると、スナップショットはオプション `arw.snap.normal.retain.interval.hours`と `arw.snap.max.retain.interval.days`で定義された標準保持期間に従って削除される場合があります。
  a| 
 ** ONTAP 9.16.1以降
 
@@ -118,7 +118,7 @@ NOTE: 中程度の脅威が検出された場合、ARPスナップショット�
 
 
 | `arw.snap.retain.hours.after.clear.suspect.real.attack`  a| 
-管理者が攻撃インシデントを実際の攻撃としてマークした後、予防措置としてARPスナップショットを保持する間隔（時間単位）を指定します。この予防措置保持期間が経過すると、スナップショットはオプションで定義された標準保持期間に従って削除されます。  `arw.snap.normal.retain.interval.hours`そして `arw.snap.max.retain.interval.days` 。
+管理者が攻撃インシデントを実際の攻撃としてマークした後、予防措置としてARPスナップショットを保持する間隔（時間単位）を指定します。この予防措置保持期間が経過すると、スナップショットはオプション `arw.snap.normal.retain.interval.hours`と `arw.snap.max.retain.interval.days`で定義された標準保持期間に従って削除されます。
  a| 
 ** ONTAP 9.16.1以降
 
@@ -126,37 +126,37 @@ NOTE: 中程度の脅威が検出された場合、ARPスナップショット�
 
 
 | `arw.snap.surge.interval.days`  a| 
-IOサージに応答して作成されるARPスナップショット間のinterval_in days_betweenを指定します。ONTAPは、IOトラフィックが急増し、最後に作成されたARPスナップショットがこの指定された間隔よりも古い場合に、ARPスナップショットサージコピーを作成します。このオプションは、ARPサージスナップショットの保持期間（日数_）も指定します。
+IOサージへの対応として作成されるARPスナップショットの間隔（日数）を指定します。ONTAPは、IOトラフィックのサージが発生し、最後に作成されたARPスナップショットがこの指定された間隔よりも古い場合、ARPスナップショットのサージコピーを作成します。このオプションは、ARPサージスナップショットの保持期間（日数）も指定します。
  a| 
 ONTAP 9.11.1以降
 
 
 
 | `arw.high.encryption.alert.enabled`  a| 
-高度な暗号化に関するアラートを有効にします。このオプションが `on` （デフォルト）、暗号化の割合が指定されたしきい値を超えると、 ONTAPはアラートを送信します。  `arw.high.encryption.percentage.threshold` 。
+高レベルの暗号化に関するアラートを有効にします。このオプションを `on`（デフォルト）に設定すると、暗号化の割合が `arw.high.encryption.percentage.threshold`で指定されたしきい値を超えると、ONTAPはアラートを送信します。
  a| 
 ONTAP 9.17.1以降
 
 
 
 | `arw.high.encryption.percentage.threshold`  a| 
-ボリュームの暗号化の最大割合を指定します。暗号化の割合がこのしきい値を超えると、 ONTAP は増加を攻撃とみなし、ARP スナップショットを作成します。  `arw.high.encryption.alert.enabled`に設定する必要があります `on`このオプションを有効にするには、
+ボリュームの暗号化の最大割合を指定します。暗号化の割合がこのしきい値を超えると、ONTAPは増加を攻撃とみなし、ARPスナップショットを作成します。 `arw.high.encryption.alert.enabled`このオプションを有効にするには、 `on`に設定する必要があります。
  a| 
 ONTAP 9.17.1以降
 
 
 
 | `arw.snap.high.encryption.retain.duration.hours`  a| 
-高い暗号化しきい値イベント中に作成されたスナップショットの保持期間間隔を _時間単位_ で指定します。
+高い暗号化しきい値イベント中に作成されたスナップショットの保持期間間隔を_時間単位_で指定します。
  a| 
 ONTAP 9.17.1以降
 
 |===
-. SAN 環境で ARP を使用している場合は、次の評価期間設定を変更することもできます。
+. SAN 環境で ARP を使用している場合は、次の評価期間設定を変更することもできます：
 +
 [cols="1,3,1"]
 |===
-| 設定 | 説明 | サポート対象のバージョン 
+| 設定 | 概要 | サポート対象のバージョン 
 
 
 | `arw.block_device.auto.learn.threshold.min_value`  a| 
@@ -191,14 +191,14 @@ ONTAP 9.17.1以降
 
 
 | `arw.block_device.evaluation.phase.alert.enabled`  a| 
-ブロックデバイス上のARPの評価フェーズでアラートを有効にするかどうかを指定します。デフォルト値は `True` 。
+ブロックデバイス上のARP評価フェーズでアラートを有効にするかどうかを指定します。デフォルト値は `True`です。
  a| 
 ONTAP 9.17.1以降
 
 
 
 | `arw.block_device.evaluation.phase.alert.threshold`  a| 
-ブロックデバイスにおけるARPの評価フェーズにおけるしきい値のパーセンテージを指定します。暗号化の割合がこのしきい値を超えると、アラートがトリガーされます。
+ブロックデバイスにおけるARP評価フェーズ中のしきい値パーセンテージを指定します。暗号化の割合がこのしきい値を超えると、アラートがトリガーされます。
  a| 
 ONTAP 9.17.1以降
 
@@ -206,6 +206,6 @@ ONTAP 9.17.1以降
 
 
 .関連情報
-* link:index.html#threat-assessment-and-arp-snapshots["脅威評価とARPスナップショット"]
+* link:index.html#threat-assessment-and-arp-snapshots["脅威の評価とARP Snapshot"]
 * link:respond-san-entropy-eval-period.html["SANエントロピー評価期間"]
 

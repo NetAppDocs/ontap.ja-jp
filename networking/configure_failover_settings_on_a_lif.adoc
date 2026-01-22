@@ -2,9 +2,9 @@
 sidebar: sidebar 
 permalink: networking/configure_failover_settings_on_a_lif.html 
 keywords: configure, configuring, configuration, setup, set, up, failover, fail, over, group, policy, lif, configure failover settings on a lif, broadcast-domain-wide, system-defined, local-only, sfo-partner-only, disabled, network interface modify -vserver <vserver_name> -lif <lif_name> -failover-policy <failover_policy> -failover-group <failover_group>, examples of configuring failover settings and disabling failover 
-summary: ネットワークポートの特定のグループに LIF をフェイルオーバーするように設定します 
+summary: 特定のネットワークポートグループにフェイルオーバーするようにLIFを設定する 
 ---
-= LIFのONTAPフェイルオーバーを設定します。
+= LIFでONTAPフェイルオーバー設定を構成する
 :hardbreaks:
 :allow-uri-read: 
 :nofooter: 
@@ -14,37 +14,37 @@ summary: ネットワークポートの特定のグループに LIF をフェイ
 
 
 [role="lead"]
-フェイルオーバーポリシーとフェイルオーバーグループをLIFに適用することで、ネットワークポートの特定のグループにLIFをフェイルオーバーするように設定できます。また、LIFの別のポートへのフェイルオーバーを無効にすることもできます。
+フェイルオーバー ポリシーとフェイルオーバー グループをLIFに適用することにより、ネットワーク ポートの特定のグループにLIFがフェイルオーバーするように設定できます。また、LIFの別のポートへのフェイルオーバーを無効にすることもできます。
 
-.タスクの内容
-* LIFを作成すると、LIFのフェイルオーバーがデフォルトで有効になり、使用可能なターゲットポートのリストは、LIFのタイプとサービスポリシーに基づいたデフォルトのフェイルオーバーグループとフェイルオーバーポリシーによって決まります。
+.タスク概要
+* LIFを作成するとLIFフェイルオーバーがデフォルトで有効になり、使用可能なターゲット ポートのリストが、LIFのタイプとサービス ポリシーに基づくデフォルトのフェイルオーバー グループとフェイルオーバー ポリシーによって決まります。
 +
-9.5以降では、LIFを使用できるネットワークサービスを定義するサービスポリシーをLIFに指定できます。一部のネットワークサービスでは、LIFのフェイルオーバーが制限されます。
+9.5以降では、LIFを使用できるネットワーク サービスを定義するサービス ポリシーをLIFに指定できます。一部のネットワーク サービスでは、LIFのフェイルオーバーが制限されます。
 
 +
 
-NOTE: フェイルオーバーをさらに制限するようにLIFのサービスポリシーを変更すると、LIFのフェイルオーバーポリシーはシステムによって自動的に更新されます。
+NOTE: フェイルオーバーをそれまでよりも制限するようにLIFのサービス ポリシーを変更すると、LIFのフェイルオーバー ポリシーが自動的に更新されます。
 
-* LIFのフェイルオーバーの動作を変更するには、network interface modifyコマンドの-failover-groupパラメータと-failover-policyパラメータの値を指定します。
-* LIFを変更すると、LIFに有効なフェイルオーバーターゲットがなくなるため、警告メッセージが表示されます。
+* LIFのフェイルオーバーの動作は、network interface modifyコマンドの-failover-groupパラメータと-failover-policyパラメータの値を指定することによって変更できます。
+* LIFの変更によって、LIFに有効なフェイルオーバー ターゲットがなくなる場合は警告メッセージが表示されます。
 +
-有効なフェイルオーバーターゲットのないLIFがフェイルオーバーしようとすると、システムが停止する可能性があります。
+有効なフェイルオーバー ターゲットのないLIFがフェイルオーバーしようとすると、システムが停止する可能性があります。
 
-* All-Flash SAN Array（ASA）プラットフォームでは、Storage.11.1以降で、新規に作成したONTAP 9 VMに新しく作成したiSCSI LIFでiSCSI LIFのフェイルオーバーが自動的に有効になります。
+* ONTAP 9.11.1以降、オールフラッシュSANアレイ（ASA）プラットフォームでは、新規に作成したStorage VM上に新規に作成するiSCSI LIFで、iSCSI LIFフェイルオーバーが自動的に有効になります。
 +
-また、link:../san-admin/asa-iscsi-lif-fo-task.html["既存のiSCSI LIFでiSCSI LIFフェイルオーバーを手動で有効にする"]ONTAP 9 .11.1以降にアップグレードする前に作成されたLIFを指定することもできます。
+さらに、link:../san-admin/asa-iscsi-lif-fo-task.html["既存の iSCSI LIF で iSCSI LIF フェイルオーバーを手動で有効にする"]ONTAP 9.11.1 以降にアップグレードする前に作成された LIF も対象となります。
 
-* 次に、-failover-policyの設定が、フェイルオーバーグループから選択されるターゲットポートに与える影響を示します。
+* 次に、-failover-policyの設定によって、フェイルオーバー グループからどのターゲット ポートが選択されるかを示します。
 
 
 
-NOTE: iSCSI LIFのフェイルオーバーの場合は、フェイルオーバーポリシー `sfo-partner-only`と `disabled`のみが `local-only`サポートされます。
+NOTE: iSCSI LIF フェイルオーバーの場合、フェイルオーバーポリシー `local-only`、 `sfo-partner-only`、 `disabled`のみがサポートされます。
 
 * `broadcast-domain-wide`フェイルオーバーグループ内のすべてのノードのすべてのポートに適用されます。
-* `system-defined`LIFのホームノードおよびクラスタ内の他の1つのノード（通常はSFOパートナー以外のノード（存在する場合））のポートにのみ適用されます。
-* `local-only`LIFのホームノードのポートにのみ適用されます。
+* `system-defined`LIF のホームノードと、クラスタ内の他の 1 つのノード（通常は SFO 以外のパートナー、存在する場合）のポートにのみ適用されます。
+* `local-only`LIFのホームノード上のポートにのみ適用されます。
 * `sfo-partner-only`LIFのホームノードとそのSFOパートナーのポートにのみ適用されます。
-* `disabled`LIFにフェイルオーバーが設定されていないことを示します。
+* `disabled` は、LIF がフェイルオーバー用に設定されていないことを示します。
 
 
 .手順
@@ -57,7 +57,7 @@ network interface modify -vserver <vserver_name> -lif <lif_name> -failover-polic
 
 == フェイルオーバーの設定例、および無効化の例
 
-次のコマンドは、フェイルオーバーポリシーをbroadcast-domain-wideに設定し、SVM vs3のdata1というLIFのフェイルオーバーターゲットとして、フェイルオーバーグループfg3のポートを使用します。
+次のコマンドは、フェイルオーバー ポリシーをbroadcast-domain-wideに設定し、SVM vs3のdata1というLIFのフェイルオーバー ターゲットとして、フェイルオーバー グループfg3のポートを使用します。
 
 ....
 network interface modify -vserver vs3 -lif data1 -failover-policy broadcast-domain-wide -failover-group fg3
@@ -74,5 +74,5 @@ vs3     data1          broadcast-domain-wide  fg3
 network interface modify -vserver vs3 -lif data1 -failover-policy disabled
 ....
 .関連情報
-* link:https://docs.netapp.com/us-en/ontap-cli/search.html?q=network+interface["ネットワークインターフェイス"^]
+* link:https://docs.netapp.com/us-en/ontap-cli/search.html?q=network+interface["ネットワーク インターフェイス"^]
 

@@ -2,32 +2,32 @@
 permalink: volumes/prevent-flexclone-file-lun-automatic-deleted-task.html 
 sidebar: sidebar 
 keywords: prevent, specific, flexclone, file, or flexclone, lun, from automatically, deleted 
-summary: 特定のFlexCloneファイルまたはFlexClone LUNを保持したい場合は、それらのファイルまたはLUNをFlexCloneの自動削除プロセスから除外できます。 
+summary: 特定のFlexCloneファイルまたはFlexClone LUNを残したい場合は、それらをFlexCloneの自動削除プロセスから除外できます。 
 ---
-= FlexCloneファイルまたはFlexClone LUNの自動削除を禁止する
+= FlexCloneファイルまたはFlexClone LUNの自動削除の防止
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-FlexCloneファイルおよびFlexClone LUNを自動的に削除するようにFlexVol volumeを設定すると、指定した条件を満たすクローンがすべて削除される可能性があります。特定のFlexCloneファイルまたはFlexClone LUNを保持したい場合は、それらのファイルまたはLUNをFlexCloneの自動削除プロセスから除外できます。
+FlexCloneファイルおよびFlexClone LUNを自動的に削除するようにFlexVolを設定すると、指定した条件を満たすすべてのクローンが自動削除の対象になります。特定のFlexCloneファイルまたはFlexClone LUNを残したい場合は、それらをFlexCloneの自動削除プロセスから除外できます。
 
 .開始する前に
-FlexCloneライセンスがインストールされている必要があります。このライセンスはに含まれていlink:../system-admin/manage-licenses-concept.html#licenses-included-with-ontap-one["ONTAP One"]ます。
+FlexCloneライセンスをインストールする必要があります。このライセンスはlink:../system-admin/manage-licenses-concept.html#licenses-included-with-ontap-one["ONTAP One"]に含まれています。
 
-.タスクの内容
-FlexCloneファイルまたはFlexClone LUNを作成すると、クローンの自動削除設定はデフォルトで無効になります。自動削除が無効になっているFlexCloneファイルおよびFlexClone LUNは、ボリュームのスペースを再生するためにクローンを自動的に削除するようにFlexVol volumeを設定しても保持されます。
+.タスク概要
+FlexCloneファイルまたはFlexClone LUNを作成すると、クローンの自動削除設定がデフォルトで無効になります。自動削除が無効なFlexCloneファイルおよびFlexClone LUNは、ボリュームのスペースを再生するためにクローンを自動的に削除するようにFlexVolを設定していても保持されます。
 
 [NOTE]
 ====
-ボリュームのレベルをまたは `disrupt`に `try`設定した場合は `commitment`、特定のFlexCloneファイルまたはFlexClone LUNの自動削除を無効にすることで、それらのクローンを個別に保持できます。ただし、ボリュームのレベルをに `destroy`設定し、削除リストにincludeを指定 `lun_clone,file_clone`した場合は `commitment`、ボリューム設定がクローン設定よりも優先され、クローンの自動削除設定に関係なく、すべてのFlexCloneファイルとFlexClone LUNが削除されます。
+ボリュームの `commitment`レベルを `try`または `disrupt`に設定した場合、クローンの自動削除を無効にすることで、特定のFlexCloneファイルまたはFlexClone LUNを個別に保持できます。ただし、ボリュームの `commitment`レベルを `destroy`に設定し、削除リストに `lun_clone,file_clone`が含まれている場合は、ボリュームの設定がクローンの設定よりも優先され、クローンの自動削除設定に関係なく、すべてのFlexCloneファイルとFlexClone LUNが削除される可能性があります。
 
 ====
 .手順
-. コマンドを使用して、特定のFlexCloneファイルまたはFlexClone LUNが自動的に削除されないようにし `volume file clone autodelete`ます。
+. FlexCloneファイルまたはFlexClone LUNが自動的に削除されるのを防ぐには、 `volume file clone autodelete`コマンドを使用します。
 +
-次の例は、vol1に含まれるFlexClone LUN lun1_cloneの自動削除を無効にする方法を示しています。
+次の例は、vol1に含まれているFlexClone LUN lun1_cloneの自動削除を無効にする方法を示しています。
 
 +
 [listing]
@@ -35,11 +35,11 @@ FlexCloneファイルまたはFlexClone LUNを作成すると、クローンの�
 cluster1::> volume file clone autodelete -vserver vs1 -volume vol1 -clone-path lun1_clone -enable false
 ----
 +
-自動削除を無効にしたFlexCloneファイルまたはFlexClone LUNは、ボリュームのスペース再生のために自動的に削除することはできません。
+自動削除を無効にしたFlexCloneファイルまたはFlexClone LUNは、ボリュームのスペース再生を目的とした自動削除の対象になりません。
 
-. コマンドを使用して、FlexCloneファイルまたはFlexClone LUNで自動削除が無効になっていることを確認します `volume file clone show-autodelete`。
+.  `volume file clone show-autodelete`コマンドを使用して、FlexCloneファイルまたはFlexClone LUN の自動削除が無効になっていることを確認します。
 +
-次の例は、FlexClone LUN lun1_cloneの自動削除がfalseになっていることを示しています。
+次の例では、FlexClone LUN lun1_cloneの自動削除がfalseになっています。
 
 +
 [listing]

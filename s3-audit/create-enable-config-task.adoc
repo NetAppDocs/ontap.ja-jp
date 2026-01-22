@@ -2,63 +2,63 @@
 permalink: s3-audit/create-enable-config-task.html 
 sidebar: sidebar 
 keywords: consistency groups, consistency group, application protection, parent, child, configure 
-summary: S3監査を実装するには、まずS3対応のSVMで永続的なオブジェクトストアの監査設定を作成してから、設定を有効にします。 
+summary: S3の監査を実装するには、S3対応SVMに永続的オブジェクト ストアの監査設定を作成し、その設定を有効にします。 
 ---
-= ONTAP S3監査の設定を作成して有効にする
+= ONTAP S3監査設定を作成して有効にする
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-S3監査を実装するには、まずS3対応のSVMで永続的なオブジェクトストアの監査設定を作成してから、設定を有効にします。
+S3の監査を実装するには、S3対応SVMに永続的オブジェクト ストアの監査設定を作成し、その設定を有効にします。
 
 .開始する前に
-* S3対応のSVMが必要です。
-* ローカル階層にステージングボリューム用の十分なスペースがあることを確認してください。
+* S3 対応の SVM があります。
+* ローカル階層にステージング ボリューム用の十分なスペースがあることを確認します。
 
 
-.タスクの内容
-監査の設定は、監査対象のS3バケットを含むSVMごとに必要です。新規または既存のS3サーバでS3監査を有効にすることができます。監査の設定は、 * vserver object-store-server audit delete * コマンドで削除されるまで S3 環境で維持されます。
+.タスク概要
+監査対象のS3バケットを含むSVMごとに監査設定が必要です。新規または既存のS3サーバーでS3監査を有効にできます。監査設定は、*vserver object-store-server audit delete*コマンドで削除されるまでS3環境に保持されます。
 
-S3監査の設定は、監査用に選択したSVM内のすべてのバケットに適用されます。監査が有効なSVMには、監査対象バケットと未監査バケットを含めることができます。
+S3の監査設定は、監査対象として選択したSVM内のすべてのバケットに適用されます。監査を有効にしたSVMには、監査対象のバケットだけでなく、監査対象外のバケットも含めることができます。
 
-ログサイズまたはスケジュールに基づいて自動的にログがローテーションされるようにS3監査を設定することを推奨します。自動ログローテーションを設定しない場合、すべてのログファイルがデフォルトで保持されます。S3 ログファイルのローテーションは、 * vserver object-store-server audit rotate-log * コマンドを使用して手動で実行することもできます。
+S3監査では、ログサイズまたはスケジュールに基づいて自動的にログローテーションを行うように設定することをお勧めします。自動ログローテーションを設定しない場合は、デフォルトですべてのログファイルが保持されます。*vserver object-store-server audit rotate-log*コマンドを使用して、S3ログファイルを手動でローテーションすることもできます。
 
-SVMがSVMディザスタリカバリのソースである場合、デスティネーションパスをルートボリュームに配置することはできません。
+‎SVMがSVMディザスタ リカバリ ソースである場合、デスティネーション パスをルート ボリューム上に設定することはできません。
 
 .手順
-. ログサイズまたはスケジュールに基づいて監査ログのローテーションを行うには、監査の設定を作成します。
+. ログ サイズまたはスケジュールに基づいて監査ログをローテーションする監査設定を作成します。
 +
 [cols="2,4"]
 |===
-| 監査ログのローテーションの基準 | 入力するコマンド 
+| 監査ログのローテーションの基準 | 入力する内容 
 
 
-| ログサイズ | `vserver object-store-server audit create -vserver _svm_name_ -destination _path_ [[-events] {data{vbar}management}, ...] {[-rotate-limit _integer_] {vbar} [-retention-duration [_integer_d] [_integer_h][_integer_m][_integers_]]} [-rotate-size {_integer_[KB{vbar}MB{vbar}GB{vbar}TB{vbar}PB]}]` 
+| ログ サイズ | `vserver object-store-server audit create -vserver _svm_name_ -destination _path_ [[-events] {data{vbar}management}, ...] {[-rotate-limit _integer_] {vbar} [-retention-duration [_integer_d] [_integer_h][_integer_m][_integers_]]} [-rotate-size {_integer_[KB{vbar}MB{vbar}GB{vbar}TB{vbar}PB]}]` 
 
 
 | スケジュール  a| 
 `vserver object-store-server audit create -vserver _svm_name_ -destination path [[-events] {data{vbar}management}, ...] {[-rotate-limit _integer_] {vbar} [-retention-duration [_integerd_][_integerh_] [_integerm_][_integers_]] } [-rotate-schedule-month _chron_month_] [-rotate-schedule-dayofweek _chron_dayofweek_] [-rotate-schedule-day _chron_dayofmonth_] [-rotate-schedule-hour _chron_hour_] -rotate-schedule-minute _chron_minute_`
 
- `-rotate-schedule-minute`時間に基づく監査ログのローテーションを設定する場合、パラメータは必須です。
+ `-rotate-schedule-minute`パラメータは、時間ベースの監査ログのローテーションを構成する場合に必須です。
 
 |===
-. S3監査を有効にします。
+. S3の監査を有効にします。
 +
 `vserver object-store-server audit enable -vserver _svm_name_`
 
 
 
 .例
-次の例は、サイズに基づくローテーションを使用してすべてのS3イベント（デフォルト）を監査する監査の設定を作成します。ログは/audit_logディレクトリに格納されます。ログファイルのサイズの上限は200MBです。ログは、サイズが200MBに達するとローテーションされます。
+次の例は、サイズに基づくローテーションを使用してすべてのS3イベント（デフォルト）を監査する監査設定を作成します。ログは/audit_logディレクトリに格納されます。ログ ファイル サイズの上限は200MBです。ログのサイズが200MB以上になると、ログがローテーションされます。
 
 `cluster1::> vserver audit create -vserver vs1 -destination /audit_log -rotate-size 200MB`
 
-次の例は、サイズに基づくローテーションを使用してすべてのS3イベント（デフォルト）を監査する監査の設定を作成します。ログファイルのサイズの上限は100MB（デフォルト）で、ログは5日間保持されてから削除されます。
+次の例は、サイズに基づくローテーションを使用してすべてのS3イベント（デフォルト）を監査する監査設定を作成します。ログ ファイルの最大サイズは100MB（デフォルト）で、5日経過すると削除されます。
 
 `cluster1::> vserver audit create -vserver vs1 -destination /audit_log -retention-duration 5d0h0m`
 
-次の例は、時間に基づくローテーションを使用してS3管理イベントと集約型アクセスポリシーのステージングイベントを監査する監査の設定を作成します。監査ログのローテーションは、毎月、すべての曜日の午後12時30分に実行されます。ログのローテーション回数の上限は5回です。
+以下の例では、時間ベースのローテーションを使用してS3管理イベントと集約型アクセスポリシーのステージングイベントを監査する監査設定を作成します。監査ログは毎月、毎日午後12：30にローテーションされます。ログローテーションの上限は5です。
 
 `cluster1::> vserver audit create -vserver vs1 -destination /audit_log -events management -rotate-schedule-month all -rotate-schedule-dayofweek all -rotate-schedule-hour 12 -rotate-schedule-minute 30 -rotate-limit 5`

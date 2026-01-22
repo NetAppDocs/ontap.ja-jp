@@ -2,16 +2,16 @@
 permalink: peering/configure-intercluster-lifs-use-dedicated-ports-task.html 
 sidebar: sidebar 
 keywords: configure, intercluster, lifs, dedicated, ports 
-summary: クラスタ間LIFは専用ポートに設定できます。これにより、通常、レプリケーショントラフィックに使用できる帯域幅が増加します。 
+summary: 専用ポートにクラスタ間LIFを設定できます。通常は、この設定により、レプリケーション トラフィックに使用可能な帯域幅が拡張します。 
 ---
-= 専用ポートでのONTAPクラスタ間LIFの設定
+= 専用ポートでONTAPクラスタ間LIFを設定する
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-クラスタ間LIFは専用ポートに設定できます。これにより、通常、レプリケーショントラフィックに使用できる帯域幅が増加します。
+専用ポートにクラスタ間LIFを設定できます。通常は、この設定により、レプリケーション トラフィックに使用可能な帯域幅が拡張します。
 
 .手順
 . クラスタ内のポートの一覧を表示します。
@@ -19,10 +19,10 @@ summary: クラスタ間LIFは専用ポートに設定できます。これに�
 `network port show`
 
 +
-の詳細については `network port show`、をlink:https://docs.netapp.com/us-en/ontap-cli/network-port-show.html["ONTAPコマンド リファレンス"^]参照してください。
+ `network port show`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/network-port-show.html["ONTAPコマンド リファレンス"^]を参照してください。
 
 +
-次の例は、のネットワークポートを示してい `cluster01`ます。
+次の例は、 `cluster01`のネットワーク ポートを示しています：
 
 +
 [listing]
@@ -47,15 +47,15 @@ cluster01-02
        e0e       Default      Default          up     1500   auto/1000
        e0f       Default      Default          up     1500   auto/1000
 ----
-. クラスタ間通信専用に使用できるポートを特定します。
+. クラスタ間通信専用として使用可能なポートを決定します。
 +
 `network interface show -fields home-port,curr-port`
 
 +
-の詳細については `network interface show`、をlink:https://docs.netapp.com/us-en/ontap-cli/network-interface-show.html["ONTAPコマンド リファレンス"^]参照してください。
+ `network interface show`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/network-interface-show.html["ONTAPコマンド リファレンス"^]を参照してください。
 
 +
-次の例は、ポートと `e0f`にLIFが割り当てられていないことを示してい `e0e`ます。
+次の例は、ポート `e0e`と `e0f`にLIFが割り当てられていないことを示しています。
 
 +
 [listing]
@@ -75,12 +75,12 @@ cluster01
 cluster01
         cluster01-02_mgmt1   e0c       e0c
 ----
-. 専用ポートのフェイルオーバーグループを作成します。
+. 専用ポートのフェイルオーバー グループを作成します。
 +
 `network interface failover-groups create -vserver _system_SVM_ -failover-group _failover_group_ -targets _physical _or_logical_ports_`
 
 +
-次の例は、システムSVM上の `cluster01`フェイルオーバーグループに `intercluster01`ポートと `e0f`を割り当て `e0e`ます。
+次の例では、システムSVM `cluster01`上のフェイルオーバー グループ `intercluster01`にポート `e0e`と `e0f`を割り当てます：
 
 +
 [listing]
@@ -89,12 +89,12 @@ cluster01::> network interface failover-groups create -vserver cluster01 -failov
 intercluster01 -targets
 cluster01-01:e0e,cluster01-01:e0f,cluster01-02:e0e,cluster01-02:e0f
 ----
-. フェイルオーバーグループが作成されたことを確認します。
+. フェイルオーバー グループが作成されたことを確認します。
 +
 `network interface failover-groups show`
 
 +
-の詳細については `network interface failover-groups show`、をlink:https://docs.netapp.com/us-en/ontap-cli/network-interface-failover-groups-show.html["ONTAPコマンド リファレンス"^]参照してください。
+ `network interface failover-groups show`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/network-interface-failover-groups-show.html["ONTAPコマンド リファレンス"^]をご覧ください。
 
 +
 [listing]
@@ -117,30 +117,30 @@ cluster01
                                   cluster01-01:e0e, cluster01-01:e0f
                                   cluster01-02:e0e, cluster01-02:e0f
 ----
-. システムSVMにクラスタ間LIFを作成し、フェイルオーバーグループに割り当てます。
+. システムSVMにクラスタ間LIFを作成して、フェイルオーバー グループに割り当てます。
 +
 |===
-| オプション | 説明 
+| オプション | 概要 
 
 
  a| 
-* ONTAP 9.6 以降： *
+*ONTAP 9.6以降：*
  a| 
 `network interface create -vserver _system_SVM_ -lif _LIF_name_ -service-policy default-intercluster -home-node _node_ -home- port _port_ -address _port_IP_ -netmask _netmask_ -failover-group _failover_group_`
 
 
 
  a| 
-* ONTAP 9.5 以前： *
+*ONTAP 9.5以前の場合：*
  a| 
 `network interface create -vserver _system_SVM_ -lif _LIF_name_ -role intercluster -home-node _node_ -home-port _port_ -address _port_IP_ -netmask _netmask_ -failover-group _failover_group_`
 
 |===
 +
-の詳細については `network interface create`、をlink:https://docs.netapp.com/us-en/ontap-cli/network-interface-create.html["ONTAPコマンド リファレンス"^]参照してください。
+ `network interface create`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/network-interface-create.html["ONTAPコマンド リファレンス"^]を参照してください。
 
 +
-次の例は、クラスタ間LIFとを `cluster01_icl02`フェイルオーバーグループに `intercluster01`作成し `cluster01_icl01`ます。
+次の例では、フェイルオーバー グループ `intercluster01`にクラスタ間 LIF `cluster01_icl01`と `cluster01_icl02`を作成します：
 
 +
 [listing]
@@ -156,24 +156,24 @@ policy default-intercluster -home-node cluster01-02 -home-port e0e -address 192.
 . クラスタ間LIFが作成されたことを確認します。
 +
 |===
-| オプション | 説明 
+| オプション | 概要 
 
 
  a| 
-* ONTAP 9.6 以降： *
+*ONTAP 9.6以降：*
  a| 
 `network interface show -service-policy default-intercluster`
 
 
 
  a| 
-* ONTAP 9.5 以前： *
+*ONTAP 9.5以前の場合：*
  a| 
 `network interface show -role intercluster`
 
 |===
 +
-の詳細については `network interface show`、をlink:https://docs.netapp.com/us-en/ontap-cli/network-interface-show.html["ONTAPコマンド リファレンス"^]参照してください。
+ `network interface show`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/network-interface-show.html["ONTAPコマンド リファレンス"^]を参照してください。
 
 +
 [listing]
@@ -191,27 +191,27 @@ cluster01
 . クラスタ間LIFが冗長構成になっていることを確認します。
 +
 |===
-| オプション | 説明 
+| オプション | 概要 
 
 
  a| 
-* ONTAP 9.6 以降： *
+*ONTAP 9.6以降：*
  a| 
 `network interface show -service-policy default-intercluster -failover`
 
 
 
  a| 
-* ONTAP 9.5 以前： *
+*ONTAP 9.5以前の場合：*
  a| 
 `network interface show -role intercluster -failover`
 
 |===
 +
-の詳細については `network interface show`、をlink:https://docs.netapp.com/us-en/ontap-cli/network-interface-show.html["ONTAPコマンド リファレンス"^]参照してください。
+ `network interface show`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/network-interface-show.html["ONTAPコマンド リファレンス"^]を参照してください。
 
 +
-次の例は、クラスタ間LIFと `cluster01_icl02`SVMポート上の``e0e``ポートがそのポートにフェイルオーバー `e0f`することを示しています `cluster01_icl01`。
+次の例は、SVM``e0e``上のクラスタ間LIF `cluster01_icl01`と `cluster01_icl02`が `e0f`ポートにフェイルオーバーすることを示しています。
 
 +
 [listing]

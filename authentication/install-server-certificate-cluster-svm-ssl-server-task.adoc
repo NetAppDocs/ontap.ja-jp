@@ -2,25 +2,25 @@
 permalink: authentication/install-server-certificate-cluster-svm-ssl-server-task.html 
 sidebar: sidebar 
 keywords: generate, install, ca-signed, server, certificate, csr, signing request, signed 
-summary: 本番用システムでは、クラスタまたは SVM を SSL サーバとして認証する際に使用する CA 署名デジタル証明書をインストールすることを推奨します。 
+summary: 実稼働システムでは、クラスタまたはSVMをSSLサーバとして認証するために使用するCA署名付きデジタル証明書をインストールすることをお勧めします。 
 ---
-= CA署名済みサーバ証明書を生成してONTAPにインストールする
+= ONTAPでCA署名付きサーバ証明書を生成してインストールする
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-本番用システムでは、クラスタまたは SVM を SSL サーバとして認証する際に使用する CA 署名デジタル証明書をインストールすることを推奨します。コマンドを使用してCertificate Signing Request（CSR；証明書署名要求）を生成し、 `security certificate install`コマンドを使用して認証局から返された証明書をインストールできます `security certificate generate-csr`。および `security certificate install`の詳細については `security certificate generate-csr`、をlink:https://docs.netapp.com/us-en/ontap-cli/search.html?q=security+certificate["ONTAPコマンド リファレンス"^]参照してください。
+本番環境システムでは、クラスタまたはSVMをSSLサーバとして認証するために、CA署名のデジタル証明書をインストールすることを推奨します。 `security certificate generate-csr`コマンドを使用して証明書署名要求（CSR）を生成し、 `security certificate install`コマンドを使用して認証局から返された証明書をインストールできます。 `security certificate generate-csr`および `security certificate install`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/search.html?q=security+certificate["ONTAPコマンド リファレンス"^]をご覧ください。
 
 
 
-== 証明書署名要求を生成する
+== 証明書署名要求の生成
 
-証明書署名要求（CSR）は、コマンドを使用して生成できます `security certificate generate-csr`。要求が処理されると、署名済みのデジタル証明書が認証局（CA）から送信されます。
+ `security certificate generate-csr`コマンドを使用して証明書署名要求（CSR）を生成できます。要求が処理されると、認証局（CA）が署名されたデジタル証明書を送信します。
 
 .開始する前に
-このタスクを実行するには、クラスタ管理者またはSVM管理者である必要があります。
+このタスクを実行するには、クラスタ管理者またはSVMの管理者である必要があります。
 
 .手順
 . CSRを生成します。
@@ -30,10 +30,10 @@ summary: 本番用システムでは、クラスタまたは SVM を SSL サー�
 security certificate generate-csr -common-name FQDN_or_common_name -size 512|1024|1536|2048 -country country -state state -locality locality -organization organization -unit unit -email-addr email_of_contact -hash-function SHA1|SHA256|MD5
 ----
 +
-次のコマンドは、ハッシュ関数で生成される2、048ビット秘密鍵を使用してCSRを作成します。この証明書 `SHA256`は、米国カリフォルニア州のサニーベールにあるというカスタム共通名の企業の部門 `server1.companyname.com`内のグループ `IT`が使用します。 `Software`SVM担当者の管理者のEメールアドレスはです `web@example.com`。出力にCSRと秘密鍵が表示されます。
+次のコマンドは、米国カリフォルニア州サニーベールに所在する、カスタム共通名が `server1.companyname.com`である企業の `IT`部門の `Software`グループが使用する、 `SHA256`ハッシュ関数によって生成された2048ビットの秘密鍵を含むCSRを作成します。SVM連絡先管理者のメールアドレスは `web@example.com`です。システムはCSRと秘密鍵を出力に表示します。
 
 +
-.CSRの作成例
+.CSRを作成する例
 [%collapsible]
 ====
 [listing]
@@ -54,9 +54,9 @@ Private Key :
 NOTE: Keep a copy of your certificate request and private key for future reference.
 ----
 ====
-. CSR出力の証明書要求を電子形式（Eメールなど）で信頼できるサードパーティのCAに送信し、署名を求めます。
+. CSR出力の証明書要求をデジタル形式（Eメールなど）で信頼できるサードパーティのCAに送信し、署名を求めます。
 +
-要求が処理されると、署名済みのデジタル証明書がCAから送信されます。秘密鍵とCA署名デジタル証明書のコピーを保管しておく必要があります。
+要求が処理されると、署名済みのデジタル証明書がCAから送信されます。秘密鍵とCA署名デジタル証明書のコピーを保管する必要があります。
 
 
 
@@ -64,12 +64,12 @@ NOTE: Keep a copy of your certificate request and private key for future referen
 
 == CA署名済みサーバ証明書のインストール
 
-CA署名済みサーバ証明書は、コマンドを使用してSVMにインストールできます `security certificate install`。ONTAPでは、サーバ証明書の証明書チェーンを形成する認証局（CA）のルート証明書と中間証明書の入力を求められます。の詳細については `security certificate install`、をlink:https://docs.netapp.com/us-en/ontap-cli/security-certificate-install.html["ONTAPコマンド リファレンス"^]参照してください。
+ `security certificate install`コマンドを使用して、SVMにCA署名付きサーバ証明書をインストールできます。ONTAPは、サーバ証明書の証明書チェーンを構成する認証局（CA）のルート証明書と中間証明書の入力を求めます。link:https://docs.netapp.com/us-en/ontap-cli/security-certificate-install.html["ONTAPコマンド リファレンス"^]の `security certificate install`の詳細をご覧ください。
 
 .開始する前に
-このタスクを実行するには、クラスタ管理者またはSVM管理者である必要があります。
+このタスクを実行するには、クラスタ管理者またはSVMの管理者である必要があります。
 
-.ステップ
+.手順
 . CA署名済みサーバ証明書をインストールします。
 +
 [source, cli]
@@ -79,14 +79,14 @@ security certificate install -vserver SVM_name -type certificate_type
 +
 [NOTE]
 ====
-ONTAPは、サーバ証明書の証明書チェーンを形成するCAルート証明書と中間証明書の入力を求めます。チェーンは、サーバ証明書を発行したCAの証明書から始まり、CAのルート証明書までの範囲があります。中間証明書が不足していると、サーバ証明書のインストールが失敗します。
+サーバ証明書の証明書チェーンを形成する、CAのルート証明書と中間証明書の入力を求めるプロンプトが表示されます。チェーンは、サーバ証明書を発行したCAの証明書から始まり、CAのルート証明書まで続きます。中間証明書が1つでも抜けていると、サーバ証明書のインストールに失敗します。
 
 ====
 +
-次のコマンドは、CA署名済みサーバ証明書と中間証明書をSVMにインストールし `engData2`ます。
+次のコマンドは、CA署名付きサーバー証明書と中間証明書をSVM `engData2`にインストールします。
 
 +
-.CA署名済みサーバ証明書中間証明書のインストール例
+.CA署名済みサーバ証明書と中間証明書をインストールする例
 [%collapsible]
 ====
 [listing]
@@ -127,5 +127,5 @@ You should keep a copy of the private key and the CA-signed digital certificate 
 
 
 .関連情報
-* link:https://docs.netapp.com/us-en/ontap-cli/security-certificate-generate-csr.html["セキュリティ証明書のgenerate-csr"^]
+* link:https://docs.netapp.com/us-en/ontap-cli/security-certificate-generate-csr.html["セキュリティ証明書 generate-csr"^]
 

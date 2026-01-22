@@ -2,26 +2,26 @@
 permalink: upgrade/task-prep-node-upgrade-nse-with-ext-kmip-servers.html 
 sidebar: sidebar 
 keywords: ontap, upgrade, prepare, preparing, nodes, netapp, storage, encryption, nse, external, key management, servers 
-summary: ONTAP 9.2以前でNetAppストレージ暗号化を使用していて、9.3以降にアップグレードする場合は、アップグレード前に外部キー管理サーバの接続を削除します。 
+summary: ONTAP 9.2以前でNetAppストレージ暗号化を使用しており、9.3以降にアップグレードする場合は、アップグレード前に外部キー管理サーバ接続を削除します。 
 ---
-= ONTAPのアップグレード前に既存の外部キー管理サーバの接続を削除する
+= 既存の外部キー管理サーバ接続の削除 - ONTAPのアップグレード前
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-ONTAPをアップグレードする前に、NetAppストレージ暗号化（NSE）でONTAP 9 .2以前を実行していて、ONTAP 9 .3以降にアップグレードする場合は、コマンドラインインターフェイス（CLI）を使用して既存の外部キー管理（KMIP）サーバの接続を削除する必要があります。
+ONTAP 9.2以前でNetApp Storage Encryption（NSE）を使用していて、ONTAP 9.3以降にアップグレードする場合は、ONTAPをアップグレードする前に、コマンドライン インターフェイス（CLI）を使用して既存の外部キー管理（KMIP）サーバの接続を削除する必要があります。
 
 .手順
-. NSEドライブのロックが解除されて開いていること、デフォルトのメーカーセキュアIDである0x0に設定されていることを確認します。
+. NSEドライブがロック解除されて開いていること、デフォルトのメーカー セキュアIDである「0x0」に設定されていることを確認します。
 +
 [source, cli]
 ----
 storage encryption disk show -disk *
 ----
 +
-の詳細については `storage encryption disk show`、をlink:https://docs.netapp.com/us-en/ontap-cli/storage-encryption-disk-show.html["ONTAPコマンド リファレンス"^]参照してください。
+ `storage encryption disk show`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/storage-encryption-disk-show.html["ONTAPコマンド リファレンス"^]を参照してください。
 
 . advanced権限モードに切り替えます。
 +
@@ -30,34 +30,34 @@ storage encryption disk show -disk *
 set -privilege advanced
 ----
 +
-の詳細については `set`、をlink:https://docs.netapp.com/us-en/ontap-cli/set.html["ONTAPコマンド リファレンス"^]参照してください。
+ `set`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/set.html["ONTAPコマンド リファレンス"^]をご覧ください。
 
-. デフォルトのメーカーセキュアIDである0x0を使用して、FIPSキーを自己暗号化ディスク（SED）に割り当てます。
+. デフォルトのメーカー セキュアID「0x0」を使用して、FIPSキーを自己暗号化ディスク（SED）に割り当てます。
 +
 [source, cli]
 ----
 storage encryption disk modify -fips-key-id 0x0 -disk *
 ----
 +
-の詳細については `storage encryption disk modify`、をlink:https://docs.netapp.com/us-en/ontap-cli/storage-encryption-disk-modify.html["ONTAPコマンド リファレンス"^]参照してください。
+ `storage encryption disk modify`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/storage-encryption-disk-modify.html["ONTAPコマンド リファレンス"^]を参照してください。
 
-. すべてのディスクへのFIPSキーの割り当てが完了したことを確認します。
+. すべてのディスクにFIPSキーが割り当てられたことを確認します。
 +
 [source, cli]
 ----
 storage encryption disk show-status
 ----
 +
-の詳細については `storage encryption disk show-status`、をlink:https://docs.netapp.com/us-en/ontap-cli/storage-encryption-disk-show-status.html["ONTAPコマンド リファレンス"^]参照してください。
+ `storage encryption disk show-status`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/storage-encryption-disk-show-status.html["ONTAPコマンド リファレンス"^]を参照してください。
 
-. すべてのディスクの* mode *がdataに設定されていることを確認します。
+. すべてのディスクの*mode*がdataに設定されていることを確認します
 +
 [source, cli]
 ----
 storage encryption disk show
 ----
 +
-の詳細については `storage encryption disk show`、をlink:https://docs.netapp.com/us-en/ontap-cli/storage-encryption-disk-show.html["ONTAPコマンド リファレンス"^]参照してください。
+ `storage encryption disk show`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/storage-encryption-disk-show.html["ONTAPコマンド リファレンス"^]を参照してください。
 
 . 設定されているKMIPサーバを表示します。
 +
@@ -66,7 +66,7 @@ storage encryption disk show
 security key-manager keystore show
 ----
 +
-詳細はこちら `security key-manager keystore show`の中でlink:https://docs.netapp.com/us-en/ontap-cli//security-key-manager-keystore-show.html["ONTAPコマンド リファレンス"^]。
+ `security key-manager keystore show`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli//security-key-manager-keystore-show.html["ONTAPコマンド リファレンス"^]を参照してください。
 
 . 設定されているKMIPサーバを削除します。
 +
@@ -75,7 +75,7 @@ security key-manager keystore show
 security key-manager delete -address <kmip_ip_address>
 ----
 +
-の詳細については `security key-manager delete`、をlink:https://docs.netapp.com/us-en/ontap-cli/security-key-manager-key-delete.html["ONTAPコマンド リファレンス"^]参照してください。
+ `security key-manager delete`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/security-key-manager-key-delete.html["ONTAPコマンド リファレンス"^]を参照してください。
 
 . 外部キー管理ツールの設定を削除します。
 +
@@ -84,7 +84,7 @@ security key-manager delete -address <kmip_ip_address>
 security key-manager external disable
 ----
 +
-詳細はこちら `security key-manager external disable`の中でlink:https://docs.netapp.com/us-en/ontap-cli//security-key-manager-external-disable.html["ONTAPコマンド リファレンス"^]。
+ `security key-manager external disable`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli//security-key-manager-external-disable.html["ONTAPコマンド リファレンス"^]を参照してください。
 
 +
 
@@ -92,5 +92,5 @@ NOTE: この手順でNSE証明書が削除されることはありません。
 
 
 
-.次のステップ
-アップグレードが完了したら、を実行する必要がありますxref:task_reconfiguring_kmip_servers_connections_after_upgrading_to_ontap_9_3_or_later.adoc[KMIPサーバ接続を再設定する]。
+.次の手順
+アップグレードが完了したら、xref:task_reconfiguring_kmip_servers_connections_after_upgrading_to_ontap_9_3_or_later.adoc[KMIPサーバ接続を再設定する]を実行する必要があります。

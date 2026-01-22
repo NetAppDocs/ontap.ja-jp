@@ -2,37 +2,37 @@
 permalink: disks-aggregates/determine-flash-pool-candidacy-cache-size-task.html 
 sidebar: sidebar 
 keywords: flash pool, candidacy, optimal cache size, local tier, aggregate 
-summary: 既存のローカル階層をFlash Poolローカル階層に変換する前に、ローカル階層がI/Oバウンドであるかどうか、およびワークロードと予算に応じた最適なFlash Poolキャッシュサイズを確認できます。また、既存のFlash Poolローカル階層のキャッシュのサイズが正しく設定されているかどうかを確認することもできます。 
+summary: 既存のローカル階層をFlash Poolローカル階層に変換する前に、ローカル階層がI/Oバウンドであるかどうか、そしてワークロードと予算に最適なFlash Poolキャッシュ サイズを判断できます。また、既存のFlash Poolローカル階層のキャッシュのサイズが適切かどうかも確認できます。 
 ---
-= ONTAP Flash Poolの候補と最適なキャッシュサイズを確認する
+= ONTAPフラッシュプールの候補と最適なキャッシュサイズを決定する
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-既存のローカル階層をFlash Poolローカル階層に変換する前に、ローカル階層がI/Oバウンドであるかどうか、およびワークロードと予算に応じた最適なFlash Poolキャッシュサイズを確認できます。また、既存のFlash Poolローカル階層のキャッシュのサイズが正しく設定されているかどうかを確認することもできます。
+既存のローカル階層をFlash Poolローカル階層に変換する前に、ローカル階層がI/Oバウンドであるかどうか、そしてワークロードと予算に最適なFlash Poolキャッシュ サイズを判断できます。また、既存のFlash Poolローカル階層のキャッシュのサイズが適切かどうかも確認できます。
 
 
-NOTE: ONTAP 9.7より前のバージョンでは、ローカル階層を表すために_aggregate_という用語が使用されていました。ONTAPのバージョンに関係なく、ONTAP CLIでは_aggregate_という用語が使用されます。ローカル階層の詳細については、を参照してくださいlink:../disks-aggregates/index.html["ディスクとローカル階層"]。
+NOTE: ONTAP 9.7より前のバージョンでは、System Managerは_ローカル階層_を説明するために_aggregate_という用語を使用しています。ONTAPバージョンに関係なく、ONTAP CLIでは_aggregate_という用語が使用されます。ローカル階層の詳細については、link:../disks-aggregates/index.html["ディスクとローカル階層"]を参照してください。
 
 .開始する前に
-分析しているローカル階層の負荷がピークに達したおよその時間を把握しておく必要があります。
+分析するローカル階層の負荷がピークになるおおよその時間帯を確認しておく必要があります。
 
 .手順
 . advancedモードに切り替えます。
 +
 `set advanced`
 
-. 既存のローカル階層がFlash Poolローカル階層への変換に適しているかどうかを確認する必要がある場合は、負荷のピーク時におけるローカル階層内のディスクのビジー率と、それがレイテンシにどのような影響を及ぼしているかを確認します。
+. 既存のローカル層が Flash Pool ローカル層への変換に適しているかどうかを判断する必要がある場合は、ピーク負荷時にローカル層のディスクがどの程度ビジー状態であるか、またそれがレイテンシにどのように影響しているかを判断します：
 +
 `statistics show-periodic -object disk:raid_group -instance _raid_group_name_ -counter disk_busy|user_read_latency -interval 1 -iterations 60`
 
 +
-Flash Poolキャッシュを追加してレイテンシを削減することがこのローカル階層に適しているかどうかを判断できます。
+このローカル層では、Flash Pool キャッシュを追加してレイテンシを削減することが合理的かどうかを判断できます。
 
 +
-次のコマンドは、ローカル階層「aggr1」の最初のRAIDグループの統計を表示します。
+次のコマンドは、ローカル層「`aggr1`」の最初の RAID グループの統計を表示します：
 
 +
 `statistics show-periodic -object disk:raid_group -instance /aggr1/plex0/rg0 -counter disk_busy|user_read_latency -interval 1 -iterations 60`
@@ -42,14 +42,14 @@ Flash Poolキャッシュを追加してレイテンシを削減することが�
 `storage automated-working-set-analyzer start -node _node_name_ -aggregate _aggr_name_`
 
 +
-指定したローカル階層に関連付けられているボリュームのワークロードデータの収集が開始されます。
+AWA は、指定されたローカル層に関連付けられたボリュームのワークロード データの収集を開始します。
 
 . advancedモードを終了します。
 +
 `set admin`
 
 +
-ピーク負荷が1つ以上の間隔で発生するまで、AWAの実行を許可します。AWAは、指定したローカル階層に関連付けられているボリュームのワークロードの統計情報を収集し、期間内で最大1週間にわたってデータを分析します。AWAを複数の週にわたって実行すると、直近の週から収集されたデータのみがレポートされます。キャッシュサイズの見積もりは、データ収集期間中に確認された最も高い負荷に基づいています。データ収集期間全体で負荷が高くなる必要はありません。
+AWAは、ピーク負荷のインターバルが1回以上発生するまで実行できます。AWAは、指定されたローカル層に関連付けられたボリュームのワークロード統計を収集し、最大1週間分のデータを分析します。AWAを1週間以上実行すると、直近1週間に収集されたデータのみがレポートされます。キャッシュサイズの推定値は、データ収集期間中に発生した最大負荷に基づいて算出されます。データ収集期間全体にわたって負荷が高い必要はありません。
 
 . advancedモードに切り替えます。
 +
@@ -64,7 +64,7 @@ Flash Poolキャッシュを追加してレイテンシを削減することが�
 `storage automated-working-set-analyzer stop _node_name_`
 
 +
-すべてのワークロードデータがフラッシュされ、分析に使用できなくなります。
+すべてのワークロード データがフラッシュされ、分析に使用できなくなります。
 
 . advancedモードを終了します。
 +
@@ -74,7 +74,7 @@ Flash Poolキャッシュを追加してレイテンシを削減することが�
 
 .関連情報
 * link:https://docs.netapp.com/us-en/ontap-cli/statistics-show-periodic.html["statistics show-periodic"^]
-* link:https://docs.netapp.com/us-en/ontap-cli/storage-automated-working-set-analyzer-show.html["ストレージ自動ワーキングセットアナライザーの表示"^]
-* link:https://docs.netapp.com/us-en/ontap-cli/storage-automated-working-set-analyzer-start.html["ストレージ自動ワーキングセットアナライザーの開始"^]
-* link:https://docs.netapp.com/us-en/ontap-cli/storage-automated-working-set-analyzer-stop.html["ストレージ自動ワーキングセットアナライザーの停止"^]
+* link:https://docs.netapp.com/us-en/ontap-cli/storage-automated-working-set-analyzer-show.html["storage automated-working-set-analyzer show"^]
+* link:https://docs.netapp.com/us-en/ontap-cli/storage-automated-working-set-analyzer-start.html["storage automated-working-set-analyzer start"^]
+* link:https://docs.netapp.com/us-en/ontap-cli/storage-automated-working-set-analyzer-stop.html["storage automated-working-set-analyzer 停止"^]
 

@@ -2,7 +2,7 @@
 permalink: flexgroup/enable-svm-protection-task.html 
 sidebar: sidebar 
 keywords: enable, svm, protection, flexgroup, volume 
-summary: FlexGroup ボリュームで SVM DR 保護フラグを非保護に設定している場合は、フラグを protected に設定することで SVM DR 保護を有効にすることができます。 
+summary: FlexGroupボリューム上でSVM DR保護フラグが非保護に設定されている場合、フラグを保護に設定してSVM DR保護を有効にすることができます。 
 ---
 = ONTAP FlexGroupボリュームでSVM保護を有効にする
 :allow-uri-read: 
@@ -11,15 +11,15 @@ summary: FlexGroup ボリュームで SVM DR 保護フラグを非保護に設�
 
 
 [role="lead"]
-FlexGroupボリュームでSVM DR保護フラグがに設定されている場合は `unprotected`、フラグをに設定してSVM DR保護を有効にすることができます `protected`。
+SVM DR 保護フラグが `unprotected`に設定されているFlexGroupボリュームでは、フラグを `protected`に設定して SVM DR 保護を有効にすることができます。
 
 .開始する前に
-* プライマリとセカンダリの間のSVM DR関係が正常な状態である。
-* SVM DR保護パラメータがに設定されている `unprotected`。
+* プライマリとセカンダリの間のSVM DR関係が健全である。
+* SVM DR 保護パラメータが `unprotected`に設定されています。
 
 
 .手順
-. を使用してFlexGroupボリュームのパラメータをに `protected`変更し `vserver-dr-protection`、保護を有効にし `volume modify`ます。
+.  `volume modify`を使用してFlexGroupボリュームの `vserver-dr-protection`パラメータを `protected`に変更し、保護を有効にします。
 +
 [listing]
 ----
@@ -28,13 +28,13 @@ cluster2::> volume modify -vserver vs1 -volume fg_src -vserver-dr-protection pro
 [Job 5384] Steps completed: 4 of 4.
 cluster2::>
 ----
-. セカンダリサイトでSVMを更新します。 `snapmirror update -destination-path destination_svm_name -source-path source_svm_name`
+. セカンダリ サイトの SVM を更新します： `snapmirror update -destination-path destination_svm_name -source-path source_svm_name`
 +
 [listing]
 ----
 snapmirror update -destination-path vs1_dst: -source-path vs1:
 ----
-. SnapMirror関係が正常であることを確認します。 `snapmirror show`
+. SnapMirror関係が正常であることを確認します： `snapmirror show`
 +
 [listing]
 ----
@@ -46,7 +46,7 @@ Path        Type  Path        State   Status         Progress  Healthy Updated
 vs1:        XDP  vs1_dst:     Snapmirrored
                                       Idle           -         true    -
 ----
-. FlexGroup SnapMirror関係が正常であることを確認します。 `snapmirror show -expand`
+. FlexGroup SnapMirror関係が正常であることを確認します： `snapmirror show -expand`
 +
 [listing]
 ----

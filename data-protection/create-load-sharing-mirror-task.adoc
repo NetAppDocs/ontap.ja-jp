@@ -2,63 +2,63 @@
 permalink: data-protection/create-load-sharing-mirror-task.html 
 sidebar: sidebar 
 keywords: create, initialize, load-sharing, mirror, relationship 
-summary: クラスタ内のルートボリュームごとに負荷共有ミラー（LSM）を作成する必要があります。LSMは、ルートボリュームを含んでいない任意のノード（HAペアのパートナーノードなど）または別のHAペアに作成できます。2ノードクラスタの場合は、ルートボリュームがあるノードのパートナーにLSMを作成する必要があります。 
+summary: クラスタ内のそれぞれのルート ボリュームについて、負荷共有ミラー（LSM）を作成する必要があります。LSMは、ルート ボリュームを含まない任意のノード（HAペアのパートナー ノードなど）、または可能であれば別のHAペアに作成します。2ノード クラスタの場合は、ルート ボリュームがあるノードのパートナーにLSMを作成する必要があります。 
 ---
-= ONTAP負荷共有ミラー関係を作成して初期化する
+= ONTAP負荷共有ミラー関係の作成と初期化
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-クラスタ内のNASデータを提供するそれぞれのSVMルート ボリュームについて、負荷共有ミラー（LSM）を作成する必要があります。2 つ以上の HA ペアで構成されるクラスタの場合、HA ペアの両方のノードに障害が発生した場合でもクライアントが名前空間にアクセスできるようにするために、SVM ルート ボリュームの負荷共有ミラーを検討する必要があります。負荷共有ミラーは、単一のHAペアで構成されるクラスタには適していません。
+クラスタ内のNASデータを提供するSVMルートボリュームごとに、負荷共有ミラー（LSM）を作成する必要があります。2つ以上のHAペアで構成されるクラスタでは、HAペアの両方のノードに障害が発生した場合でも、クライアントがネームスペースにアクセスできるようにするために、SVMルートボリュームの負荷共有ミラーを検討する必要があります。負荷共有ミラーは、単一のHAペアで構成されるクラスタには適していません。
 
 .開始する前に
-ONTAP 9.16.1 以降では、負荷共有ミラー関係を作成するときに、デスティネーション SVM でストレージ制限を有効にすることはできません。
+ONTAP 9.16.1以降では、負荷共有ミラー関係を作成するときに、デスティネーションSVMでストレージ制限を有効にすることはできません。
 
-.タスクの内容
-同じノードにLSMを作成し、そのノードが使用できない場合は、単一点障害が発生します。また、クライアントから引き続きデータにアクセスできるようにするための2つ目のコピーは作成されません。ただし、ルートボリュームを含むノード以外のノードや別のHAペアにLSMを作成すると、障害が発生してもデータに引き続きアクセスできます。
+.タスク概要
+同じノードにLSMを作成した場合、ノードで障害が発生すると単一点障害となり、クライアントにデータを提供する2つ目のコピーは存在しません。一方、ルート ボリュームを含まないノードや別のHAペアにLSMを作成すると、障害が発生してもデータに引き続きアクセスできます。
 
-たとえば、3つのノードにルートボリュームがある4ノードクラスタの場合は、次のようになります。
+たとえば、4ノード クラスタの3つのノードにルート ボリュームがある場合、次のようになります。
 
-* HA 1のノード1のルートボリュームについて、HA 2のノード1またはHA 2のノード2にLSMを作成します。
-* HA 1のノード2のルートボリュームについて、HA 2のノード1またはHA 2のノード2にLSMを作成します。
-* HA 2のノード1のルートボリュームについて、HA 1のノード1またはHA 1のノード2にLSMを作成します。
+* HA 1のノード1のルート ボリュームについて、HA 2のノード1またはHA 2のノード2にLSMを作成します。
+* HA 1のノード2のルート ボリュームについて、HA 2のノード1またはHA 2のノード2にLSMを作成します。
+* HA 2のノード1のルート ボリュームについて、HA 1のノード1またはHA 1のノード2にLSMを作成します。
 
 
 .手順
-. LSMのデスティネーションボリュームを作成します。
+. LSMのデスティネーション ボリュームを作成します。
 +
 [source, cli]
 ----
 volume create -vserver <SVM> -volume <volume> -aggregate <aggregate> -type DP -size <size>
 ----
 +
-デスティネーションボリュームのサイズは、ルートボリュームと同じかそれ以上である必要があります。
+デスティネーション ボリュームのサイズは、ルート ボリュームと同じかそれ以上である必要があります。
 
 +
-ルートボリュームとデスティネーションボリュームの名前にサフィックス（、 `_m1`など）を付けることを推奨します `_root`。
+ルート ボリュームと宛先ボリュームの名前には、 `_root`や `_m1`などのサフィックスを付けるのがベスト プラクティスです。
 
 +
-の詳細については `volume create`、をlink:https://docs.netapp.com/us-en/ontap-cli/volume-create.html["ONTAPコマンド リファレンス"^]参照してください。
+ `volume create`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/volume-create.html["ONTAPコマンド リファレンス"^]を参照してください。
 
 +
-次の例は、に `cluster_src`ルートボリューム用の負荷共有ミラーボリュームを作成し `svm1_root`ます。
+次の例では、 `cluster_src`のルート ボリューム `svm1_root`の負荷共有ミラー ボリュームを作成します：
 
 +
 [listing]
 ----
 cluster_src:> volume create -vserver svm1 -volume svm1_m1 -aggregate aggr_1 -size 1gb -state online -type DP
 ----
-. link:create-replication-job-schedule-task.html["レプリケーションジョブスケジュールの作成"]です。
-. SVMルートボリュームとLSMのデスティネーションボリュームの間に負荷共有ミラー関係を作成します。
+. link:create-replication-job-schedule-task.html["レプリケーション ジョブ スケジュールを作成する"]。
+. SVMルート ボリュームとLSMのデスティネーション ボリュームの間に負荷共有ミラー関係を作成します。
 +
 [source, cli]
 ----
 snapmirror create -source-path <SVM:volume> -destination-path <SVM:volume> -type LS -schedule <schedule>
 ----
 +
-次の例は、ルートボリュームと負荷共有ミラーボリューム `svm1_m1`の間に負荷共有ミラー関係を作成し `svm1_root`ます。
+次の例では、ルート ボリューム `svm1_root`と負荷共有ミラー ボリューム `svm1_m1`の間に負荷共有ミラー関係を作成します：
 
 +
 [listing]
@@ -66,10 +66,10 @@ snapmirror create -source-path <SVM:volume> -destination-path <SVM:volume> -type
 cluster_src::> snapmirror create -source-path svm1:svm1_root -destination-path svm1:svm1_m1 -type LS -schedule hourly
 ----
 +
-負荷共有ミラーのtype属性がからに `LS`変わります `DP`。
+負荷共有ミラーのタイプ属性が `DP`から `LS`に変更されます。
 
 +
-の詳細については `snapmirror create`、をlink:https://docs.netapp.com/us-en/ontap-cli/snapmirror-create.html["ONTAPコマンド リファレンス"^]参照してください。
+ `snapmirror create`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/snapmirror-create.html["ONTAPコマンド リファレンス"^]を参照してください。
 
 . 負荷共有ミラーを初期化します。
 +
@@ -78,7 +78,7 @@ cluster_src::> snapmirror create -source-path svm1:svm1_root -destination-path s
 snapmirror initialize-ls-set -source-path <SVM:volume>
 ----
 +
-次の例は、ルートボリュームの負荷共有ミラーを初期化し `svm1_root`ます。
+次の例では、ルート ボリュームの負荷共有ミラーを初期化します `svm1_root`：
 
 +
 [listing]
@@ -86,6 +86,6 @@ snapmirror initialize-ls-set -source-path <SVM:volume>
 cluster_src::> snapmirror initialize-ls-set -source-path svm1:svm1_root
 ----
 +
-の詳細については `snapmirror initialize`、をlink:https://docs.netapp.com/us-en/ontap-cli/snapmirror-initialize.html["ONTAPコマンド リファレンス"^]参照してください。
+ `snapmirror initialize`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/snapmirror-initialize.html["ONTAPコマンド リファレンス"^]を参照してください。
 
 

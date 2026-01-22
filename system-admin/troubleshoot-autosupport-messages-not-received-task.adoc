@@ -2,91 +2,91 @@
 permalink: system-admin/troubleshoot-autosupport-messages-not-received-task.html 
 sidebar: sidebar 
 keywords: troubleshoot, autosupport, messagem receive, deliver, generate 
-summary: システムがAutoSupportメッセージを送信しない場合は、AutoSupportがメッセージを生成できないことが原因か、メッセージを配信できないことが原因かを判断できます。 
+summary: システムがAutoSupportメッセージを送信しない場合には、それがAutoSupportがメッセージを生成できないためであるか、配信できないためであるかを判別できます。 
 ---
-= メッセージが受信されない場合のONTAP AutoSupportのトラブルシューティング
+= ONTAP AutoSupportメッセージが受信されない場合のトラブルシューティング
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-システムがAutoSupportメッセージを送信しない場合は、AutoSupportがメッセージを生成できないことが原因か、メッセージを配信できないことが原因かを判断できます。
+システムがAutoSupportメッセージを送信しない場合には、それがAutoSupportがメッセージを生成できないためであるか、配信できないためであるかを判別できます。
 
 .手順
-. コマンドを使用して、メッセージの配信ステータスを確認します `system node autosupport history show`。
-. ステータスを確認します。
+.  `system node autosupport history show`コマンドを使用してメッセージの配信ステータスを確認します。
+. ステータスを読み取ります。
 +
 [cols="25,75"]
 |===
-| このステータスです | 意味 
+| このステータス | 意味 
 
 
  a| 
 初期化中
  a| 
-収集プロセスが開始しています。この状態が一時的なものであれば問題はありません。ただし、この状態が続く場合は問題があります。
+収集プロセスが開始しています。この状態が一時的なものであれば問題はありません。ただしこの状態が持続する場合は、問題が発生しています。
 
 
 
  a| 
-収集-失敗
+collection-failed
  a| 
-AutoSupportはスプールディレクトリにAutoSupportコンテンツを作成できません。AutoSupportが収集しようとしているものを表示するには、コマンドを入力し `system node autosupport history show -detail`ます。
-
-
-
- a| 
-収集を実行中
- a| 
-AutoSupportはAutoSupportのコンテンツを収集しています。AutoSupportが収集している情報を表示するには、コマンドを入力し `system node autosupport manifest show`ます。
+AutoSupportは、スプールディレクトリにAutoSupportコンテンツを作成できません。 `system node autosupport history show -detail`コマンドを入力すると、AutoSupportが収集しようとしている内容を確認できます。
 
 
 
  a| 
-キューに登録済み
+collection-in-progress
  a| 
-AutoSupportメッセージは配信のためにキューに登録されますが、まだ配信されていません。
-
-
-
- a| 
-送信中
- a| 
-AutoSupportは現在メッセージを配信しています。
+AutoSupportはAutoSupportコンテンツを収集しています。 `system node autosupport manifest show`コマンドを入力すると、AutoSupportが収集している内容を確認できます。
 
 
 
  a| 
-送信済み-成功
+queued
  a| 
-AutoSupportはメッセージを正常に配信しました。AutoSupportがメッセージを配信した場所を確認するには、コマンドを入力し `system node autosupport history show -delivery`ます。
-
-
-
- a| 
-無視
- a| 
-AutoSupportにはメッセージの送信先がありません。配信の詳細を表示するには、コマンドを入力し `system node autosupport history show -delivery`ます。
+AutoSupportメッセージが配信のためにキューに登録されていますが、まだ配信されていません。
 
 
 
  a| 
-再キュー
+transmitting
  a| 
-AutoSupportはメッセージの配信を試みましたが、失敗しました。その結果、AutoSupportは別の試行のためにメッセージを配信キューに戻しました。エラーを表示するには、コマンドを入力し `system node autosupport history show`ます。
-
-
-
- a| 
-トランスミッション-失敗
- a| 
-AutoSupportは、指定された回数のメッセージ配信に失敗し、メッセージ配信の試行を停止しました。エラーを表示するには、コマンドを入力し `system node autosupport history show`ます。
+AutoSupportが現在メッセージを配信しています。
 
 
 
  a| 
-OnDemand -無視
+sent-successful
+ a| 
+AutoSupportはメッセージを正常に配信しました。 `system node autosupport history show -delivery`コマンドを入力すると、AutoSupportがメッセージをどこに配信したかを確認できます。
+
+
+
+ a| 
+ignore
+ a| 
+AutoSupportメッセージの送信先がありません。 `system node autosupport history show -delivery`コマンドを入力すると、配信の詳細を確認できます。
+
+
+
+ a| 
+re-queued
+ a| 
+AutoSupportはメッセージの配信を試みましたが、失敗しました。その結果、AutoSupportはメッセージを配信キューに戻して再試行しました。 `system node autosupport history show`コマンドを入力すると、エラーを確認できます。
+
+
+
+ a| 
+transmission-failed
+ a| 
+AutoSupportは指定された回数のメッセージの配信に失敗し、配信を中止しました。 `system node autosupport history show`コマンドを入力するとエラーが表示されます。
+
+
+
+ a| 
+ondemand-ignore
  a| 
 AutoSupportメッセージは正常に処理されましたが、AutoSupport OnDemandサービスによって無視されました。
 
@@ -94,22 +94,22 @@ AutoSupportメッセージは正常に処理されましたが、AutoSupport OnD
 . 次のいずれかを実行します。
 +
 |===
-| をクリックします | 手順 
+| このステータスの場合 | これを実行します 
 
 
  a| 
 initializingまたはcollection-failed
  a| 
-AutoSupportでメッセージを生成できないため、NetAppサポートにお問い合わせください。次のナレッジベースの記事に言及します。
+AutoSupportがメッセージを生成できません。NetAppサポートに問い合わせてください。次のナレッジ ベースの記事を伝えてください。
 
-link:https://kb.netapp.com/Advice_and_Troubleshooting/Data_Storage_Software/ONTAP_OS/AutoSupport_is_failing_to_deliver%3A_status_is_stuck_in_initializing["AutoSupport の配信に失敗しました：ステータスが「初期化中にエラーが発生しました"^]
+link:https://kb.netapp.com/Advice_and_Troubleshooting/Data_Storage_Software/ONTAP_OS/AutoSupport_is_failing_to_deliver%3A_status_is_stuck_in_initializing["AutoSupportの配信に失敗しています：ステータスが初期化中のままです"^]
 
 
 
  a| 
 ignore、re-queued、またはtransmission failed
  a| 
-AutoSupportでメッセージを配信できないため、SMTP、HTTP、またはHTTPSのデスティネーションが正しく設定されていることを確認します。
+AutoSupportがメッセージを配信できないため、SMTP、HTTP、またはHTTPSのデスティネーションが正しく設定されていることを確認します。
 
 |===
 

@@ -2,7 +2,7 @@
 permalink: nfs-admin/mount-unmount-existing-volumes-nas-namespace-task.html 
 sidebar: sidebar 
 keywords: mount, unmount, exist, volume, nas, namespace 
-summary: Storage Virtual Machine（SVM）ボリュームに格納されたデータへのNASクライアントからのアクセスを設定するには、ボリュームがNASネームスペースにマウントされている必要があります。現在マウントされていないボリュームは、ジャンクションポイントにマウントできます。ボリュームをアンマウントすることもできます。 
+summary: Storage Virtual Machine（SVM）ボリュームに含まれているデータに対するNASクライアントのアクセスを設定するには、ボリュームがNASネームスペースにマウントされている必要があります。現在マウントされていないボリュームであれば、そのボリュームをジャンクション ポイントにマウントできます。また、ボリュームはアンマウントすることもできます。 
 ---
 = NASネームスペースでONTAP NFSボリュームをマウントまたはアンマウントする
 :allow-uri-read: 
@@ -11,22 +11,22 @@ summary: Storage Virtual Machine（SVM）ボリュームに格納されたデー
 
 
 [role="lead"]
-Storage Virtual Machine（SVM）ボリュームに格納されたデータへのNASクライアントからのアクセスを設定するには、ボリュームがNASネームスペースにマウントされている必要があります。現在マウントされていないボリュームは、ジャンクションポイントにマウントできます。ボリュームをアンマウントすることもできます。
+Storage Virtual Machine（SVM）ボリュームに含まれているデータに対するNASクライアントのアクセスを設定するには、ボリュームがNASネームスペースにマウントされている必要があります。現在マウントされていないボリュームであれば、そのボリュームをジャンクション ポイントにマウントできます。また、ボリュームはアンマウントすることもできます。
 
-.タスクの内容
-ボリュームをアンマウントしてオフラインにすると、アンマウントしたボリュームのネームスペース内に含まれていたジャンクションポイントのあるボリューム内のデータも含め、ジャンクションポイント内のすべてのデータにNASクライアントからアクセスできなくなります。
+.タスク概要
+ボリュームをアンマウントし、オフラインにすると、アンマウントしたボリュームのネームスペース内に含まれたジャンクション ポイントのあるボリューム内のデータも含め、ジャンクション ポイント内のすべてのデータに、NASクライアントからアクセスできなくなります。
 
 [NOTE]
 ====
-ボリュームへのNASクライアントアクセスを中止するには、ボリュームをアンマウントするだけでは不十分です。ボリュームをオフラインにするか、クライアント側のファイルハンドルキャッシュを確実に無効にするためのその他の手順を実行する必要があります。詳細については、次の技術情報アーティクルを参照してください。
+NASクライアントからボリュームへのアクセスを切断するには、ボリュームをアンマウントするだけでは不十分です。ボリュームをオフラインにするか、または他の手順でクライアント側のファイル ハンドル キャッシュを確実に無効にする必要があります。詳細については、次の技術情報アーティクルを参照してください。
 
-https://kb.netapp.com/Advice_and_Troubleshooting/Data_Storage_Software/ONTAP_OS/NFSv3_clients_still_have_access_to_a_volume_after_being_removed_from_the_namespace_in_ONTAP["ONTAP のネームスペースから NFSv3 クライアントを削除しても、ボリュームにアクセスできるようになります"]
+https://kb.netapp.com/Advice_and_Troubleshooting/Data_Storage_Software/ONTAP_OS/NFSv3_clients_still_have_access_to_a_volume_after_being_removed_from_the_namespace_in_ONTAP["NFSv3クライアントは、ONTAPでネームスペースから削除された後も、ボリュームにアクセスできます"]
 
 ====
-ボリュームをアンマウントしてオフラインにしても、ボリューム内のデータは失われません。また、既存のボリュームエクスポートポリシーと、ボリュームまたはディレクトリに作成されたSMB共有、およびアンマウントされたボリューム内のジャンクションポイントは保持されます。アンマウントしたボリュームを再マウントすると、NASクライアントは既存のエクスポートポリシーとSMB共有を使用してボリュームに格納されているデータにアクセスできます。
+ボリュームをアンマウントし、オフラインにしても、ボリューム内のデータは失われません。また、既存のボリューム エクスポート ポリシーおよびボリュームまたはディレクトリ上に作成されたSMB共有、およびアンマウントされたボリューム内のジャンクション ポイントは保持されます。アンマウントしたボリュームを再マウントすれば、NASは、既存のエクスポート ポリシーとSMB共有を使用してボリューム内のデータにアクセスできるようになります。
 
 .手順
-. 必要な操作を実行します。
+. 次のうち必要な操作を実行します。
 +
 [cols="2*"]
 |===
@@ -41,7 +41,7 @@ https://kb.netapp.com/Advice_and_Troubleshooting/Data_Storage_Software/ONTAP_OS/
 
 
  a| 
-ボリュームのアンマウント
+ボリュームをアンマウントする
  a| 
 `volume unmount -vserver _svm_name_ -volume _volume_name_`
 
@@ -55,7 +55,7 @@ https://kb.netapp.com/Advice_and_Troubleshooting/Data_Storage_Software/ONTAP_OS/
 
 
 .例
-次の例は、SVM「vs1」にある「sales」という名前のボリュームをジャンクションポイント「/sales」にマウントします。
+次の例では、SVM「`vs1`」にある「`sales`」という名前のボリュームをジャンクションポイント「`/sales`」にマウントします：
 
 [listing]
 ----
@@ -69,7 +69,7 @@ vs1       data       online    /data           true
 vs1       home4      online    /eng/home       true
 vs1       sales      online    /sales          true
 ----
-次の例は、SVM「vs1」にある「data」という名前のボリュームをアンマウントしてオフラインにします。
+次の例では、SVM "`vs1`" にある "`data`" という名前のボリュームをアンマウントしてオフラインにします：
 
 [listing]
 ----

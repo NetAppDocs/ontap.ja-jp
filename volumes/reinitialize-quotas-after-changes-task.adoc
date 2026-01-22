@@ -2,82 +2,82 @@
 permalink: volumes/reinitialize-quotas-after-changes-task.html 
 sidebar: sidebar 
 keywords: reinitialize, quotas, after making, extensive, changes 
-summary: 既存のクォータ定義に大幅な変更を加えたら、影響を受けるすべてのボリュームでクォータを再初期化する必要があります。 
+summary: 既存のクォータ定義に大幅な変更を加えたあとは、影響を受けるすべてのボリュームでクォータを再初期化する必要があります。 
 ---
-= 大幅な変更を行ったあとのクォータの再初期化
+= 大幅な変更後のクォータの再初期化
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-既存のクォータ定義に大幅な変更を加えたら、影響を受けるすべてのボリュームでクォータを再初期化する必要があります。このような変更の例としては、クォータが適用されていないターゲットに対するクォータの追加または削除があります。
+既存のクォータ定義に大幅な変更を加えたあとは、影響を受けるすべてのボリュームでクォータを再初期化する必要があります。このような変更の例としては、クォータが適用されていないターゲットに対するクォータの追加または削除があります。
 
-.タスクの内容
-クォータが適用されているStorage Virtual Machine（SVM）で、クォータの完全な再初期化が必要な変更を行う場合。
+.タスク概要
+クォータが適用されているStorage Virtual Machine（SVM）に対し、クォータの完全な再初期化が必要となる、大幅な変更を実行します。
 
 .手順
-. コマンドでパラメータを指定し `-instance`て、 `vserver show`SVMに現在割り当てられているポリシーの名前を確認します。
-. 次のいずれかの操作を実行してクォータルールを変更します。
+.  `vserver show`コマンドに `-instance`パラメータを指定して、現在SVMに割り当てられているポリシーの名前を確認します。
+. 次のいずれかの操作を実行し、クォータ ルールを変更します。
 +
 [cols="2*"]
 |===
-| 状況 | そしたら...。 
+| 状況 | 操作 
 
 
  a| 
-新しいクォータルールを作成する
+新しいクォータ ルールを作成する
  a| 
-コマンドを使用する `volume quota policy rule create`
-
-
-
- a| 
-既存のクォータルールの設定を変更する
- a| 
-コマンドを使用する `volume quota policy rule modify`
+ `volume quota policy rule create`コマンドを使用する
 
 
 
  a| 
-既存のクォータルールを削除する
+既存のクォータ ルールの設定を変更する
  a| 
-コマンドを使用する `volume quota policy rule delete`
+ `volume quota policy rule modify`コマンドを使用する
+
+
+
+ a| 
+既存のクォータ ルールを削除する
+ a| 
+ `volume quota policy rule delete`コマンドを使用する
 
 |===
-. コマンドを使用し `volume quota policy rule show`て、クォータルールが正しく設定されていることを確認します。
+.  `volume quota policy rule show`コマンドを使用して、クォータルールが正しく設定されていることを確認します。
 . クォータを変更した各ボリュームで、クォータをオフにしてからクォータをオンにして、クォータを再初期化します。
 +
-.. 影響を受ける各ボリュームでコマンドを使用して `volume quota off`、そのボリュームのクォータを非アクティブ化します。
-.. 影響を受ける各ボリュームでコマンドを使用して `volume quota on`、そのボリュームでクォータをアクティブ化します。
+.. 影響を受ける各ボリュームで `volume quota off`コマンドを使用して、そのボリュームのクォータを非アクティブ化します。
+.. 影響を受ける各ボリュームで `volume quota on`コマンドを使用して、そのボリュームのクォータをアクティブ化します。
 +
 [NOTE]
 ====
-影響を受ける各ボリュームのクォータは、コマンドの実行直後にアクティブ化しようとするとエラーが発生する可能性があるため、5分ほど待ってから再アクティブ化してください。 `volume quota off`
+ `volume quota off`コマンドの実行直後にクォータをアクティブ化しようとするとエラーが発生する可能性があるため、影響を受ける各ボリュームでクォータを再アクティブ化する前に約5分間待機する必要があります。
 
-また、コマンドを実行して、特定のボリュームを含むノードからボリュームのクォータを再初期化することもできます。
+また、特定のボリュームを含むノードからコマンドを実行して、ボリュームのクォータを再初期化することもできます。
 
 ====
 +
-初期化プロセスは、次のいずれかの方法で監視できます。
+初期化処理は、次のいずれかの方法で監視できます。
 
 +
-*** コマンドを使用する場合は `volume quota on`、パラメータを追加してフォアグラウンドのジョブでクォータを実行できます `-foreground`。（デフォルトでは、このジョブはバックグラウンドで実行されます）。
+***  `volume quota on`コマンドを使用する際に、 `-foreground`パラメータを追加することで、クォータオンジョブをフォアグラウンドで実行できます。（デフォルトでは、ジョブはバックグラウンドで実行されます。）
 +
-バックグラウンドでジョブが実行される場合は、コマンドを使用して進捗状況を監視できます `job show`。
+ジョブがバックグラウンドで実行されている場合、 `job show`コマンドを使用して進行状況を監視できます。
 
-*** コマンドを使用すると、クォータの初期化のステータスを監視できます `volume quota show`。
-
-
+***  `volume quota show`コマンドを使用して、クォータ初期化のステータスを監視できます。
 
 
-. コマンドを使用し `volume quota show -instance`て、初期化に失敗したクォータルールなどの初期化エラーを確認します。
-. コマンドを使用し `volume quota report`てクォータレポートを表示し、適用クォータが想定どおりであることを確認します。
+
+
+.  `volume quota show -instance`コマンドを使用して、初期化に失敗したクォータルールなどの初期化エラーを確認します。
+.  `volume quota report`コマンドを使用してクォータレポートを表示し、適用されたクォータが期待どおりであることを確認できます。
 
 
 .関連情報
 * link:https://docs.netapp.com/us-en/ontap-cli/vserver-show.html["vserver show"^]
-* link:https://docs.netapp.com/us-en/ontap-cli/search.html?q=volume+quota+policy+rule["ボリュームクォータポリシールール"^]
+* link:https://docs.netapp.com/us-en/ontap-cli/search.html?q=volume+quota+policy+rule["volumeクォータポリシールール"^]
 * link:https://docs.netapp.com/us-en/ontap-cli/search.html?q=volume+quota["ボリュームクォータ"^]
-* link:https://docs.netapp.com/us-en/ontap-cli/job-show.html["ジョブの表示"^]
+* link:https://docs.netapp.com/us-en/ontap-cli/job-show.html["job show"^]
 

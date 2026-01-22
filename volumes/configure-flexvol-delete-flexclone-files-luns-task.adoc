@@ -2,39 +2,39 @@
 permalink: volumes/configure-flexvol-delete-flexclone-files-luns-task.html 
 sidebar: sidebar 
 keywords: configure, flexvol volume, automatically, delete, flexclone files, flexclone luns, flexvol, volume, automatic, file, autodelete 
-summary: ボリュームの空きスペースが一定のしきい値を下回ったときに、FlexCloneファイルおよびFlexClone LUNを自動的に削除するようにFlexVol volumeを有効にすることができます。 
+summary: ボリュームの空きスペースが特定のしきい値を下回った場合に、FlexCloneファイルとFlexClone LUNが自動的に削除されるようにFlexVolを設定できます。 
 ---
-= FlexCloneファイルおよびFlexClone LUNを自動的に削除するようにFlexVol volumeを設定する
+= FlexCloneファイルおよびFlexClone LUNを自動的に削除するためのFlexVolの設定
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-ボリュームの空きスペースが一定のしきい値を下回ったときに FlexClone ファイルおよび FlexClone LUN の削除を自動的に開始し、ボリュームの空きスペースを指定の量だけ再生したらクローンの削除を自動的に中止するように設定できます。クローンの自動削除を開始するしきい値を指定することはできませんが、それぞれのクローンを削除対象に含めるかどうかと、ボリュームの空きスペースの目標量を指定することができます。
+ボリュームの空きスペースが一定のしきい値を下回ったときにFlexCloneファイルおよびFlexClone LUNの削除を自動的に開始し、指定した量の空きスペースが再生されたときにクローンの削除を自動的に停止するようにボリュームを設定できます。クローンの自動削除を開始するしきい値を指定することはできませんが、あるクローンを削除対象に含めるかどうかや、ボリュームの空きスペースの目標量を指定することはできます。
 
-ボリュームの空きスペースが一定のしきい値を下回ったとき、および次の要件の両方に達したときに、 FlexClone ファイルおよび FlexClone LUN が自動的に削除されます。
+ボリューム内の空き領域が特定のしきい値を下回り、次の_両方_の要件が満たされると、ボリュームはFlexCloneファイルとFlexClone LUNを自動的に削除します：
 
-* FlexClone ファイルおよび FlexClone LUN が格納されているボリュームに対して自動削除機能が有効になっている。
+* 自動削除機能が、FlexCloneファイルおよびFlexClone LUNを含むボリュームに対して有効になっている。
 +
-FlexVol volumeに対して自動削除機能を有効にするには、コマンドを使用し `volume snapshot autodelete modify`ます。ボリュームでFlexCloneファイルおよびFlexClone LUNを自動的に削除するには、パラメータをまたは `snap_reserve`に `volume`設定する必要があります `-trigger`。
+ `volume snapshot autodelete modify`コマンドを使用して、FlexVol ボリュームの自動削除機能を有効にできます。ボリュームでFlexClone ファイルとFlexClone LUNを自動的に削除するには、 `-trigger`パラメータを `volume`または `snap_reserve`に設定する必要があります。
 
-* FlexClone ファイルおよび FlexClone LUN に対して自動削除機能が有効になっている。
+* 自動削除機能が、FlexCloneファイルおよびFlexClone LUNに対して有効になっている。
 +
-FlexCloneファイルまたはFlexClone LUNに対して自動削除を有効にするには、 `file clone create`コマンドでパラメータを指定し `-autodelete`ます。このクローン設定はボリュームの他の設定よりも優先されるため、この設定で個別に自動削除を無効にすることで、特定の FlexClone ファイルや FlexClone LUN を保持することができます。
+ `file clone create`コマンドに `-autodelete`パラメータを指定することで、FlexCloneファイルまたはFlexClone LUNの自動削除を有効にすることができます。これにより、クローンの自動削除を無効にし、他のボリューム設定がクローン設定を上書きしないようにすることで、特定のFlexCloneファイルとFlexClone LUNを保持することができます。
 
 
 
 .開始する前に
-* FlexVol volumeにFlexCloneファイルとFlexClone LUNが含まれていて、オンラインになっている必要があります。
-* FlexVol volumeを読み取り専用ボリュームにすることはできません。
+* FlexVolにFlexCloneファイルおよびFlexClone LUNが含まれていて、オンラインになっている必要があります。
+* FlexVolが読み取り専用ボリュームでないことが必要です。
 
 
 .手順
-. コマンドを使用して、FlexVol volumeでFlexCloneファイルおよびFlexClone LUNの自動削除を有効にします `volume snapshot autodelete modify`。の詳細については `volume snapshot autodelete modify`、をlink:https://docs.netapp.com/us-en/ontap-cli/volume-snapshot-autodelete-modify.html["ONTAPコマンド リファレンス"^]参照してください。
+.  `volume snapshot autodelete modify`コマンドを使用して、FlexVolボリューム内のFlexCloneファイルおよびFlexCloneLUNの自動削除を有効にします。 `volume snapshot autodelete modify`についての詳細は、link:https://docs.netapp.com/us-en/ontap-cli/volume-snapshot-autodelete-modify.html["ONTAPコマンド リファレンス"^]をご覧ください。
 +
-** パラメータには `-trigger`、またはを `snap_reserve`指定できます `volume`。
-** パラメータには `-destroy-list`、1種類のクローンのみを削除するかどうかに関係なく、常に指定する必要があり `lun_clone,file_clone`ます。次の例は、ボリュームvol1でFlexCloneファイルとFlexClone LUNの自動削除を有効にし、ボリュームの25%が空きスペースになるまでスペースが再生されるようにする方法を示しています。
+**  `-trigger`パラメータには、 `volume`または `snap_reserve`を指定できます。
+**  `-destroy-list`パラメータには、削除するクローンの種類が1つだけかどうかに関係なく、 `lun_clone,file_clone`を必ず指定する必要があります。次の例は、ボリュームvol1で、空き領域が25%になるまで、FlexCloneファイルとFlexClone LUNの自動削除をトリガーしてスペースを再利用するように設定する方法を示しています：
 +
 [listing]
 ----
@@ -45,14 +45,14 @@ Volume modify successful on volume:vol1
 +
 [NOTE]
 ====
-FlexVolボリュームで自動削除を有効にする際にパラメータの値をに `destroy`設定する `-commitment`と、ボリュームの空きスペースが指定したしきい値を下回った場合に、パラメータがに設定された `true`すべてのFlexCloneファイルおよびFlexClone LUNが `-autodelete`削除される可能性があります。ただし、パラメータがに設定されて `false`いるFlexCloneファイルとFlexClone LUN `-autodelete`は削除されません。
+FlexVolボリュームの自動削除を有効にしている際に、 `-commitment`パラメータの値を `destroy`に設定すると、ボリュームの空き容量が指定されたしきい値を下回った場合に、 `-autodelete`パラメータが `true`に設定されているすべてのFlexCloneファイルとFlexClone LUNが削除される可能性があります。ただし、 `-autodelete`パラメータが `false`に設定されているFlexCloneファイルとFlexClone LUNは削除されません。
 
 ====
 
 
-. コマンドを使用して、FlexVol volumeでFlexCloneファイルおよびFlexClone LUNの自動削除が有効になっていることを確認します `volume snapshot autodelete show`。の詳細については `volume snapshot autodelete show`、をlink:https://docs.netapp.com/us-en/ontap-cli/volume-snapshot-autodelete-show.html["ONTAPコマンド リファレンス"^]参照してください。
+. FlexVol volumeで `volume snapshot autodelete show`コマンドを使用して、FlexCloneファイルおよびFlexCloneLUNの自動削除が有効になっていることを確認します。 `volume snapshot autodelete show`についての詳細は、link:https://docs.netapp.com/us-en/ontap-cli/volume-snapshot-autodelete-show.html["ONTAPコマンド リファレンス"^]をご覧ください。
 +
-次の例は、ボリュームvol1でFlexCloneファイルとFlexClone LUNの自動削除が有効になっていることを示しています。
+次の例では、ボリュームvol1でFlexCloneファイルとFlexClone LUNの自動削除が有効になっています。
 
 +
 [listing]
@@ -71,14 +71,14 @@ cluster1::> volume snapshot autodelete show -vserver vs1 -volume vol1
      *Destroy List: lun_clone,file_clone*
 Is Constituent Volume: false
 ----
-. 次の手順を実行して、削除するボリューム内のFlexCloneファイルおよびFlexClone LUNで自動削除が有効になっていることを確認します。
+. 次の手順を実行して、ボリューム内の削除対象とするFlexCloneファイルとFlexClone LUNの自動削除を有効にします。
 +
-.. コマンドを使用して、特定のFlexCloneファイルまたはFlexClone LUNの自動削除を有効にします `volume file clone autodelete`。の詳細については `volume file clone autodelete`、をlink:https://docs.netapp.com/us-en/ontap-cli/volume-file-clone-autodelete.html["ONTAPコマンド リファレンス"^]参照してください。
+..  `volume file clone autodelete`コマンドを使用して、特定のFlexCloneファイルまたはFlexClone LUNの自動削除を有効にします。link:https://docs.netapp.com/us-en/ontap-cli/volume-file-clone-autodelete.html["ONTAPコマンド リファレンス"^]の `volume file clone autodelete`の詳細をご覧ください。
 +
-コマンドでパラメータを指定する `-force`と、特定のFlexCloneファイルまたはFlexClone LUNを強制的に自動削除できます `volume file clone autodelete`。
+ `volume file clone autodelete`コマンドに `-force`パラメータを指定すると、特定のFlexCloneファイルまたはFlexClone LUNを強制的に自動削除できます。
 
 +
-次の例は、ボリュームvol1に含まれるFlexClone LUN lun1_cloneの自動削除が有効になっていることを示しています。
+次の例では、ボリュームvol1に含まれるFlexClone LUN lun1_cloneの自動削除が有効になっています。
 
 +
 [listing]
@@ -86,11 +86,11 @@ Is Constituent Volume: false
 cluster1::> volume file clone autodelete -vserver vs1 -clone-path /vol/vol1/lun1_clone -enabled true
 ----
 +
-自動削除は、FlexCloneファイルおよびFlexClone LUNの作成時に有効にすることができます。
+FlexCloneファイルおよびFlexClone LUNの作成時に自動削除を有効にすることができます。
 
-.. コマンドを使用して、FlexCloneファイルまたはFlexClone LUNで自動削除が有効になっていることを確認します `volume file clone show-autodelete`。の詳細については `volume file clone show-autodelete`、をlink:https://docs.netapp.com/us-en/ontap-cli/volume-file-clone-show-autodelete.html["ONTAPコマンド リファレンス"^]参照してください。
+..  `volume file clone show-autodelete`コマンドを使用して、FlexCloneファイルまたはFlexClone LUNの自動削除が有効になっていることを確認します。link:https://docs.netapp.com/us-en/ontap-cli/volume-file-clone-show-autodelete.html["ONTAPコマンド リファレンス"^]の `volume file clone show-autodelete`の詳細を確認してください。
 +
-次の例は、FlexClone LUN lun1_cloneで自動削除が有効になっていることを示しています。
+次の例では、FlexClone LUN lun1_cloneで自動削除が有効になっています。
 
 +
 [listing]
@@ -103,6 +103,6 @@ Clone Path: vol/vol1/lun1_clone
 
 
 +
-この手順で説明されているコマンドの詳細については、をlink:https://docs.netapp.com/us-en/ontap-cli/["ONTAPコマンド リファレンス"^]参照してください。
+この手順で説明されているコマンドの詳細については、link:https://docs.netapp.com/us-en/ontap-cli/["ONTAPコマンド リファレンス"^]を参照してください。
 
 

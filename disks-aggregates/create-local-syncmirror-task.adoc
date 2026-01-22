@@ -2,42 +2,42 @@
 permalink: disks-aggregates/create-local-syncmirror-task.html 
 sidebar: sidebar 
 keywords: ontap 9, create, aggregates, syncmirror, sync mirror, add, local tier 
-summary: ローカル層を手動で作成して、ローカル層のデータを同期的にミラーリングするときに、 SyncMirrorを有効にできます。 
+summary: ローカル層を手動で作成するときにSyncMirrorを有効にして、ローカル層のデータを同期的にミラーリングできます。 
 ---
-= SyncMirrorを有効にしてONTAPローカル階層を追加する
+= SyncMirrorを有効にしたONTAPローカル階層を追加
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-ローカル層を手動で作成して、ローカル層のデータを同期的にミラーリングするときに、 SyncMirrorを有効にできます。
+ローカル層を手動で作成するときにSyncMirrorを有効にして、ローカル層のデータを同期的にミラーリングできます。
 
-詳細はこちらlink:../concepts/mirrored-unmirrored-aggregates-concept.html["ミラーリングされたローカル層とミラーリングされていないローカル層"] 。
+link:../concepts/mirrored-unmirrored-aggregates-concept.html["ミラーリングされたローカル階層とミラーリングされていないローカル階層"]についての詳細をご覧ください。
 
 .開始する前に
 * クラスターは内部ストレージのみで初期化する必要があります。
-* 両方のノードでクラスターのセットアップが完了している必要があります。
+* 両方のノードでクラスタのセットアップが完了している必要があります。
 
 
-.タスクの内容
+.タスク概要
 この手順により、各クラスター ノードに同じサイズのミラー化されたデータ ローカル層が作成され、各ローカル層のディスク数は 44 になります。
 
 .手順
-. ストレージの自動割り当てを無効にする:
+. ストレージの自動割り当てを無効にする：
 +
 `storage disk option modify -node * -autoassign off`
 
-. 自動割り当てが無効になっていることを確認します。
+. 自動割り当てが無効になっていることを確認します：
 +
 `storage disk option show`
 
-. 外部棚を取り付けます。
-. プール 1 を指定して各ノードに外部ドライブを割り当てます。
+. 外部シェルフを取り付けます。
+. プール 1 を指定して各ノードに外部ドライブを割り当てます：
 +
 `storage disk assign -disk <disk ID> -owner <node name> -pool 1`
 
-. 各ノードのルート ローカル層をミラーリングします。
+. 各ノードのルート ローカル層をミラーリングします：
 +
 `storage aggregate mirror -aggregate <node1 root-aggr>`
 
@@ -48,15 +48,15 @@ summary: ローカル層を手動で作成して、ローカル層のデータ�
 
 NOTE: プール 1 内のドライブは、プレックス 0 内のドライブと一致するように自動的にパーティション分割されます。
 
-. ノード 1 で、ディスク数 44 を使用してミラー化されたデータ ローカル層を作成します。これにより、プール 0 から 22 個のパーティションとプール 1 から 22 個のパーティションが選択されます。
+. ノード 1 で、ディスク数 44 を使用してミラー化されたデータ ローカル層を作成します。これにより、プール 0 から 22 個のパーティションが選択され、プール 1 から 22 個のパーティションが選択されます。
 +
 `storage aggregate create -node <node1 name> -aggregate <node1 aggr-name> -diskcount 44 -mirror true`
 
-. ノード 2 で、ディスク数 44 を使用してミラー化されたデータ ローカル層を作成します。これにより、プール 0 から 22 個のパーティションとプール 1 から 22 個のパーティションが選択されます。
+. ノード 2 で、ディスク数 44 を使用してミラー化されたデータ ローカル層を作成します。これにより、プール 0 から 22 個のパーティションが選択され、プール 1 から 22 個のパーティションが選択されます。
 +
 `storage aggregate create -node <node2 name> -aggregate <node2 aggr-name> -diskcount 44 -mirror true`
 
-. 同じサイズのローカル層が正常に作成されたことを確認します。
+. 同じサイズのローカル階層が正常に作成されたことを確認します：
 +
 `storage aggregate show`
 
@@ -64,6 +64,6 @@ NOTE: プール 1 内のドライブは、プレックス 0 内のドライブ�
 
 .関連情報
 * link:https://docs.netapp.com/us-en/ontap-cli/storage-disk-assign.html["storage disk assign"^]
-* link:https://docs.netapp.com/us-en/ontap-cli/storage-disk-option-modify.html["ストレージディスクオプションの変更"^]
-* link:https://docs.netapp.com/us-en/ontap-cli/storage-disk-option-show.html["ストレージディスクオプションの表示"^]
+* link:https://docs.netapp.com/us-en/ontap-cli/storage-disk-option-modify.html["storage disk option modify"^]
+* link:https://docs.netapp.com/us-en/ontap-cli/storage-disk-option-show.html["storage disk option show"^]
 

@@ -2,7 +2,7 @@
 permalink: nvme/set-up-secure-authentication-nvme-task.html 
 sidebar: sidebar 
 keywords: manage, nvme, secure, authentication, tcp, dh-hmac-hcap, chap, setting up, set up, in-band, in band 
-summary: ONTAP 9.12.1以降では、DH-HMAC-CHAP認証プロトコルを使用したNVMe経由でNVMeホストとコントローラの間の双方向認証がサポートされます。 
+summary: ONTAP 9.12.1以降では、DH-HMAC-CHAP認証プロトコルを使用したNVMeでのNVMeホストとコントローラ間の安全な双方向認証がサポートされます。 
 ---
 = NVMe経由のインバンド認証の設定
 :allow-uri-read: 
@@ -11,38 +11,38 @@ summary: ONTAP 9.12.1以降では、DH-HMAC-CHAP認証プロトコルを使用�
 
 
 [role="lead"]
-12.1以降でONTAP 9は、ONTAPコマンドラインインターフェイス（CLI）を使用して、DH-HMAC-CHAP認証を使用して、NVMe/TCPおよびNVMe/FCプロトコルを介したNVMeホストとコントローラ間のインバンド（セキュア）双方向および単方向認証を設定できます。ONTAP 9.14.1以降では、インバンド認証をSystem Managerで設定できます。
+ONTAP 9.12.1以降では、ONTAPコマンドライン インターフェイス（CLI）を使用して、NVMeホストとNVMeコントローラの間にNVMe / TCPおよびNVMe / FCプロトコルを介したDH-HMAC-CHAP認証によるインバンドの（セキュアな）双方向認証および単方向認証を設定できます。ONTAP 9.14.1以降では、インバンド認証をSystem Managerで設定できます。
 
-インバンド認証を設定するには、各ホストまたはコントローラにDH-HMAC-CHAPキーを関連付ける必要があります。DH-HMAC-CHAPキーは、NVMeホストまたはコントローラのNQNと管理者が設定した認証シークレットを組み合わせたものです。NVMeホストまたはコントローラがピアを認証するには、ピアに関連付けられたキーを認識している必要があります。
+インバンド認証を設定するには、各ホストまたはコントローラにDH-HMAC-CHAPキーを関連付ける必要があります。DH-HMAC-CHAPキーは、NVMeホストまたはコントローラのNQNと管理者が設定した認証シークレットを組み合わせたものです。NVMeホストまたはコントローラがピアを認証するには、そのピアに関連付けられているキーを認識している必要があります。
 
-単方向認証では、コントローラではなくホストにシークレットキーが設定されます。双方向認証では、ホストとコントローラの両方にシークレットキーが設定されます。
+単方向認証では、ホストにはシークレット キーを設定しますが、コントローラには設定しません。双方向認証では、ホストとコントローラの両方にシークレット キーを設定します。
 
-SHA-256がデフォルトのハッシュ関数で、2048ビットがデフォルトのDHグループです。
+デフォルトのハッシュ関数はSHA-256で、デフォルトのDHグループは2048ビットです。
 
 [role="tabbed-block"]
 ====
 .System Manager
 --
-14.1以降では、サブシステムの作成または更新、NVMeネームスペースの作成またはクローニング、新しいONTAP 9ネームスペースを使用した整合グループの追加時に、System Managerを使用してインバンド認証を設定できます。
+ONTAP 9.14.1以降では、NVMeサブシステムの作成または更新、NVMeネームスペースの作成またはクローニング、新しいNVMeネームスペースを使用した整合グループの追加を行うときに、System Managerでインバンド認証を設定できます。
 
 .手順
-. System Managerで、*[ホスト]>[NVMeサブシステム]*をクリックし、*[追加]*をクリックします。
-. NVMeサブシステム名を追加し、Storage VMとホストオペレーティングシステムを選択します。
-. ホストのNQNを入力します。
-. [Host NQN]の横にある*[Use in-band authentication]*を選択します。
-. ホストシークレットとコントローラシークレットを指定します。
+. System Manager で、*Hosts > NVMe Subsystem* をクリックし、*Add* をクリックします。
+. NVMeサブシステム名を追加し、Storage VMとホスト オペレーティング システムを選択します。
+. ホストNQNを入力します。
+. ホスト NQN の横にある *Use in-band authentication* を選択します。
+. ホスト シークレットとコントローラ シークレットを指定します。
 +
 DH-HMAC-CHAPキーは、NVMeホストまたはコントローラのNQNと管理者が設定した認証シークレットを組み合わせたものです。
 
-. ホストごとに使用するハッシュ関数とDHグループを選択します。
+. 各ホストで使用するハッシュ関数とDHグループを選択します。
 +
-ハッシュ関数とDHグループを選択しない場合、SHA-256がデフォルトのハッシュ関数として割り当てられ、2048ビットがデフォルトのDHグループとして割り当てられます。
+ハッシュ関数とDHグループを選択しなかった場合には、それぞれのデフォルト設定（ハッシュ関数はSHA-256、DHグループは2048ビット）が割り当てられます。
 
-. 必要に応じて、*[追加]*をクリックし、必要に応じて手順を繰り返してホストを追加します。
-. [ 保存（ Save ） ] をクリックします。
-. インバンド認証が有効になっていることを確認するには、*[システムマネージャ]>[ホスト]>[NVMeサブシステム]>[グリッド]>[ピークビュー]*をクリックします。
+. オプションで、*追加*をクリックし、必要に応じて手順を繰り返してさらにホストを追加します。
+. *保存*をクリックします。
+. インバンド認証が有効になっていることを確認するには、*System Manager > Hosts > NVMe Subsystem > Grid > Peek view* をクリックします。
 +
-ホスト名の横にあるトランスペアレントキーアイコンは、単方向モードがイネーブルであることを示します。ホスト名の横にある不透明キーは、双方向モードが有効であることを示します。
+ホスト名の横にあるキー アイコンが透明な場合、単方向モードが有効であることを示しています。ホスト名の横にあるキー アイコンが不透明な場合、双方向モードが有効であることを示しています。
 
 
 
@@ -57,7 +57,7 @@ DH-HMAC-CHAPキーは、NVMeホストまたはコントローラのNQNと管理�
 vserver nvme subsystem host add -vserver <svm_name> -subsystem <subsystem> -host-nqn <host_nqn> -dhchap-host-secret <authentication_host_secret> -dhchap-controller-secret <authentication_controller_secret> -dhchap-hash-function <sha-256|sha-512> -dhchap-group <none|2048-bit|3072-bit|4096-bit|6144-bit|8192-bit>
 ----
 +
-の詳細については `vserver nvme subsystem host add`、をlink:https://docs.netapp.com/us-en/ontap-cli/vserver-nvme-subsystem-host-add.html["ONTAPコマンド リファレンス"^]参照してください。
+ `vserver nvme subsystem host add`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/vserver-nvme-subsystem-host-add.html["ONTAPコマンド リファレンス"^]をご覧ください。
 
 . DH-HMAC CHAP認証プロトコルがホストに追加されたことを確認します。
 +
@@ -77,7 +77,7 @@ vserver nvme subsystem host show
 
 ----
 +
-の詳細については `vserver nvme subsystem host show`、をlink:https://docs.netapp.com/us-en/ontap-cli/vserver-nvme-subsystem-host-show.html["ONTAPコマンド リファレンス"^]参照してください。
+ `vserver nvme subsystem host show`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/vserver-nvme-subsystem-host-show.html["ONTAPコマンド リファレンス"^]をご覧ください。
 
 . NVMeコントローラの作成時にDH-HMAC CHAP認証が実行されたことを確認します。
 +

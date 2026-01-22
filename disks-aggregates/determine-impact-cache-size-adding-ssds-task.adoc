@@ -2,39 +2,39 @@
 permalink: disks-aggregates/determine-impact-cache-size-adding-ssds-task.html 
 sidebar: sidebar 
 keywords: determine, impact, cache, size, ssds, storage pool 
-summary: ストレージプールにSSDを追加するとプラットフォームモデルのキャッシュ制限を超える場合、ONTAPは新しく追加した容量をどのFlash Poolローカル階層にも割り当てません。その結果、新しく追加した容量の一部またはすべてを使用できなくなる可能性があります。 
+summary: ストレージ プールにSSDを追加することでプラットフォーム モデルのキャッシュ制限を超えた場合、ONTAPは新しく追加された容量をFlash Poolローカル階層に割り当てません。その結果、新しく追加された容量の一部またはすべてが使用できなくなる可能性があります。 
 ---
-= SSDストレージプールにSSDが追加された場合のONTAPキャッシュサイズへの影響の判定
+= SSD を SSD ストレージ プールに追加した場合の ONTAP キャッシュ サイズへの影響を判断する
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-ストレージプールにSSDを追加するとプラットフォームモデルのキャッシュ制限を超えてしまう場合、ONTAPは新しく追加した容量をどのFlash Poolローカル階層にも割り当てません。その結果、新しく追加した容量の一部またはすべてを使用できなくなる可能性があります。
+ストレージ プールにSSDを追加することでプラットフォーム モデルのキャッシュ制限を超えた場合、ONTAPは新しく追加された容量をFlash Poolローカル階層に割り当てません。その結果、新しく追加された容量の一部またはすべてが使用できなくなる可能性があります。
 
-.タスクの内容
-割り当て単位がFlash Poolローカル階層にすでに割り当てられているSSDストレージプールにSSDを追加すると、それらの各ローカル階層のキャッシュサイズとシステムの合計キャッシュサイズが拡張されます。ストレージプールの割り当て単位がどれも割り当てられていない場合、そのストレージプールにSSDを追加しても、1つ以上の割り当て単位がキャッシュに割り当てられるまでSSDのキャッシュサイズには影響しません。
+.タスク概要
+フラッシュプールのローカル階層に割り当て単位がすでに割り当てられているSSDストレージプールにSSDを追加すると、各ローカル階層のキャッシュサイズとシステム全体のキャッシュが増加します。ストレージプールの割り当て単位が1つも割り当てられていない場合、そのストレージプールにSSDを追加しても、1つ以上の割り当て単位がキャッシュに割り当てられるまで、SSDキャッシュサイズには影響しません。
 
 .手順
-. ストレージプールに追加するSSDの使用可能なサイズを確認します。
+. ストレージ プールに追加するSSDの使用可能なサイズを確認します。
 +
 `storage disk show _disk_name_ -fields usable-size`
 
-. ストレージプールの未割り当ての割り当て単位の数を確認します。
+. ストレージ プールの未割り当ての割り当て単位数を確認します。
 +
 `storage pool show-available-capacity _sp_name_`
 
 +
-ストレージプール内の未割り当ての割り当て単位がすべて表示されます。
+ストレージ プール内の未割り当てのすべての割り当て単位が表示されます。
 
-. 次の式を使用して、追加するキャッシュの容量を計算します。
+. 次の計算式を使用して、追加するキャッシュの容量を計算します。
 +
-（4 -未割り当ての割り当て単位の数）×25%×使用可能なサイズ×SSDの数
+(4 - 未割り当ての割り当て単位数) × 25% × 使用可能なサイズ × SSDの数
 
 
 
 .関連情報
 * link:https://docs.netapp.com/us-en/ontap-cli/storage-disk-show.html["storage disk show"^]
-* link:https://docs.netapp.com/us-en/ontap-cli/storage-pool-show-available-capacity.html["ストレージプールの利用可能な容量の表示"^]
+* link:https://docs.netapp.com/us-en/ontap-cli/storage-pool-show-available-capacity.html["storage pool show-available-capacity"^]
 

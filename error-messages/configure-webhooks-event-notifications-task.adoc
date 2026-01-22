@@ -2,103 +2,103 @@
 permalink: error-messages/configure-webhooks-event-notifications-task.html 
 sidebar: sidebar 
 keywords: configure, important, ems, events, receive, email, notifications, forward, rest, api, webhook 
-summary: 重要なイベント通知をWebhookアプリケーションに転送するようにONTAPを設定できます。必要な設定手順は、選択したセキュリティのレベルによって異なります。 
+summary: 重要なイベント通知をWebフック アプリケーションに転送するようにONTAPを設定できます。必要な設定手順は、選択するセキュリティのレベルによって異なります。 
 ---
-= 重要なONTAP EMSイベントを設定して通知をWebhookアプリケーションに転送する
+= 重要なONTAP EMSイベントを設定して、通知をWebhookアプリケーションに転送します。
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-重要なイベント通知をWebhookアプリケーションに転送するようにONTAPを設定できます。必要な設定手順は、選択したセキュリティのレベルによって異なります。
+重要なイベント通知をWebフック アプリケーションに転送するようにONTAPを設定できます。必要な設定手順は、選択するセキュリティのレベルによって異なります。
 
 
 
-== EMSイベント転送を設定する準備
+== EMSイベントの転送を設定するための準備
 
-Webhookアプリケーションにイベント通知を転送するようにONTAPを設定する前に、いくつかの概念と要件を考慮する必要があります。
-
-
-
-=== Webhookアプリケーション
-
-ONTAPイベント通知を受信できるWebhookアプリケーションが必要です。Webhookはユーザ定義のコールバックルーチンで、実行されるリモートアプリケーションまたはサーバの機能を拡張します。Webhookは、宛先URLにHTTP要求を送信することにより、クライアント（この場合はONTAP）によって呼び出されるか、アクティブになります。具体的には、ONTAPは、Webhookアプリケーションをホストしているサーバーに、XML形式のイベント通知の詳細とともにHTTP POST要求を送信します。
+イベント通知をWebフック アプリケーションに転送するようにONTAPを設定する前に、いくつかの概念と要件を確認しておく必要があります。
 
 
 
-=== セキュリティオプション
+=== Webフック アプリケーション
 
-Transport Layer Security（TLS）プロトコルの使用方法に応じて、いくつかのセキュリティオプションを使用できます。選択するオプションによって、必要なONTAP設定が決まります。
+ONTAPのイベント通知を受信できるWebフック アプリケーションが必要です。Webフックはユーザが定義するコールバック ルーチンで、リモート アプリケーションまたはサーバで実行してその機能を拡張します。Webフックは、クライアント（この場合はONTAP）が転送先のURLにHTTP要求を送信することで呼び出され（アクティブ化され）ます。具体的には、ONTAPが、Webフック アプリケーションをホストするサーバに、HTTP POST要求とイベント通知の詳細（XML形式）を送信します。
+
+
+
+=== セキュリティ オプション
+
+Transport Layer Security（TLS）プロトコルの使用方法に応じて、いくつかのセキュリティ オプションを使用できます。選択するオプションによって、ONTAPで必要な設定が決まります。
 
 [NOTE]
 ====
 TLSは、インターネットで広く使用されている暗号化プロトコルです。1つ以上の公開鍵証明書を使用して、プライバシー、データの整合性、および認証を提供します。証明書は、信頼された認証局によって発行されます。
 
 ====
-HTTP:: HTTPを使用してイベント通知を転送できます。この設定では、接続はセキュアではありません。ONTAPクライアントとWebhookアプリケーションのIDは検証されません。さらに、ネットワークトラフィックは暗号化または保護されません。設定の詳細については、を参照してくださいlink:configure-webhooks-event-notifications-task.html#configure-a-webhook-destination-to-use-http["Webフックの転送先でHTTPを使用するための設定"]。
-HTTPS:: セキュリティを強化するために、webhookルーチンをホストするサーバーに証明書をインストールできます。HTTPSプロトコルは、ONTAPによってWebhookアプリケーションサーバのIDを検証するために使用されます。また、ネットワークトラフィックのプライバシーと整合性を確保するために、両方の当事者によって使用されます。設定の詳細については、を参照してくださいlink:configure-webhooks-event-notifications-task.html#configure-a-webhook-destination-to-use-https["HTTPSを使用するようにWebhookの宛先を設定する"]。
-相互認証を使用するHTTPS:: Webブック要求を発行するONTAPシステムにクライアント証明書をインストールすることで、HTTPSセキュリティをさらに強化できます。WebhookアプリケーションサーバのIDを検証し、ネットワークトラフィックを保護するONTAPに加えて、WebhookアプリケーションはONTAPクライアントのIDを検証します。この双方向ピア認証は、_Mutual TLS_と呼ばれています。設定の詳細については、を参照してくださいlink:configure-webhooks-event-notifications-task.html#configure-a-webhook-destination-to-use-https-with-mutual-authentication["相互認証でHTTPSを使用するようにWebhookの宛先を設定する"]。
+HTTP:: イベント通知の転送にはHTTPを使用できます。この設定では、接続は安全ではありません。ONTAPクライアントとWebhookアプリケーションのIDは検証されません。さらに、ネットワーク トラフィックは暗号化も保護もされません。設定の詳細については、link:configure-webhooks-event-notifications-task.html#configure-a-webhook-destination-to-use-http["Webフックの転送先でHTTPを使用するための設定"]を参照してください。
+HTTPS:: セキュリティを強化するために、Webhookルーチンをホストするサーバに証明書をインストールできます。HTTPSプロトコルは、ONTAPがWebhookアプリケーションサーバのIDを検証するため、および両者がネットワーク トラフィックのプライバシーと整合性を確保するために使用されます。設定の詳細については、link:configure-webhooks-event-notifications-task.html#configure-a-webhook-destination-to-use-https["Webフックの転送先でHTTPSを使用するための設定"]を参照してください。
+HTTPS相互認証:: Webhook リクエストを発行する ONTAP システムにクライアント証明書をインストールすることで、HTTPS セキュリティをさらに強化できます。ONTAP が Webhook アプリケーション サーバの ID を検証し、ネットワーク トラフィックを保護することに加えて、Webhook アプリケーションも ONTAP クライアントの ID を検証します。この双方向ピア認証は、_Mutual TLS_ と呼ばれます。設定の詳細については、link:configure-webhooks-event-notifications-task.html#configure-a-webhook-destination-to-use-https-with-mutual-authentication["Webフックの転送先でHTTPS相互認証を使用するための設定"] を参照してください。
 
 
 .関連情報
-* https://www.rfc-editor.org/info/rfc8446["Transport Layer Security（TLS）プロトコルバージョン1.3"^]
+* https://www.rfc-editor.org/info/rfc8446["Transport Layer Security（TLS）プロトコル バージョン 1.3"^]
 
 
 
 
 == Webフックの転送先でHTTPを使用するための設定
 
-HTTPを使用してWebフック アプリケーションにイベント通知を転送するようにONTAPを設定できます。これはセキュリティが最も低いオプションですが、設定が最も簡単です。
+HTTPを使用してWebフック アプリケーションにイベント通知を転送するようにONTAPを設定できます。これは最も安全性の低いオプションですが、設定は最も簡単です。
 
 .手順
-. イベントを受信する新しい送信先を作成し `restapi-ems`ます。
+. イベントを受信するための新しい宛先 `restapi-ems`を作成します：
 +
 `event notification destination create -name restapi-ems -rest-api-url \http://<webhook-application>`
 
 +
-上記のコマンドでは、デスティネーションに* HTTP *スキームを使用する必要があります。
+上記のコマンドでは、宛先に *HTTP* スキームを使用する必要があります。
 
 +
-の詳細については `event notification destination create`、をlink:https://docs.netapp.com/us-en/ontap-cli/event-notification-destination-create.html["ONTAPコマンド リファレンス"^]参照してください。
+ `event notification destination create`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/event-notification-destination-create.html["ONTAPコマンド リファレンス"^]をご覧ください。
 
-. フィルタと `restapi-ems`宛先をリンクする通知を作成し `important-events`ます。
+.  `important-events`フィルターと `restapi-ems`宛先をリンクする通知を作成します：
 +
 `event notification create -filter-name important-events -destinations restapi-ems`
 
 +
-の詳細については `event notification create`、をlink:https://docs.netapp.com/us-en/ontap-cli/event-notification-create.html["ONTAPコマンド リファレンス"^]参照してください。
+ `event notification create`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/event-notification-create.html["ONTAPコマンド リファレンス"^]をご覧ください。
 
 
 
 
 
-== HTTPSを使用するようにWebhookの宛先を設定する
+== Webフックの転送先でHTTPSを使用するための設定
 
-HTTPSを使用してイベント通知をWebhookアプリケーションに転送するようにONTAP を設定できます。ONTAPはサーバ証明書を使用して、WebhookアプリケーションのIDを確認し、ネットワークトラフィックを保護します。
+HTTPSを使用してWebフック アプリケーションにイベント通知を転送するようにONTAPを設定できます。ONTAPはサーバ証明書を使用してWebフック アプリケーションの識別情報を確認するとともに、ネットワーク トラフィックを保護します。
 
 .開始する前に
-* Webhookアプリケーションサーバの秘密鍵と証明書を生成する
-* ルート証明書をONTAPにインストールできるようにする
+* Webフック アプリケーション サーバの秘密鍵と証明書を生成します。
+* ONTAPにインストールするルート証明書を用意します。
 
 
 .手順
-. Webhookアプリケーションをホストするサーバーに、適切なサーバー秘密鍵と証明書をインストールします。具体的な設定手順は、サーバによって異なります。
-. ONTAPにサーバルート証明書をインストールします。
+. サーバの秘密鍵と証明書をWebフック アプリケーションをホストするサーバにインストールします。具体的な設定手順は、サーバによって異なります。
+. ONTAPにサーバのルート証明書をインストールします。
 +
 `security certificate install -type server-ca`
 
 +
-コマンドは証明書を要求します。
+このコマンドでは、証明書を指定するよう求められます。
 
-. イベントを受信する送信先を作成し `restapi-ems`ます。
+.  `restapi-ems` 宛先を作成してイベントを受信します：
 +
 `event notification destination create -name restapi-ems -rest-api-url \https://<webhook-application>`
 
 +
-上記のコマンドでは、デスティネーションに* HTTPS *スキームを使用する必要があります。
+上記のコマンドでは、宛先に *HTTPS* スキームを使用する必要があります。
 
-. フィルタと新しい `restapi-ems`宛先をリンクする通知を作成し `important-events`ます。
+.  `important-events`フィルターを新しい `restapi-ems`宛先にリンクする通知を作成します：
 +
 `event notification create -filter-name important-events -destinations restapi-ems`
 
@@ -106,41 +106,41 @@ HTTPSを使用してイベント通知をWebhookアプリケーションに転�
 
 
 
-== 相互認証でHTTPSを使用するようにWebhookの宛先を設定する
+== Webフックの転送先でHTTPS相互認証を使用するための設定
 
-相互認証を使用してHTTPSを使用してWebhookアプリケーションにイベント通知を転送するようにONTAPを設定できます。この構成では、2つの証明書があります。ONTAPは、サーバ証明書を使用してWebhookアプリケーションのIDを確認し、ネットワークトラフィックを保護します。さらに、Webhookをホストするアプリケーションは、クライアント証明書を使用してONTAPクライアントのIDを確認します。
+HTTPS相互認証を使用してWebフック アプリケーションにイベント通知を転送するようにONTAPを設定できます。この設定では証明書を2つ使用します。ONTAPは、サーバ証明書を使用してWebフック アプリケーションの識別情報を確認するとともに、ネットワーク トラフィックを保護します。加えて、Webフックをホストするアプリケーションは、クライアント証明書を使用してONTAPクライアントの識別情報を確認します。
 
 .開始する前に
-ONTAPを設定する前に、次の作業を行う必要があります。
+ONTAPを設定する前に、次の作業を実行する必要があります。
 
-* Webhookアプリケーションサーバの秘密鍵と証明書を生成する
-* ルート証明書をONTAPにインストールできるようにする
-* ONTAPクライアントの秘密鍵と証明書を生成する
+* Webフック アプリケーション サーバの秘密鍵と証明書を生成します。
+* ONTAPにインストールするルート証明書を用意します。
+* ONTAPクライアントの秘密鍵と証明書を生成します。
 
 
 .手順
-. タスクの最初の2つの手順を実行しlink:configure-webhooks-event-notifications-task.html#configure-a-webhook-destination-to-use-https["HTTPSを使用するようにWebhookの宛先を設定する"]てサーバ証明書をインストールし、ONTAPがサーバのIDを確認できるようにします。
-. Webhookアプリケーションに適切なルート証明書と中間証明書をインストールして、クライアント証明書を検証します。
+. タスクlink:configure-webhooks-event-notifications-task.html#configure-a-webhook-destination-to-use-https["Webフックの転送先でHTTPSを使用するための設定"]の最初の 2 つの手順を実行してサーバ証明書をインストールし、ONTAP がサーバの ID を検証できるようにします。
+. クライアント証明書を検証するために、適切なルート証明書と中間証明書をWebフック アプリケーションにインストールします。
 . ONTAPにクライアント証明書をインストールします。
 +
 `security certificate install -type client`
 
 +
-コマンドは秘密鍵と証明書を要求します。
+このコマンドでは、秘密鍵と証明書を指定するよう求められます。
 
-. イベントを受信する送信先を作成し `restapi-ems`ます。
+.  `restapi-ems` 宛先を作成してイベントを受信します：
 +
 `event notification destination create -name restapi-ems -rest-api-url \https://<webhook-application> -certificate-authority <issuer of the client certificate> -certificate-serial <serial of the client certificate>`
 
 +
-上記のコマンドでは、デスティネーションに* HTTPS *スキームを使用する必要があります。
+上記のコマンドでは、宛先に *HTTPS* スキームを使用する必要があります。
 
-. フィルタと新しい `restapi-ems`宛先をリンクする通知を作成し `important-events`ます。
+.  `important-events`フィルターを新しい `restapi-ems`宛先にリンクする通知を作成します：
 +
 `event notification create -filter-name important-events -destinations restapi-ems`
 
 
 
 .関連情報
-* link:https://docs.netapp.com/us-en/ontap-cli/security-certificate-install.html["セキュリティ証明書のインストール"^]
+* link:https://docs.netapp.com/us-en/ontap-cli/security-certificate-install.html["security certificate install"^]
 

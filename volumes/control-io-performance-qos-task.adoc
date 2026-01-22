@@ -2,47 +2,47 @@
 permalink: volumes/control-io-performance-qos-task.html 
 sidebar: sidebar 
 keywords: control, monitor, i/o performance, flexvol volumes, using storage qos, qos, performance, throttle, flexvol, policy, policy group 
-summary: ストレージQoSポリシーグループを使用してワークロードを管理し、FlexVolボリュームのI/Oパフォーマンスを制御することができます。 
+summary: ストレージQoSポリシーグループを使用してFlexVolボリュームのI/Oパフォーマンスを制御し、ワークロードを管理できます。 
 ---
-= ストレージQoSでFlexVol volume I/Oパフォーマンスを制御、監視
+= ストレージQoSを使用したFlexVolへのI/Oパフォーマンスの制御と監視
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-FlexVol ボリュームへの入出力（ I/O ）パフォーマンスは、ストレージ QoS ポリシーグループにボリュームを割り当てることによって制御できます。I/O パフォーマンスを制御することで、ワークロードが特定のパフォーマンス目標を達成できるようにしたり、他のワークロードに悪影響を与えるワークロードを抑制したりできます。
+FlexVolへの入出力（I/O）パフォーマンスは、ボリュームをストレージQoSポリシー グループに割り当てることで制御できます。I/Oパフォーマンスを制御することで、ワークロードが特定のパフォーマンス目標を達成できるようにしたり、他のワークロードに悪影響を及ぼすワークロードを調整したりすることができます。
 
-.タスクの内容
-ポリシーグループは最大スループット制限（ 100MB/s など）を適用します。ポリシーグループは最大スループットを指定せずに作成することもでき、ワークロードの制御に先立ってパフォーマンスを監視できます。
+.タスク概要
+ポリシー グループを使用して、最大スループット制限（100MB / 秒など）を適用します。最大スループットを指定せずにポリシー グループを作成することもできます。これにより、ワークロードを制御する前にパフォーマンスを監視できます。
 
-SVM 、 LUN 、およびファイルをポリシーグループに割り当てることもできます。
+SVM、LUN、ファイルをポリシー グループに割り当てることもできます。
 
-ポリシーグループへのボリュームの割り当てについては、次の要件に注意してください。
+ポリシー グループへのボリュームの割り当てについては、次の要件に注意してください。
 
-* ボリュームは、ポリシーグループが属するSVMに含まれている必要があります。
+* ボリュームは、ポリシー グループが属するSVMに含まれている必要があります。
 +
-SVM は、ポリシーグループを作成するときに指定します。
+SVMはポリシー グループの作成時に指定します。
 
-* ONTAP 9.18.1 以降では、SVM に含まれるボリュームなど、QoS ポリシーを持つ他のオブジェクト内に含まれるオブジェクトに QoS ポリシーを割り当てることができます。ネストされた QoS ポリシーを使用すると、最も制限の厳しいポリシーが適用されます。
+* ONTAP 9.18.1以降では、SVMに含まれるボリュームなど、QoSポリシーが設定されている他のオブジェクト内に含まれるオブジェクトにQoSポリシーを割り当てることができます。ネストされたQoSポリシーを使用する場合、最も制限の厳しいポリシーが適用されます。
 +
-ONTAP 9.18.1 より前のリリースでは、QoS ポリシーを持つ他のオブジェクト内に含まれるオブジェクトに QoS ポリシーを割り当てることができますが、それらのオブジェクトは QoS によって個別に追跡され、相互作用しません。たとえば、50 IOPS の上限を持つ SVM と 100 IOPS の上限を持つFlexVol volumeがある場合、 FlexVol volumeは100 IOPS の上限によって制限されますが、SVM ワークロードに対する QoS ではカウントされません。
+ONTAP 9.18.1より前のリリースでは、QoSポリシーが適用された他のオブジェクト内に含まれるオブジェクトにQoSポリシーを割り当てることができますが、これらのオブジェクトはQoSによって個別に追跡され、相互に作用することはありません。例えば、50 IOPSの上限を持つSVMとFlexVol 100 IOPSの上限を持つボリュームがある場合、FlexVolボリュームは100 IOPSの上限によって制限されますが、QoSによってSVMのワークロードにカウントされません。
 
 
 
-ストレージQoSの使用方法の詳細については、を参照してlink:../system-admin/index.html["システムアドミニストレーションリファレンス"]ください。
+Storage QoS の使用方法の詳細については、link:../system-admin/index.html["システム アドミニストレーション リファレンス"]を参照してください。
 
 .手順
-. コマンドを使用し `qos policy-group create`て、ポリシーグループを作成します。
-.  `volume create`コマンドまたは `volume modify`コマンドでパラメータを指定し `-qos-policy-group`て、ボリュームをポリシーグループに割り当てます。
-. パフォーマンスデータを表示するには、コマンドを使用し `qos statistics`ます。
-. 必要に応じて、コマンドを使用し `qos policy-group modify`てポリシーグループの最大スループット制限を調整します。
+.  `qos policy-group create`コマンドを使用してポリシーグループを作成します。
+.  `volume create`コマンドまたは `volume modify`パラメータ付きの `-qos-policy-group`コマンドを使用して、ボリュームをポリシー グループに割り当てます。
+.  `qos statistics`コマンドを使用してパフォーマンスデータを表示します。
+. 必要に応じて、 `qos policy-group modify`コマンドを使用してポリシーグループの最大スループット制限を調整します。
 
 
 .関連情報
-* link:https://docs.netapp.com/us-en/ontap-cli/search.html?q=qos+policy-group["QoS ポリシーグループ"^]
-* リンク: https://docs.netapp.com/us-en/ontap-cli/qos-policy-group-create.html[qosポリシーグループ作成]
-* link:https://docs.netapp.com/us-en/ontap-cli/volume-create.html["ボリュームの作成"^]
-* link:https://docs.netapp.com/us-en/ontap-cli/volume-modify.html["ボリュームの変更"^]
-* link:https://docs.netapp.com/us-en/ontap-cli/search.html?q=qos+statistics["QoS統計"^]
+* link:https://docs.netapp.com/us-en/ontap-cli/search.html?q=qos+policy-group["qos policy-group"^]
+* リンク：https://docs.netapp.com/us-en/ontap-cli/qos-policy-group-create.html［qos policy-group create］
+* link:https://docs.netapp.com/us-en/ontap-cli/volume-create.html["volume create"^]
+* link:https://docs.netapp.com/us-en/ontap-cli/volume-modify.html["volume modify"^]
+* link:https://docs.netapp.com/us-en/ontap-cli/search.html?q=qos+statistics["qos統計"^]
 

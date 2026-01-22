@@ -2,7 +2,7 @@
 sidebar: sidebar 
 permalink: networking/monitor_the_health_of_network_ports.html 
 keywords: monitor, monitoring, manage, managing, automatic, health, port, monitor the health of network ports, automatic health monitoring and a set of health monitors help you identify network ports that might not be suitable for hosting lifs, network options port-health-monitor modify 
-summary: 健全性の自動監視と一連のヘルスモニタを使用すると、 LIF のホストに適していない可能性のあるネットワークポートを特定できます 
+summary: 自動ヘルスモニタリングとヘルスモニターのセットは、LIFのホスティングに適さない可能性のあるネットワークポートを識別するのに役立ちます 
 ---
 = ONTAPネットワークポートの健全性を監視する
 :hardbreaks:
@@ -14,26 +14,26 @@ summary: 健全性の自動監視と一連のヘルスモニタを使用する�
 
 
 [role="lead"]
-ネットワークポートの ONTAP 管理では、健常性の自動監視機能と一連のヘルスモニタを使用して、 LIF のホストに適さない可能性のあるネットワークポートを特定できます。
+ONTAPによるネットワーク ポートの管理には、健全性の自動監視と一連のヘルスモニタが含まれており、LIFをホストするのに適していない可能性があるネットワーク ポートを特定するのに役立ちます。
 
-.タスクの内容
-ヘルスモニタで健全でないと判断されたネットワークポートは、 EMS メッセージで管理者に警告が送信されるか、またはデグレードとマークされます。ONTAPは、デグレード状態のネットワークポートで別の正常なフェイルオーバーターゲットがある場合、そのLIFでのLIFのホストを回避します。ポートは、リンクフラッピング（リンクがアップとダウンを高速で繰り返す状態）やネットワークパーティショニングなどの軽度な障害イベントが原因でデグレード状態になります。
+.タスク概要
+ヘルスモニタによってネット ワークポートが正常でないと判断されると、EMSメッセージで管理者に警告が表示されるか、そのポートがデグレードとマークされます。LIFに対して別の健全なフェイルオーバー ターゲットが用意されている場合、ONTAPはデグレード状態のネットワーク ポートでのLIFのホストを回避します。リンク フラッピング（リンクの接続状態と切断状態が頻繁に切り替わる現象）やネットワーク パーティショニングなどのソフトな障害イベントが原因で、ポートがデグレード状態になることがあります。
 
-* クラスタIPspace内のネットワークポートは、リンクフラッピングが発生した場合、またはブロードキャストドメイン内の他のネットワークポートへのレイヤ2（L2）の到達可能性が失われた場合にデグレードとマークされます。
-* クラスタ以外の IPspace 内のネットワークポートは、リンクフラッピングが発生した場合にデグレードとマークされます。
+* クラスタIPspace内のネットワーク ポートは、リンク フラッピングが発生した場合、またはブロードキャスト ドメイン内の他のネットワーク ポートへのレイヤ2（L2）の到達可能性が失われた場合にデグレードとマークされます。
+* 非クラスタIPspace内のネットワーク ポートは、リンク フラッピングが発生するとデグレードとマークされます。
 
 
-デグレード状態のポートの以下の動作に注意してください。
+デグレード状態のポートについては、以下の動作に注意する必要があります。
 
-* デグレード状態のポートを VLAN またはインターフェイスグループに含めることはできません。
+* デグレード状態のポートをVLANやインターフェイス グループに含めることはできません。
 +
-インターフェイスグループのメンバーポートがデグレードとマークされていて、インターフェイスグループが正常とマークされている場合は、そのインターフェイスグループで LIF をホストできます。
+インターフェイス グループのメンバー ポートがデグレードとマークされていても、インターフェイス グループが正常とマークされている場合は、そのインターフェイス グループでLIFをホストできます。
 
-* LIFは、デグレード状態のポートから正常な状態のポートに自動的に移行されます。
-* フェイルオーバー時には、デグレード状態のポートはフェイルオーバーターゲットとみなされません。正常なポートがない場合は、通常のフェイルオーバーポリシーに従ってデグレード状態のポートがLIFをホストします。
-* デグレード状態のポートに LIF を作成、移行、リバートすることはできません。
+* LIFは、デグレード状態のポートから健全なポートに自動的に移行されます。
+* フェイルオーバー イベント時に、デグレード状態のポートはフェイルオーバー ターゲットとみなされません。健全なポートがない場合は、通常のフェイルオーバー ポリシーに従って、デグレード状態のポートがLIFをホストします。
+* デグレード状態のポートにはLIFを作成、移行、リバートできません。
 +
-ネットワークポートの設定はに `true`変更できます `ignore-health-status`。その後、正常なポートでLIFをホストできます。
+ネットワークポートの `ignore-health-status`設定を `true`に変更できます。その後、正常なポートでLIFをホストできます。
 
 
 
@@ -43,38 +43,38 @@ summary: 健全性の自動監視と一連のヘルスモニタを使用する�
 ....
 set -privilege advanced
 ....
-. ネットワークポートの健全性の監視で有効になっているヘルスモニタを確認します。
+. ネットワーク ポートの健全性の監視が有効になっているヘルスモニタを確認します。
 +
 ....
 network options port-health-monitor show
 ....
 +
-ポートのヘルスステータスは、ヘルスモニタの値によって決まります。
+ポートのヘルス ステータスは、ヘルスモニタの値によって決まります。
 
 +
-ONTAP でデフォルトで有効になっていて使用可能なヘルスモニタは次のとおりです。
+ONTAPでは、以下のヘルスモニタを使用できます。これらのヘルスモニタは、デフォルトで有効になっています。
 
 +
-** リンクフラッピングヘルスモニタ：リンクフラッピングを監視します
+** Link-flappingヘルスモニター：Link-flappingを監視します
 +
-5 分以内に複数回のリンクフラッピングが発生しているポートは、デグレードとマークされます。
+ポートでリンク フラッピングが5分以内に複数回発生した場合に、そのポートがデグレードとマークされます。
 
-** L2 到達可能性ヘルスモニタ：同じブロードキャストドメインに設定されたすべてのポートで相互のポートに対するレイヤ 2 到達可能性が確保されているかどうかを監視します
+** L2到達可能性ヘルスモニター：同じブロードキャストドメインに設定されているすべてのポートが相互にL2到達可能であるかどうかを監視します
 +
-このヘルスモニタは、すべての IPspace におけるレイヤ 2 到達可能性の問題を報告しますが、デグレードとマークされるのはクラスタ IPspace 内のポートのみです。
+このヘルスモニタは、すべてのIPspaceのL2到達可能性の問題を報告しますが、デグレードとマークされるのはクラスタIPspace内のポートのみです。
 
-** CRC モニタ：ポートの CRC 統計を監視します
+** CRCモニター：ポートのCRC統計を監視します
 +
 このヘルスモニタはポートをデグレードとマークしませんが、CRCエラー率が非常に高い場合にEMSメッセージを生成します。
 
 
 
 +
-の詳細については `network options port-health-monitor show`、をlink:https://docs.netapp.com/us-en/ontap-cli/network-options-port-health-monitor-show.html["ONTAPコマンド リファレンス"^]参照してください。
+ `network options port-health-monitor show`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/network-options-port-health-monitor-show.html["ONTAPコマンド リファレンス"^]を参照してください。
 
-. コマンドを使用して、IPspaceのヘルスモニタを必要に応じて有効または無効にします `network options port-health-monitor modify`。
+. 必要に応じて `network options port-health-monitor modify`コマンドを使用して、IPspaceのヘルスモニターを有効または無効にします。
 +
-の詳細については `network options port-health-monitor modify`、をlink:https://docs.netapp.com/us-en/ontap-cli/network-options-port-health-monitor-modify.html["ONTAPコマンド リファレンス"^]参照してください。
+ `network options port-health-monitor modify`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/network-options-port-health-monitor-modify.html["ONTAPコマンド リファレンス"^]を参照してください。
 
 . ポートの詳細な健全性を表示します。
 +
@@ -83,12 +83,12 @@ network port show -health
 ....
 
 
-コマンド出力には、ポートのヘルスステータス、設定、およびポートがデグレードとマークされた理由のリストが表示され `ignore health status`ます。
+コマンド出力には、ポートのヘルスステータス、 `ignore health status`設定、およびポートが劣化としてマークされている理由のリストが表示されます。
 
-ポートのヘルスステータスは `healthy`、または `degraded`です。
+ポートのヘルス ステータスは `healthy`または `degraded`になります。
 
-設定がの `true`場合 `ignore health status`は、ポートのヘルスステータスが管理者によってからに `healthy`変更されたことを示します `degraded`。
+ `ignore health status`設定が `true`の場合、ポートのヘルスステータスが管理者によって `degraded`から `healthy`に変更されたことを示します。
 
-設定がの `false`場合、 `ignore health status`ポートのヘルスステータスはシステムによって自動的に判断されます。
+ `ignore health status`設定が `false`の場合、ポートのヘルス ステータスはシステムによって自動的に決定されます。
 
-の詳細については `network port show`、をlink:https://docs.netapp.com/us-en/ontap-cli/network-port-show.html["ONTAPコマンド リファレンス"^]参照してください。
+ `network port show`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/network-port-show.html["ONTAPコマンド リファレンス"^]を参照してください。

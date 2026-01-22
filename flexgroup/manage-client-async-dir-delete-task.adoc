@@ -2,30 +2,30 @@
 permalink: flexgroup/manage-client-async-dir-delete-task.html 
 sidebar: sidebar 
 keywords: perform, directory, enable, delete, asynchronous, client rights, SMB, NFS, share, flexvol, flex vol, flexgroup, flex group 
-summary: 'ONTAP 9 .11.1以降では、ボリュームに対する権限を付与して、NFSクライアントおよびSMBクライアントによる非同期削除処理を許可できます。async deleteが有効になっている場合、NFSクライアントはコマンドを使用し、SMBクライアントはコマンドを使用し `mv`て、指定したボリューム上のディレクトリを削除し、そのディレクトリを非表示のディレクトリ（デフォルトでは.ontaptrashbin）に移動できます `rename`。' 
+summary: 'ONTAP 9.11.1以降、ストレージ管理者はボリュームに対する権限を付与することで、NFSおよびSMBクライアントが非同期削除操作を実行できるようにすることができます。非同期削除を有効にすると、NFSクライアントは `mv`コマンドを使用し、SMBクライアントは `rename`コマンドを使用して、指定されたボリューム上のディレクトリを削除し、そのディレクトリをデフォルトで.ontaptrashbinという名前の隠しディレクトリに移動することができます。' 
 ---
-= FlexGroupsを使用してONTAPディレクトリを非同期的に削除するためのクライアント権限を管理する
+= FlexGroupsを使用してONTAPディレクトリを非同期的に削除するクライアント権限を管理する
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-ONTAP 9.11.1 以降、ストレージ管理者はボリュームに対する権限を付与して、NFS および SMB クライアントが非同期削除操作を実行できるようにすることができます。クラスタで非同期削除が有効になっている場合、Linuxクライアントユーザーは `mv`コマンドとWindowsクライアントユーザーは、 `rename`指定されたボリューム上のディレクトリを、デフォルトで .ontaptrashbin という名前の隠しディレクトリに移動して削除するコマンド。
+ONTAP 9.11.1以降、ストレージ管理者はボリュームに対する権限を付与することで、NFSおよびSMBクライアントが非同期削除操作を実行できるようにすることができます。クラスタで非同期削除が有効になっている場合、Linuxクライアントユーザーは `mv`コマンドを使用し、Windowsクライアントユーザーは `rename`コマンドを使用して、指定されたボリューム上のディレクトリを、デフォルトで.ontaptrashbinという名前の隠しディレクトリに移動することで削除できます。
 
-権利は巻ごとに付与されます。  NFS クライアント ユーザーには、NFS クライアントに対するルート アクセス権と、NFS エクスポートに対するスーパーユーザー アクセス権が必要です。
+権限はボリュームごとに付与されます。NFSクライアントユーザーには、NFSクライアントに対するルートアクセス権と、NFSエクスポートに対するスーパーユーザーアクセス権が必要です。
 
-ディレクトリのみを移動できます。ファイルを .ontaptrashbin ディレクトリに移動することはできません。
+移動できるのはディレクトリのみです。.ontaptrashbinディレクトリにファイルを移動することはできません。
 
-link:fast-directory-delete-asynchronous-task.html#delete-directories-asynchronously["ONTAPを使用してFlexGroupボリュームからディレクトリを非同期的に削除する方法について説明します。"] 。
+link:fast-directory-delete-asynchronous-task.html#delete-directories-asynchronously["ONTAPを使用してFlexGroupボリュームからディレクトリを非同期的に削除する方法について説明します"]。
 
 
 
-== クライアントの非同期ディレクトリ削除を有効にする
+== クライアントによるディレクトリの非同期削除の有効化
 
 .手順
-. クラスタCLIからadvanced権限モードに切り替えます。 `-privilege advance`
-. ボリュームのマウントポイントでクライアントの非同期削除を有効にし、必要に応じて、ゴミ箱ディレクトリの別名を指定します。
+. クラスタ CLI から、advanced 権限モードに入ります： `-privilege advance`
+. ボリュームのマウントポイントでクライアントの非同期削除を有効にし、必要に応じて、ゴミ箱ディレクトリの別名を指定します：
 +
 `volume file async-delete client enable volume _volname_ vserver _vserverName_ trashbinname _name_`
 
@@ -41,7 +41,7 @@ Info: Async directory delete from the client has been enabled on volume "v1" in
       Vserver "vs0".
 ----
 +
-代替ゴミ箱名を指定する例：
+別のごみ箱名を使用する例：
 
 +
 [listing]
@@ -51,7 +51,7 @@ cluster1::*> volume file async-delete client enable -volume test -trashbin .ntap
 Success: Async directory delete from the client is enabled on volume "v1" in
       Vserver "vs0".
 ----
-. クライアントの非同期削除が有効であることを確認します。
+. クライアントによる非同期削除が有効であることを確認します。
 +
 `volume file async-delete client show`
 
@@ -74,10 +74,10 @@ vs2          vol2         Disabled          -
 
 
 
-== クライアントの非同期ディレクトリ削除を無効にする
+== クライアントによるディレクトリの非同期削除の無効化
 
 .手順
-. クラスタCLIから、クライアントの非同期ディレクトリ削除を無効にします。
+. クラスタCLIで、クライアントによるディレクトリの非同期削除を無効にします。
 +
 `volume file async-delete client disable volume _volname_ vserver _vserverName_`
 
@@ -91,7 +91,7 @@ cluster1::*> volume file async-delete client disable -volume vol1 -vserver vs1
 
        Success: Asynchronous directory delete client disabled successfully on volume.
 ----
-. クライアントの非同期削除が無効であることを確認します。
+. クライアントによる非同期削除が無効であることを確認します。
 +
 `volume file async-delete client show`
 

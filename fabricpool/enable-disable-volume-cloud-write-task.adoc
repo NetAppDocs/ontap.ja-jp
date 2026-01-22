@@ -2,29 +2,29 @@
 permalink: fabricpool/enable-disable-volume-cloud-write-task.html 
 sidebar: sidebar 
 keywords: creating, volume, fabricpool, cloud write, enable, disable 
-summary: ONTAP 9.14.1以降では、FabricPoolの新規または既存のボリュームに対してクラウド書き込みモードを有効または無効にすることで、NFSクライアントがクラウドにデータを直接書き込むことができます。 
+summary: ONTAP 9.14.1 以降では、FabricPool の新規または既存のボリュームでクラウド書き込みモードを有効または無効にして、NFS クライアントがクラウドに直接データを書き込むことができるようにすることができます。 
 ---
-= FabricPoolのONTAPボリュームがクラウドに直接書き込まれるようにする
+= FabricPoolでONTAPボリュームを有効にしてクラウドに直接書き込む
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-ONTAP 9 14.1以降では、FabricPoolの新規または既存のボリュームに対してクラウドへの直接書き込みを有効または無効にすることで、NFSクライアントが階層化スキャンを待たずにクラウドに直接データを書き込むことができます。SMBクライアントは、クラウドの書き込みが有効なボリュームの高パフォーマンス階層に引き続き書き込みます。cloud-writeモードはデフォルトで無効になっています。
+ONTAP 9.14.1以降では、FabricPoolの新規または既存のボリュームでクラウドへの直接書き込みを有効または無効にできます。NFSクライアントに対し、階層化スキャンを待たずにクラウドへの直接データ書き込みを許可するモードです。SMBクライアントは、クラウド書き込みが有効なボリュームの高パフォーマンス階層に引き続き書き込みます。クラウド書き込みモードは、デフォルトでは無効になっています。
 
-クラウドに直接書き込む機能は、ローカル階層でクラスタでサポートできない大量のデータがクラスタに転送されるなど、移行のような場合に役立ちます。クラウド書き込みモードを使用しない場合は、移行中に少量のデータが転送されてから階層化され、移行が完了するまで再び転送されて階層化されます。クラウド書き込みモードを使用すると、データがローカル階層に転送されないため、この種の管理は不要になります。
+クラウドに直接書き込むことができると、移行など、ローカル階層においてクラスタでサポートできる量を超える大量のデータをクラスタに転送する場合などに便利です。クラウド書き込みモードを使用せずに移行する場合、少量のデータを転送して階層化する作業を、移行が完了するまで繰り返します。クラウド書き込みモードを使用すると、データをローカル階層に転送しないため、この種の管理は不要になります。
 
 .開始する前に
 * クラスタ管理者またはSVM管理者である必要があります。
 * advanced権限レベルが必要です。
-* 読み取り/書き込みタイプのボリュームである必要があります。
-* ボリュームの階層化ポリシーが「すべて」である必要があります。
+* ボリュームが読み書き可能ボリュームである必要があります。
+* ボリュームの階層化ポリシーがallである必要があります。
 
 
 
 
-== ボリューム作成時のクラウドへの直接書き込みを可能にする
+== ボリューム作成時のクラウドへの直接書き込みの有効化
 
 .手順
 . 権限レベルをadvancedに設定します。
@@ -40,7 +40,7 @@ set -privilege advanced
 volume create -vserver <svm name> -volume <volume name> -is-cloud-write-enabled <true|false> -aggregate <local tier name>
 ----
 +
-次の例は、FabricPoolローカル階層（aggr1）に、クラウド書き込みを有効にしてvol1という名前のボリュームを作成します。
+次の例は、FabricPoolローカル階層（aggr1）に、クラウド書き込みを有効にしたvol1という名前のボリュームを作成するものです。
 
 +
 [listing]
@@ -51,7 +51,7 @@ volume create -vserver vs1 -volume vol1 -is-cloud-write-enabled true -aggregate 
 
 
 
-== 既存のボリュームのクラウドへの直接書き込みを可能にする
+== 既存のボリュームでのクラウドへの直接書き込みの有効化
 
 .手順
 . 権限レベルをadvancedに設定します。
@@ -60,14 +60,14 @@ volume create -vserver vs1 -volume vol1 -is-cloud-write-enabled true -aggregate 
 ----
 set -privilege advanced
 ----
-. ボリュームを変更してクラウド書き込みモードを有効にします。
+. ボリュームを変更し、クラウド書き込みモードを有効にします。
 +
 [source, cli]
 ----
 volume modify -vserver <svm name> -volume <volume name> -is-cloud-write-enabled true
 ----
 +
-次の例は、vol1という名前のボリュームを変更して、クラウドへの書き込みを有効にします。
+次の例では、vol1という名前のボリュームに変更を加え、クラウド書き込みを有効にします。
 
 +
 [listing]
@@ -78,7 +78,7 @@ volume modify -vserver vs1 -volume vol1 -is-cloud-write-enabled true
 
 
 
-== ボリュームのクラウドへの直接書き込みを無効にする
+== ボリュームでのクラウドへの直接書き込みの無効化
 
 .手順
 . 権限レベルをadvancedに設定します。
@@ -94,7 +94,7 @@ set -privilege advanced
 volume modify -vserver <svm name> -volume <volume name> -is-cloud-write-enabled false
 ----
 +
-次の例は、vol1という名前のボリュームでクラウド書き込みモードを無効にします。
+次の例では、vol1という名前のボリュームでクラウド書き込みモードを無効にします。
 
 +
 [listing]

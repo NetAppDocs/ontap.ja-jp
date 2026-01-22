@@ -2,9 +2,9 @@
 permalink: system-admin/enable-telnet-rsh-access-cluster-task.html 
 sidebar: sidebar 
 keywords: enable, telnet, rsh, access, cluster, mgmt, management, service, policy, firewall, roles 
-summary: セキュリティのベストプラクティスとして、TelnetとRSHはデフォルトで無効になっています。クラスタがTelnet要求またはRSH要求を受け入れることができるようにするには、デフォルトの管理サービスポリシーでサービスを有効にする必要があります。 
+summary: セキュリティに関するベストプラクティスとして、TelnetとRSHはデフォルトで無効になっています。クラスタがTelnetまたはRSH要求を受け入れることができるようにするには、デフォルトの管理サービス ポリシーでサービスを有効にする必要があります。 
 ---
-= ONTAPクラスタへのTelnetアクセスまたはRSHアクセスを有効にする
+= ONTAPクラスタへのTelnetまたはRSHアクセスを有効にする
 :hardbreaks:
 :allow-uri-read: 
 :icons: font
@@ -12,42 +12,42 @@ summary: セキュリティのベストプラクティスとして、TelnetとRS
 
 
 [role="lead"]
-セキュリティのベストプラクティスとして、TelnetとRSHはデフォルトで無効になっています。クラスタがTelnet要求またはRSH要求を受け入れることができるようにするには、デフォルトの管理サービスポリシーでサービスを有効にする必要があります。
+セキュリティに関するベストプラクティスとして、TelnetとRSHはデフォルトで無効になっています。クラスタがTelnetまたはRSH要求を受け入れることができるようにするには、デフォルトの管理サービス ポリシーでサービスを有効にする必要があります。
 
-TelnetとRSHはセキュアなプロトコルではありません。SSHを使用してクラスタにアクセスすることを検討してください。SSHは、セキュアなリモートシェルおよび対話型ネットワークセッションを提供します。詳細については、を参照してください link:./access-cluster-ssh-task.html["SSHを使用したクラスタへのアクセス"]。
+TelnetとRSHは安全なプロトコルではありません。クラスタへのアクセスにはSSHの使用を検討してください。SSHは安全なリモートシェルと対話型ネットワークセッションを提供します。詳細については、link:./access-cluster-ssh-task.html["SSHを使用したクラスタへのアクセス"]をご覧ください。
 
-.タスクの内容
-* ONTAPでは、1つのノードで同時に最大50のTelnetセッションまたはRSHセッションがサポートされます。
+.タスク概要
+* ONTAPでは、1つのノードについて同時に最大50のTelnetまたはRSHセッションがサポートされています。
 +
-クラスタ管理LIFがノード上にある場合、クラスタ管理LIFはこの制限をノード管理LIFと共有します。
+クラスタ管理LIFがノード上に存在する場合、クラスタ管理LIFはこの制限をノード管理LIFと共有します。
 
 +
-着信接続のレートが1秒あたり10を超える場合、サービスは60秒間一時的に無効になります。
+着信接続が1秒あたり10件を超えると、サービスは一時的に60秒間無効になります。
 
-* rshコマンドにはadvanced権限が必要です。
+* RSHコマンドには、advanced権限が必要です。
 
 
 [role="tabbed-block"]
 ====
-.ONTAP 9 .10.1以降
+.ONTAP 9.10.1 以降
 --
 .手順
-. RSHまたはTelnetセキュリティプロトコルが有効になっていることを確認します。
+. RSHまたはTelnetセキュリティ プロトコルが有効になっていることを確認します。
 +
 `security protocol show`
 
 +
-.. RSHまたはTelnetセキュリティプロトコルが有効になっている場合は、次の手順に進みます。
-.. RSHまたはTelnetセキュリティプロトコルが有効になっていない場合は、次のコマンドを使用して有効にします。
+.. RSHまたはTelnetセキュリティ プロトコルが有効になっている場合は、次の手順に進みます。
+.. RSHまたはTelnetセキュリティ プロトコルが有効になっていない場合は、次のコマンドを使用して有効にします。
 +
 `security protocol modify -application <rsh/telnet> -enabled true`
 
 
 
 +
-および `security protocol modify`の詳細については `security protocol show`、をlink:https://docs.netapp.com/us-en/ontap-cli/search.html?q=security+protocol["ONTAPコマンド リファレンス"^]参照してください。
+ `security protocol show`および `security protocol modify`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/search.html?q=security+protocol["ONTAPコマンド リファレンス"^]をご覧ください。
 
-. またはサービスが管理LIFに存在することを確認し `management-rsh-server` `management-telnet-server` ます。
+. 管理 LIF に `management-rsh-server`または `management-telnet-server`サービスが存在することを確認します。
 +
 `network interface show -services management-rsh-server`
 
@@ -58,11 +58,11 @@ TelnetとRSHはセキュアなプロトコルではありません。SSHを使�
 `network interface show -services management-telnet-server`
 
 +
-の詳細については `network interface show`、をlink:https://docs.netapp.com/us-en/ontap-cli/network-interface-show.html["ONTAPコマンド リファレンス"^]参照してください。
+ `network interface show`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/network-interface-show.html["ONTAPコマンド リファレンス"^]を参照してください。
 
 +
-.. またはサービスが存在する場合は `management-rsh-server` `management-telnet-server` 、次の手順に進みます。
-.. またはサービスが存在しない場合は `management-rsh-server` `management-telnet-server` 、次のコマンドを使用して追加します。
+..  `management-rsh-server`または `management-telnet-server`サービスが存在する場合は、次の手順に進みます。
+..  `management-rsh-server`または `management-telnet-server`サービスが存在しない場合は、次のコマンドを使用して追加します：
 +
 `network interface service-policy add-service -vserver cluster1 -policy default-management -service management-rsh-server`
 
@@ -70,44 +70,44 @@ TelnetとRSHはセキュアなプロトコルではありません。SSHを使�
 `network interface service-policy add-service -vserver cluster1 -policy default-management -service management-telnet-server`
 
 +
-の詳細については `network interface service-policy add-service`、をlink:https://docs.netapp.com/us-en/ontap-cli/network-interface-service-policy-add-service.html["ONTAPコマンド リファレンス"^]参照してください。
+ `network interface service-policy add-service`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/network-interface-service-policy-add-service.html["ONTAPコマンド リファレンス"^]をご覧ください。
 
 
 
 
 
 --
-.ONTAP 9 .9以前
+.ONTAP 9.9以前
 --
-.タスクの内容
-ONTAPでは、事前定義されているファイアウォールポリシーは変更できませんが、事前定義されている `mgmt`管理ファイアウォールポリシーをクローニングし、そのポリシーでTelnetまたはRSHを有効にすることで、新しいポリシーを作成できます。
+.タスク概要
+ONTAPでは、事前定義されたファイアウォール ポリシーを変更することはできませんが、事前定義された `mgmt`管理ファイアウォール ポリシーを複製して新しいポリシーを作成し、その新しいポリシーでTelnetまたはRSHを有効にすることができます。
 
 .手順
 . advanced権限モードに切り替えます。
 +
 `set advanced`
 
-. セキュリティプロトコル（RSHまたはTelnet）を有効にします。
+. セキュリティ プロトコル（RSHまたはTelnet）を有効にします。
 +
 `security protocol modify -application security_protocol -enabled true`
 
-.  `mgmt`管理ファイアウォールポリシーに基づいて新しい管理ファイアウォールポリシーを作成します。
+.  `mgmt`管理ファイアウォールポリシーに基づいて新しい管理ファイアウォールポリシーを作成します：
 +
 `system services firewall policy clone -policy _mgmt_ -destination-policy _policy-name_`
 
-. 新しい管理ファイアウォールポリシーでTelnetまたはRSHを有効にします。
+. 新しい管理ファイアウォール ポリシーでTelnetまたはRSHを有効にします。
 +
 `system services firewall policy create -policy _policy-name_ -service _security_protocol_ -action allow -ip-list _ip_address/netmask_`
 
 +
-すべてのIPアドレスを許可するには、次のように指定します。 `-ip-list _0.0.0.0/0_`
+すべてのIPアドレスを許可するには、 `-ip-list _0.0.0.0/0_`を指定する必要があります
 
 . 新しいポリシーをクラスタ管理LIFに関連付けます。
 +
 `network interface modify -vserver cluster_management_LIF -lif cluster_mgmt -firewall-policy policy-name`
 
 +
-の詳細については `network interface modify`、をlink:https://docs.netapp.com/us-en/ontap-cli/network-interface-modify.html["ONTAPコマンド リファレンス"^]参照してください。
+ `network interface modify`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/network-interface-modify.html["ONTAPコマンド リファレンス"^]を参照してください。
 
 
 

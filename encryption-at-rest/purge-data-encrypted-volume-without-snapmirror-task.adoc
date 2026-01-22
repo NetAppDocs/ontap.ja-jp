@@ -2,54 +2,54 @@
 permalink: encryption-at-rest/purge-data-encrypted-volume-without-snapmirror-task.html 
 sidebar: sidebar 
 keywords: secure, purge, scrub, data, encrypted, volume, nve, netapp, volume, encryption, snapmirror 
-summary: ONTAP 9.4 以降では、 secure-purge を使用して、NVE 対応ボリューム上のデータを中断なくスクラブできます。 
+summary: ONTAP 9.4 以降では、 secure-purge を使用して、 NVE 対応ボリューム上のデータを中断なくスクラブできます。 
 ---
-= SnapMirror関係のない暗号化されたONTAPボリュームからデータをスクラブする
+= 暗号化されたONTAPボリュームからSnapMirror関係なしでデータを消去する
 :allow-uri-read: 
 
 
 [role="lead"]
-ONTAP 9.4 以降では、 NVE 対応ボリューム上で、システムを停止することなく「 crub 」データにセキュアパージを使用できます。
+ONTAP 9.4 以降では、 secure-purge を使用して、 NVE 対応ボリューム上のデータを中断せずに「スクラブ」することができます。
 
-.タスクの内容
-削除されたファイル内のデータ量によっては、セキュアパージが完了するまでに数分から数時間かかることがあります。処理のステータスは、コマンドを使用して確認できます `volume encryption secure-purge show`。処理を終了するには、コマンドを使用し `volume encryption secure-purge abort`ます。
+.タスク概要
+セキュアパージは、削除されたファイルのデータ量に応じて、数分から数時間かかる場合があります。 `volume encryption secure-purge show`コマンドを使用して、操作のステータスを表示できます。 `volume encryption secure-purge abort`コマンドを使用して、操作を終了できます。
 
 
-NOTE: SANホストでセキュアパージを実行するには、パージするファイルを含むLUN全体を削除するか、パージするファイルに属するブロックに対してLUNに穴を開ける必要があります。LUNを削除できない場合や、ホストオペレーティングシステムでLUNのホールパンチングがサポートされていない場合は、セキュアパージを実行できません。
+NOTE: SANホストでセキュアパージを実行するには、パージ対象のファイルを含むLUN全体を削除するか、パージ対象のファイルに属するブロックのLUNにパンチホールを作成できる必要があります。LUNを削除できない場合、またはホストOSがLUNのパンチホール作成をサポートしていない場合は、セキュアパージを実行できません。
 
 .開始する前に
 * このタスクを実行するには、クラスタ管理者である必要があります。
-* このタスクには高度なPrivilegesが必要です。
+* このタスクを実行するにはadvanced権限が必要です。
 
 
 .手順
-. セキュアパージを実行するファイルまたはLUNを削除します。
+. セキュア パージを実行するファイルまたはLUNを削除します。
 +
-** NASクライアントで、セキュアパージを実行するファイルを削除します。
-** SANホストで、セキュアパージを実行するLUNを削除するか、パージするファイルに属するブロックに対してLUNでホールパンチングを実行します。
+** NASクライアントで、セキュア パージを実行するファイルを削除します。
+** SANホストで、セキュア パージを実行するLUNを削除するか、パージするファイルに属するブロックに対してLUNでホール パンチングを実行します。
 
 
-. ストレージシステムで、advanced権限レベルに切り替えます。
+. ストレージ システムで、advanced権限レベルに切り替えます。
 +
 `set -privilege advanced`
 
-. セキュアパージを実行するファイルがSnapshotに含まれている場合は、Snapshotを削除します。
+. セキュア パージを実行するファイルがSnapshotに含まれている場合は、Snapshotを削除します。
 +
 `snapshot delete -vserver _SVM_name_ -volume _volume_name_ -snapshot`
 
-. 削除したファイルのセキュアパージを実行します。
+. 削除したファイルのセキュア パージを実行します。
 +
 `volume encryption secure-purge start -vserver _SVM_name_ -volume _volume_name_`
 
 +
-次のコマンドは、SVM上``vs1``で削除したファイルのセキュアパージを実行し `vol1`ます。
+次のコマンドは、SVM``vs1``上の `vol1`で削除されたファイルを安全に消去します：
 
 +
 [listing]
 ----
 cluster1::> volume encryption secure-purge start -vserver vs1 -volume vol1
 ----
-. セキュアパージ処理のステータスを確認します。
+. セキュア パージ処理のステータスを確認します。
 +
 `volume encryption secure-purge show`
 

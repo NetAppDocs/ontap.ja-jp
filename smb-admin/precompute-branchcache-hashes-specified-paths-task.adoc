@@ -2,25 +2,25 @@
 permalink: smb-admin/precompute-branchcache-hashes-specified-paths-task.html 
 sidebar: sidebar 
 keywords: configure, branchcache, service, pre-compute, hash, file, directory, structure, compute, branchcache-enabled share non-peak hours, pre-compute branchcache hashes on specified paths 
-summary: 単一のファイル、ディレクトリ、またはディレクトリ構造内のすべてのファイルについて、ハッシュを事前に計算するようにBranchCacheサービスを設定できます。これは、BranchCacheが有効な共有内のデータのハッシュをピーク以外の時間帯に計算する場合に役立ちます。 
+summary: 単一のファイル、ディレクトリ、またはディレクトリ構造内のすべてのファイルを対象に、ハッシュを事前に計算するようにBranchCacheサービスを設定することができます。これは、BranchCache対応の共有にあるデータのハッシュをピーク以外の時間帯に計算するのに役立ちます。 
 ---
-= 指定された ONTAP SMB パスの BranchCache ハッシュを事前計算します。
+= 指定されたONTAP SMBパスでBranchCacheハッシュを事前計算する
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-単一のファイル、ディレクトリ、またはディレクトリ構造内のすべてのファイルについて、ハッシュを事前に計算するようにBranchCacheサービスを設定できます。これは、BranchCacheが有効な共有内のデータのハッシュをピーク以外の時間帯に計算する場合に役立ちます。
+単一のファイル、ディレクトリ、またはディレクトリ構造内のすべてのファイルを対象に、ハッシュを事前に計算するようにBranchCacheサービスを設定することができます。これは、BranchCache対応の共有にあるデータのハッシュをピーク以外の時間帯に計算するのに役立ちます。
 
-.タスクの内容
-ハッシュの統計を表示する前にデータサンプルを収集する場合は、コマンドとオプションの `statistics stop`コマンドを使用する必要があり `statistics start`ます。
+.タスク概要
+ハッシュ統計を表示する前にデータサンプルを収集する場合は、 `statistics start`およびオプションの `statistics stop`コマンドを使用する必要があります。
 
-* ハッシュを事前に計算するStorage Virtual Machine（SVM）とパスを指定する必要があります。
-* また、ハッシュを再帰的に計算するかどうかも指定する必要があります。
-* ハッシュを再帰的に計算する場合、BranchCacheサービスは指定されたパスの下のディレクトリツリー全体をトラバースし、対象となるオブジェクトごとにハッシュを計算します。
+* ハッシュを事前に計算する対象のStorage Virtual Machine（SVM）とパスを指定する必要があります。
+* また、ハッシュを再帰的に計算するかどうかについても指定する必要があります。
+* ハッシュを再帰的に計算する場合、BranchCacheサービスでは、指定されたパスの下のディレクトリ ツリー全体を参照し、対象となる各オブジェクトのハッシュを計算します。
 +
-詳細はこちら `statistics start`そして `statistics stop`の中でlink:https://docs.netapp.com/us-en/ontap-cli/search.html?q=statistics["ONTAPコマンド リファレンス"^] 。
+ `statistics start`および `statistics stop`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/search.html?q=statistics["ONTAPコマンド リファレンス"^]をご覧ください。
 
 
 
@@ -28,7 +28,7 @@ summary: 単一のファイル、ディレクトリ、またはディレクト�
 . 必要に応じてハッシュを事前に計算します。
 +
 |===
-| ハッシュを事前に計算する対象 | 入力するコマンド 
+| ハッシュを事前に計算したい場合は... | コマンドを入力してください... 
 
 
  a| 
@@ -39,24 +39,24 @@ summary: 単一のファイル、ディレクトリ、またはディレクト�
 
 
  a| 
-ディレクトリ構造内のすべてのファイルに対して再帰的に実行
+ディレクトリ構造内のすべてのファイル（再帰的）
  a| 
 `vserver cifs branchcache hash-create -vserver vserver_name -path absolute_path -recurse true`
 
 |===
-. コマンドを使用して、ハッシュが計算されていることを確認し `statistics`ます。
+.  `statistics`コマンドを使用して、ハッシュが計算されていることを確認します：
 +
-.. 目的のSVMインスタンス上のオブジェクトの統計を表示します `hashd`。 `statistics show -object hashd -instance vserver_name`
+..  `hashd`オブジェクトの統計情報を目的のSVMインスタンスに表示： `statistics show -object hashd -instance vserver_name`
 .. コマンドを繰り返し実行して、作成済みのハッシュの数が増加していることを確認します。
 
 
 +
-の詳細については `statistics show`、をlink:https://docs.netapp.com/us-en/ontap-cli/statistics-show.html["ONTAPコマンド リファレンス"^]参照してください。
+ `statistics show`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/statistics-show.html["ONTAPコマンド リファレンス"^]をご覧ください。
 
 
 
 .例
-次の例では、パスおよびSVM vs1に格納されているすべてのファイルとサブディレクトリを対象にハッシュを作成します `/data`。
+次の例では、パス `/data`と、SVM vs1上のそこに含まれるすべてのファイルとサブディレクトリにハッシュを作成します：
 
 [listing]
 ----

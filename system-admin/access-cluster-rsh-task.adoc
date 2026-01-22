@@ -2,112 +2,112 @@
 permalink: system-admin/access-cluster-rsh-task.html 
 sidebar: sidebar 
 keywords: access, cluster, rsh, cluster, administrative, task, secure, protocol, service, policy, lif, firewall, role 
-summary: クラスタに対してRSH要求を発行して管理タスクを実行できます。RSH はセキュアなプロトコルではなく、デフォルトでは無効になっています。 
+summary: クラスタにRSH要求を発行することで、管理タスクを実行できます。RSHはセキュアなプロトコルではなく、デフォルトでは無効になっています。 
 ---
-= RSH要求を使用したONTAPクラスタへのアクセス
+= RSH リクエストを使用して ONTAP クラスタにアクセスする
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-クラスタに対してRSH要求を発行して管理タスクを実行できます。RSH はセキュアなプロトコルではなく、デフォルトでは無効になっています。
+クラスタにRSH要求を発行することで、管理タスクを実行できます。RSHはセキュアなプロトコルではなく、デフォルトでは無効になっています。
 
-TelnetとRSHはセキュアなプロトコルではありません。SSHを使用してクラスタにアクセスすることを検討してください。SSHは、セキュアなリモートシェルおよび対話型ネットワークセッションを提供します。詳細については、を参照してください link:./access-cluster-ssh-task.html["SSHを使用したクラスタへのアクセス"]。
+TelnetとRSHは安全なプロトコルではありません。クラスタへのアクセスにはSSHの使用を検討してください。SSHは安全なリモートシェルと対話型ネットワークセッションを提供します。詳細については、link:./access-cluster-ssh-task.html["SSHを使用したクラスタへのアクセス"]をご覧ください。
 
 .開始する前に
-RSH を使用してクラスタにアクセスするには、次の条件を満たしている必要があります。
+RSHを使用してクラスタにアクセスするには、次の条件を満たしている必要があります。
 
-* アクセス方法として RSH を使用するように設定された、クラスタのローカルユーザアカウントを持っている必要があります。
+* アクセス方法としてRSHを使用するように設定されたクラスタのローカル ユーザ アカウントを持っている必要があります。
 +
-コマンドのパラメータ `security login`は、 `-application`ユーザアカウントのアクセス方法を指定します。の詳細については `security login`、をlink:https://docs.netapp.com/us-en/ontap-cli/search.html?q=security+login["ONTAPコマンド リファレンス"^]参照してください。
+ `security login`コマンドの `-application`パラメータは、ユーザーアカウントのアクセス方法を指定します。link:https://docs.netapp.com/us-en/ontap-cli/search.html?q=security+login["ONTAPコマンド リファレンス"^]の `security login`の詳細をご覧ください。
 
 
 
-.タスクの内容
-* ONTAPでは、1つのノードで同時に最大50のRSHセッションがサポートされます。
+.タスク概要
+* ONTAPでは、1つのノードについて同時に最大50のRSHセッションがサポートされています。
 +
-クラスタ管理LIFがノード上にある場合、クラスタ管理LIFはこの制限をノード管理LIFと共有します。
+クラスタ管理LIFがノード上に存在する場合、クラスタ管理LIFはこの制限をノード管理LIFと共有します。
 
 +
-着信接続のレートが1秒あたり10を超える場合、サービスは60秒間一時的に無効になります。
+着信接続が1秒あたり10件を超えると、サービスは一時的に60秒間無効になります。
 
-* rshコマンドにはadvanced権限が必要です。
+* RSHコマンドには、advanced権限が必要です。
 
 
 [role="tabbed-block"]
 ====
-.ONTAP 9 .10.1以降
+.ONTAP 9.10.1 以降
 --
 .手順
-. RSHセキュリティプロトコルが有効になっていることを確認します。
+. RSHセキュリティ プロトコルが有効になっていることを確認します。
 +
 `security protocol show`
 
 +
-.. RSHセキュリティプロトコルが有効になっている場合は、次の手順に進みます。
-.. RSHセキュリティプロトコルが有効になっていない場合は、次のコマンドを使用して有効にします。
+.. RSHセキュリティ プロトコルが有効になっている場合は、次の手順に進みます。
+.. RSHセキュリティ プロトコルが有効になっていない場合は、次のコマンドを使用して有効にします。
 +
 `security protocol modify -application rsh -enabled true`
 
 
 
 +
-および `security protocol modify`の詳細については `security protocol show`、をlink:https://docs.netapp.com/us-en/ontap-cli/search.html?q=security+protocol["ONTAPコマンド リファレンス"^]参照してください。
+ `security protocol show`および `security protocol modify`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/search.html?q=security+protocol["ONTAPコマンド リファレンス"^]をご覧ください。
 
-. 管理LIFにサービスが存在することを確認し `management-rsh-server` ます。
+. 管理 LIF に `management-rsh-server`サービスが存在することを確認します：
 +
 `network interface show -services management-rsh-server`
 
 +
-の詳細については `network interface show`、をlink:https://docs.netapp.com/us-en/ontap-cli/network-interface-show.html["ONTAPコマンド リファレンス"^]参照してください。
+ `network interface show`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/network-interface-show.html["ONTAPコマンド リファレンス"^]を参照してください。
 
 +
-.. サービスが存在する場合は `management-rsh-server` 、次の手順に進みます。
-.. サービスが存在しない場合は `management-rsh-server` 、次のコマンドを使用して追加します。
+..  `management-rsh-server`サービスが存在する場合は、次の手順に進みます。
+..  `management-rsh-server`サービスが存在しない場合は、次のコマンドを使用して追加します：
 +
 `network interface service-policy add-service -vserver cluster1 -policy default-management -service management-rsh-server`
 
 +
-の詳細については `network interface service-policy add-service`、をlink:https://docs.netapp.com/us-en/ontap-cli/network-interface-service-policy-add-service.html["ONTAPコマンド リファレンス"^]参照してください。
+ `network interface service-policy add-service`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/network-interface-service-policy-add-service.html["ONTAPコマンド リファレンス"^]をご覧ください。
 
 
 
 
 
 --
-.ONTAP 9 .9以前
+.ONTAP 9.9以前
 --
 .開始する前に
-RSH を使用してクラスタにアクセスするには、次の条件を満たしている必要があります。
+RSHを使用してクラスタにアクセスするには、次の条件を満たしている必要があります。
 
-* RSH 要求がファイアウォールを通過できるように、クラスタ管理 LIF またはノード管理 LIF によって使用される管理ファイアウォールポリシーで RSH がすでに有効になっている必要があります。
+* RSH要求がファイアウォールを通過できるように、クラスタまたはノード管理LIFで使用される管理ファイアウォール ポリシーで、RSHがすでに有効になっている必要があります。
 +
-デフォルトでは、RSHは無効になっています。 `-service rsh`パラメータを指定してsystem services firewall policy showコマンドを実行すると、ファイアウォールポリシーでRSHが有効になっているかどうかが表示されます。の詳細については `system services firewall policy`、をlink:https://docs.netapp.com/us-en/ontap-cli/search.html?q=system+services+firewall+policy["ONTAPコマンド リファレンス"^]参照してください。
+デフォルトでは、RSH は無効になっています。system services firewall policy show コマンドに `-service rsh`パラメータを指定すると、ファイアウォールポリシーで RSH が有効になっているかどうかが表示されます。link:https://docs.netapp.com/us-en/ontap-cli/search.html?q=system+services+firewall+policy["ONTAPコマンド リファレンス"^]の `system services firewall policy`の詳細をご覧ください。
 
-* IPv6接続を使用する場合は、クラスタでIPv6が設定されて有効になっている必要があり、ファイアウォールポリシーにIPv6アドレスが設定されている必要があります。
+* IPv6接続を使用する場合は、クラスタ上でIPv6が設定されて有効化され、さらにファイアウォール ポリシーにIPv6アドレスが設定されている必要があります。
 +
- `network options ipv6 show`コマンドは、IPv6が有効になっているかどうかを表示します。の詳細については `network options ipv6 show`、をlink:https://docs.netapp.com/us-en/ontap-cli/network-options-ipv6-show.html["ONTAPコマンド リファレンス"^]参照してください。 `system services firewall policy show`コマンドは、ファイアウォールポリシーを表示します。
+ `network options ipv6 show`コマンドは、IPv6が有効かどうかを表示します。 `network options ipv6 show`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/network-options-ipv6-show.html["ONTAPコマンド リファレンス"^]を参照してください。 `system services firewall policy show`コマンドは、ファイアウォール ポリシーを表示します。
 
 
 
 .手順
-. 管理ホストで次のコマンドを入力します。
+. 管理ホストで、次のコマンドを入力します。
 +
 `rsh hostname_or_IP -l username:passwordcommand`
 
 +
-`hostname_or_IP`は、クラスタ管理LIFまたはノード管理LIFのホスト名またはIPアドレスです。クラスタ管理LIFを使用することを推奨します。IPv4またはIPv6アドレスを使用できます。
+`hostname_or_IP`は、クラスタ管理LIFまたはノード管理LIFのホスト名またはIPアドレスです。クラスタ管理LIFの使用をお勧めします。IPv4またはIPv6アドレスを使用できます。
 
 +
-`command`は、RSH経由で実行するコマンドです。
+`command` は RSH 経由で実行するコマンドです。
 
 
 
 --
 ====
 .RSH要求の例
-次の例は、RSHアクセスを使用するように設定された「joe」というユーザが、コマンドを実行するRSH要求を発行する方法を示してい `cluster show`ます。
+次の例は、RSH アクセスが設定されている「`joe`」という名前のユーザーが、RSH 要求を発行して `cluster show` コマンドを実行する方法を示しています：
 
 [listing]
 ----
@@ -122,4 +122,4 @@ node2                 true    true
 
 admin_host$
 ----
-の詳細については `cluster show`、をlink:https://docs.netapp.com/us-en/ontap-cli/cluster-show.html["ONTAPコマンド リファレンス"^]参照してください。
+ `cluster show`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/cluster-show.html["ONTAPコマンド リファレンス"^]をご覧ください。

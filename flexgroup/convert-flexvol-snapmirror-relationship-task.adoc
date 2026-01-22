@@ -2,26 +2,26 @@
 permalink: flexgroup/convert-flexvol-snapmirror-relationship-task.html 
 sidebar: sidebar 
 keywords: convert, flexvol, volume, snapmirror, relation, flexgroup 
-summary: ONTAPでFlexVol volume SnapMirror関係をFlexGroup Volume SnapMirror関係に変換するには、まずデスティネーションFlexVol volumeを変換してからソースFlexVol volumeを変換する必要があります。 
+summary: ONTAPでFlexVolのSnapMirror関係をFlexGroupボリュームのSnapMirror関係に変換するには、まずデスティネーションFlexVolを変換し、そのあとにソースFlexVolを変換する必要があります。 
 ---
-= ONTAP FlexVol volume SnapMirror関係をONTAP FlexGroup Volume SnapMirror関係に変換する
+= ONTAP FlexVolボリュームSnapMirror関係をONTAP FlexGroupボリュームSnapMirror関係に変換する
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-ONTAPでFlexVol volume SnapMirror関係をFlexGroup Volume SnapMirror関係に変換するには、まずデスティネーションFlexVol volumeを変換してからソースFlexVol volumeを変換する必要があります。
+ONTAPでFlexVolのSnapMirror関係をFlexGroupボリュームのSnapMirror関係に変換するには、まずデスティネーションFlexVolを変換し、そのあとにソースFlexVolを変換する必要があります。
 
-.タスクの内容
-* SnapMirror/ SnapVault関係で FlexGroup とFlexVolボリュームを混在させることは、変換プロセス以外ではサポートされません。
-* FlexGroup変換は、SnapMirror非同期関係でのみサポートされます。
-* FlexGroup変換は、 SnapMirrorクラウド関係ではサポートされていません。
-* 変換時間はいくつかの変数に依存する。変数には次のようなものがあります。
+.タスク概要
+* SnapMirror／SnapVault 関係での変換プロセス以降は、FlexGroups と FlexVol volume の混在はサポートされていません。
+* FlexGroupへの変換は、SnapMirror非同期関係でのみサポートされます。
+* FlexGroup変換はSnapMirrorクラウド関係ではサポートされていません。
+* 変換時間は、いくつかの変数に左右されます。変数には次のようなものがあります。
 +
 ** コントローラのCPU
 ** 他のアプリケーションによるCPUの使用率
-** 初期スナップショット内のデータ量
+** 初期スナップショットのデータ量
 ** ネットワーク帯域幅
 ** 他のアプリケーションによって使用される帯域幅
 
@@ -29,19 +29,19 @@ ONTAPでFlexVol volume SnapMirror関係をFlexGroup Volume SnapMirror関係に�
 
 
 .開始する前に
-* 変換するFlexVol volumeがオンラインになっている必要があります。
-* SnapMirror関係のソースFlexVol volumeを複数のSnapMirror関係のソースボリュームにすることはできません。
+* 変換するFlexVolがオンラインになっている必要があります。
+* SnapMirror関係のソースFlexVolを複数のSnapMirror関係のソース ボリュームにすることはできません。
 +
-ONTAP 9.9.1以降では、FlexGroupボリュームでファンアウトSnapMirror関係がサポートされます。詳細については、を参照してください link:../flexgroup/create-snapmirror-cascade-fanout-reference.html#considerations-for-creating-cascading-relationships["FlexGroupのSnapMirrorカスケード/ファンアウト関係の作成に関する考慮事項"]。
+ONTAP 9.9.1以降では、SnapMirrorファンアウト関係がFlexGroupボリュームでサポートされます。詳細については、link:../flexgroup/create-snapmirror-cascade-fanout-reference.html#considerations-for-creating-cascading-relationships["FlexGroup ボリュームの SnapMirror カスケードおよびファンアウト関係を作成する際の考慮事項"]を参照してください。
 
-* FlexVol volumeの処理と設定は、変換プロセスと互換性がある必要があります。
+* FlexVolの処理と構成が変換プロセスに対応している必要があります。
 +
-FlexVol volumeに互換性の問題があり、ボリュームの変換が中止されると、エラーメッセージが生成されます。対処方法を実行してから変換を再試行できます。
+FlexVolに互換性の問題があり、ボリュームの変換が中止された場合、エラー メッセージが生成されます。問題に対処したあと、変換を再試行できます。
 
 
 
 .手順
-. SnapMirror関係が正常であることを確認します。
+. SnapMirror関係が健全であることを確認します。
 +
 [source, cli]
 ----
@@ -66,9 +66,9 @@ vs0:src_dpv DP   vs2:dst_dpv  Snapmirrored
 vs0:src_xdp XDP  vs2:dst_xdp  Snapmirrored
                                       Idle           -         true    -
 ----
-. ソースボリュームに変換互換性があるかどうかを確認します。
+. ソース ボリュームが変換に対応しているかどうかを確認します。
 +
-.. advanced権限モードにログインします。
+.. advance権限モードにログインします。
 +
 [source, cli]
 ----
@@ -133,7 +133,7 @@ Then, re-establish the SnapMirror relationship using the "snapmirror resync" com
 ----
 
 
-. ソースFlexVolボリュームをFlexGroupボリュームに変換します。'
+. ソース FlexVol ボリュームを FlexGroup ボリュームに変換します：`
 +
 [source, cli]
 ----
@@ -170,11 +170,11 @@ cluster2::> snapmirror resync -destination-path vs2:dst_xdp
 ----
 
 
-.終了後
-ソースFlexGroupボリュームを拡張してコンスティチュエントを追加した場合は、デスティネーションボリュームも拡張する必要があります。
+.終了後の操作
+ソースFlexGroupボリュームを拡張してコンスティチュエントを追加した場合は、デスティネーション ボリュームも拡張する必要があります。
 
 .関連情報
-* link:https://docs.netapp.com/us-en/ontap-cli/snapmirror-quiesce.html["スナップミラーの静止"^]
+* link:https://docs.netapp.com/us-en/ontap-cli/snapmirror-quiesce.html["snapmirror quiesce"^]
 * link:https://docs.netapp.com/us-en/ontap-cli/snapmirror-resync.html["snapmirror resync"^]
 * link:https://docs.netapp.com/us-en/ontap-cli/snapmirror-show.html["snapmirror show"^]
 

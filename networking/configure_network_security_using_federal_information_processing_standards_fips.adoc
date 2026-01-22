@@ -2,9 +2,9 @@
 sidebar: sidebar 
 permalink: networking/configure_network_security_using_federal_information_processing_standards_fips.html 
 keywords: fips 140-2, compliant, ssl, connections, tlsv1.2, tlsv1.1, tlsv1, enable fips, disable fips, compliance status, SSL 
-summary: すべての SSL 接続に対応した Federal Information Processing Standard （ FIPS ；連邦情報処理標準） 140-2 が準拠しています 
+summary: すべての SSL 接続で Federal Information Processing Standards（FIPS）140-2 に準拠 
 ---
-= すべてのSSL接続にFIPSを使用したONTAPネットワークセキュリティの設定
+= すべてのSSL接続に対してFIPSを使用してONTAPネットワークセキュリティを構成する
 :hardbreaks:
 :allow-uri-read: 
 :nofooter: 
@@ -14,64 +14,64 @@ summary: すべての SSL 接続に対応した Federal Information Processing S
 
 
 [role="lead"]
-ONTAPは、すべてのSSL接続について連邦情報処理標準（FIPS）140-2に準拠しています。SSL FIPS モードをオン/オフにしたり、SSL プロトコルをグローバルに設定したり、 ONTAP内の弱い暗号をオフにしたりすることができます。
+ONTAPは、すべてのSSL接続において連邦情報処理標準（FIPS）140-2に準拠しています。SSL FIPSモードのオン/オフを切り替えたり、SSLプロトコルをグローバルに設定したり、ONTAP内の脆弱な暗号を無効にしたりできます。
 
-デフォルトでは、ONTAPのSSLはFIPS準拠を無効にし、次のTLSプロトコルを有効にして設定されます。
+デフォルトでは、ONTAP の SSL は FIPS 準拠が無効に設定され、次の TLS プロトコルが有効になっています：
 
 * TLSv1.3（ONTAP 9.11.1以降）
 * TLSv1.2
 
 
-以前のONTAPリリースでは、次のTLSプロトコルがデフォルトで有効になっていました。
+以前のONTAPリリースでは、次のTLSプロトコルがデフォルトで有効になっていました：
 
 * TLSv1.1（ONTAP 9.12.1以降ではデフォルトで無効）
 * TLSv1（ONTAP 9.8以降ではデフォルトで無効）
 
 
-SSL FIPSモードが有効な場合、ONTAPからONTAPの外部のクライアントまたはサーバコンポーネントへのSSL通信では、SSL用のFIPS準拠の暗号が使用されます。
+SSL FIPSモードが有効な場合は、ONTAPからONTAP外部のクライアントまたはサーバ コンポーネントへのSSL通信に、FIPSに準拠したSSL用の暗号が使用されます。
 
-管理者アカウントがSSH公開鍵を使用してSVMにアクセスできるようにする場合は、SSL FIPSモードを有効にする前に、ホストキーのアルゴリズムがサポートされていることを確認する必要があります。
+管理者アカウントがSSH公開鍵を使用してSVMにアクセスできるようにする場合は、SSL FIPSモードを有効にする前に、ホスト キー アルゴリズムがサポートされていることを確認する必要があります。
 
-*注：ONTAP 9.11.1以降では、ホストキーアルゴリズムのサポートが変更されています。
+*注：* ONTAP 9.11.1 以降のリリースでは、ホスト キー アルゴリズムのサポートが変更されました。
 
 [cols="30,30,30"]
 |===
 
 
-| ONTAP リリース | サポートされているキータイプ | サポートされていないキータイプです 
+| ONTAPリリース | サポートされているキーのタイプ | サポートされていないキー タイプ 
 
 
  a| 
 9.11.1以降
  a| 
-ECDSA - sha2 - nistp256
+ecdsa-sha2-nistp256
  a| 
-rsa-sha2-512+ rsa-sha2-256+ ssh-ed25519 + ssh-dss+ssh-rsa
+rsa-sha2-512 ＋ rsa-sha2-256 ＋ ssh-ed25519 ＋ ssh-dss ＋ ssh-rsa
 
 
 
  a| 
 9.10.1以前
  a| 
-ECDSA - sha2 -nistp256 + ssh-ed25519
+ecdsa-sha2-nistp256 ＋ ssh-ed25519
  a| 
-SSH-DSS + ssh-rsa
+ssh-dss ＋ ssh-rsa
 
 |===
-FIPSを有効にする前に、サポートされているキーアルゴリズムがない既存のSSH公開鍵アカウントをサポートされているキータイプで再設定する必要があります。そうしないと、管理者認証が失敗します。
+サポートされるキー アルゴリズムを使用していない既存のSSH公開鍵アカウントは、FIPSを有効にする前に、サポートされるキー アルゴリズムで再設定する必要があります。この処理を実行しないと管理者認証は失敗します。
 
-詳細については、を参照してください link:../authentication/enable-ssh-public-key-accounts-task.html["SSH公開鍵アカウントの有効化"]。
+詳細については、link:../authentication/enable-ssh-public-key-accounts-task.html["SSH公開鍵アカウントの有効化"]を参照してください。
 
-ONTAP 9.18.1 では、SSL 用の ML-KEM、ML-DSA、および SLH-DSA ポスト量子コンピューティング暗号化アルゴリズムのサポートが導入され、将来の量子コンピュータ攻撃に対するセキュリティがさらに強化されます。これらのアルゴリズムは、<<FIPSの無効化,FIPSは無効です>> 。  FIPS が無効になっていて、ピアがそれをサポートしている場合、量子耐性暗号化アルゴリズムがネゴシエートされます。
-
-
-
-== FIPSを有効にする
-
-システムのインストールまたはアップグレードの直後に、すべてのセキュアなユーザがセキュリティ設定を調整することをお勧めします。SSL FIPSモードが有効な場合、ONTAPからONTAPの外部のクライアントまたはサーバコンポーネントへのSSL通信では、SSL用のFIPS準拠の暗号が使用されます。
+ONTAP 9.18.1では、SSLでML-KEM、ML-DSA、SLH-DSAといった量子コンピュータ耐性暗号アルゴリズムのサポートが導入され、将来起こり得る量子コンピュータ攻撃に対するセキュリティがさらに強化されます。これらのアルゴリズムは<<FIPSの無効化,FIPSは無効です>>の場合にのみ利用可能です。量子コンピュータ耐性暗号アルゴリズムは、FIPSが無効で、ピアがそれらをサポートしている場合にネゴシエートされます。
 
 
-NOTE: FIPSが有効な場合、RSAキーの長さが4096の証明書をインストールまたは作成することはできません。
+
+== FIPS を有効にする
+
+システムのインストールまたはアップグレードの直後に、すべてのセキュアなユーザがセキュリティ設定を調整することを推奨します。SSL FIPSモードが有効な場合は、ONTAPからONTAP外部のクライアントまたはサーバ コンポーネントへのSSL通信に、FIPSに準拠したSSL用の暗号が使用されます。
+
+
+NOTE: FIPSが有効な場合、4096ビットのRSAキーを使用する証明書をインストールまたは作成することはできません。
 
 .手順
 . advanced権限レベルに切り替えます。
@@ -82,12 +82,12 @@ NOTE: FIPSが有効な場合、RSAキーの長さが4096の証明書をインス
 +
 `security config modify * -is-fips-enabled true`
 
-. 続行するかどうかを尋ねられたら、 `y`
-. ONTAP 9.9.1 以降では、再起動は必要ありません。  ONTAP 9.8 以前を実行している場合は、クラスタ内の各ノードを 1 つずつ手動で再起動します。
+. 続行するように求められたら、 `y`を入力してください
+. ONTAP 9.9.1以降では、再起動は不要です。ONTAP 9.8以前を実行している場合は、クラスタ内の各ノードを1つずつ手動で再起動してください。
 
 
 .例
-ONTAP 9 .9.1以降を実行している場合は、警告メッセージは表示されません。
+ONTAP 9.9.1以降を実行している場合、警告メッセージは表示されません。
 
 ....
 security config modify -is-fips-enabled true
@@ -98,30 +98,30 @@ Do you want to continue? {y|n}: y
 Warning: When this command completes, reboot all nodes in the cluster. This is necessary to prevent components from failing due to an inconsistent security configuration state in the cluster. To avoid a service outage, reboot one node at a time and wait for it to completely initialize before rebooting the next node. Run "security config status show" command to monitor the reboot status.
 Do you want to continue? {y|n}: y
 ....
-およびSSL FIPSモードの設定の詳細については、をlink:https://docs.netapp.com/us-en/ontap-cli/security-config-modify.html["ONTAPコマンド リファレンス"^]参照し `security config modify`てください。
+ `security config modify`および SSL FIPS モード構成の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/security-config-modify.html["ONTAPコマンド リファレンス"^]を参照してください。
 
 
 
 == FIPSの無効化
 
-ONTAP 9.18.1 以降、 ONTAPの SSL は、ML-KEM、ML-DSA、および SLH-DSA の量子コンピューティング暗号化アルゴリズムをサポートしています。これらのアルゴリズムは、FIPS が無効になっていて、ピアがサポートしている場合にのみ使用できます。
+ONTAP 9.18.1以降、ONTAPのSSLはML-KEM、ML-DSA、およびSLH-DSAのポスト量子コンピューティング暗号化アルゴリズムをサポートします。これらのアルゴリズムは、FIPSが無効で、ピアがこれらのアルゴリズムをサポートしている場合にのみ使用できます。
 
 .手順
 . advanced権限レベルに切り替えます。
 +
 `set -privilege advanced`
 
-. FIPSを無効にするには、
+. 次のように入力してFIPSを無効にします。
 +
 `security config modify -is-fips-enabled false`
 
-. 続行するかどうかを尋ねられたら、と入力し `y`ます。
-. ONTAP 9.9.1 以降では、再起動は必要ありません。ONTAP 9.8以前を実行している場合は、クラスタ内の各ノードを手動でリブートします。
+. 続行するように求められたら、 `y`と入力します。
+. ONTAP 9.9.1以降では、再起動は不要です。ONTAP 9.8以前を実行している場合は、クラスタ内の各ノードを手動で再起動してください。
 
 
-SSLv3 プロトコルを使用する必要がある場合は、上記の手順で FIPS を無効にする必要があります。  SSLv3 は、FIPS が無効になっている場合にのみ有効にできます。
+SSLv3 プロトコルを使用する必要がある場合は、上記の手順で FIPS を無効にする必要があります。SSLv3 は、FIPS が無効になっている場合にのみ有効にできます。
 
-次のコマンドで SSLv3 を有効にできます。ONTAP 9.9.1以降を実行している場合、警告メッセージは表示されません。
+次のコマンドでSSLv3を有効にできます。ONTAP 9.9.1以降を実行している場合は、警告メッセージは表示されません。
 
 ....
 security config modify -supported-protocols SSLv3
@@ -136,7 +136,7 @@ Do you want to continue? {y|n}: y
 
 == FIPS準拠ステータスの表示
 
-クラスタ全体で現在のセキュリティ設定が実行されているかどうかを確認できます。
+クラスタ全体が現在のセキュリティ設定を実行しているかどうかを確認できます。
 
 .手順
 . ONTAP 9.8 以前を実行している場合は、クラスタ内の各ノードを 1 つずつ手動で再起動します。
@@ -158,12 +158,12 @@ false      TLSv1.3,  TLS_RSA_WITH_AES_128_CCM, TLS_RSA_WITH_AES_128_CCM_8,
                      ...
 ....
 +
-の詳細については `security config show`、をlink:https://docs.netapp.com/us-en/ontap-cli/security-config-show.html["ONTAPコマンド リファレンス"^]参照してください。
+ `security config show`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/security-config-show.html["ONTAPコマンド リファレンス"^]を参照してください。
 
 
 
 .関連情報
-* link:https://csrc.nist.gov/pubs/fips/203/final["FIPS 203: モジュール格子ベースの鍵カプセル化メカニズム標準 (ML-KEM)"^]
-* link:https://csrc.nist.gov/pubs/fips/204/final["FIPS 204: モジュール格子ベースのデジタル署名標準 (ML-DSA)"^]
-* link:https://csrc.nist.gov/pubs/fips/205/final["FIPS 205: ステートレスハッシュベースデジタル署名標準 (SLH-DSA)"^]
+* link:https://csrc.nist.gov/pubs/fips/203/final["FIPS 203：Module-Lattice-Based Key-Encapsulation Mechanism Standard（ML-KEM）"^]
+* link:https://csrc.nist.gov/pubs/fips/204/final["FIPS 204：Module-Lattice-Based Digital Signature Standard（ML-DSA）"^]
+* link:https://csrc.nist.gov/pubs/fips/205/final["FIPS 205：ステートレス ハッシュベース デジタル署名標準（SLH-DSA）"^]
 

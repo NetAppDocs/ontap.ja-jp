@@ -2,47 +2,47 @@
 permalink: san-config/host-support-multipathing-concept.html 
 sidebar: sidebar 
 keywords: host, support, multipathing 
-summary: ONTAPでは、FCとiSCSIの両方のパスに常にAsymmetric Logical Unit Access（ALUA；非対称論理ユニットアクセス）が使用されます。FCプロトコルとiSCSIプロトコルのALUAをサポートするホスト構成を使用してください。 
+summary: ONTAPでは、FCとiSCSIのどちらのパスにも必ずAsymmetric Logical Unit Access（ALUA）が使用されます。FCプロトコルとiSCSIプロトコルに対してALUAをサポートするホスト構成を使用してください。 
 ---
-= SANホストのマルチパスに対するONTAPのサポート
+= ONTAPによるSANホスト マルチパスのサポート
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-ONTAPは、FCホストとiSCSIホストの両方でのマルチパスにAsymmetric Logical Unit Access（ALUA；非対称論理ユニットアクセス）ソフトウェアを使用します。
+ONTAPは、FCホストとiSCSIホストの両方でのマルチパスに非対称論理ユニット アクセス（ALUA）ソフトウェアを使用します。
 
-ONTAP 9.5以降では、Asynchronous Namespace Access（ANA）を使用するNVMeホストで、マルチパスハイアベイラビリティ（HA）ペアのフェイルオーバー/ギブバックがサポートされます。ONTAP 9.4では、NVMeでサポートされるホストからターゲットへのパスは1つだけであるため、アプリケーションホストでHAパートナーへのパスフェイルオーバーを管理する必要があります。
+ONTAP 9.5以降では、非同期名前空間アクセス（ANA）を使用するNVMeホストで、マルチパス高可用性（HA）ペアのフェイルオーバー/ギブバックがサポートされます。ONTAP 9.4では、NVMeはホストからターゲットへのパスを1つしかサポートしないため、アプリケーションホストはHAパートナーへのパスフェイルオーバーを管理する必要があります。
 
-複数のパスを使用してLUNまたはNVMeネームスペースにアクセスできるSANホストには、マルチパスソフトウェアが必要です。LUNまたはNVMeネームスペースへのすべてのパスで単一のディスクをオペレーティングシステムに提供します。このパスがないと、オペレーティングシステムは各パスを個別のディスクとして扱い、データが破損する可能性があります。
+SANホストが複数のパスを介してLUNまたはNVMeネームスペースにアクセスできる場合、マルチパスソフトウェアが必要です。マルチパスソフトウェアは、LUNまたはNVMeネームスペースへのすべてのパスを単一のディスクとしてオペレーティングシステムに提示します。マルチパスソフトウェアがない場合、オペレーティングシステムは各パスを別々のディスクとして扱い、データ破損につながる可能性があります。
 
-次のいずれかに該当する場合、ソリューションには複数のパスがあるとみなされます。
+パスが複数あるとみなされるのは、次のいずれかに該当する場合です。
 
-* ホストの単一のイニシエータポートをSVMの複数のSAN LIFに接続している場合
-* 複数のイニシエータポートをSVMの単一のSAN LIFに接続している場合
-* 複数のイニシエータポートをSVMの複数のSAN LIFに接続している場合
+* ホストの1つのイニシエータ ポートをSVMの複数のSAN LIFに接続している場合
+* 複数のイニシエータ ポートをSVMの単一のSAN LIFに接続している場合
+* 複数のイニシエータ ポートをSVMの複数のSAN LIFに接続している場合
 
 
-HA構成では、マルチパスソフトウェア（マルチパスI/O）が推奨されます。マルチパスソフトウェアはMPIO（マルチパスI/O）ソフトウェアとも呼ばれます。選択的LUNマップに加えて、FCスイッチのゾーニングまたはポートセットを使用してLUNへのアクセスに使用するパスを制限することも推奨されます。
+マルチパス ソフトウェア（MPIO（マルチパスI/O）ソフトウェアとも呼ばれる）は、HA構成で推奨されます。選択的LUNマップに加えて、FCスイッチのゾーニングやポートセットを使用してLUNへのアクセスに使用するパスを制限することも推奨されます。
 
-ALUAまたはANAをサポートする具体的なホスト構成については、ご使用のホストオペレーティングシステムに対応したおよび https://docs.netapp.com/us-en/ontap-sanhost/index.html["ONTAP SANホスト構成"]を参照して https://mysupport.netapp.com/matrix["NetApp Interoperability Matrix Tool"^]ください。
+ALUA または ANA をサポートする特定のホスト構成については、ホスト オペレーティング システムの https://mysupport.netapp.com/matrix["NetApp Interoperability Matrix Tool"^]および https://docs.netapp.com/us-en/ontap-sanhost/index.html["ONTAP SAN Host Configuration"]を参照してください。
 
 
 
 == ホストからクラスタ内のノードへの推奨されるパス数
 
-ホストからクラスタ内の各ノードへのパスは8個までにする必要があります。また、ホストOSおよびホストで使用されるマルチパスでサポートされるパスの総数を超えないようにしてください。
+ホストからクラスタ内の各ノードへのパスは8本以下にしてください。また、ホストOSとホストで使用されるマルチパスでサポートできるパスの総数も超えないようにしてください。
 
-クラスタ内のStorage Virtual Machine（SVM）が使用する各レポートノードへのパスをLUNごとに少なくとも2つ確保しますlink:../san-admin/selective-lun-map-concept.html["選択的LUNマップ（SLM）"]。これにより、単一点障害（Single Point of Failure）が排除され、コンポーネント障害からシステムを保護できます。
+クラスタ内のストレージ仮想マシン（SVM）によって使用されるlink:../san-admin/selective-lun-map-concept.html["選択的LUNマップ（SLM）"]を介して各レポートノードに接続するLUNごとに、少なくとも2つのパスが必要です。これにより、単一障害点が排除され、コンポーネント障害が発生してもシステムが動作を継続できるようになります。
 
-クラスタにノードが4つ以上ある場合、またはいずれかのノードのSVMで5つ以上のターゲットポートを使用している場合は、次の方法でノード上のLUNへのアクセスに使用できるパスの数を制限して、推奨される最大数の8個を超えないようにすることができます。
+クラスタにノードが4つ以上ある場合や、いずれかのノードのSVMで5つ以上のターゲット ポートを使用している場合は、次の方法でノード上のLUNへのアクセスに使用できるパスの数を制限し、推奨される最大数である8個以内になるようにすることができます。
 
 * SLM
 +
-SLMを使用すると、ホストからLUNへのパスの数が、LUNを所有するノードとそのHAパートナーのパスだけになります。SLMはデフォルトで有効になっています。
+SLM は、ホストから LUN へのパスの数を、LUN を所有するノードとその HA パートナー上のパスのみに削減します。SLM はデフォルトで有効になっています。
 
-* link:../san-admin/limit-lun-access-portsets-igroups-concept.html["iSCSIのポートセット"]
+* link:../san-admin/limit-lun-access-portsets-igroups-concept.html["ポートセット（iSCSIの場合）"]
 * ホストのFC igroupマッピング
-* FCスイッチゾーニング
+* FCスイッチ ゾーニング
 

@@ -2,9 +2,9 @@
 sidebar: sidebar 
 permalink: s3-snapshots/delete-s3-snapshot.html 
 keywords: s3 snapshots, delete S3 snapshots 
-summary: 不要になったS3 Snapshotを削除して、バケット内のストレージスペースを解放できます。 
+summary: 不要になった S3 スナップショットを削除して、バケット内のストレージ スペースを解放できます。 
 ---
-= ONTAP S3 Snapshotの削除
+= ONTAP S3スナップショットを削除する
 :hardbreaks:
 :toclevels: 1
 :allow-uri-read: 
@@ -16,25 +16,25 @@ summary: 不要になったS3 Snapshotを削除して、バケット内のスト
 
 
 [role="lead"]
-不要になったS3 Snapshotを削除して、バケット内のストレージスペースを解放できます。S3 Snapshotを手動で削除したり、S3バケットに関連付けられているSnapshotポリシーを変更して、スケジュールで保持するSnapshotの数を変更したりできます。
+不要になったS3 Snapshotを削除して、バケット内のストレージ スペースを解放できます。S3 Snapshotを手動で削除したり、S3バケットに関連付けられたSnapshotポリシーを変更して、スケジュールで保持されるSnapshotの数を変更したりできます。
 
-S3バケットのSnapshotポリシーは、従来のONTAP Snapshotポリシーと同じ削除ルールに従います。Snapshotポリシーの作成の詳細については、を参照してくださいlink:../data-protection/create-snapshot-policy-task.html["Snapshot ポリシーを作成します"]。
+S3バケットのスナップショットポリシーは、従来のONTAPスナップショットポリシーと同じ削除ルールに従います。スナップショットポリシーの作成の詳細については、link:../data-protection/create-snapshot-policy-task.html["Snapshotポリシーの作成"]を参照してください。
 
-.タスクの内容
-* オブジェクトのバージョン（バージョン管理されたバケット内）またはオブジェクト（バージョン管理されていないバケット内）が複数のSnapshotにキャプチャされた場合、オブジェクトを保護している最後のSnapshotが削除されるまで、そのオブジェクトはファイルシステムから削除されません。
-* Snapshotを含むオブジェクトを含むS3バケットを削除する必要がある場合は、そのバケット内のすべてのオブジェクトのSnapshotをすべて削除しておく必要があります。
-* クラスタをONTAP 9 .16.1より前のバージョンのONTAPにリバートする必要がある場合は、すべてのバケットのS3 Snapshotをすべて削除しておく必要があります。コマンドを実行してS3バケットのSnapshotメタデータを削除することも必要になる場合があり `vserver object-store-server bucket clear-snapshot-metadata`ます。詳細については、を参照して link:../s3-snapshots/delete-s3-snapshot.html#clear-s3-snapshots-metadata["S3 Snapshotメタデータをクリア"]ください。
-* スナップショットをバッチで削除すると、複数のスナップショットにキャプチャされた多数のオブジェクトを削除できるため、スナップショットを個別に削除する場合よりも多くのスペースが解放されます。その結果、ストレージオブジェクト用により多くのスペースを再利用できます。
+.タスク概要
+* あるバージョンのオブジェクト（バージョン管理されたバケット内のもの）や、1つのオブジェクト（バージョン管理されていないバケットのもの）が複数のSnapshotにキャプチャされている場合、そのオブジェクトを保護している最後のSnapshotが削除されるまで、そのオブジェクトはファイル システムから削除されません。
+* Snapshotがあるオブジェクトを含むS3バケットを削除するには、そのバケット内のすべてのオブジェクトのSnapshotをすべて削除しておく必要があります。
+* クラスタをONTAP 9.16.1より前のONTAPバージョンに戻す必要がある場合は、すべてのバケットのS3スナップショットがすべて削除されていることを確認してください。また、 `vserver object-store-server bucket clear-snapshot-metadata`コマンドを実行してS3バケットのスナップショット メタデータを削除する必要がある場合もあります。詳細については、link:../s3-snapshots/delete-s3-snapshot.html#clear-s3-snapshots-metadata["S3 Snapshotメタデータのクリア"]を参照してください。
+* Snapshotをバッチで削除すると、複数のSnapshotにキャプチャされた多数のオブジェクトを削除できるため、個別にSnapshotを削除する場合よりも多くのスペースが効果的に解放されます。その結果、より多くのスペースをストレージ オブジェクト用に再利用できます。
 
 
 .手順
-. 特定のS3 Snapshotを削除するには、次のコマンドを実行します。
+. 特定のS3 Snapshotを削除するには、以下のコマンドを実行します。
 +
 [listing]
 ----
 vserver object-store-server bucket snapshot delete -vserver <svm_name> -bucket <bucket_name> -snapshot <snapshot_name>
 ----
-. バケット内のS3 Snapshotをすべて削除するには、次のコマンドを実行します。
+. バケット内のすべてのS3 Snapshotを削除するには、以下のコマンドを実行します。
 +
 [listing]
 ----
@@ -44,21 +44,21 @@ vserver object-store-server bucket snapshot delete -vserver <svm_name> -bucket <
 
 
 
-== S3 Snapshotメタデータをクリア
+== S3 Snapshotメタデータのクリア
 
-S3 Snapshotでは、Snapshotメタデータもバケット内で生成されます。Snapshotメタデータは、すべてのSnapshotがバケットから削除されても引き続きバケットに格納されます。Snapshotメタデータが存在すると、次の処理がブロックされます。
+S3 Snapshotでは、Snapshotメタデータもバケット内で生成されます。Snapshotメタデータは、すべてのSnapshotがバケットから削除されても、バケット内に残ります。Snapshotメタデータがあると、以下の処理がブロックされます。
 
-* ONTAP 9より前のONTAPバージョンにクラスタをリバートします。16.1
+* ONTAP 9.16.1より前のバージョンのONTAPへのクラスタのリバート
 * バケットでのSnapMirror S3の設定
 
 
-これらの処理を実行する前に、バケットからSnapshotメタデータをすべて消去する必要があります。
+これらの処理を実行する前に、バケットからすべてのSnapshotメタデータをクリアする必要があります。
 
 .開始する前に
 メタデータのクリアを開始する前に、バケットからすべてのS3 Snapshotを削除しておく必要があります。
 
 .手順
-. バケットからSnapshotメタデータを消去するには、次のコマンドを実行します。
+. バケットからSnapshotメタデータをクリアするには、このコマンドを実行します。
 
 
 [listing]

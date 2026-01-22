@@ -2,18 +2,18 @@
 permalink: authentication/enable-ad-users-groups-access-cluster-svm-task.html 
 sidebar: sidebar 
 keywords: configure, active directory, domain, controller access, authentication tunnel, SMB server, create, svm, computer, account, domain, cifs server 
-summary: ADアカウントからSVMにアクセスするためには、ADドメインコントローラからクラスタまたはSVMへのアクセスを設定しておく必要があります。データ SVM 用に SMB サーバをすでに設定している場合は、クラスタへの AD アクセス用に SVM をゲートウェイまたはトンネルとして設定できます。SMBサーバを設定していない場合は、ADドメインにSVMのコンピュータアカウントを作成できます。 
+summary: ADアカウントがSVMにアクセスするには、クラスタまたはSVMへのADドメイン コントローラ アクセスを設定する必要があります。データSVM用のSMBサーバをすでに設定している場合は、SVMをクラスタへのADアクセス用のゲートウェイ（トンネル）として設定できます。SMBサーバを設定していない場合は、ADドメイン上にSVM用のコンピュータ アカウントを作成できます。 
 ---
-= ONTAPでのActive Directoryドメインコントローラアクセスの設定
+= ONTAPでActive Directoryドメイン コントローラ アクセスを設定する
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-ADアカウントからSVMにアクセスするためには、ADドメインコントローラからクラスタまたはSVMへのアクセスを設定しておく必要があります。データ SVM 用に SMB サーバをすでに設定している場合は、クラスタへの AD アクセス用に SVM をゲートウェイまたは _tunnel_ として設定できます。SMBサーバを設定していない場合は、ADドメインにSVMのコンピュータアカウントを作成できます。
+ADアカウントがSVMにアクセスするには、クラスタまたはSVMへのADドメイン コントローラ アクセスを設定する必要があります。データSVM用のSMBサーバをすでに設定している場合は、SVMをクラスタへのADアクセス用のゲートウェイ（トンネル）として設定できます。SMBサーバを設定していない場合は、ADドメイン上にSVM用のコンピュータ アカウントを作成できます。
 
-ONTAPは、次のドメインコントローラ認証サービスをサポートしています。
+ONTAPでは、次のドメイン コントローラ認証サービスがサポートされます。
 
 * Kerberos
 * LDAP
@@ -26,18 +26,18 @@ ONTAPでは、セキュアなNetlogon接続を実現するために次のセッ�
 |===
 
 
-| セッションキーアルゴリズム | 使用可能なバージョン 
+| セッション キー アルゴリズム | 追加されたリリース 
 
 
-| HMAC-SHA256（Advanced Encryption Standard（AES）に基づく）クラスタでONTAP 9 .9.1以前を実行していて、ドメインコントローラでセキュアなネットログオンサービスにAESが適用されている場合は、接続が失敗します。この場合、代わりにONTAPとの強力なキー接続を受け入れるようにドメインコントローラを再設定する必要があります。 | ONTAP 9 10.1 
+| HMAC-SHA256（Advanced Encryption Standard（AES）ベース） クラスタでONTAP 9.9.1以前が実行されており、ドメイン コントローラがセキュアなNetlogonサービスにAESを適用している場合、接続は失敗します。この場合、ONTAPとの強力なキー接続を受け入れるようにドメイン コントローラを再設定する必要があります。 | ONTAP 9.10.1 
 
 
-| DESおよびHMAC-MD5（強力なキーが設定されている場合） | すべてのONTAP 9リリース 
+| DESおよびHMAC-MD5（強力なキーが設定されている場合） | ONTAP 9のすべてのリリース 
 |===
-ネットログオンでのセキュアチャネルの確立中にAESセッションキーを使用する場合は、SVMでAESが有効になっていることを確認する必要があります。
+Netlogonのセキュアなチャネル確立にAESセッション キーを使用する場合は、SVM上でAESが有効になっていることを確認する必要があります。
 
-* 14.1以降では、ONTAP 9の作成時にデフォルトでAESが有効になり、ネットログオンでのセキュアチャネルの確立時にAESセッションキーを使用するようにSVMのセキュリティ設定を変更する必要はありません。
-* ONTAP 9 .10.1~9.13.1では、SVMの作成時にAESがデフォルトで無効になります。次のコマンドを使用してAESを有効にする必要があります。
+* ONTAP 9.14.1以降では、SVMの作成時にAESがデフォルトで有効化されます。そのため、SVMのセキュリティ設定を変更することなく、Netlogonのセキュアなチャネル確立時にAESセッション キーを使用できます。
+* ONTAP 9.10.1から9.13.1までは、SVMの作成時にAESがデフォルトで無効化されます。次のコマンドでAESを有効化する必要があります。
 +
 [listing]
 ----
@@ -46,15 +46,15 @@ cifs security modify -vserver vs1 -aes-enabled-for-netlogon-channel true
 
 
 
-NOTE: ONTAP 9 .14.1以降にアップグレードした場合、以前のリリースのONTAPで作成された既存のSVMのAES設定は自動的には変更されません。これらのSVMでAESを有効にするには、引き続きこの設定の値を更新する必要があります。
+NOTE: ONTAP 9.14.1以降にアップグレードした場合でも、それより前のONTAPリリースで作成したSVMのAES設定が自動的に変更されることはありません。これらのSVMでAESを有効化するには、設定の値を更新する必要があります。
 
 
 
 == 認証トンネルの設定
 
-データSVM用のSMBサーバがすでに設定されている場合は、コマンドを使用して、SVMをADによるクラスタアクセス用のゲートウェイ（_tunnel_）として設定でき `security login domain-tunnel create`ます。
+データSVM用にSMBサーバをすでに設定している場合は、 `security login domain-tunnel create`コマンドを使用して、SVMをクラスタへのADアクセス用のゲートウェイ、つまり_トンネル_として設定できます。
 
-ONTAP 9.16.1より前のバージョンでは、認証トンネルを使用してADでクラスタ管理者アカウントを管理する必要があります。
+ONTAP 9.16.1より前では、ADでクラスタ管理者アカウントを管理するには、認証トンネルを使用する必要があります。
 
 .開始する前に
 * データSVM用のSMBサーバを設定しておく必要があります。
@@ -62,20 +62,20 @@ ONTAP 9.16.1より前のバージョンでは、認証トンネルを使用し�
 * このタスクを実行するには、クラスタ管理者である必要があります。
 
 
-.10.1以降では、ADアクセス用のゲートウェイ（ドメイントンネル）がある場合、ADドメインでONTAP 9を無効にしていれば、管理認証にKerberosを使用できます。以前のリリースでは、SVMゲートウェイの管理認証でKerberosはサポートされていませんでした。この機能はデフォルトで使用できます。設定は必要ありません。
+ONTAP 9.10.1以降では、ADアクセス用のSVMゲートウェイ（ドメイン トンネル）がある場合、ADドメインでNTLMを無効にしていれば、管理認証にKerberosを使用できます。以前のリリースでは、SVMゲートウェイの管理認証にKerberosは使用できませんでした。この機能はデフォルトで使用可能であり、設定は必要ありません。
 
 
-NOTE: Kerberos認証は常に最初に試行されます。失敗した場合は、NTLM認証が試行されます。
+NOTE: Kerberos認証は常に最初に試行されます。失敗した場合、次にNTLM認証が試行されます。
 
 .手順
-. SMB対応のデータSVMをADドメインコントローラがクラスタにアクセスするための認証トンネルとして設定します。
+. SMB対応のデータSVMをADドメイン コントローラがクラスタにアクセスするための認証トンネルとして設定します。
 +
 [source, cli]
 ----
 security login domain-tunnel create -vserver <svm_name>
 ----
 +
-の詳細については `security login domain-tunnel create`、をlink:https://docs.netapp.com/us-en/ontap-cli/security-login-domain-tunnel-create.html["ONTAPコマンド リファレンス"^]参照してください。
+ `security login domain-tunnel create`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/security-login-domain-tunnel-create.html["ONTAPコマンド リファレンス"^]を参照してください。
 
 +
 [NOTE]
@@ -84,7 +84,7 @@ security login domain-tunnel create -vserver <svm_name>
 
 ====
 +
-次のコマンドは、SMB対応のデータSVMを認証トンネルとして設定し `engData`ます。
+次のコマンドは、SMB対応のデータSVM `engData`を認証トンネルとして設定します。
 
 +
 [listing]
@@ -95,30 +95,30 @@ cluster1::>security login domain-tunnel create -vserver engData
 
 
 
-== ドメインにSVMコンピュータアカウントを作成する
+== ドメインでのSVMコンピュータ アカウントの作成
 
-データSVM用のSMBサーバを設定していない場合は、コマンドを使用して、ドメインにSVM用のコンピュータアカウントを作成できます `vserver active-directory create`。
+データSVM用にSMBサーバを設定していない場合は、 `vserver active-directory create`コマンドを使用してドメイン上のSVM用のコンピュータ アカウントを作成できます。
 
-.タスクの内容
-コマンドを入力すると `vserver active-directory create`、ドメイン内の指定した組織単位にコンピュータを追加するための十分なPrivilegesを持つADユーザアカウントのクレデンシャルを入力するように求められます。アカウントのパスワードを空にすることはできません。
+.タスク概要
+ `vserver active-directory create`コマンドを入力すると、ドメイン内の指定された組織単位にコンピュータを追加するのに十分な権限を持つADユーザ アカウントのクレデンシャルの入力を求められます。アカウントのパスワードを空にすることはできません。
 
-ONTAP 9.16.1以降では、この手順を使用してADを使用してクラスタ管理者アカウントを管理できます。
+ONTAP 9.16.1以降では、この手順を使用してADでクラスタ管理者アカウントを管理できます。
 
 .開始する前に
-このタスクを実行するには、クラスタ管理者またはSVM管理者である必要があります。
+このタスクを実行するには、クラスタ管理者またはSVMの管理者である必要があります。
 
 .手順
-. ADドメインにSVM用のコンピュータアカウントを作成します。
+. ADドメインにSVM用のコンピュータ アカウントを作成します。
 +
 [source, cli]
 ----
 vserver active-directory create -vserver <SVM_name> -account-name <NetBIOS_account_name> -domain <domain> -ou <organizational_unit>
 ----
 +
-ONTAP 9.16.1以降では、この `-vserver`パラメータは管理SVMを指定できます。の詳細については `vserver active-directory create`、をlink:https://docs.netapp.com/us-en/ontap-cli/vserver-active-directory-create.html["ONTAPコマンド リファレンス"^]参照してください。
+ONTAP 9.16.1以降、 `-vserver`パラメータは管理SVMを受け入れるようになりました。link:https://docs.netapp.com/us-en/ontap-cli/vserver-active-directory-create.html["ONTAPコマンド リファレンス"^]の `vserver active-directory create`の詳細をご覧ください。
 
 +
-次のコマンドは、SVMの `engData`ドメインに `example.com`という名前のコンピュータアカウントを作成します `ADSERVER1`。コマンドを入力すると、ADユーザアカウントのクレデンシャルの入力を求められます。
+次のコマンドは、SVM `engData`のドメイン `example.com`に `ADSERVER1`という名前のコンピュータ アカウントを作成します。コマンドを入力すると、ADユーザ アカウントのクレデンシャルの入力を求められます。
 
 +
 [listing]

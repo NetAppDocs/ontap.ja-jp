@@ -2,37 +2,37 @@
 permalink: fabricpool/setup-azure-blob-storage-cloud-tier-task.html 
 sidebar: sidebar 
 keywords: setting up, azure blob storage, cloud, cloud tier 
-summary: ONTAP 9 .4以降を実行している場合は、クラウド用のAzure Blob StorageをFabricPoolのクラウド階層としてセットアップできます。 
+summary: ONTAP 9.4以降を実行している場合は、クラウド用Azure Blob StorageをFabricPoolのクラウド階層としてセットアップできます。 
 ---
-= ONTAP FabricPoolクラウド階層としてのAzure Blob Storageのセットアップ
+= Azure Blob Storage を ONTAP FabricPool クラウド層として設定する
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-ONTAP 9.4以降を実行している場合は、Azure Blob StorageをFabricPoolのクラウド階層としてセットアップできます。
+ONTAP 9.4 以降を実行している場合は、Azure Blob Storage を FabricPool のクラウド階層として設定できます。
 
 .FabricPoolでMicrosoft Azure Blob Storageを使用する場合の考慮事項
-* あlink:https://console.netapp.com/cloud-tiering["NetAppクラウド階層化ライセンス"]Azure Blob Storage に階層化する場合、必須です。
-* Cloud Volumes ONTAPでAzure Blob Storageを使用している場合は、FabricPoolライセンスは必要ありません。
-* ONTAPがAzure Blob Storageオブジェクトサーバとの接続に使用するLIFは、10Gbpsポートに配置することを推奨します。
-* FabricPoolは現在、オンプレミスのAzureサービスであるAzure Stackをサポートしていません。
-* Microsoft Azure Blob Storageのアカウントレベルでは、FabricPoolでサポートされるのはホットストレージ階層とクールストレージ階層のみです。
+* Azure Blob Storage に階層化する場合はlink:https://console.netapp.com/cloud-tiering["NetApp Cloud Tieringライセンス"]が必要です。
+* Azure Blob StorageをCloud Volumes ONTAPで使用する場合は、FabricPoolライセンスは必要ありません。
+* ONTAPがAzure Blob Storageオブジェクト サーバとの接続に使用するLIFは10Gbpsポート上に配置することを推奨します。
+* FabricPoolでは、オンプレミスのAzureサービスであるAzure Stackは現在サポートされていません。
+* Microsoft Azure Blob Storageのアカウント レベルでは、FabricPoolはホットとクールのストレージ階層のみをサポートします。
 +
-FabricPoolでは、BLOBレベルの階層化はサポートされていません。また、Azureのアーカイブストレージ階層への階層化もサポートされていません。
+FabricPoolでは、blobレベルの階層化はサポートされません。また、Azureのアーカイブ ストレージ階層への階層化もサポートされません。
 
 
 
-.タスクの内容
-FabricPoolは現在、オンプレミスのAzureサービスであるAzure Stackをサポートしていません。
+.タスク概要
+FabricPoolでは、オンプレミスのAzureサービスであるAzure Stackは現在サポートされていません。
 
 .手順
-. コマンドでパラメータを `-provider-type` `Azure_Cloud`使用して、Azure Blob Storageの設定情報を指定し `storage aggregate object-store config create`ます。
+.  `storage aggregate object-store config create`コマンドと `-provider-type` `Azure_Cloud`パラメータを使用して、Azure Blob Storage 構成情報を指定します。
 +
-**  `storage aggregate object-store config create`指定された情報でONTAPがAzure Blob Storageにアクセスできない場合、コマンドは失敗します。
-** パラメータを使用して `-azure-account`、Azure Blob Storageアカウントを指定します。
-** パラメータを使用し `-azure-private-key`て、Azure Blob Storageへの要求を認証するためのアクセスキーを指定します。
+** 提供された情報を使用して ONTAP が Azure Blob Storage にアクセスできない場合、 `storage aggregate object-store config create`コマンドは失敗します。
+**  `-azure-account`パラメーターを使用して、Azure Blob Storage アカウントを指定します。
+**  `-azure-private-key`パラメーターを使用して、Azure Blob Storage への要求を認証するためのアクセス キーを指定します。
 ** Azure Blob Storageのパスワードが変更された場合は、ONTAPに格納されている対応するパスワードをただちに更新する必要があります。
 +
 これにより、ONTAPは引き続きAzure Blob Storage内のデータにアクセスできます。
@@ -47,14 +47,14 @@ cluster1::> storage aggregate object-store config create
 -server blob.core.windows.net -container-name myAzureContainer
 -azure-account myAzureAcct -azure-private-key myAzureKey
 ----
-. コマンドを使用して、Azure Blob Storageの設定情報を表示して確認します `storage aggregate object-store config show`。
+.  `storage aggregate object-store config show`コマンドを使用して、Azure Blob Storage の構成情報を表示および確認します。
 +
- `storage aggregate object-store config modify`コマンドを使用して、FabricPoolのAzure Blob Storageの設定情報を変更できます。
+ `storage aggregate object-store config modify`コマンドを使用すると、FabricPoolの Azure Blob Storage 構成情報を変更できます。
 
 
 
 .関連情報
-* link:https://docs.netapp.com/us-en/ontap-cli/storage-aggregate-object-store-config-create.html["ストレージ集約オブジェクトストア構成の作成"^]
-* link:https://docs.netapp.com/us-en/ontap-cli/snapmirror-object-store-config-modify.html["ストレージ集約オブジェクトストア構成の変更"^]
-* link:https://docs.netapp.com/us-en/ontap-cli/storage-aggregate-object-store-config-show.html["ストレージ集約オブジェクトストア構成表示"^]
+* link:https://docs.netapp.com/us-en/ontap-cli/storage-aggregate-object-store-config-create.html["storage aggregate object-store config create"^]
+* link:https://docs.netapp.com/us-en/ontap-cli/snapmirror-object-store-config-modify.html["storage aggregate object-store config modify"^]
+* link:https://docs.netapp.com/us-en/ontap-cli/storage-aggregate-object-store-config-show.html["storage aggregate object-store config show"^]
 

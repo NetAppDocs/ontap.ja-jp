@@ -2,9 +2,9 @@
 permalink: s3-config/configure-access-ldap.html 
 sidebar: sidebar 
 keywords: tr-4814, generate, ldap, s3, access keys, secret keys using API 
-summary: APIを使用して、S3ユーザがS3クライアントにアクセスするためのキーを再生成できます。 
+summary: S3クライアントにアクセスするためのキーは、S3ユーザがAPIを使用して再生成できます。 
 ---
-= ONTAP S3アクセス用の外部ディレクトリサービスの設定
+= ONTAP S3アクセス用の外部ディレクトリサービスを設定する
 :hardbreaks:
 :allow-uri-read: 
 :icons: font
@@ -12,27 +12,27 @@ summary: APIを使用して、S3ユーザがS3クライアントにアクセス�
 
 
 [role="lead"]
-ONTAP 9 .14.1以降では、外部ディレクトリのサービスがONTAP S3オブジェクトストレージに統合されました。この統合により、外部ディレクトリサービスによるユーザとアクセスの管理が簡素化されます。
+ONTAP 9.14.1以降では、外部ディレクトリのサービスがONTAP S3オブジェクト ストレージに統合されています。この統合により、外部ディレクトリ サービスによるユーザとアクセスの管理が簡単になります。
 
-外部ディレクトリサービスに属するユーザーグループに、ONTAPオブジェクトストレージ環境へのアクセス権限を付与できます。LDAP（Lightweight Directory Access Protocol）は、Active Directoryなどのディレクトリサービスと通信するためのインターフェイスであり、IDおよびアクセス管理（IAM）用のデータベースとサービスを提供します。アクセスを提供するには、ONTAP S3環境でLDAPグループを設定する必要があります。アクセスの設定が完了すると、グループ メンバーにONTAP S3バケットに対する権限が付与されます。LDAPの詳細については、を参照してくださいlink:../nfs-config/using-ldap-concept.html["ONTAP NFS SVM での LDAP ネームサービスの使用について学習します"]。
+外部ディレクトリサービスに属するユーザーグループに、ONTAPオブジェクトストレージ環境へのアクセス権限を付与できます。Lightweight Directory Access Protocol（LDAP）は、Active Directoryなどのディレクトリサービスと通信するためのインターフェースであり、IDおよびアクセス管理（IAM）用のデータベースとサービスを提供します。アクセス権限を付与するには、ONTAP S3環境でLDAPグループを設定する必要があります。アクセス権限を設定すると、グループメンバーにONTAP S3バケットへの権限が付与されます。LDAPの詳細については、link:../nfs-config/using-ldap-concept.html["ONTAP NFS SVMでのLDAPネームサービスの使用について学習します"]を参照してください。
 
-また、Active Directoryユーザグループを高速バインドモードに設定して、ユーザクレデンシャルを検証し、サードパーティおよびオープンソースのS3アプリケーションをLDAP接続を介して認証できるようにすることもできます。
+また、Active Directoryユーザ グループを高速バインド モードに設定することで、ユーザ クレデンシャルを検証し、サードパーティおよびオープンソースのS3アプリケーションをLDAP接続を介して認証するようにもできます。
 
 .開始する前に
-LDAPグループを設定し、グループアクセスの高速バインドモードを有効にする前に、次のことを確認してください。
+LDAPグループを設定し、グループ アクセスの高速バインド モードを有効にする場合は、事前に以下を確認してください。
 
-. S3サーバを含むS3対応Storage VMが作成されている。を参照して link:../s3-config/create-svm-s3-task.html["S3用のSVMの作成"]
-. そのStorage VMにバケットが作成されている。を参照して link:../s3-config/create-bucket-task.html["バケットを作成する"]
-. Storage VMにDNSが設定されています。を参照して link:../networking/configure_dns_services_auto.html["DNSサービスの設定"]
-. LDAP サーバーの自己署名ルート証明機関 (CA) 証明書がストレージ VM にインストールされます。を参照して link:../nfs-config/install-self-signed-root-ca-certificate-svm-task.html["SVMに自己署名ルートCA証明書をインストールする"]
-. SVM で TLS が有効になっている LDAP クライアントが構成されています。およびを参照してくださいlink:../nfs-config/create-ldap-client-config-task.html["ONTAP NFSアクセス用のLDAPクライアント構成を作成する"]link:../nfs-config/enable-ldap-svms-task.html["LDAPクライアント設定をONTAP NFS SVMに関連付けて情報を取得する"]。
-
-
+. S3サーバを含むS3対応Storage VMが作成されました。link:../s3-config/create-svm-s3-task.html["S3用SVMの作成"]を参照してください。
+. ストレージVMにバケットが作成されました。link:../s3-config/create-bucket-task.html["バケットの作成"]を参照してください。
+. ストレージVMにDNSが設定されています。link:../networking/configure_dns_services_auto.html["DNSサービスを設定する"]を参照してください。
+. LDAPサーバの自己署名ルート認証局（CA）証明書がストレージVMにインストールされています。link:../nfs-config/install-self-signed-root-ca-certificate-svm-task.html["SVMに自己署名ルートCA証明書をインストールする"]を参照してください。
+. LDAPクライアントは、SVM上でTLSを有効にして設定されています。link:../nfs-config/create-ldap-client-config-task.html["ONTAP NFSアクセス用のLDAPクライアント構成を作成する"]およびlink:../nfs-config/enable-ldap-svms-task.html["LDAPクライアント設定をONTAP NFS SVMに関連付けて情報を取得する"]を参照してください。
 
 
-== LDAP用のS3アクセスの設定
 
-. グループのSVMの_name service database_ofとしてldapを指定し、ldapのパスワードを指定します。
+
+== LDAPのS3アクセスを設定する
+
+. SVMのグループとパスワードの_ネームサービスデータベース_としてLDAPを指定します：
 +
 [listing]
 ----
@@ -40,16 +40,16 @@ ns-switch modify -vserver <vserver-name> -database group -sources files,ldap
 ns-switch modify -vserver <vserver-name> -database passwd -sources files,ldap
 ----
 +
-リンクhttps://docsの詳細については、ONTAPコマンドリファレンスを参照してください。NetApp .com /us-en/ ONTAP -CLI/ vserver-services-name-service-ns-switch-modify.html[`vserver services name-service ns-switch modify`^]コマンドを参照してください。
+ONTAPコマンドリファレンスのhttps://docs.netapp.com/us-en/ontap-cli/vserver-services-name-service-ns-switch-modify.html[`vserver services name-service ns-switch modify`^]コマンドの詳細を参照してください。
 
-. オブジェクトストアバケットポリシーのステートメントを作成し、アクセスを許可するLDAPグループを設定し `principal`ます。
+. アクセスを許可するLDAPグループに `principal`を設定したオブジェクトストアバケットポリシーステートメントを作成します：
 +
 [listing]
 ----
 object-store-server bucket policy statement create -bucket <bucket-name> -effect allow -principal nasgroup/<ldap-group-name> -resource <bucket-name>, <bucket-name>/*
 ----
 +
-例：次の例は、用のバケットポリシーステートメントを作成します `buck1`。このポリシーは、LDAPグループにリソース（バケットとそのオブジェクト）への `buck1`アクセスを許可し `group1`ます。
+例：次の例では、 `buck1`のバケットポリシーステートメントを作成します。このポリシーは、LDAPグループ `group1`にリソース（バケットとそのオブジェクト） `buck1`へのアクセスを許可します。
 
 +
 [listing]
@@ -57,14 +57,14 @@ object-store-server bucket policy statement create -bucket <bucket-name> -effect
 vserver object-store-server bucket policy add-statement -bucket buck1 -effect allow -action
 GetObject,PutObject,DeleteObject,ListBucket,GetBucketAcl,GetObjectAcl,ListBucketMultipartUploads,ListMultipartUploadParts, ListBucketVersions,GetObjectTagging,PutObjectTagging,DeleteObjectTagging,GetBucketVersioning,PutBucketVersioning -principal nasgroup/group1 -resource buck1, buck1/*
 ----
-. LDAPグループのユーザがS3クライアントからS3処理を実行できることを確認します `group1`。
+. LDAPグループのユーザー `group1`がS3クライアントからS3操作を実行できることを確認します。
 
 
 
 
-== 認証にLDAP高速バインドモードを使用する
+== 認証でのLDAP高速バインド モードの使用
 
-. グループのSVMの_name service database_ofとしてldapを指定し、ldapのパスワードを指定します。
+. SVMのグループとパスワードの_ネームサービスデータベース_としてLDAPを指定します：
 +
 [listing]
 ----
@@ -72,78 +72,78 @@ ns-switch modify -vserver <vserver-name> -database group -sources files,ldap
 ns-switch modify -vserver <vserver-name> -database passwd -sources files,ldap
 ----
 +
-リンクhttps://docsの詳細については、ONTAPコマンドリファレンスを参照してください。NetApp .com /us-en/ ONTAP -CLI/ vserver-services-name-service-ns-switch-modify.html[`vserver services name-service ns-switch modify`^]コマンドを参照してください。
+ONTAPコマンドリファレンスのhttps://docs.netapp.com/us-en/ontap-cli/vserver-services-name-service-ns-switch-modify.html[`vserver services name-service ns-switch modify`^]コマンドの詳細を参照してください。
 
-. S3バケットにアクセスするLDAPユーザの権限がバケットポリシーで定義されていることを確認します。詳細については、を参照してください link:../s3-config/create-modify-bucket-policy-task.html["バケットポリシーを変更する"]。
+. S3バケットにアクセスするLDAPユーザーに、バケットポリシーで定義された権限が付与されていることを確認してください。詳細については、link:../s3-config/create-modify-bucket-policy-task.html["バケット ポリシーの変更"]をご覧ください。
 . LDAPグループのユーザが次の処理を実行できることを確認します。
 +
-.. S3クライアントでアクセスキーを次の形式で設定します。
-`"NTAPFASTBIND" + base64-encode(user-name:password)`例 `"NTAPFASTBIND"`：+base64-encode（ldapuser：password）。
+.. S3クライアントのアクセスキーを次の形式で設定します（
+`"NTAPFASTBIND" + base64-encode(user-name:password)`例（ `"NTAPFASTBIND"`+ base64-encode(ldapuser:password)、結果は次のようになります
 `NTAPFASTBINDbGRhcHVzZXI6cGFzc3dvcmQ=`
 +
 
-NOTE: S3クライアントからシークレットキーの入力を求められることがあります。シークレットキーがない場合は、16文字以上のパスワードを入力できます。
+NOTE: S3クライアントからシークレット キーの入力を求められることがあります。シークレット キーがない場合は、16文字以上のパスワードを入力できます。
 
-.. ユーザに権限が割り当てられているS3クライアントから基本的なS3処理を実行します。
-
-
+.. ユーザが権限を持っているS3クライアントから基本的なS3処理を実行します。
 
 
 
 
-=== Base64 クレデンシャル
-
-ONTAP S3のデフォルト設定ではHTTPは除外され、HTTPSとTransport Layer Security（TLS）接続のみが使用されます。ONTAPでは自己署名証明書を生成できますが、サードパーティの認証局（CA）の証明書を使用することを推奨します。CA証明書を使用する場合は、クライアントアプリケーションとONTAPオブジェクトストアサーバの間に信頼された関係を作成します。
-
-Base64を使用してエンコードされたクレデンシャルは簡単にデコードできることに注意してください。HTTPSを使用すると、man-in-the-middleパケットスニファによってエンコードされたクレデンシャルがキャプチャされなくなります。
-
-事前に署名されたURLを作成する場合は、認証にLDAP高速バインドモードを使用しないでください。認証は、事前に署名されたURLに含まれるBase64アクセスキーのみに基づいて行われます。ユーザー名とパスワードは、Base64アクセスキーをデコードするすべてのユーザーに公開されます。
 
 
+=== Base64認証情報
 
-=== 認証方式がnsswitchでLDAPが有効な場合の例
+ONTAP S3のデフォルト設定では、HTTPは使用されず、HTTPSとトランスポート層セキュリティ（TLS）接続のみが使用されます。ONTAPは自己署名証明書を生成できますが、サードパーティの認証局（CA）が発行した証明書を使用することを推奨します。CA証明書を使用すると、クライアントアプリケーションとONTAPオブジェクトストアサーバの間に信頼関係が確立されます。
+
+Base64を使用してエンコードされた認証情報は簡単にデコードされることに注意してください。HTTPSを使用すると、中間者攻撃によるパケットスニファーによるエンコードされた認証情報の傍受を防ぐことができます。
+
+事前署名済みURLを作成する際は、認証にLDAPファストバインドモードを使用しないでください。認証は、事前署名済みURLに含まれるBase64アクセスキーのみに基づいて行われます。ユーザ名とパスワードは、Base64アクセスキーをデコードしたすべてのユーザに公開されます。
+
+
+
+=== 認証方法はnsswitchでLDAPが有効になっている例
 
 [listing]
 ----
 $curl -siku <user>:<user_password> -X POST https://<LIF_IP_Address>/api/protocols/s3/services/<SVM_UUID>/users -d {"comment":"<S3_user_name>", "name":<user>,"key_time_to_live":"PT6H3M"}
 ----
 
-NOTE: APIを、SVMのデータLIFではなくクラスタ管理LIFに転送します。ユーザに独自のキーの生成を許可する場合、curlを使用するには、ユーザのロールにHTTP権限を追加する必要があります。この権限は、S3 API権限に追加されたものです。
+NOTE: APIをSVMのデータLIFではなく、クラスタ管理LIFに転送します。ユーザが独自のキーを生成できるようにする場合は、curlを使用するためのHTTP権限をユーザのロールに追加する必要があります。この権限は、S3 API権限に追加されます。
 
 
 
-== Active Directory または SMB サーバーの S3 アクセスを構成する
+== Active DirectoryまたはSMBサーバのS3アクセスを設定する
 
-バケットポリシーステートメントで指定されたnasgroupまたはnasgroupに含まれるユーザにUIDとGIDが設定されていない場合、これらの属性が見つからないと検索が失敗します。Active DirectoryはUIDではなくSIDを使用します。SIDエントリをUIDにマッピングできない場合は、必要なデータをONTAPに取り込む必要があります。
+バケットポリシーステートメントで指定されたNASグループ、またはNASグループに属するユーザーにUIDとGIDが設定されていない場合、これらの属性が見つからないため検索は失敗します。Active DirectoryはUIDではなくSIDを使用します。SIDエントリをUIDにマッピングできない場合は、必要なデータをONTAPに取り込む必要があります。
 
-これには、SVMがActive Directoryで認証され、必要なユーザとグループの情報を取得できるようにを使用しlink:../authentication/enable-ad-users-groups-access-cluster-svm-task.html["vserver active-directory create"]ます。
+これを行うには、link:../authentication/enable-ad-users-groups-access-cluster-svm-task.html["vserver active-directory create"]を使用して、SVMがActive Directoryで認証し、必要なユーザおよびグループ情報を取得できるようにします。
 
-または、を使用してlink:../authentication/enable-ad-users-groups-access-cluster-svm-task.html["vserver cifs create"]Active DirectoryドメインにSMBサーバを作成します。
+または、link:../authentication/enable-ad-users-groups-access-cluster-svm-task.html["vserver cifs create"]を使用して、Active Directoryドメインに SMB サーバを作成します。
 
-ネームサーバとオブジェクトストアで異なるドメイン名を使用している場合、検索エラーが発生する可能性があります。検索エラーを回避するため、 NetApp、UPN形式のリソース認証に信頼できるドメインを使用することを推奨しています。  `nasgroup/group@trusted_domain.com`信頼されたドメインとは、SMBサーバーの信頼されたドメインリストに追加されたドメインです。 link:../smb-admin/add-remove-replace-trusted-domains-preferred-lists-task.html["優先する信頼ドメインの追加、削除、変更"] SMB サーバー リストに表示されます。
+ネームサーバーとオブジェクトストアで異なるドメイン名を使用している場合、検索エラーが発生する可能性があります。検索エラーを回避するには、NetAppではUPN形式のリソース認証に信頼できるドメインを使用することをお勧めします： `nasgroup/group@trusted_domain.com`信頼できるドメインとは、SMBサーバーの信頼済みドメインリストに追加されているドメインです。SMBサーバーリストでlink:../smb-admin/add-remove-replace-trusted-domains-preferred-lists-task.html["優先する信頼済みドメインの追加、削除、変更"]追加する方法については、こちらをご覧ください。
 
 
 
-=== 認証方式がドメインで信頼できるドメインがActive Directoryで設定されている場合にキーを生成する
+=== 認証方法がドメインで、信頼されたドメインが Active Directory に構成されている場合にキーを生成します
 
-UPN形式で指定されたユーザを持つエンドポイントを使用します `s3/services/<svm_uuid>/users` 。例：
+UPN形式で指定されたユーザーで `s3/services/<svm_uuid>/users`エンドポイントを使用します。例：
 
 [listing]
 ----
 $curl -siku FQDN\\user:<user_password> -X POST https://<LIF_IP_Address>/api/protocols/s3/services/<SVM_UUID>/users -d {"comment":"<S3_user_name>", "name":<user@fqdn>,"key_time_to_live":"PT6H3M"}
 ----
 
-NOTE: APIを、SVMのデータLIFではなくクラスタ管理LIFに転送します。ユーザに独自のキーの生成を許可する場合、curlを使用するには、ユーザのロールにHTTP権限を追加する必要があります。この権限は、S3 API権限に追加されたものです。
+NOTE: APIをSVMのデータLIFではなく、クラスタ管理LIFに転送します。ユーザが独自のキーを生成できるようにする場合は、curlを使用するためのHTTP権限をユーザのロールに追加する必要があります。この権限は、S3 API権限に追加されます。
 
 
 
-=== 認証方式がdomainで、信頼できるドメインがない場合にキーを生成する
+=== 認証方法がドメインで、信頼できるドメインがない場合にキーを生成する
 
-この処理は、LDAPが無効になっている場合、またはPOSIX以外のユーザがUIDとGIDを設定していない場合に実行できます。例：
+このアクションは、LDAPが無効になっている場合、または非POSIXユーザがUIDとGIDを設定していない場合に可能です。例：
 
 [listing]
 ----
 $curl -siku FQDN\\user:<user_password> -X POST https://<LIF_IP_Address>/api/protocols/s3/services/<SVM_UUID>/users -d {"comment":"<S3_user_name>", "name":<user[@fqdn]>,"key_time_to_live":"PT6H3M"}
 ----
 
-NOTE: APIを、SVMのデータLIFではなくクラスタ管理LIFに転送します。ユーザに独自のキーの生成を許可する場合、curlを使用するには、ユーザのロールにHTTP権限を追加する必要があります。この権限は、S3 API権限に追加されたものです。オプションのドメイン値（@FQDN）をユーザ名に追加する必要があるのは、信頼できるドメインがない場合だけです。
+NOTE: APIをSVMのデータLIFではなく、クラスタ管理LIFに誘導してください。ユーザーが独自のキーを生成できるようにするには、curlを使用するためのHTTP権限をロールに追加する必要があります。この権限は、S3 API権限に加えて付与されます。信頼できるドメインがない場合にのみ、ユーザー名にオプションのドメイン値（@fqdn）を追加する必要があります。

@@ -2,52 +2,52 @@
 permalink: fabricpool/replace-mirror-mcc-task.html 
 sidebar: sidebar 
 keywords: replacing, fabricpool, mirror, metrocluster, configuration 
-summary: MetroCluster ミラーのオブジェクトストアの 1 つが破棄された場合、または FabricPool 構成で完全に使用できなくなった場合、オブジェクトストアがまだミラーでない場合はミラーにして、破損したオブジェクトストアを FabricPool ミラーから削除します。 次に、新しいオブジェクトストアミラーを FabricPool に追加します。 
+summary: FabricPoolミラー内のオブジェクト ストアの 1 つが破壊されたり、MetroCluster構成上で永続的に使用できなくなったりした場合は、そのオブジェクト ストアがまだミラーになっていない場合はミラーにして、破損したオブジェクト ストアをFabricPoolミラーから削除し、新しいオブジェクト ストア ミラーをFabricPoolに追加することができます。 
 ---
-= ONTAP MetroCluster構成でのFabricPoolミラーの交換
+= ONTAP MetroCluster 構成で FabricPool ミラーを交換する
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-MetroCluster ミラーのオブジェクトストアの 1 つが破棄された場合、または FabricPool 構成で完全に使用できなくなった場合、オブジェクトストアがまだミラーでない場合はミラーにして、破損したオブジェクトストアを FabricPool ミラーから削除します。 次に、新しいオブジェクトストアミラーを FabricPool に追加します。
+FabricPoolミラー内のオブジェクト ストアの 1 つが破壊されたり、MetroCluster構成上で永続的に使用できなくなったりした場合は、そのオブジェクト ストアがまだミラーになっていない場合はミラーにして、破損したオブジェクト ストアをFabricPoolミラーから削除し、新しいオブジェクト ストア ミラーをFabricPoolに追加することができます。
 
 .手順
-. 破損したオブジェクトストアがまだミラーでない場合は、コマンドを使用してオブジェクトストアをミラーにします `storage aggregate object-store modify`。
+. 破損したオブジェクト ストアがまだミラーになっていない場合は、 `storage aggregate object-store modify`コマンドを使用してオブジェクト ストアをミラーにします。
 +
 [listing]
 ----
 storage aggregate object-store modify -aggregate -aggregate fp_aggr1_A01 -name mcc1_ostore1 -mirror-type mirror
 ----
-. コマンドを使用して、FabricPoolからオブジェクトストアミラーを削除します `storage aggregate object-store unmirror`。
+.  `storage aggregate object-store unmirror`コマンドを使用して、FabricPoolからオブジェクト ストア ミラーを削除します。
 +
 [listing]
 ----
 storage aggregate object-store unmirror -aggregate <aggregate name> -name mcc1_ostore1
 ----
-. ミラーデータストアを削除したあとに、オプションを指定して `-force-tiering-on-metrocluster true`を使用すると、プライマリデータストアで階層化を強制的に再開でき `storage aggregate object-store modify`ます。
+.  `storage aggregate object-store modify`と `-force-tiering-on-metrocluster true`オプションを使用してミラー データ ストアを削除した後、プライマリ データ ストアで階層化を強制的に再開できます。
 +
-ミラーがないと、 MetroCluster 構成のレプリケーション要件が満たされません。
+ミラーがないと、MetroCluster構成のレプリケーション要件が妨げられます。
 
 +
 [listing]
 ----
 storage aggregate object-store modify -aggregate <aggregate name> -name mcc1_ostore1 -force-tiering-on-metrocluster true
 ----
-. コマンドを使用して、置き換え用のオブジェクトストアを作成し `storage aggregate object-store config create`ます。
+.  `storage aggregate object-store config create`コマンドを使用して、置換オブジェクト ストアを作成します。
 +
 [listing]
 ----
 storage aggregate object-store config create -object-store-name mcc1_ostore3 -cluster clusterA -provider-type SGWS -server <SGWS-server-1> -container-name <SGWS-bucket-1> -access-key <key> -secret-password <password> -encrypt <true|false> -provider <provider-type> -is-ssl-enabled <true|false> ipspace <IPSpace>
 ----
-. コマンドを使用して、FabricPoolミラーにオブジェクトストアミラーを追加します `storage aggregate object-store mirror`。
+.  `storage aggregate object-store mirror`コマンドを使用して、オブジェクト ストア ミラーをFabricPoolミラーに追加します。
 +
 [listing]
 ----
 storage aggregate object-store mirror -aggregate aggr1 -name mcc1_ostore3-mc
 ----
-. コマンドを使用して、オブジェクトストアの情報を表示します `storage aggregate object-store show`。
+.  `storage aggregate object-store show`コマンドを使用してオブジェクト ストア情報を表示します。
 +
 [listing]
 ----
@@ -61,7 +61,7 @@ aggregate      object-store-name mirror-type     is-mirror-degraded
 aggr1          mcc1_ostore1-mc    primary           -
                mcc1_ostore3-mc    mirror          true
 ----
-. コマンドを使用して、ミラー再同期ステータスを監視し `storage aggregate object-store show-resync-status`ます。
+.  `storage aggregate object-store show-resync-status`コマンドを使用してミラーの再同期ステータスを監視します。
 +
 [listing]
 ----
@@ -78,10 +78,10 @@ storage aggregate object-store show-resync-status -aggregate aggr1
 
 
 .関連情報
-* link:https://docs.netapp.com/us-en/ontap-cli/storage-aggregate-object-store-config-create.html["ストレージ集約オブジェクトストア構成の作成"^]
-* link:https://docs.netapp.com/us-en/ontap-cli/storage-aggregate-object-store-mirror.html["ストレージ集約オブジェクトストアミラー"^]
-* link:https://docs.netapp.com/us-en/ontap-cli/storage-aggregate-object-store-modify.html["ストレージ集約オブジェクトストア変更"^]
-* link:https://docs.netapp.com/us-en/ontap-cli/storage-aggregate-object-store-show.html["ストレージ集約オブジェクトストア表示"^]
-* link:https://docs.netapp.com/us-en/ontap-cli/storage-aggregate-object-store-show-resync-status.html["ストレージ集約オブジェクトストアの再同期ステータスの表示"^]
-* link:https://docs.netapp.com/us-en/ontap-cli/storage-aggregate-object-store-unmirror.html["ストレージ集約オブジェクトストアミラー解除"^]
+* link:https://docs.netapp.com/us-en/ontap-cli/storage-aggregate-object-store-config-create.html["storage aggregate object-store config create"^]
+* link:https://docs.netapp.com/us-en/ontap-cli/storage-aggregate-object-store-mirror.html["ストレージ アグリゲート オブジェクトストア ミラー"^]
+* link:https://docs.netapp.com/us-en/ontap-cli/storage-aggregate-object-store-modify.html["ストレージ アグリゲート オブジェクトストアの変更"^]
+* link:https://docs.netapp.com/us-en/ontap-cli/storage-aggregate-object-store-show.html["storage aggregate object-store show"^]
+* link:https://docs.netapp.com/us-en/ontap-cli/storage-aggregate-object-store-show-resync-status.html["storage aggregate object-store show-resync-status"^]
+* link:https://docs.netapp.com/us-en/ontap-cli/storage-aggregate-object-store-unmirror.html["storage aggregate object-store unmirror"^]
 

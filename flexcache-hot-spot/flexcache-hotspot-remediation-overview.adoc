@@ -2,39 +2,39 @@
 sidebar: sidebar 
 permalink: flexcache-hot-spot/flexcache-hotspot-remediation-overview.html 
 keywords: hotspot, FlexCache, HDFA, problem, solution, ONTAP 
-summary: アニメーションレンダリングやEDAなど、多くのハイパフォーマンスコンピューティングワークロードでよく発生するホットスポットの問題をFlexCacheを使用して修正する方法を説明します。 
+summary: アニメーション レンダリングや EDA などの多くのハイパフォーマンス コンピューティング ワークロードでよく発生する問題であるホットスポットを FlexCache で修復する方法を学びます。 
 ---
-= ONTAP FlexCacheボリュームを使用したハイパフォーマンスコンピューティングワークロードにおけるホットスポットの修正
+= ONTAP FlexCacheボリュームを使用したハイパフォーマンス コンピューティング ワークロードにおけるホットスポットの修復
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-アニメーションレンダリングやEDAなど、多くのハイパフォーマンスコンピューティングワークロードで共通する問題はホットスポットです。ホットスポットは、クラスタまたはネットワークの特定の部分の負荷が他の領域と比較して著しく高い場合に発生する状況です。その結果、パフォーマンスのボトルネックが発生し、その場所に集中した過剰なデータトラフィックが原因で全体的な効率が低下します。たとえば、1つまたは複数のファイルが実行中のジョブに対して高い需要があるため、（ボリュームアフィニティ経由で）そのファイルへの要求を処理するために使用されるCPUでボトルネックが発生します。FlexCacheはこのボトルネックの解消に役立ちますが、適切に設定する必要があります。
+アニメーションレンダリングやEDAなど、多くのハイパフォーマンス コンピューティング ワークロードに共通する問題は、ホットスポットです。ホットスポットとは、クラスタまたはネットワークの特定の部分が他の領域と比較して著しく高い負荷を受ける状況であり、その場所に過剰なデータ トラフィックが集中することで、パフォーマンスのボトルネックが発生し、全体的な効率が低下します。たとえば、実行中のジョブで1つまたは複数のファイルへの需要が高まると、そのファイルへのリクエスト（ボリューム アフィニティ経由）を処理するために使用されるCPUでボトルネックが発生します。FlexCacheは、このボトルネックの軽減に役立ちますが、適切に設定する必要があります。
 
-このドキュメントでは、ホットスポットを修正するためのFlexCacheの設定方法について説明します。
-
-
-NOTE: 2024年7月以降、これまでPDFとして公開されていたテクニカルレポートの内容がONTAPの製品ドキュメントに統合されました。このONTAPホットスポット修正テクニカルレポートの内容は、発行日時点でまったく新しいものであり、それ以前の形式は作成されていません。
+このドキュメントでは、FlexCacheを設定してホットスポットを修正する方法について説明します。
 
 
-
-== 主な概念
-
-ホットスポットの修復を計画する際には、これらの重要な概念を理解することが重要です。
-
-* *高密度FlexCache（HDF）*：キャッシュ容量の要件で許容される数のノードにまたがるように凝縮されたFlexCache
-* * HDFアレイ（HDFA）*：同じオリジンのキャッシュで構成され、クラスタ全体に分散されるHDFSのグループ
-* * SVM間HDFA *：サーバ仮想マシン（SVM）ごとにHDFAから1つのHDF
-* * SVM内HDFA *：1つのSVM内のHDFA内のすべてのHDFS
-* * East-Westトラフィック*：間接データアクセスによって生成されるクラスタバックエンドトラフィック
+NOTE: 2024年7月より、これまでPDF形式で公開されていたテクニカルレポートの内容がONTAP製品ドキュメントに統合されました。このONTAPホットスポット修復テクニカルレポートの内容は、発行日時点で最新のものであり、以前の形式で作成されたものはありません。
 
 
-.次のステップ
-* link:flexcache-hotspot-remediation-architecture.html["高密度FlexCacheを使用してホットスポットの修復を支援する方法を理解する"]
-* link:flexcache-hotspot-remediation-hdfa-examples.html["FlexCacheアレイ密度の決定"]
-* link:flexcache-hotspot-remediation-intra-inter-svm-hdfa.html["HDFSの密度を確認し、SVM間HDFAとSVM内HDFAを使用してNFSを使用してHDFSにアクセスするかどうかを決定します。"]
-* link:flexcache-hotspot-remediation-ontap-config.html["ONTAP構成でクラスタ内キャッシングを使用するメリットを実現するために、HDFAとデータLIFを設定する"]
-* link:flexcache-hotspot-remediation-client-config.html["クライアント設定でONTAP NAS接続を分散するようにクライアントを設定する方法について説明します。"]
+
+== 主要な概念
+
+ホットスポット修復を計画する際には、これらの基本的な概念を理解することが重要です。
+
+* *高密度FlexCache（HDF）*：キャッシュ容量の要件が許す限り少ないノードにまたがるように凝縮されたFlexCache
+* *HDF アレイ（HDFA）*：同じオリジンのキャッシュである HDF のグループで、クラスター全体に分散されています。
+* *SVM 間 HDFA*：サーバー仮想マシン（SVM）ごとに HDFA からの 1 つの HDF
+* *SVM内HDFA*：1つのSVM内のHDFA内のすべてのHDF
+* *東西トラフィック*：間接的なデータアクセスから生成されるクラスタ バックエンド トラフィック
+
+
+.次の手順
+* link:flexcache-hotspot-remediation-architecture.html["高密度FlexCacheを使用してホットスポットの修正に役立つアーキテクチャの構築方法を理解する"]
+* link:flexcache-hotspot-remediation-hdfa-examples.html["FlexCacheアレイ密度を決定する"]
+* link:flexcache-hotspot-remediation-intra-inter-svm-hdfa.html["HDF の密度を決定し、SVM 間 HDFA と SVM 内 HDFA を使用した NFS で HDF にアクセスするかどうかを決定します。"]
+* link:flexcache-hotspot-remediation-ontap-config.html["ONTAP 構成でクラスタ内キャッシュを使用するメリットを実現するために、HDFA とデータ LIF を構成する"]
+* link:flexcache-hotspot-remediation-client-config.html["クライアント構成を使用して ONTAP NAS 接続を分散するようにクライアントを構成する方法を学びます"]
 

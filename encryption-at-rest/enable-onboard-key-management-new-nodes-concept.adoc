@@ -2,47 +2,47 @@
 permalink: encryption-at-rest/enable-onboard-key-management-new-nodes-concept.html 
 sidebar: sidebar 
 keywords: onboard key management, onboard new nodes, okm, encrypt 
-summary: オンボードキーマネージャを使用して、暗号化されたデータにアクセスするためにクラスタで使用するキーを安全に保管できます。オンボードキーマネージャは、暗号化されたボリュームまたは自己暗号化ディスクにアクセスする各クラスタで有効にする必要があります。 
+summary: オンボード キー マネージャを使用して、暗号化されたデータにアクセスする際にクラスタで使用するキーを安全に保管できます。オンボード キー マネージャは、暗号化されたボリュームや自己暗号化ディスクにアクセスする各クラスタで有効にする必要があります。 
 ---
-= 新しく追加されたONTAPノードでオンボード キー管理を有効にする
+= 新しく追加されたONTAPノードでオンボードキー管理を有効にする
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-オンボードキーマネージャを使用して、暗号化されたデータにアクセスするためにクラスタで使用するキーを安全に保管できます。オンボードキーマネージャは、暗号化されたボリュームまたは自己暗号化ディスクにアクセスする各クラスタで有効にする必要があります。
+オンボード キー マネージャを使用して、暗号化されたデータにアクセスする際にクラスタで使用するキーを安全に保管できます。オンボード キー マネージャは、暗号化されたボリュームや自己暗号化ディスクにアクセスする各クラスタで有効にする必要があります。
 
 [NOTE]
 ====
-ONTAP 9.6以降では、 `security key-manager onboard sync` クラスターにノードを追加するたびにコマンドを実行します。
+ONTAP 9.6 以降では、クラスタにノードを追加するたびに `security key-manager onboard sync`コマンドを実行する必要があります。
 
-ONTAP 9 .5以前の場合は、クラスタにノードを追加するたびにコマンドを実行する必要があります `security key-manager setup`。
+ONTAP 9.5 以前では、クラスタにノードを追加するたびに `security key-manager setup`コマンドを実行する必要があります。
 
-オンボード キー管理を使用してクラスターにノードを追加する場合は、このコマンドを実行して、不足しているキーを更新します。
+オンボードキー管理を使用してクラスタにノードを追加する場合は、このコマンドを実行して、不足しているキーを更新します。
 
 ====
-MetroCluster構成の場合は、次のガイドラインを確認してください。
+MetroCluster構成を使用する場合は、次のガイドラインを確認してください。
 
-* ONTAP 9 .6以降では、同じパスフレーズを使用してまずローカルクラスタでを実行し、次にリモートクラスタでを実行する `security key-manager onboard sync`必要があります `security key-manager onboard enable`。
+* ONTAP 9.6以降では、最初にローカルクラスタで `security key-manager onboard enable`を実行し、次にリモートクラスタで `security key-manager onboard sync`を実行する必要があります。それぞれで同じパスフレーズを使用してください。
 +
-および `security key-manager onboard sync`の詳細については `security key-manager onboard enable`、をlink:https://docs.netapp.com/us-en/ontap-cli/search.html?q=security+key-manager+onboard["ONTAPコマンド リファレンス"^]参照してください。
+ `security key-manager onboard enable`および `security key-manager onboard sync`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/search.html?q=security+key-manager+onboard["ONTAPコマンド リファレンス"^]をご覧ください。
 
-* ONTAP 9 .5では、同じパスフレーズを使用してローカルクラスタと `security key-manager setup -sync-metrocluster-config yes`リモートクラスタでを実行する必要があります `security key-manager setup`。
-* ONTAP 9を実行する前に、同じパスフレーズを使用してローカルクラスタでを実行し、20秒ほど待ってからリモートクラスタでを実行する `security key-manager setup`必要があります `security key-manager setup`。
+* ONTAP 9.5 では、ローカルクラスタで `security key-manager setup`を実行し、リモートクラスタで `security key-manager setup -sync-metrocluster-config yes`を実行する必要があります。それぞれ同じパスフレーズを使用します。
+* ONTAP 9.5より前では、ローカルクラスタで `security key-manager setup`を実行し、約20秒待ってから、リモートクラスタで `security key-manager setup`を実行し、それぞれで同じパスフレーズを使用する必要があります。
 
 
-デフォルトでは、ノードのリブート時にキー管理ツールのパスフレーズを入力する必要はありません。ONTAP 9 .4以降では、オプションを使用して、リブート後にユーザにパスフレーズの入力を求めることができ `-enable-cc-mode yes`ます。
+デフォルトでは、ノードの再起動時にキーマネージャのパスフレーズを入力する必要はありません。ONTAP 9.4以降では、 `-enable-cc-mode yes`オプションを使用して、再起動後にユーザーにパスフレーズの入力を要求できます。
 
-NVEでは、を設定する `-enable-cc-mode yes`と、コマンドと `volume move start`コマンドで作成したボリューム `volume create`が自動的に暗号化されます。で `volume create`は、を指定する必要はありません `-encrypt true`。で `volume move start`は、を指定する必要はありません `-encrypt-destination true`。
+NVE の場合、 `-enable-cc-mode yes`を設定すると、 `volume create`コマンドと `volume move start`コマンドで作成したボリュームは自動的に暗号化されます。 `volume create`の場合、 `-encrypt true`を指定する必要はありません。 `volume move start`の場合、 `-encrypt-destination true`を指定する必要はありません。
 
 [NOTE]
 ====
-パスフレーズの試行が失敗した場合は、ノードを再起動します。再起動後、パスフレーズを再度入力してみてください。
+パスフレーズの入力が失敗した場合は、ノードを再起動してください。再起動後、パスフレーズを再度入力してください。
 
 ====
 .関連情報
 * link:https://docs.netapp.com/us-en/ontap-cli/search.html?q=cluster+image["クラスターイメージコマンド"^]
-* link:https://docs.netapp.com/us-en/ontap-cli/security-key-manager-external-enable.html["セキュリティキーマネージャー外部有効化"^]
-* link:https://docs.netapp.com/us-en/ontap-cli//security-key-manager-onboard-enable.html["セキュリティキーマネージャーオンボード有効化"^]
+* link:https://docs.netapp.com/us-en/ontap-cli/security-key-manager-external-enable.html["セキュリティキー・マネージャ外部有効化"^]
+* link:https://docs.netapp.com/us-en/ontap-cli//security-key-manager-onboard-enable.html["セキュリティキー・マネージャーオンボード有効化"^]
 

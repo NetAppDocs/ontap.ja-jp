@@ -2,23 +2,23 @@
 permalink: nfs-rdma/index.html 
 sidebar: sidebar 
 keywords: NFS over RDMA, GPU, NVIDIA GDX 
-summary: RDMA経由のNFSでは、RDMA対応アダプタが使用されるため、CPUの中断やオーバーヘッドを発生させることなく、ストレージとホストのシステムメモリ間でデータを直接コピーできます。 
+summary: NFS over RDMA は RDMA 対応アダプタを使用するため、CPU の中断やオーバーヘッドなしでストレージとホスト システム メモリ間で直接データをコピーできます。 
 ---
-= ONTAPでのRDMA経由のNFSの詳細
+= ONTAPでのNFS over RDMAについて
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-RDMA経由のNFSは、RDMA対応のネットワークアダプタを使用するため、ストレージシステムメモリとホストシステムメモリの間でデータを直接コピーできるため、CPUの中断やオーバーヘッドを回避できます。
+NFS over RDMAはRDMA対応ネットワーク アダプタを使用するため、CPUの中断やオーバーヘッドを回避し、ストレージ システム メモリとホスト システム メモリ間でデータを直接コピーできます。
 
-NFS over RDMA構成は、機械学習や分析など、レイテンシの影響を受けやすいワークロードや広帯域ワークロードを抱えているお客様向けに設計されています。ONTAP NFS over RDMAは、NFSベースのあらゆるワークロードに使用できます。さらに、NVIDIAでは、RDMA経由でNFSを拡張して、GPUダイレクトストレージ（GDS）を有効にしています。GDSは、CPUとメインメモリをすべてバイパスし、RDMAを使用してストレージシステムとGPUメモリの間でデータを直接転送することで、GPU対応のワークロードをさらに高速化します。
+NFS over RDMA構成は、機械学習や分析など、レイテンシの影響を受けやすい、または高帯域幅を必要とするワークロードを持つお客様向けに設計されています。ONTAP NFS over RDMAは、あらゆるNFSベースのワークロードに使用できます。さらに、NVIDIAはNFS over RDMAを拡張し、GPU Direct Storage（GDS）に対応しました。GDSは、CPUとメインメモリを完全にバイパスし、RDMAを使用してストレージシステムとGPUメモリ間で直接データを転送することで、GPU対応ワークロードをさらに高速化します。
 
-ONTAP 9.10.1以降では、NFSv4.0プロトコルでRDMA経由のNFS構成がサポートされます。以降のONTAPリリースでは、サポートされるNFSバージョンが追加されています。
+ONTAP 9.10.1以降、NFS over RDMA構成はNFSv4.0プロトコルでサポートされます。その後のONTAPリリースでは、追加のNFSバージョンのサポートが導入されました。
 
 .要件
-* 使用するNFSのバージョンに対応した正しいバージョンのONTAPを実行していることを確認します。
+* 使用するNFSのバージョンに対応した、正しいバージョンのONTAPが実行されていることを確認してください。
 +
 [cols="2"]
 |===
@@ -37,8 +37,8 @@ ONTAP 9.10.1以降では、NFSv4.0プロトコルでRDMA経由のNFS構成がサ
 ** ONTAP 9.12.1以降では、System Managerを使用してNFS over RDMAを設定できます。ONTAP 9.10.1および9.11.1では、CLIを使用してNFS over RDMAを設定する必要があります。
 
 
-* ハイアベイラビリティ（HA）ペアの両方のノードのバージョンを同じにする必要があります。
-* ストレージシステムコントローラがRDMAをサポートしている必要があります。
+* 高可用性（HA）ペアの両方のノードは同じバージョンである必要があります。
+* ストレージ システム コントローラは RDMA をサポートする必要があります：
 +
 [cols="2"]
 |===
@@ -46,9 +46,9 @@ ONTAP 9.10.1以降では、NFSv4.0プロトコルでRDMA経由のNFS構成がサ
 
 
 | 9.10.1以降  a| 
-** AFF A400
+** AFF A400用
 ** AFF A700用
-** AFF A800用
+** AFF A800
 
 
 
@@ -62,38 +62,38 @@ ONTAP 9.10.1以降では、NFSv4.0プロトコルでRDMA経由のNFS構成がサ
 
 | ONTAP 9.15.1以降  a| 
 ** AFF A1K用
-** AFF A90用
-** AFF A70用
+** AFF A90
+** AFF A70
 
 
 
 
 | ONTAP 9.16.1以降  a| 
-** AFF A50用
-** AFF A30用
+** AFF A50
+** AFF A30
 ** AFF A20用
 
 
 |===
-* データLIFは、RDMAをサポートするように設定する必要があります。
-* ターゲットRNICのサポートについては、を参照してください https://hwu.netapp.com/["NetApp Hardware Universe"^]。
-* NFS over RDMAでサポートされるクライアントオペレーティングシステムについては、を参照して https://imt.netapp.com/matrix/["ネットアップのInteroperability Matrix（IMT ）"^]ください。RoCE v2でサポートされているRNICについては、それぞれのRNICベンダーのマニュアルを参照してください。
+* データLIFがRDMAをサポートするように設定されている必要があります。
+* ターゲット RNIC サポートの詳細については、 https://hwu.netapp.com/["NetApp Hardware Universe"^]を参照してください。
+* NFS over RDMAでサポートされているクライアント オペレーティング システムの詳細については、 https://imt.netapp.com/matrix/["NetApp相互運用性マトリックス（IMT）"^]を参照してください。RoCE v2でサポートされているRNICについては、それぞれのRNICベンダーのドキュメントを参照してください。
 
 
 
-NOTE: インターフェイスグループは、RDMA経由のNFSではサポートされません。
+NOTE: インターフェイス グループは、NFS over RDMAではサポートされません。
 
-.次のステップ
+.次の手順
 * xref:./configure-nics-task.adoc[NFS over RDMA用のNICの設定]
-* xref:./configure-lifs-task.adoc[RDMA経由のNFS用のLIFの設定]
-* xref:./configure-nfs-task.adoc[NFS over RDMAのNFS設定]
+* xref:./configure-lifs-task.adoc[NFS over RDMA用のLIFの設定]
+* xref:./configure-nfs-task.adoc[NFS over RDMA用のNFS設定]
 
 
 .関連情報
 * link:../concepts/rdma-concept.html["RDMA"]
 * xref:../nfs-trunking/index.html[NFSトランキングの概要]
-* https://datatracker.ietf.org/doc/html/rfc7530["RFC 7530 ： NFS バージョン 4 プロトコル"^]
-* https://datatracker.ietf.org/doc/html/rfc8166["RFC 8166 ：リモート手順コールバージョン 1 用のリモートダイレクトメモリアクセストランスポート"^]
-* https://datatracker.ietf.org/doc/html/rfc8167["RFC 8167 ： RPC-over-RDMA トランスポート上の双方向リモート手順コール"^]
-* https://datatracker.ietf.org/doc/html/rfc8267["RFC 8267 ： RPC-over-RDMA バージョン 1 への NFS 上位レイヤバインディング"^]
+* https://datatracker.ietf.org/doc/html/rfc7530["RFC 7530：NFS バージョン 4 プロトコル"^]
+* https://datatracker.ietf.org/doc/html/rfc8166["RFC 8166：リモートプロシージャコール バージョン1用リモートダイレクトメモリアクセストランスポート"^]
+* https://datatracker.ietf.org/doc/html/rfc8167["RFC 8167：RPC-over-RDMAトランスポートにおける双方向リモートプロシージャコール"^]
+* https://datatracker.ietf.org/doc/html/rfc8267["RFC 8267：NFS上位層とRPC-over-RDMAバージョン1のバインディング"^]
 

@@ -2,24 +2,24 @@
 permalink: encryption-at-rest/enable-external-key-management-96-later-hw-task.html 
 sidebar: sidebar 
 keywords: enabling, external key management, ontap 9.6, later, hw-based 
-summary: 1つ以上のKMIPサーバを使用して、暗号化されたデータにアクセスする際にクラスタで使用するキーを安全に保管できます。1つのノードに最大4つのKMIPサーバを接続できます。冗長性とディザスタリカバリのために、少なくとも2台のサーバが推奨されます。 
+summary: 1つ以上のKMIPサーバを使用して、暗号化されたデータにアクセスする際にクラスタで使用するキーを安全に保管できます。1つのノードに最大4つのKMIPサーバを接続できます。冗長性とディザスタ リカバリのために少なくとも2つのサーバを使用することを推奨します。 
 ---
 = ONTAP 9.6以降でハードウェアベースの暗号化の外部キー管理を有効にする
 :allow-uri-read: 
 
 
 [role="lead"]
-1つ以上のKMIPサーバを使用して、暗号化されたデータにアクセスする際にクラスタで使用するキーを安全に保管できます。1つのノードに最大4つのKMIPサーバを接続できます。冗長性とディザスタリカバリのために、少なくとも2台のサーバが推奨されます。
+1つ以上のKMIPサーバを使用して、暗号化されたデータにアクセスする際にクラスタで使用するキーを安全に保管できます。1つのノードに最大4つのKMIPサーバを接続できます。冗長性とディザスタ リカバリのために少なくとも2つのサーバを使用することを推奨します。
 
-ONTAP 9 .11.1以降では、プライマリキーサーバごとに最大3つのセカンダリキーサーバを追加してクラスタ化されたキーサーバを作成できます。詳細については、を参照してください xref:configure-cluster-key-server-task.html[クラスタ化された外部キーサーバの設定]。
+ONTAP 9.11.1以降では、プライマリキーサーバごとに最大3台のセカンダリキーサーバを追加して、クラスタ化されたキーサーバを作成できます。詳細については、xref:configure-cluster-key-server-task.html[クラスタ化された外部キー サーバの設定]を参照してください。
 
 .開始する前に
 * KMIP SSLクライアント証明書とサーバ証明書をインストールしておく必要があります。
 * このタスクを実行するには、クラスタ管理者である必要があります。
-* MetroCluster環境の場合:
+* MetroCluster環境内：
 +
 ** 外部キー管理ツールを設定する前に、MetroCluster環境を設定する必要があります。
-** 両方のクラスターに同じ KMIP SSL 証明書をインストールする必要があります。
+** 両方のクラスタに同じ KMIP SSL 証明書をインストールする必要があります。
 
 
 
@@ -32,13 +32,13 @@ ONTAP 9 .11.1以降では、プライマリキーサーバごとに最大3つの
 +
 [NOTE]
 ====
-**  `security key-manager external enable`コマンドは、コマンドに置き換わるもの `security key-manager setup`です。外部キー管理の設定を変更するには、コマンドを実行し `security key-manager external modify`ます。の詳細については `security key-manager external enable`、をlink:https://docs.netapp.com/us-en/ontap-cli/security-key-manager-external-enable.html["ONTAPコマンド リファレンス"^]参照してください。
-** MetroCluster環境で管理SVMに外部キー管理を設定する場合は、パートナークラスタでこのコマンドを繰り返す必要があります `security key-manager external enable`。
+**  `security key-manager external enable`コマンドは `security key-manager setup`コマンドを置き換えます。 `security key-manager external modify`コマンドを実行すると、外部キー管理の設定を変更できます。link:https://docs.netapp.com/us-en/ontap-cli/security-key-manager-external-enable.html["ONTAPコマンド リファレンス"^]で `security key-manager external enable`の詳細をご覧ください。
+** MetroCluster環境で、管理SVMの外部キー管理を構成する場合は、パートナークラスタで `security key-manager external enable`コマンドを繰り返す必要があります。
 
 
 ====
 +
-次のコマンドは、3台の外部キーサーバでの外部キー管理を有効にします `cluster1`。1つ目のキーサーバはホスト名とポートを使用して指定し、2つ目のキーサーバはIPアドレスとデフォルトポートを使用して指定し、3つ目のキーサーバはIPv6アドレスとポートを使用して指定します。
+次のコマンドは、 `cluster1`の外部キー管理を3つの外部キーサーバで有効にします。最初のキーサーバはホスト名とポートを使用して指定され、2番目はIPアドレスとデフォルトポートを使用して指定され、3番目はIPv6アドレスとポートを使用して指定されます：
 
 +
 [listing]
@@ -52,7 +52,7 @@ clusterl::> security key-manager external enable -key-servers ks1.local:15696,10
 +
 [NOTE]
 ====
- `security key-manager external show-status`コマンドは、コマンドに置き換わるもの `security key-manager show -status`です。の詳細については `security key-manager external show-status`、をlink:https://docs.netapp.com/us-en/ontap-cli/security-key-manager-external-show-status.html["ONTAPコマンド リファレンス"^]参照してください。
+ `security key-manager external show-status`コマンドは `security key-manager show -status`コマンドを置き換えます。link:https://docs.netapp.com/us-en/ontap-cli/security-key-manager-external-show-status.html["ONTAPコマンド リファレンス"^]の `security key-manager external show-status`の詳細を参照してください。
 
 ====
 +
@@ -78,7 +78,7 @@ node2
 
 
 .関連情報
-* xref:configure-cluster-key-server-task.html[クラスタ化された外部キーサーバの設定]
-* link:https://docs.netapp.com/us-en/ontap-cli/security-key-manager-external-enable.html["セキュリティキーマネージャーの外部有効化"^]
-* link:https://docs.netapp.com/us-en/ontap-cli/security-key-manager-external-show-status.html["セキュリティキーマネージャーの外部ステータス表示"^]
+* xref:configure-cluster-key-server-task.html[クラスタ化された外部キー サーバの設定]
+* link:https://docs.netapp.com/us-en/ontap-cli/security-key-manager-external-enable.html["セキュリティキー管理者（外部）を有効化"^]
+* link:https://docs.netapp.com/us-en/ontap-cli/security-key-manager-external-show-status.html["セキュリティキー・マネージャ外部ステータス表示"^]
 

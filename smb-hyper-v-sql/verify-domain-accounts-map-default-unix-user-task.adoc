@@ -4,28 +4,28 @@ sidebar: sidebar
 keywords: verfiy, domain, account, default, unix, server, smb, share, user 
 summary: Hyper-V と SQL Server では、SMB アクセスのためにドメイン コンピュータ アカウントを UNIX ユーザーにマッピングする必要があります。最も簡単な方法は、デフォルトの UNIX ユーザーにマッピングすることです。 
 ---
-= ONTAPでドメインアカウントがデフォルトのUNIXユーザにマッピングされていることを確認する
+= ドメイン アカウントがONTAPのデフォルトUNIXユーザにマッピングされていることを確認します
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-Hyper-V および SQL Server では、継続的可用性を備えた共有への SMB 接続を作成する際にドメインアカウントを使用します。接続を作成するには、コンピュータアカウントが UNIX ユーザに正しくマッピングされている必要があります。そのための最も便利な方法は、コンピュータアカウントをデフォルトの UNIX ユーザにマッピングすることです。
+Hyper-V と SQL Server は、継続的に利用可能な共有への SMB 接続を確立するためにドメインアカウントを使用します。接続を正常に確立するには、コンピューターアカウントを UNIX ユーザーに正しくマッピングする必要があります。これを実現する最も簡単な方法は、コンピューターアカウントをデフォルトの UNIX ユーザーにマッピングすることです。
 
-.タスクの内容
-Hyper-V および SQL Server は、ドメインコンピュータアカウントを使用して SMB 接続を作成します。また、 SQL Server は、 SMB 接続を作成するサービスアカウントとしてドメインユーザアカウントを使用します。
+.タスク概要
+Hyper-V と SQL Server は、SMB 接続を作成するためにドメイン コンピュータ アカウントを使用します。さらに、SQL Server は、SMB 接続を作成するサービス アカウントとしてドメイン ユーザー アカウントも使用します。
 
-ストレージ仮想マシン（SVM）を作成すると、ONTAPは自動的に次の名前のデフォルトユーザーを作成します。  `pcuser` （UIDは `65534` ）と名付けられたグループ `pcuser` （GIDは `65534` ）に追加し、デフォルトのユーザーを `pcuser`グループ。クラスタを Data ONTAP 8.2 にアップグレードする前に存在していた SVM 上で Hyper-V over SMB ソリューションを構成する場合、デフォルトのユーザーとグループが存在しない可能性があります。デフォルトの UNIX ユーザを設定していない場合は、 CIFS サーバのデフォルトの UNIX ユーザを設定する前に、デフォルトのユーザとグループを作成する必要があります。
+ストレージ仮想マシン（SVM）を作成すると、ONTAPは自動的に `pcuser`という名前のデフォルトユーザ（UIDは `65534`）と `pcuser`という名前のグループ（GIDは `65534`）を作成し、そのデフォルトユーザを `pcuser`グループに追加します。クラスタをData ONTAP 8.2にアップグレードする前から存在していたSVM上でHyper-V over SMBソリューションを設定する場合、デフォルトユーザとデフォルトグループが存在しない可能性があります。存在しない場合は、CIFSサーバのデフォルトUNIXユーザを設定する前に、これらを作成する必要があります。
 
 .手順
-. デフォルトの UNIX ユーザが存在するかどうかを確認します。
+. デフォルトの UNIX ユーザーが存在するかどうかを確認します：
 +
 [source, cli]
 ----
 vserver cifs options show -vserver <vserver_name>
 ----
-. デフォルトユーザオプションが設定されていない場合は、デフォルトの UNIX ユーザとして指定できる UNIX ユーザが存在するかどうかを確認します。
+. デフォルト ユーザー オプションが設定されていない場合は、デフォルト UNIX ユーザーとして指定できる UNIX ユーザーが存在するかどうかを確認します：
 +
 [source, cli]
 ----
@@ -33,22 +33,22 @@ vserver services unix-user show -vserver <vserver_name>
 ----
 . デフォルト ユーザー オプションが設定されておらず、デフォルト UNIX ユーザーとして指定できる UNIX ユーザーがいない場合は、デフォルト グループとデフォルト UNIX ユーザーを作成し、デフォルト ユーザーをグループに追加します。
 +
-、デフォルトのグループには通常グループに割り当てるGIDはである必要があり `65534`ます。
+通常、デフォルトユーザーにはユーザー名「pcuser」が与えられ、UIDは `65534`に割り当てられます。通常、デフォルトグループにはグループ名「pcuser」が与えられます。グループに割り当てられるGIDは `65534`である必要があります。
 
 +
-.. デフォルトグループを作成します。
+.. デフォルト グループを作成します：
 +
 [source, cli]
 ----
 vserver services unix-group create -vserver <vserver_name> -name pcuser -id 65534
 ----
-.. デフォルトユーザを作成し、デフォルトグループに追加します。
+.. デフォルト ユーザーを作成し、デフォルト ユーザーをデフォルト グループに追加します：
 +
 [source, cli]
 ----
 vserver services unix-user create -vserver <vserver_name> -user pcuser -id 65534 -primary-gid 65534
 ----
-.. デフォルトのユーザとデフォルトグループが正しく設定されていることを確認します。
+.. デフォルトのユーザーとデフォルトのグループが正しく構成されていることを確認します：
 +
 [source, cli]
 ----
@@ -61,15 +61,15 @@ vserver services unix-group show -vserver <vserver_name> -members
 ----
 
 
-. CIFS サーバのデフォルトのユーザが設定されていない場合は、次の手順を実行します。
+. CIFS サーバーのデフォルト ユーザーが設定されていない場合は、次の手順を実行します：
 +
-.. デフォルトユーザを設定します。
+.. デフォルトのユーザを設定します。
 +
 [source, cli]
 ----
 vserver cifs options modify -vserver <vserver_name> -default-unix-user pcuser
 ----
-.. デフォルトの UNIX ユーザが正しく設定されていることを確認します。
+.. デフォルトの UNIX ユーザーが正しく設定されていることを確認します：
 +
 [source, cli]
 ----
@@ -77,14 +77,14 @@ vserver cifs options show -vserver <vserver_name>
 ----
 
 
-. アプリケーションサーバのコンピュータアカウントがデフォルトのユーザに正しくマッピングされていることを確認するには、SVMの共有にドライブをマッピングし、コマンドを使用してWindowsユーザとUNIXユーザのマッピングを確認します `vserver cifs session show`。
+. アプリケーション サーバーのコンピュータ アカウントがデフォルト ユーザーに正しくマッピングされていることを確認するには、SVM 上にある共有にドライブをマッピングし、 `vserver cifs session show`コマンドを使用して Windows ユーザーと UNIX ユーザーのマッピングを確認します。
 +
-の詳細については `vserver cifs options`、をlink:https://docs.netapp.com/us-en/ontap-cli/search.html?q=vserver+cifs+options["ONTAPコマンド リファレンス"^]参照してください。
+ `vserver cifs options`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/search.html?q=vserver+cifs+options["ONTAPコマンド リファレンス"^]をご覧ください。
 
 
 
 .例
-が存在します。 `pcuser`ユーザーは、SVM vs1 上の CIFS サーバのデフォルト ユーザーとして割り当てられます。
+次のコマンドは、CIFSサーバのデフォルト ユーザが設定されていないことを確認し、 `pcuser`ユーザと `pcuser`グループが存在することを確認します。 `pcuser`ユーザは、SVM vs1上のCIFSサーバのデフォルト ユーザとして割り当てられています。
 
 [listing]
 ----

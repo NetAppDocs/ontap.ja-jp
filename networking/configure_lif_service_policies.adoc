@@ -2,7 +2,7 @@
 sidebar: sidebar 
 permalink: networking/configure_lif_service_policies.html 
 keywords: create service policy, assign service policy, service policy commands, configure lif service policies, create and assign a service policy for lifs, configure lif service policies, create a service policy for lifs, network interface service show, service-policy create, assign a service policy to a lif, examples, commands for managing lif service policies 
-summary: LIF のサービスポリシーを作成して割り当てます 
+summary: LIFのサービスポリシーを作成して割り当てる 
 ---
 = ONTAPクラスタのLIFサービスポリシーを設定する
 :hardbreaks:
@@ -14,32 +14,32 @@ summary: LIF のサービスポリシーを作成して割り当てます
 
 
 [role="lead"]
-LIFのサービスポリシーを設定して、LIFを使用する単一のサービスまたは一連のサービスを指定できます。
+LIFのサービス ポリシーを設定して、LIFを使用する単一のサービスまたは一連のサービスを指定することができます。
 
 
 
-== LIFのサービスポリシーを作成します。
+== LIFのサービス ポリシーの作成
 
-LIFのサービスポリシーを作成できます。1つ以上のLIFにサービスポリシーを割り当てることで、1つまたは一連のサービスのトラフィックをLIFで伝送できるようにすることができます。
+LIFのサービス ポリシーを作成することができます。1つ以上のLIFにサービス ポリシーを割り当てることで、1つまたは一連のサービスのトラフィックの処理をLIFに許可することができます。
 
-このコマンドを実行するには、高度なPrivilegesが必要です `network interface service-policy create`。
+ `network interface service-policy create`コマンドを実行するには高度な権限が必要です。
 
-.タスクの内容
-データSVMとシステムSVMの両方のデータトラフィックと管理トラフィックの管理に組み込みのサービスとサービスポリシーを使用できます。ほとんどのユースケースでは、カスタムサービスポリシーを作成するのではなく、組み込みのサービスポリシーを使用して問題を解決できます。
+.タスク概要
+データSVMとシステムSVM両方のデータ トラフィックと管理トラフィックの管理に、組み込みのサービスおよびサービス ポリシーを使用できます。ほとんどのユースケースでは、カスタム サービス ポリシーを作成するのではなく、組み込みのサービス ポリシーを使用して対応できます。
 
-これらの組み込みのサービスポリシーは、必要に応じて変更できます。
+これらの組み込みのサービス ポリシーは必要に応じて変更できます。
 
 .手順
-. クラスタで使用可能なサービスを表示します。
+. クラスタで使用できるサービスを確認します。
 +
 ....
 network interface service show
 ....
 +
-サービスとは、LIFがアクセスするアプリケーションと、クラスタが提供するアプリケーションのことです。各サービスには、アプリケーションがリスンしているTCPおよびUDPポートが0個以上含まれています。
+サービスとは、LIFがアクセスするアプリケーション、およびクラスタで提供されるアプリケーションです。各サービスには、アプリケーションがリスンしているTCPポートとUDPポートが0個以上含まれています。
 
 +
-次の追加データサービスと管理サービスを使用できます。
+次の追加のデータ サービスと管理サービスを使用できます。
 
 +
 ....
@@ -61,7 +61,7 @@ management-https            tcp:443
 management-ssh              tcp:22
 12 entries were displayed.
 ....
-. クラスタ内のサービスポリシーを表示します。
+. クラスタに存在するサービス ポリシーを確認します。
 +
 ....
 cluster1::> network interface service-policy show
@@ -97,7 +97,7 @@ vs0
 
 7 entries were displayed.
 ....
-. サービスポリシーを作成します。
+. サービス ポリシーを作成します。
 +
 ....
 cluster1::> set -privilege advanced
@@ -108,9 +108,9 @@ cluster1::> network interface service-policy create -vserver <svm_name> -policy 
 ....
 +
 ** 「service_name」には、ポリシーに含めるサービスのリストを指定します。
-** 「ip_address/mask」には、サービスポリシー内のサービスへのアクセスを許可するアドレスのサブネットマスクのリストを指定します。デフォルトでは、指定されたすべてのサービスが、すべてのサブネットからのトラフィックを許可するデフォルトの許可アドレスリスト0.0.0.0/0で追加されます。デフォルト以外の許可アドレスリストを指定すると、ポリシーを使用するLIFは、指定したマスクのいずれにも一致しないソースアドレスからの要求をすべてブロックするように設定されます。
+** 「IP_address/mask」には、サービス ポリシー内のサービスへのアクセスを許可するアドレスを、サブネット マスクのリストで指定します。デフォルトでは、指定したすべてのサービスが、デフォルトの許可アドレス リスト0.0.0.0/0（すべてのサブネットからのトラフィックを許可）で追加されます。デフォルト以外の許可アドレス リストを指定した場合、そのポリシーを使用するLIFは、指定したマスクと一致しないソース アドレスからの要求をすべてブロックするように設定されます。
 +
-次の例は、_nfs_or_SMB_servicesを含むSVM用のデータサービスポリシーsvm1_data_policy__を作成する方法を示しています。
+次の例は、_NFS_ および _SMB_ サービスを含む SVM のデータ サービス ポリシー _svm1_data_policy_ を作成する方法を示しています：
 
 +
 ....
@@ -121,7 +121,7 @@ Do you wish to continue? (y or n): y
 cluster1::> network interface service-policy create -vserver svm1 -policy svm1_data_policy -services data-nfs,data-cifs,data-core
 ....
 +
-次の例は、クラスタ間サービスポリシーを作成する方法を示しています。
+次の例は、クラスタ間サービス ポリシーを作成する方法を示しています。
 
 +
 ....
@@ -133,13 +133,13 @@ cluster1::> network interface service-policy create -vserver cluster1 -policy in
 ....
 
 
-. サービスポリシーが作成されたことを確認します。
+. サービス ポリシーが作成されたことを確認します。
 +
 ....
 cluster1::> network interface service-policy show
 ....
 +
-次の出力は、使用可能なサービスポリシーを示しています。
+次の出力は、使用可能なサービス ポリシーを示しています。
 
 +
 ....
@@ -184,124 +184,124 @@ vs0
 ....
 
 
-.終了後
-LIFの作成時または既存のLIFの変更時に、サービスポリシーを割り当てます。
+.終了後の操作
+LIFの作成時または既存のLIFの変更時にサービス ポリシーを割り当てます。
 
 
 
-== LIFへのサービスポリシーの割り当て
+== LIFへのサービス ポリシーの割り当て
 
-LIFへのサービスポリシーの割り当ては、LIFの作成時または変更時に実行できます。サービスポリシーは、LIFで使用できる一連のサービスを定義します。
+LIFの作成時または変更時に、LIFにサービス ポリシーを割り当てることができます。サービス ポリシーは、LIFで使用できる一連のサービスを定義します。
 
-.タスクの内容
-管理SVMとデータSVMのLIFにサービスポリシーを割り当てることができます。
+.タスク概要
+管理SVMとデータSVMのLIFにサービス ポリシーを割り当てることができます。
 
-.ステップ
-サービスポリシーをいつLIFに割り当てるかに応じて、次のいずれかの操作を実行します。
+.手順
+LIFにサービス ポリシーをいつ割り当てるかに応じて、次のいずれかのコマンドを実行します。
 
 [cols="25,75"]
 |===
-| 状況 | サービスポリシーを割り当てています ... 
+| 状況 | サービスポリシーを割り当てます... 
 
 
-| LIFの作成 | network interface create -vserver SVM_name -lif <LIF_name> -home-node <node_name > -home-port <port_name> ｛ （ -address <IP_address> -netmask <IP_address> ） -subnet-name <subnet_name> ｝ -service-policy <service_policy_name> 
+| NVMe LIFの設定 | network interface create -vserver svm_name -lif <lif_name> -home-node <node_name> -home-port <port_name> {(-address <IP_address> -netmask <IP_address>) -subnet-name <subnet_name>} -service-policy <service_policy_name> 
 
 
-| LIFの変更 | network interface modify -vserver <svm_name> -lif <lif_name> -service -policy <service_policy_name> 
+| LIFの変更 | network interface modify -vserver <svm_name> -lif <lif_name> -service-policy <service_policy_name> 
 |===
-LIFのサービスポリシーを指定する場合、LIFのデータプロトコルとロールを指定する必要はありません。ロールとデータプロトコルを指定してLIFを作成することもできます。
+LIFのサービス ポリシーを指定する際に、LIFのデータ プロトコルとロールを指定する必要はありません。ロールとデータ プロトコルを指定してLIFを作成することも可能です。
 
 
-NOTE: サービスポリシーは、サービスポリシーの作成時に指定したものと同じSVM内のLIFでのみ使用できます。
+NOTE: サービス ポリシーは、サービス ポリシーの作成時に指定した同じSVMに含まれるLIFでのみ使用できます。
 
 
 
 === 例
 
-次の例は、LIFのサービスポリシーをdefault-managementに変更する方法を示しています。
+次の例は、LIFのサービス ポリシーをdefault-managementに変更する方法を示しています。
 
 ....
 cluster1::> network interface modify -vserver cluster1 -lif lif1 -service-policy default-management
 ....
 
 
-== LIFのサービスポリシーの管理用コマンド
+== LIFのサービス ポリシーを管理するためのコマンド
 
-LIFのサービスポリシーを管理するには、コマンドを使用し `network interface service-policy`ます。
+ `network interface service-policy`コマンドを使用して、LIFサービスポリシーを管理します。
 
-の詳細については `network interface service-policy`、をlink:https://docs.netapp.com/us-en/ontap-cli/search.html?q=network+interface+service-policy["ONTAPコマンド リファレンス"^]参照してください。
+ `network interface service-policy`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/search.html?q=network+interface+service-policy["ONTAPコマンド リファレンス"^]をご覧ください。
 
 .開始する前に
-アクティブなSnapMirror関係にあるLIFのサービスポリシーを変更すると、レプリケーションスケジュールが中断されます。LIFをクラスタ間から非クラスタ間（またはその逆）に変換した場合、変更はピアクラスタにレプリケートされません。LIFサービスポリシーの変更後にピアクラスタを更新するには、最初にこの処理を実行し `snapmirror abort`てxref:../data-protection/resynchronize-relationship-task.html[レプリケーション関係を再同期する]ください。
+アクティブなSnapMirror関係にあるLIFのサービスポリシーを変更すると、レプリケーションスケジュールが中断されます。LIFをインタークラスタから非インタークラスタ（またはその逆）に変換した場合、それらの変更はピアクラスタにレプリケートされません。LIFのサービスポリシーを変更した後にピアクラスタを更新するには、まず `snapmirror abort`操作を実行してからxref:../data-protection/resynchronize-relationship-task.html[レプリケーション関係を再同期する]を実行してください。
 
 |===
 | 状況 | 使用するコマンド 
 
 
  a| 
-サービスポリシーを作成する（advanced権限が必要）
+サービスポリシーを作成する（高度な権限が必要）
  a| 
 `network interface service-policy create`
 
 
 
  a| 
-既存のサービスポリシーにサービスエントリを追加する（advanced権限が必要）
+既存のサービスポリシーにサービスエントリを追加します（高度な権限が必要です）
  a| 
 `network interface service-policy add-service`
 
 
 
  a| 
-既存のサービスポリシーのクローンを作成する（advanced権限が必要）
+既存のサービスポリシーを複製する（高度な権限が必要）
  a| 
 `network interface service-policy clone`
 
 
 
  a| 
-既存のサービスポリシーのサービスエントリを変更する（advanced権限が必要）
+既存のサービス ポリシー内のサービス エントリを変更する（高度な権限が必要）
  a| 
 `network interface service-policy modify-service`
 
 
 
  a| 
-既存のサービスポリシーからサービスエントリを削除する（advanced権限が必要）
+既存のサービスポリシーからサービスエントリを削除します（高度な権限が必要です）
  a| 
 `network interface service-policy remove-service`
 
 
 
  a| 
-既存のサービスポリシーの名前を変更する（advanced権限が必要）
+既存のサービスポリシーの名前を変更する（高度な権限が必要）
  a| 
 `network interface service-policy rename`
 
 
 
  a| 
-既存のサービスポリシーを削除する（advanced権限が必要）
+既存のサービスポリシーを削除します（高度な権限が必要です）
  a| 
 `network interface service-policy delete`
 
 
 
  a| 
-組み込みのサービスポリシーを元の状態にリストアする（advanced権限が必要）
+組み込みのサービスポリシーを元の状態に復元します（高度な権限が必要）
  a| 
 `network interface service-policy restore-defaults`
 
 
 
  a| 
-既存のサービスポリシーを表示する
+既存のサービス ポリシーを表示する
  a| 
 `network interface service-policy show`
 
 |===
 .関連情報
-* link:https://docs.netapp.com/us-en/ontap-cli/network-interface-service-show.html["network interface service showの略"^]
-* link:https://docs.netapp.com/us-en/ontap-cli/search.html?q=network+interface+service-policy["network interface service-policy"^]
-* link:https://docs.netapp.com/us-en/ontap-cli/snapmirror-abort.html["スナップミラーの中止"^]
+* link:https://docs.netapp.com/us-en/ontap-cli/network-interface-service-show.html["ネットワークインターフェイスサービスの表示"^]
+* link:https://docs.netapp.com/us-en/ontap-cli/search.html?q=network+interface+service-policy["ネットワークインターフェイス サービスポリシー"^]
+* link:https://docs.netapp.com/us-en/ontap-cli/snapmirror-abort.html["snapmirror abort"^]
 

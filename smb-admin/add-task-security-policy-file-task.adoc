@@ -2,48 +2,48 @@
 permalink: smb-admin/add-task-security-policy-file-task.html 
 sidebar: sidebar 
 keywords: creating, create, add, policy, task, security, policy, configuring, configure, apply, acl, associate, task, entries, add a task to the security policy 
-summary: ACL を設定し、 SVM 内のファイルやフォルダへ適用する 4 番目のステップでは、ポリシータスクを作成してセキュリティポリシーに追加します。ポリシータスクを作成するときに、セキュリティポリシーとタスクを関連付けます。セキュリティポリシーには、 1 つ以上のタスクエントリを追加できます。 
+summary: ポリシー タスクを作成してセキュリティ ポリシーに追加することは、SVM 内のファイルまたはフォルダに ACL を設定して適用するための 4 番目の手順です。ポリシー タスクを作成すると、そのタスクをセキュリティ ポリシーに関連付けます。セキュリティ ポリシーには、1 つ以上のタスク エントリを追加できます。 
 ---
-= ONTAP SMBセキュリティポリシーにタスクを追加する
+= ONTAP SMB セキュリティ ポリシーにタスクを追加する
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-ACL を設定し、 SVM 内のファイルやフォルダへ適用する 4 番目のステップでは、ポリシータスクを作成してセキュリティポリシーに追加します。ポリシータスクを作成するときに、セキュリティポリシーとタスクを関連付けます。セキュリティポリシーには、 1 つ以上のタスクエントリを追加できます。
+ポリシー タスクを作成してセキュリティ ポリシーに追加することは、SVM 内のファイルまたはフォルダに ACL を設定して適用するための 4 番目の手順です。ポリシー タスクを作成すると、そのタスクをセキュリティ ポリシーに関連付けます。セキュリティ ポリシーには、1 つ以上のタスク エントリを追加できます。
 
-.タスクの内容
-セキュリティポリシーはタスクのコンテナです。タスクとは、 NTFS または mixed セキュリティが設定されたファイルまたはフォルダ（ストレージレベルのアクセス保護を設定する場合はボリュームオブジェクト）へのセキュリティポリシーによって実行できる単一の処理を指します。
+.タスク概要
+セキュリティ ポリシーはタスクのコンテナです。タスクとは、セキュリティ ポリシーによって NTFS または混合セキュリティのファイルまたはフォルダ（または Storage-Level Access Guard を設定している場合はボリューム オブジェクト）に対して実行できる単一の操作を指します。
 
 タスクには次の2種類があります。
 
 * ファイルとディレクトリのタスク
 +
-指定されたファイルやフォルダにセキュリティ記述子を適用するタスクの指定に使用します。ファイルとディレクトリのタスクによって適用される ACL は、 SMB クライアントまたは ONTAP CLI で管理できます。
+指定されたファイルとフォルダにセキュリティ記述子を適用するタスクを指定するために使用されます。ファイルおよびディレクトリタスクを通じて適用されたACLは、SMBクライアントまたはONTAP CLIを使用して管理できます。
 
-* ストレージレベルのアクセス保護タスク
+* Storage-Level Access Guard タスク
 +
-指定されたボリュームにストレージレベルのアクセス保護のセキュリティ記述子を適用するタスクの指定に使用します。ストレージレベルのアクセス保護タスクで適用される ACL は ONTAP CLI からのみ管理できます。
+指定されたボリュームにストレージレベルのアクセス保護セキュリティ記述子を適用するタスクを指定するために使用されます。ストレージレベルのアクセス保護タスクを通じて適用されたACLは、ONTAP CLIを通じてのみ管理できます。
 
 
 
-タスクには、ファイル（またはフォルダ）やファイルセット（またはフォルダセット）のセキュリティ構成の定義が含まれています。ポリシー内のすべてのタスクは、一意のパスによって識別されます。1 つのポリシー内の 1 つのパスに含められるのは 1 つのタスクだけです。ポリシーに重複するタスクエントリを含めることはできません。
+タスクには、ファイル（またはフォルダ）またはファイルセット（またはフォルダ）のセキュリティ設定の定義が含まれます。ポリシー内の各タスクは、パスによって一意に識別されます。1つのポリシー内では、パスごとに1つのタスクのみを設定できます。ポリシー内に重複するタスクエントリを設定することはできません。
 
-ポリシーへのタスクの追加に関するガイドラインを次に示します。
+ポリシーにタスクを追加するためのガイドライン：
 
-* ポリシーあたりのタスクエントリは最大 10 、 000 個です。
+* ポリシーごとに最大 10,000 件のタスク エントリが可能です。
 * ポリシーには 1 つ以上のタスクを含めることができます。
 +
-ポリシーには複数のタスクを含めることができますが、ポリシーにファイルとディレクトリのタスクとストレージレベルのアクセス保護タスクの両方を含めることはできません。ポリシーに含めるタスクは、すべてストレージレベルのアクセス保護タスクにするか、すべてファイルとディレクトリのタスクにする必要があります。
+ポリシーには複数のタスクを含めることができますが、ファイル / ディレクトリ タスクとStorage-Level Access Guardタスクの両方を含むポリシーを設定することはできません。ポリシーには、すべてのStorage-Level Access Guardタスク、またはすべてのファイル / ディレクトリ タスクのいずれかを含める必要があります。
 
-* ストレージレベルのアクセス保護は、権限の制限に使用します。
+* Storage-Level Access Guard は、アクセス許可を制限するために使用されます。
 +
-アクセス権限は付与されません。
+追加のアクセス権限を与えることはありません。
 
 
 
-セキュリティポリシーにタスクを追加する際には、次の 4 つの必須パラメータを指定する必要があります。
+セキュリティ ポリシーにタスクを追加するときは、次の 4 つの必須パラメータを指定する必要があります：
 
 * SVM名
 * ポリシー名
@@ -51,25 +51,25 @@ ACL を設定し、 SVM 内のファイルやフォルダへ適用する 4 番�
 * パスに関連付けるセキュリティ記述子
 
 
-次のオプションのパラメータを使用して、セキュリティ記述子の設定をカスタマイズできます。
+次のオプション パラメータを使用して、セキュリティ記述子の構成をカスタマイズできます：
 
-* セキュリティタイプ
-* プロパゲーションモード
+* セキュリティ タイプ
+* 伝播モード
 * インデックス位置
 * アクセス制御の種類
 
 
-オプションのパラメータの値はストレージレベルのアクセス保護では無視されます。この手順で説明されているコマンドの詳細については、をlink:https://docs.netapp.com/us-en/ontap-cli/["ONTAPコマンド リファレンス"^]参照してください。
+ストレージレベルのアクセス保護では、オプションパラメータの値は無視されます。この手順で説明されているコマンドの詳細については、link:https://docs.netapp.com/us-en/ontap-cli/["ONTAPコマンド リファレンス"^]を参照してください。
 
 .手順
-. セキュリティ記述子が関連付けられているタスクをセキュリティポリシーに追加します。 `vserver security file-directory policy task add -vserver vserver_name -policy-name policy_name -path path -ntfs-sd SD_nameoptional_parameters`
+. 関連付けられたセキュリティ記述子を持つタスクをセキュリティ ポリシーに追加します： `vserver security file-directory policy task add -vserver vserver_name -policy-name policy_name -path path -ntfs-sd SD_nameoptional_parameters`
 +
-`file-directory`は、パラメータのデフォルト値 `-access-control`です。ファイルとディレクトリのアクセスタスクを設定する場合、アクセス制御の種類の指定は任意です。
+`file-directory`は `-access-control`パラメータのデフォルト値です。ファイルおよびディレクトリ アクセス タスクを構成する際にアクセス制御の種類を指定することはオプションです。
 
 +
 `vserver security file-directory policy task add -vserver vs1 -policy-name policy1 -path /home/dir1 -security-type ntfs -ntfs-mode propagate -ntfs-sd sd2 -index-num 1 -access-control file-directory`
 
-. ポリシータスクの設定を確認します。 `vserver security file-directory policy task show -vserver vserver_name -policy-name policy_name -path path`
+. ポリシー タスクの構成を確認します： `vserver security file-directory policy task show -vserver vserver_name -policy-name policy_name -path path`
 +
 `vserver security file-directory policy task show`
 
@@ -87,4 +87,4 @@ Index    File/Folder    Access           Security   NTFS       NTFS Security
 ----
 
 
-の詳細については `vserver security file-directory policy task`、をlink:https://docs.netapp.com/us-en/ontap-cli/search.html?q=vserver+security+file-directory+policy+task["ONTAPコマンド リファレンス"^]参照してください。
+ `vserver security file-directory policy task`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/search.html?q=vserver+security+file-directory+policy+task["ONTAPコマンド リファレンス"^]をご覧ください。

@@ -2,45 +2,45 @@
 permalink: volumes/create-flexclone-file-flexclone-lun-task.html 
 sidebar: sidebar 
 keywords: create, flexclone file, flexclone lun, efficient, clone 
-summary: FlexVolまたはFlexCloneボリューム内のファイルとLUNのクローンを、スペース効率に優れた方法で短時間で作成できます。 
+summary: FlexVolまたはFlexCloneボリューム内のファイルとLUNのスペース効率に優れた時間効率に優れたクローンを作成できます。 
 ---
-= ONTAPでFlexCloneファイルまたはFlexClone LUNを作成する
+= ONTAPでFlexCloneファイルまたはFlexClone LUNを作成
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-コマンドを使用すると、FlexVolまたはFlexCloneボリュームに存在するファイルやLUNのクローンを、スペースを効率よく、時間をかけずに作成できます `volume file clone create`。
+FlexVolボリュームまたはFlexCloneボリューム内に存在するファイルとLUNのスペース効率と時間効率に優れたクローンを作成するには、 `volume file clone create`コマンドを使用します。
 
 .開始する前に
-* クラスタにFlexCloneライセンスがインストールされている必要があります。このライセンスはに含まれていlink:../system-admin/manage-licenses-concept.html#licenses-included-with-ontap-one["ONTAP One"]ます。
-* サブLUNのクローニングまたはサブファイルのクローニングに複数のブロック範囲を使用する場合は、ブロック番号が重複しないようにする必要があります。
+* FlexCloneライセンスはクラスタにインストールする必要があります。このライセンスはlink:../system-admin/manage-licenses-concept.html#licenses-included-with-ontap-one["ONTAP One"]に含まれています。
+* サブLUNのクローニングまたはサブファイルのクローニングに複数のブロック範囲が使用される場合は、ブロック番号が重ならないようにする必要があります。
 * 適応圧縮が有効なボリュームでサブLUNまたはサブファイルを作成する場合は、ブロック範囲がミスアライメントされないようにする必要があります。
 +
 つまり、ソースの開始ブロック番号とデスティネーションの開始ブロック番号が、偶数または奇数のいずれかでアライメントされている必要があります。
 
 
 
-.タスクの内容
-SVM管理者は、クラスタ管理者によって割り当てられたPrivilegesに応じて、FlexCloneファイルおよびFlexClone LUNを作成できます。
+.タスク概要
+SVM管理者は、クラスタ管理者によって割り当てられた権限に応じて、FlexCloneファイルおよびFlexClone LUNを作成できます。
 
-クローンを作成および変更するときに、FlexCloneファイルおよびFlexClone LUNの自動削除設定を指定できます。デフォルトでは、自動削除設定は無効になっています。
+FlexCloneファイルおよびFlexClone LUNに対して、クローンの作成時と変更時に自動削除設定を指定できます。デフォルトでは、自動削除設定は無効になります。
 
-既存のFlexCloneファイルまたはFlexClone LUNをクローンの作成時に上書きするには、 `volume file clone create`コマンドでパラメータを指定し `-overwrite-destination`ます。
+ `volume file clone create`コマンドを `-overwrite-destination`パラメータ付きで使用してクローンを作成するときに、既存のFlexCloneファイルまたはFlexClone LUNを上書きできます。
 
-スプリット負荷の最大値に達すると、FlexCloneファイルおよびFlexClone LUNの作成要求の受け入れが一時的に停止し、エラーメッセージが表示されます。 `EBUSY`ノードのスプリット負荷が最大値を下回ると、FlexCloneファイルおよびFlexClone LUNの作成要求の受け入れが再開されます。クローンの作成に必要な容量がノードに確保されてから、次の作成要求を行うようにしてください。
+ノードの分割負荷が最大負荷に達すると、ノードはFlexCloneファイルとFlexClone LUNの作成要求の受付を一時的に停止し、 `EBUSY`エラー メッセージを表示します。ノードの分割負荷が最大負荷を下回ると、ノードはFlexCloneファイルとFlexClone LUNの作成要求の受付を再開します。クローンを作成できる容量がノードに確保されるまで待ってから、作成要求を再度実行してください。
 
-FlexClone LUNは親LUNのスペースリザベーション属性を継承します。スペースリザーブFlexClone LUNには、親のスペースリザーブLUNと同じ量のスペースが必要です。FlexClone LUNのスペースをリザーブしない場合は、クローンに対する変更を保存するための十分なスペースがボリュームに必要です。
+FlexClone LUNは、親LUNのスペース リザベーション属性を継承します。スペース リザーブされたFlexClone LUNには、親のスペース リザーブLUNと同量のスペースが必要です。FlexClone LUNのスペースをリザーブしない場合は、クローンに対する変更を保存するための十分なスペースがボリュームに必要です。
 
 .手順
-. LUNをクローニングする場合は、LUNのマッピングまたは書き込みが行われていないことを確認します。
-. FlexCloneのLUNまたはファイルを作成します。
+. LUNのクローンを作成する場合は、LUNがマップされていないこと、または書き込みが行われていないことを確認します。
+. FlexClone LUNまたはファイルを作成します：
 +
 `volume file clone create -vserver _vserver_name_ -volume _volume_name_ -source-path _source_path_ -destination-path _destination_path_`
 
 +
-次の例は、ボリュームvol1内の親ファイルfile1_sourceのFlexCloneファイルfile1_cloneを作成する方法を示しています。
+次の例は、ボリュームvol1内の親ファイルfile1_sourceから、FlexCloneファイルfile1_cloneを作成する方法を示しています。
 
 +
 [listing]
@@ -48,37 +48,37 @@ FlexClone LUNは親LUNのスペースリザベーション属性を継承しま�
 cluster1::> volume file clone create -vserver vs0 -volume vol1 -source-path /file1_source -destination-path /file1_clone
 ----
 +
-の詳細については `volume file clone create`、をlink:https://docs.netapp.com/us-en/ontap-cli/volume-file-clone-create.html["ONTAPコマンド リファレンス"^]参照してください。
+ `volume file clone create`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/volume-file-clone-create.html["ONTAPコマンド リファレンス"^]を参照してください。
 
 
 
 
 
-== ボリューム内のSnapshotからFlexClone LUNを作成する
+== ボリューム内のスナップショットからFlexClone LUNを作成する
 
-ボリューム内のSnapshotを使用して、LUNのFlexCloneコピーを作成できます。LUNのFlexCloneコピーは読み書き可能です。
+ボリューム内のスナップショットを使用して、LUNのFlexCloneコピーを作成できます。LUNのFlexCloneコピーは読み取りと書き込みの両方が可能です。
 
 .開始する前に
-FlexCloneライセンスがインストールされている必要があります。このライセンスはに含まれていlink:../system-admin/manage-licenses-concept.html#licenses-included-with-ontap-one["ONTAP One"]ます。
+FlexCloneライセンスをインストールする必要があります。このライセンスはlink:../system-admin/manage-licenses-concept.html#licenses-included-with-ontap-one["ONTAP One"]に含まれています。
 
-.タスクの内容
-FlexClone LUNは親LUNのスペースリザベーション属性を継承します。スペースリザーブFlexClone LUNには、親のスペースリザーブLUNと同じ量のスペースが必要です。FlexClone LUNのスペースをリザーブしない場合は、クローンに対する変更を保存するための十分なスペースがボリュームに必要です。
+.タスク概要
+FlexClone LUNは、親LUNのスペース リザベーション属性を継承します。スペース リザーブされたFlexClone LUNには、親のスペース リザーブLUNと同量のスペースが必要です。FlexClone LUNのスペースをリザーブしない場合は、クローンに対する変更を保存するための十分なスペースがボリュームに必要です。
 
 .手順
-. LUNがマッピングされていないこと、または書き込まれていないことを確認します。
-. LUNを含むボリュームのSnapshotを作成します。
+. LUNがマッピングされていない、または書き込まれていないことを確認します。
+. LUNを含むボリュームのスナップショットを作成します：
 +
 `volume snapshot create -vserver _vserver_name_ -volume _volume_name_ -snapshot _snapshot_name_`
 
 +
-クローニングするLUNのSnapshot（元のSnapshot）を作成する必要があります。
+クローンを作成するLUNのスナップショット（バッキングスナップショット）を作成する必要があります。
 
-. SnapshotからFlexClone LUNを作成します。
+. スナップショットからFlexClone LUNを作成します：
 +
 `volume file clone create -vserver _vserver_name_ -volume _volume_name_ -source-path _source_path_ -snapshot-name _snapshot_name_ -destination-path _destination_path_`
 
 +
-FlexClone LUNを自動削除できるようにする必要がある場合は、を含めます `-autodelete true`。セミシックプロビジョニングを使用してボリュームにこのFlexClone LUNを作成する場合は、すべてのFlexClone LUNに対して自動削除を有効にする必要があります。
+FlexClone LUNを自動削除できるようにする必要がある場合は、 `-autodelete true`を含めます。セミシック プロビジョニングを使用してボリュームにこのFlexClone LUNを作成する場合は、すべてのFlexClone LUNに対して自動削除を有効にする必要があります。
 
 . FlexClone LUNが正しいことを確認します。
 +

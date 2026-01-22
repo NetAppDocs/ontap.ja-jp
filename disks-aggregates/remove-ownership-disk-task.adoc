@@ -2,19 +2,19 @@
 permalink: disks-aggregates/remove-ownership-disk-task.html 
 sidebar: sidebar 
 keywords: remove, ownership, disk 
-summary: ONTAPは、ディスク所有権情報をディスクに書き込みます。スペアディスクまたはそのシェルフをノードから取り外す前に、所有権情報を削除して、別のノードに適切に統合できるようにする必要があります。 
+summary: ONTAPは、ディスク所有権情報をディスクに書き込みます。スペア ディスクまたはそのシェルフをノードから取り外す前に、所有権情報を削除して、別のノードに組み込めるようにする必要があります。 
 ---
-= ディスクからONTAPの所有権を削除する
+= ディスクから ONTAP 所有権を削除する
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-ONTAPは、ディスク所有権情報をディスクに書き込みます。スペアディスクまたはそのシェルフをノードから取り外す前に、所有権情報を削除して、別のノードに適切に統合できるようにする必要があります。
+ONTAPは、ディスク所有権情報をディスクに書き込みます。スペア ディスクまたはそのシェルフをノードから取り外す前に、所有権情報を削除して、別のノードに組み込めるようにする必要があります。
 
 
-NOTE: ディスクがルート/データパーティショニング用にパーティショニングされていて、ONTAP 9 .10.1以降を実行している場合は、NetAppテクニカルサポートに連絡して所有権を削除してください。詳細については、を参照してくださいlink:https://kb.netapp.com/onprem/ontap/hardware/Error%3A_command_failed%3A_Failed_to_remove_the_owner_of_disk["技術情報アーティクル「Failed to remove the owner of disk」"^]。
+NOTE: ディスクがルートデータパーティショニング用にパーティション化されており、ONTAP 9.10.1以降を実行している場合は、NetAppテクニカルサポートに問い合わせて、所有権の削除に関するサポートを受けてください。詳細については、link:https://kb.netapp.com/onprem/ontap/hardware/Error%3A_command_failed%3A_Failed_to_remove_the_owner_of_disk["ナレッジベースの記事：ディスクの所有者を削除できませんでした"^]を参照してください。
 
 .開始する前に
 所有権を削除するディスクが次の要件を満たしている必要があります。
@@ -31,15 +31,15 @@ NOTE: ディスクがルート/データパーティショニング用にパー�
 
 
 
-.タスクの内容
-ディスクの自動割り当てが有効になっている場合は、ノードからディスクを取り外す前に、ONTAPによって所有権が自動的に再割り当てされます。そのため、ディスクが取り外されるまで所有権の自動割り当てを無効にしてから再度有効にします。
+.タスク概要
+ディスクの自動割り当てが有効になっている場合は、ノードからディスクを取り外す前に、ONTAPによって所有権が自動的に再割り当てされます。そのため、ディスクが取り外されるまで所有権の自動割り当てを無効にしておき、あとから再度有効にします。
 
 .手順
-. ディスク所有権の自動割り当てを有効にしている場合は、CLIを使用して無効にします。
+. ディスク所有権の自動割り当てを有効にしている場合はCLIを使用して無効にします。
 +
 `storage disk option modify -node _node_name_ -autoassign off`
 
-. 必要に応じて、ノードのHAパートナーに対して同じ手順を繰り返します。
+. 必要に応じて、ノードのHAパートナーで前述の手順を繰り返します。
 . ディスクからソフトウェア所有権情報を削除します。
 +
 `storage disk removeowner _disk_name_`
@@ -54,24 +54,24 @@ NOTE: ディスクがルート/データパーティショニング用にパー�
 ....
 storage disk removeowner sys1:0a.23,sys1:0a.24,sys1:0a.25
 ....
-. ディスクがルート/データパーティショニング用にパーティショニングされていて、ONTAP 9 .9.1以前を実行している場合は、パーティションから所有権を削除します。
+. ディスクがルート / データ パーティショニング用にパーティショニングされていて、ONTAP 9.9.1以前を実行している場合は、パーティションから所有権を削除します。
 +
 --
 `storage disk removeowner -disk _disk_name_ -root true`
 
 `storage disk removeowner -disk _disk_name_ -data true`
 
-両方のパーティションがどのノードにも所有されなくなります。
+これで、両方のパーティションはどのノードからも所有されなくなります。
 
 --
-. 以前にディスク所有権の自動割り当てを無効にした場合は、ディスクを取り外したあとまたは再割り当てしたあとに再度有効にします。
+. 前の手順でディスク所有権の自動割り当てを無効にした場合は、ディスクが取り外されたあと、または再割り当てされたあとに再度有効にします。
 +
 `storage disk option modify -node _node_name_ -autoassign on`
 
-. 必要に応じて、ノードのHAパートナーに対して同じ手順を繰り返します。
+. 必要に応じて、ノードのHAパートナーで前述の手順を繰り返します。
 
 
 .関連情報
-* link:https://docs.netapp.com/us-en/ontap-cli/storage-disk-option-modify.html["ストレージディスクオプションの変更"^]
-* link:https://docs.netapp.com/us-en/ontap-cli/storage-disk-removeowner.html["ストレージディスクの所有者の削除"^]
+* link:https://docs.netapp.com/us-en/ontap-cli/storage-disk-option-modify.html["storage disk option modify"^]
+* link:https://docs.netapp.com/us-en/ontap-cli/storage-disk-removeowner.html["storage disk removeowner"^]
 

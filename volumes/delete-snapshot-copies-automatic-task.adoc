@@ -2,27 +2,27 @@
 permalink: volumes/delete-snapshot-copies-automatic-task.html 
 sidebar: sidebar 
 keywords: delete, snapshot, copies, automatically, flexclone luns, automatic, lun, luns 
-summary: SnapshotとFlexClone LUNを自動的に削除するポリシーを定義して、スペース使用量の管理に役立てることができます。 
+summary: スペース使用率を管理するために、SnapshotとFlexClone LUNを自動的に削除するポリシーを定義できます。 
 ---
-= SnapshotとLUNの自動削除を有効にしてスペースを管理
+= Snapshotの自動作成とLUN削除を有効にしてスペースを管理します
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-SnapshotおよびFlexClone LUNを自動的に削除するポリシーを定義して有効にすることができます。SnapshotとFlexClone LUNを自動的に削除すると、スペース使用量の管理に役立ちます。
+スナップショットとFlexClone LUNを自動的に削除するポリシーを定義して有効化できます。スナップショットとFlexClone LUNを自動的に削除することで、スペースの使用率を管理しやすくなります。
 
-.タスクの内容
-読み書き可能ボリュームのSnapshotや読み書き可能な親ボリュームのFlexClone LUNを自動的に削除できます。読み取り専用ボリューム（SnapMirrorデスティネーションボリュームなど）のSnapshotの自動削除は設定できません。
+.タスク概要
+読み取り/書き込みボリュームのスナップショットと、読み取り/書き込み親ボリュームのFlexClone LUNを自動的に削除できます。読み取り専用ボリューム（SnapMirrorデスティネーションボリュームなど）のスナップショットの自動削除を設定することはできません。
 
-.ステップ
-. コマンドを使用して、Snapshotの自動削除ポリシーを定義して有効にします `volume snapshot autodelete modify`。
+.手順
+.  `volume snapshot autodelete modify`コマンドを使用して、Snapshotを自動的に削除するためのポリシーを定義し、有効にします。
 +
-ニーズに合わせたポリシーの詳細と定義については、をlink:https://docs.netapp.com/us-en/ontap-cli/volume-snapshot-autodelete-modify.html["ONTAPコマンド リファレンス"^]参照して `volume snapshot autodelete modify`ください。
+ `volume snapshot autodelete modify`とニーズを満たすポリシーの定義の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/volume-snapshot-autodelete-modify.html["ONTAPコマンド リファレンス"^]をご覧ください。
 
 +
-次のコマンドは、Storage Virtual Machine（SVM）vs0.example.comに属するボリュームvol3に対して、Snapshotの自動削除を有効にし、トリガーをに設定します `snap_reserve`。
+次のコマンドは、Snapshotの自動削除を有効にし、vs0.example.comストレージ仮想マシン（SVM）の一部であるvol3ボリュームのトリガーを `snap_reserve`に設定します：
 
 +
 [listing]
@@ -31,7 +31,7 @@ cluster1::> volume snapshot autodelete modify -vserver vs0.example.com
 -volume vol3 -enabled true -trigger snap_reserve
 ----
 +
-次のコマンドは、Storage Virtual Machine（SVM）vs0.example.comに属するボリュームvol3に対して、Snapshotと対象としてマークされたFlexClone LUNの自動削除を有効にします。
+次のコマンドは、vs0.example.comストレージ仮想マシン（SVM）の一部であるvol3ボリュームのSnapshotの自動削除と、自動削除対象としてマークされたFlexClone LUNの自動削除を有効にします：
 
 +
 [listing]
@@ -43,9 +43,9 @@ oldest_first -destroy-list lun_clone,file_clone
 +
 [NOTE]
 ====
-アグリゲートレベルのSnapshotは、ボリュームレベルのSnapshotとは動作が異なり、ONTAPによって自動的に管理されます。アグリゲートSnapshotを削除するオプションは常に有効になっており、スペース使用量の管理に役立ちます。
+アグリゲートレベルのスナップショットはボリュームレベルのスナップショットとは異なる動作をし、ONTAPによって自動的に管理されます。アグリゲートスナップショットを削除するオプションは常に有効になっており、スペース使用率の管理に役立ちます。
 
-アグリゲートに対してtriggerパラメータがに設定されている場合、 `snap_reserve`Snapshotはリザーブされているスペースが容量のしきい値を超えるまで維持されます。したがって、triggerパラメータがに設定されていない場合でも、 `snap_reserve`Snapshotは自動的に削除されるため、コマンドでSnapshotに使用されているスペースはと表示され `0`ます。また、アグリゲートでSnapshotによって使用されるスペースは空きスペースとみなされ、コマンドのavailable spaceパラメータに含まれます。
+アグリゲートのトリガーパラメータが `snap_reserve`に設定されている場合、予約済みスペースがしきい値容量を超えるまでSnapshotは保持されます。したがって、トリガーパラメータが `snap_reserve`に設定されていない場合でも、コマンド内のSnapshotによって使用されているスペースは `0`と表示されます。これは、これらのSnapshotは自動的に削除されるためです。また、アグリゲート内のSnapshotによって使用されているスペースは空きスペースとみなされ、コマンドの使用可能スペースパラメータに含まれます。
 
 ====
 

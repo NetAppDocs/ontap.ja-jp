@@ -2,7 +2,7 @@
 sidebar: sidebar 
 permalink: networking/create_a_subnet.html 
 keywords: move, moving, broadcast, domain, ipspace, create a subnet, network subnet create, network subnet show -ipspace, force-update-lif-associations, network subnet rename 
-summary: サブネットを作成して、 ONTAP ネットワーク設定用に IP アドレスの特定のブロックを割り当てたりリザーブしたりします 
+summary: ONTAPネットワーク構成用に特定のIPアドレスブロックを割り当てまたは予約するためのサブネットを作成します。 
 ---
 = ONTAPネットワークのサブネットを作成する
 :hardbreaks:
@@ -14,24 +14,24 @@ summary: サブネットを作成して、 ONTAP ネットワーク設定用に 
 
 
 [role="lead"]
-サブネットを作成してIPv4またはIPv6アドレスの特定のブロックを割り当て、あとでSVMのLIFを作成するときに使用することができます。
+サブネットを作成してIPv4またはIPv6アドレスの特定のブロックを割り当てることができます。このサブネットは、あとでSVMのLIFを作成するときに使用します。
 
-これにより、LIFごとにIPアドレスやネットワークマスク値を指定する代わりにサブネット名を指定することで、LIFを簡単に作成できます。
+IPアドレスとネットワーク マスクの値をLIFごとに指定しなくても、サブネット名を指定して簡単にLIFを作成できるようになります。
 
 .開始する前に
 このタスクを実行するには、クラスタ管理者である必要があります。
 
-サブネットを追加するブロードキャストドメインとIPspaceがすでに存在している必要があります。
+サブネットを追加するブロードキャスト ドメインとIPspaceが存在していなければなりません。
 
-.タスクの内容
-* サブネット名はすべてIPspace内で一意である必要があります。
-* IPアドレスの範囲をサブネットに追加する場合は、異なるサブネットまたはホストが同じIPアドレスを使用しないように、ネットワーク内でIPアドレスが重複しないようにする必要があります。
-* サブネットを定義するときにゲートウェイを指定した場合は、そのサブネットを使用してLIFを作成するときに、そのゲートウェイへのデフォルトルートがSVMに自動的に追加されます。サブネットを使用しない場合や、サブネットを定義するときにゲートウェイを指定しない場合は、コマンドを使用してSVMにルートを手動で追加する必要が `route create`あります。
-* NetAppでは、データSVMのすべてのLIFに対してサブネットオブジェクトを作成することを推奨しています。これは特にMetroCluster構成で重要です。各サブネットオブジェクトにはブロードキャストドメインが関連付けられているため、サブネットオブジェクトを使用してONTAPがデスティネーションクラスタのフェイルオーバーターゲットを決定できます。
+.タスク概要
+* すべてのサブネット名がIPspace内で一意である必要があります。
+* IPアドレスの範囲をサブネットに割り当てるときは、別々のサブネットまたはホストで同じIPアドレスが使用されることのないように、ネットワーク内でIPアドレスの範囲が重複しないことを確認してください。
+* サブネットの定義時にゲートウェイを指定すると、そのサブネットを使用してLIFを作成したときに、そのゲートウェイへのデフォルト ルートがSVMに自動的に追加されます。サブネットを使用しない場合、またはサブネットの定義時にゲートウェイを指定しない場合は、 `route create`コマンドを使用してSVMにルートを手動で追加する必要があります。
+* NetApp は、データSVM上のすべてのLIFに対してサブネットオブジェクトを作成することを推奨しています。これは特にMetroCluster構成において重要です。サブネットオブジェクトには関連付けられたブロードキャストドメインがあるため、サブネットオブジェクトによってONTAPがデスティネーションクラスタ上のフェイルオーバーターゲットを判別できるようになります。
 
 
 .手順
-サブネットは、ONTAP System ManagerまたはONTAP CLIで作成できます。
+ONTAP System Manager または ONTAP CLI を使用してサブネットを作成できます。
 
 [role="tabbed-block"]
 ====
@@ -40,9 +40,9 @@ summary: サブネットを作成して、 ONTAP ネットワーク設定用に 
 ONTAP 9.12.0以降では、System Managerを使用してサブネットを作成できます。
 
 .手順
-. [ネットワーク]>[概要]>[サブネット*]を選択します。
-. をクリックし image:icon_add.gif["追加アイコン"] てサブネットを作成します。
-. サブネットに名前を付けます。
+. *Network > Overview > Subnets*を選択します。
+. image:icon_add.gif["アイコンを追加"]をクリックしてサブネットを作成します。
+. サブネットの名前を指定します。
 . サブネットのIPアドレスを指定します。
 . サブネット マスクを設定します。
 . サブネットを構成するIPアドレスの範囲を定義します。
@@ -50,9 +50,9 @@ ONTAP 9.12.0以降では、System Managerを使用してサブネットを作成
 . サブネットが属するブロードキャスト ドメインを選択します。
 . 変更を保存します。
 +
-.. 入力したIPアドレスまたは範囲がすでにインターフェイスで使用されている場合は、次のメッセージが表示されます。
+.. 入力したIPアドレスまたは範囲がすでにインターフェイスで使用されている場合は、次のメッセージが表示されます：
 `An IP address in this range is already in use by a LIF. Associate the LIF with this subnet?`
-.. OK *をクリックすると、既存のLIFがサブネットに関連付けられます。
+.. *OK*をクリックすると、既存のLIFがサブネットに関連付けられます。
 
 
 
@@ -60,50 +60,50 @@ ONTAP 9.12.0以降では、System Managerを使用してサブネットを作成
 --
 .CLI
 --
-CLIを使用してサブネットを作成してください。
+CLIを使用してサブネットを作成します。
 
 ....
 network subnet create -subnet-name subnet_name -broadcast-domain <broadcast_domain_name> [- ipspace <ipspace_name>] -subnet <subnet_address> [-gateway <gateway_address>] [-ip-ranges <ip_address_list>] [-force-update-lif-associations <true>]
 ....
-* `subnet_name`は、作成するレイヤ3サブネットの名前です。
+* `subnet_name` は、作成するレイヤー 3 サブネットの名前です。
 +
-名前には、「Mgmt」のようなテキスト文字列を使用することも、192.0.2.0/24のような特定のサブネットIP値を使用することもできます。
+「Mgmt」のようなテキスト文字列形式の名前を付けることも、192.0.2.0/24などのサブネットのIPアドレスの値にすることもできます。
 
-* `broadcast_domain_name`は、サブネットが配置されるブロードキャストドメインの名前です。
-* `ipspace_name`は、ブロードキャストドメインが属するIPspaceの名前です。
+* `broadcast_domain_name`は、サブネットが存在するブロードキャスト ドメインの名前です。
+* `ipspace_name`は、ブロードキャスト ドメインが含まれる IPspace の名前です。
 +
-このオプションの値を指定しないかぎり、「Default」IPspaceが使用されます。
+このオプションの値を設定しないと、「Default」IPspaceが使われます。
 
-* `subnet_address`は、サブネットのIPアドレスとマスクです。たとえば、192.0.2.0/24のように指定します。
-* `gateway_address`は、サブネットのデフォルトルートのゲートウェイです。たとえば、192.0.2.1のように指定します。
-* `ip_address_list`は、サブネットに割り当てるIPアドレスのリストまたは範囲です。
+* `subnet_address`は、サブネットのIPアドレスとマスクです（例：192.0.2.0/24）。
+* `gateway_address`は、サブネットのデフォルト ルートのゲートウェイです（例：192.0.2.1）。
+* `ip_address_list`は、サブネットに割り当てられる IP アドレスのリストまたは範囲です。
 +
-個 々 のアドレス、IPアドレスの範囲、またはその組み合わせをカンマで区切って指定できます。
+個別のIPアドレス、IPアドレスの範囲、またはその組み合わせをカンマで区切って指定できます。
 
-* オプションの値 `true`を設定できます `-force-update-lif-associations`。
+*  `-force-update-lif-associations`オプションには `true`の値を設定できます。
 +
-指定した範囲のIPアドレスを現在使用しているサービスプロセッサまたはネットワークインターフェイスがある場合、このコマンドは失敗します。この値をtrueに設定すると、手動でアドレスを指定したインターフェイスが現在のサブネットに関連付けられ、コマンドが成功します。
+指定した範囲のIPアドレスを現在使用しているサービス プロセッサまたはネットワーク インターフェイスがある場合は、コマンドが失敗します。上記のオプションの値をtrueにすることで、手動でアドレスが指定されているインターフェイスが現在のサブネットに関連付けられ、コマンドは問題なく実行されます。
 
 
 
-次のコマンドは、Default IPspaceのブロードキャストドメインdefault-1にサブネットsub1を作成します。IPv4サブネットのIPアドレスとマスク、ゲートウェイ、およびIPアドレスの範囲を追加します。
+次のコマンドは、Default IPspaceのブロードキャスト ドメインDefault-1にsub1というサブネットを作成します。サブネットのIPv4アドレスとマスク、ゲートウェイ、IPアドレスの範囲を指定しています。
 
 ....
 network subnet create -subnet-name sub1 -broadcast-domain Default-1 -subnet 192.0.2.0/24 - gateway 192.0.2.1 -ip-ranges 192.0.2.1-192.0.2.100, 192.0.2.122
 ....
-次のコマンドは、「Default」IPspaceのブロードキャストドメインDefaultにサブネットsub2を作成します。IPv6アドレスの範囲を追加します。
+次のコマンドは、「Default」IPspaceのブロードキャスト ドメインDefaultにsub2というサブネットを作成します。IPv6アドレスの範囲を指定しています。
 
 ....
 network subnet create -subnet-name sub2 -broadcast-domain Default -subnet 3FFE::/64 - gateway 3FFE::1 -ip-ranges "3FFE::10-3FFE::20"
 ....
-の詳細については `network subnet create`、をlink:https://docs.netapp.com/us-en/ontap-cli/network-subnet-create.html["ONTAPコマンド リファレンス"^]参照してください。
+ `network subnet create`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/network-subnet-create.html["ONTAPコマンド リファレンス"^]を参照してください。
 
-.終了後
+.終了後の操作
 サブネット内のアドレスを使用して、SVMとインターフェイスをIPspaceに割り当てることができます。
 
-既存のサブネットの名前を変更する必要がある場合は、コマンドを使用し `network subnet rename`ます。
+既存のサブネットの名前を変更する必要がある場合は、 `network subnet rename` コマンドを使用します。
 
-の詳細については `network subnet rename`、をlink:https://docs.netapp.com/us-en/ontap-cli/network-subnet-rename.html["ONTAPコマンド リファレンス"^]参照してください。
+ `network subnet rename`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/network-subnet-rename.html["ONTAPコマンド リファレンス"^]を参照してください。
 
 --
 ====

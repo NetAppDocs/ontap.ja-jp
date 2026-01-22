@@ -2,34 +2,34 @@
 permalink: encryption-at-rest/create-authentication-keys-96-later-task.html 
 sidebar: sidebar 
 keywords: creating, authentication keys, ontap 9.6, later 
-summary: security key-manager key create コマンドを使用して、ノードの認証キーを作成し、設定済みの KMIP サーバに格納できます。 
+summary: security key-manager key create コマンドを使用して、ノードの認証キーを作成し、構成された KMIP サーバーに保存できます。 
 ---
-= ONTAP 9 .6以降で認証キーを作成する
+= ONTAP 9.6以降での認証キーの作成
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-コマンドを使用して、ノードの認証キーを作成し、設定したKMIPサーバに格納できます `security key-manager key create`。
+ `security key-manager key create`コマンドを使用して、ノードの認証キーを作成し、設定されたKMIPサーバに保存できます。
 
-.タスクの内容
-セキュリティの設定でデータ認証とFIPS 140-2認証に異なるキーを使用する必要がある場合は、それぞれに別 々 のキーを作成する必要があります。そうでない場合は、FIPSへの準拠にデータアクセスと同じ認証キーを使用できます。
+.タスク概要
+セキュリティの設定によりデータ認証とFIPS 140-2認証に異なるキーを使用する必要がある場合は、それぞれの認証用のキーを作成する必要があります。そうでない場合は、FIPS準拠の認証キーをデータ アクセスにも使用できます。
 
-ONTAPでは、クラスタ内のすべてのノードの認証キーが作成されます。
+ONTAPでは、クラスタ内のすべてのノードについて認証キーが作成されます。
 
-* このコマンドは、オンボードキーマネージャが有効になっている場合はサポートされません。ただし、オンボードキーマネージャを有効にすると、2つの認証キーが自動的に作成されます。キーを表示するには、次のコマンドを使用します。
+* このコマンドは、オンボード キー マネージャが有効な場合はサポートされません。ただし、オンボード キー マネージャを有効にすると、2つの認証キーが自動的に作成されます。キーを表示するには、次のコマンドを使用します。
 +
 [listing]
 ----
 security key-manager key query -key-type NSE-AK
 ----
 * 設定済みのキー管理サーバにすでに128個を超える認証キーが格納されている場合は警告が表示されます。
-* コマンドを使用すると、使用されていないキーを削除できます `security key-manager key delete`。 `security key-manager key delete`指定したキーがONTAPで現在使用されている場合、コマンドは失敗します。（このコマンドを使用するには、より大きいPrivilegesが必要です `admin`）。
+*  `security key-manager key delete`コマンドを使用すると、未使用のキーを削除できます。指定したキーが現在ONTAPで使用されている場合、 `security key-manager key delete`コマンドは失敗します。（このコマンドを使用するには、 `admin`以上の権限が必要です。）
 +
 [NOTE]
 ====
-MetroCluster環境でキーを削除する前に、そのキーがパートナークラスタで使用されていないことを確認する必要があります。パートナークラスタで次のコマンドを使用して、キーが使用されていないことを確認できます。
+MetroCluster環境では、キーを削除する前に、そのキーがパートナー クラスタで使用されていないことを確認する必要があります。パートナー クラスタで、次のコマンドを使用してキーが使用されていないことを確認してください。
 
 ** `storage encryption disk show -data-key-id <key-id>`
 ** `storage encryption disk show -fips-key-id <key-id>`
@@ -42,7 +42,7 @@ MetroCluster環境でキーを削除する前に、そのキーがパートナ�
 このタスクを実行するには、クラスタ管理者である必要があります。
 
 .手順
-. クラスタノードの認証キーを作成します。
+. クラスタ ノードの認証キーを作成します。
 +
 [source, cli]
 ----
@@ -51,11 +51,11 @@ security key-manager key create -key-tag <passphrase_label> -prompt-for-key true
 +
 [NOTE]
 ====
-を設定する `prompt-for-key=true`と、暗号化されたドライブを認証するときに、クラスタ管理者に使用するパスフレーズの入力を求めるプロンプトが表示されます。それ以外の場合は、32バイトのパスフレーズが自動的に生成されます。 `security key-manager key create`コマンドは、コマンドに置き換わるもの `security key-manager create-key`です。の詳細については `security key-manager key create`、をlink:https://docs.netapp.com/us-en/ontap-cli/security-key-manager-key-create.html?q=security+key-manager+key+create["ONTAPコマンド リファレンス"^]参照してください。
+設定 `prompt-for-key=true`により、システムはクラスタ管理者に暗号化されたドライブの認証に使用するパスフレーズの入力を求めます。設定しない場合は、システムは32バイトのパスフレーズを自動的に生成します。 `security key-manager key create`コマンドは `security key-manager create-key`コマンドを置き換えます。link:https://docs.netapp.com/us-en/ontap-cli/security-key-manager-key-create.html?q=security+key-manager+key+create["ONTAPコマンド リファレンス"^]の `security key-manager key create`の詳細を確認してください。
 
 ====
 +
-次の例は、の認証キーを作成し `cluster1`、32バイトのパスフレーズを自動的に生成します。
+次の例では、 `cluster1`の認証キーを作成し、32バイトのパスフレーズを自動的に生成します：
 
 +
 [listing]
@@ -72,13 +72,13 @@ security key-manager key query -node node
 +
 [NOTE]
 ====
- `security key-manager key query`コマンドは、コマンドに置き換わるもの `security key-manager query key`です。
+ `security key-manager key query`コマンドは `security key-manager query key`コマンドに置き換わります。
 
-出力に表示されるキーIDは、認証キーの参照に使用する識別子です。実際の認証キーまたはデータ暗号化キーではありません。
+出力に表示されるキーIDは、認証キーへの参照として使用する識別子です。実際の認証キーまたはデータ暗号化キーではありません。
 
 ====
 +
-次の例では、の認証キーが作成されたことを確認し `cluster1`ます。
+次の例では、 `cluster1`の認証キーが作成されたことを確認します：
 
 +
 [listing]
@@ -107,7 +107,7 @@ node2                                 NSE-AK    yes
     Key ID: <id_value>
 ----
 +
-の詳細については `security key-manager key query`、をlink:https://docs.netapp.com/us-en/ontap-cli/security-key-manager-key-query.html["ONTAPコマンド リファレンス"^]参照してください。
+ `security key-manager key query`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/security-key-manager-key-query.html["ONTAPコマンド リファレンス"^]をご覧ください。
 
 
 

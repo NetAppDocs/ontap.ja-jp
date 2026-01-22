@@ -2,21 +2,21 @@
 permalink: data-protection/create-snapshot-policy-task.html 
 sidebar: sidebar 
 keywords: create, snapshot, policy 
-summary: Snapshotポリシーは、Snapshotを作成するタイミング、保持するコピーの数、およびSnapshotに名前を付ける方法を指定します。たとえば、毎日午前12時10分にSnapshotを1つ作成し、最新の2つのコピーを保持して、「daily.timestamp」という名前を付けます。Snapshotポリシーには最大5つのジョブスケジュールを含めることができます。 
+summary: スナップショットポリシーは、スナップショットを作成するタイミング、保持するコピーの数、およびスナップショットの命名方法を指定します。例えば、毎日午前0：10にスナップショットを1つ作成し、最新の2つのコピーを保持し、それぞれに「daily.timestamp」という名前を付けることができます。スナップショットポリシーには、最大5つのジョブスケジュールを含めることができます。 
 ---
-= ONTAP Snapshotポリシーを作成します。
+= ONTAPスナップショットポリシーを作成する
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-Snapshotポリシーは、Snapshotを作成するタイミング、保持するコピーの数、およびSnapshotに名前を付ける方法を指定します。たとえば、毎日午前12時10分にSnapshotを1つ作成し、最新の2つのコピーを保持して「daily」という名前を付けます。Snapshotポリシーには最大5つのジョブスケジュールを含めることができます.`_timestamp_`。
+スナップショットポリシーは、スナップショットを作成するタイミング、保持するコピーの数、およびスナップショットの名前を指定します。例えば、毎日午前0：10にスナップショットを1つ作成し、最新の2つのコピーを保持し、それぞれに「`daily.`_timestamp_`.`」という名前を付けるといったことが可能です。スナップショットポリシーには、最大5つのジョブスケジュールを含めることができます。
 
-.タスクの内容
-この手順は、FAS、AFF、および ASA システムに適用されます。ASAASA r2システム（ASA A1K、ASA A90、ASA A70、ASA A50、ASA A30、ASA A20、またはASA C30）をお持ちの場合は、 link:https://docs.netapp.com/us-en/asa-r2/data-protection/policies-schedules.html#create-a-snapshot-policy["以下の手順を実行します"^]スナップショット ポリシーを作成します。ASAr2 システムは、SAN のみのお客様向けに簡素化された ONTAP エクスペリエンスを提供します。
+.タスク概要
+この手順は、FAS、AFF、およびASAシステムに適用されます。ASA r2システム（ASA A1K、ASA A90、ASA A70、ASA A50、ASA A30、ASA A20、またはASA C30）をお持ちの場合は、link:https://docs.netapp.com/us-en/asa-r2/data-protection/policies-schedules.html#create-a-snapshot-policy["これらの手順"^]に従ってSnapshotポリシーを作成してください。ASA r2システムは、SANのみのお客様向けに簡素化されたONTAPエクスペリエンスを提供します。
 
-デフォルトでは、ONTAPは、ジョブスケジュール名にタイムスタンプを追加してSnapshotの名前を作成します。
+デフォルトでは、ONTAPはジョブ スケジュール名にタイムスタンプを追加してスナップショットの名前を作成します：
 
 [listing]
 ----
@@ -24,38 +24,38 @@ daily.2017-05-14_0013/              hourly.2017-05-15_1106/
 daily.2017-05-15_0012/              hourly.2017-05-15_1206/
 hourly.2017-05-15_1006/             hourly.2017-05-15_1306/
 ----
-必要に応じて、プレフィックスをジョブスケジュール名に置き換えることもできます。
+必要に応じて、プレフィックスをジョブ スケジュール名に置き換えることができます。
 
- `snapmirror-label`オプションはSnapMirrorレプリケーション用です。詳細については、を参照してください link:define-rule-policy-task.html["ポリシーのルールの定義"]。
+この `snapmirror-label`オプションはSnapMirrorレプリケーション用です。詳細については、link:define-rule-policy-task.html["ポリシーのルールの定義"]を参照してください。
 
 .手順
-Snapshotポリシーは、System ManagerまたはONTAP CLIを使用して作成できます。この手順では、ローカルクラスタにのみSnapshotポリシーが作成されます。
+スナップショット ポリシーは、System ManagerまたはONTAP CLIを使用して作成できます。この手順では、ローカル クラスタにのみスナップショット ポリシーが作成されます。
 
 [role="tabbed-block"]
 ====
 .System Manager
 --
-. [保護]>[概要]*に移動し、*[ローカルポリシー設定]*を展開します。
-. [Snapshotポリシー]*ペインで、をクリックしますimage:icon_arrow.gif["矢印アイコン"]。
-. [Snapshotポリシー]*タブで、をクリックしますimage:icon_add.gif["追加アイコン"]。
-. [ Snapshotポリシーの追加]*ウィンドウで、ポリシー名を入力し、範囲を選択します。
-. をクリックします。image:icon_add.gif["追加アイコン"]
-. スケジュールを選択するには、現在表示されているスケジュール名をクリックし、をクリックしimage:icon_dropdown_arrow.gif["ドロップダウンアイコン"]て、別のスケジュールを選択します。
-. 保持するSnapshotの最大数を入力し、必要に応じてSnapMirrorラベルとSnapLockの保持期間を入力します。
-. [ 保存（ Save ） ] をクリックします。
+. *保護 > 概要* に移動し、*ローカル ポリシー設定* を展開します。
+. *スナップショット ポリシー* ペインで、image:icon_arrow.gif["矢印アイコン"]をクリックします。
+. *スナップショット ポリシー* タブで、image:icon_add.gif["アイコンを追加"]をクリックします。
+. *スナップショット ポリシーの追加*ウィンドウで、ポリシー名を入力し、スコープを選択します。
+. image:icon_add.gif["アイコンを追加"]をクリックします。
+. スケジュールを選択するには、現在表示されているスケジュール名をクリックし、image:icon_dropdown_arrow.gif["ドロップダウンアイコン"]をクリックして、別のスケジュールを選択します。
+. 保持するスナップショットの最大数を入力し、必要に応じてSnapMirrorラベルとSnapLock保持期間を入力します。
+. *保存*をクリックします。
 
 
 --
 .CLI
 --
-. Snapshotポリシーを作成します。
+. スナップショット ポリシーを作成します：
 +
 [source, cli]
 ----
 volume snapshot policy create -vserver <SVM> -policy <policy_name> -enabled true|false -schedule1 <schedule1_name> -count1 <copies_to_retain> -prefix1 <snapshot_prefix> -snapmirror-label1 <snapshot_label> ... -schedule5 <schedule5_name> -count5 <copies_to_retain> -prefix5 <snapshot_prefix> -snapmirror-label5 <snapshot_label>
 ----
 +
-次の例は、スケジュールに基づいて実行する `daily`というSnapshotポリシーを作成します `snap_policy_daily`。このポリシーには最大5つのSnapshotがあり、それぞれに名前とSnapMirrorラベルが `daily`付いてい `daily`.`_timestamp_`ます。
+次の例では、 `snap_policy_daily`という名前のスナップショット ポリシーを作成します。このポリシーは `daily`スケジュールで実行されます。このポリシーには、それぞれ `daily`.`_timestamp_`という名前とSnapMirrorラベル `daily`を持つ最大5つのスナップショットが含まれます：
 
 +
 [listing]

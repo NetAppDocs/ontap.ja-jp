@@ -2,51 +2,51 @@
 permalink: nfs-trunking/modify-exports-task.html 
 sidebar: sidebar 
 keywords: NFS, servers, network, NFS trunking, NIC, export, policies, rule, Linux, VMware, datastores, client 
-summary: クライアントが既存のデータ共有のトランキングを利用できるようにするには、エクスポートポリシーとルール、およびそれらが接続されているボリュームの変更が必要になる場合があります。 
+summary: クライアントが既存のデータ共有のトランキングを利用できるようにするには、エクスポートポリシーとルール、およびそれらが接続されているボリュームを変更する必要がある場合があります。 
 ---
-= ONTAPボリュームのエクスポートポリシーを変更します。
+= ONTAPボリュームエクスポートポリシーを変更する
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-クライアントが既存のデータ共有のトランキングを利用できるようにするには、エクスポートポリシーとルール、およびそれらが接続されているボリュームの変更が必要になる場合があります。LinuxクライアントとVMwareデータストアには、エクスポートに関するさまざまな要件があります。
+クライアントで既存のデータ共有のトランキングからメリットを得られるようにするには、エクスポート ポリシーとエクスポート ルールの変更や、クライアントが接続されているボリュームの変更が必要になる場合があります。LinuxクライアントとVMwareデータストアには、エクスポートに関するさまざまな要件があります。
 
 クライアントのエクスポート要件：
 
-* Linuxクライアントでは、トランキング接続ごと（つまりLIFごと）に、個別のマウントと個別のマウントポイントが必要です。
+* Linuxクライアントでは、トランキング接続ごと（つまりLIFごと）に、それぞれ独立したマウントとマウント ポイントが必要です。
 +
-ONTAP 9 14.1にアップグレードしていて、すでにボリュームをエクスポートしている場合は、そのボリュームをトランキンググループで引き続き使用できます。
+ONTAP 9.14.1にアップグレードしていて、すでにボリュームをエクスポートしている場合は、そのボリュームを引き続きトランキング グループで使用できます。
 
-* VMwareクライアントでは、複数のLIFを指定したエクスポートされたボリュームに対してマウントポイントが1つだけ必要です。
+* VMwareクライアントでは、エクスポートされたボリュームに対して、複数のLIFが指定されたマウント ポイントが1つだけ必要です。
 +
-VMwareクライアントには、エクスポートポリシーでルートアクセスが必要です。
+VMwareクライアントでは、エクスポート ポリシーにルート アクセスが必要です。
 
 
 
 .手順
-. 既存のエクスポートポリシーが設定されていることを確認します。
+. 既存のエクスポート ポリシーが設定されていることを確認します。
 +
 `vserver export-policy show`
 
-. 既存のエクスポートポリシールールがトランキング構成に適していることを確認します。
+. 既存のエクスポート ポリシーのルールが、トランキング構成に適していることを確認します。
 +
 `vserver export-policy rule show -policyname _policy_name_`
 
 +
-特に、エクスポートをマウントするトランキング対応のLinuxクライアントまたはVMwareクライアントがパラメータで正しく識別されていることを確認します `-clientmatch`。
+特に、 `-clientmatch`パラメータによって、エクスポートをマウントするトランキング対応のLinuxまたはVMwareクライアントが正しく識別されていることを確認します。
 
 +
-調整が必要な場合は、コマンドを使用してルールを変更する `vserver export-policy rule modify`か、新しいルールを作成します。
+調整が必要な場合は、 `vserver export-policy rule modify`コマンドを使用してルールを変更するか、新しいルールを作成します：
 
 +
 `vserver export-policy rule create -vserver _svm_name_ -policyname _policy_name_ -ruleindex integer -protocol nfs4 -clientmatch { text | "text,text,…" } -rorule _security_type_ -rwrule _security_type_ -superuser _security_type_ -anon _user_ID_`
 
 +
-詳細はこちらlink:../nfs-config/add-rule-export-policy-task.html["エクスポートルールを作成しています。"]
+link:../nfs-config/add-rule-export-policy-task.html["エクスポートルールを作成します。"]の詳細
 
-. エクスポートした既存のボリュームがオンラインであることを確認します。
+. エクスポートした既存のボリュームがオンラインになっていることを確認します。
 +
 `volume show -vserver _svm_name_`
 

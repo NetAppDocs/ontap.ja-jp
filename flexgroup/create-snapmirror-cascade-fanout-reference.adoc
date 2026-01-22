@@ -2,57 +2,57 @@
 permalink: flexgroup/create-snapmirror-cascade-fanout-reference.html 
 sidebar: sidebar 
 keywords: consider, create, snapmirror, cascade, fanout, relationship, flexgroup 
-summary: FlexGroupボリュームのSnapMirrorカスケード/ファンアウト関係を作成するときは、サポートに関する考慮事項と制限事項に注意する必要があります。 
+summary: FlexGroupボリュームのSnapMirrorカスケード / ファンアウト関係を作成する際は、サポートに関する考慮事項と制限事項に注意する必要があります。 
 ---
-= ONTAP FlexGroupのSnapMirrorカスケード/ファンアウト関係の作成に関する考慮事項
+= ONTAPのFlexGroupボリュームに対するSnapMirrorカスケードおよびファンアウト関係を作成する際の考慮事項
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-FlexGroupボリュームのSnapMirrorカスケード/ファンアウト関係を作成するときは、サポートに関する考慮事項と制限事項に注意する必要があります。
+FlexGroupボリュームのSnapMirrorカスケード / ファンアウト関係を作成する際は、サポートに関する考慮事項と制限事項に注意する必要があります。
 
 
 
 == カスケード関係の作成に関する考慮事項
 
-* 各関係は、クラスタ間関係またはクラスタ内関係のいずれかになります。
-* 両方の関係で、async-mirror、mirror-vault、vaultを含むすべての非同期ポリシータイプがサポートされます。
-* サポートされる非同期ミラーポリシーは「MirrorAllSnapshots」のみで、「MirrorLatest」はサポートされません。
-* 長期保存スナップショットはサポートされていません。
+* 各関係をクラスタ間関係またはクラスタ内関係のどちらかに設定できます。
+* 両方の関係で、async-mirror、mirror-vault、vaultを含むすべての非同期ポリシー タイプがサポートされます。
+* サポートされるasync-mirrorポリシーは「MirrorAllSnapshots」のみで、「MirrorLatest」はサポートされません。
+* 長期保存Snapshotはサポートされていません。
 +
-詳細はこちらlink:../data-protection/long-term-retention-snapshots-concept.html["長期保存スナップショット"]。
+link:../data-protection/long-term-retention-snapshots-concept.html["長期保存Snapshot"]についての詳細をご覧ください。
 
 * カスケードXDP関係の同時更新がサポートされます。
-* AからBへ、BからCへの削除、およびAからCへの再同期、またはCからAへの再同期をサポートします。
-* すべてのノードでONTAP 9 .9.1以降が実行されている場合、AとBのFlexGroupボリュームもファンアウトをサポートします。
-* BまたはCのFlexGroupボリュームからのリストア処理がサポートされます。
+* A→BおよびB→Cの関係を削除したあと、A→CまたはC→Aに再同期できます。
+* すべてのノードでONTAP 9.9.1以降が実行されていれば、AおよびBのFlexGroupボリュームのファンアウト関係もサポートされます。
+* BまたはCのFlexGroupボリュームからリストア処理を実行できます。
 * デスティネーションがリストア関係のソースである間は、FlexGroup関係を転送することはできません。
 * FlexGroupリストアのデスティネーションを他のFlexGroup関係のデスティネーションにすることはできません。
-* FlexGroupファイルのリストア処理には、通常のFlexGroupリストア処理と同じ制限事項があります。
-* クラスタ内のBとCのFlexGroupボリュームが配置されているすべてのノードで、ONTAP 9 .9.1以降が実行されている必要があります。
-* すべての拡張機能と自動拡張機能がサポートされています。
-* A対B対Cのカスケード構成で、A対BとB対CのコンスティチュエントSnapMirror関係の数が異なる場合、B対CのSnapMirror関係でソースから中止処理を実行することはできません。
-* System Managerでは、ONTAPのバージョンに関係なくカスケード関係はサポートされません。
-* AからBへのFlexVol関係のセットをFlexGroup関係に変換する場合は、最初にBからCへのホップを変換する必要があります。
-* RESTでサポートされるポリシータイプを使用する関係のすべてのFlexGroupカスケードFlexGroup構成は、REST APIでもサポートされます。
-* FlexVol関係と同様に、FlexGroupカスケードはコマンドではサポートされません `snapmirror protect`。
+* FlexGroupのファイル リストア処理には、FlexGroupの通常のリストア処理と同じ制限が適用されます。
+* クラスタ内のBとCのFlexGroupボリュームが格納されているすべてのノードで、ONTAP 9.9.1以降が実行されている必要があります。
+* すべての拡張機能と自動拡張機能がサポートされます。
+* A→B→Cのカスケード構成において、A→BとB→CでコンスティチュエントSnapMirror関係の数が異なる場合、B→CのSnapMirror関係でソースから中止処理を実行することはできません。
+* System Manager は ONTAP バージョンに関係なく、カスケード関係をサポートしません。
+* A→B→CのFlexVol関係をFlexGroup関係に変換する際は、B→Cを最初に変換する必要があります。
+* RESTでサポートされるポリシー タイプを使用するすべてのFlexGroupカスケード構成は、REST APIでもサポートされます。
+* FlexVolリレーションシップと同様に、FlexGroupカスケードは `snapmirror protect`コマンドではサポートされません。
 
 
 
 
 == ファンアウト関係の作成に関する考慮事項
 
-* AからB、AからCなど、最大8つのFlexGroupファンアウト関係がサポートされます。
-* 各関係には、クラスタ間またはクラスタ内のどちらかを設定できます。
-* 2つの関係で同時更新がサポートされます。
-* すべての拡張機能と自動拡張機能がサポートされています。
-* ファンアウト関係でコンスティチュエントSnapMirror関係の数が異なる場合、AとBおよびAとCの関係でソースから中止処理を実行することはできません。
-* クラスタ内のソースとデスティネーションのFlexGroupボリュームが格納されているすべてのノードで、ONTAP 9.9.1以降が実行されている必要があります。
-* ファンアウト関係では、FlexGroup SnapMirrorで現在サポートされているすべての非同期ポリシータイプがサポートされます。
-* BからCのFlexGroupボリュームへのリストア処理を実行できます。
-* RESTでサポートされるポリシータイプを使用するすべてのファンアウト構成は、FlexGroupファンアウト構成のREST APIでもサポートされます。
+* A→B、A→Cなど、2～8個のFlexGroupファンアウト関係がサポートされます。
+* 各関係をクラスタ間関係またはクラスタ内関係のどちらかに設定できます。
+* 2つの関係を同時に更新できます。
+* すべての拡張機能と自動拡張機能がサポートされます。
+* それぞれのファンアウト関係でコンスティチュエントSnapMirror関係の数が異なる場合、ソースから関係の中止処理を実行することはできません。
+* ソース ボリュームとデスティネーションFlexGroupボリュームが存在するクラスタ内のすべてのノードでONTAP 9.9.1以降が実行されている必要があります。
+* ファンアウト関係では、FlexGroupのSnapMirrorで現在サポートされているすべての非同期ポリシー タイプがサポートされます。
+* B から C FlexGroupボリュームへの復元操作を実行できます。
+* RESTでサポートされるポリシー タイプを使用するすべてのFlexGroupファンアウト構成は、REST APIでもサポートされます。
 
 
 .関連情報

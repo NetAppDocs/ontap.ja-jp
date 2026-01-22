@@ -4,27 +4,27 @@ sidebar: sidebar
 keywords: ontap, revert, reverting, reversion, systems, deduplication, deduplicated, volumes 
 summary: ONTAP 9のいずれかのバージョンからリバートする前に、リバート処理に使用する十分な空きスペースがボリュームにあることを確認する必要があります。 
 ---
-= ONTAPをリバートする前に重複排除機能が有効なボリュームの空きスペースを確認する
+= ONTAPをリバートする前に重複排除ボリュームの空き容量を確認してください
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-ONTAP 9のいずれかのバージョンからONTAPクラスタをリバートする前に、リバート処理に使用する十分な空きスペースがボリュームにあることを確認する必要があります。
+ONTAP クラスタを ONTAP 9 の任意のバージョンから戻す前に、ボリュームに戻し操作に十分な空き領域があることを確認する必要があります。
 
-ゼロのブロックのインライン検出によって実現した削減に対応できる十分なスペースがボリュームに必要です。参照link:https://kb.netapp.com/Advice_and_Troubleshooting/Data_Storage_Software/ONTAP_OS/How_to_see_space_savings_from_deduplication%2C_compression%2C_and_compaction_in_ONTAP_9["NetAppナレッジベース: ONTAP 9 で重複排除、圧縮、コンパクションによるスペース節約を確認する方法"^]。
+ボリュームには、ゼロブロックのインライン検出によって実現された節約分を収容するのに十分なスペースが必要です。link:https://kb.netapp.com/Advice_and_Troubleshooting/Data_Storage_Software/ONTAP_OS/How_to_see_space_savings_from_deduplication%2C_compression%2C_and_compaction_in_ONTAP_9["NetAppナレッジベース：ONTAP 9で重複排除、圧縮、コンパクションによるスペース節約を確認する方法"^]を参照してください。
 
-リバートするボリュームで重複排除とデータ圧縮の両方を有効にした場合は、重複排除をリバートする前にデータ圧縮をリバートする必要があります。
+リバートするボリュームで重複排除とデータ圧縮の両方を有効にしている場合は、先にデータ圧縮をリバートしてから重複排除をリバートする必要があります。
 
 .手順
-. ボリュームで実行されている効率化処理の進捗状況を表示します。
+. ボリューム上で実行されている効率化処理の進行状況を表示します：
 +
 [source, cli]
 ----
 volume efficiency show -fields vserver,volume,progress
 ----
-. アクティブな重複排除処理とキューに登録されている重複排除処理をすべて停止
+. アクティブおよびキューに入っている重複排除処理をすべて停止します：
 +
 [source, cli]
 ----
@@ -36,14 +36,14 @@ volume efficiency stop -vserver <svm_name> -volume <volume_name> -all
 ----
 set -privilege advanced
 ----
-. ボリュームの効率化メタデータをONTAPの目的のバージョンにダウングレードします。
+. ボリュームの効率メタデータを ONTAP のターゲットバージョンにダウングレードします：
 +
 [source, cli]
 ----
 volume efficiency revert-to -vserver <svm_name> -volume <volume_name> -version <version>
 ----
 +
-次の例は、ボリュームVolAの効率化メタデータをONTAP 9.xにリバートします。
+次の例では、ボリューム VolA の効率メタデータを ONTAP 9.x に戻します。
 
 +
 [listing]
@@ -52,21 +52,21 @@ volume efficiency revert-to -vserver vs1 -volume VolA -version 9.x
 ----
 +
 
-NOTE: volume efficiency revert-toコマンドは、このコマンドを実行するノードに存在するボリュームをリバートします。ノード間でのボリュームのリバートは行いません。
+NOTE: volume efficiency revert-toコマンドは、このコマンドを実行するノードにあるボリュームをリバートします。ノード間でのボリュームのリバートは行いません。
 
-. ダウングレードの進捗を監視します。
+. ダウングレードの進行状況を監視します：
 +
 [source, cli]
 ----
 volume efficiency show -vserver <svm_name> -op-status Downgrading
 ----
-. リバートに失敗した場合は、インスタンスを表示して、リバートに失敗した理由を確認します。
+. 元に戻すことが成功しなかった場合は、インスタンスを表示して、元に戻すことが失敗した理由を確認します。
 +
 [source, cli]
 ----
 volume efficiency show -vserver <svm_name> -volume <volume_name> - instance
 ----
-. リバート処理の完了後、admin権限レベルに戻ります。
+. 元に戻す操作が完了したら、admin権限レベルに戻ります：
 +
 [source, cli]
 ----
@@ -74,4 +74,4 @@ set -privilege admin
 ----
 
 
-詳細については、をご覧ください link:../volumes/index.html["論理ストレージ管理"]。
+link:../volumes/index.html["論理ストレージ管理"]についての詳細をご覧ください。

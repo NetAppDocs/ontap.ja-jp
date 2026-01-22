@@ -2,28 +2,28 @@
 permalink: fabricpool/replace-existing-object-store-mirror-task.html 
 sidebar: sidebar 
 keywords: replacing, existing, object, store, fabricpool, mirror 
-summary: FabricPool ミラーテクノロジを使用して、あるオブジェクトストアを別のオブジェクトストアに置き換えることができます。新しいオブジェクトストアは、元のオブジェクトストアと同じクラウドプロバイダを使用する必要はありません。 
+summary: FabricPoolミラー テクノロジを使用して、あるオブジェクト ストアを別のオブジェクト ストアに置き換えることができます。新しいオブジェクト ストアは元のオブジェクト ストアと同じクラウド プロバイダを使用している必要はありません。 
 ---
-= 既存のオブジェクトストアをONTAP FabricPoolミラーに置き換える
+= 既存のオブジェクト ストアをONTAP FabricPoolミラーに置き換える
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-FabricPool ミラーテクノロジを使用して、あるオブジェクトストアを別のオブジェクトストアに置き換えることができます。新しいオブジェクトストアは、元のオブジェクトストアと同じクラウドプロバイダを使用する必要はありません。
+FabricPoolミラー テクノロジを使用して、あるオブジェクト ストアを別のオブジェクト ストアに置き換えることができます。新しいオブジェクト ストアは元のオブジェクト ストアと同じクラウド プロバイダを使用している必要はありません。
 
-.タスクの内容
-元のオブジェクトストアを、別のクラウドプロバイダを使用するオブジェクトストアに置き換えることができます。たとえば、 AWS をクラウドプロバイダとして使用しているオブジェクトストアが Azure を使用するオブジェクトストアに置き換えることも、その逆も可能です。ただし、オブジェクトサイズは新しいオブジェクトストアと元のオブジェクトストアで同じである必要があります。
+.タスク概要
+別のクラウド プロバイダを使用するオブジェクト ストアで置き換えることができます。たとえば、AWSをクラウド プロバイダとして使用しているオブジェクト ストアがAzureを使用するオブジェクト ストアに置き換えることも、その逆も可能です。ただし、オブジェクト サイズは新しいオブジェクト ストアと元のオブジェクト ストアで同じである必要があります。
 
 .手順
-. コマンドを使用して、既存のFabricPoolに新しいオブジェクトストアを追加し、FabricPoolミラーを作成し `storage aggregate object-store mirror`ます。
+.  `storage aggregate object-store mirror`コマンドを使用して、既存のFabricPoolに新しいオブジェクト ストアを追加してFabricPoolミラーを作成します。
 +
 [listing]
 ----
 cluster1::> storage aggregate object-store mirror -aggregate aggr1 -object-store-name my-AZURE-store
 ----
-. コマンドを使用して、ミラー再同期ステータスを監視し `storage aggregate object-store show-resync-status`ます。
+.  `storage aggregate object-store show-resync-status`コマンドを使用してミラーの再同期ステータスを監視します。
 +
 [listing]
 ----
@@ -37,7 +37,7 @@ cluster1::> storage aggregate object-store show-resync-status -aggregate aggr1
       ---------    -----------      ----------    ----------
       aggr1        my-AWS-store     my-AZURE-store     40%
 ----
-. コマンドを使用して、ミラーが同期されていることを確認します `storage aggregate object-store> show -fields mirror-type,is-mirror-degraded`。
+.  `storage aggregate object-store> show -fields mirror-type,is-mirror-degraded`コマンドを使用して、ミラーが同期されていることを確認します。
 +
 [listing]
 ----
@@ -51,15 +51,15 @@ aggregate      object-store-name mirror-type     is-mirror-degraded
 aggr1          my-AWS-store        primary           -
                my-AZURE-store      mirror          false
 ----
-. コマンドを使用して、プライマリオブジェクトストアをミラーオブジェクトストアとスワップします `storage aggregate object-store modify`。
+.  `storage aggregate object-store modify`コマンドを使用して、プライマリ オブジェクト ストアをミラー オブジェクト ストアと交換します。
 +
 [listing]
 ----
 cluster1::> storage aggregate object-store modify -aggregate aggr1 -object-store-name my-AZURE-store -mirror-type primary
 ----
-. コマンドを使用して、FabricPoolミラーに関する詳細を表示します `storage aggregate object-store show -fields mirror-type,is-mirror-degraded`。
+.  `storage aggregate object-store show -fields mirror-type,is-mirror-degraded`コマンドを使用して、FabricPoolミラーの詳細を表示します。
 +
-この例は、 FabricPool ミラーに関する情報を表示したもので、ミラーがデグレード状態（同期されていない状態）になっているかどうかも含まれます。
+次の例はFabricPoolミラーに関する情報を表示したもので、ミラーがデグレード状態（同期されていない状態）になっているかどうかも含まれます。
 
 +
 [listing]
@@ -74,13 +74,13 @@ aggregate      object-store-name mirror-type     is-mirror-degraded
 aggr1          my-AZURE-store      primary           -
                my-AWS-store        mirror          false
 ----
-. コマンドを使用して、FabricPoolミラーを削除します `storage aggregate object-store unmirror`。
+.  `storage aggregate object-store unmirror`コマンドを使用してFabricPoolミラーを削除します。
 +
 [listing]
 ----
 cluster1::> storage aggregate object-store unmirror -aggregate aggr1
 ----
-. コマンドを使用して、FabricPoolが単一のオブジェクトストア設定に戻ったことを確認します `storage aggregate object-store show -fields mirror-type,is-mirror-degraded`。
+.  `storage aggregate object-store show -fields mirror-type,is-mirror-degraded`コマンドを使用して、FabricPoolが単一オブジェクト ストア構成に戻っていることを確認します。
 +
 [listing]
 ----
@@ -96,9 +96,9 @@ aggr1          my-AZURE-store      primary           -
 
 
 .関連情報
-* link:https://docs.netapp.com/us-en/ontap-cli/storage-aggregate-object-store-mirror.html["ストレージ集約オブジェクトストアミラー"^]
-* link:https://docs.netapp.com/us-en/ontap-cli/storage-aggregate-object-store-modify.html["ストレージ集約オブジェクトストア変更"^]
-* link:https://docs.netapp.com/us-en/ontap-cli/storage-aggregate-object-store-show-resync-status.html["ストレージ集約オブジェクトストアの再同期ステータスの表示"^]
-* link:https://docs.netapp.com/us-en/ontap-cli/storage-aggregate-object-store-show.html["ストレージ集約オブジェクトストア表示"^]
-* link:https://docs.netapp.com/us-en/ontap-cli/storage-aggregate-object-store-unmirror.html["ストレージ集約オブジェクトストアミラー解除"^]
+* link:https://docs.netapp.com/us-en/ontap-cli/storage-aggregate-object-store-mirror.html["ストレージ アグリゲート オブジェクトストア ミラー"^]
+* link:https://docs.netapp.com/us-en/ontap-cli/storage-aggregate-object-store-modify.html["ストレージ アグリゲート オブジェクトストアの変更"^]
+* link:https://docs.netapp.com/us-en/ontap-cli/storage-aggregate-object-store-show-resync-status.html["storage aggregate object-store show-resync-status"^]
+* link:https://docs.netapp.com/us-en/ontap-cli/storage-aggregate-object-store-show.html["storage aggregate object-store show"^]
+* link:https://docs.netapp.com/us-en/ontap-cli/storage-aggregate-object-store-unmirror.html["storage aggregate object-store unmirror"^]
 

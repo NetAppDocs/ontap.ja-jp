@@ -2,7 +2,7 @@
 permalink: nfs-admin/ldaps-concept.html 
 sidebar: sidebar 
 keywords: ldaps, concept 
-summary: ONTAPでのLDAP通信の保護方法に関する用語や概念を理解しておく必要があります。ONTAPでは、Active Directory統合LDAPサーバ間またはUNIXベースのLDAPサーバ間の認証されたセッションを設定するために、START TLSまたはLDAPSを使用できます。 
+summary: ONTAPでのLDAP通信の保護方法に関する用語や概念を理解しておく必要があります。ONTAPは、Active Directory統合LDAPサーバ間またはUNIXベースのLDAPサーバ間の認証されたセッションを設定するために、Start TLSまたはLDAP over TLSを使用できます。 
 ---
 = ONTAP NFS SVMのLDAPSについて学ぶ
 :allow-uri-read: 
@@ -11,44 +11,44 @@ summary: ONTAPでのLDAP通信の保護方法に関する用語や概念を理�
 
 
 [role="lead"]
-ONTAPでのLDAP通信の保護方法に関する用語や概念を理解しておく必要があります。ONTAPでは、Active Directory統合LDAPサーバ間またはUNIXベースのLDAPサーバ間の認証されたセッションを設定するために、START TLSまたはLDAPSを使用できます。
+ONTAPでのLDAP通信の保護方法に関する用語や概念を理解しておく必要があります。ONTAPは、Active Directory統合LDAPサーバ間またはUNIXベースのLDAPサーバ間の認証されたセッションを設定するために、Start TLSまたはLDAP over TLSを使用できます。
 
 
 
 == 用語
 
-ONTAPでのLDAPSを使用したLDAP通信の保護方法について理解しておくべき用語があります。
+ONTAPでのLDAPSを使用したLDAP通信の保護方法に関して理解しておくべき用語があります。
 
-* * LDAP *
+* *LDAP*
 +
-（Lightweight Directory Access Protocol）情報ディレクトリにアクセスして管理するためのプロトコル。LDAPは、ユーザ、グループ、ネットグループなどのオブジェクトを格納するための情報ディレクトリとして使用されます。LDAPは、これらのオブジェクトを管理し、LDAPクライアントからのLDAP要求を満たすディレクトリサービスも提供します。
+（Lightweight Directory Access Protocol;ライトウェイト ディレクトリ アクセス プロトコル）情報ディレクトリに対するアクセスおよび管理を行うためのプロトコルです。LDAPは、ユーザ、グループ、ネットグループのようなオブジェクトを格納するための情報ディレクトリとして使用されます。またLDAPは、これらのオブジェクトを管理したりLDAPクライアントからの要求を満たしたりするディレクトリ サービスを提供します。
 
 * *SSL*
 +
-(Secure Sockets Layer)インターネットを介して情報を安全に送信するために開発されたプロトコルです。SSLはONTAP 9以降でサポートされていますが、TLSの導入に伴い廃止されています。
+（Secure Sockets Layer）インターネット上で情報を安全に送信するために開発されたプロトコルです。SSLは、ONTAP 9以降でサポートされていますが、TLSの導入に伴い廃止されました。
 
-* * tls *
+* *TLS*
 +
-（Transport Layer Security）IETF標準の追跡プロトコルで、以前のSSL仕様に基づいています。SSLの後継です。TLSはONTAP 9 .5以降でサポートされています。
+（Transport Layer Security） それまでのSSL仕様に基づいたIETF標準の追跡プロトコルです。SSLの後継にあたります。TLSは、ONTAP 9.5以降でサポートされています。
 
-* * LDAPS （ LDAP over SSL または TLS ） *
+* *LDAPS（SSL または TLS 経由の LDAP）*
 +
-TLSまたはSSLを使用してLDAPクライアントとLDAPサーバの間の通信を保護するプロトコル。「_ldap over SSL_」と「_ldap over TLS_」は同じ意味で使用されることがあります。LDAPSはONTAP 9 .5以降でサポートされています。
+TLSまたはSSLを使用してLDAPクライアントとLDAPサーバ間の通信を保護するプロトコル。「LDAP over SSL」と「LDAP over TLS」という用語は、同じ意味で使用される場合があります。LDAPSはONTAP 9.5以降でサポートされています。
 
 +
-** ONTAP 9.8～9.5では、LDAPSはポート636でのみ有効にできます。そのためには、 `-use-ldaps-for-ad-ldap`パラメータを `vserver cifs security modify`指示。
-** ONTAP 9.9.1以降では、任意のポートでLDAPSを有効にできますが、デフォルトはポート636です。そのためには、パラメータをに `true`設定し `-ldaps-enabled`、必要なパラメータを指定します `-port`。の詳細については `vserver services name-service ldap client create`、をlink:https://docs.netapp.com/us-en/ontap-cli/vserver-services-name-service-ldap-client-create.html["ONTAPコマンド リファレンス"^]参照してください。
+** ONTAP 9.8～9.5では、LDAPSはポート636でのみ有効にできます。これを行うには、 `vserver cifs security modify`コマンドで `-use-ldaps-for-ad-ldap`パラメータを使用します。
+** ONTAP 9.9.1以降では、ポート636がデフォルトのままですが、LDAPSは任意のポートで有効にできます。有効にするには、 `-ldaps-enabled`パラメータを `true`に設定し、必要な `-port`パラメータを指定します。link:https://docs.netapp.com/us-en/ontap-cli/vserver-services-name-service-ldap-client-create.html["ONTAPコマンド リファレンス"^]の `vserver services name-service ldap client create`の詳細を確認してください。
 
 
 +
 [NOTE]
 ====
-NetAppでは、LDAPSではなくStart TLSを使用することを推奨します。
+NetAppでは、LDAPSではなくStart TLSの使用を推奨しています。
 
 ====
-* * TLS を開始 *
+* *TLSの開始*
 +
-（ _START_TLS_,_STARTTLS 、 _StartTLS_ とも呼ばれます）。 TLS プロトコルを使用してセキュアな通信を提供するメカニズムです。
+（_start_tls_、_STARTTLS_、_StartTLS_ とも呼ばれます）TLSプロトコルを使用して安全な通信を提供するメカニズム。
 
 +
 ONTAPでは、LDAP通信を保護するためにSTARTTLSを使用し、デフォルトのLDAPポート（389）を使用してLDAPサーバと通信します。LDAPサーバは、LDAPポート389経由の接続を許可するように設定する必要があります。そうしないと、SVMからLDAPサーバへのLDAP TLS接続が失敗します。
@@ -59,20 +59,20 @@ ONTAPでは、LDAP通信を保護するためにSTARTTLSを使用し、デフォ
 
 == ONTAPでのLDAPSの使用方法
 
-ONTAPはTLSサーバ認証をサポートしています。これにより、SVM LDAPクライアントは、バインド処理時にLDAPサーバのIDを確認できます。TLS対応LDAPクライアントでは、公開鍵暗号化の標準的な技術を使用して、サーバの証明書と公開IDが有効であり、クライアントの信頼できるCAのリストに記載されている認証局（CA）によって発行されたものであることを確認できます。
+ONTAPはTLSサーバ認証をサポートしています。この認証により、SVMのLDAPクライアントは、バインド操作時にLDAPサーバの識別情報を確認できます。TLSに対応したLDAPクライアントは、公開鍵暗号化の標準的な技法を使用して、サーバの証明書および公開IDが有効であり、かつクライアントの信頼できるCertificate Authority（CA;認証局）のリストにあるCAによって発行されたものであるかどうかをチェックできます。
 
-LDAPでは、TLSを使用した通信の暗号化でSTARTTLSがサポートされます。STARTTLSは標準のLDAPポート（389）経由でプレーンテキスト接続として開始され、その後TLS接続にアップグレードされます。
+LDAPでは、TLSを使用した通信の暗号化方法としてSTARTTLSがサポートされています。STARTTLSは標準のLDAPポート（389）経由でプレーンテキスト接続として開始され、その後TLS接続にアップグレードされます。
 
-ONTAPは次の機能をサポートします。
+ONTAPでは以下をサポートしています。
 
-* Active Directory統合LDAPサーバとSVMの間のSMB関連トラフィックに対するLDAPSの使用
-* ネームマッピングやその他のUNIX情報のLDAPトラフィックに対するLDAPSの使用
+* Active Directory統合LDAPサーバとSVMとの間のSMB関連トラフィックに対するLDAPSの使用
+* ネーム マッピングやその他のUNIX情報のLDAPトラフィックに対するLDAPSの使用
 +
-Active Directory統合LDAPサーバまたはUNIXベースのLDAPサーバのいずれかを使用して、LDAPネームマッピングおよびその他のUNIX情報（ユーザ、グループ、ネットグループなど）の情報を格納できます。
+Active Directory統合LDAPサーバまたはUNIXベースLDAPサーバのどちらかを使用して、LDAPネーム マッピングの情報やその他のUNIX情報（ユーザ、グループ、ネットグループなど）を格納できます。
 
-* シコシヨメイルウトCAシヨウメイシヨ
+* 自己署名ルートCA証明書
 +
-Active Directory統合LDAPを使用している場合、Windows Server証明書サービスがドメインにインストールされているときに自己署名ルート証明書が生成されます。UNIXベースのLDAPサーバをLDAPネームマッピングに使用している場合は、そのLDAPアプリケーションに適した方法で自己署名ルート証明書が生成されて保存されます。
+Active-Directory統合LDAPを使用している場合は、Windows Server証明書サービスがドメインにインストールされていると自己署名ルート証明書が生成されます。UNIXベースのLDAPサーバをLDAPネーム マッピングに使用している場合は、該当するLDAPアプリケーションに適切な手段を使用して、自己署名ルート証明書の生成と保存が行われます。
 
 
 

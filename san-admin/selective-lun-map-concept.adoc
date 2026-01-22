@@ -2,48 +2,48 @@
 permalink: san-admin/selective-lun-map-concept.html 
 sidebar: sidebar 
 keywords: select, selective, lun, map, slm, enabled, modify, reporting, nodes, list 
-summary: Selective LUN Map（SLM；選択的LUNマップ）を使用すると、ホストからLUNへのパスの数が削減されます。SLMで新しいLUNマップを作成すると、LUNを所有するノードとそのHAパートナーのパス経由でのみLUNにアクセスできます。 
+summary: 選択的LUNマップ（SLM）では、ホストからLUNへのパスの数を減らすことができます。SLMを使用して新しいLUNマップを作成すると、LUNを所有するノードとそのHAパートナーのパス経由でのみLUNにアクセスできます。 
 ---
-= 選択的LUNマップの概要
+= 選択的LUNマップ - 概要
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-Selective LUN Map（SLM；選択的LUNマップ）を使用すると、ホストからLUNへのパスの数が削減されます。SLMで新しいLUNマップを作成すると、LUNを所有するノードとそのHAパートナーのパス経由でのみLUNにアクセスできます。
+選択的LUNマップ（SLM）では、ホストからLUNへのパスの数を減らすことができます。SLMを使用して新しいLUNマップを作成すると、LUNを所有するノードとそのHAパートナーのパス経由でのみLUNにアクセスできます。
 
-SLMを使用すると、ホストごとに1つのigroupを管理できます。また、ポートセットの操作やLUNの再マッピングを必要としない、無停止のLUN移動処理もサポートされます。
+SLMを使用すると、ホストごとに1つのigroupを管理でき、システム停止を伴わないLUNの移動処理がサポートされます。ポートセットの操作やLUNの再マッピングは不要です。
 
-link:create-port-sets-binding-igroups-task.html["ポートセット"]SLMと併用すると、特定のターゲットのアクセスを特定のイニシエータだけに制限できます。SLMとポートセットを併用する場合、LUNには、そのLUNを所有するノードおよびノードのHAパートナーのポートセットに含まれる一連のLIF経由でアクセスできます。
+link:create-port-sets-binding-igroups-task.html["ポートセット"]をSLMと併用することで、特定のターゲットから特定のイニシエータへのアクセスをさらに制限できます。SLMをポートセットと併用すると、LUNは、LUNを所有するノードとそのノードのHAパートナー上のポートセット内のLIFセットからアクセス可能になります。
 
-すべての新しいLUNマップでは、SLMがデフォルトで有効になります。
-
-
-
-== SLMがLUNマップで有効になっているかどうかを確認する
-
-ONTAP 9リリースで作成されたLUNと以前のバージョンから移行されたLUNが環境内に混在している場合は、特定のLUNで選択的LUNマップ（SLM）が有効になっているかどうかを確認しなければならないことがあります。
-
-コマンドの出力に表示される情報を使用して、LUNマップでSLMが有効になっているかどうかを確認できます `lun mapping show -fields reporting-nodes, node`。SLMが有効になっていない場合は、コマンド出力の「reporting-nodes」列の下のセルにと表示されます。SLMが有効な場合、「nodes」列の下に表示されるノードのリストが「reporting-nodes」列に複製されます。
-
-の詳細については `lun mapping show`、をlink:https://docs.netapp.com/us-en/ontap-cli/lun-mapping-show.html["ONTAPコマンド リファレンス"^]参照してください。
+新しいLUNマップではSLMがデフォルトで有効になります。
 
 
 
-== SLMレポートノードリストの変更
+== SLMがLUNマップで有効かどうかの確認
 
-LUNまたはLUNを含むボリュームを同じクラスタ内の別のハイアベイラビリティ（HA）ペアに移動する場合は、最適化されたアクティブなLUNパスが維持されるように、移動を開始する前に選択的LUNマップ（SLM）のレポートノードリストを変更する必要があります。
+ONTAP 9リリースで作成されたLUNと以前のバージョンから移行されたLUNが環境内に混在している場合は、特定のLUNでSelective LUN Map（SLM;選択的LUNマップ）が有効になっているかどうかを判断しなければならないことがあります。
+
+ `lun mapping show -fields reporting-nodes, node`コマンドの出力に表示される情報を使用して、LUNマップでSLMが有効になっているかどうかを確認できます。SLMが有効になっていない場合、コマンド出力の「`reporting-nodes`」列の下のセルに「-」が表示されます。SLMが有効になっている場合、「`nodes`」列の下に表示されるノードのリストが「`reporting-nodes`」列に複製されます。
+
+ `lun mapping show`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/lun-mapping-show.html["ONTAPコマンド リファレンス"^]を参照してください。
+
+
+
+== SLMレポート ノード リストの変更
+
+LUNまたはLUNが含まれているボリュームを同じクラスタ内の別のハイアベイラビリティ（HA）ペアに移動する場合は、移動を開始する前に選択的LUNマップ（SLM）のレポート ノード リストを変更して、LUNのアクティブな最適パスが維持されるようにする必要があります。
 
 .手順
-. デスティネーションノードとそのパートナーノードをアグリゲートまたはボリュームのレポートノードリストに追加します。
+. デスティネーション ノードとそのパートナー ノードをアグリゲートまたはボリュームのレポート ノード リストに追加します。
 +
 [source, cli]
 ----
 lun mapping add-reporting-nodes -vserver <vserver_name> -path <lun_path> -igroup <igroup_name> [-destination-aggregate <aggregate_name>|-destination-volume <volume_name>]
 ----
 +
-一貫した命名規則がある場合は、の代わりにを使用して、複数のLUNマッピングを同時に変更できます `igroup_prefix*` `igroup_name`。
+一貫した命名規則がある場合は、 `igroup_name`の代わりに `igroup_prefix*`を使用して、複数のLUNマッピングを同時に変更できます。
 
 . ホストを再スキャンして、新しく追加したパスを検出します。
 . OSで必要な場合は、マルチパス ネットワークI/O（MPIO）構成に新しいパスを追加します。
@@ -68,5 +68,5 @@ lun mapping show -fields reporting-nodes
 ----
 . ホストOSの古いデバイスのエントリを削除します。
 . 必要に応じて、マルチパス構成ファイルを変更します。
-. ホストを再スキャンして古いパスが削除されたことを確認します。+ ホストを再スキャンする手順については、ホストのマニュアルを参照してください。
+. ホストを再スキャンして、古いパスが削除されたことを確認します。+ ホストを再スキャンする具体的な手順については、ホストのドキュメントを参照してください。
 

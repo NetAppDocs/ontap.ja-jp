@@ -2,38 +2,38 @@
 permalink: smb-admin/display-locks-task.html 
 sidebar: sidebar 
 keywords: display, information, file, lock, detail, byte-range, sharelock, mode, delegation, opportunistic, persistent, handle, durable, diplay information about locks 
-summary: 有効になっているロックの種類とロックの状態、バイト範囲ロック、共有ロックモード、委譲ロック、および便宜的ロックの詳細、永続性ハンドルを使用してロックが開かれているかどうかなど、現在のファイルロックに関する情報を表示できます。 
+summary: 現在のファイル ロックに関する情報を表示できます。これには、保持されているロックの種類とロックの状態、バイト範囲ロック、共有ロック モード、委譲ロック、およびoplockに関する詳細、およびロックが永続ハンドルまたは永続ハンドルで開かれているかどうかが含まれます。 
 ---
-= ONTAP SMBロックに関する情報を表示する
+= ONTAP SMB ロックに関する情報を表示する
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-有効になっているロックの種類とロックの状態、バイト範囲ロック、共有ロックモード、委譲ロック、および便宜的ロックの詳細、永続性ハンドルを使用してロックが開かれているかどうかなど、現在のファイルロックに関する情報を表示できます。
+現在のファイル ロックに関する情報を表示できます。これには、保持されているロックの種類とロックの状態、バイト範囲ロック、共有ロック モード、委譲ロック、およびoplockに関する詳細、およびロックが永続ハンドルまたは永続ハンドルで開かれているかどうかが含まれます。
 
-.タスクの内容
-NFSv4 または NFSv4.1 を使用して確立されたロックについては、クライアント IP アドレスを表示できません。
+.タスク概要
+NFSv4またはNFSv4.1を通じて確立されたロックの場合、クライアントIPアドレスは表示できません。
 
-デフォルトでは、すべてのロックに関する情報が表示されます。コマンドパラメータを使用すると、特定の Storage Virtual Machine （ SVM ）のロックに関する情報を表示したり、他の条件によってコマンドの出力をフィルタリングしたりできます。
+デフォルトでは、このコマンドはすべてのロックに関する情報を表示します。コマンドパラメータを使用すると、特定のStorage Virtual Machine（SVM）のロックに関する情報を表示したり、他の基準でコマンドの出力をフィルタリングしたりできます。
 
- `vserver locks show`このコマンドは、次の4種類のロックに関する情報を表示します。
+ `vserver locks show`コマンドは、次の4種類のロックに関する情報を表示します：
 
-* バイト範囲ロック。ファイルの一部のみをロックします。
-* 共有ロック。開いているファイルをロックします。
-* 便宜的ロック。 SMB を使用してクライアント側キャッシュを制御します。
-* 委譲。 NFSv4.x を使用してクライアント側キャッシュを制御します
+* ファイルの一部のみをロックするバイト範囲ロック。
+* 開いているファイルをロックする共有ロック。
+* SMB 経由のクライアント側キャッシュを制御する便宜的ロック。
+* NFSv4.x上のクライアント側キャッシュを制御する委任。
 
 
-オプションのパラメータを指定すると、各ロックタイプに関する重要な情報を確認できます。の詳細については `vserver locks show`、をlink:https://docs.netapp.com/us-en/ontap-cli/vserver-locks-show.html["ONTAPコマンド リファレンス"^]参照してください。
+オプションパラメータを指定することで、各ロックの種類に関する重要な情報を確認できます。link:https://docs.netapp.com/us-en/ontap-cli/vserver-locks-show.html["ONTAPコマンド リファレンス"^]の `vserver locks show`の詳細をご覧ください。
 
-.ステップ
-. コマンドを使用して、ロックに関する情報を表示します `vserver locks show`。
+.手順
+.  `vserver locks show`コマンドを使用してロックに関する情報を表示します。
 
 
 .例
-次の例は、パスのファイルに対するNFSv4ロックに関する概要情報を表示します `/vol1/file1`。共有ロックのアクセスモードは write-deny_none であり、書き込み委譲でロックが許可されています。
+以下の例は、パス `/vol1/file1`のファイルに対するNFSv4ロックの概要情報を表示します。sharelockのアクセス モードはwrite-deny_noneで、ロックは書き込み委譲で付与されました：
 
 [listing]
 ----
@@ -47,7 +47,7 @@ vol1    /vol1/file1               lif1        nfsv4     share-level -
                                                         delegation  -
                Delegation Type: write
 ----
-次の例は、パスのファイルに対するSMBロックに関するoplockおよび共有ロックの詳細情報を表示します `/data2/data2_2/intro.pptx`。IP アドレスが 10.3.1.3 のクライアントに対して、共有ロックのアクセスモードを write-deny_none として、永続性ハンドルが許可されています。バッチの oplock レベルで oplock リースが許可されています。
+以下の例は、パス `/data2/data2_2/intro.pptx`のファイルに対するSMBロックに関するoplockおよびsharelockの詳細情報を表示します。IPアドレス10.3.1.3のクライアントに、共有ロックアクセスモードwrite-deny_noneで永続ハンドルが付与されています。batch oplockレベルでリースoplockが付与されています（
 
 [listing]
 ----

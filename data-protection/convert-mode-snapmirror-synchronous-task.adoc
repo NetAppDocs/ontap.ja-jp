@@ -2,22 +2,22 @@
 permalink: data-protection/convert-mode-snapmirror-synchronous-task.html 
 sidebar: sidebar 
 keywords: convert, mode, snapmirror, synchronous, relationship 
-summary: ONTAP 9 .5以降では、SnapMirror同期関係がサポートされます。SnapMirror同期関係のモードはStrictSyncからSyncに（またはその逆）変換できます。 
+summary: ONTAP 9.5以降では、SnapMirror同期関係がサポートされます。SnapMirror同期関係のモードはStrictSyncとSyncの間で相互に変換できます。 
 ---
-= ONTAP SnapMirror同期関係のモードの変換
+= ONTAP SnapMirror同期関係のモードを変換する
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-ONTAP 9 .5以降では、SnapMirror同期関係がサポートされます。SnapMirror同期関係のモードはStrictSyncからSyncに（またはその逆）変換できます。
+ONTAP 9.5以降では、SnapMirror同期関係がサポートされます。SnapMirror同期関係のモードはStrictSyncとSyncの間で相互に変換できます。
 
-.タスクの内容
+.タスク概要
 SnapMirror同期関係のポリシーを変更してモードを変換することはできません。
 
 .手順
-. デスティネーションクラスタから、既存のSnapMirror同期関係を休止します。
+. デスティネーション クラスタから、既存のSnapMirror同期関係を休止します。
 +
 `snapmirror quiesce -destination-path <destination_SVM>:<destination_volume>`
 
@@ -26,7 +26,7 @@ SnapMirror同期関係のポリシーを変更してモードを変換するこ�
 ----
 cluster2::> snapmirror quiesce -destination-path vs1_dr:vol1
 ----
-. デスティネーションクラスタから、既存のSnapMirror同期関係を削除します。
+. デスティネーション クラスタから、既存のSnapMirror同期関係を削除します。
 +
 `snapmirror delete -destination-path <destination_SVM>:<destination_volume>`
 
@@ -35,7 +35,7 @@ cluster2::> snapmirror quiesce -destination-path vs1_dr:vol1
 ----
 cluster2::> snapmirror delete -destination-path vs1_dr:vol1
 ----
-. ソースクラスタから、共通のSnapshotを削除せずにSnapMirror関係を解放します。
+. ソース クラスターから、共通スナップショットを削除せずにSnapMirror関係を解除します：
 +
 `snapmirror release -relationship-info-only true -destination-path <destination_SVM>:<destination_volume>`
 
@@ -44,7 +44,7 @@ cluster2::> snapmirror delete -destination-path vs1_dr:vol1
 ----
 cluster1::> snapmirror release -relationship-info-only true -destination-path vs1_dr:vol1
 ----
-. デスティネーションクラスタから、SnapMirror同期関係の変換先のモードを指定して、SnapMirror同期関係を作成します。
+. デスティネーション クラスタから、変換後のモードを指定してSnapMirror同期関係を作成します。
 +
 `snapmirror create -source-path vs1:vol1 -destination-path <destination_SVM>:<destination_volume> -policy Sync|StrictSync`
 
@@ -53,7 +53,7 @@ cluster1::> snapmirror release -relationship-info-only true -destination-path vs
 ----
 cluster2::> snapmirror create -source-path vs1:vol1 -destination-path vs1_dr:vol1 -policy Sync
 ----
-. デスティネーションクラスタから、SnapMirror関係を再同期します。
+. デスティネーション クラスタから、SnapMirror関係を再同期します。
 +
 `snapmirror resync -destination-path <destination_SVM>:<destination_volume>`
 
@@ -65,9 +65,9 @@ cluster2::> snapmirror resync -destination-path vs1_dr:vol1
 
 
 .関連情報
-* link:https://docs.netapp.com/us-en/ontap-cli/snapmirror-create.html["スナップミラー作成"^]
-* link:https://docs.netapp.com/us-en/ontap-cli/snapmirror-delete.html["SnapMirrorの削除"^]
-* link:https://docs.netapp.com/us-en/ontap-cli/snapmirror-quiesce.html["スナップミラーの静止"^]
-* link:https://docs.netapp.com/us-en/ontap-cli/snapmirror-release.html["スナップミラーリリース"^]
+* link:https://docs.netapp.com/us-en/ontap-cli/snapmirror-create.html["snapmirror create"^]
+* link:https://docs.netapp.com/us-en/ontap-cli/snapmirror-delete.html["snapmirror delete"^]
+* link:https://docs.netapp.com/us-en/ontap-cli/snapmirror-quiesce.html["snapmirror quiesce"^]
+* link:https://docs.netapp.com/us-en/ontap-cli/snapmirror-release.html["snapmirror release"^]
 * link:https://docs.netapp.com/us-en/ontap-cli/snapmirror-resync.html["snapmirror resync"^]
 

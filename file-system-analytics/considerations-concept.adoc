@@ -2,9 +2,9 @@
 sidebar: sidebar 
 permalink: file-system-analytics/considerations-concept.html 
 keywords: file system analytics, performance, SVM 
-summary: ファイルシステム分析は、アクティブな NAS データを含むボリュームを可視化するように設計されています。使用には制限事項と制限事項があります。 
+summary: File System Analyticsは、アクティブなNASデータを含むボリュームの可視性を提供するために設計されています。使用には制限と制限事項があります。 
 ---
-= ONTAPファイルシステム分析に関する考慮事項
+= ONTAP ファイル システム分析に関する考慮事項
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
@@ -25,21 +25,21 @@ summary: ファイルシステム分析は、アクティブな NAS データを
 
 ファイルシステム分析を有効にすると、メタデータの初回収集時のパフォーマンスが低下することがあります。多くの場合、この状況は利用率が最大になっているシステムで発生します。このようなシステムでは、代わりにONTAP System Managerのパフォーマンス監視ツールを使用できます。
 
-遅延が著しく増加した場合は、link:https://kb.netapp.com/Advice_and_Troubleshooting/Data_Storage_Software/ONTAP_OS/High_or_fluctuating_latency_after_turning_on_NetApp_ONTAP_File_System_Analytics["NetAppナレッジベース: NetApp ONTAPファイル システム分析をオンにした後のレイテンシが高くなったり変動したりする"^] 。
+遅延が顕著に増加した場合は、link:https://kb.netapp.com/Advice_and_Troubleshooting/Data_Storage_Software/ONTAP_OS/High_or_fluctuating_latency_after_turning_on_NetApp_ONTAP_File_System_Analytics["NetApp ナレッジベース：NetApp ONTAP File System Analytics をオンにした後のレイテンシの上昇または変動"^]を参照してください。
 
 
 
 == スキャンに関する考慮事項
 
-容量分析を有効にすると、ONTAPは容量分析の初期化スキャンを実行します。スキャンは、容量分析が有効になっているボリューム内のすべてのファイルのメタデータにアクセスします。スキャン中にファイルデータは読み取られません。ONTAP 9.14.1以降では、REST API、System Managerの[** Explorer*]タブ、またはCLIコマンドを使用して、スキャンの進行状況を追跡できます `volume analytics show`。スロットルイベントが発生した場合は、ONTAPから通知が送信されます。
+容量分析を有効にすると、ONTAPは容量分析の初期化スキャンを実行します。このスキャンでは、容量分析が有効になっているボリューム内のすべてのファイルのメタデータにアクセスします。スキャン中はファイルデータは読み込まれません。ONTAP 9.14.1以降では、REST API、System Managerの**Explorer**タブ、または `volume analytics show`CLIコマンドを使用して、スキャンの進行状況を追跡できます。スロットリングイベントが発生した場合、ONTAPは通知を提供します。
 
-ボリュームでファイルシステム分析を有効にする場合は、ボリュームの使用可能なスペースの少なくとも5~8%が空きスペースであることを確認してください。ボリュームでオートサイズが有効になっている場合は、自動拡張時の最大サイズに基づいて利用可能なサイズを計算します。ONTAP 9 .15.1以降では、ボリュームでファイルシステム分析を有効にすると、使用可能なスペースが不足していると、ONTAPにエラーメッセージが表示されます。
+ボリュームに対してファイルシステム分析を有効にする場合は、ボリュームの使用可能なスペースの少なくとも5～8%が空きスペースであることを確認してください。ボリュームでオートサイズが有効になっている場合は、自動拡張時の最大サイズに基づいて使用可能なサイズを計算します。ONTAP 9.15.1以降では、ボリュームに対してファイルシステム分析を有効にしている場合に、使用可能なスペースが不足すると、ONTAPにエラー メッセージが表示されます。
 
-スキャンが完了すると、ファイルシステムの変更に応じてリアルタイムでファイルシステム分析が継続的に更新されます。
+スキャンの完了後、ファイルシステムに変更があるたびにファイルシステム分析はリアルタイムで更新されます。
 
-スキャンに必要な時間は、ボリューム上のディレクトリとファイルの数に比例します。スキャンではメタデータが収集されるため、ファイルサイズはスキャン時間に影響しません。
+スキャンの所要時間は、ボリューム上のディレクトリとファイルの数に比例して長くなります。このスキャンではメタデータが収集されるため、ファイル サイズがスキャン時間に影響することはありません。
 
-初期化スキャンの詳細については、を参照してくださいlink:https://www.netapp.com/pdf.html?item=/media/20707-tr-4867.pdf["TR-4867：『Best Practice Guidelines for File System Analytics』"^]。
+初期化スキャンの詳細については、link:https://www.netapp.com/pdf.html?item=/media/20707-tr-4867.pdf["TR-4867：File System Analyticsのベスト プラクティス ガイドライン"^]を参照してください。
 
 
 
@@ -53,13 +53,13 @@ summary: ファイルシステム分析は、アクティブな NAS データを
 
 クライアント トラフィックが増加すると、システム リソースが消費され、スキャンにかかる時間が長くなります。
 
-ONTAP 9.12.1以降では、System ManagerおよびONTAP CLIでデータ収集を一時停止できます。
+ONTAP 9.12.1 以降では、System Manager および ONTAP CLI を使用してデータ収集を一時停止できます。
 
 * ONTAP CLIを使用する場合の処理：
 +
-** 次のコマンドを使用してデータ収集を一時停止できます。 `volume analytics initialization pause -vserver _svm_name_ -volume _volume_name_`
-** クライアントトラフィックの速度が低下したら、次のコマンドを使用してデータ収集を再開できます。 `volume analytics initialization resume -vserver _svm_name_ -volume _volume_name_`
+** 次のコマンドでデータ収集を一時停止できます： `volume analytics initialization pause -vserver _svm_name_ -volume _volume_name_`
+** クライアント トラフィックが低下したら、次のコマンドでデータ収集を再開できます： `volume analytics initialization resume -vserver _svm_name_ -volume _volume_name_`
 
 
-* System Managerを使用している場合は、ボリュームメニューの*[エクスプローラ]*ビューで*[データ収集の一時停止]*および*[データ収集の再開]*ボタンを使用してスキャンを管理します。
+* System Managerを使用している場合は、ボリューム メニューの*Explorer*ビューで、*Pause Data Collection*ボタンと*Resume Data Collection*ボタンを使用してスキャンを管理します。
 

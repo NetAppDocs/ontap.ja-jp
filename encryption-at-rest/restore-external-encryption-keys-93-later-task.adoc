@@ -2,7 +2,7 @@
 permalink: encryption-at-rest/restore-external-encryption-keys-93-later-task.html 
 sidebar: sidebar 
 keywords: restoring, external key management, encryption keys 
-summary: 外部キー管理の暗号化キーを手動でリストアし、別のノードにプッシュすることができます。この処理は、クラスタのキーの作成時に一時的に停止していたノードを再起動する場合に実行します。 
+summary: 外部キー管理の暗号化キーを手動で復元し、別のノードに「プッシュ」することができます。クラスタのキーを作成した際に一時的にダウンしていたノードを再起動する場合などに、この操作を行うことができます。 
 ---
 = ONTAP外部キー管理暗号化キーを復元する
 :allow-uri-read: 
@@ -11,37 +11,37 @@ summary: 外部キー管理の暗号化キーを手動でリストアし、別�
 [role="lead"]
 外部キー管理の暗号化キーを手動でリストアし、別のノードにプッシュすることができます。この処理は、クラスタのキーの作成時に一時的に停止していたノードを再起動する場合に実行します。
 
-.タスクの内容
-ONTAP 9 .6以降では、コマンドを使用してキーのリストアが必要かどうかを確認できます `security key-manager key query -node node_name`。
+.タスク概要
+ONTAP 9.6 以降では、 `security key-manager key query -node node_name`コマンドを使用して、キーを復元する必要があるかどうかを確認できます。
 
-ONTAP 9 .5以前では、コマンドを使用してキーのリストアが必要かどうかを確認できます `security key-manager key show`。
+ONTAP 9.5 以前では、 `security key-manager key show`コマンドを使用して、暗号化キーを復元する必要があるかどうかを確認できます。
 
 
 NOTE: Flash Cacheモジュールを搭載したシステムでNSEを使用する場合は、NVEまたはNAEも有効にする必要があります。NSEでは、Flash Cacheモジュール上のデータは暗号化されません。
 
-の詳細については `security key-manager key query`、をlink:https://docs.netapp.com/us-en/ontap-cli/security-key-manager-key-query.html["ONTAPコマンド リファレンス"^]参照してください。
+ `security key-manager key query`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/security-key-manager-key-query.html["ONTAPコマンド リファレンス"^]をご覧ください。
 
 .開始する前に
-このタスクを実行するには、クラスタ管理者またはSVM管理者である必要があります。
+このタスクを実行するには、クラスタ管理者またはSVMの管理者である必要があります。
 
 .手順
-. ONTAP 9 .8以降を実行していて、ルートボリュームが暗号化されている場合は、次の手順を実行します。
+. ONTAP 9.8以降を実行していてルート ボリュームが暗号化されている場合は、次の手順を実行します。
 +
-ONTAP 9 .7以前を実行している場合、またはONTAP 9 .8以降を実行していてルートボリュームが暗号化されていない場合は、この手順を省略します。
+ONTAP 9.7以前を実行している場合、またはONTAP 9.8以降を実行していてルート ボリュームが暗号化されていない場合は、この手順を省略してください。
 
 +
-.. bootargを設定します。
-`setenv kmip.init.ipaddr <ip-address>`
-`setenv kmip.init.netmask <netmask>`
-`setenv kmip.init.gateway <gateway>`
-`setenv kmip.init.interface e0M`++
+.. ブート引数を設定します：+
+`setenv kmip.init.ipaddr <ip-address>` +
+`setenv kmip.init.netmask <netmask>` +
+`setenv kmip.init.gateway <gateway>` +
+`setenv kmip.init.interface e0M` +
 `boot_ontap`
-.. ノードをブートメニューでブートし、オプションを選択します `(11) Configure node for external key management`。
+.. ノードをブートメニューにブートし、オプション `(11) Configure node for external key management`を選択します。
 .. プロンプトに従って管理証明書を入力します。
 +
 管理証明書の情報をすべて入力すると、システムがブート メニューに戻ります。
 
-.. ブートメニューからオプションを選択します `(1) Normal Boot`。
+.. ブートメニューからオプション `(1) Normal Boot`を選択します。
 
 
 . キーをリストアします。
@@ -69,13 +69,13 @@ ONTAP 9.5以前
 +
 [NOTE]
 ====
-`node`デフォルトはすべてのノードです。
+`node`デフォルトではすべてのノードが対象になります。
 
-このコマンドは、オンボードキー管理が有効になっている場合はサポートされません。
+このコマンドは、オンボード キー管理が有効な場合はサポートされません。
 
 ====
 +
-次のONTAP 9 .6コマンドは、外部キー管理の認証キーをのすべてのノードにリストアします `cluster1`。
+次のONTAP 9.6コマンドは、外部キー管理認証キーを `cluster1`のすべてのノードに復元します：
 
 +
 [listing]
@@ -85,5 +85,5 @@ clusterl::> security key-manager external restore
 
 
 .関連情報
-* link:https://docs.netapp.com/us-en/ontap-cli/security-key-manager-external-restore.html["security key-manager external restoreのように指定します"^]
+* link:https://docs.netapp.com/us-en/ontap-cli/security-key-manager-external-restore.html["セキュリティキー・マネージャ外部リストア"^]
 

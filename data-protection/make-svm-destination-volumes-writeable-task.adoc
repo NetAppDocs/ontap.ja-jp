@@ -2,28 +2,28 @@
 permalink: data-protection/make-svm-destination-volumes-writeable-task.html 
 sidebar: sidebar 
 keywords: make, svm, storage vm, , snapmirror, destination, volume, writable 
-summary: クライアントにデータを提供する前に、 SVM デスティネーションボリュームを書き込み可能にする必要があります。 
+summary: クライアントにデータを提供する前に、SVMデスティネーション ボリュームを書き込み可能にする必要があります。 
 ---
-= ONTAP SnapMirror SVMデスティネーションボリュームを書き込み可能として設定
+= ONTAP SnapMirror SVMのデスティネーション ボリュームを書き込み可能に設定する
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-クライアントにデータを提供する前に、 SVM デスティネーションボリュームを書き込み可能にする必要があります。
+クライアントにデータを提供する前に、SVMデスティネーション ボリュームを書き込み可能にする必要があります。
 
-この手順は、1つの例外を除き、ボリュームレプリケーションの手順とほとんど同じです。SVMレプリケーション関係の作成時にを設定した場合は `-identity-preserve true` 、デスティネーションSVMをアクティブ化する前にソースSVMを停止する必要があります。
+手順はボリュームレプリケーションの手順とほぼ同じですが、1つだけ例外があります。SVMレプリケーション関係の作成時に `-identity-preserve true`を設定した場合は、デスティネーションSVMをアクティブ化する前にソースSVMを停止する必要があります。
 
-.タスクの内容
-この手順で説明されているコマンドの詳細については、をlink:https://docs.netapp.com/us-en/ontap-cli/["ONTAPコマンド リファレンス"^]参照してください。
+.タスク概要
+この手順で説明されているコマンドの詳細については、link:https://docs.netapp.com/us-en/ontap-cli/["ONTAPコマンド リファレンス"^]を参照してください。
 
 [NOTE]
 ====
-ディザスタリカバリシナリオでは、ソースSVMとそのデータにアクセスできなくなるほか、前回の再同期後の更新に障害が発生したり破損したりする可能性があるため、ソースSVMからディザスタリカバリデスティネーションSVMへのSnapMirror更新を実行できません。
+ディザスタ リカバリのシナリオでは、ソースSVMとそのデータにアクセスできなくなること、および最後の再同期以降の更新が無効または破損している可能性があることから、ソースSVMからディザスタ リカバリ デスティネーションSVMにSnapMirror更新を実行することはできません。
 
 ====
-ONTAP 9.8以降では、System Managerを使用して、災害発生後にデスティネーションStorage VMをアクティブ化できます。デスティネーションStorage VMをアクティブ化すると、SVMデスティネーションボリュームが書き込み可能になり、クライアントにデータを提供できるようになります。
+ONTAP 9.8以降では、System Managerを使用して、災害発生後にデスティネーションStorage VMをアクティブ化できます。デスティネーションStorage VMをアクティブ化すると、SVMデスティネーション ボリュームが書き込み可能になり、クライアントにデータを提供できるようになります。
 
 .手順
 このタスクは、System ManagerまたはONTAP CLIから実行できます。
@@ -32,18 +32,18 @@ ONTAP 9.8以降では、System Managerを使用して、災害発生後にデス
 ====
 .System Manager
 --
-. ソースクラスタにアクセスできる場合は、SVMが停止していることを確認します。* Storage > Storage VM*に移動し、SVMの* State *列を確認します。
-. ソースSVMの状態が「実行中」の場合は停止します。を選択し、*[停止]*を選択 image:icon_kabob.gif["メニューオプションアイコン"] します。
-. デスティネーションクラスタで、目的の保護関係を探します。* Protection > Relationships *に移動します。
-. 目的のソースStorage VM名にカーソルを合わせ、をクリックし image:icon_kabob.gif["メニューオプションアイコン"]、*デスティネーションStorage VMのアクティブ化*を選択します。
-. [デスティネーションStorage VMのアクティブ化]*ウィンドウで、*[デスティネーションStorage VMをアクティブ化して関係を解除する]*を選択します。
-. [Activate （有効化） ] をクリックします
+. ソース クラスタにアクセスできる場合は、SVMが停止していることを確認します。*Storage > Storage VMs*に移動し、SVMの*State*列を確認します。
+. ソース SVM の状態が「実行中」の場合は、停止します。image:icon_kabob.gif["メニューオプションアイコン"]を選択して、*停止*を選択します。
+. デスティネーション クラスタで、必要な保護関係を見つけます：*[保護] > [関係]*に移動します。
+. 目的のソース ストレージ VM 名にマウスを移動し、image:icon_kabob.gif["メニューオプションアイコン"]をクリックして、*宛先ストレージ VM のアクティブ化*を選択します。
+. *デスティネーション ストレージ VM をアクティブ化* ウィンドウで、*デスティネーション ストレージ VM をアクティブ化して関係を解除* を選択します。
+. *Activate*をクリックします。
 
 
 --
 .CLI
 --
-. 宛先 SVM または宛先クラスタから、SVM を静止して、宛先へのスケジュールされた転送を停止します。
+. デスティネーション SVM またはデスティネーション クラスタから、SVM を休止して、デスティネーションへのスケジュールされた転送を停止します：
 +
 [source, cli]
 ----
@@ -51,10 +51,10 @@ snapmirror quiesce -source-path <SVM>: -destination-path <SVM>:
 ----
 +
 
-NOTE: オプションと `-destination-path`オプションで、SVM名のあとにコロン（：）を入力する必要があります `-source-path`。以下の例を参照してください。
+NOTE:  `-source-path`および `-destination-path`オプションでは、SVM名の後にコロン（：）を入力する必要があります。以下の例をご覧ください。
 
 +
-次の例は、ソースSVMとデスティネーションSVM `svm_backup`の間のスケジュールされた転送を停止します `svm1`。
+次の例では、ソース SVM `svm1`とデスティネーション SVM `svm_backup`間のスケジュールされた転送を停止します：
 
 +
 [listing]
@@ -62,9 +62,9 @@ NOTE: オプションと `-destination-path`オプションで、SVM名のあと
 cluster_dst::> snapmirror quiesce -source-path svm1: -destination-path svm_backup:
 ----
 +
-の詳細については `snapmirror quiesce`、をlink:https://docs.netapp.com/us-en/ontap-cli/snapmirror-quiesce.html["ONTAPコマンド リファレンス"^]参照してください。
+ `snapmirror quiesce`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/snapmirror-quiesce.html["ONTAPコマンド リファレンス"^]を参照してください。
 
-. デスティネーションSVMまたはデスティネーションクラスタから、デスティネーションへの実行中の転送を停止します。
+. デスティネーションSVMまたはデスティネーション クラスタから、デスティネーションへの実行中の転送を停止します。
 +
 [source, cli]
 ----
@@ -72,10 +72,10 @@ snapmirror abort -source-path <SVM>: -destination-path <SVM>:
 ----
 +
 
-NOTE: オプションと `-destination-path`オプションで、SVM名のあとにコロン（：）を入力する必要があります `-source-path`。以下の例を参照してください。
+NOTE:  `-source-path`および `-destination-path`オプションでは、SVM名の後にコロン（：）を入力する必要があります。以下の例をご覧ください。
 
 +
-次の例は、ソースSVMとデスティネーションSVM `svm_backup`の間の実行中の転送を停止します `svm1`。
+次の例では、ソース SVM `svm1`とデスティネーション SVM `svm_backup`間の進行中の転送を停止します：
 
 +
 [listing]
@@ -83,9 +83,9 @@ NOTE: オプションと `-destination-path`オプションで、SVM名のあと
 cluster_dst::> snapmirror abort -source-path svm1: -destination-path svm_backup:
 ----
 +
-の詳細については `snapmirror abort`、をlink:https://docs.netapp.com/us-en/ontap-cli/snapmirror-abort.html["ONTAPコマンド リファレンス"^]参照してください。
+ `snapmirror abort`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/snapmirror-abort.html["ONTAPコマンド リファレンス"^]をご覧ください。
 
-. デスティネーションSVMまたはデスティネーションクラスタから、レプリケーション関係を解除します。
+. デスティネーションSVMまたはデスティネーション クラスタから、レプリケーション関係を解除します。
 +
 [source, cli]
 ----
@@ -93,10 +93,10 @@ snapmirror break -source-path <SVM>: -destination-path <SVM>:
 ----
 +
 
-NOTE: オプションと `-destination-path`オプションで、SVM名のあとにコロン（：）を入力する必要があります `-source-path`。以下の例を参照してください。
+NOTE:  `-source-path`および `-destination-path`オプションでは、SVM名の後にコロン（：）を入力する必要があります。以下の例をご覧ください。
 
 +
-次の例は、ソースSVMとデスティネーションSVM `svm_backup`の間の関係を解除し `svm1`ます。
+次の例では、ソース SVM `svm1`とデスティネーション SVM `svm_backup`間の関係を解除します：
 
 +
 [listing]
@@ -104,30 +104,30 @@ NOTE: オプションと `-destination-path`オプションで、SVM名のあと
 cluster_dst::> snapmirror break -source-path svm1: -destination-path svm_backup:
 ----
 +
-の詳細については `snapmirror break`、をlink:https://docs.netapp.com/us-en/ontap-cli/snapmirror-break.html["ONTAPコマンド リファレンス"^]参照してください。
+ `snapmirror break`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/snapmirror-break.html["ONTAPコマンド リファレンス"^]を参照してください。
 
-. SVMレプリケーション関係の作成時にを設定した場合は `-identity-preserve true`、ソースSVMを停止します。
+. SVM レプリケーション関係の作成時に `-identity-preserve true`を設定した場合は、ソース SVM を停止します。
 +
 [source, cli]
 ----
 vserver stop -vserver <SVM>
 ----
 +
-次の例は、ソースSVMを停止し `svm1`ます。
+次の例では、ソース SVM を停止します `svm1`：
 
 +
 [listing]
 ----
 cluster_src::> vserver stop svm1
 ----
-. デスティネーション SVM を起動します。
+. デスティネーションSVMを起動します。
 +
 [source, cli]
 ----
 vserver start -vserver <SVM>
 ----
 +
-次の例は、デスティネーションSVMを起動し `svm_backup`ます。
+次の例では、デスティネーション SVM を起動します `svm_backup`：
 
 +
 [listing]
@@ -136,8 +136,8 @@ cluster_dst::> vserver start svm_backup
 ----
 
 
-.終了後
-の説明に従って、データアクセス用のSVMデスティネーションボリュームを設定しますlink:configure-destination-volume-data-access-concept.html["データアクセスのためのデスティネーションボリュームの設定"]。
+.終了後の操作
+link:configure-destination-volume-data-access-concept.html["データ アクセスのためのデスティネーション ボリュームの設定"]の説明に従って、データ アクセス用に SVM デスティネーション ボリュームを設定します。
 
 --
 ====

@@ -2,49 +2,49 @@
 permalink: encryption-at-rest/enable-onboard-key-management-96-later-nve-task.html 
 sidebar: sidebar 
 keywords: enabling, onboard key management, ontap 9.6, later, nve 
-summary: オンボードキーマネージャを使用して、暗号化されたデータにアクセスするためにクラスタで使用するキーを安全に保管できます。オンボードキーマネージャは、暗号化されたボリュームまたは自己暗号化ディスクにアクセスする各クラスタで有効にする必要があります。 
+summary: オンボード キー マネージャを使用して、暗号化されたデータにアクセスする際にクラスタで使用するキーを安全に保管できます。オンボード キー マネージャは、暗号化されたボリュームや自己暗号化ディスクにアクセスする各クラスタで有効にする必要があります。 
 ---
 = ONTAP 9.6以降でNVEのオンボードキー管理を有効にする
 :allow-uri-read: 
 
 
 [role="lead"]
-オンボードキーマネージャを使用して、暗号化されたデータにアクセスするためにクラスタで使用するキーを安全に保管できます。オンボードキーマネージャは、暗号化されたボリュームまたは自己暗号化ディスクにアクセスする各クラスタで有効にする必要があります。
+オンボード キー マネージャを使用して、暗号化されたデータにアクセスする際にクラスタで使用するキーを安全に保管できます。オンボード キー マネージャは、暗号化されたボリュームや自己暗号化ディスクにアクセスする各クラスタで有効にする必要があります。
 
-.タスクの内容
-このコマンドは、クラスタにノードを追加するたびに実行する必要があり `security key-manager onboard sync`ます。
+.タスク概要
+クラスターにノードを追加するたびに、 `security key-manager onboard sync`コマンドを実行する必要があります。
 
-MetroCluster構成の場合は、同じパスフレーズを使用して最初にローカルクラスタでコマンドを実行してから、リモートクラスタでコマンドを実行する `security key-manager onboard sync`必要があります `security key-manager onboard enable`。ローカルクラスタからコマンドを実行したあとにリモートクラスタで同期する場合、 `security key-manager onboard enable`リモートクラスタからコマンドを再度実行する必要はありません `enable`。
+MetroCluster構成がある場合は、まずローカルクラスタで `security key-manager onboard enable`コマンドを実行し、次にリモートクラスタで `security key-manager onboard sync`コマンドを実行する必要があります。その際、各クラスタで同じパスフレーズを使用してください。ローカルクラスタで `security key-manager onboard enable`コマンドを実行し、その後リモートクラスタで同期する場合は、リモートクラスタで `enable`コマンドを再度実行する必要はありません。
 
-詳細はこちら `security key-manager onboard enable`そして `security key-manager onboard sync`の中でlink:https://docs.netapp.com/us-en/ontap-cli/security-key-manager-onboard-enable.html["ONTAPコマンド リファレンス"^]。
+ `security key-manager onboard enable`および `security key-manager onboard sync`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/security-key-manager-onboard-enable.html["ONTAPコマンド リファレンス"^]をご覧ください。
 
-デフォルトでは、ノードのリブート時にキー管理ツールのパスフレーズを入力する必要はありません。オプションを使用すると、リブート後にユーザにパスフレーズの入力を求めることができます `cc-mode-enabled=yes`。
+デフォルトでは、ノードの再起動時にキーマネージャのパスフレーズを入力する必要はありません。 `cc-mode-enabled=yes`オプションを使用すると、再起動後にユーザーにパスフレーズの入力を求めることができます。
 
-NVEでは、を設定する `cc-mode-enabled=yes`と、コマンドと `volume move start`コマンドで作成したボリューム `volume create`が自動的に暗号化されます。で `volume create`は、を指定する必要はありません `-encrypt true`。で `volume move start`は、を指定する必要はありません `-encrypt-destination true`。
+NVE の場合、 `cc-mode-enabled=yes`を設定すると、 `volume create`コマンドと `volume move start`コマンドで作成したボリュームは自動的に暗号化されます。 `volume create`の場合、 `-encrypt true`を指定する必要はありません。 `volume move start`の場合、 `-encrypt-destination true`を指定する必要はありません。
 
-保存データの暗号化を設定する場合は、Commercial Solutions for Classified（CSfC）の要件を満たすために、NVEとNSEを使用し、オンボード キー マネージャがCommon Criteriaモードで有効にする必要があります。見るlink:https://assets.netapp.com/m/128a1e9f4b5d663/original/Commercial-Solutions-for-Classified.pdf["CSfC 解決策 Brief （ CSfC の概要"^]。
+ONTAP保存データ暗号化を設定する場合、Commercial Solutions for Classified（CSfC）の要件を満たすには、NSEとNVEを使用し、オンボードキーマネージャがCommon Criteriaモードで有効になっていることを確認する必要があります。link:https://assets.netapp.com/m/128a1e9f4b5d663/original/Commercial-Solutions-for-Classified.pdf["CSfC解決策概要"^]を参照してください。
 
 [NOTE]
 ====
-オンボードキーマネージャがCCモードで有効になっ(`cc-mode-enabled=yes`ている場合）、システムの動作が次のように変更されます。
+オンボード キー マネージャーが Common Criteria モード(`cc-mode-enabled=yes`で有効になっている場合、システムの動作は次のように変更されます：
 
-* システムは、情報セキュリティ国際評価基準モードで動作しているときに、クラスタパスフレーズの連続した失敗を監視します。
+* Common Criteriaモードでは、クラスタ パスフレーズの連続入力エラーが監視されます。
 +
-クラスター パスフレーズの入力に 5 回失敗した場合は、24 時間待つか、ノードを再起動して制限をリセットします。
+クラスタパスフレーズの入力に5回失敗した場合は、24時間待つか、ノードをリブートして制限をリセットします。
 
-* システムイメージの更新では、通常のNetApp RSA-2048コード署名証明書とSHA-256コード署名ダイジェストの代わりに、NetApp RSA-3072コード署名証明書とSHA-384コード署名ダイジェストを使用してイメージの整合性をチェックします。
+* システム イメージの更新では、通常のNetAppのRSA-2048コード署名証明書とSHA-256のコード署名ダイジェストではなく、NetAppのRSA-3072コード署名証明書とSHA-384のコード署名ダイジェストを使用してイメージの整合性がチェックされます。
 +
-アップグレード コマンドは、さまざまなデジタル署名をチェックして、イメージの内容が変更されていないか、または破損していないかを確認します。検証が成功した場合、システムはイメージ更新プロセスの次のステップに進みます。それ以外の場合、イメージの更新は失敗します。詳細はこちら `cluster image`の中でlink:https://docs.netapp.com/us-en/ontap-cli/search.html?q=cluster+image["ONTAPコマンド リファレンス"^]。
+アップグレードコマンドは、様々なデジタル署名をチェックすることで、イメージの内容が変更または破損していないことを確認します。検証が成功した場合、システムはイメージ更新プロセスの次のステップに進みます。検証が失敗した場合、イメージ更新は失敗します。 `cluster image`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/search.html?q=cluster+image["ONTAPコマンド リファレンス"^]をご覧ください。
 
 
 
 ====
 
-NOTE: オンボード キー マネージャは揮発性メモリにキーを格納します。揮発性メモリの内容はシステムのリブート時または停止時にクリアされます。システムは停止すると 30 秒以内に揮発性メモリをクリアします。
+NOTE: オンボードキーマネージャーは、キーを揮発性メモリに保存します。揮発性メモリの内容は、システムの再起動または停止時に消去されます。システムは停止後、30秒以内に揮発性メモリを消去します。
 
 .開始する前に
 * このタスクを実行するには、クラスタ管理者である必要があります。
-* オンボードキーマネージャを設定する前に、MetroCluster環境を設定する必要があります。
+* オンボード キー マネージャを設定する前に、MetroCluster環境を設定する必要があります。
 
 
 .手順
@@ -55,14 +55,14 @@ NOTE: オンボード キー マネージャは揮発性メモリにキーを格
 +
 [NOTE]
 ====
-リブート後にユーザにキー管理ツールのパスフレーズの入力を求めるように設定し `cc-mode-enabled=yes`ます。NVEでは、を設定する `cc-mode-enabled=yes`と、コマンドと `volume move start`コマンドで作成したボリューム `volume create`が自動的に暗号化されます。この `- cc-mode-enabled`オプションはMetroCluster構成ではサポートされません。 `security key-manager onboard enable`コマンドは、コマンドに置き換わるもの `security key-manager setup`です。
+ `cc-mode-enabled=yes`を設定して、再起動後にユーザーが認証キーマネージャーのパスフレーズを入力するように要求します。NVEの場合、 `cc-mode-enabled=yes`を設定すると、 `volume create`コマンドと `volume move start`コマンドで作成したボリュームが自動的に暗号化されます。 `- cc-mode-enabled`オプションはMetroCluster構成ではサポートされていません。 `security key-manager onboard enable`コマンドは `security key-manager setup`コマンドに置き換えられます。
 
 ====
-. 32 〜 256 文字のパスフレーズを入力します。「`cc-mode`」の場合は 64 〜 256 文字のパスフレーズを入力します。
+. 32文字から256文字までのパスフレーズを入力します。"`cc-mode`"の場合は64文字から256文字までのパスフレーズを入力します。
 +
 [NOTE]
 ====
-指定された "cc-mode" パスフレーズが 64 文字未満の場合、キー管理ツールのセットアップ操作によってパスフレーズのプロンプトが再表示されるまでに 5 秒の遅延が発生します。
+指定された「`cc-mode`」パスフレーズが64文字未満の場合、キー マネージャーのセットアップ操作でパスフレーズ プロンプトが再度表示されるまでに5秒の遅延が発生します。
 
 ====
 . パスフレーズの確認のプロンプトでパスフレーズをもう一度入力します。
@@ -73,29 +73,29 @@ NOTE: オンボード キー マネージャは揮発性メモリにキーを格
 +
 [NOTE]
 ====
- `security key-manager key query`コマンドは、コマンドに置き換わるもの `security key-manager query key`です。
+ `security key-manager key query`コマンドは `security key-manager query key`コマンドに置き換わります。
 
 ====
 +
-の詳細については `security key-manager key query`、をlink:https://docs.netapp.com/us-en/ontap-cli/security-key-manager-key-query.html["ONTAPコマンド リファレンス"^]参照してください。
+ `security key-manager key query`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/security-key-manager-key-query.html["ONTAPコマンド リファレンス"^]をご覧ください。
 
-. オプションで、プレーン テキスト ボリュームを暗号化されたボリュームに変換できます。
+. オプションで、プレーンテキストボリュームを暗号化されたボリュームに変換できます。
 +
 `volume encryption conversion start`
 
 +
-ボリュームを変換する前に、オンボードキーマネージャの設定が完了している必要があります。MetroCluster環境では、両方のサイトでオンボードキーマネージャを設定する必要があります。
+ボリュームを変換する前に、オンボード キー マネージャの設定を完了している必要があります。MetroCluster環境では、両方のサイトでオンボード キー マネージャを設定する必要があります。
 
 
 
-.終了後
-あとで使用できるように、ストレージシステムの外部の安全な場所にパスフレーズをコピーします。
+.終了後の操作
+あとで使用できるように、ストレージ システムの外部の安全な場所にパスフレーズをコピーしておきます。
 
-オンボード キー マネージャーのパスフレーズを設定した後、その情報をストレージ システム外部の安全な場所に手動でバックアップします。見るlink:backup-key-management-information-manual-task.html["オンボードキー管理情報の手動でのバックアップ"]。
+オンボードキーマネージャのパスフレーズを設定したら、その情報をストレージシステム外の安全な場所に手動でバックアップしてください。link:backup-key-management-information-manual-task.html["オンボード キー管理情報の手動バックアップ"]を参照してください。
 
 .関連情報
 * link:https://docs.netapp.com/us-en/ontap-cli/search.html?q=cluster+image["クラスターイメージコマンド"^]
-* link:https://docs.netapp.com/us-en/ontap-cli/security-key-manager-external-enable.html["セキュリティキーマネージャー外部有効化"^]
-* link:https://docs.netapp.com/us-en/ontap-cli/security-key-manager-key-query.html["セキュリティキーマネージャーキークエリ"^]
-* link:https://docs.netapp.com/us-en/ontap-cli/security-key-manager-onboard-enable.html["セキュリティキーマネージャーオンボード有効化"^]
+* link:https://docs.netapp.com/us-en/ontap-cli/security-key-manager-external-enable.html["セキュリティキー・マネージャ外部有効化"^]
+* link:https://docs.netapp.com/us-en/ontap-cli/security-key-manager-key-query.html["セキュリティキー・マネージャーキーのクエリ"^]
+* link:https://docs.netapp.com/us-en/ontap-cli/security-key-manager-onboard-enable.html["セキュリティキー・マネージャーオンボード有効化"^]
 

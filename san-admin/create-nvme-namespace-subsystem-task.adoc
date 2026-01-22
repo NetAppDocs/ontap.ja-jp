@@ -2,7 +2,7 @@
 permalink: san-admin/create-nvme-namespace-subsystem-task.html 
 sidebar: sidebar 
 keywords: create, nvme, namespace, subsystem 
-summary: NVMeプロトコルを使用するシステムの場合は、NVMeネームスペースとサブシステムを1つ以上作成する必要があります。各ネームスペースをNVMeサブシステムにマッピングして、ホストシステムからのデータアクセスを許可できます。 
+summary: NVMeプロトコルを使用するシステムでは、NVMeのネームスペースとサブシステムを1つ以上作成する必要があります。各ネームスペースをNVMeサブシステムにマッピングして、ホスト システムからのデータ アクセスを許可することができます。 
 ---
 = NVMeストレージのプロビジョニング
 :allow-uri-read: 
@@ -13,40 +13,40 @@ summary: NVMeプロトコルを使用するシステムの場合は、NVMeネー
 [role="lead"]
 次の手順に従って、既存のStorage VMでNVMe対応ホスト用のネームスペースを作成し、ストレージをプロビジョニングします。
 
-.タスクの内容
-この手順は、FAS、AFF、および ASA システムに適用されます。ASA r2システム（ASA A1K、ASA A90、ASA A70、ASA A50、ASA A30、ASA A20、またはASA C30）をお持ちの場合は、 link:https://docs.netapp.com/us-en/asa-r2/manage-data/provision-san-storage.html["以下の手順を実行します"^]ストレージをプロビジョニングします。ASAr2 システムは、SAN のみのお客様向けに簡素化された ONTAP エクスペリエンスを提供します。
+.タスク概要
+この手順は、FAS、AFF、およびASAシステムに適用されます。ASA r2システム（ASA A1K、ASA A90、ASA A70、ASA A50、ASA A30、ASA A20、またはASA C30）をご利用の場合は、link:https://docs.netapp.com/us-en/asa-r2/manage-data/provision-san-storage.html["これらの手順"^]に従ってストレージをプロビジョニングしてください。ASA r2システムは、SANのみをご利用のお客様向けに、簡素化されたONTAPエクスペリエンスを提供します。
 
-ONTAP 9 8以降では、ストレージのプロビジョニング時にデフォルトでQoSが有効になります。プロビジョニングプロセス中またはあとで、QoSを無効にしたり、カスタムのQoSポリシーを選択したりできます。
+ONTAP 9.8以降では、QoSはストレージのプロビジョニング時にデフォルトで有効になります。プロビジョニング時またはあとでQoSを無効にしたり、カスタムのQoSポリシーを選択したりすることができます。
 
 .開始する前に
-Storage VMがNVMe用に設定されていて、FCまたはTCP転送のセットアップが完了している必要があります。
+Storage VMがNVMe用に設定されていて、FCまたはTCP転送のセットアップが完了していることを前提としています。
 
 [role="tabbed-block"]
 ====
 .System Manager
 --
-ONTAP System Manager（9.7以降）を使用して、NVMeプロトコルを使用してストレージを提供するネームスペースを作成します。
+ONTAP System Manager（9.7以降）で、NVMeプロトコルを使用してストレージを提供するネームスペースを作成します。
 
 .手順
-. System Manager で、 * Storage > NVMe 名前空間 * をクリックし、 * Add * をクリックします。
+. System Managerで、*ストレージ > NVMe Namespaces*をクリックし、*追加*をクリックします。
 +
-新しいサブシステムを作成する必要がある場合は、 * その他のオプション * をクリックします。
+新しいサブシステムを作成する必要がある場合は、*More Options* をクリックします。
 
-. ONTAP 9.8 以降を実行していて、 QoS を無効にする場合やカスタムの QoS ポリシーを選択する場合は、「その他のオプション」をクリックし、「 * ストレージおよび最適化 * 」で「 * パフォーマンスサービスレベル * 」を選択します。
-. FCスイッチをWWPNでゾーニングします。イニシエータごとに1つのゾーンを使用し、各ゾーンにすべてのターゲットポートを含めます。
+. ONTAP 9.8 以降を実行していて、QoS を無効にするか、カスタム QoS ポリシーを選択する場合は、[*その他のオプション*] をクリックし、[*ストレージと最適化*] の下で [*パフォーマンス サービス レベル*] を選択します。
+. FCスイッチをWWPNでゾーニングします。イニシエータごとに1つのゾーンを使用し、各ゾーンにすべてのターゲット ポートを配置します。
 . ホストで、新しいネームスペースを検出します。
 . ネームスペースを初期化し、ファイルシステムでフォーマットします。
-. ホストがネームスペースのデータを読み書きできることを確認します。
+. ホストからネームスペースのデータの読み取りと書き込みができることを確認します。
 
 
 --
 .CLI
 --
-ONTAP CLIを使用して、NVMeプロトコルを使用してストレージを提供するネームスペースを作成します。
+ONTAP CLIで、NVMeプロトコルを使用してストレージを提供するネームスペースを作成します。
 
-この手順では、NVMeプロトコル用に設定済みの既存のStorage VMにNVMeネームスペースとサブシステムを作成し、ネームスペースをサブシステムにマッピングしてホストシステムからのデータアクセスを許可します。
+この手順では、すでにNVMeプロトコル用に設定されている既存のStorage VMにNVMeネームスペースとサブシステムを作成し、ネームスペースをサブシステムにマッピングしてホスト システムからのデータ アクセスを許可します。
 
-Storage VMをNVMe用に設定する必要がある場合は、を参照してくださいlink:configure-svm-nvme-task.html["NVMe用のSVMの設定"]。
+NVMe 用にストレージ VM を構成する必要がある場合は、link:configure-svm-nvme-task.html["NVMe用のSVMの設定"]を参照してください。
 
 .手順
 . SVMがNVMe用に設定されていることを確認します。
@@ -56,12 +56,12 @@ Storage VMをNVMe用に設定する必要がある場合は、を参照してく
 vserver show -vserver <svm_name> -fields allowed-protocols
 ----
 +
-`NVMe`が列の下に表示されます `allowed-protocols`。
+`NVMe`は `allowed-protocols`列の下に表示されます。
 
 . NVMeネームスペースを作成します。
 +
 
-NOTE: パラメータで参照するボリュームは、すでに存在している必要があります。存在していない場合は、このコマンドを実行する前にボリュームを `-path`作成する必要があります。
+NOTE:  `-path`パラメータで参照するボリュームがすでに存在している必要があります。存在しない場合は、このコマンドを実行する前にボリュームを作成する必要があります。
 
 +
 [source, cli]
@@ -75,7 +75,7 @@ vserver nvme namespace create -vserver <svm_name> -path <path> -size <size_of_na
 vserver nvme subsystem create -vserver <svm_name> -subsystem <name_of_subsystem> -ostype <OS_type>
 ----
 +
-NVMeサブシステム名では大文字と小文字が区別されます。1~96文字で指定する必要があります。特殊文字を使用できます。
+NVMeサブシステムの名前では大文字と小文字が区別されます。1～96文字にする必要があります。特殊文字も使用できます。
 
 . サブシステムが作成されたことを確認します。
 +
@@ -84,10 +84,10 @@ NVMeサブシステム名では大文字と小文字が区別されます。1~96
 vserver nvme subsystem show -vserver <svm_name>
 ----
 +
- `nvme`列の下にサブシステムが表示され `Subsystem`ます。
+ `nvme`サブシステムは `Subsystem`列の下に表示される必要があります。
 
 . ホストからNQNを取得します。
-. ホストNQNをサブシステムに追加します。
+. ホストのNQNをサブシステムに追加します。
 +
 [source, cli]
 ----
@@ -100,7 +100,7 @@ vserver nvme subsystem host add -vserver <svm_name> -subsystem <subsystem_name> 
 vserver nvme subsystem map add -vserver <svm_name> -subsystem <subsystem_name> -path <path>
 ----
 +
-ネームスペースは1つのサブシステムにのみマッピングできます。
+ネームスペースは、1つのサブシステムにしかマッピングできません。
 
 . ネームスペースがサブシステムにマッピングされていることを確認します。
 +
@@ -109,7 +109,7 @@ vserver nvme subsystem map add -vserver <svm_name> -subsystem <subsystem_name> -
 vserver nvme namespace show -vserver <svm_name> -instance
 ----
 +
-サブシステムがと表示され `Attached subsystem`ます。
+サブシステムは `Attached subsystem`としてリストされる必要があります。
 
 
 

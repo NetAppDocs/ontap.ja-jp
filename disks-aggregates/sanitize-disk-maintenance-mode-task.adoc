@@ -2,108 +2,108 @@
 permalink: disks-aggregates/sanitize-disk-maintenance-mode-task.html 
 sidebar: sidebar 
 keywords: sanitize, disk, maintenance mode, nodeshell, node shell, sanitization 
-summary: ONTAP 9 .6以降では、メンテナンスモードでディスク完全消去を実行できます。これにより、運用を停止したシステムや動作していないシステムのディスクまたは一連のディスクからデータを削除して、データをリカバリできないようにすることができます。 
+summary: ONTAP 9.6以降では、メンテナンス モードでディスク完全消去を実行できます。これにより、運用を終了したシステムや動作していないシステムにおいて、1本または一連のディスクからデータを削除し、データをリカバリ不能にできます。 
 ---
-= ONTAPディスクを完全消去します。
+= ONTAPディスクを完全消去する
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-ディスクを完全消去すると、運用を停止したシステムや動作しないシステムのディスクまたは一連のディスクからデータを削除して、データを決してリカバリできないようにすることができます。
+ディスクを完全消去すると、運用を終了したシステムや動作していないシステムにおいて、1本または一連のディスクからデータを削除し、データをリカバリ不能な状態にすることができます。
 
-CLIを使用したディスクの完全消去には、次の2つの方法があります。
+CLIを使用してディスクを完全消去する方法は2つあります。
 
-.保守モードのコマンドによるディスクの完全消去
+.「メンテナンス モード」コマンドを使用してディスク完全消去を実行する
 [%collapsible]
 ====
-ONTAP 9 .6以降では、メンテナンスモードでディスク完全消去を実行できます。
+ONTAP 9.6以降では、メンテナンス モードでディスク完全消去を実行できます。
 
 .開始する前に
-* Self-Encrypting Disk（SED；自己暗号化ディスク）を使用することはできません。
+* 自己暗号化ディスク（SED）は完全消去できません。
 +
-SEDを完全消去するには、コマンドを使用する必要があります `storage encryption disk sanitize`。
+SED を完全消去するには、 `storage encryption disk sanitize`コマンドを使用する必要があります。
 
 +
-link:../encryption-at-rest/index.html["保存データの暗号化"]
+link:../encryption-at-rest/index.html["保存中のデータを暗号化"]
 
 +
-の詳細については `storage encryption disk sanitize`、をlink:https://docs.netapp.com/us-en/ontap-cli/storage-encryption-disk-sanitize.html["ONTAPコマンド リファレンス"^]参照してください。
+ `storage encryption disk sanitize`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/storage-encryption-disk-sanitize.html["ONTAPコマンド リファレンス"^]を参照してください。
 
 
 
 .手順
-. メンテナンスモードでブートします。
+. メンテナンス モードでブートします。
 +
-.. と入力して、現在のシェルを終了し `halt`ます。
+..  `halt`と入力して現在のシェルを終了します。
 +
-Loaderプロンプトが表示されます。
+LOADERプロンプトが表示されます。
 
-.. と入力して保守モードに切り替え `boot_ontap maint`ます。
+..  `boot_ontap maint`と入力してメンテナンス モードに入ります。
 +
-いくつかの情報が表示されると、メンテナンスモードのプロンプトが表示されます。
+情報が表示されたあとに、メンテナンス モード プロンプトが表示されます。
 
 
 
 . 完全消去するディスクがパーティショニングされている場合は、各ディスクのパーティショニングを解除します。
 +
 
-NOTE: ディスクのパーティショニングを解除するコマンドはdiagレベルでのみ使用できます。NetAppサポートから指示があった場合にのみ実行してください。作業を進める前に、NetAppサポートに問い合わせることを推奨します。また、link:https://kb.netapp.com/Advice_and_Troubleshooting/Data_Storage_Systems/FAS_Systems/How_to_unpartition_a_spare_drive_in_ONTAP["NetAppナレッジベース: ONTAPでスペアドライブのパーティションを解除する方法"^]
+NOTE: ディスクのパーティションを解除するコマンドは診断レベルでのみ使用可能であり、NetAppサポートの監督下でのみ実行する必要があります。続行する前にNetAppサポートにお問い合わせいただくことを強くお勧めします。また、link:https://kb.netapp.com/Advice_and_Troubleshooting/Data_Storage_Systems/FAS_Systems/How_to_unpartition_a_spare_drive_in_ONTAP["NetAppナレッジベース：ONTAPでスペアドライブのパーティション化を解除する方法"^]を参照することもできます。
 
 +
 `disk unpartition <disk_name>`
 
-. 指定したディスクを完全消去します。
+. 指定したディスクの完全消去を実行します。
 +
 `disk sanitize start [-p <pattern1>|-r [-p <pattern2>|-r [-p <pattern3>|-r]]] [-c <cycle_count>] <disk_list>`
 
 +
 
-NOTE: 完全消去中は、ノードの電源をオフにしたり、ストレージの接続を切断したり、ターゲットディスクを取り外したりしないでください。完全消去のフォーマットフェーズで処理が中断された場合は、ディスクを完全消去してスペアプールに戻す前に、フォーマットフェーズを再開して完了する必要があります。完全消去プロセスを中止する必要がある場合は、コマンドを使用します `disk sanitize abort`。指定したディスクで完全消去のフォーマットフェーズが進行中の場合、フェーズが完了するまで中止は実行されません。
+NOTE: ディスク完全消去中は、ノードの電源を切ったり、ストレージ接続を中断したり、対象ディスクを取り外したりしないでください。フォーマットフェーズ中にディスク完全消去が中断された場合は、ディスクが完全消去されてスペアプールに戻す準備ができるまで、フォーマットフェーズを再開して完了させる必要があります。ディスク完全消去プロセスを中止する必要がある場合は、 `disk sanitize abort`コマンドを使用して中止できます。指定したディスクがディスク完全消去のフォーマットフェーズ中の場合、フェーズが完了するまで中止は行われません。
 
 +
- `-p` `<pattern1>` `-p` `<pattern2>` `-p` `<pattern3>`1~3サイクルのユーザ定義の上書きパターンを16進数で指定します。このパターンは、完全消去するディスクに順に適用されます。デフォルトのパターンは3つのパスで、最初のパスに0x55、2番目のパスに0xaa、3番目のパスに0x3Cを使用します。
+ `-p` `<pattern1>` `-p` `<pattern2>` `-p` `<pattern3>`消去対象のディスクに連続して適用できる、1～3個のユーザー定義16進バイト上書きパターンのサイクルを指定します。デフォルトのパターンは3パスで、最初のパスには0x55、2番目のパスには0xaa、3番目のパスには0x3cが使用されます。
 
 +
-`-r`パターン化された上書きを、一部またはすべてのパスのランダムな上書きに置き換えます。
+`-r`一部またはすべてのパスのパターン上書きをランダム上書きに置き換えます。
 
 +
-`-c` `<cycle_count>`指定した上書きパターンを適用する回数を指定します。デフォルト値は1サイクルです。最大値は7サイクルです。
+`-c` `<cycle_count>`指定された上書きパターンを適用する回数を指定します。デフォルト値は1サイクルです。最大値は7サイクルです。
 
 +
-`<disk_list>`完全消去するスペアディスクのIDを、スペースで区切って指定します。
+`<disk_list>`完全消去するスペア ディスクの ID をスペースで区切ったリストを指定します。
 
 . 必要に応じて、ディスク完全消去プロセスのステータスを確認します。
 +
 `disk sanitize status [<disk_list>]`
 
-. 完全消去プロセスが完了したら、各ディスクのディスクをスペアステータスに戻します。
+. 完全消去プロセスが完了したら、ディスクを各ディスクのスペア ステータスに戻します。
 +
 `disk sanitize release <disk_name>`
 
-. メンテナンスモードを終了します。
+. メンテナンス モードを終了します。
 
 
 ====
-.ディスクをノードシェルノードシェルのコマンドによって完全消去する（すべてのONTAP 9リリース）
+.「nodeshell」コマンドを使用してディスクを完全消去する（すべてのONTAP 9リリース）
 [%collapsible]
 ====
-ノードでノードシェルコマンドを使用してディスク完全消去機能を有効にしたあとに無効にすることはできません。
+ノード上でノードシェル コマンドを使用してディスク完全消去機能を有効にすると、無効にすることはできません。
 
 .開始する前に
-* ディスクはスペアディスクである必要があります。ノードに所有されていて、ローカル階層で使用されていないディスクである必要があります。
+* ディスクはスペア ディスクである必要があります。また、ノードによって所有されている必要がありますが、ローカル層では使用できません。
 +
-ディスクがパーティショニングされている場合、どちらのパーティションもローカル階層で使用できません。
+ディスクがパーティション分割されている場合、どちらのパーティションもローカル階層で使用できません。
 
-* Self-Encrypting Disk（SED；自己暗号化ディスク）を使用することはできません。
+* 自己暗号化ディスク（SED）は完全消去できません。
 +
-SEDを完全消去するには、コマンドを使用する必要があります `storage encryption disk sanitize`。
+SED を完全消去するには、 `storage encryption disk sanitize`コマンドを使用する必要があります。
 
 +
-link:../encryption-at-rest/index.html["保存データの暗号化"]
+link:../encryption-at-rest/index.html["保存中のデータを暗号化"]
 
-* ストレージプールに含めることはできません。
+* ストレージ プールの一部であるディスクを使用することはできません。
 
 
 .手順
@@ -111,7 +111,7 @@ link:../encryption-at-rest/index.html["保存データの暗号化"]
 +
 --
 
-NOTE: ディスクのパーティショニングを解除するコマンドはdiagレベルでのみ使用できます。NetAppサポートから指示があった場合にのみ実行してください。**続行する前にNetAppサポートに連絡することを強くお勧めします。**また、link:https://kb.netapp.com/Advice_and_Troubleshooting/Data_Storage_Systems/FAS_Systems/How_to_unpartition_a_spare_drive_in_ONTAP["NetAppナレッジベース: ONTAPでスペアドライブのパーティションを解除する方法"^] 。
+NOTE: ディスクのパーティションを解除するコマンドは、diagレベルでのみ使用可能であり、NetAppサポートの監督下でのみ実行する必要があります。**続行する前にNetAppサポートに連絡することを強くお勧めします。**link:https://kb.netapp.com/Advice_and_Troubleshooting/Data_Storage_Systems/FAS_Systems/How_to_unpartition_a_spare_drive_in_ONTAP["NetAppナレッジベース：ONTAPでスペアドライブのパーティション化を解除する方法"^]を参照することもできます。
 
 --
 +
@@ -132,34 +132,34 @@ NOTE: ディスクのパーティショニングを解除するコマンドはdi
 +
 `priv set advanced`
 
-. 指定したディスクを完全消去します。
+. 指定したディスクの完全消去を実行します。
 +
 `disk sanitize start [-p <pattern1>|-r [-p <pattern2>|-r [-p <pattern3>|-r]]] [-c <cycle_count>] <disk_list>`
 
 +
 
-NOTE: 完全消去中は、ノードの電源をオフにしたり、ストレージの接続を切断したり、ターゲットディスクを取り外したりしないでください。完全消去のフォーマットフェーズで処理が中断された場合は、ディスクを完全消去してスペアプールに戻す前に、フォーマットフェーズを再開して完了する必要があります。完全消去プロセスを中止する必要がある場合は、 disk sanitize abort コマンドを使用します。指定したディスクで完全消去のフォーマットフェーズが進行中の場合、フェーズが完了するまで中止は実行されません。
+NOTE: ディスク完全消去中は、ノードの電源を切ったり、ストレージ接続を中断したり、対象ディスクを取り外したりしないでください。フォーマットフェーズ中にディスク完全消去が中断された場合は、ディスクが完全消去されてスペアプールに戻せる状態になる前に、フォーマットフェーズを再開して完了させる必要があります。ディスク完全消去プロセスを中止する必要がある場合は、disk sanitize abort コマンドを使用してください。指定したディスクがディスク完全消去のフォーマットフェーズ中の場合、フェーズが完了するまで中止は行われません。
 
 +
-`-p <pattern1> -p <pattern2> -p <pattern3>`1~3サイクルのユーザ定義の上書きパターンを16進数で指定します。このパターンは、完全消去するディスクに順に適用されます。デフォルトのパターンは3つのパスで、最初のパスに0x55、2番目のパスに0xaa、3番目のパスに0x3Cを使用します。
+`-p <pattern1> -p <pattern2> -p <pattern3>`消去対象のディスクに連続して適用できる、1～3個のユーザー定義16進バイト上書きパターンのサイクルを指定します。デフォルトのパターンは3パスで、最初のパスには0x55、2番目のパスには0xaa、3番目のパスには0x3cが使用されます。
 
 +
-`-r`パターン化された上書きを、一部またはすべてのパスのランダムな上書きに置き換えます。
+`-r`一部またはすべてのパスのパターン上書きをランダム上書きに置き換えます。
 
 +
-`-c <cycle_count>`指定した上書きパターンを適用する回数を指定します。
+`-c <cycle_count>` 指定された上書きパターンが適用される回数を指定します。
 
 +
-デフォルト値は1サイクルです。最大値は7サイクルです。
+デフォルト値は1です。最大値は7です。
 
 +
-`<disk_list>`完全消去するスペアディスクのIDを、スペースで区切って指定します。
+`<disk_list>`完全消去するスペア ディスクの ID をスペースで区切ったリストを指定します。
 
 . ディスク完全消去プロセスのステータスを確認するには、次のコマンドを入力します。
 +
 `disk sanitize status [<disk_list>]`
 
-. 完全消去プロセスが完了したら、ディスクのステータスをスペアに戻します。
+. 完全消去プロセスが完了したら、ディスクをスペア ステータスに戻します。
 +
 `disk sanitize release <disk_name>`
 
@@ -171,7 +171,7 @@ NOTE: 完全消去中は、ノードの電源をオフにしたり、ストレ�
 +
 `exit`
 
-. すべてのディスクがスペアステータスに戻ったかどうかを確認します。
+. 次のコマンドを入力して、すべてのディスクがスペア ステータスに戻ったかどうかを確認します。
 +
 `storage aggregate show-spare-disks`
 
@@ -180,10 +180,10 @@ NOTE: 完全消去中は、ノードの電源をオフにしたり、ストレ�
 |===
 
 
-| 状況 | そしたら...。 
+| 状況 | 操作 
 
 
-| 完全消去したすべてのディスクがスペアとして表示される | これで終わりです。ディスクが完全消去され、スペアステータスになります。 
+| 完全消去したすべてのディスクがスペアとして表示される | 処理は完了しています。ディスクは完全消去され、スペア状態になっています。 
 
 
 | 完全消去した一部のディスクがスペアとして表示されない  a| 
@@ -197,7 +197,7 @@ NOTE: 完全消去中は、ノードの電源をオフにしたり、ストレ�
 +
 `storage disk assign -disk <disk_name> -owner <node_name>`
 
-.. 各ディスクのディスクをスペア状態に戻します。
+.. 各ディスクをスペア ステータスに戻します。
 +
 `storage disk unfail -disk <disk_name> -s -q`
 
@@ -209,19 +209,19 @@ NOTE: 完全消去中は、ノードの電源をオフにしたり、ストレ�
 
 |===
 +
-の詳細については `storage aggregate show-spare-disks`、をlink:https://docs.netapp.com/us-en/ontap-cli/storage-aggregate-show-spare-disks.html["ONTAPコマンド リファレンス"^]参照してください。
+ `storage aggregate show-spare-disks`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/storage-aggregate-show-spare-disks.html["ONTAPコマンド リファレンス"^]をご覧ください。
 
 
 
 ====
 .結果
-指定したディスクが完全消去され、ホットスペアとして指定されます。完全消去したディスクのシリアル番号がに書き込まれ `/etc/log/sanitized_disks`ます。
+指定されたディスクは完全消去され、ホットスペアとして指定されます。完全消去されたディスクのシリアル番号は `/etc/log/sanitized_disks`に書き込まれます。
 
-指定したディスクの完全消去ログ（各ディスクで何が完了したかを示す）がに書き込まれます `/mroot/etc/log/sanitization.log`。
+指定されたディスクの完全消去ログ（各ディスクで完了した内容を示す）が `/mroot/etc/log/sanitization.log`に書き込まれます。
 
 .関連情報
 * link:https://docs.netapp.com/us-en/ontap-cli/search.html?q=storage+aggregate+show["storage aggregate show"^]
 * link:https://docs.netapp.com/us-en/ontap-cli/storage-disk-assign.html["storage disk assign"^]
-* link:https://docs.netapp.com/us-en/ontap-cli/storage-disk-unfail.html["ストレージディスクの故障なし"^]
-* link:https://docs.netapp.com/us-en/ontap-cli/storage-encryption-disk-sanitize.html["ストレージ暗号化ディスクサニタイズ"^]
+* link:https://docs.netapp.com/us-en/ontap-cli/storage-disk-unfail.html["ストレージディスクのアンフェイル"^]
+* link:https://docs.netapp.com/us-en/ontap-cli/storage-encryption-disk-sanitize.html["ストレージ暗号化ディスク完全消去"^]
 

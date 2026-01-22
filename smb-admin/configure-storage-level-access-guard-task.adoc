@@ -2,19 +2,19 @@
 permalink: smb-admin/configure-storage-level-access-guard-task.html 
 sidebar: sidebar 
 keywords: level, storage, access, security, provide, guard, applies, access, apply, object, protocol, volume, qtree 
-summary: ボリュームまたはqtreeにストレージレベルのアクセス保護を設定するには、いくつかの手順に従う必要があります。ストレージレベルのアクセス保護は、ストレージレベルで設定されるアクセスセキュリティのレベルを提供します。すべてのNASプロトコルから適用先のストレージオブジェクトへのすべてのアクセスに適用されるセキュリティを提供します。 
+summary: ボリュームまたはqtreeのストレージレベルのアクセス保護を設定する際には、多くの手順に従う必要があります。ストレージレベルのアクセス保護は、ストレージレベルで設定するアクセス セキュリティを提供します。すべてのNASプロトコルからの適用対象のストレージ オブジェクトへのすべてのアクセスにセキュリティが適用されます。 
 ---
-= ONTAP SMBサーバーでストレージレベルのアクセスガードを設定する
+= ONTAP SMBサーバでストレージレベルのアクセスガードを設定する
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-ボリュームまたはqtreeにストレージレベルのアクセス保護を設定するには、いくつかの手順に従う必要があります。ストレージレベルのアクセス保護は、ストレージレベルで設定されるアクセスセキュリティのレベルを提供します。すべてのNASプロトコルから適用先のストレージオブジェクトへのすべてのアクセスに適用されるセキュリティを提供します。
+ボリュームまたはqtreeのストレージレベルのアクセス保護を設定する際には、多くの手順に従う必要があります。ストレージレベルのアクセス保護は、ストレージレベルで設定するアクセス セキュリティを提供します。すべてのNASプロトコルからの適用対象のストレージ オブジェクトへのすべてのアクセスにセキュリティが適用されます。
 
 .手順
-. コマンドを使用して、セキュリティ記述子を作成し `vserver security file-directory ntfs create`ます。
+.  `vserver security file-directory ntfs create`コマンドを使用してセキュリティ記述子を作成します。
 +
 `vserver security file-directory ntfs create -vserver vs1 -ntfs-sd sd1` `vserver security file-directory ntfs show -vserver vs1`
 
@@ -30,7 +30,7 @@ Vserver: vs1
    sd1              -
 ----
 +
-セキュリティ記述子は、次の4つのデフォルトDACL Access Control Entry（ACE；アクセス制御エントリ）で作成されます。
+セキュリティ記述子は、次の4つのデフォルトDACLアクセス制御エントリ（ACE）を持った状態で作成されます。
 
 +
 [listing]
@@ -50,20 +50,20 @@ Vserver: vs1
                      allow    full-control   this-folder, sub-folders, files
 ----
 +
-ストレージレベルのアクセス保護の設定時にデフォルトのエントリを使用しない場合は、セキュリティ記述子に独自のACEを作成して追加する前に、デフォルトのエントリを削除できます。
+ストレージレベルのアクセス保護を設定する際にデフォルトのエントリを使用しない場合は、セキュリティ記述子に独自のACEを作成して追加する前に、デフォルトのエントリを削除できます。
 
-. セキュリティ記述子から、ストレージレベルのアクセス保護セキュリティで設定したくないデフォルトのDACL ACEを削除します。
+. セキュリティ記述子から、ストレージレベルのアクセス保護セキュリティに設定したくないデフォルトのDACL ACEを削除します。
 +
-.. コマンドを使用して、不要なDACL ACEを削除します `vserver security file-directory ntfs dacl remove`。
+..  `vserver security file-directory ntfs dacl remove`コマンドを使用して、不要な DACL ACE を削除します。
 +
-この例では、セキュリティ記述子から BUILTIN\Administrators 、 BUILTIN\Users 、 CREATOR OWNER の 3 つのデフォルト DACL ACE を削除しています。
+この例では、セキュリティ記述子から 3 つのデフォルトの DACL ACE（BUILTIN\Administrators、BUILTIN\Users、および CREATOR OWNER）が削除されます。
 
 +
 `vserver security file-directory ntfs dacl remove -vserver vs1 -ntfs-sd sd1 -access-type allow -account builtin\users` `vserver security file-directory ntfs dacl remove -vserver vs1 -ntfs-sd sd1 -access-type allow -account builtin\administrators` `vserver security file-directory ntfs dacl remove -vserver vs1 -ntfs-sd sd1 -access-type allow -account "creator owner"`
 
-.. コマンドを使用して、ストレージレベルのアクセス保護セキュリティに使用しないDACL ACEがセキュリティ記述子から削除されたことを確認します `vserver security file-directory ntfs dacl show`。
+..  `vserver security file-directory ntfs dacl show`コマンドを使用して、Storage-Level Access Guardセキュリティに使用しないDACL ACEがセキュリティ記述子から削除されていることを確認します。
 +
-この例では、コマンドの出力によって、3つのデフォルトDACL ACEがセキュリティ記述子から削除され、NT AUTHORITY\SYSTEMデフォルトDACL ACEエントリのみが残されていることが確認されます。
+この例では、コマンドからの出力より、セキュリティ記述子から3つのデフォルトDACL ACEが削除され、NT AUTHORITY\SYSTEMのデフォルトDACL ACEエントリのみが残されていることを確認できます。
 
 +
 `vserver security file-directory ntfs dacl show -vserver vs1`
@@ -83,23 +83,23 @@ Vserver: vs1
 ----
 
 
-. コマンドを使用して、セキュリティ記述子に1つ以上のDACLエントリを追加します `vserver security file-directory ntfs dacl add`。
+.  `vserver security file-directory ntfs dacl add`コマンドを使用して、セキュリティ記述子に 1 つ以上の DACL エントリを追加します。
 +
 この例では、セキュリティ記述子に2つのDACL ACEを追加しています。
 
 +
 `vserver security file-directory ntfs dacl add -vserver vs1 -ntfs-sd sd1 -access-type allow -account example\engineering -rights full-control -apply-to this-folder,sub-folders,files` `vserver security file-directory ntfs dacl add -vserver vs1 -ntfs-sd sd1 -access-type allow -account "example\Domain Users" -rights read -apply-to this-folder,sub-folders,files`
 
-. コマンドを使用して、セキュリティ記述子に1つ以上のSACLエントリを追加します `vserver security file-directory ntfs sacl add`。
+.  `vserver security file-directory ntfs sacl add`コマンドを使用して、セキュリティ記述子に1つ以上のSACLエントリを追加します。
 +
 この例では、セキュリティ記述子に2つのSACL ACEを追加しています。
 
 +
 `vserver security file-directory ntfs sacl add -vserver vs1 -ntfs-sd sd1 -access-type failure -account "example\Domain Users" -rights read -apply-to this-folder,sub-folders,files` `vserver security file-directory ntfs sacl add -vserver vs1 -ntfs-sd sd1 -access-type success -account example\engineering -rights full-control -apply-to this-folder,sub-folders,files`
 
-. コマンドと `vserver security file-directory ntfs sacl show`コマンドを使用して、DACL ACEとSACL ACEがそれぞれ正しく設定されていることを確認します `vserver security file-directory ntfs dacl show`。
+.  `vserver security file-directory ntfs dacl show`コマンドおよび `vserver security file-directory ntfs sacl show`コマンドをそれぞれ使用して、DACL および SACL ACE が正しく設定されていることを確認します。
 +
-この例では、次のコマンドを実行すると、セキュリティ記述子「 `d1" 」の DACL エントリに関する情報が表示されます。
+この例では、次のコマンドは、セキュリティ記述子"`sd1`"のDACLエントリに関する情報を表示します：
 
 +
 `vserver security file-directory ntfs dacl show -vserver vs1 -ntfs-sd sd1`
@@ -122,7 +122,7 @@ Vserver: vs1
                      allow    full-control   this-folder, sub-folders, files
 ----
 +
-この例では、次のコマンドを実行すると、セキュリティ記述子「 `d1" 」の SACL エントリに関する情報が表示されます。
+この例では、次のコマンドは、セキュリティ記述子"`sd1`"のSACLエントリに関する情報を表示します：
 
 +
 `vserver security file-directory ntfs sacl show -vserver vs1 -ntfs-sd sd1`
@@ -142,14 +142,14 @@ Vserver: vs1
     EXAMPLE\engineering
                      success  full-control   this-folder, sub-folders, files
 ----
-. コマンドを使用して、セキュリティポリシーを作成し `vserver security file-directory policy create`ます。
+.  `vserver security file-directory policy create`コマンドを使用してセキュリティ ポリシーを作成します。
 +
-次に、「 policy1 」という名前のポリシーを作成する例を示します。
+次の例では、「`policy1`」という名前のポリシーを作成します：
 
 +
 `vserver security file-directory policy create -vserver vs1 -policy-name policy1`
 
-. コマンドを使用して、ポリシーが正しく設定されていることを確認します `vserver security file-directory policy show`。
+.  `vserver security file-directory policy show`コマンドを使用して、ポリシーが正しく設定されていることを確認します。
 +
 `vserver security file-directory policy show`
 
@@ -161,17 +161,17 @@ Vserver: vs1
    ------------     --------------
    vs1              policy1
 ----
-. コマンドでパラメータをに設定 `slag`して `-access-control`、セキュリティ記述子が関連付けられたタスクをセキュリティポリシーに追加します `vserver security file-directory policy task add`。
+.  `vserver security file-directory policy task add`コマンドで `-access-control`パラメータを `slag`に設定して、関連付けられたセキュリティ記述子を持つタスクをセキュリティ ポリシーに追加します。
 +
 ポリシーには複数のストレージレベルのアクセス保護タスクを含めることができますが、ポリシーにファイルとディレクトリのタスクとストレージレベルのアクセス保護タスクの両方を含めることはできません。ポリシーに含めるタスクは、すべてストレージレベルのアクセス保護タスクにするか、すべてファイルとディレクトリのタスクにする必要があります。
 
 +
-この例では ' セキュリティー記述子 "`d1" に割り当てられている "policy1 `" という名前のポリシーにタスクが追加されますアクセス制御タイプが「`slag`」に設定されたパスに割り当てられ `/datavol1`ます。
+この例では、セキュリティ記述子「`sd1`」に割り当てられた「`policy1`」というポリシーにタスクが追加されます。 `/datavol1`パスに割り当てられ、アクセス制御タイプが「`slag`」に設定されます。
 
 +
 `vserver security file-directory policy task add -vserver vs1 -policy-name policy1 -path /datavol1 -access-control slag -security-type ntfs -ntfs-mode propagate -ntfs-sd sd1`
 
-. コマンドを使用して、タスクが正しく設定されていることを確認します `vserver security file-directory policy task show`。
+.  `vserver security file-directory policy task show`コマンドを使用して、タスクが正しく設定されていることを確認します。
 +
 `vserver security file-directory policy task show -vserver vs1 -policy-name policy1`
 
@@ -187,16 +187,16 @@ Vserver: vs1
    -----  -----------  ---------------  --------  ---------- ---------------
    1      /datavol1    slag             ntfs      propagate  sd1
 ----
-. コマンドを使用して、ストレージレベルのアクセス保護セキュリティポリシーを適用し `vserver security file-directory apply`ます。
+.  `vserver security file-directory apply`コマンドを使用して、Storage-Level Access Guardセキュリティ ポリシーを適用します。
 +
 `vserver security file-directory apply -vserver vs1 -policy-name policy1`
 
 +
-セキュリティポリシーを適用するジョブがスケジュールされます。
+セキュリティ ポリシーを適用するジョブがスケジュールされます。
 
-. コマンドを使用して、適用されたストレージレベルのアクセス保護セキュリティ設定が正しいことを確認し `vserver security file-directory show`ます。
+.  `vserver security file-directory show`コマンドを使用して、適用されたStorage-Level Access Guardセキュリティ設定が正しいことを確認します。
 +
-この例では、コマンドの出力から、ストレージレベルのアクセス保護セキュリティがNTFSボリュームに適用されていることがわかります `/datavol1`。Everyoneにフルコントロールを許可するデフォルトのDACLは残っていますが、ストレージレベルのアクセス保護セキュリティは、ストレージレベルのアクセス保護設定で定義されたグループへのアクセスを制限（および監査）します。
+この例では、コマンドの出力から、NTFSボリュームにStorage-Level Access Guardセキュリティが適用されていることがわかります `/datavol1`。Everyoneにフル コントロールを許可するデフォルトのDACLはそのまま残りますが、Storage-Level Access Guardセキュリティは、Storage-Level Access Guard設定で定義されたグループへのアクセスを制限（および監査）します。
 
 +
 `vserver security file-directory show -vserver vs1 -path /datavol1`
@@ -245,8 +245,8 @@ Expanded Dos Attributes: -
 
 
 .関連情報
-* xref:manage-ntfs-security-audit-policies-slag-concept.adoc[NTFS ファイル セキュリティ、NTFS 監査ポリシー、ストレージ レベルのアクセス ガードを管理するためのコマンド]
-* xref:workflow-config-storage-level-access-guard-concept.adoc[サーバー上のストレージレベルのアクセスガードの構成ワークフロー]
-* xref:display-storage-level-access-guard-task.adoc[サーバー上のストレージレベルのアクセスガードに関する情報を表示する]
-* xref:remove-storage-level-access-guard-task.adoc[サーバーのストレージレベルのアクセスガードを削除する]
+* xref:manage-ntfs-security-audit-policies-slag-concept.adoc[NTFS ファイル セキュリティ、NTFS 監査ポリシー、およびStorage-Level Access Guardを管理するためのコマンド]
+* xref:workflow-config-storage-level-access-guard-concept.adoc[サーバ上の Storage-Level Access Guard の設定ワークフロー]
+* xref:display-storage-level-access-guard-task.adoc[サーバ上の Storage-Level Access Guard に関する情報を表示する]
+* xref:remove-storage-level-access-guard-task.adoc[サーバのStorage-Level Access Guardを削除する]
 

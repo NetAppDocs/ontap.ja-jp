@@ -2,19 +2,19 @@
 permalink: encryption-at-rest/restore-onboard-key-management-encryption-keys-task.html 
 sidebar: sidebar 
 keywords: restoring, onboard, key management encryption 
-summary: オンボードキー管理の暗号化キーのリストアが必要になる場合があります。キーのリストアが必要であることを確認したら、オンボードキーマネージャを設定してキーをリストアできます。 
+summary: 場合によっては、オンボードキー管理の暗号化キーをリストアする必要があります。キーをリストアする必要があることを確認したら、Onboard Key Managerを設定してキーをリストアできます。 
 ---
-= ONTAPでのオンボードキー管理暗号化キーのリストア
+= ONTAPでオンボードキー管理暗号化キーをリストアする
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-場合によっては、オンボード キー管理の暗号化キーのリストアが必要になることがあります。キーを復元する必要があることを確認したら、オンボード キー マネージャを設定してキーを復元できます。オンボード キー管理暗号化キーを復元する手順は、 ONTAPのバージョンによって異なります。
+場合によっては、オンボードキー管理暗号化キーを復元する必要があります。キーの復元が必要であることを確認したら、オンボードキーマネージャを設定してキーを復元できます。オンボードキー管理暗号化キーの復元手順は、ONTAPのバージョンによって異なります。
 
 .開始する前に
-* NSE を外部 KMIP サーバーと共に使用する場合は、外部キー マネージャー データベースを削除します。詳細については、link:delete-key-management-database-task.html["外部キー管理からONTAPオンボードキー管理への移行"] 。
+* NSEを外部KMIPサーバーと併用する場合は、外部キーマネージャーデータベースを削除してください。詳細については、link:delete-key-management-database-task.html["外部キー管理からONTAPオンボードキー管理への移行"]を参照してください。
 * このタスクを実行するには、クラスタ管理者である必要があります。
 
 
@@ -26,47 +26,47 @@ NOTE: Flash Cacheモジュールを搭載したシステムでNSEを使用する
 == ONTAP 9.6以降
 
 
-IMPORTANT: ONTAP 9.8以降を実行していてルートボリュームが暗号化されている場合は、の手順を実行します <<ontap-9-8>>。
+IMPORTANT: ONTAP 9.8以降を実行していて、ルートボリュームが暗号化されている場合は、<<ontap-9-8>>の手順に従ってください。
 
-. キーをリストアする必要があることを確認します。+
+. キーを復元する必要があることを確認します：+
 `security key-manager key query -node _node_`
 +
-の詳細については `security key-manager key query`、をlink:https://docs.netapp.com/us-en/ontap-cli/security-key-manager-key-query.html["ONTAPコマンド リファレンス"^]参照してください。
+ `security key-manager key query`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/security-key-manager-key-query.html["ONTAPコマンド リファレンス"^]をご覧ください。
 
-. キーをリストアします。+
+. キーを復元する：+
 `security key-manager onboard sync`
 +
-の詳細については `security key-manager onboard sync`、をlink:https://docs.netapp.com/us-en/ontap-cli/security-key-manager-onboard-sync.html["ONTAPコマンド リファレンス"^]参照してください。
+ `security key-manager onboard sync`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/security-key-manager-onboard-sync.html["ONTAPコマンド リファレンス"^]を参照してください。
 
-. パスフレーズのプロンプトで、クラスタのオンボードキー管理のパスフレーズを入力します。
-
-
+. パスフレーズのプロンプトで、クラスタのオンボード キー管理のパスフレーズを入力します。
 
 
-== ルートボリュームを暗号化したONTAP 9.8以降
 
-ONTAP 9 .8以降を実行しており、ルートボリュームが暗号化されている場合は、ブートメニューでオンボードキー管理のリカバリパスフレーズを設定する必要があります。このプロセスは、ブートメディアを交換する場合にも必要です。
 
-. ノードをブートメニューでブートし、オプションを選択します `(10) Set onboard key management recovery secrets`。
-. と入力して、 `y`このオプションを使用します。
-. プロンプトで、クラスタのオンボードキー管理のパスフレーズを入力します。
-. プロンプトで、バックアップキーのデータを入力します。
+== ONTAP 9.8以降でルート ボリュームが暗号化されている場合
+
+ONTAP 9.8以降を実行していてルート ボリュームが暗号化されている場合は、ブート メニューを使用してオンボード キー管理のリカバリ パスフレーズを設定する必要があります。ブート メディアを交換する場合にも、このプロセスが必要です。
+
+. ノードをブートメニューにブートし、オプション `(10) Set onboard key management recovery secrets`を選択します。
+. このオプションを使用するには `y`を入力してください。
+. プロンプトで、クラスタのオンボード キー管理のパスフレーズを入力します。
+. プロンプトで、バックアップ キーのデータを入力します。
 +
-バックアップ キー データを入力すると、ノードはブート メニューに戻ります。
+バックアップキーデータを入力すると、ノードはブートメニューに戻ります。
 
-. ブートメニューからオプションを選択します `(1) Normal Boot`。
+. ブートメニューからオプション `(1) Normal Boot`を選択します。
 
 
 
 
 == ONTAP 9.5以前
 
-. キーをリストアする必要があることを確認します。+
+. キーを復元する必要があることを確認します：+
 `security key-manager key show`
-. キーをリストアします。+
+. キーを復元する：+
 `security key-manager setup -node _node_`
 +
-詳細はこちら `security key-manager setup`の中でlink:https://docs.netapp.com/us-en/ontap-cli-9161/security-key-manager-setup.html["ONTAPコマンド リファレンス"^]。
+ `security key-manager setup`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli-9161/security-key-manager-setup.html["ONTAPコマンド リファレンス"^]を参照してください。
 
-. パスフレーズのプロンプトで、クラスタのオンボードキー管理のパスフレーズを入力します。
+. パスフレーズのプロンプトで、クラスタのオンボード キー管理のパスフレーズを入力します。
 

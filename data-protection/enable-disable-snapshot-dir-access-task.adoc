@@ -2,41 +2,41 @@
 permalink: data-protection/enable-disable-snapshot-dir-access-task.html 
 sidebar: sidebar 
 keywords: enable, disable, access, snapshot copy 
-summary: Snapshotディレクトリへのアクセスを有効または無効にして、クライアントシステムがSnapshotディレクトリを認識できるようにし、クライアントシステムにボリューム上のSnapshotディレクトリへのアクセスを許可することができます。 
+summary: スナップショット ディレクトリへのアクセスを有効または無効にして、クライアント システムにスナップショット ディレクトリを表示し、ボリューム上のスナップショット ディレクトリへのアクセスをクライアント システムに提供することができます。 
 ---
-= ONTAPスナップショットディレクトリへのNFSおよびSMBクライアントアクセスの有効化と無効化
+= ONTAPスナップショット ディレクトリへのNFSおよびSMBクライアント アクセスを有効または無効にする
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-ディレクトリへのアクセスは、コマンドのONTAP CLIオプションを `volume modify`使用して有効または無効にできます `-snapdir-access`。ONTAP 9.10.1以降では、System Managerを使用してクライアントシステムからボリュームのSnapshotディレクトリへのアクセスを有効または無効にできます。アクセスを有効にすると、クライアントからはSnapshotディレクトリが表示され、Windowsクライアントからは、Snapshotディレクトリにドライブをマッピングしてその内容を表示およびアクセスできるようになります。その後、NFSクライアントとSMBクライアントは、SnapshotからファイルまたはLUNをリストアできます。
+ONTAP CLI `-snapdir-access`オプションを使用して、 `volume modify`コマンドでスナップショット ディレクトリへのアクセスを有効または無効にすることができます。また、ONTAP 9.10.1以降では、System Managerを使用して、クライアント システムによるボリューム上のスナップショット ディレクトリへのアクセスを有効または無効にすることができます。アクセスを有効にすると、スナップショット ディレクトリがクライアントに表示されるようになり、Windowsクライアントはスナップショット ディレクトリにドライブをマッピングして、その内容を表示およびアクセスできるようになります。その後、NFSクライアントとSMBクライアントは、スナップショットからファイルまたはLUNをリストアできます。
 
-ボリュームのSnapshotディレクトリへのアクセスを有効または無効にするには、ボリュームの設定を編集するか、ボリュームの共有設定を編集します。
+ボリューム設定を編集するか、ボリュームの共有設定を編集することで、ボリュームのスナップショット ディレクトリへのアクセスを有効または無効にすることができます。
 
 
 
-== ボリュームを編集してSnapshotディレクトリへのクライアントアクセスを有効または無効にする
+== ボリュームを編集してSnapshotディレクトリへのクライアント アクセスを有効または無効にする
 
 .手順
-ONTAPシステムマネージャまたはONTAP CLIを使用して、クライアントのSnapshotディレクトリへのアクセスを有効または無効にできます。デフォルトでは、ボリューム上のsnapshotディレクトリにクライアントからアクセスできます。
+ONTAP System ManagerまたはONTAP CLIを使用して、クライアントのスナップショット ディレクトリへのアクセスを有効または無効にすることができます。ボリューム上のスナップショット ディレクトリは、デフォルトでクライアントからアクセス可能です。
 
 [role="tabbed-block"]
 ====
 .System Manager
 --
-. [ストレージ]>[ボリューム]*をクリックします。
-. 表示または非表示にするSnapshotディレクトリを含むボリュームを選択します。
-. をクリック image:icon_kabob.gif["メニューオプションアイコン"] し、*[編集]*を選択します。
-. *スナップショット (ローカル) 設定* セクションで、*スナップショット ディレクトリをクライアントに表示する* を選択または選択解除します。
-. [ 保存（ Save ） ] をクリックします。
+. *[ストレージ] > [ボリューム]*をクリックします。
+. 表示または非表示にするスナップショット ディレクトリを含むボリュームを選択します。
+. image:icon_kabob.gif["メニューオプションアイコン"]をクリックして*編集*を選択します。
+. *Snapshot (Local) Settings* セクションで、*Show the Snapshot directory to clients* を選択または選択解除します。
+. *保存*をクリックします。
 
 
 --
 .CLI
 --
-. Snapshotディレクトリのアクセスステータスを確認します。
+. スナップショット ディレクトリのアクセス ステータスを確認します：
 +
 [source, cli]
 ----
@@ -55,16 +55,16 @@ vserver volume snapdir-access
 vs0     vol1   false
 ----
 +
-の詳細については `volume show`、をlink:https://docs.netapp.com/us-en/ontap-cli/volume-show.html["ONTAPコマンド リファレンス"^]参照してください。
+ `volume show`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/volume-show.html["ONTAPコマンド リファレンス"^]をご覧ください。
 
-. Snapshotディレクトリへのアクセスを有効または無効にします。
+. Snapshot ディレクトリ アクセスを有効または無効にします：
 +
 [source, cli]
 ----
 volume modify -vserver <SVM_name> -volume <vol_name> -snapdir-access <true|false>
 ----
 +
-次の例は、vol1でSnapshotディレクトリへのアクセスを有効にします。
+次の例では、vol1 のスナップショット ディレクトリ アクセスを有効にします：
 
 +
 [listing]
@@ -74,7 +74,7 @@ clus1::> volume modify -vserver vs0 -volume vol1 -snapdir-access true
 Volume modify successful on volume vol1 of Vserver vs0.
 ----
 +
-の詳細については `volume modify`、をlink:https://docs.netapp.com/us-en/ontap-cli/volume-modify.html["ONTAPコマンド リファレンス"^]参照してください。
+ `volume modify`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/volume-modify.html["ONTAPコマンド リファレンス"^]をご覧ください。
 
 
 
@@ -82,14 +82,14 @@ Volume modify successful on volume vol1 of Vserver vs0.
 ====
 
 
-== 共有の編集によるSnapshotディレクトリへのクライアントアクセスの有効化または無効化
+== 共有を編集してSnapshotディレクトリへのクライアントアクセスを有効または無効にする
 
-デフォルトでは、ボリューム上のsnapshotディレクトリにクライアントからアクセスできます。
+ボリューム上のスナップショット ディレクトリは、デフォルトでクライアントからアクセスできます。
 
 .手順
-. [ * ストレージ ] 、 [ 共有 ] の順にクリックします。
-. 表示または非表示にするSnapshotディレクトリを含むボリュームを選択します。
-. をクリック image:icon_kabob.gif["メニューオプションアイコン"] し、*[編集]*を選択します。
-. [共有のプロパティ]*セクションで、[クライアントにスナップショットディレクトリへのアクセスを許可する]*を選択または選択解除します。
-. [ 保存（ Save ） ] をクリックします。
+. *Storage > Shares*をクリックします。
+. 表示または非表示にするスナップショット ディレクトリを含むボリュームを選択します。
+. image:icon_kabob.gif["メニューオプションアイコン"]をクリックして*編集*を選択します。
+. *共有プロパティ*セクションで、*クライアントに Snapshot ディレクトリへのアクセスを許可する*を選択または選択解除します。
+. *保存*をクリックします。
 

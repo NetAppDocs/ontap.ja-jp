@@ -2,33 +2,33 @@
 permalink: authentication/grant-access-active-directory-users-groups-task.html 
 sidebar: sidebar 
 keywords: enable, active directory, account access 
-summary: Active Directory （ AD ）のユーザアカウントまたはグループアカウントが管理またはデータ SVM にアクセスできるようにするには、 security login create コマンドを使用します。ADグループのすべてのユーザは、グループに割り当てられたロールを使用してSVMにアクセスできます。 
+summary: security login createコマンドを使用すると、Active Directory（AD）のユーザーまたはグループアカウントが管理SVMまたはデータSVMにアクセスできるようになります。ADグループ内のすべてのユーザーは、グループに割り当てられたロールを使用してSVMにアクセスできます。 
 ---
-= Active Directory ONTAPアカウントアクセスの有効化
+= Active Directory ONTAPアカウントアクセスを有効にする
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-コマンドを使用して、Active Directory（AD）のユーザアカウントまたはグループアカウントが管理SVMまたはデータSVMにアクセスできるようにすることができます `security login create`。ADグループのすべてのユーザは、グループに割り当てられたロールを使用してSVMにアクセスできます。
+ `security login create`コマンドを使用すると、Active Directory（AD）のユーザーまたはグループアカウントが管理SVMまたはデータSVMにアクセスできるようになります。ADグループ内のすべてのユーザーは、グループに割り当てられたロールを使用してSVMにアクセスできます。
 
-.タスクの内容
-* アカウントがSVMにアクセスするためには、ADドメインコントローラからクラスタまたはSVMへのアクセスを設定しておく必要があります。
+.タスク概要
+* アカウントがSVMにアクセスするためには、ADドメイン コントローラからクラスタまたはSVMへのアクセスを設定しておく必要があります。
 +
-xref:enable-ad-users-groups-access-cluster-svm-task.adoc[Active Directoryドメインコントローラアクセスの設定]
+xref:enable-ad-users-groups-access-cluster-svm-task.adoc[Active Directoryドメイン コントローラ アクセスの設定]
 
 +
-このタスクは、アカウントアクセスを有効にする前後どちらでも実行できます。
+このタスクは、アカウント アクセスを有効にする前後どちらでも実行できます。
 
-* SSH.13.1以降では、ユーザパスワードを使用して、プライマリまたはセカンダリの認証方式としてONTAP 9公開鍵を使用できます。
+* ONTAP 9.13.1以降では、ADユーザ パスワードと組み合わせる第1または第2の認証方式として、SSH公開鍵を使用できます。
 +
-SSH公開鍵をプライマリ認証として使用することを選択した場合、AD認証は行われません。
+SSH公開鍵を第1の認証方式として使用することを選択した場合、AD認証は行われません。
 
-* ONTAP 9 .11.1以降では、AD LDAPサーバでサポートされている場合にを使用できますlink:../nfs-admin/ldap-fast-bind-nsswitch-authentication-task.html["ONTAP NFS SVMのnsswitch認証にLDAP高速バインドを使用する"]。
-* ログインアカウントに割り当てるアクセス制御ロールが不明な場合は、あとでコマンドを使用してロールを追加できます `security login modify`。
+* ONTAP 9.11.1以降では、AD LDAPサーバでサポートされている場合はlink:../nfs-admin/ldap-fast-bind-nsswitch-authentication-task.html["ONTAP NFS SVMのnsswitch認証にLDAP高速バインドを使用する"]を使用できます。
+* ログイン アカウントに割り当てるアクセス制御ロールが不明な場合は、 `security login modify` コマンドを使用して後でロールを追加できます。
 +
-の詳細については `security login modify`、をlink:https://docs.netapp.com/us-en/ontap-cli/security-login-modify.html["ONTAPコマンド リファレンス"^]参照してください。
+ `security login modify`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/security-login-modify.html["ONTAPコマンド リファレンス"^]を参照してください。
 
 +
 xref:modify-role-assigned-administrator-task.adoc[管理者に割り当てられているロールの変更]
@@ -36,17 +36,17 @@ xref:modify-role-assigned-administrator-task.adoc[管理者に割り当てられ
 
 
 
-NOTE: ADグループアカウントへのアクセスは、、 `ontapi`および `rest`アプリケーションでのみサポートされ `SSH`ます。ADグループは、多要素認証に一般的に使用されるSSH公開鍵認証ではサポートされません。
+NOTE: ADグループアカウントアクセスは、 `SSH`、 `ontapi`、および `rest`アプリケーションでのみサポートされます。ADグループは、多要素認証で一般的に使用されるSSH公開キー認証ではサポートされません。
 
 .開始する前に
-* クラスタ時間とADドメインコントローラの時間の誤差が5分以内になるように同期する必要があります。
+* クラスタ時間とActive Directoryドメイン コントローラの時刻を、誤差が5分以内となるように同期する必要があります。
 * このタスクを実行するには、クラスタ管理者である必要があります。
 
 
-.ステップ
-. ADユーザまたはグループの管理者アカウントがSVMにアクセスできるようにします。
+.手順
+. ADのユーザまたはグループ管理者アカウントがSVMにアクセスできるようにします。
 +
-* ADユーザの場合：*
+*ADユーザーの場合：*
 
 +
 [cols="1,1,1,4"]
@@ -62,13 +62,13 @@ security login create -vserver <svm_name> -user-or-group-name <user_name> -appli
 
 
 | 9.13.1以降 | ドメイン | 公開鍵  a| 
-*新規ユーザーの場合*
+*新規ユーザー向け*
 
 [listing]
 ----
 security login create -vserver <svm_name> -user-or-group-name <user_name> -application ssh -authentication-method domain -second-authentication-method publickey -role <role>
 ----
-*既存のユーザーの場合*
+*既存ユーザーの場合*
 
 [listing]
 ----
@@ -83,7 +83,7 @@ security login create -vserver <svm_name> -user-or-group-name <user_name> -appli
 ----
 |===
 +
-* ADグループの場合：*
+*ADグループの場合：*
 
 +
 [cols="1,1,1,4"]
@@ -99,10 +99,10 @@ security login create -vserver <svm_name> -user-or-group-name <user_name> -appli
 |===
 
 
-.終了後
-ADドメインコントローラからクラスタまたはSVMへのアクセスを設定していない場合は、アカウントがSVMにアクセスする前に設定しておく必要があります。
+.終了後の操作
+ADドメイン コントローラからクラスタまたはSVMへのアクセスを設定していない場合は、アカウントがSVMにアクセスする前に設定しておく必要があります。
 
-xref:enable-ad-users-groups-access-cluster-svm-task.adoc[Active Directoryドメインコントローラアクセスの設定]
+xref:enable-ad-users-groups-access-cluster-svm-task.adoc[Active Directoryドメイン コントローラ アクセスの設定]
 
 .関連情報
 * link:https://docs.netapp.com/us-en/ontap-cli/security-login-create.html["security login create"^]

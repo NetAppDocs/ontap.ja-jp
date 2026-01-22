@@ -2,57 +2,57 @@
 permalink: data-protection/manage-storage-efficiency-task.html 
 sidebar: sidebar 
 keywords: snapmirror, efficiency, manage, storage, snap mirror, compression, compress, postprocess, post-process, update relationship, volume 
-summary: SnapMirrorを使用してソースボリュームとデスティネーションボリューム間のストレージ効率を維持するには、デスティネーションボリュームでポストプロセス圧縮を無効にする必要があります。 
+summary: ソースボリュームとデスティネーション ボリューム間のストレージ効率をSnapMirrorで維持するには、デスティネーション ボリュームでポストプロセス圧縮を無効にする必要があります。 
 ---
-= ONTAP SnapMirrorボリュームのStorage Efficiencyを管理します。
+= ONTAP SnapMirrorボリュームのストレージ効率を管理する
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-SnapMirrorでは、ソースボリュームとデスティネーションボリュームでストレージ効率が維持されます。ただし、デスティネーションボリュームでポストプロセスデータ圧縮が有効になっている場合は除きます。この場合、デスティネーションボリュームではすべてのストレージ効率が失われます。この問題を解決するには、デスティネーションボリュームでポストプロセス圧縮を無効にし、関係を手動で更新してから、Storage Efficiencyを再度有効にする必要があります。
+SnapMirrorは、ソース ボリュームとデスティネーション ボリュームでストレージ効率を維持します。ただし、デスティネーション ボリュームでポストプロセス データ圧縮が有効になっている場合を除きます。その場合、デスティネーション ボリュームではすべてのストレージ効率が失われます。この問題を修正するには、デスティネーション ボリュームでポストプロセス圧縮を無効にして、関係を手動で更新し、Storage Efficiencyを再度有効にする必要があります。
 
-.タスクの内容
-コマンドを使用すると、ボリュームで効率化が有効になっているかどうかを確認できます `volume efficiency show`。の詳細については `volume efficiency show`、をlink:https://docs.netapp.com/us-en/ontap-cli/volume-efficiency-show.html["ONTAPコマンド リファレンス"^]参照してください。
+.タスク概要
+ `volume efficiency show`コマンドを使用して、ボリュームで効率化が有効になっているかどうかを確認できます。link:https://docs.netapp.com/us-en/ontap-cli/volume-efficiency-show.html["ONTAPコマンド リファレンス"^]の `volume efficiency show`の詳細をご覧ください。
 
-SnapMirrorがストレージ効率を維持しているかどうかを確認するには、SnapMirror監査ログを表示して転送の説明を確認します。転送の説明にと表示された場合は `transfer_desc=Logical Transfer with Storage Efficiency`、SnapMirrorでストレージ効率が維持されています。転送の説明にと表示された場合は `transfer_desc=Logical Transfer`、SnapMirrorでストレージ効率が維持されていません。例：
+SnapMirror監査ログを表示して転送の説明を確認することで、SnapMirrorがストレージ効率を維持しているかどうかを確認できます。転送の説明に `transfer_desc=Logical Transfer with Storage Efficiency`と表示されている場合、SnapMirrorはストレージ効率を維持しています。転送の説明に `transfer_desc=Logical Transfer`と表示されている場合、SnapMirrorはストレージ効率を維持していません。例：
 
 [listing]
 ----
 Fri May 22 02:13:02 CDT 2020 ScheduledUpdate[May 22 02:12:00]:cc0fbc29-b665-11e5-a626-00a09860c273 Operation-Uuid=39fbcf48-550a-4282-a906-df35632c73a1 Group=none Operation-Cookie=0 action=End source=<sourcepath> destination=<destpath> status=Success bytes_transferred=117080571 network_compression_ratio=1.0:1 transfer_desc=Logical Transfer - Optimized Directory Mode
 ----
 .開始する前に
-* ソースとデスティネーションのクラスタとSVMのピア関係が確立されている必要があります。
+* ソース / デスティネーション クラスタとSVMのピア関係が確立されている必要があります。
 +
 https://docs.netapp.com/us-en/ontap-system-manager-classic/peering/index.html["クラスタとSVMのピアリング"^]
 
-* デスティネーションボリュームでポストプロセス圧縮を無効にする必要があります。
-* ストレージを使用した論理転送：ONTAP 9.3以降では、Storage Efficiencyを再度有効にするための手動更新が不要になりました。SnapMirrorは、ポストプロセス圧縮が無効になっていることを検出すると、スケジュールされた次回の更新時にStorage Efficiencyを自動的に再度有効にします。ソースとデスティネーションの両方でONTAP 9.3を実行している必要があります。
-* ONTAP 9 .3以降では、デスティネーションボリュームが書き込み可能になったあとに、AFFシステムでStorage Efficiencyの設定がFASシステムとは異なる方法で管理されます。
+* デスティネーション ボリュームでポストプロセス圧縮を無効にする必要があります。
+* ストレージを使用した論理転送：ONTAP 9.3以降では、Storage Efficiencyを再度有効にするために手動で更新する必要がなくなりました。SnapMirrorがポストプロセス圧縮が無効になっていることを検出すると、次回のスケジュールされた更新時にStorage Efficiencyが自動的に再度有効になります。ソースとデスティネーションの両方でONTAP 9.3が稼働している必要があります。
+* ONTAP 9.3以降では、デスティネーション ボリュームが書き込み可能になったあとで、AFFシステムがStorage Efficiencyの設定をFASシステムとは異なる方法で管理します。
 +
-** 宛先ボリュームを書き込み可能にした後、  `snapmirror break`コマンドを実行すると、ボリュームのキャッシュポリシーが自動的に設定されます。  `auto` (デフォルト)。
+**  `snapmirror break`コマンドを使用してデスティネーション ボリュームを書き込み可能にすると、ボリューム上のキャッシュ ポリシーは自動的に `auto`（デフォルト）に設定されます。
 +
 [NOTE]
 ====
-この動作はFlexVolにのみ該当し、FlexGroupには該当しません。
+この動作はFlexVolにのみ該当し、FlexGroupボリュームには該当しません。
 
 ====
 +
-の詳細については `snapmirror break`、をlink:https://docs.netapp.com/us-en/ontap-cli/snapmirror-break.html["ONTAPコマンド リファレンス"^]参照してください。
+ `snapmirror break`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/snapmirror-break.html["ONTAPコマンド リファレンス"^]を参照してください。
 
-** 再同期時に、キャッシュポリシーは自動的に設定されます。  `none`元の設定に関係なく、重複排除とインライン圧縮は自動的に無効になります。必要に応じて、設定を手動で変更する必要があります。
+** 再同期時に、キャッシュポリシーは自動的に `none`に設定され、元の設定に関係なく、重複排除とインライン圧縮は自動的に無効化されます。必要に応じて手動で設定を変更する必要があります。
 
 
 
 
 [NOTE]
 ====
-Storage Efficiencyを有効にした状態での手動更新には時間がかかる場合があります。この処理はオフピークの時間帯に実行することを推奨します。
+Storage Efficiencyが有効な状態での手動更新には時間がかかる場合があります。この処理はオフピークの時間帯に実行することを推奨します。
 
 ====
 .手順
-. レプリケーション関係を更新し、Storage Efficiencyを再度有効にします。
+. レプリケーション関係を更新して、Storage Efficiencyを再度有効にします。
 +
 [source, cli]
 ----
@@ -61,11 +61,11 @@ snapmirror update -source-path <SVM:volume>|<cluster://SVM/volume>, ... -destina
 +
 [NOTE]
 ====
-このコマンドは、デスティネーション SVM またはデスティネーション クラスタから実行する必要があります。ソースとデスティネーションに共通のSnapshotが存在しない場合、コマンドは失敗します。を使用し `snapmirror initialize` て関係を再初期化します。の詳細については `snapmirror initialize`、をlink:https://docs.netapp.com/us-en/ontap-cli/snapmirror-initialize.html["ONTAPコマンド リファレンス"^]参照してください。
+このコマンドは、デスティネーションSVMまたはデスティネーション クラスタから実行する必要があります。ソースとデスティネーションに共通のスナップショットが存在しない場合、コマンドは失敗します。 `snapmirror initialize`を使用して関係を再初期化してください。link:https://docs.netapp.com/us-en/ontap-cli/snapmirror-initialize.html["ONTAPコマンド リファレンス"^]の `snapmirror initialize`の詳細を確認してください。
 
 ====
 +
-次の例は、の `svm1`ソースボリュームとの `svm_backup`デスティネーションボリューム `volA_dst`の間の関係を更新し `volA`、Storage Efficiencyを再度有効にします。
+次の例では、 `svm1`のソース ボリューム `volA`と `svm_backup`のデスティネーション ボリューム `volA_dst`の関係を更新し、ストレージ効率を再度有効にします：
 
 +
 [listing]
@@ -73,6 +73,6 @@ snapmirror update -source-path <SVM:volume>|<cluster://SVM/volume>, ... -destina
 cluster_dst::> snapmirror update -source-path svm1:volA -destination-path svm_backup:volA_dst -enable-storage-efficiency true
 ----
 +
-の詳細については `snapmirror update`、をlink:https://docs.netapp.com/us-en/ontap-cli/snapmirror-update.html["ONTAPコマンド リファレンス"^]参照してください。
+ `snapmirror update`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/snapmirror-update.html["ONTAPコマンド リファレンス"^]をご覧ください。
 
 

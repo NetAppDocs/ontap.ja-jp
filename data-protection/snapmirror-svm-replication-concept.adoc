@@ -2,9 +2,9 @@
 permalink: data-protection/snapmirror-svm-replication-concept.html 
 sidebar: sidebar 
 keywords: understand, snapmirror, svm, replication, SVM disaster recovery storage limits 
-summary: SnapMirrorを使用して、SVM間のデータ保護関係を作成できます。このタイプのデータ保護関係では、 SVM のすべてまたは一部の設定が NFS エクスポートおよび SMB 共有から RBAC にレプリケートされます。また、 SVM が所有するボリューム内のデータもレプリケートされます。 
+summary: SnapMirrorを使用して、SVM間のデータ保護関係を作成できます。このタイプのデータ保護関係では、NFSエクスポートやSMB共有からRBACまで、SVMの設定のすべてまたは一部と、SVMが所有するボリューム内のデータがレプリケートされます。 
 ---
-= ONTAP SnapMirror SVMレプリケーションの詳細
+= ONTAP SnapMirror SVMレプリケーションについて学ぶ
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
@@ -19,59 +19,59 @@ SnapMirrorを使用すると、SVM間のデータ保護関係を作成できま�
 
 レプリケート可能なのはデータ提供用SVMのみです。サポートされているデータ保護関係タイプは次のとおりです。
 
-* _ SnapMirror DR、_。通常、デスティネーションにはソース上に現在あるSnapshotのみが含まれます。
+* _SnapMirror DR_ では、通常、デスティネーションには現在ソースにあるスナップショットのみが含まれます。
 +
-ONTAP 9.9.1以降では、mirror-vaultポリシーを使用している場合にこの動作が変更されます。ONTAP 9.9.1以降では、ソースとデスティネーションで異なるSnapshotポリシーを作成できます。デスティネーションのSnapshotはソースのSnapshotで上書きされません。
+ONTAP 9.9.1以降では、mirror-vaultポリシーを使用している場合、この動作が変更されます。ONTAP 9.9.1以降では、ソースとデスティネーションで異なるSnapshotポリシーを作成でき、デスティネーションのSnapshotがソースのSnapshotによって上書きされることはありません：
 
 +
-** スケジュールされた通常の処理、更新、および再同期の実行中に、ソースからデスティネーションに上書きされることはありません
-** 解除処理の実行中に削除されることはありません。
-** 逆再同期処理の実行中は削除されません。ONTAP 9 .9.1以降を使用するmirror-vaultポリシーを使用してSVMディザスタ関係を設定する場合、ポリシーは次のように動作します。
-** ソースのユーザ定義のSnapshotポリシーはデスティネーションにコピーされません。
-** システム定義のSnapshotポリシーはデスティネーションにコピーされません。
-** ユーザ定義およびシステム定義のSnapshotポリシーとのボリュームの関連付けはデスティネーションにコピーされません。+ SVM
+** 通常のスケジュールされた操作、更新、再同期中にソースからデスティネーションに上書きされることはありません。
+** ブレーク操作では削除されません。
+** これらは、フリップ再同期操作では削除されません。ONTAP 9.9.1以降でミラー・ヴォールト・ポリシーを使用してSVM災害関係を設定する場合、ポリシーは次のように動作します：
+** ソースのユーザー定義のSnapshotポリシーは、デスティネーションにコピーされません。
+** システム定義のスナップショット ポリシーはデスティネーションにコピーされません。
+** ユーザーおよびシステム定義のスナップショット ポリシーとのボリュームの関連付けは、デスティネーションにコピーされません。+ SVM。
 
 
-* _SnapMirror 統合レプリケーション_ では、宛先は DR と長期保存の両方に対して構成されます。
+* _SnapMirror 統合レプリケーション_ では、デスティネーションは DR と長期保存の両方に対して構成されます。
 
 
-SnapMirrorユニファイドレプリケーションの詳細については、を参照してくださいlink:snapmirror-unified-replication-concept.html["SnapMirrorユニファイドレプリケーションの基本"]。
+SnapMirror統合レプリケーションの詳細については、link:snapmirror-unified-replication-concept.html["SnapMirrorユニファイド レプリケーションの基本"]を参照してください。
 
-レプリケーションポリシーの _policy type_of によって、サポートされる関係のタイプが決まります。次の表に、使用可能なポリシータイプを示します。
+レプリケーション ポリシーの_ポリシー タイプ_によって、サポートされる関係の種類が決まります。次の表に、使用可能なポリシー タイプを示します。
 
 [cols="2*"]
 |===
 
 
-| ポリシータイプ | 関係タイプ 
+| ポリシー タイプ | 関係タイプ 
 
 
  a| 
-非同期ミラー
+async-mirror
  a| 
 SnapMirror DR
 
 
 
  a| 
-ミラー-バックアップ
+mirror-vault
  a| 
-ユニファイドレプリケーション
+ユニファイド レプリケーション
 
 |===
 
 
-== ONTAP 9では、SVMレプリケーションのデフォルトはDPからXDPに変更されます。4
+== ONTAP 9.4におけるSVMレプリケーションのデフォルトの変更（DP→XDP）
 
-ONTAP 9 .4以降では、SVMデータ保護関係のデフォルトがXDPモードに変更されました。ONTAP 9 .3以前のSVMデータ保護関係のデフォルトは引き続きDPモードです。
+ONTAP 9.4以降では、SVMデータ保護関係のデフォルトがXDPモードに変更されました。ONTAP 9.3以前のSVMデータ保護関係のデフォルトは引き続きDPモードです。
 
-XDPのデフォルト値は既存の関係には影響しません。すでにDPタイプの関係は、引き続きDPタイプになります。次の表に、想定される動作を示します。
+既存のリレーションシップはXDPのデフォルト設定の影響を受けません。リレーションシップが既にDPタイプである場合は、引き続きDPタイプのままとなります。次の表に、想定される動作を示します。
 
 [cols="3*"]
 |===
 
 
-| 指定するモード | タイプ | デフォルトポリシー（ポリシーを指定しない場合） 
+| 指定するモード | タイプ | デフォルト ポリシー（ポリシーを指定しない場合） 
 
 
  a| 
@@ -97,33 +97,33 @@ XDP
  a| 
 XDP
  a| 
-MirrorAndVault（ユニファイドレプリケーション）
+MirrorAndVault（ユニファイド レプリケーション）
 
 |===
-DP関係からXDP関係への変換に関する情報およびその他の詳細については、を参照してください。link:convert-snapmirror-version-flexible-task.html["既存のONTAP DPタイプの関係をXDPに変換する"]
+DP リレーションシップを XDP リレーションシップに変換する方法やその他の詳細については、こちらをご覧ください：link:convert-snapmirror-version-flexible-task.html["既存のONTAP DPタイプ関係をXDPに変換する"]
 
 [NOTE]
 ====
-バージョンに依存しないレプリケーションはSVMレプリケーションではサポートされません。SVMディザスタリカバリ設定では、フェイルオーバーおよびフェイルバック処理をサポートするために、デスティネーションSVMがソースSVMクラスタと同じバージョンのONTAPを実行しているクラスタである必要があります。
+バージョンに依存しないレプリケーションは、SVMレプリケーションではサポートされません。SVMディザスタ リカバリ構成では、フェイルオーバー処理とフェイルバック処理をサポートするためには、ソースSVMクラスタと同じバージョンのONTAPを実行しているクラスタにデスティネーションSVMを配置する必要があります。
 
 ====
-link:compatible-ontap-versions-snapmirror-concept.html["SnapMirror関係に互換性があるONTAPのバージョン"]
+link:compatible-ontap-versions-snapmirror-concept.html["SnapMirror関係に対応したONTAPバージョン"]
 
 
 
 == SVMの設定のレプリケート方法
 
-SVMレプリケーション関係の内容は、次のフィールドの組み合わせによって決まります。
+SVMレプリケーション関係の内容は、以下に示すフィールドの設定の組み合わせによって決定されます。
 
-* コマンドのオプション `snapmirror create`は `-identity-preserve true`、SVMの設定全体をレプリケートします。
+*  `snapmirror create`コマンドの `-identity-preserve true`オプションは、SVM構成全体を複製します。
 +
-オプションは `-identity-preserve false`、SVMのボリュームと認証と許可の設定、およびに記載されているプロトコルとネームサービスの設定のみをレプリケートしますlink:snapmirror-svm-replication-concept.html#configurations-replicated-in-svm-disaster-recovery-relationships["SVMディザスタリカバリ関係でレプリケートされる設定"]。
+ `-identity-preserve false`オプションは、SVMのボリュームと認証および承認の設定、およびlink:snapmirror-svm-replication-concept.html#configurations-replicated-in-svm-disaster-recovery-relationships["SVMディザスタ リカバリ関係でレプリケートされる設定"]にリストされているプロトコルとネーム サービスの設定のみを複製します。
 
-* コマンドのオプションを `snapmirror policy create`使用する `-discard-configs network`と、ソースとデスティネーションのSVMが異なるサブネットにある場合に使用するLIFと関連ネットワークの設定がSVMレプリケーション対象から除外されます。
-* コマンドのオプションを `volume modify`使用すると `-vserver-dr-protection unprotected`、指定したボリュームがSVMレプリケーション対象から除外されます。
+*  `snapmirror policy create`コマンドの `-discard-configs network`オプションは、ソースSVMとデスティネーションSVMが異なるサブネットにある場合に使用するために、LIFと関連するネットワーク設定をSVMレプリケーションから除外します。
+*  `volume modify`コマンドの `-vserver-dr-protection unprotected`オプションは、指定されたボリュームをSVMレプリケーションから除外します。
 
 
-それ以外の場合、SVMレプリケーションはボリュームレプリケーションとほぼ同じです。SVMレプリケーションには、ボリュームレプリケーションとほぼ同じワークフローを使用できます。
+上記の点を除き、SVMレプリケーションはボリューム レプリケーションとほぼ同じです。ボリューム レプリケーションに使用するのとほぼ同じワークフローをSVMレプリケーションにも使用できます。
 
 
 
@@ -139,12 +139,12 @@ SVMレプリケーション関係の内容は、次のフィールドの組み�
 
 
  a| 
-ドウニュウタイプ
+構成タイプ
  a| 
-* 単一のソースから単一のデスティネーション
-* ONTAP 9 .4以降、ファンアウト。ファンアウトできるのは2つのデスティネーションのみです。
+* 1つのソースから1つのデスティネーション
+* ONTAP 9.4以降はファンアウト（ただしファンアウトのデスティネーションは2つのみ）
 +
-デフォルトでは、-identity-preserve trueの関係はソースSVMごとに1つだけ指定できます。
+デフォルトでは、-identity-preserve trueの関係はソースSVMごとに1つだけ許可されます。
 
 
 
@@ -169,24 +169,24 @@ SVMレプリケーション関係の内容は、次のフィールドの組み�
  a| 
 自律型ランサムウェア対策
  a| 
-* ONTAP 9.12.1以降でサポート。詳細については、を参照してください link:../anti-ransomware/index.html["自律型ランサムウェア対策"]。
+* ONTAP 9.12.1以降でサポートされます。詳細については、link:../anti-ransomware/index.html["自律型ランサムウェア対策"]を参照してください。
 
 
 
 
  a| 
-整合グループの非同期サポート
+整合性グループの非同期サポート
  a| 
-ONTAP 9 14.1以降では、整合グループが存在する場合に、SVMディザスタリカバリ関係が最大32個サポートされます。詳細については、およびを参照してください link:../consistency-groups/protect-task.html["整合グループの保護"] link:../consistency-groups/limits.html["整合グループの制限"] 。
+ONTAP 9.14.1以降では、コンシステンシグループが存在する場合、最大32個のSVMディザスタリカバリ関係がサポートされます。詳細については、link:../consistency-groups/protect-task.html["整合性グループの保護"]およびlink:../consistency-groups/limits.html["整合性グループの制限"]を参照してください。
 
 
 
  a| 
 FabricPool
  a| 
-ONTAP 9.6以降では、FabricPoolでSnapMirror SVMレプリケーションがサポートされます。SVM DR関係では、ソースボリュームとデスティネーションボリュームでFabricPoolアグリゲートを使用する必要はありませんが、同じ階層化ポリシーを使用する必要があります。
+ONTAP 9.6以降、SnapMirror SVMレプリケーションはFabricPoolでサポートされます。SVM DR関係では、ソースボリュームとデスティネーションボリュームでFabricPoolアグリゲートを使用する必要はありませんが、同じ階層化ポリシーを使用する必要があります。
 
-ONTAP 9.12.1以降では、FabricPoolボリュームとFlexGroupボリュームが連動してSnapMirror SVMレプリケーションがサポートされます。9.12.1より前のバージョンでは、これらの機能のいずれか2つが連携して動作していましたが、3つすべてが連携するわけではありませ
+ONTAP 9.12.1以降、SnapMirror SVMレプリケーションはFabricPoolとFlexGroupボリュームと連携して動作することがサポートされています。9.12.1より前は、これらの機能のうち2つは連携して動作していましたが、3つすべては連携して動作していませんでした。
 
 
 
@@ -198,25 +198,25 @@ ONTAP 9.11.1以降では、MetroCluster構成内のSVMディザスタ リカバ�
 ONTAP 9.5以降のMetroCluster構成では、SnapMirror SVMレプリケーションがサポートされます。
 
 * ONTAP 9.10.Xより前のリリースでは、MetroCluster構成をSVMディザスタ リカバリ関係のデスティネーションにすることはできません。
-* ONTAP 9 .10.1以降のリリースでは、MetroCluster構成を移行目的でのみSVMディザスタリカバリ関係のデスティネーションにすることができます。この構成は、に記載されている必要なすべての要件を満たしている必要があります https://www.netapp.com/pdf.html?item=/media/83785-tr-4966.pdf["TR-4966：『Migrating a SVM into a MetroCluster 解決策』"^]。
-* SVMディザスタリカバリ関係のソースとして使用できるのは、MetroCluster構成のアクティブなSVMだけです。
+* ONTAP 9.10.1 以降のリリースでは、MetroCluster構成は移行目的のみで SVM ディザスタ リカバリ関係の宛先になることができ、 https://www.netapp.com/pdf.html?item=/media/83785-tr-4966.pdf["TR-4966：SVMをMetroClusterソリューションに移行する"^]に記載されている必要な要件をすべて満たす必要があります。
+* SVMディザスタ リカバリ関係のソースとして使用できるのは、MetroCluster構成のアクティブなSVMだけです。
 +
-スイッチオーバー前の同期元のSVMと、スイッチオーバー後の同期先のSVMがソースになります。
+スイッチオーバー前の同期元のSVMとスイッチオーバー後の同期先のSVMのどちらもソースに使用できます。
 
-* MetroCluster構成が安定した状態のときはMetroClusterの同期先のSVMがオンラインでないため、同期先のSVMをSVMディザスタリカバリ関係のソースにすることはできません。
-* 同期元のSVMがSVMディザスタリカバリ関係のソースである場合は、ソースのSVMディザスタリカバリ関係の情報がMetroClusterパートナーにレプリケートされます。
-* スイッチオーバーおよびスイッチバックの処理中に、SVMディザスタリカバリデスティネーションへのレプリケーションが失敗することがあります。
+* MetroCluster構成が安定した状態のときはMetroClusterの同期先のSVMはオンラインでないため、同期先ボリュームをSVMディザスタ リカバリ関係のソースにすることはできません。
+* SVMディザスタ リカバリ関係のソースが同期元のSVMの場合、ソースのSVMディザスタ リカバリ関係情報がMetroClusterパートナーにレプリケートされます。
+* スイッチオーバーおよびスイッチバックの実行中に、SVMディザスタ リカバリのデスティネーションへのレプリケーションが失敗することがあります。
 +
-ただし、スイッチオーバーまたはスイッチバックのプロセスが完了すると、SVMディザスタリカバリの次回のスケジュールされた更新は成功します。
+ただし、スイッチオーバーまたはスイッチバック処理の完了後、SVMディザスタ リカバリの次回のスケジュールされている更新は成功します。
 
 
 
 
 
  a| 
-整合グループ
+整合性グループ
  a| 
-ONTAP 9 14.1以降でサポートされています。詳細については、を参照してください xref:../consistency-groups/protect-task.html[整合グループの保護]。
+ONTAP 9.14.1以降でサポートされます。詳細については、xref:../consistency-groups/protect-task.html[整合性グループの保護]を参照してください。
 
 
 
@@ -235,9 +235,9 @@ SVMディザスタ リカバリではサポートされません。
 
 
  a| 
-バージョンに依存しない
+バージョンへの非依存性
  a| 
-サポートされません。
+サポートされていません。
 
 
 
@@ -253,9 +253,9 @@ SVMディザスタ リカバリではサポートされません。
 |===
 
 
-== SVMディザスタリカバリ関係でレプリケートされる設定
+== SVMディザスタ リカバリ関係でレプリケートされる設定
 
-次の表に、オプションと `snapmirror policy create -discard-configs network`オプションの相互作用を示し `snapmirror create -identity-preserve`ます。
+次の表は、 `snapmirror create -identity-preserve`オプションと `snapmirror policy create -discard-configs network`オプションの相互作用を示しています：
 
 [cols="5*"]
 |===
@@ -264,7 +264,7 @@ SVMディザスタ リカバリではサポートされません。
 2+| レプリケートされる設定 2+| `*‑identity‑preserve true*` | `*‑identity‑preserve false*` 
 
 
-|  |  | *設定されていないポリシー `-discard-configs network`* | *セット付きポリシー `-discard-configs network`* |  
+|  |  | * `-discard-configs network`が設定されていないポリシー* | * `-discard-configs network`が設定されたポリシー* |  
 
 
  a| 
@@ -272,7 +272,7 @@ SVMディザスタ リカバリではサポートされません。
  a| 
 NAS LIF
  a| 
-〇
+はい
  a| 
 いいえ
  a| 
@@ -283,7 +283,7 @@ NAS LIF
  a| 
 LIFのKerberos設定
  a| 
-〇
+はい
  a| 
 いいえ
  a| 
@@ -303,22 +303,22 @@ SAN LIF
 
 
  a| 
-ファイアウォールポリシー
+ファイアウォール ポリシー
  a| 
-〇
+はい
  a| 
-〇
+はい
  a| 
 いいえ
 
 
 
  a| 
-サービスポリシー
+サービス ポリシー
  a| 
-〇
+はい
  a| 
-〇
+はい
  a| 
 いいえ
 
@@ -327,7 +327,7 @@ SAN LIF
  a| 
 ルート
  a| 
-〇
+はい
  a| 
 いいえ
  a| 
@@ -336,7 +336,7 @@ SAN LIF
 
 
  a| 
-ブロードキャストドメイン
+ブロードキャスト ドメイン
  a| 
 いいえ
  a| 
@@ -373,165 +373,165 @@ SMB
  a| 
 SMB サーバ
  a| 
-〇
+はい
  a| 
-〇
+はい
  a| 
 いいえ
 
 
 
  a| 
-ローカルグループとローカルユーザ
+ローカル グループおよびローカル ユーザ
  a| 
-〇
+はい
  a| 
-〇
+はい
  a| 
-〇
+はい
 
 
 
  a| 
 権限
  a| 
-〇
+はい
  a| 
-〇
+はい
  a| 
-〇
+はい
 
 
 
  a| 
-シャドウコピー
+シャドウ コピー
  a| 
-〇
+はい
  a| 
-〇
+はい
  a| 
-〇
+はい
 
 
 
  a| 
 BranchCache
  a| 
-〇
+はい
  a| 
-〇
+はい
  a| 
-〇
+はい
 
 
 
  a| 
-サーバオプション
+サーバ オプション
  a| 
-〇
+はい
  a| 
-〇
+はい
  a| 
-〇
+はい
 
 
 
  a| 
-サーバセキュリティ
+サーバ セキュリティ
  a| 
-〇
+はい
  a| 
-〇
+はい
  a| 
 いいえ
 
 
 
  a| 
-ホームディレクトリ、共有
+ホーム ディレクトリ、共有
  a| 
-〇
+はい
  a| 
-〇
+はい
  a| 
-〇
+はい
 
 
 
  a| 
 シンボリックリンク
  a| 
-〇
+はい
  a| 
-〇
+はい
  a| 
-〇
+はい
 
 
 
  a| 
-FPolicyポリシー、fsecurityポリシー、およびfsecurity NTFS
+Fpolicyポリシー、Fsecurityポリシー、およびFsecurity NTFS
  a| 
-〇
+はい
  a| 
-〇
+はい
  a| 
-〇
+はい
 
 
 
  a| 
-ネームマッピングとグループマッピング
+ネーム マッピングおよびグループ マッピング
  a| 
-〇
+はい
  a| 
-〇
+はい
  a| 
-〇
+はい
 
 
 
  a| 
 監査情報
  a| 
-〇
+はい
  a| 
-〇
+はい
  a| 
-〇
+はい
 
 
 
  a| 
 NFS
  a| 
-エクスポートポリシー
+エクスポート ポリシー
  a| 
-〇
+はい
  a| 
-〇
- a| 
-いいえ
-
-
-
- a| 
-エクスポートポリシールール
- a| 
-〇
- a| 
-〇
+はい
  a| 
 いいえ
 
 
 
  a| 
-NFSサーバ
+エクスポート ポリシー ルール
  a| 
-〇
+はい
  a| 
-〇
+はい
+ a| 
+いいえ
+
+
+
+ a| 
+NFS サーバ
+ a| 
+はい
+ a| 
+はい
  a| 
 いいえ
 
@@ -542,44 +542,44 @@ RBAC
  a| 
 セキュリティ証明書
  a| 
-〇
+はい
  a| 
-〇
+はい
  a| 
 いいえ
 
 
 
  a| 
-ログインユーザ、公開鍵、ロール、およびロールの設定
+ログイン ユーザ、公開鍵、ロール、およびロール設定
  a| 
-〇
+はい
  a| 
-〇
+はい
  a| 
-〇
+はい
 
 
 
  a| 
 SSL
  a| 
-〇
+はい
  a| 
-〇
+はい
  a| 
 いいえ
 
 
 
  a| 
-ネームサービス
+ネーム サービス
  a| 
 DNSおよびDNSホスト
  a| 
-〇
+はい
  a| 
-〇
+はい
  a| 
 いいえ
 
@@ -588,20 +588,20 @@ DNSおよびDNSホスト
  a| 
 UNIXユーザおよびUNIXグループ
  a| 
-〇
+はい
  a| 
-〇
+はい
  a| 
-〇
+はい
 
 
 
  a| 
-Kerberos RealmとKerberosキーブロック
+Kerberos RealmおよびKerberosキーブロック
  a| 
-〇
+はい
  a| 
-〇
+はい
  a| 
 いいえ
 
@@ -610,20 +610,20 @@ Kerberos RealmとKerberosキーブロック
  a| 
 LDAPおよびLDAPクライアント
  a| 
-〇
+はい
  a| 
-〇
+はい
  a| 
 いいえ
 
 
 
  a| 
-ネットグループ
+Netgroup
  a| 
-〇
+はい
  a| 
-〇
+はい
  a| 
 いいえ
 
@@ -632,9 +632,9 @@ LDAPおよびLDAPクライアント
  a| 
 NIS
  a| 
-〇
+はい
  a| 
-〇
+はい
  a| 
 いいえ
 
@@ -643,35 +643,35 @@ NIS
  a| 
 WebおよびWebアクセス
  a| 
-〇
+はい
  a| 
-〇
+はい
  a| 
 いいえ
 
 
 
  a| 
-ボリューム
+Volume
  a| 
 オブジェクト
  a| 
-〇
+はい
  a| 
-〇
+はい
  a| 
-〇
+はい
 
 
 
  a| 
-SnapshotとSnapshotポリシー
+スナップショットとスナップショット ポリシー
  a| 
-〇
+はい
  a| 
-〇
+はい
  a| 
-〇
+はい
 
 
 
@@ -689,51 +689,51 @@ SnapshotとSnapshotポリシー
  a| 
 効率化ポリシー
  a| 
-〇
+はい
  a| 
-〇
+はい
  a| 
-〇
+はい
 
 
 
  a| 
-クォータポリシーとクォータポリシールール
+クォータ ポリシーおよびクォータ ポリシー ルール
  a| 
-〇
+はい
  a| 
-〇
+はい
  a| 
-〇
+はい
 
 
 
  a| 
-リカハリキユウ
+リカバリ キュー
  a| 
-〇
+はい
  a| 
-〇
+はい
  a| 
-〇
+はい
 
 
 
  a| 
-ルートボリューム
+ルート ボリューム
  a| 
 ネームスペース
  a| 
-〇
+はい
  a| 
-〇
+はい
  a| 
-〇
+はい
 
 
 
  a| 
-ユーザデータ
+ユーザ データ
  a| 
 いいえ
  a| 
@@ -777,7 +777,7 @@ qtree
 
 
  a| 
-属性：ルートボリュームの状態、スペースギャランティ、サイズ、オートサイズ、およびファイル総数
+属性：ルート ボリュームの状態、スペース ギャランティ、サイズ、オートサイズ、およびファイル総数
  a| 
 いいえ
  a| 
@@ -790,18 +790,18 @@ qtree
  a| 
 ストレージQoS
  a| 
-QoSポリシーグループ
+QoSポリシー グループ
  a| 
-〇
+はい
  a| 
-〇
+はい
  a| 
-〇
+はい
 
 
 
  a| 
-ファイバチャネル（FC）
+Fibre Channel（FC）
  a| 
 いいえ
  a| 
@@ -827,11 +827,11 @@ LUN
  a| 
 オブジェクト
  a| 
-〇
+はい
  a| 
-〇
+はい
  a| 
-〇
+はい
 
 
 
@@ -873,47 +873,47 @@ SNMP
  a| 
 v3ユーザ
  a| 
-〇
+はい
  a| 
-〇
+はい
  a| 
 いいえ
 
 |===
 
 
-== SVMディザスタリカバリのストレージ制限
+== SVMディザスタ リカバリのストレージ制限
 
-次の表に、ストレージオブジェクトごとにサポートされる推奨されるボリュームおよびSVMディザスタリカバリ関係の最大数を示します。制限は多くの場合プラットフォームに依存することに注意してください。特定の構成の制限については、を参照してlink:https://hwu.netapp.com/["Hardware Universe"^]ください。
+以下の表は、ストレージオブジェクトごとにサポートされるボリュームとSVMディザスタリカバリ関係の推奨最大数を示しています。制限はプラットフォームによって異なる場合があることに注意してください。特定の構成の制限については、link:https://hwu.netapp.com/["Hardware Universe"^]を参照してください。
 
 [cols="2*"]
 |===
 
 
-| ストレージオブジェクト | 制限 
+| ストレージ オブジェクト | 制限 
 
 
  a| 
 SVM
  a| 
-300個のフレキシブルボリューム
+300個のフレキシブル ボリューム
 
 
 
  a| 
 HAペア
  a| 
-フレキシブルボリューム×1、000
+1,000 Flexible Volume
 
 
 
  a| 
 クラスタ
  a| 
-128個のSVMディザスタ関係
+128個のSVMディザスタ リカバリ関係
 
 |===
 .関連情報
-* link:https://docs.netapp.com/us-en/ontap-cli/snapmirror-create.html["スナップミラー作成"^]
+* link:https://docs.netapp.com/us-en/ontap-cli/snapmirror-create.html["snapmirror create"^]
 * link:https://docs.netapp.com/us-en/ontap-cli/snapmirror-policy-create.html["snapmirror policy create"^]
 

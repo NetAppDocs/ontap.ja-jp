@@ -2,65 +2,65 @@
 sidebar: sidebar 
 permalink: anti-ransomware/respond-abnormal-task.html 
 keywords: abnormal activity, data entropy, unusual file extensions, potential ransomware attack, false positive, ransomware attack, abnormal activity notification, ransomware alert, detected abnormal volume, suspected file types, attack report, anti-ransomware attack, ransomware ems 
-summary: ONTAPでのARP通知の詳細を確認し、ランサムウェア攻撃が発生しているかどうかとその対処方法を判断します。 
+summary: ONTAPでのARP通知について学び、ランサムウェア攻撃が発生しているかどうか、またそれにどのように対応するかを判断します。 
 ---
-= ONTAP ARPによって検出された異常なアクティビティへの対応
+= ONTAP ARPによって検出された異常なアクティビティに応答する
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-Autonomous Ransomware Protection（ARP）は、保護されたボリューム内の異常なアクティビティを検出すると警告を発行します。通知を評価して、アクティビティが許容可能か（false positive）、または攻撃が悪意のあるものと思われるかどうかを判断する必要があります。攻撃を分類したら、疑わしいファイルに関する警告と通知をクリアできます。
+自律ランサムウェア保護（ARP）は、保護対象ボリューム内で異常なアクティビティを検出すると警告を発します。通知を評価し、アクティビティが許容できるもの（誤検知）か、攻撃が悪意のあるものかを判断する必要があります。攻撃を分類した後、疑わしいファイルに関する警告と通知をクリアできます。
 
 攻撃を分類すると、ARP スナップショットは、分類操作によって開始された短縮期間にわたって保持されるか（ONTAP 9.16.1 以降）、または即座に削除されます（ONTAP 9.15.1 以前）。
 
 
-NOTE: ONTAP 9.11.1以降では、 link:modify-automatic-snapshot-options-task.html["保持設定"] ARP スナップショット用。
+NOTE: ONTAP 9.11.1 以降では、ARPスナップショットのlink:modify-automatic-snapshot-options-task.html["保持設定"]を変更できます。
 
-.タスクの内容
-ARPは、データ エントロピーの上昇、データ暗号化に関連した異常なボリューム アクティビティ、および一般的でないファイル拡張子のいくつかを検出すると、疑わしいファイルのリストを表示します。ONTAP 9.17.1 以降では、NAS 環境と SAN 環境の両方で、エントロピー スパイクの詳細が System Manager の Anti-ransomware ページでも報告されるようになりました。
+.タスク概要
+ARPは、高いデータエントロピー、データ暗号化を伴う異常なボリュームアクティビティ、および通常とは異なるファイル拡張子のいずれかの組み合わせを検出すると、疑わしいファイルのリストを表示します。NAS環境とSAN環境の両方において、ONTAP 9.17.1以降では、エントロピーの急上昇の詳細はSystem Managerの「ランサムウェア対策」ページにも報告されます。
 
-ARP 警告通知が発行された場合は、次の 2 つの方法のいずれかでアクティビティを指定して応答します。
+ARP 警告通知が発行された場合は、次の 2 つの方法のいずれかでアクティビティを指定して応答します：
 
-* *偽陽性*
+* *誤検知*
 +
-特定されたファイル タイプまたはエントロピー スパイクはワークロードで予期されるものであり、無視できます。
+特定されたファイルタイプまたはエントロピースパイクはワークロードで予期されるものであり、無視できます。
 
-* *ランサムウェア攻撃の可能性*
+* *潜在的なランサムウェア攻撃*
 +
-特定されたファイル タイプまたはエントロピー スパイクはワークロードでは予期されないものであり、潜在的な攻撃として扱う必要があります。
+特定されたファイルタイプまたはエントロピースパイクは、ワークロードでは予期しないものであり、潜在的な攻撃として扱う必要があります。
 
 
 
-決定を更新し、ARP 通知をクリアすると、通常の監視が再開されます。ARPは、脅威評価プロファイルに評価を記録し、選択した評価に基づいて、後続のファイル アクティビティを監視します。
+決定を更新し、ARP通知をクリアすると、通常の監視が再開されます。ARPは脅威評価プロファイルに評価を記録し、その選択に基づいてその後のファイルアクティビティを監視します。
 
-攻撃の疑いがある場合は、通知をクリアする前に、攻撃であるかどうかを確認し、攻撃である場合はそれに対応し、保護されたデータを復元する必要があります。link:index.html#how-to-recover-data-in-ontap-after-a-ransomware-attack["ランサムウェア攻撃から回復する方法の詳細をご覧ください"]です。
+攻撃疑いのケースでは、通知をクリアする前に攻撃であるかどうかを判断し、攻撃である場合は対処して保護対象のデータをリストアする必要があります。link:index.html#how-to-recover-data-in-ontap-after-a-ransomware-attack["ランサムウェア攻撃から回復する方法の詳細"]。
 
 
-NOTE: ボリューム全体をリストアする場合、クリアする通知はありません。
+NOTE: ボリューム全体をリストアした場合、クリアする通知はありません。
 
 .開始する前に
 ARP はボリュームをアクティブに保護している必要があり、学習モードや評価モードであってはなりません。
 
 .手順
-System ManagerまたはONTAP CLIを使用して、異常なアクティビティに対応できます。
+異常なアクティビティに対応するには、System Manager または ONTAP CLI を使用できます。
 
 [role="tabbed-block"]
 ====
 .System Manager
 --
-. 異常なアクティビティに関する通知を受け取ったら、リンクをクリックします。または、*ボリューム*概要の*セキュリティ*タブに移動します。
+. 「異常なアクティビティ」通知を受け取った場合は、リンクをクリックしてください。または、*ボリューム*概要の*セキュリティ*タブに移動します。
 +
-警告は*[イベント]*メニューの*[概要]*ペインに表示されます。
+警告は、*Events* メニューの *Overview* ペインに表示されます。
 
-. *セキュリティ* タブで、疑わしいファイルの種類またはエントロピー スパイクのレポートを確認します。
+. *セキュリティ* タブで、疑わしいファイルの種類またはエントロピースパイクのレポートを確認します。
 +
 ** 疑わしいファイルについては、[*疑わしいファイルの種類*] ダイアログ ボックスで各ファイルの種類を調べ、それぞれを個別にマークします。
 ** エントロピーの急上昇については、エントロピー レポートを調べます。
 
 
-. 応答を記録します:
+. 応答を記録します：
 +
 [cols="25,75"]
 |===
@@ -70,18 +70,18 @@ System ManagerまたはONTAP CLIを使用して、異常なアクティビティ
 
 
  a| 
-誤検出
+偽陽性
  a| 
 .. 次のいずれかを実行します。
 +
-*** ファイル タイプに関する警告の場合は、[*疑わしいファイル タイプを更新してクリアする*] を選択します。
-*** エントロピースパイクの場合は、「*誤検知としてマーク*」を選択します。
+*** ファイル タイプに関する警告の場合は、*疑わしいファイル タイプを更新してクリアする*を選択します。
+*** エントロピースパイクの場合は、*誤検知としてマーク*を選択します。
 +
-これらのアクションにより、疑わしいファイルまたはアクティビティに関する警告通知がクリアされます。その後、ARPはボリュームの通常の監視を再開します。ONTAP9.16.1以降のONTAP /AIでは、分類操作によってトリガーされた短縮された保持期間の経過後に、ARPスナップショットは自動的に削除されます。9.15.1以前のバージョンでは、疑わしいファイルタイプをクリアすると、関連するARPスナップショットが自動的に削除されますONTAP
+これらのアクションにより、疑わしいファイルまたはアクティビティに関する警告通知がクリアされます。その後、ARPはボリュームの通常の監視を再開します。ONTAP 9.16.1以降のARP/AIでは、分類操作によってトリガーされた短縮された保持期間の経過後にARPスナップショットが自動的に削除されます。ONTAP 9.15.1以前の場合、疑わしいファイルタイプをクリアすると、関連するARPスナップショットが自動的に削除されます。
 
 +
 
-NOTE: ONTAP 9.13.1 以降、MAV を使用して ARP 設定を保護している場合、明らかに疑わしい操作によって 1 人以上の追加管理者の承認を得るように求められます。link:../multi-admin-verify/request-operation-task.html["すべての管理者から承認を受ける必要があります"] MAV 承認グループに関連付けられていないと、操作は失敗します。
+NOTE: ONTAP 9.13.1以降、MAVを使用してARP設定を保護している場合、clear-suspect操作では、1人以上の追加管理者の承認を取得するように求められます。link:../multi-admin-verify/request-operation-task.html["すべての管理者からの承認を得る必要があります"]MAV承認グループに関連付けられているか、操作は失敗します。
 
 
 
@@ -90,18 +90,18 @@ NOTE: ONTAP 9.13.1 以降、MAV を使用して ARP 設定を保護している�
 
 
  a| 
-ランサムウェア攻撃の可能性
+Potential Ransomware Attack
  a| 
-.. 攻撃に応答する:
+.. 攻撃に応答する：
 +
-*** ファイルタイプの警告については、選択したファイルを*潜在的なランサムウェア攻撃*としてマークし、 link:recover-data-task.html["保護されたデータのリストア"] 。
-*** 攻撃を示唆するエントロピースパイクの場合は、「潜在的なランサムウェア攻撃としてマーク」を選択し、 link:recover-data-task.html["保護されたデータのリストア"] 。
+*** ファイル タイプの警告については、選択したファイルを *潜在的なランサムウェア攻撃* link:recover-data-task.html["保護されたデータを復元する"]としてマークします。
+*** 攻撃を示唆するエントロピーの急上昇については、*潜在的なランサムウェア攻撃としてマーク*を選択し、link:recover-data-task.html["保護されたデータを復元する"]。
 
 
-.. データの復元が完了したら、決定を記録し、通常の ARP 監視を再開します。
+.. データの復元が完了したら、決定を記録し、通常の ARP 監視を再開します：
 +
-*** ファイル タイプに関する警告の場合は、[*疑わしいファイル タイプを更新してクリアする*] を選択します。
-*** エントロピースパイクの場合は、「*潜在的なランサムウェア攻撃としてマーク*」を選択し、「*保存して閉じる*」を選択します。
+*** ファイル タイプに関する警告の場合は、*疑わしいファイル タイプを更新してクリアする*を選択します。
+*** エントロピースパイクの場合は、*潜在的なランサムウェア攻撃としてマーク*を選択し、*保存して閉じる*を選択します。
 
 
 
@@ -109,7 +109,7 @@ NOTE: ONTAP 9.13.1 以降、MAV を使用して ARP 設定を保護している�
 
 NOTE: ボリューム全体を復元した場合、クリアする必要がある疑わしいファイル タイプ通知はありません。
 
-決定を記録すると、攻撃レポートがクリアされます。ONTAP9.16.1以降のONTAP /AIでは、分類操作によってトリガーされた短縮された保持期間の経過後に、ARPスナップショットは自動的に削除されます。9.15.1以前では、ボリュームをリストアするとARPスナップショットは自動的に削除されますONTAP
+決定を記録すると、攻撃レポートがクリアされます。ONTAP 9.16.1以降のARP/AIでは、分類操作によってトリガーされた短縮保持期間の後、ARPスナップショットが自動的に削除されます。ONTAP 9.15.1以前では、ボリュームをリストアすると、ARPスナップショットが自動的に削除されます。
 
 |===
 
@@ -118,7 +118,7 @@ NOTE: ボリューム全体を復元した場合、クリアする必要があ�
 .CLI
 --
 .攻撃を確認する
-. ランサムウェア攻撃の疑いがあるという通知を受け取ったら、攻撃の時間と重大度を確認します。
+. 潜在的なランサムウェア攻撃に関する通知を受け取ったら、攻撃を受けた時間と重大度を確認します。
 +
 [source, cli]
 ----
@@ -145,14 +145,14 @@ EMSメッセージを確認することもできます。
 ----
 event log show -message-name callhome.arw.activity.seen
 ----
-. 攻撃レポートを生成し、保存場所を指定します。
+. 攻撃レポートを生成し、保存場所を指定します：
 +
 [source, cli]
 ----
 security anti-ransomware volume attack generate-report -vserver <svm_name> -volume <vol_name> -dest-path <[svm_name]:[junction_path/sub_dir_name]>
 ----
 +
-コマンド例：
+サンプルコマンド：
 
 +
 [listing]
@@ -176,27 +176,27 @@ cat report_file_vs0_vol1_14-09-2021_01-21-08
 
 
 .行動を起こす
-. ファイル拡張子またはエントロピー スパイクの評価に基づいて、次のいずれかのアクションを実行します。
+. ファイル拡張子またはエントロピースパイクの評価に基づいて、次のいずれかのアクションを実行します：
 +
-** False positive
+** 偽陽性
 +
-決定を記録し、通常の Autonomous Ransomware Protection 監視を再開するには、次のいずれかのコマンドを実行します。
+決定を記録し、通常の Autonomous Ransomware Protection 監視を再開するには、次のいずれかのコマンドを実行します：
 
 +
-*** ファイル拡張子の場合:
+*** ファイル拡張子の場合：
 +
 [source, cli]
 ----
 anti-ransomware volume attack clear-suspect -vserver <svm_name> -volume <vol_name> [<extension_identifiers>] -false-positive true
 ----
 +
-特定の拡張子のみをfalse positiveとして識別するには、次のオプションパラメータを使用します。
+特定の拡張機能のみを誤検知として識別するには、次のオプション パラメータを使用します：
 
 +
-**** `[-extension <text>, … ]`:ファイル拡張子
+**** `[-extension <text>, … ]`：ファイル拡張子
 
 
-*** エントロピースパイクの場合:
+*** エントロピースパイクの場合：
 +
 [source, cli]
 ----
@@ -204,25 +204,25 @@ security anti-ransomware volume attack clear-suspect -vserver <svm_name> -volume
 ----
 
 
-** ランサムウェア攻撃の可能性
+** 潜在的なランサムウェア攻撃
 +
-攻撃に対応し link:../anti-ransomware/recover-data-task.html["ARPによって作成されたバックアップスナップショットからデータをリカバリします"].データが回復されたら、次のコマンドのいずれかを実行して決定を記録し、通常の ARP 監視を再開します
+攻撃に応答し、link:../anti-ransomware/recover-data-task.html["ARPで作成されたバックアップSnapshotからデータをリカバリする"]。データが回復されたら、以下のコマンドのいずれかを実行して決定を記録し、通常の ARP 監視を再開します：
 
 +
-*** ファイル拡張子の場合:
+*** ファイル拡張子の場合：
 +
 [source, cli]
 ----
 anti-ransomware volume attack clear-suspect -vserver <svm_name> -volume <vol_name> [<extension identifiers>] -false-positive false
 ----
 +
-特定の拡張機能のみをランサムウェアの可能性があると特定するには、次のオプションパラメータを使用します。
+特定の拡張機能のみを潜在的なランサムウェアとして識別するには、次のオプションパラメータを使用します：
 
 +
-**** `[-extension <text>, … ]`:ファイル拡張子
+**** `[-extension <text>, … ]`：ファイル拡張子
 
 
-*** エントロピースパイクの場合:
+*** エントロピースパイクの場合：
 +
 [source, cli]
 ----
@@ -233,9 +233,9 @@ security anti-ransomware volume attack clear-suspect -vserver <svm_name> -volume
 
 
 +
-これ `clear-suspect`操作により攻撃レポートがクリアされます。ボリューム全体をリストアした場合、クリアする疑わしいファイルタイプの通知はありません。ONTAP9.16.1以降のONTAP /AIでは、分類操作によってトリガーされた短縮された保持期間の経過後に、ARPスナップショットは自動的に削除されます。9.15.1以前では、ボリュームをリストアするか疑わしいイベントをクリアすると、ARPスナップショットは自動的に削除されますONTAP
+この `clear-suspect`操作により、攻撃レポートがクリアされます。ボリューム全体をリストアした場合、クリアする疑わしいファイルタイプの通知はありません。ONTAP 9.16.1以降のARP/AIでは、分類操作によってトリガーされた短縮された保持期間の経過後にARPスナップショットが自動的に削除されます。ONTAP 9.15.1以前の場合、ボリュームをリストアするか、疑わしいイベントをクリアすると、ARPスナップショットが自動的に削除されます。
 
-. 9.18.1以降では、 `clear-suspect`手術：
+. 9.18.1 以降では、 `clear-suspect`操作のステータスを判別できます：
 +
 [source, cli]
 ----
@@ -244,7 +244,7 @@ security anti-ransomware volume show -clear-suspect-status -volume <vol_name> -v
 
 
 .MAVオプション
-. MAVを使用していて、想定される操作に追加の承認が必要な場合 `clear-suspect`、各MAVグループ承認者は次の作業を行う必要があります。
+. MAV を使用しており、予想される `clear-suspect`操作に追加の承認が必要な場合は、各 MAV グループ承認者は次の操作を行う必要があります：
 +
 .. 要求を表示します。
 +
@@ -252,18 +252,18 @@ security anti-ransomware volume show -clear-suspect-status -volume <vol_name> -v
 ----
 security multi-admin-verify request show
 ----
-.. 通常のランサムウェア対策監視の再開要求を承認します。
+.. ランサムウェア対策の通常の監視を再開する要求を承認します。
 +
 [source, cli]
 ----
 security multi-admin-verify request approve -index[<number returned from show request>]
 ----
 +
-最後のグループ承認者に対する応答は、ボリュームが変更され、誤検出が記録されたことを示します。
+最後のグループの承認者には、ボリュームが変更され、誤検出が記録された旨の応答が返されます。
 
 
 
-. MAVを使用していて、MAVグループ承認者である場合は、疑わしいリクエストを却下することもできます。
+. MAVを使用していて、MAVグループの承認者である場合、疑わしいファイル タイプのクリア要求を却下することもできます。
 +
 [source, cli]
 ----
@@ -274,8 +274,8 @@ security multi-admin-verify request veto -index[<number returned from show reque
 --
 ====
 .関連情報
-* link:https://kb.netapp.com/onprem%2Fontap%2Fda%2FNAS%2FUnderstanding_Autonomous_Ransomware_Protection_attacks_and_the_Autonomous_Ransomware_Protection_snapshot#["NetAppナレッジベース: Autonomous Ransomware Protection 攻撃と Autonomous Ransomware Protection スナップショットについて"^]
-* link:modify-automatic-snapshot-options-task.html["自動スナップショットオプションを変更します。"]
-* link:https://docs.netapp.com/us-en/ontap-cli/search.html?q=security+anti-ransomware+volume["セキュリティ ランサムウェア対策 ボリューム"^]
-* link:https://docs.netapp.com/us-en/ontap-cli/search.html?q=security+multi-admin-verify+request["セキュリティ マルチ管理者検証リクエスト"^]
+* link:https://kb.netapp.com/onprem%2Fontap%2Fda%2FNAS%2FUnderstanding_Autonomous_Ransomware_Protection_attacks_and_the_Autonomous_Ransomware_Protection_snapshot#["NetAppナレッジベース：Autonomous Ransomware Protection攻撃とAutonomous Ransomware Protectionスナップショットについて"^]
+* link:modify-automatic-snapshot-options-task.html["自動スナップショットのオプションを変更する"]
+* link:https://docs.netapp.com/us-en/ontap-cli/search.html?q=security+anti-ransomware+volume["セキュリティ・アンチランサムウェア・ボリューム"^]
+* link:https://docs.netapp.com/us-en/ontap-cli/search.html?q=security+multi-admin-verify+request["セキュリティ多管理者検証リクエスト"^]
 

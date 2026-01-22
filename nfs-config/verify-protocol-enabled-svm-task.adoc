@@ -4,7 +4,7 @@ sidebar: sidebar
 keywords: verify, nfs, protocol, enabled, svm 
 summary: SVMでNFSを設定して使用する前に、このプロトコルが有効になっていることを確認する必要があります。 
 ---
-= ONTAP SVM での NFS プロトコルの有効化を確認する
+= ONTAP SVMでNFSプロトコルの有効化を確認する
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
@@ -13,40 +13,40 @@ summary: SVMでNFSを設定して使用する前に、このプロトコルが�
 [role="lead"]
 SVMでNFSを設定して使用する前に、このプロトコルが有効になっていることを確認する必要があります。
 
-.タスクの内容
-この作業は通常、SVMのセットアップ時に実行します。ただし、セットアップ時にプロトコルを有効にしなかった場合でも、コマンドを使用してあとから有効にすることができます `vserver add-protocols`。
+.タスク概要
+これは通常、SVM のセットアップ中に実行されますが、セットアップ中にプロトコルを有効にしなかった場合は、後で `vserver add-protocols`コマンドを使用して有効にできます。
 
 [NOTE]
 ====
-作成したプロトコルは、 LIF から追加または削除することはできません。
+LIF を作成した後は、プロトコルを追加したり削除したりすることはできません。
 
 ====
-コマンドを使用して、SVMのプロトコルを無効にすることもできます `vserver remove-protocols`。
+ `vserver remove-protocols`コマンドを使用してSVM上のプロトコルを無効にすることもできます。
 
 .手順
-. 現在 SVM で有効になっているプロトコルと無効になっているプロトコルを確認します。
+. SVM に対して現在有効になっているプロトコルと無効になっているプロトコルを確認します：
 +
 `vserver show -vserver _vserver_name_ -protocols`
 
 +
-コマンドを使用して、クラスタ内のすべてのSVMで現在有効になっているプロトコルを表示することもできます `vserver show-protocols`。
+ `vserver show-protocols`コマンドを使用して、クラスタ内のすべてのSVMで現在有効になっているプロトコルを表示することもできます。
 
-. 必要に応じて、プロトコルを有効または無効にします。
+. 必要に応じて、プロトコルを有効または無効にします：
 +
-** NFSプロトコルを有効にするには+
+** NFSプロトコルを有効にするには：+
 `vserver add-protocols -vserver _vserver_name_ -protocols nfs`
 ** プロトコルを無効にするには：+
 `vserver remove-protocols -vserver    _vserver_name_ -protocols _protocol_name_[,_protocol_name_,...]`
 
 
-. 有効 / 無効なプロトコルが正しく更新されたことを確認します。
+. 有効化されたプロトコルと無効化されたプロトコルが正しく更新されたことを確認します：
 +
 `vserver show -vserver _vserver_name_ -protocols`
 
 
 
 .例
-次のコマンドは、 vs1 という SVM で現在有効 / 無効（許可 / 不許可）になっているプロトコルを表示します。
+次のコマンドは、vs1 という名前の SVM で現在有効になっているプロトコルと無効になっているプロトコル（許可されているプロトコルと許可されていないプロトコル）を表示します：
 
 [listing]
 ----
@@ -55,7 +55,7 @@ Vserver           Allowed Protocols         Disallowed Protocols
 -----------       ----------------------    -----------------------
 vs1.example.com   nfs                       cifs, fcp, iscsi, ndmp
 ----
-次のコマンドは、vs1というSVMで有効になっているプロトコルのリストにを追加することで、NFS経由のアクセスを許可し `nfs`ます。
+次のコマンドは、vs1という名前のSVM上の有効なプロトコルのリストに `nfs`を追加することで、NFS経由のアクセスを許可します：
 
 [listing]
 ----

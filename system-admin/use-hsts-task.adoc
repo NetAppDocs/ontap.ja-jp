@@ -2,7 +2,7 @@
 permalink: system-admin/use-hsts-task.html 
 sidebar: sidebar 
 keywords: manage, http, https, hsts, strict transport security, security, web, access, certificate, encrypted, connection, server, browser, web services 
-summary: HSTS を使用して、 ONTAP Web サービスに HTTPS 接続を強制します。 
+summary: HSTS を使用して、ONTAP Web サービスに HTTPS 接続を強制します。 
 ---
 = ONTAP WebサービスにHSTSを使用する
 :allow-uri-read: 
@@ -11,14 +11,14 @@ summary: HSTS を使用して、 ONTAP Web サービスに HTTPS 接続を強制
 
 
 [role="lead"]
-HTTP Strict Transport Security（HSTS）は、プロトコルダウングレード攻撃やCookieハイジャックといった中間者攻撃からウェブサイトを保護するためのWebセキュリティポリシーメカニズムです。HSTSはHTTPSの使用を強制することで、ユーザーのブラウザとサーバ間のすべての通信が暗号化されることを保証します。ONTAP9.17.1以降、 ONTAPはONTAP Webサービスに対してHTTPS接続を強制できるようになりました。
+HTTP Strict Transport Security（HSTS）は、プロトコルダウングレード攻撃やCookieハイジャックといった中間者攻撃からWebサイトを保護するためのWebセキュリティポリシーメカニズムです。HTTPSの使用を強制することで、HSTSはユーザーのブラウザとサーバ間のすべての通信が暗号化されることを保証します。ONTAP 9.17.1以降、ONTAPはONTAP WebサービスにHTTPS接続を強制できるようになりました。
 
 
-NOTE: HSTSは、 ONTAPとの最初のセキュアなHTTPS接続が確立された後にのみ、Webブラウザによって適用されます。ブラウザが最初のセキュアな接続を確立しない場合、HSTSは適用されません。HSTSの管理については、ブラウザのドキュメントを参照してください。
+NOTE: HSTSは、ONTAPとの最初のセキュアなHTTPS接続が確立された後にのみ、Webブラウザによって適用されます。ブラウザが最初のセキュアな接続を確立しない場合、HSTSは適用されません。HSTSの管理については、ブラウザのドキュメントを参照してください。
 
-.タスクの内容
+.タスク概要
 * 9.17.1以降では、新規にインストールされたONTAPクラスタではHSTSがデフォルトで有効になっています。9.17.1にアップグレードすると、HSTSはデフォルトで有効になりません。アップグレード後にHSTSを有効にする必要があります。
-* HSTSはすべてサポートされていますlink:../system-admin/manage-web-services-concept.html["ONTAP Webサービス"] 。
+* HSTS はすべてのlink:../system-admin/manage-web-services-concept.html["ONTAP Webサービス"]でサポートされています。
 
 
 .開始する前に
@@ -27,12 +27,12 @@ NOTE: HSTSは、 ONTAPとの最初のセキュアなHTTPS接続が確立され�
 
 
 
-== HSTS構成を表示
+== HSTS設定を表示
 
 現在の HSTS 構成を表示して、有効になっているかどうかを確認し、最大経過時間の設定を表示できます。
 
 .手順
-. 使用 `system services web show` HSTS 設定を含む現在の Web サービス構成を表示するコマンド:
+.  `system services web show`コマンドを使用して、HSTS設定を含む現在のWebサービス構成を表示します：
 +
 [listing]
 ----
@@ -58,12 +58,12 @@ Enforce Network Interface Service-Policy: -
 
 
 
-== HSTSを有効にして最大年齢を設定する
+== HSTSを有効にして最大期間を設定する
 
 ONTAP 9.17.1以降、新しいONTAPクラスタではHSTSがデフォルトで有効になっています。既存のクラスタを9.17.1以降にアップグレードする場合は、クラスタでHSTSを手動で有効にして、HTTPSの使用を強制する必要があります。HSTSを有効にして最大有効期間を設定できます。HSTSが有効になっている場合は、いつでも最大有効期間を変更できます。HSTSを有効にすると、ブラウザは最初のセキュア接続が確立された後にのみ、セキュア接続の強制を開始します。
 
 .手順
-. 使用 `system services web modify` HSTS を有効にするか、最大経過時間を変更するコマンド:
+.  `system services web modify`コマンドを使用して、HSTS を有効にするか、最大経過時間を変更します：
 +
 [source, cli]
 ----
@@ -78,10 +78,10 @@ system services web modify -hsts-enabled true -hsts-max-age <seconds>
 
 == HSTSを無効にする
 
-ブラウザは接続ごとにHSTSの最大有効期間設定を保存し、 ONTAPでHSTSが無効になっている場合でも、接続中はHSTSを継続的に適用します。ブラウザがHSTSの適用を停止するまでには、設定された最大有効期間までかかります。この期間中に安全な接続が不可能になった場合、HSTSを適用しているブラウザは、問題が解決されるかブラウザの最大有効期間が切れるまで、 ONTAP Webサービスへのアクセスを許可しません。
+ブラウザは接続ごとにHSTSの最大有効期間設定を保存し、ONTAPでHSTSが無効になっている場合でも、全期間にわたってHSTSを強制適用し続けます。HSTSが無効になった後、ブラウザがHSTSの強制適用を停止するまでには、設定された最大有効期間までかかります。この期間中に安全な接続が不可能になった場合、HSTSを強制適用しているブラウザは、問題が解決されるかブラウザの最大有効期間が切れるまで、ONTAP Webサービスへのアクセスを許可しません。
 
 .手順
-. HSTSを無効にするには、  `system services web modify`指示：
+.  `system services web modify`コマンドを使用して HSTS を無効にします：
 +
 [source, cli]
 ----
@@ -90,4 +90,4 @@ system services web modify -hsts-enabled false
 
 
 .関連情報
-link:https://datatracker.ietf.org/doc/html/rfc6797["RFC 6797 - HTTP 厳格なトランスポート セキュリティ (HSTS)"^]
+link:https://datatracker.ietf.org/doc/html/rfc6797["RFC 6797 - HTTP Strict Transport Security（HSTS）"^]

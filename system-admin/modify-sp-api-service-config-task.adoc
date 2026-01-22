@@ -2,58 +2,58 @@
 permalink: system-admin/modify-sp-api-service-config-task.html 
 sidebar: sidebar 
 keywords: modify, sp, api, service, configuration, network 
-summary: SP API は、 ONTAP がネットワークを介して SP と通信できるようにするセキュアなネットワーク API です。SP API サービスで使用されるポートを変更したり、サービスが内部通信に使用する証明書を更新したり、サービス全体を無効にしたりできます。設定の変更が必要になることはほとんどありません。 
+summary: SP APIは、ONTAPがネットワーク経由でSPと通信できるようにするセキュアなネットワークAPIです。SP APIサービスが使用するポートの変更、サービスが内部通信に使用する証明書の更新、またはサービス全体の無効化を実行できます。設定の変更が必要になるのは、ごくまれな状況のみです。 
 ---
-= ONTAPサービスプロセッサAPIの設定を変更します。
+= ONTAPサービスプロセッサAPI構成を変更する
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-SP API は、 ONTAP がネットワークを介して SP と通信できるようにするセキュアなネットワーク API です。SP API サービスで使用されるポートを変更したり、サービスが内部通信に使用する証明書を更新したり、サービス全体を無効にしたりできます。設定の変更が必要になることはほとんどありません。
+SP APIは、ONTAPがネットワーク経由でSPと通信できるようにするセキュアなネットワークAPIです。SP APIサービスが使用するポートの変更、サービスが内部通信に使用する証明書の更新、またはサービス全体の無効化を実行できます。設定の変更が必要になるのは、ごくまれな状況のみです。
 
-.タスクの内容
-* SP APIサービスでは、デフォルトでポートが使用され `50000`ます。
+.タスク概要
+* SP APIサービスはデフォルトでポート `50000`を使用します。
 +
-ポートが別のネットワークアプリケーションによる通信に使用されているネットワーク設定の場合や、他のアプリケーションからのトラフィックとSP APIサービスによって生成されるトラフィックを区別する場合など、ポートの値を変更できます `50000`。
+たとえば、ポート `50000`が別のネットワークアプリケーションによる通信に使用されているネットワーク設定の場合や、他のアプリケーションからのトラフィックとSP APIサービスによって生成されたトラフィックを区別する場合は、ポート値を変更できます。
 
-* SP API サービスが使用する SSL 証明書および SSH 証明書は、クラスタ内専用であり、外部に配布されることはありません。
+* SP APIサービスで使用されるSSLおよびSSH証明書は、クラスター内部のものであり、外部には配布されません。
 +
-証明書のセキュリティが侵害されることはほとんどありませんが、侵害された場合には証明書を更新できます。
+万が一、証明書が侵害された場合は、証明書を更新することができます。
 
-* SP API サービスは、デフォルトで有効になっています。
+* SP APIサービスはデフォルトで有効になっています。
 +
-SP API サービスを無効にする必要があるのは、 SP が設定または使用されていないプライベート LAN でサービスを無効にする場合など、例外的な場合だけです。
+SP APIサービスを無効にする必要があるのは、SPが構成または使用されていないプライベートLANでサービスを無効にしたい場合など、まれな状況のみです。
 
 +
-SP API サービスを無効にすると、 API は着信接続を受け付けません。また ' ネットワーク・ベースの SP ファームウェア・アップデートやネットワーク・ベースの SP ログ収集などの機能は使用できなくなりますシステムはシリアルインターフェイスの使用に切り替わります。
+SP APIサービスが無効になっている場合、APIは着信接続を一切受け入れません。さらに、ネットワークベースのSPファームウェアアップデートやネットワークベースのSP「`down system`」ログ収集などの機能も利用できなくなります。システムはシリアル管理インターフェイスを使用するように切り替わります。
 
 
 
 .手順
-. コマンドを使用して、advanced権限レベルに切り替えます `set -privilege advanced`。
-. SP APIサービス設定を変更します。
+.  `set -privilege advanced`コマンドを使用して、advanced権限レベルに切り替えます。
+. SP APIサービス設定を次のように変更します。
 +
 |===
-| 状況 | 使用するコマンド 
+| 状況 | 次のコマンドを使用します... 
 
 
  a| 
-SP API サービスで使用されるポートを変更する
+SP APIサービスで使用されるポートを変更する
  a| 
-`system service-processor api-service modify`を使用します `-port` {`49152`。.`65535`}パラメータ
+`system service-processor api-service modify`と `-port` {`49152`.`65535`}パラメータ
 
 
 
  a| 
-SP APIサービスで内部通信に使用するSSL証明書とSSH証明書を更新する
+SP APIサービスの内部通信に使用されるSSL証明書およびSSH証明書の更新
  a| 
-** ONTAP 9 .5以降での使用 `system service-processor api-service renew-internal-certificate`
-** ONTAP 9 .4以前の場合
+** ONTAP 9.5以降の場合は `system service-processor api-service renew-internal-certificate`を使用します
+** ONTAP 9.4以前：
 ** `system service-processor api-service renew-certificates`
 +
-パラメータを指定しない場合は、ホスト証明書（クライアント証明書とサーバ証明書を含む）のみが更新されます。
+パラメータが指定されていない場合は、ホスト証明書（クライアント証明書とサーバー証明書を含む）のみが更新されます。
 
 +
  `-renew-all true`パラメータを指定すると、ホスト証明書とルートCA証明書の両方が更新されます。
@@ -63,16 +63,16 @@ SP APIサービスで内部通信に使用するSSL証明書とSSH証明書を�
 
 
  a| 
-通信
+comm
  a| 
 
 
 
  a| 
-SP API サービスを無効または再度有効にします
+SP APIサービスを無効化または再度有効化する
  a| 
-`system service-processor api-service modify`{`true`|`false`パラメータを指定した場合 `-is-enabled`
+`system service-processor api-service modify`と `-is-enabled` {`true`|`false`}パラメータ
 
 |===
-. コマンドを使用して、SP APIサービス設定を表示します `system service-processor api-service show`。
+.  `system service-processor api-service show`コマンドを使用してSP APIサービス構成を表示します。
 

@@ -4,7 +4,7 @@ sidebar: sidebar
 keywords: configure, branchcache, service, per-share, basis, smb, share, configure branchcache on the cifs server 
 summary: BranchCacheサービスを共有ごとに提供するようにBranchCacheを設定できます。また、すべてのSMB共有でキャッシュを自動的に有効にするようにBranchCacheを設定することもできます。 
 ---
-= ONTAP SMBサーバーでBranchCacheを構成する
+= ONTAP SMB サーバーで BranchCache を設定する
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
@@ -13,98 +13,98 @@ summary: BranchCacheサービスを共有ごとに提供するようにBranchCac
 [role="lead"]
 BranchCacheサービスを共有ごとに提供するようにBranchCacheを設定できます。また、すべてのSMB共有でキャッシュを自動的に有効にするようにBranchCacheを設定することもできます。
 
-.タスクの内容
+.タスク概要
 BranchCacheはSVMで設定できます。
 
-* CIFSサーバ上のすべてのSMB共有に格納されたすべてのコンテンツに対してキャッシュサービスを提供する場合は、すべての共有のBranchCache設定を作成できます。
-* CIFSサーバ上の選択したSMB共有に格納されたコンテンツに対してキャッシュサービスを提供する場合は、共有ごとのBranchCache設定を作成できます。
+* CIFSサーバ上のすべてのSMB共有に格納されたすべてのコンテンツに対してキャッシュ サービスを提供する場合は、すべての共有のBranchCache設定を作成できます。
+* CIFSサーバ上の選択したSMB共有に格納されたコンテンツに対してキャッシュ サービスを提供する場合は、共有ごとのBranchCache設定を作成できます。
 
 
 BranchCacheの設定時には、次のパラメータを指定する必要があります。
 
 |===
-| 必須パラメータ | 説明 
+| 必須パラメータ | 概要 
 
 
  a| 
-SVM 名 _
+_SVM 名_
  a| 
-BranchCacheはSVM単位で設定します。BranchCacheサービスを設定するCIFS対応SVMを指定する必要があります。
+BranchCacheはSVMごとに設定します。BranchCacheサービスを設定するCIFS対応のSVMを指定する必要があります。
 
 
 
  a| 
-ハッシュストアへのパス _
+_ハッシュ ストアへのパス_
  a| 
-BranchCacheハッシュは、SVMボリューム上の通常のファイルに格納されます。ONTAPにハッシュデータを格納する既存のディレクトリのパスを指定する必要があります。BranchCacheハッシュパスは読み取り/書き込み可能である必要があります。Snapshotディレクトリなどの読み取り専用パスは指定できません。他のデータを含むボリュームにハッシュデータを格納することも、ハッシュデータを格納するための別のボリュームを作成することもできます。
+BranchCacheハッシュはSVMボリューム上の通常のファイルに保存されます。ONTAPでハッシュデータを保存する既存のディレクトリへのパスを指定する必要があります。BranchCacheハッシュパスは読み書き可能である必要があります。スナップショットディレクトリなどの読み取り専用パスは使用できません。ハッシュデータは、他のデータが格納されているボリュームに保存することも、ハッシュデータ専用の別のボリュームを作成することもできます。
 
-SVMがSVMディザスタリカバリソースの場合、ハッシュパスをルートボリュームに配置することはできません。これは、ルートボリュームがディザスタリカバリデスティネーションにレプリケートされないためです。
+SVMがSVMディザスタ リカバリ ソースである場合、ハッシュ パスをルート ボリューム上に配置することはできません。これは、ルート ボリュームがディザスタ リカバリ デスティネーションにレプリケートされないためです。
 
-ハッシュパスには、空白とファイル名の有効な文字を含めることができます。
+ハッシュ パスには、空白を含む任意のファイル名に有効な文字を含めることができます。
 
 |===
 必要に応じて、次のパラメータを指定できます。
 
 |===
-| オプションのパラメータ | 説明 
+| オプションのパラメータ | 概要 
 
 
  a| 
-サポートされているバージョン _
+_サポートされているバージョン_
  a| 
-ONTAPでは、BranchCache 1および2がサポートされます。バージョン1、バージョン2、またはその両方を有効にできます。デフォルトでは、両方のバージョンが有効になります。
-
-
-
- a| 
-_ ハッシュストアの最大サイズ _
- a| 
-ハッシュデータストアに使用するサイズを指定できます。ハッシュデータがこの値を超えると、ONTAPは古いハッシュを削除して新しいハッシュ用のスペースを確保します。ハッシュストアのデフォルトサイズは1GBです。ハッシュが過度に破棄されない場合、BranchCacheのパフォーマンスは向上します。ハッシュストアがいっぱいになったためにハッシュが頻繁に破棄されると判断した場合は、BranchCacheの設定を変更してハッシュストアのサイズを大きくすることができます。
+ONTAPでは、BranchCache 1および2がサポートされています。バージョン1、バージョン2、または両方のバージョンを有効にできます。デフォルトでは、両方のバージョンが有効になります。
 
 
 
  a| 
-_ サーバキー _
+_ハッシュ ストアの最大サイズ_
  a| 
-クライアントがBranchCacheサーバを偽装できないようにするためにBranchCacheサービスで使用されるサーバキーを指定できます。指定しない場合、BranchCacheの設定の作成時にサーバキーがランダムに生成されます。サーバキーを特定の値に設定すると、複数のサーバが同じファイルのBranchCacheデータを提供している場合に、クライアントが同じサーバキーを使用して任意のサーバのハッシュを使用できるようになります。サーバキーにスペースを含める場合は、サーバキーを引用符で囲む必要があります。
+ハッシュ データ ストアに使用するサイズを指定できます。ハッシュ データがこの値を超えると、古いハッシュが削除され、新しいハッシュを格納するスペースが確保されます。ハッシュ ストアのデフォルト サイズは1GBです。ハッシュが過剰に破棄されない方が、BranchCacheのパフォーマンスは向上します。ハッシュ ストアがいっぱいになるのが原因でハッシュが頻繁に破棄されていると判断した場合は、BranchCacheの設定を変更して、ハッシュ ストアのサイズを大きくすることができます。
 
 
 
  a| 
-オペレーティングモード _
+_サーバーキー_
+ a| 
+クライアントがBranchCacheサーバを偽装できないようにするためにBranchCacheサービスによって使用されるサーバ キーを指定できます。指定しない場合、サーバ キーはBranchCacheの設定の作成時にランダムに生成されます。サーバ キーを特定の値に設定すると、複数のサーバが同じファイルのBranchCacheデータを提供している場合に、クライアントが同じサーバ キーを使用してサーバのハッシュを使用できるようになります。サーバ キーにスペースを含める場合は、サーバ キーを引用符で囲む必要があります。
+
+
+
+ a| 
+_動作モード_
  a| 
 デフォルトでは、BranchCacheは共有ごとに有効になります。
 
-* BranchCacheを共有ごとに有効にするBranchCacheの設定を作成するには、このオプションパラメータを指定しないか、を指定します `per-share`。
-* すべての共有でBranchCacheを自動的に有効にするには、動作モードをに設定する必要があります `all-shares`。
+* 共有ごとにBranchCacheを有効にするBranchCache構成を作成するには、このオプション パラメータを指定しないか、 `per-share`を指定します。
+* すべての共有でBranchCacheを自動的に有効にするには、動作モードを `all-shares`に設定する必要があります。
 
 
 |===
 .手順
 . 必要に応じてSMB 2.1および3.0を有効にします。
 +
-.. 権限レベルをadvancedに設定します。 `set -privilege advanced`
-.. SVMのSMB設定を確認して、必要なすべてのバージョンのSMBが有効になっているかどうかを確認します。 `vserver cifs options show -vserver _vserver_name_`
-.. 必要に応じて、SMB 2.1を有効にします。 `vserver cifs options modify -vserver _vserver_name_ -smb2-enabled true`
+.. 権限レベルをadvancedに設定します： `set -privilege advanced`
+.. 構成された SVM SMB 設定をチェックして、必要なすべてのバージョンの SMB が有効になっているかどうかを確認します： `vserver cifs options show -vserver _vserver_name_`
+.. 必要に応じて、SMB 2.1 を有効にします： `vserver cifs options modify -vserver _vserver_name_ -smb2-enabled true`
 +
-コマンドは、SMB 2.0とSMB 2.1の両方を有効にします。
+このコマンドを実行すると、SMB 2.0とSMB 2.1の両方が有効になります。
 
-.. 必要に応じて、SMB 3.0を有効にします。 `vserver cifs options modify -vserver _vserver_name_ -smb3-enabled true`
-.. admin権限レベルに戻ります。 `set -privilege admin`
+.. 必要に応じて、SMB 3.0 を有効にします： `vserver cifs options modify -vserver _vserver_name_ -smb3-enabled true`
+.. admin権限レベルに戻ります： `set -privilege admin`
 
 
-. BranchCacheを設定します。 `vserver cifs branchcache create -vserver _vserver_name_ -hash-store-path path [-hash-store-max-size {integer[KB|MB|GB|TB|PB]}] [-versions {v1-enable|v2-enable|enable-all] [-server-key text] -operating-mode {per-share|all-shares}`
+. BranchCacheの設定： `vserver cifs branchcache create -vserver _vserver_name_ -hash-store-path path [-hash-store-max-size {integer[KB|MB|GB|TB|PB]}] [-versions {v1-enable|v2-enable|enable-all] [-server-key text] -operating-mode {per-share|all-shares}`
 +
-指定したハッシュストレージのパスが存在し、SVMによって管理されているボリューム上にある必要があります。また、パスは読み取り / 書き込み可能なボリュームにある必要があります。パスが読み取り専用であるか、または存在しない場合、コマンドは失敗します。
+指定したハッシュ ストレージのパスが存在し、SVMによって管理されているボリューム上にある必要があります。また、パスは読み取り / 書き込み可能なボリュームにある必要があります。パスが読み取り専用であるか、または存在しない場合、コマンドは失敗します。
 
 +
-SVM BranchCacheの追加設定で同じサーバキーを使用する場合は、サーバキーとして入力した値を記録しておきます。BranchCacheの設定に関する情報を表示しても、サーバキーは表示されません。
+SVM BranchCacheの追加設定で同じサーバ キーを使用する場合は、サーバ キーとして入力した値を記録しておきます。BranchCacheの設定に関する情報を表示する際に、サーバ キーは表示されません。
 
-. BranchCacheの設定が正しいことを確認します。 `vserver cifs branchcache show -vserver _vserver_name_`
+. BranchCache 構成が正しいことを確認します： `vserver cifs branchcache show -vserver _vserver_name_`
 
 
 .例
-次のコマンドは、SMB 2.1と3.0の両方が有効になっていることを確認し、SVM vs1のすべてのSMB共有でキャッシュを自動的に有効にするようにBranchCacheを設定します。
+次のコマンドは、SMB 2.1と3.0の両方が有効になっていることを確認し、SVM vs1上のすべてのSMB共有でキャッシュを自動的に有効にするようにBranchCacheを設定します。
 
 [listing]
 ----
@@ -132,7 +132,7 @@ cluster1::> vserver cifs branchcache show -vserver vs1
 Encryption Key Used to Secure the Hashes: -
         CIFS BranchCache Operating Modes: all_shares
 ----
-次のコマンドは、SMB 2.1と3.0の両方が有効になっていることを確認し、SVM vs1の共有ごとにキャッシュを有効にするようにBranchCacheを設定し、BranchCacheの設定を確認します。
+次のコマンドは、SMB 2.1と3.0の両方が有効になっていることを確認し、SVM vs1上の共有ごとにキャッシュを有効にするようにBranchCacheを設定し、BranchCacheの設定を確認します。
 
 [listing]
 ----
@@ -160,11 +160,11 @@ Encryption Key Used to Secure the Hashes: -
         CIFS BranchCache Operating Modes: per_share
 ----
 .関連情報
-* xref:branchcache-version-support-concept.html[BranchCacheのバージョンサポートについて]
-* xref:configure-branchcache-remote-office-concept.adoc[リモートオフィスでのBranchCacheの構成について学ぶ]
-* xref:create-branchcache-enabled-share-task.adoc[BranchCacheが有効なSMB共有を作成する]
+* xref:branchcache-version-support-concept.html[BranchCache バージョン サポートについて]
+* xref:configure-branchcache-remote-office-concept.adoc[リモート オフィスでの BranchCache の構成について学ぶ]
+* xref:create-branchcache-enabled-share-task.adoc[BranchCacheが有効なSMB共有の作成]
 * xref:enable-branchcache-existing-share-task.adoc[既存の共有でBranchCacheを有効にする]
-* xref:modify-branchcache-config-task.html[共有上の BranchCache 構成を変更する]
-* xref:disable-branchcache-shares-concept.html[共有上のBranchCacheを無効にする方法について]
-* xref:delete-branchcache-config-task.html[共有上のBranchCache構成を削除する]
+* xref:modify-branchcache-config-task.html[共有のBranchCache設定を変更する]
+* xref:disable-branchcache-shares-concept.html[共有でBranchCacheを無効にする方法について学ぶ]
+* xref:delete-branchcache-config-task.html[共有上のBranchCache設定を削除する]
 

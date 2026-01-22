@@ -2,7 +2,7 @@
 permalink: san-admin/access-read-only-lun-copy-backup-vault-task.html 
 sidebar: sidebar 
 keywords: access, read-only, lun, copy, snapvault, backup 
-summary: LUNの読み取り専用コピーには、SnapVaultバックアップ内の最新のSnapshotからアクセスできます。LUN の ID 、パス、およびシリアル番号はソース LUN のものとは異なり、あらかじめマッピングしておく必要があります。永続的予約、 LUN マッピング、および igroup は、 SnapVault セカンダリボリュームにレプリケートされません。 
+summary: SnapVaultバックアップ内の最新のスナップショットから、LUNの読み取り専用コピーにアクセスできます。LUN ID、パス、シリアル番号はソースLUNとは異なるため、事前にマッピングする必要があります。永続的予約、LUNマッピング、igroupはSnapVaultセカンダリ ボリュームにレプリケートされません。 
 ---
 = ONTAP SnapVaultバックアップから読み取り専用LUNコピーにアクセスする
 :allow-uri-read: 
@@ -11,29 +11,29 @@ summary: LUNの読み取り専用コピーには、SnapVaultバックアップ�
 
 
 [role="lead"]
-LUNの読み取り専用コピーには、SnapVaultバックアップ内の最新のSnapshotからアクセスできます。LUN の ID 、パス、およびシリアル番号はソース LUN のものとは異なり、あらかじめマッピングしておく必要があります。永続的予約、 LUN マッピング、および igroup は、 SnapVault セカンダリボリュームにレプリケートされません。
+SnapVaultバックアップ内の最新のスナップショットから、LUNの読み取り専用コピーにアクセスできます。LUN ID、パス、シリアル番号はソースLUNとは異なるため、事前にマッピングする必要があります。永続的予約、LUNマッピング、igroupはSnapVaultセカンダリ ボリュームにレプリケートされません。
 
 .開始する前に
-* SnapVault関係を初期化し、SnapVaultセカンダリボリュームの最新のSnapshotに目的のLUNが含まれている必要があります。
-* SnapVaultバックアップがあるStorage Virtual Machine（SVM）に、適切なSANプロトコル対応のLIFが1つ以上あり、LUNコピーへのアクセスに使用するホストからアクセスできる必要があります。
-* SnapVaultセカンダリボリュームからLUNコピーに直接アクセスする場合は、事前にSnapVault SVMにigroupを作成しておく必要があります。
+* SnapVault関係を初期化する必要があり、SnapVaultセカンダリ ボリュームの最新のSnapshotに目的のLUNが含まれている必要があります。
+* SnapVaultバックアップがあるStorage Virtual Machine（SVM）に、適切なSANプロトコル対応のLIFが1個以上あり、LUNコピーへのアクセスに使用するホストからこのLIFにアクセスできることが必要です。
+* SnapVaultセカンダリ ボリュームからLUNコピーに直接アクセスする場合、あらかじめSnapVault SVMにigroupを作成しておきます。
 +
-LUN には SnapVault セカンダリボリュームから直接アクセスできます。 LUN を含むボリュームのリストアやクローニングを行う必要はありません。
+SnapVault セカンダリ ボリュームから、LUN を含むボリュームを最初にリストアまたはクローニングすることなく、LUN に直接アクセスできます。
 
 
 
-.タスクの内容
-以前のSnapshotからLUNがマッピングされているときに、新しいSnapshotがSnapVaultセカンダリボリュームに追加されると、マッピングされたLUNの内容が変更されます。LUNは引き続き同じ識別子でマッピングされますが、データは新しいSnapshotから取得されます。LUN のサイズが変更された場合、一部のホストはサイズの変更を自動的に検出します。 Windows ホストでは、サイズ変更を検知するためにディスクの再スキャンが必要です。
+.タスク概要
+SnapVault セカンダリ ボリュームに新しいスナップショットが追加されたときに、以前のスナップショットからLUNがマッピングされている場合、マッピングされたLUNの内容が変更されます。LUNは同じ識別子でマッピングされたままですが、データは新しいスナップショットから取得されます。LUNのサイズが変更されると、一部のホストでは自動的にサイズ変更が検出されますが、Windowsホストではサイズ変更を検出するためにディスクの再スキャンが必要です。
 
 .手順
-. SnapVaultセカンダリボリューム内の使用可能なLUNを表示します。
+. SnapVault セカンダリ ボリュームで使用可能なLUNをリストします。
 +
 [source, cli]
 ----
 lun show
 ----
 +
-この例では、プライマリボリューム srcvolA 内の元の LUN と、 SnapVault セカンダリボリューム dstvolB 内のコピーされた LUN の両方が表示されています。
+この例では、プライマリ ボリューム srcvolA の元の LUN とSnapVault セカンダリ ボリューム dstvolB のコピーの両方を確認できます。
 
 +
 [listing]
@@ -52,16 +52,16 @@ vserverB  /vol/dstvolB/lun_C  online  unmapped windows  300.0GB
 6 entries were displayed.
 ----
 +
-の詳細については `lun show`、をlink:https://docs.netapp.com/us-en/ontap-cli/lun-show.html["ONTAPコマンド リファレンス"^]参照してください。
+ `lun show`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/lun-show.html["ONTAPコマンド リファレンス"^]を参照してください。
 
-. 目的のホストのigroupが、SnapVaultセカンダリボリュームがあるSVM内にまだ存在していない場合は、igroupを作成します。
+. 目的のホストの igroup が SnapVault セカンダリ ボリュームを含む SVM にまだ存在しない場合は、igroup を作成します。
 +
 [source, cli]
 ----
 igroup create -vserver <SVM_name> -igroup <igroup_name> -protocol <protocol> -ostype <ostype> -initiator <initiator_name>
 ----
 +
-このコマンドでは、 iSCSI プロトコルを使用する Windows ホスト用の igroup を作成します。
+このコマンドは、iSCSI プロトコルを使用する Windows ホストの igroup を作成します：
 
 +
 [listing]
@@ -70,7 +70,7 @@ cluster::> igroup create -vserver vserverB -igroup temp_igroup
   -protocol iscsi -ostype windows
   -initiator iqn.1991-05.com.microsoft:hostA
 ----
-. 目的のLUNコピーをigroupにマッピングします。
+. 必要な LUN コピーを igroup にマップします。
 +
 [source, cli]
 ----
@@ -83,7 +83,7 @@ cluster::> lun mapping create -vserver vserverB -path /vol/dstvolB/lun_A
   -igroup temp_igroup
 ----
 +
-の詳細については `lun mapping create`、をlink:https://docs.netapp.com/us-en/ontap-cli/lun-mapping-create.html["ONTAPコマンド リファレンス"^]参照してください。
+ `lun mapping create`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/lun-mapping-create.html["ONTAPコマンド リファレンス"^]を参照してください。
 
-. ホストを LUN に接続し、適宜 LUN の内容にアクセスします。
+. ホストをLUNに接続し、必要に応じてLUNの内容にアクセスします。
 

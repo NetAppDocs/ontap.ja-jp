@@ -2,59 +2,59 @@
 permalink: flexcache/enable-file-access-time-updates-task.html 
 sidebar: sidebar 
 keywords: atime, atime-update, flexcache, flex cache, access time 
-summary: 'FlexCacheボリュームのフィールドを有効にして、ファイルアクセス時間の更新を許可できます `-atime-update`。属性を使用してアクセス時間の更新期間を設定することもできます `-atime-update-period`。atime更新期間は、atime更新を実行する頻度と、元のボリュームに更新を伝播できるタイミングを制御します。' 
+summary: 'FlexCacheボリュームで `-atime-update`フィールドを有効にすると、ファイルアクセス時刻の更新を許可できます。 `-atime-update-period`属性を使用してアクセス時刻の更新期間を設定することもできます。atime-update-periodは、atimeの更新頻度と、更新が元のボリュームに反映されるタイミングを制御します。' 
 ---
-= ONTAP FlexCacheボリュームでファイルアクセス時間の更新を有効にする
+= ONTAP FlexCacheボリューム上のファイルアクセス時間の更新を有効にする
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-ONTAP 9 .11.1以降では、FlexCacheボリュームのフィールドを有効にしてファイルアクセス時間の更新を許可できます `-atime-update`。属性を使用してアクセス時間の更新期間を設定することもできます `-atime-update-period`。属性は `-atime-update-period`、アクセス時間の更新を実行する頻度と、更新がいつ元のボリュームに反映されるかを制御します。
+ONTAP 9.11.1以降では、FlexCacheボリューム上の `-atime-update`フィールドを有効にして、ファイルアクセス時刻の更新を許可できます。また、 `-atime-update-period`属性を使用してアクセス時刻の更新間隔を設定することもできます。 `-atime-update-period`属性は、アクセス時刻の更新頻度と、更新が元のボリュームに反映されるタイミングを制御します。
 
 
 
 == 概要
 
-ONTAPにはというボリュームレベルのフィールドが用意されており `-atime-update`、READ、READLINK、READDIRを使用して読み取られたファイルおよびディレクトリのアクセス時間の更新を管理できます。atimeは、アクセス頻度の低いファイルやディレクトリのデータライフサイクルの決定に使用されます。アクセス頻度の低いファイルは、最終的にアーカイブストレージに移行され、その後テープに移動されることがよくあります。
+ONTAPは、READ、READLINK、READDIRを使用して読み取られるファイルとディレクトリのアクセス時刻の更新を管理するための `-atime-update`と呼ばれるボリュームレベルのフィールドを提供します。Atimeは、アクセス頻度の低いファイルとディレクトリのデータのライフサイクルの決定に使用されます。アクセス頻度の低いファイルは最終的にアーカイブストレージに移行され、その後テープに移動されることがよくあります。
 
-atime-updateフィールドは、既存および新規に作成されたFlexCacheではデフォルトで無効になっています。ONTAP 9.11.1より前のリリースでFlexCacheボリュームを使用している場合は、元のボリュームで読み取り処理が実行されたときにキャッシュが不要に削除されないように、atime-updateフィールドを無効にしておく必要があります。ただし、大規模なFlexCacheキャッシュでは、管理者は特別なツールを使用してデータを管理し、ホットデータをキャッシュに残してコールドデータをパージすることができます。atime-updateが無効になっている場合は実行できません。ただし、ONTAP 9 .11.1以降では、およびを有効にして、 `-atime-update-period,`キャッシュされたデータの管理に必要なツールを使用できます `-atime-update`。
+既存および新規に作成されたFlexCacheボリュームでは、atime-updateフィールドはデフォルトで無効になっています。ONTAP 9.11.1より前のリリースでFlexCacheボリュームを使用している場合は、元のボリュームで読み取り処理が実行されたときにキャッシュが不必要に削除されないように、atime-updateフィールドを無効のままにしておく必要があります。ただし、FlexCacheキャッシュが大きい場合、管理者は特別なツールを使用してデータを管理し、ホットデータがキャッシュに保持され、コールドデータが消去されるようにする必要があります。atime-updateが無効になっていると、これは不可能です。しかし、ONTAP 9.11.1以降では、 `-atime-update`と `-atime-update-period,`を有効にして、キャッシュされたデータの管理に必要なツールを使用できるようになりました。
 
 
 
 == 開始する前に
 
-* すべてのFlexCacheボリュームでONTAP 9 .11.1以降が実行されている必要があります。
-* 権限モードを使用する必要があり `advanced`ます。
+* すべてのFlexCacheボリュームでONTAP 9.11.1以降が実行されている必要があります。
+*  `advanced`特権モードを使用する必要があります。
 
 
 
 
-== タスクの内容
+== タスク概要
 
-86400秒に設定する `-atime-update-period`と、ファイルに対して実行された読み取りに類似した処理の数に関係なく、24時間ごとに1回のアクセス時間更新が許可されます。
+ `-atime-update-period`を86400秒に設定すると、ファイルに対して実行される読み取りのような操作の数に関係なく、24時間あたり1回以下のアクセス時間の更新が許可されます。
 
-を0に設定する `-atime-update-period`と、読み取りアクセスごとにメッセージが送信元に送信されます。送信元は、atimeが古いことを各FlexCacheボリュームに通知します。これはパフォーマンスに影響します。
+ `-atime-update-period`を0に設定すると、読み取りアクセスごとにオリジンにメッセージが送信されます。オリジンは各FlexCacheボリュームにatimeが古いことを通知し、パフォーマンスに影響を与えます。
 
 .手順
-. 特権モードをに設定し `advanced`ます。
+. 特権モードを `advanced`に設定します：
 +
 `set -privilege advanced`
 
-. ファイルアクセス時間の更新を有効にし、更新頻度を設定します。
+. ファイル アクセス時間の更新を有効にし、更新頻度を設定します。
 +
 `volume modify -volume vol_name -vserver <SVM name> -atime-update true -atime-update-period <seconds>`
 
 +
-次に、86400秒（24時間）をイネーブルにして設定する `-atime-update-period`例を示します `-atime-update`。
+次の例では、 `-atime-update`を有効にし、 `-atime-update-period`を86400秒（24時間）に設定します：
 
 +
 [listing]
 ----
 c1: volume modify -volume origin1 vs1_c1 -atime-update true -atime-update-period 86400
 ----
-. が有効であることを確認し `-atime-update`ます。
+.  `-atime-update`が有効になっていることを確認します：
 +
 `volume show -volume _vol_name_ -fields atime-update,atime-update-period`
 
@@ -66,10 +66,10 @@ vserver volume         atime-update atime-update-period
 ------- -------------- ------------ -------------------
 vs2_c1  cache1_origin1 true         86400
 ----
-. を有効にすると `-atime-update`、FlexCacheボリューム上のファイルを自動的にスクラビングできるかどうか、およびスクラビング間隔を指定できます。
+.  `-atime-update`を有効にすると、FlexCacheボリューム上のファイルを自動的にスクラブできるかどうかと、スクラブ間隔を指定できます：
 +
 `volume flexcache config modify -vserver <SVM name> -volume <volume_name> -is-atime-scrub-enabled <true|false> -atime-scrub-period <integer>`
 
 
 
-パラメータの詳細については `-is-atime-scrub-enabled`、をlink:https://docs.netapp.com/us-en/ontap-cli/volume-flexcache-config-modify.html#parameters["ONTAPコマンド リファレンス"^]参照してください。
+ `-is-atime-scrub-enabled`パラメータの詳細については、link:https://docs.netapp.com/us-en/ontap-cli/volume-flexcache-config-modify.html#parameters["ONTAPコマンド リファレンス"^]を参照してください。

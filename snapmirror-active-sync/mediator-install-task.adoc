@@ -2,146 +2,146 @@
 sidebar: sidebar 
 permalink: snapmirror-active-sync/mediator-install-task.html 
 keywords: SM-BC, SMBC, cluster, peering, ONTAP Mediator, initialize, snapmirror active sync 
-summary: SnapMirror アクティブ同期では、ONTAP Mediator をインストールして初期化し、適切なクラスタ ピアリングを確保する必要があります。 
+summary: SnapMirror アクティブ同期を利用するには、ONTAP Mediator をインストールして初期化し、適切なクラスタ ピアリングを確保する必要があります。 
 ---
-= SnapMirror Active Sync 用のONTAP Mediator を構成する
+= SnapMirror アクティブ同期用に ONTAP Mediator を設定
 :allow-uri-read: 
 
 
 [role="lead"]
-SnapMirror Active Syncでは、フェイルオーバーが発生した場合にピアクラスタを使用してデータを保護します。ONTAP Mediatorは、各クラスタの健全性を監視することでビジネス継続性を実現する重要なリソースです。SnapMirrorActive Syncを設定するには、まずONTAP Mediatorをインストールし、プライマリクラスタとセカンダリクラスタが適切に設定されていることを確認する必要があります。
+SnapMirror active syncは、ピアクラスタを使用してフェイルオーバーシナリオ発生時にデータを保護します。ONTAP Mediatorは、各クラスタの健全性を監視することでビジネス継続性を実現する重要なリソースです。SnapMirror active syncを設定するには、まずONTAP Mediatorをインストールし、プライマリクラスタとセカンダリクラスタが適切に設定されていることを確認する必要があります。
 
-ONTAP Mediatorをインストールしてクラスタを設定したら、 <<initialize-the-ontap-mediator,自己署名証明書を使用して、SnapMirror Active Sync 用の ONTAP Mediator を初期化します。>> 。そうしなければなりませんxref:protect-task.html[SnapMirrorアクティブ同期の整合性グループを作成、初期化、マッピングする]。
+ONTAP Mediator をインストールしてクラスタを設定したら、<<initialize-the-ontap-mediator,自己署名証明書を使用してSnapMirrorアクティブ同期用にONTAP Mediatorを初期化します>>。次に、xref:protect-task.html[SnapMirrorアクティブ同期の整合性グループを作成、初期化、およびマッピングする]を実行する必要があります。
 
 
 
 == ONTAP Mediator
 
-ONTAP Mediatorは、SnapMirror Active Sync関係にあるONTAPクラスタで使用される高可用性（HA）メタデータのための永続的かつフェンスされたストアを提供します。さらに、ONTAP Mediatorは、クォーラムの決定を支援する同期ノードヘルスクエリ機能を提供し、コントローラの稼働状態検出のためのpingプロキシとして機能します。
+ONTAP Mediatorは、SnapMirrorアクティブ同期関係にあるONTAPクラスタで使用される高可用性（HA）メタデータのための永続的かつフェンスされたストアを提供します。さらに、ONTAP Mediatorは、クォーラムの決定を支援する同期ノードヘルスクエリ機能を提供し、コントローラの稼働状態検出のためのpingプロキシとして機能します。
 
-各クラスタピア関係は、1つのONTAPメディエーターインスタンスにのみ関連付けることができます。HAメディエーターインスタンスはサポートされません。クラスタが他のクラスタと複数のピア関係にある場合は、次のONTAPメディエーターオプションを使用できます。
+各クラスタ ピア関係は、1つのONTAP Mediatorインスタンスにのみ関連付けることができます。HA Mediatorインスタンスはサポートされていません。クラスタが他のクラスタと複数のピア関係にある場合、以下のONTAP Mediatorオプションが利用可能です：
 
-* 各関係にSnapMirrorのアクティブな同期が設定されている場合は、各クラスタピア関係に固有のONTAPメディエーターインスタンスを設定できます。
-* クラスタでは、すべてのピア関係に同じONTAPメディエーターインスタンスを使用できます。
-
-
-たとえば、クラスタBがクラスタA、クラスタC、およびクラスタDとピア関係にある場合、各関係にSnapMirrorのアクティブな同期が設定されていれば、3つのクラスタピア関係すべてに一意のONTAPメディエーターインスタンスを関連付けることができます。または、クラスタBは、3つのピア関係すべてに同じONTAPメディエーターインスタンスを使用できます。このシナリオでは、クラスタに対してONTAPメディエーターの同じインスタンスが3回表示されます。
-
-ONTAP 9.17.1以降では、 link:cloud-mediator-config-task.html["ONTAPクラウドメディエーター"]ただし、 SnapMirrorアクティブ同期構成でクラスタの健全性を監視するには、両方のメディエーターを同時に使用することはできません。
+* SnapMirror アクティブ同期が各関係で設定されている場合、各クラスタ ピア関係は独自の ONTAP Mediator インスタンスを持つことができます。
+* クラスタは、すべてのピア関係に対して同じ ONTAP Mediator インスタンスを使用できます。
 
 
-IMPORTANT: ONTAP 9.17.1でSnapMirror Active SyncとONTAP MediatorまたはONTAP Cloud Mediatorを使用している場合は、*既知の問題と制限*を確認してください。link:https://library.netapp.com/ecm/ecm_download_file/ECMLP2492508["ONTAPリリースノート"]これらの構成に関する重要な情報については、こちらをご覧ください。
+たとえば、クラスタBがクラスタA、クラスタC、クラスタDとピア関係を持っている場合、各関係でSnapMirror Active Syncが設定されていれば、3つのクラスタピア関係すべてに固有の関連付けられたONTAP Mediatorインスタンスを持つことができます。または、クラスタBは3つのピア関係すべてに同じONTAP Mediatorインスタンスを使用することもできます。このシナリオでは、同じONTAP Mediatorインスタンスがクラスタに対して3回リストされます。
 
-.ONTAPメディエーターの前提条件
-* ONTAP Mediatorには独自の前提条件が含まれています。ONTAPMediatorをインストールする前に、これらの前提条件を満たす必要があります。
+ONTAP 9.17.1 以降では、link:cloud-mediator-config-task.html["ONTAP Cloud Mediator"] を SnapMirror アクティブ同期構成でクラスタの健全性を監視するように設定できますが、両方のメディエーターを同時に使用することはできません。
+
+
+IMPORTANT: ONTAP 9.17.1 で SnapMirror アクティブ同期と ONTAP Mediator または ONTAP Cloud Mediator を使用している場合は、これらの構成に関する重要な情報について link:https://library.netapp.com/ecm/ecm_download_file/ECMLP2492508["ONTAP Release Notes"] の*既知の問題と制限事項*を確認する必要があります。
+
+.ONTAP Mediatorの前提条件
+* ONTAP Mediator には独自の前提条件が含まれています。ONTAP Mediator をインストールする前に、これらの前提条件を満たす必要があります。
 +
-詳細については、 link:https://docs.netapp.com/us-en/ontap-metrocluster/install-ip/concept_mediator_requirements.html["ONTAP Mediatorサービスのインストールの準備"^] 。
+詳細については、link:https://docs.netapp.com/us-en/ontap-metrocluster/install-ip/concept_mediator_requirements.html["ONTAP Mediatorサービスのインストールの準備"^]を参照してください。
 
-* デフォルトでは、ONTAP MediatorはTCPポート31784を使用してサービスを提供します。ONTAPクラスタとONTAPメディエーターの間でポート 31784 が開いていて使用可能であることを確認する必要があります。
-
-
+* デフォルトでは、ONTAP MediatorはTCPポート31784を介してサービスを提供します。ONTAPクラスタとONTAP Mediatorの間でポート31784が開いていて使用可能であることを確認する必要があります。
 
 
-== ONTAPメディエーターをインストールし、クラスタ構成を確認する
 
-ONTAP Mediatorをインストールし、クラスタ構成を確認するには、以下の各手順を実行してください。各手順で、特定の設定が実行されていることを確認してください。各手順には、実行する必要がある特定の手順へのリンクが含まれています。
+
+== ONTAP Mediatorをインストールし、クラスタ構成を確認する
+
+ONTAP Mediatorをインストールし、クラスタ構成を確認するには、以下の各手順を実行します。各手順で、特定の構成が実行されたことを確認する必要があります。各手順には、従う必要がある具体的な手順へのリンクが含まれています。
 
 .手順
-. ソース クラスタと宛先クラスタが正しく設定されていることを確認する前に、ONTAP Mediator をインストールします。
+. ソース クラスタとデスティネーション クラスタが正しく設定されていることを確認する前に、ONTAP Mediator をインストールします。
 +
 xref:../mediator/index.html[ONTAP Mediatorのインストールまたはアップグレードの準備]
 
-. クラスタ間にクラスタピア関係が確立されていることを確認します。
+. クラスタ間にクラスタ ピア関係が確立されていることを確認します。
 +
 
-NOTE: クラスタピア関係のSnapMirror Active SyncではデフォルトのIPspaceが必要です。カスタムIPspaceはサポートされません。
+NOTE: SnapMirror Active Sync では、クラスタ ピア関係にデフォルトの IPspace が必要です。カスタム IPspace はサポートされていません。
 
 +
-link:cluster-config-task.html["SnapMirror Active Sync 用にONTAPクラスタを構成する"]
+link:cluster-config-task.html["SnapMirror アクティブ同期用に ONTAP クラスタを構成する"]
 
 
 
 
 
-== 自己署名証明書を使用して、SnapMirror Active Sync 用の ONTAP Mediator を初期化します。
+== 自己署名証明書を使用してSnapMirrorアクティブ同期用にONTAP Mediatorを初期化します
 
-ONTAP Mediatorをインストールし、クラスタ構成を確認したら、クラスタ監視のためにONTAP Mediatorを初期化する必要があります。ONTAPMediatorの初期化は、System ManagerまたはONTAP CLIを使用して行うことができます。
+ONTAP Mediatorをインストールし、クラスタ構成を確認したら、クラスタ監視のためにONTAP Mediatorを初期化する必要があります。ONTAP Mediatorの初期化は、System ManagerまたはONTAP CLIを使用して行うことができます。
 
 
 
 === System Manager
 
-System Managerを使用すると、ONTAPメディエーターを自動フェイルオーバー用に設定できます。また、自己署名SSL証明書とCAを、サードパーティの検証済みSSL証明書とCAに置き換えることもできます（まだ行っていない場合）。
+System Managerを使用すると、自動フェイルオーバー用にONTAP Mediatorを設定できます。また、まだ行っていない場合は、自己署名SSL証明書とCAをサードパーティの検証済みSSL証明書とCAに置き換えることもできます。
 
 
-IMPORTANT: ONTAP 9.14.1 から 9.8 では、 SnapMirror Active Sync はSnapMirror Business Continuity (SM-BC) と呼ばれます。
+IMPORTANT: ONTAP 9.14.1から9.8では、SnapMirrorアクティブ同期はSnapMirror Business Continuity（SM-BC）と呼ばれます。
 
 [role="tabbed-block"]
 ====
 .ONTAP Mediator 1.9以降
 --
-. [* Protection] > [Overview] > [Mediator] > [Configure] * に移動します。
-. [追加] を選択し、次の ONTAP Mediator 情報を入力します。
+. *Protection > Overview > Mediator > Configure* に移動します。
+. ［追加］を選択し、次の ONTAP Mediator 情報を入力します：
 +
-** IPv4アドレス
-** ユーザ名
+** IPv4 アドレス
+** ユーザー名
 ** パスワード
-** 証明書
+** Certificate
 
 
-. 証明書の入力は、次の2つの方法で指定できます。
+. [Certificate]への入力は、以下の2つの方法で指定できます。
 +
-** *オプション（A）*：*インポート*を選択して、ファイルに移動し `intermediate.crt`てインポートします。
-** *オプション（b）*：ファイルの内容をコピーし `intermediate.crt`、*証明書*フィールドに貼り付けます。
+** *オプション（a）*：*インポート*を選択して `intermediate.crt`ファイルに移動し、インポートします。
+** *オプション（b）*： `intermediate.crt`ファイルの内容をコピーし、*証明書*フィールドに貼り付けます。
 +
-すべての詳細を正しく入力すると、指定した証明書がすべてのピアクラスタにインストールされます。
+すべての詳細を正しく入力すると、指定した証明書がすべてのピア クラスタにインストールされます。
 
 +
-image:configure-mediator-system-manager.png["System Managerのメディエーター追加"]
+image:configure-mediator-system-manager.png["システムマネージャ メディエーター追加"]
 
 +
 証明書の追加が完了すると、ONTAP Mediator が ONTAP クラスタに追加されます。
 
 +
-次の図は、ONTAPメディエーターの設定を成功させる方法を示しています。
+次の図は、ONTAP Mediatorの設定に成功したことを示しています。
 
 +
-image:successful-mediator-installation.png["メディエーターの追加が完了しました"]です。
+image:successful-mediator-installation.png["メディエーターの追加に成功しました"]。
 
 
 
 
 
 --
-.ONTAPメディエーター1.8以前
+.ONTAP Mediator 1.8 以前
 --
-. [* Protection] > [Overview] > [Mediator] > [Configure] * に移動します。
-. [追加] を選択し、次の ONTAP Mediator 情報を入力します。
+. *Protection > Overview > Mediator > Configure* に移動します。
+. ［追加］を選択し、次の ONTAP Mediator 情報を入力します：
 +
-** IPv4アドレス
-** ユーザ名
+** IPv4 アドレス
+** ユーザー名
 ** パスワード
-** 証明書
+** Certificate
 
 
-. 証明書の入力は、次の2つの方法で指定できます。
+. [Certificate]への入力は、以下の2つの方法で指定できます。
 +
-** *オプション（A）*：*インポート*を選択して、ファイルに移動し `ca.crt`てインポートします。
-** *オプション（b）*：ファイルの内容をコピーし `ca.crt`、*証明書*フィールドに貼り付けます。
+** *オプション（a）*：*インポート*を選択して `ca.crt`ファイルに移動し、インポートします。
+** *オプション（b）*： `ca.crt`ファイルの内容をコピーし、*証明書*フィールドに貼り付けます。
 +
-すべての詳細を正しく入力すると、指定した証明書がすべてのピアクラスタにインストールされます。
+すべての詳細を正しく入力すると、指定した証明書がすべてのピア クラスタにインストールされます。
 
 +
-image:configure-mediator-system-manager.png["System Managerのメディエーター追加"]
+image:configure-mediator-system-manager.png["システムマネージャ メディエーター追加"]
 
 +
 証明書の追加が完了すると、ONTAP Mediator が ONTAP クラスタに追加されます。
 
 +
-次の図は、ONTAPメディエーターの設定を成功させる方法を示しています。
+次の図は、ONTAP Mediatorの設定に成功したことを示しています。
 
 +
-image:successful-mediator-installation.png["メディエーターの追加が完了しました"]です。
+image:successful-mediator-installation.png["メディエーターの追加に成功しました"]。
 
 
 
@@ -153,16 +153,16 @@ image:successful-mediator-installation.png["メディエーターの追加が完
 
 === CLI
 
-ONTAP CLIを使用してプライマリクラスタまたはセカンダリクラスタから初期化できます。 `mediator add`一方のクラスタでコマンドを実行すると、もう一方のクラスタに ONTAP Mediator が自動的に追加されます。
+ONTAP CLIを使用して、プライマリクラスタまたはセカンダリクラスタのどちらからでもONTAP Mediatorを初期化できます。一方のクラスタで `mediator add`コマンドを実行すると、もう一方のクラスタにONTAP Mediatorが自動的に追加されます。
 
-ONTAPメディエーターを使用してSnapMirrorのアクティブ同期関係を監視する場合、有効な自己署名証明書または認証局（CA）証明書がないと、ONTAPメディエーターをONTAPで初期化できません。ピアクラスタの証明書ストアに有効な証明書を追加してください。ONTAPメディエーターを使用してMetroCluster IPシステムを監視する場合、初期設定後はHTTPSが使用されないため、証明書は必要ありません。
+ONTAP Mediatorを使用してSnapMirrorアクティブ同期関係を監視する場合、有効な自己署名証明書または認証局（CA）証明書がないと、ONTAP MediatorをONTAPで初期化できません。ピアクラスタの証明書ストアに有効な証明書を追加します。ONTAP Mediatorを使用してMetroCluster IPシステムを監視する場合、初期設定後はHTTPSは使用されないため、証明書は必要ありません。
 
 [role="tabbed-block"]
 ====
 .ONTAP Mediator 1.9以降
 --
-. ONTAPメディエーターLinux VM /ホストソフトウェアのインストール先で、ONTAPメディエーターCA証明書を探します `cd /opt/netapp/lib/ontap_mediator/ontap_mediator/server_config`。
-. ピアクラスタの証明書ストアに有効な認証局を追加します。
+. ONTAP Mediator Linux VM / ホスト ソフトウェアのインストール場所から ONTAP Mediator CA 証明書を見つけます `cd /opt/netapp/lib/ontap_mediator/ontap_mediator/server_config`。
+. ピア クラスタの証明書ストアに有効な認証局を追加します。
 +
 例：
 
@@ -174,7 +174,7 @@ ONTAPメディエーターを使用してSnapMirrorのアクティブ同期関�
 <certificate_value>
 -----END CERTIFICATE-----
 ----
-. ONTAPメディエーターCA証明書をONTAPクラスタに追加します。プロンプトが表示されたら、ONTAPメディエーターから取得したCA証明書を挿入します。すべてのピアクラスタでこの手順を繰り返します。
+. ONTAP Mediator CA証明書をONTAPクラスタに追加します。プロンプトが表示されたら、ONTAP Mediatorから取得したCA証明書を挿入します。すべてのピアクラスタでこの手順を繰り返します：
 +
 `security certificate install -type server-ca -vserver <vserver_name>`
 
@@ -230,7 +230,7 @@ C1_test_cluster
     Certificate Authority: ONTAP Mediator CA
           Expiration Date: Thu Feb 15 14:35:25 2029
 ----
-. 一方のクラスタでONTAP Mediatorを初期化します。もう一方のクラスタにはONTAP Mediatorが自動的に追加されます。
+. 一方のクラスタでONTAP Mediatorを初期化します。もう一方のクラスタにはONTAP Mediatorが自動的に追加されます：
 +
 `snapmirror mediator add -mediator-address <ip_address> -peer-cluster <peer_cluster_name> -username user_name`
 
@@ -246,7 +246,7 @@ Notice: Enter the mediator password.
 Enter the password: ******
 Enter the password again: ******
 ----
-. 必要に応じて、ジョブIDのステータスを調べ `job show -id`て、SnapMirror Mediator addコマンドが成功したかどうかを確認します。
+. 必要に応じて、ジョブ ID のステータスをチェックして `job show -id`、SnapMirror Mediator 追加コマンドが成功したかどうかを確認します。
 +
 例：
 
@@ -289,7 +289,7 @@ Mediator Address Peer Cluster     Connection Status Quorum Status Type
 
 C1_test_cluster::*>
 ----
-. ONTAPメディエーターの設定のステータスを確認します。
+. ONTAP Mediator設定のステータスを確認します。
 +
 `snapmirror mediator show`
 
@@ -300,15 +300,15 @@ Mediator Address Peer Cluster     Connection Status Quorum Status
 1.2.3.4          C2_test_cluster   connected        true
 ....
 +
-`Quorum Status` SnapMirrorコンシステンシグループの関係がONTAPメディエーターと同期されているかどうかを示します。  `true`同期が成功したことを示します。
+`Quorum Status`は、SnapMirrorコンシステンシーグループの関係がONTAP Mediatorと同期されているかどうかを示します。 `true`のステータスは、同期が正常に行われたことを示します。
 
 
 
 --
-.ONTAPメディエーター1.8以前
+.ONTAP Mediator 1.8 以前
 --
-. ONTAPメディエーターLinux VM /ホストソフトウェアのインストール先で、ONTAPメディエーターCA証明書を探します `cd /opt/netapp/lib/ontap_mediator/ontap_mediator/server_config`。
-. ピアクラスタの証明書ストアに有効な認証局を追加します。
+. ONTAP Mediator Linux VM / ホスト ソフトウェアのインストール場所から ONTAP Mediator CA 証明書を見つけます `cd /opt/netapp/lib/ontap_mediator/ontap_mediator/server_config`。
+. ピア クラスタの証明書ストアに有効な認証局を追加します。
 +
 例：
 
@@ -320,7 +320,7 @@ Mediator Address Peer Cluster     Connection Status Quorum Status
 <certificate_value>
 -----END CERTIFICATE-----
 ----
-. ONTAPメディエーターCA証明書をONTAPクラスタに追加します。プロンプトが表示されたら、ONTAPメディエーターから取得したCA証明書を挿入します。すべてのピアクラスタで上記の手順を繰り返します。
+. ONTAP MediatorのCA証明書をONTAPクラスタに追加します。プロンプトが表示されたら、ONTAP Mediatorから取得したCA証明書を挿入します。すべてのピア クラスタで同じ手順を繰り返します。
 +
 `security certificate install -type server-ca -vserver <vserver_name>`
 
@@ -376,7 +376,7 @@ C1_test_cluster
     Certificate Authority: ONTAP Mediator CA
           Expiration Date: Thu Feb 15 14:35:25 2029
 ----
-. 一方のクラスタでONTAP Mediatorを初期化します。もう一方のクラスタにはONTAP Mediatorが自動的に追加されます。
+. 一方のクラスタでONTAP Mediatorを初期化します。もう一方のクラスタにはONTAP Mediatorが自動的に追加されます：
 +
 `snapmirror mediator add -mediator-address <ip_address> -peer-cluster <peer_cluster_name> -username user_name`
 
@@ -392,7 +392,7 @@ Notice: Enter the mediator password.
 Enter the password: ******
 Enter the password again: ******
 ----
-. 必要に応じて、ジョブIDのステータスを調べ `job show -id`て、SnapMirror Mediator addコマンドが成功したかどうかを確認します。
+. 必要に応じて、ジョブ ID のステータスをチェックして `job show -id`、SnapMirror Mediator 追加コマンドが成功したかどうかを確認します。
 +
 例：
 
@@ -435,7 +435,7 @@ Mediator Address Peer Cluster     Connection Status Quorum Status Type
 
 C1_test_cluster::*>
 ----
-. ONTAPメディエーターの設定のステータスを確認します。
+. ONTAP Mediator設定のステータスを確認します。
 +
 `snapmirror mediator show`
 
@@ -446,7 +446,7 @@ Mediator Address Peer Cluster     Connection Status Quorum Status
 1.2.3.4          C2_test_cluster   connected        true
 ....
 +
-`Quorum Status` SnapMirrorコンシステンシグループの関係がONTAPメディエーターと同期されているかどうかを示します。  `true`同期が成功したことを示します。
+`Quorum Status`SnapMirror整合性グループの関係がONTAP Mediatorと同期されているかどうかを示します。ステータスが `true`の場合は、同期が成功したことを示します。
 
 
 
@@ -454,14 +454,14 @@ Mediator Address Peer Cluster     Connection Status Quorum Status
 ====
 
 
-== サードパーティの証明書を使用してONTAP Mediatorを再初期化する
+== サードパーティの証明書を使用したONTAP Mediatorの再初期化
 
-ONTAP Mediatorの再初期化が必要になる場合があります。ONTAPMediatorのIPアドレスの変更や証明書の有効期限切れなど、ONTAP Mediatorの再初期化が必要になる状況が発生する場合があります。
+ONTAP Mediator の再初期化が必要になる場合があります。ONTAP Mediator の IP アドレスの変更、証明書の有効期限切れなど、ONTAP Mediator の再初期化が必要になる状況が発生する場合があります。
 
-次の手順は、自己署名証明書をサードパーティの証明書に置き換える必要がある場合にONTAPメディエーターを再初期化する手順を示しています。
+以下の手順は、自己署名証明書をサードパーティの証明書に置き換える必要がある場合に、ONTAP Mediatorを再初期化する方法を示しています。
 
-.タスクの内容
-SnapMirror Active Sync クラスタの自己署名証明書をサードパーティの証明書に置き換え、ONTAP から ONTAP Mediator 設定を削除してから、ONTAP Mediator を追加する必要があります。
+.タスク概要
+SnapMirror アクティブ同期クラスタの自己署名証明書をサードパーティの証明書に置き換え、ONTAP から ONTAP Mediator 設定を削除してから、ONTAP Mediator を追加する必要があります。
 
 
 
@@ -473,29 +473,29 @@ System Manager では、古い自己署名証明書で設定された ONTAP Medi
 . メニュー オプション アイコンを選択し、[*削除*] を選択して ONTAP Mediator を削除します。
 +
 
-NOTE: この手順では、自己署名されたserver-caがONTAPクラスタから削除されることはありません。NetAppでは、次の手順を実行してサードパーティ証明書を追加する前に、*[証明書]*タブに移動して手動で削除することを推奨しています。
+NOTE: この手順では、ONTAP クラスタから自己署名された server-ca は削除されません。NetApp では、次の手順を実行してサードパーティの証明書を追加する前に、*証明書* タブに移動して手動で削除することをお勧めします：
 
 +
-image:remove-mediator.png["System Managerメディエーターの削除"]
+image:remove-mediator.png["System Manager メディエーターの削除"]
 
 . 正しい証明書を使用して ONTAP Mediator を再度追加します。
 
 
 ONTAP Mediator に新しいサードパーティの自己署名証明書が設定されました。
 
-image:configure-mediator-system-manager.png["System Managerのメディエーター追加"]
+image:configure-mediator-system-manager.png["システムマネージャ メディエーター追加"]
 
 
 
 === CLI
 
-ONTAP CLI を使用して自己署名証明書をサードパーティの証明書に置き換えることで、プライマリ クラスタまたはセカンダリ クラスタから ONTAP Mediator を再初期化できます。
+ONTAP CLI を使用して自己署名証明書をサードパーティの証明書に置き換えることにより、プライマリ クラスタまたはセカンダリ クラスタから ONTAP Mediator を再初期化できます。
 
 [role="tabbed-block"]
 ====
 .ONTAP Mediator 1.9以降
 --
-. すべてのクラスタで自己署名証明書を使用していた場合は、以前にインストールした自己署名証明書を削除して `intermediate.crt`ください。次の例では、2つのクラスタがあります。
+. すべてのクラスタで自己署名証明書を使用した際にインストールした自己署名 `intermediate.crt`を削除します。以下の例では、2つのクラスタがあります：
 +
 例：
 
@@ -508,7 +508,7 @@ ONTAP CLI を使用して自己署名証明書をサードパーティの証明�
  C2_test_cluster::*> security certificate delete -vserver C2_test_cluster -common-name ONTAPMediatorCA *
  2 entries were deleted.
 ----
-. 次のコマンドを使用して、以前に設定したONTAPメディエーターをSnapMirrorアクティブな同期クラスタから削除し `-force true`ます。
+.  `-force true`を使用して、以前に設定したONTAP MediatorをSnapMirror Active Syncクラスタから削除します：
 +
 例：
 
@@ -531,12 +531,12 @@ Info: [Job 136] 'mediator remove' job queued
 C1_test_cluster::*> snapmirror mediator show
 This table is currently empty.
 ----
-. 下位CA（と呼ばれる）から証明書を取得する方法については、の手順を参照してくださいlink:../mediator/manage-task.html["自己署名証明書を信頼できるサードパーティ証明書に置き換える"]。 `intermediate.crt`自己署名証明書を信頼できるサードパーティ証明書に置き換える
+. 下位CA（ `intermediate.crt`と呼ばれる）から証明書を取得する方法については、link:../mediator/manage-task.html["信頼できるサードパーティの証明書への自己署名証明書の置き換え"]に記載されている手順を参照してください。自己署名証明書を信頼できるサードパーティの証明書に置き換えます
 +
 
-NOTE: には、 `intermediate.crt`ファイルに定義されているPKI権限に送信する必要がある要求から派生する特定のプロパティがあります。 `/opt/netapp/lib/ontap_mediator/ontap_mediator/server_config/openssl_ca.cnf`
+NOTE:  `intermediate.crt`には、PKI機関に送信する必要のあるリクエストから派生した特定のプロパティがあり、ファイル `/opt/netapp/lib/ontap_mediator/ontap_mediator/server_config/openssl_ca.cnf`で定義されています。
 
-. ONTAPメディエーターLinux VM /ホストソフトウェアのインストール先から新しいサードパーティ製ONTAPメディエーターCA証明書を追加し `intermediate.crt`ます。
+. ONTAP Mediator Linux VM / ホスト ソフトウェアのインストール場所から、新しいサードパーティの ONTAP Mediator CA 証明書 `intermediate.crt`を追加します：
 +
 例：
 
@@ -549,7 +549,7 @@ NOTE: には、 `intermediate.crt`ファイルに定義されているPKI権限�
 <certificate_value>
 -----END CERTIFICATE-----
 ----
-. ファイルをピアクラスタに追加します `intermediate.crt`。すべてのピアクラスタについて、この手順を繰り返します。
+.  `intermediate.crt`ファイルをピアクラスタに追加します。すべてのピアクラスタに対してこの手順を繰り返します：
 +
 例：
 
@@ -573,7 +573,7 @@ The certificate's generated name for reference: ONTAPMediatorCA
 
 C1_test_cluster::*>
 ----
-. 以前に設定したONTAPメディエーターをSnapMirrorアクティブな同期クラスタから削除します。
+. 以前に設定したONTAP MediatorをSnapMirrorアクティブ同期クラスタから削除します。
 +
 例：
 
@@ -591,7 +591,7 @@ Info: [Job 86] 'mediator remove' job queued
 C1_test_cluster::*> snapmirror mediator show
 This table is currently empty.
 ----
-. ONTAP Mediator を再度追加します。
+. ONTAP Mediator を再度追加します：
 +
 例：
 
@@ -613,14 +613,14 @@ Mediator Address Peer Cluster     Connection Status Quorum Status
 1.2.3.4          C2_test_cluster  connected         true
 ----
 +
-`Quorum Status`SnapMirror整合性グループ関係がメディエーターと同期されているかどうかを示します。ステータス `true`は同期に成功したことを示します。
+`Quorum Status`SnapMirror整合性グループの関係がメディエータと同期されているかどうかを示します。 `true`のステータスは同期が成功したことを示します。
 
 
 
 --
-.ONTAPメディエーター1.8以前
+.ONTAP Mediator 1.8 以前
 --
-. すべてのクラスタで自己署名証明書を使用していた場合は、以前にインストールした自己署名証明書を削除して `ca.crt`ください。次の例では、2つのクラスタがあります。
+. すべてのクラスターで自己署名証明書を使用した際にインストールした自己署名 `ca.crt`を削除します。以下の例では、2つのクラスターがあります：
 +
 例：
 
@@ -633,7 +633,7 @@ Mediator Address Peer Cluster     Connection Status Quorum Status
  C2_test_cluster::*> security certificate delete -vserver C2_test_cluster -common-name ONTAPMediatorCA *
  2 entries were deleted.
 ----
-. 次のコマンドを使用して、以前に設定したONTAPメディエーターをSnapMirrorアクティブな同期クラスタから削除し `-force true`ます。
+.  `-force true`を使用して、以前に設定したONTAP MediatorをSnapMirror Active Syncクラスタから削除します：
 +
 例：
 
@@ -656,12 +656,12 @@ Info: [Job 136] 'mediator remove' job queued
 C1_test_cluster::*> snapmirror mediator show
 This table is currently empty.
 ----
-. 下位CA（と呼ばれる）から証明書を取得する方法については、の手順を参照してくださいlink:../mediator/manage-task.html["自己署名証明書を信頼できるサードパーティ証明書に置き換える"]。 `ca.crt`自己署名証明書を信頼できるサードパーティ証明書に置き換える
+. 下位CA（ `ca.crt`と呼ばれる）から証明書を取得する方法については、link:../mediator/manage-task.html["信頼できるサードパーティの証明書への自己署名証明書の置き換え"]に記載されている手順を参照してください。自己署名証明書を信頼できるサードパーティの証明書に置き換えます
 +
 
-NOTE: には、 `ca.crt`ファイルに定義されているPKI権限に送信する必要がある要求から派生する特定のプロパティがあります。 `/opt/netapp/lib/ontap_mediator/ontap_mediator/server_config/openssl_ca.cnf`
+NOTE:  `ca.crt`には、PKI機関に送信する必要のあるリクエストから派生した特定のプロパティがあり、ファイル `/opt/netapp/lib/ontap_mediator/ontap_mediator/server_config/openssl_ca.cnf`で定義されています。
 
-. ONTAPメディエーターLinux VM /ホストソフトウェアのインストール先から新しいサードパーティ製ONTAPメディエーターCA証明書を追加し `ca.crt`ます。
+. ONTAP Mediator Linux VM / ホスト ソフトウェアのインストール場所から、新しいサードパーティの ONTAP Mediator CA 証明書 `ca.crt`を追加します：
 +
 例：
 
@@ -674,7 +674,7 @@ NOTE: には、 `ca.crt`ファイルに定義されているPKI権限に送信�
 <certificate_value>
 -----END CERTIFICATE-----
 ----
-. ファイルをピアクラスタに追加します `intermediate.crt`。すべてのピアクラスタについて、この手順を繰り返します。
+.  `intermediate.crt`ファイルをピアクラスタに追加します。すべてのピアクラスタに対してこの手順を繰り返します：
 +
 例：
 
@@ -698,7 +698,7 @@ The certificate's generated name for reference: ONTAPMediatorCA
 
 C1_test_cluster::*>
 ----
-. 以前に設定したONTAPメディエーターをSnapMirrorアクティブな同期クラスタから削除します。
+. 以前に設定したONTAP MediatorをSnapMirrorアクティブ同期クラスタから削除します。
 +
 例：
 
@@ -716,7 +716,7 @@ Info: [Job 86] 'mediator remove' job queued
 C1_test_cluster::*> snapmirror mediator show
 This table is currently empty.
 ----
-. ONTAP Mediator を再度追加します。
+. ONTAP Mediator を再度追加します：
 +
 例：
 
@@ -738,18 +738,18 @@ Mediator Address Peer Cluster     Connection Status Quorum Status
 1.2.3.4          C2_test_cluster  connected         true
 ----
 +
-`Quorum Status`SnapMirror整合性グループ関係がメディエーターと同期されているかどうかを示します。ステータス `true`は同期に成功したことを示します。
+`Quorum Status`SnapMirror整合性グループの関係がメディエータと同期されているかどうかを示します。 `true`のステータスは同期が成功したことを示します。
 
 
 
 --
 ====
 .関連情報
-* link:https://docs.netapp.com/us-en/ontap-cli/job-show.html["ジョブの表示"^]
-* link:https://docs.netapp.com/us-en/ontap-cli/security-certificate-delete.html["セキュリティ証明書の削除"^]
-* link:https://docs.netapp.com/us-en/ontap-cli/security-certificate-install.html["セキュリティ証明書のインストール"^]
-* link:https://docs.netapp.com/us-en/ontap-cli/security-certificate-show.html["security certificate show"^]
-* link:https://docs.netapp.com/us-en/ontap-cli/snapmirror-mediator-add.html["スナップミラーメディエーターの追加"^]
-* link:https://docs.netapp.com/us-en/ontap-cli/snapmirror-mediator-remove.html["スナップミラーメディエーターの削除"^]
-* link:https://docs.netapp.com/us-en/ontap-cli/snapmirror-mediator-show.html["スナップミラーメディエーターショー"^]
+* link:https://docs.netapp.com/us-en/ontap-cli/job-show.html["job show"^]
+* link:https://docs.netapp.com/us-en/ontap-cli/security-certificate-delete.html["security certificate delete"^]
+* link:https://docs.netapp.com/us-en/ontap-cli/security-certificate-install.html["security certificate install"^]
+* link:https://docs.netapp.com/us-en/ontap-cli/security-certificate-show.html["セキュリティ証明書の表示"^]
+* link:https://docs.netapp.com/us-en/ontap-cli/snapmirror-mediator-add.html["SnapMirror Mediator add"^]
+* link:https://docs.netapp.com/us-en/ontap-cli/snapmirror-mediator-remove.html["SnapMirror Mediator の削除"^]
+* link:https://docs.netapp.com/us-en/ontap-cli/snapmirror-mediator-show.html["SnapMirror Mediator show"^]
 

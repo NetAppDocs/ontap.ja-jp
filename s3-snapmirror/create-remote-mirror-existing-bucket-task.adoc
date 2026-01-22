@@ -2,9 +2,9 @@
 sidebar: sidebar 
 permalink: s3-snapmirror/create-remote-mirror-existing-bucket-task.html 
 keywords: snapmirror create a mirror relationship for an existing bucket, existing bucket, protect existing s3 buckets, snapmirror s3 relationship, remote cluster,  storage vm, bucket access policy, snapmirror protection, mirror buckets, snapmirror policy, source vm, destination vm, peering, mirror data to remote cluster, first snapmirror s3 relationship 
-summary: 既存のS3バケットの保護はいつでも開始できます。たとえば、S3の設定をONTAP 9 10.1より前のリリースからアップグレードした場合などです。 
+summary: 既存のS3バケットの保護は、たとえばONTAP 9.10.1よりも前のリリースからS3の設定をアップグレードした場合など、いつでも開始できます。 
 ---
-= リモートクラスタの既存のONTAP S3バケットのミラー関係を作成
+= リモート クラスタ上の既存の ONTAP S3 バケットのミラー関係を作成します
 :hardbreaks:
 :toclevels: 1
 :allow-uri-read: 
@@ -16,15 +16,15 @@ summary: 既存のS3バケットの保護はいつでも開始できます。た
 
 
 [role="lead"]
-既存のS3バケットの保護はいつでも開始できます。たとえば、S3の設定をONTAP 9 10.1より前のリリースからアップグレードした場合などです。
+既存のS3バケットの保護は、たとえばONTAP 9.10.1よりも前のリリースからS3の設定をアップグレードした場合など、いつでも開始できます。
 
-.タスクの内容
-タスクはソースクラスタとデスティネーションクラスタの両方で実行する必要があります。
+.タスク概要
+このタスクはソースとデスティネーションの両方のクラスタで実行する必要があります。
 
 .開始する前に
-* ONTAPのバージョン、ライセンス、S3サーバの設定に関する要件が完了している。
-* ソースクラスタとデスティネーションクラスタの間にピア関係が確立され、ソースとデスティネーションのStorage VMの間にピア関係が確立されています。
-* CA証明書は、ソースVMとデスティネーションVMに必要です。自己署名CA証明書または外部CAベンダーが署名した証明書を使用できます。
+* ONTAPのバージョン、ライセンス、S3サーバの設定に関する要件を満たしている必要があります。
+* ソースとデスティネーションのクラスタ間にピア関係が、ソースとデスティネーションのStorage VM間にピア関係がそれぞれ確立されている必要があります。
+* ソースとデスティネーションのVMのCA証明書が必要です。自己署名CA証明書または外部CAベンダーが署名した証明書を使用できます。
 
 
 .手順
@@ -34,93 +34,93 @@ summary: 既存のS3バケットの保護はいつでも開始できます。た
 ====
 .System Manager
 --
-. このStorage VMの最初のSnapMirror S3関係である場合は、ソースとデスティネーションの両方のStorage VMにrootユーザキーが存在することを確認し、存在しない場合は再生成します。
+. このStorage VMに対する最初のSnapMirror S3関係を作成する場合は、ソースとデスティネーションの両方のStorage VMに対するrootユーザのキーがあることを確認し、ない場合は再生成します。
 +
-.. [ストレージ]>[Storage VM]*を選択し、Storage VMを選択します。
-.. [設定]タブで、* S3 *タイル内をクリックします image:icon_pencil.gif["編集アイコン"] 。
-.. [*Users*] タブで、 root ユーザのアクセスキーがあることを確認します。
-.. 表示されていない場合は、* root *の横にあるをクリックし image:icon_kabob.gif["メニューオプションアイコン"] 、* Regenerate Key *をクリックします。*すでに存在するキーを再生成しないでください。
+.. *ストレージ > ストレージVM*を選択し、ストレージVMを選択します。
+.. *設定*タブで、*S3*タイルのimage:icon_pencil.gif["編集アイコン"]をクリックします。
+.. *ユーザー*タブで、rootユーザーのアクセスキーがあることを確認します。
+.. ない場合は、*root* の横にある image:icon_kabob.gif["メニューオプションアイコン"] をクリックし、*キーの再生成*をクリックします。すでにキーが存在する場合は、キーを再生成しないでください。
 
 
-. ソースとデスティネーションの両方のStorage VMに既存のユーザとグループが存在し、正しいアクセス権があることを確認します。*[ストレージ]>[Storage VM]*を選択し、Storage VMを選択して*[設定]*タブを選択します。最後に、* S3 *タイルを探しimage:icon_pencil.gif["編集アイコン"]、を選択して* Users *タブを選択し、* Groups *タブを選択して、ユーザとグループのアクセス設定を表示します。
+. 既存のユーザーとグループがソースとターゲットの両方のストレージVMに存在し、適切なアクセス権を持っていることを確認します。*ストレージ > ストレージVM*を選択し、ストレージVMを選択して*設定*タブを開きます。最後に*S3*タイルを見つけてimage:icon_pencil.gif["編集アイコン"]を選択し、*ユーザー*タブ、*グループ*タブの順に選択して、ユーザーとグループのアクセス設定を表示します。
 +
-詳細については、を参照してください link:../task_object_provision_add_s3_users_groups.html["S3ユーザとグループの追加"] 。
+詳細については、link:../task_object_provision_add_s3_users_groups.html["S3のユーザとグループの追加"]を参照してください。
 
-. ソース クラスターで、既存の SnapMirror S3 ポリシーがなく、デフォルトのポリシーを使用しない場合は、SnapMirror S3 ポリシーを作成します。
+. ソースクラスタで、既存のものがなくデフォルトポリシーを使用したくない場合は、SnapMirror S3ポリシーを作成してください：
 +
-.. [保護]>[概要]*を選択し、*[ローカルポリシー設定]*をクリックします。
-.. [保護ポリシー]*の横にあるを選択し image:../media/icon_arrow.gif["矢印アイコン"] 、*[追加]*をクリックします。
+.. *Protection > Overview*を選択し、*Local Policy Settings*をクリックします。
+.. *保護ポリシー*の横にあるimage:../media/icon_arrow.gif["矢印アイコン"]を選択し、*追加*をクリックします。
 .. ポリシーの名前と説明を入力します。
-.. ポリシースコープ（クラスタまたはSVM）を選択します。
-.. SnapMirror S3関係の場合は*[Continuous]*を選択します。
-.. スロットル値および * 目標復旧時点 * 値を入力します。
+.. ポリシーの対象として、クラスタとSVMのいずれかを選択します。
+.. SnapMirror S3 関係には *継続* を選択します。
+.. *Throttle*と*Recovery Point Objective*の値を入力します。
 
 
-. 既存のバケットのバケットアクセスポリシーが引き続きニーズを満たしていることを確認します。
+. 既存のバケットのバケット アクセス ポリシーが引き続き要件を満たしていることを確認します。
 +
-.. [ * ストレージ ] 、 [ バケット ] の順にクリックし、保護するバケットを選択します。
-.. [権限]タブで*[編集]*をクリックし image:icon_pencil.gif["編集アイコン"] 、*[権限]*の*[追加]*をクリックします。
+.. *Storage > Buckets* をクリックし、保護するバケットを選択します。
+.. *権限*タブで、image:icon_pencil.gif["編集アイコン"]*編集*をクリックし、*権限*の下の*追加*をクリックします。
 +
-*** * 主な内容と効果 * ：ユーザーグループの設定に対応する値を選択するか、デフォルト値をそのまま使用します。
-*** *アクション*：次の値が表示されていることを確認します。
+*** *Principal と Effect*：ユーザーグループの設定に対応する値を選択するか、デフォルトを受け入れます。
+*** *Actions*:次の値が表示されていることを確認します:
 +
 [listing]
 ----
 GetObject,PutObject,DeleteObject,ListBucket,GetBucketAcl,GetObjectAcl,ListBucketMultipartUploads,ListMultipartUploadParts
 ----
-*** *リソース*:デフォルト値または必要なその他の値を使用し `(_bucketname, bucketname_/*)`ます。
+*** *Resources*:デフォルト値 `(_bucketname, bucketname_/*)`または必要なその他の値を使用します。
 +
-これらのフィールドの詳細については、を参照してくださいlink:../task_object_provision_manage_bucket_access.html["バケットへのユーザアクセスの管理"]。
+これらのフィールドの詳細については、link:../task_object_provision_manage_bucket_access.html["バケットへのユーザ アクセスの管理"]を参照してください。
 
 
 
 
 
-. SnapMirror S3保護で既存のバケットを保護します。
+. SnapMirror S3保護を使用して既存のバケットを保護します。
 +
-.. [* Storage * > * Buckets] をクリックして、保護するバケットを選択します。
-.. [*Protect] をクリックして、次の値を入力します。
+.. *ストレージ* > *バケット* をクリックし、保護するバケットを選択します。
+.. *Protect*をクリックし、次の値を入力します：
 +
 *** デスティネーション
 +
-**** * ターゲット * ： ONTAP システム
-**** * cluster * ：リモートクラスタを選択します。
-**** * Storage VM * ：リモートクラスタの Storage VM を選択します。
-**** * S3 サーバ CA 証明書 * ： _source_certificate の内容をコピーして貼り付けます。
+**** *TARGET*：ONTAPシステム
+**** *CLUSTER*：リモート クラスターを選択します。
+**** *STORAGE VM*：リモートクラスタ上のストレージVMを選択します。
+**** *S3 SERVER CA CERTIFICATE*：_source_ 証明書の内容をコピーして貼り付けます。
 
 
 *** ソース
 +
-**** * S3 サーバ CA 証明書 * ： _destination_certificate の内容をコピーして貼り付けます。
+**** *S3 SERVER CA CERTIFICATE*：_宛先_証明書の内容をコピーして貼り付けます。
 
 
 
 
 
 
-. チェック * 外部 CA ベンダーが署名した証明書を使用している場合は、宛先で同じ証明書を使用します。
-. [* Destination Settings] をクリックすると、バケット名、容量、およびパフォーマンスサービスレベルのデフォルト値の代わりに独自の値を入力することもできます。
-. [ 保存（ Save ） ] をクリックします。既存のバケットがデスティネーションStorage VMの新しいバケットにミラーリングされます。
+. 外部 CA ベンダーによって署名された証明書を使用している場合は、* 宛先で同じ証明書を使用する * をオンにします。
+. *宛先設定*をクリックすると、バケット名、容量、パフォーマンスサービスレベルのデフォルトの代わりに独自の値を入力することもできます。
+. *保存*をクリックします。既存のバケットが、宛先ストレージVMの新しいバケットにミラーリングされます。
 
 
 .ロックされたバケットのバックアップ
 ONTAP 9.14.1以降では、ロックされたS3バケットをバックアップし、必要に応じてリストアできます。
 
-新規または既存のバケットの保護設定を定義する際に、ソースクラスタとデスティネーションクラスタでONTAP 9 .14.1以降を実行し、ソースバケットでオブジェクトのロックが有効になっている場合は、デスティネーションバケットでオブジェクトのロックを有効にできます。ソースバケットのオブジェクトロックモードとロックの保持期間が、デスティネーションバケットのレプリケートオブジェクトに適用されるようになります。また、*[Destination Settings]*セクションで、デスティネーションバケットに対して別のロック保持期間を定義することもできます。この保持期間は、ソースバケットとS3インターフェイスからレプリケートされたロックされていないオブジェクトにも適用されます。
+新規または既存のバケットの保護設定を定義する際に、ソース クラスタとデスティネーション クラスタがONTAP 9.14.1以降を実行し、ソース バケットでオブジェクト ロックが有効になっている場合、デスティネーション バケットでオブジェクト ロックを有効にできます。ソース バケットのオブジェクト ロック モードとロック保持期間は、デスティネーション バケットにレプリケートされたオブジェクトに適用されます。また、*デスティネーション設定*セクションで、デスティネーション バケットに異なるロック保持期間を定義することもできます。この保持期間は、ソース バケットとS3インターフェースからレプリケートされた、ロックされていないオブジェクトにも適用されます。
 
-バケットでオブジェクトロックを有効にする方法については、を参照してくださいlink:../s3-config/create-bucket-task.html["バケットを作成する"]。
+バケットでオブジェクト ロックを有効にする方法については、link:../s3-config/create-bucket-task.html["バケットの作成"]を参照してください。
 
 --
 .CLI
 --
-. このSVMに対する最初のSnapMirror S3関係である場合は、ソースとデスティネーションの両方のSVMにrootユーザキーが存在することを確認し、存在しない場合は再生成します
-`vserver object-store-server user show`。+ rootユーザのアクセスキーがあることを確認します。存在しない場合は、「
-`vserver object-store-server user regenerate-keys -vserver _svm_name_ -user _root_`+ Do not regenerate the key if one already exists」と入力します。
-. ミラーターゲットとして使用するデスティネーションSVMにバケットを作成します。
+. このSVMに対する最初のSnapMirror S3関係の場合、ソースSVMとデスティネーションSVMの両方にルートユーザーキーが存在することを確認し、存在しない場合は再生成してください：
+`vserver object-store-server user show` + ルートユーザーのアクセスキーが存在することを確認してください。存在しない場合は、以下を入力してください：
+`vserver object-store-server user regenerate-keys -vserver _svm_name_ -user _root_` + キーが既に存在する場合は再生成しないでください。
+. デスティネーションSVMにミラー ターゲットにするバケットを作成します。
 +
 `vserver object-store-server bucket create -vserver _svm_name_ -bucket _dest_bucket_name_ [-size _integer_[KB|MB|GB|TB|PB]] [-comment _text_] [_additional_options_]`
 
-. ソースとデスティネーションの両方のSVMで、デフォルトのバケットポリシーのアクセスルールが正しいことを確認します。
+. ソースとデスティネーションの両方のSVMで、デフォルトのバケット ポリシーのアクセス ルールが正しいことを確認します。
 +
 `vserver object-store-server bucket policy add-statement -vserver _svm_name_ -bucket _bucket_name_ -effect {allow|deny} -action _object_store_actions_ -principal _user_and_group_names_ -resource _object_store_resources_ [-sid _text_] [-index _integer_]`
 
@@ -130,7 +130,7 @@ ONTAP 9.14.1以降では、ロックされたS3バケットをバックアップ
 ----
 src_cluster::> vserver object-store-server bucket policy add-statement -bucket test-bucket -effect allow -action GetObject,PutObject,DeleteObject,ListBucket,GetBucketAcl,GetObjectAcl,ListBucketMultipartUploads,ListMultipartUploadParts -principal - -resource test-bucket, test-bucket /*
 ----
-. ソース SVM で、既存の SnapMirror S3 ポリシーがなく、デフォルトのポリシーを使用しない場合は、SnapMirror S3 ポリシーを作成します。
+. ソースSVMで、既存のものがなくデフォルトポリシーを使用したくない場合は、SnapMirror S3ポリシーを作成してください：
 +
 `snapmirror policy create -vserver svm_name -policy policy_name -type continuous [-rpo _integer_] [-throttle _throttle_type_] [-comment _text_] [_additional_options_]`
 
@@ -138,9 +138,9 @@ src_cluster::> vserver object-store-server bucket policy add-statement -bucket t
 パラメータ：
 
 +
-** `continuous`–SnapMirror S3関係の唯一のポリシータイプ（必須）。
-** `-rpo`–目標復旧時点の時間を秒単位で指定します（オプション）。
-** `-throttle`–スループット/帯域幅の上限をキロバイト/秒単位で指定します（オプション）。
+** `continuous` – SnapMirror S3 関係の唯一のポリシータイプ（必須）。
+** `-rpo` – 回復ポイント目標の時間を秒単位で指定します（オプション）。
+** `-throttle` – スループット/帯域幅の上限をキロバイト/秒単位で指定します（オプション）。
 +
 .例
 [listing]
@@ -149,18 +149,18 @@ src_cluster::> snapmirror policy create -vserver vs0 -type continuous -rpo 0 -po
 ----
 
 
-. ソースクラスタとデスティネーションクラスタの管理SVMにCA証明書をインストールします。
+. ソースとデスティネーションのクラスタの管理SVMに、CA証明書をインストールします。
 +
-.. ソースクラスタで、_destination_S3サーバ証明書に署名したCA証明書をインストールします。
+.. ソース クラスタで、_デスティネーション_ S3サーバ証明書に署名したCA証明書をインストールします：
 `security certificate install -type server-ca -vserver _src_admin_svm_ -cert-name _dest_server_certificate_`
-.. デスティネーションクラスタで、_source_S3サーバ証明書に署名したCA証明書をインストールします
-`security certificate install -type server-ca -vserver _dest_admin_svm_ -cert-name _src_server_certificate_`。+外部のCAベンダーが署名した証明書を使用している場合は、ソースとデスティネーションの管理SVMに同じ証明書をインストールします。
+.. デスティネーション クラスタに、_ソース_ S3サーバ証明書に署名したCA証明書をインストールします：
+`security certificate install -type server-ca -vserver _dest_admin_svm_ -cert-name _src_server_certificate_` + 外部CAベンダーによって署名された証明書を使用している場合は、ソースおよびデスティネーションの管理SVMに同じ証明書をインストールします。
 +
-の詳細については `security certificate install`、をlink:https://docs.netapp.com/us-en/ontap-cli/security-certificate-install.html["ONTAPコマンド リファレンス"^]参照してください。
+ `security certificate install`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/security-certificate-install.html["ONTAPコマンド リファレンス"^]をご覧ください。
 
 
 
-. ソース SVM で、SnapMirror S3 関係を作成します。
+. ソース SVM で、SnapMirror S3 関係を作成します：
 +
 `snapmirror create -source-path _src_svm_name_:/bucket/_bucket_name_ -destination-path dest_peer_svm_name:/bucket/_bucket_name_, ...} [-policy policy_name]`
 
@@ -173,14 +173,14 @@ src_cluster::> snapmirror policy create -vserver vs0 -type continuous -rpo 0 -po
 ----
 src_cluster::> snapmirror create -source-path vs0:/bucket/test-bucket -destination-path vs1:/bucket/test-bucket-mirror -policy test-policy
 ----
-. ミラーリングがアクティブであることを確認します。
+. ミラーリングがアクティブであることを確認します：
 `snapmirror show -policy-type continuous -fields status`
 
 
 --
 ====
 .関連情報
-* link:https://docs.netapp.com/us-en/ontap-cli/snapmirror-create.html["スナップミラー作成"^]
+* link:https://docs.netapp.com/us-en/ontap-cli/snapmirror-create.html["snapmirror create"^]
 * link:https://docs.netapp.com/us-en/ontap-cli/snapmirror-policy-create.html["snapmirror policy create"^]
 * link:https://docs.netapp.com/us-en/ontap-cli/snapmirror-show.html["snapmirror show"^]
 

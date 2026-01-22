@@ -2,39 +2,39 @@
 permalink: flexcache-hot-spot/flexcache-hotspot-remediation-intra-inter-svm-hdfa.html 
 sidebar: sidebar 
 keywords: tr, hotspot, flexcache, hdfa, configuration, inter-svm, intra-svm, architecture 
-summary: HDFSの密度を確認したら、NFSを使用してHDFSにアクセスするかどうかを決定します。 
+summary: HDF の密度を決定したら、NFS を使用して HDF にアクセスするかどうかを決定します。 
 ---
-= ONTAPのSVM間またはSVM内のHDFAオプションを決定する
+= ONTAP SVM 間または SVM 内の HDFA オプションを決定する
 :allow-uri-read: 
 
 
 [role="lead"]
-HDFSの密度を確認したら、NFSを使用してHDFSにアクセスするかどうかを決定し、SVM間HDFAとSVM内HDFAのオプションについて学習します。
+HDF の密度を決定したら、NFS を使用して HDF にアクセスするかどうかを決定し、SVM 間 HDFA と SVM 内 HDFA のオプションについて学習します。
 
 
-TIP: HDFSにアクセスするのがSMBクライアントだけの場合は、すべてのHDFSを1つのSVMに作成する必要があります。DFSターゲットを使用してロードバランシングを行う方法については、Windowsクライアントの設定を参照してください。
-
-
-
-== SVM間HDFAの導入
-
-SVM間HDFAを使用するには、HDFA内のHDFごとにSVMを作成する必要があります。これにより、HDFA内のすべてのHDFSのジャンクションパスが同じになるため、クライアント側での設定が容易になります。
-
-この例で<<Figure-1,図1>>は、各HDFが専用のSVMに配置されています。これはSVM間HDFA環境です。各HDFには/hotspotsのジャンクションパスがあります。また、すべてのIPにはホスト名キャッシュのDNS Aレコードがあります。この構成では、DNSラウンドロビンを使用して、異なるHDFS間でマウントの負荷を分散します。
-
-.図1：4x1x4のSVM間HDFA構成
-image:flexcache-hotspot-hdfa-one-hdf-per-svm.png["図1：4x1x4のSVM間HDFA構成"]
+TIP: SMBクライアントのみがHDFにアクセスする場合は、すべてのHDFを単一のSVMに作成する必要があります。ロード バランシングにDFSターゲットを使用する方法については、Windowsクライアント構成を参照してください。
 
 
 
-== SVM内HDFAの導入
+== SVM間HDFA導入
 
-SVM内では、各HDFに一意のジャンクションパスが必要ですが、すべてのHDFSは1つのSVMに含まれます。このセットアップはONTAPでは1つのSVMしか必要ないため簡単ですが、ONTAPでおよびデータLIFを使用してLinux側でさらに高度な設定を行う必要があります `autofs`。
+SVM間HDFAでは、HDFA内の各HDFごとにSVMを作成する必要があります。これにより、HDFA内のすべてのHDFが同じジャンクションパスを持つようになり、クライアント側での設定が容易になります。
 
-この例で<<Figure-2,図2>>は、すべてのHDFが同じSVM内にあります。これはSVM内HDFA環境であり、ジャンクションパスが一意である必要があります。ロードバランシングを適切に機能させるには、IPごとに一意のDNS名を作成し、ホスト名が解決されるデータLIFをHDFが存在するノードにのみ配置する必要があります。また、で説明されているように、複数のエントリを使用してを構成する必要があり `autofs`ますlink:flexcache-hotspot-remediation-client-config.html["Linuxクライアントノセツテイ"]。
+この<<Figure-1,図1>>例では、各HDFはそれぞれ独自のSVMに存在します。これはSVM間HDFAデプロイメントです。各HDFには/hotspotsのジャンクション パスがあります。また、すべてのIPアドレスにはホスト名キャッシュのDNS Aレコードがあります。この構成では、DNSラウンド ロビンを利用して、異なるHDF間でマウントのロード バランシングを行っています。
 
-.図2：4x1x4のSVM内HDFA構成
-image:flexcache-hotspot-hdfa-4x1x4-intra-svm-hdfa.png["図2：SVM内HDFA×4x1x4"]
+.図1：4x1x4インターSVM HDFA構成
+image:flexcache-hotspot-hdfa-one-hdf-per-svm.png["図1：4x1x4インターSVM HDFA構成"]
 
-.次のステップ
-これで、HDFAをどのように展開するかがわかりましたlink:flexcache-hotspot-remediation-ontap-config.html["HDFAを導入し、分散した方法でアクセスするようにクライアントを設定する"]。
+
+
+== SVM 内 HDFA 展開
+
+SVM内構成では、各HDFに固有のジャンクションパスが必要ですが、すべてのHDFは1つのSVMに存在します。ONTAPではSVMが1つしか必要ないため、この設定は簡単ですが、Linux側では `autofs`とONTAPでのデータLIF配置により、より高度な構成が必要になります。
+
+<<Figure-2,図2>>の例では、すべてのHDFが同じSVM内にあります。これはSVM内HDFAデプロイメントであり、ジャンクションパスは一意である必要があります。ロード バランシングを適切に機能させるには、各IPに一意のDNS名を作成し、ホスト名が解決するデータLIFをHDFが存在するノードにのみ配置する必要があります。また、link:flexcache-hotspot-remediation-client-config.html["Linuxクライアントの設定"]で説明されているように、 `autofs`で複数のエントリを設定する必要があります。
+
+.図2：4x1x4 SVM内HDFA構成
+image:flexcache-hotspot-hdfa-4x1x4-intra-svm-hdfa.png["図2：4x1x4 SVM内HDFA"]
+
+.次の手順
+HDFA をどのように展開するかが決まったので、link:flexcache-hotspot-remediation-ontap-config.html["HDFAを展開し、分散形式でアクセスできるようにクライアントを構成する"]。

@@ -2,52 +2,52 @@
 permalink: smb-admin/modify-servers-task.html 
 sidebar: sidebar 
 keywords: move, smb, server, workgroup, active, directory, domain, vserver, cifs, modify, command, modify smb servers 
-summary: ワークグループから Active Directory ドメインへ、ワークグループから別のワークグループへ、または Active Directory ドメインからワークグループへ SMB サーバを移動するには、 vserver cifs modify コマンドを使用します。 
+summary: vserver cifs modify コマンドを使用して、SMB サーバをワークグループから Active Directory ドメイン、ワークグループから別のワークグループ、または Active Directory ドメインからワークグループに移動できます。 
 ---
-= ONTAP SMBサーバの変更
+= ONTAP SMBサーバーの変更
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-コマンドを使用して、ワークグループからActive Directoryドメイン、ワークグループから別のワークグループ、またはActive DirectoryドメインからワークグループにSMBサーバを移動できます `vserver cifs modify`。
+ `vserver cifs modify`コマンドを使用して、SMBサーバをワークグループからActive Directoryドメイン、ワークグループから別のワークグループ、またはActive Directoryドメインからワークグループに移動できます。
 
-.タスクの内容
-SMB サーバ名や管理ステータスなど、 SMB サーバのその他の属性を変更することもできます。の詳細については `vserver cifs modify`、をlink:https://docs.netapp.com/us-en/ontap-cli/vserver-cifs-modify.html["ONTAPコマンド リファレンス"^]参照してください。
+.タスク概要
+SMBサーバーのその他の属性（SMBサーバー名や管理ステータスなど）を変更することもできます。link:https://docs.netapp.com/us-en/ontap-cli/vserver-cifs-modify.html["ONTAPコマンド リファレンス"^]の `vserver cifs modify`の詳細をご覧ください。
 
-.選択肢
-* ワークグループから Active Directory ドメインに SMB サーバを移動するには、次の手順を実行します。
+.オプション
+* SMB サーバーをワークグループから Active Directory ドメインに移動します：
 +
-.. SMBサーバの管理ステータスをに設定します `down`。
+.. SMB サーバーの管理ステータスを `down`に設定します。
 +
 [listing]
 ----
 Cluster1::>vserver cifs modify -vserver vs1 -status-admin down
 ----
-.. ワークグループからActive DirectoryドメインにSMBサーバを移動します。 `vsserver cifs modify -vserver _vserver_name_ -domain _domain_name_`
+.. SMB サーバーをワークグループから Active Directory ドメインに移動します： `vsserver cifs modify -vserver _vserver_name_ -domain _domain_name_`
 +
 [listing]
 ----
 Cluster1::>vserver cifs modify -vserver vs1 -domain example.com
 ----
 +
-SMBサーバ用のActive Directoryマシンアカウントを作成するには、.comドメイン内のコンテナ `_example_`にコンピュータを追加するための十分なPrivilegesを備えたWindowsアカウントの名前とパスワードを指定する必要があります `ou=_example_ ou`。
+SMB サーバーの Active Directory マシン アカウントを作成するには、 `_example_`.com ドメイン内の `ou=_example_ ou`コンテナーにコンピューターを追加するための十分な権限を持つ Windows アカウントの名前とパスワードを入力する必要があります。
 
 +
-ONTAP 9 .7以降では、権限のあるWindowsアカウントの名前とパスワードを指定する代わりに、keytabファイルのURIをAD管理者から提供することができます。URIを受け取ったら、コマンドのパラメータ `vserver cifs`にそのURIを含め `-keytab-uri`ます。
+ONTAP 9.7以降、AD管理者は、特権Windowsアカウントの名前とパスワードを提供する代わりに、キータブ ファイルへのURIを提供できるようになりました。URIを受け取ったら、 `vserver cifs`コマンドの `-keytab-uri`パラメータに含めてください。
 
 
 
-* ワークグループから別のワークグループに SMB サーバを移動します。
+* SMB サーバーをワークグループから別のワークグループに移動します：
 +
-.. SMBサーバの管理ステータスをに設定します `down`。
+.. SMB サーバーの管理ステータスを `down`に設定します。
 +
 [listing]
 ----
 Cluster1::>vserver cifs modify -vserver vs1 -status-admin down
 ----
-.. SMBサーバのワークグループを変更します。 `vserver cifs modify -vserver _vserver_name_ -workgroup _new_workgroup_name_`
+.. SMB サーバーのワークグループを変更します： `vserver cifs modify -vserver _vserver_name_ -workgroup _new_workgroup_name_`
 +
 [listing]
 ----
@@ -55,15 +55,15 @@ Cluster1::>vserver cifs modify -vserver vs1 -workgroup workgroup2
 ----
 
 
-* Active Directory ドメインからワークグループに SMB サーバを移動するには、次の手順を実行します。
+* SMB サーバーを Active Directory ドメインからワークグループに移動します：
 +
-.. SMBサーバの管理ステータスをに設定します `down`。
+.. SMB サーバーの管理ステータスを `down`に設定します。
 +
 [listing]
 ----
 Cluster1::>vserver cifs modify -vserver vs1 -status-admin down
 ----
-.. Active DirectoryドメインからワークグループにSMBサーバを移動します。 `vserver cifs modify -vserver _vserver_name_ -workgroup _workgroup_name_`
+.. SMB サーバーを Active Directory ドメインからワークグループに移動します： `vserver cifs modify -vserver _vserver_name_ -workgroup _workgroup_name_`
 +
 [listing]
 ----
@@ -72,11 +72,11 @@ cluster1::> vserver cifs modify -vserver vs1 -workgroup workgroup1
 +
 [NOTE]
 ====
-ワークグループモードに切り替えるには、継続的可用性を備えた共有、シャドウコピー、 AES など、ドメインベースの機能をすべて無効にし、該当する設定がシステムによって自動的に削除されるようにする必要があります。ただし、「 EXAMPLE.COM\userName" 」などのドメインで設定された共有 ACL は正しく機能しませんが、 ONTAP で削除することはできません。このような共有 ACL は、コマンドの完了後できるだけ早く外部ツールを使用して削除してください。AES が有効になっている場合は、「 example.com 」ドメインで AES を無効にするための十分な権限を持つ Windows アカウントの名前とパスワードの入力を求められることがあります。
+ワークグループモードに入るには、継続的可用性共有、シャドウコピー、AESなど、すべてのドメインベースの機能を無効にし、その設定をシステムによって自動的に削除する必要があります。ただし、「EXAMPLE.COM\userName」などのドメイン設定された共有ACLは正常に動作しませんが、ONTAPでは削除できません。コマンド完了後、外部ツールを使用してできるだけ早くこれらの共有ACLを削除してください。AESが有効になっている場合は、「EXAMPLE.COM」ドメインでAESを無効にするための十分な権限を持つWindowsアカウントの名前とパスワードの入力を求められる場合があります。
 
 ====
 +
-*** その他の属性を変更するには、コマンドの該当するパラメータを使用し `vserver cifs modify`ます。
+***  `vserver cifs modify`コマンドの適切なパラメータを使用して、他の属性を変更します。
 
 
 

@@ -2,37 +2,37 @@
 permalink: data-protection/restore-single-file-lun-task.html 
 sidebar: sidebar 
 keywords: restore, single file, lun, nvme, namespace, snapmirror, destination, snapshot, copy, snap mirror, baseline, 
-summary: 単一ファイル、LUN、一連のファイルまたはLUNをSnapshotからリストアしたり、NVMeネームスペースをSnapMirrorデスティネーションボリュームからリストアしたりできます。NVMe.7以降では、SnapMirror同期デスティネーションからONTAP 9ネームスペースをリストアすることもできます。ファイルは元のソースボリュームにリストアすることも、別のボリュームにリストアすることもできます。 
+summary: 単一のファイル、LUN、スナップショットからのファイルまたはLUNのセット、あるいはSnapMirrorデスティネーション ボリュームからのNVMeネームスペースをリストアできます。ONTAP 9.7以降では、SnapMirror同期デスティネーションからのNVMeネームスペースもリストアできます。ファイルは元のソース ボリュームまたは別のボリュームにリストアできます。 
 ---
-= ONTAP SnapMirrorデスティネーションからファイル、LUN、NVMeネームスペースをリストアする
+= ONTAP SnapMirrorデスティネーションからファイル、LUN、またはNVMeネームスペースをリストアする
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-単一ファイル、LUN、一連のファイルまたはLUNをSnapshotからリストアしたり、NVMeネームスペースをSnapMirrorデスティネーションボリュームからリストアしたりできます。NVMe.7以降では、SnapMirror同期デスティネーションからONTAP 9ネームスペースをリストアすることもできます。ファイルは元のソースボリュームにリストアすることも、別のボリュームにリストアすることもできます。
+単一のファイル、LUN、スナップショットからのファイルまたはLUNのセット、あるいはSnapMirrorデスティネーション ボリュームからのNVMeネームスペースをリストアできます。ONTAP 9.7以降では、SnapMirror同期デスティネーションからのNVMeネームスペースもリストアできます。ファイルは元のソース ボリュームまたは別のボリュームにリストアできます。
 
 .開始する前に
-SnapMirror同期デスティネーション（ONTAP 9 .5以降でサポート）からファイルまたはLUNをリストアするには、まず関係を削除して解放する必要があります。
+SnapMirror同期デスティネーション（ONTAP 9.5以降でサポート）からファイルまたはLUNを復元するには、まず関係を削除して解放する必要があります。
 
-.タスクの内容
-ファイルまたはLUNのリストア先のボリューム（デスティネーションボリューム）が読み書き可能ボリュームである必要があります。
+.タスク概要
+ファイルまたはLUNのリストア先のボリューム（デスティネーション ボリューム）は読み書き可能なボリュームにする必要があります。
 
-* ソースボリュームとデスティネーションボリュームに共通のSnapshotがある場合（通常は元のソースボリュームにリストアする場合）、SnapMirrorは_増分リストア_を実行します。
-* それ以外の場合、SnapMirrorは_ベースラインリストア_を実行します。指定したSnapshotとSnapshotが参照するすべてのデータブロックがデスティネーションボリュームに転送されます。
+* SnapMirrorは、ソース ボリュームとデスティネーション ボリュームに共通のSnapshotがある場合（元のソース ボリュームにリストアする場合が一般的）、_増分リストア_を実行します。
+* それ以外の場合は、SnapMirrorが_ベースライン リストア_を実行し、指定されたSnapshotとそれが参照するすべてのデータ ブロックがデスティネーション ボリュームに転送されます。
 
 
 .手順
-. デスティネーションボリューム内のSnapshotの一覧を表示します。
+. デスティネーション ボリューム内のSnapshotを一覧表示します：
 +
 `volume snapshot show -vserver <SVM> -volume volume`
 
 +
-の詳細については `volume snapshot show`、をlink:https://docs.netapp.com/us-en/ontap-cli/volume-snapshot-show.html["ONTAPコマンド リファレンス"^]参照してください。
+ `volume snapshot show`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/volume-snapshot-show.html["ONTAPコマンド リファレンス"^]を参照してください。
 
 +
-次の例は、デスティネーション上のSnapshotを示してい `vserverB:secondary1`ます。
+次の例は、 `vserverB:secondary1`デスティネーションのSnapshotを示しています：
 
 +
 [listing]
@@ -52,18 +52,18 @@ vserverB    secondary1  hourly.2013-01-25_0005  valid   224KB     0%    0%
 
 7 entries were displayed.
 ----
-. SnapMirrorデスティネーションボリューム内のSnapshotから、単一ファイルまたはLUN、あるいは一連のファイルまたはLUNをリストアします。
+. SnapMirrorデスティネーション ボリュームのSnapshotから単一のファイルまたはLUN、あるいはファイルまたはLUNのセットをリストアします：
 +
 `snapmirror restore -source-path <SVM:volume>|<cluster://SVM/volume>, ... -destination-path <SVM:volume>|<cluster://SVM/volume>, ... -source-snapshot snapshot -file-list <source_file_path,@destination_file_path>`
 
 +
 [NOTE]
 ====
-このコマンドはデスティネーションSVMまたはデスティネーションクラスタから実行する必要があります。
+このコマンドはデスティネーションSVMまたはデスティネーション クラスタから実行する必要があります。
 
 ====
 +
-次のコマンドは、ファイルと `file2`ファイルを元のデスティネーションボリューム内の `secondary1`Snapshotから `daily.2013-01-25_0010`、元のソースボリュームのアクティブファイルシステム内の同じ場所に `primary1`リストアします `file1`。
+次のコマンドは、元のデスティネーション ボリューム `secondary1`のスナップショット `daily.2013-01-25_0010`から、ファイル `file1`と `file2`を、元のソース ボリューム `primary1`のアクティブ ファイル システム内の同じ場所に復元します：
 
 +
 [listing]
@@ -74,10 +74,10 @@ cluster_dst::> snapmirror restore -source-path vserverB:secondary1 -destination-
 [Job 3479] Job is queued: snapmirror restore for the relationship with destination vserverA:primary1
 ----
 +
-次のコマンドは、ファイルと `file2`ファイルを元のデスティネーションボリューム内の `secondary1`Snapshotから `daily.2013-01-25_0010`、元のソースボリュームのアクティブファイルシステム内の別の場所に `primary1`リストアします `file1`。
+次のコマンドは、元のデスティネーション ボリューム `secondary1`のスナップショット `daily.2013-01-25_0010`から、ファイル `file1`と `file2`を、元のソース ボリューム `primary1`のアクティブ ファイル システム内の別の場所に復元します。
 
 +
-@記号に続くパスがデスティネーションファイルのパスで、元のソースボリュームのルートからのパスが指定されています。この例では、 `file1`がにリストアされ、file2が `/dir2.new/file2`にリストアされ `/dir1/file1.new` `primary1`ます。
+デスティネーション ファイル パスは@記号で始まり、その後に元のソース ボリュームのルートからのファイル パスが続きます。この例では、 `file1`が `/dir1/file1.new`に復元され、file2が `/dir2.new/file2`に復元されます（ `primary1`）：
 
 +
 [listing]
@@ -88,10 +88,10 @@ cluster_dst::> snapmirror restore -source-path vserverB:secondary1 -destination-
 [Job 3479] Job is queued: snapmirror restore for the relationship with destination vserverA:primary1
 ----
 +
-次のコマンドは、ファイルと `file3`ファイルを元のデスティネーションボリューム内の `secondary1`Snapshotから `daily.2013-01-25_0010`、元のソースボリュームのアクティブファイルシステム内の別の場所に `primary1`リストアし、から `snap1`のアクティブファイルシステム内の同じ場所に `primary1`リストアし `file1`ます。 `file2`
+次のコマンドは、元のデスティネーション ボリューム `secondary1`のスナップショット `daily.2013-01-25_0010`からファイル `file1`と `file3`を元のソース ボリューム `primary1`のアクティブ ファイル システム内の別の場所に復元し、 `file2`を `snap1`から `primary1`のアクティブ ファイル システム内の同じ場所に復元します。
 
 +
-この例では、ファイルが `file1`にリストアされ `/dir1/file1.new`、 `file3`にリストアされ `/dir3.new/file3`ます。
+この例では、ファイル `file1`は `/dir1/file1.new`に復元され、 `file3`は `/dir3.new/file3`に復元されます：
 
 +
 [listing]
@@ -104,5 +104,5 @@ cluster_dst::> snapmirror restore -source-path vserverB:secondary1 -destination-
 
 
 .関連情報
-* link:https://docs.netapp.com/us-en/ontap-cli/snapmirror-restore.html["スナップミラー復元"^]
+* link:https://docs.netapp.com/us-en/ontap-cli/snapmirror-restore.html["snapmirror restore"^]
 

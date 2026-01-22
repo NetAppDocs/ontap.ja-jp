@@ -2,53 +2,53 @@
 permalink: smb-config/create-volume-task.html 
 sidebar: sidebar 
 keywords: create, volume, junction, point, properties, property, command, create a volume 
-summary: volume create コマンドを使用して、ボリュームを作成し、ジャンクションポイントやその他のプロパティを指定できます。 
+summary: volume createコマンドを使用してボリュームを作成し、そのジャンクション ポイントやその他のプロパティを指定できます。 
 ---
-= ONTAP SMBボリュームの作成
+= ONTAP SMB ボリュームを作成する
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-コマンドを使用すると、ボリュームを作成し、ジャンクションポイントやその他のプロパティを指定できます `volume create`。
+ `volume create`コマンドを使用してボリュームを作成し、そのジャンクション ポイントやその他のプロパティを指定できます。
 
-.タスクの内容
-クライアントがデータを使用できるようにするには、ボリュームに _junction path_ を含める必要があります。ジャンクションパスは、新しいボリュームの作成時に指定できます。ジャンクションパスを指定せずにボリュームを作成する場合は、コマンドを使用して、SVMネームスペースでボリュームを_mount_theにする必要があります `volume mount`。
+.タスク概要
+ボリュームのデータをクライアントが利用できるようにするには、ボリュームに_ジャンクション パス_が必要です。ジャンクション パスは、新しいボリュームを作成するときに指定できます。ジャンクション パスを指定せずにボリュームを作成する場合は、 `volume mount`コマンドを使用してSVMネームスペースにボリュームを_マウント_する必要があります。
 
 .開始する前に
-* SMBがセットアップされて実行されている必要があります。
+* SMBがセットアップされて、実行されている必要があります。
 * SVMのセキュリティ形式はNTFSである必要があります。
-* ONTAP 9.13.1以降では、容量分析とアクティビティ追跡を有効にしてボリュームを作成できます。容量またはアクティビティの追跡を有効にするには、を指定してコマンドを `-analytics-state`実行する `volume create`か、 `-activity-tracking-state`に設定します `on`。
+* ONTAP 9.13.1以降では、容量分析とアクティビティトラッキングを有効にしたボリュームを作成できます。容量またはアクティビティトラッキングを有効にするには、 `-analytics-state`または `-activity-tracking-state`を `on`に設定した `volume create`コマンドを発行します。
 +
-容量分析とアクティビティ追跡の詳細については、を参照してください https://docs.netapp.com/us-en/ontap/task_nas_file_system_analytics_enable.html["ファイルシステム分析を有効にする"]。の詳細については `volume create`、をlink:https://docs.netapp.com/us-en/ontap-cli/volume-create.html["ONTAPコマンド リファレンス"^]参照してください。
+容量分析とアクティビティ追跡の詳細については、 https://docs.netapp.com/us-en/ontap/task_nas_file_system_analytics_enable.html["ファイルシステム分析の有効化"]を参照してください。link:https://docs.netapp.com/us-en/ontap-cli/volume-create.html["ONTAPコマンド リファレンス"^]の `volume create`の詳細を確認してください。
 
 
 
 .手順
-. ジャンクションポイントを設定してボリュームを作成します。 `volume create -vserver _svm_name_ -volume _volume_name_ -aggregate _aggregate_name_ -size {integer[KB|MB|GB|TB|PB]} -security-style ntfs -junction-path _junction_path_]`
+. ジャンクション ポイントを持つボリュームを作成します： `volume create -vserver _svm_name_ -volume _volume_name_ -aggregate _aggregate_name_ -size {integer[KB|MB|GB|TB|PB]} -security-style ntfs -junction-path _junction_path_]`
 +
-の選択肢は `-junction-path`次のとおりです。
+ `-junction-path`の選択肢は次のとおりです：
 
 +
-** ルートの直下。例： `/new_vol`
+** たとえば、ルートの直下に `/new_vol`
 +
-新しいボリュームを作成し、 SVM のルートボリュームに直接マウントされるように指定することができます。
+新しいボリュームを作成し、SVMのルート ボリュームに直接マウントされるように指定することができます。
 
-** 既存のディレクトリの下（例： `/existing_dir/new_vol`
+** 既存のディレクトリの下に、例えば `/existing_dir/new_vol`
 +
 新しいボリュームを作成し、ディレクトリとして表現されている既存のボリューム（既存の階層内）にマウントされるように指定できます。
 
 
 
 +
-たとえば、新しいディレクトリ（新しいボリュームの下の新しい階層）にボリュームを作成する場合は `/new_dir/new_vol`、SVMのルートボリュームにジャンクションされている新しい親ボリュームを最初に作成する必要があります。その後、新しい親ボリューム（新しいディレクトリ）のジャンクションパスに新しい子ボリュームを作成します。
+新しいディレクトリ（新しいボリュームの下の新しい階層）にボリュームを作成する場合（例： `/new_dir/new_vol`）、まずSVMルートボリュームにジャンクションされた新しい親ボリュームを作成する必要があります。次に、新しい親ボリューム（新しいディレクトリ）のジャンクションパスに新しい子ボリュームを作成します。
 
-. 目的のジャンクションポイントでボリュームが作成されたことを確認します。 `volume show -vserver _svm_name_ -volume _volume_name_ -junction`
+. ボリュームが目的のジャンクション ポイントで作成されたことを確認します： `volume show -vserver _svm_name_ -volume _volume_name_ -junction`
 
 
 .例
-次のコマンドは、 SVM vs1.example.com およびアグリゲート aggr1 上に、 users1 という名前の新しいボリュームを作成します。新しいボリュームは、で使用でき `/users`ます。ボリュームのサイズは750GBで、ボリュームギャランティのタイプはvolume（デフォルト）です。
+次のコマンドは、SVM vs1.example.comとアグリゲートaggr1上にusers1という新しいボリュームを作成します。この新しいボリュームは `/users`で利用可能になります。ボリュームのサイズは750GBで、ボリュームギャランティはvolume（デフォルト）です。
 
 [listing]
 ----
@@ -61,7 +61,7 @@ Vserver           Volume  Active   Junction Path   Path Source
 ----------------- ------- -------- --------------- -----------
 vs1.example.com   users1  true     /users          RW_volume
 ----
-次のコマンドでは、「 home4` 」という名前の新しいボリュームを SVM 「 vs1.example.com`" 」およびアグリゲート「 aggr1 」に作成します。ディレクトリは `/eng/`vs1 SVMのネームスペース内にすでに存在し、新しいボリュームがで使用可能になります `/eng/home`。これがネームスペースのホームディレクトリになります。 `/eng/`ボリュームのサイズは750GBで、ボリュームギャランティのタイプは（デフォルト）です `volume`。
+次のコマンドは、SVM「`vs1.example.com`」とアグリゲート「`aggr1`」に「`home4`」という名前の新しいボリュームを作成します。ディレクトリ `/eng/`はvs1 SVMの名前空間にすでに存在しており、新しいボリュームは `/eng/home`で使用可能になり、これが `/eng/`名前空間のホームディレクトリになります。ボリュームのサイズは750 GBで、ボリュームギャランティのタイプは `volume`（デフォルト）です。
 
 [listing]
 ----

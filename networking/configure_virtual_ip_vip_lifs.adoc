@@ -2,7 +2,7 @@
 sidebar: sidebar 
 permalink: networking/configure_virtual_ip_vip_lifs.html 
 keywords: 'configure, configuration, configuring, setup, setting, set, up, virtual, vip, ip, lif, data, configure virtual IP (vip) lifs, set up border gateway protocol (bgp), use-peer-as-next-hop, asn-prepend-type, asn-prepend-count, community, network bgp peer-group, med, multi-exit discriminator, create a virtual ip (vip) data lif, commands for managing the BGP, network bgp, manage bgp configuration, manage bgp default values, manage bgp peer groups' 
-summary: サブネット間で LIF をフェイルオーバーする 
+summary: サブネット間のフェイルオーバー LIF 
 ---
 = ONTAP仮想IP（VIP）LIFの設定
 :hardbreaks:
@@ -14,84 +14,84 @@ summary: サブネット間で LIF をフェイルオーバーする
 
 
 [role="lead"]
-一部の次世代データセンターでは、サブネット間でLIFをフェイルオーバーする必要があるレイヤ3（IP）ネットワークメカニズムが使用されています。ONTAPは、これらの次世代ネットワークのフェイルオーバー要件を満たすために、仮想IP（VIP）データLIFと関連するルーティングプロトコルであるBorder Gateway Protocol（BGP）をサポートしています。
+一部の次世代データセンターでは、サブネットをまたぐLIFのフェイルオーバーを必要とする、レイヤ3（IP）ネットワークのメカニズムが使用されています。ONTAPでは、仮想IP（VIP）データLIFおよび関連するルーティング プロトコルであるBorder Gateway Protocol（BGP）がサポートされ、これらの次世代ネットワークのフェイルオーバー要件を満たすことができます。
 
-.タスクの内容
-VIPデータLIFは、どのサブネットにも属さず、同じIPspace内のBGP LIFをホストするすべてのポートから到達可能なLIFです。VIPデータLIFを使用すると、ホストは個 々 のネットワークインターフェイスに依存しなくなります。複数の物理アダプタがデータトラフィックを伝送するため、すべての負荷が単一のアダプタおよび関連するサブネットに集中することはありません。VIPデータLIFの存在は、ルーティングプロトコルであるBorder Gateway Protocol（BGP）を使用してピアルータにアドバタイズされます。
+.タスク概要
+VIPデータLIFは、いずれのサブネットにも属さない、同じIPspace内のBGP LIFをホストするすべてのポートから到達可能なLIFです。VIPデータLIFを使用すると、ホストは個別のネットワーク インターフェイスに依存しなくなります。複数の物理アダプタでデータ トラフィックが処理されるため、すべての負荷が単一のアダプタと関連するサブネットに集中することはありません。VIPデータLIFの存在は、ルーティング プロトコルであるBorder Gateway Protocol（BGP）を通じてピア ルーターに通知されます。
 
 VIPデータLIFには次の利点があります。
 
-* ブロードキャストドメインやサブネットをまたいで LIF を移動できます。各 VIP データ LIF の現在の場所が BGP を通じてルータに通知されるため、 VIP データ LIF をネットワークのどのサブネットにもフェイルオーバーできます。
-* アグリゲートスループット： VIP データ LIF は、同時に複数のサブネットまたはポートに対してデータを送受信できるため、個々のポートの帯域幅を超えるアグリゲートスループットをサポートできます。
+* ブロードキャスト ドメインまたはサブネットを越えた LIF の移植性：VIP データ LIF は、各 VIP データ LIF の現在の場所を BGP 経由でルータに通知することにより、ネットワーク内の任意のサブネットにフェイルオーバーできます。
+* 総スループット：VIP データ LIF は複数のサブネットまたはポートから同時にデータを送受信できるため、個々のポートの帯域幅を超える総スループットをサポートできます。
 
 
 
 
-== Border Gateway Protocol（BGP;ボーダーゲートウェイプロトコル）のセットアップ
+== Border Gateway Protocol（BGP）のセットアップ
 
-VIP LIFを作成する前に、BGPを設定する必要があります。BGPは、VIP LIFの存在をピアルータに通知するためのルーティングプロトコルです。
+VIP LIFを作成する前にBGPをセットアップする必要があります。BGPは、VIP LIFの存在をピア ルーターに通知するためのルーティング プロトコルです。
 
-ONTAP 9 .9.1以降では、BGPピアグループを使用したデフォルトルート自動化がオプションで提供され、設定が簡素化されます。
+ONTAP 9.9.1以降では、設定を簡単にするために、VIPのオプションとしてBGPピア グループを使用したデフォルト ルートの自動化が導入されています。
 
-ONTAPには、BGPピアが同じサブネット上にある場合に、BGPピアをネクストホップルータとして使用してデフォルトルートを学習する簡単な方法があります。この機能を使用するには、属性をに `true`設定し `-use-peer-as-next-hop`ます。デフォルトでは、この属性はです `false`。
+ONTAPには、BGPピアが同じサブネット上にある場合に、BGPピアをネクストホップルータとして使用してデフォルトルートを学習する簡単な方法があります。この機能を使用するには、 `-use-peer-as-next-hop`属性を `true`に設定します。デフォルトでは、この属性は `false`です。
 
-静的ルートが設定されている場合でも、自動化されたデフォルトルートよりも静的ルートが優先されます。
+静的ルートが設定されている場合は、これらの自動デフォルト ルートよりも優先されます。
 
 .開始する前に
-設定されたAutonomous System Number（ASN；自律システム番号）のBGP接続をBGP LIFから受け入れるようにピアルータを設定する必要があります。
+ピア ルータは、設定された自律システム番号（ASN）の BGP LIF からの BGP 接続を受け入れるように設定する必要があります。
 
 
-NOTE: ONTAPはルータからの着信ルートアナウンスを処理しません。したがって、クラスタにルートアップデートを送信しないようにピアルータを設定する必要があります。これにより、ピアとの通信が完全に機能するようになるまでの時間が短縮され、ONTAP内の内部メモリ使用量が削減されます。
+NOTE: ONTAPはルータからの着信ルートアナウンスメントを一切処理しません。そのため、ピアルータがクラスタにルート更新を送信しないように設定する必要があります。これにより、ピアとの通信が完全に機能するまでの時間が短縮され、ONTAP内部のメモリ使用量が削減されます。
 
-.タスクの内容
-BGPをセットアップするには、必要に応じてBGP設定を作成し、BGP LIFを作成し、BGPピアグループを作成します。ONTAPは、最初のBGPピアグループが特定のノードに作成されると、デフォルト値を使用してデフォルトのBGP設定を自動的に作成します。
+.タスク概要
+BGPをセットアップする際には、必要に応じてBGP設定、BGP LIF、BGPピア グループを作成します。あるノードでBGPピア グループが最初に作成されると、デフォルト値を使用してデフォルトのBGP設定が自動的に作成されます。
 
-BGP LIFは、ピアルータとのBGP TCPセッションの確立に使用されます。ピアルータの場合、BGP LIFはVIP LIFに到達するためのネクストホップです。BGP LIFのフェイルオーバーは無効になっています。BGPピアグループは、そのピアグループが使用するIPspace内のすべてのSVMのVIPルートをアドバタイズします。ピアグループで使用されるIPspaceはBGP LIFから継承されます。
+BGP LIFは、ピア ルーターとのBGP TCPセッションを確立するために使用されます。ピア ルーターから見ると、BGP LIFはVIP LIFに到達するための次のホップです。BGP LIFではフェイルオーバーは無効になります。BGPピア グループは、ピア グループが使用するIPspaceにある、すべてのSVMのVIPルートを通知します。ピア グループが使用するIPspaceは、BGP LIFから継承されます。
 
-セッションを保護するために、ONTAP 9ピアグループでMD5認証がサポートされるようになりました。MD5がイネーブルの場合、BGPセッションは許可されたピア間でのみ確立および処理されるため、許可されていないアクターによるセッションの中断を防ぐことができます。
+ONTAP 9.16.1以降では、BGPセッションを保護するために、BGPピア グループでMD5認証がサポートされます。MD5が有効な状態では、BGPセッションは承認されたピア間でしか確立、処理できません。これにより、無許可ユーザによるセッションの中断を防げます。
 
-コマンドと `network bgp peer-group modify`コマンドに次のフィールドが追加されまし `network bgp peer-group create`た。
+ `network bgp peer-group create`および `network bgp peer-group modify`コマンドに次のフィールドが追加されました：
 
 * `-md5-enabled <true/false>`
 * `-md5-secret <md5 secret in string or hex format>`
 
 
-これらのパラメータを使用すると、セキュリティを強化するためにMD5シグニチャを使用してBGPピアグループを設定できます。MD5認証の使用には、次の要件が適用されます。
+これらのパラメータを使用すれば、BGPピア グループにMD5署名を設定してセキュリティを強化できます。MD5認証を使用する際には、以下の要件が適用されます。
 
-* パラメータを指定できるのは、パラメータがに設定されて `true`いる場合 `-md5-enabled`のみ `-md5-secret`です。
-* MD5 BGP認証をイネーブルにする前に、IPSecをグローバルにイネーブルにする必要があります。BGP LIFにはアクティブなIPsec設定は必要ありません。を参照してください link:configure_ip_security_@ipsec@_over_wire_encryption.html["IP Security（IPsec）のネットワーク上での暗号化の設定"]。
-* NetAppでは、ONTAPコントローラでMD5を設定する前に、ルータにMD5を設定することを推奨します。
+*  `-md5-enabled`パラメータが `true`に設定されている場合にのみ、 `-md5-secret`パラメータを指定できます。
+* MD5 BGP認証を有効にする前に、IPsecをグローバルに有効にする必要があります。BGP LIFにアクティブなIPsec設定は必要ありません。link:configure_ip_security_@ipsec@_over_wire_encryption.html["IP Security（IPsec）のネットワーク上での暗号化設定"]を参照してください。
+* NetAppは、ONTAPコントローラでMD5を設定する前に、ルーターでMD5を設定することを推奨しています。
 
 
-ONTAP 9 .9.1以降では、次のフィールドが追加されました。
+ONTAP 9.9.1以降では、次のフィールドが追加されています。
 
-* `-asn`OR `-peer-asn` (4バイトの値)属性自体は新しいものではありませんが、現在は4バイトの整数を使用しています。
+* `-asn`または `-peer-asn`（4 バイト値）属性自体は新しいものではありませんが、現在は 4 バイトの整数を使用します。
 * `-med`
 * `-use-peer-as-next-hop`
 
 
-パス優先順位付けのためのMulti-Exit Discriminator（MED）サポートを使用して、高度なルート選択を行うことができます。MEDは、トラフィックに最適なルートを選択するようにルータに指示するBGPアップデートメッセージのオプション属性です。MEDは符号なし32ビット整数（0～4294967295）です。小さい値が推奨されます。
+パスの優先順位付けでは、Multi-Exit Discriminator（MED）を使用して高度なルート選択を行うことができます。MEDはBGP更新メッセージのオプションの属性で、トラフィックに最適なルートを選択するようルーターに指示します。MEDは32ビットの符号なし整数（0～4294967295）で、値が小さい方が優先されます。
 
-ONTAP 9 .8以降では、次のフィールドがコマンドに追加されてい `network bgp peer-group`ます。
+ONTAP 9.8 以降では、 `network bgp peer-group`コマンドに次のフィールドが追加されました：
 
 * `-asn-prepend-type`
 * `-asn-prepend-count`
 * `-community`
 
 
-これらのBGP属性を使用すると、BGPピアグループのASパス属性およびコミュニティ属性を設定できます。
+これらのBGP属性を使用して、BGPピア グループのASパスとコミュニティを設定できます。
 
 
-NOTE: ONTAPは上記のBGP属性をサポートしていますが、ルータはこれらの属性を尊重する必要はありません。NetAppでは、ルータでサポートされているアトリビュートを確認し、それに応じてBGPピアグループを設定することを強く推奨します。詳細については、ルータが提供するBGPのマニュアルを参照してください。
+NOTE: ONTAPは上記のBGP属性をサポートしていますが、必ずしもルーターに適用する必要はありません。ルーターでサポートされる属性を確認し、それに応じてBGPピア グループを設定することを強く推奨します。詳細については、ルーターに付属のBGPのドキュメントを参照してください。
 
 .手順
 . advanced権限レベルにログインします。
 +
 `set -privilege advanced`
 
-. オプション：次のいずれかの操作を実行して、クラスタの BGP 設定を作成するか、デフォルトの BGP 設定を変更します。
+. オプション：次のいずれかのアクションを実行して、BGP 構成を作成するか、クラスターのデフォルトの BGP 構成を変更します：
 +
-.. BGP設定を作成します。
+.. BGP設定を作成する場合：
 +
 ....
 network bgp config create -node {node_name | local} -asn <asn_number> -holdtime
@@ -100,37 +100,37 @@ network bgp config create -node {node_name | local} -asn <asn_number> -holdtime
 +
 [NOTE]
 ====
-***  `-routerid`パラメータは、ASドメイン内で一意である必要があるドット付き10進32ビット値を受け入れます。NetAppでは、一意性が保証されるノード管理IP（v4）アドレスを使用することを推奨しています `<router_id>`。
-*** ONTAP BGPは32ビットASN番号をサポートしますが、サポートされるのは標準10進表記のみです。プライベートASNでは4259840001ではなく65000.1などのドット付きASN表記はサポートされません。
+*** この `-routerid`パラメータは、ASドメイン内で一意である必要があるドット区切りの32ビット値を受け入れます。NetAppでは、一意性を保証する `<router_id>`にノード管理IP（v4）アドレスを使用することを推奨しています。
+*** ONTAP BGPは32ビットASN数に対応していますが、サポートされるのは標準的な10進記数法のみです。4259840001ではなく65000.1などのドット付きASN表記は、プライベートASNではサポートされません。
 
 
 ====
 +
-2バイトASNのサンプル：
+2バイトのASNの例：
 
 +
 ....
 network bgp config create -node node1 -asn 65502 -holdtime 180 -routerid 1.1.1.1
 ....
 +
-4バイトASNのサンプル：
+4バイトのASNの例：
 
 +
 ....
 network bgp config create -node node1 -asn 85502 -holdtime 180 -routerid 1.1.1.1
 ....
-.. デフォルトのBGP設定を変更します。
+.. デフォルトのBGP設定を変更する場合：
 +
 ....
 network bgp defaults modify -asn <asn_number> -holdtime <hold_time>
 network bgp defaults modify -asn 65502 -holdtime 60
 ....
 +
-*** `<asn_number>`ASN番号を指定します。.8以降では、ONTAP 9 for BGPは2バイトの非負整数をサポートしています。これは16ビットの数値です（使用可能な値は1～65534です）。.9.1以降では、ONTAP 9 for BGPは4バイトの非負整数（1～4294967295）をサポートしています。デフォルトのASNは65501です。ASN 23456は、4バイトのASN機能を通知しないピアとのONTAPセッション確立用に予約されています。
-*** `<hold_time>`保持時間を秒単位で指定します。デフォルト値は180sです。
+*** `<asn_number>`ASN番号を指定します。ONTAP 9.8以降、BGPのASNは2バイトの非負整数をサポートします。これは16ビットの数値（1～65534の値）です。ONTAP 9.9.1以降、BGPのASNは4バイトの非負整数（1～4294967295）をサポートします。デフォルトのASNは65501です。ASN 23456は、4バイトASN機能をアナウンスしないピアとのONTAPセッション確立用に予約されています。
+*** `<hold_time>`ホールド時間を秒単位で指定します。デフォルト値は180sです。
 +
 
-NOTE: ONTAPでサポートされるグローバル、 `<hold_time>`、、およびは `<router_id>`1つだけです。これは、 `<asn_number>`複数のIPspaceに対してBGPを設定する場合でも同様です。BGPとすべてのIPルーティング情報は、1つのIPspace内で完全に分離されます。IPspaceは、Virtual Routing and Forwarding（VRF；仮想ルーティング/転送）インスタンスに相当します。
+NOTE: ONTAPは、複数のIPspaceにBGPを設定する場合でも、グローバル `<asn_number>`、 `<hold_time>`、および `<router_id>`を1つだけサポートします。BGPとすべてのIPルーティング情報は、1つのIPspace内で完全に分離されます。IPspaceは、仮想ルーティングおよび転送（VRF）インスタンスに相当します。
 
 
 
@@ -138,25 +138,25 @@ NOTE: ONTAPでサポートされるグローバル、 `<hold_time>`、、およ�
 
 . システムSVM用のBGP LIFを作成します。
 +
-デフォルトIPspaceの場合、SVM名はクラスタ名です。追加のIPspaceの場合、SVM名はIPspace名と同じになります。
+デフォルトのIPspaceでは、SVM名はクラスタ名になります。追加のIPspaceでは、SVM名はIPspace名と同じになります。
 
 +
 ....
 network interface create -vserver <system_svm> -lif <lif_name> -service-policy default-route-announce -home-node <home_node> -home-port <home_port> -address <ip_address> -netmask <netmask>
 ....
 +
-BGP LIFのサービスポリシー、または「management-bgp」サービスを含む任意のカスタムサービスポリシーを使用できます `default-route-announce`。
+ `default-route-announce`サービス ポリシーをBGP LIFに使用するか、「management-bgp」サービスを含む任意のカスタム サービス ポリシーを使用できます。
 
 +
 ....
 network interface create -vserver cluster1 -lif bgp1 -service-policy default-route-announce -home-node cluster1-01 -home-port e0c -address 10.10.10.100 -netmask 255.255.255.0
 ....
-. リモートピアルータとのBGPセッションを確立するために使用するBGPピアグループを作成し、ピアルータにアドバタイズされるVIPルート情報を設定します。
+. リモート ピア ルータとの BGP セッションを確立するために使用される BGP ピア グループを作成し、ピア ルータにアドバタイズされる VIP ルート情報を設定します：
 +
-例 1 ：自動デフォルトルートのないピアグループを作成する
+サンプル1：自動デフォルト ルートなしでピア グループを作成する
 
 +
-この場合、管理者はBGPピアへのスタティックルートを作成する必要があります。
+この場合、管理者がBGPピアへの静的ルートを作成する必要があります。
 
 +
 ....
@@ -167,7 +167,7 @@ network bgp peer-group create -peer-group <group_name> -ipspace <ipspace_name> -
 network bgp peer-group create -peer-group group1 -ipspace Default -bgp-lif bgp1 -peer-address 10.10.10.1 -peer-asn 65503 -route-preference 100 -asn-prepend-type local-asn -asn-prepend-count 2 -med 100 -community 9000:900,8000:800
 ....
 +
-例 2 ：自動デフォルトルートを使用してピアグループを作成する
+サンプル2：自動デフォルト ルートを持つピア グループを作成する
 
 +
 ....
@@ -178,27 +178,27 @@ network bgp peer-group create -peer-group <group_name> -ipspace <ipspace_name> -
 network bgp peer-group create -peer-group group1 -ipspace Default -bgp-lif bgp1 -peer-address 10.10.10.1 -peer-asn 65503 -use-peer-as-next-hop true -route-preference 100 -asn-prepend-type local-asn -asn-prepend-count 2 -med 100 -community 9000:900,8000:800
 ....
 +
-例3：MD5を有効にしてピアグループを作成する
+サンプル3：MD5を有効にしたピアグループを作成する
 
 +
-.. IPSecを有効にします。
+.. IPsecを有効にします。
 +
 `security ipsec config modify -is-enabled true`
 
-.. MD5をイネーブルにしてBGPピアグループを作成します。
+.. MD5が有効なBGPピア グループを作成します。
 +
 ....
 network bgp peer-group create -ipspace Default -peer-group <group_name> -bgp-lif bgp_lif -peer-address <peer_router_ip_address> {-md5-enabled true} {-md5-secret <md5 secret in string or hex format>}
 ....
 +
-16進キーを使用した例：
+16進数キーを使用する例：
 
 +
 ....
 network bgp peer-group create -ipspace Default -peer-group peer1 -bgp-lif bgp_lif1 -peer-address 10.1.1.100 -md5-enabled true -md5-secret 0x7465737420736563726574
 ....
 +
-文字列を使用した例：
+文字列を使用する例：
 
 +
 ....
@@ -209,20 +209,20 @@ network bgp peer-group create -ipspace Default -peer-group peer1 -bgp-lif bgp_li
 
 
 
-NOTE: BGPピアグループを作成したあと、コマンドを実行すると、仮想イーサネットポート（v0a..v0z、v1a...で始まるポート）が表示され `network port show`ます。このインターフェイスのMTUは常に1500で報告されます。トラフィックに実際に使用されるMTUは、トラフィックが送信されるタイミングで決定される物理ポート（BGP LIF）から取得されます。の詳細については `network port show`、をlink:https://docs.netapp.com/us-en/ontap-cli/network-port-show.html["ONTAPコマンド リファレンス"^]参照してください。
+NOTE: BGPピアグループを作成した後、 `network port show`コマンドを実行すると仮想イーサネットポート（v0a..v0z、v1a...で始まる）が表示されます。このインターフェースのMTUは常に1500と報告されます。トラフィックに使用される実際のMTUは、トラフィックの送信時に決定される物理ポート（BGP LIF）から取得されます。link:https://docs.netapp.com/us-en/ontap-cli/network-port-show.html["ONTAPコマンド リファレンス"^]の `network port show`の詳細をご覧ください。
 
 
 
-== 仮想IP（VIP）データLIFを作成する
+== 仮想IP（VIP）データLIFの作成
 
-VIPデータLIFの存在は、ルーティングプロトコルであるBorder Gateway Protocol（BGP）を使用してピアルータにアドバタイズされます。
+VIPデータLIFの存在は、ルーティング プロトコルであるBorder Gateway Protocol（BGP）を通じてピア ルーターに通知されます。
 
 .開始する前に
-* BGPピアグループをセットアップし、LIFを作成するSVMのBGPセッションをアクティブにしておく必要があります。
-* SVMの発信VIPトラフィック用に、BGPルータまたはBGP LIFのサブネット内のその他のルータへの静的ルートを作成する必要があります。
-* 発信VIPトラフィックが使用可能なすべてのルートを使用できるように、マルチパスルーティングをオンにする必要があります。
+* BGPピア グループをセットアップし、LIFを作成するSVMのBGPセッションをアクティブにしておく必要があります。
+* SVM のすべての送信 VIP トラフィックに対して、BGP ルータまたは BGP LIF のサブネット内の他のルータへの静的ルートを作成する必要があります。
+* 送信 VIP トラフィックが利用可能なすべてのルートを使用できるように、マルチパス ルーティングをオンにする必要があります。
 +
-マルチパスルーティングがイネーブルになっていない場合、すべての発信VIPトラフィックは1つのインターフェイスから送信されます。
+マルチパス ルーティングを有効にしないと、すべての発信VIPトラフィックが1つのインターフェイスから送信されます。
 
 
 
@@ -234,15 +234,15 @@ network interface create -vserver <svm_name> -lif <lif_name> -role data -data-pr
 {nfs|cifs|iscsi|fcache|none|fc-nvme} -home-node <home_node> -address <ip_address> -is-vip true -failover-policy broadcast-domain-wide
 ....
 +
-コマンドでホームポートを指定しない場合は、VIPポートが自動的に選択され `network interface create`ます。
+ `network interface create`コマンドでホーム ポートを指定しない場合は、VIPポートが自動的に選択されます。
 
 +
-デフォルトでは、VIPデータLIFは、システムによってIPspaceごとに作成される「vip」という名前のブロードキャストドメインに属します。VIPブロードキャストドメインは変更できません。
+作成されたVIPデータLIFは、デフォルトで、各IPspaceに対してシステムで作成されるブロードキャスト ドメイン「Vip」に属します。VIPブロードキャスト ドメインを変更することはできません。
 
 +
-VIPデータLIFは、IPspaceのBGP LIFをホストしているすべてのポートで同時に到達できます。ローカルノードにVIPのSVMに対するアクティブなBGPセッションがない場合、VIPデータLIFは、そのSVMに対してBGPセッションが確立されているノードの次のVIPポートにフェイルオーバーします。
+VIPデータLIFには、IPspaceのBGP LIFをホストするすべてのポートから同時に到達できます。ローカル ノードにVIPのSVM用のアクティブなBGPセッションがない場合は、VIPデータLIFはそのSVM用のBGPセッションが確立されているノード上のVIPポートにフェイルオーバーします。
 
-. VIPデータLIFのSVMに対してBGPセッションのステータスがupになっていることを確認します。
+. VIPデータLIFのSVMに対してBGPセッションがupステータスになっていることを確認します。
 +
 ....
 network bgp vserver-status show
@@ -252,7 +252,7 @@ Node        Vserver  bgp status
 	    node1       vs1      up
 ....
 +
-あるノードのSVMのBGPステータスがの場合、 `down`VIPデータLIFは、そのSVMのBGPステータスがupになっている別のノードにフェイルオーバーします。すべてのノードでBGPステータスが設定されている場合は `down`、VIPデータLIFをどこでもホストできず、LIFステータスがdownになります。
+ノード上のSVMのBGPステータスが `down`の場合、VIPデータLIFは、SVMのBGPステータスがupである別のノードにフェイルオーバーします。すべてのノードでBGPステータスが `down`の場合、VIPデータLIFはどこにもホストできず、LIFステータスはdownになります。
 
 
 
@@ -260,11 +260,11 @@ Node        Vserver  bgp status
 
 == BGPの管理用コマンド
 
-5以降では、コマンドを使用してONTAPでONTAP 9 `network bgp`セッションを管理します。
+ONTAP 9.5以降では、 `network bgp`コマンドを使用してONTAPのBGPセッションを管理します。
 
 
 
-=== BGP設定を管理します。
+=== BGP設定の管理
 
 |===
 
@@ -303,7 +303,7 @@ Node        Vserver  bgp status
 |===
 
 
-=== BGPピアグループを管理します。
+=== BGPピア グループの管理
 
 |===
 
@@ -311,10 +311,10 @@ Node        Vserver  bgp status
 | 状況 | 使用するコマンド 
 
 
-| BGPピアグループを作成する | `network bgp peer-group create` 
+| BGPピア グループを作成する | `network bgp peer-group create` 
 
 
-| BGPピアグループを変更する | `network bgp peer-group modify` 
+| BGPピア グループを変更する | `network bgp peer-group modify` 
 
 
 | BGPピア グループを削除する | `network bgp peer-group delete` 
@@ -327,12 +327,12 @@ Node        Vserver  bgp status
 |===
 
 
-=== MD5を使用したBGPピアグループの管理
+=== MD5を使用するBGPピア グループの管理
 
-ONTAP 9 .16.1以降では、既存のピアグループでMD5認証をイネーブルまたはディセーブルにできます。
+ONTAP 9.16.1以降では、既存のBGPピア グループでMD5認証の有効と無効を切り替えることができます。
 
 
-NOTE: 既存のBGPピアグループでMD5をイネーブルまたはディセーブルにすると、BGP接続が終了し、MD5設定の変更を適用するために再作成されます。
+NOTE: 既存のBGPピア グループでMD5を有効または無効にすると、MD5設定の変更を適用するためにBGP接続が終了され、再作成されます。
 
 |===
 
@@ -340,14 +340,14 @@ NOTE: 既存のBGPピアグループでMD5をイネーブルまたはディセ�
 | 状況 | 使用するコマンド 
 
 
-| 既存のBGPピアグループでMD5をイネーブルにする | `network bgp peer-group modify -ipspace Default -peer-group <group_name> -bgp-lif <bgp_lif> -peer-address <peer_router_ip_address> -md5-enabled true -md5-secret <md5 secret in string or hex format>` 
+| 既存のBGPピア グループでMD5を有効にする | `network bgp peer-group modify -ipspace Default -peer-group <group_name> -bgp-lif <bgp_lif> -peer-address <peer_router_ip_address> -md5-enabled true -md5-secret <md5 secret in string or hex format>` 
 
 
-| 既存のBGPピアグループでMD5をディセーブルにする | `network bgp peer-group modify -ipspace Default -peer-group <group_name> -bgp-lif <bgp_lif> -md5-enabled false` 
+| 既存のBGPピア グループでMD5を無効にする | `network bgp peer-group modify -ipspace Default -peer-group <group_name> -bgp-lif <bgp_lif> -md5-enabled false` 
 |===
 .関連情報
 * https://docs.netapp.com/us-en/ontap-cli["ONTAPコマンド リファレンス"^]
-* link:https://docs.netapp.com/us-en/ontap-cli/search.html?q=network+bgp["ネットワークBGP"^]
-* link:https://docs.netapp.com/us-en/ontap-cli/search.html?q=network+interface["ネットワークインターフェイス"^]
-* link:https://docs.netapp.com/us-en/ontap-cli/security-ipsec-config-modify.html["security ipsec config modifyと入力します"^]
+* link:https://docs.netapp.com/us-en/ontap-cli/search.html?q=network+bgp["ネットワーク BGP"^]
+* link:https://docs.netapp.com/us-en/ontap-cli/search.html?q=network+interface["ネットワーク インターフェイス"^]
+* link:https://docs.netapp.com/us-en/ontap-cli/security-ipsec-config-modify.html["security ipsec config modify"^]
 

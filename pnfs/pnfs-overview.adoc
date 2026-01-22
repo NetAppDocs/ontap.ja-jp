@@ -2,27 +2,27 @@
 permalink: pnfs/pnfs-overview.html 
 sidebar: sidebar 
 keywords: tr-4063, technical report, pnfs, parallel nfs, nfsv4.1, nfsv4.2, performance, metadata, data path 
-summary: 'パラレル NFS (pNFS) は、NFS サーバーを潜在的なボトルネックとして回避し、NFS クライアントがストレージ デバイス上で直接かつ並行して読み取り/書き込み操作を実行できるようにすることで、パフォーマンスを向上させます。' 
+summary: 'パラレルNFS（pNFS)は、NFSクライアントがストレージデバイス上で直接かつ並行して読み取り / 書き込み操作を実行できるようにすることで、潜在的なボトルネックとなるNFSサーバを回避し、パフォーマンスを向上させます。' 
 ---
-= ONTAPのパラレル NFS (pNFS) について学ぶ
+= ONTAPでの並列NFS（pNFS）について
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-パラレル NFS は、メタデータとデータ パスを分離することで、クライアントが NFSv4.1 サーバー上のファイル データに直接アクセスできるようにするために、2010 年 1 月に RFC-5661 で RFC 標準として導入されました。この直接アクセスにより、データのローカライズ、CPU 効率、操作の並列化によるパフォーマンス上の利点が得られます。その後の RFC は 2018 年に作成され、pNFS レイアウト タイプ (RFC-8434) をカバーし、ファイル、ブロック、およびオブジェクトのレイアウトの標準を定義しました。ONTAP は、pNFS 操作にファイル レイアウト タイプを活用します。
+パラレルNFSは、メタデータとデータパスを分離することで、クライアントがNFSv4.1サーバ上のファイルデータに直接アクセスできるようにするために、2010年1月にRFC-5661でRFC標準として導入されました。この直接アクセスにより、データのローカライゼーション、CPU効率、処理の並列化といったパフォーマンス上のメリットが得られます。その後、2018年にpNFSレイアウトタイプ（RFC-8434）を網羅したRFCが作成され、ファイル、ブロック、およびオブジェクトレイアウトの標準が定義されています。ONTAPはpNFS操作にこのファイルレイアウトタイプを活用します。
 
 
-NOTE: 2024年7月以降、これまでPDFで公開されていたテクニカル レポートの内容がONTAPの製品ドキュメントに統合されました。ONTAP NFS ストレージ管理ドキュメントに、_TR-4063: NetApp ONTAP の並列ネットワーク ファイル システム (pNFS)_ の内容が含まれるようになりました。
+NOTE: 2024年7月より、これまでPDF形式で公開されていたテクニカルレポートの内容がONTAP製品ドキュメントに統合されました。ONTAP NFSストレージ管理ドキュメントには、_TR-4063：NetApp ONTAPにおけるパラレルネットワークファイルシステム（pNFS）_の内容が含まれるようになりました。
 
-長年にわたり、NFSv3 はほぼすべてのユースケースで使用されてきた NFS プロトコルの標準バージョンでした。しかし、このプロトコルには、ステートフルネスの欠如、基本的な権限モデル、基本的なロック機能などの制限がありました。NFSv4.0 (RFC 7530) では、NFSv3 に対して一連の改良が導入され、その後の NFSv4.1 (RFC 5661) および NFSv4.2 (RFC 7862) バージョンでさらに改良され、並列 NFS (pNFS) などの機能が追加されました。
+NFSv3は長年にわたり、ほぼすべてのユースケースで使用されてきたNFSプロトコルの標準バージョンでした。しかし、このプロトコルには、ステートフル性の欠如、基本的な権限モデル、基本的なロック機能といった制限がありました。NFSv4.0（RFC 7530）では、NFSv3に対する一連の改良が導入され、その後のNFSv4.1（RFC 5661）およびNFSv4.2（RFC 7862）バージョンでさらに改良が加えられ、パラレルNFS（pNFS）などの機能が追加されました。
 
 
 
 == NFSv4.xの利点
 
-NFSv4.x は NFSv3 に比べて次のような利点があります。
+NFSv4.x は NFSv3 に比べて次のような利点があります：
 
 * ファイアウォールとの親和性。NFSv4では1つのポート（2049）しか使用しません。
 * 高度でアグレッシブなキャッシュ管理。NFSv4.xの委譲機能など。
@@ -32,22 +32,22 @@ NFSv4.x は NFSv3 に比べて次のような利点があります。
 * TCPでのみ動作。
 * ステートフル プロトコル（NFSv3はステートレス）。
 * 効率的な認証メカニズムのための完全なKerberos統合
-* NFS紹介
+* NFSリファーラル
 * UNIXおよびWindowsと互換性のあるアクセス制御のサポート。
 * 文字列ベースのユーザ識別子とグループ識別子。
-* pNFS (NFSv4.1)
+* pNFS（NFSv4.1）
 * 拡張属性（NFSv4.2）
-* セキュリティラベル (NFSv4.2)
-* スパースファイル操作 (FALLOCATE) (NFSv4.2)
+* セキュリティラベル（NFSv4.2）
+* スパース ファイル操作（FALLOCATE）（NFSv4.2）
 
 
-NFSv4.xの一般的な情報（ベストプラクティスや機能の詳細など）については、以下を参照してください。 https://www.netapp.com/pdf.html?item=/media/10720-tr-4067.pdf["NetAppテクニカルレポート4067：『NFS Best Practice and Implementation Guide』"^]。
+ベスト プラクティスや機能の詳細など、NFSv4.x 全般の詳細については、 https://www.netapp.com/pdf.html?item=/media/10720-tr-4067.pdf["NetAppテクニカル レポート4067：『NFS Best Practice and Implementation Guide』"^]を参照してください。
 
 .関連情報
-* link:../nfs-config/index.html["NFSセツテイノカイヨウ"]
+* link:../nfs-config/index.html["NFS 構成の概要"]
 * link:../nfs-admin/index.html["NFSの管理 - 概要"]
-* link:../flexgroup/index.html["FlexGroupホリユウムノカンリ"]
+* link:../flexgroup/index.html["FlexGroupボリューム管理"]
 * link:../nfs-trunking/index.html["NFSトランキングの概要"]
 * https://www.netapp.com/pdf.html?item=/media/19370-tr-4523.pdf[]
-* link:https://www.netapp.com/pdf.html?item=/media/19384-tr-4616.pdf["ネットアップテクニカルレポート 4616 ：『 NFS Kerberos in ONTAP with Microsoft Active Directory 』"^]
+* link:https://www.netapp.com/pdf.html?item=/media/19384-tr-4616.pdf["NetApp テクニカルレポート 4616：ONTAP における NFS Kerberos と Microsoft Active Directory"^]
 

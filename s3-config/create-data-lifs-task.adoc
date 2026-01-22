@@ -2,38 +2,38 @@
 permalink: s3-config/create-data-lifs-task.html 
 sidebar: sidebar 
 keywords: tr-4814, create, data, lifs 
-summary: 新しいSVMを作成した場合は、S3アクセス専用のLIFとしてデータLIFを作成する必要があります。 
+summary: 新しいSVMを作成した場合、S3アクセス専用のLIFとしてデータLIFを作成する必要があります。 
 ---
-= ONTAP S3用のデータLIFの作成
+= ONTAP S3のデータLIFを作成する
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-新しいSVMを作成した場合は、S3アクセス専用のLIFとしてデータLIFを作成する必要があります。
+新しいSVMを作成した場合、S3アクセス専用のLIFとしてデータLIFを作成する必要があります。
 
 .開始する前に
-* 基盤となる物理または論理ネットワークポートの管理 `up`ステータスがに設定されている必要があります。の詳細については `up`、をlink:https://docs.netapp.com/us-en/ontap-cli/up.html["ONTAPコマンド リファレンス"^]参照してください。
-* サブネット名を使用してLIFのIPアドレスとネットワークマスク値を割り当てる場合は、そのサブネットがすでに存在している必要があります。
+* 基盤となる物理または論理ネットワーク ポートが管理 `up`ステータスに設定されている必要があります。link:https://docs.netapp.com/us-en/ontap-cli/up.html["ONTAPコマンド リファレンス"^]の `up`の詳細を確認してください。
+* サブネット名を使用してLIFのIPアドレスとネットワーク マスク値を割り当てる場合は、そのサブネットが存在している必要があります。
 +
-サブネットには、同じレイヤ3サブネットに属するIPアドレスのプールが含まれています。コマンドを使用して作成し `network subnet create`ます。
+サブネットには、同じレイヤー3サブネットに属するIPアドレスのプールが含まれます。 `network subnet create`コマンドを使用して作成されます。
 
 +
-の詳細については `network subnet create`、をlink:https://docs.netapp.com/us-en/ontap-cli/network-subnet-create.html["ONTAPコマンド リファレンス"^]参照してください。
+ `network subnet create`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/network-subnet-create.html["ONTAPコマンド リファレンス"^]を参照してください。
 
-* LIFサービスポリシーがすでに存在している必要があります。
-* ベストプラクティスとして、データアクセスに使用するLIF（data-s3-server）と管理処理に使用するLIF（management-https）を別 々 に配置することを推奨します。同じLIFで両方のサービスを有効にしないでください。
-* DNSレコードには、data-s3-serverが関連付けられているLIFのIPアドレスだけを含める必要があります。他のLIFのIPアドレスがDNSレコードに指定されている場合、ONTAP S3要求が他のサーバから処理され、予期しない応答やデータの損失が発生する可能性があります。
+* LIFサービス ポリシーがすでに存在している必要があります。
+* ベスト プラクティスとして、データ アクセスに使用されるLIF（data-s3-server）と管理処理に使用されるLIF（management-https）を分けることを推奨します。両方のサービスを同じLIFで有効にしないようにしてください。
+* DNSレコードには、data-s3-serverが関連付けられているLIFのIPアドレスだけを含めるようにしてください。他のLIFのIPアドレスがDNSレコードで指定されていると、ONTAP S3要求が他のサーバによって処理され、想定外の応答やデータ損失が発生するおそれがあります。
 
 
-.タスクの内容
-* 同じネットワークポートにIPv4とIPv6の両方のLIFを作成できます。
-* クラスタに多数のLIFがある場合は、コマンドを使用してクラスタでサポートされるLIFの容量を確認するか、コマンド（advanced権限レベル）を使用して各ノードでサポートされるLIFの容量を `network interface capacity details show`確認できます `network interface capacity show`。
+.タスク概要
+* 同じネットワーク ポート上にIPv4とIPv6の両方のLIFを作成できます。
+* クラスタ内に多数のLIFがある場合は、 `network interface capacity show`コマンドを使用してクラスタでサポートされているLIF容量を確認し、 `network interface capacity details show`コマンド（高度な権限レベル）を使用して各ノードでサポートされているLIF容量を確認できます。
 +
-および `network interface capacity details show`の詳細については `network interface capacity show`、をlink:https://docs.netapp.com/us-en/ontap-cli/search.html?q=network+interface+capacity+show["ONTAPコマンド リファレンス"^]参照してください。
+ `network interface capacity show`および `network interface capacity details show`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/search.html?q=network+interface+capacity+show["ONTAPコマンド リファレンス"^]をご覧ください。
 
-* リモートのFabricPool容量（クラウド）階層化を有効にする場合は、クラスタ間LIFも設定する必要があります。
+* リモートのFabricPool容量（クラウド）階層化を有効にする場合、クラスタ間LIFも設定する必要があります。
 
 
 .手順
@@ -42,54 +42,54 @@ summary: 新しいSVMを作成した場合は、S3アクセス専用のLIFとし
 `network interface create -vserver _svm_name_ -lif _lif_name_ -service-policy _service_policy_names_ -home-node _node_name_ -home-port _port_name_ {-address _IP_address_ -netmask _IP_address_ | -subnet-name _subnet_name_} -firewall-policy data -auto-revert {true|false}`
 
 +
-** `-home-node`は、LIFに対してコマンドを実行したときにLIFが戻るノードです `network interface revert`。
+** `-home-node`は、 `network interface revert`コマンドがLIF上で実行されたときにLIFが戻るノードです。
 +
-の詳細については `network interface revert`、をlink:https://docs.netapp.com/us-en/ontap-cli/network-interface-revert.html["ONTAPコマンド リファレンス"^]参照してください。
-
-+
-オプションを使用して、LIFをホームノードおよびホームポートに自動的にリバートするかどうかを指定することもできます `-auto-revert`。
-
-** `-home-port`は、LIFに対してコマンドを実行したときにLIFが戻る物理ポートまたは論理ポートです `network interface revert`。
-** オプションと `-netmask`オプションでIPアドレスを指定することも、オプションでサブネットからの割り当てを有効にすることも `-subnet_name`できます `-address`。
-** サブネットを使用してIPアドレスとネットワークマスクを指定した場合、サブネットにゲートウェイが定義されていると、そのサブネットを使用してLIFを作成するときに、ゲートウェイへのデフォルトルートがSVMに自動的に追加されます。
-** IPアドレスを手動で（サブネットを使用せずに）割り当てる場合、クライアントまたはドメインコントローラが別のIPサブネットにあるときに、ゲートウェイへのデフォルトルートの設定が必要になることがあります。SVM内での静的ルートの作成に関する詳細については、をlink:https://docs.netapp.com/us-en/ontap-cli/network-route-create.html["ONTAPコマンド リファレンス"^]参照し `network route create`てください。
-** オプションには `-firewall-policy`、LIFのロールと同じデフォルトを使用し `data`ます。
-+
-必要に応じて、あとからカスタムファイアウォールポリシーを作成して追加できます。
+ `network interface revert`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/network-interface-revert.html["ONTAPコマンド リファレンス"^]を参照してください。
 
 +
+ `-auto-revert`オプションを使用して、LIFがホームノードとホームポートに自動的にリバートするかどうかも指定できます。
 
-NOTE: ONTAP 9 10.1以降では、ファイアウォールポリシーが廃止され、LIFのサービスポリシーに全面的に置き換えられました。詳細については、を参照してください link:../networking/configure_firewall_policies_for_lifs.html["LIFのファイアウォールポリシーを設定する"]。
-
-** `-auto-revert`起動時、管理データベースのステータスが変わったとき、ネットワーク接続が確立されたときなどの状況で、データLIFがホームノードに自動的にリバートされるかどうかを指定できます。デフォルトの設定はです `false`が、環境内のネットワーク管理ポリシーに応じてに設定できます `false`。
-** オプションは、 `-service-policy`作成したデータサービスポリシーと管理サービスポリシー、およびその他の必要なポリシーを指定します。
-
-
-. オプションでIPv6アドレスを割り当てる場合 `-address`は、次の手順を実行します。
+** `-home-port`は、LIF上で `network interface revert`コマンドが実行されたときにLIFが戻る物理ポートまたは論理ポートです。
+**  `-address`および `-netmask`オプションを使用してIPアドレスを指定することも、 `-subnet_name`オプションを使用してサブネットからの割り当てを有効にすることもできます。
+** サブネットを使用してIPアドレスとネットワーク マスクを指定した場合、サブネットにゲートウェイが定義されていると、そのサブネットを使用してLIFを作成するときにゲートウェイへのデフォルト ルートがSVMに自動的に追加されます。
+** IPアドレスを手動で割り当てる場合（サブネットを使用せず）、クライアントまたはドメインコントローラが異なるIPサブネット上にある場合は、ゲートウェイへのデフォルトルートを設定する必要がある場合があります。 `network route create`およびSVM内での静的ルートの作成方法の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/network-route-create.html["ONTAPコマンド リファレンス"^]を参照してください。
+**  `-firewall-policy`オプションには、LIFロールと同じデフォルトの `data`を使用します。
 +
-.. コマンドを使用して `network ndp prefix show`、さまざまなインターフェイスで学習されたRAプレフィックスのリストを表示します。
-+
-コマンドは `network ndp prefix show`、advanced権限レベルで使用できます。
-
-.. 形式を使用し `prefix:id`て、IPv6アドレスを手動で作成します。
-+
-`prefix`は、さまざまなインターフェイスで学習されたプレフィックスです。
+必要に応じて、カスタム ファイアウォール ポリシーをあとから作成して追加できます。
 
 +
-を生成するには `id`、ランダムな64ビット16進数を選択します。
+
+NOTE: ONTAP 9.10.1以降、ファイアウォールポリシーは廃止され、LIFサービスポリシーに完全に置き換えられました。詳細については、link:../networking/configure_firewall_policies_for_lifs.html["LIFのファイアウォール ポリシーの設定"]を参照してください。
+
+** `-auto-revert`では、起動時、管理データベースのステータス変更時、ネットワーク接続時などの状況において、データLIFをホームノードに自動的にリバートするかどうかを指定できます。デフォルト設定は `false`ですが、環境のネットワーク管理ポリシーに応じて `false`に設定できます。
+**  `-service-policy`オプションでは、作成したデータおよび管理サービスポリシーと、必要なその他のポリシーを指定します。
+
+
+.  `-address`オプションでIPv6アドレスを割り当てる場合：
++
+..  `network ndp prefix show`コマンドを使用して、さまざまなインターフェースで学習された RA プレフィックスのリストを表示します。
++
+ `network ndp prefix show`コマンドは、上級権限レベルで使用できます。
+
+..  `prefix:id`の形式を使用して、IPv6アドレスを手動で構築します。
++
+`prefix`は、さまざまなインターフェースで学習されたプレフィックスです。
+
++
+ `id`を導出するには、ランダムな64ビットの16進数を選択します。
 
 
 
-. コマンドを使用して、LIFが正常に作成されたことを確認します `network interface show`。
+.  `network interface show`コマンドを使用して、LIFが正常に作成されたことを確認します。
 . 設定したIPアドレスに到達できることを確認します。
 +
 [cols="2*"]
 |===
-| 対象 | 使用方法 
+| 対象 | 方法 
 
 
  a| 
-IPv4アドレス
+IPv4 アドレス
  a| 
 `network ping`
 
@@ -104,13 +104,13 @@ IPv6アドレス
 
 
 .例
-次のコマンドは、サービスポリシーが割り当てられたS3データLIFを作成する方法を示してい `my-S3-policy`ます。
+次のコマンドは、 `my-S3-policy`サービスポリシーが割り当てられたS3データLIFを作成する方法を示しています：
 
 [listing]
 ----
 network interface create -vserver svm1.example.com -lif lif2 -home-node node2 -homeport e0d -service-policy my-S3-policy -subnet-name ipspace1
 ----
-次のコマンドは、cluster-1内のすべてのLIFを表示します。datalif1とdatalif3のデータLIFにはIPv4アドレスを設定し、datalif4にはIPv6アドレスを設定しています。
+次のコマンドは、cluster-1内のすべてのLIFを表示します。データLIFのdatalif1とdatalif3にはIPv4アドレスが、datalif4にはIPv6アドレスが設定されています。
 
 [listing]
 ----
@@ -137,7 +137,7 @@ vs3.example.com
 5 entries were displayed.
 ----
 .関連情報
-* link:https://docs.netapp.com/us-en/ontap-cli/network-ping.html["ネットワークping"^]
-* link:https://docs.netapp.com/us-en/ontap-cli/search.html?q=network+interface["ネットワークインターフェイス"^]
+* link:https://docs.netapp.com/us-en/ontap-cli/network-ping.html["network ping"^]
+* link:https://docs.netapp.com/us-en/ontap-cli/search.html?q=network+interface["ネットワーク インターフェイス"^]
 * link:https://docs.netapp.com/us-en/ontap-cli/network-ndp-prefix-show.html["network ndp prefix show"^]
 

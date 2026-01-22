@@ -2,9 +2,9 @@
 permalink: system-admin/restore-node-config-backup-file-task.html 
 sidebar: sidebar 
 keywords: restore, node, configuration, backup, file, recovering 
-summary: ノード構成をリストアするには、特定してリカバリノードに利用可能にした構成バックアップファイルを使用します。 
+summary: ノード構成をリストアするには、特定し、リカバリ ノードに利用可能にした構成バックアップ ファイルを使用します。 
 ---
-= ONTAPノード構成バックアップファイルを使用したノードのリストア
+= ONTAPノード構成バックアップファイルを使用してノードを復元する
 :hardbreaks:
 :allow-uri-read: 
 :icons: font
@@ -12,19 +12,19 @@ summary: ノード構成をリストアするには、特定してリカバリ�
 
 
 [role="lead"]
-ノード構成をリストアするには、特定してリカバリノードに利用可能にした構成バックアップファイルを使用します。
+ノード構成をリストアするには、特定し、リカバリ ノードに利用可能にした構成バックアップ ファイルを使用します。
 
-.タスクの内容
-このタスクは、災害によってノードのローカル構成ファイルが失われた場合にのみ実行します。
+.タスク概要
+このタスクは、障害によりノードのローカル構成ファイルが失われた場合に、リカバリ目的でのみ実行します。
 
 .手順
 . advanced権限レベルに切り替えます。
 +
 `set -privilege advanced`
 
-. ノードが正常な場合は、別のノードのadvanced権限レベルで、パラメータと `-eligibility`パラメータを指定してコマンドを `-node`実行し、ノード `cluster modify`の参加資格を無効にしてクラスタから分離します。
+. ノードが正常な場合は、別のノードの高度な権限レベルで、 `-node`および `-eligibility`パラメータを指定した `cluster modify`コマンドを使用して、そのノードを不適格としてマークし、クラスターから分離します。
 +
-ノードが正常でない場合は、この手順を省略する必要があります。
+ノードが健全でない場合は、この手順を省略する必要があります。
 
 +
 この例では、node2を変更してクラスタへの参加資格を無効にし、構成をリストアできるようにします。
@@ -35,14 +35,14 @@ summary: ノード構成をリストアするには、特定してリカバリ�
 cluster1::*> cluster modify -node node2 -eligibility false
 ----
 +
-の詳細については `cluster modify`、をlink:https://docs.netapp.com/us-en/ontap-cli/cluster-modify.html["ONTAPコマンド リファレンス"^]参照してください。
+ `cluster modify`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/cluster-modify.html["ONTAPコマンド リファレンス"^]をご覧ください。
 
-. コマンドをadvanced権限レベルで使用して `system configuration recovery node restore`、ノードの構成を構成バックアップファイルからリストアします。
+. 上級権限レベルで `system configuration recovery node restore`コマンドを使用して、構成バックアップ ファイルからノードの構成を復元します。
 +
-名前を含むノードのIDが失われた場合は、パラメータを使用して構成バックアップファイルにノード名を指定する必要があります `-nodename-in-backup`。
+ノードが名前を含む ID を失った場合は、 `-nodename-in-backup`パラメータを使用して構成バックアップファイルでノード名を指定する必要があります。
 
 +
-この例では、ノードに保存されているいずれかの構成バックアップファイルを使用してノードの構成をリストアしています。
+この例では、ノードに保存されている構成バックアップ ファイルの1つを使用してノードの構成をリストアします。
 
 +
 [listing]
@@ -59,9 +59,9 @@ Do you want to continue? {y|n}: y
 +
 構成がリストアされ、ノードがリブートします。
 
-. ノードをクラスタの対象外にした場合は、コマンドを使用し `system configuration recovery cluster sync`てノードを対象としてマークし、クラスタと同期します。
-. SAN環境を使用している場合は、コマンドを使用し `system node reboot`てノードをリブートし、SANクォーラムを再確立します。
+. ノードを不適格としてマークした場合は、 `system configuration recovery cluster sync` コマンドを使用してノードを適格としてマークし、クラスターと同期します。
+. SAN 環境で動作している場合は、 `system node reboot`コマンドを使用してノードを再起動し、SAN クォーラムを再確立します。
 
 
-.終了後
-以前にクラスタを作成し直したことがある場合や、クラスタの再作成前に作成された構成バックアップファイルを使用してノード構成をリストアする場合は、もう一度クラスタを作成し直す必要があります。
+.終了後の操作
+以前にクラスタを作成し直したことがある場合、またクラスタの再作成の前に作成された構成バックアップ ファイルを使用してノードの構成をリストアする場合は、再度クラスタを作成し直す必要があります。

@@ -2,41 +2,41 @@
 permalink: authentication/enable-nis-ldap-users-access-cluster-task.html 
 sidebar: sidebar 
 keywords: configure, ldap, nis, server access, create, name, service, switch 
-summary: LDAPアカウントまたはNISアカウントからSVMにアクセスするためには、LDAPサーバまたはNISサーバからSVMへのアクセスを設定しておく必要があります。スイッチ機能を使用すると、LDAPまたはNISを代替ネームサービスソースとして使用できます。 
+summary: LDAPアカウントまたはNISアカウントからSVMにアクセスするためには、LDAPサーバまたはNISサーバからSVMへのアクセスを設定しておく必要があります。スイッチ機能を使用すると、LDAPまたはNISを代替ネーム サービス ソースとして使用することができます。 
 ---
-= ONTAPでのLDAPまたはNISサーバアクセスの設定
+= ONTAPでLDAPサーバまたはNISサーバ アクセスを設定
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-LDAPアカウントまたはNISアカウントからSVMにアクセスするためには、LDAPサーバまたはNISサーバからSVMへのアクセスを設定しておく必要があります。スイッチ機能を使用すると、LDAPまたはNISを代替ネームサービスソースとして使用できます。
+LDAPアカウントまたはNISアカウントからSVMにアクセスするためには、LDAPサーバまたはNISサーバからSVMへのアクセスを設定しておく必要があります。スイッチ機能を使用すると、LDAPまたはNISを代替ネーム サービス ソースとして使用することができます。
 
 
 
 == LDAPサーバ アクセスの設定
 
-LDAPアカウントがSVMにアクセスするためには、LDAPサーバからSVMへのアクセスを設定しておく必要があります。コマンドを使用すると、SVMにLDAPクライアント設定を作成できます `vserver services name-service ldap client create`。その後、コマンドを使用し `vserver services name-service ldap create`て、LDAPクライアント設定をSVMに関連付けます。
+LDAPアカウントがSVMにアクセスするには、SVMへのLDAPサーバ アクセスを設定する必要があります。 `vserver services name-service ldap client create`コマンドを使用して、SVM上にLDAPクライアント設定を作成できます。その後、 `vserver services name-service ldap create`コマンドを使用して、LDAPクライアント設定をSVMに関連付けることができます。
 
-.タスクの内容
-ほとんどのLDAPサーバでは、ONTAPが提供するデフォルトスキーマを使用できます。
+.タスク概要
+ほとんどのLDAPサーバでは、ONTAPが提供する次のデフォルト スキーマを使用できます。
 
-* MS-AD-BIS（Windows Server 2012以降のほとんどのADサーバで推奨されるスキーマ）
-* AD-IDMU（Windows 2008、Windows 2016、およびそれ以降のADサーバ）
-* AD-SFU（Windows 2003以前のADサーバ）
+* MS-AD-BIS（Windows Server 2012以降のほとんどのADサーバで優先されるスキーマ）
+* AD-IDMU（Windows Server 2008、Windows Server 2016、およびそれ以降のADサーバ）
+* AD-SFU（Windows Server 2003以前のADサーバ）
 * RFC-2307（UNIX LDAPサーバ）
 
 
-他のスキーマを使用する必要がないかぎり、デフォルトのスキーマを使用することを推奨します。その場合は、デフォルトのスキーマをコピーしてコピーを変更することで、独自のスキーマを作成できます。詳細については、次を参照してください。
+特別な要件がある場合を除き、デフォルト スキーマを使用することを推奨します。独自のスキーマが必要な場合は、デフォルト スキーマをコピーし、コピーを変更します。詳細については、以下を参照してください。
 
 * link:../nfs-config/index.html["NFSの設定"]
-* https://www.netapp.com/pdf.html?item=/media/19423-tr-4835.pdf["ネットアップテクニカルレポート 4835 ：『 How to Configure LDAP in ONTAP 』"^]
+* https://www.netapp.com/pdf.html?item=/media/19423-tr-4835.pdf["NetAppテクニカルレポート4835：ONTAPでLDAPを設定する方法"^]
 
 
 .開始する前に
-* SVMにをインストールしておく必要がありlink:install-server-certificate-cluster-svm-ssl-server-task.html["CA 署名済みサーバデジタル証明書"]ます。
-* このタスクを実行するには、クラスタ管理者またはSVM管理者である必要があります。
+* SVM に link:install-server-certificate-cluster-svm-ssl-server-task.html["CA署名付きサーバ デジタル証明書"] をインストールしておく必要があります。
+* このタスクを実行するには、クラスタ管理者またはSVMの管理者である必要があります。
 
 
 .手順
@@ -49,10 +49,10 @@ LDAPアカウントがSVMにアクセスするためには、LDAPサーバから
 NOTE: Start TLSは、データSVMへのアクセスでのみサポートされます。管理SVMへのアクセスではサポートされません。
 
 +
-の詳細については `vserver services name-service ldap client create`、をlink:https://docs.netapp.com/us-en/ontap-cli/vserver-services-name-service-ldap-client-create.html["ONTAPコマンド リファレンス"^]参照してください。
+ `vserver services name-service ldap client create`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/vserver-services-name-service-ldap-client-create.html["ONTAPコマンド リファレンス"^]を参照してください。
 
 +
-次のコマンドは、SVMに `engData`という名前のLDAPクライアント設定を作成し `corp`ます。クライアントは、IPアドレスが172.160.0.100および172.16.0.101のLDAPサーバに匿名でバインドします。クライアントはRFC-2307スキーマを使用してLDAPクエリを実行します。クライアントとサーバ間の通信はStart TLSを使用して暗号化されます。
+次のコマンドは、SVM `engData`に `corp`という名前のLDAPクライアント設定を作成します。クライアントは、IPアドレス172.160.0.100および172.16.0.101を持つLDAPサーバに匿名バインドを行います。クライアントはRFC-2307スキーマを使用してLDAPクエリを実行します。クライアントとサーバ間の通信はStart TLSを使用して暗号化されます。
 
 +
 [listing]
@@ -62,14 +62,14 @@ cluster1::> vserver services name-service ldap client create
 ----
 +
 
-NOTE: 。 `-ldap-servers` LDAP サーバーのホスト名または IP アドレスを指定するフィールド。
+NOTE:  `-ldap-servers`フィールドは `-servers`フィールドを置き換えます。 `-ldap-servers`フィールドを使用して、LDAPサーバのホスト名またはIPアドレスのいずれかを指定できます。
 
-. LDAPクライアント設定をSVMに関連付けます。 `vserver services name-service ldap create -vserver <SVM_name> -client-config <client_configuration> -client-enabled <true|false>`
+. LDAPクライアント設定をSVMに関連付けます： `vserver services name-service ldap create -vserver <SVM_name> -client-config <client_configuration> -client-enabled <true|false>`
 +
-の詳細については `vserver services name-service ldap create`、をlink:https://docs.netapp.com/us-en/ontap-cli/vserver-services-name-service-ldap-create.html["ONTAPコマンド リファレンス"^]参照してください。
+ `vserver services name-service ldap create`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/vserver-services-name-service-ldap-create.html["ONTAPコマンド リファレンス"^]を参照してください。
 
 +
-次のコマンドは、LDAPクライアント設定をSVMに `engData`関連付け `corp`、SVMでLDAPクライアントを有効にします。
+次のコマンドは、LDAPクライアント設定 `corp`をSVM `engData`に関連付け、SVM上でLDAPクライアントを有効にします。
 
 +
 [listing]
@@ -78,9 +78,9 @@ cluster1::>vserver services name-service ldap create -vserver engData -client-co
 ----
 +
 
-NOTE: その `vserver services name-service ldap create`コマンドは自動構成検証を実行し、 ONTAP がネーム サーバに接続できない場合はエラー メッセージを報告します。
+NOTE:  `vserver services name-service ldap create`コマンドは自動構成検証を実行し、ONTAPがネーム サーバに接続できない場合はエラー メッセージを報告します。
 
-. vserver services name-service ldap checkコマンドを使用して、ネームサーバのステータスを検証します。
+. vserver services name-service ldap checkコマンドを使用して、ネーム サーバのステータスを検証します。
 +
 次のコマンドは、SVM vs0のLDAPサーバを検証します。
 
@@ -95,7 +95,7 @@ cluster1::> vserver services name-service ldap check -vserver vs0
 | LDAP Status Details: Successfully connected to LDAP server "10.11.12.13".                                              |
 ----
 +
-使用することができます `name service check``ネームサーバーのステータスを検証するコマンド。
+ `name service check``コマンドを使用して、ネーム サーバのステータスを検証できます。
 
 
 
@@ -103,27 +103,27 @@ cluster1::> vserver services name-service ldap check -vserver vs0
 
 == NISサーバ アクセスの設定
 
-NISアカウントがSVMにアクセスするためには、NISサーバからSVMへのアクセスを設定しておく必要があります。SVMにNISドメイン設定を作成するには、コマンドを使用し `vserver services name-service nis-domain create`ます。
+NISアカウントがSVMにアクセスするには、SVMへのNISサーバ アクセスを設定する必要があります。 `vserver services name-service nis-domain create`コマンドを使用して、SVM上にNISドメイン設定を作成できます。
 
 .開始する前に
-* SVMにNISドメインを設定するには、設定済みのすべてのサーバが使用可能でアクセス可能である必要があります。
-* このタスクを実行するには、クラスタ管理者またはSVM管理者である必要があります。
+* SVMにNISドメインを設定するためには、設定済みのすべてのサーバが使用可能でアクセスできる状態になっている必要があります。
+* このタスクを実行するには、クラスタ管理者またはSVMの管理者である必要があります。
 
 
-.ステップ
+.手順
 . SVMにNISドメイン設定を作成します。
 +
 `vserver services name-service nis-domain create -vserver <SVM_name> -domain <client_configuration> -nis-servers <NIS_server_IPs>`
 
 +
-の詳細については `vserver services name-service nis-domain create`、をlink:https://docs.netapp.com/us-en/ontap-cli/vserver-services-name-service-nis-domain-create.html["ONTAPコマンド リファレンス"^]参照してください。
+ `vserver services name-service nis-domain create`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/vserver-services-name-service-nis-domain-create.html["ONTAPコマンド リファレンス"^]を参照してください。
 
 +
 
-NOTE: 。 `-nis-servers` NIS サーバーのホスト名または IP アドレスを指定するフィールド。
+NOTE:  `-nis-servers`フィールドは `-servers`フィールドを置き換えます。 `-nis-servers`フィールドを使用して、NISサーバのホスト名またはIPアドレスを指定できます。
 
 +
-次のコマンドは、SVMにNISドメイン設定を作成し `engData`ます。NISドメインは `nisdomain`、IPアドレスを使用してNISサーバと通信し `192.0.2.180`ます。
+次のコマンドは、SVM `engData`上にNISドメイン設定を作成します。NISドメイン `nisdomain`は、IPアドレス `192.0.2.180`を持つNISサーバと通信します。
 
 +
 [listing]
@@ -135,25 +135,25 @@ cluster1::>vserver services name-service nis-domain create
 
 
 
-== ネームサービススイッチを作成する
+== ネーム サービス スイッチの作成
 
-ネームサービススイッチ機能を使用すると、LDAPまたはNISを代替ネームサービスソースとして使用できます。コマンドを使用すると、ネームサービスソースの参照順序を指定できます `vserver services name-service ns-switch modify`。
+ネーム サービス スイッチ機能を使用すると、LDAPまたはNISを代替ネーム サービス ソースとして使用できます。 `vserver services name-service ns-switch modify`コマンドを使用して、ネーム サービス ソースの検索順序を指定できます。
 
 .開始する前に
-* LDAPサーバとNISサーバのアクセスを設定しておく必要があります。
+* LDAPサーバおよびNISサーバのアクセスを設定しておく必要があります。
 * このタスクを実行するには、クラスタ管理者またはSVM管理者である必要があります。
 
 
-.ステップ
-. ネームサービスソースの検索順序を指定します。
+.手順
+. ネーム サービス ソースの参照順序を指定します。
 +
 `vserver services name-service ns-switch modify -vserver <SVM_name> -database <name_service_switch_database> -sources <name_service_source_order>`
 
 +
-の詳細については `vserver services name-service ns-switch modify`、をlink:https://docs.netapp.com/us-en/ontap-cli/vserver-services-name-service-ns-switch-modify.html["ONTAPコマンド リファレンス"^]参照してください。
+ `vserver services name-service ns-switch modify`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/vserver-services-name-service-ns-switch-modify.html["ONTAPコマンド リファレンス"^]を参照してください。
 
 +
-次のコマンドは、SVM上のデータベース `engData`のLDAPおよびNISネームサービスソースの検索順序を指定します `passwd`。
+次のコマンドは、SVM `engData`上の `passwd`データベースのLDAPおよびNISネーム サービス ソースの検索順序を指定します。
 
 +
 [listing]

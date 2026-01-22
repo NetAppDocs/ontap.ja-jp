@@ -2,34 +2,34 @@
 permalink: ndmp/configure-lifs-node-scoped-task.html 
 sidebar: sidebar 
 keywords: configure, lif 
-summary: ノードとバックアップアプリケーションの間のデータ接続および制御接続の確立に使用されるLIFを特定する必要があります。LIFを特定したら、そのLIFに対してファイアウォールポリシーとフェイルオーバーポリシーが設定されていることを確認する必要があります。 
+summary: ノードとバックアップ アプリケーションの間のデータ接続と制御接続の確立に使用されるLIFを特定する必要があります。LIFを特定したら、そのLIFに対してファイアウォール ポリシーとフェイルオーバー ポリシーが設定されていることを確認する必要があります。 
 ---
-= ノードスコープのNDMP用にONTAP LIFを構成する
+= ノード スコープ NDMP 用に ONTAP LIF を構成する
 :allow-uri-read: 
 
 
 [role="lead"]
-ノードとバックアップアプリケーションの間のデータ接続および制御接続の確立に使用されるLIFを特定する必要があります。LIFを特定したら、そのLIFに対してファイアウォールポリシーとフェイルオーバーポリシーが設定されていることを確認する必要があります。
+ノードとバックアップ アプリケーションの間のデータ接続と制御接続の確立に使用されるLIFを特定する必要があります。LIFを特定したら、そのLIFに対してファイアウォール ポリシーとフェイルオーバー ポリシーが設定されていることを確認する必要があります。
 
 
-NOTE: ONTAP 9 10.1以降では、ファイアウォールポリシーが廃止され、LIFのサービスポリシーに全面的に置き換えられました。詳細については、を参照してください link:../networking/manage_supported_traffic.html["サポートされるトラフィックの管理"]。
+NOTE: ONTAP 9.10.1以降、ファイアウォール ポリシーは廃止され、LIFサービス ポリシーに完全に置き換えられました。詳細については、link:../networking/manage_supported_traffic.html["サポートされるトラフィックの管理"]を参照してください。
 
 [role="tabbed-block"]
 ====
-.ONTAP 9 .10.1以降
+.ONTAP 9.10.1 以降
 --
 .手順
-. コマンドでパラメータを指定して `-service-policy`、ノードでホストされているクラスタ間LIFを特定します `network interface show`。
+.  `network interface show`コマンドに `-service-policy`パラメータを指定して、ノード上でホストされているクラスタ間 LIF を識別します。
 +
 `network interface show -service-policy default-intercluster`
 
-. クラスタ間LIFにサービスが含まれていることを確認し `backup-ndmp-control`ます。
+. クラスタ間 LIF に `backup-ndmp-control`サービスが含まれていることを確認します：
 +
 `network interface service-policy show`
 
-. クラスタ間LIFのフェイルオーバーポリシーが適切に設定されていることを確認します。
+. クラスタ間LIFのフェイルオーバー ポリシーが適切に設定されていることを確認します。
 +
-.. コマンドを使用して、 `network interface show -failover`クラスタ間LIFのフェイルオーバーポリシーがに設定されていることを確認します `local-only`。
+..  `network interface show -failover`コマンドを使用して、クラスタ間 LIF のフェイルオーバー ポリシーが `local-only`に設定されていることを確認します。
 +
 [listing]
 ----
@@ -47,7 +47,7 @@ cluster1-1  cluster1-1_mgmt1 cluster1-1:e0m    local-only    Default
                                                     Failover Targets:
                                                     .......
 ----
-.. フェイルオーバーポリシーが適切に設定されていない場合は、コマンドでパラメータを指定し `-failover-policy`てフェイルオーバーポリシーを変更します `network interface modify`。
+.. フェイルオーバー ポリシーが適切に設定されていない場合は、 `-failover-policy`パラメータを指定した `network interface modify`コマンドを使用してフェイルオーバー ポリシーを変更します。
 +
 [listing]
 ----
@@ -56,15 +56,15 @@ cluster1::> network interface modify -vserver cluster1 -lif IC1 -failover-policy
 
 
 +
- `network interface service-policy show`、および `network interface modify`の詳細について `network interface show`は、をlink:https://docs.netapp.com/us-en/ontap-cli/search.html?q=network+interface["ONTAPコマンド リファレンス"^]参照してください。
+ `network interface show`、 `network interface service-policy show`、および `network interface modify`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/search.html?q=network+interface["ONTAPコマンド リファレンス"^]をご覧ください。
 
 
 
 --
-.ONTAP 9 .9以前
+.ONTAP 9.9以前
 --
 .手順
-. コマンドでパラメータを指定して `-role`、ノードでホストされているクラスタ間LIFを特定します `network interface show`。
+.  `network interface show`コマンドに `-role`パラメータを指定して、ノード上でホストされているクラスタ間 LIF を識別します。
 +
 [listing]
 ----
@@ -76,11 +76,11 @@ Vserver     Interface  Admin/Oper Address/Mask       Node          Port    Home
 cluster1    IC1        up/up      192.0.2.65/24      cluster1-1    e0a     true
 cluster1    IC2        up/up      192.0.2.68/24      cluster1-2    e0b     true
 ----
-. クラスタ間LIFでNDMPに対してファイアウォールポリシーが有効になっていることを確認します。
+. クラスタ間LIFでNDMPに対してファイアウォール ポリシーが有効になっていることを確認します。
 +
-.. コマンドを使用して、NDMPに対してファイアウォールポリシーが有効になっていることを確認します `system services firewall policy show`。
+..  `system services firewall policy show`コマンドを使用して、ファイアウォール ポリシーが NDMP に対して有効になっていることを確認します。
 +
-次のコマンドは、クラスタ間LIFのファイアウォールポリシーを表示します。
+次のコマンドは、クラスタ間LIFのファイアウォール ポリシーを表示します。
 
 +
 [listing]
@@ -100,9 +100,9 @@ cluster1    intercluster dns        -
                          telnet     -
 9 entries were displayed.
 ----
-.. ファイアウォールポリシーが有効になっていない場合は、コマンドでパラメータを指定して `-service`、ファイアウォールポリシーを有効にします `system services firewall policy modify`。
+.. ファイアウォール ポリシーが有効になっていない場合は、 `-service`パラメータを指定した `system services firewall policy modify`コマンドを使用してファイアウォール ポリシーを有効にします。
 +
-次のコマンドは、クラスタ間LIFのファイアウォールポリシーを有効にします。
+次のコマンドは、クラスタ間LIFのファイアウォール ポリシーを有効にします。
 
 +
 [listing]
@@ -111,9 +111,9 @@ cluster1::> system services firewall policy modify -vserver cluster1 -policy int
 ----
 
 
-. クラスタ間LIFのフェイルオーバーポリシーが適切に設定されていることを確認します。
+. クラスタ間LIFのフェイルオーバー ポリシーが適切に設定されていることを確認します。
 +
-.. コマンドを使用して、 `network interface show -failover`クラスタ間LIFのフェイルオーバーポリシーがに設定されていることを確認します `local-only`。
+..  `network interface show -failover`コマンドを使用して、クラスタ間 LIF のフェイルオーバー ポリシーが `local-only`に設定されていることを確認します。
 +
 [listing]
 ----
@@ -131,7 +131,7 @@ cluster1-1  cluster1-1_mgmt1 cluster1-1:e0m    local-only    Default
                                                     Failover Targets:
                                                     .......
 ----
-.. フェイルオーバーポリシーが適切に設定されていない場合は、コマンドでパラメータを指定し `-failover-policy`てフェイルオーバーポリシーを変更します `network interface modify`。
+.. フェイルオーバー ポリシーが適切に設定されていない場合は、 `-failover-policy`パラメータを指定した `network interface modify`コマンドを使用してフェイルオーバー ポリシーを変更します。
 +
 [listing]
 ----
@@ -140,7 +140,7 @@ cluster1::> network interface modify -vserver cluster1 -lif IC1 -failover-policy
 
 
 +
-および `network interface modify`の詳細については `network interface show`、をlink:https://docs.netapp.com/us-en/ontap-cli/search.html?q=network+interface["ONTAPコマンド リファレンス"^]参照してください。
+ `network interface show`および `network interface modify`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/search.html?q=network+interface["ONTAPコマンド リファレンス"^]をご覧ください。
 
 
 

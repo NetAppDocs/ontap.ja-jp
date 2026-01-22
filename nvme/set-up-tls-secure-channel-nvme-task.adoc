@@ -2,50 +2,50 @@
 permalink: nvme/set-up-tls-secure-channel-nvme-task.html 
 sidebar: sidebar 
 keywords: manage, nvme, secure, encryption, in-flight, tls secure channel, tcp, tls, encrypt, enable, set up 
-summary: ONTAP 9 .16.1以降では、NVMe/TCP接続用のTLSセキュアチャネルを有効または無効にすることができます。 
+summary: ONTAP 9.16.1 以降では、NVMe/TCP 接続の TLS セキュア チャネルを有効または無効にすることができます。 
 ---
-= NVMe/TCP用のTLSセキュアチャネルのセットアップ
+= NVMe / TCPのTLSセキュア チャネルのセットアップ
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-ONTAP 9.16.1以降では、NVMe/TCP接続用にTLSセキュア チャネルを設定できます。System ManagerかONTAP CLIを使用して、TLSが有効である新しいNVMeサブシステムを追加したり、既存のNVMeサブシステムでTLSを有効にしたりできます。ONTAP はTLS ハードウェア オフロードをサポートしていません。
+ONTAP 9.16.1以降では、NVMe/TCP接続にTLSセキュアチャネルを設定できます。System ManagerまたはONTAP CLIを使用して、TLSが有効になっている新しいNVMeサブシステムを追加するか、既存のNVMeサブシステムでTLSを有効にできます。ONTAPはTLSハードウェアオフロードをサポートしていません。
 
 [role="tabbed-block"]
 ====
 .System Manager
 --
-NVMe.16.1以降では、サブシステムの作成または更新、ネームスペースの作成またはクローニング、新しいONTAP 9ネームスペースを使用した整合性グループの追加時に、System Managerを使用してNVMe/TCP接続用のTLSを設定できます。
+ONTAP 9.16.1以降では、NVMeサブシステムの作成または更新、NVMeネームスペースの作成またはクローニング、新しいNVMeネームスペースを使用した整合グループの追加を行うときに、System ManagerでNVMe / TCP接続にTLSを設定できます。
 
 .手順
-. System Managerで、*[ホスト]>[NVMeサブシステム]*をクリックし、*[追加]*をクリックします。
-. NVMeサブシステム名を追加し、Storage VMとホストオペレーティングシステムを選択します。
-. ホストのNQNを入力します。
-. [Host NQN]の横にある*[Require Transport Layer Security（TLS）]*を選択します。
+. System Manager で、*Hosts > NVMe Subsystem* をクリックし、*Add* をクリックします。
+. NVMeサブシステム名を追加し、Storage VMとホスト オペレーティング システムを選択します。
+. ホストNQNを入力します。
+. ホスト NQN の横にある *Transport Layer Security（TLS）が必要* を選択します。
 . 事前共有キー（PSK）を指定します。
-. [ 保存（ Save ） ] をクリックします。
-. TLSセキュアチャネルが有効になっていることを確認するには、*[システムマネージャ]>[ホスト]>[NVMeサブシステム]>[グリッド]>[ピークビュー]*を選択します。
+. *保存*をクリックします。
+. TLS セキュア チャネルが有効になっていることを確認するには、* System Manager > Hosts > NVMe Subsystem > Grid > Peek view* を選択します。
 
 
 --
 .CLI
 --
 .手順
-. TLSセキュアチャネルをサポートするNVMeサブシステムホストを追加します。事前共有キー（PSK）は、  `tls-configured-psk`口論：
+. TLSセキュアチャネルをサポートするNVMeサブシステムホストを追加します。 `tls-configured-psk`引数を使用して事前共有キー（PSK）を指定できます：
 +
 [source, cli]
 ----
 vserver nvme subsystem host add -vserver <svm_name> -subsystem <subsystem> -host-nqn <host_nqn> -tls-configured-psk <key_text>
 ----
-. NVMeサブシステムホストがTLSセキュアチャネル用に設定されていることを確認します。オプションで引数を使用すると、そのキータイプを使用しているホストのみを表示でき `tls-key-type`ます。
+. NVMeサブシステムホストがTLSセキュアチャネル用に設定されていることを確認します。オプションで `tls-key-type`引数を使用して、そのキータイプを使用しているホストのみを表示することもできます：
 +
 [source, cli]
 ----
 vserver nvme subsystem host show -vserver <svm_name> -subsystem <subsystem> -host-nqn <host_nqn> -tls-key-type {none|configured}
 ----
-. NVMeサブシステムのホストコントローラがTLSセキュアチャネル用に設定されていることを確認します。必要に応じて、 `tls-identity`、、または `tls-cipher`引数を使用して、それらのTLS属性を持つコントローラのみを表示でき `tls-key-type`ます。
+. NVMeサブシステムのホストコントローラがTLSセキュアチャネル用に設定されていることを確認してください。オプションで `tls-key-type`、 `tls-identity`、または `tls-cipher`引数のいずれかを使用して、これらのTLS属性を持つコントローラのみを表示することもできます。
 +
 [source, cli]
 ----
@@ -56,5 +56,5 @@ vserver nvme subsystem controller show -vserver <svm_name> -subsystem <subsystem
 --
 ====
 .関連情報
-* link:https://docs.netapp.com/us-en/ontap-cli/search.html?q=vserver+nvme+subsystem["SVM NVMeサブシステム"^]
+* link:https://docs.netapp.com/us-en/ontap-cli/search.html?q=vserver+nvme+subsystem["vserver nvme サブシステム"^]
 

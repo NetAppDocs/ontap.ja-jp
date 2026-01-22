@@ -2,50 +2,50 @@
 permalink: authentication/setup-ssh-multifactor-authentication-task.html 
 sidebar: sidebar 
 keywords: enable, ssh, multifactor authentication, mfa, hardware authentication device 
-summary: 多要素認証（MFA）を使用すると、管理SVMまたはデータSVMにログインする際にユーザに2つの認証方式の指定を要求することで、セキュリティを強化できます。 
+summary: 多要素認証（MFA）では、管理SVMやデータSVMにログインする際にユーザに2つの認証方式を要求することで、セキュリティを強化できます。 
 ---
-= SSHおよびTOTPを使用したONTAP多要素認証の有効化
+= SSHとTOTPを使用してONTAP多要素認証を有効にする
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-多要素認証（MFA）を使用すると、管理SVMまたはデータSVMにログインする際にユーザに2つの認証方式の指定を要求することで、セキュリティを強化できます。
+多要素認証（MFA）では、管理SVMやデータSVMにログインする際にユーザに2つの認証方式を要求することで、セキュリティを強化できます。
 
-.タスクの内容
+.タスク概要
 * このタスクを実行するには、クラスタ管理者である必要があります。
-* ログインアカウントに割り当てるアクセス制御ロールが不明な場合は、あとでコマンドを使用してロールを追加できます `security login modify`。
+* ログイン アカウントに割り当てるアクセス制御ロールが不明な場合は、 `security login modify` コマンドを使用して後でロールを追加できます。
 +
-の詳細については `security login modify`、をlink:https://docs.netapp.com/us-en/ontap-cli/security-login-modify.html["ONTAPコマンド リファレンス"^]参照してください。
+ `security login modify`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/security-login-modify.html["ONTAPコマンド リファレンス"^]を参照してください。
 
 +
 link:modify-role-assigned-administrator-task.html["管理者に割り当てられているロールの変更"]
 
-* 認証に公開鍵を使用している場合は、アカウントがSVMにアクセスする前にアカウントに公開鍵を関連付ける必要があります。
+* 認証に公開鍵を使用している場合、アカウントがSVMにアクセスするためには、アカウントに公開鍵を関連付けておく必要があります。
 +
-link:manage-public-key-authentication-concept.html["ユーザアカウントに公開鍵を関連付ける"]
+link:manage-public-key-authentication-concept.html["ユーザ アカウントへの公開鍵の関連付け"]
 
 +
-このタスクは、アカウントアクセスを有効にする前後どちらでも実行できます。
+このタスクは、アカウント アクセスを有効にする前後どちらでも実行できます。
 
 * ONTAP 9.12.1以降では、FIDO2（Fast Identity Online）またはPIV（Personal Identity Verification）認証標準を使用して、SSHクライアントMFAにYubikeyハードウェア認証デバイスを使用できます。
 
 
 
 
-== SSH公開鍵とユーザパスワードを使用してMFAを有効にする
+== SSH公開鍵とユーザ パスワードを使用するMFAの有効化
 
-3以降では、クラスタ管理者がONTAP 9公開鍵とユーザパスワードを使用して、MFAを使用してログインするためのローカルユーザアカウントを設定できます。
+ONTAP 9.3以降、クラスタ管理者は、SSH公開鍵とユーザ パスワードを使用してMFAでログインするようにローカル ユーザ アカウントを設定できます。
 
-. ローカルユーザアカウントでSSH公開鍵とユーザパスワードを使用してMFAを有効にします。
+. ローカル ユーザ アカウントに対して、SSH公開鍵とユーザパスワードを使用するMFAを有効化します。
 +
 [source, cli]
 ----
 security login create -vserver <svm_name> -user-or-group-name <user_name> -application ssh -authentication-method <password|publickey> -role admin -second-authentication-method <password|publickey>
 ----
 +
-次のコマンドでは、事前定義された `admin`ロールのSVM管理者アカウントで、SSH公開鍵とユーザパスワードの両方を使用してSVMにログインする``engData1``必要があり `admin2`ます。
+次のコマンドでは、事前定義された `admin`ロールを持つ SVM 管理者アカウント `admin2`が SSH 公開キーとユーザーパスワードの両方を使用して SVM``engData1``にログインする必要があります：
 
 +
 [listing]
@@ -57,29 +57,29 @@ Please enter it again:
 Warning: To use public-key authentication, you must create a public key for user "admin2".
 ----
 +
-の詳細については `security login create`、をlink:https://docs.netapp.com/us-en/ontap-cli/security-login-create.html["ONTAPコマンド リファレンス"^]参照してください。
+ `security login create`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/security-login-create.html["ONTAPコマンド リファレンス"^]をご覧ください。
 
 
 
 
 
-== TOTPでMFAを有効にする
+== TOTPを使用するMFAの有効化
 
-SSH.13.1以降では、ONTAP 9公開鍵またはユーザパスワードと時間ベースのワンタイムパスワード（TOTP）の両方を使用してローカルユーザに管理SVMまたはデータSVMへのログインを要求することで、セキュリティを強化できます。TOTPを使用してMFAのアカウントを有効にしたあと、ローカルユーザはにログインする必要がありますlink:configure-local-account-mfa-totp-task.html["設定を完了します"]。
+ONTAP 9.13.1以降では、ローカルユーザにSSH公開鍵またはユーザパスワードと時間ベースのワンタイムパスワード（TOTP）の両方を使用して管理SVMまたはデータSVMにログインすることを要求することで、セキュリティを強化できます。アカウントでTOTPを使用したMFAが有効になった後、ローカルユーザはlink:configure-local-account-mfa-totp-task.html["設定を完了する"]にログインする必要があります。
 
-TOTPは、現在の時刻を使用してワンタイムパスワードを生成するコンピュータアルゴリズムです。TOTPを使用する場合は、常にSSH公開鍵またはユーザパスワードに続く2番目の認証形式になります。
+TOTPは、現在の時刻を使用してワンタイム パスワードを生成するコンピュータ アルゴリズムです。TOTPは、必ずSSH公開鍵またはユーザ パスワードに続く第2の認証方式として使用します。
 
 .開始する前に
 これらのタスクを実行するには、ストレージ管理者である必要があります。
 
 .手順
-最初の認証方法としてユーザパスワードまたはSSH公開鍵を使用し、2番目の認証方法としてTOTPを使用してMFAを設定できます。
+第1の認証方式にユーザ パスワードまたはSSH公開鍵を使用し、第2の認証方式にTOTPを使用するようにMFAを設定できます。
 
 [role="tabbed-block"]
 ====
-.ユーザパスワードとTOTPでMFAを有効にする
+.ユーザ パスワードとTOTPを使用するMFAの有効化
 --
-. ユーザパスワードとTOTPを使用して、ユーザアカウントで多要素認証を有効にします。
+. ユーザ アカウントに対して、ユーザ パスワードとTOTPを使用する多要素認証を有効化します。
 +
 *新規ユーザーアカウントの場合*
 
@@ -96,7 +96,7 @@ security login create -vserver <svm_name> -user-or-group-name <user_or_group_nam
 ----
 security login modify -vserver <svm_name> -user-or-group-name <user_or_group_name> -application ssh -authentication-method password -second-authentication-method totp -role <role> -comment <comment>
 ----
-. TOTPを使用したMFAが有効になっていることを確認します。
+. TOTPを使用するMFAが有効になっていることを確認します。
 +
 [listing]
 ----
@@ -105,9 +105,9 @@ security login show
 
 
 --
-.SSH公開鍵とTOTPを使用してMFAを有効にする
+.SSH公開鍵とTOTPを使用するMFAの有効化
 --
-. SSH公開鍵とTOTPを使用した多要素認証のユーザアカウントを有効にします。
+. SSH公開鍵とTOTPを使用する多要素認証を有効化します。
 +
 *新規ユーザーアカウントの場合*
 
@@ -125,33 +125,33 @@ security login create -vserver <svm_name> -user-or-group-name <user_or_group_nam
 security login modify -vserver <svm_name> -user-or-group-name <user_or_group_name> -application ssh -authentication-method publickey -second-authentication-method totp -role <role> -comment <comment>
 ----
 +
-の詳細については `security login modify`、をlink:https://docs.netapp.com/us-en/ontap-cli/security-login-modify.html["ONTAPコマンド リファレンス"^]参照してください。
+ `security login modify`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/security-login-modify.html["ONTAPコマンド リファレンス"^]を参照してください。
 
-. TOTPを使用したMFAが有効になっていることを確認します。
+. TOTPを使用するMFAが有効になっていることを確認します。
 +
 [listing]
 ----
 security login show
 ----
 +
-の詳細については `security login show`、をlink:https://docs.netapp.com/us-en/ontap-cli/security-login-show.html["ONTAPコマンド リファレンス"^]参照してください。
+ `security login show`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/security-login-show.html["ONTAPコマンド リファレンス"^]を参照してください。
 
 
 
 --
 ====
-.終了後
-* 管理者アカウントに公開鍵が関連付けられていない場合は、アカウントがSVMにアクセスする前に関連付けておく必要があります。
+.終了後の操作
+* 管理者アカウントに公開鍵が関連付けられていない場合、アカウントがSVMにアクセスする前に関連付けておく必要があります。
 +
-link:manage-public-key-authentication-concept.html["ユーザアカウントへの公開鍵の関連付け"]
+link:manage-public-key-authentication-concept.html["ユーザ アカウントへの公開鍵の関連付け"]
 
-* TOTPを使用したMFAの設定を完了するには、ローカルユーザがログインする必要があります。
+* ローカル ユーザがログインし、TOTPを使用するMFAの設定を完了する必要があります。
 +
-link:configure-local-account-mfa-totp-task.html["TOTPを使用したMFA用のローカルユーザアカウントの設定"]
+link:configure-local-account-mfa-totp-task.html["ローカル ユーザ アカウントでのTOTPを使用するMFAの設定"]
 
 
 
 .関連情報
-* link:https://www.netapp.com/pdf.html?item=/media/17055-tr4647pdf.pdf["ONTAP 9での多要素認証（TR-4647）"^]
+* link:https://www.netapp.com/pdf.html?item=/media/17055-tr4647pdf.pdf["ONTAP 9 における多要素認証（TR-4647）"^]
 * link:https://docs.netapp.com/us-en/ontap-cli/["ONTAPコマンド リファレンス"^]
 

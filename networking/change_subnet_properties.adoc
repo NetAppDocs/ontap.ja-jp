@@ -2,9 +2,9 @@
 sidebar: sidebar 
 permalink: networking/change_subnet_properties.html 
 keywords: change, changing, modify, modifying, gateway, ip, address, internet, protocol, mask, value, subnet, address, range, property, properties, change subnet properties, network subnet modify, subnet-name, -ipspace, -subnet, -gateway, -ip-ranges, -force-update-lif-associations 
-summary: サブネットアドレス、マスク値、ゲートウェイアドレス、または IP アドレスの範囲を変更します 
+summary: サブネット アドレス、マスク値、ゲートウェイ アドレス、またはIPアドレスの範囲を変更する 
 ---
-= ONTAPネットワークのサブネットプロパティの変更
+= ONTAPネットワークのサブネットプロパティを変更する
 :hardbreaks:
 :allow-uri-read: 
 :nofooter: 
@@ -14,30 +14,30 @@ summary: サブネットアドレス、マスク値、ゲートウェイアド�
 
 
 [role="lead"]
-既存のサブネットのサブネットアドレスとマスク値、ゲートウェイアドレス、またはIPアドレスの範囲を変更できます。
+既存のサブネットのアドレスとマスク値、ゲートウェイ アドレス、IPアドレスの範囲を変更することができます。
 
-.タスクの内容
-* IPアドレスを変更する場合は、異なるサブネットまたはホストが同じIPアドレスを使用しないように、ネットワーク内でIPアドレスが重複しないようにする必要があります。
-* ゲートウェイのIPアドレスを追加または変更した場合、LIFを作成するときに、変更したゲートウェイがサブネットを使用して新しいSVMに適用されます。SVMのゲートウェイへのルートがない場合は、デフォルトルートが作成されます。ゲートウェイのIPアドレスを変更した場合は、SVMに新しいルートを手動で追加しなければならないことがあります。
+.タスク概要
+* IPアドレスを変更するときは、別々のサブネットまたはホストで同じIPアドレスが使用されることのないように、ネットワーク内でIPアドレスの範囲が重複しないことを確認してください。
+* ゲートウェイのIPアドレスを追加または変更した場合は、LIFを作成するときに、変更したゲートウェイがサブネットを使用して新しいSVMに設定されます。SVMのゲートウェイへのルートがない場合は、デフォルト ルートが作成されます。ゲートウェイのIPアドレスを変更した場合は、SVMに新しいルートを手動で追加する必要があります。
 
 
-実行する手順は、使用するインターフェイス（System ManagerまたはCLI）によって異なります。
+実行する手順は、System ManagerとCLIのどちらのインターフェイスを使用するかによって異なります。
 
 [role="tabbed-block"]
 ====
 .System Manager
 --
-* ONTAP 9.12.0以降では、System Managerを使用してサブネットのプロパティを変更できます*
+*ONTAP 9.12.0以降では、System Managerを使用してサブネットのプロパティを変更できます*
 
 .手順
-. [ネットワーク]>[概要]>[サブネット*]を選択します。
-. 変更するサブネットの横にある*>[編集]*を選択します image:icon_kabob.gif["メニューオプションアイコン"]。
+. *Network > Overview > Subnets*を選択します。
+. 変更したいサブネットの横にあるimage:icon_kabob.gif["メニューオプションアイコン"]*> 編集*を選択します。
 . 変更を行います。
 . 変更を保存します。
 +
-.. 入力したIPアドレスまたは範囲がすでにインターフェイスで使用されている場合は、次のメッセージが表示されます。
+.. 入力したIPアドレスまたは範囲がすでにインターフェイスで使用されている場合は、次のメッセージが表示されます：
 `An IP address in this range is already in use by a LIF. Associate the LIF with this subnet?`
-.. OK *をクリックすると、既存のLIFがサブネットに関連付けられます。
+.. *OK*をクリックすると、既存のLIFがサブネットに関連付けられます。
 
 
 
@@ -45,28 +45,28 @@ summary: サブネットアドレス、マスク値、ゲートウェイアド�
 --
 .CLI
 --
-* CLIを使用して、サブネットのプロパティを変更します。*
+*CLI を使用してサブネットのプロパティを変更する*
 
-.ステップ
+.手順
 サブネットのプロパティを変更します。
 
 ....
 network subnet modify -subnet-name <subnet_name> [-ipspace <ipspace_name>] [-subnet <subnet_address>] [-gateway <gateway_address>] [-ip-ranges <ip_address_list>] [-force-update-lif-associations <true>]
 ....
-* `subnet_name`は、変更するサブネットの名前です。
-* `ipspace`は、サブネットのあるIPspaceの名前です。
-* `subnet`は、サブネットの新しいアドレスとマスクです（該当する場合）。たとえば、192.0.2.0/24のように指定します。
-* `gateway`は、サブネットの新しいゲートウェイです（該当する場合）。たとえば、192.0.2.1のように指定します。「 * 」と入力すると、ゲートウェイのエントリが削除されます。
-* `ip_ranges`は、サブネットに割り当てる新しいIPアドレスのリストまたは範囲です（該当する場合）。IPアドレスには、個 々 のアドレス、IPアドレスの範囲、またはその組み合わせをカンマで区切って指定できます。ここで指定した範囲を使用すると、既存のIPアドレスが置き換えられます。
-* `force-update-lif-associations`は、IPアドレス範囲を変更する場合に必要です。IP アドレスの範囲を変更する場合、このオプションの値を * true * に設定できます。指定した範囲のIPアドレスを使用しているサービスプロセッサまたはネットワークインターフェイスがある場合、このコマンドは失敗します。この値を * true に設定すると、手動でアドレスが指定されているインターフェイスが現在のサブネットに関連付けられ、コマンドは問題なく実行されます。
+* `subnet_name` は、変更するサブネットの名前です。
+* `ipspace`は、サブネットが存在する IPspace の名前です。
+* `subnet`は、該当する場合、サブネットの新しいアドレスとマスクです（例：192.0.2.0/24）。
+* `gateway`は、該当する場合、サブネットの新しいゲートウェイです（例：192.0.2.1）。*""*と入力すると、ゲートウェイ エントリが削除されます。
+* `ip_ranges`は、該当する場合、サブネットに割り当てられるIPアドレスの新しいリストまたは範囲です。IPアドレスは、個々のアドレス、IPアドレスの範囲、またはカンマ区切りのリストでの組み合わせを指定できます。ここで指定した範囲によって、既存のIPアドレスが置き換えられます。
+* `force-update-lif-associations`は、IPアドレス範囲を変更する場合に必要です。IPアドレスの範囲を変更する際に、このオプションの値を*true*に設定できます。指定された範囲のIPアドレスをサービス プロセッサまたはネットワーク インターフェイスが使用している場合、このコマンドは失敗します。この値を*true*に設定すると、手動でアドレス指定されたインターフェイスが現在のサブネットに関連付けられ、コマンドが成功します。
 
 
-次のコマンドは、サブネットsub3のゲートウェイIPアドレスを変更します。
+次のコマンドは、sub3というサブネットのゲートウェイのIPアドレスを変更します。
 
 ....
 network subnet modify -subnet-name <sub3> -gateway <192.0.3.1>
 ....
-の詳細については `network subnet modify`、をlink:https://docs.netapp.com/us-en/ontap-cli/network-subnet-modify.html["ONTAPコマンド リファレンス"^]参照してください。
+ `network subnet modify`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/network-subnet-modify.html["ONTAPコマンド リファレンス"^]をご覧ください。
 
 --
 ====

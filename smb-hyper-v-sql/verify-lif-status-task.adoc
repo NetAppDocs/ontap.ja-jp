@@ -2,7 +2,7 @@
 permalink: smb-hyper-v-sql/verify-lif-status-task.html 
 sidebar: sidebar 
 keywords: verify, lif, status, storage, virtual, machine, hyper, v, sql, server, smb, configuration, cluster 
-summary: Hyper-VおよびSQL Server over SMB構成のStorage Virtual Machine（SVM）をクラスタ内の各ノードにLIFを配置するように設定した場合でも、日常業務中に一部のLIFが別のノードのポートに移動することがあります。LIF のステータスを確認して、必要な措置を講じる必要があります。 
+summary: Hyper-V および SQL Server over SMB 構成でストレージ仮想マシン（SVM）を構成し、クラスタ内の各ノードに LIF を配置した場合でも、日常的な運用中に一部の LIF が別のノードのポートに移動することがあります。LIF のステータスを確認し、必要な修正措置を講じる必要があります。 
 ---
 = LIFステータスの確認
 :allow-uri-read: 
@@ -11,18 +11,18 @@ summary: Hyper-VおよびSQL Server over SMB構成のStorage Virtual Machine（S
 
 
 [role="lead"]
-Hyper-VおよびSQL Server over SMB構成のStorage Virtual Machine（SVM）をクラスタ内の各ノードにLIFを配置するように設定した場合でも、日常業務中に一部のLIFが別のノードのポートに移動することがあります。LIF のステータスを確認して、必要な措置を講じる必要があります。
+Hyper-V および SQL Server over SMB 構成でストレージ仮想マシン（SVM）を構成し、クラスタ内の各ノードに LIF を配置した場合でも、日常的な運用中に一部の LIF が別のノードのポートに移動することがあります。LIF のステータスを確認し、必要な修正措置を講じる必要があります。
 
-.タスクの内容
-シームレスなノンストップオペレーションの運用支援を提供するには、クラスタ内の各ノードの SVM に少なくとも 1 つの LIF を配置し、すべての LIF をホームポートに関連付ける必要があります。設定されている LIF の中に現在ホームポートに関連付けられていないものがある場合は、ポートの問題を修正してから、対応するホームポートに LIF をリバートする必要があります。
+.タスク概要
+シームレスで無停止の運用をサポートするには、クラスタ内の各ノードにSVM用のLIFが少なくとも1つあり、すべてのLIFがホームポートに関連付けられている必要があります。設定済みのLIFの一部が現在ホームポートに関連付けられていない場合は、ポートの問題を修正してから、LIFをホームポートに戻す必要があります。
 
 .手順
-. 設定されている SVM の LIF に関する情報を表示します。
+. SVM に設定されている LIF に関する情報を表示します：
 +
 `*network interface show -vserver _vserver_name_*`
 
 +
-この例では、「 lif1 」はホームポートに配置されていません。
+この例では、「`lif1`」はホーム ポート上にありません。
 
 +
 `network interface show -vserver vs1`
@@ -39,11 +39,11 @@ vs1
             lif2         up/up    10.0.0.129/24    node2      e0d     true
 ----
 +
-の詳細については `network interface show`、をlink:https://docs.netapp.com/us-en/ontap-cli/network-interface-show.html["ONTAPコマンド リファレンス"^]参照してください。
+ `network interface show`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/network-interface-show.html["ONTAPコマンド リファレンス"^]を参照してください。
 
-. 対応するホームポートに関連付けられていない LIF がある場合は、次の手順を実行します。
+. 一部の LIF がホーム ポート上にない場合は、次の手順を実行します：
 +
-.. それぞれの LIF について、 LIF のホームポートを確認します。
+.. 各 LIF について、LIF のホーム ポートを特定します：
 +
 `*network interface show -vserver _vserver_name_ -lif _lif_name_ -fields home-node,home-port*`
 
@@ -58,7 +58,7 @@ vserver lif  home-node  home-port
 ------- ---- ---------- ---------
 vs1     lif1 node1      e0d
 ----
-.. それぞれの LIF について、 LIF のホームポートが up 状態になっているかどうかを確認します。
+.. 各 LIF について、LIF のホーム ポートが稼働しているかどうかを確認します：
 +
 `*network port show -node _node_name_ -port _port_ -fields port,link*`
 
@@ -74,15 +74,15 @@ node       port link
 node1      e0d  up
 ----
 +
-この例では、「lif1」をホームポートに戻す必要があります `node1:e0d`。
+この例では、「`lif1`」をホーム ポート `node1:e0d`に移行し直す必要があります。
 
 +
-の詳細については `network port show`、をlink:https://docs.netapp.com/us-en/ontap-cli/network-port-show.html["ONTAPコマンド リファレンス"^]参照してください。
+ `network port show`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/network-port-show.html["ONTAPコマンド リファレンス"^]を参照してください。
 
 
 
-. LIFを関連付けるホームポートのネットワークインターフェイスが状態になっていない場合は `up`、問題を解決してup状態にします。の詳細については `up`、をlink:https://docs.netapp.com/us-en/ontap-cli/up.html["ONTAPコマンド リファレンス"^]参照してください。
-. 必要に応じて、ホームポートに LIF をリバートします。
+. LIF が関連付けられているホームポートのネットワークインターフェイスのいずれかが `up`状態になっていない場合は、これらのインターフェイスが稼働状態になるように問題を解決してください。 `up`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/up.html["ONTAPコマンド リファレンス"^]を参照してください。
+. 必要に応じて、LIF をホーム ポートに戻します：
 +
 `*network interface revert -vserver _vserver_name_ -lif _lif_name_*`
 
@@ -90,9 +90,9 @@ node1      e0d  up
 `*network interface revert -vserver vs1 -lif lif1*`
 
 +
-の詳細については `network interface revert`、をlink:https://docs.netapp.com/us-en/ontap-cli/network-interface-revert.html["ONTAPコマンド リファレンス"^]参照してください。
+ `network interface revert`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/network-interface-revert.html["ONTAPコマンド リファレンス"^]を参照してください。
 
-. クラスタ内の各ノードにアクティブな SVM の LIF があることを確認します。
+. クラスタ内の各ノードに SVM のアクティブな LIF があることを確認します：
 +
 `*network interface show -vserver _vserver_name_*`
 

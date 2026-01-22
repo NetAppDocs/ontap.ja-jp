@@ -14,39 +14,39 @@ summary: S3 クライアント ユーザーが NAS データにアクセスで�
 S3 クライアント ユーザーが NAS データにアクセスできるようにするには、S3 ユーザー名を対応する NAS ユーザーにマッピングし、バケット サービス ポリシーを使用して NAS データにアクセスする権限を付与する必要があります。
 
 .開始する前に
-クライアント アクセス用のユーザー名 (LINUX/UNIX、Windows、S3 クライアント ユーザー) がすでに存在している必要があります。
+クライアント アクセス用のユーザー名（LINUX/UNIX、Windows、S3 クライアント ユーザー）がすでに存在している必要があります。
 
-S3の一部の機能はであることに注意してlink:index.html#nas-functionality-not-currently-supported-by-s3-nas-buckets["S3 NASバケットではサポートされない"]ください。
+一部の S3 機能はlink:index.html#nas-functionality-not-currently-supported-by-s3-nas-buckets["S3 NASバケットではサポートされていません"]であることに注意してください。
 
-.タスクの内容
-S3ユーザ名を対応するLinux/UNIXまたはWindowsユーザにマッピングすると、NASファイルがS3クライアントからアクセスされたときにNASファイルの認証チェックが有効になります。S3からNASへのマッピングは、単一の名前またはPOSIXの正規表現で指定できるS3ユーザ名_Pattern_、およびLinux/UNIXまたはWindowsのユーザ名_Replacement _を指定して指定します。
+.タスク概要
+S3 ユーザー名を対応する LINUX/UNIX または Windows ユーザーにマッピングすることで、S3 クライアントが NAS ファイルにアクセスする際に、そのファイルに対する認証チェックが実行されるようになります。S3 から NAS へのマッピングは、S3 ユーザー名の _Pattern_（単一の名前または POSIX 正規表現で表現可能）と、LINUX/UNIX または Windows ユーザー名の _Replacement_ を提供することで指定されます。
 
-ネームマッピングが存在しない場合は、デフォルトのネームマッピングが使用され、S3ユーザ名自体がUNIXユーザ名およびWindowsユーザ名として使用されます。UNIXおよびWindowsのデフォルトのユーザ名マッピングは、コマンドを使用して変更できます `vserver object-store-server modify`。
+名前マッピングが存在しない場合は、デフォルトの名前マッピングが使用されます。この場合、S3ユーザー名自体がUNIXユーザー名およびWindowsユーザー名として使用されます。UNIXおよびWindowsのデフォルトのユーザー名マッピングは、 `vserver object-store-server modify`コマンドで変更できます。
 
-ローカルのネームマッピング設定のみがサポートされます。LDAPはサポートされません。
+サポートされるのはローカルのネームマッピング構成のみで、LDAPはサポートされません。
 
-S3ユーザをNASユーザにマッピングしたら、ユーザに権限を付与できます。ユーザがアクセスできるリソース（ディレクトリとファイル）と、そのユーザに対して実行を許可または許可しないアクションを指定できます。
+S3ユーザをNASユーザにマッピングしたら、ユーザに権限を付与し、アクセスを許可するリソース（ディレクトリおよびファイル）と実行を許可する / 許可しない操作を指定します。
 
 [role="tabbed-block"]
 ====
 .System Manager
 --
-. UNIXクライアントまたはWindowsクライアント（またはその両方）のローカルネームマッピングを作成します。
+. UNIXクライアントまたはWindowsクライアント（あるいはその両方）のローカル ネームマッピングを作成します。
 +
-.. Storage > Buckets *をクリックし、S3 / NAS対応のStorage VMを選択します。
-.. [設定]*を選択し、*[ネームマッピング]*（*[ホストユーザとグループ]*）をクリックします image:../media/icon_arrow.gif["矢印アイコン"] 。
-.. S3からWindows *または* S3からUNIX *へのタイル（またはその両方）で、* Add *をクリックし、目的の* Pattern *（S3）および* Replacement *（NAS）ユーザ名を入力します。
+.. *ストレージ > バケット*をクリックし、S3/NAS対応のストレージVMを選択します。
+.. *設定*を選択し、*名前マッピング*（*ホストユーザーとグループ*の下）で image:../media/icon_arrow.gif["矢印アイコン"] をクリックします。
+.. *S3 から Windows* または *S3 から UNIX* タイル（あるいはその両方）で、*追加* をクリックし、希望する *パターン* (S3) および *置換* (NAS) ユーザー名を入力します。
 
 
-. クライアントアクセスを許可するバケットポリシーを作成します。
+. クライアント アクセスを提供するバケット ポリシーを作成します。
 +
-.. [Storage]>[Buckets]*をクリックし、目的のS3バケットの横にあるをクリックし image:../media/icon_kabob.gif["メニューオプションアイコン"] て、*[Edit]*をクリックします。
-.. [*追加（Add）]をクリックし、必要な値を入力する。
+.. *ストレージ > バケット*をクリックし、目的のS3バケットの横にあるimage:../media/icon_kabob.gif["メニューオプションアイコン"]をクリックして、*編集*をクリックします。
+.. *追加*をクリックし、必要な値を入力します。
 +
-*** * Principal *- S3ユーザ名を指定するか、デフォルト（すべてのユーザ）を使用します。
-*** *エフェクト*-「*許可」または「*拒否」を選択します。
-*** *アクション*-これらのユーザーとリソースのアクションを入力します。オブジェクトストアサーバで現在S3 NASバケットに対してサポートされているリソース処理のセットは、GetObject、PutObject、DeleteObject、ListBucket、GetBucketAclです。 GetObjectAcl、GetObjectTagging、PutObjectTagging、DeleteObjectTagging、GetBucketLocation、 GetBucketVersioning、PutBucketVersioning、ListBucketVersionsの各メソッドに対応しています。このパラメータではワイルドカードを使用できます。
-*** * Resources *-アクションを許可または拒否するフォルダまたはファイルのパスを入力するか、デフォルト（バケットのルートディレクトリ）を使用します。
+*** *Principal* - S3 ユーザー名を指定するか、デフォルト（すべてのユーザー）を使用します。
+*** *Effect* - *Allow* または *Deny* を選択します。
+*** *アクション* - これらのユーザーとリソースに対するアクションを入力します。オブジェクトストアサーバーが現在S3 NASバケットに対してサポートしているリソース操作は、GetObject、PutObject、DeleteObject、ListBucket、GetBucketAcl、GetObjectAcl、GetObjectTagging、PutObjectTagging、DeleteObjectTagging、GetBucketLocation、GetBucketVersioning、PutBucketVersioning、ListBucketVersionsです。このパラメータではワイルドカードを使用できます。
+*** *リソース* - アクションが許可または拒否されるフォルダーまたはファイルのパスを入力するか、デフォルト（バケットのルート ディレクトリ）を使用します。
 
 
 
@@ -56,38 +56,38 @@ S3ユーザをNASユーザにマッピングしたら、ユーザに権限を付
 --
 .CLI
 --
-. UNIXクライアントまたはWindowsクライアント（またはその両方）のローカルネームマッピングを作成します。+
+. UNIXまたはWindowsクライアント（あるいはその両方）のローカル名マッピングを作成します。+
 `vserver name-mapping create -vserver svm_name> -direction {s3-win|s3-unix} -position _integer_ -pattern _s3_user_name_ -replacement _nas_user_name_`
 +
-** `-position`-マッピング評価のプライオリティ番号。1または2を入力します。
-** `-pattern`- S3ユーザ名または正規表現
-** `-replacement`- WindowsまたはUNIXのユーザ名
+** `-position` - マッピング評価の優先順位。1 または 2 を入力します。
+** `-pattern` - S3ユーザー名または正規表現
+** `-replacement` - WindowsまたはUnixのユーザー名
 
 
 
 
-例+
+例 +
 `vserver name-mapping create -direction s3-win -position 1 -pattern s3_user_1 -replacement win_user_1
 vserver name-mapping create -direction s3-unix -position 2 -pattern s3_user_1 -replacement unix_user_1`
 
-. クライアントアクセスを許可するバケットポリシーを作成します。+
+. クライアント アクセスを提供するバケット ポリシーを作成します。+
 `vserver object-store-server bucket policy add-statement -vserver svm_name -bucket bucket_name -effect {deny|allow}  -action list_of_actions -principal list_of_users_or_groups -resource [-sid alphanumeric_text]`
 +
-** `-effect {deny|allow}`-ユーザが操作を要求したときにアクセスを許可するか拒否するかを指定します。
-** `-action <Action>, ...`-許可または拒否されるリソース操作を指定しますオブジェクトストアサーバで現在S3 NASバケットに対してサポートされている一連のリソース処理は、GetObject、PutObject、DeleteObject、ListBucket、GetBucketAcl、GetObjectAcl、およびGetBucketLocationです。このパラメータではワイルドカードを使用できます。
-** `-principal <Objectstore Principal>, ...`-このパラメータで指定したオブジェクトストアサーバのユーザまたはグループに対して、アクセスを要求しているユーザを検証します。
+** `-effect {deny|allow}` - ユーザーがアクションを要求したときにアクセスを許可するか拒否するかを指定します。
+** `-action <Action>, ...` - 許可または拒否するリソース操作を指定します。オブジェクトストアサーバーが現在S3 NASバケットに対してサポートしているリソース操作は、GetObject、PutObject、DeleteObject、ListBucket、GetBucketAcl、GetObjectAcl、GetBucketLocationです。このパラメータではワイルドカードを使用できます。
+** `-principal <Objectstore Principal>, ...` - アクセスを要求しているユーザーを、このパラメータで指定されたオブジェクト ストア サーバーのユーザーまたはグループに対して検証します。
 +
-*** オブジェクトストアサーバグループを指定するには、グループ名にプレフィックスグループ/を追加します。
-*** `-principal`-（ハイフン文字）は、すべてのユーザにアクセス権を付与します。
+*** オブジェクト ストア サーバのグループを指定するには、グループ名の前にプレフィックス「group/」を付けます。
+*** `-principal` -（ハイフン文字）はすべてのユーザーにアクセスを許可します。
 
 
-** `-resource <text>, ...`-権限の許可/拒否を設定するバケット、フォルダ、またはオブジェクトを指定します。このパラメータではワイルドカードを使用できます。
-** `[-sid <SID>]`-オブジェクトストアサーバのバケットポリシーのステートメントのテキストコメント（オプション）を指定します。
+** `-resource <text>, ...` - 許可/拒否権限が設定されているバケット、フォルダ、またはオブジェクトを指定します。このパラメータではワイルドカードが使用できます。
+** `[-sid <SID>]` - オブジェクト ストア サーバー バケット ポリシー ステートメントのオプションのテキスト コメントを指定します。
 
 
 
 
-例+
+例 +
 `cluster1::> vserver object-store-server bucket policy add-statement -bucket testbucket -effect allow -action  GetObject,PutObject,DeleteObject,ListBucket,GetBucketAcl,GetObjectAcl, GetBucketLocation,GetBucketPolicy,PutBucketPolicy,DeleteBucketPolicy -principal user1 -resource testbucket,testbucket/* sid "FullAccessForUser1"`
 
 `cluster1::> vserver object-store-server bucket policy statement create -vserver vs1 -bucket bucket1 -effect allow -action GetObject -principal - -resource bucket1/readme/* -sid "ReadAccessToReadmeForAllUsers"`

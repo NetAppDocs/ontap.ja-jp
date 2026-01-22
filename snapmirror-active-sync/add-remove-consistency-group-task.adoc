@@ -2,7 +2,7 @@
 sidebar: sidebar 
 permalink: snapmirror-active-sync/add-remove-consistency-group-task.html 
 keywords: SM-BC, SMBC, volume, consistency group, remove volume, add volume, snapmirror active sync 
-summary: ボリュームを追加または削除して整合性グループの構成を変更する場合は、最初に元の関係を削除してから、新しい構成で整合性グループを作成し直す必要があります。 
+summary: ボリュームを追加または削除して整合性グループのメンバーを変更する場合は、最初に元の関係を削除してから、新しいメンバーで整合性グループを作成し直す必要があります。 
 ---
 = ONTAPコンシステンシグループにボリュームを追加または削除する
 :hardbreaks:
@@ -16,15 +16,15 @@ summary: ボリュームを追加または削除して整合性グループの�
 [role="lead"]
 アプリケーション ワークロードの要件が変更された場合は、ビジネス継続性を確保するために、整合性グループに対するボリュームの追加や削除が必要になることがあります。アクティブなSnapMirrorアクティブ同期関係でボリュームを追加および削除するプロセスは、使用しているONTAPのバージョンによって異なります。
 
-ほとんどの場合、これは停止を伴うプロセスであり、SnapMirror関係を削除し、整合グループを変更してから保護を再開する必要があります。ONTAP 9 .13.1以降では、アクティブなSnapMirror関係が設定された整合グループにボリュームを追加する処理は無停止で実行されます。
+このプロセスは、SnapMirror関係を削除し、整合性グループを変更してから保護を再開する必要があることがほとんどであり、その場合にはシステム停止を伴います。ONTAP 9.13.1以降では、アクティブなSnapMirror関係にある整合性グループにボリュームを追加する処理については、無停止で行えます。
 
-.タスクの内容
-* ONTAP 9 .9.1では、ONTAP CLIを使用して整合グループにボリュームを追加または削除できます。
-* ONTAP 9 .10.1以降では、System ManagerまたはONTAP REST APIを使用して管理することを推奨しますlink:../consistency-groups/index.html["整合グループ"]。
+.タスク概要
+* ONTAP 9.9.1では、ONTAP CLIを使用して、整合性グループにボリュームを追加または削除できます。
+* ONTAP 9.10.1以降では、System ManagerまたはONTAP REST APIを使用してlink:../consistency-groups/index.html["整合性グループ"]を管理することを推奨します。
 +
-ボリュームを追加または削除して整合性グループの構成を変更する場合は、最初に元の関係を削除してから、新しい構成で整合性グループを作成し直す必要があります。
+ボリュームを追加または削除して整合性グループのメンバーを変更する場合は、最初に元の関係を削除してから、新しいメンバーで整合性グループを作成し直す必要があります。
 
-* ONTAP 9.13.1以降では、アクティブなSnapMirror関係を持つ整合性グループに、ソースまたはデスティネーションから無停止でボリュームを追加できます。このアクションはNVMeプロトコルではサポートされていません。
+* ONTAP 9.13.1以降では、アクティブなSnapMirror関係を持つ整合性グループに、ソースまたはデスティネーションからボリュームを無停止で追加できます。このアクションはNVMeプロトコルではサポートされていません。
 +
 ボリュームの削除はシステム停止を伴う処理です。ボリュームを削除する前に、SnapMirror関係を削除する必要があります。
 
@@ -35,22 +35,22 @@ summary: ボリュームを追加または削除して整合性グループの�
 .ONTAP 9.9.1～9.13.0
 --
 .開始する前に
-* 状態の整合グループは変更できません `InSync`。
-* デスティネーションボリュームのタイプはDPでなければなりません。
-* 整合性グループを拡張するために追加する新しいボリュームには、ソースボリュームとデスティネーションボリュームに共通のSnapshotのペアが必要です。
+*  `InSync`状態にある間は、整合性グループの変更を開始することはできません。
+* デスティネーション ボリュームのタイプはDPでなければなりません。
+* 整合性グループを拡張するために追加する新しいボリュームには、ソース ボリュームとデスティネーション ボリューム間の共通スナップショットのペアが必要です。
 
 
 .手順
-2つのボリュームマッピングに例を示します `vol_src1`。<--> `vol_dst1`と `vol_src2`<--> `vol_dst2`では、エンドポイントと `vs1_dst:/cg/cg_dst`間の整合性グループ関係を使用し `vs1_src:/cg/cg_src`ています。
+エンドポイント `vs1_src:/cg/cg_src`と `vs1_dst:/cg/cg_dst`間の整合性グループ関係における2つのボリューム マッピング（ `vol_src1` <--> `vol_dst1`および `vol_src2` <--> `vol_dst2`）の例を示します。
 
-. ソースクラスタとデスティネーションクラスタで、コマンドを使用して、ソースクラスタとデスティネーションクラスタの間に共通のSnapshotがあることを確認します。 `snapshot show -vserver _svm_name_ -volume _volume_name_ -snapshot _snapmirror_`
+. ソース クラスタとデスティネーション クラスタで、次のコマンドを使用して、ソース クラスタとデスティネーション クラスタの間に共通のスナップショットがあることを確認します `snapshot show -vserver _svm_name_ -volume _volume_name_ -snapshot _snapmirror_`
 +
 `source::>snapshot show -vserver vs1_src -volume vol_src3 -snapshot snapmirror*`
 
 +
 `destination::>snapshot show -vserver vs1_dst -volume vol_dst3 -snapshot snapmirror*`
 
-. 共通のSnapshotがない場合は、FlexVol SnapMirror関係を作成して初期化します。
+. 共通のスナップショットが存在しない場合は、FlexVol SnapMirror関係を作成して初期化します：
 +
 `destination::>snapmirror initialize -source-path vs1_src:vol_src3 -destination-path vs1_dst:vol_dst3`
 
@@ -58,7 +58,7 @@ summary: ボリュームを追加または削除して整合性グループの�
 +
 `destination::>snapmirror delete -destination-path vs1_dst:/cg/cg_dst`
 
-. ソースSnapMirror関係を解放し、共通のSnapshotを保持します。
+. ソースSnapMirror関係を解放し、共通のスナップショットを保持します：
 +
 `source::>snapmirror release -relationship-info-only true -destination-path vs1_dst:vol_dst3`
 
@@ -76,15 +76,15 @@ NOTE: デスティネーションLUNのマッピングが解除され、プラ�
 +
 `source::>snapmirror release -destination-path vs1_dst:/cg/cg_dst -relationship-info-only true`
 
-. ** ONTAP 9.10.1～9.13.0を使用している場合** ソース上のコンシステンシーグループを削除し、正しい構成で再作成してください。以下の手順に従ってください。 link:../consistency-groups/delete-task.html["整合グループを削除する"]その後link:../consistency-groups/configure-task.html["単一の整合グループの設定"] 。ONTAP 9.10.1以降では、System ManagerまたはONTAP REST APIで削除と作成の処理を実行する必要があります。CLIの手順はありません。
+. **ONTAP 9.10.1～9.13.0を使用している場合**、ソース上の整合性グループを削除し、正しい構成で再作成してください。link:../consistency-groups/delete-task.html["整合性グループの削除"]の手順に従い、次にlink:../consistency-groups/configure-task.html["独立した整合性グループの設定"]を実行してください。ONTAP 9.10.1以降では、削除および作成操作はSystem ManagerまたはONTAP REST APIで実行する必要があります。CLI手順はありません。
 +
-** ONTAP 9.9.1を使用している場合は、次の手順に進みます。**
+**ONTAP 9.9.1を使用している場合は、次の手順に進んでください。**
 
-. デスティネーションに新しい構成で新しい整合性グループを作成します。
+. デスティネーションに新しいメンバーで新しい整合性グループを作成します。
 +
 `destination::>snapmirror create -source-path vs1_src:/cg/cg_src -destination-path vs1_dst:/cg/cg_dst -cg-item-mappings vol_src1:@vol_dst1, vol_src2:@vol_dst2, vol_src3:@vol_dst3`
 
-. RTOゼロの整合性グループ関係を再同期して同期されていることを確認します。
+. RTOゼロの整合性グループ関係を再同期し、同期されていることを確認します。
 +
 `destination::>snapmirror resync -destination-path vs1_dst:/cg/cg_dst`
 
@@ -98,25 +98,25 @@ NOTE: デスティネーションLUNのマッピングが解除され、プラ�
 --
 .ONTAP 9.13.1以降
 --
-ONTAP 9.13.1以降では、アクティブなSnapMirrorのアクティブな同期関係を持つ整合性グループに無停止でボリュームを追加できます。SnapMirror Active Syncでは、ソースとデスティネーションの両方からボリュームを追加できます。
+ONTAP 9.13.1 以降では、アクティブなSnapMirrorアクティブ同期関係を持つ整合性グループに、中断なくボリュームを追加できます。SnapMirrorアクティブ同期は、ソースとデスティネーションの両方からのボリュームの追加をサポートします。
 
 
-IMPORTANT: ONTAP 9.14.1 から 9.8 では、 SnapMirror Active Sync はSnapMirror Business Continuity (SM-BC) と呼ばれます。
+IMPORTANT: ONTAP 9.14.1から9.8では、SnapMirrorアクティブ同期はSnapMirror Business Continuity（SM-BC）と呼ばれます。
 
-ソース整合性グループからのボリュームの追加の詳細については、を参照してくださいxref:../consistency-groups/modify-task.html[整合グループの変更]。
+ソース整合性グループからボリュームを追加する方法の詳細については、xref:../consistency-groups/modify-task.html[整合性グループの変更]を参照してください。
 
-.デスティネーションクラスタからボリュームを追加する
-. デスティネーションクラスタで、**Protection**>** Relationships**を選択します。
-. ボリュームを追加するSnapMirror構成を探します。[** Expand*]を選択します image:icon_kabob.gif["メニューオプションアイコン"] 。
-. ボリュームを整合グループに追加するボリューム関係を選択する
-. [**展開*]を選択します。
+.デスティネーション クラスタからのボリュームの追加
+. デスティネーション クラスタで、**保護** > **リレーションシップ** を選択します。
+. ボリュームを追加するSnapMirror構成を見つけます。image:icon_kabob.gif["メニューオプションアイコン"]を選択し、**展開**をクリックします。
+. 整合性グループにボリュームを追加するボリューム関係を選択します。
+. **Expand**を選択します。
 
 
 --
 ====
 .関連情報
-* link:https://docs.netapp.com/us-en/ontap-cli/snapmirror-delete.html["SnapMirrorの削除"^]
-* link:https://docs.netapp.com/us-en/ontap-cli/snapmirror-initialize.html["スナップミラーの初期化"^]
-* link:https://docs.netapp.com/us-en/ontap-cli/snapmirror-release.html["スナップミラーリリース"^]
+* link:https://docs.netapp.com/us-en/ontap-cli/snapmirror-delete.html["snapmirror delete"^]
+* link:https://docs.netapp.com/us-en/ontap-cli/snapmirror-initialize.html["snapmirror initialize"^]
+* link:https://docs.netapp.com/us-en/ontap-cli/snapmirror-release.html["snapmirror release"^]
 * link:https://docs.netapp.com/us-en/ontap-cli/snapmirror-resync.html["snapmirror resync"^]
 

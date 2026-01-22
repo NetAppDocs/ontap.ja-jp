@@ -2,47 +2,47 @@
 permalink: revert/concept_reversion_requirements_for_snapmirror_and_snapvault_relationships.html 
 sidebar: sidebar 
 keywords: ontap, revert, reverting, reversion, requirements, snapmirror, snapvault, relationships 
-summary: system node revert-toコマンドは、リバートプロセスを完了するために削除または再設定が必要なSnapMirror関係およびSnapVault関係について通知します。ただし、リバートを開始する前に以下の要件について理解しておく必要があります。 
+summary: system node revert-to コマンドは、リバートプロセスを完了するために削除または再設定が必要な SnapMirror および SnapVault 関係を通知します。ただし、リバートを開始する前にこれらの要件を理解しておく必要があります。 
 ---
-= SnapMirror関係とSnapVault関係のONTAPリバート要件
+= SnapMirror関係とSnapVault関係のONTAP復帰要件
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-コマンドは、 `system node revert-to`リバートプロセスを完了するために削除または再設定が必要なSnapMirror関係およびSnapVault関係について通知します。ただし、リバートを開始する前に以下の要件について理解しておく必要があります。
+この `system node revert-to`コマンドは、復元プロセスを完了するために削除または再構成する必要があるSnapMirrorおよびSnapVault関係を通知します。ただし、復元を開始する前にこれらの要件を理解しておく必要があります。
 
-* すべての SnapVault 関係とデータ保護ミラー関係を休止してから解除する必要があります。
+* すべてのSnapVaultおよびデータ保護ミラー関係を静止させてから解除する必要があります。
 +
-共通のSnapshotが存在する場合は、リバートの完了後にこれらの関係を再同期して再開できます。
+リバートが完了したら、共通のSnapshotが存在する場合は、これらの関係を再同期して再開できます。
 
-* 次のタイプの SnapMirror ポリシーを SnapVault 関係に含めることはできません。
+* SnapVault関係には次のSnapMirrorポリシータイプを含めることはできません：
 +
-** 非同期ミラー
+** async-mirror
 +
 このポリシータイプを使用する関係をすべて削除する必要があります。
 
 ** MirrorAndVault
 +
-このような関係が存在する場合は、 SnapMirror ポリシーを mirror-vault に変更する必要があります。
+これらの関係のいずれかが存在する場合は、SnapMirrorポリシーをmirror-vaultに変更する必要があります。
 
 
 
 * すべての負荷共有ミラー関係とデスティネーションボリュームを削除する必要があります。
-* FlexClone デスティネーションボリュームとの SnapMirror 関係を削除する必要があります。
-* 各 SnapMirror ポリシーでネットワーク圧縮を無効にする必要があります。
-* async-mirror タイプの SnapMirror ポリシーから all_source_snapshot ルールを削除する必要があります。
+* FlexClone デスティネーションボリュームとの SnapMirror 関係は削除する必要があります。
+* 各SnapMirrorポリシーでネットワーク圧縮を無効にする必要があります。
+* all_source_snapshot ルールは、すべての async-mirror タイプの SnapMirror ポリシーから削除する必要があります。
 +
 
-NOTE: ルートボリュームでの Single File Snapshot Restore （ SFSR ）処理と Partial File Snapshot Restore （ PFSR ）処理は廃止されました。
+NOTE: ルート ボリュームでは、Single File Snapshot Restore（SFSR）操作と Partial File Snapshot Restore（PFSR）操作は非推奨です。
 
-* リバートを実行する前に、実行中の単一ファイルおよびSnapshotのリストア処理を完了しておく必要があります。
+* リバート処理を続行する前に、現在実行中のシングルファイルリストアおよび Snapshot リストア処理をすべて完了しておく必要があります。
 +
-リストア処理が完了するまで待つか、リストア処理を中止できます。
+復元処理が完了するまで待つか、中止することができます。
 
-* 未完了の単一ファイルおよびSnapshotのリストア処理がある場合は、コマンドを使用して削除する必要があります `snapmirror restore`。
+* 不完全な単一ファイルおよび Snapshot のリストア処理は、 `snapmirror restore`コマンドを使用して削除する必要があります。
 +
-の詳細については `snapmirror restore`、をlink:https://docs.netapp.com/us-en/ontap-cli/snapmirror-restore.html["ONTAPコマンド リファレンス"^]参照してください。
+ `snapmirror restore`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/snapmirror-restore.html["ONTAPコマンド リファレンス"^]を参照してください。
 
 

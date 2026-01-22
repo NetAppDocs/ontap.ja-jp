@@ -2,46 +2,46 @@
 permalink: system-admin/receive-system-health-alerts-automatic-task.html 
 sidebar: sidebar 
 keywords: receive, system, health, alert, automatically, system, show, command, ems, event, management, monito 
-summary: system health alert show コマンドを使用して、システムヘルスアラートを手動で表示できます。ただし、ヘルスモニタがアラートを生成したときに通知を自動的に受信するには、特定のEvent Management System（EMS；イベント管理システム）メッセージに登録する必要があります。 
+summary: システムヘルスアラートは、system health alert showコマンドを使用して手動で表示できます。ただし、ヘルスモニターがアラートを生成したときに自動的に通知を受け取るには、特定のEvent Management System（EMS）メッセージをサブスクライブする必要があります。 
 ---
-= ONTAPシステムヘルスアラートの自動受信
+= ONTAPシステムのヘルスアラートを自動的に受信
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-コマンドを使用すると、システムヘルスアラートを手動で表示できます `system health alert show`。ただし、ヘルスモニタがアラートを生成したときに通知を自動的に受信するには、特定のEvent Management System（EMS；イベント管理システム）メッセージに登録する必要があります。
+ `system health alert show`コマンドを使用して、システムヘルスアラートを手動で表示できます。ただし、ヘルスモニタがアラートを生成したときに自動的に通知を受信するには、特定のEvent Management System（EMS）メッセージをサブスクライブする必要があります。
 
-.タスクの内容
-次の手順では、すべてのhm.alert.raisedメッセージおよびすべてのhm.alert.clearedメッセージの通知を設定する方法を示します。
+.タスク概要
+次の手順では、すべてのhm.alert.raisedメッセージ、およびすべてのhm.alert.clearedメッセージに対する通知のセットアップ方法を示します。
 
-すべての hm.alert.raised メッセージとすべての hm.alert.cleared メッセージには SNMP トラップが含まれます。SNMPトラップの名前はと `HealthMonitorAlertCleared`です `HealthMonitorAlertRaised`。
+すべてのhm.alert.raisedメッセージとすべてのhm.alert.clearedメッセージにはSNMPトラップが含まれます。SNMPトラップの名前は `HealthMonitorAlertRaised`および `HealthMonitorAlertCleared`です。
 
-の詳細については `system health alert show`、をlink:https://docs.netapp.com/us-en/ontap-cli/system-health-alert-show.html["ONTAPコマンド リファレンス"^]参照してください。
+ `system health alert show`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/system-health-alert-show.html["ONTAPコマンド リファレンス"^]を参照してください。
 
 .手順
-. コマンドを使用して `event destination create`、EMSメッセージの送信先を定義します。
+.  `event destination create`コマンドを使用して、EMSメッセージの送信先を定義します。
 +
 [listing]
 ----
 cluster1::> event destination create -name health_alerts -mail admin@example.com
 ----
 +
-の詳細については `event destination create`、をlink:https://docs.netapp.com/us-en/ontap-cli/search.html?q=event+destination+create["ONTAPコマンド リファレンス"^]参照してください。
+ `event destination create`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/search.html?q=event+destination+create["ONTAPコマンド リファレンス"^]を参照してください。
 
-. コマンドを使用し `event route add-destinations`て、メッセージと `hm.alert.cleared`メッセージを送信先にルーティングし `hm.alert.raised`ます。
+.  `event route add-destinations`コマンドを使用して、 `hm.alert.raised`メッセージと `hm.alert.cleared`メッセージを宛先にルーティングします。
 +
 [listing]
 ----
 cluster1::> event route add-destinations -messagename hm.alert* -destinations health_alerts
 ----
 +
-の詳細については `event route add-destinations`、をlink:https://docs.netapp.com/us-en/ontap-cli/search.html?q=event+route+add-destinations["ONTAPコマンド リファレンス"^]参照してください。
+ `event route add-destinations`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/search.html?q=event+route+add-destinations["ONTAPコマンド リファレンス"^]を参照してください。
 
 
 
 .関連情報
-* link:../networking/networking_reference.html["System Managerを使用したONTAPネットワークの可視化"^]
+* link:../networking/networking_reference.html["System Manager を使用して ONTAP ネットワークを視覚化する"^]
 * link:https://kb.netapp.com/on-prem/ontap/Ontap_OS/OS-KBs/How_to_configure_SNMP_monitoring_on_DATA_ONTAP["DATA ONTAPでSNMP監視を設定する方法"^]
 

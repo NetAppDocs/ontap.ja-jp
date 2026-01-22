@@ -2,38 +2,38 @@
 permalink: data-protection/convert-snapmirror-version-flexible-task.html 
 sidebar: sidebar 
 keywords: convert, exist, dp-type, relationship, xdp 
-summary: 既存のDPタイプの関係をXDPに簡単に変換して、バージョンに依存しないSnapMirrorを活用できます。 
+summary: 既存のDPタイプの関係を簡単にXDPに変換して、バージョンに依存しないSnapMirrorを活用できます。 
 ---
-= 既存のONTAP SnapMirror DPタイプの関係をXDPに変換する
+= 既存のONTAP SnapMirror DPタイプ関係をXDPに変換する
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-XDP 12.1以降にアップグレードする場合ONTAP 9は、アップグレード前にDPタイプの関係をXDPに変換する必要があります。ONTAP 9.12.1以降では、DPタイプの関係はサポートされません。既存のDPタイプの関係を簡単にXDPに変換して、バージョンに依存しないSnapMirrorを活用できます。
+ONTAP 9.12.1以降にアップグレードする場合は、アップグレード前にDPタイプの関係をXDPに変換する必要があります。ONTAP 9.12.1以降では、DPタイプの関係はサポートされません。既存のDPタイプの関係を簡単にXDPに変換して、バージョンに依存しないSnapMirrorを活用できます。
 
-ONTAP 9.12.1にアップグレードする前に、ONTAP 9.12.1以降のリリースにアップグレードする前に、既存のDPタイプの関係をXDPに変換する必要があります。
+ONTAP 9.12.1以降のリリースにアップグレードする前に、既存のDPタイプの関係をXDPに変換する必要があります。
 
-.タスクの内容
-* SnapMirrorは、既存のDPタイプの関係をXDPに自動的に変換しません。関係を変換するには、既存の関係を解除して削除し、新しいXDP関係を作成して関係を再同期する必要があります。
-* 変換を計画するときは、XDP SnapMirror関係のバックグラウンド準備とデータウェアハウジングフェーズに時間がかかることに注意してください。ステータスが「準備中」と長時間報告されるSnapMirror関係が表示されることも珍しくありません。
+.タスク概要
+* SnapMirrorでは、既存のDPタイプの関係をXDPに自動的に変換しません。関係を変換するには、既存の関係を解除して削除し、新しいXDP関係を作成して関係を再同期する必要があります。
+* 変換を計画する場合は、XDP SnapMirror関係のバックグラウンドでの準備とデータの保存処理に時間がかかることに注意してください。長時間にわたってSnapMirror関係のステータスが「preparing」と表示されることも珍しくありません。
 
 
 [NOTE]
 ====
-SnapMirror関係のタイプをDPからXDPに変換すると、オートサイズやスペースギャランティなどのスペース関連の設定はデスティネーションにレプリケートされなくなります。
+SnapMirror関係のタイプをDPからXDPに変換すると、オートサイズやスペース ギャランティなどのスペース関連の設定はデスティネーションにレプリケートされなくなります。
 
 ====
 .手順
-. デスティネーションクラスタから、SnapMirror関係のタイプがDP、ミラーの状態がSnapMirrored、関係のステータスがIdle、関係が正常であることを確認します。
+. デスティネーション クラスタから、SnapMirror関係がDPタイプ、ミラー状態がSnapMirrored、関係のステータスがIdle、関係が健全であることを確認します。
 +
 [source, cli]
 ----
 snapmirror show -destination-path <SVM:volume>
 ----
 +
-次の例は、コマンドの出力を示してい `snapmirror show`ます。
+次の例は、 `snapmirror show`コマンドからの出力を示しています：
 
 +
 [listing]
@@ -61,17 +61,17 @@ Healthy: true
 +
 [NOTE]
 ====
-関係設定の既存の情報を追跡するために、コマンド出力のコピーを保持しておくと便利 `snapmirror show`です。の詳細については `snapmirror show`、をlink:https://docs.netapp.com/us-en/ontap-cli//snapmirror-show.html["ONTAPコマンド リファレンス"^]参照してください。
+ `snapmirror show`コマンド出力のコピーを保持しておくと、既存の関係設定を追跡するのに役立ちます。link:https://docs.netapp.com/us-en/ontap-cli//snapmirror-show.html["ONTAPコマンド リファレンス"^]の `snapmirror show`の詳細をご覧ください。
 
 ====
-. ソースボリュームとデスティネーションボリュームで、両方のボリュームに共通のSnapshotがあることを確認します。
+. ソース ボリュームとデスティネーション ボリュームの両方に共通のスナップショットがあることを確認します。
 +
 [source, cli]
 ----
 volume snapshot show -vserver <SVM> -volume <volume>
 ----
 +
-次の例は、ソースボリュームとデスティネーションボリュームの出力を示してい `volume snapshot show`ます。
+次の例は、ソース ボリュームとデスティネーション ボリュームの `volume snapshot show`出力を示しています：
 
 +
 [listing]
@@ -113,7 +113,7 @@ daily.2014-06-27_0921 valid 60KB 0% 25%
 hourly.2014-06-27_0921 valid 76KB 0% 30%
 snapmirror.10af643c-32d1-11e3-954b-123478563412_2147484682.2014-06-27_100026
 ----
-. 変換中にスケジュールされた更新が実行されないようにするには、既存のDPタイプの関係を休止します。
+. 変換中にスケジュールされた更新が実行されないようにするために、既存のDPタイプの関係を休止します。
 +
 [source, cli]
 ----
@@ -122,11 +122,11 @@ snapmirror quiesce -source-path <SVM:volume> -destination-path <SVM:volume>
 +
 [NOTE]
 ====
-このコマンドはデスティネーションSVMまたはデスティネーションクラスタから実行する必要があります。
+このコマンドはデスティネーションSVMまたはデスティネーション クラスタから実行する必要があります。
 
 ====
 +
-次の例は、の `svm1`ソースボリュームとの `svm_backup`デスティネーションボリューム `volA_dst`の間の関係を休止し `volA`ます。
+次の例では、 `svm1`のソース ボリューム `volA`と `svm_backup`のデスティネーション ボリューム `volA_dst`間の関係を休止します：
 
 +
 [listing]
@@ -134,7 +134,7 @@ snapmirror quiesce -source-path <SVM:volume> -destination-path <SVM:volume>
 cluster_dst::> snapmirror quiesce -destination-path svm_backup:volA_dst
 ----
 +
-の詳細については `snapmirror quiesce`、をlink:https://docs.netapp.com/us-en/ontap-cli/snapmirror-quiesce.html["ONTAPコマンド リファレンス"^]参照してください。
+ `snapmirror quiesce`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/snapmirror-quiesce.html["ONTAPコマンド リファレンス"^]を参照してください。
 
 . 既存のDPタイプの関係を解除します。
 +
@@ -145,11 +145,11 @@ snapmirror break -destination-path <SVM:volume>
 +
 [NOTE]
 ====
-このコマンドはデスティネーションSVMまたはデスティネーションクラスタから実行する必要があります。
+このコマンドはデスティネーションSVMまたはデスティネーション クラスタから実行する必要があります。
 
 ====
 +
-次の例は、の `svm1`ソースボリュームとの `svm_backup`デスティネーションボリューム `volA_dst`の間の関係を解除し `volA`ます。
+次の例では、 `svm1`のソース ボリューム `volA`と `svm_backup`のデスティネーション ボリューム `volA_dst`の関係を解除します：
 
 +
 [listing]
@@ -157,16 +157,16 @@ snapmirror break -destination-path <SVM:volume>
 cluster_dst::> snapmirror break -destination-path svm_backup:volA_dst
 ----
 +
-の詳細については `snapmirror break`、をlink:https://docs.netapp.com/us-en/ontap-cli/snapmirror-break.html["ONTAPコマンド リファレンス"^]参照してください。
+ `snapmirror break`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/snapmirror-break.html["ONTAPコマンド リファレンス"^]を参照してください。
 
-. デスティネーションボリュームでSnapshotの自動削除が有効になっている場合は無効にします。
+. デスティネーション ボリュームでSnapshotの自動削除が有効になっている場合は、無効にします：
 +
 [source, cli]
 ----
 volume snapshot autodelete modify -vserver _SVM_ -volume _volume_ -enabled false
 ----
 +
-次の例は、デスティネーションボリュームでSnapshotの自動削除を無効にし `volA_dst`ます。
+次の例では、デスティネーション ボリューム上のSnapshotの自動削除を無効にします `volA_dst`：
 
 +
 [listing]
@@ -180,30 +180,30 @@ cluster_dst::> volume snapshot autodelete modify -vserver svm_backup -volume vol
 snapmirror delete -destination-path <SVM:volume>
 ----
 +
-の詳細については `snapmirror-delete`、をlink:https://docs.netapp.com/us-en/ontap-cli/snapmirror-delete.html["ONTAPコマンド リファレンス"^]参照してください。
+ `snapmirror-delete`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/snapmirror-delete.html["ONTAPコマンド リファレンス"^]を参照してください。
 
 +
 [NOTE]
 ====
-このコマンドはデスティネーションSVMまたはデスティネーションクラスタから実行する必要があります。
+このコマンドはデスティネーションSVMまたはデスティネーション クラスタから実行する必要があります。
 
 ====
 +
-次の例は、の `svm1`ソースボリュームとの `svm_backup`デスティネーションボリューム `volA_dst`の間の関係を削除し `volA`ます。
+次の例では、 `svm1`のソース ボリューム `volA`と `svm_backup`のデスティネーション ボリューム `volA_dst`間の関係を削除します：
 
 +
 [listing]
 ----
 cluster_dst::> snapmirror delete -destination-path svm_backup:volA_dst
 ----
-. ソースで元のSVMディザスタリカバリ関係を解放します。
+. ソースで元のSVMディザスタ リカバリ関係をリリースします。
 +
 [source, cli]
 ----
 snapmirror release -destination-path <SVM:volume> -relationship-info-only true
 ----
 +
-次の例は、SVMディザスタリカバリ関係をリリースします。
+次の例では、SVMディザスタ リカバリ関係をリリースしています。
 
 +
 [listing]
@@ -211,25 +211,25 @@ snapmirror release -destination-path <SVM:volume> -relationship-info-only true
 cluster_src::> snapmirror release -destination-path svm_backup:volA_dst -relationship-info-only true
 ----
 +
-の詳細については `snapmirror release`、をlink:https://docs.netapp.com/us-en/ontap-cli/snapmirror-release.html["ONTAPコマンド リファレンス"^]参照してください。
+ `snapmirror release`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/snapmirror-release.html["ONTAPコマンド リファレンス"^]を参照してください。
 
-. コマンドで保持した出力を使用して、新しいXDPタイプの関係を作成でき `snapmirror show`ます。
+.  `snapmirror show`コマンドから保持した出力を使用して、新しいXDPタイプの関係を作成できます：
 +
 [source, cli]
 ----
 snapmirror create -source-path <SVM:volume> -destination-path <SVM:volume>  -type XDP -schedule <schedule> -policy <policy>
 ----
 +
-新しい関係では、同じソースボリュームとデスティネーションボリュームを使用する必要があります。この手順で説明されているコマンドの詳細については、をlink:https://docs.netapp.com/us-en/ontap-cli/["ONTAPコマンド リファレンス"^]参照してください。
+新しい関係では、同じソースボリュームとデスティネーションボリュームを使用する必要があります。この手順で説明するコマンドの詳細については、link:https://docs.netapp.com/us-en/ontap-cli/["ONTAPコマンド リファレンス"^]を参照してください。
 
 +
 [NOTE]
 ====
-このコマンドはデスティネーションSVMまたはデスティネーションクラスタから実行する必要があります。
+このコマンドはデスティネーションSVMまたはデスティネーション クラスタから実行する必要があります。
 
 ====
 +
-次の例は、 `svm1`デフォルトのポリシーを使用して `MirrorAllSnapshots`、の `svm_backup`ソースボリュームとデスティネーションボリューム `volA_dst`の間にSnapMirrorディザスタリカバリ関係を作成します `volA`。
+次の例では、SnapMirrorディザスタ リカバリ関係を、 `svm1`のソース ボリューム `volA`と `svm_backup`のデスティネーション ボリューム `volA_dst`の間に、デフォルトの `MirrorAllSnapshots`ポリシーを使用して作成します：
 
 +
 [listing]
@@ -237,23 +237,23 @@ snapmirror create -source-path <SVM:volume> -destination-path <SVM:volume>  -typ
 cluster_dst::> snapmirror create -source-path svm1:volA -destination-path svm_backup:volA_dst
 -type XDP -schedule my_daily -policy MirrorAllSnapshots
 ----
-. ソースボリュームとデスティネーションボリュームを再同期します。
+. ソース ボリュームとデスティネーション ボリュームを再同期します。
 +
 [source, cli]
 ----
 snapmirror resync -source-path <SVM:volume> -destination-path <SVM:volume>
 ----
 +
-再同期時間を改善するには、  `-quick-resync`オプションですが、ストレージ効率の節約が失われる可能性があることに注意してください。
+再同期時間を短縮するには、 `-quick-resync`オプションを使用できますが、ストレージ効率の節約が失われる可能性があることに注意してください。
 
 +
 [NOTE]
 ====
-このコマンドはデスティネーションSVMまたはデスティネーションクラスタから実行する必要があります。再同期の際にベースライン転送は不要ですが、再同期には時間がかかる場合があります。再同期はオフピークの時間帯に実行することを推奨します。
+このコマンドはデスティネーションSVMまたはデスティネーション クラスタから実行する必要があります。再同期の際にベースライン転送は不要ですが、再同期には時間がかかる場合があります。再同期はオフピークの時間帯に実行することを推奨します。
 
 ====
 +
-次の例は、の `svm1`ソースボリュームとの `svm_backup`デスティネーションボリューム `volA_dst`の間の関係を再同期し `volA`ます。
+次の例では、 `svm1`のソース ボリューム `volA`と `svm_backup`のデスティネーション ボリューム `volA_dst`間の関係を再同期します：
 
 +
 [listing]
@@ -261,9 +261,9 @@ snapmirror resync -source-path <SVM:volume> -destination-path <SVM:volume>
 cluster_dst::> snapmirror resync -source-path svm1:volA -destination-path svm_backup:volA_dst
 ----
 +
-詳細はこちら `snapmirror resync`の中でlink:https://docs.netapp.com/us-en/ontap-cli/snapmirror-resync.html#parameters.html["ONTAPコマンド リファレンス"^] 。
+ `snapmirror resync`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/snapmirror-resync.html#parameters.html["ONTAPコマンド リファレンス"^]を参照してください。
 
-. Snapshotの自動削除を無効にした場合は、再度有効にします。
+. スナップショットの自動削除を無効にした場合は、再度有効にします：
 +
 [source, cli]
 ----
@@ -271,24 +271,24 @@ volume snapshot autodelete modify -vserver <SVM> -volume <volume> -enabled true
 ----
 
 
-.終了後
-. コマンドを使用し `snapmirror show`て、SnapMirror関係が作成されたことを確認します。
+.終了後の操作
+.  `snapmirror show`コマンドを使用して、SnapMirror関係が作成されたことを確認します。
 +
-の詳細については `snapmirror show`、をlink:https://docs.netapp.com/us-en/ontap-cli/snapmirror-show.html["ONTAPコマンド リファレンス"^]参照してください。
+ `snapmirror show`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/snapmirror-show.html["ONTAPコマンド リファレンス"^]を参照してください。
 
-. SnapMirror XDPデスティネーションボリュームでSnapMirrorポリシーの定義に従ってSnapshotの更新が開始されたら、ソースクラスタからコマンドの出力を使用し `snapmirror list-destinations`て新しいSnapMirror XDP関係を表示します。
+. SnapMirror XDP デスティネーション ボリュームが SnapMirror ポリシーの定義に従ってスナップショットの更新を開始したら、ソース クラスタからの `snapmirror list-destinations`コマンドの出力を使用して、新しい SnapMirror XDP 関係を表示します。
 
 
-.DPタイフノカンケイニカンスルシヨウサイシヨウホウ
-ONTAP 9.3以降では、XDPモードがデフォルトであり、コマンドラインまたは新規または既存のスクリプトでのDPモードの呼び出しは自動的にXDPモードに変換されます。
+.DP型関係に関する追加情報
+ONTAP 9.3 以降では、XDP モードがデフォルトとなり、コマンド ラインまたは新規または既存のスクリプトでの DP モードの呼び出しはすべて自動的に XDP モードに変換されます。
 
-既存の関係には影響しません。すでにDPタイプの関係は、引き続きDPタイプになります。ONTAP 9.5以降では、データ保護モードを指定しない場合、またはXDPモードを関係タイプとして指定した場合にデフォルトポリシーがMirrorAndVaultになります。次の表は、想定される動作を示しています。
+既存の関係は影響を受けません。関係がすでにDPタイプの場合、引き続きDPタイプのままとなります。ONTAP 9.5以降では、データ保護モードが指定されていない場合、または関係タイプとしてXDPモードが指定されている場合、MirrorAndVaultがデフォルトポリシーとなります。以下の表は、想定される動作を示しています。
 
 [cols="3*"]
 |===
 
 
-| 指定するモード | タイプ | デフォルトポリシー（ポリシーを指定しない場合） 
+| 指定するモード | タイプ | デフォルト ポリシー（ポリシーを指定しない場合） 
 
 
  a| 
@@ -305,7 +305,7 @@ MirrorAllSnapshots（SnapMirror DR）
  a| 
 XDP
  a| 
-MirrorAndVault（ユニファイドレプリケーション）
+MirrorAndVault（ユニファイド レプリケーション）
 
 
 
@@ -314,16 +314,16 @@ XDP
  a| 
 XDP
  a| 
-MirrorAndVault（ユニファイドレプリケーション）
+MirrorAndVault（ユニファイド レプリケーション）
 
 |===
-次の表に示すように、さまざまな状況でXDPに割り当てられたデフォルトポリシーによって、変換時に以前のタイプと同等の機能が維持されます。もちろん、ユニファイドレプリケーションのポリシーなど、必要に応じてさまざまなポリシーを使用できます。
+表に示すように、さまざまな状況でXDPに割り当てられるデフォルトポリシーにより、変換後も以前のタイプとの機能的な同等性が維持されます。もちろん、必要に応じて、統合レプリケーション用のポリシーなど、異なるポリシーを使用することもできます：
 
 [cols="3*"]
 |===
 
 
-| 指定するモード | ポリシー | 結果 
+| 指定するモード | そしてポリシーは… | 結果は… 
 
 
  a| 
@@ -345,7 +345,7 @@ SnapVault
  a| 
 MirrorAndVault
  a| 
-ユニファイドレプリケーション
+ユニファイド レプリケーション
 
 
 
@@ -368,35 +368,35 @@ SnapVault
  a| 
 MirrorAndVault
  a| 
-ユニファイドレプリケーション
+ユニファイド レプリケーション
 
 |===
-変換の例外は次のとおりです。
+以下は例外です。
 
-* ONTAP 9 .3以前のSVMデータ保護関係のデフォルトは引き続きDPモードです。
+* ONTAP 9.3以前のSVMデータ保護関係のデフォルトは引き続きDPモードです。
 +
-ONTAP 9 .4以降では、SVMデータ保護関係のデフォルトがXDPモードに変更されました。
+ONTAP 9.4以降では、SVMデータ保護関係のデフォルトがXDPモードに変更されました。
 
-* ルートボリュームの負荷共有データ保護関係のデフォルトは引き続きDPモードです。
-* ONTAP 9 .4以前のSnapLockデータ保護関係のデフォルトは引き続きDPモードです。
+* ルート ボリュームの負荷共有データ保護関係のデフォルト値は引き続きDPモードです。
+* ONTAP 9.4以前のSnapLockデータ保護関係のデフォルトは引き続きDPモードです。
 +
-XDP 5以降ONTAP 9では、SnapLockデータ保護関係のデフォルトがXDPモードに変更されました。
+ONTAP 9.5以降では、SnapLockデータ保護関係のデフォルトがXDPモードに変更されました。
 
-* 次のクラスタ全体のオプションを設定した場合、DPの明示的な呼び出しは引き続きデフォルトでDPモードになります。
+* 次のクラスタ全体のオプションを設定した場合、DPを明示的に指定した場合のデフォルトは引き続きDPモードです。
 +
 [listing]
 ----
 options replication.create_data_protection_rels.enable on
 ----
 +
-DPを明示的に呼び出さない場合、このオプションは無視されます。
+DPを明示的に指定しない場合、このオプションは無視されます。
 
 
 
 .関連情報
-* link:https://docs.netapp.com/us-en/ontap-cli/snapmirror-create.html["スナップミラー作成"^]
-* link:https://docs.netapp.com/us-en/ontap-cli/snapmirror-delete.html["SnapMirrorの削除"^]
-* link:https://docs.netapp.com/us-en/ontap-cli/snapmirror-quiesce.html["スナップミラーの静止"^]
-* link:https://docs.netapp.com/us-en/ontap-cli/snapmirror-release.html["スナップミラーリリース"^]
+* link:https://docs.netapp.com/us-en/ontap-cli/snapmirror-create.html["snapmirror create"^]
+* link:https://docs.netapp.com/us-en/ontap-cli/snapmirror-delete.html["snapmirror delete"^]
+* link:https://docs.netapp.com/us-en/ontap-cli/snapmirror-quiesce.html["snapmirror quiesce"^]
+* link:https://docs.netapp.com/us-en/ontap-cli/snapmirror-release.html["snapmirror release"^]
 * link:https://docs.netapp.com/us-en/ontap-cli/snapmirror-resync.html["snapmirror resync"^]
 

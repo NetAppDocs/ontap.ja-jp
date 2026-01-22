@@ -4,23 +4,23 @@ sidebar: sidebar
 keywords: ontap, upgrade, after, post, ems, event, management, system, lifs, messages, not, delivered 
 summary: ONTAP 9.7 以前から 9.8 以降にアップグレードした後、EMS を使用している場合は、特定のネットワーク サービス ポリシーから EMS LIF サービスを削除する必要がある場合があります。 
 ---
-= ONTAPのアップグレード後にネットワークサービスポリシーからEMS LIFサービスを削除する
+= ONTAPアップグレード後にネットワーク サービス ポリシーからEMS LIFサービスを削除する
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-ONTAP 9.7 以前から ONTAP 9.8 以降にアップグレードする前にイベント管理システム (EMS) メッセージを設定している場合、アップグレード後に EMS メッセージが配信されない可能性があります。
+ONTAP 9.7以前からONTAP 9.8以降にアップグレードする前にEvent Management System（EMS）メッセージを設定している場合、アップグレード後にEMSメッセージが配信されない可能性があります。
 
-アップグレード中、  `management-ems` EMS LIF サービスである が、管理 SVM 内のすべての既存のサービス ポリシーに追加されます。これにより、サービスポリシーに関連付けられた任意のLIFからEMSメッセージを送信できるようになります。選択したLIFがイベント通知の送信先に到達できない場合、メッセージは配信されません。
+アップグレード中に、EMS LIFサービスである `management-ems`が管理SVMの既存のすべてのサービスポリシーに追加されます。これにより、サービスポリシーに関連付けられている任意のLIFからEMSメッセージを送信できるようになります。選択したLIFがイベント通知の送信先に到達できない場合、メッセージは配信されません。
 
-これを防ぐには、アップグレード後に、宛先への到達可能性を提供しないネットワーク サービス ポリシーから EMS LIF サービスを削除する必要があります。
+これを防ぐには、アップグレード後に、デスティネーションへの到達可能性を提供しないネットワーク サービス ポリシーから EMS LIF サービスを削除する必要があります。
 
-link:../networking/lifs_and_service_policies96.html#service-policies-for-system-svms["ONTAP LIFとサービスポリシーの詳細"]です。
+link:../networking/lifs_and_service_policies96.html#service-policies-for-system-svms["ONTAP LIFとサービス ポリシーの詳細"]。
 
 .手順
-. EMS メッセージを送信できる LIF と関連するネットワーク サービス ポリシーを識別します。
+. EMS メッセージを送信できる LIF と関連するネットワーク サービス ポリシーを識別します：
 +
 [source, cli]
 ----
@@ -37,14 +37,14 @@ cluster-1      node2-mgmt     default-management
 cluster-1      inter_cluster  default-intercluster
 4 entries were displayed.
 ----
-. 各LIFがEMSデスティネーションに接続されているかどうかを確認します。
+. 各LIFでEMS送信先への接続を確認します。
 +
 [source, cli]
 ----
 network ping -lif <lif_name> -vserver <svm_name> -destination <destination_address>
 ----
 +
-各ノードでこの手順を実行します。
+この手順を各ノードで実行します。
 
 +
 .例
@@ -62,16 +62,16 @@ no answer from 10.10.10.10
 ----
 set advanced
 ----
-. 到達可能性のないLIFの場合は、  `management-ems`対応するサービス ポリシーからの LIF サービス:
+. 到達可能性のない LIF については、対応するサービス ポリシーから `management-ems` LIF サービスを削除します。
 +
 [source, cli]
 ----
 network interface service-policy remove-service -vserver <svm_name> -policy <service_policy_name> -service management-ems
 ----
 +
-の詳細については `network interface service-policy remove-service`、をlink:https://docs.netapp.com/us-en/ontap-cli/network-interface-service-policy-remove-service.html["ONTAPコマンド リファレンス"^]参照してください。
+ `network interface service-policy remove-service`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/network-interface-service-policy-remove-service.html["ONTAPコマンド リファレンス"^]を参照してください。
 
-. management-ems LIFが、EMSデスティネーションに到達できるようにするLIFにのみ関連付けられていることを確認します。
+. management-ems LIFが、EMS送信先への接続を提供するLIFにのみ関連付けられていることを確認します。
 +
 [source, cli]
 ----

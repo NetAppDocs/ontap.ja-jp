@@ -2,46 +2,46 @@
 permalink: disks-aggregates/create-flash-pool-aggregate-ssd-storage-task.html 
 sidebar: sidebar 
 keywords: create, flash pool, aggregate, local tier, ssd, storage pool, allocation units 
-summary: SSDストレージプールから既存のHDDローカル階層に1つ以上の割り当て単位を追加することで、Flash Poolローカル階層を設定できます。 
+summary: SSD ストレージ プールから既存の HDD ローカル ティアに 1 つ以上の割り当て単位を追加することで、Flash Pool ローカル ティアを設定できます。 
 ---
-= SSDストレージプールの割り当て単位を使用してONTAP Flash Poolローカル階層を作成する
+= SSD ストレージ プール割り当て単位を使用して ONTAP Flash Pool ローカル層を作成する
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-SSDストレージプールから既存のHDDローカル階層に1つ以上の割り当て単位を追加することで、Flash Poolローカル階層を設定できます。
+SSD ストレージ プールから既存の HDD ローカル ティアに 1 つ以上の割り当て単位を追加することで、Flash Pool ローカル ティアを構成できます。
 
 
-NOTE: ONTAP 9.7より前のバージョンでは、ローカル階層を表すために_aggregate_という用語が使用されていました。ONTAPのバージョンに関係なく、ONTAP CLIでは_aggregate_という用語が使用されます。ローカル階層の詳細については、を参照してくださいlink:../disks-aggregates/index.html["ディスクとローカル階層"]。
+NOTE: ONTAP 9.7より前のバージョンでは、System Managerは_ローカル階層_を説明するために_aggregate_という用語を使用しています。ONTAPバージョンに関係なく、ONTAP CLIでは_aggregate_という用語が使用されます。ローカル階層の詳細については、link:../disks-aggregates/index.html["ディスクとローカル階層"]を参照してください。
 
-12.1以降では、再設計されたSystem Managerを使用して、ストレージプールの割り当て単位を使用してONTAP 9ローカル階層を作成できます。
+ONTAP 9.12.1以降では、新しくなったSystem Managerで、ストレージ プールの割り当て単位を使用してFlash Poolローカル階層を作成できます。
 
 .開始する前に
 * Flash Poolローカル階層に変換する、HDDで構成された有効なローカル階層を特定しておく必要があります。
 * ローカル階層に関連付けられたボリュームが書き込みキャッシュに対応しているかどうかを確認し、対応していない場合は必要な手順を実行して問題を解決しておく必要があります。
-* このFlash Poolローカル階層にSSDキャッシュを提供するSSDストレージプールを作成しておく必要があります。
+* このFlash Poolローカル階層にSSDキャッシュを提供するためのSSDストレージ プールを作成しておく必要があります。
 +
-使用するストレージプールの割り当て単位は、Flash Poolローカル階層の所有者ノードに所有されている必要があります。
+使用するストレージ プールのすべての割り当て単位が、Flash Poolローカル階層の所有者であるノードに所有されている必要があります。
 
 * ローカル階層に追加するキャッシュの容量を決めておく必要があります。
 +
-ローカル階層にキャッシュを追加するには、割り当て単位を使用します。ストレージプールに余裕がある場合は、ストレージプールにSSDを追加することで、割り当て単位のサイズをあとから拡張できます。
+ローカル階層にキャッシュを追加するには、割り当て単位を使用します。ストレージ プールに余裕がある場合は、ストレージ プールにSSDを追加することによって割り当て単位のサイズをあとから拡張できます。
 
-* SSDキャッシュに使用するRAIDタイプを決めておく必要があります。
+* SSDキャッシュで使用するRAIDタイプを決めておく必要があります。
 +
-SSDストレージプールからローカル階層にキャッシュを追加したあとに、キャッシュRAIDグループのRAIDタイプを変更することはできません。
+SSDストレージ プールからローカル階層にキャッシュを追加したあとで、キャッシュRAIDグループのRAIDタイプを変更することはできません。
 
 * システムの最大キャッシュ サイズを決めて、ローカル階層にSSDキャッシュを追加してもそのサイズを超えないことを確認しておく必要があります。
 +
-合計キャッシュサイズに追加されるキャッシュの量は、コマンドを使用して確認できます `storage pool show`。
+ `storage pool show`コマンドを使用すると、合計キャッシュ サイズに追加されるキャッシュの量を確認できます。
 
 * Flash Poolローカル階層の構成要件を確認しておく必要があります。
 
 
-.タスクの内容
-キャッシュのRAIDタイプをHDD RAIDグループと異なるタイプにする場合は、SSDの容量を追加するときにキャッシュのRAIDタイプを指定する必要があります。ローカル階層にSSDの容量を追加したあとで、キャッシュのRAIDタイプを変更することはできません。
+.タスク概要
+キャッシュのRAIDタイプを、HDD RAIDグループと異なるタイプにする場合は、SSDの容量を追加するときにキャッシュのRAIDタイプを指定する必要があります。ローカル階層にSSDの容量を追加したあとで、キャッシュのRAIDタイプを変更することはできません。
 
 ローカル階層にSSDキャッシュを追加してFlash Poolローカル階層を作成したあとで、SSDキャッシュを削除してローカル階層を元の構成に戻すことはできません。
 
@@ -49,65 +49,65 @@ SSDストレージプールからローカル階層にキャッシュを追加�
 ====
 .System Manager
 --
-ONTAP 9 12.1以降では、System Managerを使用してSSDストレージプールにSSDを追加できます。
+ONTAP 9.12.1以降では、System Managerを使用してSSDストレージ プールにSSDを追加できます。
 
 .手順
-. [*ストレージ>階層*]をクリックし、既存のローカルHDDストレージ階層を選択します。
-. をクリック image:icon_kabob.gif["メニューオプションアイコン"] し、*[Flash Poolキャッシュの追加]*を選択します。
-. ［*ストレージプールを使用する*］を選択します。
-. ストレージプールを選択します。
-. キャッシュサイズとRAID構成を選択します。
-. [ 保存（ Save ） ] をクリックします。
-. ストレージ層を再度見つけてクリックしますimage:icon_kabob.gif["メニューオプションアイコン"]
-. 「* More Details」を選択し、Flash Poolの表示が「* Enabled」になっていることを確認します。
+. *ストレージ > 階層* をクリックし、既存のローカル HDD ストレージ階層を選択します。
+. image:icon_kabob.gif["メニューオプションアイコン"]をクリックして、*Flash Pool Cache の追加*を選択します。
+. *ストレージ プールを使用する*を選択します。
+. ストレージ プールを選択します。
+. キャッシュ サイズとRAID構成を選択します。
+. *保存*をクリックします。
+. ストレージ層を再度見つけてimage:icon_kabob.gif["メニューオプションアイコン"]をクリックします
+. *More Details* を選択し、Flash Pool が *Enabled* と表示されていることを確認します。
 
 
 --
 .CLI
 --
 .手順
-. ローカル階層をFlash Poolローカル階層の対象としてマークします。
+. ローカル ティアを Flash Pool ローカル ティアになる資格があるものとしてマークします：
 +
 `storage aggregate modify -aggregate _aggr_name_ -hybrid-enabled true`
 
 +
-この手順が失敗した場合は、ターゲットのローカル階層が書き込みキャッシュに対応しているかどうかを確認します。
+この手順が成功しない場合は、ターゲットのローカル層の書き込みキャッシュの適格性を判断します。
 
-. 使用可能なSSDストレージプールの割り当て単位を表示します。
+. 使用可能なSSDストレージ プールの割り当て単位を表示します。
 +
 `storage pool show-available-capacity`
 
-. ローカル階層にSSDの容量を追加します。
+. ローカル層に SSD 容量を追加します：
 +
 `storage aggregate add _aggr_name_ -storage-pool _sp_name_ -allocation-units _number_of_units_`
 
 +
-キャッシュのRAIDタイプをHDD RAIDグループと異なるタイプにする場合は、このコマンドの入力時にパラメータを使用して変更する必要があります `raidtype`。
+キャッシュの RAID タイプを HDD RAID グループの RAID タイプと異なるものにしたい場合は、このコマンドを入力するときに `raidtype` パラメータを使用して変更する必要があります。
 
 +
 新しいRAIDグループを指定する必要はありません。ONTAPでは、HDD RAIDグループとは別のRAIDグループにSSDキャッシュが自動的に配置されます。
 
 +
-キャッシュのRAIDグループサイズは設定できません。このサイズは、ストレージプール内のSSDの数によって決まります。
+キャッシュのRAIDグループ サイズを設定することはできません。このサイズは、ストレージ プール内のSSDの数によって決まります。
 
 +
-キャッシュがローカル階層に追加され、ローカル階層がFlash Poolローカル階層になります。ローカル階層に追加された各割り当て単位は、それぞれ独自のRAIDグループになります。
+キャッシュがローカル層に追加され、ローカル層はFlash Poolのローカル層になります。ローカル層に追加された各割り当て単位は、それぞれ独自のRAIDグループになります。
 
-. SSDキャッシュが存在することとサイズを確認します。
+. SSDキャッシュが存在すること、およびそのサイズを確認します。
 +
 `storage aggregate show _aggregate_name_`
 
 +
-キャッシュのサイズは、に表示され `Total Hybrid Cache Size`ます。
+キャッシュのサイズは `Total Hybrid Cache Size`の下に表示されます。
 
 
 
 --
 ====
 .関連情報
-* https://www.netapp.com/pdf.html?item=/media/19681-tr-4070.pdf["NetAppテクニカルレポート4070：『Flash Pool Design and Implementation Guide』"^]
-* link:https://docs.netapp.com/us-en/ontap-cli/search.html?q=storage+aggregate+add["ストレージアグリゲートの追加"^]
+* https://www.netapp.com/pdf.html?item=/media/19681-tr-4070.pdf["NetAppテクニカル レポート4070：『Flash Pool Design and Implementation Guide』"^]
+* link:https://docs.netapp.com/us-en/ontap-cli/search.html?q=storage+aggregate+add["ストレージアグリゲート追加"^]
 * link:https://docs.netapp.com/us-en/ontap-cli/storage-aggregate-modify.html["storage aggregate modify"^]
-* link:https://docs.netapp.com/us-en/ontap-cli/storage-pool-show.html["ストレージプールショー"^]
-* link:https://docs.netapp.com/us-en/ontap-cli/storage-pool-show-available-capacity.html["ストレージプールの利用可能な容量の表示"^]
+* link:https://docs.netapp.com/us-en/ontap-cli/storage-pool-show.html["ストレージプールの表示"^]
+* link:https://docs.netapp.com/us-en/ontap-cli/storage-pool-show-available-capacity.html["storage pool show-available-capacity"^]
 

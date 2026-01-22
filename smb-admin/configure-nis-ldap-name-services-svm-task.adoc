@@ -2,31 +2,31 @@
 permalink: smb-admin/configure-nis-ldap-name-services-svm-task.html 
 sidebar: sidebar 
 keywords: smb, access, map, unix, user, perform, data, ntfs, security-style, volume, windows, correspond, unix, information, nis, ldap, directory, store, name, configure nis or ldap name services on the svm 
-summary: SMBアクセスでは、NTFSセキュリティ形式のボリューム内のデータにアクセスする場合でも、UNIXユーザへのユーザマッピングが常に実行されます。NISまたはLDAPディレクトリストアに情報が格納されているUNIXユーザにWindowsユーザをマッピングする場合や、ネームマッピングにLDAPを使用する場合は、SMBのセットアップ時にこれらのネームサービスを設定する必要があります。 
+summary: SMBアクセスでは、NTFSセキュリティ形式のボリューム内のデータにアクセスする場合でも、UNIXユーザへのユーザ マッピングが常に実行されます。NISまたはLDAPディレクトリ ストアにその情報が格納されているUNIXユーザにWindowsユーザをマッピングする場合や、ネーム マッピングにLDAPを使用する場合は、SMBのセットアップ時にこのネーム サービスを設定する必要があります。 
 ---
-= ONTAP SMB SVMでのNISまたはLDAPネームサービスの設定
+= ONTAP SMB SVMでNISまたはLDAPネームサービスを設定する
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-SMBアクセスでは、NTFSセキュリティ形式のボリューム内のデータにアクセスする場合でも、UNIXユーザへのユーザマッピングが常に実行されます。NISまたはLDAPディレクトリストアに情報が格納されているUNIXユーザにWindowsユーザをマッピングする場合や、ネームマッピングにLDAPを使用する場合は、SMBのセットアップ時にこれらのネームサービスを設定する必要があります。
+SMBアクセスでは、NTFSセキュリティ形式のボリューム内のデータにアクセスする場合でも、UNIXユーザへのユーザ マッピングが常に実行されます。NISまたはLDAPディレクトリ ストアにその情報が格納されているUNIXユーザにWindowsユーザをマッピングする場合や、ネーム マッピングにLDAPを使用する場合は、SMBのセットアップ時にこのネーム サービスを設定する必要があります。
 
 .開始する前に
-ネームサービスインフラに合わせてネームサービスデータベース設定をカスタマイズしておく必要があります。
+ネーム サービスのデータベース設定をネーム サービス インフラに合わせてカスタマイズしておく必要があります。
 
-.タスクの内容
-SVMは、ネームサービスns-switchデータベースを使用して、指定されたネームサービスデータベースを検索するソースの順序を決定します。ns-switchソースには、、 `nis`、または `ldap`を任意に組み合わせて指定できます `files`。グループデータベースの場合、ONTAPは設定されているすべてのソースからグループメンバーシップを取得しようとし、統合されたグループメンバーシップ情報をアクセスチェックに使用します。UNIXグループ情報の取得時にこれらのソースのいずれかが使用できないと、ONTAPは完全なUNIXクレデンシャルを取得できず、以降のアクセスチェックが失敗することがあります。そのため、ns-switch設定でグループデータベースのすべてのns-switchソースが設定されていることを常に確認する必要があります。
+.タスク概要
+SVMは、ネーム サービスのns-switchデータベースを使用して、特定のネーム サービス データベースのソースを検索する順序を決定します。ns-switchソースは `files`、 `nis`、または `ldap`の任意の組み合わせにすることができます。グループ データベースの場合、ONTAPは設定されているすべてのソースからグループ メンバーシップの取得を試み、統合されたグループ メンバーシップ情報を使用してアクセス チェックを行います。UNIXグループ情報の取得時にこれらのソースのいずれかが利用できない場合、ONTAPは完全なUNIXクレデンシャルを取得できず、後続のアクセス チェックが失敗する可能性があります。したがって、ns-switch設定でグループ データベースのすべてのns-switchソースが設定されていることを常に確認する必要があります。
 
-デフォルトでは、SMBサーバは、すべてのWindowsユーザをローカルデータベースに格納されているデフォルトのUNIXユーザにマッピングし `passwd`ます。デフォルトの設定を使用する場合、SMBアクセスに対するNISまたはLDAP UNIXユーザおよびグループのネームサービスまたはLDAPユーザマッピングの設定はオプションです。
+デフォルトでは、SMBサーバーはすべてのWindowsユーザーを、ローカル `passwd`データベースに保存されているデフォルトのUNIXユーザーにマッピングします。デフォルトの設定を使用する場合、SMBアクセス用にNISまたはLDAP UNIXユーザーおよびグループネームサービス、またはLDAPユーザーマッピングを設定することはオプションです。
 
 .手順
-. UNIXユーザ、グループ、およびネットグループ情報がNISネームサービスによって管理されている場合は、NISネームサービスを次のように設定します。
+. UNIXユーザ、グループ、ネットグループ情報がNISネーム サービスによって管理されている場合、NISネーム サービスを次のように設定します。
 +
-.. コマンドを使用して、ネームサービスの現在の順番を確認します `vserver services name-service ns-switch show`。
+..  `vserver services name-service ns-switch show`コマンドを使用して、名前サービスの現在の順序を確認します。
 +
-この例では、ネームサービスソースとして使用できる3つのデータベース(`group`、 `passwd`および `netgroup`） `nis`がソースとしてのみを使用しています `files`。
+この例では、 `nis`をネーム サービス ソースとして使用できる 3 つのデータベース（(`group`、 `passwd`、 `netgroup`）は、 `files`のみをソースとして使用しています。
 
 +
 `vserver services name-service ns-switch show -vserver vs1`
@@ -46,22 +46,22 @@ vs1             netgroup       true            files
 vs1             namemap        true            files
 ----
 +
-ソースを `group`データベースと `passwd`データベースに追加する必要があります。必要に応じてデータベースにも `netgroup`追加できます `nis`。
+ `nis`ソースを `group`および `passwd`データベースに追加し、オプションで `netgroup`データベースに追加する必要があります。
 
-.. コマンドを使用して、ネームサービスns-switchデータベースを必要な順番に調整します `vserver services name-service ns-switch modify`。
+..  `vserver services name-service ns-switch modify`コマンドを使用して、名前サービスns-switchデータベースの順序を必要に応じて調整します。
 +
-パフォーマンスを最大限に高めるには、SVMで設定する予定でないネームサービスデータベースにネームサービスを追加しないでください。
-
-+
-複数のネームサービスデータベースの設定を変更する場合は、変更する各ネームサービスデータベースに対して個別にコマンドを実行する必要があります。
+パフォーマンスを最大にするためには、SVMに設定する予定のないネーム サービス データベースにはネーム サービスを追加しないでください。
 
 +
-この例では、 `nis`および `files`がデータベースおよび `passwd`のソースとしてこの順序で設定されてい `group`ます。残りのネームサービスデータベースは変更されません。
+複数のネーム サービス データベースの設定を変更する場合、変更するそれぞれのネーム サービス データベースに対して別々にコマンドを実行する必要があります。
+
++
+この例では、 `nis`と `files`が、この順序で `group`と `passwd`のデータベースのソースとして設定されています。残りのネームサービスデータベースは変更されません。
 
 +
 `vserver services name-service ns-switch modify -vserver vs1 -database group -sources nis,files` `vserver services name-service ns-switch modify -vserver vs1 -database passwd -sources nis,files`
 
-.. コマンドを使用して、ネームサービスの順序が正しいことを確認し `vserver services name-service ns-switch show`ます。
+..  `vserver services name-service ns-switch show`コマンドを使用して、ネームサービスの順序が正しいことを確認します。
 +
 `vserver services name-service ns-switch show -vserver vs1`
 
@@ -81,7 +81,7 @@ vs1             passwd         true            nis,
 vs1             netgroup       true            files
 vs1             namemap        true            files
 ----
-.. NISネームサービス設定を作成します。+
+.. NIS ネームサービス設定を作成します：+
 `vserver services name-service nis-domain create -vserver <vserver_name> -domain <NIS_domain_name> -servers <NIS_server_IPaddress>,...`
 +
 `vserver services name-service nis-domain create -vserver vs1 -domain example.com -servers 10.0.0.60`
@@ -89,10 +89,10 @@ vs1             namemap        true            files
 +
 [NOTE]
 ====
-、NIS サーバーのホスト名または IP アドレスのいずれかを指定できます。
+フィールド `-nis-servers`がフィールド `-servers`に置き換えられました。このフィールドには、NISサーバーのホスト名またはIPアドレスのいずれかを指定できます。
 
 ====
-.. NISネームサービスが適切に設定されていることを確認します。 `vserver services name-service nis-domain show vserver <vserver_name>`
+.. NIS ネーム サービスが正しく設定されていることを確認します： `vserver services name-service nis-domain show vserver <vserver_name>`
 +
 `vserver services name-service nis-domain show vserver vs1`
 
@@ -106,5 +106,5 @@ vs1           example.com         10.0.0.60
 ----
 
 
-. UNIXユーザ、グループ、ネットグループ情報またはネームマッピングがLDAPネームサービスによって管理されている場合は、場所にある情報を使用してLDAPネームサービスを設定しますlink:../nfs-admin/index.html["NFSの管理"]。
+. UNIX ユーザー、グループ、およびネットグループの情報または名前のマッピングが LDAP ネーム サービスによって管理されている場合は、link:../nfs-admin/index.html["NFSの管理"]にある情報を使用して LDAP ネーム サービスを構成します。
 

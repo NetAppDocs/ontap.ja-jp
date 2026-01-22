@@ -2,9 +2,9 @@
 sidebar: sidebar 
 permalink: software_setup/setup-cluster.html 
 keywords: install, installing, cluster, set up, setup, configure, disk, data ports, guided setup, local tiers, aggregate, vserver, volume, configuring ONTAP on a new cluster, configuring a new cluster, assign a node-management IP address, node, DNS server, host name, hostname, NTP server, synchronize time, create a local tier, configure protocol, SSD, provision storage, add LUN, add volume, add namespace, volume, vserver, configure ONTAP on a new cluster, configuration 
-summary: System Managerのシンプルで簡単なワークフローを使用して、クラスタのセットアップとストレージの設定を行うことができます。 
+summary: System Managerのシンプルなワークフローを使用して、クラスタをセットアップし、ストレージを設定することができます。 
 ---
-= ONTAPクラスタを作成してノードを追加
+= ONTAPクラスタを作成してノードを追加する
 :hardbreaks:
 :toclevels: 1
 :allow-uri-read: 
@@ -16,24 +16,24 @@ summary: System Managerのシンプルで簡単なワークフローを使用し
 
 
 [role="lead"]
-NetAppでは、System Managerを使用して新しいクラスタを作成することを推奨しています。System Managerでは、クラスタセットアップのワークフローをシンプルかつ簡単に実行できます。ONTAPコマンドラインインターフェイス（CLI）を使用する必要があるのは、MetroCluster構成でONTAP 9.7以前を実行している場合、または特定のプラットフォームでIPv6のみのクラスタを設定する必要がある場合のみです。
+NetAppでは、新しいクラスタを作成する際にSystem Managerを使用することを推奨しています。System Managerは、クラスタのセットアップのためのシンプルで簡単なワークフローを提供します。ONTAPコマンドラインインターフェイス（CLI）を使用する必要があるのは、MetroCluster構成でONTAP 9.7以前を実行している場合、または特定のプラットフォームでIPv6専用クラスタを設定する必要がある場合のみです。
 
-.タスクの内容
-この手順は以下に適用されます link:https://docs.netapp.com/us-en/ontap-systems-family/index.html["AFF、 ASA FAS"^] そして link:https://docs.netapp.com/us-en/ontap-afx/index.html["AFXシステム"^]。ASA r2システム（ASA A1K、 ASA A90、 ASA A70、 ASA A50、 ASA A30、 ASA A20、またはASA C30）をお持ちの場合は、 link:https://docs.netapp.com/us-en/asa-r2/install-setup/initialize-ontap-cluster.html["以下の手順を実行します"^] System Manger を使用してONTAPクラスタをセットアップします。ASA r2 システムは、SAN のみのお客様向けに簡素化されたONTAPエクスペリエンスを提供します。
+.タスク概要
+この手順はlink:https://docs.netapp.com/us-en/ontap-systems-family/index.html["AFF、ASA FAS"^]およびlink:https://docs.netapp.com/us-en/ontap-afx/index.html["AFXシステム"^]に適用されます。ASA r2システム（ASA A1K、ASA A90、ASA A70、ASA A50、ASA A30、ASA A20、またはASA C30）がある場合は、link:https://docs.netapp.com/us-en/asa-r2/install-setup/initialize-ontap-cluster.html["これらの手順"^]に従ってSystem ManagerでONTAPクラスタをセットアップしてください。ASA r2システムは、SANのみのお客様向けに簡素化されたONTAPエクスペリエンスを提供します。
 
-ONTAP 9.13.1以降では、ONTAP CLIを使用したクラスタの初期セットアップ時に、AFF A800およびFAS8700プラットフォームの管理LIFにIPv6アドレスを割り当てることができます。ONTAP 9.13.1より前のONTAPリリース、または他のプラットフォームのONTAP 9.13.1以降の場合は、System Managerを使用してIPv4アドレスを使用してクラスタを作成し、クラスタのセットアップ完了後にアドレスを使用してクラスタを作成する必要がありますlink:convert-ipv4-to-ipv6-task.html["IPv6に変換します"]。
+ONTAP 9.13.1以降では、ONTAP CLIを使用したクラスタの初期セットアップ時に、AFF A800およびFAS8700プラットフォーム上の管理LIFにIPv6アドレスを割り当てることができます。ONTAP 9.13.1より前のONTAPリリース、または他のプラットフォーム上のONTAP 9.13.1以降の場合は、System Managerを使用してIPv4アドレスでクラスタを作成し、クラスタのセットアップが完了した後にlink:convert-ipv4-to-ipv6-task.html["IPv6に変換する"]アドレスを割り当てる必要があります。
 
 
-NOTE: System Manager 9.6以前のONTAPでは、IPv6ネットワークを必要とする環境はサポートされません。
+NOTE: System Manager は ONTAP 9.6 以前で IPv6 ネットワークを必要とする導入をサポートしていません。
 
 .開始する前に
-* プラットフォームモデルの設置とセットアップの手順に従って、新しいストレージシステムを設置し、ケーブル接続して電源をオンにしておく必要があります。
+* プラットフォーム モデルのインストールおよびセットアップ手順に従って、新しいストレージ システムをインストールし、ケーブル接続し、電源をオンにしておく必要があります。
 +
-を参照してくださいlink:https://docs.netapp.com/us-en/ontap-systems/index.html["AFFおよびFASのドキュメント"^]。
+link:https://docs.netapp.com/us-en/ontap-systems/index.html["AFF および FAS ドキュメント"^]を参照してください。
 
-* link:gather_cluster_setup_information.html["必要な情報の収集"]をクリックしてクラスタセットアップを完了します。
-* クラスタ内通信用に、クラスタの各ノードにクラスタネットワークインターフェイスが設定されている必要があります。
-* CLIを使用してIPv6を設定する場合は、ベース管理コントローラ（BMC）でIPv6を設定して、SSHを使用してシステムにアクセスできるようにする必要があります。
+* link:gather_cluster_setup_information.html["必要な情報を収集する"]を使用してクラスタのセットアップを完了します。
+* クラスタの各ノードにクラスタ内通信用のクラスタ ネットワーク インターフェイスが設定されている必要があります。
+* CLI を使用して IPv6 を設定する場合は、SSH を使用してシステムにアクセスできるように、ベースマネジメントコントローラ（BMC）で IPv6 を設定する必要があります。
 
 
 .手順
@@ -41,56 +41,56 @@ NOTE: System Manager 9.6以前のONTAPでは、IPv6ネットワークを必要�
 ====
 .System Manager
 --
-. ノード管理IPアドレスを割り当てる
+. ノード管理IPアドレスの割り当て
 +
 ** Windowsコンピュータ
 +
-... Windowsコンピュータをコントローラと同じサブネットに接続します。
+... Windows コンピューターをコントローラーと同じサブネットに接続します。
 +
-これにより、システムにノード管理IPアドレスが自動的に割り当てられます。
+これにより、ノード管理 IP アドレスがシステムに自動的に割り当てられます。
 
-... [ネットワーク]*ドライブを開き、ノードを検出します。
-... クラスタセットアップウィザードを起動するノードを選択します。
+... *ネットワーク* ドライブを開いてノードを検出します。
+... ノードを選択して、クラスタ セットアップ ウィザードを起動します。
 
 
-** Windows以外のコンピュータ
+** Windows以外のコンピューター
 +
 ... クラスタに追加するすべてのノードの電源をオンにします。
 +
 これは、クラスタセットアップの検出を有効にするために必要です。
 
-... 最初のノードのコンソールに接続します。
+... 第1ノードのコンソールに接続します。
 +
-ノードがブートし、クラスタセットアップウィザードがコンソール上で起動されます。
+ノードがブートし、クラスタ セットアップ ウィザードがコンソール上で起動されます。
 
 +
 [listing]
 ----
 Welcome to the cluster setup wizard....
 ----
-... AutoSupportステートメントを確認します。
+... AutoSupportのステートメントを承認します。
 +
 [listing]
 ----
 Type yes to confirm and continue {yes}: yes
 ----
 +
-AutoSupportはデフォルトで有効になっています。
+AutoSupportはデフォルトでは有効になります。
 
 ... 画面の指示に従って、ノードに管理IPアドレスを割り当てます。
-... Webブラウザで、設定したノード管理IPアドレスを入力します"https://node-management-IP"[]。
+... Web ブラウザで、設定したノード管理 IP アドレスを入力します："https://node-management-IP"[]
 +
-クラスタの残りのノードはSystem Managerで自動的に検出されます。
+クラスタの残りのノードは自動的に検出されます。
 
 
 
 
 
-. [ストレージシステムの初期化]*で、クラスタ名と管理パスワードを入力します。
-. [ネットワーク]*で、クラスタ管理IPアドレス、サブネットマスク、およびゲートウェイを入力します。
-. ドメインネームサービスを使用してホスト名を解決する場合は、*[ドメインネームサービス（DNS）を使用]*を選択し、DNSサーバ情報を入力します。
-. ネットワークタイムプロトコル（NTP）を使用してクラスタ全体の時間の同期を維持する場合は、*[その他]*で*[タイムサービス（NTP）を使用する]*を選択し、NTPサーバの情報を入力します。
-. [ 送信 ] を選択します。
+. *ストレージ システムの初期化* で、クラスタ名と管理パスワードを入力します。
+. *ネットワーク*で、クラスタ管理IPアドレス、サブネットマスク、ゲートウェイを入力します。
+. ドメイン ネーム サービスを使用してホスト名を解決する場合は、*ドメイン ネーム サービス（DNS）を使用する*を選択し、DNS サーバー情報を入力します。
+. ネットワーク タイム プロトコル（NTP）を使用してクラスター全体の時刻を同期する場合は、［その他］で［タイム サービス（NTP）を使用する］を選択し、NTP サーバー情報を入力します。
+. *Submit*を選択します。
 
 
 --
@@ -98,43 +98,43 @@ AutoSupportはデフォルトで有効になっています。
 --
 . クラスタに追加するすべてのノードの電源をオンにします。
 +
-これは、クラスタセットアップの検出を有効にするために必要です。
+この作業はクラスタ セットアップで検出を可能にするために必要です。
 
-. 最初のノードのコンソールに接続します。
+. 第1ノードのコンソールに接続します。
 +
-ノードがブートし、クラスタセットアップウィザードがコンソール上で起動されます。
+ノードがブートし、クラスタ セットアップ ウィザードがコンソール上で起動されます。
 
 +
 [listing]
 ----
 Welcome to the cluster setup wizard....
 ----
-. AutoSupportステートメントを確認します。
+. AutoSupportのステートメントを承認します。
 +
 [listing]
 ----
 Type yes to confirm and continue {yes}: yes
 ----
 +
-AutoSupportはデフォルトで有効になっています。
+AutoSupportはデフォルトでは有効になります。
 
 . 画面の指示に従って、ノードに管理IPアドレスを割り当てます。
 +
-ONTAP 9.13.1以降では、A800およびFAS8700プラットフォームの管理LIFにIPv6アドレスを割り当てることができます。9.13.1より前のONTAPリリースまたは他のプラットフォームの9.13.1以降では、管理LIFにIPv4アドレスを割り当て、クラスタのセットアップ完了後にIPv6に変換する必要があります。
+ONTAP 9.13.1以降では、A800およびFAS8700プラットフォーム上の管理LIFにIPv6アドレスを割り当てることができます。ONTAP 9.13.1より前のリリース、または他のプラットフォーム上の9.13.1以降では、管理LIFにIPv4アドレスを割り当て、クラスタのセットアップ完了後にIPv6に変換する必要があります。
 
-. Enter * を押して続行します。
+. 続行するには *Enter* を押してください。
 +
 [listing]
 ----
 Do you want to create a new cluster or join an existing cluster? {create, join}:
 ----
-. 新しいクラスタを作成します。
+. 新しいクラスタを作成します：
 +
 .. 入力 `create`
 .. システムのデフォルトを受け入れるか、独自の値を入力します。
-.. セットアップが完了したら、クラスタにログインし、クラスタがアクティブで、第1ノードが正常であることを確認します。 `cluster show`
+.. セットアップが完了したら、クラスターにログインし、クラスターがアクティブであり、最初のノードが正常であることを確認します： `cluster show`
 +
-次の例は、最初のノード（cluster1-01）が正常に機能しており、参加条件を満たしているクラスタを示しています。
+次の例では、クラスタとその第1ノード（cluster1-01）が健全で、クラスタへの参加条件を満たしていることを示しています。
 
 +
 [listing]
@@ -145,31 +145,31 @@ Node                  Health  Eligibility
 cluster1-01           true    true
 ----
 +
-必要に応じて、コマンドを使用してクラスタセットアップウィザードにアクセスし、管理SVMまたはノードSVMに対して入力した値を変更できます `cluster setup`。
+必要に応じて、 `cluster setup`コマンドを使用してクラスタ セットアップ ウィザードにアクセスし、管理 SVM またはノード SVM に入力した値を変更できます。
 
 
 
-. クラスタにノードを追加します。
+. ノードをクラスタに追加します：
 +
-一度に1つのノードをクラスタに追加できます。次のノードの追加を開始するには、各ノードの追加処理を完了し、そのノードがクラスタに属している必要があります。
+一度に1つのノードをクラスタに追加できます。各ノードの追加処理を完了し、次のノードの追加を開始する前に、そのノードがクラスタの一部である必要があります。
 
 +
-NL-SASドライブを最大24本搭載したFAS2720では、パフォーマンスを最適化するために、ストレージのデフォルト構成がアクティブ / パッシブに設定されていることを確認する必要があります。詳細については、のドキュメントを参照してください link:../disks-aggregates/setup-active-passive-config-root-data-task.html["ルート/データパーティショニングを使用するノードでのアクティブ/パッシブ構成の設定"]。
+FAS2720に搭載されているNL-SASドライブが24台以下の場合は、パフォーマンスを最適化するために、ストレージ構成のデフォルトがアクティブ / パッシブに設定されていることを確認してください。詳細については、link:../disks-aggregates/setup-active-passive-config-root-data-task.html["ルートデータパーティショニングを使用してノードにアクティブ / パッシブ構成を設定する"]のドキュメントをご覧ください。
 
 +
 .. クラスタに追加するノードにログインします。
 +
-コンソールでクラスタセットアップウィザードが起動します。
+コンソールでクラスタ セットアップ ウィザードが起動します。
 
 +
 [listing]
 ----
 Welcome to the cluster setup wizard....
 ----
-.. AutoSupportステートメントを確認します。
+.. AutoSupportのステートメントを承認します。
 +
 
-NOTE: AutoSupportはデフォルトで有効になっています。
+NOTE: AutoSupportはデフォルトでは有効になります。
 
 
 
@@ -179,11 +179,11 @@ NOTE: AutoSupportはデフォルトで有効になっています。
 Type yes to confirm and continue {yes}: yes
 ----
 +
-.. 画面の指示に従って、ノードにIPアドレスを割り当てます。
+.. 画面の指示に従ってノードにIPアドレスを割り当てます。
 +
-ONTAP 9.13.1以降では、A800およびFAS8700プラットフォームの管理LIFにIPv6アドレスを割り当てることができます。9.13.1より前のONTAPリリースまたは他のプラットフォームの9.13.1以降では、管理LIFにIPv4アドレスを割り当て、クラスタのセットアップ完了後にIPv6に変換する必要があります。
+ONTAP 9.13.1以降では、A800およびFAS8700プラットフォーム上の管理LIFにIPv6アドレスを割り当てることができます。ONTAP 9.13.1より前のリリース、または他のプラットフォーム上の9.13.1以降では、管理LIFにIPv4アドレスを割り当て、クラスタのセットアップ完了後にIPv6に変換する必要があります。
 
-.. Enter * を押して続行します。
+.. 続行するには *Enter* を押してください。
 +
 [listing]
 ----
@@ -191,7 +191,7 @@ Do you want to create a new cluster or join an existing cluster? {create, join}:
 ----
 .. 入力 `join`
 .. 画面の指示に従ってノードをセットアップし、クラスタに追加します。
-.. セットアップが完了したら、ノードが正常に機能しており、クラスタへの参加条件を満たしていることを確認します。 `cluster show`
+.. セットアップが完了したら、ノードが正常であり、クラスターに参加する資格があることを確認します： `cluster show`
 +
 次の例は、2つ目のノード（cluster1-02）をクラスタに追加したあとのクラスタを示しています。
 
@@ -206,12 +206,12 @@ cluster1-02           true    true
 ----
 
 
-. 手順7を繰り返して、残りの各ノードを追加します。
+. 残りの各ノードを追加するには、手順 7 を繰り返します。
 
 
 --
 ====
-.次のステップ
-* 必要に応じて、link:convert-ipv4-to-ipv6-task.html["IPv4からIPv6に変換します"]
-* link:task_check_cluster_with_config_advisor.html["Active IQ Config Advisorを実行して構成を検証し、一般的な構成エラーがないかどうかを確認"]です。
+.次の手順
+* 必要であれば、link:convert-ipv4-to-ipv6-task.html["IPv4からIPv6に変換する"]。
+* link:task_check_cluster_with_config_advisor.html["Active IQ Config Advisorを実行して構成を検証し、一般的な構成エラーをチェックします。"]。
 

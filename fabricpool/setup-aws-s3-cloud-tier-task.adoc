@@ -2,50 +2,50 @@
 permalink: fabricpool/setup-aws-s3-cloud-tier-task.html 
 sidebar: sidebar 
 keywords: setting up, aws, s3, cloud tier 
-summary: FabricPoolのクラウド層として Amazon S3 を設定できます。ONTAP 9.5以降を実行している場合は、Amazon Commercial Cloud Services（C2S）をFabricPool用にセットアップできます。 
+summary: Amazon S3 を FabricPool のクラウド階層として設定できます。ONTAP 9.5 以降を実行している場合は、FabricPool 用に Amazon Commercial Cloud Services（C2S）を設定できます。 
 ---
-= Amazon S3をONTAP FabricPoolクラウド階層としてセットアップする
+= Amazon S3 を ONTAP FabricPool クラウド階層として設定する
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-FabricPoolのクラウド層として Amazon S3 を設定できます。ONTAP 9.5以降を実行している場合は、Amazon Commercial Cloud Services（C2S）をFabricPool用にセットアップできます。
+Amazon S3 を FabricPool のクラウド階層として設定できます。ONTAP 9.5 以降を実行している場合は、FabricPool 用に Amazon Commercial Cloud Services（C2S）を設定できます。
 
 .FabricPoolでAmazon S3を使用する場合の考慮事項
-* あlink:https://console.netapp.com/cloud-tiering["NetAppクラウド階層化ライセンス"]Amazon S3 に階層化する場合必要です。
-* ONTAPがAmazon S3オブジェクトサーバとの接続に使用するLIFは10Gbpsポートに配置することを推奨します。
-* AFFシステム、FASシステム、およびONTAP Selectでは、FabricPoolで次のAmazon S3ストレージクラスがサポートされます。
+* Amazon S3 への階層化にはlink:https://console.netapp.com/cloud-tiering["NetApp Cloud Tieringライセンス"]が必要です。
+* ONTAPがAmazon S3オブジェクト サーバとの接続に使用するLIFは10Gbpsポート上に配置することを推奨します。
+* AFFシステム、FASシステム、およびONTAP Selectでは、FabricPoolで次のAmazon S3ストレージ クラスがサポートされます。
 +
-** Amazon S3標準
-** Amazon S3標準-低頻度アクセス（Standard-IA）
-** Amazon S3 1ゾーン-低頻度アクセス（1ゾーン- IA）
-** Amazon S3のインテリジェントな階層化
+** Amazon S3 Standard
+** Amazon S3 Standard - Infrequent Access（Standard-IA）
+** Amazon S3 One Zone - Infrequent Access（One Zone - IA）
+** Amazon S3 Intelligent-Tiering
 ** Amazon Commercial Cloud Services
-** ONTAP 9.11.1以降では、Amazon S3 Glacier Instant Retrieval（FabricPoolではGlacier Flexible RetrievalやGlacier Deep Archiveはサポートされません）
+** ONTAP 9.11.1 以降、 Amazon S3 Glacier Instant Retrieval （ FabricPool は Glacier Flexible Retrieval または Glacier Deep Archive をサポートしていません）
 +
-https://aws.amazon.com/s3/storage-classes/["Amazon Web Servicesドキュメント：「Amazon S3 Storage Classes」"]
+https://aws.amazon.com/s3/storage-classes/["Amazon Web Services ドキュメント：Amazon S3 ストレージクラス"]
 
 
 
 +
-上記以外のストレージクラスについては、営業担当者にお問い合わせください。
+上記以外のストレージ クラスについては、営業担当者にお問い合わせください。
 
-* Cloud Volumes ONTAPでは、FabricPoolがAmazon Elastic Block Store（EBS）の汎用SSD（gp2）ボリュームとスループット最適化HDD（st1）ボリュームからの階層化をサポートしています。
+* Cloud Volumes ONTAPでは、FabricPoolでAmazon Elastic Block Store（EBS）の汎用SSD（gp2）ボリュームおよびスループット最適化HDD（st1）ボリュームからの階層化がサポートされます。
 
 
 .手順
-. コマンドでパラメータを `-provider-type` `AWS_S3`使用して、Amazon S3の設定情報を指定し `storage aggregate object-store config create`ます。
+.  `storage aggregate object-store config create`コマンドを `-provider-type` `AWS_S3`パラメータとともに使用して、Amazon S3 設定情報を指定します。
 +
-** C2Sアクセス用のクレデンシャルを取得するには、パラメータを使用し `-auth-type` `CAP`ます。
+**  `-auth-type` `CAP`パラメータを使用して、C2S アクセスの資格情報を取得します。
 +
-パラメータを使用する場合 `-auth-type` `CAP`は、パラメータを使用して完全なURLを指定し、C2Sアクセス用の一時的なクレデンシャルを要求する必要があります `-cap-url`。
+ `-auth-type` `CAP`パラメータを使用する場合は、 `-cap-url`パラメータを使用して、C2S アクセス用の一時的な資格情報を要求するための完全な URL を指定する必要があります。
 
-**  `storage aggregate object-store config create`指定された情報でONTAPがAmazon S3にアクセスできない場合、コマンドは失敗します。
-** パラメータを使用し `-access-key`て、Amazon S3オブジェクトストアへの要求を認証するためのアクセスキーを指定します。
-** パラメータを使用し `-secret-password`て、Amazon S3オブジェクトストアへの要求を認証するためのパスワード（シークレットアクセスキー）を指定します。
-** Amazon S3のパスワードが変更された場合は、ONTAPに格納されている対応するパスワードをただちに更新する必要があります。
+**  `storage aggregate object-store config create`コマンドは、提供された情報を使用して ONTAP が Amazon S3 にアクセスできない場合に失敗します。
+**  `-access-key`パラメータを使用して、Amazon S3オブジェクト ストアへのリクエストを承認するためのアクセス キーを指定します。
+**  `-secret-password`パラメータを使用して、Amazon S3オブジェクト ストアへのリクエストを認証するためのパスワード（シークレット アクセス キー）を指定します。
+** Amazon S3パスワードが変更された場合は、ONTAPに保存されている対応するパスワードをすぐに更新する必要があります。
 +
 これにより、ONTAPは引き続きAmazon S3内のデータにアクセスできます。
 
@@ -64,14 +64,14 @@ cluster1::> storage aggregate object-store config create -object-store-name my_c
 ----
 
 
-. コマンドを使用して、Amazon S3の設定情報を表示して確認します `storage aggregate object-store config show`。
+.  `storage aggregate object-store config show`コマンドを使用して、Amazon S3 の設定情報を表示および確認します。
 +
-FabricPoolのAmazon S3の設定情報は、 `storage aggregate object-store config modify`コマンドを使用して変更できます。
+ `storage aggregate object-store config modify`コマンドを使用すると、FabricPoolのAmazon S3設定情報を変更できます。
 
 
 
 .関連情報
-* link:https://docs.netapp.com/us-en/ontap-cli/storage-aggregate-object-store-config-create.html["ストレージ集約オブジェクトストア構成の作成"^]
-* link:https://docs.netapp.com/us-en/ontap-cli/snapmirror-object-store-config-modify.html["ストレージ集約オブジェクトストア構成の変更"^]
-* link:https://docs.netapp.com/us-en/ontap-cli/storage-aggregate-object-store-config-show.html["ストレージ集約オブジェクトストア構成表示"^]
+* link:https://docs.netapp.com/us-en/ontap-cli/storage-aggregate-object-store-config-create.html["storage aggregate object-store config create"^]
+* link:https://docs.netapp.com/us-en/ontap-cli/snapmirror-object-store-config-modify.html["storage aggregate object-store config modify"^]
+* link:https://docs.netapp.com/us-en/ontap-cli/storage-aggregate-object-store-config-show.html["storage aggregate object-store config show"^]
 

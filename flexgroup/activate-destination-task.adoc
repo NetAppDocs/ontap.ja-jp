@@ -2,34 +2,34 @@
 permalink: flexgroup/activate-destination-task.html 
 sidebar: sidebar 
 keywords: activate, destination, flexgroup, volume 
-summary: データが破損した場合や誤って削除した場合、あるいはオフライン状態の場合など、データをソース FlexGroup から提供できないときは、ソース FlexGroup ボリュームのデータをリカバリするまでの間、デスティネーション FlexGroup ボリュームをアクティブ化してデータアクセスを提供する必要があります。アクティブ化には、以降の SnapMirror データ転送の中止と、 SnapMirror 関係の解除が伴います。 
+summary: データ破損、誤った削除、オフライン状態などのイベントによりソースFlexGroupボリュームがデータを提供できない場合は、ソースFlexGroupボリュームのデータが復旧するまで、データアクセスを提供するために宛先FlexGroupボリュームをアクティブ化する必要があります。アクティブ化には、将来のSnapMirrorデータ転送の停止とSnapMirror関係の解除が含まれます。 
 ---
-= デスティネーションONTAP FlexGroupボリュームをアクティブ化
+= 宛先ONTAP FlexGroupボリュームをアクティブ化する
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-データが破損した場合や誤って削除した場合、あるいはオフライン状態の場合など、データをソース FlexGroup から提供できないときは、ソース FlexGroup ボリュームのデータをリカバリするまでの間、デスティネーション FlexGroup ボリュームをアクティブ化してデータアクセスを提供する必要があります。アクティブ化には、以降の SnapMirror データ転送の中止と、 SnapMirror 関係の解除が伴います。
+データ破損、誤った削除、オフライン状態などのイベントによりソースFlexGroupボリュームがデータを提供できない場合は、ソースFlexGroupボリュームのデータが復旧するまで、データアクセスを提供するために宛先FlexGroupボリュームをアクティブ化する必要があります。アクティブ化には、将来のSnapMirrorデータ転送の停止とSnapMirror関係の解除が含まれます。
 
-.タスクの内容
-このタスクはデスティネーションクラスタで実行する必要があります。
+.タスク概要
+この手順はデスティネーション クラスタで実行する必要があります。
 
 .手順
-. FlexGroup Volume SnapMirror関係の以降の転送を無効にします。 `snapmirror quiesce dest_svm:dest_flexgroup`
+. FlexGroupボリュームSnapMirror関係の将来の転送を無効にします： `snapmirror quiesce dest_svm:dest_flexgroup`
 +
 [listing]
 ----
 cluster2::> snapmirror quiesce -destination-path vsd:dst
 ----
-. FlexGroup Volume SnapMirror関係を解除します。 `snapmirror break dest_svm:dest_flexgroup`
+. FlexGroupボリュームSnapMirror関係を解除します： `snapmirror break dest_svm:dest_flexgroup`
 +
 [listing]
 ----
 cluster2::> snapmirror break -destination-path vsd:dst
 ----
-. SnapMirror関係のステータスを表示します。 `snapmirror show -expand`
+. SnapMirror関係のステータスを表示します： `snapmirror show -expand`
 +
 [listing]
 ----
@@ -59,9 +59,9 @@ vss:s__0008 XDP  vsd:dst__0008  Broken-off
 ...
 ----
 +
-各コンスティチュエントのSnapMirror関係のステータスはです `Broken-off`。
+各構成要素のSnapMirror関係ステータスは `Broken-off`です。
 
-. デスティネーションFlexGroupボリュームが読み取り/書き込み可能であることを確認します。 `volume show -vserver svm_name`
+. 宛先FlexGroupボリュームが読み取り / 書き込みであることを確認します。 `volume show -vserver svm_name`
 +
 [listing]
 ----
@@ -73,11 +73,11 @@ vsd       d2           -            online     DP          2GB     1.55GB   22%
 vsd       root_vs0     aggr1        online     RW        100MB    94.02MB    5%
 3 entries were displayed.
 ----
-. デスティネーション FlexGroup ボリュームにクライアントをリダイレクトします。
+. クライアントを宛先FlexGroup ボリュームにリダイレクトします。
 
 
 .関連情報
-* link:https://docs.netapp.com/us-en/ontap-cli/snapmirror-break.html["スナップミラーの破損"^]
-* link:https://docs.netapp.com/us-en/ontap-cli/snapmirror-quiesce.html["スナップミラーの静止"^]
+* link:https://docs.netapp.com/us-en/ontap-cli/snapmirror-break.html["snapmirror break"^]
+* link:https://docs.netapp.com/us-en/ontap-cli/snapmirror-quiesce.html["snapmirror quiesce"^]
 * link:https://docs.netapp.com/us-en/ontap-cli/snapmirror-show.html["snapmirror show"^]
 

@@ -2,41 +2,41 @@
 permalink: smb-admin/configure-bypass-traverse-checking-concept.html 
 sidebar: sidebar 
 keywords: bypass, traverse, user, privilege, permission, directory, allow, check, configure, storage, virtual, machine, svm, configure bypass traverse checking 
-summary: トラバースチェックのバイパスは、トラバースするディレクトリに対する権限がユーザにない場合でも、ファイルのパスに含まれるすべてのディレクトリをユーザがトラバースできるかどうかを判断するユーザ権限です。トラバースチェックのバイパスを許可または拒否した場合の動作と、Storage Virtual Machine（SVM）でのユーザに対するトラバースチェックのバイパスの設定方法を理解しておく必要があります。 
+summary: トラバースチェックのバイパスは、ユーザーがファイルパス内のすべてのディレクトリを、トラバースするディレクトリに対する権限がない場合でも、トラバースできるかどうかを決定するユーザー権限（特権とも呼ばれます）です。トラバースチェックのバイパスを許可または禁止した場合に何が起こるか、また、Storage Virtual Machine（SVM）上のユーザーに対してトラバースチェックのバイパスを設定する方法について理解しておく必要があります。 
 ---
-= ONTAP SMBバイパストラバースチェックの設定について学ぶ
+= ONTAP SMBバイパストラバースチェックの設定について学習します
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-トラバースチェックのバイパスは、トラバースするディレクトリに対する権限がユーザにない場合でも、ファイルのパスに含まれるすべてのディレクトリをユーザがトラバースできるかどうかを判断するユーザ権限です。トラバースチェックのバイパスを許可または拒否した場合の動作と、Storage Virtual Machine（SVM）でのユーザに対するトラバースチェックのバイパスの設定方法を理解しておく必要があります。
+トラバースチェックのバイパスは、ユーザーがトラバースされたディレクトリに対する権限を持っていない場合でも、ファイルへのパス内のすべてのディレクトリをトラバースできるかどうかを決定するユーザー権限（_権限_とも呼ばれます）です。トラバースチェックのバイパスを許可または禁止すると何が起こるか、また、Storage Virtual Machine（SVM）上のユーザーに対してトラバースチェックのバイパスを設定する方法について理解しておく必要があります。
 
 
 
-== トラバースチェックのバイパスを許可または拒否した場合の動作
+== トラバース チェックのバイパスを許可または拒否した場合の動作
 
-* 許可した場合、ユーザがファイルにアクセスしようとすると、中間ディレクトリのトラバース権限がONTAPでチェックされず、ファイルへのアクセスの可否が判別されます。
+* 許可した場合、ユーザがファイルにアクセスしようとすると、中間ディレクトリのトラバース権限がチェックされないで、ファイルへのアクセスの可否が判別されます。
 * 拒否した場合、ONTAPはファイルのパスにあるすべてのディレクトリでトラバース（実行）権限をチェックします。
 +
-中間ディレクトリのいずれかに「 X 」（トラバース権限）がない場合、 ONTAP はファイルへのアクセスを拒否します。
+中間ディレクトリのいずれかに「`X`」（トラバース権限）がない場合、ONTAPはファイルへのアクセスを拒否します。
 
 
 
 
 
-== トラバースチェックのバイパスの設定
+== トラバース チェックのバイパスの設定
 
-トラバースチェックのバイパスを設定するには、ONTAP CLIを使用するか、Active Directoryグループポリシーにこのユーザ権限を設定します。
+ONTAP CLIを使用するか、Active Directoryグループ ポリシーにこのユーザ権限を設定すると、トラバース チェックのバイパスを設定できます。
 
-権限は `SeChangeNotifyPrivilege`、ユーザにトラバースチェックのバイパスを許可するかどうかを制御します。
+ `SeChangeNotifyPrivilege`権限は、ユーザーがトラバース チェックをバイパスできるかどうかを制御します。
 
-* この権限をSVMのローカルSMBユーザまたはグループ、ドメインユーザまたはグループに追加すると、トラバースチェックのバイパスを許可できます。
-* この権限をSVMのローカルSMBユーザまたはグループ、ドメインユーザまたはグループから削除すると、トラバースチェックのバイパスが拒否されます。
+* この権限をSVMのローカルSMBユーザまたはグループ、ドメイン ユーザまたはグループに追加すると、トラバース チェックのバイパスを許可できます。
+* この権限をSVMのローカルSMBユーザまたはグループ、ドメイン ユーザまたはグループから削除すると、トラバース チェックのバイパスを拒否できます。
 
 
-SVMの次のBUILTINグループには、デフォルトでトラバースチェックのバイパス権限があります。
+SVMの次のBUILTINグループには、デフォルトでトラバース チェックのバイパス権限が割り当てられています。
 
 * `BUILTIN\Administrators`
 * `BUILTIN\Power Users`
@@ -45,27 +45,27 @@ SVMの次のBUILTINグループには、デフォルトでトラバースチェ�
 * `Everyone`
 
 
-これらのいずれかのグループのメンバーにトラバースチェックのバイパスを許可しない場合は、グループからこの権限を削除する必要があります。
+これらのいずれかのグループのメンバーにトラバース チェックのバイパスを許可したくない場合は、グループからこの権限を削除する必要があります。
 
-CLIを使用してSVMのローカルSMBユーザおよびグループのトラバースチェックのバイパスを設定する場合は、次の点に注意する必要があります。
+CLIを使用してSVMのローカルSMBユーザおよびグループのトラバース チェックのバイパスを設定する場合は、次の点に注意する必要があります。
 
-* カスタムのローカルグループまたはドメイングループのメンバーにトラバースチェックのバイパスを許可する場合は、そのグループに権限を追加する必要があります `SeChangeNotifyPrivilege`。
-* ローカルユーザまたはドメインユーザにトラバースチェックのバイパスを個別に許可し、そのユーザがその権限を持つグループのメンバーでない場合は、そのユーザアカウントに権限を追加できます `SeChangeNotifyPrivilege`。
-* ローカルまたはドメインのユーザやグループに対するトラバースチェックのバイパスをいつでも無効にするには、権限を削除し `SeChangeNotifyPrivilege`ます。
+* カスタム ローカル グループまたはドメイン グループのメンバーが走査チェックをバイパスできるようにするには、 `SeChangeNotifyPrivilege`権限をそのグループに追加する必要があります。
+* 個々のローカル ユーザーまたはドメイン ユーザーが走査チェックをバイパスできるようにしたいが、そのユーザーがその権限を持つグループのメンバーではない場合は、そのユーザー アカウントに `SeChangeNotifyPrivilege`権限を追加できます。
+* いつでも `SeChangeNotifyPrivilege`権限を削除することで、ローカルまたはドメインのユーザーまたはグループに対する走査チェックのバイパスを無効にすることができます。
 +
 [NOTE]
 ====
-特定のローカルまたはドメインのユーザまたはグループに対してトラバースチェックのバイパスを無効にするには、グループから権限 `Everyone`も削除する必要があります `SeChangeNotifyPrivilege`。
+指定されたローカルまたはドメインのユーザーまたはグループのバイパス トラバーズ チェックを無効にするには、 `Everyone`グループから `SeChangeNotifyPrivilege`権限も削除する必要があります。
 
 ====
 
 
 .関連情報
-* xref:allow-users-groups-bypass-directory-traverse-task.adoc[ユーザまたはグループにディレクトリのトラバースチェックのバイパスを許可する]
-* xref:disallow-users-groups-bypass-directory-traverse-task.adoc[ユーザまたはグループに対してディレクトリのトラバースチェックのバイパスを禁止する]
-* xref:configure-character-mappings-file-name-translation-task.adoc[ボリューム上のファイル名変換の文字マッピングを構成する]
+* xref:allow-users-groups-bypass-directory-traverse-task.adoc[ユーザまたはグループに対するディレクトリのトラバース チェックのバイパスの許可]
+* xref:disallow-users-groups-bypass-directory-traverse-task.adoc[ユーザまたはグループに対するディレクトリのトラバース チェックのバイパスの禁止]
+* xref:configure-character-mappings-file-name-translation-task.adoc[ボリューム上のファイル名変換の文字マッピングを設定する]
 * xref:create-share-access-control-lists-task.html[共有アクセス制御リストを作成する]
-* xref:secure-file-access-storage-level-access-guard-concept.html[ストレージレベルのアクセス保護を使用したファイルアクセスの保護]
-* xref:list-supported-privileges-reference.adoc[サポートされるPrivilegesのリスト]
-* xref:add-privileges-local-domain-users-groups-task.html[ローカルまたはドメインのユーザまたはグループへのPrivilegesの追加]
+* xref:secure-file-access-storage-level-access-guard-concept.html[ストレージレベルのアクセス保護を使用したファイル アクセスの保護]
+* xref:list-supported-privileges-reference.adoc[サポートされる権限の一覧]
+* xref:add-privileges-local-domain-users-groups-task.html[ローカルまたはドメインのユーザまたはグループに対する権限の追加]
 

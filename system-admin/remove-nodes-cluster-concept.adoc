@@ -2,7 +2,7 @@
 permalink: system-admin/remove-nodes-cluster-concept.html 
 sidebar: sidebar 
 keywords: remove, node, cluster, failover, partner, erase, inaccessible 
-summary: クラスタから不要なノードを一度に1つずつ削除できます。ノードを削除したら、フェイルオーバーパートナーも削除する必要があります。ノードを削除すると、そのノードのデータはアクセスできなくなるか、消去されます。 
+summary: クラスタから不要なノードを一度に1つずつ削除できます。ノードを削除した場合は、フェイルオーバー パートナーも削除する必要があります。ノードを削除すると、そのノードのデータはアクセスできなくなるか、消去されます。 
 ---
 = ONTAPクラスタからノードを削除する
 :allow-uri-read: 
@@ -11,61 +11,61 @@ summary: クラスタから不要なノードを一度に1つずつ削除でき�
 
 
 [role="lead"]
-クラスタから不要なノードを一度に1つずつ削除できます。ノードを削除したら、フェイルオーバーパートナーも削除する必要があります。ノードを削除すると、そのノードのデータはアクセスできなくなるか、消去されます。
+クラスタから不要なノードを一度に1つずつ削除できます。ノードを削除した場合は、フェイルオーバー パートナーも削除する必要があります。ノードを削除すると、そのノードのデータはアクセスできなくなるか、消去されます。
 
 .開始する前に
-クラスターからノードを削除する前に、次の条件を満たしている必要があります。
+クラスタからノードを削除する前に、次の条件を満たしている必要があります：
 
 * クラスタ内のノードのうち半数を上回るノードが健全である必要があります。
 * すべてのデータ、ボリューム、およびルート以外のアグリゲートをノードから再配置または削除する必要があります。
 +
-** 削除するノード上のすべてのデータを退避しておく必要があります。これには以下が含まれlink:../encryption-at-rest/secure-purge-data-encrypted-volume-concept.html["暗号化されたボリュームからのデータのパージ"]ます。
-** ルート以外のボリュームはすべて、ノードが所有するアグリゲートに含まれているlink:../volumes/move-volume-task.html["移動しました"]必要があります。
-** ルート以外のすべてのアグリゲートがノードから作成されているlink:../disks-aggregates/commands-manage-aggregates-reference.html["削除済み"]。
+** 削除するノードのすべてのデータを退避しておく必要があります。これにはlink:../encryption-at-rest/secure-purge-data-encrypted-volume-concept.html["暗号化されたボリュームからデータを消去する"]が含まれる場合があります。
+** ルート以外のボリュームはすべて、ノードが所有するアグリゲートからlink:../volumes/move-volume-task.html["移動した"]されています。
+** ルート以外のすべてのアグリゲートがlink:../disks-aggregates/commands-manage-aggregates-reference.html["削除済み"]ノードから削除されています。
 
 
-* すべてのLIFとVLANがノードから再配置または削除されている。
+* すべてのLIFとVLANがノードから再配置または削除されました。
 +
-** データLIFはノードまたはlink:../networking/migrate_a_lif.html["再配置済み"]ノードから実行されているlink:../networking/delete_a_lif.html["削除済み"]必要があります。
-** クラスタ管理LIFがノードから削除されlink:../networking/migrate_a_lif.html["再配置済み"]、ホームポートが変更されている。
-** すべてのクラスタ間LIFがになっているlink:../networking/delete_a_lif.html["削除済み"]。クラスタ間LIFを削除する際に表示される警告は無視してかまいません。
-** ノード上のすべてのVLANがになっているlink:../networking/configure_vlans_over_physical_ports.html#delete-a-vlan["削除済み"]。
+** データLIFがlink:../networking/delete_a_lif.html["削除済み"]またはlink:../networking/migrate_a_lif.html["再配置"]ノードから実行されました。
+** クラスタ管理LIFがlink:../networking/migrate_a_lif.html["再配置"]ノードから削除され、ホームポートが変更されました。
+** すべてのインタークラスタLIFがlink:../networking/delete_a_lif.html["取り外し"]削除されました。インタークラスタLIFを削除すると警告が表示されますが、無視してください。
+** ノード上のすべての VLAN がlink:../networking/configure_vlans_over_physical_ports.html#delete-a-vlan["削除済み"]になりました。
 
 
-* ノードがフェイルオーバー関係に参加していません。
+* ノードはどのフェールオーバー関係にも参加していません。
 +
-** ノードに対してストレージフェイルオーバーが実行されている必要がありlink:../high-availability/ha_commands_for_enabling_and_disabling_storage_failover.html["無効"]ます。
-** すべてのLIFフェイルオーバールールでノードのポートを削除しておきlink:../networking/commands_for_managing_failover_groups_and_policies.html["変更済み"]ます。
+** ノードに対してストレージフェイルオーバーがlink:../high-availability/ha_commands_for_enabling_and_disabling_storage_failover.html["無効"]実行されました。
+** すべてのLIFフェイルオーバールールがlink:../networking/commands_for_managing_failover_groups_and_policies.html["modified"]されており、ノード上のポートが削除されています。
 
 
-* ノードが連邦情報処理標準（FIPS）ディスクまたは自己暗号化ディスク（SED）を所有している場合はlink:../encryption-at-rest/return-seds-unprotected-mode-task.html["ディスク暗号化が削除されました"]、ディスクを非保護モードに戻します。
+* ノードに連邦情報処理標準（FIPS）ディスクまたは自己暗号化ディスク（SED）がある場合は、link:../encryption-at-rest/return-seds-unprotected-mode-task.html["ディスク暗号化が削除されました"]ディスクを非保護モードに戻します。
 +
-** 必要な場合もありlink:../encryption-at-rest/sanitize-fips-drive-sed-task.html["FIPS ドライブまたは SED を完全消去します"]ます。
+** link:../encryption-at-rest/sanitize-fips-drive-sed-task.html["FIPSドライブまたはSEDをサニタイズする"]することもできます。
 
 
-* 削除するノードにLUNがある場合は、ノードを削除する前に実行する必要がありますlink:../san-admin/modify-slm-reporting-nodes-task.html["選択的LUNマップ（SLM）のレポートノードリストを変更します"]。
+* 削除するノードにLUNがある場合は、ノードを削除する前にlink:../san-admin/modify-slm-reporting-nodes-task.html["Selective LUN Map（SLM）レポートノードリストを変更する"]必要があります。
 +
-SLMのレポートノードリストからノードとそのHAパートナーを削除しないと、LUNを含むボリュームを別のノードに移動しても、そのノードで以前に実行していたLUNへのアクセスが失われる可能性があります。
+SLMのレポート ノード リストからノードとそのHAパートナーを削除しないと、元のノードにあったLUNを含むボリュームを別のノードに移動しても、そのLUNへのアクセスが失われる可能性があります。
 
 
 
-AutoSupportメッセージを発行して、ノードを削除中であることをNetAppテクニカルサポートに通知することを推奨します。
+AutoSupportメッセージを発行して、ノードの削除が進行中であることをNetApp テクニカル サポートに通知することを推奨します。
 
 
-IMPORTANT:  `cluster unjoin`ONTAPの自動アップグレードの実行中は、、、 `node rename`などの処理を実行しないで `cluster remove-node`ください。
+IMPORTANT: 自動ONTAPアップグレードの進行中は、 `cluster remove-node`、 `cluster unjoin`、 `node rename`などの操作を実行しないでください。
 
-.タスクの内容
-* バージョンが混在したクラスタを実行している場合は、ONTAP 9以降のadvanced権限のコマンドを使用して、バージョンが低い最後のノードを削除できます。3：
+.タスク概要
+* ONTAP 9.3以降では、バージョンが混在したクラスタを実行している場合に、次のadvanced権限のコマンドを使用して低いバージョンの最後のノードを削除できます。
 +
-** ONTAP 9 .3： `cluster unjoin -skip-last-low-version-node-check`
-** ONTAP 9 .4以降： `cluster remove-node -skip-last-low-version-node-check`
+** ONTAP 9.3： `cluster unjoin -skip-last-low-version-node-check`
+** ONTAP 9.4 以降： `cluster remove-node -skip-last-low-version-node-check`
 
 
-* 4ノードクラスタから2つのノードを分離すると、残りの2つのノードでクラスタHAが自動的に有効になります。
+* 4ノード クラスタからノードを2つ削除すると、残りの2つのノードでクラスタHAが自動的に有効になります。
 
 
 
-NOTE: クラスタからノードを削除する前に、ノードに接続されているすべてのディスクのすべてのシステムデータとユーザデータにユーザがアクセスできないようにする必要があります。ノードをクラスタから誤って分離した場合は、NetAppサポートにリカバリのオプションについて問い合わせてください。
+NOTE: クラスタからノードを削除する前に、ノードに接続されたすべてのディスクのすべてのシステム データとユーザ データにユーザがアクセスできないようにする必要があります。ノードを誤ってクラスタから削除した場合に元に戻す方法については、NetAppサポートにお問い合わせください。
 
 .手順
 . 権限レベルをadvancedに変更します。
@@ -103,24 +103,24 @@ cluster modify -node <node_name> -epsilon true
 cluster ring show
 ----
 +
-マスターノードは、 `vldb`、、 `vifmgr`、 `bcomd`などのプロセスを保持するノードです `mgmt` `crs`。
+マスターノードは、 `mgmt`、 `vldb`、 `vifmgr`、 `bcomd`、 `crs`などのプロセスを保持するノードです。
 
-. 削除するノードが現在のマスターノードである場合は、クラスタ内の別のノードがマスターノードとして選出されるようにします。
+. 削除するノードが現在のマスター ノードである場合は、クラスタ内の別のノードがマスター ノードとして選出されるようにすることができます。
 +
-.. 現在のマスターノードをクラスタに参加できないようにします。
+.. 現在のマスターノードをクラスタに参加できないようにします：
 +
 [source, cli]
 ----
 cluster modify -node <node_name> -eligibility false
 ----
 +
-適格性が回復されるまで、ノードは異常としてマークされます。マスター ノードが参加できなくなると、クラスタ クォーラムによって残りのノードの1つが新しいマスターとして選出されます。
+ノードは、資格が回復するまで、異常とマークされます。マスターノードが資格を失った場合、残りのノードの1つがクラスタクォーラムによって新しいマスターとして選出されます。
 
 +
 
-NOTE: HA ペアの最初のノードでこの手順を実行する場合は、そのノードのみを不適格としてマークする必要があります。 HA パートナーのステータスを変更しないでください。パートナー ノードが新しいマスターとして選択された場合は、そのノードが不適格となる前にイプシロンを保持しているかどうかを確認する必要があります。これは、これらの手順を繰り返してパートナー ノードを削除すると実行されます。
+NOTE: HAペアの最初のノードでこの手順を実行する場合は、そのノードのみを不適格としてマークしてください。HAパートナーのステータスは変更しないでください。パートナーノードが新しいマスターとして選択された場合は、不適格にする前に、イプシロンが保持されているかどうかを確認する必要があります。これは、これらの手順を繰り返してパートナーノードを削除するときに行われます。
 
-.. 以前のマスターノードを再びクラスタに参加できるようにします。
+.. 以前のマスター ノードを再びクラスタに参加できるようにします。
 +
 [source, cli]
 ----
@@ -128,7 +128,7 @@ cluster modify -node <node_name> -eligibility true
 ----
 
 
-. 削除するノードとは別のノードのリモートノード管理LIFまたはクラスタ管理LIFにログインします。
+. 削除するノードとは別のノードで、リモート ノード管理LIFまたはクラスタ管理LIFにログインします。
 . クラスタからノードを削除します。
 +
 |===
@@ -147,13 +147,13 @@ cluster unjoin
  a| 
 ONTAP 9.4以降
  a| 
-ノード名を使用：
+ノード名：
 
 [source, cli]
 ----
 cluster remove-node -node <node_name>
 ----
-ノードIPを使用：
+ノード IP の場合：
 
 [source, cli]
 ----
@@ -161,30 +161,30 @@ cluster remove-node -cluster_ip <node_ip>
 ----
 |===
 +
-バージョンが混在したクラスタでバージョンが低い最後のノードを削除する場合は、次のコマンドでパラメータを使用し `-skip-last-low-version-node-check`ます。
+混合バージョンのクラスタがあり、最後の下位バージョンのノードを削除する場合は、これらのコマンドで `-skip-last-low-version-node-check`パラメータを使用します。
 
 +
-次の情報が表示されます。
+次の内容のメッセージが表示されます。
 
 +
-** また、ノードのフェイルオーバーパートナーをクラスタから削除する必要があります。
-** ノードを削除したあと、クラスタに再追加する前に、ブートメニューオプション[（4）Clean configuration and initialize all disks]またはオプション[（9）Configure Advanced Drive Partitioning ]を使用して、ノードの設定を消去してすべてのディスクを初期化する必要があります。
+** ノードのフェイルオーバー パートナーをクラスタから削除する必要があること。
+** 削除したノードをクラスタに再追加する場合、ブート メニュー オプション[(4) Clean configuration and initialize all disks]または[(9) Configure Advanced Drive Partitioning]を使用して、ノードの設定を消去し、すべてのディスクを初期化しておく必要があること。
 +
-ノードを削除する前に対処する必要がある条件がある場合は、エラーメッセージが生成されます。メッセージの内容は、たとえば、ノードに削除が必要な共有リソースがある、ノードがクラスタHA構成またはストレージフェイルオーバー構成に含まれているため無効にする必要があるなどの場合があります。
+ノードを削除する前に対処が必要な条件がある場合は、エラー メッセージが表示されます。メッセージの内容は、たとえば、ノードに削除が必要な共有リソースがある、あるいはノードのクラスタHA構成またはストレージ フェイルオーバー構成を無効にする必要があるなどの場合があります。
 
 +
-ノードがクォーラムマスターの場合、クラスタは一時的に失われてからクォーラムに戻ります。クォーラムが失われるのは一時的であり、データの操作には影響しません。
+ノードがクォーラム マスターの場合、クラスタのクォーラムがいったん失われて、すぐに戻ります。クォーラムが失われるのは一時的であり、データの操作には影響しません。
 
 
 
-. エラーメッセージにエラー状態が示された場合は、その状態に対処し、コマンドまたは `cluster unjoin`コマンドを再実行し `cluster remove-node`ます。
+. 失敗メッセージにエラー状態が示されている場合は、それらの状態に対処して、 `cluster remove-node`または `cluster unjoin`コマンドを再実行します。
 +
-ノードは、クラスタから削除されると自動的にリブートされます。
+クラスタからノードが削除され、ノードが自動的にリブートします。
 
 . ノードを転用する場合は、ノードの設定を消去し、すべてのディスクを初期化します。
 +
-.. ブートプロセス中に、プロンプトが表示されたらCtrl+Cキーを押してブートメニューを表示します。
-.. ブートメニューオプション[（4）Clean configuration and initialize all disks]を選択します。
+.. ブート プロセス時に、プロンプトに応じてCtrl+Cキーを押してブート メニューを表示します。
+.. ブート メニュー オプション[(4) Clean configuration and initialize all disks]を選択します。
 
 
 . admin権限レベルに戻ります。
@@ -193,9 +193,9 @@ cluster remove-node -cluster_ip <node_ip>
 ----
 set -privilege admin
 ----
-. クラスタからフェイルオーバーパートナーを削除するには、上記の手順を繰り返します。
+. クラスタからフェイルオーバー パートナーを削除するには、前述の手順を繰り返します。
 
 
 .関連情報
-* link:https://docs.netapp.com/us-en/ontap-cli/cluster-remove-node.html["クラスタ削除ノード"^]
+* link:https://docs.netapp.com/us-en/ontap-cli/cluster-remove-node.html["クラスタ remove-node"^]
 

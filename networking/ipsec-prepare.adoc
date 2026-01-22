@@ -2,7 +2,7 @@
 sidebar: sidebar 
 permalink: networking/ipsec-prepare.html 
 keywords: ip security, ipsec, data-in-motion, in-flight encryption, ONTAP ipsec evolution, security policy database, spd, hardware offload, nic 
-summary: ONTAP 9 .8以降では、IPセキュリティ（IPsec）を使用してネットワークトラフィックを保護するオプションが用意されています。IPSecは、ONTAPで使用できる複数の転送中データ暗号化または転送中データ暗号化オプションの1つです。本番環境でIPSecを使用する前に、IPSecを設定する準備をしておく必要があります。 
+summary: ONTAP 9.8以降では、必要に応じてIPセキュリティ（IPsec）を使用してネットワーク トラフィックを保護できます。IPSecは、ONTAPで使用できるいくつかの移動中 / 転送中データ暗号化オプションの1つです。本番環境でIPSecを使用する前に、IPSecを設定する準備をしておく必要があります。 
 ---
 = ONTAPネットワークでIPセキュリティを使用するための準備
 :hardbreaks:
@@ -14,157 +14,157 @@ summary: ONTAP 9 .8以降では、IPセキュリティ（IPsec）を使用して
 
 
 [role="lead"]
-ONTAP 9 .8以降では、IPセキュリティ（IPsec）を使用してネットワークトラフィックを保護するオプションが用意されています。IPSecは、ONTAPで使用できる複数の転送中データ暗号化または転送中データ暗号化オプションの1つです。本番環境でIPSecを使用する前に、IPSecを設定する準備をしておく必要があります。
+ONTAP 9.8以降では、必要に応じてIPセキュリティ（IPsec）を使用してネットワーク トラフィックを保護できます。IPSecは、ONTAPで使用できるいくつかの移動中 / 転送中データ暗号化オプションの1つです。本番環境でIPSecを使用する前に、IPSecを設定する準備をしておく必要があります。
 
 
 
 == ONTAPでのIPセキュリティの実装
 
-IPsecは、IETFによって維持されているインターネット標準です。IPレベルでネットワークエンドポイント間を流れるトラフィックに対して、データの暗号化と整合性、および認証を提供します。
+IPsecは、IETFによって管理されるインターネット標準です。ネットワーク エンドポイント間を流れるトラフィックの、IPレベルでのデータ暗号化、データ整合性、認証を実現します。
 
-ONTAPでは、ONTAPとさまざまなクライアント（NFS、SMB、iSCSIプロトコルを含む）の間のすべてのIPトラフィックがIPsecによって保護されます。プライバシーとデータの整合性に加えて、ネットワークトラフィックはリプレイ攻撃や中間者攻撃などのいくつかの攻撃から保護されます。ONTAPでは、IPsecトランスポートモードの実装が使用されます。Internet Key Exchange（IKE;インターネットキーエクスチェンジ）プロトコルバージョン2を利用して、IPv4またはIPv6を使用してONTAPとクライアント間でキーマテリアルをネゴシエートします。
+ONTAPでは、ONTAPとさまざまなクライアントの間のあらゆるIPトラフィック（NFS、SMB、iSCSIプロトコルなど）が、IPsecによって保護されます。プライバシーとデータ整合性を確保するだけでなく、リプレイ攻撃や中間者攻撃などの各種攻撃からネットワーク トラフィックを守ります。ONTAPでは、トランスポート モードのIPsec実装を使用します。IPv4かIPv6を使用してONTAPとクライアントの間でキー マテリアルをネゴシエートするために、Internet Key Exchange（IKE）プロトコル バージョン2を利用します。
 
-クラスタでIPSec機能を有効にすると、ネットワークでは、ONTAPセキュリティポリシーデータベース（SPD）にさまざまなトラフィック特性に一致するエントリが1つ以上必要になります。これらのエントリは、データの処理と送信に必要な特定の保護の詳細（暗号スイート、認証方式など）にマッピングされます。各クライアントには、対応するSPDエントリも必要です。
+クラスタでIPSec機能を有効にすると、さまざまなトラフィック特性に一致するONTAPセキュリティ ポリシー データベース（SPD）のエントリが、ネットワークに1つ以上必要になります。これらのエントリは、データの処理と送信に必要な特定の保護の詳細（暗号スイートや認証方式など）にマッピングされます。各クライアントにも、対応するSPDエントリが必要です。
 
-トラフィックの種類によっては、別の転送中データ暗号化オプションを使用することをお勧めします。たとえば、NetApp SnapMirrorおよびクラスタピアリングトラフィックの暗号化には、一般に、IPsecではなくTransport Layer Security（TLS）プロトコルが推奨されます。これは、ほとんどの状況でTLSの方がパフォーマンスが向上するためです。
+トラフィックの種類によっては、別の移動中データ暗号化オプションが望ましいものもあります。たとえば、NetApp SnapMirrorとクラスタ ピアリング トラフィックの暗号化については、IPsecではなくTransport Layer Security（TLS）プロトコルが一般的に推奨されます。これは、ほとんどの状況でTLSの方が高いパフォーマンスが得られるためです。
 
 .関連情報
-* https://www.ietf.org/["インターネット技術タスクフォース"^]
-* https://www.rfc-editor.org/info/rfc4301["RFC 4301：『Security Architecture for the Internet Protocol』"^]
+* https://www.ietf.org/["Internet Engineering Task Force"^]
+* https://www.rfc-editor.org/info/rfc4301["RFC 4301：インターネット プロトコルのセキュリティ アーキテクチャ"^]
 
 
 
 
 == ONTAP IPsec実装の進化
 
-IPsecはONTAP 9.8で初めて導入されました。以下に説明するように、この実装はその後のONTAPリリースでも進化し続けています。
+IPsecはONTAP 9.8で初めて導入されました。その実装は、以下に説明するように、その後のONTAPリリースで進化を続けています。
 
 .ONTAP 9.18.1
 IPsec ハードウェア オフロードのサポートが IPv6 トラフィックに拡張されました。
 
 .ONTAP 9.17.1
-IPsecハードウェアオフロードのサポートが拡張されましたlink:../networking/combine_physical_ports_to_create_interface_groups.html["リンクアグリゲーショングループ"] 。link:../networking/ipsec-configure.html#define-the-security-policy-database-spd["耐量子事前共有鍵（PPK）"] IPsec 事前共有キー (PSK) 認証がサポートされています。
+IPsec ハードウェア オフロードのサポートがlink:../networking/combine_physical_ports_to_create_interface_groups.html["リンク アグリゲーション グループ"]に拡張されました。link:../networking/ipsec-configure.html#define-the-security-policy-database-spd["耐量子事前共有鍵（PPK）"]は IPsec 事前共有キー（PSK）認証でサポートされています。
 
-.ONTAP 9 .16.1
-暗号化や整合性チェックなどの暗号化処理のいくつかは、サポートされているNICカードにオフロードできます。詳細については、を参照してください <<IPSecハードウェアオフロード機能>> 。
+.ONTAP 9.16.1
+暗号化や整合性チェックなどの暗号化操作の一部は、サポートされているNICカードにオフロードできます。詳細については、<<IPSecのハードウェア オフロード機能>>を参照してください。
 
-.ONTAP 9 12.1
-IPSecフロントエンド・ホスト・プロトコルは、MetroCluster IPおよびMetroClusterファブリック接続構成でサポートされます。MetroClusterクラスタで提供されるIPSecのサポートはフロントエンドホストトラフィックに限定され、MetroClusterクラスタ間LIFではサポートされません。
+.ONTAP 9.12.1
+MetroCluster IP構成とファブリック接続MetroCluster構成で、フロントエンドのホスト プロトコルとしてIPsecがサポートされました。MetroClusterクラスタでのIPsecのサポートはフロントエンドのホスト トラフィックに限定され、MetroClusterのクラスタ間LIFではサポートされません。
 
-.ONTAP 9 10.1
-PSK に加えて証明書も IPsec 認証に使用できます。ONTAP 9.10.1より前のバージョンでは、認証でサポートされるのはPSKのみでした。
+.ONTAP 9.10.1
+IPsec認証には、PSKに加えて証明書も使用できます。ONTAP 9.10.1より前のバージョンでは、認証にはPSKのみがサポートされています。
 
-.ONTAP 9 .9.1
-IPsecで使用される暗号化アルゴリズムはFIPS 140-2に準拠しています。これらのアルゴリズムは、ONTAPのNetApp暗号モジュールによって処理され、FIPS 140-2の検証が行われます。
+.ONTAP 9.9.1
+IPsecで使用される暗号化アルゴリズムが、FIPS 140-2準拠になりました。これらのアルゴリズムは、FIPS 140-2認定を受けたONTAPのNetApp Cryptographic Moduleで処理されています。
 
 .ONTAP 9.8
-IPsecのサポートは、最初はトランスポートモードの実装に基づいて利用可能になります。
+IPsecのサポートが、トランスポート モードの実装に基づいて初めて利用可能になりました。
 
 
 
-== IPSecハードウェアオフロード機能
+== IPSecのハードウェア オフロード機能
 
-ONTAP 9.16.1以降を使用している場合は、暗号化や整合性チェックなど、計算負荷の高い特定の処理を、ストレージノードに取り付けられたネットワークインターフェイスコントローラ（NIC）カードにオフロードすることができます。NICカードにオフロードされた処理のスループットは約5%以下です。これにより、IPsecで保護されるネットワークトラフィックのパフォーマンスとスループットが大幅に向上します。
+ONTAP 9.16.1以降を使用している場合、暗号化や整合性チェックなど、計算負荷の高い特定の処理を、ストレージ ノードにインストールされたネットワーク インターフェイス コントローラー（NIC）カードにオフロードするオプションがあります。NICカードにオフロードされた処理のスループットは約5%以下です。これにより、IPsecで保護されたネットワーク トラフィックのパフォーマンスとスループットが大幅に向上します。
 
 
 
 === 要件と推奨事項
 
-IPsecハードウェアオフロード機能を使用する前に、いくつかの要件を考慮する必要があります。
+IPsecのハードウェア オフロード機能を使用する前に、考慮しておくべき要件がいくつかあります。
 
-.サポートされるイーサネットカード
-サポートされているイーサネットカードのみをインストールして使用してください。ONTAPONTAP以降では、以下のイーサネットカードがサポートされています。
+.サポートされるイーサネット カード
+サポートされているイーサネット カードのみをインストールして使用する必要があります。ONTAP 9.16.1 以降では、次のイーサネット カードがサポートされています：
 
-* X50131A（2p、40G/100G/200G/400Gイーサネットコントローラ）
-* X60132A（4p、10G / 25Gイーサネットコントローラ）
+* X50131A（2p、40G/100G/200G/400G Ethernetコントローラ）
+* X60132A（4p、10G/25G Ethernet Controller）
 
 
 ONTAP 9.17.1 では、次のイーサネット カードのサポートが追加されました。
 
-* X50135A (2p、40G/100G イーサネット コントローラー)
-* X60135A (2p、40G/100G イーサネット コントローラ)
+* X50135A（2p、40G/100G Ethernet Controller）
+* X60135A（2p、40G/100G Ethernet Controller）
 
 
-X50131A および X50135A カードは、次のプラットフォームでサポートされています。
+X50131A および X50135A カードは、次のプラットフォームでサポートされています：
 
 * ASA A1K
 * ASA A90
 * ASA A70
 * AFF A1K用
-* AFF A90用
-* AFF A70用
+* AFF A90
+* AFF A70
 
 
-X60132A および X60135A カードは、次のプラットフォームでサポートされています。
+X60132A および X60135A カードは、次のプラットフォームでサポートされています：
 
 * ASA A50
 * ASA A30
 * ASA A20
-* AFF A50用
-* AFF A30用
+* AFF A50
+* AFF A30
 * AFF A20用
 
 
-参照link:https://hwu.netapp.com/["NetApp Hardware Universe"^]サポートされているプラットフォームとカードの詳細については、こちらをご覧ください。
+サポートされているプラットフォームとカードの詳細については、link:https://hwu.netapp.com/["NetApp Hardware Universe"^]を参照してください。
 
-.クラスタスコープ
-IPSecハードウェアオフロード機能は、クラスタに対してグローバルに設定されます。たとえば、コマンドは `security ipsec config`クラスタ内のすべてのノードに適用されます。
+.クラスタ スコープ
+IPsecハードウェアオフロード機能はクラスタ全体でグローバルに設定されます。そのため、例えば `security ipsec config`コマンドはクラスタ内のすべてのノードに適用されます。
 
-.一貫した構成
-サポートされているNICカードがクラスタ内のすべてのノードに取り付けられている必要があります。サポートされているNICカードが一部のノードでしか使用できない場合、オフロードに対応したNICで一部のLIFがホストされていないと、フェイルオーバー後にパフォーマンスが大幅に低下することがあります。
+.構成の一貫性
+サポートされているNICカードが、クラスタ内のすべてのノードに取り付けられている必要があります。サポートされているNICカードが一部のノードでしか使用できない場合、一部のLIFがオフロード対応のNICにホストされていないと、フェイルオーバー後にパフォーマンスが大幅に低下することがあります。
 
-.アンチリプレイを無効にする
-ONTAP（デフォルト設定）およびIPsecクライアントでは、IPsecアンチリプレイ保護をディセーブルにする必要があります。ディセーブルにしない場合、フラグメンテーションおよびマルチパス（冗長ルート）はサポートされません。
+.アンチリプレイの無効化
+ONTAP（デフォルト設定）およびIPsecクライアントでIPsecアンチリプレイ保護を無効にする必要があります。無効にしない場合、フラグメンテーションとマルチパス（冗長ルート）はサポートされません。
 
-ONTAP IPsecの設定がデフォルトから変更され、アンチリプレイ保護がイネーブルになっている場合は、次のコマンドを使用してディセーブルにします。
+ONTAP IPsec 設定がデフォルトから変更され、アンチリプレイ保護が有効になっている場合は、次のコマンドを使用して無効にします：
 
 [source, cli]
 ----
 security ipsec config modify -replay-window 0
 ----
-IPsecアンチリプレイ保護がクライアントでディセーブルになっていることを確認する必要があります。アンチリプレイ保護をディセーブルにするには、クライアントのIPSecマニュアルを参照してください。
+クライアントでIPsecアンチリプレイ保護が無効になっていることを確認する必要があります。アンチリプレイ保護を無効にするには、クライアントのIPsecドキュメントを参照してください。
 
 
 
 === 制限事項
 
-IPsecハードウェアオフロード機能を使用する前に、いくつかの制限事項を考慮する必要があります。
+IPsecのハードウェア オフロード機能を使用する前に、考慮しておくべき制限事項がいくつかあります。
 
 .IPv6
-ONTAP 9.18.1 以降では、IPsec ハードウェア オフロード機能で IPv6 がサポートされるようになりました。  ONTAP 9.18.1 より前では、IPsec ハードウェア オフロードは IPv6 をサポートしていません。
+ONTAP 9.18.1以降では、IPsecハードウェアオフロード機能でIPv6がサポートされます。ONTAP 9.18.1より前のバージョンでは、IPsecハードウェアオフロードはIPv6をサポートしていません。
 
 .拡張シーケンス番号
-IPSec拡張シーケンス番号は、ハードウェアオフロード機能ではサポートされていません。通常の32ビットシーケンス番号のみが使用されます。
+IPSecの拡張シーケンス番号は、ハードウェア オフロード機能ではサポートされていません。通常の32ビット シーケンス番号のみが使用されます。
 
-.リンクアグリゲーション
-ONTAP 9.17.1以降では、IPsecハードウェアオフロード機能をlink:../networking/combine_physical_ports_to_create_interface_groups.html["リンク アグリゲーション グループ"] 。
+.リンク アグリゲーション
+ONTAP 9.17.1 以降では、IPsec ハードウェア オフロード機能をlink:../networking/combine_physical_ports_to_create_interface_groups.html["リンク アグリゲーション グループ"]で使用できます。
 
-9.17.1より前のバージョンでは、IPsecハードウェアオフロード機能はリンクアグリゲーションをサポートしていません。この機能は、  `network port ifgrp` ONTAP CLI でのコマンド。
+9.17.1より前のバージョンでは、IPsecハードウェアオフロード機能はリンクアグリゲーションをサポートしていません。ONTAP CLIの `network port ifgrp`コマンドで管理されるインターフェースまたはリンクアグリゲーショングループでは使用できません。
 
 
 
 === ONTAP CLIでの設定のサポート
 
-ONTAP 9 .16.1では、次に説明するように、3つの既存のCLIコマンドが更新され、IPSecハードウェアオフロード機能がサポートされています。詳細については、も参照してくださいlink:../networking/ipsec-configure.html["ONTAPでのIPセキュリティの設定"]。
+ONTAP 9.16.1では、既存の3つのCLIコマンドが更新され、以下に説明するIPsecハードウェアオフロード機能がサポートされます。詳細については、link:../networking/ipsec-configure.html["ONTAPでのIPセキュリティの設定"]も参照してください。
 
 [cols="40,60"]
 |===
 | ONTAPコマンド | 更新 
 
 
-| `security ipsec config show` | ブーリアンパラメータは `Offload Enabled`、現在のNICオフロードステータスを示します。 
+| `security ipsec config show` | ブール型パラメータ `Offload Enabled`は、現在の NIC オフロード ステータスを表示します。 
 
 
-| `security ipsec config modify` | パラメータを `is-offload-enabled`使用して、NICオフロード機能を有効または無効にできます。 
+| `security ipsec config modify` | このパラメータ `is-offload-enabled`を使用して、NIC オフロード機能を有効または無効にすることができます。 
 
 
-| `security ipsec config show-ipsecsa` | インバウンドおよびアウトバウンドトラフィックをバイトおよびパケット単位で表示するために、4つの新しいカウンタが追加されました。 
+| `security ipsec config show-ipsecsa` | インバウンド トラフィックとアウトバウンド トラフィックをバイト数とパケット数で表示するために、4つの新しいカウンタが追加されています。 
 |===
 
 
 === ONTAP REST APIでの設定のサポート
 
-ONTAP 9 .16.1では、次に説明するように、2つの既存のREST APIエンドポイントが更新され、IPsecハードウェアオフロード機能がサポートされます。
+ONTAP 9.16.1では、以下に説明するように、IPSecのハードウェア オフロード機能をサポートするために、既存の2つのREST APIエンドポイントが更新されています。
 
 [cols="40,60"]
 |===
@@ -174,9 +174,9 @@ ONTAP 9 .16.1では、次に説明するように、2つの既存のREST APIエ�
 | `/api/security/ipsec` | パラメータ `offload_enabled`が追加され、PATCHメソッドで使用できるようになりました。 
 
 
-| `/api/security/ipsec/security_association` | オフロード機能で処理された総バイト数とパケット数を追跡するために、2つの新しいカウンタ値が追加されました。 
+| `/api/security/ipsec/security_association` | オフロード機能で処理された総バイト数とパケット数を追跡するために、2つの新しいカウンタ値が追加されています。 
 |===
-を含むONTAP REST APIの詳細については、ONTAP自動化に関するドキュメントを参照し https://docs.netapp.com/us-en/ontap-automation/whats-new.html["ONTAP REST APIの新機能"^]てください。の詳細については、ONTAP自動化に関するドキュメントも参照して https://docs.netapp.com/us-en/ontap-automation/reference/api_reference.html["IPSecエンドポイント"^]ください。
+ONTAP REST APIの詳細（ https://docs.netapp.com/us-en/ontap-automation/whats-new.html["ONTAP REST APIの新機能"^]を含む）については、ONTAP自動化ドキュメントを参照してください。 https://docs.netapp.com/us-en/ontap-automation/reference/api_reference.html["IPsecエンドポイント"^]の詳細については、ONTAP自動化ドキュメントも参照してください。
 
 .関連情報
 * link:https://docs.netapp.com/us-en/ontap-cli/search.html?q=security+ipsec["セキュリティ IPsec"^]

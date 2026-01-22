@@ -2,9 +2,9 @@
 sidebar: sidebar 
 permalink: snapmirror-active-sync/site-b-mediator-troubleshoot-task.html 
 keywords: SM-BC, SMBC, troubleshooting, link down, Mediator, Cloud Mediator, snapmirror active sync 
-summary: サイト B からのメディエーターの接続が到達不能と表示される。 
+summary: サイト B からのメディエーター接続は到達不能として表示されます。 
 ---
-= サイト B とONTAP Mediator 間のリンクがダウンし、サイト A がダウン
+= サイト B と ONTAP Mediator 間のリンクがダウンし、サイト A がダウン
 :hardbreaks:
 :allow-uri-read: 
 :nofooter: 
@@ -14,10 +14,10 @@ summary: サイト B からのメディエーターの接続が到達不能と�
 
 
 [role="lead"]
-ONTAPメディエーターまたはONTAPクラウドメディエーターの接続を確認するには、  `snapmirror mediator show`指示。接続ステータスが到達不能で、サイトBがサイトAに到達できない場合は、次のような出力が表示されます。「解決策」の手順に従って、接続をリストアしてください。
+ONTAP MediatorまたはONTAP Cloud Mediatorの接続を確認するには、 `snapmirror mediator show`コマンドを使用します。接続ステータスが到達不能で、サイトBからサイトAにアクセスできない場合は、以下のような出力が表示されます。ソリューションの手順に従って接続を復元してください。
 
 .例：
-ONTAP Cloud Mediator 出力「snapmirror mediator show」コマンドを使用します。
+ONTAP Cloud Mediator 出力の `snapmirror mediator show` コマンドを使用します。
 
 ....
 cluster::> snapmirror mediator show
@@ -25,7 +25,7 @@ Mediator Address Peer Cluster    Connection Status Quorum Status Type
 ---------------- ---------------- ----------------- ------------- -------
 0.0.0.0          C1_cluster       unreachable       true          cloud
 ....
-ONTAP Mediator 出力の `snapmirror mediator show` コマンドを使用します。
+ONTAP Mediator 出力の `snapmirror mediator show` コマンドを使用します：
 
 ....
 cluster::> snapmirror mediator show
@@ -54,7 +54,7 @@ C1_cluster 			  1-80-000011           Unavailable    ok
 .解決策
 フェイルオーバーを強制的に実行してサイトBからのI/Oを可能にし、サイトBからサイトAへのRTOゼロの関係を確立します。サイトBで強制的にフェイルオーバーを実行するには、以下の手順に従います。
 
-. サイト B からコンシステンシ グループに属するすべての LUN をマップ解除します。これは失敗するため、最初に igroup を変更してレプリケーション ピア SVM を削除し、次に LUN マップを削除する必要があります。
+. サイト B からコンシステンシ グループに属するすべての LUN のマッピングを解除します。これは失敗するため、最初に igroup を変更してレプリケーション ピア SVM を削除してから、 LUN マップを削除する必要があります。
 
 
 例：
@@ -86,24 +86,24 @@ vs0        /vol/cg1_lun/lun_2                        igroup1       1  mixed
 1 entries were displayed.
 ----
 . forceオプションを使用して、SnapMirror整合性グループ関係を削除します。
-. (`snapmirror break -destination_path _svm_:_volume_`整合性グループのコンスティチュエントボリュームに対してSnapMirror breakコマンドを入力してボリュームをDPからRWに変換し、サイトBからのI/Oを可能にします。
+. 整合性グループを構成するボリュームに対してSnapMirror break コマンド(`snapmirror break -destination_path _svm_:_volume_`）を入力し、ボリュームを DP から RW に変換して、サイト B からの I/O を有効にします。
 +
-整合性グループ内の関係ごとにSnapMirror breakコマンドを実行する必要があります。たとえば、整合グループにボリュームが3つある場合は、ボリュームごとにコマンドを実行します。
+整合性グループ内の関係ごとに、SnapMirror breakコマンドを実行する必要があります。たとえば、整合性グループ内にボリュームが3つある場合は、ボリュームごとにコマンドを実行します。
 
 . サイトAのノードをブートして、サイトBからサイトAへのRTOゼロの関係を作成します。
-. サイトAでrelationship-info-onlyを使用して整合性グループを解放し、共通のSnapshotを保持して、整合性グループに属するLUNのマッピングを解除します。
-. SyncポリシーまたはAsyncポリシーを使用してボリュームレベルの関係を設定し、サイトAのボリュームをRWからDPに変換します。
-. コマンドを実行し `snapmirror resync`て関係を同期します。
+. 共通のスナップショットを保持し、整合性グループに属する LUN のマッピングを解除するには、サイト A で relationship-info-only を指定して整合性グループを解放します。
+. SyncポリシーまたはAsyncポリシーを使用してボリューム レベルの関係を設定し、サイトAのボリュームをRWからDPに変換します。
+.  `snapmirror resync`コマンドを問題して、関係を同期します。
 . サイトAでSyncポリシーが設定されたSnapMirror関係を削除します。
 . サイトBでSyncポリシーが設定されたSnapMirror関係をrelationship-info-only trueを使用して解放します。
-. サイトBとサイトAの間に整合性グループ関係を作成します。
-. ソースクラスタから、整合グループを再同期します。整合性グループの状態がin syncになっていることを確認します。
+. サイトBからサイトAへの整合性グループ関係を作成します。
+. ソース クラスタから、整合性グループを再同期します。整合性グループの状態が同期中になっていることを確認します。
 . ホストのLUN I/Oパスを再スキャンして、LUNへのすべてのパスをリストアします。
 
 
 .関連情報
-* link:https://docs.netapp.com/us-en/ontap-cli/snapmirror-break.html["スナップミラーの破損"^]
-* link:https://docs.netapp.com/us-en/ontap-cli/snapmirror-mediator-show.html["スナップミラーメディエーターショー"^]
+* link:https://docs.netapp.com/us-en/ontap-cli/snapmirror-break.html["snapmirror break"^]
+* link:https://docs.netapp.com/us-en/ontap-cli/snapmirror-mediator-show.html["SnapMirror Mediator show"^]
 * link:https://docs.netapp.com/us-en/ontap-cli/snapmirror-resync.html["snapmirror resync"^]
 * link:https://docs.netapp.com/us-en/ontap-cli/snapmirror-show.html["snapmirror show"^]
 

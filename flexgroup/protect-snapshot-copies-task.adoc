@@ -2,32 +2,32 @@
 permalink: flexgroup/protect-snapshot-copies-task.html 
 sidebar: sidebar 
 keywords: protect, flexgroup, volume, snapshot, copy, flex group, snap shot, manually, manual, automatically, automatic, policy 
-summary: Snapshotの作成を自動的に管理するSnapshotポリシーを作成したり、FlexGroupボリュームのSnapshotを手動で作成したりできます。FlexGroupボリュームの有効なSnapshotは、ONTAPがFlexGroupボリュームの各コンスティチュエントのSnapshotを正常に作成できるまで作成されません。 
+summary: スナップショットの作成を自動管理するSnapshotポリシーを作成することも、FlexGroupボリュームのスナップショットを手動で作成することもできます。FlexGroupボリュームの有効なスナップショットは、ONTAPがFlexGroupボリュームの各構成要素のスナップショットを正常に作成できた場合にのみ作成されます。 
 ---
-= Snapshotを使用したONTAP FlexGroupボリュームの保護
+= スナップショットを使用してONTAP FlexGroupボリュームを保護する
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-Snapshotの作成を自動的に管理するSnapshotポリシーを作成したり、FlexGroupボリュームのSnapshotを手動で作成したりできます。FlexGroupボリュームの有効なSnapshotは、ONTAPがFlexGroupボリュームの各コンスティチュエントのSnapshotを正常に作成できるまで作成されません。
+スナップショットの作成を自動管理するSnapshotポリシーを作成することも、FlexGroupボリュームのスナップショットを手動で作成することもできます。FlexGroupボリュームの有効なスナップショットは、ONTAPがFlexGroupボリュームの各構成要素のスナップショットを正常に作成できた場合にのみ作成されます。
 
-.タスクの内容
-* Snapshotポリシーに複数のFlexGroupを関連付ける場合は、FlexGroupのスケジュールが重ならないようにする必要があります。
-* ONTAP 9.8以降では、FlexGroupボリュームでサポートされるSnapshotの最大数は1023です。
+.タスク概要
+* 複数のFlexGroupボリュームがSnapshotポリシーに関連付けられている場合は、FlexGroupボリュームのスケジュールが重複しないようにする必要があります。
+* ONTAP 9.8以降、FlexGroupボリュームでサポートされるSnapshotの最大数は1023です。
 
 
 
-NOTE: ONTAP 9.8以降では `volume snapshot show`、FlexGroupボリュームに対するコマンドで、最も若い所有ブロックが計算されるのではなく、論理ブロックを使用してSnapshotサイズが報告されます。この新しいサイズ計算方法では、以前のバージョンのONTAPでの計算よりもスナップショットサイズが大きく表示されることがあります。
+NOTE: ONTAP 9.8以降、 `volume snapshot show`FlexGroupボリュームのコマンドは、所有されている最も新しいブロックを計算するのではなく、論理ブロックを使用してSnapshotサイズを報告します。この新しいサイズ計算方法により、Snapshotサイズは以前のバージョンのONTAPでの計算よりも大きく表示される場合があります。
 
 .手順
-. Snapshotポリシーを作成するか、手動でSnapshotを作成します。
+. Snapshotポリシーを作成するか、手動でSnapshotを作成します：
 +
 |===
 
 
-| 作成する項目 | 入力するコマンド 
+| ...を作成したい場合 | コマンド 
 
 
  a| 
@@ -36,26 +36,26 @@ Snapshotポリシー
 `volume snapshot policy create`
 
 
-NOTE: FlexGroupボリュームのSnapshotポリシーに関連付けるスケジュールは、間隔が30分を超える必要があります。
+NOTE: FlexGroupボリュームのSnapshotポリシーに関連付けられたスケジュールの間隔は30分より長くする必要があります。
 
-FlexGroupボリュームを作成すると、 `default`SnapshotポリシーがFlexGroupボリュームに適用されます。
+FlexGroupボリュームを作成すると、 `default` SnapshotポリシーがFlexGroupボリュームに適用されます。
 
 
 
  a| 
-Snapshotを手動で作成
+手動でSnapshotを作成する
  a| 
 `volume snapshot create`
 
 
-NOTE: FlexGroupのSnapshotを作成したあとで、Snapshotの属性を変更することはできません。属性を変更する場合は、Snapshotを削除してから再作成する必要があります。
+NOTE: FlexGroupボリュームのスナップショットを作成した後は、スナップショットの属性を変更することはできません。属性を変更するには、スナップショットを削除してから再作成する必要があります。
 
 |===
 
 
-Snapshotの作成時には、FlexGroupボリュームへのクライアントアクセスが一時的に休止されます。
+FlexGroupボリュームへのクライアント アクセスは、Snapshotの作成時に一時的に休止されます。
 
-. FlexGroupボリュームの有効なSnapshotが作成されたことを確認します。 `volume snapshot show -volume volume_name -fields state`
+. FlexGroupボリュームに対して有効なSnapshotが作成されていることを確認します： `volume snapshot show -volume volume_name -fields state`
 +
 [listing]
 ----
@@ -64,7 +64,7 @@ vserver volume snapshot               state
 ------- ------ ---------------------- -----
 fg_vs   fg     hourly.2016-08-23_0505 valid
 ----
-. FlexGroupボリュームのコンスティチュエントのSnapshotを表示します。 `volume snapshot show -is-constituent true`
+. FlexGroupボリュームの構成要素のSnapshotを表示します： `volume snapshot show -is-constituent true`
 +
 [listing]
 ----

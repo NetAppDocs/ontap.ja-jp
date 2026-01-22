@@ -2,41 +2,41 @@
 permalink: san-admin/configure-volume-provisioning-options-task.html 
 sidebar: sidebar 
 keywords: configure, volume, provisioning, options 
-summary: ボリュームにシンプロビジョニング、シックプロビジョニング、またはセミシックプロビジョニングを設定できます。 
+summary: ボリュームをシンプロビジョニング、シックプロビジョニング、またはセミシックプロビジョニング用に設定できます。 
 ---
-= ボリュームプロビジョニングオプションの設定
+= ボリューム プロビジョニング オプションの設定
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-ボリュームにシンプロビジョニング、シックプロビジョニング、またはセミシックプロビジョニングを設定できます。
+ボリュームをシンプロビジョニング、シックプロビジョニング、またはセミシックプロビジョニング用に設定できます。
 
-.タスクの内容
-このオプションをに `thick`設定する `-space-slo`と、次の処理が実行されます。
+.タスク概要
+ `-space-slo`オプションを `thick`に設定すると、次のことが保証されます：
 
-* ボリューム全体がアグリゲートに事前に割り当てられます。コマンドまたは `volume modify`コマンドを使用してボリュームのオプションを設定する `-space-guarantee`ことはできません `volume create`。
-* 上書きに必要なスペースの100%がリザーブされます。コマンドを使用してボリュームのオプションを設定する `-fractional-reserve`ことはできません。 `volume modify`
-
-
-このオプションをに `semi-thick`設定する `-space-slo`と、次の処理が実行されます。
-
-* ボリューム全体がアグリゲートに事前に割り当てられます。コマンドまたは `volume modify`コマンドを使用してボリュームのオプションを設定する `-space-guarantee`ことはできません `volume create`。
-* スペースは上書き用にリザーブされません。コマンドを使用して、ボリュームのオプションを設定 `-fractional-reserve`できます `volume modify`。
-* Snapshotの自動削除が有効になります。
+* ボリューム全体がアグリゲートに事前割り当てされています。 `volume create`コマンドまたは `volume modify`コマンドを使用して、ボリュームの `-space-guarantee`オプションを設定することはできません。
+* 上書きに必要なスペースの100%が予約されています。 `volume modify`コマンドを使用してボリュームの `-fractional-reserve`オプションを設定することはできません。
 
 
-.ステップ
-. ボリュームのプロビジョニングオプションを設定します。
+ `-space-slo`オプションを `semi-thick`に設定すると、次のことが保証されます：
+
+* ボリューム全体がアグリゲートに事前割り当てされています。 `volume create`コマンドまたは `volume modify`コマンドを使用して、ボリュームの `-space-guarantee`オプションを設定することはできません。
+* 上書き用のスペースは予約されていません。 `volume modify`コマンドを使用して、ボリュームの `-fractional-reserve`オプションを設定できます。
+* Snapshotの自動削除が有効になっています。
+
+
+.手順
+. ボリューム プロビジョニング オプションを設定します。
 +
 `volume create -vserver _vserver_name_ -volume _volume_name_ -aggregate _aggregate_name_ -space-slo none|thick|semi-thick -space-guarantee none|volume`
 
 +
-AFFシステムおよびAFF以外のDPボリュームでは、この `-space-guarantee`オプションのデフォルトはです `none`。それ以外の場合は、デフォルトでになり `volume`ます。既存のFlexVolボリュームの場合は、コマンドを使用し `volume modify`てプロビジョニングオプションを設定します。
+この `-space-guarantee`オプションは、AFFシステムおよび非AFF DPボリュームの場合はデフォルトで `none`になります。それ以外の場合は、デフォルトで `volume`になります。既存のFlexVolボリュームの場合は、 `volume modify`コマンドを使用してプロビジョニングオプションを設定してください。
 
 +
-次のコマンドを使うと、 SVM vs1 上の vol1 にシンプロビジョニングが設定されます。
+次のコマンドは、SVM vs1のvol1をシンプロビジョニング用に設定します。
 
 +
 [listing]
@@ -44,7 +44,7 @@ AFFシステムおよびAFF以外のDPボリュームでは、この `-space-gua
 cluster1::> volume create –vserver vs1 -volume vol1 -space-guarantee none
 ----
 +
-次のコマンドを使うと、 SVM vs1 上の vol1 にシックプロビジョニングが設定されます。
+次のコマンドは、SVM vs1のvol1をシックプロビジョニング用に設定します。
 
 +
 [listing]
@@ -52,7 +52,7 @@ cluster1::> volume create –vserver vs1 -volume vol1 -space-guarantee none
 cluster1::> volume create –vserver vs1 -volume vol1 -space-slo thick
 ----
 +
-次のコマンドを使うと、 SVM vs1 上の vol1 にセミシックプロビジョニングが設定されます。
+次のコマンドは、SVM vs1のvol1をセミシックプロビジョニング用に設定します。
 
 +
 [listing]

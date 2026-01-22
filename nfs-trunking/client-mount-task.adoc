@@ -4,28 +4,28 @@ sidebar: sidebar
 keywords: NFS, servers, network, NFS trunking, data shares, Linux, VMware, mounts 
 summary: トランキングをサポートするLinuxおよびVMwareクライアントは、トランキングが有効になっているONTAP NFSサーバからボリュームまたはデータ共有をマウントできます。 
 ---
-= NFSトランキング用にONTAPボリュームまたはデータ共有をマウント
+= NFSトランキング用のONTAPボリュームまたはデータ共有をマウントする
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-トランキングをサポートするLinuxおよびVMwareクライアントは、トランキングが有効になっているONTAP NFSv4.1サーバからボリュームまたはデータ共有をマウントできます。
+トランキングをサポートするLinuxクライアントとVMwareクライアントは、トランキングが有効になっているONTAP NFSv4.1サーバからボリュームやデータ共有をマウントできます。
 
-詳細はこちらをご覧ください link:index.html#supported-clients["サポートされるクライアント"]。
+link:index.html#supported-clients["サポート対象のクライアント"]について学びましょう。
 
 [role="tabbed-block"]
 ====
 .Linuxクライアントの要件
 --
-ONTAP 9.16.1以降とRed Hat Enterprise Linuxバージョン8.7以降（RHEL 8の場合）または9.2以降（RHEL 9の場合）をLinuxクライアントとして使用している場合、トランキンググループに必要なマウントポイントは1つだけです。次のオプションを使用して、エクスポートしたボリュームをマウントし `trunkdiscovery`ます。
+ONTAP 9.16.1以降とLinuxクライアントとしてRed Hat Enterprise Linuxバージョン8.7以降（RHEL 8の場合）または9.2以降（RHEL 9の場合）を使用している場合、トランキンググループに必要なマウントポイントは1つだけです。エクスポートしたボリュームをマウントするには、次のコマンドで `trunkdiscovery`オプションを使用します：
 
 [source, cli]
 ----
 mount <lif_ip>:<volume_name> </mount_path> -o trunkdiscovery,vers=4.1
 ----
-それ以外の場合は、トランキンググループ内の接続ごとに個別のマウントポイントが必要です。次のようなコマンドを使用して、オプションを使用してエクスポートしたボリュームをマウントします `max_connect`。
+それ以外の場合は、トランキンググループ内の接続ごとに個別のマウントポイントが必要です。 `max_connect`オプションを使用して、次のようなコマンドでエクスポートされたボリュームをマウントします：
 
 [source, cli]
 ----
@@ -35,20 +35,20 @@ mount <lif1_ip>:<volume_name> </mount_path1> -o vers=4.1,max_connect=16
 ----
 mount <lif2_ip>:<volume_name> </mount_path2> -o vers=4.1,max_connect=16
 ----
-version(`vers`）の値は以降である必要があります `4.1`。
+バージョン(`vers`）の値は `4.1`以降である必要があります。
 
-この `max_connect`値は、トランキンググループ内の接続数に対応します。
+ `max_connect`値はトランキンググループ内の接続数に対応します。
 
 --
 .VMwareクライアントの要件
 --
-トランキンググループ内の各接続のIPアドレスを含むMOUNTステートメントが必要です。
+トランキング グループ内の各接続のIPアドレスを含むMOUNTステートメントが必要です。
 
-次のようなコマンドを使用して、エクスポートしたデータストアをマウントします。
+エクスポートしたデータストアをマウントするには、次のようなコマンドを使用します。
 
 `#esxcli storage nfs41 -H lif1_ip, lif2_ip -s /mnt/sh are1 -v nfs41share`
 
- `-H`値はトランキンググループ内の接続に対応しています。
+ `-H`値はトランキング グループ内の接続に対応します。
 
 --
 ====

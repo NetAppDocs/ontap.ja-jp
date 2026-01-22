@@ -2,28 +2,28 @@
 permalink: smb-config/verify-enabled-versions-task.html 
 sidebar: sidebar 
 keywords: ontap, release, smb, version, enable, default, connection, client, domain, controller, controller, verify, support, functionality, environment, verify enabled smb versions, can smb1 be enabled in ontap 9 
-summary: ONTAP 9.0以降では、SMB 2.0がデフォルトで有効になります。SMB 1.0は使用しているONTAPのバージョンに応じてデフォルトで有効になっています 
+summary: ONTAP 9.0以降では、SMB 2.0がデフォルトで有効になっています。SMB 1.0は、ONTAPのバージョンに基づいてデフォルトで有効になっています 
 ---
-= 有効なONTAP SMBバージョンの確認
+= 有効なONTAP SMBバージョンを確認する
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-クライアントおよびドメインコントローラとの接続に対してデフォルトで有効になっているSMBのバージョンは、ONTAP 9のリリースに応じて決まります。ご使用の環境で必要なクライアントと機能がSMBサーバでサポートされていることを確認する必要があります。
+クライアントおよびドメイン コントローラとの接続に対してデフォルトで有効になっているSMBのバージョンは、ONTAP 9のリリースによって決まります。ご使用の環境で必要なクライアントと機能を、SMBサーバがサポートしていることを確認する必要があります。
 
-.タスクの内容
-クライアントとドメインコントローラの両方と接続する場合は、可能なかぎりSMB 2.0以降を有効にしてください。セキュリティ上の理由から、SMB 1.0の使用は避け、ご使用の環境で不要であることが確認された場合は無効にしてください。
+.タスク概要
+クライアントとドメイン コントローラの両方と接続するために、可能な場合は常にSMB 2.0以降を有効にする必要があります。セキュリティ上の理由から、SMB 1.0の使用は避け、お使いの環境で不要だと確認できた場合は無効にする必要があります。
 
-ONTAP 9 .3以降では、新しいSVMではデフォルトで無効になっています。
+ONTAP 9.3以降、新しいSVMではデフォルトで無効になっています。
 
 [NOTE]
 ====
-がwhileに `-smb1-enabled`設定されて `false`いる場合 `-smb1-enabled-for-dc-connections` `true`、ONTAPはクライアントとしてのSMB 1.0の接続を拒否しますが、サーバとしてのSMB 1.0のインバウンド接続は引き続き受け入れます。
+ `-smb1-enabled-for-dc-connections`が `false`に設定されている場合に `-smb1-enabled`が `true`に設定されると、ONTAPはクライアントとしてSMB 1.0接続を拒否しますが、サーバとして着信SMB 1.0接続を引き続き受け入れます。
 
 ====
-link:../smb-admin/index.html["SMBの管理"]サポートされるSMBのバージョンと機能の詳細が表示されます。
+link:../smb-admin/index.html["SMBの管理"] には、サポートされている SMB バージョンと機能に関する詳細が記載されています。
 
 .手順
 . 権限レベルをadvancedに設定します。
@@ -50,7 +50,7 @@ vserver cifs options show
 vserver cifs options modify -vserver <vserver_name> -<smb_version> true
 ----
 +
-有効な値 `smb_version`は次のとおりです。
+ `smb_version`の可能な値：
 
 +
 *** `-smb1-enabled`
@@ -58,12 +58,12 @@ vserver cifs options modify -vserver <vserver_name> -<smb_version> true
 *** `-smb3-enabled`
 *** `-smb31-enabled`
 +
-次のコマンドは、SVM vs1.example.comでSMB 3.1を有効にします。
+次のコマンドは、SVM vs1.example.comでSMB 3.1を有効にします：
 `cluster1::*> vserver cifs options modify -vserver vs1.example.com -smb31-enabled true`
 
 
 
-** SMBバージョンを無効にするには：
+** SMBバージョンを無効にする場合︰
 +
 [source, cli]
 ----
@@ -71,7 +71,7 @@ vserver cifs options modify -vserver <vserver_name> -<smb_version> false
 ----
 
 
-. SMBサーバがActive Directoryドメイン内にある場合は、必要に応じてDC接続用のSMBプロトコルを有効または無効にします。
+. SMBサーバがActive Directoryドメイン内にある場合は、必要に応じて、DC接続用のSMBプロトコルを有効または無効にします。
 +
 ** SMBバージョンを有効にする場合︰
 +
@@ -79,7 +79,7 @@ vserver cifs options modify -vserver <vserver_name> -<smb_version> false
 ----
 vserver cifs security modify -vserver <vserver_name> -smb2-enabled-for-dc-connections true
 ----
-** SMBバージョンを無効にするには：
+** SMBバージョンを無効にする場合︰
 +
 [source, cli]
 ----

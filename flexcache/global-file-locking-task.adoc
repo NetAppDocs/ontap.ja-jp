@@ -2,24 +2,24 @@
 permalink: flexcache/global-file-locking-task.html 
 sidebar: sidebar 
 keywords: global file locking, flexcache, relationship 
-summary: FlexCache ボリュームでグローバルファイルロックを有効にして、可用性を超えた整合性を確保することができます。 
+summary: 可用性よりも一貫性を優先したい場合は、FlexCacheボリューム上でグローバル ファイル ロックを有効にすることができます。 
 ---
-= ONTAP FlexCacheボリュームでのグローバルファイルロックの有効化
+= ONTAP FlexCacheボリュームでグローバルファイルロックを有効にする
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-ONTAP 9 .10.1以降では、グローバルファイルロックを適用して、関連するすべてのキャッシュファイルの読み取りを防止できます。
+ONTAP 9.10.1以降では、グローバル ファイル ロックを適用して、関連するすべてのキャッシュ ファイルの読み取りを防止できます。
 
-グローバルファイルロックを有効にすると、すべてのFlexCacheボリュームがオンラインになるまで元のボリュームに対する変更が中断されます。グローバルファイルロックは、FlexCacheボリュームがオフラインのときに変更が一時停止され、タイムアウトが発生する可能性があるために、キャッシュと元の間の接続の信頼性を制御できる場合にのみ有効にしてください。
+グローバル ファイル ロックが有効な場合、すべてのFlexCacheボリュームがオンラインになるまで元のボリュームに対する変更は保留になります。FlexCacheボリュームがオフラインの場合は変更が保留になってタイムアウトする可能性があるため、グローバル ファイル ロックを有効にするのは、キャッシュと元のボリュームの間の接続の信頼性が確立されている場合だけにしてください。
 
 .開始する前に
-* グローバルファイルロックでは、元のキャッシュと関連するすべてのキャッシュを含むクラスタでONTAP 9 .9.1以降が実行されている必要があります。グローバルファイルロックは、新規または既存のFlexCacheボリュームで有効にできます。このコマンドは1つのボリュームに対して実行でき、関連付けられているすべてのFlexCacheに適用されます。
-* グローバルファイルロックを有効にするには、advanced権限レベルが必要です。
-* ONTAP 9.9.1より前のバージョンにリバートする場合は、最初に送信元キャッシュと関連するキャッシュでグローバルファイルロックを無効にする必要があります。無効にするには、元のボリュームから次のコマンドを実行します。 `volume flexcache prepare-to-downgrade -disable-feature-set 9.10.0`
-* グローバルファイルロックを有効にするプロセスは、オリジンに既存のキャッシュがあるかどうかによって異なります。
+* グローバル ファイル ロックを使用するには、元のボリュームとすべての関連するキャッシュを含むクラスタでONTAP 9.9.1以降が実行されている必要があります。グローバル ファイル ロックは、新規または既存のFlexCacheボリュームに対して有効にできます。いずれかのボリュームでコマンドを実行すると、関連付けられているすべてのFlexCacheボリュームに適用されます。
+* グローバル ファイル ロックを有効にするにはadvanced権限レベルが必要です。
+* ONTAP 9.9.1より前のバージョンにリバートする場合は、まず元のボリュームと関連キャッシュでグローバルファイルロックを無効にする必要があります。無効にするには、元のボリュームから次のコマンドを実行します： `volume flexcache prepare-to-downgrade -disable-feature-set 9.10.0`
+* グローバル ファイル ロックを有効にするプロセスは、元のボリュームに既存のキャッシュがあるかどうかによって異なります。
 +
 ** <<enable-gfl-new>>
 ** <<enable-gfl-existing>>
@@ -29,33 +29,33 @@ ONTAP 9 .10.1以降では、グローバルファイルロックを適用して�
 
 
 
-== 新しいFlexCacheボリュームでグローバルファイルロックを有効にする
+== 新しいFlexCacheボリュームに対するグローバル ファイル ロックの有効化
 
 .手順
-. trueに設定してFlexCacheボリュームを作成し `-is-global-file-locking`ます。
+.  `-is-global-file-locking`true に設定してFlexCacheボリュームを作成します：
 +
 `volume flexcache create volume _volume_name_ -is-global-file-locking-enabled true`
 
 +
 
-NOTE: のデフォルト値 `-is-global-file-locking`は"`false`"です。以降のコマンドをボリュームに対して実行する場合 `volume flexcache create`は、「true」に設定して渡す必要があります `-is-global-file-locking enabled`。
+NOTE:  `-is-global-file-locking`のデフォルト値は「`false`」です。ボリューム上で後続の `volume flexcache create`コマンドを実行する場合は、必ず `-is-global-file-locking enabled`を「`true`」に設定して渡す必要があります。
 
 
 
 
 
-== 既存のFlexCacheボリュームでグローバルファイルロックを有効にする
+== 既存のFlexCacheボリュームに対するグローバル ファイル ロックの有効化
 
 .手順
-. グローバルファイルロックは元のボリュームから設定する必要があります。
-. 他の既存の関係（SnapMirrorなど）を元のボリュームに含めることはできません。既存の関係はすべて解除する必要があります。コマンドの実行時にすべてのキャッシュとボリュームが接続されている必要があります。接続ステータスを確認するには、次のコマンドを実行します。
+. グローバル ファイル ロックは元のボリュームから設定する必要があります。
+. 元のボリュームに他の既存の関係（SnapMirrorなど）があってはなりません。既存の関係がある場合は関連付けを解除する必要があります。コマンドの実行時に、すべてのキャッシュとボリュームが接続されている必要があります。接続ステータスを確認するには、次のコマンドを実行します。
 +
 `volume flexcache connection-status show`
 
 +
-表示されたすべてのボリュームのステータスがと表示されます `connected.`。詳細については、またはを参照してくださいlink:view-connection-status-origin-task.html["FlexCache 関係のステータスを確認します"]link:synchronize-properties-origin-volume-task.html["元のボリュームから FlexCache ボリュームのプロパティを同期する"]。
+リストされているすべてのボリュームのステータスは `connected.`と表示されます。詳細については、link:view-connection-status-origin-task.html["FlexCache関係のステータスを表示する"]またはlink:synchronize-properties-origin-volume-task.html["元のFlexCacheボリュームのプロパティを同期する"]を参照してください。
 
-. キャッシュでグローバルファイルロックを有効にします。
+. キャッシュに対してグローバル ファイル ロックを有効にします。
 +
 `volume flexcache origin config show/modify -volume _volume_name_ -is-global-file-locking-enabled true`
 

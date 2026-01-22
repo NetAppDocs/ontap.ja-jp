@@ -2,53 +2,53 @@
 permalink: nfs-config/create-kerberos-config-task.html 
 sidebar: sidebar 
 keywords: enable, kerberos, data, lif 
-summary: vserver nfs kerberos interface enable コマンドを使用すると、データ LIF で Kerberos を有効にできます。これにより、SVMでNFSのKerberosセキュリティサービスを使用できます。 
+summary: vserver nfs kerberos interface enableコマンドを使用して、データLIFでKerberosを有効にすることができます。これにより、SVMはNFSでKerberosセキュリティ サービスを使用できるようになります。 
 ---
-= ONTAP LIFでNFS Kerberosを有効にする
+= ONTAP LIFでNFS Kerberosを有にする
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-コマンドを使用すると、データLIFでKerberosを有効にできます `vserver nfs kerberos interface enable`。これにより、SVMでNFSのKerberosセキュリティサービスを使用できます。
+ `vserver nfs kerberos interface enable`コマンドを使用して、データLIFでKerberosを有効にすることができます。これにより、SVMはNFSのKerberosセキュリティ サービスを使用できるようになります。
 
-.タスクの内容
-Active Directory KDC を使用する場合、使用される SPN の最初の 15 文字は Realm またはドメイン内の SVM 間で一意である必要があります。
+.タスク概要
+Active Directory KDCを使用している場合、使用されるSPNの最初の15文字は、レルムまたはドメイン内のSVM間で一意である必要があります。
 
 .手順
-. NFS Kerberos 設定を作成します。
+. NFS Kerberos構成を作成します：
 +
 `vserver nfs kerberos interface enable -vserver _vserver_name_ -lif _logical_interface_ -spn _service_principal_name_`
 
 +
-ONTAP で Kerberos インターフェイスを有効にするには、 KDC の SPN 用のシークレットキーが必要です。
+ONTAPでは、Kerberosインターフェイスを有効にするためにKDCからのSPNの秘密キーが必要です。
 
 +
-Microsoft KDC の場合、 KDC に接続があると、シークレットキーを取得するためのユーザ名とパスワードのプロンプトが CLI で発行されます。Kerberos Realmの別のOUでSPNを作成する必要がある場合は、オプションのパラメータを指定できます `-ou`。
+Microsoft KDCの場合、KDCに接続し、CLIでユーザー名とパスワードの入力を求めるプロンプトが表示され、秘密鍵が取得されます。Kerberosレルム内の別のOUにSPNを作成する必要がある場合は、オプションの `-ou`パラメータを指定できます。
 
 +
-Microsoft 以外の KDC の場合は、次の 2 つのうちいずれかの方法を使用してシークレットキーを取得できます。
+Microsoft 以外の KDC の場合、秘密キーは次の 2 つの方法のいずれかで取得できます：
 
 +
 |===
-| 状況 | コマンドとともに含める必要のあるパラメータ 
+| 状況 | コマンドには次のパラメータも含める必要があります。 
 
 
  a| 
-KDC からキーを直接取得するための KDC 管理者のクレデンシャルが必要です
+KDC から直接キーを取得するための KDC 管理者の資格情報を持っている
  a| 
 `-admin-username` `_kdc_admin_username_`
 
 
 
  a| 
-KDC 管理者のクレデンシャルはないが、キーが含まれている、 KDC の keytab ファイルはある
+KDC管理者のクレデンシャルは持っていないが、キーを含むKDCからのキータブ ファイルを持っている
  a| 
-`-keytab-uri`｛ftp|http｝：//`_uri_`
+`-keytab-uri` {ftp|http}://`_uri_`
 
 |===
-. LIFでKerberosが有効になったことを確認します。
+. LIF上でKerberosが有効になったことを確認します。
 +
 `vserver nfs kerberos-config show`
 
@@ -56,7 +56,7 @@ KDC 管理者のクレデンシャルはないが、キーが含まれている�
 
 
 .例
-次のコマンドは、 vs1 という SVM の NFS Kerberos 設定を、 OU lab2ou 内の SPN nfs/ves03-d1.lab.example.com@TEST.LAB.EXAMPLE.COM を使用して、 ves03-d1 という論理インターフェイス ves03-d1 に対して作成して検証します。
+次のコマンドは、OU lab2ou内のSPN nfs/ves03-d1.lab.example.com@TEST.LAB.EXAMPLE.COMを使用して、論理インターフェイスves03-d1上のvs1という名前のSVMのNFS Kerberos設定を作成し、検証します：
 
 [listing]
 ----

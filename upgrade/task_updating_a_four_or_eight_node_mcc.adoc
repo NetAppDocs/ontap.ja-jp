@@ -2,49 +2,49 @@
 permalink: upgrade/task_updating_a_four_or_eight_node_mcc.html 
 sidebar: sidebar 
 keywords: 4-node MetroCluster configurations,8-node MetroCluster configurations, upgrade, upgrading, manual, manually 
-summary: 4ノードまたは8ノードMetroCluster構成の手動アップグレードでは、各DRグループのDRペアを準備して更新し、アップグレード後の手順を実行します。 
+summary: 4ノードまたは8ノードMetroCluster構成の手動アップグレードには、各DRグループのDRペアの準備と更新、およびアップグレード後のタスクの実行が含まれます 
 ---
-= CLIを使用した4ノードまたは8ノードMetroCluster構成の手動による無停止ONTAPアップグレード
+= CLIを使用した4ノードまたは8ノードMetroCluster構成のONTAPの手動無停止アップグレード
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-4ノードまたは8ノードMetroCluster構成の手動アップグレードでは、更新の準備を行い、1つまたは2つのDRグループのそれぞれのDRペアを同時に更新し、アップグレード後の手順を実行します。
+4ノードまたは8ノードMetroCluster構成の手動アップグレードでは、更新の準備を行い、1つまたは2つのDRグループの各DRペアを同時に更新し、アップグレード後の手順を実行します。
 
-* この作業は、次の構成に適用されます。
+* このタスクは、次の構成に該当します。
 +
-** ONTAP 9.2 以前を実行している 4 ノード MetroCluster FC 構成または IP 構成
-** ONTAP のバージョンに関係なく、 8 ノードの MetroCluster FC 構成
+** ONTAP 9.2以前を実行する4ノードのMetroCluster FCまたはIP構成
+** ONTAPバージョンに関係なく、8ノードのMetroCluster FC構成
 
 
-* 2ノードMetroCluster構成の場合は、この手順を使用しないでください。
-* 次のタスクでは、ONTAPの古いバージョンと新しいバージョンを参照しています。
+* 2ノードMetroCluster構成では、この手順を使用しないでください。
+* ここで説明する手順では、ONTAPの古いバージョンと新しいバージョンという表現を使用します。
 +
-** アップグレードの場合、古いバージョンは ONTAP の以前のバージョンで、 ONTAP の新しいバージョンよりも下位のバージョン番号が割り当てられます。
-** ダウングレード手順での古いバージョンとは、 ONTAP の新しいバージョン、つまり ONTAP の新しいバージョンのバージョン番号よりも上位の番号を持つバージョンを指します。
+** アップグレードする場合、古いバージョンは以前のバージョンのONTAPであり、新しいバージョンのONTAPよりもバージョン番号が小さくなります。
+** ダウングレードする場合、古いバージョンはONTAPの新しいバージョンよりもバージョン番号が大きい、ONTAPの新しいバージョンです。
 
 
-* このタスクのワークフローの概要は次のとおりです。
+* この手順のワークフローは次のとおりです。
 +
-image:workflow_mcc_lockstep_upgrade.gif["MetroCluster構成のアップグレードの決定フロー"]
+image:workflow_mcc_lockstep_upgrade.gif["MetroCluster構成アップグレードの決定フロー"]
 
 
 
 
 
-== 8ノードまたは4ノードのMetroCluster構成でONTAPソフトウェアを更新する場合の相違点
+== ONTAPソフトウェアを8ノードと4ノードのMetroCluster構成でアップデートする際の相違点
 
-MetroClusterソフトウェアのアップグレードプロセスは、MetroCluster構成に8ノードと4ノードのどちらが含まれているかによって異なります。
+MetroClusterソフトウェアのアップグレード プロセスは、MetroClusterが8ノード構成か4ノード構成かによって異なります。
 
-MetroCluster構成は、1つまたは2つのDRグループで構成されます。各DRグループは、2つのHAペアで構成されます（各MetroClusterクラスタに1つのHAペア）。8ノードMetroClusterには、次の2つのDRグループが含まれます。
+1つのMetroCluster構成は、1つまたは2つのDRグループで構成されます。個々のDRグループは、2つのHAペアで構成されます（それぞれのMetroClusterクラスタに1つのHAペア）。8ノードのMetroClusterには、2つのDRグループが含まれています。
 
-image:mcc_dr_groups_8_node.gif["8ノードMetroCluster 構成の図。"]
+image:mcc_dr_groups_8_node.gif["8ノードMetroCluster構成の図。"]
 
-DRグループは一度に1つずつアップグレードします。
+DRグループを一度に1つずつアップグレードします。
 
-.4ノードMetroCluster構成の場合：
+.4ノードMetroCluster構成の場合は、次の手順で更新します。
 . DRグループ1をアップグレードします。
 +
 .. node_A_1とnode_B_1をアップグレードします。
@@ -74,13 +74,13 @@ DRグループは一度に1つずつアップグレードします。
 
 ノード上のONTAPソフトウェアをアップグレードする前に、ノード間のDR関係を特定して、アップグレードを開始することを知らせるAutoSupportメッセージを送信します。また、各ノードで実行中のONTAPのバージョンを確認します。
 
-ソフトウェアイメージとlink:install-software-manual-upgrade.html["インストール済み"]ソフトウェアイメージが必要link:download-software-image.html["ダウンロードしました"]です。
+link:download-software-image.html["ダウンロード済み"]およびlink:install-software-manual-upgrade.html["インストール済み"]ソフトウェアイメージが必要です。
 
-このタスクは、DRグループごとに実行する必要があります。MetroCluster構成が8つのノードで構成されている場合は、DRグループが2つあります。そのため、このタスクをDRグループごとに繰り返す必要があります。
+以下の手順は、DRグループごとに繰り返す必要があります。MetroCluster構成が8つのノードで構成されている場合は、DRグループが2つあります。そのため、両方のDRグループでこの手順を行う必要があります。
 
-このタスクの例では、次の図に示す名前を使用してクラスタとノードを識別しています。
+この手順の例では、次の図に示すクラスタとノードの名前を使用しています。
 
-image:mcc_dr_groups_8_node.gif["8ノードMetroCluster 構成の図。"]
+image:mcc_dr_groups_8_node.gif["8ノードMetroCluster構成の図。"]
 
 . 構成内のDRペアを特定します。
 +
@@ -103,16 +103,16 @@ metrocluster node show -fields dr-partner
 
  cluster_A::>
 ----
-. 権限レベルをadminからadvancedに設定します。続行するかどうかを尋ねられたら、「* y *」と入力します。
+. 権限レベルを admin から advanced に設定し、続行するかどうかを尋ねられたら *y* と入力します：
 +
 [source, cli]
 ----
 set -privilege advanced
 ----
 +
-advancedプロンプト(`*>`が表示されます）。
+詳細プロンプト（(`*>`）が表示されます。
 
-. cluster_AのONTAPバージョンを確認します。
+. cluster_AのONTAPのバージョンを確認します。
 +
 [source, cli]
 ----
@@ -135,7 +135,7 @@ system image show
 
  cluster_A::>
 ----
-. cluster_Bのバージョンを確認します。
+. cluster_BのONTAPのバージョンを確認します。
 +
 [source, cli]
 ----
@@ -165,21 +165,21 @@ system image show
 autosupport invoke -node * -type all -message "Starting_NDU"
 ----
 +
-このAutoSupport通知には、アップグレード前のシステムステータスの記録が含まれます。アップグレードプロセスで問題が発生した場合に役立つトラブルシューティング情報が保存されます。
+このAutoSupport通知には、アップグレード前のシステム ステータスの記録が含まれます。これにより、アップグレード処理で問題が発生した場合に役立つトラブルシューティング情報が保存されます。
 
 +
 AutoSupportメッセージを送信するようにクラスタが設定されていない場合は、通知のコピーがローカルに保存されます。
 
-. 最初のセットに含まれる各ノードについて、ターゲットのONTAPソフトウェアイメージをデフォルトのイメージとして設定します。
+. 最初のセットに含まれる各ノードについて、ターゲットのONTAPソフトウェア イメージをデフォルトのイメージとして設定します。
 +
 [source, cli]
 ----
 system image modify {-node nodename -iscurrent false} -isdefault true
 ----
 +
-このコマンドは、拡張クエリを使用して、代替イメージとしてインストールされるターゲットのソフトウェアイメージがノードのデフォルトのイメージになるように変更します。
+このコマンドは、拡張クエリを使用して、代替イメージとしてインストールされるターゲットのソフトウェア イメージがノードのデフォルトのイメージになるように変更します。
 
-. ターゲットのONTAPソフトウェアイメージがcluster_Aでデフォルトのイメージとして設定されたことを確認します。
+. ターゲットのONTAPソフトウェア イメージがcluster_Aでデフォルトのイメージとして設定されたことを確認します。
 +
 [source, cli]
 ----
@@ -205,7 +205,7 @@ system image show
  2 entries were displayed.
 ----
 +
-.. ターゲットのONTAPソフトウェアイメージがcluster_Bでデフォルトのイメージとして設定されたことを確認します。
+.. ターゲットのONTAPソフトウェア イメージがcluster_Bでデフォルトのイメージとして設定されたことを確認します。
 +
 [source, cli]
 ----
@@ -300,10 +300,10 @@ storage failover show -fields auto-giveback
  node_x_2 false
  2 entries were displayed.
 ----
-. 各コントローラのI/Oが50%を超えていないこと、およびCPU利用率がコントローラあたり50%を超えていないことを確認してください。
-. cluster_Aのターゲットノードのテイクオーバーを開始します。
+. 各コントローラーの I/O が約 50% を超えないこと、および CPU 使用率がコントローラーごとに約 50% を超えないことを確認します。
+. cluster_Aのターゲット ノードのテイクオーバーを開始します。
 +
-テイクオーバーされたノードを新しいソフトウェアイメージでブートするには通常のテイクオーバーが必要なため、-option immediateパラメータは指定しないでください。
+テイクオーバーするノードを新しいソフトウェア イメージでブートするには通常のテイクオーバーが必要なため、-option immediateパラメータは指定しないでください。
 
 +
 .. cluster_A（node_A_1）のDRパートナーをテイクオーバーします。
@@ -343,7 +343,7 @@ storage failover show
 
 . cluster_B（node_B_1）のDRパートナーをテイクオーバーします。
 +
-テイクオーバーされたノードを新しいソフトウェアイメージでブートするには通常のテイクオーバーが必要なため、-option immediateパラメータは指定しないでください。
+テイクオーバーするノードを新しいソフトウェア イメージでブートするには通常のテイクオーバーが必要なため、-option immediateパラメータは指定しないでください。
 
 +
 .. node_B_1をテイクオーバーします。
@@ -423,11 +423,11 @@ Giveback Statusフィールドにギブバックするアグリゲートがな�
 
 . 戻されていないアグリゲートがある場合は、次の操作を実行します。
 +
-.. 拒否された回避策を確認して、「 ve to 」状態に対処するか、拒否を無視するかを決定します。
-.. 必要に応じて、エラーメッセージに記載されている「宛」の状態に対処し、特定された処理が正常に終了するようにします。
+.. 拒否回避策を確認して、「`veto`」条件に対処するか、拒否をオーバーライドするかを決定します。
+.. 必要に応じて、エラーメッセージに記載されている「`veto`」条件に対処し、特定された処理が正常に終了することを確認します。
 .. storage failover givebackコマンドを再度入力します。
 +
-「 "" ～ "" 」条件をオーバーライドする場合は、 -override-vetoes パラメータを true に設定します。
+「`veto`」条件を上書きする場合は、-override-vetoes パラメータを true に設定します。
 
 
 
@@ -440,16 +440,16 @@ Giveback Statusフィールドにギブバックするアグリゲートがな�
 
 
 
-. 権限レベルをadminからadvancedに設定します。続行するかどうかを尋ねられたら、「* y *」と入力します。
+. 権限レベルを admin から advanced に設定し、続行するかどうかを尋ねられたら *y* と入力します：
 +
 [source, cli]
 ----
 set -privilege advanced
 ----
 +
-advancedプロンプト(`*>`が表示されます）。
+詳細プロンプト（(`*>`）が表示されます。
 
-. cluster_Aのバージョンを確認します。
+. cluster_AのONTAPのバージョンを確認します。
 +
 [source, cli]
 ----
@@ -475,14 +475,14 @@ system image show
 
  cluster_A::>
 ----
-. cluster_Bのバージョンを確認します。
+. cluster_BのONTAPのバージョンを確認します。
 +
 [source, cli]
 ----
 system image show
 ----
 +
-次の例は、System image2（ONTAP 9 .0.0）がnode_A_1のデフォルトおよび現在のバージョンであることを示しています。
+次の例は、System image2（ONTAP 9.0.0）がnode_A_1のデフォルトおよび現在のバージョンであることを示しています。
 
 +
 [listing]
@@ -507,13 +507,13 @@ system image show
 
 == MetroCluster DRグループ内の2つ目のDRペアの更新
 
-ONTAPの新しいバージョンをノードの現在のバージョンにするには、ノードのテイクオーバーとギブバックを正しい順序で実行する必要があります。
+ONTAPの新しいバージョンをノードの現在のバージョンにするには、ノードのテイクオーバーとギブバックを正しい順番で行う必要があります。
 
 最初のDRペア（node_A_1とnode_B_1）をアップグレードしておく必要があります。
 
-このタスクでは、node_A_2とnode_B_2をアップグレードします。
+この手順では、node_A_2とnode_B_2をアップグレードします。
 
-最初のDRグループのONTAPソフトウェアをアップグレードし、8ノードMetroCluster構成の2つ目のDRグループを更新する場合は、この手順でnode_A_4とnode_B_4を更新します。
+最初のDRグループのONTAPソフトウェアをアップグレード済みで、8ノードMetroCluster構成内の2つ目のDRグループを更新する場合は、この手順でnode_A_4とnode_B_4を更新します。
 
 . ノードからすべてのデータLIFを移行します。
 +
@@ -521,9 +521,9 @@ ONTAPの新しいバージョンをノードの現在のバージョンにする
 ----
 network interface migrate-all -node nodenameA
 ----
-. cluster_Aのターゲットノードのテイクオーバーを開始します。
+. cluster_Aのターゲット ノードのテイクオーバーを開始します。
 +
-テイクオーバーされたノードを新しいソフトウェアイメージでブートするには通常のテイクオーバーが必要なため、-option immediateパラメータは指定しないでください。
+テイクオーバーするノードを新しいソフトウェア イメージでブートするには通常のテイクオーバーが必要なため、-option immediateパラメータは指定しないでください。
 
 +
 .. cluster_AのDRパートナーをテイクオーバーします。
@@ -534,7 +534,7 @@ storage failover takeover -ofnode node_A_2 -option allow-version-mismatch
 ----
 +
 
-NOTE: この `allow-version-mismatch`オプションは、ONTAP 9 .0からONTAP 9 .1へのアップグレードやパッチのアップグレードには必要ありません。
+NOTE:  `allow-version-mismatch`オプションは、ONTAP 9.0からONTAP 9.1へのアップグレード、またはパッチアップグレードには必要ありません。
 
 +
 ノードがブートし、「Waiting for giveback」状態になります。
@@ -566,14 +566,14 @@ node_A_2       node_A_1       -        Waiting for giveback (HA mailboxes)
 
 . cluster_Bのターゲット ノードのテイクオーバーを開始します。
 +
-テイクオーバーされたノードを新しいソフトウェアイメージでブートするには通常のテイクオーバーが必要なため、-option immediateパラメータは指定しないでください。
+テイクオーバーするノードを新しいソフトウェア イメージでブートするには通常のテイクオーバーが必要なため、-option immediateパラメータは指定しないでください。
 
 +
 .. cluster_B（node_B_2）のDRパートナーをテイクオーバーします。
 +
 [cols="2*"]
 |===
-| アップグレード前のバージョン | 入力するコマンド 
+| ...からアップグレードする場合 | コマンド 
 
 
  a| 
@@ -593,7 +593,7 @@ ONTAP 9.0またはData ONTAP 8.3.x
 storage failover takeover -ofnode node_B_2 -option allow-version-mismatch
 ----
 
-NOTE: この `allow-version-mismatch`オプションは、ONTAP 9 .0からONTAP 9 .1へのアップグレードやパッチのアップグレードには必要ありません。
+NOTE:  `allow-version-mismatch`オプションは、ONTAP 9.0からONTAP 9.1へのアップグレード、またはパッチアップグレードには必要ありません。
 
 |===
 +
@@ -601,7 +601,7 @@ NOTE: この `allow-version-mismatch`オプションは、ONTAP 9 .0からONTAP 
 
 +
 
-NOTE: AutoSupportが有効な場合は、ノードがクラスタクォーラムのメンバーでないことを示すAutoSupportメッセージが送信されます。この通知を無視し、アップグレードを続行してかまいません。
+NOTE: AutoSupportが有効な場合は、ノードがクラスタ クォーラムのメンバーでないことを示すAutoSupportメッセージが送信されます。この通知を無視し、アップグレードを続行してかまいません。
 
 .. テイクオーバーが正常に完了したことを確認します。
 +
@@ -636,7 +636,7 @@ node_B_2       node_B_1       -        Waiting for giveback (HA mailboxes)
 
 . アグリゲートをターゲット ノードに戻します。
 +
-MetroCluster IP構成をONTAP 9 5にアップグレードすると、アグリゲートは短時間degraded状態になり、その後再同期されてmirrored状態に戻ります。
+MetroCluster IP構成をONTAP 9.5にアップグレードすると、アグリゲートの状態は短時間degradedになったあとに再同期されてmirroredに戻ります。
 
 +
 .. アグリゲートをcluster_AのDRパートナーにギブバックします。
@@ -667,11 +667,11 @@ Giveback Statusフィールドにギブバックするアグリゲートがな�
 
 . 戻されていないアグリゲートがある場合は、次の操作を実行します。
 +
-.. 拒否された回避策を確認して、「 ve to 」状態に対処するか、拒否を無視するかを決定します。
-.. 必要に応じて、エラーメッセージに記載されている「宛」の状態に対処し、特定された処理が正常に終了するようにします。
+.. 拒否回避策を確認して、「`veto`」条件に対処するか、拒否をオーバーライドするかを決定します。
+.. 必要に応じて、エラーメッセージに記載されている「`veto`」条件に対処し、特定された処理が正常に終了することを確認します。
 .. storage failover givebackコマンドを再度入力します。
 +
-「 "" ～ "" 」条件をオーバーライドする場合は、 -override-vetoes パラメータを true に設定します。
+「`veto`」条件を上書きする場合は、-override-vetoes パラメータを true に設定します。
 
 
 
@@ -684,16 +684,16 @@ Giveback Statusフィールドにギブバックするアグリゲートがな�
 
 
 
-. 権限レベルをadminからadvancedに設定します。続行するかどうかを尋ねられたら、「* y *」と入力します。
+. 権限レベルを admin から advanced に設定し、続行するかどうかを尋ねられたら *y* と入力します：
 +
 [source, cli]
 ----
 set -privilege advanced
 ----
 +
-advancedプロンプト(`*>`が表示されます）。
+詳細プロンプト（(`*>`）が表示されます。
 
-. cluster_Aのバージョンを確認します。
+. cluster_AのONTAPのバージョンを確認します。
 +
 [source, cli]
 ----
@@ -719,14 +719,14 @@ node_A_2
 
 cluster_A::>
 ----
-. cluster_Bのバージョンを確認します。
+. cluster_BのONTAPのバージョンを確認します。
 +
 [source, cli]
 ----
 system image show
 ----
 +
-次の例は、System image2（ターゲットのONTAPイメージ）がnode_B_2のデフォルトかつ現在のバージョンであることを示しています。
+次の例は、System image2（ターゲットのONTAPイメージ）がnode_B_2のデフォルトおよび現在のバージョンであることを示しています。
 
 +
 [listing]
@@ -745,7 +745,7 @@ node_B_2
 
 cluster_A::>
 ----
-. HAペアの各ノードで、自動ギブバックを有効にします。
+. HAペアの各ノードで自動ギブバックを有効にします。
 +
 [source, cli]
 ----
@@ -754,14 +754,14 @@ storage failover modify -node target-node -auto-giveback true
 +
 このコマンドはHAペアのノードごとに実行する必要があります。
 
-. 自動ギブバックが有効になったことを確認します。
+. 自動ギブバックが有効になっていることを確認します。
 +
 [source, cli]
 ----
 storage failover show -fields auto-giveback
 ----
 +
-次の例では、両方のノードで自動ギブバックが有効になっています。
+次の例は、両方のノードで自動ギブバックが有効になっていることを示しています。
 
 +
 [listing]

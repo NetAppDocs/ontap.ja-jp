@@ -2,7 +2,7 @@
 sidebar: sidebar 
 permalink: snapmirror-active-sync/aufo-site-b-troubleshoot-task.html 
 keywords: SM-BC, SMBC, troubleshooting, automatic unplanned failover, aufo, failover, Mediator, Cloud Mediator, quorum, snapmirror active sync 
-summary: サイト A で障害が発生しても、サイト B で計画外のONTAPクラスタ フェイルオーバーはトリガーされません。 
+summary: サイト A で障害が発生しても、サイト B で計画外の ONTAP クラスタ フェイルオーバーはトリガーされません。 
 ---
 = サイトBで自動計画外フェイルオーバーがトリガーされない
 :hardbreaks:
@@ -17,22 +17,22 @@ summary: サイト A で障害が発生しても、サイト B で計画外のON
 サイト A の障害によってサイト B の計画外のフェイルオーバーがトリガーされない場合は、次の情報を使用します。
 
 .問題：
-サイトAで障害が発生しても、サイトBで計画外フェイルオーバーはトリガーされません。
+サイトAで障害が発生しても、サイトBで計画外フェイルオーバーがトリガーされません。
 
 .考えられる原因1：
-ONTAPメディエーターまたはONTAPクラウドメディエーターが設定されていません。これが原因かどうかを確認するには、  `snapmirror mediator show`サイト B クラスターのコマンド。
+ONTAP MediatorまたはONTAP Cloud Mediatorが設定されていません。これが原因かどうかを確認するには、サイトBクラスタで `snapmirror mediator show`コマンドを実行してください。
 
 ....
 Cluster2::> snapmirror mediator show
 This table is currently empty.
 ....
-この例では、Mediator がサイト B で構成されていないことを示しています。
+この例は、Mediator がサイト B で構成されていないことを示しています。
 
 .解決策：
 両方のクラスタにMediatorを設定し、ステータスが「connected」で、クォーラムがTrueに設定されていることを確認します。
 
 .考えられる原因2：
-SnapMirror整合性グループが同期されていません。これが原因かどうかを確認するには、イベントログを表示して、サイトAで障害が発生したときに整合性グループが同期されていたかどうかを確認します。
+SnapMirror整合性グループが同期されていません。これが原因かどうかを確認するには、イベント ログを表示し、サイトAで障害が発生したときに整合性グループが同期されていたかどうかを確認します。
 
 ....
 cluster::> event log show -event *out.of.sync*
@@ -42,24 +42,24 @@ Time                Node             Severity      Event
 10/1/2020 23:26:12  sti42-vsim-ucs511w ERROR       sms.status.out.of.sync: Source volume "vs0:zrto_cg_556844_511u_RW1" and destination volume "vs1:zrto_cg_556881_511w_DP1" with relationship UUID "55ab7942-03e5-11eb-ba5a-005056a7dc14" is in "out-of-sync" status due to the following reason: "Transfer failed."
 ....
 .解決策：
-サイトBで強制的なフェイルオーバーを実行するには、次の手順を実行します。
+次の手順に従って、サイトBで強制的にフェイルオーバーを実行します。
 
-. この整合グループに属するすべてのLUNのサイトBへのマッピングを解除します。
-. オプションを使用して、SnapMirror整合性グループ関係を削除します `force`。
-. 整合性グループのコンスティチュエントボリュームに対してコマンドを入力し `snapmirror break`て、ボリュームをDPからR/Wに変換し、サイトBからのI/Oを可能にします。
+. この整合性グループに属するすべてのLUNのサイトBへのマッピングを解除します。
+.  `force`オプションを使用してSnapMirror整合性グループの関係を削除します。
+. 整合性グループの構成ボリュームに対して `snapmirror break`コマンドを入力し、ボリュームを DP から R/W に変換して、サイト B からの I/O を有効にします。
 . サイトAのノードをブートして、サイトBからサイトAへのRTOゼロの関係を作成します。
-. サイトAでを使用して整合性グループを解放し `relationship-info-only`、共通のSnapshotを保持して、整合性グループに属するLUNのマッピングを解除します。
-. SyncポリシーまたはAsyncポリシーを使用してボリュームレベルの関係を設定し、サイトAのボリュームをR/WからDPに変換します。
-. を実行し `snapmirror resync`て関係を同期します。
+. サイト A で `relationship-info-only`を使用して整合性グループを解放し、共通スナップショットを保持して整合性グループに属する LUN のマッピングを解除します。
+. SyncポリシーまたはAsyncポリシーを使用してボリューム レベルの関係を設定し、サイトAのボリュームをR/WからDPに変換します。
+.  `snapmirror resync`を発行して関係を同期します。
 . サイトAでSyncポリシーが設定されたSnapMirror関係を削除します。
-. サイトBでSyncポリシーが設定されたSnapMirror関係ををを使用して解放します。 `relationship-info-only true`
+. サイト B で `relationship-info-only true`を使用して、同期ポリシーを持つSnapMirror関係を解除します。
 . サイトBからサイトAへの整合性グループ関係を作成します。
 . サイトAから整合性グループの再同期を実行し、整合性グループが同期されていることを確認します。
 . ホストのLUN I/Oパスを再スキャンして、LUNへのすべてのパスをリストアします。
 
 
 .関連情報
-* link:https://docs.netapp.com/us-en/ontap-cli/snapmirror-break.html["スナップミラーの破損"^]
-* link:https://docs.netapp.com/us-en/ontap-cli/snapmirror-mediator-show.html["スナップミラーメディエーターショー"^]
+* link:https://docs.netapp.com/us-en/ontap-cli/snapmirror-break.html["snapmirror break"^]
+* link:https://docs.netapp.com/us-en/ontap-cli/snapmirror-mediator-show.html["SnapMirror Mediator show"^]
 * link:https://docs.netapp.com/us-en/ontap-cli/snapmirror-resync.html["snapmirror resync"^]
 

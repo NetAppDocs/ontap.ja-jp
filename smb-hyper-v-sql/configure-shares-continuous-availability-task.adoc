@@ -2,38 +2,38 @@
 permalink: smb-hyper-v-sql/configure-shares-continuous-availability-task.html 
 sidebar: sidebar 
 keywords: configure, shares, continuous, availability, hyper, v, sql, server, virutal, machine, database, file 
-summary: 共有を継続的可用性を確保するように変更します。Hyper-VおよびSQL Serverアプリケーションサーバで無停止アクセスを実現 
+summary: Hyper-V および SQL Server アプリケーション サーバーが中断のないアクセスに使用する共有を、継続的に利用可能な共有に変更します 
 ---
-= 継続的可用性を確保するための既存の共有の設定
+= 既存の共有への継続的可用性の設定
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-既存の共有を変更して、継続的可用性を備えた共有にすることができます。この共有は、Hyper-VおよびSQL ServerアプリケーションサーバがHyper-V仮想マシンおよび構成ファイルおよびSQL Serverデータベースファイルに無停止でアクセスするために使用します。
+既存の共有を継続的な可用性が確保された共有に変更することができます。継続的な可用性が確保された共有は、Hyper-VおよびSQL Serverアプリケーション サーバがHyper-V仮想マシンおよび構成ファイルやSQL Serverデータベース ファイルに無停止でアクセスするために使用します。
 
-.タスクの内容
-既存の共有に次の特徴がある場合、SMBを介したアプリケーションサーバでノンストップオペレーションを実現する継続的可用性を備えた共有として使用することはできません。
+.タスク概要
+既存の共有が以下に該当する場合、SMB経由のアプリケーション サーバによる無停止での操作に継続的可用性を備えた共有として使用することはできません。
 
-* その共有に共有プロパティが設定されている場合 `homedirectory`
+*  `homedirectory`その共有に共有プロパティが設定されている場合
 * 共有に有効なシンボリックリンクまたはワイドリンクが含まれている場合
-* 共有のルートの下にジャンクションされたボリュームが含まれている場合
+* 共有のルートにジャンクション ボリュームが含まれている場合
 
 
 次の2つの共有パラメータが正しく設定されていることを確認する必要があります。
 
-*  `-offline-files`パラメータは（デフォルト）または `none`に設定されます `manual`。
-* シンボリックリンクを無効にする必要があります。
+*  `-offline-files`パラメータは `manual`（デフォルト）または `none`に設定されます。
+* シンボリック リンクが無効になっている必要があります。
 
 
-次の共有プロパティを設定する必要があります。
+次の共有プロパティが設定されている必要があります。
 
 * `continuously-available`
 * `oplocks`
 
 
-次の共有プロパティは設定しないでください。現在の共有プロパティのリストに含まれている場合は、継続的可用性を備えた共有から削除する必要があります。
+次の共有プロパティが設定されていないことが必要です。現在の共有プロパティに含まれている場合は、継続的な可用性が確保された共有から削除する必要があります。
 
 * `attributecache`
 * `branchcache`
@@ -46,20 +46,20 @@ summary: 共有を継続的可用性を確保するように変更します。Hy
 ----
 vserver cifs share show -vserver <vserver_name> -share-name <share_name>
 ----
-. 必要に応じて、コマンドを使用して共有パラメータを変更し、シンボリックリンクを無効にし、オフラインファイルをmanualに設定し `vserver cifs share modify` ます。
+. 必要に応じて、 `vserver cifs share modify`コマンドを使用して共有パラメータを変更し、シンボリックリンクを無効にしてオフライン ファイルを手動に設定します。
 +
-** シンボリックリンクを無効にするには、パラメータの値をに `""`設定し `-symlink`ます。
-** を指定すると、パラメータを正しい設定に `manual`設定できます `-offline-files`。
+**  `-symlink`パラメータの値を `""`に設定することで、シンボリックリンクを無効にすることができます。
+**  `manual`を指定することで `-offline-files`パラメータを正しい設定にすることができます。
 
 
-. 共有プロパティを追加し、必要に応じて共有プロパティを追加し `continuously-available` `oplocks` ます。
+.  `continuously-available` 共有プロパティを追加し、必要に応じて  `oplocks` 共有プロパティを追加します：
 +
 [source, cli]
 ----
 vserver cifs share properties add -vserver <vserver_name> -share-name <share_name> -share-properties continuously-available[,oplock]
 ----
 +
-共有プロパティがまだ設定されていない場合は `oplocks`、共有プロパティと一緒に追加する必要があります `continuously-available`。
+ `oplocks`共有プロパティがまだ設定されていない場合は、 `continuously-available`共有プロパティとともに追加する必要があります。
 
 . 継続的な可用性が確保された共有でサポートされていない共有プロパティを削除します。
 +
@@ -68,9 +68,9 @@ vserver cifs share properties add -vserver <vserver_name> -share-name <share_nam
 vserver cifs share properties remove -vserver <vserver_name> -share-name <share_name> -share-properties properties[,...]
 ----
 +
-共有プロパティをカンマで区切って指定すると、1つ以上の共有プロパティを削除できます。
+共有プロパティをカンマで区切って指定して、1つ以上の共有プロパティを削除することができます。
 
-. パラメータと `-offline-files`パラメータが正しく設定されていることを確認し `-symlink`ます。
+.  `-symlink`および `-offline-files`パラメータが正しく設定されていることを確認します：
 +
 [source, cli]
 ----
@@ -85,14 +85,14 @@ vserver cifs share properties show -vserver <vserver_name> -share-name <share_na
 
 
 .例
-次の例は、Storage Virtual Machine（SVM）「vs1」に「share1」という名前の既存の共有をSMBを介したアプリケーションサーバでのNDO用に設定する方法を示しています。
+次の例は、Storage Virtual Machine（SVM）「vs1」の「share1」という名前の既存の共有をSMB経由のアプリケーション サーバによる無停止操作用に設定する方法を示しています。
 
-* パラメータをに設定すると、共有でシンボリックリンクが無効になります `-symlink` `""`。
-*  `-offline-file`パラメータが変更され、に設定され `manual`ます。
+*  `-symlink`パラメータを `""`に設定すると、共有上のシンボリックリンクが無効になります。
+*  `-offline-file`パラメータが変更され、 `manual`に設定されます。
 *  `continuously-available`共有プロパティが共有に追加されます。
 *  `oplocks`共有プロパティはすでに共有プロパティのリストに含まれているため、追加する必要はありません。
 *  `attributecache`共有プロパティが共有から削除されます。
-*  `browsable`共有プロパティは、SMBを介したアプリケーションサーバでのNDOに使用される継続的可用性を備えた共有では省略可能で、共有プロパティの1つとして保持されます。
+*  `browsable`共有プロパティは、SMB 経由のアプリケーション サーバーを使用した NDO 用の継続的に利用可能な共有ではオプションであり、共有プロパティの 1 つとして保持されます。
 
 
 [listing]

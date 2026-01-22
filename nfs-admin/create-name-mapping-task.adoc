@@ -2,7 +2,7 @@
 permalink: nfs-admin/create-name-mapping-task.html 
 sidebar: sidebar 
 keywords: create, name, mapping 
-summary: vserver name-mapping create コマンドを使用して、ネームマッピングを作成できます。ネームマッピングを使用すると、 Windows ユーザから UNIX セキュリティ形式のボリュームへのアクセスおよびその逆方向のアクセスが可能になります。 
+summary: vserver name-mapping create コマンドを使用して、ネームマッピングを作成できます。ネームマッピングを使用すると、Windows ユーザーが UNIX セキュリティ形式のボリュームにアクセスしたり、その逆を行ったりできるようになります。 
 ---
 = ONTAP NAS SVMの名前マッピングを作成する
 :allow-uri-read: 
@@ -11,43 +11,43 @@ summary: vserver name-mapping create コマンドを使用して、ネームマ�
 
 
 [role="lead"]
-コマンドを使用すると、ネームマッピングを作成できます `vserver name-mapping create`。ネームマッピングを使用すると、 Windows ユーザから UNIX セキュリティ形式のボリュームへのアクセスおよびその逆方向のアクセスが可能になります。
+ `vserver name-mapping create`コマンドを使用してネームマッピングを作成できます。ネームマッピングを使用すると、WindowsユーザーがUNIXセキュリティ形式のボリュームにアクセスしたり、その逆を行ったりできるようになります。
 
-.タスクの内容
-ONTAP では、 SVM ごとに、各方向について最大 12 、 500 個のネームマッピングがサポートされます。
+.タスク概要
+各SVMについて、ONTAPは方向ごとに最大12,500の名前マッピングをサポートします。
 
-.ステップ
-. ネームマッピングを作成します。
+.手順
+. ネーム マッピングを作成します。
 +
 `vserver name-mapping create -vserver vserver_name -direction {krb-unix|win-unix|unix-win} -position integer -pattern text -replacement text`
 
 +
 [NOTE]
 ====
-および `-replacement`ステートメントは、 `-pattern`正規表現として記述できます。また、ステートメントを使用して、nullの置換文字列（スペース文字）を使用してユーザへのマッピングを明示的に拒否する `" "`こともできます `-replacement`。の詳細については `vserver name-mapping create`、をlink:https://docs.netapp.com/us-en/ontap-cli/vserver-name-mapping-create.html["ONTAPコマンド リファレンス"^]参照してください。
+ `-pattern`および `-replacement`ステートメントは正規表現として記述できます。また、 `-replacement`ステートメントを使用して、ヌル置換文字列 `" "`（スペース文字）を使用することで、ユーザーへのマッピングを明示的に拒否することもできます。link:https://docs.netapp.com/us-en/ontap-cli/vserver-name-mapping-create.html["ONTAPコマンド リファレンス"^]の `vserver name-mapping create`の詳細をご覧ください。
 
 ====
 +
-Windows から UNIX へのマッピングを作成した場合、新しいマッピングが作成されたときに ONTAP システムに接続していたすべての SMB クライアントは、新しいマッピングを使用するために、一度ログアウトしてから、再度ログインする必要があります。
+WindowsからUNIXへのマッピングが作成されると、新しいマッピングの作成時にONTAPシステムへの接続を開いているすべてのSMBクライアントは、新しいマッピングを確認するためにログアウトして再度ログインする必要があります。
 
 
 
 .例
-次のコマンドは、 vs1 という名前の SVM 上にネームマッピングを作成します。このマッピングは、UNIXからWindowsへのマッピングで、優先順位リストの1番目にあります。UNIX ユーザ johnd を Windows ユーザ ENG\JohnDoe にマッピングします。
+次のコマンドは、SVM vs1 に名前マッピングを作成します。このマッピングは、UNIX から Windows へのマッピングであり、優先度リストの 1 番目に配置されます。このマッピングにより、UNIX ユーザー johnd が Windows ユーザー ENG\JohnDoe にマッピングされます。
 
 [listing]
 ----
 vs1::> vserver name-mapping create -vserver vs1 -direction unix-win -position 1 -pattern johnd
 -replacement "ENG\\JohnDoe"
 ----
-次のコマンドは、 vs1 という名前の SVM 上に別のネームマッピングを作成します。このマッピングは Windows から UNIX へのマッピングで、優先順位リスト内での位置は 1 番目です。パターンとリプレースメントには正規表現が使用されています。このマッピングにより、ドメイン ENG 内のすべての CIFS ユーザが、 SVM に関連付けられた LDAP ドメイン内のユーザにマッピングされます。
+次のコマンドは、vs1という名前のSVMに別の名前マッピングを作成します。このマッピングは、優先順位リストの1番目の位置にあるWindowsからUNIXへのマッピングです。ここでは、パターンと置換に正規表現が含まれています。このマッピングは、ドメインENG内のすべてのCIFSユーザーを、SVMに関連付けられたLDAPドメイン内のユーザーにマッピングします。
 
 [listing]
 ----
 vs1::> vserver name-mapping create -vserver vs1 -direction win-unix -position 1 -pattern "ENG\\(.+)"
 -replacement "\1"
 ----
-次のコマンドは、 vs1 という名前の SVM 上に別のネームマッピングを作成します。このパターンには、エスケープする必要がある Windows ユーザ名の要素として「 $` 」が含まれています。Windows ユーザ ENG\john$ops を UNIX ユーザ john_ops にマッピングします。
+次のコマンドは、vs1という名前のSVMに別の名前マッピングを作成します。ここでのパターンには、エスケープする必要があるWindows ユーザー名の要素として「`$`」が含まれています。このマッピングにより、Windows ユーザーENG\ john$opsがUNIX ユーザーjohn_opsにマッピングされます。
 
 [listing]
 ----

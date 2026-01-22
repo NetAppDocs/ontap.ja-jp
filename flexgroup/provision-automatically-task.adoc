@@ -2,7 +2,7 @@
 permalink: flexgroup/provision-automatically-task.html 
 sidebar: sidebar 
 keywords: provision, flexgroup, volume, automatic, create, flex group, aggregate, space 
-summary: FlexGroupボリュームを作成するときに、ローカル階層（アグリゲート）を自動的に選択してONTAPでFlexGroupをプロビジョニングするように選択できます。パフォーマンスを最適化するためのベストプラクティスに基づいてローカル階層が選択されます。 
+summary: FlexGroupボリュームを作成する際に、ONTAPがローカル階層（アグリゲート）を自動選択してFlexGroupボリュームをプロビジョニングするように設定できます。ローカル階層は、最適なパフォーマンスを実現するためのベストプラクティスに基づいて選択されます。 
 ---
 = ONTAP FlexGroupボリュームを自動的にプロビジョニングする
 :allow-uri-read: 
@@ -11,20 +11,20 @@ summary: FlexGroupボリュームを作成するときに、ローカル階層�
 
 
 [role="lead"]
-FlexGroupボリュームを作成するときに、使用するローカル階層（アグリゲート）を選択してONTAPでFlexGroupを自動的にプロビジョニングするように選択できます。パフォーマンスと容量を最適化するためのベストプラクティスに基づいてローカル階層が選択されます。
+FlexGroupボリュームを作成する際に、基盤となるローカル階層（アグリゲート）を選択することで、ONTAPによるFlexGroupボリュームの自動プロビジョニングを選択できます。ローカル階層は、最適なパフォーマンスと容量を実現するためのベスト プラクティスに基づいて選択されます。
 
 .開始する前に
-クラスタ内の各ノードに少なくとも1つのローカル階層が必要です。
+クラスター内の各ノードには、少なくとも 1 つのローカル層が必要です。
 
 [NOTE]
 ====
-アクセス頻度の低いデータを階層化するFlexGroupボリュームを作成する場合は、各ノードでFabricPoolが有効になっているローカル階層が少なくとも1つ必要です。
+非アクティブなデータを階層化するFlexGroupボリュームを作成する場合、各ノードにはFabricPoolが有効になっているローカル階層が少なくとも1つ必要です。
 
 ====
-.タスクの内容
-ONTAPは、各ノードの使用可能なスペースが最も多い2つのローカル階層を選択してFlexGroupボリュームを作成します。使用可能なローカル階層が2つない場合、ONTAPはノードごとに1つのローカル階層を選択してFlexGroupボリュームを作成します。
+.タスク概要
+ONTAPは、各ノード上で使用可能なスペースが最も大きい2つのローカル階層を選択してFlexGroupボリュームを作成します。2つのローカル階層が利用できない場合、ONTAPはノードごとに1つのローカル階層を選択してFlexGroupボリュームを作成します。
 
-ONTAP 9.15.1以降では、FlexGroupボリュームを自動的にプロビジョニングする際に、ONTAPで分散配置（BP）を使用してローカル階層とFlexGroupメンバー（コンスティチュエント）ボリュームのレイアウトを選択します。BPの1つの側面として、保証された（シンプロビジョニングされた）FlexGroupボリュームを作成する際にローカル階層のオーバープロビジョニングを制限する方法があります。FlexGroupボリューム全体のサイズはローカル階層の空きスペースの量によって制限されますが、この制限は「volume」で保証された（シックプロビジョニングされた）FlexGroupボリュームの制限よりも高くなります。REST APIまたはONTAP CLIを使用してFlexGroupボリュームを作成する場合 `auto-provision-as` 、スペース不足が原因でプロビジョニングに失敗することがあります。これを回避するには、FlexGroupボリュームのサイズを小さくするか、 link:create-task.html["FlexGroupボリュームの作成とローカル階層の手動選択"] パラメータを使用し `aggr-list` ます。
+ONTAP 9.15.1以降、FlexGroupボリュームを自動プロビジョニングする場合、ONTAPはバランス配置（BP）を使用してローカル階層とFlexGroupメンバー（構成）ボリュームのレイアウトを選択します。BPの特徴の1つは、「none」保証（シンプロビジョニング）FlexGroupボリュームを作成する際に、ローカル階層のオーバープロビジョニングを制限することです。FlexGroupボリューム全体のサイズはローカル階層の空き容量によって制限されますが、この制限は「volume」保証（シックプロビジョニング）FlexGroupボリュームの場合よりも高くなります。REST APIまたは `auto-provision-as`ONTAP CLIを使用してFlexGroupボリュームを作成すると、この制限によりスペース不足のためにプロビジョニングが失敗する可能性があります。これを回避するには、より小さなFlexGroupボリュームを作成するか、link:create-task.html["FlexGroupボリュームを作成し、ローカル層を手動で選択する"] `aggr-list`パラメータを使用して作成します。
 
 .手順
 . FlexGroupボリュームをプロビジョニングします。
@@ -32,35 +32,35 @@ ONTAP 9.15.1以降では、FlexGroupボリュームを自動的にプロビジ�
 `volume create -vserver svm_name -volume fg_vol_name –auto-provision-as flexgroup -size fg_size [–encrypt true] [-qos-policy-group qos_policy_group_name] [-support-tiering true] [-granular-data advanced]`
 
 +
-ONTAP 9.16.1以降では、 (`-granular-data advanced`CLIでを有効にすることができます）。ファイルが10GBを超える場合に、複数のFlexGroupメンバーボリュームにデータを書き込むことができますlink:enable-adv-capacity-flexgroup-task.html["高度な容量分散"]。
+ONTAP 9.16.1 以降では、link:enable-adv-capacity-flexgroup-task.html["高度な容量バランス調整"] (`-granular-data advanced`（CLI 内）を有効にして、ファイルが 10GB を超える場合に複数のFlexGroupメンバー ボリュームにわたってデータを書き込むことができます。
 
 +
-ONTAP 9.5以降では、FabricPoolが有効なローカル階層にFlexGroupボリュームを作成できます。FabricPoolが有効なローカル階層にFlexGroupボリュームを自動的にプロビジョニングするには、パラメータをに `true`設定する必要があります `-support-tiering`。FabricPoolのボリュームギャランティは常にに設定する必要があります `none`。FlexGroupボリュームに対して階層化ポリシーと階層化の最小クーリング期間を指定することもできます。
+ONTAP 9.5以降、FabricPoolが有効なローカル階層上にFlexGroupボリュームを作成できます。FabricPoolが有効なローカル階層上にFlexGroupボリュームを自動的にプロビジョニングするには、 `-support-tiering`パラメータを `true`に設定する必要があります。FabricPoolの場合、ボリューム保証は常に `none`に設定する必要があります。FlexGroupボリュームの階層化ポリシーおよび階層化の最小クーリング期間も指定できます。
 
 +
 link:../disks-aggregates/index.html["ディスクおよびアグリゲートの管理"]
 
 +
-FlexGroupボリュームにはスループットの上限（最大QoS）を指定できます。これにより、FlexGroupボリュームで消費できるパフォーマンスリソースが制限されます。ONTAP 9.4以降では、FlexGroupボリュームにスループットの下限（最小QoS）とアダプティブQoSを指定できます。
+FlexGroupボリュームのスループット上限（QoS Max）を指定できます。これにより、FlexGroupボリュームが消費できるパフォーマンス リソースが制限されます。ONTAP 9.4以降では、FlexGroupボリュームのスループット下限（QoS Min）とアダプティブQoSを指定できます。
 
 +
 link:../performance-admin/index.html["パフォーマンス管理"]
 
 +
-FlexGroupボリュームで暗号化を有効にする場合は、パラメータをに `true`設定し `-encrypt`ます。暗号化されたボリュームを作成するには、ボリューム暗号化ライセンスとキー管理ツールをインストールしておく必要があります。
+FlexGroupボリュームで暗号化を有効にする場合は、 `-encrypt`パラメータを `true`に設定できます。暗号化されたボリュームを作成するには、ボリューム暗号化ライセンスとキー マネージャをインストールしておく必要があります。
 
 +
 
 NOTE: 暗号化はFlexGroupボリュームの作成時に有効にする必要があります。既存のFlexGroupボリュームで暗号化を有効にすることはできません。
 
 +
-link:../encryption-at-rest/index.html["保存データの暗号化"]
+link:../encryption-at-rest/index.html["保存中のデータを暗号化"]
 
 +
-パラメータは `size`、FlexGroupボリュームのサイズ（KB、MB、GB、TB、またはPB）を指定します。
+ `size`パラメータは、FlexGroupボリュームのサイズをKB、MB、GB、TB、またはPBで指定します。
 
 +
-次の例は、400TBのFlexGroupボリュームをプロビジョニングする方法を示しています。
+次の例は、サイズが400TBのFlexGroupボリュームをプロビジョニングする方法を示しています：
 
 +
 [listing]
@@ -72,7 +72,7 @@ Do you want to continue? {y|n}: y
 [Job 34] Job succeeded: Successful
 ----
 +
-次の例は、スループットの上限を設定するQoSポリシーグループを作成してFlexGroupボリュームに適用する方法を示しています。
+次の例は、スループットの上限が設定されたQoSポリシー グループを作成してFlexGroupボリュームに適用する方法を示しています。
 
 +
 [listing]
@@ -89,7 +89,7 @@ Do you want to continue? {y|n}: y
 [Job 34] Job succeeded: Successful
 ----
 +
-次の例は、FabricPoolが有効なローカル階層で400TBのFlexGroupボリュームをプロビジョニングする方法を示しています。
+次の例は、FabricPoolが有効なローカル階層上に400 TBのFlexGroupボリュームをプロビジョニングする方法を示しています：
 
 +
 [listing]
@@ -101,12 +101,12 @@ Do you want to continue? {y|n}: y
 [Job 34] Job succeeded: Successful
 ----
 +
-クラスタ内の各ノードに8個のメンバーボリュームで構成されるFlexGroupボリュームが作成されます。メンバーボリュームは、各ノード上の最も大きい2つのローカル階層に均等に分散されます。
+FlexGroupボリュームは、クラスタ内の各ノードに8つのメンバー ボリュームで作成されます。メンバー ボリュームは、各ノードの2つの最大のローカル階層に均等に分散されます。
 
 +
-デフォルトでは、AFFシステムの場合を除き、FlexGroupボリュームはスペースギャランティ設定で作成され `volume`ます。AFFシステムの場合、デフォルトではスペースギャランティが設定されてFlexGroupボリュームが作成され `none`ます。
+デフォルトでは、FlexGroupボリュームは `volume`スペースギャランティ設定で作成されます（AFFシステムを除く）。AFFシステムの場合、デフォルトではFlexGroupボリュームは `none`スペースギャランティで作成されます。
 
-. ジャンクションパスを使用してFlexGroupボリュームをマウントします。
+. FlexGroupボリュームをジャンクション パスにマウントします。
 +
 `volume mount -vserver vserver_name -volume vol_name -junction-path junction_path`
 
@@ -117,10 +117,10 @@ cluster1::> volume mount -vserver vs0 -volume fg2 -junction-path /fg2
 ----
 
 
-.終了後
-FlexGroupボリュームはクライアントからマウントする必要があります。
+.終了後の操作
+クライアントからFlexGroupボリュームをマウントします。
 
-ONTAP 9 .6以前を実行していて、Storage Virtual Machine（SVM）でNFSv3とNFSv4の両方が設定されている場合、クライアントからのFlexGroupボリュームのマウントが失敗することがあります。その場合は、クライアントからFlexGroupボリュームをマウントする際に、NFSバージョンを明示的に指定する必要があります。
+ONTAP 9.6以前のバージョンでは、Storage Virtual Machine（SVM）でNFSv3とNFSv4の両方が設定されている場合、クライアントからのFlexGroupボリュームのマウントが失敗することがあります。その場合は、クライアントからFlexGroupボリュームをマウントする際に、NFSバージョンを明示的に指定する必要があります。
 
 [listing]
 ----
@@ -129,5 +129,5 @@ ONTAP 9 .6以前を実行していて、Storage Virtual Machine（SVM）でNFSv3
 file1  file2
 ----
 .関連情報
-* link:https://docs.netapp.com/us-en/ontap-cli/qos-policy-group-create.html["QoSポリシーグループの作成"^]
+* link:https://docs.netapp.com/us-en/ontap-cli/qos-policy-group-create.html["qos policy-group create"^]
 

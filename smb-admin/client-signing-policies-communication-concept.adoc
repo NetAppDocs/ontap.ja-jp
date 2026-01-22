@@ -2,117 +2,117 @@
 permalink: smb-admin/client-signing-policies-communication-concept.html 
 sidebar: sidebar 
 keywords: addition, cifs, server, smb, sign, security, windows, client, control, digital, communication, business, requirement, how smb signing policies affect communication with a cifs server 
-summary: CIFS サーバの SMB 署名セキュリティ設定に加えて、クライアントと CIFS サーバ間の通信のデジタル署名を制御する Windows クライアント上の SMB 署名ポリシーが 2 つあります。ビジネス要件に合わせて設定を行うことができます。 
+summary: CIFSサーバーのSMB署名セキュリティ設定に加えて、Windowsクライアント上の2つのSMB署名ポリシーが、クライアントとCIFSサーバー間の通信のデジタル署名を制御します。ビジネス要件に合った設定を構成できます。 
 ---
-= 署名ポリシーがONTAP SMBサーバとの通信に与える影響
+= 署名ポリシーがONTAP SMBサーバとの通信にどのように影響するかを学びます
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-CIFS サーバの SMB 署名セキュリティ設定に加えて、クライアントと CIFS サーバ間の通信のデジタル署名を制御する Windows クライアント上の SMB 署名ポリシーが 2 つあります。ビジネス要件に合わせて設定を行うことができます。
+CIFSサーバーのSMB署名セキュリティ設定に加えて、Windowsクライアント上の2つのSMB署名ポリシーが、クライアントとCIFSサーバー間の通信のデジタル署名を制御します。ビジネス要件に合った設定を構成できます。
 
-クライアント SMB ポリシーは、 Microsoft 管理コンソール（ MMC ）または Active Directory の GPO を使用して設定した Windows ローカルセキュリティポリシー設定で制御されます。クライアントの SMB 署名とセキュリティ問題の詳細については、 Microsoft Windows のマニュアルを参照してください。
+クライアント SMB ポリシーは、Windows のローカル セキュリティ ポリシー設定によって制御されます。これらの設定は、Microsoft Management Console（MMC）または Active Directory GPO を使用して構成されます。クライアント SMB 署名とセキュリティの問題の詳細については、Microsoft Windows のドキュメントを参照してください。
 
-ここでは、 Microsoft クライアントの 2 つの SMB 署名ポリシーについて説明します。
+Microsoft クライアント上の 2 つの SMB 署名ポリシーについて説明します：
 
 * `Microsoft network client: Digitally sign communications (if server agrees)`
 +
-この設定は、クライアントのSMB署名機能を有効にするかどうかを制御します。デフォルトでは有効になっています。この設定がクライアントで無効になっている場合、クライアントのCIFSサーバとの通信は、CIFSサーバのSMB署名の設定によって異なります。
+この設定は、クライアントのSMB署名機能を有効にするかどうかを制御します。デフォルトでは有効になっています。クライアントでこの設定が無効になっている場合、CIFSサーバとのクライアント通信は、CIFSサーバのSMB署名設定に依存します。
 
 * `Microsoft network client: Digitally sign communications (always)`
 +
-この設定は、クライアントがサーバとの通信に SMB 署名を必要とするかどうかを制御します。デフォルトでは無効になっています。この設定がクライアントで無効になっている場合、SMB署名の動作は、のポリシー設定とCIFSサーバの設定に基づき `Microsoft network client: Digitally sign communications (if server agrees)`ます。
+この設定は、クライアントがサーバーとの通信にSMB署名を必要とするかどうかを制御します。デフォルトでは無効になっています。クライアントでこの設定が無効になっている場合、SMB署名の動作は `Microsoft network client: Digitally sign communications (if server agrees)`のポリシー設定とCIFSサーバーの設定に基づいて行われます。
 
 +
 [NOTE]
 ====
-ご使用の環境に、 SMB 署名を必要とするように設定された Windows クライアントが含まれる場合、 CIFS サーバ上の SMB 署名を有効にする必要があります。有効にしないと、 CIFS サーバはこれらのシステムにデータを提供できません。
+環境にSMB署名を必要とするように設定されたWindowsクライアントが含まれている場合は、CIFSサーバーでSMB署名を有効にする必要があります。有効にしないと、CIFSサーバーはこれらのシステムにデータを提供できません。
 
 ====
 
 
-クライアントとCIFSサーバのSMB署名設定の有効な結果は、SMBセッションでSMB 1.0が使用されるかSMB 2.x以降が使用されるかによって異なります。
+クライアントとCIFSサーバの実質的なSMB署名設定は、SMBセッションでSMB 1.0が使用されるかSMB 2.x以降が使用されるかによって異なります。
 
-次の表に、セッションでSMB 1.0が使用される場合の有効なSMB署名の動作を示します。
+次の表に、セッションでSMB 1.0が使用される場合のSMB署名の動作を示します。
 
 |===
-| クライアント | ONTAP -- 署名は不要 | ONTAP -- 署名が必要 
+| クライアント | ONTAP--署名は不要 | ONTAP--署名が必要です 
 
 
  a| 
-署名は無効になっており、不要です
+署名は無効になっており、必要ありません
  a| 
-署名されません
+署名なし
  a| 
-署名済み
-
-
-
- a| 
-署名が有効になっており、不要である
- a| 
-署名されません
- a| 
-署名済み
+署名される
 
 
 
  a| 
-署名が無効になっており、必要です
+署名が有効で必須ではありません
  a| 
-署名済み
+署名なし
  a| 
-署名済み
+署名される
 
 
 
  a| 
-署名が有効になっており、必要です
+署名が無効になっていますが必須です
  a| 
-署名済み
+署名される
  a| 
-署名済み
+署名される
+
+
+
+ a| 
+署名が有効で必須
+ a| 
+署名される
+ a| 
+署名される
 
 |===
 [NOTE]
 ====
-古いバージョンのWindowsのSMB 1クライアントや一部のWindows以外のSMB 1クライアントでは、署名がクライアントでは無効になっていてCIFSサーバでは必要な場合、接続に失敗することがあります。
+古いバージョンのWindowsのSMB 1クライアントや一部のWindows以外のSMB 1クライアントでは、クライアントでは署名が無効になっていてCIFSサーバでは必要な場合、接続に失敗することがあります。
 
 ====
-次の表に、セッションでSMB 2.xまたはSMB 3.0が使用される場合の有効なSMB署名の動作を示します。
+次の表に、セッションでSMB 2.xまたはSMB 3.0が使用される場合のSMB署名の動作を示します。
 
 [NOTE]
 ====
-SMB 2.x クライアントと SMB 3.0 クライアントでは、 SMB 署名は常に有効になります。無効にすることはできません。
+SMB 2.x および SMB 3.0 クライアントでは、SMB 署名は常に有効です。無効にすることはできません。
 
 ====
 |===
-| クライアント | ONTAP -- 署名は不要 | ONTAP -- 署名が必要 
+| クライアント | ONTAP--署名は不要 | ONTAP--署名が必要です 
 
 
  a| 
 署名は不要です
  a| 
-署名されません
+署名なし
  a| 
-署名済み
+署名される
 
 
 
  a| 
 署名が必要です
  a| 
-署名済み
+署名される
  a| 
-署名済み
+署名される
 
 |===
-次の表に、 Microsoft クライアントおよびサーバの SMB 署名のデフォルト動作を示します。
+次の表は、Microsoft クライアントおよびサーバーの SMB 署名のデフォルトの動作をまとめたものです：
 
 |===
-| プロトコル | ハッシュアルゴリズム | 有効 / 無効を切り替えられます | 必須 / 不要 | クライアントのデフォルト | サーバのデフォルト | DC のデフォルト 
+| プロトコル | ハッシュ アルゴリズム | 有効化/無効化できます | 必須にできる/必須にしないことができる | クライアントのデフォルト | サーバーのデフォルト | DCデフォルト 
 
 
  a| 
@@ -120,13 +120,13 @@ SMB 1.0
  a| 
 MD5
  a| 
-〇
+はい
  a| 
-〇
+はい
  a| 
-有効（不要）
+有効（必須ではありません）
  a| 
-無効（不要）
+無効（必須ではありません）
  a| 
 必須
 
@@ -139,7 +139,7 @@ HMAC SHA-256
  a| 
 いいえ
  a| 
-〇
+はい
  a| 
 不要
  a| 
@@ -152,11 +152,11 @@ HMAC SHA-256
  a| 
 SMB 3.0
  a| 
-AES-CMAC ：
+AES-CMAC。
  a| 
 いいえ
  a| 
-〇
+はい
  a| 
 不要
  a| 
@@ -167,6 +167,6 @@ AES-CMAC ：
 |===
 [NOTE]
 ====
-Microsoftでは、または `Digitally sign communications (if server agrees)`グループポリシー設定の使用を推奨していません `Digitally sign communications (if client agrees)`。Microsoftでは、レジストリ設定の使用も推奨していません `EnableSecuritySignature`。これらのオプションはSMB 1の動作にのみ影響し、グループポリシー設定または `RequireSecuritySignature`レジストリ設定に置き換えることができます。 `Digitally sign communications (always)`詳細については、Microsoftのブログを参照してください。http://blogs.technet.com/b/josebda/archive/2010/12/01/the-basics-of-smb-signing-covering-both-smb1-and-smb2.aspx[The SMB署名の基礎（SMB1とSMB2の両方をカバー）]
+Microsoftは、 `Digitally sign communications (if client agrees)`または `Digitally sign communications (if server agrees)`グループポリシー設定の使用を推奨しなくなりました。Microsoftは、 `EnableSecuritySignature`レジストリ設定の使用も推奨しなくなりました。これらのオプションはSMB 1の動作にのみ影響し、 `Digitally sign communications (always)`グループポリシー設定または `RequireSecuritySignature`レジストリ設定で置き換えることができます。Microsoftブログからも詳細情報を入手できます。http://blogs.technet.com/b/josebda/archive/2010/12/01/the-basics-of-smb-signing-covering-both-smb1-and-smb2.aspx[SMB署名の基礎（SMB1とSMB2の両方をカバー）]
 
 ====

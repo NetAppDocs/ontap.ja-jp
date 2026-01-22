@@ -2,73 +2,73 @@
 permalink: mediator/verify-code-signature-task.html 
 sidebar: sidebar 
 keywords: mediator, new, release, update, install, verify, code, signature 
-summary: ONTAPメディエーターのインストールパッケージをインストールする前に、メディエーターコードの署名を確認する必要があります。 
+summary: ONTAP Mediatorのインストール パッケージをインストールする前に、Mediatorのコード署名を検証する必要があります。 
 ---
-= ONTAPメディエーターコード署名の確認
+= ONTAP Mediatorのコード署名の検証
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-NetApp、インストール前にONTAP Mediator のコード署名を確認することを推奨しています。この手順はオプションです。
+NetAppでは、インストール前にONTAP Mediatorのコード署名を検証することを推奨しています。この手順はオプションです。
 
 .開始する前に
 ONTAP Mediator コード署名を検証する前に、システムがこれらの要件を満たしていることを確認してください。
 
 [NOTE]
 ====
-* 2025年6月15日以降、コード署名検証証明書の有効期限が切れているため、 ONTAP Mediator 1.9および1.8のインストールまたはアップグレードはできません。代わりに、 ONTAP Mediator 1.11 または 1.10 をインストールするか、アップグレードしてください。
-* システムが以下の要件を満たしていない場合は、検証プロセスは必要なく、に直接移動できます。link:install-mediator-pkg-task.html["ONTAPメディエーターインストールパッケージのインストール"]
+* 2025年6月15日以降、コード署名検証証明書の有効期限が切れているため、ONTAP Mediator 1.9および1.8のインストールまたはアップグレードはできません。代わりに、ONTAP Mediator 1.11または1.10をインストールまたはアップグレードしてください。
+* システムが以下の要件を満たしていない場合、検証プロセスは必要なく、直接link:install-mediator-pkg-task.html["ONTAP Mediatorのインストール パッケージのインストール"]に進むことができます。
 
 
 ====
-* OpenSSLバージョン1.0.2～3.0（基本検証用）
-* タイムスタンプ局（TSA）操作用のOpenSSLバージョン1.1.0以降
-* OCSP検証のためのパブリックインターネットアクセス
+* OpenSSLバージョン1.0.2～3.0：基本的な検証の場合
+* OpenSSLバージョン1.1.0以降：時刻認証局（TSA）の処理の場合
+* パブリック インターネットへのアクセス：OCSP検証の場合
 
 
-ダウンロード パッケージには次のファイルが含まれています。
+ダウンロード パッケージには次のファイルが含まれています：
 
 [cols="50,50"]
 |===
 
 
-| ファイル | 説明 
+| ファイル | 概要 
 
 
  a| 
 `ONTAP-Mediator-production.pub`
  a| 
-署名の検証に使用される公開鍵
+署名の検証に使用された公開鍵
 
 
 
  a| 
 `csc-prod-chain-ONTAP-Mediator.pem`
  a| 
-パブリック証明書CAの信頼チェーン
+公開証明書CAの信頼チェーン
 
 
 
  a| 
 `csc-prod-ONTAP-Mediator.pem`
  a| 
-キーの生成に使用する証明書
+キーの生成に使用された証明書
 
 
 
  a| 
 `ontap-mediator-1.11.0`
  a| 
-バージョン 1.11 の製品インストール実行ファイル
+バージョン1.11の製品インストール実行ファイル
 
 
 
  a| 
 `ontap-mediator-1.11.0.sig`
  a| 
-SHA-256はハッシュ化され、CSC-prodキーを使用してRSA署名されます（インストーラの署名）。
+SHA-256でハッシュ化され、csc-prodキーを使用してRSA署名された、インストーラの署名
 
 
 
@@ -89,20 +89,20 @@ OCSCPがインストーラの署名に使用する失効要求
  a| 
 `tsa-prod-ONTAP-Mediator.pem`
  a| 
-TSRのパブリック証明書
+TSRの公開証明書
 
 
 
  a| 
 `tsa-prod-chain-ONTAP-Mediator.pem`
  a| 
-TSRのパブリック証明書CAチェーン
+TSRの公開証明書のCAチェーン
 
 |===
 .手順
-. Online Certificate Status Protocol（OCSP）を使用して、で失効チェックを実行します `csc-prod-ONTAP-Mediator.pem`。
+.  `csc-prod-ONTAP-Mediator.pem`でオンライン証明書ステータス プロトコル（OCSP）を使用して失効チェックを実行します。
 +
-.. 証明書の OCSP URL を見つけます。開発者証明書では URI が提供されない場合があります。
+.. 証明書のOCSP URLを見つけます。開発者証明書ではURIが提供されない場合があります：
 +
 [listing]
 ----
@@ -122,13 +122,13 @@ openssl ocsp -issuer csc-prod-chain-ONTAP-Mediator.pem -CAfile csc-prod-chain-ON
 ----
 
 
-. CSCの信頼チェーンと有効期限をローカルホストと照合して確認します。
+. ローカル ホストに照らしてCSCの信頼チェーンと有効期限を検証します。
 +
 `openssl verify`
 
 +
 
-NOTE:  `openssl`パスのバージョンは有効な（自己署名ではない）必要があります `cert.pem`。
+NOTE: PATH からの `openssl`バージョンには、有効な `cert.pem`（自己署名ではない）が必要です。
 
 +
 [listing]
@@ -136,7 +136,7 @@ NOTE:  `openssl`パスのバージョンは有効な（自己署名ではない�
 openssl verify -untrusted csc-prod-chain-ONTAP-Mediator.pem -CApath ${OPENSSLDIR} csc-prod-ONTAP-Mediator.pem  # Failure action: The Code-Signature-Check certificate has expired or is invalid. Download a newer version of the ONTAP Mediator.
 openssl verify -untrusted tsa-prod-chain-ONTAP-Mediator.pem -CApath ${OPENSSLDIR} tsa-prod-ONTAP-Mediator.pem  # Failure action: The Time-Stamp certificate has expired or is invalid. Download a newer version of the ONTAP Mediator.
 ----
-. 確認する `ontap-mediator-1.11.0.sig.tsr`そして `ontap-mediator-1.11.0.tsr`関連する証明書を使用するファイル:
+. 関連する証明書を使用して、 `ontap-mediator-1.11.0.sig.tsr`および `ontap-mediator-1.11.0.tsr`ファイルを検証します：
 +
 [role="tabbed-block"]
 ====
@@ -153,9 +153,9 @@ openssl verify -untrusted tsa-prod-chain-ONTAP-Mediator.pem -CApath ${OPENSSLDIR
 ====
 +
 
-NOTE: `.tsr`ファイルには、インストーラーに関連付けられたタイムスタンプ応答とコード署名が含まれています。タイムスタンプにTSAからの有効な署名があり、入力ファイルが変更されていないことが確認されます。マシンはローカルで検証を実行します。  TSA サーバーにアクセスする必要はありません。
+NOTE: `.tsr`ファイルには、インストーラに関連付けられたタイムスタンプレスポンスとコード署名が含まれています。処理では、タイムスタンプにTSAの有効な署名があり、入力ファイルが変更されていないことを確認します。検証はマシン上でローカルに実行されます。TSAサーバーにアクセスする必要はありません。
 
-. キーに対する署名を確認します。
+. キーに照らして署名を検証します。
 +
 `openssl -dgst -verify`
 

@@ -2,7 +2,7 @@
 permalink: system-admin/setup-autosupport-task.html 
 sidebar: sidebar 
 keywords: autosupport, set up autosupport, technical support, internal support organization, AutoSupport messages, AutoSupport configuration, AutoSupport OnDemand, HTTPS, SMTP, email, proxy, mail host, DNS, TLS, AutoSupport history, AutoSupport check 
-summary: AutoSupportメッセージをNetAppテクニカルサポートに配信し、社内のサポート部門にEメールコピーを送信するようにONTAPクラスタを設定します。 
+summary: ONTAPクラスタを構成して、AutoSupportメッセージをNetAppテクニカルサポートに配信し、社内のサポート組織に電子メールのコピーを送信します。 
 ---
 = ONTAP AutoSupportのセットアップ
 :allow-uri-read: 
@@ -11,18 +11,18 @@ summary: AutoSupportメッセージをNetAppテクニカルサポートに配信
 
 
 [role="lead"]
-AutoSupportメッセージをNetAppテクニカルサポートに配信し、社内のサポート部門にEメールコピーを送信するようにONTAPクラスタを設定できます。その一環として、本番環境で使用する前に構成をテストすることもできます。
+AutoSupportメッセージをNetAppテクニカル サポートに配信し、社内のサポート部門にEメール コピーを送信するように、ONTAPクラスタを設定できます。その一環として、本番環境で使用する前に構成をテストすることもできます。
 
-.タスクの内容
-ONTAP 9 .5以降では、クラスタのすべてのノードに対して同時にAutoSupportを有効にして設定できます。新しいノードがクラスタに追加されると、同じAutoSupport設定が自動的に継承されます。これをサポートするために、CLIコマンドの範囲は `system node autosupport modify`クラスタレベルです。 `-node`コマンドオプションは下位互換性のために保持されていますが、無視されます。
+.タスク概要
+ONTAP 9.5以降では、クラスタ内のすべてのノードに対してAutoSupportを同時に有効化および設定できます。新しいノードがクラスタに参加すると、そのノードは自動的に同じAutoSupport設定を継承します。これをサポートするため、CLIコマンド `system node autosupport modify`のスコープはクラスタレベルです。 `-node`コマンドオプションは下位互換性のために保持されていますが、無視されます。
 
 
-NOTE: ONTAP 9 .4以前のリリースでは、コマンドは `system node autosupport modify`各ノードに固有です。クラスタでONTAP 9 .4以前を実行している場合は、クラスタ内の各ノードでAutoSupportを有効にして設定する必要があります。
+NOTE: ONTAP 9.4以前のリリースでは、 `system node autosupport modify`コマンドは各ノードに固有です。クラスタでONTAP 9.4以前を実行している場合は、クラスタ内の各ノードでAutoSupportを有効化および設定する必要があります。
 
 .開始する前に
-AutoSupportメッセージをNetAppに配信するための推奨される転送設定はHTTPS（TLSを使用したHTTP）です。このオプションは、最も堅牢な機能と最高のセキュリティを提供します。
+AutoSupportメッセージをNetAppに配信する際の推奨される転送設定はHTTPS（TLSを使用したHTTP）です。このオプションは、最も堅牢な機能と最高レベルのセキュリティを提供します。
 
-ONTAPクラスタを設定する前に、で詳細を確認してくださいlink:requirements-autosupport-reference.html["AutoSupportを使用する準備"]。
+ONTAPクラスタを構成する前に、詳細についてはlink:requirements-autosupport-reference.html["AutoSupportを使用するための準備"]を確認してください。
 
 .手順
 . AutoSupportが有効になっていることを確認します。
@@ -31,20 +31,20 @@ ONTAPクラスタを設定する前に、で詳細を確認してくださいlin
 ----
 system node autosupport modify -state enable
 ----
-. NetAppテクニカルサポートにAutoSupportメッセージを送信するには、次のコマンドを使用します。
+. NetAppテクニカル サポートがAutoSupportメッセージを受信できるようにするには、次のコマンドを使用します。
 +
 [listing]
 ----
 system node autosupport modify -support enable
 ----
 +
-AutoSupportでAutoSupport OnDemandを使用できるようにする場合や、大容量ファイル（コアダンプファイルやパフォーマンスアーカイブファイルなど）をテクニカルサポートまたは指定のURLにアップロードする場合は、このオプションを有効にする必要があります。
+AutoSupportでAutoSupport OnDemandを使用可能にする場合や、大容量ファイル（コア ダンプ ファイルやパフォーマンス アーカイブ ファイルなど）をテクニカル サポートまたは指定のURLにアップロードする場合は、このオプションを有効にする必要があります。
 
 +
 
-NOTE: AutoSupport OnDemandはデフォルトで有効になり、HTTPS転送プロトコルを使用してテクニカルサポートにメッセージを送信するように設定すると機能します。
+NOTE: HTTPS転送プロトコルを使用してテクニカル サポートにメッセージを送信するよう設定している場合は、AutoSupport OnDemandがデフォルトで有効になっており、機能しています。
 
-. NetAppテクニカルサポートによるAutoSupportメッセージの受信を有効にした場合は、メッセージに使用する転送プロトコルを指定します。
+. NetAppテクニカルサポートがAutoSupportメッセージを受信できるように設定した場合は、これらのメッセージに使用するトランスポートプロトコルを指定します。
 +
 次のオプションから選択できます。
 
@@ -52,29 +52,29 @@ NOTE: AutoSupport OnDemandはデフォルトで有効になり、HTTPS転送プ�
 |===
 
 
-| 状況 | コマンドで設定するパラメータ `system node autosupport modify` 
+| 状況 | 次に、 `system node autosupport modify` コマンドの次のパラメータを設定します... 
 
 
  a| 
 デフォルトのHTTPSプロトコルを使用する
  a| 
-.. をに `https`設定し `-transport`ます。
-.. プロキシを使用する場合は、プロキシのURLをに設定し `-proxy-url`ます。この構成では、AutoSupport OnDemandとの通信および大容量ファイルのアップロードがサポートされます。
+..  `-transport`を `https`に設定します。
+.. プロキシを使用する場合は、 `-proxy-url`をプロキシのURLに設定してください。この設定は、AutoSupport OnDemandとの通信と大きなファイルのアップロードをサポートします。
 
 
 
 
  a| 
-SMTPを使用
+SMTPを使用する
  a| 
-をに `smtp`設定し `-transport`ます。
+ `-transport`を `smtp`に設定します。
 
-この構成では、AutoSupport OnDemandや大容量ファイルのアップロードはサポートされません。
+この設定では、AutoSupport OnDemandや大容量ファイルのアップロードはサポートされません。
 
 |===
-. 社内のサポート部門やサポートパートナーにAutoSupportメッセージを送信するには、次の操作を実行します。
+. 社内のサポート部門またはサポート パートナーにAutoSupportメッセージを送信するには、次の操作を実行します。
 +
-.. 組織内の受信者を特定するには、コマンドの次のパラメータを設定し `system node autosupport modify`ます。
+..  `system node autosupport modify`コマンドの次のパラメータを設定して、組織内の受信者を識別します：
 +
 |===
 
@@ -85,69 +85,69 @@ SMTPを使用
  a| 
 `-to`
  a| 
-重要なAutoSupportメッセージを受け取る社内サポート部門の、カンマで区切った5つまでの個別Eメールアドレスまたは配信リスト
+重要なAutoSupportメッセージを受信する社内サポート組織内の最大5つの個別の電子メールアドレスまたは配布リストをコンマで区切って指定します
 
 
 
  a| 
 `-noteto`
  a| 
-携帯電話やその他のモバイルデバイス用に設計された主要なAutoSupportメッセージの短縮版を受け取る社内サポート部門の、カンマで区切った5つまでの個別Eメールアドレスまたは配信リスト
+携帯電話やその他のモバイルデバイス向けに設計された重要なAutoSupportメッセージの短縮版を受信する、社内サポート組織内の最大5つの個別の電子メールアドレスまたは配布リスト（カンマで区切る）
 
 
 
  a| 
 `-partner-address`
  a| 
-すべてのAutoSupportメッセージを受信するサポートパートナー組織の、カンマで区切った5つまでの個別Eメールアドレスまたは配信リスト
+すべてのAutoSupportメッセージを受信するサポート パートナー組織内の最大 5 つの個別の電子メール アドレスまたは配布リストをコンマで区切って指定します
 
 |===
-.. アドレスが正しく設定されていることを確認するには、コマンドを使用し `system node autosupport destinations show`ます。
+..  `system node autosupport destinations show`コマンドを使用して宛先を一覧表示し、アドレスが正しく設定されていることを確認します。
 
 
-. 前の手順で社内のサポート部門の受信者アドレスを設定した場合、またはテクニカルサポートへのメッセージにSMTP転送を選択した場合は、コマンドの次のパラメータを設定してSMTPを設定し `system node autosupport modify`ます。
+. 前の手順で社内サポート組織の受信者アドレスを構成した場合、またはテクニカル サポートへのメッセージに SMTP トランスポートを選択した場合は、 `system node autosupport modify`コマンドの次のパラメータを設定して SMTP を構成します：
 +
-** 1つ以上のメールホストをカンマで区切って設定します。 `-mail-hosts`
+**  `-mail-hosts`を、カンマで区切った 1 つ以上のメール ホストに設定します。
 +
-最大5つまで設定できます。
+最大5件のメール ホストを設定できます。
 
 +
-メールホスト名のあとにコロンとポート番号を指定することで、各メールホストのポート値を設定できます。たとえば、 `mymailhost.example.com:5678`5678はメールホストのポートです。
+メール ホスト名の後にコロンとポート番号を指定することにより、各メール ホストのポート値を設定できます：たとえば、 `mymailhost.example.com:5678`では、5678がメール ホストのポートです。
 
-** を、AutoSupportメッセージを送信するEメールアドレスに設定します `-from`。
+**  `-from`をAutoSupportメッセージを送信するメールアドレスに設定します。
 
 
-. DNSを設定します。
-. 特定の設定を変更する場合は、必要に応じてコマンドオプションを追加します。
+. DNS を設定します。
+. （オプション）特定の設定を変更する場合は、コマンドのオプションを追加します。
 +
 |===
 
 
-| 実行する処理 | コマンドで設定するパラメータ `system node autosupport modify` 
+| 実行する処理 | 次に、 `system node autosupport modify` コマンドの次のパラメータを設定します... 
 
 
  a| 
-メッセージ内の機密データを削除、マスキング、またはエンコードしてプライベートデータを非表示にする
+メッセージ内の機密データの削除、マスキング、またはエンコーディングによってプライベート データを非表示にする
  a| 
-をに `true`設定し `-remove-private-data`ます。からに `true`変更する `false`と、すべてのAutoSupport履歴と関連ファイルが削除されます。
+ `-remove-private-data`を `true`に設定します。 `false`から `true`に変更すると、すべてのAutoSupport履歴とすべての関連ファイルが削除されます。
 
 
 
  a| 
-定期的なAutoSupportメッセージでのパフォーマンスデータの送信を停止する
+定期的なAutoSupportメッセージでのパフォーマンス データの送信を停止する
  a| 
-をに `false`設定し `-perf`ます。
+ `-perf`を `false`に設定します。
 
 |===
-. SMTPを使用してAutoSupportメッセージをNetAppに配信する場合は、オプションでTLSを有効にしてセキュリティを強化できます。
+. SMTPを使用してAutoSupportメッセージをNetAppに配信する場合は、必要に応じてTLSを有効にしてセキュリティを強化できます。
 +
-.. 新しいパラメータに使用可能な値を表示します。
+.. 新しいパラメータに使用できる値を表示します。
 +
 [listing]
 ----
 cluster1::> system node autosupport modify -smtp-encryption ?
 ----
-.. SMTPメッセージ配信のTLSを有効にします。
+.. SMTPメッセージ配信に対してTLSを有効にします。
 +
 [listing]
 ----
@@ -161,14 +161,14 @@ cluster1::> system node autosupport show -fields smtp-encryption
 ----
 
 
-. コマンドでパラメータを指定して `-node`、設定全体を確認します `system node autosupport show`。
-. コマンドを使用して、AutoSupportの処理を確認します `system node autosupport check show`。
+.  `-node`パラメータを指定した `system node autosupport show`コマンドを使用して、全体的な構成を確認します。
+.  `system node autosupport check show`コマンドを使用してAutoSupport操作を確認します。
 +
-問題が報告された場合は、コマンドを使用し `system node autosupport check show-details`て詳細を確認します。
+問題が報告された場合は、 `system node autosupport check show-details` コマンドを使用して詳細情報を表示します。
 
 . AutoSupportメッセージが送受信されていることをテストします。
 +
-.. パラメータをに設定 `test`してコマンドを `-type`実行し `system node autosupport invoke`ます。
+..  `system node autosupport invoke`コマンドを `-type`パラメータを `test`に設定して使用します：
 +
 [listing]
 ----
@@ -181,14 +181,14 @@ cluster1::> system node autosupport invoke -type test -node node1
 system node autosupport history show -node local
 ----
 +
-適切なすべてのプロトコル宛先で、最新の発信AutoSupportメッセージのステータスが最終的ににに変わります `sent-successful`。
+最新の送信AutoSupportメッセージのステータスは、すべての適切なプロトコルの宛先に対して最終的に `sent-successful`に変更されるはずです。
 
-.. 必要に応じて、コマンドの、 `-noteto`または `-partner-address`パラメータ `system node autosupport modify`で設定したEメールアドレスを確認して、AutoSupportメッセージが社内のサポート部門またはサポートパートナーに送信されていることを確認します。 `-to`
+.. オプションで、 `system node autosupport modify`コマンドの `-to`、 `-noteto`、または `-partner-address`パラメータに設定したアドレスの電子メールをチェックして、AutoSupportメッセージが社内のサポート組織またはサポート パートナーに送信されていることを確認します。
 
 
 
 
 .関連情報
-* link:../system-admin/requirements-autosupport-reference.html["AutoSupportを使用する準備"]
+* link:../system-admin/requirements-autosupport-reference.html["AutoSupportを使用するための準備"]
 * link:https://docs.netapp.com/us-en/ontap-cli/["ONTAPコマンド リファレンス"^]
 

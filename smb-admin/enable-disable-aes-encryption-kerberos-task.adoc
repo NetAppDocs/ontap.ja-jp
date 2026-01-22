@@ -2,37 +2,37 @@
 permalink: smb-admin/enable-disable-aes-encryption-kerberos-task.html 
 sidebar: sidebar 
 keywords: advantage, security, kerberos-based, communication, aes-256, aes-128, aes, encryption, active, directory, ad, kdc, cifs, smb 
-summary: Kerberosベースの通信で最も強力なセキュリティを活用するには、SMBサーバでAES-256暗号化とAES-128暗号化を有効にします。Active Directory（AD）KDCとのKerberosベースの通信でSMBサーバでAES暗号化タイプが選択されないようにするには、AES暗号化を無効にします。デフォルトでは、AES暗号化は無効になっています。 
+summary: Kerberosベースの通信で最大限のセキュリティを確保するには、SMBサーバでAES-256およびAES-128暗号化を有効にします。SMBサーバでActive Directory（AD）KDCとのKerberosベースの通信にAES暗号化タイプを選択したくない場合は、AES暗号化を無効にすることができます。デフォルトでは、AES暗号化は無効になっています。 
 ---
-= ONTAP SMB Kerberosベースの通信用のAES暗号化の設定
+= ONTAP SMB Kerberosベースの通信にAES暗号化を設定する
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-Kerberosベースの通信で最も強力なセキュリティを活用するには、SMBサーバでAES-256暗号化とAES-128暗号化を使用する必要があります。ONTAP 9.13.1以降では、AES暗号化がデフォルトで有効になります。SMBサーバでActive Directory（AD）KDCとのKerberosベースの通信にAES暗号化タイプを選択したくない場合は、AES暗号化を無効にすることができます。
+Kerberosベースの通信で最大限のセキュリティを確保するには、SMBサーバでAES-256およびAES-128暗号化を使用する必要があります。ONTAP 9.13.1以降では、AES暗号化がデフォルトで有効になります。SMBサーバでActive Directory（AD）KDCとのKerberosベースの通信にAES暗号化タイプを選択したくない場合は、AES暗号化を無効にすることができます。
 
 AES暗号化がデフォルトで有効になっているかどうかと、暗号化タイプを指定できるかどうかは、ONTAPのバージョンによって異なります。
 
 [cols="3"]
 |===
-| ONTAPのバージョン | AES暗号化が有効になっている... | 暗号化タイプを指定できますか。 
+| ONTAPのバージョン | AES暗号化を有効にする方法 | 暗号化タイプ指定の可否 
 
 
-| 9.13.1以降 | デフォルト | 〇 
+| 9.13.1以降 | デフォルト | はい 
 
 
-| 9.12.1 | シユトウ | 〇 
+| 9.12.1 | 手動 | はい 
 
 
-| 9.11.1以前 | シユトウ | いいえ 
+| 9.11.1以前 | 手動 | いいえ 
 |===
-ONTAP 9 .12.1以降では、AES暗号化はオプションを使用して有効または無効にでき `-advertised-enc-types`ます。このオプションを使用すると、AD KDCにアドバタイズされる暗号化タイプを指定できます。デフォルトの設定はと `des`です `rc4`が、AESタイプを指定するとAES暗号化が有効になります。オプションを使用して、弱いRC4およびDES暗号化タイプを明示的に無効にすることもできます。AES.11.1以前でONTAP 9は、オプションを使用してAES暗号化を有効または無効にする必要があります `-is-aes-encryption-enabled`。暗号化タイプを指定することはできません。
+ONTAP 9.12.1以降では、 `-advertised-enc-types`オプションを使用してAES暗号化を有効化または無効化できます。このオプションでは、AD KDCにアドバタイズされる暗号化タイプを指定できます。デフォルト設定は `rc4`と `des`ですが、AESタイプを指定するとAES暗号化が有効になります。また、オプションを使用して、より弱いRC4およびDES暗号化タイプを明示的に無効にすることもできます。ONTAP 9.11.1以前では、 `-is-aes-encryption-enabled`オプションを使用してAES暗号化を有効化または無効化する必要があり、暗号化タイプを指定することはできません。
 
-セキュリティを強化するために、Storage Virtual Machine（SVM）はAESセキュリティオプションが変更されるたびにAD内のマシンアカウントのパスワードを変更します。パスワードを変更するには、マシンアカウントを含む組織単位（OU）の管理ADクレデンシャルが必要になる場合があります。
+セキュリティを強化するため、Storage Virtual Machine（SVM）はAESセキュリティ オプションが変更されるたびに、AD内のマシン アカウントのパスワードを変更します。パスワードの変更には、マシン アカウントが所属する組織単位（OU）の管理ADクレデンシャルが必要になることがあります。
 
-IDが保持されないディザスタリカバリデスティネーションとしてSVMが設定されている場合（SnapMirrorの設定でオプションがに設定されている `false`場合 `-identity-preserve`）、デフォルト以外のSMBサーバセキュリティ設定はデスティネーションにレプリケートされません。ソースSVMでAES暗号化を有効にした場合は、AES暗号化を手動で有効にする必要があります。
+SVMが、IDが保持されないディザスタリカバリ先として設定されている場合（SnapMirror設定で `-identity-preserve`オプションが `false`に設定されている場合）、デフォルト以外のSMBサーバセキュリティ設定はレプリケート先に複製されません。ソースSVMでAES暗号化を有効にしている場合は、手動で有効にする必要があります。
 
 .手順
 [role="tabbed-block"]
@@ -42,7 +42,7 @@ IDが保持されないディザスタリカバリデスティネーションと
 . 次のいずれかを実行します。
 +
 |===
-| Kerberos 通信の AES 暗号化タイプの設定 | 入力するコマンド 
+| Kerberos 通信に AES 暗号化タイプを使用する場合... | コマンドを入力してください... 
 
 
  a| 
@@ -53,15 +53,15 @@ IDが保持されないディザスタリカバリデスティネーションと
 
 
  a| 
-無効にする
+無効
  a| 
 `vserver cifs security modify -vserver vserver_name -advertised-enc-types des,rc4`
 
 |===
 +
-*注:*この `-is-aes-encryption-enabled`オプションはONTAP 9 12.1では廃止されており、今後のリリースで削除される可能性があります。
+*注：*  `-is-aes-encryption-enabled`オプションはONTAP 9.12.1では廃止予定であり、今後のリリースで削除される可能性があります。
 
-. AES暗号化が必要に応じて有効または無効になっていることを確認します。 `vserver cifs security show -vserver vserver_name -fields advertised-enc-types`
+. AES暗号化が必要に応じて有効または無効になっていることを確認します： `vserver cifs security show -vserver vserver_name -fields advertised-enc-types`
 
 
 .例
@@ -103,7 +103,7 @@ vs2      aes-128,aes-256
 . 次のいずれかを実行します。
 +
 |===
-| Kerberos 通信の AES 暗号化タイプの設定 | 入力するコマンド 
+| Kerberos 通信に AES 暗号化タイプを使用する場合... | コマンドを入力してください... 
 
 
  a| 
@@ -114,14 +114,14 @@ vs2      aes-128,aes-256
 
 
  a| 
-無効にする
+無効
  a| 
 `vserver cifs security modify -vserver vserver_name -is-aes-encryption-enabled false`
 
 |===
-. AES暗号化が必要に応じて有効または無効になっていることを確認します。 `vserver cifs security show -vserver vserver_name -fields is-aes-encryption-enabled`
+. AES 暗号化が必要に応じて有効または無効になっていることを確認します： `vserver cifs security show -vserver vserver_name -fields is-aes-encryption-enabled`
 +
- `is-aes-encryption-enabled`フィールドには、AES暗号化が有効になっているかどうかと `false`無効になっているかが表示されます `true`。
+ `is-aes-encryption-enabled`フィールドには、AES 暗号化が有効になっている場合は `true`、無効になっている場合は `false`が表示されます。
 
 
 
@@ -161,4 +161,4 @@ vs2      true
 --
 ====
 .関連情報
-https://kb.netapp.com/on-prem/ontap/da/NAS/NAS-KBs/Domain_user_fails_to_login_cluster_with_Domain-Tunnel["ドメインユーザがDomain-Tunnelを使用するクラスタにログインできない"^]
+https://kb.netapp.com/on-prem/ontap/da/NAS/NAS-KBs/Domain_user_fails_to_login_cluster_with_Domain-Tunnel["ドメイン ユーザーが Domain-Tunnel を使用してクラスタにログインできない"^]

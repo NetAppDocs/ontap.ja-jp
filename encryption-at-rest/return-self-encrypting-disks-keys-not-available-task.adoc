@@ -2,9 +2,9 @@
 permalink: encryption-at-rest/return-self-encrypting-disks-keys-not-available-task.html 
 sidebar: sidebar 
 keywords: returning, fips, drive, sed, service, authentication, keys, lost 
-summary: FIPSドライブまたはSEDの認証キーが永久に失われ、KMIPサーバから取得できない場合、FIPSドライブまたはSEDは破損しているとみなされます。ディスク上のデータにアクセスしたりリカバリしたりすることはできませんが、SEDの未使用スペースをデータに再び使用できるようにすることができます。 
+summary: FIPSドライブまたはSEDの認証キーが永久に失われ、KMIPサーバから取得できない場合、FIPSドライブまたはSEDは破損しているとみなされます。ディスクのデータにアクセスしたりリカバリしたりすることはできませんが、SEDの未使用スペースをデータに再び使用できるようにすることができます。 
 ---
-= ONTAPで認証キーが失われた場合、FIPSドライブまたはSEDをサービスに戻す
+= ONTAPで認証キーが失われた場合にFIPSドライブまたはSEDをサービスに戻す
 :hardbreaks:
 :allow-uri-read: 
 :icons: font
@@ -12,18 +12,18 @@ summary: FIPSドライブまたはSEDの認証キーが永久に失われ、KMIP
 
 
 [role="lead"]
-FIPSドライブまたはSEDの認証キーが永久に失われ、KMIPサーバから取得できない場合、FIPSドライブまたはSEDは破損しているとみなされます。ディスク上のデータにアクセスしたりリカバリしたりすることはできませんが、SEDの未使用スペースをデータに再び使用できるようにすることができます。
+FIPSドライブまたはSEDの認証キーが永久に失われ、KMIPサーバから取得できない場合、FIPSドライブまたはSEDは破損しているとみなされます。ディスクのデータにアクセスしたりリカバリしたりすることはできませんが、SEDの未使用スペースをデータに再び使用できるようにすることができます。
 
 .開始する前に
 このタスクを実行するには、クラスタ管理者である必要があります。
 
-.タスクの内容
+.タスク概要
 このプロセスは、FIPSドライブまたはSEDの認証キーが永久に失われてリカバリできないことが確実である場合にのみ使用してください。
 
 ディスクがパーティショニングされている場合は、このプロセスを開始する前にパーティショニングを解除する必要があります。
 
 
-NOTE: ディスクのパーティショニングを解除するコマンドはdiagレベルでのみ使用できます。NetAppサポートから指示があった場合にのみ実行してください。**続行する前にNetAppサポートに連絡することを強くお勧めします。**また、link:https://kb.netapp.com/Advice_and_Troubleshooting/Data_Storage_Systems/FAS_Systems/How_to_unpartition_a_spare_drive_in_ONTAP["NetAppナレッジベース: ONTAPでスペアドライブのパーティションを解除する方法"^] 。
+NOTE: ディスクのパーティションを解除するコマンドは、diagレベルでのみ使用可能であり、NetAppサポートの監督下でのみ実行する必要があります。**続行する前にNetAppサポートに連絡することを強くお勧めします。**link:https://kb.netapp.com/Advice_and_Troubleshooting/Data_Storage_Systems/FAS_Systems/How_to_unpartition_a_spare_drive_in_ONTAP["NetAppナレッジベース：ONTAPでスペアドライブのパーティション化を解除する方法"^]を参照することもできます。
 
 .手順
 . FIPSドライブまたはSEDを使用可能な状態に戻します。
@@ -32,24 +32,24 @@ NOTE: ディスクのパーティショニングを解除するコマンドはdi
 |===
 
 
-| SED の状況 | 実行する手順 
+| SEDS が... | 次の手順を使用します... 
 
 
  a| 
-FIPS準拠モードではない、またはFIPS準拠モードでFIPSキーを使用できる
+FIPS準拠モードでない、またはFIPS準拠モードでFIPSキーを使用できる
  a| 
-.. 権限レベルをadvancedに設定します。
+.. 権限レベルをadvancedに設定します：
 `set -privilege advanced`
-.. FIPSキーをデフォルトのメーカーセキュアIDである0x0にリセットします。
+.. FIPS キーをデフォルトの製造元セキュア ID 0x0 にリセットします：
 `storage encryption disk modify -fips-key-id 0x0 -disk _disk_id_`
-.. 処理が成功したことを確認します。
-`storage encryption disk show-status`処理に失敗した場合は、このトピックのPSIDプロセスを使用してください。
-.. 破損ディスクを完全消去します。次の手順に進む前に、コマンドを使用して処理が成功したことを確認します `storage encryption disk show-status`。
-`storage encryption disk sanitize -disk _disk_id_`
-.. 完全消去したディスクの障害状態を解除します。
+.. 操作が成功したことを確認します：
+`storage encryption disk show-status`操作が失敗した場合は、このトピックの PSID プロセスを使用します。
+.. 壊れたディスクをサニタイズする：
+`storage encryption disk sanitize -disk _disk_id_`次の手順に進む前に、コマンド `storage encryption disk show-status`で操作が成功したことを確認します。
+.. サニタイズされたディスクをアンフェイルします：
 `storage disk unfail -spare true -disk _disk_id_`
-.. ディスクに所有者があるかどうかを確認します
-`storage disk show -disk _disk_id_`。+ディスクに所有者がない場合は、所有者を割り当てます。
+.. ディスクに所有者がいるかどうかを確認します：
+`storage disk show -disk _disk_id_`ディスクに所有者がいない場合は、所有者を割り当てます。
 `storage disk assign -owner node -disk _disk_id_`
 +
 ... 完全消去するディスクを所有するノードのノードシェルに切り替えます。
@@ -57,30 +57,30 @@ FIPS準拠モードではない、またはFIPS準拠モードでFIPSキーを�
 `system node run -node _node_name_`
 
 +
-コマンドを実行します `disk sanitize release`。
+ `disk sanitize release`コマンドを実行します。
 
 
 
-.. ノードシェルを終了します。ディスクの障害状態を再度解除します。
+.. ノードシェルを終了します。ディスクの障害を再度解除します：
 `storage disk unfail -spare true -disk _disk_id_`
-.. ディスクがスペアとしてアグリゲートで再利用できる状態になったことを確認します。
+.. ディスクがスペアになり、アグリゲート内で再利用できる状態になっていることを確認します：
 `storage disk show -disk _disk_id_`
 
 
 
 
  a| 
-FIPS準拠モードでFIPSキーを使用できず、SEDのPSIDがラベルに印刷されている
+FIPS準拠モードであるがFIPSキーは使用できず、SEDのPSIDがラベルに印刷されている
  a| 
-.. ディスクラベルからディスクのPSIDを確認します。
-.. 権限レベルをadvancedに設定します。
+.. ディスクのPSIDをディスク ラベルで確認します。
+.. 権限レベルをadvancedに設定します：
 `set -privilege advanced`
-.. ディスクを工場出荷時の設定にリセットします。次の手順に進む前に、コマンドを使用して処理が成功したことを確認し `storage encryption disk show-status`ます。
-`storage encryption disk revert-to-original-state -disk _disk_id_ -psid _disk_physical_secure_id_`
-.. ONTAP 9.8P5以前を実行している場合は、次の手順に進みます。ONTAP 9 .8P6以降を実行している場合は、完全消去したディスクの障害状態を解除します。
+.. ディスクを工場出荷時の設定にリセットします：
+`storage encryption disk revert-to-original-state -disk _disk_id_ -psid _disk_physical_secure_id_`次の手順に進む前に、コマンド `storage encryption disk show-status`で操作が成功したことを確認します。
+.. ONTAP 9.8P5以前を実行している場合は、次の手順に進んでください。ONTAP 9.8P6以降を実行している場合は、サニタイズされたディスクの障害を解除してください。
 `storage disk unfail -disk _disk_id_`
-.. ディスクに所有者があるかどうかを確認します
-`storage disk show -disk _disk_id_`。+ディスクに所有者がない場合は、所有者を割り当てます。
+.. ディスクに所有者がいるかどうかを確認します：
+`storage disk show -disk _disk_id_`ディスクに所有者がいない場合は、所有者を割り当てます。
 `storage disk assign -owner node -disk _disk_id_`
 +
 ... 完全消去するディスクを所有するノードのノードシェルに切り替えます。
@@ -88,13 +88,13 @@ FIPS準拠モードでFIPSキーを使用できず、SEDのPSIDがラベルに�
 `system node run -node _node_name_`
 
 +
-コマンドを実行します `disk sanitize release`。
+ `disk sanitize release`コマンドを実行します。
 
 
 
-.. ノードシェルを終了します。ディスクの障害状態を再度解除します。
+.. ノードシェルを終了します。ディスクの障害を再度解除します：
 `storage disk unfail -spare true -disk _disk_id_`
-.. ディスクがスペアとしてアグリゲートで再利用できる状態になったことを確認します。
+.. ディスクがスペアになり、アグリゲート内で再利用できる状態になっていることを確認します：
 `storage disk show -disk _disk_id_`
 
 
@@ -103,7 +103,7 @@ FIPS準拠モードでFIPSキーを使用できず、SEDのPSIDがラベルに�
 
 .関連情報
 * link:https://docs.netapp.com/us-en/ontap-cli/storage-encryption-disk-modify.html["ストレージ暗号化ディスクの変更"^]
-* link:https://docs.netapp.com/us-en/ontap-cli/storage-encryption-disk-revert-to-original-state.html["ストレージ暗号化ディスクを元の状態に戻す"^]
-* link:https://docs.netapp.com/us-en/ontap-cli/storage-encryption-disk-sanitize.html["ストレージ暗号化ディスクサニタイズ"^]
-* link:https://docs.netapp.com/us-en/ontap-cli/storage-encryption-disk-show-status.html["ストレージ暗号化ディスクステータス表示"^]
+* link:https://docs.netapp.com/us-en/ontap-cli/storage-encryption-disk-revert-to-original-state.html["ストレージ暗号化ディスクの元の状態へのリバート"^]
+* link:https://docs.netapp.com/us-en/ontap-cli/storage-encryption-disk-sanitize.html["ストレージ暗号化ディスク完全消去"^]
+* link:https://docs.netapp.com/us-en/ontap-cli/storage-encryption-disk-show-status.html["storage encryption disk show-status"^]
 

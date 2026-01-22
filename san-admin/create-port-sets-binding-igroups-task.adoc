@@ -2,25 +2,25 @@
 permalink: san-admin/create-port-sets-binding-igroups-task.html 
 sidebar: sidebar 
 keywords: create, port, sets, binding, igroups, portsets,portset 
-summary: Selective LUN Map（SLM；選択的LUNマップ）に加えて、ポートセットを作成してigroupにバインドし、イニシエータがLUNへのアクセスに使用するLIFを詳細に制限することができます。ポートセットをigroupにバインドしない場合、igroup内のすべてのイニシエータが、LUNを所有するノードおよび所有者ノードのHAパートナーのすべてのLIFからマップ済みのLUNにアクセスできます。 
+summary: Selective LUN Map（SLM）を使用するだけでなく、ポートセットを作成してそのポートセットをigroupにバインドすることで、イニシエータがLUNへのアクセスに使用できるLIFをさらに制限できます。ポートセットをigroupにバインドしない場合、igroup内のすべてのイニシエータは、LUNを所有するノードおよびその所有ノードのHAパートナー上のすべてのLIFを介して、マッピングされたLUNにアクセスできます。 
 ---
-= ポートセットを作成してigroupにバインドする
+= ポートセットの作成とigroupへのバインド
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-を使用するだけでなくlink:selective-lun-map-concept.html["選択的LUNマップ（SLM）"]、ポートセットを作成してigroupにバインドし、イニシエータがLUNへのアクセスに使用するLIFをさらに制限することもできます。
+link:selective-lun-map-concept.html["選択的LUNマップ（SLM）"]を使用するだけでなく、ポートセットを作成し、そのポートセットをigroupにバインドして、イニシエータがLUNにアクセスするために使用できるLIFをさらに制限することもできます。
 
-ポートセットをigroupにバインドしない場合、igroup内のすべてのイニシエータが、LUNを所有するノードおよび所有者ノードのHAパートナーのすべてのLIFを介してマッピングされたLUNにアクセスできます。
+igroupにポートセットをバインドしないと、igroup内のすべてのイニシエータが、LUNを所有するノードとそのノードのHAパートナーのすべてのLIFを介して、マッピングされたLUNにアクセスできます。
 
 .開始する前に
-少なくとも1つのLIFと1つのigroupが必要です。
+少なくとも1個のLIFと1つのigroupが必要です。
 
-インターフェイスグループを使用しないかぎり、iSCSIとFCの冗長性を確保するために推奨されるLIFの数は2つです。インターフェイスグループに推奨されるLIFは1つだけです。
+インターフェイス グループを使用しないかぎり、iSCSIとFCの冗長性を確保するために推奨されるLIFの数は2個です。インターフェイス グループを使用する場合に推奨されるLIFの数は1個です。
 
-.タスクの内容
+.タスク概要
 ノード上にLIFが3つ以上あり、特定のイニシエータを一部のLIFに制限する場合は、ポートセットとSLMを併用する方が効果的です。ポートセットを使用しない場合は、LUNへのアクセス権を持つすべてのイニシエータが、LUNを所有するノードおよび所有者ノードのHAパートナー経由でノード上のすべてのターゲットにアクセスできます。
 
 .手順
@@ -28,18 +28,18 @@ summary: Selective LUN Map（SLM；選択的LUNマップ）に加えて、ポー
 ====
 .System Manager
 --
-ONTAP 9 .10.1以降では、System Managerを使用してポートセットを作成し、igroupにバインドできます。
+ONTAP 9.10.1以降では、System Managerを使用してポートセットを作成し、igroupにバインドすることができます。
 
-ONTAP 9.10.1より前のリリースでポートセットを作成してigroupにバインドする必要がある場合は、ONTAP CLI手順 を使用する必要があります。
+ONTAP 9.10.1より前のリリースでポートセットを作成してigroupにバインドする必要がある場合は、ONTAP CLIの手順を使用する必要があります。
 
-ONTAP 9.12.1 以降では、既存のポートセットがない場合は、ONTAP CLI 手順を使用して最初のポートセットを作成する必要があります。
+ONTAP 9.12.1以降、既存のポートセットがない場合は、ONTAP CLI手順を使用して最初のポートセットを作成する必要があります。
 
-. System Manager で、 * Network > Overview > portsets * をクリックし、 * Add * をクリックします。
-. 新しいポートセットの情報を入力し、 * Add * をクリックします。
-. [*Hosts] ＞ [SAN Initiator Groups] をクリックします
-. ポートセットを新しい igroup にバインドするには、 * Add * をクリックします。
+. System Managerで、*Network > Overview > Portsets*をクリックし、*Add*をクリックします。
+. 新しいポートセットの情報を入力し、*追加*をクリックします。
+. *ホスト > SAN イニシエータグループ*をクリックします。
+. ポートセットを新しい igroup にバインドするには、[*追加*] をクリックします。
 +
-ポートセットを既存のigroupにバインドするには、igroupを選択してをクリックし、 image:icon_kabob.gif["メニューオプションアイコン"]*[イニシエータグループの編集]*をクリックします。
+ポートセットを既存の igroup にバインドするには、igroup を選択し、image:icon_kabob.gif["メニューオプションアイコン"]をクリックして、*イニシエータグループの編集*をクリックします。
 
 
 
@@ -49,19 +49,19 @@ link:manage-san-initiators-task.html["イニシエータとigroupの表示と管
 --
 .CLI
 --
-. 適切なLIFを含むポートセットを作成します。
+. 該当するLIFを含むポートセットを作成します。
 +
 `portset create -vserver _vserver_name_ -portset _portset_name_ -protocol _protocol_ -port-name _port_name_`
 
 +
-FCを使用する場合は、パラメータをに `fcp`指定します `protocol`。iSCSIを使用する場合は、パラメータをに `iscsi`指定します `protocol`。
+FCを使用している場合は、 `protocol`パラメータを `fcp`として指定します。iSCSIを使用している場合は、 `protocol`パラメータを `iscsi`として指定します。
 
 . igroupをポートセットにバインドします。
 +
 `lun igroup bind -vserver _vserver_name_ -igroup _igroup_name_ -portset _portset_name_`
 
 +
-の詳細については `lun igroup bind`、をlink:https://docs.netapp.com/us-en/ontap-cli/lun-igroup-bind.html["ONTAPコマンド リファレンス"^]参照してください。
+ `lun igroup bind`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/lun-igroup-bind.html["ONTAPコマンド リファレンス"^]を参照してください。
 
 . ポートセットとLIFが正しいことを確認します。
 +

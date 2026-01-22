@@ -2,7 +2,7 @@
 permalink: nfs-admin/ldap-fast-bind-nsswitch-authentication-task.html 
 sidebar: sidebar 
 keywords: use, ldap, fast, bind, authentication, configure 
-summary: ONTAP 9.11.1以降では、ldap_fast bind_fルキノ ウ（_コンカレントbind_とも呼ばれます）を利用して、クライアント認証要求を迅速かつ簡単に行うことができます。この機能を使用するには、LDAPサーバが高速バインド機能をサポートしている必要があります 
+summary: ONTAP 9.11.1以降では、LDAP_ファスト バインド_機能（_コンカレント バインド_とも呼ばれます）を利用して、クライアント認証要求をより高速かつシンプルにすることができます。この機能を使用するには、LDAPサーバがファスト バインド機能をサポートしている必要があります。 
 ---
 = ONTAP NFS SVMのnsswitch認証にLDAP高速バインドを使用する
 :allow-uri-read: 
@@ -11,50 +11,50 @@ summary: ONTAP 9.11.1以降では、ldap_fast bind_fルキノ ウ（_コンカ�
 
 
 [role="lead"]
-ONTAP 9.11.1以降では、ldap_fast bind_fルキノ ウ（_コンカレントbind_とも呼ばれます）を利用して、クライアント認証要求を迅速かつ簡単に行うことができます。この機能を使用するには、LDAPサーバが高速バインド機能をサポートしている必要があります。
+ONTAP 9.11.1以降では、LDAP_ファスト バインド_機能（_コンカレント バインド_とも呼ばれます）を利用して、クライアント認証要求をより高速かつシンプルにすることができます。この機能を使用するには、LDAPサーバがファスト バインド機能をサポートしている必要があります。
 
-.タスクの内容
-高速バインドを使用しない場合、ONTAPはLDAP簡易バインドを使用してLDAPサーバで管理者ユーザを認証します。この認証方式では、ONTAPはユーザ名またはグループ名をLDAPサーバに送信し、保存されているハッシュパスワードを受信して、サーバハッシュコードとユーザパスワードからローカルに生成されたハッシュパスコードを比較します。これらが同一の場合、ONTAPはログイン権限を付与します。
+.タスク概要
+高速バインドを使用しない場合、ONTAPはLDAP簡易バインドを使用してLDAPサーバで管理者ユーザを認証します。この認証方式では、ONTAPがLDAPサーバにユーザ名またはグループ名を送信し、サーバに格納されているハッシュ パスワードを受け取って、サーバ ハッシュ コードをユーザ パスワードから生成されたローカル ハッシュ パスコードと比較します。この2つが一致した場合、ONTAPはログイン権限を付与します。
 
-高速バインド機能を使用すると、ONTAPはユーザクレデンシャル（ユーザ名とパスワード）のみをセキュアな接続経由でLDAPサーバに送信します。LDAPサーバはこれらのクレデンシャルを検証し、ONTAPにログイン権限を付与するように指示します。
+高速バインド機能を使用する場合、ONTAPはセキュアな接続を介してLDAPサーバにユーザ クレデンシャル（ユーザ名とパスワード）を送信するだけです。LDAPサーバは受け取ったクレデンシャルを検証し、ログイン権限を付与するようにONTAPに指示します。
 
-高速バインドの利点の1つは、パスワードのハッシュはLDAPサーバによって実行されるため、LDAPサーバがサポートする新しいハッシュアルゴリズムをONTAPでサポートする必要がないことです。
+高速バインドの利点の1つは、パスワードのハッシュ化はLDAPサーバで実行されるため、LDAPサーバでサポートされるすべての新しいハッシュ アルゴリズムをONTAPでサポートする必要がないことです。
 
-link:https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-adts/dc4eb502-fb94-470c-9ab8-ad09fa720ea6["高速バインドの使用方法について説明します。"^]
+link:https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-adts/dc4eb502-fb94-470c-9ab8-ad09fa720ea6["高速バインドの使用について説明します。"^]
 
-LDAP高速バインドには、既存のLDAPクライアント設定を使用できます。ただし、LDAPクライアントをTLSまたはLDAPS用に設定することを強く推奨します。設定しないと、パスワードはプレーンテキストでネットワーク経由で送信されます。
+LDAP高速バインドには、既存のLDAPクライアント設定を使用できます。ただし、パスワードがプレーン テキストでネットワークに送信されないように、LDAPクライアントにTLSまたはLDAPSを設定しておくことを強く推奨します。
 
 ONTAP環境でLDAP高速バインドを有効にするには、次の要件を満たす必要があります。
 
-* ONTAP管理者ユーザは、高速バインドをサポートするLDAPサーバで設定する必要があります。
-* ネームサービススイッチ（nsswitch）データベースでLDAP用にONTAP SVMが設定されている必要があります。
-* 高速バインドを使用したnsswitch認証用に、ONTAP管理者のユーザおよびグループのアカウントを設定する必要があります。
+* 高速バインドをサポートするLDAPサーバにONTAP管理者ユーザが設定されている必要があります。
+* ONTAP SVMのネーム サービス スイッチ（nsswitch）データベースにLDAPが設定されている必要があります。
+* ONTAP管理者ユーザおよびグループのアカウントに高速バインドを使用したnsswitch認証が設定されている必要があります。
 
 
 .手順
-. LDAPサーバでLDAP高速バインドがサポートされていることをLDAP管理者に確認します。
-. ONTAP管理者ユーザクレデンシャルがLDAPサーバに設定されていることを確認します。
+. LDAP管理者に問い合わせて、LDAPサーバでLDAP高速バインドがサポートされていることを確認します。
+. LDAPサーバにONTAP管理者ユーザのクレデンシャルが設定されていることを確認します。
 . 管理SVMまたはデータSVMにLDAP高速バインドが正しく設定されていることを確認します。
 +
-.. LDAP高速バインドサーバがLDAPクライアント設定に表示されていることを確認するには、次のように入力します。
+.. LDAP高速バインド サーバがLDAPクライアント設定にリストされていることを確認するには、次のように入力します。
 +
 `vserver services name-service ldap client show`
 
 +
-link:../nfs-config/create-ldap-client-config-task.html["LDAPクライアント設定について説明します。"]
+link:../nfs-config/create-ldap-client-config-task.html["LDAPクライアント設定については、こちらを参照してください。"]
 
-.. がnsswitchデータベースに設定されているソースの1つである `passwd`ことを確認するには `ldap`、次のように入力します。
+..  `ldap`がnsswitch `passwd`データベースに設定されたソースの1つであることを確認するには、次のように入力します：
 +
 `vserver services name-service ns-switch show`
 
 +
-link:../nfs-config/configure-name-service-switch-table-task.html["nsswitchの設定について説明します。"]
+link:../nfs-config/configure-name-service-switch-table-task.html["nsswitchの設定については、こちらを参照してください。"]
 
 
 
-. 管理者ユーザがnsswitchで認証されていること、およびLDAP高速バインド認証がアカウントで有効になっていることを確認します。
+. 管理者ユーザがnsswitchで認証されていること、および管理者のアカウントでLDAP高速バインド認証が有効になっていることを確認します。
 +
-** 既存のユーザの場合は、次のパラメータ設定を入力し `security login modify`て確認します。
+** 既存のユーザーの場合は、 `security login modify`を入力して次のパラメータ設定を確認します：
 +
 `-authentication-method nsswitch`
 
@@ -62,9 +62,9 @@ link:../nfs-config/configure-name-service-switch-table-task.html["nsswitchの設
 `-is-ldap-fastbind true`
 
 +
-の詳細については `security login modify`、をlink:https://docs.netapp.com/us-en/ontap-cli/security-login-modify.html["ONTAPコマンド リファレンス"^]参照してください。
+ `security login modify`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/security-login-modify.html["ONTAPコマンド リファレンス"^]を参照してください。
 
-** 新しい管理者ユーザについては、を参照してくださいlink:../authentication/grant-access-nis-ldap-user-accounts-task.html["LDAPまたはNIS ONTAPアカウントアクセスの有効化"]。
+** 新しい管理者ユーザーの場合は、link:../authentication/grant-access-nis-ldap-user-accounts-task.html["LDAPまたはNIS ONTAPアカウントアクセスを有効にする"]を参照してください。
 
 
 

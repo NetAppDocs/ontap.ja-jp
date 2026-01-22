@@ -2,9 +2,9 @@
 sidebar: sidebar 
 permalink: networking/configure_dns_for_host-name_resolution.html 
 keywords: configure, configuring, configuration, setup, set, setting, dns, local, remote, host, name, host-name, resolution, configure dns for host-name resolution, nsswitch.conf, configure an svm and data lifs for host-name resolution using an external dns server, vserver services name-service dns, vserver services name-service dns create, network interface modify -lif lifname -dns-zone, network interface create -lif lifname -dns-zone, vserver services name-service dns check, configure the name service switch table for host-name resolution 
-summary: ホスト情報を取得するには、 DNS を使用してローカルソースまたはリモートソースにアクセスします 
+summary: DNS を使用して、ホスト情報のローカルまたはリモート ソースにアクセスします 
 ---
-= ONTAPネットワークのホスト名解決に使用するDNSの設定
+= ONTAPネットワークのホスト名解決用にDNSを設定する
 :hardbreaks:
 :allow-uri-read: 
 :nofooter: 
@@ -14,25 +14,25 @@ summary: ホスト情報を取得するには、 DNS を使用してローカル
 
 
 [role="lead"]
-ホスト情報を取得するには、DNSを使用してローカルまたはリモートのソースにアクセスします。これらのソースの一方または両方にアクセスするようにDNSを設定する必要があります。
+ホスト情報を取得するには、DNSを使用してローカル ソースまたはリモート ソースにアクセスします。これらのソースのいずれか、または両方にアクセスするためにDNSを設定する必要があります。
 
-ONTAPがクライアントに適切なアクセスを許可するには、ホスト情報を検索できる必要があります。ネームサービスを設定して、ONTAPがホスト情報を取得するためにローカルまたは外部のDNSサービスにアクセスできるようにする必要があります。
+ONTAPがクライアントに適切なアクセスを許可するには、ホスト情報を検索できなければなりません。ネーム サービスを設定して、ONTAPがホスト情報を取得するためにローカルまたは外部のDNSサービスにアクセスできるようにします。
 
-ONTAPでは、UNIXシステムのファイルに相当するテーブルにネームサービス設定情報が格納されます `/etc/nsswitch.conf`。
+ONTAP は、UNIX システムの `/etc/nsswitch.conf`ファイルに相当するテーブルにネーム サービス構成情報を保存します。
 
 
 
-== 外部DNSサーバを使用してホスト名解決用にSVMとデータLIFを設定する
+== 外部DNSサーバを使用してホスト名を解決するためのSVMとデータLIFの設定
 
-コマンドを使用して、SVMでDNSを有効にし、ホスト名解決にDNSを使用するように設定でき `vserver services name-service dns`ます。ホスト名は外部DNSサーバを使用して解決されます。
+ `vserver services name-service dns`コマンドを使用してSVMでDNSを有効にし、ホスト名の解決にDNSを使用するように設定できます。ホスト名は外部DNSサーバを使用して解決されます。
 
 .開始する前に
-ホスト名検索にサイト規模のDNSサーバが使用できる必要があります。
+ホスト名を検索するために、サイト規模のDNSサーバが使用できなければなりません。
 
-単一点障害を回避するには、複数のDNSサーバを設定する必要があります。 `vserver services name-service dns create`入力したDNSサーバ名が1つだけの場合は、コマンドによって警告が表示されます。
+単一障害点を回避するため、複数のDNSサーバーを設定する必要があります。 `vserver services name-service dns create`コマンドは、DNSサーバー名を1つだけ入力した場合に警告を発します。
 
-.タスクの内容
-SVMでの動的DNSの設定の詳細については、を参照してくださいxref:configure_dynamic_dns_services.html[動的DNSサービスの設定]。
+.タスク概要
+SVM での動的 DNS の設定の詳細については、xref:configure_dynamic_dns_services.html[ダイナミック DNS サービスを構成する]を参照してください。
 
 .手順
 . SVMでDNSを有効にします。
@@ -49,9 +49,9 @@ vserver services name-service dns create -vserver vs1.example.com -domains examp
 ....
 +
 
-NOTE: コマンドは `vserver services name-service dns create`設定の自動検証を実行し、ONTAPがネームサーバに接続できない場合はエラーメッセージを報告します。
+NOTE: この `vserver services name-service dns create`コマンドは自動構成検証を実行し、ONTAPがネームサーバに接続できない場合はエラーメッセージを報告します。
 
-. コマンドを使用して、ネームサーバのステータスを検証し `vserver services name-service dns check`ます。
+.  `vserver services name-service dns check`コマンドを使用してネームサーバーのステータスを検証します。
 +
 ....
 vserver services name-service dns check -vserver vs1.example.com
@@ -63,24 +63,24 @@ vs1.example.com     10.0.0.51       up           Response time (msec): 2
 ....
 
 
-DNSに関連するサービスポリシーの詳細については、を参照してくださいlink:lifs_and_service_policies96.html["ONTAP 9 .6以降のLIFとサービスポリシー"]。
+DNS に関連するサービスポリシーの詳細については、link:lifs_and_service_policies96.html["LIFとサービス ポリシー（ONTAP 9.6以降）"]を参照してください。
 
 
 
-== ホスト名解決のためのネームサービススイッチテーブルの設定
+== ホスト名解決で使用するネーム サービス スイッチ テーブルの設定
 
-ONTAPがホスト情報を取得するためにローカルまたは外部のネームサービスにアクセスできるようにするには、ネームサービススイッチテーブルを正しく設定する必要があります。
+ONTAPがホスト情報を取得するためにローカルまたは外部のネーム サービスにアクセスできるようにするには、ネーム サービス スイッチ テーブルを正しく設定する必要があります。
 
 .開始する前に
-環境内のホストマッピングに使用するネームサービスを決めておく必要があります。
+環境内のホストのマッピングでどのネーム サービスを使用するかを決めておく必要があります。
 
 .手順
-. ネームサービススイッチテーブルに必要なエントリを追加します。
+. ネーム サービス スイッチ テーブルに必要なエントリを追加します。
 +
 ....
 vserver services name-service ns-switch modify -vserver <vserver_name> -database <database_name> -source <source_names>
 ....
-. ネームサービススイッチテーブルに想定されるエントリが適切な順序で格納されていることを確認します。
+. ネーム サービス スイッチ テーブルに想定されるエントリが適切な順序で格納されていることを確認します。
 +
 ....
 vserver services name-service ns-switch show -vserver <vserver_name>
@@ -88,7 +88,7 @@ vserver services name-service ns-switch show -vserver <vserver_name>
 
 
 .例
-次の例は、SVM vs1のネームサービススイッチテーブル内のエントリを、ホスト名を解決するためにまずローカルのhostsファイルを使用し、次に外部DNSサーバを使用するように変更します。
+次の例は、SVM vs1のネーム サービス スイッチ テーブルで、ホスト名を解決するためにまずローカルのhostsファイルを使用し、次に外部DNSサーバを使用するようにエントリを変更しています。
 
 ....
 vserver services name-service ns-switch modify -vserver vs1 -database hosts -sources files,dns

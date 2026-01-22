@@ -2,39 +2,39 @@
 sidebar: sidebar 
 permalink: multi-admin-verify/manage-rules-task.html 
 keywords: ontap, mav, multi, admin, multi admin verify, verification, administrator, protected, operation, rules, manage 
-summary: マルチ管理者認証（MAV）ルールを作成して、承認が必要な操作を指定します。操作が開始されるたびに、保護された操作が妨害され、承認の要求が生成されます 
+summary: 承認が必要な操作を指定するには、マルチ管理者検証（MAV）ルールを作成します。操作が開始されるたびに、保護された操作が傍受され、承認リクエストが生成されます。 
 ---
-= ONTAPで保護されたオペレーションのマルチ管理者検証ルールを管理します
+= ONTAPで保護された操作のマルチ管理者検証ルールを管理する
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-マルチ管理者認証（MAV）ルールを作成して、承認が必要な操作を指定します。操作が開始されるたびに、保護された操作が傍受され、承認要求が生成されます。
+マルチ管理者認証（MAV）ルールを作成して、承認が必要な処理を指定します。保護対象処理が開始されると、処理が傍受され、承認要求が生成されます。
 
-適切なRBAC機能を持つ管理者は、MAVを有効にする前にルールを作成できますが、MAVを有効にすると、ルールセットを変更するにはMAVの承認が必要になります。
+ルールは、MAVを有効にする前であれば、適切なRBAC機能を持つ任意の管理者が作成できますが、MAVを有効にしたあとにルール セットを変更するにはMAVの承認が必要です。
 
-1回の操作で作成できるMAVルールは1つだけです。たとえば、複数のルールを作成することはできません `volume-snapshot-delete`。必要なルール制約は1つのルール内に含める必要があります。
+1つの操作につき1つのMAVルールのみ作成できます。例えば、複数の `volume-snapshot-delete`ルールを作成することはできません。必要なルール制約はすべて、1つのルール内に含める必要があります。
 
-保護するルールを作成できますlink:../multi-admin-verify/index.html#rule-protected-commands["これらのコマンド"]。各コマンドは、コマンドの保護機能が最初に使用可能になったONTAPバージョン以降で保護できます。
+link:../multi-admin-verify/index.html#rule-protected-commands["これらのコマンド"]を保護するためのルールを作成できます。コマンドの保護機能が最初に利用可能になったONTAPバージョン以降、各コマンドを保護できます。
 
-MAV system-defaultコマンドのルールは `security multi-admin-verify` link:../multi-admin-verify/index.html#system-defined-rules["コマンド"]変更できません。
+MAV システムのデフォルト コマンドのルール（ `security multi-admin-verify` link:../multi-admin-verify/index.html#system-defined-rules["コマンド"]）は変更できません。
 
-システム定義の操作に加えて、マルチ管理者検証が有効になっている場合は次のコマンドがデフォルトで保護されますが、ルールを変更してこれらのコマンドの保護を削除できます。
+システム定義の操作に加えて、マルチ管理者検証が有効になっている場合は次のコマンドがデフォルトで保護されますが、ルールを変更してこれらのコマンドの保護を削除できます：
 
-* link:https://docs.netapp.com/us-en/ontap-cli/security-login-password.html["セキュリティログインパスワード"^]
-* link:https://docs.netapp.com/us-en/ontap-cli/security-login-unlock.html["セキュリティログインロック解除"^]
+* link:https://docs.netapp.com/us-en/ontap-cli/security-login-password.html["security login password"^]
+* link:https://docs.netapp.com/us-en/ontap-cli/security-login-unlock.html["security login unlock"^]
 * link:https://docs.netapp.com/us-en/ontap-cli/set.html["設定"^]
 
 
 
 
-== ルール制約
+== ルールの制約
 
-ルールを作成するときに、オプションを指定して要求をコマンド機能のサブセットに制限することもできます `-query`。 `-query`オプションを使用すると、SVM、ボリューム、Snapshot名などの設定要素を制限することもできます。
+ルールを作成する際に、 `-query`オプションを任意で指定して、リクエストをコマンド機能のサブセットに制限できます。 `-query`オプションは、SVM、ボリューム、Snapshot名などの構成要素を制限するためにも使用できます。
 
-たとえば、 `volume snapshot delete`コマンドでを `-query`に設定すると `-snapshot !hourly*,!daily*,!weekly*`、hourly、daily、またはweeklyという属性のプレフィックスが付いたボリュームSnapshotがMAV保護の対象から除外されます。
+たとえば、 `volume snapshot delete`コマンドでは、 `-query`を `-snapshot !hourly*,!daily*,!weekly*`に設定できます。これは、時間別、日次、または週次属性がプレフィックスとして付いたボリューム スナップショットが MAV 保護から除外されることを意味します。
 
 [listing]
 ----
@@ -46,36 +46,36 @@ vs01    volume snapshot delete                 -         -
           Query: -snapshot !hourly*,!daily*,!weekly*
 ----
 
-NOTE: 除外された構成要素はMAVによって保護されず、管理者はそれらを削除または名前変更できます。
+NOTE: 除外された設定要素はMAVによって保護されず、どの管理者も削除したり名前を変更したりすることができます。
 
-デフォルトでは、ルールは、保護された操作が入力されたときに対応するコマンドが自動的に生成されるように指定します `security multi-admin-verify request create _"protected_operation"_`。このデフォルトを変更して、コマンドを個別に入力するように指定でき `request create`ます。
+デフォルトでは、保護された操作が入力されると、対応する `security multi-admin-verify request create _"protected_operation"_`コマンドが自動的に生成されるようにルールが規定されています。このデフォルトを変更して、 `request create`コマンドを別途入力するように設定することもできます。
 
-デフォルトでは、ルールには次のグローバルMAV設定が継承されますが、ルール固有の例外を指定することもできます。
+デフォルトでは、ルールは次のグローバルMAV設定を継承しますが、ルール固有の例外を指定できます。
 
-* 必要な承認者数
-* 承認グループ
-* 承認の有効期限
-* 実行有効期間
+* Required Number of Approvers
+* Approval Groups
+* Approval Expiry period
+* Execution Expiry period
 
 
 
 
 == System Managerの手順
 
-保護された処理ルールを初めて追加する場合は、System Managerの手順を参照してください。link:enable-disable-task.html#system-manager-procedure["マルチ管理者検証を有効にします。"]
+保護された操作ルールを初めて追加する場合は、System Managerの手順を参照してください。link:enable-disable-task.html#system-manager-procedure["複数管理者による検証を有効にします。"]
 
-既存のルールセットを変更するには：
+既存のルール セットを変更するには、次の手順を実行します。
 
-. [* Cluster]>[Settings]（設定）*を選択します。
-. [セキュリティ]*セクションの*[マルチ管理者の承認]*の横にあるを選択します image:icon_gear.gif["アクションアイコン"] 。
-. 少なくとも1つのルールを追加する場合に選択し image:icon_add.gif["追加アイコン"] ます。既存のルールを変更または削除することもできます。
+. *Cluster > Settings*を選択します。
+. *セキュリティ*セクションの*複数管理者承認*の横にあるimage:icon_gear.gif["アクションアイコン"]を選択します。
+. image:icon_add.gif["アイコンを追加"]を選択して、少なくとも 1 つのルールを追加します。既存のルールを変更または削除することもできます。
 +
-** 操作–リストからサポートされているコマンドを選択します。
-** クエリ–必要なコマンドオプションと値を入力します。
-** オプションのパラメータ–グローバル設定を適用する場合は空白のままにし、特定のルールに別の値を割り当ててグローバル設定を上書きします。
+** Operation – サポートされているコマンドをリストから選択します。
+** Query – 必要なコマンド オプションと値を入力します。
+** オプションのパラメータ：グローバル設定を適用する場合は、空白のままにします。グローバル設定を上書きする場合は、特定のルールに対して別の値を割り当てます。
 +
-*** 必要な承認者数
-*** 承認グループ
+*** Required number of approvers
+*** Approval groups
 
 
 
@@ -87,28 +87,28 @@ NOTE: 除外された構成要素はMAVによって保護されず、管理者�
 == CLIの手順
 
 
-NOTE: を除き、すべての `security multi-admin-verify rule`コマンドを実行する前にMAV管理者の承認が必要です。 `security multi-admin-verify rule show`
+NOTE: すべての `security multi-admin-verify rule`コマンドは、 `security multi-admin-verify rule show`を除き、実行前にMAV管理者の承認が必要です。
 
 [cols="50,50"]
 |===
-| 実行する操作 | 入力するコマンド 
+| 次の操作を行う場合： | 入力するコマンド 
 
 
-| ルールの作成  a| 
+| ルールを作成します。  a| 
 `security multi-admin-verify rule create -operation _"protected_operation"_ [-query _operation_subset_] [_parameters_]`
 
 
 
-| 現在の管理者のクレデンシャルの変更  a| 
+| 現在の管理者の認証情報を変更する  a| 
 `security login modify <parameters>`
 
-*例*：次のルールでは、ルートボリュームの削除が承認されている必要があります。
+*例*：次のルールでは、ルートボリュームを削除するには承認が必要です。
 
 `security multi-admin-verify rule create  -operation "volume delete" -query "-vserver vs0"`
 
 
 
-| ルールを変更します  a| 
+| ルールを変更する  a| 
 `security multi-admin-verify rule modify -operation _"protected_operation"_ [_parameters_]`
 
 
@@ -118,11 +118,11 @@ NOTE: を除き、すべての `security multi-admin-verify rule`コマンドを
 
 
 
-| ルールを表示します  a| 
+| ルールを表示  a| 
 `security multi-admin-verify rule show`
 
 |===
 .関連情報
-* link:https://docs.netapp.com/us-en/ontap-cli/search.html?q=security+multi-admin-verify+rule["セキュリティ マルチ管理者検証ルール"^]
+* link:https://docs.netapp.com/us-en/ontap-cli/search.html?q=security+multi-admin-verify+rule["セキュリティ多管理者検証ルール"^]
 * link:https://docs.netapp.com/us-en/ontap-cli/security-login-modify.html["security login modify"^]
 

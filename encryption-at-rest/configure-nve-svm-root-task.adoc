@@ -2,7 +2,7 @@
 permalink: encryption-at-rest/configure-nve-svm-root-task.html 
 sidebar: sidebar 
 keywords: volume encryption, nve, svm root, encrypt 
-summary: NetApp Volume Encryption（NVE）は、一度に1つのボリュームの保存データを暗号化するためのソフトウェアベースのテクノロジです。ONTAP 9.14.1以降では、SVMルートにNVEを設定できます。 
+summary: NetAppボリューム暗号化（NVE）は、保存データをボリューム単位で暗号化するソフトウェアベースのテクノロジーです。ONTAP 9.14.1以降では、SVMルートにNVEを設定できます。 
 ---
 = ONTAP SVMルートボリュームにNVEを設定する
 :allow-uri-read: 
@@ -11,14 +11,14 @@ summary: NetApp Volume Encryption（NVE）は、一度に1つのボリューム�
 
 
 [role="lead"]
-ONTAP 9 14.1以降では、Storage VM（SVM）のルートボリュームでNetApp Volume Encryption（NVE）を有効にすることができます。NVEでは、ルートボリュームが一意のキーで暗号化されるため、SVMのセキュリティが向上します。
+ONTAP 9.14.1以降では、Storage VM（SVM）のルート ボリュームでNetApp Volume Encryption（NVE）を有効にできます。NVEを使用すると、ルート ボリュームが一意のキーで暗号化されるため、SVMのセキュリティが強化されます。
 
-.タスクの内容
-SVMルートボリューム上のNVEは、SVMの作成後にのみ有効にできます。
+.タスク概要
+SVMルート ボリュームでのNVEは、SVMの作成後にのみ有効にできます。
 
 .開始する前に
-* NetAppアグリゲート暗号化（NAE）で暗号化されたアグリゲートにSVMルートボリュームを配置しないでください。
-* オンボードキーマネージャまたは外部キーマネージャを使用した暗号化を有効にしておく必要があります。
+* SVMルート ボリュームは、NetApp Aggregate Encryption（NAE）で暗号化されたアグリゲートに配置しないでください。
+* オンボード キー マネージャや外部キー マネージャを使用した暗号化を有効にしておく必要があります。
 * ONTAP 9.14.1以降が実行されている必要があります。
 * NVEで暗号化されたルート ボリュームが含まれるSVMを移行するには、移行の完了後にSVMルート ボリュームをプレーンテキスト ボリュームに変換したうえで、再度SVMルート ボリュームを暗号化する必要があります。
 +
@@ -34,39 +34,39 @@ SVMルートボリューム上のNVEは、SVMの作成後にのみ有効にで�
 
 
 .手順
-ONTAP CLIまたはSystem Managerを使用して、SVMルートボリュームでNVEを有効にできます。
+ONTAP CLIかSystem Managerを使用して、SVMルート ボリュームでNVEを有効にできます。
 
 [role="tabbed-block"]
 ====
 .CLI
 --
-NVEは、SVMルートボリュームでインプレースで有効にすることも、アグリゲート間でボリュームを移動することによって有効にすることもできます。
+SVMルート ボリュームでNVEを有効にする方法は、インプレースで行う方法と、アグリゲート間でボリュームを移動する方法があります。
 
-.ルートボリュームをインプレースで暗号化
-. ルートボリュームを暗号化されたボリュームに変換します。
+.ルート ボリュームをインプレースで暗号化する
+. ルート ボリュームを暗号化されたボリュームに変換します。
 +
 `volume encryption conversion start -vserver _svm_name_ -volume _volume_`
 
-. 暗号化が成功したことを確認しますには `volume show -encryption-type volume`、NVEを使用しているすべてのボリュームのリストが表示されます。
+. 暗号化が成功したことを確認します。 `volume show -encryption-type volume`には、NVEを使用しているすべてのボリュームのリストが表示されます。
 
 
-.SVMルートボリュームの移動による暗号化
+.SVMルート ボリュームを移動して暗号化する
 . ボリュームの移動を開始します。
 +
 `volume move start -vserver _svm_name_ -volume _volume_ -destination-aggregate _aggregate_ -encrypt-with-aggr-key false -encrypt-destination true`
 
 +
-の詳細については `volume move`、をlink:https://docs.netapp.com/us-en/ontap-cli/search.html?q=volume+move["ONTAPコマンド リファレンス"^]参照してください。
+ `volume move`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/search.html?q=volume+move["ONTAPコマンド リファレンス"^]を参照してください。
 
-. コマンドを使用して、処理が成功した `volume move show`ことを確認します `volume move`。には `volume show -encryption-type volume`、NVEを使用しているすべてのボリュームのリストが表示されます。
+.  `volume move`操作が `volume move show`コマンドで成功したことを確認します。 `volume show -encryption-type volume`には、NVEを使用しているすべてのボリュームのリストが表示されます。
 
 
 --
 .System Manager
 --
-. **ストレージ**>**ボリューム**に移動します。
-. 暗号化するSVMルートボリュームの名前の横にある[Edit]**を選択します image:icon_kabob.gif["メニューオプションアイコン"] 。
-. [** Storage and Optimization*]見出しで、[** Enable encryption*]を選択します。
+. **ストレージ** > **ボリューム** に移動します。
+. 暗号化する SVM ルート ボリュームの名前の横にあるimage:icon_kabob.gif["メニューオプションアイコン"]を選択し、次に **編集** を選択します。
+. **ストレージと最適化**の見出しで、**暗号化を有効にする**を選択します。
 . **保存**を選択します。
 
 

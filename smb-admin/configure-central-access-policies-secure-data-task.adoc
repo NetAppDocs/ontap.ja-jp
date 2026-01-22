@@ -2,7 +2,7 @@
 permalink: smb-admin/configure-central-access-policies-secure-data-task.html 
 sidebar: sidebar 
 keywords: secure, access, data, cifs, server, central, access, policies, policy, dynamic, access, control, dac, gpo, configure central access policies to secure data on cifs servers 
-summary: 集約型アクセスポリシーを使用してCIFSサーバ上のデータへのアクセスを保護するには、CIFSサーバでのダイナミックアクセス制御（DAC）の有効化、Active Directoryでの集約型アクセスポリシーの設定、GPOを含むActive Directoryコンテナへの集約型アクセスポリシーの適用、CIFSサーバでのGPOの有効化など、いくつかの手順を実行する必要があります。 
+summary: 集約型アクセス ポリシーを使用してCIFSサーバのデータへのアクセスを保護するには、CIFSサーバでのダイナミック アクセス制御（DAC）の有効化、Active Directoryでの集約型アクセス ポリシーの設定、GPOが設定された集約型アクセス ポリシーのActive Directoryコンテナへの適用、CIFSサーバでのGPOの有効化など、いくつかの手順を実行する必要があります。 
 ---
 = ONTAP SMBサーバ上のデータを保護するための集中アクセスポリシーを構成する
 :allow-uri-read: 
@@ -11,38 +11,38 @@ summary: 集約型アクセスポリシーを使用してCIFSサーバ上のデ�
 
 
 [role="lead"]
-集約型アクセスポリシーを使用してCIFSサーバ上のデータへのアクセスを保護するには、CIFSサーバでのダイナミックアクセス制御（DAC）の有効化、Active Directoryでの集約型アクセスポリシーの設定、GPOを含むActive Directoryコンテナへの集約型アクセスポリシーの適用、CIFSサーバでのGPOの有効化など、いくつかの手順を実行する必要があります。
+集約型アクセス ポリシーを使用してCIFSサーバのデータへのアクセスを保護するには、CIFSサーバでのダイナミック アクセス制御（DAC）の有効化、Active Directoryでの集約型アクセス ポリシーの設定、GPOが設定された集約型アクセス ポリシーのActive Directoryコンテナへの適用、CIFSサーバでのGPOの有効化など、いくつかの手順を実行する必要があります。
 
 .開始する前に
-* 集約型アクセスポリシーを使用するようにActive Directoryを設定する必要があります。
-* 集約型アクセスポリシーを作成し、CIFSサーバを含むコンテナにGPOを作成して適用するには、Active Directoryドメインコントローラに対する十分なアクセスが必要です。
-* 必要なコマンドを実行するには、Storage Virtual Machine（SVM）に対する十分な管理アクセスが必要です。
+* 集約型アクセス ポリシーを使用するには、Active Directoryを設定する必要があります。
+* 集約型アクセス ポリシーを作成し、CIFSサーバを含むコンテナにGPOの作成と適用を行うには、Active Directoryドメイン コントローラに対して十分なアクセスが必要です。
+* 必要なコマンドを実行するためには、Storage Virtual Machine（SVM）で十分な管理アクセスが必要です。
 
 
-.タスクの内容
-集約型アクセスポリシーは、Active Directoryのグループポリシーオブジェクト（GPO）に定義されて適用されます。Active Directoryで集約型アクセスポリシーを設定する方法については、Microsoft TechNetライブラリを参照してください。
+.タスク概要
+集約型アクセスポリシーは、Active Directory 上のグループポリシーオブジェクト（GPO）に定義され、適用されます。Active Directory 上で集約型アクセスポリシーを構成する方法については、Microsoft TechNet ライブラリをご覧ください。
 
-http://technet.microsoft.com/library/hh831425.aspx["Microsoft TechNet ：「集約型アクセスポリシーのシナリオ"^]
+http://technet.microsoft.com/library/hh831425.aspx["Microsoft TechNet：集中アクセス ポリシーのシナリオ"^]
 
 .手順
-. コマンドを使用して、SVMのダイナミックアクセス制御を有効にしていない場合は有効にし `vserver cifs options modify`ます。
+. SVM でダイナミック アクセス コントロールがまだ有効になっていない場合は、 `vserver cifs options modify`コマンドを使用して有効にします。
 +
 `vserver cifs options modify -vserver vs1 -is-dac-enabled true`
 
-. コマンドを使用して、CIFSサーバでグループポリシーオブジェクト（GPO）を有効にしていない場合は有効にし `vserver cifs group-policy modify`ます。
+.  `vserver cifs group-policy modify`コマンドを使用して、CIFSサーバー上のグループポリシーオブジェクト（GPO）がまだ有効になっていない場合は有効にします。
 +
 `vserver cifs group-policy modify -vserver vs1 -status enabled`
 
-. Active Directoryで集約型アクセスルールと集約型アクセスポリシーを作成します。
-. グループポリシーオブジェクト（GPO）を作成して、Active Directoryに集約型アクセスポリシーを導入します。
-. CIFSサーバのコンピュータアカウントが配置されているコンテナにGPOを適用します。
-. コマンドを使用して、CIFSサーバに適用されたGPOを手動で更新します `vserver cifs group-policy update`。
+. Active Directoryで集約型アクセス規則と集約型アクセス ポリシーを作成します。
+. グループ ポリシー オブジェクト（GPO）を作成してActive Directoryに集約型アクセス ポリシーを導入します。
+. CIFSサーバ コンピュータ アカウントが存在するコンテナにGPOを適用します。
+.  `vserver cifs group-policy update`コマンドを使用して、CIFSサーバーに適用されているGPOを手動で更新します。
 +
 `vserver cifs group-policy update -vserver vs1`
 
-. コマンドを使用して、CIFSサーバ上のリソースにGPO集約型アクセスポリシーが適用されていることを確認します `vserver cifs group-policy show-applied`。
+.  `vserver cifs group-policy show-applied`コマンドを使用して、GPO 集中アクセス ポリシーが CIFS サーバー上のリソースに適用されていることを確認します。
 +
-次の例は、デフォルトのドメインポリシーに2つの集約型アクセスポリシーがあり、それらがCIFSサーバに適用されていることを示しています。
+次の例は、Default Domain Policyに、CIFSサーバに適用される集約型アクセス ポリシーが2つ含まれていることを示しています。
 
 +
 `vserver cifs group-policy show-applied`
@@ -139,9 +139,9 @@ Vserver: vs1
 
 
 .関連情報
-* xref:applying-group-policy-objects-concept.adoc[SMBサーバーにグループポリシーオブジェクトを適用する方法について学習します]
-* xref:display-gpo-config-task.adoc[GPO構成に関する情報を表示する]
-* xref:display-central-access-policies-task.adoc[集中アクセスポリシーに関する情報を表示する]
-* xref:display-central-access-policy-rules-task.adoc[集中アクセスポリシールールに関する情報を表示する]
+* xref:applying-group-policy-objects-concept.adoc[SMBサーバーへのGroup Policy Objectsの適用について学習します]
+* xref:display-gpo-config-task.adoc[GPO設定に関する情報の表示]
+* xref:display-central-access-policies-task.adoc[集約型アクセス ポリシーに関する情報の表示]
+* xref:display-central-access-policy-rules-task.adoc[集約型アクセス ポリシー ルールに関する情報の表示]
 * xref:enable-disable-dynamic-access-control-task.adoc[サーバーのDACを有効または無効にする]
 

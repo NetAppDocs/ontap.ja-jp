@@ -2,25 +2,25 @@
 permalink: disks-aggregates/determine-modify-caching-policy-flash-pool-task.html 
 sidebar: sidebar 
 keywords: modify, cache, policy, flash pool, aggregate, local tier 
-summary: Flash Poolローカル階層内のボリュームにキャッシュ保持ポリシーを割り当てて、ボリュームデータをFlash Poolキャッシュに保存する期間を決定できます。ただし、キャッシュ保持ポリシーを変更しても、ボリュームのデータがキャッシュに保存される時間に影響しない場合があります。 
+summary: Flash Poolローカル階層のボリュームにキャッシュ保持ポリシーを割り当てることで、ボリュームのデータがFlash Poolキャッシュに保持される期間を決定できます。ただし、場合によっては、キャッシュ保持ポリシーを変更しても、ボリュームのデータがキャッシュに保持される期間に影響しないことがあります。 
 ---
-= Flash Poolローカル階層のONTAPキャッシングポリシーを変更するかどうかを確認する
+= Flash Poolローカル階層のONTAPキャッシュ ポリシーを変更するかどうかを決定します
 :allow-uri-read: 
 
 
 [role="lead"]
-Flash Poolローカル階層内のボリュームにキャッシュ保持ポリシーを割り当てて、ボリュームデータをFlash Poolキャッシュに保存する期間を決定できます。ただし、キャッシュ保持ポリシーを変更しても、ボリュームのデータがキャッシュに保存される時間に影響を及ぼさない場合があります。
+Flash Poolローカル階層のボリュームにキャッシュ保持ポリシーを割り当てることで、ボリュームのデータがFlash Poolキャッシュに保持される期間を決定できます。ただし、場合によっては、キャッシュ保持ポリシーを変更しても、ボリュームのデータがキャッシュに保持される期間に影響しないことがあります。
 
-.タスクの内容
+.タスク概要
 データが次のいずれかの条件に当てはまる場合は、キャッシュ保持ポリシーを変更しても影響がない可能性があります。
 
 * ワークロードがシーケンシャルである。
-* ソリッドステートドライブ（SSD）にキャッシュされたランダムブロックがワークロードによって再度読み取られることはありません。
-* ボリュームのキャッシュサイズが小さすぎます。
+* ソリッド ステート ドライブ（SSD）にキャッシュされたランダムなブロックがワークロードによって再度読み取られない。
+* ボリュームのキャッシュ サイズが小さすぎる。
 
 
 .手順
-次の手順では、データが満たす必要がある条件を確認します。このタスクは、advanced権限モードでCLIを使用して実行する必要があります。
+次の手順で、データに必要とされる条件を確認します。このタスクは、CLIを使用してadvanced権限モードで行う必要があります。
 
 . CLIを使用してワークロードのボリュームを表示します。
 +
@@ -34,7 +34,7 @@ Flash Poolローカル階層内のボリュームにキャッシュ保持ポリ�
 +
 `statistics show -object wafl_hya_vvol -instance _volume_ -counter read_ops_replaced_percent|wc_write_blks_overwritten_percent`
 
-. ボリュームのとを `Project Cache Alloc`確認し `Cacheable Read`ます。
+. ボリュームの `Cacheable Read`と `Project Cache Alloc`を決定します。
 +
 `system node run -node node_name wafl awa start _aggr_name_`
 
@@ -42,13 +42,13 @@ Flash Poolローカル階層内のボリュームにキャッシュ保持ポリ�
 +
 `system node run -node node_name wafl awa print _aggr_name_`
 
-. ボリュームのヒット率をと比較します `Cacheable Read`。
+. ボリュームのヒット率を `Cacheable Read`と比較します。
 +
-ボリュームのヒット率がよりも高い場合は `Cacheable Read`、SSDにキャッシュされたランダムブロックがワークロードによって再読み取りされません。
+ボリュームのヒット率が `Cacheable Read`より大きい場合、ワークロードは SSD にキャッシュされたランダム ブロックを再読み取りしません。
 
-. ボリュームの現在のキャッシュサイズをと比較します `Project Cache Alloc`。
+. ボリュームの現在のキャッシュ サイズを `Project Cache Alloc`と比較します。
 +
-ボリュームの現在のキャッシュサイズがより大きい場合 `Project Cache Alloc`は、ボリュームのキャッシュサイズが小さすぎます。
+ボリュームの現在のキャッシュ サイズが `Project Cache Alloc`より大きい場合、ボリューム キャッシュのサイズが小さすぎます。
 
 
 

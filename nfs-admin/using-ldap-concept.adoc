@@ -2,7 +2,7 @@
 permalink: nfs-admin/using-ldap-concept.html 
 sidebar: sidebar 
 keywords: use, ldap 
-summary: LDAP（Lightweight Directory Access Protocol）サーバを使用すると、ユーザ情報を一元的に管理できます。ユーザデータベースをLDAPサーバに格納する場合は、既存のLDAPデータベースのユーザ情報を検索するようにストレージシステムを設定できます。 
+summary: LDAP（Lightweight Directory Access Protocol）サーバを使用すると、ユーザ情報を一元的に管理できます。ユーザ データベースを環境内のLDAPサーバに格納している場合、既存のLDAPデータベース内のユーザ情報を検索するようにストレージ システムを設定できます。 
 ---
 = ONTAP NFS SVMのLDAPについて学ぶ
 :allow-uri-read: 
@@ -11,52 +11,52 @@ summary: LDAP（Lightweight Directory Access Protocol）サーバを使用する
 
 
 [role="lead"]
-LDAP（Lightweight Directory Access Protocol）サーバを使用すると、ユーザ情報を一元的に管理できます。ユーザデータベースをLDAPサーバに格納する場合は、既存のLDAPデータベースのユーザ情報を検索するようにストレージシステムを設定できます。
+LDAP（Lightweight Directory Access Protocol）サーバを使用すると、ユーザ情報を一元的に管理できます。ユーザ データベースを環境内のLDAPサーバに格納している場合、既存のLDAPデータベース内のユーザ情報を検索するようにストレージ システムを設定できます。
 
-* ONTAP用にLDAPを設定する前に、サイト環境がLDAPサーバとクライアントの設定のベストプラクティスを満たしていることを確認する必要があります。具体的には、次の条件を満たす必要があります。
+* LDAPをONTAP用に設定する前に、サイト環境がLDAPサーバおよびクライアント設定のベストプラクティスを満たしていることを確認する必要があります。具体的には、次の条件を満たす必要があります。
 +
-** LDAPサーバのドメイン名がLDAPクライアントのエントリと一致している必要があります。
-** LDAPサーバでサポートされるLDAPユーザパスワードのハッシュタイプには、ONTAPでサポートされるハッシュタイプが含まれている必要があります。
+** LDAPサーバのドメイン名がLDAPクライアント上のエントリと一致する必要があります。
+** LDAPサーバでサポートされるLDAPユーザのパスワード ハッシュ タイプに、ONTAPでサポートされる次のタイプが含まれている必要があります。
 +
-*** Crypt（すべてのタイプ）およびSHA-1（SHA、SSHA）。
-*** ONTAP 9 .8以降では、SHA-2ハッシュ（SHA-256、SSH-384、SHA-512、SSHA-256、SSHA-384、およびSSHA-512）もサポートされます。
+*** CRYPT（すべてのタイプ）およびSHA-1（SHA、SSHA）
+*** ONTAP 9.8以降では、SHA-2ハッシュ（SHA-256、SSH-384、SHA-512、SSHA-256、SSHA-384、およびSSHA-512）もサポートされます。
 
 
-** LDAPサーバでセッションセキュリティ対策が必要な場合は、LDAPクライアントで設定する必要があります。
+** LDAPサーバにセッション セキュリティ対策が必要な場合は、LDAPクライアントで設定する必要があります。
 +
-次のセッションセキュリティオプションを使用できます。
+以下のセッション セキュリティ オプションを使用できます。
 
 +
-*** LDAP署名（データ整合性チェックを提供）およびLDAP署名と封印（データ整合性チェックと暗号化を提供）
+*** LDAP署名（データの整合性チェックを提供）およびLDAP署名と封印（データの整合性チェックと暗号化を提供）
 *** START TLS
-*** LDAPS （ LDAP over TLS または SSL ）
+*** LDAPS（TLSまたはSSL経由のLDAP）
 
 
-** 署名および封印されたLDAPクエリを有効にするには、次のサービスを設定する必要があります。
+** 署名および封印されたLDAPクエリを有効にするには、次のサービスが設定されている必要があります。
 +
-*** LDAPサーバは、GSSAPI（Kerberos）SASLメカニズムをサポートしている必要があります。
-*** LDAPサーバには、DNS A/AAAAレコードと、DNSサーバで設定されたPTRレコードが必要です。
-*** Kerberosサーバには、DNSサーバ上にSRVレコードが存在する必要があります。
+*** LDAPサーバでGSSAPI（Kerberos）SASLがサポートされている必要があります。
+*** LDAPサーバに、DNS A/AAAAレコード、およびDNSサーバで設定されたPTRレコードが必要です。
+*** Kerberosサーバに、DNSサーバ上に存在するSRVレコードが必要です。
 
 
-** START TLSまたはLDAPSを有効にするには、次の点を考慮する必要があります。
+** START TLSまたはLDAPSを有効にする場合、次の点を考慮する必要があります。
 +
-*** NetAppでは、LDAPSではなくStart TLSを使用することを推奨します。
-*** ONTAP 9.5以降でLDAPSを使用する場合は、TLS用またはSSL用にLDAPサーバが有効になっている必要があります。SSL はONTAP 9.4 - 9.0 ではサポートされていません。
+*** NetAppでは、LDAPSではなくStart TLSの使用を推奨しています。
+*** LDAPSを使用する場合、LDAPサーバでTLSまたはSSL（ONTAP 9.5以降）を有効にする必要があります。SSLはONTAP 9.4～9.0ではサポートされていません。
 *** 証明書サーバがドメインで設定済みである必要があります。
 
 
-** LDAPリファーラル追跡を有効にするには（ONTAP 9 .5以降で）、次の条件を満たす必要があります。
+** LDAPリファーラル追跡を有効にするには（ONTAP 9.5以降）、次の条件を満たしている必要があります。
 +
-*** 両方のドメインに次のいずれかの信頼関係を設定する必要があります。
+*** 両方のドメインで次のいずれかの信頼関係が設定されている必要があります。
 +
 **** 双方向
-**** 一方向（プライマリがリファーラルドメインを信頼する場合）
+**** 一方向（プライマリ ドメインがリファーラル ドメインを信頼）
 **** 親子
 
 
-*** 参照されるすべてのサーバ名を解決するようにDNSを設定する必要があります。
-*** trueに設定した場合、認証するドメインパスワードは同じである必要があります `--bind-as-cifs-server`。
+*** 参照されているすべてのサーバ名を解決するようにDNSが設定されている必要があります。
+***  `--bind-as-cifs-server`がtrueに設定されている場合、認証にはドメイン パスワードが同じである必要があります。
 
 
 
@@ -64,23 +64,23 @@ LDAP（Lightweight Directory Access Protocol）サーバを使用すると、ユ
 +
 [NOTE]
 ====
-次の設定はLDAPリファーラル追跡ではサポートされていません。
+次の設定はLDAPリファーラル追跡でサポートされていません。
 
 ** すべてのONTAPバージョン：
-** 管理 SVM 上の LDAP クライアント
-** ONTAP 9.8 以前では（ 9.9.1 以降でサポートされています）：
-** LDAPの署名と封印（ `-session-security`オプション）
-** 暗号化されたTLS接続（ `-use-start-tls`オプション）
-** LDAPSポート636経由の通信（ `-use-ldaps-for-ad-ldap`オプション）
+** 管理SVM上のLDAPクライアント
+** ONTAP 9.8以前の場合（9.9.1以降でサポートされます）：
+** LDAP署名とシーリング（ `-session-security`オプション）
+** 暗号化されたTLS接続（ `-use-start-tls` オプション）
+** LDAPSポート636経由の通信（ `-use-ldaps-for-ad-ldap` オプション）
 
 
 ====
-* ONTAP 9 .11.1以降では、link:ldap-fast-bind-nsswitch-authentication-task.html["ONTAP NFS SVM の nsswitch 認証には LDAP 高速バインドを使用します。"]
-* SVMでLDAPクライアントを設定するときは、LDAPスキーマを入力する必要があります。
+* ONTAP 9.11.1以降では、link:ldap-fast-bind-nsswitch-authentication-task.html["ONTAP NFS SVMのnsswitch認証にはLDAP高速バインドを使用します。"]を使用できます。
+* SVMでLDAPクライアントを設定する際は、LDAPスキーマを入力する必要があります。
 +
-ほとんどの場合、デフォルトのONTAPスキーマのいずれかが適切です。ただし、環境で使用するLDAPスキーマがこれらと異なる場合は、LDAPクライアントを作成する前に、ONTAP用の新しいLDAPクライアントスキーマを作成する必要があります。環境の要件については、LDAP管理者にお問い合わせください。
+ほとんどの場合、デフォルトのONTAPスキーマのいずれかで問題ありません。ただし、環境のLDAPスキーマがデフォルトのスキーマと異なる場合は、LDAPクライアントを作成する前にONTAP用の新しいLDAPクライアント スキーマを作成する必要があります。環境の要件については、LDAP管理者にお問い合わせください。
 
-* ホスト名解決にLDAPを使用することはサポートされていません。
+* LDAPをホスト名解決に使用することはサポートされていません。
 
 
-詳細については、を参照してください https://www.netapp.com/pdf.html?item=/media/19423-tr-4835.pdf["ネットアップテクニカルレポート 4835 ：『 How to Configure LDAP in ONTAP 』"]。
+詳細については、 https://www.netapp.com/pdf.html?item=/media/19423-tr-4835.pdf["NetAppテクニカルレポート4835：ONTAPでLDAPを設定する方法"]を参照してください。

@@ -2,32 +2,32 @@
 permalink: nfs-config/examples-export-policies-concept.html 
 sidebar: sidebar 
 keywords: examples, ontap, export, policies, implementation, 7-mode 
-summary: エクスポートポリシーの例を確認すると、 ONTAP でのエクスポートポリシーの動作について理解を深めることができます。 
+summary: エクスポート ポリシーの例を確認すると、ONTAPでのエクスポート ポリシーの動作をより深く理解できます。 
 ---
-= ONTAP NFSエクスポートポリシーの例について学ぶ
+= ONTAPのNFSエクスポート ポリシーの例について学ぶ
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-エクスポートポリシーの例を確認すると、 ONTAP でのエクスポートポリシーの動作について理解を深めることができます。
+エクスポート ポリシーの例を確認すると、ONTAPでのエクスポート ポリシーの動作をより深く理解できます。
 
 
 
-== 7-Mode エクスポートの ONTAP 実装例
+== 7-ModeエクスポートのONTAP実装例
 
-次の例は、ファイルに出力されている7-Modeエクスポートを示してい `/etc/export`ます。
+次の例は、 `/etc/export`ファイルに表示される7-Modeエクスポートを示しています：
 
 [listing]
 ----
 /vol/vol1 -sec=sys,ro=@readonly_netgroup,rw=@readwrite_netgroup1:
 @readwrite_netgroup2:@rootaccess_netgroup,root=@rootaccess_netgroup
 ----
-このエクスポートをクラスタエクスポートポリシーとして再現するには、 3 つのエクスポートルールを含むエクスポートポリシーを作成し、そのエクスポートポリシーをボリューム vol1 に割り当てる必要があります。
+このエクスポートをクラスター化されたエクスポート ポリシーとして再現するには、3つのエクスポート ルールを含むエクスポート ポリシーを作成し、そのエクスポート ポリシーをボリュームvol1に割り当てる必要があります。
 
 |===
-| ルール | 要素 | 値 
+| Rule | 要素 | Value 
 
 
  a| 
@@ -40,7 +40,7 @@ summary: エクスポートポリシーの例を確認すると、 ONTAP での�
 
 
  a| 
-`-ruleindex`（ルールリスト内でのエクスポートルールの位置）
+`-ruleindex`(ルールリスト内のエクスポート ルールの位置)
  a| 
 `1`
 
@@ -56,21 +56,21 @@ summary: エクスポートポリシーの例を確認すると、 ONTAP での�
  a| 
 `-rorule`（読み取り専用アクセスを許可）
  a| 
-`sys`（クライアントはAUTH_SYSで認証されます）
+`sys`（AUTH_SYSで認証されたクライアント）
 
 
 
  a| 
-`-rwrule`（読み取り/書き込みアクセスを許可）
+`-rwrule`（読み書きアクセスを許可）
  a| 
 `never`
 
 
 
  a| 
-`-superuser`（スーパーユーザアクセスを許可）
+`-superuser`（スーパーユーザ アクセスを許可）
  a| 
-`none`（root_squashed_to anon）
+`none`（rootは匿名にスカッシュされます）
 
 
 
@@ -161,16 +161,16 @@ summary: エクスポートポリシーの例を確認すると、 ONTAP での�
 `none`
 
 |===
-. exp_vol1というエクスポートポリシーを作成します。
+. exp_vol1というエクスポート ポリシーを作成します。
 +
 `vserver export-policy create -vserver NewSVM -policyname exp_vol1`
 
-. 基本コマンドに対して、次のパラメータを指定して 3 つのルールを作成します。
+. ベース コマンドに次のパラメータを使用して 3 つのルールを作成します：
 +
 ** 基本コマンド：+
 `vserver export-policy rule create -vserver NewSVM -policyname exp_vol1`
-** ルールパラメータ：
-`-clientmatch @readonly_netgroup -ruleindex 1 -protocol nfs -rorule sys -rwrule never -superuser none`+++ `-clientmatch @rootaccess_netgroup -ruleindex 2 -protocol nfs -rorule sys -rwrule sys -superuser sys` `-clientmatch @readwrite_netgroup1,@readwrite_netgroup2 -ruleindex 3 -protocol nfs -rorule sys -rwrule sys -superuser none`
+** ルールパラメータ：+
+`-clientmatch @readonly_netgroup -ruleindex 1 -protocol nfs -rorule sys -rwrule never -superuser none` +  `-clientmatch @rootaccess_netgroup -ruleindex 2 -protocol nfs -rorule sys -rwrule sys -superuser sys` +  `-clientmatch @readwrite_netgroup1,@readwrite_netgroup2 -ruleindex 3 -protocol nfs -rorule sys -rwrule sys -superuser none`
 
 
 . ボリュームvol1にポリシーを割り当てます。
@@ -181,9 +181,9 @@ summary: エクスポートポリシーの例を確認すると、 ONTAP での�
 
 
 
-== 7-Mode エクスポートの統合の例
+== 7-Mode エクスポートの統合例
 
-次の例は、qtree 10個につき1行で構成された7-Modeのファイルを示してい `/etc/export`ます。
+次の例は、10 個の qtree ごとに 1 行が含まれる 7-Mode `/etc/export` ファイルを示しています：
 
 [listing]
 ----
@@ -199,28 +199,28 @@ summary: エクスポートポリシーの例を確認すると、 ONTAP での�
 /vol/vol1/q_2240 -sec=sys,rw=host2057s,root=host2057s
 /vol/vol1/q_2241 -sec=sys,rw=host2057s,root=host2057s
 ----
-ONTAPでは、qtreeごとに、を含むルールが設定されたポリシーとを含むルールが設定 `-clientmatch host2057s`されたポリシーのどちらかが必要です。 `-clientmatch host1519s`
+ONTAPでは、各qtreeに2つのポリシーのいずれかが必要です： `-clientmatch host1519s`を含むルールを持つポリシー、または `-clientmatch host2057s`を含むルールを持つポリシーです。
 
-. exp_vol1q1 と exp_vol1q2 という 2 つのエクスポートポリシーを作成します。
+. exp_vol1q1 と exp_vol1q2 という 2 つのエクスポートポリシーを作成します：
 +
 ** `vserver export-policy create -vserver NewSVM -policyname exp_vol1q1`
 ** `vserver export-policy create -vserver NewSVM -policyname exp_vol1q2`
 
 
-. 各ポリシーのルールを作成します。
+. 各ポリシーのルールを作成します：
 +
 ** `vserver export-policy rule create -vserver NewSVM -policyname exp_vol1q1 -clientmatch host1519s -rwrule sys -superuser sys`
 ** `vserver export-policy rule create -vserver NewSVM -policyname exp_vol1q2 -clientmatch host1519s -rwrule sys -superuser sys`
 
 
-. ポリシーを qtree に適用します。
+. qtree にポリシーを適用します。
 +
 ** `volume qtree modify -vserver NewSVM -qtree-path /vol/vol1/q_1472 -export-policy exp_vol1q1`
-** [ 続く 4 つの qtree ...]
+** [次の 4 つの qtree...]
 ** `volume qtree modify -vserver NewSVM -qtree-path /vol/vol1/q_2237 -export-policy exp_vol1q2`
-** [ 続く 4 つの qtree ...]
+** [次の 4 つの qtree...]
 
 
 
 
-これらのホスト用に qtree をあとから追加する必要がある場合は、同じエクスポートポリシーを使用します。
+後でこれらのホストに qtree を追加する必要がある場合は、同じエクスポートポリシーを使用します。

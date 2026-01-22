@@ -2,25 +2,25 @@
 permalink: encryption-at-rest/sanitize-fips-drive-sed-task.html 
 sidebar: sidebar 
 keywords: sanitize, fips, drive, sed, inaccessible, psid, physical secure ID, nrd plus, encrypt 
-summary: 'FIPSドライブまたはSEDのデータに永久にアクセスできない状態にし、そのドライブを新しいデータに使用する場合は、コマンドを使用してドライブを完全消去できます `storage encryption disk sanitize`。' 
+summary: 'FIPS ドライブまたは SED 上のデータを永続的にアクセス不能にし、そのドライブを新しいデータ用に使用する場合は、 `storage encryption disk sanitize` コマンドを使用してドライブをサニタイズできます。' 
 ---
-= ONTAPのFIPSドライブまたはSEDの完全消去
+= ONTAPでFIPSドライブまたはSEDを完全消去する
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-FIPSドライブまたはSEDのデータに永久にアクセスできない状態にし、そのドライブを新しいデータに使用する場合は、コマンドを使用してドライブを完全消去できます `storage encryption disk sanitize`。
+FIPS ドライブまたは SED 上のデータを永続的にアクセス不能にし、そのドライブを新しいデータ用に使用する場合は、 `storage encryption disk sanitize` コマンドを使用してドライブをサニタイズできます。
 
-.タスクの内容
-自己暗号化ドライブを完全消去すると、ディスク暗号化キーが新しいランダムな値に変更され、電源オンロックの状態がfalseにリセットされ、キーIDがデフォルト値のManufacturer Secure ID 0x0（SASドライブ）またはnullキー（NVMeドライブ）に設定されます。これにより、ディスクのデータにアクセスできない状態になり、データを取得できなくなります。完全消去したディスクは、初期化されていないスペアディスクとして再利用できます。
+.タスク概要
+自己暗号化ドライブを完全消去すると、ディスク暗号化キーが新しいランダムな値に変更され、電源オン ロックの状態がfalseにリセットされ、キーIDがデフォルト値のManufacturer Secure ID（SAS;メーカーのセキュアID）0x0（SASドライブ）またはnull（NVMeドライブ）に設定されます。これにより、ディスクのデータにアクセスできない状態になり、データを取得できなくなります。完全消去されたディスクは、初期化されていないスペア ディスクとして再利用できます。
 
 .開始する前に
 このタスクを実行するには、クラスタ管理者である必要があります。
 
 .手順
-. 保持する必要があるデータを別のディスク上のアグリゲートに移行します。
+. 保持しておく必要があるデータを別のディスクのアグリゲートにすべて移行します。
 . 完全消去するFIPSドライブまたはSEDのアグリゲートを削除します。
 +
 `storage aggregate delete -aggregate _aggregate_name_`
@@ -31,14 +31,14 @@ FIPSドライブまたはSEDのデータに永久にアクセスできない状�
 cluster1::> storage aggregate delete -aggregate aggr1
 ----
 +
-の詳細については `storage aggregate delete`、をlink:https://docs.netapp.com/us-en/ontap-cli/storage-aggregate-delete.html["ONTAPコマンド リファレンス"^]参照してください。
+ `storage aggregate delete`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/storage-aggregate-delete.html["ONTAPコマンド リファレンス"^]をご覧ください。
 
 . 完全消去するFIPSドライブまたはSEDのディスクIDを確認します。
 +
 `storage encryption disk show -fields data-key-id,fips-key-id,owner`
 
 +
-の詳細については `storage encryption disk show`、をlink:https://docs.netapp.com/us-en/ontap-cli/storage-encryption-disk-show.html["ONTAPコマンド リファレンス"^]参照してください。
+ `storage encryption disk show`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/storage-encryption-disk-show.html["ONTAPコマンド リファレンス"^]を参照してください。
 
 +
 [listing]
@@ -56,7 +56,7 @@ Disk    Mode Data Key ID
 `storage encryption disk modify -disk _disk_id_ -fips-key-id 0x0`
 
 +
-キーIDは、コマンドを使用して表示できます `security key-manager query`。
+ `security key-manager query`コマンドを使用してキー ID を表示できます。
 
 +
 [listing]
@@ -72,11 +72,11 @@ Info: Starting modify on 1 disk.
 `storage encryption disk sanitize -disk _disk_id_`
 
 +
-このコマンドを使用して完全消去できるのは、ホットスペアディスクまたは破損ディスクのみです。タイプに関係なくすべてのディスクを完全消去するには、オプションを使用し `-force-all-state`ます。の詳細については `storage encryption disk sanitize`、をlink:https://docs.netapp.com/us-en/ontap-cli/storage-encryption-disk-sanitize.html["ONTAPコマンド リファレンス"^]参照してください。
+このコマンドは、ホットスペアディスクまたは破損ディスクのみをサニタイズするために使用できます。ディスクの種類に関係なくすべてのディスクをサニタイズするには、 `-force-all-state`オプションを使用してください。 `storage encryption disk sanitize`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/storage-encryption-disk-sanitize.html["ONTAPコマンド リファレンス"^]を参照してください。
 
 +
 
-NOTE: 続行する前に、確認フレーズの入力を求めるプロンプトがONTAPに表示されます。画面に表示されたフレーズを正確に入力します。
+NOTE: 続行する前に、ONTAPから確認フレーズの入力を求められます。画面に表示されたフレーズを正確に入力します。
 
 +
 [listing]
@@ -90,29 +90,29 @@ Info: Starting sanitize on 1 disk.
       View the status of the operation using the
       storage encryption disk show-status command.
 ----
-. 完全消去したディスクの障害状態を解除します。
+. サニタイズされたディスクをアンフェイルします：
 `storage disk unfail -spare true -disk _disk_id_`
-. ディスクに所有者があるかどうかを確認します
-`storage disk show -disk _disk_id_`。+ディスクに所有者がない場合は、所有者を割り当てます。
+. ディスクに所有者がいるかどうかを確認します：
+`storage disk show -disk _disk_id_`ディスクに所有者がいない場合は、所有者を割り当てます。
 `storage disk assign -owner node -disk _disk_id_`
 . 完全消去するディスクを所有するノードのノードシェルに切り替えます。
 +
 `system node run -node _node_name_`
 
 +
-コマンドを実行します `disk sanitize release`。
+ `disk sanitize release`コマンドを実行します。
 
-. ノードシェルを終了します。ディスクの障害状態を再度解除します。
+. ノードシェルを終了します。ディスクの障害を再度解除します：
 `storage disk unfail -spare true -disk _disk_id_`
-. ディスクがスペアとしてアグリゲートで再利用できる状態になったことを確認します。
+. ディスクがスペアになり、アグリゲート内で再利用できる状態になっていることを確認します：
 `storage disk show -disk _disk_id_`
 
 
 .関連情報
 * link:https://docs.netapp.com/us-en/ontap-cli/storage-disk-assign.html["storage disk assign"^]
 * link:https://docs.netapp.com/us-en/ontap-cli/storage-disk-show.html["storage disk show"^]
-* link:https://docs.netapp.com/us-en/ontap-cli/storage-disk-unfail.html["ストレージディスクの故障なし"^]
+* link:https://docs.netapp.com/us-en/ontap-cli/storage-disk-unfail.html["ストレージディスクのアンフェイル"^]
 * link:https://docs.netapp.com/us-en/ontap-cli/storage-encryption-disk-modify.html["ストレージ暗号化ディスクの変更"^]
-* link:https://docs.netapp.com/us-en/ontap-cli/storage-encryption-disk-sanitize.html["ストレージ暗号化ディスクサニタイズ"^]
-* link:https://docs.netapp.com/us-en/ontap-cli/storage-encryption-disk-show-status.html["ストレージ暗号化ディスクステータス表示"^]
+* link:https://docs.netapp.com/us-en/ontap-cli/storage-encryption-disk-sanitize.html["ストレージ暗号化ディスク完全消去"^]
+* link:https://docs.netapp.com/us-en/ontap-cli/storage-encryption-disk-show-status.html["storage encryption disk show-status"^]
 

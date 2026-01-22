@@ -2,7 +2,7 @@
 permalink: smb-admin/allow-users-groups-bypass-directory-traverse-task.html 
 sidebar: sidebar 
 keywords: traverse, directories, directory, path, file, permission, sechangenotifyprivilege, privilege, local, smb, user, svm, bypass, traverse, check, allow users or groups to bypass directory traverse checking 
-summary: トラバースするディレクトリに対する権限がない場合でも、ファイルへのパスに含まれるすべてのディレクトリをユーザがトラバースできるようにするには、 Storage Virtual Machine （ SVM ）のローカル SMB ユーザまたはグループに SeChangeNotifyPrivilege 権限を追加します。デフォルトでは、ユーザはディレクトリのトラバースチェックをバイパスできます。 
+summary: ユーザーがファイルパス内のすべてのディレクトリをトラバースできるようにしたい場合、たとえトラバース先のディレクトリに対する権限がユーザーになくても、Storage Virtual Machine（SVM）上のローカルSMBユーザーまたはグループにSeChangeNotifyPrivilege権限を追加できます。デフォルトでは、ユーザーはディレクトリトラバースチェックをバイパスできます。 
 ---
 = ユーザーまたはグループが ONTAP SMB ディレクトリ トラバース チェックをバイパスできるようにする
 :allow-uri-read: 
@@ -11,27 +11,27 @@ summary: トラバースするディレクトリに対する権限がない場�
 
 
 [role="lead"]
-トラバースするディレクトリに対する権限がない場合でも、ファイルへのパスに含まれるすべてのディレクトリをユーザがトラバースできるようにするには、Storage Virtual Machine（SVM）のローカルSMBユーザまたはグループに権限を追加します `SeChangeNotifyPrivilege`。デフォルトでは、ユーザはディレクトリのトラバースチェックをバイパスできます。
+ユーザーがファイルパス内のすべてのディレクトリをトラバースできるようにしたい場合、たとえトラバース先のディレクトリに対する権限がユーザーになくても、Storage Virtual Machine（SVM）上のローカルSMBユーザーまたはグループに `SeChangeNotifyPrivilege`権限を追加できます。デフォルトでは、ユーザーはディレクトリトラバースチェックをバイパスできます。
 
 .開始する前に
 * SVM上にSMBサーバが存在している必要があります。
-* ローカルユーザとローカルグループのSMBサーバオプションが有効になっている必要があります。
-* 権限を追加するローカルまたはドメインのユーザまたはグループ `SeChangeNotifyPrivilege`がすでに存在している必要があります。
+* ローカル ユーザとローカル グループのSMBサーバ オプションが有効になっている必要があります。
+*  `SeChangeNotifyPrivilege`権限を追加するローカルまたはドメインのユーザーまたはグループが既に存在している必要があります。
 
 
-.タスクの内容
-Privilegesをドメインユーザまたはグループに追加するときに、ONTAPがドメインコントローラに接続してそのドメインユーザまたはグループを検証することがあります。ONTAPがドメインコントローラに接続できない場合、コマンドが失敗することがあります。
+.タスク概要
+ドメイン ユーザまたはグループへの権限の追加時、ONTAPでは、ドメイン コントローラに接続してそのドメイン ユーザまたはグループを検証することがあります。ONTAPがドメイン コントローラに照会できない場合、コマンドが失敗することがあります。
 
 .手順
-. ローカルまたはドメインのユーザまたはグループに権限を追加して、トラバースチェックのバイパスを有効にし `SeChangeNotifyPrivilege`ます。 `vserver cifs users-and-groups privilege add-privilege -vserver _vserver_name_ -user-or-group-name _name_ -privileges SeChangeNotifyPrivilege`
+.  `SeChangeNotifyPrivilege`権限をローカルまたはドメインのユーザーまたはグループに追加して、トラバース チェックのバイパスを有効にします： `vserver cifs users-and-groups privilege add-privilege -vserver _vserver_name_ -user-or-group-name _name_ -privileges SeChangeNotifyPrivilege`
 +
-パラメータの値は `-user-or-group-name`、ローカルユーザまたはグループ、ドメインユーザまたはグループです。
+ `-user-or-group-name`パラメータの値は、ローカル ユーザーまたはグループ、あるいはドメイン ユーザーまたはグループです。
 
-. 指定したユーザまたはグループでトラバースチェックのバイパスが有効になっていることを確認します。 `vserver cifs users-and-groups privilege show -vserver _vserver_name_ ‑user-or-group-name _name_`
+. 指定されたユーザーまたはグループでバイパス走査チェックが有効になっていることを確認します： `vserver cifs users-and-groups privilege show -vserver _vserver_name_ ‑user-or-group-name _name_`
 
 
 .例
-次のコマンドは、「example\eng'」グループに権限を追加することで、「example\eng'」グループに属するユーザがディレクトリのトラバースチェックをバイパスできるようにし `SeChangeNotifyPrivilege`ます。
+次のコマンドは、"`EXAMPLE\eng`" グループに属するユーザーが、 `SeChangeNotifyPrivilege`権限をグループに追加することで、ディレクトリトラバースチェックをバイパスできるようにします：
 
 [listing]
 ----
@@ -43,4 +43,4 @@ Vserver   User or Group Name    Privileges
 vs1       EXAMPLE\eng           SeChangeNotifyPrivilege
 ----
 .関連情報
-xref:disallow-users-groups-bypass-directory-traverse-task.adoc[ユーザまたはグループに対してディレクトリのトラバースチェックのバイパスを禁止する]
+xref:disallow-users-groups-bypass-directory-traverse-task.adoc[ユーザまたはグループに対するディレクトリのトラバース チェックのバイパスの禁止]

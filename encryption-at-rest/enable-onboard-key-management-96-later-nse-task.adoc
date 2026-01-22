@@ -2,93 +2,93 @@
 permalink: encryption-at-rest/enable-onboard-key-management-96-later-nse-task.html 
 sidebar: sidebar 
 keywords: enabling, onboard key management, ontap 9.6, later 
-summary: オンボードキーマネージャを使用して、暗号化されたデータにアクセスするためにクラスタで使用するキーを安全に保管できます。オンボードキーマネージャは、暗号化されたボリュームまたは自己暗号化ディスクにアクセスする各クラスタで有効にする必要があります。 
+summary: オンボード キー マネージャを使用して、暗号化されたデータにアクセスする際にクラスタで使用するキーを安全に保管できます。オンボード キー マネージャは、暗号化されたボリュームや自己暗号化ディスクにアクセスする各クラスタで有効にする必要があります。 
 ---
-= ONTAP 9 .6以降でオンボードキー管理を有効にする
+= オンボード キー管理の有効化（ONTAP 9.6以降）
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-オンボードキーマネージャを使用して、クラスタノードをFIPSドライブまたはSEDに対して認証できます。オンボードキーマネージャは組み込みのツールで、データと同じストレージシステムからノードに認証キーを提供します。オンボードキーマネージャはFIPS-140-2レベル1に準拠しています。
+オンボード キー マネージャを使用して、クラスタ ノードをFIPSドライブまたはSEDに対して認証できます。オンボード キー マネージャは組み込みのツールで、データと同じストレージ システムからノードに認証キーを提供します。オンボード キー マネージャはFIPS-140-2レベル1に準拠しています。
 
-オンボードキーマネージャを使用して、暗号化されたデータにアクセスするためにクラスタで使用するキーを安全に保管できます。オンボードキーマネージャは、暗号化されたボリュームまたは自己暗号化ディスクにアクセスする各クラスタで有効にする必要があります。
+オンボード キー マネージャを使用して、暗号化されたデータにアクセスする際にクラスタで使用するキーを安全に保管できます。オンボード キー マネージャは、暗号化されたボリュームや自己暗号化ディスクにアクセスする各クラスタで有効にする必要があります。
 
-.タスクの内容
-このコマンドは、クラスタにノードを追加するたびに実行する必要があり `security key-manager onboard enable`ます。MetroCluster構成では、同じパスフレーズを使用してまずローカルクラスタでを実行し、次にリモートクラスタでを実行する `security key-manager onboard sync`必要があります `security key-manager onboard enable`。
+.タスク概要
+クラスタにノードを追加するたびに、 `security key-manager onboard enable`コマンドを実行する必要があります。MetroCluster構成では、最初にローカルクラスタで `security key-manager onboard enable`を実行し、次にリモートクラスタで `security key-manager onboard sync`を実行する必要があります。その際、各クラスタで同じパスフレーズを使用してください。
 
-詳細はこちら `security key-manager onboard enable`そして `security key-manager onboard sync`の中でlink:https://docs.netapp.com/us-en/ontap-cli//security-key-manager-onboard-enable.html["ONTAPコマンド リファレンス"^]。
+ `security key-manager onboard enable`および `security key-manager onboard sync`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli//security-key-manager-onboard-enable.html["ONTAPコマンド リファレンス"^]をご覧ください。
 
-デフォルトでは、ノードのリブート時にキー管理ツールのパスフレーズを入力する必要はありません。MetroClusterの場合を除き、オプションを使用すると、リブート後にユーザにパスフレーズの入力を求めることができます `cc-mode-enabled=yes`。
+デフォルトでは、ノードの再起動時にキーマネージャのパスフレーズを入力する必要はありません。MetroClusterを除き、 `cc-mode-enabled=yes`オプションを使用して、再起動後にユーザーにパスフレーズの入力を求めることができます。
 
 [NOTE]
 ====
-オンボードキーマネージャがCCモードで有効になっ(`cc-mode-enabled=yes`ている場合）、システムの動作が次のように変更されます。
+オンボード キー マネージャーが Common Criteria モード(`cc-mode-enabled=yes`で有効になっている場合、システムの動作は次のように変更されます：
 
-* システムは、情報セキュリティ国際評価基準モードで動作しているときに、クラスタパスフレーズの連続した失敗を監視します。
+* Common Criteriaモードでは、クラスタ パスフレーズの連続入力エラーが監視されます。
 +
-NetAppストレージ暗号化（NSE）が有効になっている場合にブート時に正しいクラスタパスフレーズを入力しないと、システムはドライブを認証できず、自動的にリブートします。これを修正するには、ブートプロンプトで正しいクラスタパスフレーズを入力する必要があります。ブート後、クラスタパスフレーズをパラメータとして必要とするコマンドについては、24時間以内に最大5回連続してクラスタパスフレーズを正しく入力できます。制限に達した場合（クラスタパスフレーズを5回連続で正しく入力しなかった場合など）は、24時間のタイムアウト時間が経過するまで待つか、ノードをリブートして制限をリセットする必要があります。
+NetApp Storage Encryption（NSE）が有効な場合、ブート時にクラスタの正しいパスフレーズを入力しないと、システムはドライブに対して認証できず、自動的にリブートします。この問題を解決するには、ブート プロンプトで正しいクラスタ パスフレーズを入力する必要があります。ブート後は、クラスタ パスフレーズを求められるコマンドを実行するたびに、クラスタ パスフレーズを24時間以内に5回まで試行することができます。制限に達した場合（例：クラスタ パスフレーズを5回連続で間違えた場合）、24時間のタイムアウト時間が過ぎるのを待つか、またはノードをリブートして制限をリセットする必要があります。
 
-* システムイメージの更新では、通常のNetApp RSA-2048コード署名証明書とSHA-256コード署名ダイジェストの代わりに、NetApp RSA-3072コード署名証明書とSHA-384コード署名ダイジェストを使用してイメージの整合性をチェックします。
+* システム イメージの更新では、通常のNetAppのRSA-2048コード署名証明書とSHA-256のコード署名ダイジェストではなく、NetAppのRSA-3072コード署名証明書とSHA-384のコード署名ダイジェストを使用してイメージの整合性がチェックされます。
 +
-アップグレード コマンドは、さまざまなデジタル署名をチェックして、イメージの内容が変更されていないか、または破損していないかを確認します。検証が成功すると、イメージの更新は次のステップに進みます。検証が機能しない場合、イメージの更新は失敗します。詳細はこちら `cluster image`の中でlink:https://docs.netapp.com/us-en/ontap-cli/search.html?q=cluster+image["ONTAPコマンド リファレンス"^]。
+アップグレードコマンドは、様々なデジタル署名をチェックすることで、イメージの内容が改ざんまたは破損していないことを確認します。検証が成功した場合、イメージの更新は次のステップに進みます。検証が失敗した場合、イメージの更新は失敗します。 `cluster image`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/search.html?q=cluster+image["ONTAPコマンド リファレンス"^]をご覧ください。
 
 
 
 ====
 
-NOTE: オンボードキーマネージャは、キーを揮発性メモリに格納します。揮発性メモリの内容は、システムを再起動または停止するとクリアされます。通常の動作状態では、システムが停止すると、揮発性メモリの内容は30秒以内に消去されます。
+NOTE: オンボード キー マネージャは揮発性メモリにキーを格納します。揮発性メモリの内容はシステムのリブート時または停止時にクリアされます。通常の動作状態では、揮発性メモリの内容はシステムが停止してから30秒以内にクリアされます。
 
 .開始する前に
-* NSEで外部キー管理（KMIP）サーバを使用する場合は、外部キー管理ツールのデータベースを削除しておく必要があります。
+* NSEで外部キー管理（KMIP）サーバを使用している場合は、外部キー管理ツールのデータベースを削除しておく必要があります。
 +
-link:delete-key-management-database-task.html["外部キー管理からオンボードキー管理への移行"]
+link:delete-key-management-database-task.html["外部キー管理からオンボード キー管理への移行"]
 
 * このタスクを実行するには、クラスタ管理者である必要があります。
-* オンボードキーマネージャを設定する前に、MetroCluster環境を設定する必要があります。
+* オンボード キー マネージャを設定する前に、MetroCluster環境を設定する必要があります。
 
 
 .手順
-. キー管理ツールのsetupコマンドを開始します。
+. キー管理ツール セットアップ コマンドを開始します。
 +
 `security key-manager onboard enable -cc-mode-enabled yes|no`
 
 +
 
-NOTE: リブート後にユーザにキー管理ツールのパスフレーズの入力を求めるように設定し `cc-mode-enabled=yes`ます。この `- cc-mode-enabled`オプションはMetroCluster構成ではサポートされません。 `security key-manager onboard enable`コマンドは、コマンドに置き換わるもの `security key-manager setup`です。
+NOTE: 再起動後にユーザーがキー管理者のパスフレーズを入力する必要があるように `cc-mode-enabled=yes`を設定します。MetroCluster構成では `- cc-mode-enabled`オプションはサポートされていません。 `security key-manager onboard enable`コマンドは `security key-manager setup`コマンドの代わりとなります。
 
 +
-次の例は、リブートのたびにパスフレーズの入力を要求せずに、cluster1でkey manager setupコマンドを開始します。
+次の例は、リブートのたびにパスフレーズの入力を求めずに、cluster1でキー管理ツール セットアップ コマンドを開始します。
 
-. 32 〜 256 文字のパスフレーズを入力します。「`cc-mode`」の場合は 64 〜 256 文字のパスフレーズを入力します。
+. 32文字から256文字までのパスフレーズを入力します。"`cc-mode`"の場合は64文字から256文字までのパスフレーズを入力します。
 +
 
-NOTE: 指定された "cc-mode" パスフレーズが 64 文字未満の場合、キー管理ツールのセットアップ操作によってパスフレーズのプロンプトが再表示されるまでに 5 秒の遅延が発生します。
+NOTE: 指定された「`cc-mode`」パスフレーズが64文字未満の場合、キー マネージャーのセットアップ操作でパスフレーズ プロンプトが再度表示されるまでに5秒の遅延が発生します。
 
 . パスフレーズの確認のプロンプトでパスフレーズをもう一度入力します。
-. システムが認証キーを作成したことを確認します。
+. システムが認証キーを作成したことを確認します：
 +
 `security key-manager key query -node node`
 
 +
 
-NOTE:  `security key-manager key query`コマンドは、コマンドに置き換わるもの `security key-manager query key`です。
+NOTE:  `security key-manager key query`コマンドは `security key-manager query key`コマンドに置き換わります。
 
 +
-の詳細については `security key-manager key query`、をlink:https://docs.netapp.com/us-en/ontap-cli/security-key-manager-key-query.html["ONTAPコマンド リファレンス"^]参照してください。
+ `security key-manager key query`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/security-key-manager-key-query.html["ONTAPコマンド リファレンス"^]をご覧ください。
 
 
 
-.終了後
-あとで使用できるように、ストレージシステムの外部の安全な場所にパスフレーズをコピーします。
+.終了後の操作
+あとで使用できるように、ストレージ システムの外部の安全な場所にパスフレーズをコピーしておきます。
 
-システムは、キー管理情報をクラスターの複製データベース (RDB) に自動的にバックアップします。災害復旧のためにこの情報も手動でバックアップする必要があります。
+システムは、クラスターの複製データベース（RDB）にキー管理情報を自動的にバックアップします。災害復旧に備えて、この情報を手動でバックアップすることも必要です。
 
 .関連情報
 * link:https://docs.netapp.com/us-en/ontap-cli/search.html?q=cluster+image["クラスターイメージコマンド"^]
-* link:https://docs.netapp.com/us-en/ontap-cli/security-key-manager-external-enable.html["セキュリティキーマネージャー外部有効化"^]
-* link:https://docs.netapp.com/us-en/ontap-cli/security-key-manager-key-query.html["セキュリティキーマネージャーキークエリ"^]
-* link:https://docs.netapp.com/us-en/ontap-cli/security-key-manager-onboard-enable.html["セキュリティキーマネージャーオンボード有効化"^]
-* link:delete-key-management-database-task.html["外部キー管理からオンボードキー管理への移行"]
+* link:https://docs.netapp.com/us-en/ontap-cli/security-key-manager-external-enable.html["セキュリティキー・マネージャ外部有効化"^]
+* link:https://docs.netapp.com/us-en/ontap-cli/security-key-manager-key-query.html["セキュリティキー・マネージャーキーのクエリ"^]
+* link:https://docs.netapp.com/us-en/ontap-cli/security-key-manager-onboard-enable.html["セキュリティキー・マネージャーオンボード有効化"^]
+* link:delete-key-management-database-task.html["外部キー管理からオンボード キー管理への移行"]
 

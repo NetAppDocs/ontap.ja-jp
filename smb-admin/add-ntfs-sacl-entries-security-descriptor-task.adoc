@@ -2,7 +2,7 @@
 permalink: smb-admin/add-ntfs-sacl-entries-security-descriptor-task.html 
 sidebar: sidebar 
 keywords: add, sacl, system, access, control, list, entires, aces, ntfs, audit, policies, policy, file, folder, svm, add ntfs sacl access control entries to the ntfs security descriptor 
-summary: NTFS セキュリティ記述子への SACL （システムアクセス制御リスト）アクセス制御エントリ（ ACE ）の追加は、 SVM 内のファイルやフォルダに対する NTFS 監査ポリシーを作成する 2 番目のステップです。エントリごとに、監査するユーザまたはグループを指定します。SACL エントリは、成功したアクセス試行と失敗したアクセス試行のどちらを監査するかを定義します。 
+summary: SVM内のファイルまたはフォルダに対するNTFS監査ポリシーを作成するための2番目のステップは、NTFSセキュリティ記述子にSACL（システムアクセス制御リスト）アクセス制御エントリ（ACE）を追加することです。各エントリは、監査対象となるユーザーまたはグループを識別します。SACLエントリは、成功したアクセス試行と失敗したアクセス試行のどちらを監査するかを定義します。 
 ---
 = ONTAP SMBサーバ上のNTFSセキュリティ記述子にNTFS SACLアクセス制御エントリを追加する
 :allow-uri-read: 
@@ -11,33 +11,33 @@ summary: NTFS セキュリティ記述子への SACL （システムアクセス
 
 
 [role="lead"]
-NTFS セキュリティ記述子への SACL （システムアクセス制御リスト）アクセス制御エントリ（ ACE ）の追加は、 SVM 内のファイルやフォルダに対する NTFS 監査ポリシーを作成する 2 番目のステップです。エントリごとに、監査するユーザまたはグループを指定します。SACL エントリは、成功したアクセス試行と失敗したアクセス試行のどちらを監査するかを定義します。
+SVM内のファイルまたはフォルダに対するNTFS監査ポリシーを作成するための2番目のステップは、NTFSセキュリティ記述子にSACL（システムアクセス制御リスト）アクセス制御エントリ（ACE）を追加することです。各エントリは、監査対象となるユーザーまたはグループを識別します。SACLエントリは、成功したアクセス試行と失敗したアクセス試行のどちらを監査するかを定義します。
 
-.タスクの内容
-セキュリティ記述子のSACLには1つ以上のACEを追加できます。
+.タスク概要
+セキュリティ記述子の SACL に 1 つ以上の ACE を追加できます。
 
-セキュリティ記述子に含まれるSACLに既存のACEがある場合は、新しいACEがSACLに追加されます。セキュリティ記述子にSACLが含まれていない場合は、SACLが作成されて新しいACEが追加されます。
+セキュリティ記述子に含まれるSACLに既存のACEがある場合は、新しいACEがSACLに追加されます。セキュリティ記述子にSACLが含まれていない場合は、SACLが作成され、そのDACLに新しいACEが追加されます。
 
-SACLエントリを設定するには、パラメータで指定したアカウントの成功イベントまたは失敗イベントについて監査する権限を指定し `-account`ます。権限を指定する場合、次の 3 つの相互に排他的な方法があります。
+ `-account`パラメータで指定されたアカウントの成功イベントまたは失敗イベントについて監査する権限を指定することで、SACL エントリを設定できます。権限を指定するには、互いに排他的な 3 つの方法があります：
 
 * 権限
-* 詳細な権限
-* raw 権限（ advanced 権限）
+* 高度な権利
+* Raw 権限（advanced-privilege）
 
 
 [NOTE]
 ====
-SACLエントリの権限を指定しない場合のデフォルト設定はです `Full Control`。
+SACL エントリの権限を指定しない場合、デフォルト設定は `Full Control`になります。
 
 ====
-必要に応じて、パラメータで継承を適用する方法を指定して、SACLエントリをカスタマイズでき `apply to`ます。このパラメータを指定しない場合、デフォルトでは、この SACL エントリがこのフォルダ、サブフォルダ、およびファイルに適用されます。
+ `apply to`パラメータを使用して継承の適用方法を指定することにより、必要に応じてSACLエントリをカスタマイズできます。このパラメータを指定しない場合は、デフォルトでこのSACLエントリがこのフォルダ、サブフォルダ、およびファイルに適用されます。
 
 .手順
-. SACLエントリをセキュリティ記述子に追加します。 `vserver security file-directory ntfs sacl add -vserver vserver_name -ntfs-sd SD_name -access-type {failure|success} -account name_or_SIDoptional_parameters`
+. セキュリティ記述子に SACL エントリを追加します `vserver security file-directory ntfs sacl add -vserver vserver_name -ntfs-sd SD_name -access-type {failure|success} -account name_or_SIDoptional_parameters`
 +
 `vserver security file-directory ntfs sacl add -ntfs-sd sd1 -access-type failure -account domain\joe -rights full-control -apply-to this-folder -vserver vs1`
 
-. SACLエントリが正しいことを確認します。 `vserver security file-directory ntfs sacl show -vserver vserver_name -ntfs-sd SD_name -access-type {failure|success} -account name_or_SID`
+. SACL エントリが正しいことを確認します： `vserver security file-directory ntfs sacl show -vserver vserver_name -ntfs-sd SD_name -access-type {failure|success} -account name_or_SID`
 +
 `vserver security file-directory ntfs sacl show -vserver vs1 -ntfs-sd sd1 -access-type deny -account domain\joe`
 

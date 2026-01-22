@@ -2,57 +2,57 @@
 permalink: san-admin/backup-lun-host-backup-system-task.html 
 sidebar: sidebar 
 keywords: back up, lun, through, host, backup, system 
-summary: ホストバックアップシステムのソースデータとして、SnapshotからクローニングされたLUNを使用できます。 
+summary: スナップショットからクローンされたLUNをホスト バックアップ システムのソース データとして使用できます。 
 ---
-= ホストバックアップシステムを使用してONTAPストレージシステム上のLUNを保護する
+= ホスト バックアップ システムを使用して、ONTAPストレージ システム上のLUNを保護します。
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-ホストバックアップシステムのソースデータとして、SnapshotからクローニングされたLUNを使用できます。
+スナップショットからクローンされたLUNをホスト バックアップ システムのソース データとして使用できます。
 
 .開始する前に
-本番用LUNが存在し、アプリケーションサーバのWWPNまたはイニシエータノード名を含むigroupにマッピングされている必要があります。また、LUNがフォーマットされていて、ホストからアクセスできる必要があります。
+本番用LUNが存在し、アプリケーション サーバのWWPNまたはイニシエータ ノード名が含まれているigroupにマッピングされている必要があります。LUNはフォーマット済みで、ホストからアクセスできることが必要です。
 
 .手順
-. ホストファイルシステムバッファの内容をディスクに保存します。
+. ホスト ファイルシステム バッファの内容をディスクに保存します。
 +
-ホストオペレーティングシステムのコマンドを使用するか、SnapDrive（Windows）またはSnapDrive（UNIX）を使用できます。この手順をSANバックアップの前処理スクリプトに含めることもできます。
+ホスト オペレーティング システムのコマンドを使用するか、SnapDrive for WindowsまたはSnapDrive for UNIXを使用できます。この手順をSANバックアップのプリプロセス スクリプトに組み込むこともできます。
 
-. 本番LUNのスナップショットを作成します。
+. 実稼働LUNのスナップショットを作成します。
 +
 [source, cli]
 ----
 volume snapshot create -vserver <SVM_name> -volume <volume_name> -snapshot <snapshot> -comment <comment> -foreground false
 ----
-. 本番用LUNのクローンを作成します。
+. 本番LUNクローンを作成します。
 +
 [source, cli]
 ----
 volume file clone create -vserver <SMV_name> -volume <volume> -source-path <path> -snapshot-name <snapshot> -destination-path <destination_path>
 ----
-. バックアップサーバのWWPNを含むigroupを作成します。
+. バックアップ サーバーの WWPN を含む igroup を作成します。
 +
 [source, cli]
 ----
 lun igroup create -vserver <SVM_name> -igroup <igroup> -protocol <protocol> -ostype <os_type> -initiator <initiator>
 ----
-. 手順3で作成したLUNクローンをバックアップホストにマッピングします。
+. 手順 3 で作成した LUN クローンをバックアップ ホストにマップします。
 +
 [source, cli]
 ----
 lun mapping create -vserver <SVM_name> -volume <volume_name> -lun <lun_name> -igroup <igroup>
 ----
 +
-この手順をSANバックアップアプリケーションのポストプロセススクリプトに含めることもできます。
+この手順をSANバックアップ アプリケーションのポストプロセス スクリプトに組み込むことができます。
 
-. ホストから、新しいLUNを検出し、ファイルシステムをホストで使用できるようにします。
+. ホストから新しいLUNを検出して、ファイルシステムを使用できるようにします。
 +
-この手順をSANバックアップアプリケーションのポストプロセススクリプトに含めることもできます。
+この手順をSANバックアップ アプリケーションのポストプロセス スクリプトに組み込むことができます。
 
-. SANバックアップアプリケーションを使用して、バックアップホストのLUNクローン内のデータをテープにバックアップします。
+. SANバックアップ アプリケーションを使用して、バックアップ ホストのLUNクローン内にあるデータをテープにバックアップします。
 . LUNクローンをオフラインにします。
 +
 [source, cli]

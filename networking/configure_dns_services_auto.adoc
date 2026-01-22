@@ -2,9 +2,9 @@
 sidebar: sidebar 
 permalink: networking/configure_dns_services_auto.html 
 keywords: dns, service, services, configuration, configure, configuring, set, up, setup, nfs, smb, cifs, active, directory, statistics, configure dns services, configure dns services for the svm before creating an nfs or smb server, vserver services name-service, configure dynamic dns on the svm, vserver-fqdn 
-summary: NFS または SMB サーバを作成する前に、 SVM 用の DNS サービスを設定してください 
+summary: NFSまたはSMBサーバーを作成する前に、SVMのDNSサービスを設定します 
 ---
-= ONTAPネットワーク用のDNSサービスの設定
+= ONTAPネットワークのDNSサービスを設定する
 :hardbreaks:
 :allow-uri-read: 
 :nofooter: 
@@ -16,18 +16,18 @@ summary: NFS または SMB サーバを作成する前に、 SVM 用の DNS サ�
 [role="lead"]
 NFSまたはSMBサーバを作成する前に、SVM用のDNSサービスを設定する必要があります。通常、DNSネーム サーバは、NFSまたはSMBサーバが参加するドメインのActive Directory統合DNSサーバです。
 
-.タスクの内容
-Active Directory統合DNSサーバには、ドメインLDAPサーバとドメインコントローラサーバのサービスロケーションレコード（SRV）が格納されます。SVMがActive Directory LDAPサーバおよびドメインコントローラを見つけられない場合は、NFSまたはSMBサーバのセットアップに失敗します。
+.タスク概要
+Active Directory統合DNSサーバには、ドメインLDAPおよびドメイン コントローラ サーバのサービス ロケーション レコード（SRV）が格納されます。SVMがActive Directory LDAPサーバおよびドメイン コントローラを見つけられない場合は、NFSまたはSMBサーバのセットアップに失敗します。
 
-SVMは、ホストに関する情報を検索する際に、hostsネームサービスns-switchデータベースを使用して、使用するネームサービスとその順序を決定します。hostsデータベースでサポートされる2つのネームサービスは、filesとdnsです。
+SVMは、ホストについての情報を検索する際に、hostsネーム サービスns-switchデータベースを使用してどのネーム サービスを使用するか、どの順番で使用するかを決定します。ホスト データベースとしてサポートされている2つのネーム サービスは、filesおよびdnsです。
 
-SMBサーバを作成する前に、DNSがソースの1つであることを確認する必要があります。
+SMBサーバを作成する前に、dnsがソースの1つであることを確認する必要があります。
 
 
-NOTE: mgwdプロセスおよびsecdプロセスのDNSネームサービスの統計を表示するには、統計UIを使用します。
+NOTE: mgwdプロセスとSecDプロセスについてDNSネーム サービスの統計を表示するには、統計画面を使用します。
 
 .手順
-. hostsネームサービスデータベースの現在の設定を確認します。この例では、hostsネームサービスデータベースでデフォルトの設定が使用されています。
+. hostsネーム サービス データベースの現在の設定を確認します。この例では、hostsネーム サービス データベースはデフォルトの設定を使用しています。
 +
 `vserver services name-service _ns-switch_ show -vserver _vs1_ -database _hosts_`
 
@@ -59,7 +59,7 @@ Name Service Source Order: dns, files
 ....
 
 
-. DNSサービスを設定します。
+. DNS サービスを設定します。
 +
 `vserver services name-service dns create -vserver _vs1_ -domains _example.com,example2.com_ -name-servers _10.0.0.50,10.0.0.51_`
 
@@ -93,15 +93,15 @@ vs1      10.0.0.51    up      Response time (msec): 2
 Active Directory統合DNSサーバをDNSにあるNFSまたはSMBサーバのDNSレコードに動的に登録する場合は、SVMで動的DNS（DDNS）を設定する必要があります。
 
 .開始する前に
-SVMでDNSネームサービスが設定されている必要があります。セキュアなDDNSを使用する場合は、Active Directory統合DNSネームサーバを使用し、SVM用にNFSサーバまたはSMBサーバまたはActive Directoryアカウントを作成しておく必要があります。
+SVMでは、DNSネーム サービスが設定される必要があります。Secure DDNSを使用する場合は、Active Directory統合DNSネーム サーバを使用して、SVM用のNFSまたはSMBサーバあるいはActive Directoryアカウントを作成しておく必要があります。
 
-.タスクの内容
-完全修飾ドメイン名（FQDN）は一意である必要があります。
+.タスク概要
+一意の完全修飾ドメイン名（FQDN）を指定する必要があります。
 
-完全修飾ドメイン名（FQDN）は一意である必要があります。
+一意の完全修飾ドメイン名（FQDN）を指定する必要があります。
 
-* NFSの場合、コマンドで `vserver services name-service dns dynamic-update`に指定した値 `-vserver-fqdn`がLIFに登録されたFQDNになります。
-* SMBの場合、CIFSサーバのNetBIOS名およびCIFSサーバの完全修飾ドメイン名として指定した値が、LIFの登録FQDNになります。これはONTAPでは設定できません。次のシナリオでは、LIF FQDNは「CIFS_VS1.EXAMPLE.COM":」です。
+* NFS の場合、 `vserver services name-service dns dynamic-update`コマンドの一部として `-vserver-fqdn`で指定された値は、LIF の登録済み FQDN になります。
+* SMBの場合、CIFSサーバのNetBIOS名およびCIFSサーバの完全修飾ドメイン名として指定した値がLIFの登録済みFQDNになります。これはONTAPでは設定できません。次のシナリオでは、LIFのFQDNは「CIFS_VS1.EXAMPLE.COM」です。
 +
 ....
 cluster1::> cifs server show -vserver vs1
@@ -122,7 +122,7 @@ Default Site Used by LIFs Without Site Membership:
 
 
 
-NOTE: DDNS更新に関するRFCルールに準拠していないSVM FQDNの設定エラーを回避するには、RFC準拠のFQDN名を使用してください。詳細については、を参照してください link:https://tools.ietf.org/html/rfc1123["RFC 1123"]。
+NOTE: DDNSアップデートのRFCルールに準拠していないSVM FQDNの設定エラーを回避するには、RFCに準拠したFQDN名を使用してください。詳細については、link:https://tools.ietf.org/html/rfc1123["RFC 1123"]を参照してください。
 
 .手順
 . SVMでDDNSを設定します。
@@ -133,7 +133,7 @@ NOTE: DDNS更新に関するRFCルールに準拠していないSVM FQDNの設�
 `vserver services name-service dns dynamic-update modify -vserver _vs1_ -is-enabled _true_ - use-secure _true_ -vserver-fqdn _vs1.example.com_`
 
 +
-カスタマイズしたFQDNの一部としてアスタリスクを使用することはできません。たとえば、 `*.netapp.com`は無効です。
+カスタマイズされた FQDN の一部としてアスタリスクを使用することはできません。たとえば、 `*.netapp.com`は無効です。
 
 . DDNSの設定が正しいことを確認します。
 +

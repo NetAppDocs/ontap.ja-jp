@@ -2,49 +2,49 @@
 permalink: system-admin/forward-command-history-log-file-destination-task.html 
 sidebar: sidebar 
 keywords: forward, audit, log, destination, cluster, forwarding, splunk, RFC-3164, RFC-5424 
-summary: 監査ログは最大で10箇所に転送できます。たとえば、Splunkやsyslogサーバにログを転送して、監視、分析、バックアップなどの目的で使用できます。 
+summary: 監査ログは最大で10箇所に転送できます。たとえば、Splunkやsyslogサーバにログを転送し、監視や分析、バックアップなどの目的で使用できます。 
 ---
-= ONTAP監査ログのデスティネーションを管理します。
+= ONTAP監査ログの保存先を管理する
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-監査ログは最大で10箇所に転送できます。たとえば、Splunkやsyslogサーバにログを転送して、監視、分析、バックアップなどの目的で使用できます。
+監査ログは最大で10箇所に転送できます。たとえば、Splunkやsyslogサーバにログを転送し、監視や分析、バックアップなどの目的で使用できます。
 
-.タスクの内容
-転送を設定するには、syslogホストまたはSplunkホストのIPアドレス、ポート番号、転送プロトコル、転送ログに使用するsyslogファシリティを指定する必要があります。 https://datatracker.ietf.org/doc/html/rfc5424["syslogファシリティについて説明します"^]です。
+.タスク概要
+転送を設定するには、syslog または Splunk ホストの IP アドレス、ポート番号、転送プロトコル、および転送されるログに使用する syslog 機能を指定する必要があります https://datatracker.ietf.org/doc/html/rfc5424["syslog機能について学ぶ"^]。
 
- `-protocol`パラメータを使用して、次のいずれかの送信値を選択できます。
+ `-protocol`パラメータを使用して、次のいずれかの送信値を選択できます：
 
-UDP暗号化なし:: セキュリティなしのUser Datagram Protocol（デフォルト）
-TCP暗号化なし:: セキュリティなしの伝送制御プロトコル
-TCP暗号化:: Transmission Control Protocol with Transport Layer Security（TLS）+ A * Verify server *オプションは、TCP暗号化プロトコルが選択されている場合に使用できます。
-
-
-デフォルトのポートはUDPの場合は514、TCPの場合は6514ですが、ネットワークのニーズを満たす任意のポートを指定できます。
-
- `-message-format`コマンドを使用すると、次のいずれかのメッセージ形式を選択できます。
-
-レガシー- NetApp:: RFC-3164 Syslog形式のバリエーション（形式：<PRIVAL> timestamp hostname：MSG）
-RFC-5424:: RFC-5424に基づくsyslog形式（形式：<PRIVAL> version timestamp hostname：MSG）
+UDP 暗号化なし:: UDP、セキュリティなし（デフォルト）
+TCP 暗号化なし:: TCP、セキュリティなし
+TCP暗号化:: Transport Layer Security（TLS）を使用したTransmission Control Protocol + TCP暗号化プロトコルを選択した場合は、*サーバーの検証*オプションが利用できます。
 
 
-監査ログは、ONTAP CLIから転送できます。ONTAP 9 .11.1以降では、System Managerから転送できます。
+デフォルトのポートはUDPの場合は514、TCPの場合は6514ですが、ネットワークのニーズに合わせて任意のポートを指定できます。
+
+ `-message-format`コマンドを使用して、次のいずれかのメッセージ形式を選択できます：
+
+legacy-NetApp:: RFC-3164 Syslog 形式のバリエーション（形式：<PRIVAL>TIMESTAMP HOSTNAME：MSG）
+rfc-5424:: RFC-5424 に準拠した syslog 形式（形式：<PRIVAL>VERSION TIMESTAMP HOSTNAME: MSG）
+
+
+監査ログは、ONTAP CLIから転送できます。ONTAP 9.11.1以降では、System Managerからも転送できます。
 
 [role="tabbed-block"]
 ====
 .System Manager
 --
-* 監査ログの送信先を表示するには、* Cluster > Settings *の順に選択します。+ログ送信先の数が*通知管理タイル*に表示されます。クリックする image:../media/icon_kabob.gif["メニューオプションアイコン"] と詳細が表示されます。
-* 監査ログの送信先を追加、変更、または削除するには、[*Events & Jobs]>[Audit Logs]を選択し、画面右上の[*Manage Audit Destinations*]をクリックします。+をクリックする image:icon_add.gif["追加アイコン"]か、*[ホストアドレス]*列内をクリックし image:../media/icon_kabob.gif["メニューオプションアイコン"] て、エントリを編集または削除します。
+* 監査ログの送信先を表示するには、*クラスター>設定*を選択します。+ログの送信先の数は*通知管理タイル*に表示されます。image:../media/icon_kabob.gif["メニューオプションアイコン"]をクリックすると詳細が表示されます。
+* 監査ログの送信先を追加、変更、または削除するには、*[イベントとジョブ] > [監査ログ]* を選択し、画面の右上にある *[監査ログの送信先の管理]* をクリックします。+ image:icon_add.gif["アイコンを追加"]をクリックするか、*[ホスト アドレス]* 列のimage:../media/icon_kabob.gif["メニューオプションアイコン"]をクリックして、エントリを編集または削除します。
 
 
 --
 .CLI
 --
-. 監査ログの転送先ごとに、送信先のIPアドレスまたはホスト名、およびセキュリティオプションを指定します。
+. 監査ログの転送先ごとに、デスティネーションIPアドレスかホスト名、およびいずれかのセキュリティ オプションを指定します。
 +
 [listing]
 ----
@@ -55,11 +55,11 @@ cluster1::> cluster log-forwarding create -destination 192.168.123.98
 -port 6514 -protocol tcp-encrypted -facility user
 ----
 +
-** コマンドがデスティネーションホストにpingを送信して接続を確認できない場合、 `cluster log-forwarding create`コマンドはエラーで失敗します。推奨されませんが、 `-force`パラメータを指定してコマンドを実行すると接続の検証が省略されます。
-** パラメータをに `true`設定する `-verify-server`と、ログの転送先の証明書を検証することでIDが検証されます。この値をに設定できる `true`のは、フィールドで値を `-protocol`選択した場合だけ `tcp-encrypted`です。
+**  `cluster log-forwarding create`コマンドが宛先ホストにpingを実行して接続を確認できない場合、コマンドはエラーで失敗します。推奨されませんが、コマンドで `-force`パラメータを使用すると、接続の確認がバイパスされます。
+**  `-verify-server`パラメータを `true`に設定すると、ログ転送先の証明書を検証することで、その ID が検証されます。 `-protocol`フィールドで `tcp-encrypted`値を選択した場合にのみ、値を `true`に設定できます。
 
 
-. コマンドを使用して、送信先レコードが正しいことを確認し `cluster log-forwarding show`ます。
+.  `cluster log-forwarding show`コマンドを使用して、宛先レコードが正しいことを確認します。
 +
 [listing]
 ----
@@ -77,6 +77,6 @@ Destination Host          Port   Protocol        Server Facility
 --
 ====
 .関連情報
-* link:https://docs.netapp.com/us-en/ontap-cli/cluster-log-forwarding-show.html["cluster log-forwarding showの各コマンドを使用します"^]
+* link:https://docs.netapp.com/us-en/ontap-cli/cluster-log-forwarding-show.html["cluster log-forwarding show"^]
 * link:https://docs.netapp.com/us-en/ontap-cli/cluster-log-forwarding-create.html["cluster log-forwarding create"^]
 

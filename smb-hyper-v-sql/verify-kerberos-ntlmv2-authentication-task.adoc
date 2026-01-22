@@ -2,42 +2,42 @@
 permalink: smb-hyper-v-sql/verify-kerberos-ntlmv2-authentication-task.html 
 sidebar: sidebar 
 keywords: nondisruptive, operation, hyper, v, verify, kerberos, ntlmv2, authentication, cifs, server, svm, data 
-summary: Hyper-V over SMB のノンストップオペレーションを実行する場合、データ SVM の CIFS サーバおよび Hyper-V サーバで Kerberos 認証と NTLMv2 認証の両方が許可されていなければなりません。CIFS サーバと Hyper-V サーバの両方について、使用できる認証方法を制御する設定を確認する必要があります。 
+summary: Hyper-V over SMBのノンストップオペレーションでは、データSVM上のCIFSサーバとHyper-VサーバでKerberos認証とNTLMv2認証の両方が許可されている必要があります。CIFSサーバとHyper-Vサーバの両方で、許可される認証方法を制御する設定を確認する必要があります。 
 ---
-= Kerberos認証とNTLMv2認証の両方が許可されていることの確認（Hyper-V over SMB共有）
+= Kerberos認証およびNTLMv2認証の許可の確認（Hyper-V over SMB共有）
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-Hyper-V over SMB のノンストップオペレーションを実行する場合、データ SVM の CIFS サーバおよび Hyper-V サーバで Kerberos 認証と NTLMv2 認証の両方が許可されていなければなりません。CIFS サーバと Hyper-V サーバの両方について、使用できる認証方法を制御する設定を確認する必要があります。
+Hyper-V over SMBのノンストップオペレーションでは、データSVM上のCIFSサーバとHyper-VサーバでKerberos認証とNTLMv2認証の両方が許可されている必要があります。CIFSサーバとHyper-Vサーバの両方で、許可される認証方法を制御する設定を確認する必要があります。
 
-.タスクの内容
-Kerberos 認証は、継続的可用性を備えた共有への接続を確立する際に必要になります。また、リモート VSS のプロセスで NTLMv2 認証が使用されます。そのため、 Hyper-V over SMB 構成に対しては、両方の認証方法を使用した接続がサポートされている必要があります。
+.タスク概要
+継続的な可用性を実現する共有接続を確立するには、Kerberos認証が必要です。リモートVSSプロセスの一部ではNTLMv2認証が使用されます。そのため、Hyper-V over SMB構成では、両方の認証方法を使用した接続をサポートする必要があります。
 
-Kerberos 認証と NTLMv2 認証の両方が許可されるように、次の設定を行う必要があります。
+Kerberos 認証と NTLMv2 認証の両方を許可するには、次の設定を構成する必要があります：
 
-* Storage Virtual Machine （ SVM ）で SMB のエクスポートポリシーが無効になっている必要があります。
-
-
-SVM では、 Kerberos 認証と NTLMv2 認証がどちらも常に有効になりますが、エクスポートポリシーを使用することで認証方法に基づいてアクセスを制限することが可能です。
-
-SMB のエクスポートポリシーは省略可能で、デフォルトでは無効になっています。エクスポートポリシーが無効になっている場合、 CIFS サーバでは Kerberos 認証と NTLMv2 認証の両方がデフォルトで許可されます。
-
-* CIFS サーバと Hyper-V サーバが属するドメインで、 Kerberos 認証と NTLMv2 認証の両方を許可する必要があります。
+* ストレージ仮想マシン（SVM）で SMB のエクスポート ポリシーを無効にする必要があります。
 
 
-Kerberos 認証は、 Active Directory ドメインではデフォルトで有効になります。ただし、 NTLMv2 認証は、セキュリティポリシーの設定またはグループポリシーで禁止されている場合があります。
+SVM では Kerberos 認証と NTLMv2 認証の両方が常に有効になっていますが、エクスポート ポリシーを使用して認証方法に基づいてアクセスを制限できます。
+
+SMBのエクスポート ポリシーはオプションであり、デフォルトでは無効になっています。エクスポート ポリシーが無効になっている場合、CIFSサーバではKerberos認証とNTLMv2認証の両方がデフォルトで許可されます。
+
+* CIFS サーバーと Hyper-V サーバーが属するドメインは、Kerberos 認証と NTLMv2 認証の両方を許可する必要があります。
+
+
+Active Directoryドメインでは、Kerberos認証がデフォルトで有効になっています。ただし、Security Policy設定またはGroup Policiesを使用して、NTLMv2認証を無効にできます。
 
 .手順
-. 次の手順に従って、 SVM でエクスポートポリシーが無効になっていることを確認します。
+. SVM でエクスポート ポリシーが無効になっていることを確認するには、次の手順を実行します：
 +
 .. 権限レベルをadvancedに設定します。
 +
 `*set -privilege advanced*`
 
-.. CIFSサーバオプションがに設定されている `false`ことを確認し `-is-exportpolicy-enabled`ます。
+..  `-is-exportpolicy-enabled` CIFS サーバー オプションが `false`に設定されていることを確認します：
 +
 `*vserver cifs options show -vserver _vserver_name_ -fields vserver,is-exportpolicy-enabled*`
 
@@ -47,7 +47,7 @@ Kerberos 認証は、 Active Directory ドメインではデフォルトで有�
 
 
 
-. SMB のエクスポートポリシーが無効になっていない場合は無効にします。
+. SMB のエクスポート ポリシーが無効になっていない場合は、無効にします：
 +
 `*vserver cifs options modify -vserver _vserver_name_ -is-exportpolicy-enabled false*`
 
@@ -55,11 +55,11 @@ Kerberos 認証は、 Active Directory ドメインではデフォルトで有�
 +
 ドメインで許可されている認証方法を確認する方法については、Microsoft TechNetライブラリを参照してください。
 
-. ドメインで NTMLv2 認証が許可されていない場合は、 Microsoft のドキュメントに記載されたいずれかの方法で NTLMv2 認証を有効にします。
+. ドメインが NTLMv2 認証を許可していない場合は、Microsoft のドキュメントに記載されているいずれかの方法を使用して NTLMv2 認証を有効にします。
 
 
 .例
-次に、SVM vs1でSMBのエクスポートポリシーが無効になっていることを確認するコマンドの例を示します。
+次のコマンドは、SVM vs1でSMBのエクスポート ポリシーが無効になっていることを確認します。
 
 [listing]
 ----

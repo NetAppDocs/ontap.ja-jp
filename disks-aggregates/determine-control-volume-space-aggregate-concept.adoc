@@ -2,25 +2,25 @@
 permalink: disks-aggregates/determine-control-volume-space-aggregate-concept.html 
 sidebar: sidebar 
 keywords: determine, control, volume, space usage, aggregate, local tier 
-summary: ローカル階層のスペースを最も使用しているFlexVolボリューム、特にボリューム内のどの機能が最も使用しているかを確認できます。 
+summary: ローカル層で最も多くのスペースを使用しているFlexVolボリュームと、ボリューム内の具体的な機能を判別できます。 
 ---
-= ONTAPローカル階層内のボリュームのスペース使用量を確認および制御する
+= ONTAPローカル階層のボリュームのスペース使用量を決定および制御する
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-ローカル階層のスペースを最も使用しているFlexVolボリューム、特にボリューム内のどの機能が最も使用しているかを確認できます。
+ローカル層で最も多くのスペースを使用しているFlexVolボリュームと、ボリューム内の具体的な機能を判別できます。
 
-コマンドは、 `volume show-footprint`ボリュームの占有量（ボリュームを含むローカル階層内でのスペース使用量）に関する情報を表示します。
+ `volume show-footprint`コマンドは、ボリュームのフットプリント、またはボリュームを含むローカル層内のスペース使用量に関する情報を提供します。
 
 
-NOTE: ONTAP 9.7より前のバージョンでは、ローカル階層を表すために_aggregate_という用語が使用されていました。ONTAPのバージョンに関係なく、ONTAP CLIでは_aggregate_という用語が使用されます。ローカル階層の詳細については、を参照してくださいlink:../disks-aggregates/index.html["ディスクとローカル階層"]。
+NOTE: ONTAP 9.7より前のバージョンでは、System Managerは_ローカル階層_を説明するために_aggregate_という用語を使用しています。ONTAPバージョンに関係なく、ONTAP CLIでは_aggregate_という用語が使用されます。ローカル階層の詳細については、link:../disks-aggregates/index.html["ディスクとローカル階層"]を参照してください。
 
- `volume show-footprint`コマンドは、ローカル階層内の各ボリューム（オフラインボリュームを含む）のスペース使用量の詳細を表示します。このコマンドは、コマンドと `aggregate show-space`コマンドの出力のギャップを埋めます `volume show-space`。割合はすべて、ローカル階層のサイズに対する割合として計算されます。
+ `volume show-footprint`コマンドは、オフライン ボリュームを含む、ローカル階層内の各ボリュームのスペース使用量の詳細を表示します。このコマンドは、 `volume show-space`コマンドと `aggregate show-space`コマンドの出力間のギャップを埋めるものです。すべてのパーセンテージは、ローカル階層のサイズに対する割合として計算されます。
 
-testvolという名前のボリュームに対するコマンドの出力例を次に示します `volume show-footprint`。
+次の例は、testvol というボリュームの `volume show-footprint`コマンド出力を示しています：
 
 ....
 cluster1::> volume show-footprint testvol
@@ -36,18 +36,18 @@ cluster1::> volume show-footprint testvol
       Delayed Frees                           1.36MB       0%
       Total Footprint                         2.01GB      76%
 ....
-次の表に、コマンドの出力の主な行と、その機能によるスペース使用量を削減する方法を示し `volume show-footprint`ます。
+次の表では、 `volume show-footprint`コマンドの出力の主要な行の一部と、その機能によるスペース使用量を減らすために実行できる操作について説明します：
 
 |===
 
 
-| 行 / 機能名 | 説明 / 行の内容 | 削減方法もあります 
+| 行/機能名 | 行の概要/内容 | 減らす方法 
 
 
  a| 
 `Volume Data Footprint`
  a| 
-アクティブファイルシステムでボリュームのデータに使用されている包含ローカル階層のスペースとボリュームのSnapshotで使用されているスペースの合計。この行にはリザーブスペースは含まれません。
+アクティブ ファイル システム内のボリュームのデータと、ボリュームのスナップショットによって使用されているスペースによって、包含するローカル層で使用されているスペースの合計量。この行にはリザーブ スペースは含まれません。
  a| 
 * ボリュームからデータを削除します。
 * ボリュームからSnapshotを削除しています。
@@ -58,16 +58,16 @@ cluster1::> volume show-footprint testvol
  a| 
 `Volume Guarantee`
  a| 
-ボリュームによって今後の書き込み用にリザーブされているローカル階層のスペースの量。リザーブされるスペースの量は、ボリュームのギャランティタイプによって異なります。
+将来の書き込みのためにボリュームによってローカル層に予約されているスペースの量。予約されるスペースの量は、ボリュームの保証タイプによって異なります。
  a| 
-ボリュームのギャランティタイプをに変更しています `none`。
+ボリュームの保証タイプを `none`に変更します。
 
 
 
  a| 
 `Flexible Volume Metadata`
  a| 
-ボリュームのメタデータファイルに使用されているローカル階層のスペースの総容量。
+ボリュームのメタデータ ファイルによってローカル層で使用されるスペースの合計量。
  a| 
 直接制御する方法はありません。
 
@@ -76,7 +76,7 @@ cluster1::> volume show-footprint testvol
  a| 
 `Delayed Frees`
  a| 
-ONTAPがパフォーマンスのために使用していた、すぐには解放できないブロック。SnapMirrorデスティネーションの場合、この行の値はに `0`なり、表示されません。
+ONTAPがパフォーマンス向上のために使用したブロックで、すぐに解放できません。SnapMirrorデスティネーションの場合、この行の値は `0`となり、表示されません。
  a| 
 直接制御する方法はありません。
 
@@ -85,7 +85,7 @@ ONTAPがパフォーマンスのために使用していた、すぐには解放
  a| 
 `File Operation Metadata`
  a| 
-ファイル処理メタデータ用にリザーブされているスペースの総容量。
+ファイル処理メタデータ用にリザーブされているスペースの合計。
  a| 
 直接制御する方法はありません。
 
@@ -94,10 +94,10 @@ ONTAPがパフォーマンスのために使用していた、すぐには解放
  a| 
 `Total Footprint`
  a| 
-ボリュームがローカル階層で使用するスペースの総容量。すべての行の合計です。
+ボリュームがローカル層で使用しているスペースの合計。すべての行の合計です。
  a| 
-ボリュームの使用スペースを削減するために使用されるいずれかの方法。
+上記のいずれかの方法でボリュームによるスペース使用量を削減します。
 
 |===
 .関連情報
-https://www.netapp.com/pdf.html?item=/media/19670-tr-3483.pdf["NetAppテクニカルレポート3483：『NetApp SANまたはIP SAN構成のエンタープライズ環境におけるシンプロビジョニング』"^]
+https://www.netapp.com/pdf.html?item=/media/19670-tr-3483.pdf["NetAppテクニカル レポート3483：『NetAppのSANまたはIP SAN構成のエンタープライズ環境におけるシン・プロビジョニング』"^]

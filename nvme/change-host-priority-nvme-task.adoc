@@ -2,28 +2,28 @@
 permalink: nvme/change-host-priority-nvme-task.html 
 sidebar: sidebar 
 keywords: manage, nvme, host, priority, regular, high priority, allocate more I/O, allocate, higher, i/o, queue counts, queue-depths, queue, depth 
-summary: ONTAP 9.14.1以降では、NVMサブシステムを有効にして、特定のホストのリソース割り当てに優先順位を付けることができます。 
+summary: ONTAP 9.14.1 以降では、NVMサブシステムを有効にして、特定のホストのリソース割り当てを優先することができます。 
 ---
-= NVMeホスト優先度の変更
+= NVMeホストの優先度の変更
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-nvme .14.1以降では、ONTAP 9サブシステムを設定して、特定のホストに対するリソース割り当ての優先順位を設定できます。デフォルトでは、ホストがサブシステムに追加されると、通常の優先度が割り当てられます。高い優先度を割り当てられたホストには、より多くのI/Oキュー数とキュー深度が割り当てられます。
+ONTAP 9.14.1以降では、特定のホストに対するリソース割り当てを優先するようにNVMeサブシステムを設定できます。デフォルトでは、サブシステムにホストを追加した時点で、ホストに優先度regularが割り当てられます。優先度highを割り当てられたホストには、それよりも多くのI/Oキュー数とキュー深度が割り当てられます。
 
-ONTAPのコマンドラインインターフェイス（CLI）を使用して、デフォルト優先度を手動で標準から高に変更できます。ホストに割り当てられている優先度を変更するには、サブシステムからホストを削除してから再度追加する必要があります。
+デフォルトの優先度を手動でregularからhighに変更するには、ONTAPのコマンドライン インターフェイス（CLI）を使用します。ホストに割り当てられている優先度を変更する場合には、サブシステムからホストをいったん削除したうえで、追加し直す必要があります。
 
 .手順
-. ホストプライオリティがRegularに設定されていることを確認します。
+. ホストの優先度がregularに設定されていることを確認します。
 +
 [source, cli]
 ----
 vserver nvme show-host-priority
 ----
 +
-の詳細については `vserver nvme show-host-priority`、をlink:https://docs.netapp.com/us-en/ontap-cli/vserver-nvme-show-host-priority.html["ONTAPコマンド リファレンス"^]参照してください。
+ `vserver nvme show-host-priority`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/vserver-nvme-show-host-priority.html["ONTAPコマンド リファレンス"^]をご覧ください。
 
 . サブシステムからホストを削除します。
 +
@@ -32,7 +32,7 @@ vserver nvme show-host-priority
 vserver nvme subsystem host remove –vserver <svm_name> -subsystem <subsystem> -host-nqn <host_nqn>
 ----
 +
-の詳細については `vserver nvme subsystem host remove`、をlink:https://docs.netapp.com/us-en/ontap-cli/vserver-nvme-subsystem-host-remove.html["ONTAPコマンド リファレンス"^]参照してください。
+ `vserver nvme subsystem host remove`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/vserver-nvme-subsystem-host-remove.html["ONTAPコマンド リファレンス"^]をご覧ください。
 
 . ホストがサブシステムから削除されたことを確認します。
 +
@@ -41,15 +41,15 @@ vserver nvme subsystem host remove –vserver <svm_name> -subsystem <subsystem> 
 vserver nvme subsystem host show
 ----
 +
-の詳細については `vserver nvme subsystem host show`、をlink:https://docs.netapp.com/us-en/ontap-cli/vserver-nvme-subsystem-host-show.html["ONTAPコマンド リファレンス"^]参照してください。
+ `vserver nvme subsystem host show`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/vserver-nvme-subsystem-host-show.html["ONTAPコマンド リファレンス"^]をご覧ください。
 
-. 優先度が高いサブシステムにホストを再度追加します。
+. 優先度をhighに設定して、サブシステムにホストを再度追加します。
 +
 [source, cli]
 ----
 vserver nvme subsystem host add -vserver <SVM_name> -subsystem <subsystem_name> -host-nqn <Host_NQN_:subsystem._subsystem_name> -priority high
 ----
 +
-の詳細については `vserver nvme subsystem host add`、をlink:https://docs.netapp.com/us-en/ontap-cli/vserver-nvme-subsystem-host-add.html["ONTAPコマンド リファレンス"^]参照してください。
+ `vserver nvme subsystem host add`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/vserver-nvme-subsystem-host-add.html["ONTAPコマンド リファレンス"^]をご覧ください。
 
 

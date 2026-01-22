@@ -2,30 +2,30 @@
 permalink: smb-admin/create-share-access-control-lists-task.html 
 sidebar: sidebar 
 keywords: configuring, configure, permission, share, creating, create, control, list, acl, smb, enable, level, access, user, group, create smb share access control lists 
-summary: SMB共有のAccess Control List（ACL；アクセス制御リスト）を作成して共有権限を設定すると、ユーザとグループの共有へのアクセスレベルを制御できます。 
+summary: SMB共有のアクセス制御リスト（ACL）を作成して共有のアクセス許可を設定すると、ユーザとグループの共有へのアクセス レベルを制御できます。 
 ---
-= ONTAP SMB共有のアクセス制御リストの作成
+= ONTAP SMB共有アクセス制御リストを作成する
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-SMB共有のAccess Control List（ACL；アクセス制御リスト）を作成して共有権限を設定すると、ユーザとグループの共有へのアクセスレベルを制御できます。
+SMB共有のAccess Control List（ACL;アクセス制御リスト）を作成して共有権限を設定すると、ユーザとグループの共有に対するアクセス レベルを制御できます。
 
-.タスクの内容
-ローカルまたはドメインのWindowsユーザまたはグループの名前、またはUNIXユーザまたはグループの名前を使用して、共有レベルのACLを設定できます。
+.タスク概要
+ローカルまたはドメインのWindowsユーザまたはグループ名、あるいはUNIXユーザまたはグループ名を使用して共有レベルのACLを設定できます。
 
-新しいACLを作成する前に、デフォルトの共有ACLを削除する必要があり `Everyone / Full Control`ます。これにより、セキュリティリスクが発生します。
+新しいACLを作成する前に、セキュリティ上のリスクがあるデフォルトの共有ACL `Everyone / Full Control`を削除する必要があります。
 
-ワークグループモードでは、ローカルドメイン名はSMBサーバ名です。
+ワークグループ モードでは、ローカル ドメイン名はSMBサーバ名です。
 
 .手順
-. デフォルトの共有ACLを削除します。'vserver cifs share access-control delete -vserver <vserver_name>-share <share_name>-user-or-group everyone'
+. デフォルトの共有ACLを削除します：`vserver cifs share access-control delete -vserver <vserver_name> -share <share_name> -user-or-group Everyone`
 . 新しいACLを設定します。
 +
 |===
-| 設定する ACL に使用するアカウント | 入力するコマンド 
+| ...を使用してACLを構成する場合は、... | コマンドを入力してください... 
 
 
  a| 
@@ -55,11 +55,11 @@ UNIXグループ
 `vserver cifs share access-control create -vserver <vserver_name> -share <share_name> -user-group-type <unix-group> -user-or-group <UNIX_group_name> -permission <access_right>`
 
 |===
-. コマンドを使用して、共有に適用されたACLが正しいことを確認します `vserver cifs share access-control show`。
+.  `vserver cifs share access-control show`コマンドを使用して、共有に適用されたACLが正しいことを確認します。
 
 
 .例
-次のコマンドは、「vs1.example.com」SVM上の「sales」共有に対するWindowsグループ「sales Team」に権限を付与します `Change`。
+次のコマンドは、"`vs1.example.com`"SVM上の"`sales`"共有に対して、"`Sales Team`" Windowsグループに `Change`権限を付与します：
 
 [listing]
 ----
@@ -72,7 +72,7 @@ Vserver          Name        Name                    Type        Permission
 vs1.example.com  c$          BUILTIN\Administrators  windows     Full_Control
 vs1.example.com  sales       DOMAIN\Sales Team     windows     Change
 ----
-次のコマンドは `Read`、「vs2.example.com」SVM上の「eng」共有に対して「engineering」UNIXグループに権限を付与します。
+次のコマンドは、「vs2.example.com」SVM上の「eng」共有に対する `Read`権限を「engineering」UNIXグループに付与します：
 
 [listing]
 ----
@@ -85,7 +85,7 @@ Vserver          Name        Name                     Type        Permission
 vs2.example.com  c$          BUILTIN\Administrators   windows     Full_Control
 vs2.example.com  eng         engineering              unix-group  Read
 ----
-次のコマンドは `Change` `Full_Control`、SVM「vs1」上の「datavol5」共有に対して「Tiger Team」という名前のローカルWindowsグループに権限と「Sue Chang」という名前のローカルWindowsユーザに権限を付与します。
+次のコマンドは、「Tiger Team」という名前のローカルWindowsグループに `Change`権限を付与し、「vs1」SVM上の「datavol5」共有に対して「Sue Chang」という名前のローカルWindowsユーザーに `Full_Control`権限を付与します：
 
 [listing]
 ----

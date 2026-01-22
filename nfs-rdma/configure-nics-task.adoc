@@ -2,7 +2,7 @@
 permalink: nfs-rdma/configure-nics-task.html 
 sidebar: sidebar 
 keywords: networking, NICs, NFS over RDMA, NVIDIA, NFS, system manager, ports, ethernet ports 
-summary: この資料では、クライアントシステムとストレージプラットフォームの両方の設定プロセスと、ONTAPでNFS over RDMAを使用するためのNICの要件について説明します。 
+summary: この記事では、ONTAPでNFS over RDMAを使用するためのNICのクライアント システムとストレージ プラットフォームの両方の設定プロセスと要件について説明します。 
 ---
 = NFS over RDMA用のNICの設定
 :allow-uri-read: 
@@ -11,97 +11,97 @@ summary: この資料では、クライアントシステムとストレージ�
 
 
 [role="lead"]
-RDMA経由のNFSでは、クライアントシステムとストレージプラットフォームの両方でNIC設定を行う必要があります。
+NFS over RDMAでは、クライアント システムとストレージ プラットフォームの両方でNICを設定する必要があります。
 
 
 
-== ストレージプラットフォームの構成
+== ストレージ プラットフォームの設定
 
-ターゲットRNICのサポートについては、を参照してください https://hwu.netapp.com/["NetApp Hardware Universe"^]。
+ターゲット RNIC サポートの詳細については、 https://hwu.netapp.com/["NetApp Hardware Universe"^]を参照してください。
 
-ハイアベイラビリティ（HA）構成を使用している場合は、RDMAフェイルオーバーをサポートするために両方のノードで同じRNICを使用する必要があります。NICはRoCEに対応している必要があります。
+高可用性（HA）構成を使用している場合、RDMAフェイルオーバーをサポートするには、両方のノードで同じRNICを使用する必要があります。NICはRoCE対応である必要があります。
 
-* ONTAP 9.10.1以降では、次のコマンドを使用して、RDMAオフロードプロトコルのリストを表示できます。
+* ONTAP 9.10.1以降では、次のコマンドを使用してRDMAオフロード プロトコルのリストを表示できます。
 +
 [source, cli]
 ----
 network port show -rdma-protocols roce
 ----
 +
-の詳細については `network port show`、をlink:https://docs.netapp.com/us-en/ontap-cli/network-port-show.html["ONTAPコマンド リファレンス"^]参照してください。
+ `network port show`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/network-port-show.html["ONTAPコマンド リファレンス"^]を参照してください。
 
-* ONTAP 9.16.1以降では、優先度フロー制御（PFC）を使用することを推奨します。次のコマンドを使用してPFCを設定し `network port modify`ます。
+* ONTAP 9.16.1以降では、優先フロー制御（PFC）の使用が推奨されます。PFCは次の `network port modify`コマンドで設定します：
 +
 [source, cli]
 ----
 network port modify -node <nodename> -port <portname> -flowcontrol-admin pfc -pfc-queues-admin 3
 ----
-* ONTAP 9.16.1より前のバージョンでは、デフォルトのグローバルフロー制御（GFC）を使用することを推奨します。フロー制御設定が変更されている場合は、次のコマンドを使用してGFCを設定し `network port modify`ます。
+* ONTAP 9.16.1より前のバージョンでは、デフォルトのグローバル フロー制御（GFC）を使用することをお勧めします。フロー制御設定を変更した場合は、 `network port modify`コマンドを使用してGFCを設定します：
 +
 [source, cli]
 ----
 network port modify -node <nodename> -port <portname> -flowcontrol-admin full
 ----
 +
-の詳細については `network port modify`、をlink:https://docs.netapp.com/us-en/ontap-cli/network-port-modify.html["ONTAPコマンド リファレンス"^]参照してください。
+ `network port modify`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/network-port-modify.html["ONTAPコマンド リファレンス"^]をご覧ください。
 
 
 
 
 
-== クライアントシステム構成
+== クライアント システムの設定
 
-NFS over RDMAでサポートされるクライアントオペレーティングシステムについては、を参照して https://imt.netapp.com/matrix/["ネットアップのInteroperability Matrix（IMT ）"^]ください。RoCE v2でサポートされているRNICについては、それぞれのRNICベンダーのマニュアルを参照してください。
+NFS over RDMAでサポートされているクライアント オペレーティング システムの詳細については、 https://imt.netapp.com/matrix/["NetApp相互運用性マトリックス（IMT）"^]を参照してください。RoCE v2でサポートされているRNICについては、それぞれのRNICベンダーのドキュメントを参照してください。
 
-クライアントとサーバは直接接続できますが、フェイルオーバーのパフォーマンスを向上させるためにはスイッチの使用を推奨します。
+クライアントとサーバを直接接続することもできますが、フェイルオーバーのパフォーマンスを向上させるにはスイッチの使用をお勧めします。
 
-クライアント、サーバ、スイッチ、およびスイッチ上のすべてのポートは、ジャンボフレームを使用して設定する必要があります。クライアントとスイッチのフロー制御設定は、ONTAPのフロー制御設定と一致している必要があります。ONTAP 9.16.1以降では、ONTAP、スイッチ、およびクライアントで優先度フロー制御を有効にして設定することを推奨します。ONTAP 9.16.1より前のバージョンでは、グローバルフロー制御を使用することを推奨します。
+クライアント、サーバ、すべてのスイッチ、およびスイッチ上のすべてのポートは、ジャンボフレームを使用して設定する必要があります。クライアントとスイッチのフロー制御設定は、ONTAPのフロー制御設定と一致している必要があります。ONTAP 9.16.1以降では、ONTAP、スイッチ、およびクライアントで優先フロー制御を有効にして設定することがベストプラクティスです。ONTAP 9.16.1より前のバージョンでは、グローバルフロー制御を使用することを推奨します。
 
-この設定を確認したら、RDMAを使用してNFSエクスポートをマウントできます。
+この構成が確認されたら、RDMAを使用してNFSエクスポートをマウントできます。
 
 [role="tabbed-block"]
 ====
 .System Manager
 --
-Managerを使用してoverのネットワークインターフェイスを設定するには、ONTAP 9 12.1以降を使用している必要があります。
+NFS over RDMAを使用するネットワーク インターフェイスをSystem Managerを使用して設定するには、ONTAP 9.12.1以降を使用している必要があります。
 
 .手順
-. RDMAがサポートされているかどうかを確認します。[Network]>[Ethernet Ports]に移動し、グループビューで適切なノードを選択します。ノードを展開するときに、特定のポートの* rdma protocols *フィールドを確認します。* RoCE *はRDMAがサポートされていることを示し、ダッシュ（*-*）はサポートされていないことを示します。
-. VLANを追加するには、*+VLAN*を選択します。適切なノードを選択します。[ポート]*ドロップダウンメニューで、使用可能なポートに「* RoCE Enabled *」というテキストが表示されます（RDMAがサポートされている場合）。RDMAがサポートされていない場合は、テキストは表示されません。
-. 新しいNFSサーバを設定するには、のワークフローに従いxref:../task_nas_enable_linux_nfs.html[NFSを使用したLinuxサーバ用のNASストレージの有効化]ます。
+. RDMAがサポートされているかどうかを確認します。*ネットワーク > イーサネットポート*に移動し、グループビューで適切なノードを選択します。ノードを展開し、特定のポートの*RDMAプロトコル*フィールドを確認します。値*RoCE*はRDMAがサポートされていることを示し、ダッシュ（*-*）はサポートされていないことを示します。
+. VLANを追加するには、*+ VLAN*を選択します。適切なノードを選択します。*Port*ドロップダウンメニューでは、利用可能なポートがRDMAをサポートしている場合、*RoCE Enabled*というテキストが表示されます。RDMAをサポートしていない場合は、テキストは表示されません。
+. xref:../task_nas_enable_linux_nfs.html[NFSを使用したLinuxサーバ用のNASストレージの有効化]のワークフローに従って、新しいNFSサーバを設定します。
 +
-ネットワークインターフェイスを追加する際には、「* RoCEポートを使用*」を選択できます。RDMA経由のNFSを使用するすべてのネットワークインターフェイスに対して、このオプションを選択します。
+ネットワークインターフェースを追加する際、「*RoCEポートを使用する*」を選択できます。NFS over RDMAを使用するネットワークインターフェースには、このオプションを選択してください。
 
 
 
 --
 .CLI
 --
-. コマンドを使用して、NFSサーバでRDMAアクセスが有効になっているかどうかを確認します。
+. 次のコマンドを使用して、NFSサーバでRDMAアクセスが有効になっているかどうかを確認します。
 +
 `vserver nfs show-vserver <SVM_name>`
 
 +
-デフォルトでは、 `-rdma`が有効になっている必要があります。有効になっていない場合は、NFSサーバでRDMAアクセスを有効にします。
+デフォルトでは、 `-rdma`有効になっています。有効になっていない場合は、NFSサーバでRDMAアクセスを有効にします：
 
 +
 `vserver nfs modify -vserver <SVM_name> -rdma enabled`
 
-. RDMA経由でNFSv4.0を使用してクライアントをマウントします。
+. クライアントをNFSv4.0 over RDMAでマウントします。
 +
-.. protoパラメータの入力は、サーバのIPプロトコルのバージョンによって異なります。IPv4の場合は、を使用し `proto=rdma`ます。IPv6の場合は、を使用し `proto=rdma6`ます。
-.. 標準ポート2049ではなく、NFSターゲットポートをとして指定し `port=20049`ます。
+.. protoパラメータへの入力は、サーバのIPプロトコル バージョンによって異なります。IPv4の場合は、 `proto=rdma`を使用します。IPv6の場合は、 `proto=rdma6`を使用します。
+.. 標準ポート2049の代わりにNFSターゲット ポートを `port=20049`として指定します：
 +
 `mount -o vers=4,minorversion=0,proto=rdma,port=20049 <Server_IP_address>:/<volume_path> <mount_point>`
 
 
 
-. *オプション*：クライアントをアンマウントする必要がある場合は、次のコマンドを実行します。 `unmount <mount_path>`
+. *オプション*：クライアントをアンマウントする必要がある場合は、コマンドを実行します `unmount <mount_path>`
 
 
 --
 ====
 .詳細情報
-* xref:../nfs-config/create-server-task.html[ONTAP NFSサーバーを作成する]
+* xref:../nfs-config/create-server-task.html[ONTAP NFSサーバを作成する]
 * xref:../task_nas_enable_linux_nfs.html[NFSを使用したLinuxサーバ用のNASストレージの有効化]
 

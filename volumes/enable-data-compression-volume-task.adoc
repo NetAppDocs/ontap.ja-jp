@@ -2,19 +2,19 @@
 permalink: volumes/enable-data-compression-volume-task.html 
 sidebar: sidebar 
 keywords: enable, data compression, FlexVol, space, volume, volume efficiency modify 
-summary: ' `volume efficiency modify`コマンドを使用して、FlexVol volumeでデータ圧縮を有効にし、圧縮形式を割り当ててスペースを削減します。' 
+summary: ' `volume efficiency modify`コマンドを使用してFlexVolボリュームでデータ圧縮を有効にし、圧縮タイプを割り当てることで、スペースを節約できます。' 
 ---
-= ボリュームでデータ圧縮を有効にする
+= ボリュームのデータ圧縮の有効化
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-コマンドを使用すると、FlexVol volumeでデータ圧縮を有効にしてスペースを削減できます `volume efficiency modify`。デフォルトの圧縮形式を使用しない場合は、ボリュームに圧縮形式を割り当てることもできます。の詳細については `volume efficiency modify`、をlink:https://docs.netapp.com/us-en/ontap-cli/volume-efficiency-modify.html["ONTAPコマンド リファレンス"^]参照してください。
+ `volume efficiency modify`コマンドを使用してFlexVolボリュームのデータ圧縮を有効にし、スペースを節約できます。また、デフォルトの圧縮タイプを使用しない場合は、ボリュームに圧縮タイプを割り当てることもできます。link:https://docs.netapp.com/us-en/ontap-cli/volume-efficiency-modify.html["ONTAPコマンド リファレンス"^]の `volume efficiency modify`の詳細をご覧ください。
 
 .開始する前に
-ボリュームで重複排除を有効にしておく必要があります。
+該当するボリュームで重複排除が有効になっている必要があります。
 
 [NOTE]
 ====
@@ -23,10 +23,10 @@ summary: ' `volume efficiency modify`コマンドを使用して、FlexVol volum
 
 
 ====
-link:enable-deduplication-volume-task.html["ボリュームでの重複排除の有効化"]
+link:enable-deduplication-volume-task.html["ボリュームの重複排除の有効化"]
 
-.タスクの内容
-* HDDアグリゲートとFlash Poolアグリゲートでは、ボリュームに対してインライン圧縮とポストプロセス圧縮の両方を有効にすることも、ポストプロセス圧縮のみを有効にすることもできます。
+.タスク概要
+* HDDアグリゲートとFlash Poolアグリゲートのボリュームでは、インライン圧縮とポストプロセス圧縮の両方を有効にするか、ポストプロセス圧縮のみを有効にすることができます。
 +
 両方を有効にする場合は、ポストプロセス圧縮を有効にしてからインライン圧縮を有効にする必要があります。
 
@@ -34,7 +34,7 @@ link:enable-deduplication-volume-task.html["ボリュームでの重複排除の
 +
 ボリュームのインライン圧縮を有効にする前にポストプロセス圧縮を有効にしておく必要があります。ただし、AFFプラットフォームではポストプロセス圧縮がサポートされないため、ボリュームではポストプロセス圧縮は実行されず、ポストプロセス圧縮がスキップされたことを通知するEMSメッセージが生成されます。
 
-* ONTAP 9では、温度に基づくストレージ効率化が導入されています。8.この機能を使用すると、データがホットかコールドかに応じてストレージ効率が適用されます。コールドデータの場合は大容量のデータブロックが圧縮され、頻繁に上書きされるホットデータの場合は小さいデータブロックが圧縮されるため、プロセスが効率化されます。新しく作成したシンプロビジョニングAFFでは、温度に基づくStorage Efficiencyが自動的に有効になります。
+* ONTAP 9.8では、温度（データのアクセス頻度）に基づくストレージ効率化が導入されています。この機能では、データがホットかコールドかによってストレージ効率化が適用されます。コールド データは大きなデータ ブロックで圧縮され、頻繁に上書きされるホット データは小さなデータ ブロックで圧縮されるため、プロセスの効率が向上します。新しく作成されたシンプロビジョニングAFFボリュームでは、温度に基づくストレージ効率化が自動的に有効になります。
 * 圧縮形式は、アグリゲートのプラットフォームに基づいて自動的に割り当てられます。
 +
 [cols="2*"]
@@ -57,15 +57,15 @@ Flash Poolアグリゲート
 
 
  a| 
-HDDアクリケト
+HDDアグリゲート
  a| 
 二次圧縮
 
 |===
 
 
-.選択肢
-* コマンドを使用して `volume efficiency modify`、デフォルトの圧縮形式でデータ圧縮を有効にします。
+.オプション
+*  `volume efficiency modify`コマンドを使用して、デフォルトの圧縮タイプでデータ圧縮を有効にします。
 +
 次のコマンドは、SVM vs1のボリュームVolAでポストプロセス圧縮を有効にします。
 
@@ -78,12 +78,12 @@ HDDアクリケト
 +
 `volume efficiency modify -vserver vs1 -volume VolA -compression true -inline-compression true`
 
-* コマンドをadvanced権限レベルで使用して `volume efficiency modify`、特定の圧縮形式でデータ圧縮を有効にします。
+* 特定の圧縮タイプによるデータ圧縮を有効にするには、上級権限レベルで `volume efficiency modify`コマンドを使用します。
 +
-.. コマンドを使用し `set -privilege advanced`て、権限レベルをadvancedに変更します。
-.. コマンドを使用し `volume efficiency modify`て、ボリュームに圧縮形式を割り当てます。
+..  `set -privilege advanced`コマンドを使用して、権限レベルをadvancedに変更します。
+..  `volume efficiency modify`コマンドを使用して、ボリュームに圧縮タイプを割り当てます。
 +
-次のコマンドは、SVM vs1のボリュームVolAでポストプロセス圧縮を有効にして適応圧縮形式を割り当てます。
+次のコマンドは、SVM vs1のボリュームVolAでポストプロセス圧縮を有効にして、適応圧縮形式を割り当てます。
 
 +
 `volume efficiency modify -vserver vs1 -volume VolA -compression true -compression-type adaptive`
@@ -94,7 +94,7 @@ HDDアクリケト
 +
 `volume efficiency modify -vserver vs1 -volume VolA -compression true -compression-type adaptive -inline-compression true`
 
-.. コマンドを使用し `set -privilege admin`て、権限レベルをadminに変更します。
+..  `set -privilege admin`コマンドを使用して、権限レベルをadminに変更します。
 
 
 

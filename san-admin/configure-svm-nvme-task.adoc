@@ -14,40 +14,40 @@ summary: ノードでNVMeプロトコルを使用する場合は、SVMをNVMe専
 ノードでNVMeプロトコルを使用する場合は、SVMをNVMe専用に設定する必要があります。
 
 .開始する前に
-FCアダプタまたはイーサネットアダプタでNVMeがサポートされている必要があります。サポートされているアダプタについては、を https://hwu.netapp.com["NetApp Hardware Universe"^]参照してください。
+FC または Ethernet アダプターは NVMe をサポートしている必要があります。サポートされているアダプターは https://hwu.netapp.com["NetApp Hardware Universe"^]に記載されています。
 
 .手順
 [role="tabbed-block"]
 ====
 .System Manager
 --
-ONTAP System Manager（9.7以降）でNVMe用のStorage VMを設定します。
+ONTAP System Manager（9.7以降）で、NVMe用のStorage VMを設定します。
 
 [cols="2"]
 |===
-| 新しいStorage VMにNVMeを設定するには | 既存のStorage VMにNVMeを設定するには 
+| 新しいStorage VMでNVMeを設定する場合 | 既存のStorage VMでNVMeを設定する場合 
 
 
  a| 
-. System Managerで、* Storage > Storage VM*をクリックし、* Add *をクリックします。
-. Storage VMの名前を入力してください。
-. アクセスプロトコル*として「* nvme」を選択します。
-. 「* NVMe/FCを有効にする」または「* NVMe/FCを有効にする」および「*保存」を選択します。
+. System Managerで、*ストレージ > ストレージVM*をクリックし、*追加*をクリックします。
+. Storage VMの名前を入力します。
+. *アクセス プロトコル* に *NVMe* を選択します。
+. *NVMe/FC を有効にする* または *NVMe/TCP を有効にする* を選択し、*保存* します。
 
  a| 
-. System Manager で、 * Storage > Storage VM* をクリックします。
+. System Manager で、*Storage > Storage VM* をクリックします。
 . 設定するStorage VMをクリックします。
-. [設定]*タブをクリックし、NVMeプロトコルの横にあるをクリックし image:icon_gear.gif["アクションアイコン"] ます。
-. 「* NVMe/FCを有効にする」または「* NVMe/FCを有効にする」および「*保存」を選択します。
+. *設定*タブをクリックし、NVMeプロトコルの横にあるimage:icon_gear.gif["アクションアイコン"]をクリックします。
+. *NVMe/FC を有効にする* または *NVMe/TCP を有効にする* を選択し、*保存* します。
 
 
 |===
 --
 .CLI
 --
-ONTAP CLIを使用してNVMe用のStorage VMを設定します。
+ONTAP CLIで、NVMe用のStorage VMを設定します。
 
-. 既存のSVMを使用しない場合は作成します。
+. 既存のSVMを使用しない場合は、SVMを作成します。
 +
 [source, cli]
 ----
@@ -62,9 +62,9 @@ vserver show
 ----
 
 
-. クラスタにNVMeまたはTCP対応アダプタがインストールされていることを確認します。
+. クラスタにNVMeまたはTCPに対応したアダプタがインストールされていることを確認します。
 +
-NVMeの場合：
+NVMeの場合
 
 +
 [source, cli]
@@ -80,7 +80,7 @@ TCPの場合：
 network port show
 ----
 +
-の詳細については `network port show`、をlink:https://docs.netapp.com/us-en/ontap-cli/network-port-show.html["ONTAPコマンド リファレンス"^]参照してください。
+ `network port show`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/network-port-show.html["ONTAPコマンド リファレンス"^]を参照してください。
 
 . ONTAP 9.7以前を実行している場合は、SVMからすべてのプロトコルを削除します。
 +
@@ -104,7 +104,7 @@ vserver add-protocols -vserver <SVM_name> -protocols nvme
 vserver show -vserver <SVM_name> -fields allowed-protocols
 ----
 +
-列にはNVMeプロトコルのみが表示されます `allowed protocols`。
+ `allowed protocols`列の下に表示されるプロトコルは NVMe のみになります。
 
 . NVMeサービスを作成します。
 +
@@ -119,23 +119,23 @@ vserver nvme create -vserver <SVM_name>
 vserver nvme show -vserver <SVM_name>
 ----
 +
-SVMのが `Administrative Status`と表示されます `up`。の詳細については `up`、をlink:https://docs.netapp.com/us-en/ontap-cli/up.html["ONTAPコマンド リファレンス"^]参照してください。
+ `Administrative Status`SVM の `up`としてリストされます。link:https://docs.netapp.com/us-en/ontap-cli/up.html["ONTAPコマンド リファレンス"^]の `up`の詳細については、を参照してください。
 
 . NVMe/FC LIFを作成します。
 +
-** ONTAP 9 .9.1以前の場合、FC：
+** ONTAP 9.9.1以前のFCの場合
 +
 [source, cli]
 ----
 network interface create -vserver <SVM_name> -lif <lif_name> -role data -data-protocol fc-nvme -home-node <home_node> -home-port <home_port>
 ----
-** ONTAP 9.10.1 以降の場合、FC:
+** ONTAP 9.10.1 以降の場合、FC：
 +
 [source, cli]
 ----
 network interface create -vserver <SVM_name> -lif <lif_name> -service-policy <default-data-nvme-tcp | default-data-nvme-fc> -data-protocol <fc-nvme> -home-node <home_node> -home-port <home_port> -status-admin up -failover-policy disabled -firewall-policy data -auto-revert false -failover-group <failover_group> -is-dns-update-enabled false
 ----
-** ONTAP 9.10.1 以降の場合、TCP:
+** ONTAP 9.10.1 以降の場合、TCP：
 +
 [source, cli]
 ----
@@ -143,21 +143,21 @@ network interface create -vserver <SVM_name> -lif <lif_name> -address <ip addres
 ----
 
 
-. HAパートナーノードにNVMe/FC LIFを作成します。
+. HAパートナー ノードにNVMe/FC LIFを作成します。
 +
-** ONTAP 9 .9.1以前の場合、FC：
+** ONTAP 9.9.1以前のFCの場合
 +
 [source, cli]
 ----
 network interface create -vserver <SVM_name> -lif <lif_name> -role data -data-protocol fc-nvme -home-node <home_node> -home-port <home_port>
 ----
-** ONTAP 9.10.1 以降の場合、FC:
+** ONTAP 9.10.1 以降の場合、FC：
 +
 [source, cli]
 ----
 network interface create -vserver <SVM_name> -lif <lif_name> -service-policy <default-data-nvme-fc> -data-protocol <fc-nvme> -home-node <home_node> -home-port <home_port> -status-admin up -failover-policy disabled -firewall-policy data -auto-revert false -failover-group <failover_group> -is-dns-update-enabled false
 ----
-** ONTAP 9.10.1 以降の場合、TCP:
+** ONTAP 9.10.1 以降の場合、TCP：
 +
 [source, cli]
 ----
@@ -178,7 +178,7 @@ network interface show -vserver <SVM_name>
 vol create -vserver <SVM_name> -volume <vol_name> -aggregate <aggregate_name> -size <volume_size>
 ----
 +
-auto効率化ポリシーに関する警告メッセージが表示された場合は、無視してかまいません。
+自動効率化ポリシーに関する警告メッセージが表示されることがありますが、このメッセージは無視してかまいません。
 
 
 

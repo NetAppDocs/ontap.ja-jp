@@ -2,9 +2,9 @@
 sidebar: sidebar 
 permalink: networking/configure_snmpv3_users_in_a_cluster.html 
 keywords: configure, configuration, configuring, setup, setting, set, up, snmp, snmpv3, users, user, cluster, security, secure, configure an snmpv3 user to run the snmp utilities from the snmp manager, security login create command, configure snmpv3 users in a cluster, snmpv3 security parameters, examples for different security levels, security level authpriv, fips mode, snmpwalk test, security level authnopriv 
-summary: SNMP マネージャから SNMP ユーティリティを実行するための SNMPv3 ユーザを設定します 
+summary: SNMPマネージャからSNMPユーティリティを実行するSNMPv3ユーザーを設定する 
 ---
-= ONTAPクラスタでのSNMPv3ユーザの設定
+= ONTAPクラスタでSNMPv3ユーザーを構成する
 :hardbreaks:
 :allow-uri-read: 
 :nofooter: 
@@ -14,14 +14,14 @@ summary: SNMP マネージャから SNMP ユーティリティを実行するた
 
 
 [role="lead"]
-SNMPv3は、SNMPv1やSNMPv2cに比べてセキュアなプロトコルです。SNMPv3を使用するには、SNMPマネージャからSNMPユーティリティを実行するようにSNMPv3ユーザを設定する必要があります。
+SNMPv3は、SNMPv1やSNMPv2cに比べて安全なプロトコルです。SNMPv3を使用するには、SNMPマネージャからSNMPユーティリティを実行するためのSNMPv3ユーザを設定する必要があります。
 
-.ステップ
-使用 `security login create` SNMPv3 ユーザーを作成するコマンド。
+.手順
+ `security login create`コマンドを使用して、SNMPv3 ユーザーを作成します。
 
-次の情報を入力するように求められます。
+次の情報を指定するように求められます。
 
-* エンジン ID ：デフォルトで、推奨値はローカルエンジン ID です
+* エンジン ID：デフォルトおよび推奨値はローカル エンジン ID です
 * 認証プロトコル
 * 認証パスワード
 * プライバシー プロトコル
@@ -29,101 +29,101 @@ SNMPv3は、SNMPv1やSNMPv2cに比べてセキュアなプロトコルです。S
 
 
 .結果
-SNMPv3ユーザは、ユーザ名とパスワードを使用してSNMPマネージャからログインし、SNMPユーティリティコマンドを実行できます。
+SNMPv3ユーザは、ユーザ名とパスワードを使用してSNMPマネージャからログインし、SNMPユーティリティのコマンドを実行できます。
 
 
 
-== SNMPv3セキュリティパラメータ
+== SNMPv3セキュリティ パラメータ
 
-SNMPv3には認証機能が含まれています。この機能を選択すると、コマンドを呼び出すときに、ユーザの名前、認証プロトコル、認証キー、および必要なセキュリティレベルの入力が必要になります。
+SNMPv3には認証機能が備わっており、この機能を選択すると、コマンドの呼び出し時に、ユーザ名、認証プロトコル、認証キー、および必要なセキュリティ レベルの入力が必要になります。
 
-次の表に、SNMPv3セキュリティパラメータを示します。
+次の表に、SNMPv3セキュリティ パラメータを示します。
 
 [cols="25,25,50"]
 |===
 
 
-| パラメータ | コマンドラインオプション | 説明 
+| パラメータ | コマンドライン オプション | 概要 
 
 
  a| 
-エンジン ID
+engineID
  a| 
--e engineID
+-e EngineID
  a| 
-SNMP エージェントのエンジン ID 。デフォルト値はlocal engineIDです（推奨）。
-
-
-
- a| 
-securityName の略
- a| 
--u 名
- a| 
-ユーザ名は 32 文字以内にする必要があります。
+SNMPエージェントのエンジンID。デフォルト値はローカルエンジンID（推奨）です。
 
 
 
  a| 
-authProtocol の略
+securityName
  a| 
-- a ｛ none | md5 | sha | SHA-256 ｝
+-u Name
  a| 
-認証タイプには、 none 、 md5 、 SHA 、または SHA-256 を指定できます。
+ユーザー名は32文字を超えてはなりません。
+
+
+
+ a| 
+authProtocol
+ a| 
+-a {none | MD5 | SHA | SHA-256}
+ a| 
+認証タイプは、none、MD5、SHA、または SHA-256 になります。
 
 
 
  a| 
 authKey
  a| 
-- パスフレーズ
+-A パスフレーズ
  a| 
-8 文字以上の長さのパスフレーズ
-
-
-
- a| 
-セキュリティレベル
- a| 
--l ｛ authNoPriv | AuthPriv | noAuthNoPriv ｝
- a| 
-セキュリティレベルには、「 Authentication 、 No Privacy 」、「 Authentication 、 Privacy 」、「 No Authentication 、 No Authentication 」のいずれかを指定できます。 プライバシーなし。
+最低 8 文字のパスフレーズ。
 
 
 
  a| 
-privProtocol の略
+securityLevel
  a| 
--x ｛ none | des | aes128 ｝
+-l {authNoPriv | AuthPriv | noAuthNoPriv}
  a| 
-プライバシープロトコルには、 none 、 des 、または aes128 を指定できます
+セキュリティ レベルは、認証、プライバシーなし、認証、プライバシーあり、または認証なし、プライバシーなしのいずれかになります。
 
 
 
  a| 
-プライベートパスワード
+privProtocol
+ a| 
+-x { none | des | aes128}
+ a| 
+プライバシー プロトコルは、none、des、またはaes128です。
+
+
+
+ a| 
+privPassword
  a| 
 -X パスワード
  a| 
-8 文字以上のパスワード。
+最低 8 文字のパスワード。
 
 |===
 
 
-== さまざまなセキュリティレベルの例
+== さまざまなセキュリティ レベルの例
 
-次の例は、さまざまなセキュリティレベルで作成したSNMPv3ユーザが、SNMPクライアント側のコマンド（など）を使用してクラスタオブジェクトを照会する方法を示してい `snmpwalk`ます。
+この例では、異なるセキュリティ レベルで作成された SNMPv3 ユーザーが `snmpwalk`などの SNMP クライアント側コマンドを使用してクラスタ オブジェクトを照会する方法を示します。
 
 パフォーマンスを高めるには、テーブルから単一または少数のオブジェクトを取得するのではなく、テーブル内のすべてのオブジェクトを取得します。
 
 
-NOTE: 認証プロトコルがSHAの場合は、5.3.1以降を使用する必要があります `snmpwalk`。
+NOTE: 認証プロトコルが SHA の場合は、 `snmpwalk` 5.3.1 以降を使用する必要があります。
 
 
 
-=== セキュリティレベル：authPriv
+=== セキュリティ レベル：authPriv
 
-authPrivセキュリティレベルのSNMPv3ユーザを作成した場合の出力を次に示します。
+authPrivセキュリティ レベルのSNMPv3ユーザを作成した場合の出力を次に示します。
 
 ....
 security login create -user-or-group-name snmpv3user -application snmp -authentication-method usm
@@ -169,9 +169,9 @@ Enterprises.789.1.5.8.1.2.1064 = "vol1"
 ....
 
 
-=== セキュリティレベル：authNoPriv
+=== セキュリティ レベル：authNoPriv
 
-authNoPrivセキュリティレベルのSNMPv3ユーザを作成した場合の出力を次に示します。
+authNoPrivセキュリティ レベルのSNMPv3ユーザを作成した場合の出力を次に示します。
 
 ....
 security login create -user-or-group-name snmpv3user -application snmp -authmethod usm -role read-only
@@ -182,7 +182,7 @@ Which authentication protocol do you want to choose (none, md5, sha) [none]: md5
 
 ==== FIPSモード
 
-FIPSでは、プライバシープロトコルに* none *を選択することはできません。そのため、authNoPriv SNMPv3ユーザをFIPSモードで設定することはできません。
+FIPSでは、プライバシープロトコルに*none*を選択することはできません。そのため、FIPSモードでauthNoPriv SNMPv3ユーザーを設定することはできません。
 
 
 
@@ -202,9 +202,9 @@ Enterprises.789.1.5.8.1.2.1064 = "vol1"
 ....
 
 
-=== セキュリティレベル：noAuthNoPriv
+=== セキュリティ レベル：noAuthNoPriv
 
-noAuthNoPrivセキュリティレベルのSNMPv3ユーザを作成した場合の出力を次に示します。
+noAuthNoPrivセキュリティ レベルのSNMPv3ユーザを作成した場合の出力を次に示します。
 
 ....
 security login create -user-or-group-name snmpv3user -application snmp -authmethod usm -role read-only
@@ -215,7 +215,7 @@ Which authentication protocol do you want to choose (none, md5, sha) [none]: non
 
 ==== FIPSモード
 
-FIPSでは、プライバシープロトコルに* none *を選択することはできません。
+FIPS では、プライバシー プロトコルに *none* を選択することはできません。
 
 
 
@@ -233,4 +233,4 @@ Enterprises.789.1.5.8.1.2.1038 = "root_vs0"
 Enterprises.789.1.5.8.1.2.1042 = "root_vstrap"
 Enterprises.789.1.5.8.1.2.1064 = "vol1"
 ....
-の詳細については `security login create`、をlink:https://docs.netapp.com/us-en/ontap-cli/security-login-create.html["ONTAPコマンド リファレンス"^]参照してください。
+ `security login create`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/security-login-create.html["ONTAPコマンド リファレンス"^]をご覧ください。

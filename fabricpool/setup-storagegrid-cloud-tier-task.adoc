@@ -2,35 +2,35 @@
 permalink: fabricpool/setup-storagegrid-cloud-tier-task.html 
 sidebar: sidebar 
 keywords: setting up, storagegrid, cloud tier 
-summary: StorageGRID をFabricPoolのクラウド層として設定できます。 
+summary: StorageGRIDをFabricPoolのクラウド階層として設定できます。 
 ---
-= ONTAP FabricPoolクラウド階層としてのStorageGRIDのセットアップ
+= StorageGRID を ONTAP FabricPool クラウド階層として設定する
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-StorageGRID をFabricPoolのクラウド層として設定できます。SANプロトコルでアクセスされるデータを階層化する場合、接続性を考慮して、 NetAppStorageGRIDなどのプライベートクラウドの使用を推奨しています。
+StorageGRIDをFabricPoolのクラウド層として設定できます。SANプロトコルでアクセスされるデータを階層化する場合、NetAppでは接続性を考慮して、StorageGRIDなどのプライベートクラウドの使用を推奨します。
 
 .FabricPoolでStorageGRIDを使用する場合の考慮事項
 * 証明書のチェックを明示的に無効にした場合を除き、StorageGRIDのCA証明書をインストールする必要があります。
-* オブジェクトストアバケットでStorageGRIDオブジェクトのバージョン管理を有効にしないでください。
+* オブジェクト ストア バケットで StorageGRID オブジェクトのバージョン管理を有効にしないでください。
 * FabricPoolライセンスは必要ありません。
 * NetApp AFFシステムからストレージが割り当てられた仮想マシンにStorageGRIDノードが導入されている場合は、ボリュームでFabricPool階層化ポリシーが有効になっていないことを確認してください。
 +
-StorageGRIDノードで使用するボリュームでFabricPool階層化を無効にすると、トラブルシューティングとストレージの処理が簡単になります。
+StorageGRIDノードで使用するボリュームでFabricPoolによる階層化を無効にすることで、トラブルシューティングとストレージの処理がシンプルになります。
 
 +
 [NOTE]
 ====
-FabricPoolを使用して、StorageGRIDに関連するデータをStorageGRID自体に階層化しないでください。StorageGRIDデータをStorageGRIDに階層化すると、トラブルシューティングや運用が複雑になります。
+FabricPoolを使用してStorageGRIDに関連するデータをStorageGRID自体に階層化することは絶対にしないでください。StorageGRIDにStorageGRIDデータを階層化すると、トラブルシューティングと運用がより複雑になります。
 
 ====
 
 
-.タスクの内容
-ONTAP 9 .8以降では、StorageGRIDのロードバランシングが有効になっています。サーバのホスト名が複数のIPアドレスに解決されると、ONTAPは返されたすべてのIPアドレス（最大16個のIPアドレス）を使用してクライアント接続を確立します。接続が確立されると、ラウンドロビン方式でIPアドレスが取得されます。
+.タスク概要
+ONTAP 9.8以降では、StorageGRIDの負荷分散が有効になっています。サーバのホスト名が複数のIPアドレスに解決される場合、ONTAPは、返されたすべてのIPアドレス（最大16個のIPアドレス）とクライアント接続を確立します。接続が確立されると、IPアドレスはラウンドロビン方式で選択されます。
 
 .手順
 ONTAP System ManagerまたはONTAP CLIを使用して、StorageGRIDをFabricPoolのクラウド階層としてセットアップできます。
@@ -39,26 +39,26 @@ ONTAP System ManagerまたはONTAP CLIを使用して、StorageGRIDをFabricPool
 ====
 .System Manager
 --
-. [*ストレージ]、[階層]、[クラウド階層の追加]の順にクリックし、オブジェクトストアプロバイダとして[ StorageGRID ]を選択します。
+. *ストレージ > 階層 > クラウド階層の追加* をクリックし、オブジェクト ストア プロバイダーとして StorageGRID を選択します。
 . 必要な情報を入力します。
-. CloudMirror を作成する場合は、 * FabricPool ミラーとして追加 * をクリックします。
+. クラウドミラーを作成する場合は、*FabricPoolミラーとして追加*をクリックします。
 
 
-FabricPoolミラーを使用すると、データストアをシームレスに置き換えることができ、災害発生時にデータを利用できるようになります。
+FabricPoolミラーを使用するとデータ ストアをシームレスに置き換えることができるため、災害発生時でもデータを使用できるようになります。
 
 --
 .CLI
 --
-. コマンドでパラメータを指定して `-provider-type` `SGWS`、StorageGRIDの設定情報を指定し `storage aggregate object-store config create`ます。
+.  `storage aggregate object-store config create`コマンドと `-provider-type` `SGWS`パラメータを使用して、StorageGRID 構成情報を指定します。
 +
-**  `storage aggregate object-store config create`指定された情報でONTAPがStorageGRIDにアクセスできない場合、コマンドは失敗します。
-** パラメータを使用し `-access-key`て、StorageGRIDオブジェクトストアへの要求を認証するためのアクセスキーを指定します。
-** パラメータを使用し `-secret-password`て、StorageGRIDオブジェクトストアへの要求を認証するためのパスワード（シークレットアクセスキー）を指定します。
-** StorageGRID パスワードが変更された場合は、 ONTAP に格納されている対応するパスワードをただちに更新する必要があります。
+**  `storage aggregate object-store config create`提供された情報を使用して ONTAP が StorageGRID にアクセスできない場合、コマンドは失敗します。
+**  `-access-key`パラメータを使用して、StorageGRIDオブジェクト ストアへの要求を承認するためのアクセス キーを指定します。
+**  `-secret-password`パラメータを使用して、StorageGRIDオブジェクト ストアへの要求を認証するためのパスワード（秘密アクセス キー）を指定します。
+** StorageGRIDパスワードが変更された場合は、ONTAPに保存されている対応するパスワードをすぐに更新する必要があります。
 +
 これにより、ONTAPは引き続きStorageGRID内のデータにアクセスできます。
 
-** パラメータをに `false`設定する `-is-certificate-validation-enabled`と、StorageGRIDの証明書チェックが無効になります。署名付き証明書を使用する(`-is-certificate-validation-enabled true`ことを推奨します）。サードパーティの認証局から取得した証明書を使用することを推奨します。
+**  `-is-certificate-validation-enabled`パラメータを `false`に設定すると、StorageGRIDの証明書チェックが無効になります。サードパーティの証明機関からの署名付き証明書（(`-is-certificate-validation-enabled true`）を使用することが推奨されるベストプラクティスです。
 
 
 +
@@ -69,16 +69,16 @@ cluster1::> storage aggregate object-store config create
 -container-name mySGWScontainer -access-key mySGWSkey
 -secret-password mySGWSpass
 ----
-. コマンドを使用して、StorageGRIDの設定情報を表示して確認します `storage aggregate object-store config show`。
+.  `storage aggregate object-store config show`コマンドを使用して、StorageGRID 構成情報を表示および確認します。
 +
- `storage aggregate object-store config modify`コマンドを使用して、FabricPoolのStorageGRID設定情報を変更できます。
+ `storage aggregate object-store config modify`コマンドを使用すると、FabricPoolのStorageGRID構成情報を変更できます。
 
 
 
 --
 ====
 .関連情報
-* link:https://docs.netapp.com/us-en/ontap-cli/storage-aggregate-object-store-config-create.html["ストレージ集約オブジェクトストア構成の作成"^]
-* link:https://docs.netapp.com/us-en/ontap-cli/snapmirror-object-store-config-modify.html["ストレージ集約オブジェクトストア構成の変更"^]
-* link:https://docs.netapp.com/us-en/ontap-cli/storage-aggregate-object-store-config-show.html["ストレージ集約オブジェクトストア構成表示"^]
+* link:https://docs.netapp.com/us-en/ontap-cli/storage-aggregate-object-store-config-create.html["storage aggregate object-store config create"^]
+* link:https://docs.netapp.com/us-en/ontap-cli/snapmirror-object-store-config-modify.html["storage aggregate object-store config modify"^]
+* link:https://docs.netapp.com/us-en/ontap-cli/storage-aggregate-object-store-config-show.html["storage aggregate object-store config show"^]
 

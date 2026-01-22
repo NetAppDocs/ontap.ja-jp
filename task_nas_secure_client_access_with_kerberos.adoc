@@ -2,9 +2,9 @@
 sidebar: sidebar 
 permalink: task_nas_secure_client_access_with_kerberos.html 
 keywords: netapp, ontap, kerberos, security, client access, group permissions, user permissions, UNIX permissions, name mapping, NAS client, storage access 
-summary: Kerberosを有効にしてNASクライアントのストレージアクセスを保護します。 
+summary: Kerberosを有効にしてNASクライアントのストレージ アクセスを保護します。 
 ---
-= ONTAP System Manager を使用して Kerberos でクライアント アクセスを保護する
+= ONTAP System Managerを使用してKerberosでクライアント アクセスを保護する
 :hardbreaks:
 :toclevels: 1
 :allow-uri-read: 
@@ -16,20 +16,20 @@ summary: Kerberosを有効にしてNASクライアントのストレージアク
 
 
 [role="lead"]
-Kerberosを有効にしてNASクライアントのストレージアクセスを保護します。
+Kerberosを有効にしてNASクライアントのストレージ アクセスを保護します。
 
-この手順では、またはに対して有効になっている既存のStorage VMでKerberosを設定しlink:task_nas_enable_linux_nfs.html["NFS"]link:task_nas_enable_windows_smb.html["SMB"]ます。
+この手順では、link:task_nas_enable_linux_nfs.html["NFS"]またはlink:task_nas_enable_windows_smb.html["SMB"]が有効になっている既存のストレージVMにKerberosを設定します。
 
-作業を開始する前に、ストレージシステムでDNS、NTP、およびを設定しておく必要がありlink:task_nas_provide_client_access_with_name_services.html["LDAP"]ます。
+始める前に、ストレージ システムで DNS、NTP、link:task_nas_provide_client_access_with_name_services.html["LDAP"]を構成しておく必要があります。
 
-image:workflow_nas_secure_client_access_with_kerberos.gif["ワークフローの概要：1 UNIX権限の設定2ユーザ権限の設定3グループ権限の設定4 Kerberos 5の設定必要に応じてネームマッピングを追加"]
+image:workflow_nas_secure_client_access_with_kerberos.gif["ワークフローの概要：1 UNIX権限の設定 2 ユーザー権限の設定 3 グループ権限の設定 4 Kerberosの設定 5 必要に応じて名前マッピングの追加"]
 
 .手順
-. ONTAPコマンドラインで、Storage VMのルートボリュームのUNIX権限を設定します。
+. ONTAPコマンドラインで、Storage VMのルート ボリュームのUNIX権限を設定します。
 +
-.. Storage VMのルートボリュームに対する関連する権限を表示します `volume show -volume _root_vol_name_-fields user,group,unix-permissions`。の詳細については `volume show`、をlink:https://docs.netapp.com/us-en/ontap-cli/volume-show.html["ONTAPコマンド リファレンス"^]参照してください。
+.. ストレージ VM ルート ボリュームの関連する権限を表示します： `volume show -volume _root_vol_name_-fields user,group,unix-permissions`link:https://docs.netapp.com/us-en/ontap-cli/volume-show.html["ONTAPコマンド リファレンス"^]の `volume show`の詳細を確認してください。
 +
-Storage VMのルートボリュームを次のように設定しておく必要があります。
+Storage VMのルート ボリュームは次のように設定されている必要があります。
 
 +
 [cols="2"]
@@ -37,45 +37,45 @@ Storage VMのルートボリュームを次のように設定しておく必要�
 | 名前 | 設定 
 
 
-| UID | ルートまたはID 0 
+| UID | rootまたはID 0 
 
 
-| GID | ルートまたはID 0 
+| GID | rootまたはID 0 
 
 
 | UNIX権限 | 755 
 |===
-.. これらの値が表示されない場合は、コマンドを使用し `volume modify`て更新します。の詳細については `volume modify`、をlink:https://docs.netapp.com/us-en/ontap-cli/volume-modify.html["ONTAPコマンド リファレンス"^]参照してください。
+.. これらの値が表示されない場合は、 `volume modify`コマンドを使用して更新してください。 `volume modify`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/volume-modify.html["ONTAPコマンド リファレンス"^]を参照してください。
 
 
-. Storage VMのルートボリュームのユーザ権限を設定します。
+. Storage VMのルート ボリュームのユーザ権限を設定します。
 +
-.. ローカルUNIXユーザを表示します。 `vserver services name-service unix-user show -vserver _vserver_name_`の詳細については `vserver services name-service unix-user show`、をlink:https://docs.netapp.com/us-en/ontap-cli/vserver-services-name-service-unix-user-show.html["ONTAPコマンド リファレンス"^]参照してください。
+.. ローカル UNIX ユーザーを表示します： `vserver services name-service unix-user show -vserver _vserver_name_` `vserver services name-service unix-user show`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/vserver-services-name-service-unix-user-show.html["ONTAPコマンド リファレンス"^]を参照してください。
 +
-Storage VMに次のUNIXユーザを設定しておく必要があります。
+Storage VMに次のUNIXユーザが設定されている必要があります。
 
 +
 [cols="3"]
 |===
-| ユーザ名 | ユーザID | プライマリグループID 
+| ユーザ名 | ユーザーID | プライマリ グループID 
 
 
-| NFS | 500 | 0 
+| nfs | 500 | 0 
 
 
 | root | 0 | 0 
 |===
 +
-* 注： NFS クライアントユーザの SPN に対する Kerberos-UNIX ネームマッピングがある場合は、 nfs ユーザは必要ありません。手順 5 を参照してください。
+*注：* NFSクライアントユーザーのSPNにKerberos-UNIX名前マッピングが存在する場合、NFSユーザーは必要ありません。手順5を参照してください。
 
-.. これらの値が表示されない場合は、コマンドを使用し `vserver services name-service unix-user modify`て更新します。の詳細については `vserver services name-service unix-user modify`、をlink:https://docs.netapp.com/us-en/ontap-cli/vserver-services-name-service-unix-user-modify.html["ONTAPコマンド リファレンス"^]参照してください。
+.. これらの値が表示されない場合は、 `vserver services name-service unix-user modify`コマンドを使用して更新してください。 `vserver services name-service unix-user modify`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/vserver-services-name-service-unix-user-modify.html["ONTAPコマンド リファレンス"^]を参照してください。
 
 
-. Storage VMのルートボリュームのグループ権限を設定します。
+. Storage VMのルート ボリュームのグループ権限を設定します。
 +
-.. ローカルUNIXグループを表示します。 `vserver services name-service unix-group show -vserver _vserver_name_`の詳細については `vserver services name-service unix-group show`、をlink:https://docs.netapp.com/us-en/ontap-cli/vserver-services-name-service-unix-group-show.html["ONTAPコマンド リファレンス"^]参照してください。
+.. ローカル UNIX グループを表示します： `vserver services name-service unix-group show -vserver _vserver_name_` `vserver services name-service unix-group show`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/vserver-services-name-service-unix-group-show.html["ONTAPコマンド リファレンス"^]を参照してください。
 +
-Storage VMに次のUNIXグループを設定しておく必要があります。
+Storage VMに次のUNIXグループが設定されている必要があります。
 
 +
 [cols="2"]
@@ -83,35 +83,35 @@ Storage VMに次のUNIXグループを設定しておく必要があります。
 | グループ名 | グループID 
 
 
-| デーモン | 1 
+| daemon | 1 
 
 
 | root | 0 
 |===
-.. これらの値が表示されない場合は、コマンドを使用し `vserver services name-service unix-group modify`て更新します。の詳細については `vserver services name-service unix-group modify`、をlink:https://docs.netapp.com/us-en/ontap-cli/vserver-services-name-service-unix-group-modify.html["ONTAPコマンド リファレンス"^]参照してください。
+.. これらの値が表示されない場合は、 `vserver services name-service unix-group modify`コマンドを使用して更新してください。 `vserver services name-service unix-group modify`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/vserver-services-name-service-unix-group-modify.html["ONTAPコマンド リファレンス"^]を参照してください。
 
 
-. System Managerに切り替えてKerberosを設定
-. System Manager で、 * Storage > Storage VM* をクリックし、 Storage VM を選択します。
-. [* 設定 * ] をクリックします。
-. [Kerberos]をクリックします image:icon_arrow.gif["矢印アイコン"]
-. Kerberos Realm の下の * Add * をクリックし、次のセクションを完了します。
+. System Managerに切り替えて、Kerberosを設定します。
+. System Manager で、* ストレージ > ストレージ VM* をクリックし、ストレージ VM を選択します。
+. *Settings*をクリックします。
+. Kerberosの下にあるimage:icon_arrow.gif["矢印アイコン"]をクリックします。
+. Kerberos Realm の下の *Add* をクリックし、次のセクションを入力します：
 +
-** Kerberos Realmの追加
+** Kerberos Realm の追加
 +
-KDCベンダーに応じて設定の詳細を入力します。
+KDCベンダーに応じて詳細を入力します。
 
-** Realmへのネットワークインターフェイスの追加
+** Realm へのネットワーク インターフェイスの追加
 +
-[ * 追加 ] をクリックし、ネットワーク・インターフェイスを選択します。
+*Add*をクリックし、ネットワーク インターフェースを選択します。
 
 
 
-. 必要に応じて、Kerberosプリンシパル名からローカルユーザ名へのマッピングを追加します。
+. 必要に応じて、Kerberosプリンシパル名とローカル ユーザ名のマッピングを追加します。
 +
-.. Storage > Storage VM* をクリックし、 Storage VM を選択します。
-.. [設定]*をクリックし、*[ネームマッピング]*の下をクリックします image:icon_arrow.gif["矢印アイコン"] 。
-.. [KerberosからUNIX]*で、正規表現を使用してパターンと置換を追加します。
+.. *ストレージ > Storage VM* をクリックし、Storage VM を選択します。
+.. *設定*をクリックし、*名前マッピング*の下にある image:icon_arrow.gif["矢印アイコン"] をクリックします。
+.. *[KerberosからUNIX]*で、正規表現を使用してパターンと置換文字列を追加します。
 
 
 

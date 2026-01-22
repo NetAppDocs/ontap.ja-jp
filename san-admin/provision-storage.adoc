@@ -2,7 +2,7 @@
 sidebar: sidebar 
 permalink: san-admin/provision-storage.html 
 keywords: netapp, ontap, san, provisioning, linux, servers, provision, storage, create lun, fc, iscsi, zone switches, scsi disk, iscsi 
-summary: FCまたはiSCSI SANプロトコルを使用してホストにストレージを提供するためのLUNを作成します。ホストでは、LUNがディスクとして表示されます。 
+summary: FC または iSCSI SAN プロトコルを使用して、ホストにストレージを提供する LUN を作成します。LUN はホストに対してディスクとして表示されます。 
 ---
 = SANストレージのプロビジョニング
 :hardbreaks:
@@ -16,12 +16,12 @@ summary: FCまたはiSCSI SANプロトコルを使用してホストにストレ
 
 
 [role="lead"]
-この手順では、FCまたはiSCSIプロトコルがすでに設定されている既存のStorage VMに新しいLUNを作成します。
+この手順では、すでにFCプロトコルまたはiSCSIプロトコルが設定されている既存のStorage VMに新しいLUNを作成します。
 
-.タスクの内容
-この手順は、FAS、AFF、および ASA システムに適用されます。ASA r2システム（ASA A1K、ASA A90、ASA A70、ASA A50、ASA A30、ASA A20、またはASA C30）をお持ちの場合は、 link:https://docs.netapp.com/us-en/asa-r2/manage-data/provision-san-storage.html["以下の手順を実行します"^]ストレージをプロビジョニングします。ASAr2 システムは、SAN のみのお客様向けに簡素化された ONTAP エクスペリエンスを提供します。
+.タスク概要
+この手順は、FAS、AFF、およびASAシステムに適用されます。ASA r2システム（ASA A1K、ASA A90、ASA A70、ASA A50、ASA A30、ASA A20、またはASA C30）をご利用の場合は、link:https://docs.netapp.com/us-en/asa-r2/manage-data/provision-san-storage.html["これらの手順"^]に従ってストレージをプロビジョニングしてください。ASA r2システムは、SANのみをご利用のお客様向けに、簡素化されたONTAPエクスペリエンスを提供します。
 
-新しいStorage VMを作成してFCプロトコルまたはiSCSIプロトコルを設定する必要がある場合は、またはを参照してくださいlink:configure-svm-fc-task.html["FC用のSVMの設定"]link:configure-svm-iscsi-task.html["SVMをiSCSI用に設定する"]。
+新しいストレージ VM を作成し、FC または iSCSI プロトコルを構成する必要がある場合は、link:configure-svm-fc-task.html["FC用のSVMの設定"]またはlink:configure-svm-iscsi-task.html["iSCSI用のSVMの設定"]を参照してください。
 
 FCライセンスが有効になっていない場合、LIFとSVMはオンラインとして表示されますが、動作ステータスはdownになります。
 
@@ -32,50 +32,50 @@ NOTE: LUNの作成時、Asymmetric Logical Unit Access（ALUA）は常に有効�
 
 イニシエータをホストするには、SVM内のすべてのFC LIFで単一イニシエータ ゾーニングを使用する必要があります。
 
-ONTAP 9 8以降では、ストレージのプロビジョニング時にデフォルトでQoSが有効になります。プロビジョニングプロセス中またはあとで、QoSを無効にしたり、カスタムのQoSポリシーを選択したりできます。
+ONTAP 9.8以降では、QoSはストレージのプロビジョニング時にデフォルトで有効になります。プロビジョニング時またはあとでQoSを無効にしたり、カスタムのQoSポリシーを選択したりすることができます。
 
 .手順
 [role="tabbed-block"]
 ====
 .System Manager
 --
-ONTAP System Manager（9.7以降）でFCまたはiSCSIプロトコルを使用して、SANホスト用のストレージを提供するLUNを作成します。
+ONTAP System Manager（9.7以降）で、FCまたはiSCSIプロトコルを使用してSANホスト用のストレージを提供するLUNを作成します。
 
-System Manager Classic（9.7以前で利用可能）を使用してこのタスクを実行するには、 https://docs.netapp.com/us-en/ontap-system-manager-classic/iscsi-config-rhel/index.html["Red Hat Enterprise Linux向けのiSCSIの設定"^]
+System Manager Classic（9.7以前で利用可能）を使用してこのタスクを完了するには、 https://docs.netapp.com/us-en/ontap-system-manager-classic/iscsi-config-rhel/index.html["Red Hat Enterprise Linux向けのiSCSIの設定"^]を参照してください。
 
 .手順
-. ホストに適切なをインストールしlink:https://docs.netapp.com/us-en/ontap-sanhost/["SANホストユーティリティ"^]ます。
-. System Manager で、 * Storage > LUNs * をクリックし、 * Add * をクリックします。
+. ホストに適切なlink:https://docs.netapp.com/us-en/ontap-sanhost/["SAN ホスト ユーティリティ"^]をインストールします。
+. System Managerで、*ストレージ > LUN*をクリックし、*追加*をクリックします。
 . LUNの作成に必要な情報を入力します。
-. ONTAP のバージョンに応じて、「*その他のオプション*」をクリックすると、次のいずれかの操作を実行できます。
+. ONTAPのバージョンに応じて、*その他のオプション*をクリックして次のいずれかを実行できます。
 +
 [cols="80,20"]
 |===
 
 
-| オプション | 以降で使用可能 
+| オプション | 追加されたリリース 
 
 
  a| 
 ** 親ボリュームではなくLUNにQoSポリシーを割り当てる
 +
-*** * その他のオプション > ストレージと最適化 *
-*** パフォーマンスサービスレベル * を選択します。
-*** ボリューム全体ではなく個々の LUN に QoS ポリシーを適用するには、 * これらのパフォーマンス制限を各 LUN に適用 * を選択します。
+*** *その他のオプション > ストレージと最適化*
+*** *Performance Service Level*を選択します。
+*** ボリューム全体ではなく個々のLUNにQoSポリシーを適用するには、*これらのパフォーマンス制限の適用を各LUNに適用する*を選択します。
 +
-デフォルトでは、パフォーマンス制限はボリュームレベルで適用されます。
+デフォルトでは、パフォーマンス制限はボリューム レベルで適用されます。
 
 
 
 
-| ONTAP 9 10.1 
+| ONTAP 9.10.1 
 
 
  a| 
-** 既存のigroupを使用して新しいイニシエータグループを作成する
+** 既存のイニシエータ グループを使用して新しいイニシエータ グループを作成する
 +
-*** * 「その他のオプション」 > 「ホスト情報」 *
-*** 既存のイニシエータグループを使用して新しいイニシエータグループを選択します * 。
+*** *その他のオプション＞ホスト情報*
+*** *既存のイニシエータグループを使用した新しいイニシエータグループ*を選択します。
 +
 
 NOTE: 他のigroupを含むigroupは、作成後にOSタイプを変更することはできません。
@@ -83,41 +83,41 @@ NOTE: 他のigroupを含むigroupは、作成後にOSタイプを変更するこ
 
 
 
-| ONTAP 9 .9.1 
+| ONTAP 9.9.1 
 
 
  a| 
-** igroupまたはホストイニシエータに説明を追加する
+** igroupまたはホスト イニシエータに説明を追加する
 +
-この説明は、igroupまたはホストイニシエータのエイリアスとして機能します。
+この説明は、igroupまたはホスト イニシエータのエイリアスとなります。
 
 +
-*** * 「その他のオプション」 > 「ホスト情報」 *
+*** *その他のオプション＞ホスト情報*
 
 
 
-| ONTAP 9 .9.1 
+| ONTAP 9.9.1 
 
 
  a| 
 ** 既存のボリュームにLUNを作成する
 +
-デフォルトでは、新しいボリュームに新しいLUNが作成されます。
+デフォルトでは、新しいLUNは新しいボリュームに作成されます。
 
 +
-*** * その他のオプション > LUN の追加 *
-*** ［ * グループ関連の LUN * ］ を選択します。
+*** *その他のオプション > LUNの追加*
+*** *関連する LUN をグループ化* を選択します。
 
 
 
-| ONTAP 9 .9.1 
+| ONTAP 9.9.1 
 
 
  a| 
-** QoSを無効にするかカスタムQoSポリシーを選択
+** QoSを無効にするか、カスタムのQoSポリシーを選択する
 +
-*** * その他のオプション > ストレージと最適化 *
-*** パフォーマンスサービスレベル * を選択します。
+*** *その他のオプション > ストレージと最適化*
+*** *Performance Service Level*を選択します。
 +
 
 NOTE: ONTAP 9.9.1以降では、カスタムのQoSポリシーを選択した場合、指定したローカル階層への手動配置を選択することもできます。
@@ -129,7 +129,7 @@ NOTE: ONTAP 9.9.1以降では、カスタムのQoSポリシーを選択した場
 |===
 
 
-. FCの場合は、FCスイッチをWWPNでゾーニングします。イニシエータごとに1つのゾーンを使用し、各ゾーンにすべてのターゲットポートを含めます。
+. FCの場合は、FCスイッチをWWPNでゾーニングします。イニシエータごとに1つのゾーンを使用し、各ゾーンにすべてのターゲット ポートを配置します。
 . ホストでLUNを検出します。
 +
 VMware vSphereでは、Virtual Storage Console（VSC）を使用してLUNを検出、初期化してください。
@@ -141,7 +141,7 @@ VMware vSphereでは、Virtual Storage Console（VSC）を使用してLUNを検�
 --
 .CLI
 --
-ONTAP CLIでFCまたはiSCSIプロトコルを使用して、SANホスト用のストレージを提供するLUNを作成します。
+ONTAP CLIで、FCまたはiSCSIプロトコルを使用してSANサーバ用のストレージを提供するLUNを作成します。
 
 . FCまたはiSCSIのライセンスがあることを確認します。
 +
@@ -161,15 +161,15 @@ Package           Type    Description           Expiration
  iSCSI             site    iSCSI License         -
  FCP               site    FCP License           -
 ----
-. FCまたはiSCSIのライセンスがない場合は、コマンドを使用し `license add`ます。
+. FC または iSCSI のライセンスがない場合は、 `license add` コマンドを使用します。
 +
 [source, cli]
 ----
 license add -license-code <your_license_code>
 ----
-. SVMでプロトコルサービスを有効にします。
+. SVMでプロトコル サービスを有効にします。
 +
-* iSCSIの場合：*
+*iSCSIの場合：*
 
 +
 [source, cli]
@@ -177,7 +177,7 @@ license add -license-code <your_license_code>
 vserver iscsi create -vserver <svm_name> -target-alias <svm_name>
 ----
 +
-* FCの場合：*
+*FCの場合：*
 
 +
 [source, cli]
@@ -191,9 +191,9 @@ vserver fcp create -vserver <svm_name> -status-admin up
 network interface create -vserver <svm_name> -lif <lif_name> -role data -data-protocol <iscsi|fc> -home-node <node_name> -home-port <port_name> -address <ip_address> -netmask <netmask>
 ----
 +
-NetAppでは、データを提供する各SVMについて、ノードごとに少なくとも1つのiSCSI LIFまたはFC LIFがサポートされます。ただし、冗長性を確保するためにはノードごとに2つのLIFが必要です。iSCSIの場合は、別 々 のイーサネットネットワークにあるノードごとに少なくとも2つのLIFを設定することを推奨します。
+データを提供する各SVMで、ノードごとにiSCSIまたはFC LIFが少なくとも1つ必要です。ただし、冗長性を確保するためにはノードごとにLIFが2つ必要です。iSCSIでは、ノードごとに少なくとも2つのLIFを別々のイーサネット ネットワークに設定することを推奨します。
 
-. LIFが作成され、動作ステータスがになっていることを確認し `online`ます。
+. LIF が作成され、動作ステータスが `online`であることを確認します：
 +
 [source, cli]
 ----
@@ -206,11 +206,11 @@ network interface show -vserver <svm_name> <lif_name>
 lun create -vserver <svm_name> -volume <volume_name> -lun <lun_name> -size <lun_size> -ostype linux -space-reserve <enabled|disabled>
 ----
 +
-LUN名は255文字以内で、スペースは使用できません。
+LUN名は255文字以内で指定し、スペースは使用できません。
 
 +
 
-NOTE: NVFAILオプションは、ボリュームにLUNが作成されると自動的に有効になります。
+NOTE: NVFAILオプションは、ボリュームでLUNが作成されると、自動的に有効になります。
 
 . igroupを作成します。
 +
@@ -230,16 +230,16 @@ lun mapping create -vserver <svm_name> -volume <volume_name> -lun <lun_name> -ig
 ----
 lun show -vserver <svm_name>
 ----
-. 必要に応じて、link:create-port-sets-binding-igroups-task.html["ポートセットを作成してigroupにバインドします"]。
-. 特定のホストでブロックアクセスを有効にするには、ホストのマニュアルの手順に従います。
-. Host Utilitiesを使用してFCまたはiSCSIマッピングを完了し、ホスト上のLUNを検出します。
+. オプションで、link:create-port-sets-binding-igroups-task.html["ポートセットを作成し、igroupにバインドする"]。
+. ホストのマニュアルに記載されている手順に従って、特定のホストでブロック アクセスを有効にします。
+. Host Utilitiesを使用して、FCまたはiSCSIマッピングを完了し、ホスト上のLUNを検出します。
 
 
 --
 ====
 .関連情報
-* link:index.html["SANの管理の概要"]
-* https://docs.netapp.com/us-en/ontap-sanhost/index.html["ONTAP SANホスト構成"]
-* link:../san-admin/manage-san-initiators-task.html["System ManagerでのSANイニシエータグループの表示と管理"]
-* https://www.netapp.com/pdf.html?item=/media/19680-tr-4017.pdf["NetAppテクニカルレポート4017：『ファイバチャネルSANのベストプラクティス』"^]
+* link:index.html["SANの管理 - 概要"]
+* https://docs.netapp.com/us-en/ontap-sanhost/index.html["ONTAP SAN Host Configuration"]
+* link:../san-admin/manage-san-initiators-task.html["System ManagerでのSANイニシエータ グループの表示と管理"]
+* https://www.netapp.com/pdf.html?item=/media/19680-tr-4017.pdf["NetAppテクニカル レポート4017：『ファイバチャネルSANのベストプラクティス』"^]
 

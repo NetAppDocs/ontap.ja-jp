@@ -2,7 +2,7 @@
 permalink: snaplock/move-snaplock-volume-concept.html 
 sidebar: sidebar 
 keywords: move, snaplock, volume, aggregate, security, role, enterprise, compliance, create, administrator, support, user, cluster, destination, command 
-summary: ONTAP 9 .8以降では、SnapLockボリュームを同じタイプのデスティネーションアグリゲート（エンタープライズからエンタープライズ、コンプライアンスからコンプライアンス）に移動できます。SnapLockボリュームを移動するには、SnapLockのセキュリティロールが割り当てられている必要があります。 
+summary: ONTAP 9.8以降では、SnapLockボリュームを同じタイプのデスティネーション アグリゲートに移動できます（EnterpriseからEnterpriseへの移動またはComplianceからComplianceへの移動）。SnapLockボリュームを移動するには、SnapLockのセキュリティ ロールが割り当てられている必要があります。 
 ---
 = ONTAP SnapLockボリュームを移動する
 :allow-uri-read: 
@@ -11,29 +11,29 @@ summary: ONTAP 9 .8以降では、SnapLockボリュームを同じタイプの�
 
 
 [role="lead"]
-ONTAP 9 .8以降では、SnapLockボリュームを同じタイプのデスティネーションアグリゲート（エンタープライズからエンタープライズ、コンプライアンスからコンプライアンス）に移動できます。SnapLockボリュームを移動するには、SnapLockのセキュリティロールが割り当てられている必要があります。
+ONTAP 9.8以降では、SnapLockボリュームを同じタイプのデスティネーション アグリゲートに移動できます（EnterpriseからEnterpriseへの移動またはComplianceからComplianceへの移動）。SnapLockボリュームを移動するには、SnapLockのセキュリティ ロールが割り当てられている必要があります。
 
 
 
-== SnapLockセキュリティ管理者アカウントを作成する
+== SnapLockセキュリティ管理者アカウントの作成
 
-SnapLockボリュームの移動を実行するには、SnapLockセキュリティ管理者Privilegesが必要です。この権限は、 ONTAP 9.8 で導入された _ SnapLock _ ロールで付与されます。このロールが割り当てられていない場合は、クラスタ管理者に依頼して、このSnapLockセキュリティロールを持つSnapLockセキュリティユーザの作成を依頼できます。
+SnapLockボリュームの移動を実行するには、SnapLockセキュリティ管理者権限が必要です。この権限は、ONTAP 9.8で導入された_snaplock_ロールによって付与されます。このロールがまだ割り当てられていない場合は、クラスタ管理者に依頼して、このSnapLockセキュリティロールを持つSnapLockセキュリティユーザを作成してください。
 
 .開始する前に
 * このタスクを実行するには、クラスタ管理者である必要があります。
-* セキュアな接続（SSH、コンソール、またはZAPI）でログインしておく必要があります。
+* セキュアな接続（SSH、コンソール、またはZAPI）でログインする必要があります。
 
 
-.タスクの内容
-SnapLockロールは管理SVMに関連付けられますが、vsadmin-SVM SnapLockロールはデータSVMに関連付けられます。
+.タスク概要
+snaplockロールは、vsadmin-snaplockロールと違って、データSVMではなく管理SVMに関連付けられます。
 
-.ステップ
-. SnapLock管理者ロールを持つSVM管理者アカウントを作成します。
+.手順
+. SnapLock管理者ロールが割り当てられたSVM管理者アカウントを作成します。
 +
 `*security login create -vserver _SVM_name_ -user-or-group-name _user_or_group_name_ -application _application_ -authmethod _authentication_method_ -role _role_ -comment _comment_*`
 
 +
-次のコマンドは、事前定義のロールが割り当てられた `snaplock`SVM管理者アカウントが、パスワードを使用した管理SVMへのアクセスを `cluster1`許可し `SnapLockAdmin`ます。
+次のコマンドを実行すると、事前定義された `snaplock`ロールを持つ SVM 管理者アカウント `SnapLockAdmin`が、パスワードを使用して管理 SVM `cluster1`にアクセスできるようになります：
 
 +
 [listing]
@@ -41,23 +41,23 @@ SnapLockロールは管理SVMに関連付けられますが、vsadmin-SVM SnapLo
 cluster1::> security login create -vserver cluster1 -user-or-group-name SnapLockAdmin -application ssh -authmethod password -role snaplock
 ----
 +
-の詳細については `security login create`、をlink:https://docs.netapp.com/us-en/ontap-cli/security-login-create.html["ONTAPコマンド リファレンス"^]参照してください。
+ `security login create`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/security-login-create.html["ONTAPコマンド リファレンス"^]をご覧ください。
 
 
 
 
 
-== SnapLockボリュームを移動する
+== SnapLockボリュームの移動
 
-コマンドを使用すると、SnapLockボリュームをデスティネーションアグリゲートに移動できます `volume move`。
+ `volume move`コマンドを使用して、SnapLockボリュームをデスティネーション アグリゲートに移動できます。
 
 .開始する前に
 * SnapLockボリュームの移動を実行する前に、SnapLockで保護された監査ログを作成しておく必要があります。
 +
-link:create-audit-log-task.html["監査ログを作成する"]です。
+link:create-audit-log-task.html["監査ログの作成"]。
 
-* ONTAP 9 10.1より前のバージョンのONTAPを使用している場合は、デスティネーションアグリゲートのSnapLockタイプが移動するSnapLockと同じである必要があります（ComplianceからComplianceへ、またはEnterpriseからEnterpriseへ）。ONTAP 9 .10.1以降では、この制限が解除され、アグリゲートにComplianceボリュームとEnterprise SnapLockボリュームの両方を含めることができるようになりました。また、SnapLock以外のボリュームも含めることができます。
-* SnapLockのセキュリティロールを持つユーザである必要があります。
+* 9.10.1より前のバージョンのONTAPを使用している場合は、デスティネーション アグリゲートのSnapLockタイプが、移動するSnapLockボリュームと同じであることが必要です（ComplianceからComplianceへの移動またはEnterpriseからEnterpriseへの移動）。ONTAP 9.10.1以降ではこの制限がなくなり、SnapLock ComplianceボリュームとSnapLock Enterpriseボリュームの両方、および非SnapLockボリュームをアグリゲートに含めることができます。
+* SnapLockのセキュリティ ロールが割り当てられている必要があります。
 
 
 .手順
@@ -69,7 +69,7 @@ link:create-audit-log-task.html["監査ログを作成する"]です。
 +
 `*volume move start -vserver _SVM_name_ -volume _SnapLock_volume_name_ -destination-aggregate _destination_aggregate_name_*`
 
-. ボリューム移動処理のステータスを確認します。
+. ボリューム移動処理の現在のステータスを確認します。
 +
 `*volume move show -volume _SnapLock_volume_name_ -vserver _SVM_name_ -fields volume,phase,vserver*`
 

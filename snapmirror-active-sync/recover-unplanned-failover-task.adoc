@@ -2,7 +2,7 @@
 sidebar: sidebar 
 permalink: snapmirror-active-sync/recover-unplanned-failover-task.html 
 keywords: fan-out, snapmirror active sync, unplanned failover 
-summary: 自動計画外フェイルオーバー（AUFO）処理は、プライマリクラスタが停止しているか分離されている場合に実行されます。この場合、セカンダリクラスタがプライマリに変換され、クライアントへのサービス提供が開始されます。 
+summary: 自動計画外フェイルオーバー（AUFO）処理は、プライマリ クラスタが停止しているか分離されている場合に実行されます。AUFOでは、セカンダリ クラスタがプライマリに変換されてクライアントへのデータの提供を開始します。 
 ---
 = 計画外の自動ONTAPクラスタ フェイルオーバー操作からの回復
 :hardbreaks:
@@ -14,7 +14,7 @@ summary: 自動計画外フェイルオーバー（AUFO）処理は、プライ�
 
 
 [role="lead"]
-自動計画外フェイルオーバー（AUFO）処理は、プライマリ クラスタが停止しているか分離されている場合に実行されます。ONTAPメディエーターはフェイルオーバーの発生を検出し、セカンダリ クラスタへの計画外フェイルオーバーを自動的に実行します。セカンダリ クラスタがプライマリに変換されてクライアントへのデータの提供を開始します。この処理は、ONTAP Mediatorが使用されている場合にのみ実行されます。
+自動計画外フェイルオーバー（AUFO）は、プライマリクラスタがダウンまたは孤立した場合に発生します。ONTAPメディエーターはフェイルオーバーの発生を検知し、セカンダリクラスタへの自動計画外フェイルオーバーを実行します。セカンダリクラスタはプライマリクラスタに変換され、クライアントへのサービス提供を開始します。この処理は、ONTAPメディエーターの支援を受けてのみ実行されます。
 
 
 NOTE: 自動計画外フェイルオーバーが実行されたあと、ホストのLUN I/Oパスを再スキャンしてI/Oパスの損失がないことを確認することが重要です。
@@ -31,16 +31,16 @@ NOTE: 自動計画外フェイルオーバーが実行されたあと、ホス�
 --
 .手順
 
-IMPORTANT: ONTAP 9.14.1 から 9.8 では、 SnapMirror Active Sync はSnapMirror Business Continuity (SM-BC) と呼ばれます。
+IMPORTANT: ONTAP 9.14.1から9.8では、SnapMirrorアクティブ同期はSnapMirror Business Continuity（SM-BC）と呼ばれます。
 
-. *保護 > リレーションシップ* に移動し、リレーションシップの状態が「InSync」と表示されるまで待ちます。
-. 元のソースクラスタで処理を再開するには、をクリック image:icon_kabob.gif["メニューオプションアイコン"] して*[フェイルオーバー]*を選択します。
+. *保護 > 関係*に移動し、関係の状態が「InSync」と表示されるまで待ちます。
+. 元のソース クラスタで操作を再開するには、image:icon_kabob.gif["メニューオプションアイコン"]をクリックして [*フェールオーバー*] を選択します。
 
 
 --
 .CLI
 --
-自動計画外フェイルオーバーのステータスは、コマンドを使用して監視できます `snapmirror failover show`。
+ `snapmirror failover show`コマンドを使用して、自動計画外フェイルオーバーのステータスを監視できます。
 
 例：
 
@@ -57,35 +57,35 @@ Last Progress Update: -
        Failover Type: unplanned
   Error Reason codes: -
 ....
-イベントメッセージと対処方法については、を参照してlink:https://docs.netapp.com/us-en/ontap-ems-9131/smbc-aufo-events.html["EMSリファレンス"^]ください。
+イベント メッセージと修正アクションの詳細については、link:https://docs.netapp.com/us-en/ontap-ems-9131/smbc-aufo-events.html["EMS リファレンス"^]を参照してください。
 
 --
 ====
 
 
-== フェイルオーバー後にファンアウト構成で保護を再開する
+== フェイルオーバー後のファンアウト構成での保護の再開
 
-ONTAP 9.15.1以降では、SnapMirrorアクティブ同期でフェイルオーバーイベント後のファンアウトレッグの自動再設定がサポートされます。非同期ファンアウトレッグには、整合性グループ関係または独立したボリューム関係を指定できます。詳細については、を参照してください link:interoperability-reference.html#fan-out-configurations["ファンアウト構成"]。
+ONTAP 9.15.1以降、SnapMirror active syncは、フェイルオーバーイベント後のファンアウトレッグの自動再構成をサポートします。非同期ファンアウトレッグは、整合グループ関係または独立したボリューム関係のいずれかになります。詳細については、link:interoperability-reference.html#fan-out-configurations["ファンアウト構成"]を参照してください。
 
-ONTAP 9 14.1以前を使用していて、SnapMirrorのアクティブな同期関係にあるセカンダリクラスタでフェイルオーバーが発生すると、SnapMirrorの非同期デスティネーションは正常な状態ではなくなります。SnapMirrorの非同期エンドポイントとの関係を削除して再作成し、保護を手動でリストアする必要があります。
+ONTAP 9.14.1以前を使用していて、SnapMirrorアクティブ同期関係にあるセカンダリ クラスタでフェイルオーバーが発生すると、SnapMirror非同期デスティネーションが健全な状態ではなくなります。SnapMirror非同期エンドポイントとの関係を削除してから再作成し、保護を手動でリストアする必要があります。
 
 .手順
-. フェイルオーバーが正常に完了したことを確認します。
+. フェイルオーバーが正常に完了したことを確認します（
 `snapmirror failover show`
-. SnapMirror非同期エンドポイントで、ファンアウトエンドポイントを削除します。
+. SnapMirror非同期エンドポイントで、ファンアウトエンドポイントを削除します：
 `snapmirror delete -destination-path _destination_path_`
-. 3番目のサイトで、新しいSnapMirrorアクティブな同期のプライマリボリュームと非同期のファンアウトデスティネーションボリュームの間にSnapMirror非同期関係を作成します。
+. 3番目のサイトで、新しいSnapMirrorアクティブ同期プライマリ ボリュームと非同期ファンアウト デスティネーション ボリュームの間にSnapMirror非同期関係を作成します：
 `snapmirror create -source-path _source_path_ -destination-path _destination_path_ -policy MirrorAllSnapshots -schedule _schedule_`
-. 関係を再同期します。
+. 関係を再同期します：
 `snapmirror resync -destination-path _destination_path_`
-. 関係のステータスと健全性を確認します。
+. 関係のステータスと健全性を確認します（
 `snapmirror show`
 
 
 .関連情報
-* link:https://docs.netapp.com/us-en/ontap-cli/snapmirror-create.html["スナップミラー作成"^]
-* link:https://docs.netapp.com/us-en/ontap-cli/snapmirror-delete.html["SnapMirrorの削除"^]
-* link:https://docs.netapp.com/us-en/ontap-cli/snapmirror-failover-show.html["スナップミラーフェイルオーバー表示"^]
+* link:https://docs.netapp.com/us-en/ontap-cli/snapmirror-create.html["snapmirror create"^]
+* link:https://docs.netapp.com/us-en/ontap-cli/snapmirror-delete.html["snapmirror delete"^]
+* link:https://docs.netapp.com/us-en/ontap-cli/snapmirror-failover-show.html["snapmirror failover show"^]
 * link:https://docs.netapp.com/us-en/ontap-cli/snapmirror-resync.html["snapmirror resync"^]
 * link:https://docs.netapp.com/us-en/ontap-cli/snapmirror-show.html["snapmirror show"^]
 

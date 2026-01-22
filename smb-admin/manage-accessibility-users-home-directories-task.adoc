@@ -2,69 +2,69 @@
 permalink: smb-admin/manage-accessibility-users-home-directories-task.html 
 sidebar: sidebar 
 keywords: 'default, user, home, directory, access, dynamic, name, share, precede, enable, disable, windows, administrator, public, access, manage accessibility to users" home directories' 
-summary: デフォルトでは、ユーザのホームディレクトリにはそのユーザだけがアクセスできます。動的な共有名の前にチルダ（ ｛ チルダ ｝ ）が付いている共有の場合、 Windows 管理者や他のユーザ（パブリックアクセス）によるユーザのホームディレクトリへのアクセスを有効または無効にできます。 
+summary: デフォルトでは、ユーザのホーム ディレクトリにアクセスできるのはそのユーザのみです。共有のダイナミック名の前にチルダ（{tilde}）が付いている共有では、Windows管理者または他のユーザ（パブリック アクセス）によるユーザのホーム ディレクトリへのアクセスを有効または無効にできます。 
 ---
-= ONTAP SMBユーザのホームディレクトリへのアクセスを管理する
+= ONTAP SMBユーザ ホーム ディレクトリへのアクセスを管理する
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-デフォルトでは、ユーザのホームディレクトリにアクセスできるのはそのユーザだけです。動的な共有名の前にチルダ（ ｛ チルダ ｝ ）が付いている共有の場合、 Windows 管理者や他のユーザ（パブリックアクセス）によるユーザのホームディレクトリへのアクセスを有効または無効にできます。
+デフォルトでは、ユーザのホーム ディレクトリにアクセスできるのは、そのユーザのみです。共有の動的名の前にチルダ（{tilde}）が付いている共有では、Windows管理者または他のユーザ（パブリック アクセス）によるユーザのホーム ディレクトリへのアクセスを有効または無効にできます。
 
 .開始する前に
-Storage Virtual Machine （ SVM ）のホームディレクトリ共有に、動的な共有名の前にチルダ（ ｛ チルダ ｝ ）を追加した共有名を設定する必要があります。共有の命名要件を次に示します。
+ストレージ仮想マシン（SVM）上のホームディレクトリ共有には、先頭にチルダ（{tilde}）が付いた動的な共有名を設定する必要があります。以下の例は、共有名の命名要件を示しています：
 
 |===
-| ホームディレクトリ共有名 | 共有に接続するコマンドの例 
+| ホーム ディレクトリの共有名 | 共有に接続するコマンドの例 
 
 
  a| 
-｛ チルダ ｝ %d ｛ チルダ ｝ %w
+{tilde}%d{tilde}%w
  a| 
 `net use * {backslash}{backslash}IPaddress{backslash}{tilde}domain{tilde}user/u:credentials`
 
 
 
  a| 
-｛ チルダ ｝ %w
+{tilde}%w
  a| 
 `net use * {backslash}{backslash}IPaddress{backslash}{tilde}user/u:credentials`
 
 
 
  a| 
-｛ チルダ ｝ abc ｛ チルダ ｝ %w
+{tilde}abc{tilde}%w
  a| 
 `net use * {backslash}{backslash}IPaddress{backslash}abc{tilde}user/u:credentials`
 
 |===
-.ステップ
-. 適切な操作を実行します。
+.手順
+. 適切な処理を実行します。
 +
 |===
-| ユーザのホームディレクトリへのアクセスを有効または無効にする対象 | 入力するコマンド 
+| ユーザのホーム ディレクトリへのアクセスを有効化または無効化する対象 | 入力するコマンド 
 
 
-| Windows管理者 | `vserver cifs home-directory modify -vserver _vserver_name_ -is-home-dirs-access-for-admin-enabled {true{vbar}false}`デフォルトはです `true`。 
+| Windows管理者 | `vserver cifs home-directory modify -vserver _vserver_name_ -is-home-dirs-access-for-admin-enabled {true{vbar}false}`デフォルトは `true`です。 
 
 
-| 任意のユーザ（パブリックアクセス）  a| 
-.. 権限レベルをadvancedに設定します。+
+| 任意のユーザ（パブリック アクセス）  a| 
+.. 権限レベルを詳細に設定します：+
 `set -privilege advanced`
-.. アクセスを有効または無効にします。 `vserver cifs home-directory modify -vserver _vserver_name_ -is-home-dirs-access-for-public-enabled {true|false}`+デフォルトはです。 `false`
-.. admin権限レベルに戻ります。+
+.. アクセスを有効または無効にする： `vserver cifs home-directory modify -vserver _vserver_name_ -is-home-dirs-access-for-public-enabled {true|false}` + デフォルトは `false`です。
+.. admin権限レベルに戻ります：+
 `set -privilege admin`
 
 
 |===
 
 
-次の例は、ユーザのホームディレクトリへのパブリックアクセスを有効にします。
-`set -privilege advanced`
-`vserver cifs home-directory modify -vserver vs1 -is-home-dirs-access-for-public-enabled true`++
+次の例では、ユーザーのホームディレクトリへのパブリックアクセスを有効にします。+
+`set -privilege advanced`+
+`vserver cifs home-directory modify -vserver vs1 -is-home-dirs-access-for-public-enabled true`+
 `set -privilege admin`
 
 .関連情報
-xref:display-user-home-directory-path-task.adoc[ユーザーのホームディレクトリパスに関する情報を表示する]
+xref:display-user-home-directory-path-task.adoc[ユーザーのホームディレクトリパスに関する情報を表示します]

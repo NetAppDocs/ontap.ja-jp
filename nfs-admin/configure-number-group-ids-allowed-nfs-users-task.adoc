@@ -2,30 +2,30 @@
 permalink: nfs-admin/configure-number-group-ids-allowed-nfs-users-task.html 
 sidebar: sidebar 
 keywords: ontap, authentication, nfs, group id, rpcsec_gss 
-summary: デフォルトよりも多くのグループに属しているユーザのKerberos認証を使用してNFSユーザクレデンシャルを処理するためのグループIDの数を増やします。 
+summary: デフォルト グループ以外のグループのメンバーであるユーザーに対して、Kerberos認証を使用してNFSユーザー資格情報を処理するためのグループIDの数を増やします。 
 ---
-= ONTAP SVMのNFSユーザーに許可されるグループIDの数を設定する
+= ONTAP SVMのNFSユーザーに許可されるグループIDの数を設定します
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-ONTAPでは、Kerberos（RPCSEC_GSS）認証を使用してNFSユーザクレデンシャルを処理する場合、デフォルトで最大32個のグループIDがサポートされます。AUTH_SYS認証を使用する場合、RFC 5531で定義されているように、グループIDのデフォルトの最大数は16です。デフォルト数を超えるグループに属しているユーザがいる場合は、この最大数を 1 、 024 まで増やすことができます。
+デフォルトでは、ONTAPはKerberos（RPCSEC_GSS）認証を使用してNFSユーザクレデンシャルを処理する際に、最大32個のグループIDをサポートします。AUTH_SYS認証を使用する場合、RFC 5531で定義されているように、グループIDのデフォルトの最大数は16です。デフォルト数を超えるグループに所属するユーザがいる場合は、最大数を1,024まで増やすことができます。
 
-.タスクの内容
-デフォルト数を超えるグループIDがクレデンシャルに設定されている場合、残りのグループIDは切り捨てられ、ストレージシステムのファイルにアクセスしようとするとエラーが表示されることがあります。SVMあたりのグループの最大数は、環境内の最大グループ数に相当する数に設定する必要があります。
+.タスク概要
+デフォルト数を超えるグループIDがクレデンシャルに設定されている場合、残りのグループIDは切り捨てられ、そのユーザがストレージ システムのファイルへのアクセスを試みるとエラーが発生する可能性があります。SVMあたりの最大グループ数は、環境内の最大グループ数と同じ数に設定する必要があります。
 
 
-NOTE: 拡張グループを有効にするためのAUTH_SYS認証の前提条件を理解する(`-auth-sys-extended-groups`デフォルトの最大数である16を超えるグループIDを使用する（または、グループIDが16を超える）場合は、link:https://kb.netapp.com/on-prem/ontap/da/NAS/NAS-KBs/What_are_the_prerequisites_for_enabling_auth_sys_extended_groups#["NetAppナレッジベース: auth-sys-extended-groups を有効にするための前提条件は何ですか?"^]
+NOTE: デフォルトの最大数である16を超えるグループIDを使用する拡張グループ(`-auth-sys-extended-groups`を有効にするためのAUTH_SYS認証の前提条件を理解するには、link:https://kb.netapp.com/on-prem/ontap/da/NAS/NAS-KBs/What_are_the_prerequisites_for_enabling_auth_sys_extended_groups#["NetAppナレッジベース：auth-sys-extended-groups を有効にするための前提条件は何ですか？"^]を参照してください
 
-次の表に、グループIDの最大数を決定するコマンドの2つのパラメータを3つの設定例で示し `vserver nfs modify`ます。
+次の表は、3つのサンプル構成でグループIDの最大数を決定する `vserver nfs modify`コマンドの2つのパラメータを示しています：
 
 [cols="40,30,30"]
 |===
 
 
-| パラメータ | 設定 | 結果として得られるグループ ID の上限数 
+| パラメータ | 設定 | 結果のグループIDの制限 
 
 
  a| 
@@ -79,16 +79,16 @@ AUTH_SYS：512
 +
 `set -privilege advanced`
 
-. 必要な操作を実行します。
+. 次のうち必要な操作を実行します。
 +
 |===
 
 
-| 許可される補助グループの最大数の設定対象 | 入力するコマンド 
+| 許可される補助グループの最大数を設定する場合… | コマンドを入力してください... 
 
 
  a| 
-RPCSEC_GSSの場合のみ、AUTH_SYSはデフォルト値の16のままにします。
+RPCSEC_GSSのみ（AUTH_SYSはデフォルト値16のまま）
  a| 
 `+vserver nfs modify -vserver vserver_name -extended-groups-limit {32-1024} -auth-sys-extended-groups disabled+`
 
@@ -100,7 +100,7 @@ RPCSEC_GSSとAUTH_SYSの両方
 `+vserver nfs modify -vserver vserver_name -extended-groups-limit {32-1024} -auth-sys-extended-groups enabled+`
 
 |===
-. 値を確認し `-extended-groups-limit`、拡張グループがAUTH_SYSで使用されているかどうかを確認します。 `vserver nfs show -vserver vserver_name -fields auth-sys-extended-groups,extended-groups-limit`
+.  `-extended-groups-limit`値を確認し、AUTH_SYSが拡張グループを使用しているかどうかを確認します： `vserver nfs show -vserver vserver_name -fields auth-sys-extended-groups,extended-groups-limit`
 . admin権限レベルに戻ります。
 +
 `set -privilege admin`
@@ -108,7 +108,7 @@ RPCSEC_GSSとAUTH_SYSの両方
 
 
 .例
-次に、AUTH_SYS認証の拡張グループを有効にし、AUTH_SYS認証とRPCSEC_GSS認証の両方で拡張グループの最大数を512に設定する例を示します。これらの変更は、vs1というSVMにアクセスするクライアントに対してのみ行われます。
+次の例は、AUTH_SYS認証で拡張されたグループ数を有効にし、AUTH_SYS認証とRPCSEC_GSS認証の両方でグループの最大数を512に設定します。これらの変更は、vs1というSVMにアクセスするクライアントに対してのみ適用されます。
 
 [listing]
 ----
@@ -127,5 +127,5 @@ vs1     enabled                  512
 vs1::*> set -privilege admin
 ----
 .関連情報
-* link:https://kb.netapp.com/on-prem/ontap/da/NAS/NAS-KBs/How_does_AUTH_SYS_Extended_Groups_change_NFS_authentication["NetAppナレッジベース: ONTAP 9 の NFS 認証における AUTH_SYS 拡張グループの変更"^]
+* link:https://kb.netapp.com/on-prem/ontap/da/NAS/NAS-KBs/How_does_AUTH_SYS_Extended_Groups_change_NFS_authentication["NetAppナレッジベース：ONTAP 9のNFS認証におけるAUTH_SYS拡張グループの変更"^]
 

@@ -2,22 +2,22 @@
 permalink: san-admin/move-san-lifs-task.html 
 sidebar: sidebar 
 keywords: move, san, lifs 
-summary: ノードをオフラインにする必要がある場合、 SAN LIF を移動して WWPN などの設定情報を保持しておけば、スイッチファブリックの再ゾーニングを行わずに済みます。SAN LIF は移動前にオフラインにする必要があるため、ホストトラフィックについては、ホストマルチパスソフトウェアを使用して、 LUN への無停止アクセスを確保する必要があります。SAN LIF はクラスタ内の任意のノードに移動できますが、 SAN LIF を別の Storage Virtual Machine （ SVM ）に移動することはできません。 
+summary: ノードをオフラインにする必要がある場合、SAN LIFを移動することで、WWPNなどの設定情報を保持し、スイッチファブリックの再ゾーニングを回避できます。SAN LIFは移動前にオフラインにする必要があるため、ホストトラフィックはホストマルチパスソフトウェアを使用してLUNへの無停止アクセスを提供する必要があります。SAN LIFはクラスタ内の任意のノードに移動できますが、Storage Virtual Machine（SVM）間で移動することはできません。 
 ---
-= SAN LIFを移動する
+= SAN LIFの移動
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-ノードをオフラインにする必要がある場合、 SAN LIF を移動して WWPN などの設定情報を保持しておけば、スイッチファブリックの再ゾーニングを行わずに済みます。SAN LIF は移動前にオフラインにする必要があるため、ホストトラフィックについては、ホストマルチパスソフトウェアを使用して、 LUN への無停止アクセスを確保する必要があります。SAN LIF はクラスタ内の任意のノードに移動できますが、 SAN LIF を別の Storage Virtual Machine （ SVM ）に移動することはできません。
+ノードをオフラインにする必要がある場合、SAN LIFを移動することで、WWPNなどの設定情報を保持し、スイッチファブリックの再ゾーニングを回避できます。SAN LIFは移動前にオフラインにする必要があるため、ホストトラフィックはホストマルチパスソフトウェアを使用してLUNへの無停止アクセスを提供する必要があります。SAN LIFはクラスタ内の任意のノードに移動できますが、Storage Virtual Machine（SVM）間で移動することはできません。
 
 .開始する前に
-LIF がポートセットのメンバーである場合、 LIF を別のノードに移動する前に、その LIF をポートセットから削除しておく必要があります。
+LIFがポート セットのメンバーである場合、LIFを別のノードに移動する前に、LIFをポート セットから削除する必要があります。
 
-.タスクの内容
-移動する LIF のデスティネーションノードおよび物理ポートは、同じ FC ファブリック上またはイーサネットネットワーク上に存在する必要があります。適切にゾーニングされていない別のファブリック上に LIF を移動したり、 iSCSI イニシエータとターゲットを接続していないイーサネットネットワーク上に LIF を移動したりすると、その LIF をオンラインに戻しても接続できなくなります。
+.タスク概要
+移動するLIFの宛先ノードと物理ポートは、同じFCファブリックまたはイーサネット ネットワーク上になければなりません。適切にゾーニングされていない別のファブリックにLIFを移動した場合、またはiSCSIイニシエータとターゲット間の接続がないイーサネット ネットワークにLIFを移動した場合、LUNをオンラインに戻してもアクセスできなくなります。
 
 .手順
 . LIFの管理ステータスと動作ステータスを表示します。
@@ -25,27 +25,27 @@ LIF がポートセットのメンバーである場合、 LIF を別のノー�
 `network interface show -vserver _vserver_name_`
 
 +
-の詳細については `network interface show`、をlink:https://docs.netapp.com/us-en/ontap-cli/network-interface-show.html["ONTAPコマンド リファレンス"^]参照してください。
+ `network interface show`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/network-interface-show.html["ONTAPコマンド リファレンス"^]を参照してください。
 
-. LIFのステータスを（オフライン）に変更し `down`ます。
+. LIF のステータスを `down`（オフライン）に変更します：
 +
 `network interface modify -vserver _vserver_name_ -lif _LIF_name_ -status-admin down`
 
 +
-の詳細については `network interface modify`、をlink:https://docs.netapp.com/us-en/ontap-cli/network-interface-modify.html["ONTAPコマンド リファレンス"^]参照してください。
+ `network interface modify`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/network-interface-modify.html["ONTAPコマンド リファレンス"^]を参照してください。
 
 . LIFを新しいノードとポートに割り当てます。
 +
 `network interface modify -vserver _vserver_name_ -lif _LIF_name_ -home-node _node_name_ -home-port _port_name_`
 
-. LIFのステータスを（オンライン）に変更し `up`ます。
+. LIF のステータスを `up`（オンライン）に変更します：
 +
 `network interface modify -vserver _vserver_name_ -lif _LIF_name_ -status-admin up`
 
 +
-の詳細については `up`、をlink:https://docs.netapp.com/us-en/ontap-cli/up.html["ONTAPコマンド リファレンス"^]参照してください。
+ `up`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/up.html["ONTAPコマンド リファレンス"^]を参照してください。
 
-. 変更内容を確認します。
+. 変更が適用されたことを確認します。
 +
 `network interface show -vserver _vserver_name_`
 

@@ -2,30 +2,30 @@
 permalink: disks-aggregates/customize-size-raid-groups-task.html 
 sidebar: sidebar 
 keywords: raidsize, customize, raid groups 
-summary: ローカル階層に含めるストレージの容量に適したRAIDグループサイズになるように、RAIDグループのサイズをカスタマイズできます。 
+summary: RAID グループのサイズをカスタマイズして、RAID グループのサイズが、ローカル層に含める予定のストレージの量に適切であることを確認できます。 
 ---
-= ONTAP RAIDグループのサイズのカスタマイズ
+= ONTAP RAID グループのサイズをカスタマイズする
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-ローカル階層に含めるストレージの容量に適したRAIDグループサイズになるように、RAIDグループのサイズをカスタマイズできます。
+RAID グループのサイズをカスタマイズして、RAID グループのサイズが、ローカル層に含める予定のストレージの量に適切であることを確認できます。
 
 
-NOTE: ONTAP 9.7より前のバージョンでは、ローカル階層を表すために_aggregate_という用語が使用されていました。ONTAPのバージョンに関係なく、ONTAP CLIでは_aggregate_という用語が使用されます。ローカル階層の詳細については、を参照してくださいlink:../disks-aggregates/index.html["ディスクとローカル階層"]。
+NOTE: ONTAP 9.7より前のバージョンでは、System Managerは_ローカル階層_を説明するために_aggregate_という用語を使用しています。ONTAPバージョンに関係なく、ONTAP CLIでは_aggregate_という用語が使用されます。ローカル階層の詳細については、link:../disks-aggregates/index.html["ディスクとローカル階層"]を参照してください。
 
-.タスクの内容
-標準ローカル階層の場合は、各ローカル階層のRAIDグループのサイズを個別に変更します。Flash Poolローカル階層の場合は、SSD RAIDグループとHDD RAIDグループのサイズを個別に変更できます。
+.タスク概要
+標準ローカル階層の場合、各ローカル階層のRAIDグループのサイズを個別に変更します。Flash Poolローカル階層の場合、SSD RAIDグループとHDD RAIDグループのRAIDグループサイズを個別に変更できます。
 
-次に、RAIDグループサイズの変更に関する注意事項の概要を示します。
+RAIDグループのサイズ変更に関する注意点を次に示します。
 
-* デフォルトでは、最後に作成されたRAIDグループ内のディスクまたはアレイLUNの数が新しいRAIDグループサイズよりも少ない場合、新しいサイズに達するまで、最後に作成されたRAIDグループにディスクまたはアレイLUNが追加されます。
-* そのローカル階層内の他の既存のRAIDグループのサイズは、明示的にディスクを追加しないかぎり変更されません。
-* RAIDグループをローカル階層の現在の最大RAIDグループサイズよりも大きくすることはできません。
+* デフォルトでは、最後に作成されたRAIDグループのディスクまたはアレイLUNの数が新しいRAIDグループのサイズよりも少ない場合は、新たに設定したサイズになるまで、最後に作成されたRAIDグループにディスクまたはアレイLUNが追加されます。
+* ローカル階層内のそれ以外の既存のRAIDグループのサイズは、明示的にディスクを追加しないかぎり変更されません。
+* RAIDグループのサイズを、ローカル階層の現在のRAIDグループの最大サイズよりも大きくすることはできません。
 * すでに作成されているRAIDグループのサイズを縮小することはできません。
-* 新しいサイズは、そのローカル階層内のすべてのRAIDグループ（Flash Poolローカル階層の場合は、該当するタイプのRAIDグループ（SSDまたはHDD）に適用されます。
+* 新たに設定したサイズは、そのローカル階層内のすべてのRAIDグループ（Flash Poolローカル階層の場合は、該当するタイプのRAIDグループ - SSDまたはHDD）に適用されます。
 
 
 .手順
@@ -38,14 +38,14 @@ NOTE: ONTAP 9.7より前のバージョンでは、ローカル階層を表す�
 
 
  a| 
-Flash Poolローカル階層のSSD RAIDグループの最大サイズを変更する
+Flash Poolローカル階層のSSD RAIDグループの最大RAIDグループサイズを変更する
  a| 
 `storage aggregate modify -aggregate aggr_name -cache-raid-group-size size`
 
 
 
  a| 
-他のRAIDグループの最大サイズを変更する
+その他のRAIDグループの最大サイズを変更する
  a| 
 `storage aggregate modify -aggregate aggr_name -maxraidsize size`
 
@@ -53,11 +53,11 @@ Flash Poolローカル階層のSSD RAIDグループの最大サイズを変更�
 
 
 .例
-ローカル階層n1_a4のRAIDグループの最大サイズをディスクまたはアレイLUN 20に変更するコマンドの例を次に示します。
+次のコマンドは、ローカル層 n1_a4 の最大 RAID グループ サイズを 20 個のディスクまたはアレイ LUN に変更します：
 
 `storage aggregate modify -aggregate n1_a4 -maxraidsize 20`
 
-Flash Poolローカル階層n1_cache_a2のSSDキャッシュRAIDグループの最大サイズを24に変更するコマンドの例を次に示します。
+次のコマンドは、Flash Pool ローカル層 n1_cache_a2 の SSD キャッシュ RAID グループの最大 RAID グループ サイズを 24 に変更します：
 
 `storage aggregate modify -aggregate n1_cache_a2 -cache-raid-group-size 24`
 

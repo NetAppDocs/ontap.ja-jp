@@ -2,24 +2,24 @@
 permalink: disks-aggregates/create-flash-pool-aggregate-physical-ssds-task.html 
 sidebar: sidebar 
 keywords: create, flash, pool, aggregate, local tier, physical, ssds 
-summary: Flash Poolローカル階層を作成するには、HDD RAIDグループで構成された既存のローカル階層で該当する機能を有効にし、そのローカル階層に1つ以上のSSD RAIDグループを追加します。そのローカル階層には、SSD RAIDグループ（SSDキャッシュ）とHDD RAIDグループの2セットのRAIDグループが作成されます。 
+summary: Flash Poolローカル階層を作成するには、HDD RAIDグループで構成された既存のローカル階層でこの機能を有効にし、そのローカル階層に1つ以上のSSD RAIDグループを追加します。これにより、ローカル階層にはSSD RAIDグループ（SSDキャッシュ）とHDD RAIDグループの2つのRAIDグループ セットが作成されます。 
 ---
-= 物理SSDを使用してONTAP Flash Poolローカル階層を作成する
+= 物理 SSD を使用して ONTAP Flash Pool ローカル層を作成する
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-Flash Poolローカル階層を作成するには、HDD RAIDグループで構成された既存のローカル階層で該当する機能を有効にし、そのローカル階層に1つ以上のSSD RAIDグループを追加します。そのローカル階層には、SSD RAIDグループ（SSDキャッシュ）とHDD RAIDグループの2セットのRAIDグループが作成されます。
+Flash Poolローカル階層を作成するには、HDD RAIDグループで構成された既存のローカル階層でこの機能を有効にし、そのローカル階層に1つ以上のSSD RAIDグループを追加します。これにより、ローカル階層にはSSD RAIDグループ（SSDキャッシュ）とHDD RAIDグループの2つのRAIDグループ セットが作成されます。
 
 
-NOTE: ONTAP 9.7より前のバージョンでは、ローカル階層を表すために_aggregate_という用語が使用されていました。ONTAPのバージョンに関係なく、ONTAP CLIでは_aggregate_という用語が使用されます。ローカル階層の詳細については、を参照してくださいlink:../disks-aggregates/index.html["ディスクとローカル階層"]。
+NOTE: ONTAP 9.7より前のバージョンでは、System Managerは_ローカル階層_を説明するために_aggregate_という用語を使用しています。ONTAPバージョンに関係なく、ONTAP CLIでは_aggregate_という用語が使用されます。ローカル階層の詳細については、link:../disks-aggregates/index.html["ディスクとローカル階層"]を参照してください。
 
-.タスクの内容
+.タスク概要
 ローカル階層にSSDキャッシュを追加してFlash Poolローカル階層を作成したあとで、SSDキャッシュを削除してローカル階層を元の構成に戻すことはできません。
 
-デフォルトでは、SSDキャッシュのRAIDレベルは、HDD RAIDグループのRAIDレベルと同じです。このデフォルトの設定は、最初のSSD RAIDグループを追加するときにオプションを指定することで変更できます `raidtype`。
+デフォルトでは、SSD キャッシュの RAID レベルは HDD RAID グループの RAID レベルと同じです。最初の SSD RAID グループを追加するときに `raidtype`オプションを指定することで、このデフォルトの選択を上書きできます。
 
 .開始する前に
 * Flash Poolローカル階層に変換する、HDDで構成された有効なローカル階層を特定しておく必要があります。
@@ -36,7 +36,7 @@ SSDキャッシュ内で使用するRAIDグループが少ないほど、必要�
 
 
 .手順
-System ManagerまたはONTAP CLIを使用して、Flash Poolのローカル階層を作成できます。
+System Manager または ONTAP CLI を使用して、Flash Pool ローカル ティアを作成できます。
 
 [role="tabbed-block"]
 ====
@@ -45,33 +45,33 @@ System ManagerまたはONTAP CLIを使用して、Flash Poolのローカル階�
 ONTAP 9.12.1以降では、System Managerを使用して、物理SSDを使用するFlash Poolローカル階層を作成できます。
 
 .手順
-. [ストレージ]>[階層]*を選択し、既存のローカルHDDストレージ階層を選択します。
-. 次に、*[Flash Poolキャッシュの追加]*を選択します image:icon_kabob.gif["メニューオプションアイコン"] 。
-. [**キャッシュとして専用SSDを使用する*]を選択します。
-. ディスクタイプとディスク数を選択します。
+. *ストレージ > 階層*を選択し、既存のローカルHDDストレージ階層を選択します。
+. image:icon_kabob.gif["メニューオプションアイコン"]を選択し、*Flash Pool Cache の追加*を選択します。
+. **専用 SSD をキャッシュとして使用する** を選択します。
+. ディスクのタイプと数を選択します。
 . RAIDタイプを選択します。
-. [ 保存（ Save ） ] を選択します。
-. ストレージ層を見つけて選択するimage:icon_kabob.gif["メニューオプションアイコン"]
-. [詳細]*を選択します。Flash Poolが「enabled」*と表示されていることを確認します。
+. *保存*を選択します。
+. ストレージ層を見つけて、image:icon_kabob.gif["メニューオプションアイコン"]を選択します
+. *詳細*を選択します。Flash Poolが*有効*と表示されていることを確認します。
 
 
 --
 .CLI
 --
 .手順
-. ローカル階層をFlash Poolローカル階層の対象としてマークします。
+. ローカル ティアを Flash Pool ローカル ティアになる資格があるものとしてマークします：
 +
 `storage aggregate modify -aggregate _aggr_name_ -hybrid-enabled true`
 
 +
-この手順が失敗した場合は、ターゲットのローカル階層が書き込みキャッシュに対応しているかどうかを確認します。
+この手順が成功しない場合は、ターゲットのローカル層の書き込みキャッシュの適格性を判断します。
 
-. コマンドを使用して、ローカル階層にSSDを追加し `storage aggregate add`ます。
+.  `storage aggregate add`コマンドを使用して、SSDをローカル層に追加します。
 +
-** SSDは、IDまたはパラメータと `disktype`パラメータを使用して指定できます `diskcount`。
-** HDDとSSDでチェックサム方式が異なる場合やローカル階層がチェックサムが混在したローカル階層の場合は、パラメータを使用してローカル階層に追加するディスクのチェックサム方式を指定する必要があります `checksumstyle`。
-** SSDキャッシュに別のRAIDタイプを指定するには、パラメータを使用し `raidtype`ます。
-** キャッシュRAIDグループサイズを使用するRAIDタイプのデフォルトと異なるサイズにする場合は、パラメータを使用してこの時点で変更する必要があります `-cache-raid-group-size`。
+** SSD は ID で指定するか、 `diskcount`および `disktype`パラメータを使用して指定できます。
+** HDD と SSD のチェックサム方式が同じでない場合、またはローカル層が混合チェックサム ローカル層である場合は、 `checksumstyle`パラメータを使用して、ローカル層に追加するディスクのチェックサム方式を指定する必要があります。
+**  `raidtype`パラメータを使用して、SSDキャッシュに異なるRAIDタイプを指定できます。
+** キャッシュ RAID グループのサイズを、使用している RAID タイプのデフォルトと異なるサイズにしたい場合は、 `-cache-raid-group-size`パラメータを使用して今すぐ変更する必要があります。
 
 
 
@@ -79,6 +79,6 @@ ONTAP 9.12.1以降では、System Managerを使用して、物理SSDを使用す
 --
 ====
 .関連情報
-* link:https://docs.netapp.com/us-en/ontap-cli/search.html?q=storage+aggregate+add["ストレージアグリゲートの追加"^]
+* link:https://docs.netapp.com/us-en/ontap-cli/search.html?q=storage+aggregate+add["ストレージアグリゲート追加"^]
 * link:https://docs.netapp.com/us-en/ontap-cli/storage-aggregate-modify.html["storage aggregate modify"^]
 

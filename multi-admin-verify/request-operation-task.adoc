@@ -2,52 +2,52 @@
 sidebar: sidebar 
 permalink: multi-admin-verify/request-operation-task.html 
 keywords: ontap, mav, multi, admin, multi admin verify, verification, administrator, protected, operation, rules, request, cluster, approve, rbac 
-summary: マルチ管理者検証（MAV）が有効になっているクラスタで保護された操作を開始すると、ONTAP は自動的に操作を代行受信し、要求を生成するよう要求します。この要求は、MAV承認グループ（MAV管理者）の1人以上の管理者によって承認される必要があります。 
+summary: マルチ管理者検証（MAV）が有効になっているクラスタで保護された操作を開始すると、ONTAPは自動的に操作をインターセプトし、要求を生成するように求めます。この要求は、MAV承認グループ（MAV管理者）内の1人以上の管理者によって承認される必要があります。 
 ---
-= ONTAPでMAV保護された操作の実行を要求
+= ONTAPでMAV保護された操作の実行をリクエストする
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-Multi-Admin Verification（MAV）が有効になっているクラスタで保護された操作またはコマンドを開始すると、ONTAPは自動的に操作を代行受信し、MAV承認グループの1人以上の管理者（MAV管理者）が承認する必要がある要求の生成を要求します。または、ダイアログなしでMAVリクエストを作成することもできます。
+マルチ管理者認証（MAV）が有効になっているクラスタで保護対象処理またはコマンドを開始すると、ONTAPは自動的に処理を傍受して、要求を生成するよう求めます。生成した要求は、MAV承認グループ内の1人以上の管理者（MAV管理者）によって承認される必要があります。また、ダイアログなしでMAV要求を作成することもできます。
 
 承認された場合は、クエリに応答して、要求の有効期限内に処理を完了する必要があります。拒否された場合、要求数の上限を超えた場合、または有効期限を過ぎた場合は、要求を削除して再送信する必要があります。
 
-MAV機能は、既存のRBAC設定を遵守します。つまり、MAVの設定に関係なく、管理者ロールには、保護対象処理を実行するための十分な権限が必要です。link:../authentication/create-svm-user-accounts-task.html["RBACの詳細については、こちらをご覧ください"]です。
+MAV機能は、既存のRBAC設定を遵守します。つまり、MAVの設定に関係なく、管理者ロールには、保護対象処理を実行するための十分な権限が必要です。link:../authentication/create-svm-user-accounts-task.html["RBAC の詳細"]。
 
-MAV管理者の場合は、保護された操作を実行する要求もMAV管理者によって承認されている必要があります。
+MAV管理者が保護対象処理を実行する要求を生成した場合も、その要求は他のMAV管理者によって承認される必要があります。
 
 
 
 == System Managerの手順
 
-ユーザーがメニュー項目をクリックして操作を開始し、その操作が保護されると、承認要求が生成され、次のような通知がユーザーに送信されます。
+ユーザがメニュー オプションをクリックしてある処理を開始し、その処理が保護されている場合、承認要求が生成され、次のような通知がユーザに送信されます。
 
 [listing]
 ----
 Approval request to delete the volume was sent.
 Track the request ID 356 from Events & Jobs > Multi-Admin Requests.
 ----
-[*Multi-Admin Requests]ウィンドウは、MAVが有効な場合に使用できます。このウィンドウには、ユーザのログインIDとMAVロール（承認者または未承認）に基づいて保留中のリクエストが表示されます。保留中の要求ごとに、次のフィールドが表示されます。
+MAVが有効な場合、*マルチ管理者リクエスト*ウィンドウが利用可能になり、ユーザーのログインIDとMAVロール（承認者かどうか）に基づいて保留中のリクエストが表示されます。保留中のリクエストごとに、以下のフィールドが表示されます：
 
-* 操作
-* インデックス（数値）
-* ステータス（[保留中]、[承認済み]、[却下済み]、[実行済み]、または[期限切れ]）
+* 処理
+* Index（番号）
+* Status（Pending、Approved、Rejected、Executed、Expired）
 +
-1人の承認者によってリクエストが却下された場合、それ以上のアクションは実行できません。
+承認者が1人でも要求を却下した場合、それ以上の操作を行うことはできません。
 
-* クエリ（要求された操作のパラメータまたは値）
-* 要求しているユーザ
-* リクエストの有効期限：
-* （の数）保留中の承認者
-* （数）潜在的承認者数
+* Query（要求された処理のパラメータまたは値）
+* Requesting User
+* Request Expires On
+* Pending Approvers（人数）
+* Potential Approvers（人数）
 
 
-要求が承認されると、要求したユーザは有効期限内に操作を再試行できます。
+要求が承認された場合、要求元ユーザは有効期限内に処理を再試行できます。
 
-ユーザーが承認せずに操作を再試行すると、次のような通知が表示されます。
+ユーザが承認なしで処理を再試行すると、次のような通知が表示されます。
 
 [listing]
 ----
@@ -58,9 +58,9 @@ Retry the operation after request is approved.
 
 == CLIの手順
 
-. 保護された動作を直接入力するか、MAV requestコマンドを使用して入力します。
+. 保護対象処理を直接、またはMAV要求コマンドを使用して入力します。
 +
-*例–ボリュームを削除するには、次のいずれかのコマンドを入力します。*
+*例 – ボリュームを削除するには、次のコマンドのいずれかを入力します：*
 
 +
 ** `volume delete`
@@ -88,11 +88,11 @@ Error: command failed: The security multi-admin-verify request (index 3)
 ----
 
 
-. リクエストのステータスを確認し、MAV通知に応答します。
+. 要求のステータスを確認して、MAV通知に応答します。
 +
-.. 要求が承認されたら、CLIメッセージに応答して処理を完了します。
+.. 要求が承認された場合は、CLIメッセージに応答して処理を完了します。
 +
-* 例： *
+*例：*
 
 +
 [listing]
@@ -123,9 +123,9 @@ Info: Volume "vol1" in Vserver "vs0" will be marked as deleted and placed in the
 Warning: Are you sure you want to delete volume "vol1" in Vserver "vs0" ?
 {y|n}: y
 ----
-.. 要求が拒否された場合、または有効期限が過ぎた場合は、要求を削除し、再送信するかMAV管理者に連絡してください。
+.. 要求が拒否された場合、または有効期限を過ぎた場合は、要求を削除して、再送信するかMAV管理者に問い合わせます。
 +
-* 例： *
+*例：*
 
 +
 [listing]
@@ -159,5 +159,5 @@ To delete, run "security multi-admin-verify request delete 3".
 
 
 .関連情報
-* link:https://docs.netapp.com/us-en/ontap-cli/search.html?q=security+multi-admin-verify["セキュリティ マルチ管理者検証"^]
+* link:https://docs.netapp.com/us-en/ontap-cli/search.html?q=security+multi-admin-verify["セキュリティ多管理者認証"^]
 

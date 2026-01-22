@@ -2,42 +2,42 @@
 permalink: encryption-at-rest/enable-onboard-key-management-95-earlier-nse-task.html 
 sidebar: sidebar 
 keywords: enabling, onboard key management, ontap 9.5, earlier 
-summary: オンボードキーマネージャを使用して、暗号化されたデータにアクセスするためにクラスタで使用するキーを安全に保管できます。オンボードキーマネージャは、暗号化されたボリュームまたは自己暗号化ディスクにアクセスする各クラスタで有効にする必要があります。 
+summary: オンボード キー マネージャを使用して、暗号化されたデータにアクセスする際にクラスタで使用するキーを安全に保管できます。オンボード キー マネージャは、暗号化されたボリュームや自己暗号化ディスクにアクセスする各クラスタで有効にする必要があります。 
 ---
-= ONTAP 9 .5以前でオンボードキー管理を有効にする
+= オンボード キー管理の有効化（ONTAP 9.5以前）
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-オンボードキーマネージャを使用して、クラスタノードをFIPSドライブまたはSEDに対して認証できます。オンボードキーマネージャは組み込みのツールで、データと同じストレージシステムからノードに認証キーを提供します。オンボードキーマネージャはFIPS-140-2レベル1に準拠しています。
+オンボード キー マネージャを使用して、クラスタ ノードをFIPSドライブまたはSEDに対して認証できます。オンボード キー マネージャは組み込みのツールで、データと同じストレージ システムからノードに認証キーを提供します。オンボード キー マネージャはFIPS-140-2レベル1に準拠しています。
 
-オンボード キー マネージャを使用して、暗号化されたデータにアクセスする際にクラスタで使用するキーを安全に保管できます。暗号化されたボリュームまたは自己暗号化ディスクにアクセスする各クラスターでオンボード キー マネージャーを有効にします。
+オンボードキーマネージャーを使用すると、クラスターが暗号化されたデータにアクセスするために使用するキーを保護できます。暗号化されたボリュームまたは自己暗号化ディスクにアクセスする各クラスターで、オンボードキーマネージャーを有効にしてください。
 
-.タスクの内容
-このコマンドは、クラスタにノードを追加するたびに実行する必要があり `security key-manager setup`ます。
+.タスク概要
+クラスターにノードを追加するたびに、 `security key-manager setup`コマンドを実行する必要があります。
 
-MetroCluster構成の場合は、次のガイドラインを確認してください。
+MetroCluster構成を使用する場合は、次のガイドラインを確認してください。
 
-* ONTAP 9 .5では、同じパスフレーズを使用してローカルクラスタと `security key-manager setup -sync-metrocluster-config yes`リモートクラスタでを実行する必要があります `security key-manager setup`。
-* ONTAP 9を実行する前に、同じパスフレーズを使用してローカルクラスタでを実行し、20秒ほど待ってからリモートクラスタでを実行する `security key-manager setup`必要があります `security key-manager setup`。
-
-
-デフォルトでは、ノードのリブート時にキー管理ツールのパスフレーズを入力する必要はありません。ONTAP 9 .4以降では、オプションを使用して、リブート後にユーザにパスフレーズの入力を求めることができ `-enable-cc-mode yes`ます。
-
-NVEでは、を設定する `-enable-cc-mode yes`と、コマンドと `volume move start`コマンドで作成したボリューム `volume create`が自動的に暗号化されます。で `volume create`は、を指定する必要はありません `-encrypt true`。で `volume move start`は、を指定する必要はありません `-encrypt-destination true`。
+* ONTAP 9.5 では、ローカルクラスタで `security key-manager setup`を実行し、リモートクラスタで `security key-manager setup -sync-metrocluster-config yes`を実行する必要があります。それぞれ同じパスフレーズを使用します。
+* ONTAP 9.5より前では、ローカルクラスタで `security key-manager setup`を実行し、約20秒待ってから、リモートクラスタで `security key-manager setup`を実行し、それぞれで同じパスフレーズを使用する必要があります。
 
 
-NOTE: パスフレーズの入力に失敗した場合は、ノードを再起動する必要があります。
+デフォルトでは、ノードの再起動時にキーマネージャのパスフレーズを入力する必要はありません。ONTAP 9.4以降では、 `-enable-cc-mode yes`オプションを使用して、再起動後にユーザーにパスフレーズの入力を要求できます。
+
+NVE の場合、 `-enable-cc-mode yes`を設定すると、 `volume create`コマンドと `volume move start`コマンドで作成したボリュームは自動的に暗号化されます。 `volume create`の場合、 `-encrypt true`を指定する必要はありません。 `volume move start`の場合、 `-encrypt-destination true`を指定する必要はありません。
+
+
+NOTE: パスフレーズの試行が失敗した場合は、ノードを再起動する必要があります。
 
 .開始する前に
-* NSE を外部キー管理 (KMIP) サーバーで使用している場合は、外部キー マネージャー データベースを削除します。
+* NSE を外部キー管理（KMIP）サーバーで使用している場合は、外部キー マネージャー データベースを削除します。
 +
-link:delete-key-management-database-task.html["外部キー管理からオンボードキー管理への移行"]
+link:delete-key-management-database-task.html["外部キー管理からオンボード キー管理への移行"]
 
 * このタスクを実行するには、クラスタ管理者である必要があります。
-* オンボード キー マネージャを構成する前に、 MetroCluster環境を構成します。
+* オンボード キー マネージャーを構成する前に、MetroCluster環境を構成します。
 
 
 .手順
@@ -47,10 +47,10 @@ link:delete-key-management-database-task.html["外部キー管理からオンボ
 
 +
 
-NOTE: ONTAP 9 .4以降では、オプションを使用して、リブート後にユーザにキー管理ツールのパスフレーズの入力を求めることができます `-enable-cc-mode yes`。NVEでは、を設定する `-enable-cc-mode yes`と、コマンドと `volume move start`コマンドで作成したボリューム `volume create`が自動的に暗号化されます。
+NOTE: ONTAP 9.4以降では、 `-enable-cc-mode yes`オプションを使用して、再起動後にユーザーにキーマネージャのパスフレーズの入力を要求できます。NVEの場合、 `-enable-cc-mode yes`を設定すると、 `volume create`コマンドと `volume move start`コマンドで作成したボリュームは自動的に暗号化されます。
 
 +
-次の例では、リブートのたびにパスフレーズの入力を要求せずに、cluster1でキー管理ツールのセットアップを開始します。
+次の例は、リブートのたびにパスフレーズの入力を求めずに、cluster1でキー管理ツールのセットアップを開始します。
 
 +
 [listing]
@@ -65,11 +65,11 @@ Would you like to use onboard key-management? {yes, no} [yes]:
 Enter the cluster-wide passphrase:    <32..256 ASCII characters long text>
 Reenter the cluster-wide passphrase:    <32..256 ASCII characters long text>
 ----
-. オンボードキー管理を設定するかどうかを確認するプロンプトでと入力し `yes`ます。
-. パスフレーズのプロンプトで 32 ～ 256 文字のパスフレーズを入力します。または、 64 ～ 256 文字のパスフレーズを「 cc-mode] 」に入力します。
+. プロンプトで `yes`を入力して、オンボード キー管理を設定します。
+. パスフレーズプロンプトで、32文字から256文字までのパスフレーズを入力します。または、「`cc-mode`」の場合は64文字から256文字までのパスフレーズを入力します。
 +
 
-NOTE: 指定された "cc-mode" パスフレーズが 64 文字未満の場合、キー管理ツールのセットアップ操作によってパスフレーズのプロンプトが再表示されるまでに 5 秒の遅延が発生します。
+NOTE: 指定された「`cc-mode`」パスフレーズが64文字未満の場合、キー マネージャーのセットアップ操作でパスフレーズ プロンプトが再度表示されるまでに5秒の遅延が発生します。
 
 . パスフレーズの確認のプロンプトでパスフレーズをもう一度入力します。
 . すべてのノードにキーが設定されていることを確認します。
@@ -77,7 +77,7 @@ NOTE: 指定された "cc-mode" パスフレーズが 64 文字未満の場合�
 `security key-manager show-key-store`
 
 +
-詳細はこちら `security key-manager show-key-store`の中でlink:https://docs.netapp.com/us-en/ontap-cli-9161/security-key-manager-show-key-store.html["ONTAPコマンド リファレンス"^]。
+ `security key-manager show-key-store`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli-9161/security-key-manager-show-key-store.html["ONTAPコマンド リファレンス"^]をご覧ください。
 
 +
 [listing]
@@ -100,14 +100,14 @@ Key ID                                                           Used By
 ----
 
 
-.終了後
-ONTAP は、キー管理情報をクラスタの複製データベース (RDB) に自動的にバックアップします。
+.終了後の操作
+ONTAPは、キー管理情報をクラスタの複製データベース（RDB）に自動的にバックアップします。
 
-オンボード キー マネージャーのパスフレーズを設定した後、その情報をストレージ システム外部の安全な場所に手動でバックアップします。見るlink:backup-key-management-information-manual-task.html["オンボードキー管理情報の手動でのバックアップ"]。
+オンボードキーマネージャのパスフレーズを設定したら、その情報をストレージシステム外の安全な場所に手動でバックアップしてください。link:backup-key-management-information-manual-task.html["オンボード キー管理情報の手動バックアップ"]を参照してください。
 
 .関連情報
-* link:backup-key-management-information-manual-task.html["オンボードキー管理情報の手動でのバックアップ"]
-* link:https://docs.netapp.com/us-en/ontap-cli-9161/security-key-manager-setup.html["security key-manager setupの実行"^]
-* link:https://docs.netapp.com/us-en/ontap-cli-9161/security-key-manager-show-key-store.html["セキュリティ キー マネージャーのキー ストアの表示"^]
-* link:delete-key-management-database-task.html["外部キー管理からオンボードキー管理への移行"]
+* link:backup-key-management-information-manual-task.html["オンボード キー管理情報の手動バックアップ"]
+* link:https://docs.netapp.com/us-en/ontap-cli-9161/security-key-manager-setup.html["セキュリティキー・マネージャのセットアップ"^]
+* link:https://docs.netapp.com/us-en/ontap-cli-9161/security-key-manager-show-key-store.html["security key-manager show-key-store"^]
+* link:delete-key-management-database-task.html["外部キー管理からオンボード キー管理への移行"]
 

@@ -2,7 +2,7 @@
 sidebar: sidebar 
 permalink: s3-snapshots/create-s3-snapshot.html 
 keywords: s3 snapshots, snapshot create 
-summary: S3 Snapshotを手動で生成することも、Snapshotポリシーを設定してS3 Snapshotを自動的に作成することもできます。 
+summary: S3 Snapshotは手動で生成することも、Snapshotポリシーを設定して自動的に作成させることもできます。 
 ---
 = ONTAP S3 Snapshotを作成する
 :hardbreaks:
@@ -16,41 +16,41 @@ summary: S3 Snapshotを手動で生成することも、Snapshotポリシーを�
 
 
 [role="lead"]
-S3 Snapshotを手動で生成することも、Snapshotポリシーを設定してS3 Snapshotを自動的に作成することもできます。Snapshotは、データのバックアップとリカバリに使用するオブジェクトの静的コピーとして機能します。Snapshotの保持期間を決定するために、指定した間隔でSnapshotを自動的に作成するSnapshotポリシーを作成できます。
+S3 Snapshotは手動で生成することも、Snapshotポリシーを設定して自動的に作成させることもできます。Snapshotはオブジェクトの静的コピーとして機能し、データのバックアップとリカバリで使用します。Snapshotの保持期間を決定するために、指定した間隔でSnapshotを自動的に作成するSnapshotポリシーを作成できます。
 
-S3 Snapshotを使用すると、オブジェクトのバージョン管理を有効にするかどうかに関係なく、S3バケット内のオブジェクトデータを保護できます。
+S3 Snapshotを使用すると、オブジェクトのバージョン管理が有効かどうかに関係なく、S3バケット内のオブジェクト データを保護できます。
 
 
-TIP: Snapshotは、S3バケットでオブジェクトのバージョン管理が有効になっていない場合にデータ保護を確立する際に特に役立ちます。これは、以前のオブジェクトバージョンを使用できない場合にリストア処理で使用できるポイントインタイムレコードとして機能するためです。
+TIP: Snapshotは、S3バケットでオブジェクトのバージョン管理が有効になっていない場合のデータ保護の確立に役立ちます。以前のバージョンのオブジェクトを使用できない場合に、ポイントインタイム レコードとして機能するSnapshotを使用してリストア処理を行えるからです。
 
-.タスクの内容
-* スナップショットには、次の命名規則が適用されます（手動スナップショットと自動スナップショットの両方）。
+.タスク概要
+* Snapshotには、以下の命名規則が適用されます（手動作成でも自動作成でも）。
 +
-** S3 Snapshot名の最大文字数は30文字です
+** S3 Snapshot名に指定できる文字数は最大30文字です。
 ** S3 Snapshot名に使用できる文字は、小文字のアルファベット、数字、ドット（.）、ハイフン（-）のみです。
-** S3 Snapshot名の末尾の文字はアルファベットまたは数字にする必要があります
-** S3 Snapshot名にサブ文字列を含めることはできません `s3snap`
+** S3 Snapshot名の末尾の文字は、アルファベットか数字にする必要があります。
+** S3 Snapshot名に部分文字列を含めることはできません `s3snap`
 
 
-* S3プロトコルでは、バケットの命名制限によってバケット名は63文字に制限されます。ONTAP S3スナップショットはS3プロトコルでバケットとして提供されるため、Snapshotバケット名にも同様の制限が適用されます。デフォルトでは、元のバケット名がベースバケット名として使用されます。
-* どのスナップショットがどのバケットに属しているかを簡単に識別できるように、スナップショットバケット名は、ベースバケット名と、スナップショット名の前に付加された特別な文字列で構成され `-s3snap-`ます。Snapshotバケット名の形式は、です `<base_bucket_name>-s3snap-<snapshot_name>`。
+* S3プロトコルの使用時には、バケット名の制限によってバケット名が63文字に制限されます。ONTAP S3 Snapshotは、S3プロトコルを介してバケットとして提供されるため、Snapshotバケット名にも同様の制限が適用されます。デフォルトでは、元のバケット名がベース バケット名として使用されます。
+* どのSnapshotがどのバケットに属しているかを識別しやすくするために、Snapshotバケットはベースバケット名と、Snapshot名の先頭に付加される特殊な文字列 `-s3snap-`で構成されます。Snapshotバケット名は `<base_bucket_name>-s3snap-<snapshot_name>`という形式になります。
 +
-たとえば、次のコマンドを実行して `snap1`onを `bucket-a`作成すると、という名前のSnapshotバケットが作成され `bucket-a-s3snap-snap1`ます。ベースバケットにアクセスする権限がある場合は、S3クライアントからこのバケットにアクセスできます。
+たとえば、 `bucket-a`で `snap1`を作成するために次のコマンドを実行すると、 `bucket-a-s3snap-snap1`という名前のSnapshotバケットが作成されます。ベース バケットにアクセスする権限がある場合は、S3クライアント経由でこのバケットにアクセスできます。
 
 +
 [listing]
 ----
 vserver object-store-server bucket snapshot create -bucket bucket-a -snapshot snap1
 ----
-* 63文字を超えるSnapshotバケット名を作成することはできません。
-* 自動Snapshot名には、ポリシースケジュール名とタイムスタンプが含まれます。これは、トラディショナルボリュームSnapshotの命名規則に似ています。スケジュールされたSnapshotの名前は `daily-2024-01-01-0015`、など `hourly-2024-05-22-1105`です。
+* 63文字を超えるSnapshotバケット名は作成できません。
+* Snapshotの自動作成名には、ポリシー スケジュール名とタイムスタンプが含まれます。これは、従来のボリューム Snapshot の命名規則に似ています。たとえば、スケジュールされた Snapshot 名は `daily-2024-01-01-0015`や `hourly-2024-05-22-1105`になります。
 
 
 
 
-== S3 Snapshotを手動で作成する
+== S3 Snapshotの手動作成
 
-ONTAP CLIを使用して、S3 Snapshotを手動で作成できます。この手順では、ローカルクラスタにのみSnapshotが作成されます。
+ONTAP CLIを使用してS3 Snapshotを手動で作成できます。手順では、ローカル クラスタにのみSnapshotを作成します。
 
 .手順
 . S3 Snapshotを作成します。
@@ -60,7 +60,7 @@ ONTAP CLIを使用して、S3 Snapshotを手動で作成できます。この手
 vserver object-store-server bucket snapshot create -vserver <svm_name> -bucket <bucket_name> -snapshot <snapshot_name>
 ----
 +
-次の例は `vs0`、Storage VMと `website-data`バケットにという名前のSnapshotを作成します `pre-update`。
+次の例では、 `vs0`ストレージVMと `website-data`バケットに `pre-update`という名前のSnapshotを作成します：
 
 +
 [listing]
@@ -73,28 +73,28 @@ vserver object-store-server bucket snapshot create -vserver vs0 -bucket website-
 
 == バケットへのS3 Snapshotポリシーの割り当て
 
-S3バケットレベルのSnapshotポリシーを設定すると、ONTAPによってスケジュールされたS3 Snapshotが自動的に作成されます。従来のSnapshotポリシーと同様に、S3 Snapshotに対して最大5つのスケジュールを設定できます。
+S3バケット レベルでSnapshotポリシーを設定すると、スケジュールされたS3 SnapshotがONTAPによって自動的に作成されます。従来のSnapshotポリシーと同様に、S3 Snapshotにも最大5つのスケジュールを設定できます。
 
-Snapshotポリシーは、通常、Snapshotを作成するスケジュール、各スケジュールで保持するコピーの数、およびスケジュールのプレフィックスを指定します。たとえば、毎日午前12時10分にS3 Snapshotを1つ作成し、最新の2つのコピーを保持して、という名前を付けることができます `daily-<timestamp>`。
+スナップショットポリシーでは通常、スナップショットを作成するスケジュール、各スケジュールで保持するコピーの数、およびスケジュールプレフィックスを指定します。例えば、ポリシーで毎日午前0：10にS3スナップショットを1つ作成し、最新の2つのコピーを保持し、それぞれに `daily-<timestamp>`という名前を付けることができます。
 
-デフォルトのSnapshotポリシーで保持される内容は次のとおりです。
+デフォルトのSnapshotポリシーでは、以下のSnapshotが保持されます。
 
-* 6時間ごとのスナップショット
-* 2つの日単位のスナップショット
-* 2つの週単位のスナップショット
+* 時間単位のSnapshot×6
+* 日単位のSnapshot×2
+* 週単位のSnapshot×2
 
 
 .開始する前に
-* SnapshotポリシーをS3バケットに割り当てる前に、作成しておく必要があります。
+* Snapshotポリシーは、S3バケットに割り当てる前に作成しておく必要があります。
 
 
 
-NOTE: S3 Snapshotのポリシーには、他のONTAP Snapshotポリシーと同じルールが適用されます。ただし、いずれかのSnapshotスケジュールに保持期間が設定されているSnapshotポリシーをS3バケットに割り当てることはできません。
+NOTE: S3 Snapshot用のポリシーは、他のONTAP Snapshotポリシーと同じルールに従います。ただし、いずれかのSnapshotスケジュールに保持期間が設定されているSnapshotポリシーを、S3バケットに割り当てることはできません。
 
-Snapshotを自動生成するためのSnapshotポリシーの作成の詳細については、を参照してくださいlink:../data-protection/configure-custom-snapshot-policies-concept.html["カスタムSnapshotポリシーの設定の概要"]。
+スナップショットを自動生成するためのスナップショット ポリシーの作成の詳細については、link:../data-protection/configure-custom-snapshot-policies-concept.html["カスタム スナップショット ポリシーの設定の概要"]を参照してください。
 
 .手順
-. バケットにSnapshotポリシーを割り当てます。
+. Snapshotポリシーをバケットに割り当てます。
 +
 [listing]
 ----
@@ -111,7 +111,7 @@ vserver object-store-server bucket modify -vserver <svm_name> -bucket <bucket_na
 
 
 
-NOTE: クラスタをONTAP 9 .16.1より前のバージョンのONTAPにリバートする必要がある場合は、すべてのバケットのの値が（または `-`）に設定されている `none`ことを確認して `snapshot-policy`ください。
+NOTE: クラスタをONTAP 9.16.1より前のONTAPバージョンに戻す必要がある場合は、すべてのバケットの `snapshot-policy`の値が `none`（または `-`）に設定されていることを確認します。
 
 .関連情報
-link:../s3-snapshots/index.html["ONTAP S3スナップショットの詳細"]
+link:../s3-snapshots/index.html["ONTAP S3スナップショットについて学ぶ"]

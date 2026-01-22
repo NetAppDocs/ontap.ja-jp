@@ -2,30 +2,30 @@
 permalink: authentication/enable-disable-dynamic-authorization.html 
 sidebar: sidebar 
 keywords: dynamic, authorization, framework, security, login, ssh 
-summary: SSHログインのセキュリティを強化し、不審な状況下で特定のコマンドの実行を制限するように、動的認可フレームワークを設定します。 
+summary: 動的認証フレームワークを構成して、SSH ログインのセキュリティを強化し、疑わしい状況下での特定のコマンドの実行を制限します。 
 ---
-= ONTAPでの動的許可の有効化または無効化
+= ONTAPでの動的認可の有効化または無効化
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-ONTAP 9 .15.1以降では、管理者は、コンフィギュレーションをテストするモードでダイナミック認可を設定し、イネーブルにすることができます。また、コンフィギュレーションを `enforced`アクティブにするモードでは、SSH経由で接続するCLIユーザのコンフィギュレーションをアクティブにすることもできます `visibility`。動的認可が不要になった場合は、ディセーブルにすることができます。ダイナミック許可をディセーブルにしても、コンフィギュレーション設定は使用可能なままであり、後で再度イネーブルにする場合に使用できます。
+ONTAP 9.15.1以降、管理者は動的認証の設定と有効化を、 `visibility`設定をテストするモード、または `enforced`SSH経由で接続するCLIユーザ向けに設定をアクティブ化するモードのいずれかで実行できます。動的認証が不要になった場合は、無効にすることができます。動的認証を無効にしても設定はそのまま残り、後で再度有効にする場合に使用できます。
 
-の詳細については `security dynamic-authorization modify`、をlink:https://docs.netapp.com/us-en/ontap-cli/security-dynamic-authorization-modify.html["ONTAPコマンド リファレンス"^]参照してください。
-
-
-
-== テストの動的許可を有効にする
-
-表示モードで動的許可を有効にすると、機能をテストして、ユーザが誤ってロックアウトされないようにすることができます。このモードでは、信頼スコアはすべての制限されたアクティビティでチェックされますが、強制はされません。ただし、拒否された、または追加の認証チャレンジの対象となるアクティビティはすべてログに記録されます。ベストプラクティスとして、強制する前に、このモードで目的の設定をテストすることを推奨します。
+ `security dynamic-authorization modify`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/security-dynamic-authorization-modify.html["ONTAPコマンド リファレンス"^]を参照してください。
 
 
-NOTE: この手順を実行すると、他のダイナミック認可設定をまだ設定していない場合でも、初めてダイナミック認可をイネーブルにできます。link:configure-dynamic-authorization.html["動的許可のカスタマイズ"]その他の動的認証設定を環境に合わせてカスタマイズする手順については、を参照してください。
+
+== テスト目的での動的許可の有効化
+
+visibilityモードで動的許可を有効化すると、ユーザを誤ってロック アウトする事態を防ぎつつ、機能のテストを行えます。このモードでは、すべての制限対象操作で信頼スコアがチェックされますが、適用はされません。ただし、動的許可の有効時に拒否または追加認証チャレンジの対象となるすべての操作が記録されます。ベストプラクティスとして、目的の設定を適用する前に、このモードでテストすることが推奨されます。
+
+
+NOTE: 他の動的認証設定をまだ設定していない場合でも、この手順で初めて動的認証を有効化できます。環境に合わせてカスタマイズするためのその他の動的認証設定を設定する手順については、link:configure-dynamic-authorization.html["動的許可のカスタマイズ"]を参照してください。
 
 .手順
-. グローバル設定を設定し、機能の状態をに変更することにより、可視モードでダイナミック許可をイネーブルにし `visibility`ます。パラメータを使用しない場合、 `-vserver`コマンドはクラスタレベルで実行されます。括弧<>の値を環境に合わせて更新します。太字のパラメータは必須です。
+. グローバル設定を構成し、機能の状態を `visibility`に変更することで、可視性モードで動的認証を有効にします。 `-vserver`パラメータを使用しない場合、コマンドはクラスタ レベルで実行されます。括弧内の値<>を環境に合わせて更新してください。太字のパラメータは必須です：
 +
 [source, subs="specialcharacters,quotes"]
 ----
@@ -36,7 +36,7 @@ security dynamic-authorization modify \
 -suppression-interval <interval> \
 -vserver <storage_VM_name>
 ----
-. コマンドを使用してグローバル設定を表示し、結果を確認し `show`ます。
+.  `show`コマンドを使用してグローバル構成を表示し、結果を確認します：
 +
 [source, console]
 ----
@@ -46,15 +46,15 @@ security dynamic-authorization show
 
 
 
-== 強制モードでの動的許可の有効化
+== enforcedモードでの動的許可の有効化
 
-強制モードでダイナミック許可をイネーブルにできます。通常、このモードは、可視化モードでのテストを完了した後に使用します。このモードでは、すべての制限されたアクティビティで信頼スコアがチェックされ、制限条件が満たされるとアクティビティ制限が適用されます。抑制間隔も適用されるため、指定された間隔内での追加の認証チャレンジを防ぐことができます。
+enforcedモードで動的許可を有効化できます。通常、このモードはvisibilityモードでのテスト実施後に使用します。このモードでは、すべての制限対象操作で信頼スコアがチェックされ、制限条件に該当する場合に操作制限が適用されます。抑制間隔も適用されるため、指定した間隔中は追加の認証チャレンジが行われません。
 
 
-NOTE: この手順は、事前にモードでダイナミック許可を設定してイネーブルにしていることを前提としてい `visibility`ます。これを強く推奨します。
+NOTE: この手順では、以前に `visibility`モードで動的許可を設定して有効にしていることを前提としています。これを強くお勧めします。
 
 .手順
-. ステートをに変更して、モード `enforced`でダイナミック認可をイネーブルにし `enforced`ます。パラメータを使用しない場合、 `-vserver`コマンドはクラスタレベルで実行されます。括弧<>の値を環境に合わせて更新します。太字のパラメータは必須です。
+.  `enforced`モードで動的認証を有効にするには、状態を `enforced`に変更します。 `-vserver`パラメータを使用しない場合、コマンドはクラスタ レベルで実行されます。括弧内の値<>を環境に合わせて更新してください。太字のパラメータは必須です：
 +
 [source, subs="specialcharacters,quotes"]
 ----
@@ -62,7 +62,7 @@ security dynamic-authorization modify \
 *-state enforced* \
 -vserver <storage_VM_name>
 ----
-. コマンドを使用してグローバル設定を表示し、結果を確認し `show`ます。
+.  `show`コマンドを使用してグローバル構成を表示し、結果を確認します：
 +
 [source, console]
 ----
@@ -77,7 +77,7 @@ security dynamic-authorization show
 追加した認証セキュリティが不要になった場合、動的許可を無効化できます。
 
 .手順
-. 動的認可をディセーブルにするには、そのステートをに変更し `disabled`ます。パラメータを使用しない場合、 `-vserver`コマンドはクラスタレベルで実行されます。括弧<>の値を環境に合わせて更新します。太字のパラメータは必須です。
+. 動的認証を無効化するには、状態を `disabled`に変更してください。 `-vserver`パラメータを使用しない場合、コマンドはクラスタ レベルで実行されます。括弧内の値<>は環境に合わせて更新してください。太字のパラメータは必須です：
 +
 [source, subs="specialcharacters,quotes"]
 ----
@@ -85,19 +85,19 @@ security dynamic-authorization modify \
 *-state disabled* \
 -vserver <storage_VM_name>
 ----
-. コマンドを使用してグローバル設定を表示し、結果を確認し `show`ます。
+.  `show`コマンドを使用してグローバル構成を表示し、結果を確認します：
 +
 [source, console]
 ----
 security dynamic-authorization show
 ----
 +
-の詳細については `security dynamic-authorization show`、をlink:https://docs.netapp.com/us-en/ontap-cli/security-dynamic-authorization-show.html["ONTAPコマンド リファレンス"^]参照してください。
+ `security dynamic-authorization show`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/security-dynamic-authorization-show.html["ONTAPコマンド リファレンス"^]を参照してください。
 
 
 
 
 
-== 次のステップ
+== 次の手順
 
-（任意）使用する環境に応じて、link:configure-dynamic-authorization.html["動的許可のカスタマイズ"]その他のダイナミック認可設定を構成するには、を参照してください。
+（オプション）環境に応じて、link:configure-dynamic-authorization.html["動的許可のカスタマイズ"]を参照して他の動的認証設定を構成してください。

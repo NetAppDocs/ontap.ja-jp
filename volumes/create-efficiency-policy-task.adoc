@@ -2,39 +2,39 @@
 permalink: volumes/create-efficiency-policy-task.html 
 sidebar: sidebar 
 keywords: create, volume efficiency policy, run, efficiency, operation, volume, policy 
-summary: ボリューム効率化ポリシーを作成して、ボリュームに対して効率化処理を実行できます。 
+summary: ボリューム効率化ポリシーを作成して、ボリュームで効率化処理を実行できます。 
 ---
-= ボリューム効率化ポリシーを作成します。
+= ボリューム効率化ポリシーの作成
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-コマンドを使用して、ボリュームに対して重複排除、またはデータ圧縮とそれに続く重複排除を特定の期間実行するボリューム効率化ポリシーを作成し、ジョブのスケジュールを指定できます `volume efficiency policy create`。
+ボリューム効率ポリシーを作成して、特定の期間にわたってボリューム上で重複排除またはデータ圧縮とそれに続く重複排除を実行し、 `volume efficiency policy create`コマンドを使用してジョブ スケジュールを指定できます。
 
 .開始する前に
-コマンドを使用して、cronスケジュールを作成しておく必要があります `job schedule cron create`。cronスケジュールの管理の詳細については、を参照してlink:../system-admin/index.html["システムアドミニストレーションリファレンス"]ください。の詳細については `job schedule cron create`、をlink:https://docs.netapp.com/us-en/ontap-cli/job-schedule-cron-create.html["ONTAPコマンド リファレンス"^]参照してください。
+ `job schedule cron create`コマンドを使用してcronスケジュールを作成しておく必要があります。cronスケジュールの管理の詳細については、link:../system-admin/index.html["システム管理リファレンス"]を参照してください。 `job schedule cron create`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/job-schedule-cron-create.html["ONTAPコマンド リファレンス"^]を参照してください。
 
-.タスクの内容
-事前定義されたデフォルトのロールを持つSVM管理者は、重複排除ポリシーを管理できません。ただし、クラスタ管理者は、カスタマイズした任意のロールを使用して、SVM管理者に割り当てられているPrivilegesを変更できます。SVM管理者の権限の詳細については、を参照してくださいlink:../authentication/index.html["カンリシヤニンシヨウトRBAC"]。
+.タスク概要
+デフォルトの定義済みロールを持つSVM管理者は、重複排除ポリシーを管理できません。ただし、クラスタ管理者は、カスタマイズされたロールを使用して、SVM管理者に割り当てられた権限を変更できます。SVM管理者の機能の詳細については、link:../authentication/index.html["管理者認証とRBAC"]を参照してください。
 
 [NOTE]
 ====
-重複排除またはデータ圧縮処理は、スケジュールした時間に実行するか、特定の期間を指定したスケジュールを作成するか、しきい値を指定して実行できます。しきい値は、新しいデータがしきい値を超えてから重複排除またはデータ圧縮処理をトリガーします。このしきい値は、ボリューム内で使用されている合計ブロック数に対する割合です。たとえば、ボリュームで使用されているブロックの合計数が50%のときにボリュームのしきい値を20%に設定した場合、ボリュームに書き込まれた新しいデータが10%（使用されているブロックの20%）に達すると、データの重複排除またはデータ圧縮が自動的に実行されます。必要に応じて、コマンド出力から使用されているブロックの総数を確認できます `df`。
+重複除去またはデータ圧縮処理は、スケジュールされた時間に実行するか、特定の期間でスケジュールを作成するか、しきい値のパーセンテージを指定して、新しいデータがしきい値を超えるまで待機してから重複除去またはデータ圧縮処理をトリガーすることができます。このしきい値は、ボリュームで使用されているブロックの総数に対するパーセンテージです。たとえば、ボリュームで使用されているブロックの総数が50%のときに、ボリュームのしきい値を20%に設定すると、ボリュームに書き込まれた新しいデータが10%（使用されている50%のブロックの20%）に達したときに、データ重複除去またはデータ圧縮が自動的にトリガーされます。必要に応じて、 `df`コマンド出力から使用されているブロックの総数を取得できます。
 
 ====
 .手順
-. コマンドを使用し `volume efficiency policy create`て、ボリューム効率化ポリシーを作成します。
+.  `volume efficiency policy create`コマンドを使用してボリューム効率化ポリシーを作成します。
 
 
 .例
-次のコマンドは、効率化処理を毎日実行するpol1という名前のボリューム効率化ポリシーを作成します。
+次のコマンドを実行すると、効率化処理を毎日実行するpol1という名前のボリューム効率化ポリシーが作成されます。
 
 `volume efficiency policy create -vserver vs1 -policy pol1 -schedule daily`
 
-次のコマンドは、しきい値が20%に達したときに効率化処理を実行するpol2という名前のボリューム効率化ポリシーを作成します。
+次のコマンドを実行すると、しきい値が20%に達したときに効率化処理を実行するpol2という名前のボリューム効率化ポリシーが作成されます。
 
 `volume efficiency policy create -vserver vs1 -policy pol2 -type threshold -start-threshold-percent 20%`
 
-の詳細については `volume efficiency policy create`、をlink:https://docs.netapp.com/us-en/ontap-cli/volume-efficiency-policy-create.html["ONTAPコマンド リファレンス"^]参照してください。
+ `volume efficiency policy create`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/volume-efficiency-policy-create.html["ONTAPコマンド リファレンス"^]を参照してください。

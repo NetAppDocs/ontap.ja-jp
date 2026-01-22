@@ -2,24 +2,24 @@
 permalink: error-messages/ems-routing-notifications-models-concept.html 
 sidebar: sidebar 
 keywords: configure, map, important, ems, events, notifications, filters 
-summary: ONTAP 9 .0より前のバージョンでは、EMSイベントをイベント名のパターンマッチングに基づいてイベントの送信先にマッピングする必要がありました。このモデルに関連付けられている ONTAP コマンドは引き続き使用できますが、 ONTAP 9.0 以降では使用できなくなりました。 
+summary: ONTAP 9.0より前のバージョンでは、EMSイベントはイベント名パターンマッチングに基づいてのみイベントの宛先にマッピングできました。このモデルに関連付けられたONTAPコマンドは引き続き使用できますが、ONTAP 9.0以降は廃止されています。 
 ---
-= ONTAP EMSイベントマッピングモデルの詳細
+= ONTAP EMSイベント マッピング モデルについて学ぶ
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-ONTAP 9 .0より前のバージョンでは、EMSイベントをイベント名のパターンマッチングに基づいてイベントの送信先にマッピングする必要がありました。(`event destination` `event route`このモデルを使用するONTAPコマンドセット）は、最新バージョンのONTAPでも引き続き使用できますが、ONTAP 9 .0以降では廃止されています。
+ONTAP 9.0より前は、EMSイベントはイベント名パターンマッチングに基づいてのみイベントの宛先にマッピングできました。このモデルを使用するONTAPコマンドセット（(`event destination`、 `event route`）は、最新バージョンのONTAPでも引き続き使用できますが、ONTAP 9.0以降は廃止されています。
 
-ONTAP 9 .0以降のONTAP EMSイベントのデスティネーションマッピングのベストプラクティスは、拡張性に優れたイベントフィルタモデルを使用することです。拡張性に優れたイベントフィルタモデルでは、、 `event notification`の `event notification destination`各コマンドセットを使用して複数のフィールドに対してパターンマッチングが行われ `event filter`ます。
+ONTAP 9.0 以降、ONTAP EMS イベント宛先マッピングのベスト プラクティスは、 `event filter`、 `event notification`、および `event notification destination`コマンド セットを使用して複数のフィールドでパターン マッチングを実行する、よりスケーラブルなイベント フィルタ モデルを使用することです。
 
-廃止されたコマンドを使用してEMSマッピングが設定されている場合は、の `event notification` `event notification destination`各コマンドセットを使用するようにマッピングを更新する必要があります `event filter`。の詳細については `event`、をlink:https://docs.netapp.com/us-en/ontap-cli/search.html?q=event["ONTAPコマンド リファレンス"^]参照してください。
+EMS マッピングが非推奨のコマンドを使用して構成されている場合は、 `event filter`、 `event notification`、および `event notification destination`コマンド セットを使用するようにマッピングを更新する必要があります。 `event`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/search.html?q=event["ONTAPコマンド リファレンス"^]を参照してください。
 
 イベントの送信先には次の2種類があります。
 
-. * システムで生成される送信先 * ：システムで生成される 5 つのイベントの送信先があります（デフォルトで作成）。
+. *システム生成の宛先*：システム生成のイベント宛先は 5 つあります（デフォルトで作成されます）
 +
 ** `allevents`
 ** `asup`
@@ -27,11 +27,11 @@ ONTAP 9 .0以降のONTAP EMSイベントのデスティネーションマッピ�
 ** `pager`
 ** `traphost`
 +
-システムによって生成される送信先の一部は、特別な目的に使用されます。たとえば、 ASUP デスティネーションは、 callhome.* イベントを ONTAP の AutoSupport モジュールにルーティングして AutoSupport メッセージを生成します。
+システム生成の宛先の一部は特別な目的に使用されます。例えば、asup 宛先は callhome.* イベントを ONTAP の AutoSupport モジュールにルーティングして、AutoSupport メッセージを生成します。
 
 
 
-. *ユーザが作成した送信先*：コマンドを使用して手動で作成し `event destination create`ます。
+. *ユーザー作成の宛先*： `event destination create`コマンドを使用して手動で作成されます。
 +
 [listing]
 ----
@@ -63,7 +63,7 @@ traphost         -                 -                  -                  false
 ----
 
 
-廃止されたモデルでは、コマンドを使用してEMSイベントがデスティネーションに個別にマッピングされ `event route add-destinations`ます。
+非推奨のモデルでは、EMS イベントは `event route add-destinations`コマンドを使用して個別に宛先にマッピングされます。
 
 [listing]
 ----
@@ -81,9 +81,9 @@ raid.aggr.lock.conflict          INFORMATIONAL  test           0       0
 raid.aggr.log.CP.count           DEBUG          test           0       0
 4 entries were displayed.
 ----
-より拡張性に優れた新しいEMSイベント通知メカニズムは、イベントフィルタとイベント通知の送信先に基づいています。新しいイベント通知メカニズムの詳細については、次の技術情報アーティクルを参照してください。
+拡張性に優れた新しいEMSイベント通知メカニズムでは、イベント フィルタとイベント通知送信先を使用します。新しいイベント通知メカニズムの詳細については、次の技術情報アーティクルを参照してください。
 
-* link:https://kb.netapp.com/Advice_and_Troubleshooting/Data_Storage_Software/ONTAP_OS/FAQ%3A_Overview_of_Event_Management_System_for_ONTAP_9["ONTAP 9 のイベント管理システムの概要"^]
+* link:https://kb.netapp.com/Advice_and_Troubleshooting/Data_Storage_Software/ONTAP_OS/FAQ%3A_Overview_of_Event_Management_System_for_ONTAP_9["ONTAP 9のイベント管理システムの概要"^]
 
 
 image:../media/ems-event-diag.jpg["イベントモデルの図"]

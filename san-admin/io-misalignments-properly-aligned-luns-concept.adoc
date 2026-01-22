@@ -2,68 +2,68 @@
 permalink: san-admin/io-misalignments-properly-aligned-luns-concept.html 
 sidebar: sidebar 
 keywords: i/o misalignments, occur, properly, aligned, luns 
-summary: ONTAPでは、適切にアライメントされたLUNでI/Oのミスアライメントが報告されることがあります。一般に、これらのミスアライメントの警告は、LUNが適切にプロビジョニングされていて、パーティションテーブルが正しいことに確信があれば無視してかまいません。 
+summary: ONTAPでは、適切にアライメントされたLUNにおけるI/Oのミスアライメントが報告されることがあります。一般に、このようなミスアライメントの警告は、LUNが適切にプロビジョニングされていて、パーティション テーブルが適正であることに確信があれば無視してかまいません。 
 ---
-= 適切にアライメントされたLUNでのI/Oミスアライメントの概要
+= 適切にアライメントされたLUNでのI/Oのミスアライメント - 概要
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-ONTAPでは、適切にアライメントされたLUNでI/Oのミスアライメントが報告されることがあります。一般に、これらのミスアライメントの警告は、LUNが適切にプロビジョニングされていて、パーティションテーブルが正しいことに確信があれば無視してかまいません。
+ONTAPでは、適切にアライメントされたLUNにおけるI/Oのミスアライメントが報告されることがあります。一般に、このようなミスアライメントの警告は、LUNが適切にプロビジョニングされていて、パーティション テーブルが適正であることに確信があれば無視してかまいません。
 
-LUNとハードディスクはどちらもストレージをブロックとして提供します。ホスト上のディスクのブロックサイズは512バイトであるため、LUNはそのサイズのブロックをホストに提供しますが、実際にはより大きな4KBのブロックを使用してデータを格納します。ホストで使用される512バイトのデータブロックを論理ブロックと呼びます。LUNがデータの格納に使用する4KBのデータブロックを物理ブロックと呼びます。つまり、4KBの各物理ブロックに512バイトの論理ブロックが8個あります。
+LUNとハードディスクはどちらもストレージをブロックとして提供します。ホスト上のディスクのブロック サイズは512バイトなので、LUNはそのサイズのブロックをホストに提供します。しかし実際は、よりサイズの大きい4KBのブロックを使用してデータを保存します。ホストで使用される512バイトのデータ ブロックは論理ブロックと呼ばれ、LUNがデータの保存に使用する4KBのデータ ブロックは物理ブロックと呼ばれます。つまり、4KBの各物理ブロックに512バイトの論理ブロックが8個あります。
 
 image:bsag-cmode-lbpb.gif["LUN上の物理ブロック内の論理ブロック"]
 
-ホストオペレーティングシステムは、任意の論理ブロックで読み取りまたは書き込みのI/O処理を開始できます。I/O処理は、物理ブロック内の最初の論理ブロックで開始されたときにのみアライメントされたとみなされます。I/O処理が物理ブロックの始点でもない論理ブロックから開始された場合、I/Oはミスアライメントされているとみなされます。ONTAPは、LUNのミスアライメントを自動的に検出して報告します。ただし、ミスアライメントI/Oがあるからといって、LUNもミスアライメントされているとは限りません。適切にアライメントされたLUNで、ミスアライメントI/Oが報告される可能性があります。
+ホストOSは、任意の論理ブロックで読み取りまたは書き込みのI/O処理を開始できます。I/Oがアライメントされているとみなされるのは、I/O処理が物理ブロック内の最初の論理ブロックで開始される場合だけです。I/O処理が物理ブロックの最初の論理ブロック以外のブロックで開始される場合は、I/Oがミスアライメントされているとみなされます。ONTAPは、LUNにおけるミスアライメントを自動検出して報告します。ただし、ミスアライメントI/Oが検出されたからといって、LUNもミスアライメントされているとは限りません。適切にアライメントされたLUNでも、ミスアライメントI/Oが報告される場合があります。
 
-さらに調査が必要な場合は、link:https://kb.netapp.com/Advice_and_Troubleshooting/Data_Storage_Software/ONTAP_OS/How_to_identify_unaligned_IO_on_LUNs["NetAppナレッジベース: LUN 上の未調整 IO を識別するにはどうすればよいでしょうか?"^]
+さらに調査が必要な場合は、link:https://kb.netapp.com/Advice_and_Troubleshooting/Data_Storage_Software/ONTAP_OS/How_to_identify_unaligned_IO_on_LUNs["NetAppナレッジベース：LUN上の未調整IOを識別するにはどうすればよいでしょうか?"^]を参照してください。
 
-アライメントの問題を修正するためのツールの詳細については、 + を参照してください
+位置合わせの問題を修正するためのツールの詳細については、次のドキュメントを参照してください：+
 
 * https://docs.netapp.com/us-en/ontap-sanhost/hu_wuhu_71.html["Windows Unified Host Utilities 7.1"]
-* link:../san-admin/provision-storage.html["SANストレージのドキュメントのプロビジョニング"]
+* link:../san-admin/provision-storage.html["SANストレージのプロビジョニングのドキュメント"]
 
 
 
 
-== LUNのOSタイプを使用したI/Oアライメントの実現
+== LUNのOSタイプを使用したI/Oアライメントの実行
 
-ONTAP 9 .7以前の場合は、OSのパーティショニングスキームでI/Oがアライメントされるように、オペレーティングシステムに最も近い推奨ONTAP LUN値を使用する必要があります `ostype`。
+ONTAP 9.7以前の場合は、OSのパーティショニング スキームとのI/Oアライメントを実現するために、オペレーティング システムに最も近い推奨ONTAP LUN `ostype`値を使用する必要があります。
 
-ホストオペレーティングシステムで採用されているパーティション方式は、I/Oのミスアライメントの主な要因です。一部のONTAP LUN `ostype`値では、「プレフィックス」と呼ばれる特別なオフセットを使用して、アライメント対象のホストオペレーティングシステムが使用するデフォルトのパーティショニングスキームを有効にします。
-
-
-NOTE: 場合によっては、I/Oアライメントを実行するためにカスタムのパーティショニングテーブルが必要になることがあります。ただし、「prefix」の値がより大きい値の `0`場合 `ostype`、カスタムパーティションを使用するとミスアライメントI/Oが発生する可能性があります。
-
-ONTAP 9.7以前でプロビジョニングされたLUNの詳細については、link:https://kb.netapp.com/onprem/ontap/da/SAN/How_to_identify_unaligned_IO_on_LUNs["NetAppナレッジベース: LUN 上の非整列 IO を識別する方法"^] 。
+ホスト オペレーティング システムが採用しているパーティション スキームは、I/O ミスアライメントの大きな要因です。一部のONTAP LUN `ostype`値は、「`prefix`」と呼ばれる特殊なオフセットを使用しており、これによりホスト オペレーティング システムが使用するデフォルトのパーティション スキームをアライメントすることが可能になります。
 
 
-NOTE: デフォルトでは、ONTAP 9 .8以降でプロビジョニングされる新しいLUNには、すべてのLUN OSタイプでプレフィックスおよびサフィックスサイズが0に設定されます。I/Oは、デフォルトでサポートされるホストOSとアライメントされている必要があります。
+NOTE: 状況によっては、I/Oアライメントを実現するためにカスタムパーティションテーブルが必要になる場合があります。ただし、 `ostype`値の「`prefix`」値が `0`より大きい場合、カスタムパーティションによってI/Oのアライメントがずれる可能性があります。
+
+ONTAP 9.7 以前でプロビジョニングされたLUNの詳細については、link:https://kb.netapp.com/onprem/ontap/da/SAN/How_to_identify_unaligned_IO_on_LUNs["NetApp ナレッジベース：LUN 上の非整列 IO を識別する方法"^]を参照してください。
 
 
-
-== Linux固有のI/Oアライメントに関する考慮事項
-
-Linuxディストリビューションでは、データベース、各種ボリュームマネージャ、ファイルシステムのrawデバイスなど、さまざまな方法でLUNを使用できます。rawデバイスまたは論理ボリューム内の物理ボリュームとして使用される場合、LUNにパーティションを作成する必要はありません。
-
-RHEL 5以前およびSLES 10以前で、ボリュームマネージャを使用せずにLUNを使用する場合は、アライメントされたオフセットから始まる1つのパーティション（8個の論理ブロックの偶数倍のセクター）を持つようにLUNをパーティショニングする必要があります。
+NOTE: ONTAP 9.8以降でプロビジョニングされた新しいLUNには、すべてのLUN OSタイプでサイズが0のプレフィックスとサフィックスがデフォルトで設定されます。I/Oは、デフォルトでサポートされているホストOSとアライメントされている必要があります。
 
 
 
-== Solaris LUN固有のI/Oアライメントに関する考慮事項
+== Linux固有のI/Oアライメントに関する注意事項
 
-ostypeと `solaris_efi`ostypeのどちらを使用するかを決定する際には、さまざまな要因を考慮する必要があり `solaris`ます。
+Linuxディストリビューションでは、データベース、各種ボリューム マネージャ、およびファイルシステム用のrawデバイスなど、さまざまな方法でLUNを使用できます。rawデバイスまたは論理ボリューム内の物理ボリュームとして使用する場合、LUNにパーティションを作成する必要はありません。
 
-詳細については、を参照してください http://mysupport.netapp.com/documentation/productlibrary/index.html?productID=61343["Solaris Host Utilities Installation and Administration Guide"^]。
+RHEL 5以前およびSLES 10以前でのLinuxでボリューム マネージャなしでLUNを使用する場合は、LUNをパーティショニングして、1つのパーティション（8個の論理ブロックの偶数倍となるセクター）がアライメントされたオフセットから始まるようにする必要があります。
 
 
 
-== ESXブートLUNがミスアライメントとして報告される
+== Solaris LUN固有のI/Oアライメントに関する注意事項
 
-ESXブートLUNとして使用されるLUNは、通常、ミスアライメントとしてONTAPから報告されます。ESXではブートLUNに複数のパーティションが作成されるため、アライメントが非常に困難になります。ミスアライメントされたI/Oの総量は小さいため、ミスアライメントされたESXブートLUNは通常、パフォーマンス上の問題にはなりません。VMwareを使用してLUNが正しくプロビジョニングされていれば、 `ostype`対処は不要です。
+ `solaris` ostype と `solaris_efi` ostype のどちらを使用するかを決定する際には、さまざまな要素を考慮する必要があります。
+
+詳細については、 http://mysupport.netapp.com/documentation/productlibrary/index.html?productID=61343["Solaris Host Utilitiesのインストールおよび管理ガイド"^]を参照してください。
+
+
+
+== ESXブートLUNがミスアライメントとしてレポートされる
+
+ESXブートLUNとして使用されるLUNは、通常ONTAPによってミスアライメントとして報告されます。ESXはブートLUN上に複数のパーティションを作成するため、アライメントが非常に困難です。ミスアライメントされたESXブートLUNは、ミスアライメントされたI/Oの総量が少ないため、通常はパフォーマンスの問題にはなりません。LUNがVMware `ostype`で正しくプロビジョニングされていると仮定すると、何もする必要はありません。
 
 .関連情報
-https://kb.netapp.com/Advice_and_Troubleshooting/Data_Storage_Software/Virtual_Storage_Console_for_VMware_vSphere/Guest_VM_file_system_partition%2F%2Fdisk_alignment_for_VMware_vSphere["VMware vSphereをはじめとする仮想環境、NetAppストレージシステム向けのゲストVMファイルシステムのパーティション/ディスクアライメント"^]
+https://kb.netapp.com/Advice_and_Troubleshooting/Data_Storage_Software/Virtual_Storage_Console_for_VMware_vSphere/Guest_VM_file_system_partition%2F%2Fdisk_alignment_for_VMware_vSphere["Guest VM file system partition/disk alignment for VMware vSphere, other virtual environments, and NetApp storage systems"^]

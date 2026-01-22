@@ -2,63 +2,63 @@
 permalink: system-admin/configure-sp-bmc-network-manually-task.html 
 sidebar: sidebar 
 keywords: configure, sp, bmc, network, manually, ip, address 
-summary: SP に自動ネットワーク設定が設定されていない場合は、 IP アドレスを使用して SP にアクセスできるように、ノードの SP ネットワークを手動で設定する必要があります。 
+summary: SPに自動ネットワーク構成が設定されていない場合は、IPアドレスを使用してSPにアクセスできるように、ノードのSPネットワークを手動で構成する必要があります。 
 ---
-= ONTAP SP / BMCネットワークの手動設定
+= ONTAP SP/BMCネットワークを手動で設定する
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-SP に自動ネットワーク設定が設定されていない場合、 IP アドレスを使用して SP にアクセスできるように、ノードの SP ネットワークを手動で設定する必要があります。
+SPに自動ネットワーク構成が設定されていない場合は、IPアドレスを使用してSPにアクセスできるように、ノードのSPネットワークを手動で構成する必要があります。
 
 .開始する前に
-SP に IPv6 接続を設定する場合、 ONTAP に対して IPv6 が設定済みで、有効になっている必要があります。コマンドは、 `network options ipv6`ONTAPのIPv6設定を管理します。の詳細については `network options ipv6`、をlink:https://docs.netapp.com/us-en/ontap-cli/search.html?q=network+options+ipv6["ONTAPコマンド リファレンス"^]参照してください。
+SPでIPv6接続を使用する場合は、ONTAPでIPv6がすでに設定され、有効化されている必要があります。 `network options ipv6`コマンドはONTAPのIPv6設定を管理します。link:https://docs.netapp.com/us-en/ontap-cli/search.html?q=network+options+ipv6["ONTAPコマンド リファレンス"^]の `network options ipv6`の詳細を確認してください。
 
 [NOTE]
 ====
-このタスクは、SPとBMCの両方に適用されます。
+この作業は、SPとBMCの両方に当てはまります。
 
 ====
-SP は、 IPv4 、 IPv6 、またはその両方を使用するように設定できます。SPのIPv4設定では静的アドレス指定とDHCPアドレス指定がサポートされ、SPのIPv6設定では静的アドレス指定のみがサポートされます。
+SPはIPv4、IPv6、またはその両方を使用するように設定できます。SPのIPv4設定では静的アドレス指定とDHCPアドレス指定がサポートされ、SPのIPv6設定では静的アドレス指定のみがサポートされます。
 
-SPの自動ネットワーク設定が設定されている場合は、個 々 のノードのSPネットワークを手動で設定する必要はなく、 `system service-processor network modify`コマンドで実行できるのはSPネットワークインターフェイスの有効化と無効化のみです。
+SP自動ネットワーク構成が設定されている場合は、個々のノードに対してSPネットワークを手動で構成する必要はなく、 `system service-processor network modify`コマンドを使用してSPネットワーク インターフェイスを有効または無効にすることのみが可能です。
 
 .手順
-. コマンドを使用して、ノードのSPネットワークを設定し `system service-processor network modify`ます。
+.  `system service-processor network modify`コマンドを使用して、ノードのSPネットワークを構成します。
 +
-** パラメータは、 `-address-family`SPのIPv4とIPv6のどちらの設定を変更するかを指定します。
-** パラメータは `-enable`、指定したIPアドレスファミリーのネットワークインターフェイスを有効にします。
-** パラメータは、 `-dhcp`DHCPサーバのネットワーク設定を使用するか、指定したネットワークアドレスを使用するかを指定します。
+**  `-address-family`パラメータは、SPのIPv4構成またはIPv6構成のどちらを変更するかを指定します。
+**  `-enable`パラメーターは、指定されたIPアドレスファミリのネットワークインターフェイスを有効にします。
+**  `-dhcp`パラメータは、DHCPサーバからのネットワーク構成を使用するか、指定したネットワークアドレスを使用するかを指定します。
 +
-IPv4を使用している場合にのみ、DHCPを有効にできます（をに `v4`設定 `-dhcp`）。IPv6設定の場合、DHCPを有効にすることはできません。
+IPv4を使用している場合のみ、DHCPを有効にできます（ `-dhcp`を `v4`に設定）。IPv6構成ではDHCPを有効にできません。
 
-** パラメータは、 `-ip-address`SPのパブリックIPアドレスを指定します。
+**  `-ip-address`パラメータは、SP のパブリック IP アドレスを指定します。
 +
-サブネットに割り当てられているアドレスを使用して SP ネットワークを手動で設定しようとすると、警告メッセージが表示されます。警告を無視して手動でのアドレス割り当てを続行すると、重複するアドレスが割り当てられる可能性があります。
+サブネットに割り当てられているアドレスを使用してSPネットワークを手動で設定しようとすると、警告メッセージが表示されます。警告を無視して手動でのアドレス割り当てを続行すると、アドレスが重複して割り当てられる可能性があります。
 
-** パラメータは `-netmask`、SPのネットマスクを指定します（IPv4を使用している場合）。
-** パラメータは、 `-prefix-length`SPのサブネットマスクのネットワークプレフィックス長を指定します（IPv6を使用している場合）。
-** パラメータは `-gateway`、SPのゲートウェイIPアドレスを指定します。
+**  `-netmask`パラメータは、SP のネットマスクを指定します（IPv4 を使用している場合）。
+**  `-prefix-length`パラメータは、SPのサブネットマスクのネットワークプレフィックス長を指定します（IPv6を使用している場合）。
+**  `-gateway`パラメータは、SPのゲートウェイIPアドレスを指定します。
 
 
 . 手順1を繰り返して、クラスタ内の残りのノードのSPネットワークを設定します。
-. コマンドでまたは `–field setup-status`パラメータを指定して `–instance`、SPネットワーク設定を表示し、SPのセットアップステータスを確認します `system service-processor network show`。
+.  `system service-processor network show`コマンドに `–instance`または `–field setup-status`パラメータを指定して、SPネットワーク構成を表示し、SPセットアップステータスを確認します。
 +
-ノードの SP のセットアップステータスは、次のいずれかになります。
+ノードの SP セットアップ ステータスは次のいずれかになります：
 
 +
-** `not-setup`--未設定
-** `succeeded`--設定に成功しました
-** `in-progress`--設定が進行中
-** `failed`--設定に失敗しました
+** `not-setup` -- 設定されていません
+** `succeeded` -- 構成に成功しました
+** `in-progress` -- 構成中
+** `failed` -- 構成に失敗しました
 
 
 
 
-.SPネットワークの設定例
-次の例では、ノードの SP を設定して IPv4 を使用し、 SP を有効化してから SP ネットワーク設定を表示して設定内容を確認します。
+.SPネットワークの構成例
+次の例では、ノードのSPをIPv4を使用するように設定し、SPを有効にし、SPネットワーク設定を表示して設定を確認します：
 
 [listing]
 ----

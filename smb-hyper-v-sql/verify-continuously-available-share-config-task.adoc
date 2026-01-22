@@ -2,7 +2,7 @@
 permalink: smb-hyper-v-sql/verify-continuously-available-share-config-task.html 
 sidebar: sidebar 
 keywords: verify, continuously, available, smb, share, configuration, hyper, v, sql, server, nondisruptive, application 
-summary: ノンストップオペレーションをサポートするには、 Hyper-V および SQL Server の SMB 共有が継続的可用性を備えた共有として設定されている必要があります。また、それ以外にも、いくつかの共有設定について確認が必要になります。計画的または計画外の停止が発生する状況でアプリケーションサーバのノンストップオペレーションをシームレスに実行できるように、共有が適切に設定されていることを確認してください。 
+summary: 無停止運用をサポートするには、Hyper-V および SQL Server の SMB 共有を継続的に利用可能な共有として構成する必要があります。さらに、確認が必要な共有設定がいくつかあります。計画的または計画外の中断イベントが発生した場合でも、アプリケーション サーバーにシームレスな無停止運用を提供できるよう、共有が適切に構成されていることを確認する必要があります。 
 ---
 = 継続的可用性を備えたSMB共有の設定の確認
 :allow-uri-read: 
@@ -11,16 +11,16 @@ summary: ノンストップオペレーションをサポートするには、 H
 
 
 [role="lead"]
-ノンストップオペレーションをサポートするには、 Hyper-V および SQL Server の SMB 共有が継続的可用性を備えた共有として設定されている必要があります。また、それ以外にも、いくつかの共有設定について確認が必要になります。計画的または計画外の停止が発生する状況でアプリケーションサーバのノンストップオペレーションをシームレスに実行できるように、共有が適切に設定されていることを確認してください。
+無停止運用をサポートするには、Hyper-V および SQL Server の SMB 共有を継続的に利用可能な共有として構成する必要があります。さらに、確認が必要な共有設定がいくつかあります。計画的または計画外の中断イベントが発生した場合でも、アプリケーション サーバーにシームレスな無停止運用を提供できるよう、共有が適切に構成されていることを確認する必要があります。
 
-.タスクの内容
+.タスク概要
 次の2つの共有パラメータが正しく設定されていることを確認する必要があります。
 
-*  `-offline-files`パラメータは（デフォルト）または `none`に設定されます `manual`。
-* シンボリックリンクを無効にする必要があります。
+*  `-offline-files`パラメータは `manual`（デフォルト）または `none`に設定されます。
+* シンボリック リンクが無効になっている必要があります。
 
 
-ノンストップオペレーションが適切に実行されるようにするには、次の共有プロパティを設定する必要があります。
+適切な無停止操作を行うには、次の共有プロパティを設定する必要があります：
 
 * `continuously-available`
 * `oplocks`
@@ -35,18 +35,18 @@ summary: ノンストップオペレーションをサポートするには、 H
 
 
 .手順
-. オフラインファイルがまたは `disabled`に設定されていること、およびシンボリックリンクが無効になっていることを確認し `manual`ます。
+. オフライン ファイルが `manual`または `disabled`に設定され、シンボリック リンクが無効になっていることを確認します：
 +
 `*vserver cifs shares show -vserver _vserver_name_*`
 
-. SMB 共有が継続的可用性を確保するように設定されていることを確認します。
+. SMB 共有が継続的な可用性のために設定されていることを確認します：
 +
 `*vserver cifs shares properties show -vserver _vserver_name_*`
 
 
 
 .例
-次の例は、 Storage Virtual Machine （ SVM 、旧 Vserver ） vs1 上の「 share1 」という名前の共有の共有設定を表示します。オフラインファイルはに設定され、シンボリックリンクは無効になってい `manual`ます（出力フィールドにハイフンが表示され `Symlink Properties`ます）。
+次の例は、ストレージ仮想マシン（SVM、旧称Vserver）vs1上の「`share1`」という共有の設定を表示します。オフラインファイルは `manual`に設定され、シンボリックリンクは無効になっています（ `Symlink Properties`フィールド出力のハイフンで示されます）：
 
 [listing]
 ----
@@ -67,7 +67,7 @@ File Attribute Cache Lifetime: -
                 Offline Files: manual
 Vscan File-Operations Profile: standard
 ----
-次の例は、 SVM vs1 上の「 share1 」という名前の共有の共有プロパティを表示します。
+次の例では、SVM vs1上の「`share1`」という名前の共有の共有プロパティを表示します：
 
 [listing]
 ----

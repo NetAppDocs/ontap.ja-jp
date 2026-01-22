@@ -2,65 +2,65 @@
 permalink: nfs-config/using-ldap-concept.html 
 sidebar: sidebar 
 keywords: use, ldap 
-summary: 現在の環境でLDAPがネームサービスに使用されている場合は、LDAP管理者と協力して要件と適切なストレージシステム構成を決定し、SVMをLDAPクライアントとして有効にする必要があります。 
+summary: LDAPがネーム サービスに使用されている環境では、LDAP管理者と協力して要件および適切なストレージ システム構成を決定し、SVMをLDAPクライアントとして有効にする必要があります。 
 ---
-= ONTAP NFS SVM での LDAP ネームサービスの使用について学習します
+= ONTAP NFS SVMでのLDAPネームサービスの使用について学習します
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-現在の環境でLDAPがネームサービスに使用されている場合は、LDAP管理者と協力して要件と適切なストレージシステム構成を決定し、SVMをLDAPクライアントとして有効にする必要があります。
+LDAPがネーム サービスに使用されている環境では、LDAP管理者と協力して要件および適切なストレージ システム構成を決定し、SVMをLDAPクライアントとして有効にする必要があります。
 
-.10.1以降では、チャネルバインドがONTAP 9接続とネームサービスLDAP接続の両方でデフォルトでサポートされます。ONTAPは、Start-TLSまたはLDAPSが有効で、セッションセキュリティが署名または封印のいずれかに設定されている場合にのみ、LDAP接続でチャネルバインディングを試行します。ネームサーバとのLDAPチャネルバインドを無効または再度有効にするには、コマンドでパラメータを `ldap client modify`使用し `-try-channel-binding`ます。
+ONTAP 9.10.1以降、Active Directoryとネーム サービスのLDAP接続の両方で、LDAPチャネル バインディングがデフォルトでサポートされます。ONTAPは、Start-TLSまたはLDAPSが有効で、セッション セキュリティがsignまたはsealに設定されている場合にのみ、LDAP接続でチャネル バインディングを試行します。ネーム サーバとのLDAPチャネル バインディングを無効化または再有効化するには、 `ldap client modify`コマンドで `-try-channel-binding`パラメータを使用します。
 
-詳細については、を参照してください link:https://support.microsoft.com/en-us/topic/2020-ldap-channel-binding-and-ldap-signing-requirements-for-windows-ef185fb8-00f7-167d-744c-f299a66fc00a["2020 年の Windows 向け LDAP チャネルバインドおよび LDAP 署名の要件"^]。
+詳細については、link:https://support.microsoft.com/en-us/topic/2020-ldap-channel-binding-and-ldap-signing-requirements-for-windows-ef185fb8-00f7-167d-744c-f299a66fc00a["Windows の 2020 年 LDAP チャネル バインディングおよび LDAP 署名要件"^]を参照してください。
 
-* ONTAP用にLDAPを設定する前に、サイト環境がLDAPサーバとクライアントの設定のベストプラクティスを満たしていることを確認する必要があります。具体的には、次の条件を満たす必要があります。
+* LDAPをONTAP用に設定する前に、サイト環境がLDAPサーバおよびクライアント設定のベストプラクティスを満たしていることを確認する必要があります。具体的には、次の条件を満たす必要があります。
 +
-** LDAPサーバのドメイン名がLDAPクライアントのエントリと一致している必要があります。
-** LDAPサーバでサポートされるLDAPユーザパスワードのハッシュタイプには、ONTAPでサポートされるハッシュタイプが含まれている必要があります。
+** LDAPサーバのドメイン名がLDAPクライアント上のエントリと一致する必要があります。
+** LDAPサーバでサポートされるLDAPユーザのパスワード ハッシュ タイプに、ONTAPでサポートされる次のタイプが含まれている必要があります。
 +
-*** Crypt（すべてのタイプ）およびSHA-1（SHA、SSHA）。
-*** ONTAP 9 .8以降では、SHA-2ハッシュ（SHA-256、SSH-384、SHA-512、SSHA-256、SSHA-384、およびSSHA-512）もサポートされます。
+*** CRYPT（すべてのタイプ）およびSHA-1（SHA、SSHA）
+*** ONTAP 9.8以降では、SHA-2ハッシュ（SHA-256、SSH-384、SHA-512、SSHA-256、SSHA-384、およびSSHA-512）もサポートされます。
 
 
-** LDAPサーバでセッションセキュリティ対策が必要な場合は、LDAPクライアントで設定する必要があります。
+** LDAPサーバにセッション セキュリティ対策が必要な場合は、LDAPクライアントで設定する必要があります。
 +
-次のセッションセキュリティオプションを使用できます。
+以下のセッション セキュリティ オプションを使用できます。
 
 +
-*** LDAP署名（データ整合性チェックを提供）およびLDAP署名と封印（データ整合性チェックと暗号化を提供）
+*** LDAP署名（データの整合性チェックを提供）およびLDAP署名と封印（データの整合性チェックと暗号化を提供）
 *** START TLS
-*** LDAPS （ LDAP over TLS または SSL ）
+*** LDAPS（TLSまたはSSL経由のLDAP）
 
 
-** 署名および封印されたLDAPクエリを有効にするには、次のサービスを設定する必要があります。
+** 署名および封印されたLDAPクエリを有効にするには、次のサービスが設定されている必要があります。
 +
-*** LDAPサーバは、GSSAPI（Kerberos）SASLメカニズムをサポートしている必要があります。
-*** LDAPサーバには、DNS A/AAAAレコードと、DNSサーバで設定されたPTRレコードが必要です。
-*** Kerberosサーバには、DNSサーバ上にSRVレコードが存在する必要があります。
+*** LDAPサーバでGSSAPI（Kerberos）SASLがサポートされている必要があります。
+*** LDAPサーバに、DNS A/AAAAレコード、およびDNSサーバで設定されたPTRレコードが必要です。
+*** Kerberosサーバに、DNSサーバ上に存在するSRVレコードが必要です。
 
 
-** START TLSまたはLDAPSを有効にするには、次の点を考慮する必要があります。
+** START TLSまたはLDAPSを有効にする場合、次の点を考慮する必要があります。
 +
-*** NetAppでは、LDAPSではなくStart TLSを使用することを推奨します。
-*** LDAPSを使用する場合は、ONTAP 9 .5以降で、TLSまたはSSLに対してLDAPサーバが有効になっている必要があります。ONTAP 9ではSSLはサポートされていません。0-9.4
+*** NetAppでは、LDAPSではなくStart TLSの使用を推奨しています。
+*** ONTAP 9.5以降でLDAPSを使用する場合は、TLS用またはSSL用にLDAPサーバが有効になっている必要があります。ONTAP 9.0～9.4ではSSLはサポートされません。
 *** 証明書サーバがドメインで設定済みである必要があります。
 
 
-** LDAPリファーラル追跡を有効にするには（ONTAP 9 .5以降で）、次の条件を満たす必要があります。
+** LDAPリファーラル追跡を有効にするには（ONTAP 9.5以降）、次の条件を満たしている必要があります。
 +
-*** 両方のドメインに次のいずれかの信頼関係を設定する必要があります。
+*** 両方のドメインで次のいずれかの信頼関係が設定されている必要があります。
 +
 **** 双方向
-**** 一方向（プライマリがリファーラルドメインを信頼する場合）
+**** 一方向（プライマリ ドメインがリファーラル ドメインを信頼）
 **** 親子
 
 
-*** 参照されるすべてのサーバ名を解決するようにDNSを設定する必要があります。
-*** bind-as-cifs-server が true に設定されている場合、認証には両ドメインのパスワードが同じであることが必要です。
+*** 参照されているすべてのサーバ名を解決するようにDNSが設定されている必要があります。
+*** --bind-as-cifs-server が true に設定されている場合、認証にはドメイン パスワードが同じである必要があります。
 
 
 
@@ -68,34 +68,34 @@ summary: 現在の環境でLDAPがネームサービスに使用されている�
 +
 [NOTE]
 ====
-次の設定はLDAPリファーラル追跡ではサポートされていません。
+次の設定はLDAPリファーラル追跡でサポートされていません。
 
 ** すべてのONTAPバージョン：
 +
-*** 管理 SVM 上の LDAP クライアント
+*** 管理SVM上のLDAPクライアント
 
 
-** ONTAP 9.8 以前では（ 9.9.1 以降でサポートされています）：
+** ONTAP 9.8以前の場合（9.9.1以降でサポートされます）：
 +
-*** LDAPの署名と封印（ `-session-security`オプション）
-*** 暗号化されたTLS接続（ `-use-start-tls`オプション）
-*** LDAPSポート636経由の通信（ `-use-ldaps-for-ad-ldap`オプション）
+*** LDAP署名とシーリング（ `-session-security`オプション）
+*** 暗号化されたTLS接続（ `-use-start-tls` オプション）
+*** LDAPSポート636経由の通信（ `-use-ldaps-for-ad-ldap` オプション）
 
 
 
 
 ====
-* SVMでLDAPクライアントを設定するときは、LDAPスキーマを入力する必要があります。
+* SVMでLDAPクライアントを設定する際は、LDAPスキーマを入力する必要があります。
 +
-ほとんどの場合、デフォルトのONTAPスキーマのいずれかが適切です。ただし、環境で使用するLDAPスキーマがこれらと異なる場合は、LDAPクライアントを作成する前に、ONTAP用の新しいLDAPクライアントスキーマを作成する必要があります。環境の要件については、LDAP管理者にお問い合わせください。
+ほとんどの場合、デフォルトのONTAPスキーマのいずれかで問題ありません。ただし、環境のLDAPスキーマがデフォルトのスキーマと異なる場合は、LDAPクライアントを作成する前にONTAP用の新しいLDAPクライアント スキーマを作成する必要があります。環境の要件については、LDAP管理者にお問い合わせください。
 
-* ホスト名解決にLDAPを使用することはサポートされていません。
+* LDAPをホスト名解決に使用することはサポートされていません。
 
 
 
 
 == 詳細情報
 
-* https://www.netapp.com/pdf.html?item=/media/19423-tr-4835.pdf["ネットアップテクニカルレポート 4835 ：『 How to Configure LDAP in ONTAP 』"]
-* link:../smb-admin/install-self-signed-root-ca-certificate-svm-task.html["ONTAP SMB SVMへの自己署名ルートCA証明書のインストール"]
+* https://www.netapp.com/pdf.html?item=/media/19423-tr-4835.pdf["NetAppテクニカルレポート4835：ONTAPでLDAPを設定する方法"]
+* link:../smb-admin/install-self-signed-root-ca-certificate-svm-task.html["ONTAP SMB SVMに自己署名ルートCA証明書をインストールする"]
 

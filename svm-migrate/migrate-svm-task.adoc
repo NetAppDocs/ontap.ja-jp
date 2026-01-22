@@ -2,7 +2,7 @@
 permalink: svm-migrate/migrate-svm-task.html 
 sidebar: sidebar 
 keywords: svm, migrate, defaults, cutover, cleanup 
-summary: SVMの移行が完了すると、クライアントはデスティネーションクラスタに自動的にカットオーバーされ、不要なSVMはソースクラスタから削除されます。自動カットオーバーとソースの自動クリーンアップはデフォルトで有効になっています。必要に応じて、クライアントの自動カットオーバーを無効にしてカットオーバーが発生する前に移行を一時停止したり、ソースSVMの自動クリーンアップを無効にしたりできます。 
+summary: SVMの移行が完了すると、クライアントがデスティネーション クラスタに自動的にカットオーバーされ、不要なSVMがソース クラスタから削除されます。自動カットオーバーとソースの自動クリーンアップはデフォルトで有効になっています。必要に応じて、カットオーバーの発生前にクライアントの自動カットオーバーを無効にして移行を一時停止できます。また、ソースSVMの自動クリーンアップを無効にすることもできます。 
 ---
 = ONTAP SVMの移行
 :allow-uri-read: 
@@ -11,16 +11,16 @@ summary: SVMの移行が完了すると、クライアントはデスティネ�
 
 
 [role="lead"]
-SVMの移行が完了すると、クライアントはデスティネーションクラスタに自動的にカットオーバーされ、不要なSVMはソースクラスタから削除されます。自動カットオーバーとソースの自動クリーンアップはデフォルトで有効になっています。必要に応じて、クライアントの自動カットオーバーを無効にしてカットオーバーが発生する前に移行を一時停止したり、ソースSVMの自動クリーンアップを無効にしたりできます。
+SVMの移行が完了すると、クライアントがデスティネーション クラスタに自動的にカットオーバーされ、不要なSVMがソース クラスタから削除されます。自動カットオーバーとソースの自動クリーンアップはデフォルトで有効になっています。必要に応じて、カットオーバーの発生前にクライアントの自動カットオーバーを無効にして移行を一時停止できます。また、ソースSVMの自動クリーンアップを無効にすることもできます。
 
-.タスクの内容
-この手順は、FAS、 AFF、およびASAシステムに適用されます。 ASA r2システム（ASA A1K、 ASA A90、 ASA A70、 ASA A50、 ASA A30、 ASA A20、またはASA C30）をお持ちの場合は、link:https://docs.netapp.com/us-en/asa-r2/manage-data/migrate-svm.html["以下の手順を実行します"^] SVM を移行します。ASA r2システムは、SANのみのお客様向けのシンプルなONTAPエクスペリエンスを備えています。
+.タスク概要
+この手順は FAS、AFF、および ASA システムに適用されます。ASA r2 システム（ASA A1K、ASA A90、ASA A70、ASA A50、ASA A30、ASA A20、または ASA C30）をご利用の場合は、link:https://docs.netapp.com/us-en/asa-r2/manage-data/migrate-svm.html["これらの手順"^]に従って SVM を移行してください。ASA r2 システムは、SAN のみをご利用のお客様向けに、簡素化された ONTAP エクスペリエンスを提供します。
 
-* オプションを使用すると `-auto-cutover false`、クライアントの自動カットオーバーが通常どおり実行されたときに移動を一時停止し、あとで手動でカットオーバーを実行できます。
+*  `-auto-cutover false`オプションを使用すると、通常は自動クライアント カットオーバーが実行されるタイミングで移行を一時停止し、後で手動でカットオーバーを実行できます。
 +
 xref:manual-client-cutover-task.adoc[SVM移行後のクライアントの手動カットオーバー]
 
-* advanced権限オプションを使用すると、カットオーバー後にソースSVMの削除を無効にし、カットオーバー後にソースのクリーンアップを手動で実行できます `-auto-source-cleanup false`。
+* 高度な権限 `-auto-source-cleanup false`オプションを使用すると、カットオーバー後のソース SVM の削除を無効にし、カットオーバー後にソースのクリーンアップを手動でトリガーすることができます。
 +
 xref:manual-source-removal-task.adoc[カットオーバー後のソースSVMの手動削除]
 
@@ -28,18 +28,18 @@ xref:manual-source-removal-task.adoc[カットオーバー後のソースSVMの�
 
 
 
-== 自動カットオーバーを有効にしてONTAP SVM を移行する
+== 自動カットオーバーを有効にして ONTAP SVMを移行する
 
-デフォルトでは、クライアントは移行の完了時に自動的にデスティネーションクラスタにカットオーバーされ、不要なSVMはソースクラスタから削除されます。
+デフォルトでは、移行完了時にクライアントがデスティネーション クラスタに自動的にカットオーバーされ、不要なSVMがソース クラスタから削除されます。
 
 .手順
-. デスティネーションクラスタから、移行の事前確認を実行します。
+. デスティネーション クラスタから、移行の事前チェックを実行します。
 +
 [source, cli]
 ----
 vserver migrate start -vserver <SVM_name> -source-cluster <cluster_name> -check-only true`
 ----
-. デスティネーションクラスタから、SVMの移行を開始します。
+. デスティネーション クラスタから、SVMの移行を開始します。
 +
 [source, cli]
 ----
@@ -52,24 +52,24 @@ vserver migrate start -vserver <SVM_name> -source-cluster <cluster_name>
 vserver migrate show
 ----
 +
-SVMの移行が完了すると、ステータスにmigrate-completeと表示されます。
+SVMの移行が完了すると、ステータスは「migrate-complete」になります。
 
 
 
 
 
-== 自動クライアントカットオーバーを無効にしてONTAP SVM を移行する
+== 自動クライアント カットオーバーを無効にして ONTAP SVM を移行する
 
-auto-cutover falseオプションを使用すると、クライアントの自動カットオーバーが正常に実行されたときに移行を一時停止し、あとで手動でカットオーバーを実行できます。を参照して xref:manual-client-cutover-task.adoc[SVM移行後のクライアントの手動カットオーバー]
+-auto-cutover false オプションを使用すると、通常は自動クライアントカットオーバーが発生する際に移行を一時停止し、後で手動でカットオーバーを実行できます。xref:manual-client-cutover-task.adoc[SVM移行後のクライアントの手動カットオーバー]を参照してください。
 
 .手順
-. デスティネーションクラスタから、移行の事前確認を実行します。
+. デスティネーション クラスタから、移行の事前チェックを実行します。
 +
 [source, cli]
 ----
 vserver migrate start -vserver <SVM_name> -source-cluster <cluster_name> -check-only true`
 ----
-. デスティネーションクラスタから、SVMの移行を開始します。
+. デスティネーション クラスタから、SVMの移行を開始します。
 +
 [source, cli]
 ----
@@ -87,18 +87,18 @@ SVMの移行による非同期データ転送が完了し、カットオーバ�
 
 
 
-== ソースクリーンアップを無効にしてONTAP SVM を移行する
+== ソースクリーンアップを無効にしてONTAP SVMを移行する
 
-advanced権限-auto-source-cleanup falseオプションを使用すると、カットオーバー後にソースSVMの削除を無効にし、カットオーバー後にソースのクリーンアップを手動でトリガーできます。を参照して xref:manual-source-removal-task.adoc[ソースSVMを手動で削除する]
+アドバンス権限 -auto-source-cleanup false オプションを使用すると、カットオーバー後のソース SVM の削除を無効にし、カットオーバー後にソースのクリーンアップを手動でトリガーすることができます。xref:manual-source-removal-task.adoc[ソースSVMの手動削除]を参照してください。
 
 .手順
-. デスティネーションクラスタから、移行の事前確認を実行します。
+. デスティネーション クラスタから、移行の事前チェックを実行します。
 +
 [source, cli]
 ----
 vserver migrate start -vserver <SVM_name> -source-cluster <cluster_name> -check-only true`
 ----
-. デスティネーションクラスタから、SVMの移行を開始します。
+. デスティネーション クラスタから、SVMの移行を開始します。
 +
 [source, cli]
 ----
@@ -111,6 +111,6 @@ vserver migrate start -vserver <SVM_name> -source-cluster <cluster_name> -auto-s
 vserver migrate show
 ----
 +
-SVM移行のカットオーバーが完了し、ソースクラスタからSVMを削除できる状態になると、ステータスにready-for-source-cleanupと表示されます。
+SVMの移行のカットオーバーが完了し、ソース クラスタのSVMを削除する準備が整うと、ステータスは「ready-for-source-cleanup」になります。
 
 

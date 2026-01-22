@@ -2,96 +2,96 @@
 permalink: smb-admin/configure-unix-symbolic-link-support-shares-task.html 
 sidebar: sidebar 
 keywords: configure, unix, symbol, link, support, smb, share, share-property, setting, create, modify, exist, configure unix symbolic link support, on smb shares 
-summary: SMB共有の作成時に、または既存のSMB共有の変更によっていつでも、シンボリックリンクの共有プロパティ設定を指定することで、SMB共有でUNIXシンボリックリンクのサポートを設定できます。UNIXシンボリックリンクのサポートはデフォルトで有効になっています。共有でUNIXシンボリックリンクのサポートを無効にすることもできます。 
+summary: SMB共有の作成時に、または既存のSMB共有の変更によりいつでも、シンボリック リンクの共有プロパティ設定を指定することによって、SMB共有でUNIXシンボリック リンクのサポートを設定できます。UNIXシンボリック リンクのサポートはデフォルトで有効になっています。UNIXシンボリック リンクのサポートを共有で無効にすることもできます。 
 ---
-= ONTAP SMB共有でUNIXシンボリックリンクのサポートを構成する
+= ONTAP SMB 共有で UNIX シンボリック リンクのサポートを設定する
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-SMB共有の作成時に、または既存のSMB共有の変更によっていつでも、シンボリックリンクの共有プロパティ設定を指定することで、SMB共有でUNIXシンボリックリンクのサポートを設定できます。UNIXシンボリックリンクのサポートはデフォルトで有効になっています。共有でUNIXシンボリックリンクのサポートを無効にすることもできます。
+SMB共有の作成時に、または既存のSMB共有の変更によりいつでも、シンボリック リンクの共有プロパティ設定を指定することによって、SMB共有でUNIXシンボリック リンクのサポートを設定できます。UNIXシンボリック リンクのサポートはデフォルトで有効になっています。UNIXシンボリック リンクのサポートを共有で無効にすることもできます。
 
-.タスクの内容
-SMB共有に対してUNIXシンボリックリンクのサポートを設定する場合は、次のいずれかの設定を選択できます。
+.タスク概要
+SMB共有でUNIXシンボリック リンクのサポートを設定する場合は、次の設定のいずれかを選択できます。
 
 |===
-| 設定 | 説明 
+| 設定 | 概要 
 
 
  a| 
-`enable`（廃止予定*）
+`enable` （非推奨*）
  a| 
-読み取り/書き込みアクセスに対してシンボリックリンクを有効にします。
-
-
-
- a| 
-`read_only`（廃止予定*）
- a| 
-読み取り専用アクセスに対してシンボリックリンクを有効にします。この設定はワイドリンクには適用されません。Widelinkアクセスは常に読み取り/書き込みです。
+読み取り / 書き込みアクセスに対してシンボリック リンクを有効にします。
 
 
 
  a| 
-`hide`（廃止予定*）
+`read_only` （非推奨*）
  a| 
-SMBクライアントにシンボリックリンクが表示されないように指定します。
+読み取り専用アクセスに対してシンボリック リンクを有効にします。この設定はワイドリンクには適用されません。ワイドリンク アクセスは常に読み取り / 書き込みです。
+
+
+
+ a| 
+`hide` （非推奨*）
+ a| 
+SMBクライアントにシンボリック リンクが表示されないようにします。
 
 
 
  a| 
 `no-strict-security`
  a| 
-クライアントが共有の範囲外でシンボリックリンクを参照するように指定します。
+クライアントに共有の範囲を越えるシンボリック リンクの参照を許可します。
 
 
 
  a| 
 `symlinks`
  a| 
-読み取り/書き込みアクセスに対してローカルシンボリックリンクを有効にします。CIFSオプションがに設定されて `true`いても、DFS通知は生成されません `is-advertise-dfs-enabled`。これがデフォルト設定です。
+シンボリック リンクの読み取り / 書き込みアクセスをローカルで有効にすることを指定します。CIFS オプション `is-advertise-dfs-enabled`が `true`に設定されていても、DFS アドバタイズメントは生成されません。これがデフォルト設定です。
 
 
 
  a| 
 `symlinks-and-widelinks`
  a| 
-読み取り/書き込みアクセスに対してローカルシンボリックリンクとワイドリンクの両方を指定します。CIFSオプションがに設定されて `false`いる場合でも、DFS通知はローカルシンボリックリンクとワイドリンクの両方に対して生成され `is-advertise-dfs-enabled`ます。
+読み取り / 書き込みアクセスに対して、ローカル シンボリック リンクとワイドリンクの両方を指定します。CIFS オプション `is-advertise-dfs-enabled`が `false`に設定されている場合でも、ローカル シンボリック リンクとワイドリンクの両方に対して DFS アドバタイズメントが生成されます。
 
 
 
  a| 
 `disable`
  a| 
-シンボリックリンクとワイドリンクを無効にします。CIFSオプションがに設定されて `true`いても、DFS通知は生成されません `is-advertise-dfs-enabled`。
+シンボリック リンクとワイドリンクを無効にすることを指定します。CIFS オプション `is-advertise-dfs-enabled`が `true`に設定されている場合でも、DFS アドバタイズメントは生成されません。
 
 
 
  a| 
-`""`（null、未設定）
+`""` (null、未設定)
  a| 
-シンボリックリンクを共有で無効にします。
+シンボリック リンクを共有で無効にします。
 
 
 
  a| 
 `-`（未設定）
  a| 
-シンボリックリンクを共有で無効にします。
+シンボリック リンクを共有で無効にします。
 
 |===
 [NOTE]
 ====
-* ONTAP の今後のリリースでは、 _enable_,_hide_,_read-only パラメータは廃止されており、削除される可能性があります。
+*_enable_、_hide_、および_read-only_パラメータは非推奨であり、ONTAPの今後のリリースで削除される可能性があります。
 
 ====
 .手順
-. シンボリックリンクのサポートを設定または無効にします。
+. シンボリック リンク サポートを設定または無効化します。
 +
 |===
-| 条件 | 入力するコマンド 
+| もしそうだとしたら… | 入力する内容 
 
 
  a| 
@@ -107,11 +107,11 @@ SMBクライアントにシンボリックリンクが表示されないよう�
 `+vserver cifs share modify -vserver vserver_name -share-name share_name -symlink-properties {enable|hide|read-only|""|-|symlinks|symlinks-and-widelinks|disable},...]+`
 
 |===
-. SMB共有の設定が正しいことを確認します。 `vserver cifs share show -vserver vserver_name -share-name share_name -instance`
+. SMB 共有の設定が正しいことを確認します： `vserver cifs share show -vserver vserver_name -share-name share_name -instance`
 
 
 .例
-次のコマンドでは、UNIXシンボリックリンク設定をに設定して、「data1」という名前のSMB共有を作成し `enable`ます。
+次のコマンドは、UNIXシンボリック リンク構成を `enable`に設定した「`data1`」という名前のSMB共有を作成します：
 
 [listing]
 ----
@@ -139,4 +139,4 @@ Maximum Tree Connections on Share: 4294967295
        UNIX Group for File Create: -
 ----
 .関連情報
-xref:create-symbolic-link-mappings-task.adoc[共有のシンボリックリンクマッピングを作成する]
+xref:create-symbolic-link-mappings-task.adoc[共有のシンボリック リンク マッピングを作成する]

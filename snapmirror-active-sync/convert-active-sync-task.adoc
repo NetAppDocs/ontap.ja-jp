@@ -2,9 +2,9 @@
 sidebar: sidebar 
 permalink: snapmirror-active-sync/convert-active-sync-task.html 
 keywords: SM-BC, SMBC, convert, SnapMirror synchronous, existing, snapmirror active sync 
-summary: SnapMirror関係をSnapMirrorアクティブ同期に変換します。 
+summary: SnapMirror 関係を SnapMirror アクティブ同期に変換します。 
 ---
-= 既存のONTAP SnapMirror関係をSnapMirror Active Sync 関係に変換する
+= 既存の ONTAP SnapMirror 関係を SnapMirror アクティブ同期関係に変換する
 :hardbreaks:
 :allow-uri-read: 
 :nofooter: 
@@ -18,28 +18,28 @@ SnapMirror保護を設定している場合は、関係をSnapMirrorアクティ
 
 
 
-== 既存の iSCSI または FC SnapMirror関係を非対称SnapMirrorアクティブ同期関係に変換します。
+== 既存の iSCSI または FC SnapMirror 関係を非対称 SnapMirror アクティブ同期関係に変換する
 
-ソース クラスタと宛先クラスタ間に既存の iSCSI または FC SnapMirror同期関係がある場合は、それを非対称SnapMirrorアクティブ同期関係に変換できます。そうすることで、ミラー ボリュームを整合性グループに関連付けることができ、複数のボリュームにわたるワークロード全体でRPOゼロを確保できます。また、SnapMirrorアクティブ同期関係を確立する前に特定の時点にリバートする必要がある場合には、既存のSnapMirror Snapshotを保持できます。
+ソース クラスタとデスティネーション クラスタ間に既存の iSCSI または FC SnapMirror 同期関係がある場合は、それを非対称 SnapMirror アクティブ同期関係に変換できます。これにより、ミラー ボリュームを整合性グループに関連付けることができ、マルチ ボリューム ワークロード全体で RPO ゼロを確保できます。さらに、SnapMirror アクティブ同期関係を確立する前の時点に戻す必要がある場合は、既存の SnapMirror Snapshot を保持できます。
 
-.タスクの内容
-* プライマリクラスタとセカンダリクラスタのクラスタ管理者およびSVM管理者である必要があります。
+.タスク概要
+* プライマリ クラスタとセカンダリ クラスタのクラスタ管理者およびSVM管理者である必要があります。
 * SnapMirrorポリシーを変更してRPOゼロの同期をRTOゼロの同期に変換することはできません。
-* コマンドを実行する前に、LUNのマッピングが解除されていることを確認する必要があります `snapmirror create`。
+*  `snapmirror create`コマンドを発行する前に、LUN のマッピングが解除されていることを確認する必要があります。
 +
-セカンダリボリューム上の既存のLUNがマッピングされていて、ポリシーが設定されている場合 `AutomatedFailover`、 `snapmirror create`エラーがトリガーされます。
+セカンダリ ボリューム上の既存の LUN がマップされ、 `AutomatedFailover`ポリシーが設定されている場合、 `snapmirror create`コマンドによってエラーが発生します。
 
 
 
 .開始する前に
-* プライマリ クラスタとセカンダリ クラスタの間には、ゼロ RPO SnapMirror同期関係が存在する必要があります。
-* RTOゼロのSnapMirror関係を作成するには、デスティネーションボリューム上のすべてのLUNのマッピングを解除する必要があります。
-* SnapMirrorアクティブ同期でサポートされるのはSANプロトコルのみです（NFS / CIFSはサポートされません）。整合性グループのコンスティチュエントがNASアクセス用にマウントされていないことを確認します。
-* link:mediator-install-task.html["ONTAP Mediator"] SnapMirrorアクティブ同期を設定する必要があります。
+* プライマリ クラスタとセカンダリ クラスタの間には、ゼロ RPO SnapMirror 同期関係が存在する必要があります。
+* RTOゼロのSnapMirror関係を作成する前に、デスティネーション ボリュームのすべてのLUNのマッピングを解除する必要があります。
+* SnapMirrorアクティブ同期ではSANプロトコルのみサポートされます（NFS / CIFSはサポートされません）。NASアクセス用に整合性グループのコンスティチュエントがマウントされていないことを確認します。
+* link:mediator-install-task.html["ONTAP Mediator"] SnapMirror アクティブ同期用に設定する必要があります。
 
 
 .手順
-. セカンダリクラスタから、既存の関係に対してSnapMirror更新を実行します。
+. セカンダリ クラスタから、既存の関係に対してSnapMirror更新を実行します。
 +
 `SiteB::>snapmirror update -destination-path vs1_dst:vol1`
 
@@ -61,7 +61,7 @@ SnapMirror保護を設定している場合は、関係をSnapMirrorアクティ
 +
 `SiteB::>snapmirror delete -destination-path vs1_dst:vol2`
 
-. ソースSnapMirror関係を解放しますが、共通のSnapshotは保持します。
+. ソース SnapMirror 関係を解放しますが、共通のスナップショットは保持します：
 +
 `SiteA::>snapmirror release -relationship-info-only true -destination-path vs1_dst:vol1`
 
@@ -72,7 +72,7 @@ SnapMirror保護を設定している場合は、関係をSnapMirrorアクティ
 +
 `SiteB::> snapmirror create -source-path vs1_src:/cg/cg_src -destination-path vs1_dst:/cg/cg_dst -cg-item-mappings vol1:@vol1,vol2:@vol2 -policy AutomatedFailover`
 
-. 整合グループを再同期します。
+. 整合性グループを再同期します。
 +
 `SiteB::> snapmirror resync -destination-path vs1_dst:/cg/cg_dst`
 
@@ -81,20 +81,20 @@ SnapMirror保護を設定している場合は、関係をSnapMirrorアクティ
 
 
 
-== 既存のiSCSIまたはFC SnapMirror関係を対称アクティブ/アクティブに変換する
+== 既存の iSCSI または FC SnapMirror 関係を対称アクティブ / アクティブに変換する
 
-ONTAP 9.15.1 以降では、既存の iSCSI または FC SnapMirror関係をSnapMirrorアクティブ同期対称アクティブ/アクティブ関係に変換できます。
+ONTAP 9.15.1 以降では、既存の iSCSI または FC SnapMirror 関係を SnapMirror アクティブ同期対称アクティブ / アクティブ関係に変換できます。
 
 .開始する前に
 * ONTAP 9.15.1以降が実行されている必要があります。
-* プライマリクラスタとセカンダリクラスタの間に、RPOゼロのSnapMirror同期関係が存在している必要があります。
-* RTOゼロのSnapMirror関係を作成するには、デスティネーションボリューム上のすべてのLUNのマッピングを解除する必要があります。
-* SnapMirrorアクティブ同期でサポートされるのはSANプロトコルのみです（NFS / CIFSはサポートされません）。整合性グループのコンスティチュエントがNASアクセス用にマウントされていないことを確認します。
-* link:mediator-install-task.html["ONTAP Mediator"] SnapMirrorアクティブ同期を設定する必要があります。
+* プライマリ クラスタとセカンダリ クラスタの間にRPOゼロのSnapMirror同期関係が存在している必要があります。
+* RTOゼロのSnapMirror関係を作成する前に、デスティネーション ボリュームのすべてのLUNのマッピングを解除する必要があります。
+* SnapMirrorアクティブ同期ではSANプロトコルのみサポートされます（NFS / CIFSはサポートされません）。NASアクセス用に整合性グループのコンスティチュエントがマウントされていないことを確認します。
+* link:mediator-install-task.html["ONTAP Mediator"] SnapMirror アクティブ同期用に設定する必要があります。
 
 
 .手順
-. セカンダリクラスタから、既存の関係に対してSnapMirror更新を実行します。
+. セカンダリ クラスタから、既存の関係に対してSnapMirror更新を実行します。
 +
 `SiteB::>snapmirror update -destination-path vs1_dst:vol1`
 
@@ -116,40 +116,40 @@ ONTAP 9.15.1 以降では、既存の iSCSI または FC SnapMirror関係をSnap
 +
 `SiteB::>snapmirror delete -destination-path vs1_dst:vol2`
 
-. ソースSnapMirror関係を解放しますが、共通のSnapshotは保持します。
+. ソース SnapMirror 関係を解放しますが、共通のスナップショットは保持します：
 +
 `SiteA::>snapmirror release -relationship-info-only true -destination-path vs1_dst:vol1`
 
 +
 `SiteA::>snapmirror release -relationship-info-only true -destination-path vs1_dst:vol2`
 
-. AutomatedFailoverDuplexポリシーを使用してRTOゼロのSnapMirror同期関係を作成します。
+. AutomatedFailoverDuplexポリシーを使用して、RTOゼロのSnapMirror同期関係を作成します。
 +
 `SiteB::> snapmirror create -source-path vs1_src:/cg/cg_src -destination-path vs1_dst:/cg/cg_dst -cg-item-mappings vol1:@vol1,vol2:@vol2 -policy AutomatedFailoverDuplex`
 
-. 既存のホストがローカルのプライマリクラスタの場合は、ホストをセカンダリクラスタに追加し、各クラスタへのそれぞれのアクセスとの接続を確立します。
-. セカンダリサイトで、リモートホストに関連付けられたigroupのLUNマップを削除します。
+. 既存のホストがプライマリ クラスタに対してローカルである場合は、ホストをセカンダリ クラスタに追加し、各クラスタにそれぞれアクセスできるよう接続を確立します。
+. セカンダリ サイトで、リモート ホストに関連付けられているigroupのLUNマップを削除します。
 +
 
-NOTE: igroupにレプリケートされていないLUNのマッピングが含まれていないことを確認します。
+NOTE: レプリケートされていないLUNのマッピングがigroupに含まれていないことを確認します。
 
 +
 `SiteB::> lun mapping delete -vserver <svm_name> -igroup <igroup> -path <>`
 
-. プライマリサイトで、既存のホストのイニシエータ設定を変更して、ローカルクラスタのイニシエータの近接パスを設定します。
+. プライマリ サイトで、既存のホストのイニシエータ設定を変更して、ローカル クラスタのイニシエータの近接パスを設定します。
 +
 `SiteA::> igroup initiator add-proximal-vserver -vserver <svm_name> -initiator <host> -proximal-vserver <server>`
 
-. 新しいホスト用の新しいigroupとイニシエータを追加し、ホストとローカルサイトのアフィニティを設定します。igroupレプリケーションを有効にして設定をレプリケートし、リモートクラスタのホストローカル性を反転
+. 新しいホスト用の新しいigroupとイニシエータを追加し、ホストの近接性を設定してローカル サイトに対するホスト アフィニティを確立します。igroupレプリケーションを有効にして、設定をレプリケートし、リモート クラスタのホストのローカル性を反転させます。
 +
 ``
 SiteA::> igroup modify -vserver vsA -igroup ig1 -replication-peer vsB
 SiteA::> igroup initiator add-proximal-vserver -vserver vsA -initiator host2 -proximal-vserver vsB
 ``
 
-. ホスト上のパスを検出し、優先クラスタからストレージLUNへのアクティブ/最適化パスがホストにあることを確認する
+. ホスト上のパスを検出し、優先クラスタからストレージLUNへのアクティブ / 最適化パスがホストに設定されていることを確認します。
 . アプリケーションを導入し、VMワークロードをクラスタ間に分散します。
-. 整合グループを再同期します。
+. 整合性グループを再同期します。
 +
 `SiteB::> snapmirror resync -destination-path vs1_dst:/cg/cg_dst`
 
@@ -157,10 +157,10 @@ SiteA::> igroup initiator add-proximal-vserver -vserver vsA -initiator host2 -pr
 
 
 .関連情報
-* link:https://docs.netapp.com/us-en/ontap-cli/snapmirror-create.html["スナップミラー作成"^]
-* link:https://docs.netapp.com/us-en/ontap-cli/snapmirror-delete.html["SnapMirrorの削除"^]
-* link:https://docs.netapp.com/us-en/ontap-cli/snapmirror-quiesce.html["スナップミラーの静止"^]
-* link:https://docs.netapp.com/us-en/ontap-cli/snapmirror-release.html["スナップミラーリリース"^]
+* link:https://docs.netapp.com/us-en/ontap-cli/snapmirror-create.html["snapmirror create"^]
+* link:https://docs.netapp.com/us-en/ontap-cli/snapmirror-delete.html["snapmirror delete"^]
+* link:https://docs.netapp.com/us-en/ontap-cli/snapmirror-quiesce.html["snapmirror quiesce"^]
+* link:https://docs.netapp.com/us-en/ontap-cli/snapmirror-release.html["snapmirror release"^]
 * link:https://docs.netapp.com/us-en/ontap-cli/snapmirror-resync.html["snapmirror resync"^]
 * link:https://docs.netapp.com/us-en/ontap-cli/snapmirror-show.html["snapmirror show"^]
 

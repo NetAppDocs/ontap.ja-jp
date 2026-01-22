@@ -2,31 +2,31 @@
 permalink: smb-admin/enable-disable-encryption-incoming-traffic-task.html 
 sidebar: sidebar 
 keywords: require, smb, encryption, traffic, enable, cifs, server, share, level, default, enable or disable required smb encyrption for incoming smb traffic 
-summary: 受信 SMB トラフィックに SMB 暗号化を必須にする場合は、 CIFS サーバ上または共有レベルで有効にすることができます。デフォルトでは、 SMB 暗号化は必須ではありません。 
+summary: 受信SMBトラフィックにSMB暗号化を必須にしたい場合は、CIFSサーバーまたは共有レベルで有効にすることができます。デフォルトでは、SMB暗号化は必須ではありません。 
 ---
-= 受信トラフィックのONTAP SMB暗号化の有効化または無効化
+= 受信トラフィックのONTAP SMB暗号化を有効または無効にする
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-受信 SMB トラフィックに SMB 暗号化を必須にする場合は、 CIFS サーバ上または共有レベルで有効にすることができます。デフォルトでは、 SMB 暗号化は必須ではありません。
+受信SMBトラフィックにSMB暗号化を必須にしたい場合は、CIFSサーバーまたは共有レベルで有効にすることができます。デフォルトでは、SMB暗号化は必須ではありません。
 
-.タスクの内容
-CIFS サーバ上で SMB 暗号化を有効にすることができます。この場合、 CIFS サーバ上のすべての共有が環境によって暗号化されます。CIFS サーバ上のすべての共有で SMB 暗号化要求を有効にしない場合、または受信 SMB トラフィックの SMB 暗号化要求を共有ごとに有効にする場合は、 CIFS サーバ上で SMB 暗号化要求を無効にすることができます。
+.タスク概要
+CIFSサーバーでSMB暗号化を有効にすると、CIFSサーバー上のすべての共有に適用されます。CIFSサーバー上のすべての共有でSMB暗号化を必須にしたくない場合、または共有ごとに受信SMBトラフィックでSMB暗号化を必須にしたい場合は、CIFSサーバーでSMB暗号化を必須にすることを無効にできます。
 
-Storage Virtual Machine（SVM）ディザスタリカバリ関係をセットアップするときにコマンドのオプション `snapmirror create`で選択した値 `-identity-preserve`によって、デスティネーションSVMにレプリケートされる設定の詳細が決まります。
+ストレージ仮想マシン（SVM）のディザスタ リカバリ関係を設定する場合、 `snapmirror create`コマンドの `-identity-preserve`オプションに選択した値によって、宛先 SVM に複製される設定の詳細が決まります。
 
-このオプションを（ID保持）に `true`設定する `-identity-preserve`と、SMB暗号化のセキュリティ設定がデスティネーションにレプリケートされます。
+ `-identity-preserve`オプションを `true`（ID保持）に設定すると、SMB暗号化セキュリティ設定が宛先に複製されます。
 
-このオプションを（非ID保持）に `false`設定する `-identity-preserve`と、SMB暗号化のセキュリティ設定はデスティネーションにレプリケートされません。この場合、デスティネーションのCIFSサーバセキュリティ設定はデフォルト値に設定されます。ソース SVM で SMB 暗号化を有効にしている場合は、デスティネーションで CIFS サーバの SMB 暗号化を手動で有効にする必要があります。
+ `-identity-preserve`オプションを `false`（ID保持なし）に設定した場合、SMB暗号化セキュリティ設定はデスティネーションにレプリケートされません。この場合、デスティネーションのCIFSサーバセキュリティ設定はデフォルト値に設定されます。ソースSVMでSMB暗号化を有効にしている場合は、デスティネーションでCIFSサーバのSMB暗号化を手動で有効にする必要があります。
 
 .手順
 . 次のいずれかを実行します。
 +
 |===
-| CIFSサーバでの受信SMBトラフィックのSMB暗号化要求の設定 | 入力するコマンド 
+| CIFSサーバでの受信SMBトラフィックのSMB暗号化要求の設定 | コマンドを入力してください... 
 
 
  a| 
@@ -37,19 +37,19 @@ Storage Virtual Machine（SVM）ディザスタリカバリ関係をセットア
 
 
  a| 
-無効にする
+無効
  a| 
 `vserver cifs security modify -vserver _vserver_name_ -is-smb-encryption-required false`
 
 |===
-. CIFSサーバでのSMB暗号化要求が必要に応じて有効または無効になっていることを確認します。 `vserver cifs security show -vserver _vserver_name_ -fields is-smb-encryption-required`
+. CIFS サーバーで必要な SMB 暗号化が必要に応じて有効または無効になっていることを確認します（：） `vserver cifs security show -vserver _vserver_name_ -fields is-smb-encryption-required`
 +
- `is-smb-encryption-required`フィールドには、CIFSサーバでSMB暗号化要求が有効になっているかどうかと、SMB暗号化要求が無効になっているかどうか `false`が表示されます `true`。
+ `is-smb-encryption-required`フィールドには、CIFS サーバーで必要な SMB 暗号化が有効になっている場合は `true`、無効になっている場合は `false`が表示されます。
 
 
 
 .例
-次の例では、SVM vs1のCIFSサーバの受信SMBトラフィックのSMB暗号化要求を有効にします。
+次の例は、SVM vs1でCIFSサーバの受信SMBトラフィックのSMB暗号化要求を有効にします。
 
 [listing]
 ----
@@ -61,5 +61,5 @@ vserver  is-smb-encryption-required
 vs1      true
 ----
 .関連情報
-* link:https://docs.netapp.com/us-en/ontap-cli/snapmirror-create.html["スナップミラー作成"^]
+* link:https://docs.netapp.com/us-en/ontap-cli/snapmirror-create.html["snapmirror create"^]
 

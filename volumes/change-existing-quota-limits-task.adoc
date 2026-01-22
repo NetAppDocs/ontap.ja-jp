@@ -2,51 +2,51 @@
 permalink: volumes/change-existing-quota-limits-task.html 
 sidebar: sidebar 
 keywords: modify, resize, quota limits, quota, limits, volume, volumes, quotas 
-summary: 影響を受けるすべてのボリューム上のクォータを変更またはサイズ変更できます。これは、それらのボリューム上のクォータを再初期化するよりも高速です。 
+summary: 影響を受けるすべてのボリューム上のクォータを変更またはサイズ変更できます。この処理は、これらのボリューム上のクォータを再初期化するよりも高速です。 
 ---
-= クォータ制限を変更またはサイズ変更する
+= クォータ制限の変更またはサイズ変更
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-影響を受けるすべてのボリューム上のクォータを変更またはサイズ変更できます。これは、それらのボリューム上のクォータを再初期化するよりも高速です。
+影響を受けるすべてのボリューム上のクォータを変更またはサイズ変更できます。この処理は、これらのボリューム上のクォータを再初期化するよりも高速です。
 
-.タスクの内容
-クォータが適用されているStorage Virtual Machine（SVM、旧Vserver）があり、既存のクォータのサイズ制限を変更するか、すでに派生クォータが存在するターゲットに対してクォータを追加または削除する。
+.タスク概要
+クォータが適用されているStorage Virtual Machine（SVM、旧Vserver）で、既存のクォータのサイズ制限を変更するか、すでに派生クォータが存在するターゲットに対してクォータを追加または削除します。
 
 .手順
-. コマンドでパラメータを指定し `-instance`て、 `vserver show`SVMに現在割り当てられているポリシーの名前を確認します。
-. 次のいずれかの操作を実行してクォータルールを変更します。
+.  `vserver show`コマンドに `-instance`パラメータを指定して、現在SVMに割り当てられているポリシーの名前を確認します。
+. 次のいずれかの操作を実行し、クォータ ルールを変更します。
 +
-** コマンドを使用して `volume quota policy rule modify`、既存のクォータルールのディスク制限またはファイル制限を変更します。
-** コマンドを使用し `volume quota policy rule create`て、現在派生クォータが存在するターゲット（ユーザ、グループ、またはqtree）に対する明示的クォータルールを作成します。
-** コマンドを使用して `volume quota policy rule delete`、デフォルトクォータを持つターゲット（ユーザ、グループ、またはqtree）に対する明示的クォータルールを削除します。
+**  `volume quota policy rule modify`コマンドを使用して、既存のクォータ ルールのディスクまたはファイルの制限を変更します。
+**  `volume quota policy rule create`コマンドを使用して、現在派生クォータを持つターゲット（ユーザ、グループ、またはqtree）に対して明示的なクォータルールを作成します。
+** デフォルトのクォータも設定されているターゲット（ユーザー、グループ、またはqtree）の明示的なクォータルールを削除するには、 `volume quota policy rule delete`コマンドを使用します。
 
 
-. コマンドを使用し `volume quota policy rule show`て、クォータルールが正しく設定されていることを確認します。
-. クォータを変更した各ボリュームでコマンドを使用し `volume quota resize`て、各ボリュームで変更をアクティブ化します。
+.  `volume quota policy rule show`コマンドを使用して、クォータルールが正しく設定されていることを確認します。
+.  `volume quota resize`コマンドをクォータを変更した各ボリュームで使用して、各ボリュームの変更を有効にします。
 +
 サイズ変更プロセスは、次のいずれかの方法で監視できます。
 
 +
-** コマンドを使用する場合 `volume quota resize`は、パラメータを追加してサイズ変更ジョブをフォアグラウンドで実行できます `-foreground`。（デフォルトでは、このジョブはバックグラウンドで実行されます）。
+**  `volume quota resize`コマンドを使用する際に、 `-foreground`パラメータを追加することで、サイズ変更ジョブをフォアグラウンドで実行できます。（デフォルトでは、ジョブはバックグラウンドで実行されます。）
 +
-バックグラウンドでジョブが実行される場合は、コマンドを使用して進捗状況を監視できます `job show`。
+ジョブがバックグラウンドで実行されている場合、 `job show`コマンドを使用して進行状況を監視できます。
 
-** サイズ変更ステータスは、コマンドを使用して監視できます `volume quota show`。
+**  `volume quota show`コマンドを使用してサイズ変更のステータスを監視できます。
 
 
-. コマンドを使用し `volume quota show -instance`て、サイズ変更に失敗したクォータルールなどのサイズ変更エラーがないかどうかを確認します。
+.  `volume quota show -instance`コマンドを使用して、サイズ変更に失敗したクォータルールなどのサイズ変更エラーを確認します。
 +
-特に ' 派生クォータがまだ存在しないターゲットの明示的クォータを追加した後でクォータのサイズを変更すると発生する "new definition" エラーをチェックします
+特に、派生クォータがまだ存在しないターゲットに明示的なクォータを追加した後にクォータのサイズを変更した場合に発生する「`new definition`」エラーがないか確認してください。
 
-. コマンドを使用し `volume quota report`てクォータレポートを表示し、適用クォータが要件を満たしていることを確認します。
+.  `volume quota report`コマンドを使用してクォータレポートを表示し、適用されたクォータが要件に一致していることを確認できます。
 
 
 .関連情報
-* link:https://docs.netapp.com/us-en/ontap-cli/search.html?q=volume+quota+policy+rule["ボリュームクォータポリシールール"^]
+* link:https://docs.netapp.com/us-en/ontap-cli/search.html?q=volume+quota+policy+rule["volumeクォータポリシールール"^]
 * link:https://docs.netapp.com/us-en/ontap-cli/search.html?q=volume+quota["ボリュームクォータ"^]
-* link:https://docs.netapp.com/us-en/ontap-cli/job-show.html["ジョブの表示"^]
+* link:https://docs.netapp.com/us-en/ontap-cli/job-show.html["job show"^]
 

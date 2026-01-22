@@ -2,30 +2,30 @@
 permalink: san-admin/restore-single-lun-snapvault-backup-task.html 
 sidebar: sidebar 
 keywords: restore, single, lun, snapvault backup 
-summary: 単一の LUN を新しい場所または元の場所にリストアできます。SnapVaultセカンダリボリューム内の任意のSnapshotからリストアできます。LUN を元の場所にリストアするには、まず新しい場所にリストアしてから、元の場所にコピーします。 
+summary: 単一のLUNを新しい場所または元の場所に復元できます。SnapVault セカンダリ ボリューム内の任意のSnapshotから復元できます。LUNを元の場所に復元するには、まず新しい場所に復元してからコピーします。 
 ---
-= ONTAP SnapVaultバックアップから単一のLUNをリストア
+= ONTAP SnapVaultバックアップから単一のLUNを復元する
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-単一の LUN を新しい場所または元の場所にリストアできます。SnapVaultセカンダリボリューム内の任意のSnapshotからリストアできます。LUN を元の場所にリストアするには、まず新しい場所にリストアしてから、元の場所にコピーします。
+単一のLUNを新しい場所または元の場所に復元できます。SnapVault セカンダリ ボリューム内の任意のSnapshotから復元できます。LUNを元の場所に復元するには、まず新しい場所に復元してからコピーします。
 
 .開始する前に
-* SnapVault関係が初期化されていて、SnapVaultセカンダリボリュームにリストアする適切なSnapshotが含まれている必要があります。
-* SnapVault セカンダリボリュームがある Storage Virtual Machine （ SVM ）に、適切な SAN プロトコル対応の LIF が 1 個以上あり、 LUN コピーへのアクセスに使用するホストからこの LIF にアクセスできることが必要です。
-* igroup が SnapVault SVM 上にすでに存在している必要があります。
+* SnapVault関係を初期化する必要があり、SnapVaultセカンダリ ボリュームには復元する適切なスナップショットが含まれている必要があります。
+* SnapVault セカンダリ ボリュームを含むStorage Virtual Machine（SVM）には、LUNコピーへのアクセスに使用されるホストからアクセス可能な、必要なSANプロトコルを備えた1つ以上のLIFが必要です。
+* igroup は SnapVault SVM 上にすでに存在している必要があります。
 
 
-.タスクの内容
-このプロセスでは、SnapVaultセカンダリボリューム内のSnapshotから読み書き可能なボリュームクローンを作成します。このクローン内の LUN を直接使用することも、必要に応じて LUN の内容を元の LUN の場所にコピーすることもできます。
+.タスク概要
+このプロセスには、SnapVaultセカンダリ ボリュームのSnapshotから読み書き可能なボリューム クローンを作成することが含まれます。クローンからLUNを直接使用することも、必要に応じてLUNの内容を元のLUNの場所にコピーすることもできます。
 
-クローン内の LUN のパスとシリアル番号は、元の LUN のものとは異なります。永続的予約は維持されません。
+クローン内のLUNのパスとシリアル番号は、元のLUNとは異なります。永続的な予約は保持されません。
 
 .手順
-. SnapVaultバックアップが含まれているセカンダリボリュームを確認します。
+. SnapVaultバックアップが含まれているセカンダリ ボリュームを確認します。
 +
 [source, cli]
 ----
@@ -44,7 +44,7 @@ vserverA:srcvolA
                         Snapmirrored
                                 Idle       -         true    -
 ----
-. LUNのリストア元となるSnapshotを特定します。
+. LUN を復元するスナップショットを特定します。
 +
 [source, cli]
 ----
@@ -63,14 +63,14 @@ vserverB
                  snap1.2013-02-10_0015 valid  112KB     0%    0%
                  snap2.2013-02-11_0010  valid  164KB     0%    0%
 ----
-. 目的のSnapshotから読み書き可能クローンを作成
+. 目的のスナップショットから読み書き可能なクローンを作成する
 +
 [source, cli]
 ----
 volume clone create -vserver <SVM_name> -flexclone <flexclone_name> -type <type> -parent-volume <parent_volume_name> -parent-snapshot <snapshot_name>
 ----
 +
-ボリュームクローンは、 SnapVault バックアップと同じアグリゲート内に作成されます。アグリゲート内に、クローンを格納できるだけの十分なスペースが必要です。
+ボリューム クローンは、SnapVaultバックアップと同じアグリゲート内に作成されます。クローンを格納するには、アグリゲート内に十分なスペースが必要です。
 
 +
 [listing]
@@ -80,7 +80,7 @@ cluster::> volume clone create -vserver vserverB
   -parent-snapshot daily.2013-02-10_0010
 [Job 108] Job succeeded: Successful
 ----
-. ボリュームクローン内のLUNを一覧表示します。
+. ボリューム クローン内の LUN を一覧表示します。
 +
 [source, cli]
 ----
@@ -100,16 +100,16 @@ vserverB  /vol/dstvolB_clone/lun_C  online  unmapped windows
 3 entries were displayed.
 ----
 +
-の詳細については `lun show`、をlink:https://docs.netapp.com/us-en/ontap-cli/lun-show.html["ONTAPコマンド リファレンス"^]参照してください。
+ `lun show`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/lun-show.html["ONTAPコマンド リファレンス"^]を参照してください。
 
-. 目的のホストのigroupが、SnapVaultバックアップがあるSVM内にまだ存在していない場合は、igroupを作成します。
+. SnapVaultバックアップを含むSVM上に目的のホストのigroupがまだ存在しない場合は、igroupを作成します。
 +
 [source, cli]
 ----
 igroup create -vserver <SVM_name> -igroup <igroup_name> -protocol <protocol> -ostype <os_type> -initiator <initiator_name>
 ----
 +
-この例では、 iSCSI プロトコルを使用する Windows ホスト用の igroup を作成しています。
+この例では、iSCSIプロトコルを使用するWindowsホストのigroupを作成します：
 
 +
 [listing]
@@ -118,7 +118,7 @@ cluster::> igroup create -vserver vserverB -igroup temp_igroup
   -protocol iscsi -ostype windows
   -initiator iqn.1991-05.com.microsoft:hostA
 ----
-. 目的のLUNコピーをigroupにマッピングします。
+. 必要な LUN コピーを igroup にマップします。
 +
 [source, cli]
 ----
@@ -131,13 +131,13 @@ cluster::> lun mapping create -vserver vserverB
   -path /vol/dstvolB_clone/lun_C -igroup temp_igroup
 ----
 +
-の詳細については `lun mapping create`、をlink:https://docs.netapp.com/us-en/ontap-cli/lun-mapping-create.html["ONTAPコマンド リファレンス"^]参照してください。
+ `lun mapping create`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/lun-mapping-create.html["ONTAPコマンド リファレンス"^]を参照してください。
 
-. ホストを LUN に接続し、適宜 LUN の内容にアクセスします。
+. ホストを LUN に接続し、必要に応じて LUN の内容にアクセスします。
 +
-この LUN は読み書き可能であり、元の LUN の代わりに使用できます。LUN のシリアル番号が異なるため、ホストはこの LUN が元の LUN とは別の LUN であると解釈します。
+このLUNは読み取り/書き込み可能で、元のLUNの代わりに使用できます。LUNのシリアル番号が異なるため、ホストは元のLUNとは異なるLUNとして認識します。
 
-. ホスト上でコピープログラムを使用して、 LUN の内容を元の LUN にコピーします。
+. ホスト上のコピー プログラムを使用して、LUNの内容を元のLUNにコピーします。
 
 
 .関連情報

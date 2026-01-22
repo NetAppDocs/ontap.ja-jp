@@ -11,13 +11,13 @@ summary: ノードおよびFCポートのファンインあたりのITN数を最
 
 
 [role="lead"]
-ノードあたりおよびFCポートのファンインあたりのITN数を最大にするために、ホストのキュー深度の変更が必要になる場合があります。環境に応じて変更できます。link:calculate-queue-depth-task.html["最適なキュー深度の計算"]
+ノードあたりのITN数とFCポートのファンインの最大値を達成するには、ホスト上のキューの深さを変更する必要がある場合があります。環境に応じてlink:calculate-queue-depth-task.html["最適なキュー深度を計算する"]できます。
 
 
 
-== AIX ホスト
+== AIXホスト
 
-AIXホストのキュー深度は、コマンドを使用して変更できます `chdev`。コマンドを使用して行った変更 `chdev`はリブート後も維持されます。
+AIXホストのキュー デプスは、 `chdev`コマンドを使用して変更できます。 `chdev`コマンドを使用して行った変更は、再起動後も保持されます。
 
 例：
 
@@ -30,31 +30,31 @@ AIXホストのキュー深度は、コマンドを使用して変更できま�
 `chdev -l fcs0 -a num_cmd_elems=128`
 
 +
-のデフォルト値 `num_cmd_elems`は200です。最大値は2、048です。
+ `num_cmd_elems`のデフォルト値は200です。最大値は2,048です。
 
 +
 [NOTE]
 ====
-場合によっては、コマンドと `makdev -l fcs0 -P`コマンドを使用してHBAをオフラインにして変更後にオンラインに戻し `rmdev -l fcs0 -R`なければならないことがあり `num_cmd_elems`ます。
+ `num_cmd_elems`を変更するには HBA をオフラインにして、 `rmdev -l fcs0 -R`コマンドと `makdev -l fcs0 -P`コマンドを使用してオンラインに戻す必要がある場合があります。
 
 ====
 
 
 
 
-== HP-UX ホスト
+== HP-UXホスト
 
-HP-UXホストのLUNまたはデバイスのキュー深度は、kernelパラメータを使用して変更できます `scsi_max_qdepth`。HBAのキュー深度は、カーネルパラメータを使用して変更できます `max_fcp_reqs`。
+HP-UXホスト上のLUNまたはデバイスのキュー深度は、カーネル パラメータ `scsi_max_qdepth`を使用して変更できます。HBAのキュー深度は、カーネル パラメータ `max_fcp_reqs`を使用して変更できます。
 
-* のデフォルト値 `scsi_max_qdepth`は8です。最大値は255です。
+*  `scsi_max_qdepth`のデフォルト値は8です。最大値は255です。
 +
-`scsi_max_qdepth`コマンドのオプションを `kmtune`使用すると、実行中のシステムで動的に変更できます `-u`。この変更は、システム上のすべてのデバイスに有効になります。たとえば、LUNのキュー深度を64に増やすには、次のコマンドを使用します。
+`scsi_max_qdepth`は、 `kmtune`コマンドの `-u`オプションを使用して、実行中のシステムで動的に変更できます。変更はシステム上のすべてのデバイスに反映されます。例えば、LUNキューの深さを64に増やすには、次のコマンドを使用します：
 
 +
 `kmtune -u -s scsi_max_qdepth=64`
 
 +
-コマンドを使用すると、個 々 のデバイスファイルのキュー深度を変更でき `scsictl`ます。コマンドを使用した変更 `scsictl`は、システムのリブート後は維持されません。特定のデバイスファイルのキュー深度を表示および変更するには、次のコマンドを実行します。
+ `scsictl`コマンドを使用して、個々のデバイスファイルのキュー深度を変更できます。 `scsictl`コマンドによる変更は、システムの再起動後には保持されません。特定のデバイスファイルのキュー深度を表示および変更するには、次のコマンドを実行します：
 
 +
 `scsictl -a /dev/rdsk/c2t2d0`
@@ -62,9 +62,9 @@ HP-UXホストのLUNまたはデバイスのキュー深度は、kernelパラメ
 +
 `scsictl -m queue_depth=16 /dev/rdsk/c2t2d0`
 
-* のデフォルト値 `max_fcp_reqs`は512です。最大値は1024です。
+*  `max_fcp_reqs`のデフォルト値は512です。最大値は1024です。
 +
-変更を有効にするには、カーネルを再構築し、システムを再起動する必要があり `max_fcp_reqs`ます。たとえば、HBAのキュー深度を256に変更するには、次のコマンドを使用します。
+変更 `max_fcp_reqs`を有効にするには、カーネルを再構築し、システムを再起動する必要があります。例えば、HBAキューの深さを256に変更するには、次のコマンドを使用します：
 
 +
 `kmtune -u -s max_fcp_reqs=256`
@@ -73,18 +73,18 @@ HP-UXホストのLUNまたはデバイスのキュー深度は、kernelパラメ
 
 
 
-== Solaris ホストの場合
+== Solarisホスト
 
 SolarisホストのLUNおよびHBAのキュー深度を設定できます。
 
-* LUN のキュー深度の場合：ホストで使用中の LUN の数に LUN あたりのスロットル（ lun-queue-depth ）をかけた値が、ホストの tgt-queue-depth の値以下になる必要があります。
-* Sunスタックのキュー深度の場合：標準ドライバでは、LUN単位またはターゲット単位でHBAレベルを設定することはできません `max_throttle`。ネイティブドライバの値は、ファイルおよび `/kernel/drv/ssd.conf`ファイルのデバイスタイプ（VID_PID）単位で設定することを `/kernel/drv/sd.conf`推奨します `max_throttle`。ホストユーティリティでは、この値がMPxIO構成では64、Veritas DMP構成では8に設定されます。
+* LUNキューの深さの場合：ホストで使用中のLUNの数にLUNごとのスロットル（lun-queue-depth）を掛けた値は、ホストのtgt-queue-depth値以下である必要があります。
+* Sunスタックのキュー深度について：ネイティブドライバでは、HBAレベルでLUNごとまたはターゲットごと `max_throttle`の設定はできません。ネイティブドライバの `max_throttle`値を設定する場合は、 `/kernel/drv/sd.conf`ファイルおよび `/kernel/drv/ssd.conf`ファイルでデバイスタイプ（VID_PID）ごとに設定することをお勧めします。ホストユーティリティは、MPxIO構成ではこの値を64、Veritas DMP構成では8に設定します。
 
 
 .手順
 . `# cd/kernel/drv`
 . `# vi lpfc.conf`
-. 検索対象 `/tft-queue (/tgt-queue)`
+. 検索する `/tft-queue (/tgt-queue)`
 +
 `tgt-queue-depth=32`
 
@@ -94,31 +94,31 @@ SolarisホストのLUNおよびHBAのキュー深度を設定できます。
 デフォルト値はインストール時に32に設定されます。
 
 ====
-. 環境の構成に基づいて、必要な値を設定します。
+. 環境の構成に基づいて必要な値を設定します。
 . ファイルを保存します。
-. コマンドを使用してホストをリブートし `+sync; sync; sync; reboot -- -r+`ます。
+.  `+sync; sync; sync; reboot -- -r+`コマンドを使用してホストを再起動します。
 
 
 
 
-== QLogicHBAヨウノVMwareホスト
+== VMwareホスト（QLogic HBAの場合）
 
-HBAタイムアウト設定を変更するには、コマンドを使用し `esxcfg-module`ます。ファイルを手動で更新すること `esx.conf`は推奨されません。
+ `esxcfg-module`コマンドを使用してHBAタイムアウト設定を変更します。 `esx.conf`ファイルを手動で更新することは推奨されません。
 
 .手順
-. rootユーザとしてサービスコンソールにログオンします。
-. コマンドを使用し `#vmkload_mod -l`て、現在ロードされているQlogic HBAモジュールを確認します。
-. Qlogic HBAの単一インスタンスの場合は、次のコマンドを実行します。
+. rootユーザとしてサービス コンソールにログオンします。
+.  `#vmkload_mod -l`コマンドを使用して、現在ロードされているQlogic HBAモジュールを確認します。
+. Qlogic HBAの単一のインスタンスが1つの場合は、次のコマンドを実行します。
 +
 `#esxcfg-module -s ql2xmaxqdepth=64 qla2300_707`
 
 +
 [NOTE]
 ====
-この例では、qla2300_707モジュールを使用しています。の出力に基づいて、適切なモジュールを使用し `vmkload_mod -l`ます。
+この例ではqla2300_707モジュールを使用しています。 `vmkload_mod -l`の出力に基づいて適切なモジュールを使用してください。
 
 ====
-. 次のコマンドを使用して変更を保存します。
+. 次のコマンドを使用して変更内容を保存します。
 +
 `#/usr/sbin/esxcfg-boot -b`
 
@@ -126,7 +126,7 @@ HBAタイムアウト設定を変更するには、コマンドを使用し `esx
 +
 `#reboot`
 
-. 次のコマンドを使用して変更を確認します。
+. 次のコマンドを使用して変更内容を確認します。
 +
 .. `#esxcfg-module -g qla2300_707`
 .. `qla2300_707 enabled = 1 options = 'ql2xmaxqdepth=64'`
@@ -136,54 +136,54 @@ HBAタイムアウト設定を変更するには、コマンドを使用し `esx
 
 
 
-== Emulex HBAヨウノVMwareホスト
+== VMwareホスト（Emulex HBAの場合）
 
-HBAタイムアウト設定を変更するには、コマンドを使用し `esxcfg-module`ます。ファイルを手動で更新すること `esx.conf`は推奨されません。
+ `esxcfg-module`コマンドを使用してHBAタイムアウト設定を変更します。 `esx.conf`ファイルを手動で更新することは推奨されません。
 
 .手順
-. rootユーザとしてサービスコンソールにログオンします。
-. コマンドを使用し `#vmkload_mod -l grep lpfc`て、どのEmulex HBAが現在ロードされているかを確認します。
-. Emulex HBAの単一インスタンスの場合は、次のコマンドを入力します。
+. rootユーザとしてサービス コンソールにログオンします。
+.  `#vmkload_mod -l grep lpfc`コマンドを使用して、現在ロードされているEmulex HBAを確認します。
+. Emulex HBAのインスタンスが1つの場合は、次のコマンドを入力します。
 +
 `#esxcfg-module -s lpfc0_lun_queue_depth=16 lpfcdd_7xx`
 
 +
 [NOTE]
 ====
-HBAのモデルに応じて、モジュールはlpfcdd_7xxまたはlpfcdd_732のいずれかになります。上記のコマンドはlpfcdd_7xxモジュールを使用します。の結果に基づいて、適切なモジュールを使用する必要があります `vmkload_mod -l`。
+HBAのモデルに応じて、モジュールはlpfcdd_7xxまたはlpfcdd_732のいずれかになります。上記のコマンドではlpfcdd_7xxモジュールを使用しています。 `vmkload_mod -l`の結果に応じて適切なモジュールを使用してください。
 
 ====
 +
-このコマンドを実行すると、lpfc0で表されるHBAのLUNキュー深度が16に設定されます。
+このコマンドを実行すると、lpfc0で表されるHBAに対してLUNのキュー深度が16に設定されます。
 
-. Emulex HBAの複数のインスタンスの場合は、次のコマンドを実行します。
+. Emulex HBAのインスタンスが複数の場合は、次のコマンドを実行します。
 +
 `a esxcfg-module -s "lpfc0_lun_queue_depth=16 lpfc1_lun_queue_depth=16" lpfcdd_7xx`
 
 +
-lpfc0のLUNキュー深度とlpfc1のLUNキュー深度が16に設定されます。
+lpfc0に対するLUNのキュー深度とlpfc1に対するLUNのキュー深度が16に設定されます。
 
 . 次のコマンドを入力します。
 +
 `#esxcfg-boot -b`
 
-. を使用してリブートします `#reboot`
+.  `#reboot`を使用して再起動します。
 
 
 
 
-== Emulex HBAヨウノWindowsホスト
+== Windowsホスト（Emulex HBAの場合）
 
-Windowsホストでは、ユーティリティを使用してEmulex HBAのキュー深度を更新できます `LPUTILNT`。
+Windowsホストでは、 `LPUTILNT`ユーティリティを使用してEmulex HBAのキューの深さを更新できます。
 
 .手順
-. ディレクトリにあるユーティリティを `C:\WINNT\system32`実行し `LPUTILNT`ます。
-. 右側のメニューから * Drive Parameters * （ドライブパラメータ）を選択します。
-. スクロールダウンして、 [*QueueDepth*] をダブルクリックします。
+.  `C:\WINNT\system32`ディレクトリにある `LPUTILNT`ユーティリティを実行します。
+. 右側のメニューから*ドライブ パラメータ*を選択します。
+. 下にスクロールして*QueueDepth*をダブルクリックします。
 +
 [NOTE]
 ====
-150 より大きい * QueueDepth * を設定する場合は、次の Windows レジストリ値も適切に増やす必要があります。
+*QueueDepth*を150より大きく設定する場合は、次のWindowsレジストリ値も適切に増やす必要があります：
 
 `HKEY_LOCAL_MACHINE\System\CurrentControlSet\Services\lpxnds\Parameters\Device\NumberOfRequests`
 
@@ -192,22 +192,22 @@ Windowsホストでは、ユーティリティを使用してEmulex HBAのキュ
 
 
 
-== Qlogic HBA用のWindowsホスト
+== Windowsホスト（Qlogic HBAの場合）
 
-Windowsホストでは、およびHBAマネージャユーティリティを使用してQlogic HBAのキュー深度を更新できます `SANsurfer`。
+Windows ホストでは、 `SANsurfer` HBA マネージャ ユーティリティを使用して、Qlogic HBA のキュー深度を更新できます。
 
 .手順
-. HBAマネージャユーティリティを実行し `SANsurfer`ます。
-. [* HBA ポート *>* 設定 ] をクリックします。
-. リスト・ボックスの * HBA ポートの詳細設定 * をクリックします。
-. パラメータを更新し `Execution Throttle`ます。
+.  `SANsurfer` HBA マネージャー ユーティリティを実行します。
+. *HBA ポート* > *設定* をクリックします。
+. リスト ボックスで *Advanced HBA port settings* をクリックします。
+.  `Execution Throttle`パラメータを更新します。
 
 
 
 
-== Emulex HBAヨウノLinuxホスト
+== Linuxホスト（Emulex HBAの場合）
 
-Linux ホストでは Emulex HBA のキュー深度を更新できます。更新をリブート後も維持するには、新しい RAM ディスクイメージを作成してホストをリブートする必要があります。
+Linuxホスト上のEmulex HBAのキュー深度を更新できます。更新内容を再起動後も維持するには、新しいRAMディスクイメージを作成し、ホストを再起動する必要があります。
 
 .手順
 . 変更するキュー深度パラメータを特定します。
@@ -215,20 +215,20 @@ Linux ホストでは Emulex HBA のキュー深度を更新できます。更�
 `modinfo lpfc|grep queue_depth`
 
 +
-キュー深度パラメータとその概要のリストが表示されます。使用しているオペレーティングシステムのバージョンに応じて、次のキュー深度パラメータを 1 つ以上変更できます。
+キュー深度パラメータのリストとその説明が表示されます。オペレーティングシステムのバージョンに応じて、以下のキュー深度パラメータの1つ以上を変更できます：
 
 +
-** `lpfc_lun_queue_depth`：特定のLUNのキューに格納できるFCコマンドの最大数（uint）
-** `lpfc_hba_queue_depth`：lpfc HBAのキューに格納できるFCコマンドの最大数（uint）
-** `lpfc_tgt_queue_depth`：特定のターゲットポートのキューに格納できるFCコマンドの最大数（uint）
+** `lpfc_lun_queue_depth`：特定のLUNにキューイングできるFCコマンドの最大数（uint）
+** `lpfc_hba_queue_depth`：lpfc HBA にキューイングできる FC コマンドの最大数（uint）
+** `lpfc_tgt_queue_depth`：特定のターゲットポートにキューイングできる FC コマンドの最大数（uint）
 +
  `lpfc_tgt_queue_depth`パラメータは、Red Hat Enterprise Linux 7.xシステム、SUSE Linux Enterprise Server 11 SP4システム、および12.xシステムにのみ適用されます。
 
 
 
-. キュー深度を更新するには、Red Hat Enterprise Linux 5.xシステムの場合はファイル、Red Hat Enterprise Linux 6.x / 7.xシステム、またはSUSE Linux Enterprise Server 11.x / 12.xシステムの場合はファイルに、 `/etc/modprobe.d/scsi.conf`キュー深度パラメータを追加します `/etc/modprobe.conf`。
+. Red Hat Enterprise Linux 5.x システムの `/etc/modprobe.conf`ファイルと、Red Hat Enterprise Linux 6.x または 7.x システム、あるいは SUSE Linux Enterprise Server 11.x または 12.x システムの `/etc/modprobe.d/scsi.conf`ファイルにキュー深度パラメータを追加して、キュー深度を更新します。
 +
-使用しているオペレーティングシステムのバージョンに応じて、次のコマンドを 1 つ以上追加できます。
+オペレーティング システムのバージョンに応じて、次のコマンドを 1 つ以上追加できます：
 
 +
 ** `options lpfc lpfc_hba_queue_depth=new_queue_depth`
@@ -236,9 +236,9 @@ Linux ホストでは Emulex HBA のキュー深度を更新できます。更�
 ** `options lpfc_tgt_queue_depth=new_queue_depth`
 
 
-. 新しい RAM ディスクイメージを作成し、ホストをリブートして、リブート後も更新内容を維持します。
+. 新しい RAM ディスク イメージを作成し、ホストを再起動して、再起動後も更新が保持されるようにします。
 +
-詳細については、使用しているLinuxオペレーティングシステムのバージョンに対応したを参照してくださいlink:../system-admin/index.html["システム管理"]。
+詳細については、ご使用の Linux オペレーティング システムのバージョンのlink:../system-admin/index.html["システム管理"]を参照してください。
 
 . 変更したキュー深度パラメータの値が更新されていることを確認します。
 +
@@ -257,19 +257,19 @@ root@localhost ~]#cat /sys/class/scsi_host/host5/lpfc_lun_queue_depth
 
 
 
-== QLogicHBAヨウノLinuxホスト
+== Linuxホスト（QLogic HBAの場合）
 
-Linux ホストでは QLogic ドライバのデバイスキュー深度を更新できます。更新をリブート後も維持するには、新しい RAM ディスクイメージを作成してホストをリブートする必要があります。QLogic HBA のキュー深度を変更するには、 QLogic HBA の管理 GUI またはコマンドラインインターフェイス（ CLI ）を使用します。
+Linuxホスト上のQLogicドライバのデバイスキュー深度を更新できます。更新内容を再起動後も維持するには、新しいRAMディスクイメージを作成し、ホストを再起動する必要があります。QLogic HBA管理GUIまたはコマンドラインインターフェース（CLI）を使用して、QLogic HBAのキュー深度を変更できます。
 
-このタスクでは、 QLogic HBA の CLI を使用して QLogic HBA のキュー深度を変更する方法を示します
+このタスクでは、QLogic HBA CLI を使用して QLogic HBA キューの深さを変更する方法を示します。
 
 .手順
-. 変更するデバイスキュー深度パラメータを特定します。
+. 変更するデバイス キュー深度パラメータを特定します。
 +
 `modinfo qla2xxx | grep ql2xmaxqdepth`
 
 +
-変更できるのはキュー深度パラメータのみ `ql2xmaxqdepth`です。このパラメータは、LUNごとに設定できる最大キュー深度を示します。RHEL 7.5以降のデフォルト値は64です。RHEL 7.4以前のデフォルト値は32です。
+変更できるのは `ql2xmaxqdepth`キュー深度パラメータのみです。これは、各LUNに設定できる最大キュー深度を示します。デフォルト値はRHEL 7.5以降では64です。デフォルト値はRHEL 7.4以前では32です。
 
 +
 [listing]
@@ -277,14 +277,14 @@ Linux ホストでは QLogic ドライバのデバイスキュー深度を更新
 root@localhost ~]# modinfo qla2xxx|grep ql2xmaxqdepth
 parm:       ql2xmaxqdepth:Maximum queue depth to set for each LUN. Default is 64. (int)
 ----
-. デバイスのキュー深度の値を更新します。
+. デバイスのキューの深さの値を更新します：
 +
-** 永続的に変更する場合は、次の手順を実行します。
+** 変更を永続的にする場合は、次の手順を実行します：
 +
-... キュー深度を更新するには、Red Hat Enterprise Linux 5.xシステムの場合はファイルに、 `/etc/modprobe.d/scsi.conf`Red Hat Enterprise Linux 6.x / 7.xシステムまたはSUSE Linux Enterprise Server 11.x / 12.xシステムの場合はファイルに、キュー深度パラメータを追加し `/etc/modprobe.conf`ます。 `options qla2xxx ql2xmaxqdepth=new_queue_depth`
-... 新しい RAM ディスクイメージを作成し、ホストをリブートして、リブート後も更新内容を維持します。
+...  `/etc/modprobe.conf`ファイルに Red Hat Enterprise Linux 5.x システム用のキュー デプス パラメータを追加し、 `/etc/modprobe.d/scsi.conf`ファイルに Red Hat Enterprise Linux 6.x または 7.x システム、または SUSE Linux Enterprise Server 11.x または 12.x システム用のキュー デプス パラメータを追加して、キュー デプスを更新します： `options qla2xxx ql2xmaxqdepth=new_queue_depth`
+... 新しい RAM ディスク イメージを作成し、ホストを再起動して、再起動後も更新が保持されるようにします。
 +
-詳細については、使用しているLinuxオペレーティングシステムのバージョンに対応したを参照してくださいlink:../system-admin/index.html["システム管理"]。
+詳細については、ご使用の Linux オペレーティング システムのバージョンのlink:../system-admin/index.html["システム管理"]を参照してください。
 
 
 
@@ -293,7 +293,7 @@ parm:       ql2xmaxqdepth:Maximum queue depth to set for each LUN. Default is 64
 `echo new_queue_depth > /sys/module/qla2xxx/parameters/ql2xmaxqdepth`
 
 +
-次の例では、キュー深度を 128 に設定します。
+次の例では、キューの深さは128に設定されています。
 
 +
 [listing]
@@ -309,13 +309,13 @@ echo 128 > /sys/module/qla2xxx/parameters/ql2xmaxqdepth
 +
 キュー深度の現在の値が表示されます。
 
-. QLogic HBA BIOSからファームウェアパラメータを更新して、QLogic HBAのキュー深度を変更します `Execution Throttle`。
+. QLogic HBA BIOS からファームウェア パラメータ `Execution Throttle`を更新して、QLogic HBA キューの深さを変更します。
 +
-.. QLogic HBA管理CLIにログインします。
+.. QLogic HBAの管理CLIにログインします。
 +
 `/opt/QLogic_Corporation/QConvergeConsoleCLI/qaucli`
 
-.. メインメニューからオプションを選択します `Adapter Configuration`。
+.. メインメニューから `Adapter Configuration`オプションを選択します。
 +
 [listing]
 ----
@@ -343,7 +343,7 @@ QConvergeConsole
 
         Please Enter Selection: 2
 ----
-.. アダプタ設定パラメータのリストから、オプションを選択し `HBA Parameters`ます。
+.. アダプタ構成パラメータのリストから `HBA Parameters`オプションを選択します。
 +
 [listing]
 ----
@@ -381,9 +381,9 @@ Fibre Channel Adapter Configuration
 +
 HBA ポートの詳細が表示されます。
 
-.. [HBA Parameters]メニューで、オプションの現在の値を表示するオプションを `Execution Throttle`選択します `Display HBA Parameters`。
+.. HBA パラメータ メニューから `Display HBA Parameters`オプションを選択して、 `Execution Throttle`オプションの現在の値を表示します。
 +
-このオプションのデフォルト値 `Execution Throttle`は65535です。
+ `Execution Throttle`オプションのデフォルト値は65535です。
 
 +
 [listing]
@@ -435,9 +435,9 @@ Enable Fabric Assigned WWN     : N/A
 
 Press <Enter> to continue:
 ----
-.. Enter * を押して続行します。
-.. [HBA Parameters]メニューから、HBAパラメータを変更するオプションを選択します `Configure HBA Parameters`。
-.. [Configure Parameters]メニューからオプションを選択し `Execute Throttle`、このパラメータの値を更新します。
+.. 続行するには *Enter* を押してください。
+.. HBA パラメータ メニューから、 `Configure HBA Parameters`オプションを選択して HBA パラメータを変更します。
+.. 「パラメータの構成」メニューから `Execute Throttle`オプションを選択し、このパラメータの値を更新します。
 +
 [listing]
 ----
@@ -481,8 +481,8 @@ Link          : Online
         Please Enter Selection: 11
 Enter Execution Throttle [1-65535] [65535]: 65500
 ----
-.. Enter * を押して続行します。
-.. [Configure Parameters]メニューから、変更を保存するオプションを選択し `Commit Changes`ます。
+.. 続行するには *Enter* を押してください。
+.. 「パラメータの構成」メニューから、 `Commit Changes`オプションを選択して変更を保存します。
 .. メニューを終了します。
 
 

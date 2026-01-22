@@ -2,22 +2,22 @@
 permalink: software_setup/task_synchronize_the_system_time_across_the_cluster.html 
 sidebar: sidebar 
 keywords: ontap, software, setup, synchronize, system, time, across, cluster 
-summary: 時間を同期することで、クラスタ内のすべてのノードの時刻が同じになり、CIFSやKerberosのエラーを防ぐことができます。 
+summary: 時間を同期することで、クラスタ内の各ノードの時刻が同じになり、CIFSやKerberosのエラーを防ぐことができます。 
 ---
-= ONTAPクラスタ全体のシステム時間を同期する
+= ONTAPクラスタ全体でシステム時間を同期する
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-時間を同期することで、クラスタ内のすべてのノードの時刻が同じになり、CIFSやKerberosのエラーを防ぐことができます。
+時間を同期することで、クラスタ内の各ノードの時刻が同じになり、CIFSやKerberosのエラーを防ぐことができます。
 
-ネットワークタイムプロトコル（NTP）サーバをサイトにセットアップする必要があります。ONTAP 9.5以降では、対称認証を使用するようにNTPサーバをセットアップできます。詳細については、のドキュメントを参照してください link:../system-admin/manage-cluster-time-concept.html["クラスタ時間の管理（クラスタ管理者のみ）"]。
+サイトにNetwork Time Protocol（NTP）サーバを設置する必要があります。ONTAP 9.5以降では、対称認証を使用してNTPサーバをセットアップできます。詳細については、link:../system-admin/manage-cluster-time-concept.html["クラスタ時間の管理（クラスタ管理者のみ）"]のドキュメントを参照してください。
 
 クラスタを1つ以上のNTPサーバに関連付けて、クラスタ全体の時間を同期します。
 
-. 各ノードのシステム時間とタイムゾーンが正しく設定されていることを確認します。
+. 各ノードのシステム時刻とタイムゾーンが正しく設定されていることを確認します：
 +
 [source, cli]
 ----
@@ -27,7 +27,7 @@ cluster date show
 クラスタ内のすべてのノードが同じタイムゾーンに設定されている必要があります。
 
 +
-次の例は、クラスタ内の各ノードの日付とタイムゾーンを示しています。
+この例では、クラスター内の各ノードの日付とタイムゾーンを表示します。
 
 +
 [listing]
@@ -41,23 +41,23 @@ cluster1-03  01/06/2015 09:35:15 America/New_York
 cluster1-04  01/06/2015 09:35:15 America/New_York
 4 entries were displayed.
 ----
-. すべてのノードの日付またはタイムゾーンを変更します。
+. すべてのノードの日付またはタイムゾーンを変更します：
 +
 [source, cli]
 ----
 cluster date modify
 ----
 +
-次に、クラスタのタイムゾーンをGMTに変更する例を示します。
+この例では、クラスタのタイムゾーンをGMTに変更します。
 
 +
 [listing]
 ----
 cluster1::> cluster date modify -timezone GMT
 ----
-. クラスタをNTPサーバに関連付けます。
+. クラスタを NTP サーバに関連付けます：
 +
-対称認証を使用せずにNTPサーバを設定するには、次のコマンドを入力します。
+対称認証なしで NTP サーバーを設定するには、次のコマンドを入力します：
 
 +
 [source, cli]
@@ -65,7 +65,7 @@ cluster1::> cluster date modify -timezone GMT
 cluster time-service ntp server create -server <server_name>
 ----
 +
-対称認証を使用するNTPサーバを設定するには、次のコマンドを入力します。
+対称認証を使用して NTP サーバーを設定するには、次のコマンドを入力します：
 
 +
 [source, cli]
@@ -74,24 +74,24 @@ cluster time-service ntp server create -server <server_ip_address> -key-id <key_
 ----
 +
 
-NOTE: 対称認証はONTAP 9.5以降で使用できます。ONTAP 9.4以前では使用できません。
+NOTE: 対称認証はONTAP 9.5以降で利用できます。ONTAP 9.4以前では利用できません。
 
 +
-この例では、クラスタにDNSが設定されていることを前提としています。DNSを設定していない場合は、NTPサーバのIPアドレスを指定する必要があります。
+この例では、クラスタにDNSが構成されていると想定しています。DNSを構成していない場合は、NTPサーバのIPアドレスを指定する必要があります。
 
 +
 [listing]
 ----
 cluster1::> cluster time-service ntp server create -server ntp1.example.com
 ----
-. クラスタがNTPサーバに関連付けられていることを確認します。
+. クラスターが NTP サーバーに関連付けられていることを確認します：
 +
 [source, cli]
 ----
 cluster time-service ntp server show
 ----
 +
-次の例は、クラスタがNTPサーバntp1.example.comに関連付けられていることを示しています。
+この例は、クラスタが NTP サーバ ntp1.example.com に関連付けられていることを示しています。
 
 +
 [listing]
@@ -107,7 +107,7 @@ ntp1.example.com     auto
 
 == NTPサーバの対称認証の管理用コマンド
 
-ONTAP 9 .5以降では、ネットワークタイムプロトコル（NTP）バージョン3がサポートされます。NTPv3にはSHA-1キーを使用した対称認証が含まれているため、ネットワークセキュリティが向上します。
+ONTAP 9.5以降では、ネットワーク タイム プロトコル（NTP）バージョン3がサポートされます。NTPv3にはSHA-1鍵を使用した対称認証機能が含まれ、ネットワーク セキュリティが強化されます。
 
 [cols="2*"]
 |===
@@ -133,7 +133,7 @@ cluster time-service ntp server create -server server_ip_address -key-id key_id
 
 
  a| 
-既存のNTPサーバに対して対称認証を有効にする
+既存のNTPサーバで対称認証を有効にする
 
 必要なキーIDを追加することで、既存のNTPサーバを変更して認証を有効にすることができます。
  a| 
@@ -150,7 +150,7 @@ cluster time-service ntp server modify -server server_name -key-id key_id
 ----
 cluster time-service ntp key create -id shared_key_id -type shared_key_type -value shared_key_value
 ----
-* 注：共有キーは ID で参照されます。ID、そのタイプ、および値がノードとNTPサーバの両方で同じである必要があります。
+*注：*共有鍵はIDで参照されます。ID、そのタイプ、値はノードとNTPサーバーの両方で同一である必要があります。
 
 
 
@@ -164,13 +164,13 @@ cluster time-service ntp server create -server server_name -key-id key_id
 
 
  a| 
-NTPサーバで設定されていないキーIDでサーバを設定します。
+NTPサーバで設定されていないキーIDでサーバを設定する
  a| 
 [source, cli]
 ----
 cluster time-service ntp server create -server server_name -key-id key_id
 ----
-* 注： * キー ID 、タイプ、および値は、 NTP サーバに設定されているキー ID 、タイプ、および値と同じである必要があります。
+*注：*キーID、タイプ、値は、NTPサーバーで設定されているキーID、タイプ、値と同じである必要があります。
 
 
 
@@ -184,5 +184,5 @@ cluster time-service ntp server modify -server server_name -authentication disab
 |===
 .関連情報
 * link:../system-admin/index.html["システム管理"]
-* link:https://docs.netapp.com/us-en/ontap-cli/search.html?q=cluster+time-service+ntp["クラスタタイムサービスNTP"^]
+* link:https://docs.netapp.com/us-en/ontap-cli/search.html?q=cluster+time-service+ntp["クラスタ時刻サービス NTP"^]
 

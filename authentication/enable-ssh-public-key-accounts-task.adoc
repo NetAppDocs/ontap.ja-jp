@@ -2,74 +2,74 @@
 permalink: authentication/enable-ssh-public-key-accounts-task.html 
 sidebar: sidebar 
 keywords: enable, ssh, public key, accounts 
-summary: 管理者アカウントが SSH 公開鍵を使用して管理またはデータ SVM にアクセスできるようにするには、 security login create コマンドを使用します。 
+summary: security login create コマンドを使用すると、管理者アカウントが SSH 公開キーを使用して管理 SVM またはデータ SVM にアクセスできるようになります。 
 ---
-= ONTAPアカウントのSSH公開鍵アクセスの有効化
+= ONTAPアカウントのSSH公開鍵アクセスを有効にする
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-コマンドを使用して、管理者アカウントがSSH公開鍵を使用して管理またはデータSVMにアクセスできるようにすることができます `security login create`。
+ `security login create`コマンドを使用すると、管理者アカウントがSSH公開キーを使用して管理SVMまたはデータSVMにアクセスできるようになります。
 
-.タスクの内容
+.タスク概要
 * アカウントがSVMにアクセスするためには、アカウントに公開鍵を関連付けておく必要があります。
 +
-xref:manage-public-key-authentication-concept.adoc[ユーザアカウントへの公開鍵の関連付け]
+xref:manage-public-key-authentication-concept.adoc[ユーザ アカウントへの公開鍵の関連付け]
 
 +
-このタスクは、アカウントアクセスを有効にする前後どちらでも実行できます。
+このタスクは、アカウント アクセスを有効にする前後どちらでも実行できます。
 
-* ログインアカウントに割り当てるアクセス制御ロールが不明な場合は、あとでコマンドを使用してロールを追加できます `security login modify`。
+* ログイン アカウントに割り当てるアクセス制御ロールが不明な場合は、 `security login modify` コマンドを使用して後でロールを追加できます。
 +
-の詳細については `security login modify`、をlink:https://docs.netapp.com/us-en/ontap-cli/security-login-modify.html["ONTAPコマンド リファレンス"^]参照してください。
+ `security login modify`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/security-login-modify.html["ONTAPコマンド リファレンス"^]を参照してください。
 
 
 
-クラスタでFIPSモードを有効にする場合は、サポートされているキーアルゴリズムのない既存のSSH公開鍵アカウントを、サポートされるキータイプで再設定する必要があります。FIPSを有効にする前にアカウントを再設定する必要があります。そうしないと、管理者認証が失敗します。
+クラスタでFIPSモードを有効にする場合は、サポートされているキー アルゴリズムが使用されていない既存のSSH公開鍵アカウントを、サポートされているキー タイプで再設定する必要があります。アカウントの再設定は、FIPを有効にする前に行う必要があります。そうしないと、管理者認証は失敗します。
 
-次の表に、ONTAP SSH接続でサポートされるホストキータイプアルゴリズムを示します。これらのキータイプは、SSH公開認証の設定には適用されません。
+次の表に、ONTAP SSH接続でサポートされるホスト キー タイプ アルゴリズムを示します。これらのキー タイプは、SSH公開認証の設定には適用されません。
 
 [cols="30,30,30"]
 |===
 
 
-| ONTAP リリース | FIPSモードでサポートされるキータイプ | FIPS以外のモードでサポートされるキータイプ 
+| ONTAPリリース | FIPSモードでサポートされるキータイプ | 非FIPSモードでサポートされるキーの種類 
 
 
  a| 
 9.11.1以降
  a| 
-ECDSA - sha2 - nistp256
+ecdsa-sha2-nistp256
  a| 
-ecdsa-sha2-nistp256 + rsa-sha2-512 + rsa-sha2-256 + ssh-ed25519 + ssh-dss+ ssh-rsa
+ecdsa-sha2-nistp256 ＋ rsa-sha2-512 ＋ rsa-sha2-256 ＋ ssh-ed25519 ＋ ssh-dss ＋ ssh-rsa
 
 
 
  a| 
 9.10.1以前
  a| 
-ECDSA - sha2 -nistp256 + ssh-ed25519
+ecdsa-sha2-nistp256 ＋ ssh-ed25519
  a| 
-ecdsa-sha2-nistp256 + ssh-ed25519 + ssh-dss+ ssh-rsa
+ecdsa-sha2-nistp256 ＋ ssh-ed25519 ＋ ssh-dss ＋ ssh-rsa
 
 |===
 
-NOTE: ssh-ed25519ホスト・キー・アルゴリズムのサポートは、ONTAP 9 .11.1以降で削除されました。
+NOTE: ONTAP 9.11.1以降では、ssh-ed25519ホスト キー アルゴリズムのサポートが廃止されました。
 
-詳細については、を参照してください link:../networking/configure_network_security_using_federal_information_processing_standards_fips.html["FIPS を使用してネットワークセキュリティを設定する"]。
+詳細については、link:../networking/configure_network_security_using_federal_information_processing_standards_fips.html["FIPSを使用してネットワークセキュリティを設定する"]を参照してください。
 
 .開始する前に
 このタスクを実行するには、クラスタ管理者である必要があります。
 
-.ステップ
+.手順
 . ローカル管理者アカウントがSSH公開鍵を使用してSVMにアクセスできるようにします。
 +
 `security login create -vserver _SVM_name_ -user-or-group-name user_or_group_name -application _application_ -authmethod _authentication_method_ -role _role_ -comment _comment_`
 
 +
-次のコマンドは、事前定義のロールが割り当てられた `vsadmin-volume`SVM管理者アカウントが、SSH公開鍵を使用してSVMにアクセス``engData1``できるようにし `svmadmin1`ます。
+次のコマンドは、事前定義された `vsadmin-volume`ロールを持つSVM管理者アカウント `svmadmin1`が、SSH公開キーを使用してSVM``engData1``にアクセスできるようにします：
 
 +
 [listing]
@@ -77,11 +77,11 @@ NOTE: ssh-ed25519ホスト・キー・アルゴリズムのサポートは、ONT
 cluster1::>security login create -vserver engData1 -user-or-group-name svmadmin1 -application ssh -authmethod publickey -role vsadmin-volume
 ----
 +
-の詳細については `security login create`、をlink:https://docs.netapp.com/us-en/ontap-cli/security-login-create.html["ONTAPコマンド リファレンス"^]参照してください。
+ `security login create`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/security-login-create.html["ONTAPコマンド リファレンス"^]をご覧ください。
 
 
 
-.終了後
-管理者アカウントに公開鍵が関連付けられていない場合は、アカウントがSVMにアクセスする前に関連付けておく必要があります。
+.終了後の操作
+管理者アカウントに公開鍵が関連付けられていない場合、アカウントがSVMにアクセスする前に関連付けておく必要があります。
 
-xref:manage-public-key-authentication-concept.adoc[ユーザアカウントへの公開鍵の関連付け]
+xref:manage-public-key-authentication-concept.adoc[ユーザ アカウントへの公開鍵の関連付け]

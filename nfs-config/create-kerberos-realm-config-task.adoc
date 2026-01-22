@@ -2,34 +2,34 @@
 permalink: nfs-config/create-kerberos-realm-config-task.html 
 sidebar: sidebar 
 keywords: create, nfs, kerberos, realm, configuration 
-summary: 環境で ONTAP から外部 Kerberos サーバにアクセスする場合は、まず既存の Kerberos Realm を使用するように SVM を設定する必要があります。そのためには、 Kerberos KDC サーバの設定値を収集する必要があります。その後、 vserver nfs kerberos realm create コマンドを使用して、 SVM 上で Kerberos Realm 設定を作成します。 
+summary: ONTAPで環境内の外部Kerberosサーバにアクセスする場合は、まず既存のKerberosレルムを使用するようにSVMを設定する必要があります。そのためには、Kerberos KDCサーバの設定値を収集してから、vserver nfs kerberos realm createコマンドを使用してSVM上にKerberosレルム設定を作成する必要があります。 
 ---
-= ONTAP SVM で NFS Kerberos レルム構成を作成する
+= ONTAP SVMでNFS Kerberosレルム構成を作成する
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-環境で ONTAP から外部 Kerberos サーバにアクセスする場合は、まず既存の Kerberos Realm を使用するように SVM を設定する必要があります。そのためには、Kerberos KDCサーバの設定値を収集し、コマンドを使用してSVMにKerberos Realm設定を作成する必要があり `vserver nfs kerberos realm create`ます。
+ONTAPで環境内の外部Kerberosサーバにアクセスする場合は、まず既存のKerberosレルムを使用するようにSVMを設定する必要があります。そのためには、Kerberos KDCサーバの設定値を収集してから、 `vserver nfs kerberos realm create`コマンドを使用してSVM上にKerberosレルム設定を作成する必要があります。
 
 .開始する前に
-認証の問題を回避するために、クラスタ管理者はストレージシステム、クライアント、および KDC サーバ上で NTP を設定しておく必要があります。クライアントとサーバの時間差（クロックスキュー）は、認証エラーの一般的な原因です。
+認証の問題を回避するため、クラスタ管理者はストレージ システム、クライアント、およびKDCサーバにNTPを設定する必要があります。クライアントとサーバ間の時刻差（クロック スキュー）は、認証失敗の一般的な原因です。
 
 .手順
-. Kerberos管理者に問い合わせて、コマンドで指定する適切な設定値を決定し `vserver nfs kerberos realm create`ます。
-. SVM で Kerberos Realm の設定を作成します。
+. Kerberos管理者に相談して、 `vserver nfs kerberos realm create`コマンドに指定する適切な構成値を決定してください。
+. SVM に Kerberos レルム設定を作成します：
 +
 `vserver nfs kerberos realm create -vserver _vserver_name_ -realm _realm_name_ _{AD_KDC_server_values |AD_KDC_server_values}_ -comment "_text_"`
 
-. Kerberos Realmの設定が正常に作成されたことを確認します。
+. Kerberos Realm設定が正常に作成されたことを確認します。
 +
 `vserver nfs kerberos realm show`
 
 
 
 .例
-次のコマンドは、 Microsoft Active Directory サーバを KDC サーバとして使用する NFS Kerberos Realm 設定を SVM vs1 で作成します。Kerberos Realm は AUTH.EXAMPLE.COM です。Active Directory サーバの名前は ad-1 で、 IP アドレスは 10.10.8.14 です。許容されるクロックスキューは 300 秒（デフォルト）です。KDC サーバの IP アドレスは 10.10.8.14 で、ポート番号は 88 （デフォルト）です。「Microsoft Kerberos config」はコメントです。
+次のコマンドは、SVM vs1のNFS Kerberosレルム設定を作成します。この設定では、Microsoft Active DirectoryサーバをKDCサーバとして使用します。Kerberosレルムは AUTH.EXAMPLE.COM です。Active Directoryサーバの名前は ad-1、IPアドレスは 10.10.8.14 です。許容クロックスキューは 300 秒（デフォルト）です。KDCサーバのIPアドレスは 10.10.8.14、ポート番号は 88（デフォルト）です。コメントは「Microsoft Kerberos config」です。
 
 [listing]
 ----
@@ -37,7 +37,7 @@ vs1::> vserver nfs kerberos realm create -vserver vs1 -realm AUTH.EXAMPLE.COM -a
 -adserver-ip 10.10.8.14 -clock-skew 300 -kdc-ip 10.10.8.14 -kdc-port 88 -kdc-vendor Microsoft
 -comment "Microsoft Kerberos config"
 ----
-次のコマンドは、 MIT KDC を使用する NFS Kerberos Realm 設定を SVM vs1 で作成します。Kerberos Realm は SECURITY.EXAMPLE.COM です。許容されるクロックスキューは300秒です。KDC サーバの IP アドレスは 10.10.9.1 で、ポート番号は 88 です。KDC ベンダーは UNIX ベンダーを示す Other です。管理サーバの IP アドレスは 10.10.9.1 で、ポート番号は 749 （デフォルト）です。パスワードサーバの IP アドレスは 10.10.9.1 で、ポート番号は 464 （デフォルト）です。「UNIX Kerberos config」はコメントです。
+次のコマンドは、MIT KDCを使用するSVM vs1のNFS Kerberosレルム設定を作成します。Kerberosレルムは SECURITY.EXAMPLE.COM です。許容クロック スキューは300秒です。KDCサーバのIPアドレスは10.10.9.1、ポート番号は88です。KDCベンダーはUNIXベンダーを示す「Other」です。管理サーバのIPアドレスは10.10.9.1、ポート番号は749（デフォルト）です。パスワード サーバのIPアドレスは10.10.9.1、ポート番号は464（デフォルト）です。コメントは「UNIX Kerberos config」です。
 
 [listing]
 ----

@@ -2,110 +2,110 @@
 permalink: system-admin/access-cluster-telnet-task.html 
 sidebar: sidebar 
 keywords: access, cluster, telnet, administrative, tasks, disable, default 
-summary: 管理タスクを実行するために、クラスタへの問題 Telnet 要求を行うことができます。Telnet はデフォルトでは無効になっています。 
+summary: クラスタにTelnet要求を発行することで、管理タスクを実行できます。Telnetはデフォルトでは無効になっています。 
 ---
-= Telnet要求を使用したONTAPクラスタへのアクセス
+= Telnet リクエストを使用して ONTAP クラスタにアクセスする
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-管理タスクを実行するために、クラスタへの問題 Telnet 要求を行うことができます。Telnet はデフォルトでは無効になっています。
+クラスタにTelnet要求を発行することで、管理タスクを実行できます。Telnetはデフォルトでは無効になっています。
 
-TelnetとRSHはセキュアなプロトコルではありません。SSHを使用してクラスタにアクセスすることを検討してください。SSHは、セキュアなリモートシェルおよび対話型ネットワークセッションを提供します。詳細については、を参照してください link:./access-cluster-ssh-task.html["SSHを使用したクラスタへのアクセス"]。
+TelnetとRSHは安全なプロトコルではありません。クラスタへのアクセスにはSSHの使用を検討してください。SSHは安全なリモートシェルと対話型ネットワークセッションを提供します。詳細については、link:./access-cluster-ssh-task.html["SSHを使用したクラスタへのアクセス"]をご覧ください。
 
 .開始する前に
-Telnet を使用してクラスタにアクセスするには、次の条件を満たしている必要があります。
+Telnetを使用してクラスタにアクセスするには、次の条件を満たしている必要があります。
 
-* アクセス方法として Telnet を使用するように設定されたクラスタローカルユーザアカウントを持っている必要があります。
+* アクセス方法としてTelnetを使用するように設定されたクラスタのローカル ユーザ アカウントを持っている必要があります。
 +
-コマンドのパラメータ `security login`は、 `-application`ユーザアカウントのアクセス方法を指定します。の詳細については `security login`、をlink:https://docs.netapp.com/us-en/ontap-cli/search.html?q=security+login["ONTAPコマンド リファレンス"^]参照してください。
+ `security login`コマンドの `-application`パラメータは、ユーザーアカウントのアクセス方法を指定します。link:https://docs.netapp.com/us-en/ontap-cli/search.html?q=security+login["ONTAPコマンド リファレンス"^]の `security login`の詳細をご覧ください。
 
 
 
-.タスクの内容
-* ONTAP では、 1 つのノードについて同時に最大 50 の Telnet セッションがサポートされています。
+.タスク概要
+* ONTAPでは、1つのノードについて同時に最大50のTelnetセッションがサポートされています。
 +
-クラスタ管理LIFがノード上にある場合、クラスタ管理LIFはこの制限をノード管理LIFと共有します。
+クラスタ管理LIFがノード上に存在する場合、クラスタ管理LIFはこの制限をノード管理LIFと共有します。
 
 +
-着信接続数が 1 秒あたり 10 を超えると、サービスは一時的に 60 秒間無効になります。
+着信接続が1秒あたり10件を超えると、サービスは一時的に60秒間無効になります。
 
-* WindowsホストからONTAP CLIにアクセスする場合は、PuTTYなどのサードパーティのユーティリティを使用できます。
-* rshコマンドにはadvanced権限が必要です。
+* ONTAP CLIにWindowsホストからアクセスする場合は、PuTTYなどのサードパーティのユーティリティを使用できます。
+* RSHコマンドには、advanced権限が必要です。
 
 
 [role="tabbed-block"]
 ====
-.ONTAP 9 .10.1以降
+.ONTAP 9.10.1 以降
 --
 .手順
-. Telnetセキュリティプロトコルが有効になっていることを確認します。
+. Telnetセキュリティ プロトコルが有効になっていることを確認します。
 +
 `security protocol show`
 
 +
-.. Telnetセキュリティプロトコルが有効になっている場合は、次の手順に進みます。
-.. Telnetセキュリティプロトコルが有効になっていない場合は、次のコマンドを使用して有効にします。
+.. Telnetセキュリティ プロトコルが有効になっている場合は、次の手順に進みます。
+.. Telnetセキュリティ プロトコルが有効になっていない場合は、次のコマンドを使用して有効にします。
 +
 `security protocol modify -application telnet -enabled true`
 
 
 
 +
-および `security protocol modify`の詳細については `security protocol show`、をlink:https://docs.netapp.com/us-en/ontap-cli/search.html?q=security+protocol["ONTAPコマンド リファレンス"^]参照してください。
+ `security protocol show`および `security protocol modify`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/search.html?q=security+protocol["ONTAPコマンド リファレンス"^]をご覧ください。
 
-. 管理LIFにサービスが存在することを確認し `management-telnet-server` ます。
+.  `management-telnet-server`サービスが管理 LIF に存在することを確認します。
 +
 `network interface show -services management-telnet-server`
 
 +
-の詳細については `network interface show`、をlink:https://docs.netapp.com/us-en/ontap-cli/network-interface-show.html["ONTAPコマンド リファレンス"^]参照してください。
+ `network interface show`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/network-interface-show.html["ONTAPコマンド リファレンス"^]を参照してください。
 
 +
-.. サービスが存在する場合は `management-telnet-server` 、次の手順に進みます。
-.. サービスが存在しない場合は `management-telnet-server` 、次のコマンドを使用して追加します。
+..  `management-telnet-server`サービスが存在する場合は、次の手順に進みます。
+..  `management-telnet-server`サービスが存在しない場合は、次のコマンドを使用して追加します：
 +
 `network interface service-policy add-service -vserver cluster1 -policy default-management -service management-telnet-server`
 
 +
-の詳細については `network interface service-policy add-service`、をlink:https://docs.netapp.com/us-en/ontap-cli/network-interface-service-policy-add-service.html["ONTAPコマンド リファレンス"^]参照してください。
+ `network interface service-policy add-service`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/network-interface-service-policy-add-service.html["ONTAPコマンド リファレンス"^]をご覧ください。
 
 
 
 
 
 --
-.ONTAP 9 .9以前
+.ONTAP 9.9以前
 --
 .開始する前に
-Telnet を使用してクラスタにアクセスするには、次の条件を満たしている必要があります。
+Telnetを使用してクラスタにアクセスするには、次の条件を満たしている必要があります。
 
-* Telnet 要求がファイアウォールを通過できるように、クラスタ管理 LIF またはノード管理 LIF によって使用される管理ファイアウォールポリシーで Telnet が有効になっている必要があります。
+* Telnet要求がファイアウォールを通過できるように、クラスタまたはノード管理LIFで使用される管理ファイアウォール ポリシーで、Telnetがすでに有効になっている必要があります。
 +
-デフォルトでは、 Telnet は無効になっています。 `system services firewall policy show`コマンドで `-service telnet`パラメータを指定すると、ファイアウォールポリシーでTelnetが有効になっているかどうかが表示されます。の詳細については `system services firewall policy`、をlink:https://docs.netapp.com/us-en/ontap-cli/search.html?q=system+services+firewall+policy["ONTAPコマンド リファレンス"^]参照してください。
+デフォルトでは、Telnetは無効になっています。 `system services firewall policy show`コマンドに `-service telnet`パラメータを指定すると、ファイアウォール ポリシーでTelnetが有効になっているかどうかが表示されます。link:https://docs.netapp.com/us-en/ontap-cli/search.html?q=system+services+firewall+policy["ONTAPコマンド リファレンス"^]の `system services firewall policy`の詳細をご覧ください。
 
-* IPv6接続を使用する場合は、クラスタでIPv6が設定されて有効になっている必要があり、ファイアウォールポリシーにIPv6アドレスが設定されている必要があります。
+* IPv6接続を使用する場合は、クラスタ上でIPv6が設定されて有効化され、さらにファイアウォール ポリシーにIPv6アドレスが設定されている必要があります。
 +
- `network options ipv6 show`コマンドは、IPv6が有効になっているかどうかを表示します。の詳細については `network options ipv6 show`、をlink:https://docs.netapp.com/us-en/ontap-cli/network-options-ipv6-show.html["ONTAPコマンド リファレンス"^]参照してください。 `system services firewall policy show`コマンドは、ファイアウォールポリシーを表示します。
+ `network options ipv6 show`コマンドは、IPv6が有効かどうかを表示します。 `network options ipv6 show`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/network-options-ipv6-show.html["ONTAPコマンド リファレンス"^]を参照してください。 `system services firewall policy show`コマンドは、ファイアウォール ポリシーを表示します。
 
 
 
 .手順
-. 管理ホストで次のコマンドを入力します。
+. 管理ホストで、次のコマンドを入力します。
 +
 `telnet hostname_or_IP`
 
 +
-`hostname_or_IP`は、クラスタ管理LIFまたはノード管理LIFのホスト名またはIPアドレスです。クラスタ管理LIFを使用することを推奨します。IPv4またはIPv6アドレスを使用できます。
+`hostname_or_IP`は、クラスタ管理LIFまたはノード管理LIFのホスト名またはIPアドレスです。クラスタ管理LIFの使用をお勧めします。IPv4またはIPv6アドレスを使用できます。
 
 
 
 --
 ====
 .Telnet要求の例
-次の例は、Telnet アクセスが設定されている「joe」というユーザーが、クラスタ管理 LIF が 10.72.137.28 であるクラスタにアクセスするために Telnet 要求を発行する方法を示しています。
+次の例は、Telnet アクセスが設定されている「joe」というユーザーが、クラスタ管理 LIF が 10.72.137.28 であるクラスタにアクセスするために Telnet 要求を発行する方法を示しています：
 
 [listing]
 ----

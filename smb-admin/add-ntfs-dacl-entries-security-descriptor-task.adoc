@@ -2,7 +2,7 @@
 permalink: smb-admin/add-ntfs-dacl-entries-security-descriptor-task.html 
 sidebar: sidebar 
 keywords: add, dacl, discretionary, access, control, list, access, control, entries, aces, ntfs, security, descriptor, acls, add ntfs dacl access control entries to the ntfs security 
-summary: NTFS セキュリティ記述子への随意アクセス制御リスト（ DACL ）のアクセス制御エントリ（ ACE ）の追加は、ファイルまたはフォルダに対する NTFS ACL の設定および適用における 2 番目の手順です。各エントリによって、アクセスが許可または拒否されるオブジェクトが識別され、 ACE で定義されているファイルまたはフォルダに対してオブジェクトが実行できる操作または実行できない操作が定義されます。 
+summary: NTFSセキュリティ記述子にDACL（随意アクセス制御リスト）アクセス制御エントリ（ACE）を追加することは、ファイルまたはフォルダにNTFS ACLを設定および適用するための2番目のステップです。各エントリは、アクセスを許可または拒否するオブジェクトを識別し、ACEで定義されたファイルまたはフォルダに対してオブジェクトが実行できる操作と実行できない操作を定義します。 
 ---
 = ONTAP SMBサーバ上のNTFSセキュリティ記述子にNTFS DACLアクセス制御エントリを追加する
 :allow-uri-read: 
@@ -11,35 +11,35 @@ summary: NTFS セキュリティ記述子への随意アクセス制御リスト
 
 
 [role="lead"]
-NTFS セキュリティ記述子への随意アクセス制御リスト（ DACL ）のアクセス制御エントリ（ ACE ）の追加は、ファイルまたはフォルダに対する NTFS ACL の設定および適用における 2 番目の手順です。各エントリによって、アクセスが許可または拒否されるオブジェクトが識別され、 ACE で定義されているファイルまたはフォルダに対してオブジェクトが実行できる操作または実行できない操作が定義されます。
+NTFSセキュリティ記述子にDACL（随意アクセス制御リスト）アクセス制御エントリ（ACE）を追加することは、ファイルまたはフォルダにNTFS ACLを設定および適用するための2番目のステップです。各エントリは、アクセスを許可または拒否するオブジェクトを識別し、ACEで定義されたファイルまたはフォルダに対してオブジェクトが実行できる操作と実行できない操作を定義します。
 
-.タスクの内容
-セキュリティ記述子のDACLには1つ以上のACEを追加できます。
+.タスク概要
+セキュリティ記述子の DACL に 1 つ以上の ACE を追加できます。
 
-セキュリティ記述子に含まれるDACLに既存のACEがある場合は、新しいACEがDACLに追加されます。セキュリティ記述子にDACLが含まれていない場合は、DACLが作成されて新しいACEが追加されます。
+セキュリティ記述子に含まれるDACLに既存のACEがある場合は、新しいACEがDACLに追加されます。セキュリティ記述子にDACLが含まれていない場合は、DACLが作成され、そのDACLに新しいACEが追加されます。
 
-必要に応じて、パラメータで指定したアカウントに対して許可または拒否する権限を指定することで、DACLエントリをカスタマイズでき `-account`ます。権限を指定する場合、次の 3 つの相互に排他的な方法があります。
+ `-account`パラメータで指定されたアカウントに対して許可または拒否する権限を指定することで、必要に応じてDACLエントリをカスタマイズできます。権限を指定するには、相互に排他的な3つの方法があります：
 
 * 権限
-* 詳細な権限
-* raw 権限（ advanced 権限）
+* 高度な権利
+* Raw 権限（advanced-privilege）
 
 
 [NOTE]
 ====
-DACLエントリの権限を指定しない場合、権限はデフォルトでに設定され `Full Control`ます。
+DACL エントリの権限を指定しない場合は、デフォルトで権限が `Full Control`に設定されます。
 
 ====
-必要に応じて、継承の適用方法を指定することで、 DACL エントリをカスタマイズできます。
+継承を適用する方法を指定して、必要に応じて DACL エントリをカスタマイズできます。
 
-オプションのパラメータの値はストレージレベルのアクセス保護では無視されます。この手順で説明されているコマンドの詳細については、をlink:https://docs.netapp.com/us-en/ontap-cli/["ONTAPコマンド リファレンス"^]参照してください。
+ストレージレベルのアクセス保護では、オプションパラメータの値は無視されます。この手順で説明されているコマンドの詳細については、link:https://docs.netapp.com/us-en/ontap-cli/["ONTAPコマンド リファレンス"^]を参照してください。
 
 .手順
-. セキュリティ記述子にDACLエントリを追加します。 `vserver security file-directory ntfs dacl add -vserver vserver_name -ntfs-sd SD_name -access-type {allow|deny} -account name_or_SIDoptional_parameters`
+. セキュリティ記述子に DACL エントリを追加します `vserver security file-directory ntfs dacl add -vserver vserver_name -ntfs-sd SD_name -access-type {allow|deny} -account name_or_SIDoptional_parameters`
 +
 `vserver security file-directory ntfs dacl add -ntfs-sd sd1 -access-type deny -account domain\joe -rights full-control -apply-to this-folder -vserver vs1`
 
-. DACLエントリが正しいことを確認します。 `vserver security file-directory ntfs dacl show -vserver vserver_name -ntfs-sd SD_name -access-type {allow|deny} -account name_or_SID`
+. DACL エントリが正しいことを確認します： `vserver security file-directory ntfs dacl show -vserver vserver_name -ntfs-sd SD_name -access-type {allow|deny} -account name_or_SID`
 +
 `vserver security file-directory ntfs dacl show -vserver vs1 -ntfs-sd sd1 -access-type deny -account domain\joe`
 
@@ -57,4 +57,4 @@ DACLエントリの権限を指定しない場合、権限はデフォルトで�
 ----
 
 
-の詳細については `vserver security file-directory ntfs dacl`、をlink:https://docs.netapp.com/us-en/ontap-cli/search.html?q=vserver+security+file-directory+ntfs+dacl["ONTAPコマンド リファレンス"^]参照してください。
+ `vserver security file-directory ntfs dacl`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/search.html?q=vserver+security+file-directory+ntfs+dacl["ONTAPコマンド リファレンス"^]をご覧ください。

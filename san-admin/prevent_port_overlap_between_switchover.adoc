@@ -2,22 +2,22 @@
 permalink: san-admin/prevent_port_overlap_between_switchover.html 
 sidebar: sidebar 
 keywords: metrocluster environments, considerations, san configuration, metrocluster, environments, san, configurations, cisco switch, brocade switch, 
-summary: 古いポートがオフラインになり、新しいポートがオンラインになったときの重複を避けるために、フロントエンドスイッチを設定できます。 
+summary: 古いポートがオフラインになり、新しいポートがオンラインになったときに重複を回避するには、フロントエンド スイッチを設定します。 
 ---
-= ONTAP MetroClusterのスイッチオーバーおよびスイッチバック時にポートの重複を回避
+= ONTAP MetroClusterスイッチオーバーおよびスイッチバック中のポートの重複を回避する
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-SAN環境では、古いポートがオフラインになって新しいポートがオンラインになったときに重複しないようにフロントエンドスイッチを設定できます。
+SAN環境では、古いポートがオフラインになって新しいポートがオンラインになる際にポートの重複が起こらないように、フロントエンド スイッチを設定できます。
 
-スイッチオーバーの実行中、ディザスタサイトのFCポートがオフラインであることがファブリックで検出され、ネームサービスとディレクトリサービスからこのポートが削除される前に、サバイバーサイトのFCポートがファブリックにログインすることがあります。
+スイッチオーバー中に、ファブリック側でディザスタ サイトのFCポートがオフラインであることが検出されてネーム サービスとディレクトリ サービスから削除される前に、サバイバー サイトのFCポートがファブリックにログインする場合があります。
 
-災害時にFCポートをまだ削除していない場合、WWPNの重複が原因でサバイバーサイトのFCポートのファブリックログイン試行が拒否されることがあります。FCスイッチのこの動作は、既存のデバイスではなく以前のデバイスのログインを維持するように変更できます。この動作が他のファブリックデバイスに与える影響を確認する必要があります。詳細については、スイッチベンダーにお問い合わせください。
+ディザスタ サイトのFCポートが削除される前にサバイバー サイトのFCポートがファブリックにログインしようとすると、WWPNの重複によりログインが拒否される可能性があります。FCスイッチのこの動作は、既存のデバイスではなく前のデバイスのログインを優先するように変更できます。この動作が他のファブリック デバイスに与える影響を確認する必要があります。詳細についてはスイッチ ベンダーにお問い合わせください。
 
-スイッチのタイプに応じて、正しい手順を選択します。
+スイッチ タイプに合った正しい手順を実行してください。
 
 .手順
 [role="tabbed-block"]
@@ -25,21 +25,21 @@ SAN環境では、古いポートがオフラインになって新しいポー�
 .Ciscoスイッチ
 --
 . スイッチに接続してログインします。
-. コンフィギュレーションモードを開始します。
+. 設定モードに入ります：
 +
 ....
 switch# config t
 switch(config)#
 ....
-. ネームサーバデータベースの最初のデバイスエントリを新しいデバイスで上書きします。
+. ネーム サーバ データベースの最初のデバイス エントリを新しいデバイスで上書きします。
 +
 [listing]
 ----
 switch(config)# no fcns reject-duplicate-pwwn vsan 1
 ----
-. NX-OS 8.xを実行しているスイッチで、flogi quiesce timeoutがゼロに設定されていることを確認します。
+. スイッチでNX-OS 8.xが実行されている場合は、flogi quiesce timeoutがゼロに設定されていることを確認します。
 +
-.. 休止時間を表示します。
+.. quiesce timervalを表示します。
 +
 `switch(config)# show flogi interval info \| i quiesce`
 
@@ -47,7 +47,7 @@ switch(config)# no fcns reject-duplicate-pwwn vsan 1
 ....
  Stats:  fs flogi quiesce timerval:  0
 ....
-.. 前の手順の出力でtimervalがゼロであることが示されていない場合は、ゼロに設定します。
+.. 前の手順の出力でtimervalがゼロになっていない場合は、timervalをゼロに設定します。
 +
 `switch(config)# flogi scale enable`
 
@@ -62,13 +62,13 @@ switch(config)# no fcns reject-duplicate-pwwn vsan 1
 .Brocadeスイッチ
 --
 . スイッチに接続してログインします。
-. コマンドを入力します `switchDisable`。
-. コマンドを入力し `configure`、プロンプトでを押し `y`ます。
+.  `switchDisable`コマンドを入力します。
+.  `configure`コマンドを入力し、プロンプトで `y`を押します。
 +
 ....
  F-Port login parameters (yes, y, no, n): [no] y
 ....
-. 設定1を選択：
+. 設定1を選択します。
 +
 ....
 - 0: First login take precedence over the second login (default)
@@ -76,8 +76,8 @@ switch(config)# no fcns reject-duplicate-pwwn vsan 1
 - 2: the port type determines the behavior
 Enforce FLOGI/FDISC login: (0..2) [0] 1
 ....
-. 残りのプロンプトに応答するか、 * Ctrl+D* を押します。
-. コマンドを入力します `switchEnable`。
+. 残りのプロンプトに応答するか、*Ctrl + D* キーを押します。
+.  `switchEnable`コマンドを入力します。
 
 
 --

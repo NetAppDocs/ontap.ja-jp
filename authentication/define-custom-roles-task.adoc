@@ -2,41 +2,41 @@
 permalink: authentication/define-custom-roles-task.html 
 sidebar: sidebar 
 keywords: define, custom roles 
-summary: security login role create コマンドを使用して、カスタムロールを定義できます。このコマンドは、必要な回数だけ実行して、ロールに関連付ける機能を正確に組み合わせることができます。 
+summary: security login role create コマンドを使用して、カスタム ロールを定義できます。このコマンドは、ロールに関連付けたい機能の組み合わせを正確に定義するまで、必要な回数だけ実行できます。 
 ---
-= ONTAP管理者のカスタムロールの定義
+= ONTAP管理者のカスタムロールを定義する
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-カスタムロールを定義するには、コマンドを使用し `security login role create`ます。このコマンドは、必要な回数だけ実行して、ロールに関連付ける機能を正確に組み合わせることができます。
+ `security login role create`コマンドを使用してカスタム ロールを定義できます。ロールに関連付ける機能の正確な組み合わせを実現するために、必要な回数だけコマンドを実行できます。
 
-.タスクの内容
-* ONTAPコマンドまたはコマンドディレクトリへのアクセスは、ロール（事前定義またはカスタム）によって許可または拒否されます。
+.タスク概要
+* ONTAPのコマンドやコマンド ディレクトリへのアクセスは、ロール（事前定義済みまたはカスタム）に基づいて許可または拒否されます。
 +
-コマンドディレクトリ(`volume`など）は、関連するコマンドとコマンドサブディレクトリのグループです。この手順で説明されている場合を除き、コマンドディレクトリへのアクセスを許可または拒否すると、ディレクトリおよびそのサブディレクトリ内の各コマンドへのアクセスが許可または拒否されます。
+コマンド ディレクトリ(`volume`は、関連するコマンドとコマンド サブディレクトリのグループです。この手順で説明されている場合を除き、コマンド ディレクトリへのアクセスを許可または拒否すると、ディレクトリとそのサブディレクトリ内の各コマンドへのアクセスも許可または拒否されます。
 
 * 特定のコマンドまたはサブディレクトリへのアクセスは、親ディレクトリへのアクセスよりも優先されます。
 +
-コマンドディレクトリを使用してロールを定義したあとに、特定のコマンドまたは親ディレクトリのサブディレクトリに対して別のアクセスレベルで再度定義した場合、コマンドまたはサブディレクトリに指定されたアクセスレベルは親のアクセスレベルよりも優先されます。
+あるロールにコマンド ディレクトリを定義し、そのあとに親ディレクトリの特定のコマンドまたはサブディレクトリに対して異なるアクセス レベルを定義した場合、そのコマンドまたはサブディレクトリに対して指定したアクセス レベルが親のアクセス レベルよりも優先されます。
 
 
 
 
-NOTE: クラスタ管理者のみが使用できるコマンドやコマンドディレクトリ（コマンドディレクトリなど） `security`へのアクセスを許可するロールをSVM管理者に割り当てることはできません。 `admin`
+NOTE:  `admin`クラスタ管理者のみが使用できるコマンドまたはコマンド ディレクトリ（ `security`コマンド ディレクトリなど）へのアクセス権を付与するロールをSVM管理者に割り当てることはできません。
 
 .開始する前に
 このタスクを実行するには、クラスタ管理者である必要があります。
 
-.ステップ
-. カスタムロールを定義します。
+.手順
+. カスタム ロールを定義します。
 +
 `security login role create -vserver SVM_name -role role -cmddirname command_or_directory_name -access access_level -query query`
 
 +
-次のコマンドは、ロールに対し、コマンドディレクトリ内のコマンドへのフルアクセス `volume`と、サブディレクトリ内のコマンドへの読み取り専用アクセスを `volume snapshot`許可し `vol_role`ます。
+次のコマンドは、 `vol_role`ロールに `volume`コマンド ディレクトリ内のコマンドへのフル アクセスと、 `volume snapshot`サブディレクトリ内のコマンドへの読み取り専用アクセスを付与します。
 
 +
 [listing]
@@ -46,7 +46,7 @@ cluster1::>security login role create -role vol_role -cmddirname "volume" -acces
 cluster1::>security login role create -role vol_role -cmddirname "volume snapshot" -access readonly
 ----
 +
-次のコマンドは、ロールに対し、コマンドディレクトリ内のコマンドへの読み取り専用アクセス `storage`、サブディレクトリ内のコマンドへのアクセスなし、 `storage encryption`および非組み込みコマンドへのフルアクセスを `storage aggregate plex offline`許可し `SVM_storage`ます。
+次のコマンドは、 `SVM_storage`ロールに `storage`コマンド ディレクトリ内のコマンドへの読み取り専用アクセスを許可し、 `storage encryption`サブディレクトリ内のコマンドへのアクセスを許可せず、 `storage aggregate plex offline`非組み込みコマンドへのフル アクセスを許可します。
 
 +
 [listing]
@@ -58,12 +58,12 @@ cluster1::>security login role create -role SVM_storage -cmddirname "storage enc
 cluster1::>security login role create -role SVM_storage -cmddirname "storage aggregate plex offline" -access all
 ----
 +
-の詳細については `security login role create`、をlink:https://docs.netapp.com/us-en/ontap-cli/security-login-role-create.html["ONTAPコマンド リファレンス"^]参照してください。
+ `security login role create`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/security-login-role-create.html["ONTAPコマンド リファレンス"^]を参照してください。
 
 
 
 .関連情報
 * link:https://docs.netapp.com/us-en/ontap-cli/security-login-role-create.html["security login role create"^]
-* link:https://docs.netapp.com/us-en/ontap-cli/storage-aggregate-plex-offline.html["ストレージアグリゲートのプレックスがオフライン"^]
+* link:https://docs.netapp.com/us-en/ontap-cli/storage-aggregate-plex-offline.html["storage aggregate plex offline"^]
 * link:https://docs.netapp.com/us-en/ontap-cli/search.html?q=storage+encryption["ストレージ暗号化"^]
 

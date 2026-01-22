@@ -2,31 +2,31 @@
 permalink: volumes/split-flexclone-from-parent-task.html 
 sidebar: sidebar 
 keywords: split, flexclone, volume, parent, volume, clone 
-summary: FlexCloneボリュームを親からスプリットして、クローンを通常のFlexVol volumeにすることができます。 
+summary: FlexCloneボリュームを親ボリュームからスプリットして、クローンを通常のFlexVolにできます。 
 ---
-= FlexCloneボリュームを親ボリュームからスプリットします。
+= 親ボリュームからのFlexCloneボリュームのスプリット
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-FlexCloneボリュームを親からスプリットして、クローンを通常のFlexVol volumeにすることができます。
+FlexCloneボリュームを親ボリュームからスプリットして、クローンを通常のFlexVolにできます。
 
-クローンスプリット処理はバックグラウンドで実行されます。スプリット中は、クローンおよび親のデータにアクセスできます。ONTAP 9.4以降では、スペース効率が維持されます。スプリットプロセスではメタデータのみが更新され、IOは最小限に抑えられます。データブロックはコピーされません。
+クローン スプリット処理は、バックグラウンドで実行されます。スプリット中も、クローンと親のデータにアクセスできます。ONTAP 9.4以降では、スペース効率が維持されます。スプリット プロセスではメタデータのみが更新され、IOは必要最小限に抑えられます。データ ブロックはコピーされません。
 
-.タスクの内容
-* スプリット処理中は、FlexCloneボリュームの新しいSnapshotを作成できません。
-* データ保護関係に属しているか負荷共有ミラーに属しているFlexCloneボリュームは、親ボリュームからスプリットすることはできません。
-* スプリットの実行中にFlexCloneボリュームをオフラインにすると、スプリット処理が中断されます。FlexCloneボリュームをオンラインに戻すと、スプリット処理が再開されます。
-* スプリット後は、親FlexVol volumeとクローンの両方で、それぞれのボリュームギャランティに基づいたスペースの完全な割り当てが必要になります。
-* FlexCloneを親ボリュームからスプリットしたあとは、この2つを再結合することはできません。
-* ONTAP 9 .4以降では、AFFシステムのボリュームギャランティがnonである場合、FlexCloneのスプリット処理では物理ブロックが共有され、データはコピーされません。したがって、AFFシステムのFlexCloneボリュームのスプリットは、ONTAP 9 .4以降の他のFASシステムのFlexCloneスプリット処理よりも高速です。AFFシステムでのFlexCloneスプリット処理の改善には、次の利点があります。
+.タスク概要
+* 分割操作中は、FlexCloneボリュームの新しいスナップショットを作成できません。
+* データ保護関係に属しているFlexCloneボリュームや、負荷共有ミラーに属しているFlexCloneボリュームは、親ボリュームからスプリットできません。
+* スプリット操作中にFlexCloneボリュームをオフラインにすると、スプリット処理が中断します。FlexCloneボリュームをオンラインにすると、スプリット処理は再開します。
+* スプリットの実行後は、親のFlexVolボリュームとクローンの両方で、それぞれのボリューム ギャランティに基づいたスペースの完全な割り当てが必要です。
+* FlexCloneボリュームを親ボリュームからスプリットしたら、この2つを再び結合することはできません。
+* ONTAP 9.4以降では、AFFシステム上のボリュームのギャランティがnoneである場合、FlexCloneボリュームのスプリット処理では物理ブロックが共有され、データはコピーされません。このためONTAP 9.4以降では、AFFシステムのFlexCloneボリュームのスプリットは他のFASシステムのFlexCloneスプリット処理よりも短時間で完了します。AFFシステムでのFlexCloneスプリット処理の向上には、次の利点があります。
 +
 ** 親からクローンをスプリットしたあともストレージ効率が維持されます。
-** 既存のSnapshotは削除されません。
+** 既存のスナップショットは削除されません。
 ** 処理時間が短縮されます。
-** FlexCloneボリュームは、クローン階層の任意のポイントからスプリットできます。
+** FlexCloneボリュームをクローン階層の任意のポイントからスプリットできます。
 
 
 
@@ -34,7 +34,7 @@ FlexCloneボリュームを親からスプリットして、クローンを通�
 .開始する前に
 * クラスタ管理者である必要があります。
 * FlexCloneボリュームは、スプリット処理の開始時にオンラインになっている必要があります。
-* スプリットが成功するには、親ボリュームがオンラインである必要があります。
+* スプリットを正常に実行するには、親ボリュームがオンラインになっている必要があります。
 
 
 .手順
@@ -43,7 +43,7 @@ FlexCloneボリュームを親からスプリットして、クローンを通�
 `volume clone show -estimate -vserver _vserver_name_ -flexclone _clone_volume_name_ -parent-volume _parent_vol_name_`
 
 +
-次の例は、FlexCloneボリューム「clone1」を親ボリューム「vol1」からスプリットするために必要な空きスペースに関する情報を表示します。
+次の例は、FlexClone ボリューム「`clone1`」をその親ボリューム「`vol1`」から分割するために必要な空き領域に関する情報を提供します：
 
 +
 [listing]
@@ -54,9 +54,9 @@ Vserver   FlexClone       Estimate
 --------- ------------- ----------
 vs1       clone1           40.73MB
 ----
-. FlexCloneボリュームとその親を含むアグリゲートに十分なスペースがあることを確認します。
+. FlexCloneボリュームとその親が含まれているアグリゲートに十分なスペースがあることを確認します。
 +
-.. FlexCloneボリュームとその親を含むアグリゲートの空きスペースの量を確認します。
+.. FlexCloneボリュームとその親が含まれているアグリゲートの空きスペースの量を確認します。
 +
 `storage aggregate show`
 
@@ -71,7 +71,7 @@ vs1       clone1           40.73MB
 `volume clone split start -vserver _vserver_name_ -flexclone _clone_volume_name_`
 
 +
-次の例は、FlexCloneボリューム「Clone1」を親ボリューム「vol1」からスプリットするプロセスを開始する方法を示しています。
+次の例は、FlexCloneボリューム「`clone1`」をその親ボリューム「`vol1`」から分割するプロセスを開始する方法を示しています：
 
 +
 [listing]
@@ -99,15 +99,15 @@ Vserver   FlexClone    Processed Total    Scanned  Updated      % Inode   % Bloc
                                                                  Complete  Complete
 vs1       clone1        0         0       411247   153600         0        37
 ----
-. スプリットボリュームがFlexCloneボリュームでなくなったことを確認します。
+. スプリット ボリュームがFlexCloneボリュームでなくなったことを確認します。
 +
 `volume show -volume _volume_name_ -fields clone-volume`
 
 +
-FlexClone以外のボリュームの場合、オプションの値 `clone-volume`は「false」です。
+ `clone-volume`オプションの値は、FlexCloneボリュームではないボリュームの場合は「`false`」になります。
 
 +
-次の例は、親からスプリットしたボリューム「Clone1」がFlexCloneボリュームでないかどうかを確認する方法を示しています。
+次の例は、親から分割されたボリューム「`clone1`」がFlexCloneボリュームではないことを確認する方法を示しています。
 
 +
 [listing]

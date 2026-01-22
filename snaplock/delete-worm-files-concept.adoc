@@ -2,7 +2,7 @@
 permalink: snaplock/delete-worm-files-concept.html 
 sidebar: sidebar 
 keywords: delete, worm, file, privileged, delete, enterprise, mode, retention, period, overview 
-summary: privileged delete機能を使用して、保持期間中にEnterpriseモードのWORMファイルを削除できます。この機能を使用するには、SnapLock管理者アカウントを作成し、そのアカウントを使用して機能を有効にする必要があります。 
+summary: privileged delete機能を使用すると、保持期間中にEnterpriseモードのWORMファイルを削除できます。この機能を使用するには、SnapLock管理者アカウントを作成し、そのアカウントを使用して機能を有効にする必要があります。 
 ---
 = ONTAP SnapLockでWORMファイルを削除する
 :allow-uri-read: 
@@ -11,26 +11,26 @@ summary: privileged delete機能を使用して、保持期間中にEnterprise�
 
 
 [role="lead"]
-privileged delete機能を使用して、保持期間中にEnterpriseモードのWORMファイルを削除できます。この機能を使用するには、SnapLock管理者アカウントを作成し、そのアカウントを使用して機能を有効にする必要があります。
+privileged delete機能を使用すると、保持期間中にEnterpriseモードのWORMファイルを削除できます。この機能を使用するには、SnapLock管理者アカウントを作成し、そのアカウントを使用して機能を有効にする必要があります。
 
 
 
 == SnapLock管理者アカウントの作成
 
-privileged deleteを実行するには、SnapLock管理者Privilegesが必要です。これらのPrivilegesは、SnapLockロールで定義されます。このロールが割り当てられていない場合は、クラスタ管理者に依頼して、 SnapLock 管理者ロールを持つ SVM 管理者アカウントを作成してもらいます。
+SnapLock管理者権限がないと、特権削除を実行できません。これらの権限は、vsadmin-snaplockロールで定義されています。このロールがまだ割り当てられていない場合は、クラスタ管理者に依頼して、SnapLock管理者ロールを持つSVM管理者アカウントを作成してください。
 
 .開始する前に
 * このタスクを実行するには、クラスタ管理者である必要があります。
-* セキュアな接続（SSH、コンソール、またはZAPI）でログインしておく必要があります。
+* セキュアな接続（SSH、コンソール、またはZAPI）でログインする必要があります。
 
 
 .手順
-. SnapLock管理者ロールを持つSVM管理者アカウントを作成します。
+. SnapLock管理者ロールが割り当てられたSVM管理者アカウントを作成します。
 +
 `*security login create -vserver _SVM_name_ -user-or-group-name _user_or_group_name_ -application _application_ -authmethod _authentication_method_ -role _role_ -comment _comment_*`
 
 +
-次のコマンドは、事前定義されたロールが割り当てられた `vsadmin-snaplock`SVM管理者アカウントにパスワードを使用したアクセスを `SVM1`許可し `SnapLockAdmin`ます。
+次のコマンドは、事前定義された `vsadmin-snaplock`ロールを持つ SVM 管理者アカウント `SnapLockAdmin`が、パスワードを使用して `SVM1`にアクセスできるようにします：
 
 +
 [listing]
@@ -38,22 +38,22 @@ privileged deleteを実行するには、SnapLock管理者Privilegesが必要で
 cluster1::> security login create -vserver SVM1 -user-or-group-name SnapLockAdmin -application ssh -authmethod password -role vsadmin-snaplock
 ----
 +
-の詳細については `security login create`、をlink:https://docs.netapp.com/us-en/ontap-cli/security-login-create.html["ONTAPコマンド リファレンス"^]参照してください。
+ `security login create`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/security-login-create.html["ONTAPコマンド リファレンス"^]をご覧ください。
 
 
 
 
 
-== privileged delete機能を有効にする
+== privileged delete機能の有効化
 
-privileged delete機能は、削除するWORMファイルが格納されているEnterpriseボリュームで明示的に有効にする必要があります。
+privileged delete機能は、削除するWORMファイルが格納されているEnterpriseボリュームに対して明示的に有効にする必要があります。
 
-.タスクの内容
-オプションの値 `-privileged-delete`によって、privileged deleteが有効かどうかが決まります。指定できる値は `enabled`、 `disabled`、および `permanently-disabled`です。
+.タスク概要
+ `-privileged-delete`オプションの値によって、特権削除が有効かどうかが決まります。指定できる値は `enabled`、 `disabled`、 `permanently-disabled`です。
 
 [NOTE]
 ====
- `permanently-disabled`は、終了状態です。ボリュームで状態をに設定したあとにprivileged deleteを有効にすることはできません `permanently-disabled`。
+ `permanently-disabled`は終了状態です。状態を `permanently-disabled`に設定した後は、ボリューム上で特権削除を有効にすることはできません。
 
 ====
 .手順
@@ -62,7 +62,7 @@ privileged delete機能は、削除するWORMファイルが格納されてい�
 `*volume snaplock modify -vserver _SVM_name_ -volume _volume_name_ -privileged-delete disabled|enabled|permanently-disabled*`
 
 +
-次のコマンドは、の `SVM1`Enterpriseボリュームに対してprivileged delete機能を有効にし `dataVol`ます。
+次のコマンドは、 `SVM1`の Enterprise ボリューム `dataVol`の特権削除機能を有効にします：
 
 +
 [listing]
@@ -75,23 +75,23 @@ SVM1::> volume snaplock modify -vserver SVM1 -volume dataVol -privileged-delete 
 
 == EnterpriseモードのWORMファイルの削除
 
-privileged delete機能を使用すると、保持期間中にEnterpriseモードのWORMファイルを削除できます。
+privileged delete機能を使用して、保持期間中にEnterpriseモードのWORMファイルを削除できます。
 
 .開始する前に
 * このタスクを実行するには、SnapLock管理者である必要があります。
-* EnterpriseボリュームでSnapLock監査ログを作成し、privileged delete機能を有効にしておく必要があります。
+* Enterpriseボリュームで、SnapLock監査ログを作成し、privileged delete機能を有効にしておく必要があります。
 
 
-.タスクの内容
-privileged delete処理を使用して、期限切れのWORMファイルを削除することはできません。コマンドを使用して、削除するWORMファイルの保持期限を表示できます `volume file retention show`。の詳細については `volume file retention show`、をlink:https://docs.netapp.com/us-en/ontap-cli/volume-file-retention-show.html["ONTAPコマンド リファレンス"^]参照してください。
+.タスク概要
+期限切れのWORMファイルを削除するために、特権削除操作を使用することはできません。 `volume file retention show`コマンドを使用して、削除するWORMファイルの保持期間を確認できます。link:https://docs.netapp.com/us-en/ontap-cli/volume-file-retention-show.html["ONTAPコマンド リファレンス"^]の `volume file retention show`の詳細をご覧ください。
 
-.ステップ
+.手順
 . EnterpriseボリュームのWORMファイルを削除します。
 +
 `*volume file privileged-delete -vserver _SVM_name_ -file _file_path_*`
 
 +
-次のコマンドは、SVM上の``SVM1``ファイルを削除し `/vol/dataVol/f1`ます。
+次のコマンドは、SVM``SVM1``上のファイル `/vol/dataVol/f1`を削除します：
 
 +
 [listing]

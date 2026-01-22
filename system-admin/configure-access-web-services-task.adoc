@@ -2,69 +2,69 @@
 permalink: system-admin/configure-access-web-services-task.html 
 sidebar: sidebar 
 keywords: configure, access, web, services, http, https, svm 
-summary: Web サービスへのアクセスを設定することで、許可されたユーザが、 HTTP または HTTPS を使用してクラスタまたは Storage Virtual Machine （ SVM ）のサービスコンテンツにアクセスできるようになります。 
+summary: Webサービスへのアクセスを設定すると、許可されたユーザがHTTPまたはHTTPSを使用して、クラスタまたはStorage Virtual Machine（SVM）上のサービスコンテンツにアクセスできるようになります。 
 ---
-= ONTAP Webサービスへのアクセスを構成する
+= ONTAP Webサービスへのアクセスを設定する
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-Web サービスへのアクセスを設定することで、許可されたユーザが、 HTTP または HTTPS を使用してクラスタまたは Storage Virtual Machine （ SVM ）のサービスコンテンツにアクセスできるようになります。
+Webサービスへのアクセスを設定すると、許可されたユーザがHTTPまたはHTTPSを使用して、クラスタまたはStorage Virtual Machine（SVM）上のサービスコンテンツにアクセスできるようになります。
 
 .手順
-. ファイアウォールが有効になっている場合は、 Web サービスで使用される LIF のファイアウォールポリシーで HTTP または HTTPS のアクセスがセットアップされていることを確認してください。
+. ファイアウォールが有効になっている場合は、Webサービスに使用されるLIFのファイアウォールポリシーでHTTPまたはHTTPSアクセスが設定されていることを確認します：
 +
 [NOTE]
 ====
-ファイアウォールが有効になっているかどうかを確認するには、コマンドを使用し `system services firewall show`ます。
+ `system services firewall show`コマンドを使用してファイアウォールが有効になっているかどうかを確認できます。
 
 ====
 +
-.. ファイアウォールポリシーでHTTPまたはHTTPSが設定されていることを確認するには、コマンドを使用し `system services firewall policy show`ます。
+.. ファイアウォール ポリシーで HTTP または HTTPS が設定されていることを確認するには、 `system services firewall policy show` コマンドを使用します。
 +
-ポリシーでWebアクセスをサポートするには、コマンドのパラメータを `system services firewall policy create`または `https`に `http`設定し `-service`ます。
+ `system services firewall policy create`コマンドの `-service`パラメータを `http`または `https`に設定して、ポリシーがWebアクセスをサポートできるようにします。
 
-.. HTTPまたはHTTPSをサポートしているファイアウォールポリシーが、Webサービスを提供するLIFに関連付けられていることを確認するには、パラメータを指定してコマンドを `-firewall-policy`使用し `network interface show`ます。
+.. HTTP または HTTPS をサポートするファイアウォール ポリシーが、Web サービスを提供する LIF に関連付けられていることを確認するには、 `-firewall-policy`パラメータを指定した `network interface show`コマンドを使用します。
 +
-の詳細については `network interface show`、をlink:https://docs.netapp.com/us-en/ontap-cli/network-interface-show.html["ONTAPコマンド リファレンス"^]参照してください。
-
-+
-LIFに対してファイアウォールポリシーを有効にするには、コマンドで `-firewall-policy`パラメータを使用し `network interface modify`ます。
+ `network interface show`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/network-interface-show.html["ONTAPコマンド リファレンス"^]を参照してください。
 
 +
-の詳細については `network interface modify`、をlink:https://docs.netapp.com/us-en/ontap-cli/network-interface-modify.html["ONTAPコマンド リファレンス"^]参照してください。
-
-
-
-. クラスタレベルのWebプロトコルエンジンを設定してWebサービスのコンテンツにアクセスできるようにするには、コマンドを使用し `system services web modify`ます。
-. セキュアなWebサービス（HTTPS）を使用する場合は、コマンドを使用してSSLを有効にし、クラスタまたはSVMのデジタル証明書情報を入力します `security ssl modify`。
-+
-の詳細については `security ssl modify`、をlink:https://docs.netapp.com/us-en/ontap-cli/security-ssl-modify.html["ONTAPコマンド リファレンス"^]参照してください。
-
-. クラスタまたはSVMでWebサービスを有効にするには、コマンドを使用し `vserver services web modify`ます。
-+
-この手順は、クラスタまたは SVM に対して有効にする各サービスについて繰り返す必要があります。
-
-. 特定のロールにクラスタまたはSVMのWebサービスへのアクセスを許可するには、コマンドを使用し `vserver services web access create`ます。
-+
-アクセスを許可するロールはすでに存在している必要があります。既存のロールを表示する `security login role show`にはコマンドを使用します。新しいロールを作成するにはコマンドを使用します `security login role create`。
+ `network interface modify`コマンドに `-firewall-policy`パラメータを指定して、LIFに対してファイアウォールポリシーを有効にします。
 
 +
-および `security login role create`の詳細については `security login role show`、をlink:https://docs.netapp.com/us-en/ontap-cli/search.html?q=security+login+role["ONTAPコマンド リファレンス"^]参照してください。
+ `network interface modify`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/network-interface-modify.html["ONTAPコマンド リファレンス"^]を参照してください。
 
-. Webサービスへのアクセスが許可されているロールについては、コマンドの出力を確認して、ユーザにも正しいアクセス方法が設定されていることを確認して `security login show`ください。
+
+
+. クラスターレベルのWebプロトコルエンジンを構成し、Webサービスコンテンツにアクセスできるようにするには、 `system services web modify`コマンドを使用します。
+. セキュア Web サービス（HTTPS）を使用する予定の場合は、SSL を有効にし、 `security ssl modify`コマンドを使用してクラスタまたは SVM のデジタル証明書情報を提供します。
 +
-ONTAP API Webサービスにアクセスするには `ontapi`）、ユーザにアクセス方法が設定されている必要があります `ontapi`。他のすべてのWebサービスにアクセスするには、ユーザにアクセス方法が設定されている必要があり `http`ます。
+ `security ssl modify`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/security-ssl-modify.html["ONTAPコマンド リファレンス"^]をご覧ください。
+
+. クラスタまたは SVM の Web サービスを有効にするには、 `vserver services web modify`コマンドを使用します。
++
+クラスタまたは SVM に対して有効にするサービスごとに、この手順を繰り返す必要があります。
+
+. クラスタまたは SVM 上の Web サービスにアクセスするロールを承認するには、 `vserver services web access create` コマンドを使用します。
++
+アクセスを許可するロールは既に存在している必要があります。 `security login role show`コマンドを使用して既存のロールを表示するか、 `security login role create`コマンドを使用して新しいロールを作成できます。
 
 +
-の詳細については `security login show`、をlink:https://docs.netapp.com/us-en/ontap-cli/security-login-show.html["ONTAPコマンド リファレンス"^]参照してください。
+ `security login role show`および `security login role create`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/search.html?q=security+login+role["ONTAPコマンド リファレンス"^]をご覧ください。
+
+. Webサービスへのアクセスが許可されているロールの場合は、 `security login show`コマンドの出力をチェックして、そのユーザも正しいアクセス方法で設定されていることを確認します。
++
+ONTAP API Webサービス `ontapi`にアクセスするには、ユーザに `ontapi`アクセス方法を設定する必要があります。その他のすべてのWebサービスにアクセスするには、ユーザに `http`アクセス方法を設定する必要があります。
+
++
+ `security login show`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/security-login-show.html["ONTAPコマンド リファレンス"^]を参照してください。
 
 +
 [NOTE]
 ====
-ユーザのアクセス方法を追加するには、コマンドを使用し `security login create`ます。の詳細については `security login create`、をlink:https://docs.netapp.com/us-en/ontap-cli/security-login-create.html["ONTAPコマンド リファレンス"^]参照してください。
+ `security login create`コマンドを使用して、ユーザのアクセス方法を追加します。link:https://docs.netapp.com/us-en/ontap-cli/security-login-create.html["ONTAPコマンド リファレンス"^]の `security login create`の詳細を確認してください。
 
 ====
 

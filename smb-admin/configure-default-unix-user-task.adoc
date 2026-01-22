@@ -2,43 +2,43 @@
 permalink: smb-admin/configure-default-unix-user-task.html 
 sidebar: sidebar 
 keywords: configure, unix, user, map, fail, individual, windows, authentication, non-mapped, configure the default unix user 
-summary: ユーザに対する他のマッピングの試行がすべて失敗した場合や、 UNIX と Windows の間で個々のユーザをマッピングしないようにする場合に使用するデフォルトの UNIX ユーザを設定できます。ただし、マッピングされていないユーザの認証を失敗にする必要がある場合は、デフォルト UNIX ユーザを設定しないでください。 
+summary: 特定のユーザーに対する他のすべてのマッピング試行が失敗した場合、またはUNIXとWindows間で個々のユーザーをマッピングしたくない場合は、デフォルトのUNIXユーザーを設定できます。一方、マッピングされていないユーザーの認証を失敗させたい場合には、デフォルトのUNIXユーザーを設定しないでください。 
 ---
-= デフォルトのONTAP SMB UNIXユーザを設定する
+= デフォルトのONTAP SMB UNIXユーザーを設定する
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-ユーザに対する他のマッピングの試行がすべて失敗した場合や、 UNIX と Windows の間で個々のユーザをマッピングしないようにする場合に使用するデフォルトの UNIX ユーザを設定できます。ただし、マッピングされていないユーザの認証を失敗にする必要がある場合は、デフォルト UNIX ユーザを設定しないでください。
+特定のユーザーに対する他のすべてのマッピング試行が失敗した場合、またはUNIXとWindows間で個々のユーザーをマッピングしたくない場合は、デフォルトのUNIXユーザーを設定できます。一方、マッピングされていないユーザーの認証を失敗させたい場合には、デフォルトのUNIXユーザーを設定しないでください。
 
-.タスクの内容
-デフォルトでは、デフォルト UNIX ユーザの名前は「 pcuser 」です。これは、デフォルトで、デフォルト UNIX ユーザへのユーザマッピングが有効になっていることを意味します。デフォルトの UNIX ユーザとして使用する別の名前を指定することもできます。指定する名前は、Storage Virtual Machine（SVM）用に設定されているネームサービスデータベース内に存在している必要があります。このオプションを null 文字列に設定すると、どのユーザも UNIX デフォルトユーザとして CIFS サーバにアクセスできません。つまり、 CIFS サーバにアクセスするためには、各ユーザがパスワードデータベースにアカウントを持つ必要があります。
+.タスク概要
+デフォルトでは、デフォルトUNIXユーザの名前は「`pcuser`」です。これは、デフォルトUNIXユーザへのユーザマッピングがデフォルトで有効になっていることを意味します。デフォルトUNIXユーザとして使用する別の名前を指定することもできます。指定する名前は、Storage Virtual Machine（SVM）用に設定されたネームサービスデータベースに存在している必要があります。このオプションがNULL文字列に設定されている場合、UNIXデフォルトユーザとしてCIFSサーバにアクセスすることはできません。つまり、各ユーザはCIFSサーバにアクセスする前に、パスワードデータベースにアカウントを持っている必要があります。
 
-ユーザがデフォルトの UNIX ユーザアカウントを使用して CIFS サーバに接続するには、次の前提条件を満たす必要があります。
+ユーザーがデフォルトの UNIX ユーザー アカウントを使用して CIFS サーバーに接続するには、次の前提条件を満たしている必要があります：
 
-* ユーザが認証されていること。
-* ユーザが、 CIFS サーバのローカル Windows ユーザデータベース、 CIFS サーバのホームドメイン、信頼できるドメイン（ CIFS サーバでマルチドメインネームマッピング検索が有効な場合）のいずれかにあること
-* ユーザ名が明示的に null 文字列にマッピングされることはありません。
+* ユーザーは認証されています。
+* ユーザーは、CIFS サーバーのローカル Windows ユーザー データベース、CIFS サーバーのホーム ドメイン、または信頼されたドメイン（CIFS サーバーでマルチドメイン名マッピング検索が有効になっている場合）に存在します。
+* ユーザー名は明示的に null 文字列にマップされていません。
 
 
 .手順
 . デフォルトのUNIXユーザを設定します。
 +
 |===
-| 状況 | 入力するコマンド 
+| 状況 | コマンド 
 
 
  a| 
-デフォルトの UNIX ユーザ「 pcuser 」を使用する
+デフォルトのUNIXユーザー「`pcuser`」を使用する
  a| 
 `vserver cifs options modify -default-unix-user pcuser`
 
 
 
  a| 
-別の UNIX ユーザアカウントをデフォルトユーザとして使用します
+別のUNIXユーザーアカウントをデフォルトユーザーとして使用する
  a| 
 `vserver cifs options modify -default-unix-user _user_name_`
 
@@ -53,9 +53,9 @@ summary: ユーザに対する他のマッピングの試行がすべて失敗�
 +
 `vserver cifs options modify -default-unix-user pcuser`
 
-. デフォルトのUNIXユーザが正しく設定されていることを確認します。 `vserver cifs options show -vserver _vserver_name_`
+. デフォルトの UNIX ユーザーが正しく設定されていることを確認します： `vserver cifs options show -vserver _vserver_name_`
 +
-次の例では、 SVM vs1 のデフォルト UNIX ユーザとゲスト UNIX ユーザの両方が UNIX ユーザ「 pcuser 」を使用するように設定されています。
+次の例では、SVM vs1 上のデフォルトの UNIX ユーザーとゲスト UNIX ユーザーの両方が、UNIX ユーザー「`pcuser`」を使用するように設定されています：
 
 +
 `vserver cifs options show -vserver vs1`

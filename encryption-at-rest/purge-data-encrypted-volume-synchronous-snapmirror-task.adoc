@@ -2,63 +2,63 @@
 permalink: encryption-at-rest/purge-data-encrypted-volume-synchronous-snapmirror-task.html 
 sidebar: sidebar 
 keywords: secure, purge, scrub, data, encrypted, volume, nve, netapp, volume encryption, snapmirror, synchronous 
-summary: ONTAP 9.8 以降では、セキュア パージを使用して、 SnapMirror同期関係を持つ NVE 対応ボリューム上のデータを中断なくスクラブできます。 
+summary: ONTAP 9.8 以降では、セキュア パージを使用して、SnapMirror 同期関係にある NVE 対応ボリューム上のデータを中断なくスクラブできます。 
 ---
-= SnapMirror同期関係を使用して暗号化されたONTAPボリュームからデータをスクラブする
+= SnapMirror同期関係を持つ暗号化された ONTAP ボリュームからデータをスクラブする
 :allow-uri-read: 
 
 
 [role="lead"]
-ONTAP 9 8以降では、セキュアパージを使用して、SnapMirror同期関係にあるNVE対応ボリュームのデータを無停止で「スクラビング」できます。
+ONTAP 9.8以降では、セキュア パージを使用して、SnapMirror同期関係にあるNVE対応ボリュームのデータを無停止で「スクラビング」できます。
 
-.タスクの内容
-セキュアパージは、削除されたファイル内のデータ量によっては、完了までに数分から数時間かかることがあります。処理のステータスは、コマンドを使用して確認できます `volume encryption secure-purge show`。処理を終了するには、コマンドを使用し `volume encryption secure-purge abort`ます。
+.タスク概要
+セキュアパージは、削除されたファイルのデータ量に応じて、完了までに数分から数時間かかる場合があります。 `volume encryption secure-purge show`コマンドを使用して操作のステータスを確認できます。 `volume encryption secure-purge abort`コマンドを使用して操作を終了できます。
 
 
-NOTE: SANホストでセキュアパージを実行するには、パージするファイルを含むLUN全体を削除するか、パージするファイルに属するブロックに対してLUNに穴を開ける必要があります。LUNを削除できない場合や、ホストオペレーティングシステムでLUNのホールパンチングがサポートされていない場合は、セキュアパージを実行できません。
+NOTE: SANホストでセキュアパージを実行するには、パージ対象のファイルを含むLUN全体を削除するか、パージ対象のファイルに属するブロックのLUNにパンチホールを作成できる必要があります。LUNを削除できない場合、またはホストOSがLUNのパンチホール作成をサポートしていない場合は、セキュアパージを実行できません。
 
 .開始する前に
 * このタスクを実行するには、クラスタ管理者である必要があります。
-* このタスクには高度なPrivilegesが必要です。
+* このタスクを実行するにはadvanced権限が必要です。
 
 
 .手順
-. ストレージシステムで、advanced権限レベルに切り替えます。
+. ストレージ システムで、advanced権限レベルに切り替えます。
 +
 `set -privilege advanced`
 
-. セキュアパージを実行するファイルまたはLUNを削除します。
+. セキュア パージを実行するファイルまたはLUNを削除します。
 +
-** NASクライアントで、セキュアパージを実行するファイルを削除します。
-** SANホストで、セキュアパージを実行するLUNを削除するか、パージするファイルに属するブロックに対してLUNでホールパンチングを実行します。
+** NASクライアントで、セキュア パージを実行するファイルを削除します。
+** SANホストで、セキュア パージを実行するLUNを削除するか、パージするファイルに属するブロックに対してLUNでホール パンチングを実行します。
 
 
-. 非同期関係のデスティネーションボリュームをセキュアパージする準備をします。
+. 非同期関係のデスティネーション ボリュームでセキュア パージを準備します。
 +
 `volume encryption secure-purge start -vserver <SVM_name> -volume <volume_name> -prepare true`
 
 +
 SnapMirror同期関係のもう一方のボリュームに対してこの手順を繰り返します。
 
-. セキュアパージを実行するファイルがSnapshotに含まれている場合は、Snapshotを削除します。
+. セキュア パージを実行するファイルがSnapshotに含まれている場合は、Snapshotを削除します。
 +
 `snapshot delete -vserver <SVM_name> -volume <volume_name> -snapshot <snapshot>`
 
-. セキュアパージファイルがベースSnapshotまたは共通Snapshotに含まれている場合は、SnapMirrorを更新して共通Snapshotを転送します。
+. 対象ファイルがベースSnapshotまたは共通Snapshotに含まれている場合は、SnapMirrorを更新して共通Snapshotを最新の状態にします。
 +
 `snapmirror update -source-snapshot <snapshot_name> -destination-path <destination_path>`
 
 +
-共通のSnapshotは2つあるため、このコマンドは2回実行する必要があります。
+共通Snapshotは2つあるため、このコマンドは2回実行する必要があります。
 
-. セキュアパージファイルがアプリケーションと整合性のあるSnapshotに含まれている場合は、SnapMirror同期関係の両方のボリュームでSnapshotを削除します。
+. セキュア パージ ファイルがアプリケーション整合性スナップショット内にある場合は、SnapMirror 同期関係にある両方のボリューム上のスナップショットを削除します：
 +
 `snapshot delete -vserver <SVM_name> -volume <volume_name> -snapshot <snapshot>`
 
 +
 この手順は両方のボリュームで実行します。
 
-. 削除したファイルのセキュアパージを実行します。
+. 削除したファイルのセキュア パージを実行します。
 +
 `volume encryption secure-purge start -vserver <SVM_name> -volume <volume_name>`
 
@@ -66,14 +66,14 @@ SnapMirror同期関係のもう一方のボリュームに対してこの手順�
 SnapMirror同期関係の各ボリュームに対してこの手順を繰り返します。
 
 +
-次のコマンドは 'SVM "vs1 `" 上の "vol1" 上の削除されたファイルを安全にパージします
+次のコマンドは、SVM "`vs1`"上の"`vol1`"上の削除されたファイルを安全に消去します。
 
 +
 [listing]
 ----
 cluster1::> volume encryption secure-purge start -vserver vs1 -volume vol1
 ----
-. セキュアパージ処理のステータスを確認します。
+. セキュア パージ処理のステータスを確認します。
 +
 `volume encryption secure-purge show`
 

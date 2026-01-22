@@ -2,7 +2,7 @@
 permalink: system-admin/manage-cluster-time-concept.html 
 sidebar: sidebar 
 keywords: manage, cluster, time, administrator, ntp, network, time, protocol, zone 
-summary: ONTAPではクラスタのタイムゾーン、日付、および時刻を手動で設定できますが、クラスタ時間を同期するようにNTPサーバを設定する必要があります。 
+summary: ONTAP ではクラスタのタイムゾーン、日付、時刻を手動で設定できますが、クラスタの時間を同期するように NTP サーバを設定する必要があります。 
 ---
 = ONTAPクラスタ時間の管理（クラスタ管理者のみ）
 :allow-uri-read: 
@@ -13,82 +13,82 @@ summary: ONTAPではクラスタのタイムゾーン、日付、および時刻
 [role="lead"]
 クラスタ時間が不正確だと問題が発生する可能性があります。ONTAPではクラスタのタイム ゾーン、日付、時刻を手動で設定できますが、クラスタ時間を同期する場合はネットワーク タイム プロトコル（NTP）サーバを設定する必要があります。
 
-ONTAP 9 .5以降では、対称認証を使用してNTPサーバを設定できます。
+ONTAP 9.5以降では、NTPサーバに対称認証を設定できます。
 
-NTPは常に有効です。ただし、クラスタを外部の時間ソースと同期するには、設定が必要です。ONTAPでは、次の方法でクラスタのNTP設定を管理できます。
+NTPは常に有効です。ただし、NTPを有効にしただけでは、クラスタは外部の時間ソースと同期されません。ONTAPでは、次の方法でクラスタのNTP設定を管理できます。
 
-* 最大10台の外部NTPサーバをクラスタに関連付ける(`cluster time-service ntp server create`ことができます）。
+* 最大 10 台の外部 NTP サーバーをクラスターに関連付けることができます(`cluster time-service ntp server create`（：）
 +
-** タイムサービスの冗長性と品質を高めるには、少なくとも3台の外部NTPサーバをクラスタに関連付ける必要があります。
-** NTPサーバは、IPv4またはIPv6アドレス、または完全修飾ホスト名を使用して指定できます。
+** タイム サービスの冗長性と品質を高めるためには、最低3台の外部NTPサーバをクラスタに関連付ける必要があります。
+** NTPサーバはIPv4またはIPv6アドレス、あるいは完全修飾ホスト名で指定できます。
 ** 使用するNTPバージョン（v3またはv4）を手動で指定できます。
 +
 デフォルトでは、ONTAPは指定された外部NTPサーバでサポートされているNTPバージョンを自動的に選択します。
 
 +
-指定したNTPバージョンがNTPサーバでサポートされていない場合は、時間を交換できません。
+指定したNTPバージョンがNTPサーバでサポートされていない場合は、時間を同期できません。
 
-** advanced権限レベルでは、クラスタに関連付けられている外部NTPサーバを、クラスタ時間を修正および調整するためのプライマリ時間ソースとして指定できます。
-
-
-* クラスタに関連付けられているNTPサーバを表示でき(`cluster time-service ntp server show`ます）。
-* クラスタのNTP設定を変更でき(`cluster time-service ntp server modify`ます）。
-* クラスタと外部NTPサーバの関連付けを解除でき(`cluster time-service ntp server delete`ます）。
-* advanced権限レベルでは、クラスタに関連付けられているすべての外部NTPサーバをクリアすることで設定をリセットでき(`cluster time-service ntp server reset`ます。
+** advanced権限レベルでは、クラスタに関連付けられている外部NTPサーバを、クラスタ時間を修正、調節するための主要時間ソースとして指定できます。
 
 
-クラスタに参加するノードは、自動的にクラスタのNTP設定を採用します。
+* クラスターに関連付けられている NTP サーバーを表示できます(`cluster time-service ntp server show`。
+* クラスターの NTP 構成を変更できます(`cluster time-service ntp server modify`。
+* クラスターと外部 NTP サーバーの関連付けを解除できます(`cluster time-service ntp server delete`。
+* 高度な権限レベルでは、すべての外部 NTP サーバーとクラスターの関連付けをクリアすることで構成をリセットできます(`cluster time-service ntp server reset`。
 
-ONTAPでは、NTPを使用できるだけでなく、クラスタ時間を手動で管理することもできます。この機能は、誤った時間を修正する必要がある場合（リブート後にノードの時間が大幅にずれた場合など）に役立ちます。その場合は、NTPが外部のタイムサーバと同期できるようになるまで、クラスタのおおよその時間を指定できます。手動で設定した時間は、クラスタ上のすべてのノードに反映されます。
+
+クラスターに参加するノードは、クラスターの NTP 構成を自動的に採用します。
+
+ONTAPでは、NTPを使用できるだけでなく、クラスタ時間を手動で管理できます。この機能は、間違った時間を修正するときに便利です（リブート後にノードの時間が著しくずれた場合など）。その場合は、NTPが外部の時間サーバと同期できるようになるまで、クラスタのおよその時間を指定します。手動で設定した時間は、クラスタ上のすべてのノードに反映されます。
 
 クラスタ時間を手動で管理するには、次の方法があります。
 
-* クラスタのタイムゾーン、日付、時刻を設定または変更でき(`cluster date modify`ます）。
-* クラスタの現在のタイムゾーン、日付、時刻の設定を表示でき(`cluster date show`ます）。
+* クラスターのタイムゾーン、日付、時刻を設定または変更できます(`cluster date modify`。
+* クラスターの現在のタイムゾーン、日付、時刻設定を表示できます(`cluster date show`。
 
 
 [NOTE]
 ====
-手動でのクラスタの日付や時刻の変更は、ジョブスケジュールには反映されません。ジョブは、ジョブが作成された時点または最後に実行された時点のクラスタの時刻に基づいて実行されます。そのため、クラスタの日付や時刻を手動で変更した場合は、コマンドと `job history show`コマンドを使用して、スケジュール済みのすべてのジョブが必要に応じてキューに格納されているか完了していることを確認する必要があります `job show`。
+ジョブスケジュールは、クラスタの日付と時刻の手動変更には対応しません。これらのジョブは、ジョブが作成された時点、または最後に実行された時点の現在のクラスタ時刻に基づいて実行されるようにスケジュールされます。したがって、クラスタの日付または時刻を手動で変更する場合は、 `job show`コマンドおよび `job history show`コマンドを使用して、スケジュールされたすべてのジョブがキューに登録され、要件に従って完了していることを確認する必要があります。
 
 ====
 
 
 == クラスタ時間の管理用コマンド
 
-クラスタのNTPサーバを管理するには、コマンドを使用し `cluster time-service ntp server`ます。クラスタ時間を手動で管理するには、コマンドを使用し `cluster date`ます。
+ `cluster time-service ntp server`コマンドを使用して、クラスターのNTPサーバーを管理します。 `cluster date`コマンドを使用して、クラスターの時刻を手動で管理します。
 
-ONTAP 9 .5以降では、対称認証を使用してNTPサーバを設定できます。
+ONTAP 9.5以降では、NTPサーバに対称認証を設定できます。
 
-次のコマンドを使用して、クラスタのNTPサーバを管理できます。
+次のコマンドによって、クラスタのNTPサーバを管理できます。
 
 |===
 | 状況 | 使用するコマンド 
 
 
  a| 
-クラスタを外部NTPサーバと対称認証を使用せずに関連付ける
+対称認証を使用せずにクラスタを外部NTPサーバと関連付ける
  a| 
 `cluster time-service ntp server create -server server_name`
 
 
 
  a| 
-ONTAP 9 .5以降で対称認証を使用してクラスタを外部NTPサーバと関連付けます。
+対称認証を使用してクラスタを外部NTPサーバと関連付ける（ONTAP 9.5以降）
  a| 
 `cluster time-service ntp server create -server server_ip_address -key-id key_id`
 
 [NOTE]
 ====
-は、 `key_id`「cluster time-service ntp key」で設定された既存の共有キーを参照する必要があります。
+ `key_id`は、「`cluster time-service ntp key`」で設定された既存の共有キーを参照する必要があります。
 
 ====
 
 
  a| 
-既存のNTPサーバの対称認証を有効にする必要なキーIDを追加することで、既存のNTPサーバを変更して認証を有効にすることができます。
+既存のNTPサーバで対称認証を有効にする。必要なキーIDを追加することで、既存のNTPサーバを変更して認証を有効にできます。
 
-ONTAP 9 .5以降で使用可能
+ONTAP 9.5以降で利用可能
  a| 
 `cluster time-service ntp server modify -server server_name -key-id key_id`
 
@@ -108,27 +108,27 @@ ONTAP 9 .5以降で使用可能
 
 [NOTE]
 ====
-共有キーはIDで参照されます。ID、そのタイプ、および値がノードとNTPサーバの両方で同じである必要があります。
+共有キーはIDで参照されます。ID、そのタイプ、および値が、ノードとNTPサーバで同じであることが必要です。
 
 ====
 
 
  a| 
-クラスタに関連付けられているNTPサーバに関する情報を表示する
+クラスタに関連付けられたNTPサーバに関する情報を表示する
  a| 
 `cluster time-service ntp server show`
 
 
 
  a| 
-クラスタに関連付けられている外部NTPサーバの設定を変更する
+クラスタに関連付けられた外部NTPサーバの設定を変更する
  a| 
 `cluster time-service ntp server modify`
 
 
 
  a| 
-クラスタとNTPサーバの関連付けを解除する
+クラスタからNTPサーバへの関連付けを解除する
  a| 
 `cluster time-service ntp server delete`
 
@@ -141,7 +141,7 @@ ONTAP 9 .5以降で使用可能
 
 [NOTE]
 ====
-このコマンドにはadvanced権限レベルが必要です。
+このコマンドには、advanced権限レベルが必要です。
 
 ====
 |===
@@ -152,14 +152,14 @@ ONTAP 9 .5以降で使用可能
 
 
  a| 
-タイムゾーン、日付、時刻を設定または変更する
+タイム ゾーン、日付、および時刻を設定または変更する
  a| 
 `cluster date modify`
 
 
 
  a| 
-クラスタのタイムゾーン、日付、および時刻の設定を表示する
+クラスタのタイム ゾーン、日付、および時刻の設定を表示する
  a| 
 `cluster date show`
 
@@ -167,6 +167,6 @@ ONTAP 9 .5以降で使用可能
 .関連情報
 * link:https://docs.netapp.com/us-en/ontap-cli/cluster-date-show.html["cluster date show"^]
 * link:https://docs.netapp.com/us-en/ontap-cli/cluster-date-modify.html["cluster date modify"^]
-* link:https://docs.netapp.com/us-en/ontap-cli/search.html?q=cluster+time-service+ntp["クラスタタイムサービスNTP"^]
-* link:https://docs.netapp.com/us-en/ontap-cli/job-show.html["ジョブの表示"^]
+* link:https://docs.netapp.com/us-en/ontap-cli/search.html?q=cluster+time-service+ntp["クラスタ時刻サービス NTP"^]
+* link:https://docs.netapp.com/us-en/ontap-cli/job-show.html["job show"^]
 

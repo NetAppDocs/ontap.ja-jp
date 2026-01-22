@@ -2,34 +2,34 @@
 permalink: system-admin/restore-cluster-config-from-existing-task.html 
 sidebar: sidebar 
 keywords: restore, cluster, configuration, existing, configuration, failure, recovering, node, rejoin, cluster 
-summary: クラスタ障害後に既存の構成からクラスタ構成をリストアするには、選択したクラスタ構成をリカバリするノードで使用できるようにしてクラスタを再作成し、追加する各ノードを新しいクラスタに再追加します。 
+summary: クラスタ障害後に既存の構成からクラスタ構成をリストアするには、クラスタ構成を選択してリカバリするノードで利用できるようにし、次にその構成を使用してクラスタを再作成し、残りのノードを新しいクラスタに再追加します。 
 ---
-= ONTAPクラスタ構成バックアップファイルを使用したクラスタのリストア
+= ONTAPクラスタ構成バックアップ ファイルを使用してクラスタを復元する
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-クラスタ障害後に既存の構成からクラスタ構成をリストアするには、選択したクラスタ構成をリカバリするノードで使用できるようにしてクラスタを再作成し、追加する各ノードを新しいクラスタに再追加します。
+クラスタ障害後に既存の構成からクラスタ構成をリストアするには、クラスタ構成を選択してリカバリするノードで利用できるようにし、次にその構成を使用してクラスタを再作成し、残りのノードを新しいクラスタに再追加します。
 
-.タスクの内容
-このタスクは、クラスタの構成が失われた災害からリカバリする場合にのみ実行します。
+.タスク概要
+このタスクは、クラスタ構成の損失となる障害からリカバリする目的でのみ実行してください。
 
 [NOTE]
 ====
-構成バックアップファイルからクラスタを再作成する場合は、テクニカルサポートに連絡して、構成バックアップファイルとクラスタ内の構成との不一致を解決する必要があります。
+構成バックアップ ファイルからクラスタを再作成する場合は、テクニカル サポートに問い合わせて、構成バックアップ ファイルと現在のクラスタ構成との矛盾をすべて解決しておく必要があります。
 
-クラスタを構成バックアップ ファイルからリカバリする場合、バックアップ後に行われた構成の変更はすべて失われます。リカバリ後に構成バックアップ ファイルと現在の構成との矛盾をすべて解決する必要があります。参照link:https://kb.netapp.com/Advice_and_Troubleshooting/Data_Storage_Software/ONTAP_OS/ONTAP_Configuration_Backup_Resolution_Guide["NetAppナレッジベース: ONTAP構成バックアップ解決ガイド"^]トラブルシューティングのガイダンス。
+構成バックアップファイルからクラスタをリカバリする場合、バックアップの作成以降に行われた構成変更はすべて失われます。リカバリ後、構成バックアップファイルと現在の構成の不一致を解決する必要があります。トラブルシューティングのガイダンスについては、link:https://kb.netapp.com/Advice_and_Troubleshooting/Data_Storage_Software/ONTAP_OS/ONTAP_Configuration_Backup_Resolution_Guide["NetAppナレッジベース：ONTAP構成バックアップ解決ガイド"^]を参照してください。
 
 ====
 .手順
-. 各HAペアのストレージフェイルオーバーを無効にします。
+. 各HAペアのストレージ フェイルオーバーを無効にします。
 +
 `*storage failover modify -node _node_name_ -enabled false*`
 
 +
-ストレージフェイルオーバーを無効にする必要があるのは、HAペアごとに1回だけです。ノードのストレージフェイルオーバーを無効にすると、ノードのパートナーでもストレージフェイルオーバーが無効になります。
+ストレージ フェイルオーバーを無効にするのは、各HAペアに対して1度だけです。一方のノードでストレージ フェイルオーバーを無効にすると、そのノードのパートナーでもストレージ フェイルオーバーが無効になります。
 
 . リカバリするノード以外の各ノードを停止します。
 +
@@ -46,9 +46,9 @@ Warning: Are you sure you want to halt the node? {y|n}: y
 +
 `*set -privilege advanced*`
 
-. リカバリノードで、コマンドを使用して `*system configuration recovery cluster recreate*`クラスタを再作成します。
+. 回復ノードで、 `*system configuration recovery cluster recreate*` コマンドを使用してクラスターを再作成します。
 +
-この例では、リカバリノードに保存されている構成情報を使用してクラスタを再作成します。
+この例では、リカバリ ノードに保存された構成情報を使用してクラスタを再作成します。
 
 +
 [listing]
@@ -63,14 +63,14 @@ Warning: This command will destroy your existing cluster. It will
 Do you want to continue? {y|n}: y
 ----
 +
-リカバリノードに新しいクラスタが作成されます。
+新しいクラスタはリカバリ ノードに作成されます。
 
-. 構成バックアップファイルからクラスタを再作成する場合は、クラスタのリカバリが進行中であることを確認します。
+. 構成バックアップ ファイルからクラスタを再作成する場合は、クラスタのリカバリがまだ進行中であることを確認します。
 +
 `*system configuration recovery cluster show*`
 
 +
-正常なノードからクラスタを再作成する場合は、クラスタのリカバリ状態を確認する必要はありません。
+健全なノードからクラスタを再作成する場合、クラスタのリカバリの状態を確認する必要はありません。
 
 +
 [listing]
@@ -83,14 +83,14 @@ cluster1::*> system configuration recovery cluster show
 +
 ノードは一度に1つずつリブートする必要があります。
 
-. 再作成したクラスタに追加する必要がある各ノードについて、次の手順を実行します。
+. 再作成したクラスタに再追加が必要な各ノードで、以下を実行します。
 +
-.. 再作成したクラスタの正常なノードから、ターゲットノードを再追加します。
+.. 再作成したクラスタ上の健全なノードから、ターゲット ノードを再追加します。
 +
 `*system configuration recovery cluster rejoin -node _node_name_*`
 
 +
-この例では ' ターゲット・ノードを再作成されたクラスタに再結合します
+この例では、再作成されたクラスタに「`node2`」ターゲットノードを再参加させます：
 
 +
 [listing]
@@ -106,14 +106,14 @@ Warning: This command will rejoin node "node2" into the local
 Do you want to continue? {y|n}: y
 ----
 +
-ターゲットノードがリブートし、クラスタに追加されます。
+ターゲット ノードがリブートし、クラスタに追加されます。
 
-.. ターゲットノードが正常であり、クラスタ内の残りのノードとクォーラムを形成していることを確認します。
+.. ターゲット ノードが健全であり、クラスタ内の残りのノードとクォーラムを形成していることを確認します。
 +
 `*cluster show -eligibility true*`
 
 +
-別のノードを再追加する前に、ターゲットノードを再作成したクラスタに再追加する必要があります。
+別のノードを再追加する前に、ターゲット ノードを再作成したクラスタに再追加する必要があります。
 
 +
 [listing]
@@ -127,7 +127,7 @@ node1                true    true          false
 ----
 
 
-. 構成バックアップファイルからクラスタを再作成した場合は、リカバリステータスをcompleteに設定します。
+. 構成バックアップ ファイルからクラスタを再作成した場合は、リカバリ ステータスを「complete」に設定します。
 +
 `*system configuration recovery cluster modify -recovery-status complete*`
 
@@ -135,12 +135,12 @@ node1                true    true          false
 +
 `*set -privilege admin*`
 
-. クラスタが2つのノードだけで構成されている場合は、コマンドを使用し `*cluster ha modify*`てクラスタHAを再度有効にします。
-. コマンドを使用し `*storage failover modify*`て、各HAペアのストレージフェイルオーバーを再度有効にします。
+. クラスターが 2 つのノードのみで構成されている場合は、 `*cluster ha modify*`コマンドを使用してクラスター HA を再度有効にします。
+.  `*storage failover modify*`コマンドを使用して、各HAペアのストレージフェイルオーバーを再度有効にします。
 
 
-.終了後
-クラスタにSnapMirrorピア関係が設定されている場合は、それらの関係を再作成する必要もあります。詳細については、を参照してください link:../data-protection/index.html["データ保護"]。
+.終了後の操作
+クラスターにSnapMirrorピア関係がある場合は、それらの関係も再作成する必要があります。詳細については、link:../data-protection/index.html["データ保護"]を参照してください。
 
 .関連情報
 * link:https://docs.netapp.com/us-en/ontap-cli/["ONTAPコマンド リファレンス"^]

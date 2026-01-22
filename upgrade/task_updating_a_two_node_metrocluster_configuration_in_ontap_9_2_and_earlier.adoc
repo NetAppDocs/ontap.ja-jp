@@ -2,30 +2,30 @@
 permalink: upgrade/task_updating_a_two_node_metrocluster_configuration_in_ontap_9_2_and_earlier.html 
 sidebar: sidebar 
 keywords: ontap, upgrade, two-node, metrocluster, mcc, 9.2, earlier 
-summary: 2ノードMetroCluster構成のアップグレード方法は、ONTAPのバージョンによって異なります。ONTAP 9.2以前からのアップグレードにはこの手順を使用します。 
+summary: 2ノードMetroCluster構成のアップグレード方法は、ONTAPのバージョンによって異なります。ONTAP 9.2以前からのアップグレードには、この手順を使用してください。 
 ---
-= ONTAP 9.2以前での2ノードMetroCluster構成の手動無停止アップグレード
+= 2ノードMetroCluster構成の手動無停止アップグレード（ONTAP 9.2以前）
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-2ノードMetroCluster構成のアップグレード方法は、ONTAPのバージョンによって異なります。ONTAP 9.2以前を実行している場合は、この手順を使用して手動による無停止アップグレードを実行します。具体的には、ネゴシエートスイッチオーバーを開始し、「障害」サイトでクラスタを更新してから、スイッチバックを開始します。この処理をもう一方のサイトのクラスタでも繰り返します。
+2ノードクラスタMetroCluster構成のアップグレード方法は、ONTAPのバージョンによって異なります。ONTAP 9.2以前を実行している場合は、この手順を使用して、ネゴシエートスイッチオーバーの開始、「`failed`」サイトのクラスタの更新、スイッチバックの開始、そしてもう一方のサイトのクラスタで同じ処理を繰り返す、手動による無停止アップグレードを実行してください。
 
-2ノードMetroCluster構成でONTAP 9 .3以降を実行している場合は、を実行しますxref:task_upgrade_andu_sm.html[System Managerを使用した自動アップグレード]。
+2ノードのMetroCluster構成でONTAP 9.3以降を実行している場合は、xref:task_upgrade_andu_sm.html[System Manager を使用した自動アップグレード]を実行してください。
 
 .手順
-. 権限レベルをadvancedに設定します。続行するかどうかを尋ねられたら、「* y *」と入力します。
+. 権限レベルを「advanced」に設定し、続行するかどうかを尋ねられたら*y*と入力します：
 +
 [source, cli]
 ----
 set -privilege advanced
 ----
 +
-advancedプロンプト(`*>`が表示されます）。
+詳細プロンプト（(`*>`）が表示されます。
 
-. アップグレードするクラスタで、新しいONTAPソフトウェアイメージをデフォルトとしてインストールします。
+. アップグレードするクラスタで、新しいONTAPソフトウェア イメージをデフォルトとしてインストールします。
 +
 [source, cli]
 ----
@@ -36,14 +36,14 @@ system node image update -package package_location -setdefault true -replace-pac
 ----
 cluster_B::*> system node image update -package http://www.example.com/NewImage.tgz -setdefault true -replace-package true
 ----
-. ターゲットのソフトウェアイメージがデフォルトのイメージとして設定されたことを確認します。
+. ターゲットのソフトウェア イメージがデフォルトのイメージとして設定されたことを確認します。
 +
 [source, cli]
 ----
 system node image show
 ----
 +
-次の例は、がデフォルトのイメージとして設定されていることを示してい `NewImage`ます。
+次の例は、 `NewImage`がデフォルトのイメージとして設定されていることを示しています：
 
 +
 [listing]
@@ -57,7 +57,7 @@ node_B_1
          NewImage  true    false   Y.Y.Y                MM/DD/YYYY TIME
 2 entries were displayed.
 ----
-. ターゲットのソフトウェアイメージがデフォルトのイメージとして設定されていない場合は、変更します。
+. ターゲットのソフトウェア イメージがデフォルトのイメージとして設定されていない場合は、デフォルトに変更します。
 +
 [source, cli]
 ----
@@ -79,7 +79,7 @@ metrocluster switchover
 この処理には数分かかることがあります。metrocluster operation showコマンドを使用して、スイッチオーバーが完了したかどうかを確認できます。
 
 +
-次の例では ' ネゴシエート・スイッチオーバーがリモート・クラスタ（ "cluster_a" ）上で実行されますこれにより ' ローカルクラスタ ("`cluster_B`") が停止し ' 更新できるようになります
+次の例では、リモートクラスタ（「`cluster_A`」）でネゴシエートスイッチオーバーが実行されます。これにより、ローカルクラスタ（「`cluster_B`」）が停止し、更新が可能になります。
 
 +
 [listing]
@@ -99,7 +99,7 @@ Do you want to continue? {y|n}: y
 ----
 metrocluster vserver show
 ----
-. 「Surviving」クラスタ上のデータアグリゲートを再同期します。
+. 「`surviving`」クラスタ上のデータアグリゲートを再同期します：
 +
 [source, cli]
 ----
@@ -130,7 +130,7 @@ Start Time: MM/DD/YYYY TIME
 End Time: MM/DD/YYYY TIME
 Errors: -
 ----
-. 「Surviving」クラスタのルートアグリゲートを再同期します。
+. 「`surviving`」クラスタ上のルートアグリゲートを再同期します：
 +
 [source, cli]
 ----
@@ -170,7 +170,7 @@ boot_ontap
 ----
 metrocluster vserver show
 ----
-. 「Surviving」クラスタからスイッチバックを実行します。
+. 「`surviving`」クラスタからスイッチバックを実行します。
 +
 [source, cli]
 ----
@@ -254,7 +254,7 @@ metrocluster check node show
 ----
 set -privilege advanced
 ----
-.. スイッチオーバー処理をシミュレートします。
+.. スイッチオーバー処理のシミュレーションを実行します。
 +
 [source, cli]
 ----
@@ -282,13 +282,13 @@ cluster_A::*> metrocluster operation show
 ----
 set -privilege admin
 ----
-.. もう一方のクラスタで、上記の手順を繰り返します。
+.. もう一方のクラスタで、この手順を繰り返します。
 
 
 
 
-.終了後
-いずれかを実行しますlink:task_what_to_do_after_upgrade.html["アップグレードゴノテジュン"]。
+.終了後の操作
+任意のlink:task_what_to_do_after_upgrade.html["アップグレード後のタスク"]を実行します。
 
 .関連情報
-link:https://docs.netapp.com/us-en/ontap-metrocluster/disaster-recovery/concept_dr_workflow.html["MetroClusterディザスタリカバリ"]
+link:https://docs.netapp.com/us-en/ontap-metrocluster/disaster-recovery/concept_dr_workflow.html["MetroClusterのディザスタ リカバリに関するドキュメント"]

@@ -2,7 +2,7 @@
 permalink: nfs-config/create-ldap-client-config-task.html 
 sidebar: sidebar 
 keywords: create, ldap, client, configuration 
-summary: 環境内のONTAPから外部LDAPサーバにアクセスする場合は、まずストレージシステムにLDAPクライアントを設定する必要があります。 
+summary: 環境でONTAPから外部LDAPサーバにアクセスする場合は、まずストレージ システム上でLDAPクライアントを設定する必要があります。 
 ---
 = ONTAP NFSアクセス用のLDAPクライアント構成を作成する
 :allow-uri-read: 
@@ -11,42 +11,42 @@ summary: 環境内のONTAPから外部LDAPサーバにアクセスする場合�
 
 
 [role="lead"]
-環境内の外部LDAPサービスまたはActive DirectoryサービスにONTAPからアクセスする場合は、まずストレージシステム上にLDAPクライアントを設定する必要があります。
+環境でONTAPから外部のLDAPやActive Directoryのサービスにアクセスする場合は、まずストレージ システム上でLDAPクライアントを設定する必要があります。
 
 .開始する前に
-Active Directoryドメイン解決リストの最初の3つのサーバのいずれかが稼働し、データを提供している必要があります。そうしないと、このタスクは失敗します。
+Active Directoryドメイン解決リストの最初の3台のサーバのうち1台が起動していて、データを提供している必要があります。そうでない場合、このタスクは失敗します。
 
 [NOTE]
 ====
-複数のサーバがあり、そのうちどの時点でも3台以上のサーバがダウンしています。
+複数のサーバがあり、どの時点でもそのうち3台以上のサーバがダウンしている状態です。
 
 ====
 .手順
-. LDAP管理者に問い合わせて、このコマンドの適切な設定値を確認し `vserver services name-service ldap client create`ます。
+. LDAP管理者に相談して、 `vserver services name-service ldap client create`コマンドの適切な構成値を決定してください：
 +
 .. LDAPサーバへのドメインベースまたはアドレスベースの接続を指定します。
 +
- `-ad-domain`オプションと `-servers`オプションを同時に指定することはできません。
+ `-ad-domain`オプションと `-servers`オプションは相互に排他的です。
 
 +
-*** オプションを使用し `-ad-domain`て、Active DirectoryドメインでLDAPサーバ検出を有効にします。
+*** Active Directoryドメインで LDAPサーバ検出を有効にするには、 `-ad-domain`オプションを使用します。
 +
-**** オプションを使用すると `-restrict-discovery-to-site`、LDAPサーバ検出を、指定したドメインのCIFSデフォルトサイトに制限できます。このオプションを使用する場合は、でCIFSのデフォルトサイトを指定する必要もあり `-default-site`ます。
+****  `-restrict-discovery-to-site`オプションを使用すると、LDAPサーバ検出を指定したドメインのCIFSデフォルト サイトに制限できます。このオプションを使用する場合は、 `-default-site`でCIFSデフォルト サイトも指定する必要があります。
 
 
-*** オプションを使用すると、優先されるActive Directoryサーバをカンマで区切ってIPアドレスで指定できます `-preferred-ad-servers`。クライアントが作成されたら、コマンドを使用してこのリストを変更できます `vserver services name-service ldap client modify`。
-*** オプションを使用する `-servers`と、1つ以上のLDAPサーバ（Active DirectoryまたはUNIX）をIPアドレスでカンマで区切って指定できます。
+***  `-preferred-ad-servers`オプションを使用すると、1つ以上の優先Active DirectoryサーバをIPアドレスでカンマ区切りのリストで指定できます。クライアントの作成後、 `vserver services name-service ldap client modify`コマンドを使用してこのリストを変更できます。
+***  `-servers`オプションを使用して、カンマ区切りのリストでIPアドレス別に1つ以上のLDAPサーバー（Active DirectoryまたはUNIX）を指定します。
 +
 [NOTE]
 ====
-は非推奨です。 `-ldap-servers`フィールドは `-servers`分野。このフィールドには、LDAPサーバのホスト名またはIPアドレスを指定できます。
+この `-servers`オプションは非推奨です。 `-ldap-servers`フィールドは `-servers`フィールドに置き換えられます。このフィールドには、LDAPサーバのホスト名またはIPアドレスのいずれかを指定できます。
 
 ====
 
 
 .. デフォルトまたはカスタムのLDAPスキーマを指定します。
 +
-ほとんどのLDAPサーバでは、ONTAPが提供するデフォルトの読み取り専用スキーマを使用できます。他のスキーマを使用する必要がある場合を除き、デフォルトのスキーマを使用することを推奨します。他のスキーマを使用する場合は、デフォルトのスキーマ（読み取り専用）をコピーし、コピーを変更することによって、独自のスキーマを作成できます。
+ほとんどのLDAPサーバでは、ONTAPによって提供されているデフォルトの読み取り専用スキーマを使用できます。他のスキーマを使用する必要がある場合を除き、デフォルトのスキーマを使用することを推奨します。他のスキーマを使用する場合は、デフォルトのスキーマ（読み取り専用）をコピーし、コピーを変更することによって、独自のスキーマを作成できます。
 
 +
 デフォルトのスキーマ：
@@ -54,55 +54,55 @@ Active Directoryドメイン解決リストの最初の3つのサーバのいず
 +
 *** MS-AD-BIS
 +
-RFC-2307bisに基づいて、Windows Server 2012以降のほとんどの標準的なLDAP環境で推奨されるLDAPスキーマです。
+RFC-2307bisに基づいて、Windows Server 2012以降のほとんどの標準的なLDAP環境に推奨されるLDAPスキーマです。
 
 *** `AD-IDMU`
 +
-Active Directory Identity Management for UNIXに基づいて、このスキーマはWindows 2008、Windows 2012、およびそれ以降のほとんどのADサーバに適しています。
+Active Directory Identity Management for UNIXに基づいて、このスキーマはWindows Server 2008、Windows Server 2012、およびそれ以降のほとんどのADサーバに適しています。
 
 *** `AD-SFU`
 +
-Active Directory Services for UNIXに基づいて、このスキーマはWindows 2003以前のほとんどのADサーバに適しています。
+Active Directory Services for UNIXに基づいて、このスキーマはWindows Server 2003以前のほとんどのADサーバに適しています。
 
 *** `RFC-2307`
 +
-RFC-2307 （ネットワーク情報サービスとして LDAP を使用するためのアプローチ）に基づいて、このスキーマはほとんどの UNIX AD サーバに適しています。
+RFC-2307（_An Approach for Using LDAP as a Network Information Service_）に基づくこのスキーマは、ほとんどのUNIX ADサーバに適しています。
 
 
 
 .. バインド値を選択します。
 +
-*** `-min-bind-level {anonymous|simple|sasl}`最小バインド認証レベルを指定します。
+*** `-min-bind-level {anonymous|simple|sasl}`最小のバインド認証レベルを指定します。
 +
-デフォルト値はです `*anonymous*`。
+デフォルト値は `*anonymous*`です。
 
-*** `-bind-dn _LDAP_DN_`バインドユーザを指定します。
+*** `-bind-dn _LDAP_DN_`バインド ユーザを指定します。
 +
-Active Directoryサーバの場合は、アカウント（domain\user）またはプリンシパル（user@domain.com）の形式でユーザを指定する必要があります。それ以外の場合は、識別名（CN=user、DC=domain、DC=com）の形式でユーザを指定する必要があります。
+Active Directoryサーバの場合は、アカウント（DOMAIN\user）またはプリンシパル（user@domain.com）の形式でユーザを指定する必要があります。それ以外の場合は、識別名（CN=user,DC=domain,DC=com）の形式でユーザを指定する必要があります。
 
-*** `-bind-password _password_`バインドパスワードを指定します。
+*** `-bind-password _password_`バインド パスワードを指定します。
 
 
-.. 必要に応じて、セッションセキュリティオプションを選択します。
+.. 必要に応じてセッション セキュリティ オプションを選択します。
 +
-LDAPの署名と封印、またはLDAP over TLS（LDAPサーバで必要な場合）を有効にすることができます。
+LDAP署名と封印（暗号化）、またはLDAP over TLS（LDAPサーバで必要な場合）を有効にできます。
 
 +
 *** `--session-security {none|sign|seal}`
 +
-署名(`sign`、データ整合性）、署名と封印(`seal`、データの整合性と暗号化を有効にすることができます。また、 `none`署名と封印のどちらも有効にしないことも可能です。デフォルト値はです `none`。
+署名(`sign`（データ整合性）、署名とシーリング(`seal`（データ整合性と暗号化）、またはどちらも有効にしない `none`（署名もシーリングも有効にしない）ことができます。デフォルト値は `none`です。
 
 +
-{`sasl`バインド認証をにフォールバックする場合、または `*simple*`署名と封印のバインドが失敗した場合以外は、} `*anonymous*`も設定する必要があります `-min-bind-level`。
+署名とシーリングのバインドが失敗した場合に `*anonymous*`または `*simple*`にバインド認証をフォールバックさせたくない場合は、 `-min-bind-level` {`sasl`も設定する必要があります。
 
-*** `-use-start-tls`{`true`|`false`}
+*** `-use-start-tls` {`true`|`false`}
 +
-に設定し、LDAPサーバでサポートされている場合、 `*true*`LDAPクライアントはサーバへの暗号化されたTLS接続を使用します。デフォルト値はです `*false*`。このオプションを使用するには、LDAPサーバの自己署名ルートCA証明書をインストールする必要があります。
+ `*true*`に設定され、LDAPサーバがサポートしている場合、LDAPクライアントはサーバへの暗号化されたTLS接続を使用します。デフォルト値は `*false*`です。このオプションを使用するには、LDAPサーバの自己署名ルートCA証明書をインストールする必要があります。
 
 +
 [NOTE]
 ====
-Storage VMにSMBサーバがドメインに追加されていて、LDAPサーバがSMBサーバのホームドメインのドメインコントローラの1つである場合は、コマンドを使用してオプションを `vserver cifs security modify`変更できます `-session-security-for-ad-ldap`。
+ストレージVMのドメインにSMBサーバが追加されており、LDAPサーバがSMBサーバのホームドメインのドメインコントローラの1つである場合は、 `vserver cifs security modify`コマンドを使用して `-session-security-for-ad-ldap`オプションを変更できます。
 
 ====
 
@@ -112,37 +112,37 @@ Storage VMにSMBサーバがドメインに追加されていて、LDAPサーバ
 デフォルト値を推奨しますが、実際の環境に適しているかどうかをLDAP管理者に確認する必要があります。
 
 +
-*** `-port _port_`LDAPサーバポートを指定します。
+*** `-port _port_`LDAPサーバ ポートを指定します。
 +
-デフォルト値はです `389`。
+デフォルト値は `389`です。
 
 +
-Start TLSを使用してLDAP接続を保護する場合は、デフォルトのポート389を使用する必要があります。Start TLSはLDAPのデフォルトポート389経由でプレーンテキスト接続として開始され、その後TLS接続にアップグレードされます。ポートを変更すると、Start TLSが失敗します。
+Start TLSを使用したLDAP接続の保護を予定している場合は、デフォルトのポート389を使用する必要があります。Start TLSはLDAPのデフォルト ポート389経由でプレーンテキスト接続として開始され、その後TLS接続にアップグレードされます。ポートを変更した場合、Start TLSは失敗します。
 
-*** `-query-timeout _integer_`クエリータイムアウトを秒単位で指定します。
+*** `-query-timeout _integer_`クエリのタイムアウトを秒単位で指定します。
 +
-指定できる範囲は1～10秒です。デフォルト値は秒です `3`。
+指定できる範囲は1～10秒です。デフォルト値は `3`秒です。
 
 *** `-base-dn _LDAP_DN_`ベースDNを指定します。
 +
-必要に応じて複数の値を入力できます（LDAPリファーラル追跡が有効な場合など）。デフォルト値は（root）です `""`。
+必要に応じて複数の値を入力できます（例：LDAP参照追跡が有効になっている場合）。デフォルト値は `""`（root）です。
 
-*** `-base-scope`{`base`|`onelevel`|`subtree`｝は、ベース検索範囲を指定します。
+*** `-base-scope` {`base`|`onelevel`|`subtree`}は基本検索範囲を指定します。
 +
-デフォルト値はです `subtree`。
+デフォルト値は `subtree`です。
 
-*** `-referral-enabled`{`true`|`false`｝LDAPリファーラル追跡を有効にするかどうかを指定します。
+*** `-referral-enabled` {`true`|`false`}は、LDAP参照追跡を有効にするかどうかを指定します。
 +
-ONTAP 9 .5以降では、必要なレコードが参照先のLDAPサーバに存在することを示すLDAPリファーラル応答がプライマリLDAPサーバから返された場合に、ONTAP LDAPクライアントが他のLDAPサーバへのルックアップ要求を参照できるようになりました。デフォルト値はです `*false*`。
+ONTAP 9.5以降では、プライマリLDAPサーバから目的のレコードが参照先のLDAPサーバに存在することを示すLDAP参照応答が返された場合、ONTAP LDAPクライアントは検索要求を他のLDAPサーバに参照できるようになります。デフォルト値は `*false*`です。
 
 +
-参照されたLDAPサーバに存在するレコードを検索するには、参照されたレコードのベースDNをLDAPクライアント設定の一部としてベースDNに追加する必要があります。
+参照されたLDAPサーバにあるレコードを検索するには、参照されたレコードのベースDNをLDAPクライアント設定の一部としてベースDNに追加する必要があります。
 
 
 
 
 
-. Storage VMにLDAPクライアント設定を作成します。
+. Storage VMでLDAPクライアント設定を作成します。
 +
 `vserver services name-service ldap client create -vserver _vserver_name_ -client-config _client_config_name_ {-servers _LDAP_server_list_ | -ad-domain _ad_domain_} -preferred-ad-servers _preferred_ad_server_list_ -restrict-discovery-to-site {true|false} -default-site _CIFS_default_site_ -schema _schema_ -port 389 -query-timeout 3 -min-bind-level {anonymous|simple|sasl} -bind-dn _LDAP_DN_ -bind-password _password_ -base-dn _LDAP_DN_ -base-scope subtree -session-security {none|sign|seal} [-referral-enabled {true|false}]`
 

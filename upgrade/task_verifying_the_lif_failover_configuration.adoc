@@ -2,29 +2,29 @@
 permalink: upgrade/task_verifying_the_lif_failover_configuration.html 
 sidebar: sidebar 
 keywords: ontap, upgrade, verifying, verify, lif, failover, configuration 
-summary: アップグレードを実行する前に、フェイルオーバーポリシーとフェイルオーバーグループが正しく設定されていることを確認してください。 
+summary: アップグレードを実行する前に、フェールオーバーポリシーとフェールオーバーグループが正しく設定されていることを確認します。 
 ---
-= アップグレード前のONTAPクラスタLIFのフェイルオーバー設定の確認
+= アップグレード前にONTAPクラスタLIFフェイルオーバー設定を確認する
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-ONTAPをアップグレードする前に、クラスタのフェイルオーバーポリシーとフェイルオーバーグループが正しく設定されていることを確認する必要があります。
+ONTAPをアップグレードする前に、フェイルオーバー ポリシーとフェイルオーバー グループが適切に設定されていることを確認する必要があります。
 
-アップグレードプロセスでは、LIFはアップグレード方式に基づいて移行されます。アップグレード方法に応じて、LIFフェイルオーバーポリシーが使用される場合と使用されない場合があります。
+アップグレード時、LIFはアップグレード方式に基づいて移行されます。アップグレード方式に応じて、LIFフェイルオーバー ポリシーが使用される場合と使用されない場合があります。
 
-クラスタにノードが8つ以上ある場合は、バッチ方式を使用して自動アップグレードが実行されます。バッチアップグレード方式では、クラスタを複数のバッチに分割し、最初のバッチに含まれるノードセットをアップグレードし、そのノードのハイアベイラビリティ（HA）パートナーをアップグレードしてから、残りのバッチについても同じ処理を繰り返します。ONTAP 9 .7以前でバッチ方式が使用される場合、LIFはアップグレードするノードのHAパートナーに移行されます。ONTAP 9 .8以降でバッチ方式が使用される場合は、LIFが他のバッチグループに移行されます。
+8ノード以上で構成されるクラスタでは、バッチ方式を使用して自動アップグレードが実行されます。バッチ アップグレード方式では、クラスタを複数のバッチに分割し、まず最初のバッチに含まれるノードをアップグレードし、次にそのハイアベイラビリティ（HA）パートナーをアップグレードしてから、残りのバッチに対して同じ処理が実行されます。ONTAP 9.7以前でバッチ方式が使用された場合、LIFはアップグレード中のノードのHAパートナーに移行されます。ONTAP 9.8以降でバッチ方式が使用された場合、LIFは他のバッチ グループに移行されます。
 
-クラスタのノードが8つ未満の場合は、ローリング方式を使用して自動アップグレードが実行されます。ローリングアップグレード方式では、HAペアの各ノードでフェイルオーバー処理を開始し、フェイルオーバーしたノードを更新してギブバックを開始します。この処理をクラスタ内のHAペアごとに繰り返します。ローリング方式が使用される場合、LIFはLIFフェイルオーバーポリシーの定義に従ってフェイルオーバーターゲットノードに移行されます。
+8ノード未満で構成されるクラスタでは、ローリング方式を使用して自動アップグレードが実行されます。ローリング アップグレード方式では、HAペアの各ノードでフェイルオーバー処理を開始し、フェイルオーバーされたノードを更新してからギブバックを開始します。この処理をクラスタ内のそれぞれのHAペアに対して繰り返します。ローリング方式が使用される場合、LIFはLIFフェイルオーバー ポリシーに定義されているフェイルオーバー ターゲット ノードに移行されます。
 
 .手順
-. 各データLIFのフェイルオーバーポリシーを表示します。
+. 各データLIFのフェイルオーバー ポリシーを表示します。
 +
 [cols="2*"]
 |===
-| ONTAPのバージョン | 使用するコマンド 
+| ONTAPのバージョン | このコマンドを使用する 
 
 
 | 9.6以降  a| 
@@ -37,7 +37,7 @@ ONTAPをアップグレードする前に、クラスタのフェイルオーバ
 
 |===
 +
-次の例は、2つのデータLIFを含む2ノードクラスタのデフォルトのフェイルオーバー設定を示しています。
+次の例は、2つのデータLIFを含む2ノード クラスタのデフォルトのフェイルオーバー設定を示しています。
 
 +
 [listing]
@@ -62,18 +62,18 @@ vs1
                                            node0:e0e, node0:e0f
 ----
 +
-「 * Failover Targets * 」フィールドには、各 LIF のフェイルオーバーターゲットが優先順位の高いものから順番に表示されます。たとえば、「lif0」がホームポート（node0のe0b）からフェイルオーバーすると、node0のポートe0cへのフェイルオーバーが最初に試行されます。lif0がe0cにフェイルオーバーできない場合は、node0のポートe0dなどへのフェイルオーバーが試行されます。
+*フェイルオーバーターゲット*フィールドには、各LIFのフェイルオーバーターゲットの優先順位リストが表示されます。例えば、「lif0」がホームポート（node0のe0b）からフェイルオーバーする場合、まずnode0のポートe0cへのフェイルオーバーを試みます。lif0がe0cにフェイルオーバーできない場合は、次にnode0のポートe0dへのフェイルオーバーを試みます。以下同様に続きます。
 
 +
-の詳細については `network interface show`、をlink:https://docs.netapp.com/us-en/ontap-cli/network-interface-show.html["ONTAPコマンド リファレンス"^]参照してください。
+ `network interface show`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/network-interface-show.html["ONTAPコマンド リファレンス"^]を参照してください。
 
-. SAN LIF以外のLIFでフェイルオーバーポリシーが* disabled *に設定されている場合は、コマンドを使用して `network interface modify`フェイルオーバーを有効にします。
+. SAN LIF 以外の LIF のフェイルオーバーポリシーが *disabled* に設定されている場合は、 `network interface modify`コマンドを使用してフェイルオーバーを有効にします。
 +
-の詳細については `network interface modify`、をlink:https://docs.netapp.com/us-en/ontap-cli/network-interface-modify.html["ONTAPコマンド リファレンス"^]参照してください。
+ `network interface modify`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/network-interface-modify.html["ONTAPコマンド リファレンス"^]を参照してください。
 
-. それぞれの LIF について、 LIF のホームノードのアップグレード時に稼働したままにする別のノードのデータポートが「 * Failover Targets * 」フィールドに含まれていることを確認します。
+. 各 LIF について、*Failover Targets* フィールドに、LIF のホーム ノードのアップグレード中に稼働し続ける別のノードからのデータ ポートが含まれていることを確認します。
 +
-フェイルオーバーグループにフェイルオーバーターゲットを追加するには、コマンドを使用し `network interface failover-groups modify`ます。
+ `network interface failover-groups modify`コマンドを使用して、フェイルオーバーグループにフェイルオーバーターゲットを追加できます。
 
 +
 .例
@@ -85,6 +85,6 @@ network interface failover-groups modify -vserver vs0 -failover-group fg1 -targe
 
 .関連情報
 * link:../networking/networking_reference.html["ネットワークおよびLIFの管理"]
-* link:https://docs.netapp.com/us-en/ontap-cli/search.html?q=network+interface["ネットワークインターフェイス"^]
+* link:https://docs.netapp.com/us-en/ontap-cli/search.html?q=network+interface["ネットワーク インターフェイス"^]
 * link:https://docs.netapp.com/us-en/ontap-cli/network-interface-failover-groups-modify.html["network interface failover-groups modify"^]
 

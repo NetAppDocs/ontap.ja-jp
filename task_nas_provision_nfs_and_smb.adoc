@@ -4,7 +4,7 @@ permalink: task_nas_provision_nfs_and_smb.html
 keywords: netapp, ontap, name mapping, multiprotocol, povision NAS, linux, windows, NAS provisioning, active directory, workgroup, smb, CIFS, SMB, share name, default ACL, access control list, LIF, network interface 
 summary: NFS または SMB プロトコルを使用してストレージを提供するボリュームを作成します 
 ---
-= ONTAP System Manager で NFS と SMB の両方を使用して Windows と Linux の両方に NAS ストレージをプロビジョニングします。
+= ONTAP System ManagerでNFSとSMBの両方を使用してWindowsとLinuxの両方にNASストレージをプロビジョニングします
 :hardbreaks:
 :toclevels: 1
 :allow-uri-read: 
@@ -16,110 +16,110 @@ summary: NFS または SMB プロトコルを使用してストレージを提�
 
 
 [role="lead"]
-NFSまたはSMBプロトコルを使用して、クライアントにストレージを提供するボリュームを作成します。
+NFSまたはSMBプロトコルを使用して、クライアント用のストレージを提供するボリュームを作成します。
 
-この手順では、に新しいボリュームを作成しlink:task_nas_enable_nfs_and_smb.html["既存の Storage VM で NFS プロトコルと SMB プロトコルの両方が有効になっています"]ます。
+この手順では、link:task_nas_enable_nfs_and_smb.html["NFS プロトコルと SMB プロトコルの両方が有効になっている既存のストレージ VM"]に新しいボリュームを作成します。
 
-image:workflow_provision_multi_nas.gif["ワークフローの概要：1ボリュームを作成2 Linuxアクセスの確認3 Windowsアクセスの確認"]
+image:workflow_provision_multi_nas.gif["ワークフローの概要：1 ボリュームの作成 2 Linux アクセスの確認 3 Windows アクセスの確認"]
 
 
-NOTE: NFSプロトコルは、一般にLinux環境で使用されます。SMBプロトコルは、一般にWindows環境で使用されます。ただし、NFSとSMBはどちらもLinuxとWindowsのどちらでも使用できます。
+NOTE: NFSプロトコルは、通常、Linux環境で使用されます。SMBプロトコルは、通常、Windows環境で使用されます。ただし、NFSもSMBも、LinuxとWindowsのどちらでも使用できます。
 
-FlexVolを作成することも、高パフォーマンスが求められる大規模なファイルシステムの場合はFlexGroupボリュームを作成することもできます。見るlink:./flexgroup/create-task.html["FlexGroup ボリュームを作成します"]。
+FlexVolボリュームを作成したり、高パフォーマンスが求められる大規模なファイルシステム用にFlexGroupボリュームを作成したりできます。link:./flexgroup/create-task.html["FlexGroupボリュームを作成する"]を参照してください。
 
-このボリュームの仕様をAnsible Playbookに保存することもできます。詳細については、を参照してくださいlink:task_admin_use_ansible_playbooks_add_edit_volumes_luns.html["Ansible Playbookを使用してボリュームやLUNを追加または編集"]。
+このボリュームの仕様をAnsible Playbookに保存することもできます。詳細については、link:task_admin_use_ansible_playbooks_add_edit_volumes_luns.html["Ansible Playbookを使用したボリュームやLUNの追加 / 編集"]をご覧ください。
 
 .手順
-. NFSとSMBの両方が有効になっているStorage VMに新しいボリュームを追加してください。
+. NFSとSMBの両方が有効なStorage VMに新しいボリュームを追加します。
 +
-.. [ * ストレージ ] 、 [ ボリューム ] の順にクリックし、 [ * 追加 ] をクリックします。
+.. *ストレージ > ボリューム* をクリックし、*追加* をクリックします。
 .. 名前を入力し、Storage VMを選択してサイズを入力します。
 +
-NFSプロトコルとSMBプロトコルの両方が設定されているStorage VMのみが表示されます。NFS プロトコルと SMB プロトコルが設定された Storage VM が 1 つしかない場合、「 * Storage VM * 」フィールドは表示されません。
+NFSプロトコルとSMBプロトコルの両方が設定されているストレージVMのみがリストに表示されます。NFSプロトコルとSMBプロトコルの両方が設定されているストレージVMが1つしか存在しない場合、「*ストレージVM*」フィールドは表示されません。
 
-.. [その他のオプション]*をクリックし、*[NFS経由でエクスポート]*を選択します。
+.. *その他のオプション*をクリックし、*NFS経由でエクスポート*を選択します。
 +
-デフォルトの設定では、すべてのユーザにフルアクセスが許可されます。あとでエクスポートポリシーにルールを追加できます。
+デフォルトの設定では、すべてのユーザにフル アクセスが付与されます。あとでエクスポート ポリシーにルールを追加してアクセスを制限できます。
 
-.. [* SMB / CIFS で共有 ] を選択します。
+.. *SMB/CIFS経由で共有*を選択します。
 +
-共有が作成され、デフォルトのアクセス制御リスト（ ACL ）が「 Everyone 」グループに「 Full Control 」に設定されます。あとでACLに制限を追加できます。
+共有は、*Everyone*グループに対してデフォルトのアクセス制御リスト（ACL）「フルコントロール」が設定された状態で作成されます。ACLには後から制限を追加できます。
 
-.. この時点で * Save * をクリックすると、 System Manager はシステムデフォルトを使用して FlexVol ボリュームを作成および追加します。
-
-
-+
-また、許可、QoS、データ保護など、必要な追加サービスを引き続き有効にすることもできます。を参照して<<ボリューム構成をカスタマイズする>>から、ここに戻って次の手順を実行します。
-
-. [step2-sed-prov-nfs-smb、ワークフローの手順2] Linuxクライアントで、エクスポートがアクセス可能であることを確認します。
-+
-.. Storage VMのネットワークインターフェイスを使用してボリュームを作成してマウントします。
-.. 新しくマウントしたボリュームで、テストファイルを作成してテキストを書き込み、ファイルを削除します。
-
-
-. Windowsクライアントで次の手順を実行して、共有にアクセスできることを確認します。
-+
-.. エクスプローラで、次の形式で共有にドライブをマッピングします。 `+\\_SMB_Server_Name__Share_Name_+`
-.. 新しく作成したドライブで、テストファイルを作成してテキストを書き込み、ファイルを削除します。
+.. この時点で*保存*をクリックすると、System Manager はシステムのデフォルトを使用してFlexVol ボリュームを作成し、追加します。
 
 
 +
-アクセスの検証が完了したらlink:task_nas_provision_export_policies.html["ボリュームのエクスポートポリシーでクライアントアクセスを制限、共有ACLでクライアントアクセスを制限"]、エクスポートおよび共有ボリュームに所有権と権限を設定できます。
+または、認証、サービス品質、データ保護など、必要な追加サービスを有効にすることもできます。<<ボリューム設定のカスタマイズ>>を参照した後、ここに戻って次の手順を完了してください。
+
+. [[step2-compl-prov-nfs-smb,Step 2 in the workflow]] Linux クライアントで、エクスポートにアクセスできることを確認します。
++
+.. Storage VMのネットワーク インターフェイスを使用して、ボリュームを作成してマウントします。
+.. 新しくマウントしたドライブで、テスト ファイルを作成し、テキストを書き込めることを確認したら削除します。
+
+
+. Windowsクライアントで、次の手順を実行して共有にアクセスできることを確認します。
++
+.. エクスプローラで、次の形式でドライブを共有にマップします： `+\\_SMB_Server_Name__Share_Name_+`
+.. 新しく作成したドライブで、テスト ファイルを作成し、テキストを書き込めることを確認したら削除します。
+
+
++
+アクセスを確認した後、link:task_nas_provision_export_policies.html["ボリュームのエクスポートポリシーでクライアントアクセスを制限し、共有ACLでクライアントアクセスを制限します"]、エクスポートおよび共有されたボリュームに対して必要な所有権と権限を設定できます。
 
 
 
 
 
-== ボリューム構成をカスタマイズする
+== ボリューム設定のカスタマイズ
 
-システムのデフォルトをそのまま使用する代わりに、ボリュームを追加するときにボリューム構成をカスタマイズできます。
+ボリュームを追加するときに、システムのデフォルト設定を使用しないでボリューム設定をカスタマイズすることができます。
 
 .手順
-[ * その他のオプション * ] をクリックした後、必要な機能を選択し、必要な値を入力します。
+*その他のオプション*をクリックした後、必要な機能を選択し、必要な値を入力します。
 
-* リモートボリュームのキャッシュ。
-* パフォーマンスサービスレベル（サービス品質、QoS）：
+* リモート ボリュームのキャッシュ。
+* パフォーマンス サービス レベル（サービス品質、QoS）。
 +
-ONTAP 9 .8以降では、デフォルト値に加えて、カスタムQoSポリシーを指定したり、QoSを無効にしたりできます。
+ONTAP 9.8以降では、デフォルト値以外のカスタムQoSポリシーを指定したり、QoSを無効にしたりできます。
 
 +
-** QoS を無効にするには、「 * Custom * 」、「 * Existing * 」、「 * none * 」の順に選択します。
-** 「 * Custom * 」を選択し、既存のサービスレベルを指定すると、ローカル階層が自動的に選択されます。
-** ONTAP 9.9.1以降では、カスタムのパフォーマンスサービスレベルを作成するように選択した場合、System Managerを使用して、作成するボリュームを配置するローカル階層（*手動配置*）を手動で選択できます。
+** QoS を無効にするには、*カスタム*、*既存*、*なし* の順に選択します。
+** *カスタム* を選択して既存のサービス レベルを指定すると、ローカル ティアが自動的に選択されます。
+** ONTAP 9.9.1 以降では、カスタム パフォーマンス サービス レベルを作成する場合、System Manager を使用して、作成するボリュームを配置するローカル層（*手動配置*）を手動で選択できます。
 +
-このオプションは、リモートキャッシュオプションまたはFlexGroupボリュームオプションを選択した場合は使用できません。
+このオプションは、リモート キャッシュまたはFlexGroupボリュームのオプションを選択した場合は使用できません。
 
 
 
-* FlexGroup ボリューム（ * ボリュームデータをクラスタ全体に分散 * を選択）。
+* FlexGroupボリューム（*ボリューム データをクラスター全体に分散する*を選択）。
 +
-このオプションは、パフォーマンスサービスレベル * で手動配置 * を選択した場合は使用できません。それ以外の場合、追加するボリュームはデフォルトでFlexVol volumeになります。
+このオプションは、以前に*パフォーマンス サービス レベル*で*手動配置*を選択した場合には利用できません。それ以外の場合、追加するボリュームはデフォルトでFlexVol volumeになります。
 
-* ボリュームが設定されているプロトコルのアクセス権限。
-* SnapMirrorを使用したデータ保護（ローカルまたはリモート）を選択し、プルダウンリストからデスティネーションクラスタの保護ポリシーと設定を指定します。
-* [保存]*を選択してボリュームを作成し、クラスタとStorage VMに追加します。
-
-
-ボリュームを保存したら、に戻って、<<step2-compl-prov-nfs-smb>>WindowsサーバおよびLinuxサーバのマルチプロトコルプロビジョニングを完了します。
+* ボリュームに設定されるプロトコルのアクセス権限。
+* SnapMirrorによるデータ保護（ローカルまたはリモート）。オプションを選択したあと、プルダウン リストからデスティネーション クラスタの保護ポリシーと設定を指定します。
+* *保存*を選択してボリュームを作成し、クラスタとStorage VMに追加します。
 
 
+ボリュームを保存したら、<<step2-compl-prov-nfs-smb>>に戻り、WindowsおよびLinuxサーバーのマルチプロトコルプロビジョニングを完了します。
 
-== ONTAPで実行するその他の方法
+
+
+== ONTAPでこの処理を行うその他の方法
 
 [cols="2"]
 |===
-| 実行するタスク | 参照するコンテンツ 
+| タスクを実行するツール | 参照するコンテンツ 
 
 
-| System Managerクラシック（ONTAP 9 .7以前） | https://docs.netapp.com/us-en/ontap-system-manager-classic/nas-multiprotocol-config/index.html["SMB と NFS のマルチプロトコル構成の概要"^] 
+| System Manager Classic（ONTAP 9.7以前） | https://docs.netapp.com/us-en/ontap-system-manager-classic/nas-multiprotocol-config/index.html["SMB および NFS マルチプロトコル構成の概要"^] 
 
 
  a| 
-ONTAPコマンドラインインターフェイス
+ONTAPコマンドライン インターフェイス
  a| 
-* link:smb-config/index.html["CLIヲシヨウシタSMBセツテイノカイヨウ"]
-* link:nfs-config/index.html["ONTAP CLIを使用したNFS設定の詳細"]
-* link:nfs-admin/security-styles-their-effects-concept.html["セキュリティスタイルとその効果について学ぶ"]
+* link:smb-config/index.html["CLIを使用したSMBの設定 - 概要"]
+* link:nfs-config/index.html["ONTAP CLI を使用した NFS 構成について学習します"]
+* link:nfs-admin/security-styles-their-effects-concept.html["セキュリティ形式とその影響について"]
 * link:nfs-admin/case-sensitivity-file-directory-multiprotocol-concept.html["マルチプロトコル環境でのファイル名とディレクトリ名の大文字と小文字の区別"]
 
 

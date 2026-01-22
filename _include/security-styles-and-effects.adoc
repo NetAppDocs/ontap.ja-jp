@@ -3,7 +3,7 @@
 
 
 [role="lead"]
-セキュリティ形式には、 UNIX 、 NTFS 、 mixed 、および unified の 4 種類があり、セキュリティ形式によって、データに対する権限の処理方法が異なります。目的に応じて適切なセキュリティ形式を選択できるように、それぞれの影響について理解しておく必要があります。
+セキュリティ形式には、UNIX、NTFS、mixed、unifiedの4種類があります。各セキュリティ形式は、データに対する権限の処理方法にそれぞれ異なる影響を与えます。目的に応じて適切なセキュリティ形式を選択するには、それぞれの影響を理解する必要があります。
 
 セキュリティ形式はデータにアクセスできるクライアントの種類には影響しないことに注意してください。セキュリティ形式で決まるのは、データ アクセスの制御にONTAPで使用される権限の種類と、それらの権限を変更できるクライアントの種類だけです。
 
@@ -11,10 +11,10 @@
 
 [cols="5*"]
 |===
-| セキュリティ形式 | 権限を変更できるクライアント | クライアントが使用できる権限 | 有効になるセキュリティ形式 | ファイルにアクセスできるクライアント 
+| セキュリティ形式 | 権限を変更できるクライアント | クライアントが使用できる権限 | 結果として得られる実効セキュリティ形式 | ファイルにアクセスできるクライアント 
 
 
-.2+| UNIX .2+| NFS | NFSv3モードビット .2+| UNIX .9+| NFSとSMB 
+.2+| UNIX .2+| NFS | NFSv3モード ビット .2+| UNIX .9+| NFSとSMB 
 
 
 | NFSv4.x ACL 
@@ -23,7 +23,7 @@
 | NTFS | SMB | NTFS ACL | NTFS 
 
 
-.3+| mixed .3+| NFSまたはSMB | NFSv3モードビット .2+| UNIX 
+.3+| 混合 .3+| NFSまたはSMB | NFSv3モード ビット .2+| UNIX 
 
 
 | NFSv4.x ACL 
@@ -32,7 +32,7 @@
 | NTFS ACL | NTFS 
 
 
-.3+| unified （ Infinite Volume のみ、 ONTAP 9.4 以前のリリース） .3+| NFSまたはSMB | NFSv3モードビット .2+| UNIX 
+.3+| Unified（ONTAP 9.4以前のリリースでは、無限ボリュームのみ） .3+| NFSまたはSMB | NFSv3モード ビット .2+| UNIX 
 
 
 | NFSv4.1 ACL 
@@ -40,15 +40,15 @@
 
 | NTFS ACL | NTFS 
 |===
-FlexVolでは、UNIX、NTFS、およびmixedのセキュリティ形式がサポートされます。セキュリティ形式がmixedまたはunifiedの場合、ユーザはセキュリティ形式を個別に設定するため、権限を最後に変更したクライアントのタイプによって有効な権限が異なります。権限を最後に変更したクライアントがNFSv3クライアントの場合、権限はUNIX NFSv3モードビットになります。最後のクライアントがNFSv4クライアントの場合、権限はNFSv4 ACLになります。最後のクライアントがSMBクライアントの場合、権限はWindows NTFS ACLになります。
+FlexVolでは、UNIX、NTFS、およびmixedのセキュリティ形式がサポートされます。セキュリティ形式がmixedまたはunifiedの場合は、ユーザがセキュリティ形式を各自設定するため、権限を最後に変更したクライアントの種類によって有効になる権限が異なります。権限を最後に変更したクライアントがNFSv3クライアントの場合、権限はUNIX NFSv3モード ビットになります。最後のクライアントがNFSv4クライアントの場合、権限はNFSv4 ACLになります。最後のクライアントがSMBクライアントの場合、権限はWindows NTFS ACLになります。
 
-unifiedセキュリティ形式は、Infinite Volumeでのみ使用できます。Infinite Volumeは、ONTAP 9 .5以降のリリースではサポートされなくなりました。詳細については、を参照してください xref:../flexgroup/index.html[FlexGroup ボリュームの管理の概要]。
+unifiedセキュリティ形式は、ONTAP 9.5以降のリリースではサポートされなくなった無限ボリュームでのみ使用できます。詳細については、xref:../flexgroup/index.html[FlexGroupボリューム管理の概要]を参照してください。
 
-その `show-effective-permissions`パラメータを `vserver security file-directory`コマンドを使用すると、指定されたファイルまたはフォルダー パスで Windows または UNIX ユーザーに付与された有効な権限を表示できます。また、オプションのパラメータを `-share-name`使用すると、有効な共有権限を表示できます。の詳細については `vserver security file-directory show-effective-permissions`、をlink:https://docs.netapp.com/us-en/ontap-cli/vserver-security-file-directory-show-effective-permissions.html["ONTAPコマンド リファレンス"^]参照してください。
+ `vserver security file-directory`コマンドの `show-effective-permissions`パラメータを使用すると、指定したファイルまたはフォルダのパスに対してWindowsまたはUNIXユーザーに付与されている有効な権限を表示できます。さらに、オプションのパラメータ `-share-name`を使用すると、有効な共有権限を表示できます。link:https://docs.netapp.com/us-en/ontap-cli/vserver-security-file-directory-show-effective-permissions.html["ONTAPコマンド リファレンス"^]の `vserver security file-directory show-effective-permissions`の詳細をご覧ください。
 
 [NOTE]
 ====
-ONTAPは、最初に一部のデフォルトのファイル権限を設定します。デフォルトでは、UNIX、mixed、およびunifiedのセキュリティ形式のボリュームにあるデータには、セキュリティ形式はUNIXになり、アクセス権のタイプはUNIXモードビット（特に指定がないかぎり0755）になります。これは、デフォルトのセキュリティ形式で許可されるようにクライアントによって設定されるまでの間です。デフォルトでは、NTFSセキュリティ形式のボリューム内のすべてのデータに対するセキュリティ形式はNTFSになり、すべてのユーザにフルコントロールを許可するACLが割り当てられます。
+ONTAPで、最初にデフォルトのファイル権限がいくつか設定されます。デフォルトでは、UNIX、mixed、およびunifiedのセキュリティ形式のボリュームにあるデータについては、セキュリティ形式はUNIX、権限の種類はUNIXモード ビット（特に指定しないかぎり0755）が有効になります。これは、デフォルトのセキュリティ形式で許可されたクライアントで設定するまで変わりません。同様に、NTFSセキュリティ形式のボリュームにあるデータについては、デフォルトでNTFSセキュリティ形式が有効になり、すべてのユーザにフル コントロール権限を許可するACLが割り当てられます。
 
 ====
 .関連情報

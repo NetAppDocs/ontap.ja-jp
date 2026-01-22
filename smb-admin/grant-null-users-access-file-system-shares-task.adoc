@@ -2,21 +2,21 @@
 permalink: smb-admin/grant-null-users-access-file-system-shares-task.html 
 sidebar: sidebar 
 keywords: access, storage, system, resource, null, session, client, assign, group, ip, adress, null, session, grant, grant null users access to file system shares 
-summary: null セッションクライアントによるストレージシステムリソースへのアクセスを許可するには、 null セッションクライアントに使用するグループを割り当て、 null セッションクライアントの IP アドレスを記録して、ストレージシステム上の、 null セッションを使用したデータアクセスを許可するクライアントリストに追加します。 
+summary: ヌル セッション クライアントが使用するグループを割り当て、ヌル セッション クライアントのIPアドレスを記録して、ヌル セッションを使用してデータにアクセスできるクライアントのストレージ システム リストに追加することで、ヌル セッション クライアントによるストレージ システム リソースへのアクセスを許可できます。 
 ---
-= ONTAP SMBファイルシステム共有へのアクセスをnullユーザに許可
+= ONTAP SMBファイルシステム共有へのアクセス権をNULLユーザーに付与する
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-nullセッションクライアントによるストレージシステムリソースへのアクセスを許可するには、nullセッションクライアントが使用するグループを割り当て、nullセッションクライアントのIPアドレスを記録して、ストレージシステム上の、nullセッションを使用したデータアクセスを許可するクライアントのリストに追加します。
+nullセッション クライアントによるストレージ システム リソースへのアクセスを許可するには、nullセッション クライアントにグループを割り当てて、nullセッション クライアントのIPアドレスを記録し、ストレージ システム上の、nullセッションを使用したデータ アクセスを許可するクライアント リストにそのIPアドレスを追加します。
 
 .手順
-. コマンドを使用し `vserver name-mapping create`て、IP修飾子を使用して、有効なWindowsユーザにnullユーザをマッピングします。
+.  `vserver name-mapping create`コマンドを使用して、IP修飾子を使用して、nullユーザを任意の有効なWindowsユーザにマッピングします。
 +
-次のコマンドは、有効なホスト名 google.com で user1 に null ユーザをマッピングします。
+次のコマンドは、有効なホスト名 google.com を持つ user1 に null ユーザーをマッピングします：
 
 +
 [listing]
@@ -24,14 +24,14 @@ nullセッションクライアントによるストレージシステムリソ�
 vserver name-mapping create -direction win-unix  -position 1 -pattern "ANONYMOUS LOGON" -replacement user1 - hostname google.com
 ----
 +
-次のコマンドは、有効な IP アドレス 10.238.2.54/32 で user1 に null ユーザをマッピングします。
+次のコマンドは、null ユーザーを有効な IP アドレス 10.238.2.54/32 を持つ user1 にマッピングします：
 
 +
 [listing]
 ----
 vserver name-mapping create -direction win-unix  -position 2 -pattern "ANONYMOUS LOGON" -replacement user1 -address 10.238.2.54/32
 ----
-. コマンドを使用し `vserver name-mapping show`て、ネームマッピングを確認します。
+.  `vserver name-mapping show`コマンドを使用して名前のマッピングを確認します。
 +
 [listing]
 ----
@@ -44,16 +44,16 @@ Position Hostname         IP Address/Mask
 1       -                 10.72.40.83/32      Pattern: anonymous logon
                                           Replacement: user1
 ----
-. コマンドを使用し `vserver cifs options modify –win-name-for-null-user`て、nullユーザにWindowsメンバーシップを割り当てます。
+.  `vserver cifs options modify –win-name-for-null-user`コマンドを使用して、Windowsメンバーシップをnullユーザーに割り当てます。
 +
-このオプションは、 null ユーザに有効なネームマッピングが設定されている場合にのみ使用できます。
+このオプションは、null ユーザに有効な名前マッピングがある場合にのみ適用されます。
 
 +
 [listing]
 ----
 vserver cifs options modify -win-name-for-null-user user1
 ----
-. コマンドを使用し `vserver cifs options show`て、nullユーザがWindowsユーザまたはグループにマッピングされていることを確認します。
+.  `vserver cifs options show`コマンドを使用して、nullユーザとWindowsユーザまたはグループのマッピングを確認します。
 +
 [listing]
 ----

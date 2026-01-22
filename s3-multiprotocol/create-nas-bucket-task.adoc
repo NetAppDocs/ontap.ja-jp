@@ -2,7 +2,7 @@
 permalink: s3-multiprotocol/create-nas-bucket-task.html 
 sidebar: sidebar 
 keywords: s3, svm, bucket, object, server, versioning, protocol, filesystems, nas, directories 
-summary: S3 NASバケットは、S3バケット名とNASパスのマッピングです。 
+summary: S3 NASバケットは、S3バケット名とNASパスの間のマッピングです。 
 ---
 = ONTAP S3 NASバケットを作成する
 :allow-uri-read: 
@@ -11,66 +11,66 @@ summary: S3 NASバケットは、S3バケット名とNASパスのマッピング
 
 
 [role="lead"]
-S3 NAS バケットは、S3 バケット名と NAS パス間のマッピングです。S3 NASバケットを使用すると、既存のボリュームとディレクトリ構造を持つSVMネームスペースのどこにでもS3アクセスを提供できます。
+S3 NASバケットは、S3バケット名とNASパスのマッピングです。S3 NASバケットを使用すると、既存のボリュームとディレクトリ構造を持つSVM名前空間の任意の部分にS3アクセスを提供できます。
 
 .開始する前に
-* NASデータを含むSVMにS3オブジェクトサーバが設定されている。
-* NASデータはに準拠していlink:nas-data-requirements-client-access-reference.html["S3クライアントアクセスの要件"]ます。
+* NASデータを含むSVMにS3オブジェクト サーバが設定されている。
+* NAS データはlink:nas-data-requirements-client-access-reference.html["S3 クライアント アクセスの要件"]に準拠しています。
 
 
-.タスクの内容
-SVMのルートディレクトリ内の任意のセットのファイルとディレクトリを指定するようにS3 NASバケットを設定できます。
+.タスク概要
+S3 NASバケットには、SVMのルート ディレクトリ内のファイルとディレクトリのあらゆるセットを指定できます。
 
-また、次のパラメータを任意に組み合わせてNASデータへのアクセスを許可または禁止するバケットポリシーを設定することもできます。
+また、次のパラメータを任意に組み合わせて、NASデータへのアクセスを許可または禁止するバケット ポリシーを設定することもできます。
 
 * ファイルおよびディレクトリ
 * ユーザおよびグループの権限
 * S3処理
 
 
-たとえば、大規模なユーザグループに読み取り専用データアクセスを許可するバケットポリシーと、そのデータのサブセットに対して限定されたグループに処理の実行を許可するバケットポリシーが必要になる場合があります。
+たとえば、大人数のユーザ グループに読み取り専用のデータ アクセスを許可するバケット ポリシーと、同じデータのサブセットに対する処理だけを少人数のグループに許可するバケット ポリシーを別々に設定できます。
 
-ONTAP 9.17.1以降では、ジャンクションパスではなくボリュームにS3 NASバケットを直接リンクできます。デフォルトでは、NASボリューム上のS3バケットはジャンクションパスに関連付けられていますが、これはONTAP管理者がいつでも変更できます。これらの変更は、S3バケットの操作に支障をきたす可能性があります。ONTAPONTAP以降では、  `-is-nas-path-mutable false`オプション `vserver object-store-server bucket create` ONTAP CLIでコマンドを実行して、S3 NASバケットをボリュームにリンクできるようにします。デフォルトでは、  `-is-nas-path-mutable`設定されている `true` 。
+ONTAP 9.17.1以降では、ジャンクションパスではなくボリュームにS3 NASバケットを直接リンクできます。デフォルトでは、NASボリューム上のS3バケットはジャンクションパスに関連付けられており、ONTAP管理者はいつでもジャンクションパスを変更できます。これらの変更は、S3バケットの操作に支障をきたす可能性があります。ONTAP 9.17.1以降では、ONTAP CLIの `vserver object-store-server bucket create`コマンドで `-is-nas-path-mutable false`オプションを使用することで、S3 NASバケットをボリュームにリンクできるようになりました。デフォルトでは、 `-is-nas-path-mutable`は `true`に設定されています。
 
 S3 NAS「バケット」はマッピングであり、S3 バケットではないため、標準の S3 バケットの次のプロパティは S3 NAS バケットには適用されません。
 
-* * aggr-list\aggr-list-multiplier \storage-service-level \volume\size\exclude-aggr-list\qos-policy-group *+ S3 NASバケットの設定時にボリュームまたはqtreeが作成されません。
-* *role \ is -protected \ is -protected-on-ontap \ is -protected-on-cloud* + S3 NAS バケットは、 SnapMirror S3 を使用して保護またはミラーリングされませんが、代わりにボリューム粒度で利用可能な通常のSnapMirror保護が使用されます。
-* *バージョン管理状態*+ NASボリュームには'通常'さまざまなバージョンを保存するためのスナップショット・テクノロジーが用意されていますただし、S3 NASバケットでは現在バージョン管理を使用できません。
-* * logical-used\object-count *+と同等の統計情報は、volumeコマンドを使用してNASボリュームに対して利用できます。
-* *マルチパートオブジェクト* + ONTAP 9.16.1以降、S3 NASバケットでマルチパートオブジェクトがサポートされます。 link:../flexgroup/enable-adv-capacity-flexgroup-task.html["高度な容量分散"]基盤となるFlexGroupボリュームで有効になっています。高度な容量バランス調整はFlexGroupボリュームでのみ有効にできます。FlexVolFlexVolでは有効にできません。
+* *aggr-list \ aggr-list-multiplier \ storage-service-level \ volume \ size \ exclude-aggr-list \ qos-policy-group* + S3 NAS バケットを設定するときに、ボリュームまたは qtree は作成されません。
+* *role \ is -protected \ is -protected-on-ontap \ is -protected-on-cloud* + S3 NAS バケットはSnapMirror S3 を使用して保護またはミラーリングされませんが、代わりにボリューム粒度で利用可能な通常のSnapMirror保護が使用されます。
+* *versioning-state* + NASボリュームには通常、異なるバージョンを保存するためのSnapshotテクノロジが利用可能です。ただし、S3 NASバケットでは現在、バージョン管理は利用できません。
+* *logical-used \ object-count* + 同等の統計は、ボリューム コマンドを通じて NAS ボリュームに対して利用できます。
+* *マルチパート オブジェクト* + ONTAP 9.16.1以降、基盤となるFlexGroupボリュームでlink:../flexgroup/enable-adv-capacity-flexgroup-task.html["高度な容量バランス調整"]が有効になっている場合、S3 NASバケットでマルチパート オブジェクトがサポートされます。高度な容量バランシングは、FlexGroupボリュームでのみ有効にできます。FlexVolボリュームでは有効にできません。
 
 
 .手順
-System Manager またはONTAP CLI を使用して NAS バケットを作成できます。
+System Manager または ONTAP CLI を使用して NAS バケットを作成できます。
 
 [role="tabbed-block"]
 ====
 .System Manager
 --
-NAS対応Storage VMに新しいS3 NASバケットを追加します。
+NAS対応のStorage VMに新しいS3 NASバケットを追加します。
 
-. [ * ストレージ ] 、 [ バケット ] の順にクリックし、 [ * 追加 ] をクリックします。
-. S3 NASバケットの名前を入力してStorage VMを選択し、サイズを入力せずに* More Options *をクリックします。
-. 有効なパス名を入力するか、[参照]をクリックして有効なパス名のリストから選択します。+有効なパス名を入力すると、S3 NAS設定に関係のないオプションは表示されません。
-. S3ユーザをNASユーザとグループにすでにマッピングしている場合は、権限を設定し、* Save *をクリックします。+この手順で権限を設定する前に、S3ユーザをNASユーザにマッピングしておく必要があります。
+. *Storage > Buckets*をクリックし、*Add*をクリックします。
+. S3 NAS バケットの名前を入力し、ストレージ VM を選択し、サイズを入力せずに、*その他のオプション*をクリックします。
+. 有効なパス名を入力するか、[参照] をクリックして有効なパス名のリストから選択します。+ 有効なパス名を入力すると、S3 NAS 構成に関係のないオプションは非表示になります。
+. すでにS3ユーザーをNASユーザーにマッピングしてグループを作成している場合は、権限を構成してから*保存*をクリックできます。+ この手順で権限を構成する前に、S3ユーザーをNASユーザーにマッピングしておく必要があります。
 
 
-それ以外の場合は、* Save *をクリックしてS3 NASバケットの設定を完了します。
+それ以外の場合は、*保存*をクリックして S3 NAS バケットの設定を完了します。
 
 --
 .CLI
 --
-. NAS ファイルシステムを含む SVM に S3 NAS バケットを作成します。+ 
+. NAS ファイルシステムを含む SVM に S3 NAS バケットを作成します。+
 `vserver object-store-server bucket create -vserver <svm_name> -bucket <bucket_name> -type nas -nas-path <junction_path> -is-nas-path-mutable true|false [-comment <text>]`
 +
-例1: S3 NASバケットを作成する
+例1：S3 NASバケットを作成する
 
 +
 `cluster1::> vserver object-store-server bucket create -bucket testbucket -type nas -path /vol1`
 
 +
-例2: S3 NASバケットを作成し、バケットをボリュームにリンクする
+例2：S3 NASバケットを作成し、バケットをボリュームにリンクする
 
 +
 `vserver object-store-server bucket create -vserver vs1 -bucket nasbucket1 -type nas -nas-path /pathA/dir1 -is-nas-path-mutable false`

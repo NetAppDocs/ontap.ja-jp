@@ -2,46 +2,46 @@
 permalink: smb-admin/create-volumes-specified-junction-task.html 
 sidebar: sidebar 
 keywords: specify, junction, point, create, data, volume, resultant, automatic, mount, configure, nas, access, create data volumes with specified junction points 
-summary: ジャンクションポイントは、データボリュームの作成時に指定できます。作成したボリュームはジャンクションポイントに自動的にマウントされ、NASアクセス用の設定にすぐに使用できます。 
+summary: データ ボリュームを作成するときは、ジャンクション ポイントを指定できます。作成したボリュームは、ジャンクション ポイントに自動的にマウントされ、NASアクセス用の設定にすぐに使用できます。 
 ---
-= ジャンクションポイントを指定してONTAP SMBデータボリュームを作成する
+= 指定されたジャンクション ポイントを持つONTAP SMBデータ ボリュームを作成する
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-ジャンクションポイントは、データボリュームの作成時に指定できます。作成したボリュームはジャンクションポイントに自動的にマウントされ、NASアクセス用の設定にすぐに使用できます。
+データ ボリュームを作成するときは、ジャンクション ポイントを指定できます。作成したボリュームは、ジャンクション ポイントに自動的にマウントされ、NASアクセス用の設定にすぐに使用できます。
 
 .開始する前に
 ボリュームを作成するアグリゲートがすでに存在している必要があります。
 
 [NOTE]
 ====
-ジャンクションパスに次の文字を使用することはできません。 * # <> < | ？\
+ジャンクション パスでは次の文字は使用できません：* # " > < | ? \
 
-また、ジャンクションパスの長さは255文字以下にする必要があります。
+また、ジャンクション パスの長さは255文字以下にする必要があります。
 
 ====
 .手順
-. ジャンクションポイントを設定してボリュームを作成します。 `volume create -vserver _vserver_name_ -volume _volume_name_ -aggregate _aggregate_name_ -size {integer[KB|MB|GB|TB|PB]} -security-style {ntfs|unix|mixed} -junction-path _junction_path_`
+. ジャンクション ポイントを持つボリュームを作成します： `volume create -vserver _vserver_name_ -volume _volume_name_ -aggregate _aggregate_name_ -size {integer[KB|MB|GB|TB|PB]} -security-style {ntfs|unix|mixed} -junction-path _junction_path_`
 +
-ジャンクションパスはルート（/）で始まる必要があり、ディレクトリと結合されたボリュームの両方を含めることができます。ジャンクションパスにボリュームの名前を含める必要はありません。ジャンクションパスはボリューム名に依存しません。
+ジャンクション パスはルート（/）で始まる必要があり、ディレクトリおよび結合されたボリュームを含むことができます。ジャンクション パスにボリュームの名前を含める必要はありません。ジャンクション パスはボリューム名に依存しません。
 
 +
-ボリュームのセキュリティ形式の指定は任意です。セキュリティ形式を指定しない場合、ONTAPはStorage Virtual Machine（SVM）のルートボリュームと同じセキュリティ形式を使用してボリュームを作成します。ただし、ルートボリュームのセキュリティ形式が、作成するデータボリュームに適用するセキュリティ形式と異なる場合があります。トラブルシューティングが困難なファイルアクセスの問題を最小限に抑えるために、ボリュームの作成時にセキュリティ形式を指定することを推奨します。
+ボリュームのセキュリティ形式の指定は省略可能です。セキュリティ形式を指定しない場合、Storage Virtual Machine（SVM）のルート ボリュームと同じセキュリティ形式を使用してボリュームが作成されます。ただし、ルート ボリュームのセキュリティ形式が、作成するデータ ボリュームには適切でないセキュリティ形式である場合もあります。解決が困難なファイル アクセスの問題ができるだけ発生しないように、ボリュームの作成時にセキュリティ形式を指定することを推奨します。
 
 +
-ジャンクションパスでは大文字と小文字が区別されません。はと同じ `/eng`です。 `/ENG`CIFS共有を作成する場合、Windowsではジャンクションパスは大文字と小文字が区別されるかのように扱われます。たとえば、ジャンクションがの場合、 `/ENG`CIFS共有のパスはではなくで `/eng`始まる必要があります `/ENG`。
+ジャンクションパスは大文字と小文字を区別しません。 `/ENG`は `/eng`と同じです。CIFS共有を作成すると、Windowsはジャンクションパスを大文字と小文字が区別されるものとして扱います。例えば、ジャンクションが `/ENG`の場合、CIFS共有のパスは `/ENG`で始まる必要があり、 `/eng`ではありません。
 
 +
-データボリュームのカスタマイズに使用できるオプションのパラメータが多数用意されています。の詳細については `volume create`、をlink:https://docs.netapp.com/us-en/ontap-cli/volume-create.html["ONTAPコマンド リファレンス"^]参照してください。
+データボリュームをカスタマイズするために使用できるオプションパラメータは多数あります。link:https://docs.netapp.com/us-en/ontap-cli/volume-create.html["ONTAPコマンド リファレンス"^]の `volume create`の詳細をご覧ください。
 
-. 目的のジャンクションポイントでボリュームが作成されたことを確認します。 `volume show -vserver _vserver_name_ -volume _volume_name_ -junction`
+. ボリュームが目的のジャンクション ポイントで作成されたことを確認します： `volume show -vserver _vserver_name_ -volume _volume_name_ -junction`
 
 
 .例
-次の例は、ジャンクションパスがである「home4」という名前のボリュームをSVM vs1上に作成し `/eng/home`ます。
+次の例では、ジャンクション パスを持つ SVM vs1 上に「`home4`」という名前のボリュームを作成します `/eng/home`：
 
 [listing]
 ----

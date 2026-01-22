@@ -2,50 +2,50 @@
 permalink: nfs-admin/create-volumes-specified-junction-task.html 
 sidebar: sidebar 
 keywords: create, data, volume, specify, junction, point 
-summary: ジャンクションポイントにボリュームを自動的にマウントし、NASアクセスの設定にすぐに使用できるように、データボリュームを作成します。 
+summary: データボリュームを作成すると、ボリュームがジャンクションポイントに自動的にマウントされ、すぐにNASアクセスを構成できるようになります。 
 ---
-= 指定されたジャンクションポイントを持つ ONTAP NAS ボリュームを作成する
+= 指定されたジャンクションポイントを持つONTAP NASボリュームを作成する
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-ジャンクションポイントは、データボリュームの作成時に指定できます。作成したボリュームはジャンクションポイントに自動的にマウントされ、NASアクセス用の設定にすぐに使用できます。
+データ ボリュームを作成するときは、ジャンクション ポイントを指定できます。作成したボリュームは、ジャンクション ポイントに自動的にマウントされ、NASアクセス用の設定にすぐに使用できます。
 
 .開始する前に
 * ボリュームを作成するアグリゲートがすでに存在している必要があります。
-* ONTAP 9.13.1以降では、容量分析とアクティビティ追跡を有効にしてボリュームを作成できます。容量またはアクティビティの追跡を有効にするには、を指定してコマンドを `-analytics-state`実行する `volume create`か、 `-activity-tracking-state`に設定します `on`。
+* ONTAP 9.13.1以降では、容量分析とアクティビティトラッキングを有効にしたボリュームを作成できます。容量またはアクティビティトラッキングを有効にするには、 `-analytics-state`または `-activity-tracking-state`を `on`に設定した `volume create`コマンドを発行します。
 +
-容量分析とアクティビティ追跡の詳細については、を参照してください https://docs.netapp.com/us-en/ontap/task_nas_file_system_analytics_enable.html["ファイルシステム分析を有効にする"]。の詳細については `volume create`、をlink:https://docs.netapp.com/us-en/ontap-cli/volume-create.html["ONTAPコマンド リファレンス"^]参照してください。
+容量分析とアクティビティ追跡の詳細については、 https://docs.netapp.com/us-en/ontap/task_nas_file_system_analytics_enable.html["ファイルシステム分析の有効化"]を参照してください。link:https://docs.netapp.com/us-en/ontap-cli/volume-create.html["ONTAPコマンド リファレンス"^]の `volume create`の詳細を確認してください。
 
 
 
 
-NOTE: ジャンクションパスに次の文字は使用できません。 `*` `#` `"` `>` `<` `|` `?` `\`
+NOTE: 次の文字はジャンクションパスでは使用できません： `*` `#` `"` `>` `<` `|` `?` `\`
 
-また、ジャンクションパスの長さは255文字以下にする必要があります。
+また、ジャンクション パスの長さは255文字以下にする必要があります。
 
 .手順
-. ジャンクションポイントを設定してボリュームを作成します。
+. ジャンクション ポイントを設定してボリュームを作成します。
 +
 [source, cli]
 ----
 volume create -vserver <vserver_name> -volume <volume_name> -aggregate <aggregate_name> -size {integer[KB|MB|GB|TB|PB]} -security-style {ntfs|unix|mixed} -junction-path <junction_path>
 ----
 +
-ジャンクションパスはルート（/）で始まる必要があり、ディレクトリと結合されたボリュームの両方を含めることができます。ジャンクションパスにボリュームの名前を含める必要はありません。ジャンクションパスはボリューム名に依存しません。
+ジャンクション パスはルート（/）で始まる必要があり、ディレクトリおよび結合されたボリュームを含むことができます。ジャンクション パスにボリュームの名前を含める必要はありません。ジャンクション パスはボリューム名に依存しません。
 
 +
-ボリュームのセキュリティ形式の指定は任意です。セキュリティ形式を指定しない場合、ONTAPはStorage Virtual Machine（SVM）のルートボリュームと同じセキュリティ形式を使用してボリュームを作成します。ただし、ルートボリュームのセキュリティ形式が、作成するデータボリュームに適用するセキュリティ形式と異なる場合があります。トラブルシューティングが困難なファイルアクセスの問題を最小限に抑えるために、ボリュームの作成時にセキュリティ形式を指定することを推奨します。
+ボリュームのセキュリティ形式の指定は省略可能です。セキュリティ形式を指定しない場合、Storage Virtual Machine（SVM）のルート ボリュームと同じセキュリティ形式を使用してボリュームが作成されます。ただし、ルート ボリュームのセキュリティ形式が、作成するデータ ボリュームには適切でないセキュリティ形式である場合もあります。解決が困難なファイル アクセスの問題ができるだけ発生しないように、ボリュームの作成時にセキュリティ形式を指定することを推奨します。
 
 +
-ジャンクションパスでは大文字と小文字が区別されません。はと同じ `/eng`です。 `/ENG`CIFS共有を作成する場合、Windowsではジャンクションパスは大文字と小文字が区別されるかのように扱われます。たとえば、ジャンクションがの場合、 `/ENG`SMB共有のパスはではなくで `/eng`始まる必要があります `/ENG`。
+ジャンクションパスは大文字と小文字が区別されません。 `/ENG`は `/eng`と同じです。CIFS共有を作成すると、Windowsはジャンクションパスを大文字と小文字が区別されるものとして扱います。例えば、ジャンクションが `/ENG`の場合、SMB共有のパスは `/ENG`で始まる必要があり、 `/eng`ではありません。
 
 +
-データボリュームのカスタマイズに使用できるオプションのパラメータが多数用意されています。の詳細については `volume create`、をlink:https://docs.netapp.com/us-en/ontap-cli/volume-create.html["ONTAPコマンド リファレンス"^]参照してください。
+データボリュームをカスタマイズするために使用できるオプションパラメータは多数あります。link:https://docs.netapp.com/us-en/ontap-cli/volume-create.html["ONTAPコマンド リファレンス"^]の `volume create`の詳細をご覧ください。
 
-. 目的のジャンクションポイントでボリュームが作成されたことを確認します。
+. 目的のジャンクション ポイントでボリュームが作成されたことを確認します。
 +
 [source, cli]
 ----
@@ -54,7 +54,7 @@ volume show -vserver <vserver_name> -volume <volume_name> -junction
 
 
 .例
-次の例は、ジャンクションパスがであるという名前のボリュームをSVM vs1上に `/eng/home`作成し `home4`ます。
+次の例では、ジャンクション パス `/eng/home`を持つSVM vs1上に `home4`という名前のボリュームを作成します：
 
 [listing]
 ----

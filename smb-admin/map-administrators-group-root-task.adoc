@@ -2,41 +2,41 @@
 permalink: smb-admin/map-administrators-group-root-task.html 
 sidebar: sidebar 
 keywords: cifs, client, environment, storage, virtual, machine, svm, multiprotocol, storage, system, windows, account, root, privilege, svm, sufficient, user, right, map the administrators group to root 
-summary: 環境内のクライアントがすべて CIFS クライアントで、 Storage Virtual Machine （ SVM ）がマルチプロトコルストレージシステムとしてセットアップされている場合は、 SVM 上のファイルにアクセスするための root 権限を持つ Windows アカウントが少なくとも 1 つ必要です。 十分なユーザ権限がないため、この SVM を管理できません。 
+summary: 環境内に CIFS クライアントのみがあり、ストレージ仮想マシン（SVM）がマルチプロトコル ストレージ システムとしてセットアップされている場合は、SVM 上のファイルにアクセスするためのルート権限を持つ Windows アカウントが少なくとも 1 つ必要です。そうでない場合、十分なユーザー権限がないため、SVM を管理できません。 
 ---
-= ONTAP SMBルートへの管理者グループのマッピング
+= 管理者グループをONTAP SMBルートにマッピングする
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-環境内のクライアントがすべて CIFS クライアントで、 Storage Virtual Machine （ SVM ）がマルチプロトコルストレージシステムとしてセットアップされている場合は、 SVM 上のファイルにアクセスするための root 権限を持つ Windows アカウントが少なくとも 1 つ必要です。 十分なユーザ権限がないため、この SVM を管理できません。
+環境内に CIFS クライアントのみがあり、ストレージ仮想マシン（SVM）がマルチプロトコル ストレージ システムとしてセットアップされている場合は、SVM 上のファイルにアクセスするためのルート権限を持つ Windows アカウントが少なくとも 1 つ必要です。そうでない場合、十分なユーザー権限がないため、SVM を管理できません。
 
-.タスクの内容
-ストレージシステムがNTFS専用にセットアップされている場合は `/etc`、ディレクトリにファイルレベルのACLが設定され、AdministratorsグループはこのACLを使用してONTAP構成ファイルにアクセスできます。
+.タスク概要
+ストレージ システムが NTFS 専用として設定されている場合、 `/etc`ディレクトリにはファイル レベルの ACL があり、管理者グループが ONTAP 構成ファイルにアクセスできるようになります。
 
 .手順
-. 権限レベルをadvancedに設定します。 `set -privilege advanced`
-. 必要に応じて、 Administrators グループをルートにマッピングする CIFS サーバオプションを設定します。
+. 権限レベルをadvancedに設定します： `set -privilege advanced`
+. 必要に応じて、管理者グループをルートにマッピングするCIFSサーバーオプションを構成します：
 +
 |===
-| 状況 | そしたら...。 
+| 状況 | 操作 
 
 
  a| 
-管理者グループメンバーをルートにマッピングします
+管理者グループのメンバーをrootにマップする
  a| 
-`vserver cifs options modify -vserver _vserver_name_ -is-admin-users-mapped-to-root-enabled true`アカウントをrootにマッピングするエントリがない場合でも、Administratorsグループ内のすべてのアカウントはrootとみなされ `/etc/usermap.cfg`ます。Administrators グループに属するアカウントを使用してファイルを作成する場合、 UNIX クライアントからファイルを表示するときに、ファイルはルートによって所有されます。
+`vserver cifs options modify -vserver _vserver_name_ -is-admin-users-mapped-to-root-enabled true`管理者グループに属するすべてのアカウントは、たとえ `/etc/usermap.cfg`アカウントをrootにマッピングするエントリがない場合でも、rootとみなされます。管理者グループに属するアカウントを使用してファイルを作成した場合、UNIXクライアントからそのファイルを表示すると、そのファイルの所有者はrootになります。
 
 
 
  a| 
-Administrators グループメンバーのルートへのマッピングを無効にします
+管理者グループのメンバーをrootにマッピングしないようにする
  a| 
-`vserver cifs options modify -vserver _vserver_name_ -is-admin-users-mapped-to-root-enabled false`Administratorsグループ内のアカウントがrootにマッピングされなくなります。ルートへのマッピングは、単一のユーザに対して明示的にのみ実行できます。
+`vserver cifs options modify -vserver _vserver_name_ -is-admin-users-mapped-to-root-enabled false` 管理者グループのアカウントはrootにマッピングされなくなりました。rootに明示的にマッピングできるのは単一のユーザーのみです。
 
 |===
-. オプションが目的の値に設定されていることを確認します。 `vserver cifs options show -vserver _vserver_name_`
-. admin権限レベルに戻ります。 `set -privilege admin`
+. オプションが目的の値に設定されていることを確認します： `vserver cifs options show -vserver _vserver_name_`
+. admin権限レベルに戻ります： `set -privilege admin`
 

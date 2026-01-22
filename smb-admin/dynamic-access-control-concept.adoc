@@ -2,29 +2,29 @@
 permalink: smb-admin/dynamic-access-control-concept.html 
 sidebar: sidebar 
 keywords: consideration, dynamic, access, control, dac, central, policies, policy, secure, file, folder, cifs, server, consideration when using dynamic access control and central access policies with cifs servers 
-summary: CIFS サーバ上のファイルとフォルダを保護するために Dynamic Access Control （ DAC ；ダイナミックアクセス制御）と集約型アクセスポリシーを使用する際は、一定の考慮事項に注意する必要があります。 
+summary: Dynamic Access Control（DAC）と集中アクセス ポリシーを使用して CIFS サーバー上のファイルとフォルダーを保護する場合には、留意すべき点がいくつかあります。 
 ---
-= ONTAP SMBサーバーでDACと集中アクセスポリシーを使用する方法について学習します
+= ONTAP SMB サーバーで DAC と集中アクセス ポリシーを使用する方法について学習します
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-CIFS サーバ上のファイルとフォルダを保護するために Dynamic Access Control （ DAC ；ダイナミックアクセス制御）と集約型アクセスポリシーを使用する際は、一定の考慮事項に注意する必要があります。
+Dynamic Access Control（DAC）と集中アクセス ポリシーを使用して CIFS サーバー上のファイルとフォルダーを保護する場合には、留意すべき点がいくつかあります。
 
 
 
-== ポリシールール「環境 domain\administrator user 」の場合、 root に対して NFS アクセスが拒否されることがあります
+== ポリシールールがdomain\administratorユーザーに適用される場合、NFSアクセスはrootに対して拒否される可能性があります
 
-特定の状況では、 root ユーザがアクセスしようとしているデータに集約型アクセスポリシーセキュリティが適用されていると、 root に対して NFS アクセスが拒否されることがあります。問題は、集約型アクセスポリシーに domain\administrator に適用されるルールが含まれており、 root アカウントが domain\administrator アカウントにマッピングされている場合に実行されます。
+特定の状況下では、rootユーザーがアクセスしようとしているデータに集約型アクセスポリシーのセキュリティが適用されている場合、rootへのNFSアクセスが拒否されることがあります。この問題は、集約型アクセスポリシーにdomain\administratorに適用されるルールが含まれており、rootアカウントがdomain\administratorアカウントにマッピングされている場合に発生します。
 
-domain\administrator ユーザにルールを適用する代わりに、 domain\administrators グループなど、管理者権限を持つグループにルールを適用してください。これにより、 root を domain\administrator アカウントにマッピングしても、 root はこの問題の影響を受けなくなります。
+ルールを domain\administrator ユーザーに適用するのではなく、domain\administrators グループなどの管理者権限を持つグループに適用する必要があります。これにより、root を domain\administrator アカウントにマッピングしても、この問題の影響を受けることはありません。
 
 
 
-== 適用された集約型アクセスポリシーがActive Directoryに見つからないと、CIFSサーバのBUILTIN\Administratorsグループにリソースへのアクセスが許可されます
+== 適用された集中アクセス ポリシーが Active Directory に見つからない場合、CIFS サーバーの BUILTIN\Administrators グループはリソースにアクセスできます
 
-CIFS サーバに格納されたリソースに集約型アクセスポリシーが適用されている場合に、 CIFS サーバが集約型アクセスポリシーの SID を使用して Active Directory から情報を取得しようとしても、 SID が Active Directory 内の既存の集約型アクセスポリシーの SID と一致しないことがあります。このような場合、 CIFS サーバはそのリソースにローカルのデフォルトのリカバリポリシーを適用します。
+CIFSサーバー内のリソースに集約型アクセス ポリシーが適用されているものの、CIFSサーバーがActive Directoryから情報を取得する際に集約型アクセス ポリシーのSIDを使用しても、そのSIDがActive Directory内の既存の集約型アクセス ポリシーのSIDと一致しない場合があります。このような場合、CIFSサーバーは当該リソースに対してローカルのデフォルト復旧ポリシーを適用します。
 
-ローカルのデフォルトのリカバリポリシーでは、 CIFS サーバの BUILTIN\Administrators グループにそのリソースへのアクセスが許可されます。
+ローカルのデフォルト回復ポリシーでは、CIFS サーバーの BUILTIN\Administrators グループがそのリソースにアクセスできるようになります。

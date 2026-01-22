@@ -2,19 +2,19 @@
 permalink: data-protection/delete-volume-replication-relationship-task.html 
 sidebar: sidebar 
 keywords: delete, volume, replication, relationship, replicate, synchronous, snapmirror, quiese, pause 
-summary: ボリュームレプリケーション関係を削除するには、 snapmirror delete コマンドと snapmirror release コマンドを使用します。その後、不要なデスティネーションボリュームを手動で削除できます。 
+summary: snapmirror deleteコマンドとsnapmirror releaseコマンドを使用して、ボリュームのレプリケーション関係を削除できます。その後、不要なデスティネーション ボリュームを手動で削除できます。 
 ---
-= ONTAP SnapMirrorボリュームレプリケーション関係を削除する
+= ONTAP SnapMirrorボリュームのレプリケーション関係を削除する
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-コマンドと `snapmirror release`コマンドを使用して、ボリュームレプリケーション関係を削除できます `snapmirror delete`。その後、不要なデスティネーションボリュームを手動で削除できます。
+ `snapmirror delete`コマンドと `snapmirror release`コマンドを使用して、ボリュームのレプリケーション関係を削除できます。その後、不要なデスティネーション ボリュームを手動で削除できます。
 
-.タスクの内容
- `snapmirror release`コマンドは、SnapMirrorで作成されたSnapshotをソースから削除します。オプションを使用すると、Snapshotを保持できます `-relationship-info-only`。
+.タスク概要
+ `snapmirror release`コマンドは、ソースからSnapMirrorで作成されたスナップショットをすべて削除します。 `-relationship-info-only`オプションを使用して、スナップショットを保持できます。
 
 .手順
 . レプリケーション関係を休止します。
@@ -27,9 +27,9 @@ summary: ボリュームレプリケーション関係を削除するには、 s
 cluster_dst::> snapmirror quiesce -destination-path svm_backup:volA_dst
 ----
 +
-の詳細については `snapmirror quiesce`、をlink:https://docs.netapp.com/us-en/ontap-cli/snapmirror-quiesce.html["ONTAPコマンド リファレンス"^]参照してください。
+ `snapmirror quiesce`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/snapmirror-quiesce.html["ONTAPコマンド リファレンス"^]を参照してください。
 
-. （オプション）デスティネーションボリュームを読み取り/書き込みボリュームにする必要がある場合は、レプリケーション関係を解除します。デスティネーションボリュームを削除する場合やボリュームの読み取り/書き込みが不要な場合は、この手順を省略できます。
+. （オプション）デスティネーション ボリュームを読み取り / 書き込みボリュームにする必要がある場合は、レプリケーション関係を解除します。デスティネーション ボリュームを削除する場合や、ボリュームを読み取り / 書き込みにする必要がない場合は、この手順を省略できます。
 +
 `snapmirror break -source-path <SVM:volume>|<cluster://SVM/volume>, …​ -destination-path <SVM:volume>|<cluster://SVM/volume>, …​`
 
@@ -39,7 +39,7 @@ cluster_dst::> snapmirror quiesce -destination-path svm_backup:volA_dst
 cluster_dst::> snapmirror break -source-path svm1:volA -destination-path svm_backup:volA_dst
 ----
 +
-の詳細については `snapmirror break`、をlink:https://docs.netapp.com/us-en/ontap-cli/snapmirror-break.html["ONTAPコマンド リファレンス"^]参照してください。
+ `snapmirror break`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/snapmirror-break.html["ONTAPコマンド リファレンス"^]を参照してください。
 
 . レプリケーション関係を削除します。
 +
@@ -48,11 +48,11 @@ cluster_dst::> snapmirror break -source-path svm1:volA -destination-path svm_bac
 +
 [NOTE]
 ====
-このコマンドはデスティネーションクラスタまたはデスティネーションSVMから実行する必要があります。
+このコマンドはデスティネーション クラスタまたはデスティネーションSVMから実行する必要があります。
 
 ====
 +
-次の例は、の `svm1`ソースボリュームとの `svm_backup`デスティネーションボリューム `volA_dst`の間の関係を削除し `volA`ます。
+次の例では、 `svm1`のソース ボリューム `volA`と `svm_backup`のデスティネーション ボリューム `volA_dst`間の関係を削除します：
 
 +
 [listing]
@@ -60,20 +60,20 @@ cluster_dst::> snapmirror break -source-path svm1:volA -destination-path svm_bac
 cluster_dst::> snapmirror delete -source-path svm1:volA -destination-path svm_backup:volA_dst
 ----
 +
-の詳細については `snapmirror delete`、をlink:https://docs.netapp.com/us-en/ontap-cli/snapmirror-delete.html["ONTAPコマンド リファレンス"^]参照してください。
+ `snapmirror delete`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/snapmirror-delete.html["ONTAPコマンド リファレンス"^]をご覧ください。
 
-. ソースSVMからレプリケーション関係情報を解放します。
+. ソースSVMからレプリケーション関係情報をリリースします。
 +
 `snapmirror release -source-path <SVM:volume>|<cluster://SVM/volume>, ... -destination-path <SVM:volume>|<cluster://SVM/volume>, ...`
 
 +
 [NOTE]
 ====
-このコマンドはソースクラスタまたはソースSVMから実行する必要があります。
+このコマンドはソース クラスタまたはソースSVMから実行する必要があります。
 
 ====
 +
-次の例は、指定したレプリケーション関係の情報をソースSVMからリリースします `svm1`。
+次の例では、指定されたレプリケーション関係の情報をソース SVM `svm1`から解放します：
 
 +
 [listing]
@@ -81,6 +81,6 @@ cluster_dst::> snapmirror delete -source-path svm1:volA -destination-path svm_ba
 cluster_src::> snapmirror release -source-path svm1:volA -destination-path svm_backup:volA_dst
 ----
 +
-の詳細については `snapmirror release`、をlink:https://docs.netapp.com/us-en/ontap-cli/snapmirror-release.html["ONTAPコマンド リファレンス"^]参照してください。
+ `snapmirror release`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/snapmirror-release.html["ONTAPコマンド リファレンス"^]を参照してください。
 
 

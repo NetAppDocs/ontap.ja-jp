@@ -2,29 +2,29 @@
 permalink: flexgroup/manage-flexgroup-rebalance-task.html 
 sidebar: sidebar 
 keywords: enable, storage, rebalance, modify, stop, status, flexgroup, volume 
-summary: ONTAP 9 12.1以降では、FlexGroup内のあるコンスティチュエントから別のコンスティチュエントにファイルを無停止で移動することで、FlexGroupボリュームのリバランシングを実行できます。 
+summary: ONTAP 9.12.1以降では、FlexGroup内のコンスティチュエント間でファイルを無停止で移動することにより、FlexGroupボリュームをリバランシングできます。 
 ---
-= ファイルの移動によるONTAP FlexGroupボリュームのリバランシング
+= ファイルを移動してONTAP FlexGroupボリュームのバランスを再調整する
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-ONTAP 9 12.1以降では、FlexGroup内のあるコンスティチュエントから別のコンスティチュエントにファイルを無停止で移動することで、FlexGroupボリュームのリバランシングを実行できます。
+ONTAP 9.12.1以降では、FlexGroup内のコンスティチュエント間でファイルを無停止で移動することにより、FlexGroupボリュームをリバランシングできます。
 
-FlexGroupのリバランシングは、新しいファイルの追加やファイルの増加によって不均衡が長期的に生じた場合に、容量を再配分するのに役立ちます。リバランシング処理を手動で開始すると、ONTAPによってファイルが選択され、システムを停止することなく自動的に移動されます。
+FlexGroupリバランシングにより、時間の経過に伴って新しいファイルの追加やファイル サイズの増加が原因で不均衡が生じた場合に、容量を再分配することができます。リバランシング処理を手動で開始すると、ファイルが自動で選択されて、無停止で移動されます。
 
 [NOTE]
 ====
-マルチパートinodeの作成により、1つのリバランシングイベントまたは複数のリバランシングイベントの一部として大量のファイルが移動された場合、FlexGroupのリバランシングではシステムパフォーマンスが低下することに注意してください。リバランシングイベントの一環として移動されたすべてのファイルには、そのファイルに2つのマルチパートinodeが関連付けられています。FlexGroup内のファイル総数に対するマルチパートinodeを持つファイル数の割合が大きいほど、パフォーマンスへの影響が大きくなります。FlexVolからFlexGroupへの変換など、特定のユースケースでは、大量のマルチパートinodeが作成される可能性があります。
+マルチパートinodeを作成したことで、1つまたは複数のリバランシング イベントの一環として大量のファイルが移動される場合に、FlexGroupのリバランシングによりシステムのパフォーマンスが低下することに注意してください。リバランシング イベントの一環として移動されるすべてのファイルは、自身に関連付けられた2つのマルチパートinodeを持ちます。FlexGroupのファイル総数のうち、マルチパートinodeを持つファイル数が占める割合が高いほど、パフォーマンスへの影響が大きくなります。FlexVolからFlexGroupへの変換など、特定のユースケースでは、大量のマルチパートinodeが作成される可能性があります。
 
 ====
-リバランシングは、クラスタ内のすべてのノードでONTAP 9.12.1以降のリリースが実行されている場合にのみ使用できます。リバランシング処理を実行するFlexGroupボリュームでは、詳細データ機能を有効にする必要があります。一度有効にすると、このボリュームを削除するか、設定を有効にする前に作成されたSnapshotからリストアしないかぎり、ONTAP 9.11.1以前のバージョンに戻すことはできません。
+リバランスは、クラスタ内のすべてのノードでONTAP 9.12.1以降のリリースが実行されている場合にのみ利用できます。リバランス操作を実行するFlexGroupボリュームでは、きめ細かなデータ機能を有効にする必要があります。この機能を有効にすると、このボリュームを削除するか、設定を有効にする前に作成されたスナップショットから復元しない限り、ONTAP 9.11.1以前のバージョンに戻すことはできません。
 
 ONTAP 9.14.1以降では、ONTAPに導入されたアルゴリズムにより、ユーザが操作しなくても、詳細データ機能が有効になっているボリューム内のファイルが、システムの停止を伴わずプロアクティブに移動されます。このアルゴリズムは、きわめて特殊な限られたシナリオで作動し、パフォーマンスのボトルネックを軽減します。このアルゴリズムが機能するシナリオには、クラスタ内の1つのノード上の特定のファイル セットに対する書き込み負荷が非常に高い場合や、非常にホットな親ディレクトリ内のファイルが継続的に増加している場合などがあります。
 
-ONTAP 9 .16.1以降では、を有効にして、FlexGroupメンバーボリューム間で大容量ファイルのデータを再分散することもできますlink:enable-adv-capacity-flexgroup-task.html["高度な容量分散"]。
+ONTAP 9.16.1 以降では、link:enable-adv-capacity-flexgroup-task.html["高度な容量バランス調整"]を有効にして、大きなファイルのデータをFlexGroupメンバーボリューム間で再配布することもできます。
 
 
 
@@ -34,36 +34,36 @@ FlexGroupリバランシングの仕組みおよび他のONTAP機能との連携
 
 * FlexVolからFlexGroupへの変換
 +
-FlexVolからFlexGroupへの変換後は、 FlexGroup の自動再バランス調整を使用しないことをお勧めします。代わりに、既存のファイルを再配布するには、 `volume rebalance file-move start` ONTAP 9.10.1 以降で使用可能なコマンド。この操作はデフォルトで非中断です(`-is-disruptive false`）。ビジー状態のファイルの一部が移動できない場合は、中断モードでコマンドを再実行できます。(`-is-disruptive true` ) を計画されたメンテナンス時間中に実行します。詳細はこちら `volume rebalance file-move start`の中でlink:https://docs.netapp.com/us-en/ontap-cli/volume-rebalance-file-move-start.html["ONTAPコマンド リファレンス"^] 。
+FlexVol から FlexGroup への変換後に自動 FlexGroup リバランシングを使用しないことを推奨します。代わりに、ONTAP 9.10.1 以降で利用可能な `volume rebalance file-move start` コマンドを使用して既存のファイルを再分配できます。この操作はデフォルトで無停止です(`-is-disruptive false`。一部の使用中のファイルが移動できない場合、計画的なメンテナンスウィンドウ中にディスラプティブモードでコマンドを再実行できます(`-is-disruptive true`。 `volume rebalance file-move start` についての詳細は link:https://docs.netapp.com/us-en/ontap-cli/volume-rebalance-file-move-start.html["ONTAPコマンド リファレンス"^] をご覧ください。
 
 +
-FlexGroupの自動リバランシング機能を使用したリバランシングでは、FlexVolからFlexGroupへの変換を実行し、FlexVol volume上のデータの50~85%が新しいコンスティチュエントに移動されるなど、多数のファイルを移動する際のパフォーマンスが低下する可能性があります。
+自動FlexGroupリバランシング機能によるリバランシングは、FlexVolをFlexGroupに変換し、FlexVol上のデータの50～85%を新しいコンスティチュエントに移動する場合など、大量のファイルを移動する処理ではパフォーマンスの低下を招くことがあります。
 
 * ファイルの最小サイズと最大サイズ
 +
 自動リバランシングの対象となるファイルは、保存されているブロックに基づいて選択されます。デフォルトでは、リバランシング対象となる最小ファイル サイズは100MB（後述のmin-file-sizeパラメータを使用すると20MBまで低く設定可能）、最大ファイル サイズは100GBです。
 
-* スナップショット内のファイル
+* Snapshot 内のファイル
 +
-現在どのスナップショットにも存在しないファイルのみを移動対象として考慮するようにFlexGroupのリバランシングを設定できます。リバランシングが開始されると、リバランシング処理中にいつでもSnapshot処理がスケジュールされているかどうかが通知に表示されます。
+FlexGroupリバランスを設定すると、現在どのスナップショットにも存在しないファイルのみを移動対象とすることができます。リバランスが開始されると、リバランス処理中にスナップショット処理がスケジュールされている場合、通知が表示されます。
 
 +
-ファイルが移動中で、デスティネーションでフレーミング中の場合、スナップショットは制限されます。ファイルのリバランシングの実行中は、Snapshotのリストア処理は実行できません。
+ファイルが移動中で、かつ宛先でフレーミング処理中の場合、Snapshotは制限されます。ファイルの再バランス処理が進行中の場合、Snapshotリストア処理は許可されません。
 
 +
-ONTAP 9.11.1以前のバージョンではマルチパートinodeがサポートされないため、オプションを有効にしたあとに作成されたSnapshotは、 `granular-data`ONTAP 9.11.1以前のバージョンを実行するシステムにレプリケートできません。
+ `granular-data`オプションを有効にした後に作成されたSnapshotは、ONTAP 9.11.1以前のバージョンではマルチパートinodeがサポートされていないため、ONTAP 9.11.1以前のバージョンを実行しているシステムにレプリケートできません。
 
 * SnapMirrorの処理
 +
-FlexGroupのリバランシングは、スケジュールされたSnapMirror処理間で実行する必要があります。SnapMirror処理を開始する前にファイルを再配置する場合、そのファイルの移動が24分以内に完了しないと、SnapMirror処理が失敗することがありますSnapMirror。SnapMirror転送の開始後に開始される新しいファイルの再配置は失敗しません。
+FlexGroupリバランシングは、スケジュールされたSnapMirror処理と次のSnapMirror処理の間に行う必要があります。SnapMirror処理の開始前にファイルを再配置し、そのファイルの移動がSnapMirror再試行期間（24分）内に完了しないと、SnapMirror処理が失敗する場合があります。SnapMirror転送の開始後に開始されたファイルの再配置は失敗しません。
 
-* ファイルベースの圧縮によるストレージ効率化
+* ファイルベースの圧縮によるStorage Efficiency
 +
-ファイルベースの圧縮によるStorage Efficiencyでは、デスティネーションに移動する前にファイルが解凍されるため、圧縮による削減効果は失われます。圧縮による削減効果は、リバランシング後に手動で開始したバックグラウンドスキャナをFlexGroupボリュームで実行したあとに回復します。ただし、いずれかのボリュームのSnapshotに関連付けられているファイルがある場合、そのファイルの圧縮は無視されます。
+ファイルベースの圧縮によるストレージ効率では、ファイルは宛先に移動される前に解凍されるため、圧縮による節約は失われます。圧縮による節約は、リバランス後にFlexGroupボリューム上で手動で開始されたバックグラウンドスキャナが実行されると回復します。ただし、いずれかのボリュームのSnapshotに関連付けられているファイルは、圧縮時に無視されます。
 
 * 重複排除
 +
-重複排除されたファイルを移動すると、FlexGroupボリュームの全体的な使用量が増加する可能性があります。ファイルのリバランシングでは、一意のブロックのみがデスティネーションに移動され、ソースの容量が解放されます。共有ブロックはソースに保持され、デスティネーションにコピーされます。これにより、ほぼフルのソース コンスティチュエントの使用済み容量を削減するという目標は達成できますが、新しいデスティネーションに共有ブロックがコピーされるため、FlexGroupボリュームの全体的な使用量が増加する可能性もあります。これは、スナップショットの一部であるファイルが移動された場合にも可能です。Snapshotスケジュールが再利用され、Snapshot内のファイルのコピーがなくなるまで、スペース削減は完全に認識されません。
+重複排除されたファイルを移動すると、FlexGroupボリューム全体の使用量が増加する可能性があります。ファイルの再バランス調整では、一意のブロックのみが移動先に移動され、ソース上のその容量が解放されます。共有ブロックはソースに残り、移動先にコピーされます。これにより、ほぼ満杯になったソース構成体の使用容量を削減するという目標は達成されますが、新しい移動先に共有ブロックのコピーが存在するため、FlexGroupボリューム全体の使用量が増加する可能性があります。これは、Snapshotに含まれるファイルを移動した場合にも発生する可能性があります。Snapshotスケジュールがリサイクルされ、Snapshot内のファイルのコピーがなくなるまで、スペースの節約効果は完全には認識されません。
 
 * FlexCloneボリューム
 +
@@ -75,50 +75,50 @@ FlexGroupリバランシング処理中にファイルが移動されると、�
 
 * 自律型ランサムウェア対策
 +
-ONTAP 9 .13.1以降では、システムの停止を伴うリバランシング処理と無停止のリバランシング処理で自律型ランサムウェア対策がサポートされます。
+ONTAP 9.13.1以降では、システムの停止を伴う / 伴わないリバランシング処理中の自律型ランサムウェア対策がサポートされます。
 
-* オブジェクトストアボリューム
+* オブジェクト ストア ボリューム
 +
-ボリューム容量のリバランシングは、S3バケットなどのオブジェクトストアボリュームではサポートされていません。
+ボリューム容量のリバランシングは、S3バケットなどのオブジェクト ストア ボリュームではサポートされません。
 
 
 
 
 
-== FlexGroupリバランシングを有効にする
+== FlexGroupリバランシングの有効化
 
-ONTAP 9 12.1以降では、無停止のFlexGroupボリュームの自動リバランシングを有効にして、FlexGroupコンスティチュエント間でファイルを再配分できます。
+ONTAP 9.12.1以降では、FlexGroupボリュームの自動無停止リバランシングを有効にして、FlexGroupコンスティチュエント間でファイルを再分配できます。
 
-ONTAP 9 .13.1以降では、単一のFlexGroupリバランシング処理を将来の日時に開始するようにスケジュール設定できます。
+ONTAP 9.13.1以降では、特定の日時に単一のFlexGroupのリバランシング処理を開始するようにスケジュールを設定できます。
 
 .開始する前に
-FlexGroupのリバランシングを有効にする前に、FlexGroupボリュームでオプションを有効にしておく必要があります `granular-data`。有効にするには、次のいずれかの方法を使用します。
+FlexGroupリバランスを有効にする前に、FlexGroupボリュームで `granular-data`オプションを有効にする必要があります。次のいずれかの方法を使用して有効にできます：
 
-* コマンドを使用してFlexGroupボリュームを作成する場合 `volume create`
-* コマンドを使用して既存のFlexGroupボリュームを変更して設定を有効にする `volume modify`
-* コマンドを使用してFlexGroupのリバランシングが開始されたときに自動的に設定する `volume rebalance`
+* FlexGroupボリュームを `volume create`コマンドを使用して作成すると
+*  `volume modify`コマンドを使用して既存のFlexGroupボリュームを変更し、設定を有効にする
+*  `volume rebalance`コマンドを使用してFlexGroupリバランスが開始されると自動的に設定されます
 +
 
-NOTE: ONTAP 9 .16.1以降を使用していて、ONTAP CLIのオプションまたはSystem Managerを使用して有効にしている `granular-data advanced`場合はlink:enable-adv-capacity-flexgroup-task.html["FlexGroupの高度な容量分散"]、FlexGroupのリバランシングも有効になります。
+NOTE: ONTAP 9.16.1 以降を使用しており、link:enable-adv-capacity-flexgroup-task.html["FlexGroupの高度な容量バランス調整"]が ONTAP CLI の `granular-data advanced`オプションまたは System Manager を使用して有効になっている場合は、FlexGroupリバランシングも有効になります。
 
 
 
 .手順
-FlexGroupのリバランシングは、ONTAPシステムマネージャまたはONTAP CLIを使用して管理できます。
+FlexGroupリバランシングは、ONTAP System ManagerまたはONTAP CLIを使用して管理できます。
 
 [role="tabbed-block"]
 ====
 .System Manager
 --
-. [ストレージ]>[ボリューム]に移動し、再バランスするFlexGroup ボリュームを探します。
-. を選択 image:icon_dropdown_arrow.gif["ドロップダウンアイコン"] してボリュームの詳細を表示します。
-. FlexGroup Balance Status *で* Rebalance *を選択します。
+. *ストレージ > ボリューム* に移動し、再バランス調整するFlexGroupボリュームを見つけます。
+. image:icon_dropdown_arrow.gif["ドロップダウンアイコン"]を選択してボリュームの詳細を表示します。
+. *FlexGroupバランスステータス*で*リバランス*を選択します。
 +
 
-NOTE: 「*リバランス*」オプションは、FlexGroupステータスが残高不足の場合にのみ使用できます。
+NOTE: *再バランス*オプションは、FlexGroupステータスがバランスが崩れている場合にのみ使用できます。
 
-. 「* Rebalance Volume *」（ボリュームの再バランス）ウィンドウで、必要に応じてデフォルト設定を変更します。
-. リバランシング処理をスケジュールするには、*[あとでリバランシング]*を選択して日時を入力します。
+. * Rebalance Volume *ウィンドウで、必要に応じてデフォルト設定を変更します。
+. 再バランス操作をスケジュールするには、* Rebalance Later *を選択し、日時を入力します。
 
 
 --
@@ -131,28 +131,28 @@ NOTE: 「*リバランス*」オプションは、FlexGroupステータスが残
 volume rebalance start -vserver <SVM name> -volume <volume name>
 ----
 +
-必要に応じて、次のオプションを指定できます。
+必要に応じて次のオプションを指定できます。
 
 +
-[[-max-runtime]<time interval>最大実行時間
+[[-max-runtime] <time interval>] 最大実行時間
 
 +
-[-max-threshold <percent>]コンスティチュエントあたりの最大不均衡しきい値
+[-max-threshold <percent>] コンスティチュエントごとの最大不均衡しきい値
 
 +
-[-min-threshold <percent>]コンスティチュエントごとの最小不均衡しきい値
+[-min-threshold <percent>] 構成要素ごとの最小不均衡しきい値
 
 +
-[-max-file-moves <integer>]コンスティチュエントあたりの同時ファイル移動の最大数
+[-max-file-moves <integer>] 構成要素あたりの最大同時ファイル移動数
 
 +
-[-min-file-size｛<integer>[KB|MB|GB|TB|PB]｝]最小ファイルサイズ
+[-min-file-size {<integer>[KB|MB|GB|TB|PB]}] 最小ファイルサイズ
 
 +
-[-start-time <mm/dd/yyyy-00:00:00>]再バランスの開始日時をスケジュールします
+[-start-time <mm/dd/yyyy-00:00:00>] リバランスの開始日時をスケジュール
 
 +
-[-exclude-snapshots｛true|false｝] Snapshotでスタックしているファイルを除外する
+[-exclude-snapshots {true|false}] Snapshotに残っているファイルを除外する
 
 +
 例：
@@ -168,22 +168,22 @@ volume rebalance start -vserver vs0 -volume fg1
 ====
 
 
-== FlexGroupリバランシングの設定を変更します。
+== FlexGroupリバランシング設定の変更
 
-FlexGroupのリバランシング構成を変更して、不均衡しきい値、同時ファイル数移動の最小ファイルサイズ、最大ランタイムを更新し、スナップショットを含めるか除外することができます。FlexGroupリバランシングスケジュールを変更するオプションは、ONTAP 9.13.1以降で使用できます。
+FlexGroupリバランス設定を変更することで、不均衡しきい値、同時ファイル移動数、最小ファイルサイズ、最大実行時間を更新したり、スナップショットを含めるか除外するかを選択できます。FlexGroupリバランススケジュールを変更するオプションは ONTAP 9.13.1 以降で利用可能です。
 
 [role="tabbed-block"]
 ====
 .System Manager
 --
-. [ストレージ]>[ボリューム]に移動し、再バランスするFlexGroup ボリュームを探します。
-. を選択 image:icon_dropdown_arrow.gif["ドロップダウンアイコン"] してボリュームの詳細を表示します。
-. FlexGroup Balance Status *で* Rebalance *を選択します。
+. *ストレージ > ボリューム* に移動し、再バランス調整するFlexGroupボリュームを見つけます。
+. image:icon_dropdown_arrow.gif["ドロップダウンアイコン"]を選択してボリュームの詳細を表示します。
+. *FlexGroupバランスステータス*で*リバランス*を選択します。
 +
 
-NOTE: 「*リバランス*」オプションは、FlexGroupステータスが残高不足の場合にのみ使用できます。
+NOTE: *再バランス*オプションは、FlexGroupステータスがバランスが崩れている場合にのみ使用できます。
 
-. 「* Rebalance Volume *」（ボリュームの再バランス）ウィンドウで、必要に応じてデフォルト設定を変更します。
+. * Rebalance Volume *ウィンドウで、必要に応じてデフォルト設定を変更します。
 
 
 --
@@ -199,25 +199,25 @@ volume rebalance modify -vserver <SVM name> -volume <volume name>
 次のオプションを1つ以上指定できます。
 
 +
-[[-max-runtime]<time interval>最大実行時間
+[[-max-runtime] <time interval>] 最大実行時間
 
 +
-[-max-threshold <percent>]コンスティチュエントあたりの最大不均衡しきい値
+[-max-threshold <percent>] コンスティチュエントごとの最大不均衡しきい値
 
 +
-[-min-threshold <percent>]コンスティチュエントごとの最小不均衡しきい値
+[-min-threshold <percent>] 構成要素ごとの最小不均衡しきい値
 
 +
-[-max-file-moves <integer>]コンスティチュエントあたりの同時ファイル移動の最大数
+[-max-file-moves <integer>] 構成要素あたりの最大同時ファイル移動数
 
 +
-[-min-file-size｛<integer>[KB|MB|GB|TB|PB]｝]最小ファイルサイズ
+[-min-file-size {<integer>[KB|MB|GB|TB|PB]}] 最小ファイルサイズ
 
 +
-[-start-time <mm/dd/yyyy-00:00:00>]再バランスの開始日時をスケジュールします
+[-start-time <mm/dd/yyyy-00:00:00>] リバランスの開始日時をスケジュール
 
 +
-[-exclude-snapshots｛true|false｝] Snapshotでスタックしているファイルを除外する
+[-exclude-snapshots {true|false}] Snapshotに残っているファイルを除外する
 
 
 
@@ -227,21 +227,21 @@ volume rebalance modify -vserver <SVM name> -volume <volume name>
 
 == FlexGroupリバランシングの停止
 
-FlexGroupのリバランシングを有効またはスケジュール設定したあとは、いつでも停止できます。
+FlexGroupリバランシングは、有効にしたあとやスケジュールを設定したあとに、いつでも停止できます。
 
 [role="tabbed-block"]
 ====
 .System Manager
 --
-. [ストレージ]>[ボリューム]の順に選択し、FlexGroup ボリュームを探します。
-. を選択 image:icon_dropdown_arrow.gif["ドロップダウンアイコン"] してボリュームの詳細を表示します。
-. [Stop Rebalance]*を選択します。
+. *ストレージ > ボリューム* に移動して FlexGroup ボリュームを見つけます。
+. image:icon_dropdown_arrow.gif["ドロップダウンアイコン"]を選択してボリュームの詳細を表示します。
+. *Stop Rebalance*を選択します。
 
 
 --
 .CLI
 --
-. FlexGroup のリバランシングを停止します。
+. FlexGroupリバランシングを停止します。
 +
 [source, cli]
 ----
@@ -253,31 +253,31 @@ volume rebalance stop -vserver <SVM name> -volume <volume name>
 ====
 
 
-== FlexGroupリバランシングステータスの表示
+== FlexGroupリバランシングのステータスの表示
 
-FlexGroupリバランシング処理のステータス、FlexGroupリバランシングの設定、リバランシング処理時間、およびリバランシングインスタンスの詳細を表示できます。
+FlexGroupリバランシング処理のステータス、設定、処理時間、およびリバランシング インスタンスの詳細を表示できます。
 
 [role="tabbed-block"]
 ====
 .System Manager
 --
-. [ストレージ]>[ボリューム]の順に選択し、FlexGroup ボリュームを探します。
-. FlexGroupの詳細を表示する場合に選択し image:icon_dropdown_arrow.gif["ドロップダウンアイコン"] ます。
-. * FlexGroup Balance Status *は、詳細ペインの下部に表示されます。
-. 前回のリバランシング処理に関する情報を表示するには、*[前回のボリュームのリバランシングステータス]*を選択します。
+. *ストレージ > ボリューム* に移動して FlexGroup ボリュームを見つけます。
+. image:icon_dropdown_arrow.gif["ドロップダウンアイコン"]を選択すると、FlexGroupの詳細が表示されます。
+. *FlexGroupバランスステータス*は、詳細ペインの下部近くに表示されます。
+. 最後の再バランス操作に関する情報を表示するには、*Last Volume Rebalance Status* を選択します。
 
 
 --
 .CLI
 --
-. FlexGroup のリバランシング処理のステータスを表示します。
+. FlexGroupリバランシング処理のステータスを表示します。
 +
 [source, cli]
 ----
 volume rebalance show
 ----
 +
-リバランシング状態の例：
+リバランシング ステータスの例：
 
 +
 [listing]
@@ -290,7 +290,7 @@ Volume       State                  Total      Used     Used       Size     %
 fg1          idle                     4GB   115.3MB         -       8KB    0%
 ----
 +
-リバランシングの設定の詳細例：
+リバランシング設定の詳細の例：
 
 +
 [listing]

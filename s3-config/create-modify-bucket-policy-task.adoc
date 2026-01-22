@@ -2,7 +2,7 @@
 permalink: s3-config/create-modify-bucket-policy-task.html 
 sidebar: sidebar 
 keywords: modify, bucket, policy 
-summary: デフォルトのバケットポリシーにアクセスルールを追加できます。アクセス制御の範囲は包含バケットであるため、バケットが1つの場合に最も適しています。 
+summary: デフォルトのバケット ポリシーにアクセス ルールを追加できます。デフォルト ポリシーのアクセス制御対象は対応するバケットであるため、バケットが1つだけの場合はデフォルト ポリシーが最も適しています。 
 ---
 = デフォルトのONTAP S3バケットポリシーにアクセスルールを追加する
 :allow-uri-read: 
@@ -11,49 +11,49 @@ summary: デフォルトのバケットポリシーにアクセスルールを�
 
 
 [role="lead"]
-デフォルトのバケットポリシーにアクセスルールを追加できます。アクセス制御の範囲は包含バケットであるため、バケットが1つの場合に最も適しています。
+デフォルトのバケット ポリシーにアクセス ルールを追加できます。デフォルト ポリシーのアクセス制御対象は対応するバケットであるため、バケットが1つだけの場合はデフォルト ポリシーが最も適しています。
 
 .開始する前に
-S3サーバとバケットを含むS3対応Storage VMがすでに存在している必要があります。
+S3サーバとバケットを含むS3対応のStorage VMがすでに存在している必要があります。
 
 権限を付与するには、事前にユーザまたはグループを作成しておく必要があります。
 
-.タスクの内容
-新しいユーザとグループの新しいステートメントを追加したり、既存のステートメントの属性を変更したりできます。の詳細については `vserver object-store-server bucket policy`、をlink:https://docs.netapp.com/us-en/ontap-cli/search.html?q=vserver+object-store-server+bucket+policy["ONTAPコマンド リファレンス"^]参照してください。
+.タスク概要
+新しいユーザーやグループに新しいステートメントを追加したり、既存のステートメントの属性を変更したりできます。 `vserver object-store-server bucket policy`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/search.html?q=vserver+object-store-server+bucket+policy["ONTAPコマンド リファレンス"^]をご覧ください。
 
-ユーザ権限とグループ権限は、バケットの作成時に付与することも、あとで必要に応じて付与することもできます。バケット容量やQoSポリシーグループの割り当てを変更することもできます。
+ユーザとグループの権限は、バケットの作成時、または必要に応じてあとから付与することができます。バケットの容量やQoSポリシー グループの割り当ても変更できます。
 
-ONTAP 9 .9.1以降では、ONTAP S3サーバでAWSクライアントオブジェクトのタグ付け機能をサポートする場合は、バケットポリシーまたはグループポリシーを使用して、および `PutObjectTagging`の `DeleteObjectTagging`操作を `GetObjectTagging`許可する必要があります。
+ONTAP 9.9.1 以降、ONTAP S3 サーバで AWS クライアントオブジェクトのタグ付け機能をサポートする予定の場合は、 `GetObjectTagging`、 `PutObjectTagging`、および `DeleteObjectTagging`のアクションをバケットまたはグループポリシーを使用して許可する必要があります。
 
-実行する手順は、使用するインターフェイス（System ManagerまたはCLI）によって異なります。
+実行する手順は、System ManagerとCLIのどちらのインターフェイスを使用するかによって異なります。
 
 [role="tabbed-block"]
 ====
 .System Manager
 --
 .手順
-. バケットを編集します。 * Storage > Bucket* をクリックし、目的のバケットをクリックして * Edit * をクリックします。権限を追加または変更するときは、次のパラメータを指定できます。
+. バケットを編集するには、「*ストレージ > バケット*」をクリックし、対象のバケットをクリックして「*編集*」をクリックします。権限を追加または変更する際には、以下のパラメータを指定できます：
 +
-** * Principal *：アクセス権を付与するユーザまたはグループ。
-** *影響*：ユーザまたはグループへのアクセスを許可または拒否します。
-** * Actions *：特定のユーザまたはグループに対してバケットで許可されているアクション。
-** * Resources *：アクセスが許可または拒否されているバケット内のオブジェクトのパスと名前。
+** *プリンシパル*：アクセスが許可されるユーザーまたはグループ。
+** *効果*：ユーザーまたはグループへのアクセスを許可または拒否します。
+** *アクション*：特定のユーザーまたはグループに対してバケット内で許可されるアクション。
+** *リソース*：アクセスが許可または拒否されるバケット内のオブジェクトのパスと名前。
 +
-デフォルトの * _bucketname_* および * _bketname / * _ * は、バケット内のすべてのオブジェクトへのアクセスを許可します。また、単一のオブジェクトへのアクセスを許可することもできます。たとえば、 *_bketname/_*_readme.txt * と指定します。
+デフォルトの *_bucketname_* と *_bucketname/*_* は、バケット内のすべてのオブジェクトへのアクセスを許可します。また、単一のオブジェクトへのアクセスを許可することもできます。たとえば、*_bucketname/_*_readme.txt* などです。
 
-** * Conditions *（オプション）：アクセス試行時に評価される式。たとえば、アクセスを許可または拒否するIPアドレスのリストを指定できます。
-
-
+** *条件*（オプション）：アクセス試行時に評価される条件式。例えば、アクセスを許可または拒否するIPアドレスのリストを指定できます。
 
 
 
-NOTE: ONTAP 9.14.1以降では、* Resources *フィールドでバケットポリシーの変数を指定できます。これらの変数はプレースホルダであり、ポリシーの評価時にコンテキスト値に置き換えられます。たとえば、がポリシーの変数として指定されている場合 `${aws:username}`、この変数は要求コンテキストのユーザ名に置き換えられ、そのユーザに対して設定されたポリシーアクションを実行できます。
+
+
+NOTE: ONTAP 9.14.1以降では、*Resources*フィールドでバケットポリシーの変数を指定できます。これらの変数はプレースホルダであり、ポリシーの評価時にコンテキスト値に置き換えられます。例えば、 `${aws:username}`がポリシーの変数として指定されている場合、この変数はリクエストコンテキストのユーザー名に置き換えられ、そのユーザーに対して設定されたポリシーアクションを実行できます。
 
 --
 .CLI
 --
 .手順
-. バケットポリシーにステートメントを追加します。
+. バケット ポリシーにステートメントを追加します。
 +
 `vserver object-store-server bucket policy add-statement -vserver _svm_name_ -bucket _bucket_name_ -effect {allow|deny} -action _object_store_actions_ -principal _user_and_group_names_ -resource _object_store_resources_ [-sid text] [-index integer]`
 
@@ -75,19 +75,19 @@ NOTE: ONTAP 9.14.1以降では、* Resources *フィールドでバケットポ�
  a| 
 `-action`
  a| 
-すべてのアクションを指定するか、または次の1つ以上のリストを指定できます `*`。および `ListMultipartUploadParts`。 `GetObject, PutObject, DeleteObject, ListBucket, GetBucketAcl,GetObjectAcl, ListBucketMultipartUploads,`
+ `*`すべてのアクションを意味するように指定することも、次の 1 つ以上のリストを指定することもできます： `GetObject, PutObject, DeleteObject, ListBucket, GetBucketAcl,GetObjectAcl, ListBucketMultipartUploads,`および `ListMultipartUploadParts`。
 
 
 
  a| 
 `-principal`
  a| 
-S3ユーザまたはグループのリスト。
+S3ユーザまたはグループのリストを指定します。
 
-** 最大10個のユーザまたはグループを指定できます。
-** S3グループを指定する場合は、次の形式で指定する必要があります。 `group/group_name.`
-** `*`には、パブリックアクセス（アクセスキーとシークレットキーを使用しないアクセス）を指定できます。
-** プリンシパルを指定しない場合、Storage VM内のすべてのS3ユーザにアクセスが許可されます。
+** 指定できるユーザまたはグループの数は最大10個までです。
+** S3グループを指定する場合は、次の形式にする必要があります `group/group_name.`
+** `*`を指定すると、パブリックアクセス（アクセスキーとシークレットキーなしでのアクセス）を意味します。
+** プリンシパルが指定されていない場合は、ストレージVM内のすべてのS3ユーザーにアクセスが許可されます。
 
 
 
@@ -95,28 +95,28 @@ S3ユーザまたはグループのリスト。
  a| 
 `-resource`
  a| 
-バケットとバケットに含まれるオブジェクト。ワイルドカード文字とを `?`使用 `*`して、リソースを指定するための正規表現を作成できます。リソースについては、ポリシーで変数を指定できます。これらのポリシー変数はプレースホルダであり、ポリシーの評価時にコンテキストに応じた値に置き換えられます。
+バケットとそれに含まれるオブジェクト。ワイルドカード文字 `*`と `?`を使用して、リソースを指定するための正規表現を作成できます。リソースに対して、ポリシー内で変数を指定できます。これらのポリシー変数はプレースホルダであり、ポリシーが評価される際にコンテキスト値に置き換えられます。
 
 |===
 +
-オプションを使用して、テキスト文字列をコメントとして指定することもできます `-sid`。
+ `-sid`オプションを使用して、コメントとしてテキスト文字列をオプションで指定できます。
 
 
 
 .例
-次の例では、Storage VM svm1.example.comとbucket1に対するオブジェクトストアサーババケットポリシーのステートメントを作成し、オブジェクトストアサーバユーザuser1にreadmeフォルダへのアクセスを許可するように指定しています。
+次の例では、Storage VM svm1.example.comのbucket1に対するオブジェクト ストア サーバ バケット ポリシーのステートメントを作成し、オブジェクト ストア サーバ ユーザuser1にreadmeフォルダへのアクセスを許可するように指定しています。
 
 [listing]
 ----
 cluster1::> vserver object-store-server bucket policy statement create -vserver svm1.example.com -bucket bucket1 -effect allow -action GetObject,PutObject,DeleteObject,ListBucket -principal user1 -resource bucket1/readme/* -sid "fullAccessToReadmeForUser1"
 ----
-次の例では、Storage VM svm1.example.comとbucket1に対するオブジェクトストアサーババケットポリシーのステートメントを作成し、オブジェクトストアサーバグループgroup1にすべてのオブジェクトへのアクセスを許可するように指定しています。
+次の例では、Storage VM svm1.example.comのbucket1に対するオブジェクト ストア サーバ バケット ポリシーのステートメントを作成し、オブジェクト ストア サーバ グループgroup1にすべてのオブジェクトへのアクセスを許可するように指定しています。
 
 [listing]
 ----
 cluster1::> vserver object-store-server bucket policy statement create -vserver svm1.example.com -bucket bucket1 -effect allow -action GetObject,PutObject,DeleteObject,ListBucket -principal group/group1 -resource bucket1/* -sid "fullAccessForGroup1"
 ----
-ONTAP 9 .14.1以降では、バケットポリシーの変数を指定できます。次の例は、Storage VMとの `bucket1`サーババケットポリシーステートメントを作成し `svm1`、ポリシーリソースの変数としてを指定します `${aws:username}`。ポリシーが評価されると、ポリシー変数は要求コンテキストのユーザ名に置き換えられ、そのユーザに対して設定されたとおりにポリシーアクションを実行できます。たとえば、次のポリシーステートメントが評価されると `${aws:username}`、はS3処理を実行するユーザに置き換えられます。ユーザ `user1`が操作を実行すると、そのユーザにはAS `bucket1/user1/*`へのアクセスが許可され `bucket1`ます。
+ONTAP 9.14.1以降では、バケットポリシーに変数を指定できます。次の例では、ストレージVM `svm1`と `bucket1`のサーババケットポリシーステートメントを作成し、 `${aws:username}`をポリシーリソースの変数として指定します。ポリシーが評価されると、ポリシー変数はリクエストコンテキストのユーザー名に置き換えられ、そのユーザーに対して設定されたポリシーアクションを実行できます。たとえば、次のポリシーステートメントが評価されると、 `${aws:username}`はS3操作を実行するユーザーに置き換えられます。ユーザー `user1`が操作を実行すると、そのユーザーには `bucket1`として `bucket1/user1/*`へのアクセスが許可されます。
 
 [listing]
 ----

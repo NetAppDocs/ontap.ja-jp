@@ -2,9 +2,9 @@
 permalink: flexgroup/restore-snapvault-backup-task.html 
 sidebar: sidebar 
 keywords: restore, flexgroup, volume, snapvault, backup 
-summary: SnapVaultセカンダリボリューム内のSnapshotからFlexGroupボリュームのフルリストア処理を実行できます。FlexGroupボリュームは元のソースボリュームまたは新しいFlexGroupボリュームにリストアできます。 
+summary: SnapVaultのセカンダリ ボリューム内のスナップショットからFlexGroupボリュームのフルボリュームリストア処理を実行できます。FlexGroupボリュームは、元のソースボリュームまたは新しいFlexGroupボリュームのいずれかにリストアできます。 
 ---
-= SnapVaultバックアップからのONTAP FlexGroupボリュームのリストア
+= SnapVault バックアップから ONTAP FlexGroup ボリュームをリストアする
 :hardbreaks:
 :allow-uri-read: 
 :icons: font
@@ -12,27 +12,27 @@ summary: SnapVaultセカンダリボリューム内のSnapshotからFlexGroupボ
 
 
 [role="lead"]
-SnapVaultセカンダリボリューム内のSnapshotからFlexGroupボリュームのフルリストア処理を実行できます。FlexGroupボリュームは元のソースボリュームまたは新しいFlexGroupボリュームにリストアできます。
+SnapVaultのセカンダリ ボリューム内のスナップショットからFlexGroupボリュームのフルボリュームリストア処理を実行できます。FlexGroupボリュームは、元のソースボリュームまたは新しいFlexGroupボリュームのいずれかにリストアできます。
 
 .開始する前に
-FlexGroupのSnapVaultバックアップからリストアする場合は、一定の考慮事項に注意する必要があります。
+FlexGroupボリュームをSnapVaultバックアップからリストアする際は、いくつかの考慮事項について確認しておく必要があります。
 
-* SnapVaultバックアップからの部分Snapshotでサポートされるのはベースラインリストアのみです。デスティネーションボリュームのコンスティチュエントの数は、Snapshotの作成時にソースボリュームのコンスティチュエントの数と一致している必要があります。
-* リストア処理に失敗した場合、リストア処理が完了するまでは他の処理を実行できなくなります。リストア処理を再試行するか、パラメータを指定してリストア処理を実行します `cleanup`。
-* 1つのFlexGroupボリュームをソースボリュームにできるのは、1つのバックアップ関係またはリストア関係だけです。2つのSnapVault関係、2つのリストア関係、またはSnapVault関係とリストア関係のソースにすることはできませんFlexGroup。
-* SnapVaultのバックアップ処理とリストア処理を並行して実行することはできません。ベースラインリストア処理または増分リストア処理の実行中は、バックアップ処理を休止する必要があります。
-* 部分的なSnapshotのリストア処理は、デスティネーションFlexGroupボリュームから中止する必要があります。ソースボリュームから部分的なSnapshotのリストア処理を中止することはできません。
-* リストア処理を中止する場合は、前回のリストア処理と同じSnapshotを使用してリストア処理を再開する必要があります。
+* SnapVaultバックアップからの部分スナップショットでは、ベースライン リストアのみがサポートされます。デスティネーション ボリュームの構成要素の数は、Snapshotの作成時のソース ボリュームの構成要素の数と一致している必要があります。
+* 復元操作が失敗した場合、復元操作が完了するまで他の操作は実行できません。復元操作を再試行するか、 `cleanup` パラメータを指定して復元操作を実行してください。
+* FlexGroupボリュームをソース ボリュームにできるのは、1つのバックアップ関係またはリストア関係だけです。2つのSnapVault関係、2つのリストア関係、またはSnapVault関係とリストア関係のソースにすることはできません。
+* SnapVaultのバックアップ処理とリストア処理を同時に実行することはできません。ベースライン リストア処理または増分リストア処理が実行中の間は、バックアップ処理を休止してください。
+* デスティネーションFlexGroupボリュームからの部分Snapshotのリストア処理を中止する必要があります。ソース ボリュームからの部分Snapshotのリストア処理は中止できません。
+* 復元操作を中止した場合は、前回の復元操作に使用したのと同じSnapshotを使用して復元操作を再開する必要があります。
 
 
-.タスクの内容
-デスティネーションFlexGroupボリュームのアクティブなクォータルールは、リストアの実行前に非アクティブ化されます。
+.タスク概要
+デスティネーションFlexGroupボリュームのアクティブなクォータ ルールは、リストアの実行前に非アクティブ化されます。
 
-コマンドを使用すると、リストア処理の完了後にクォータルールを再アクティブ化できます `volume quota modify`。
+復元操作が完了したら、 `volume quota modify`コマンドを使用してクォータ ルールを再アクティブ化できます。
 
 .手順
-. Restore the FlexGroup Volume： `snapmirror restore -source-path _src_svm:src_flexgroup_ -destination-path _dest_svm:dest_flexgroup_ -snapshot _snapshot_name_`
-`snapshot_name`ソースボリュームからデスティネーションボリュームにリストアするSnapshotです。Snapshotを指定しない場合、デスティネーションボリュームは最新のSnapshotからリストアされます。
+. FlexGroupボリュームを復元： `snapmirror restore -source-path _src_svm:src_flexgroup_ -destination-path _dest_svm:dest_flexgroup_ -snapshot _snapshot_name_`
+`snapshot_name`ソース ボリュームからデスティネーション ボリュームに復元するSnapshotです。Snapshotを指定しない場合は、デスティネーション ボリュームは最新のSnapshotから復元されます。
 +
 [listing]
 ----
@@ -43,5 +43,5 @@ Do you want to continue? {y|n}: y
 
 
 .関連情報
-* link:https://docs.netapp.com/us-en/ontap-cli/snapmirror-restore.html["スナップミラー復元"^]
+* link:https://docs.netapp.com/us-en/ontap-cli/snapmirror-restore.html["snapmirror restore"^]
 

@@ -2,7 +2,7 @@
 permalink: smb-admin/modify-branchcache-config-task.html 
 sidebar: sidebar 
 keywords: modify, configuration, branchcache, service, svm, store, directory, path, hash, maximum, size, operating, mode, version, modify branchcache configurations 
-summary: SVM上のBranchCacheサービスの設定では、ハッシュストアディレクトリのパス、最大サイズ、動作モード、サポートするBranchCacheのバージョンなどの設定を変更できます。ハッシュストアを含むボリュームのサイズを拡張することもできます。 
+summary: SVM上のBranchCacheサービスの設定では、ハッシュ ストア ディレクトリのパス、最大サイズ、動作モード、サポートするBranchCachetのバージョンなどの設定を変更できます。また、ハッシュ ストアを含めるボリュームのサイズを拡張することもできます。 
 ---
 = ONTAP SMB共有のBranchCache構成を変更する
 :allow-uri-read: 
@@ -11,44 +11,44 @@ summary: SVM上のBranchCacheサービスの設定では、ハッシュストア
 
 
 [role="lead"]
-SVM上のBranchCacheサービスの設定では、ハッシュストアディレクトリのパス、最大サイズ、動作モード、サポートするBranchCacheのバージョンなどの設定を変更できます。ハッシュストアを含むボリュームのサイズを拡張することもできます。
+SVM上のBranchCacheサービスの設定では、ハッシュ ストア ディレクトリのパス、最大サイズ、動作モード、サポートするBranchCachetのバージョンなどの設定を変更できます。また、ハッシュ ストアを含めるボリュームのサイズを拡張することもできます。
 
 .手順
-. 適切な操作を実行します。
+. 適切な処理を実行します。
 +
 |===
 | 状況 | 入力するコマンド 
 
 
  a| 
-ハッシュストアディレクトリのサイズ変更
+ハッシュ ストア ディレクトリのサイズ変更
  a| 
 `vserver cifs branchcache modify -vserver vserver_name -hash-store-max-size {integer[KB|MB|GB|TB|PB]}`
 
 
 
  a| 
-ハッシュストアを含むボリュームのサイズを拡張する
+ハッシュ ストアを含むボリューム サイズの拡張
  a| 
-`volume size -vserver vserver_name -volume volume_name -new-size new_size[k|m|g|t]`ハッシュストアを含むボリュームがいっぱいになった場合は、ボリュームのサイズを拡張できることがあります。新しいボリュームサイズは、数字と単位で指定できます。
+`volume size -vserver vserver_name -volume volume_name -new-size new_size[k|m|g|t]`ハッシュストアを含むボリュームがいっぱいになった場合、ボリュームのサイズを増やすことができる場合があります。新しいボリュームサイズは、数値と単位指定で指定できます。
 
-詳細はこちらlink:../volumes/commands-manage-flexvol-volumes-reference.html["FlexVol ボリュームの管理"]
+link:../volumes/commands-manage-flexvol-volumes-reference.html["FlexVolボリュームの管理"]の詳細はこちら
 
 
 
  a| 
-ハッシュストアディレクトリのパス変更
+ハッシュ ストア ディレクトリのパス変更
  a| 
-`vserver cifs branchcache modify -vserver vserver_name -hash-store-path path -flush-hashes {true|false}`SVMがSVMディザスタリカバリソースの場合、ハッシュパスをルートボリュームに配置することはできません。これは、ルートボリュームがディザスタリカバリデスティネーションにレプリケートされないためです。
+`vserver cifs branchcache modify -vserver vserver_name -hash-store-path path -flush-hashes {true|false}` SVM が SVM ディザスタリカバリソースである場合、ハッシュパスをルートボリューム上に配置することはできません。これは、ルートボリュームがディザスタリカバリ先にレプリケートされないためです。
 
-BranchCacheハッシュパスには、空白とファイル名の有効な文字を含めることができます。
+BranchCacheハッシュ パスには、ファイル名に使用できる文字と空白を含めることができます。
 
-ハッシュパスを変更する場合、 `-flush-hashes`ONTAPで元のハッシュストアの場所からハッシュをフラッシュするかどうかを指定するには、が必須パラメータです。パラメータには次の値を設定でき `-flush-hashes`ます。
+ハッシュパスを変更する場合、 `-flush-hashes`は必須パラメータであり、ONTAPが元のハッシュストアの場所からハッシュをフラッシュするかどうかを指定します。 `-flush-hashes`パラメータには以下の値を設定できます：
 
-** を指定する `true`と、ONTAPは元の場所にあるハッシュを削除し、BranchCache対応クライアントが新しい要求を行うたびに新しい場所に新しいハッシュを作成します。
-** を指定した場合 `false`、ハッシュはフラッシュされません。
+**  `true`を指定すると、ONTAPは元の場所にあるハッシュを削除し、BranchCache対応クライアントから新しい要求があったときに新しい場所に新しいハッシュを作成します。
+**  `false`を指定した場合、ハッシュはフラッシュされません。
 +
-この場合、ハッシュストアパスを元の場所に戻すことで、既存のハッシュをあとから再利用できます。
+この場合、後で、ハッシュ ストア ディレクトリのパスを元の場所に戻して、既存のハッシュを再利用することができます。
 
 
 
@@ -59,10 +59,10 @@ BranchCacheハッシュパスには、空白とファイル名の有効な文字
  a| 
 `vserver cifs branchcache modify -vserver vserver_name -operating-mode {per-share|all-shares|disable}`
 
-動作モードを変更する場合は、次の点に注意してください。
+動作モードを変更する場合は、以下の点に注意してください。
 
-** ONTAPでは、SMBセッションのセットアップ時に、BranchCacheによる共有のサポートが通知されます。
-** BranchCacheを有効にしたときにすでにセッションを確立していたクライアントは、キャッシュされたコンテンツをこの共有で使用するために、いったん切断してから再接続する必要があります。
+** SMBセッションのセットアップ時に、ONTAPによって、BranchCacheの共有のサポートが通知されます。
+** BranchCacheが有効化されたときにすでにセッションを確立していたクライアントは、キャッシュされていた内容をこの共有で使用するために、接続をいったん解除したあとに再度接続する必要があります。
 
 
 
@@ -73,5 +73,5 @@ BranchCacheハッシュパスには、空白とファイル名の有効な文字
 `vserver cifs branchcache modify -vserver vserver_name -versions {v1-enable|v2-enable|enable-all}`
 
 |===
-. コマンドを使用して、設定の変更を確認します `vserver cifs branchcache show`。
+.  `vserver cifs branchcache show`コマンドを使用して構成の変更を確認します。
 

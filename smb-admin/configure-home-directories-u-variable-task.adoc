@@ -2,7 +2,7 @@
 permalink: smb-admin/configure-home-directories-u-variable-task.html 
 sidebar: sidebar 
 keywords: 'create, home, directory, configuration, designate, share, name, variable, user, windows, dynamic, configure, configure home directories using the %u variable' 
-summary: 'ホームディレクトリ設定を作成する際、 %w 変数を使用して共有名を指定し、 %u 変数を使用してホームディレクトリ共有の相対パスを指定することができます。これにより、ユーザは、ホームディレクトリの実際の名前やパスを意識することなく、Windowsユーザ名を使用して動的に作成された共有を使用してホーム共有に接続できます。' 
+summary: '%w 変数を使用して共有名を指定し、%u 変数を使用してホームディレクトリ共有への相対パスを指定するホームディレクトリ設定を作成できます。ユーザーは、ホームディレクトリの実際の名前やパスを意識することなく、Windows ユーザー名を使用して動的に作成された共有に接続できます。' 
 ---
 = %u変数を使用してONTAP SMBホームディレクトリを構成する
 :allow-uri-read: 
@@ -11,86 +11,86 @@ summary: 'ホームディレクトリ設定を作成する際、 %w 変数を使
 
 
 [role="lead"]
-ホームディレクトリ設定を作成し、変数を使用して共有名を指定し、変数を使用して `%u`ホームディレクトリ共有の相対パスを指定することができます `%w`。これにより、ユーザは、ホームディレクトリの実際の名前やパスを意識することなく、Windowsユーザ名を使用して動的に作成された共有を使用してホーム共有に接続できます。
+ `%w`変数を使用して共有名を指定するホームディレクトリ設定を作成できますが、 `%u`変数を使用してホームディレクトリ共有への相対パスを指定します。これにより、ユーザーはホームディレクトリの実際の名前やパスを意識することなく、Windowsユーザー名を使用して動的に作成された共有を使用してホーム共有に接続できます。
 
 .手順
-. ユーザのホームディレクトリを含むqtreeを作成します。 `volume qtree create -vserver vserver_name -qtree-path qtree_path`
-. qtreeで正しいセキュリティ形式が使用されていることを確認します。 `volume qtree show`
-. 目的のセキュリティ形式がqtreeで使用されていない場合は、コマンドを使用してセキュリティ形式を変更し `volume qtree security`ます。
-. ホームディレクトリ共有を追加します。 `+vserver cifs share create -vserver vserver -share-name %w -path %u -share-properties homedirectory ,...]+`
+. ユーザーのホーム ディレクトリを格納する qtree を作成します。 `volume qtree create -vserver vserver_name -qtree-path qtree_path`
+. qtreeが正しいセキュリティ スタイルを使用していることを確認します。 `volume qtree show`
+. qtreeが目的のセキュリティ スタイルを使用していない場合は、 `volume qtree security`コマンドを使用してセキュリティ スタイルを変更します。
+. ホームディレクトリ共有を追加します： `+vserver cifs share create -vserver vserver -share-name %w -path %u -share-properties homedirectory ,...]+`
 +
-`-vserver` `vserver`検索パスを追加するCIFS対応のStorage Virtual Machine（SVM）を指定します。
+`-vserver` `vserver`検索パスを追加する CIFS 対応のストレージ仮想マシン（SVM）を指定します。
 
 +
-`-share-name` `%w`ホームディレクトリ共有名を指定します。ユーザがホームディレクトリに接続すると、ユーザごとに _windows_user_name の形式で共有名が動的に作成されます。
-
-+
-[NOTE]
-====
-オプションに変数 `-share-name`を使用することもでき `%u`ます。これにより、マッピングされたUNIXユーザ名を使用する相対共有パスが作成されます。
-
-====
-+
-`-path` `%u`ホームディレクトリの相対パスを指定します。ユーザがホームディレクトリに接続すると、ユーザごとに _mapped_UNIX_user_name の形式で共有名が動的に作成されます。
+`-share-name` `%w`ホームディレクトリの共有名を指定します。共有名は各ユーザーがホームディレクトリに接続するたびに動的に作成され、_windows_user_name_という形式になります。
 
 +
 [NOTE]
 ====
-このオプションの値には、静的要素も含めることができます。たとえば、 `eng/%u`です。
+ `-share-name`オプションに `%u`変数を使用することもできます。これにより、マッピングされた UNIX ユーザー名を使用した相対共有パスが作成されます。
 
 ====
 +
-`-share-properties` `+homedirectory\[,...\]+`その共有の共有プロパティを指定します。値を指定する必要があり `homedirectory`ます。追加の共有プロパティをカンマで区切って指定できます。
+`-path` `%u`ホームディレクトリへの相対パスを指定します。相対パスは各ユーザーがホームディレクトリに接続するたびに動的に作成され、_mapped_UNIX_user_name_という形式になります。
 
-. コマンドを使用して、共有が目的の設定になっていることを確認します `vserver cifs share show`。
-. ホームディレクトリ検索パスを追加します。 `vserver cifs home-directory search-path add -vserver vserver -path path`
-+
-`-vserver` `vserver`検索パスを追加するCIFS対応のSVMを指定します。
-
-+
-`-path` `path`検索パスの絶対ディレクトリパスを指定します。
-
-. コマンドを使用して、検索パスが追加されたことを確認します `vserver cifs home-directory search-path show`。
-. UNIXユーザが存在しない場合は、コマンドを使用してUNIXユーザを作成し `vserver services unix-user create`ます。
 +
 [NOTE]
 ====
-ユーザをマッピングする前に、Windowsユーザ名のマッピング先となるUNIXユーザ名が存在している必要があります。
+このオプションの値には静的要素も含めることができます。例えば、 `eng/%u`。
 
 ====
-. 次のコマンドを使用して、UNIXユーザへのWindowsユーザのネームマッピングを作成します。 `vserver name-mapping create -vserver vserver_name -direction win-unix -priority integer -pattern windows_user_name -replacement unix_user_name`
++
+`-share-properties` `+homedirectory\[,...\]+` はその共有の共有プロパティを指定します。 `homedirectory` 値を指定する必要があります。追加の共有プロパティは、カンマ区切りのリストで指定できます。
+
+.  `vserver cifs share show`コマンドを使用して、共有が目的の構成になっていることを確認します。
+. ホームディレクトリの検索パスを追加します： `vserver cifs home-directory search-path add -vserver vserver -path path`
++
+`-vserver` `vserver`検索パスを追加する CIFS 対応 SVM を指定します。
+
++
+`-path` `path`検索パスへの絶対ディレクトリパスを指定します。
+
+.  `vserver cifs home-directory search-path show`コマンドを使用して検索パスが正常に追加されたことを確認します。
+. UNIX ユーザーが存在しない場合は、 `vserver services unix-user create` コマンドを使用して UNIX ユーザーを作成します。
 +
 [NOTE]
 ====
-WindowsユーザをUNIXユーザにマッピングするネームマッピングがすでに存在する場合は、マッピング手順を実行する必要はありません。
+ユーザをマッピングするには、Windowsユーザ名のマッピング先となるUNIXユーザ名があらかじめ存在している必要があります。
+
+====
+. 次のコマンドを使用して、Windows ユーザーから UNIX ユーザーへの名前マッピングを作成します： `vserver name-mapping create -vserver vserver_name -direction win-unix -priority integer -pattern windows_user_name -replacement unix_user_name`
++
+[NOTE]
+====
+WindowsユーザをUNIXユーザにマッピングするネーム マッピングがすでに存在する場合は、このマッピング手順を実行する必要はありません。
 
 ====
 +
-Windowsユーザ名は対応するUNIXユーザ名にマッピングされます。Windowsユーザは、ホームディレクトリ共有に接続すると、Windowsユーザ名に対応する共有名を使用して動的に作成されたホームディレクトリに接続します。ディレクトリ名がUNIXユーザ名に対応していることは認識されません。
+Windowsユーザ名は対応するUNIXユーザ名にマッピングされます。Windowsユーザは、ホーム ディレクトリ共有に接続すると、Windowsユーザ名に対応する共有名を使用して動的に作成されたホーム ディレクトリに接続することになります。その際、ディレクトリ名がUNIXユーザ名に対応していることはユーザにはわかりません。
 
-. ユーザにホームディレクトリがある場合は、ホームディレクトリを含むように指定したqtreeまたはボリューム内に、対応するディレクトリを作成します。
+. ユーザにホーム ディレクトリがある場合は、ホーム ディレクトリを含むように指定したqtreeまたはボリュームに対応するディレクトリを作成します。
 +
-たとえば、というパスのqtreeを作成し、ディレクトリの作成対象となるユーザのマッピングされたUNIXユーザ名が「unixuser1」の場合、 `/vol/vol1/users`というパスでディレクトリを作成します `/vol/vol1/users/unixuser1`。
+たとえば、 `/vol/vol1/users`のパスで qtree を作成し、ディレクトリを作成するユーザーのマップされた UNIX ユーザー名が "`unixuser1`" である場合、次のパスでディレクトリを作成します： `/vol/vol1/users/unixuser1`
 
 +
-にマウントされる「home1」という名前のボリュームを作成した場合は、というパスでディレクトリを作成し `/home1`ます `/home1/unixuser1`。
+「`home1`」という名前のボリュームを `/home1`にマウントした場合、次のパスを持つディレクトリが作成されます： `/home1/unixuser1`
 
-. ドライブをマッピングするか、UNCパスを使用して接続し、ユーザがホーム共有に正常に接続できることを確認します。
+. ドライブをマッピングするか、UNCパスを使用して、ユーザがホーム ディレクトリ共有に正常に接続できることを確認します。
 +
-たとえば、UNIXユーザunixuser1にマッピングされるユーザmydomain\user1が、SVM vs1上にあるディレクトリ（手順10で作成）に接続する場合は、UNCパスを使用して接続し `\\vs1\user1`ます。
+たとえば、ユーザー mydomain\user1 が UNIX ユーザー unixuser1 にマッピングされ、手順 10 で作成された SVM vs1 上のディレクトリに接続する場合、user1 は UNC パス `\\vs1\user1`を使用して接続します。
 
 
 
 .例
-次の例のコマンドは、次の設定を使用してホームディレクトリの設定を作成します。
+次の例の各コマンドは、以下の内容でホーム ディレクトリ設定を作成します。
 
 * 共有名は%wです。
-* 相対ホームディレクトリパスは%uです。
-* ホームディレクトリを含むように指定した検索パス `/home1`は、UNIXセキュリティ形式が設定されたボリュームです。
-* 設定はSVM vs1に作成されます。
+* 相対ホーム ディレクトリ パスは%uです。
+* ホーム ディレクトリを格納するために使用される検索パス `/home1`は、UNIX セキュリティ スタイルで構成されたボリュームです。
+* 設定はSVM vs1上に作成されます。
 
 
-ユーザがWindowsホスト、またはWindowsホストとUNIXホストの両方からホームディレクトリにアクセスし、ファイルシステム管理者がUNIXベースのユーザおよびグループを使用してファイルシステムへのアクセスを制御する場合は、このようなホームディレクトリ設定を使用できます。
+ユーザがWindowsホストから、またはWindowsホストとUNIXホストからホーム ディレクトリにアクセスし、ファイルシステム管理者がUNIXベースのユーザおよびグループを使用してファイルシステムへのアクセスを制御する場合には、このようなホーム ディレクトリ設定を使用できます。
 
 [listing]
 ----
@@ -133,6 +133,6 @@ vs1            win-unix  5        Pattern: user1
 ----
 .関連情報
 * xref:create-home-directory-config-w-d-variables-task.adoc[%w および %d 変数を使用してホームディレクトリ構成を作成します]
-* xref:home-directory-config-concept.adoc[追加のホームディレクトリ構成について学ぶ]
-* xref:display-user-home-directory-path-task.adoc[ユーザーのホームディレクトリパスに関する情報を表示する]
+* xref:home-directory-config-concept.adoc[追加のホームディレクトリ設定について学ぶ]
+* xref:display-user-home-directory-path-task.adoc[ユーザーのホームディレクトリパスに関する情報を表示します]
 

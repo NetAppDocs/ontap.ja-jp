@@ -1,0 +1,74 @@
+---
+sidebar: sidebar 
+permalink: anti-ransomware/default-enable-change.html 
+keywords: ransomware, arp, enable, set up, autonomous ransomware protection 
+summary: ONTAP 9.18.1以降、ARPはデフォルトで自動的に有効化されます。12時間の猶予期間中または猶予期間終了後に、このデフォルトの有効化を解除することができます。 
+---
+= ONTAP Autonomous Ransomware Protection のデフォルトの有効化をオプトアウトする
+:toclevels: 1
+:allow-uri-read: 
+:toclevels: 1
+:imagesdir: ../media/
+
+
+[role="lead"]
+ONTAP 9.18.1以降、AFF A-series、AFF C-series、ASA、ASA r2システムのすべての新規ボリュームでは、アップグレードまたは新規インストール後の12時間のウォームアップ期間後に、Autonomous Ransomware Protection（ARP）がデフォルトで自動的に有効化されます（ARPライセンスがインストールされている場合）。この12時間の猶予期間中または猶予期間終了後に、System ManagerまたはONTAP CLIを使用して、このデフォルトの有効化を解除できます。
+
+
+NOTE: 既存のボリュームは ARP 用にlink:enable-task.html["手動で有効化"]する必要があります。
+
+.タスク概要
+この手順で選択した設定は後で変更できます。猶予期間後は、いつでもデフォルトの有効化をオンまたはオフにすることができます：
+
+[source, cli]
+----
+security anti-ransomware auto-enable modify -new-volume-auto-enable false|true
+----
+.手順
+System Manager または ONTAP CLI を使用して、ARP のデフォルト有効化オプションを管理できます。
+
+[role="tabbed-block"]
+====
+.System Manager
+--
+. *Cluster > Settings*を選択します。
+. 次のいずれかを実行します。
++
+** アクティブな猶予期間中に無効にする：
++
+... *ランサムウェア対策*セクションで、ARPが有効になるまでの残り時間を示すメッセージが表示されます。*有効にしない*を選択します。
+... 次のダイアログ ボックスで *無効* を選択して、新しいボリュームのデフォルトの ARP 有効化がオフになっていることを確認します。
+
+
+** 猶予期間後に無効にする：
++
+... *ランサムウェア対策*セクションで、image:icon_pencil.gif["編集アイコン"]を選択します。
+... チェックボックスを選択して *保存* をクリックすると、新しいボリュームのデフォルトの ARP 有効化が無効になります。
+
+
+
+
+
+
+--
+.CLI
+--
+. デフォルトの有効化ステータスを確認します：
++
+[source, cli]
+----
+security anti-ransomware auto-enable show
+----
+. 新しいボリュームのデフォルトの有効化を無効にします：
++
+[source, cli]
+----
+security anti-ransomware auto-enable modify -new-volume-auto-enable false
+----
+
+
+--
+====
+.関連情報
+* link:enable-task.html["個々のボリュームで ONTAP Autonomous Ransomware Protection を有効にする"]
+

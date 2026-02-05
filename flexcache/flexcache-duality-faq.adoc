@@ -1,0 +1,45 @@
+---
+permalink: flexcache/flexcache-duality-faq.html 
+sidebar: sidebar 
+keywords: duality, faq, frequently asked questions, flexcache, ontap s3, s3, nas, smb, nfs 
+summary: ONTAP 9.18.1で導入されたFlexCacheデュアリティに関するよくある質問。 
+---
+= FlexCache の二重性に関するよくある質問
+:allow-uri-read: 
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+このFAQでは、ONTAP 9.18.1で導入されたFlexCacheデュアリティに関するよくある質問にお答えします。
+
+
+
+== よくある質問
+
+.「二重性」とは何でしょうか？
+Duality により、ファイル（NAS）プロトコルとオブジェクト（S3）プロトコルの両方を使用して同じデータへの統合アクセスが可能になります。ONTAP 9.12.1でFlexCacheサポートなしで導入されたdualityは、ONTAP 9.18.1でFlexCacheボリュームを含むように拡張され、FlexCacheボリュームにキャッシュされたNASファイルへのS3プロトコル アクセスが可能になりました。
+
+.FlexCache S3 バケットでサポートされている S3 操作は何ですか？
+標準S3 NASバケットでサポートされているS3操作は、FlexCache S3 NASバケットでサポートされていますが、 `COPY`操作は除きます。標準S3 NASバケットでサポートされていない操作の最新リストについては、link:https://docs.netapp.com/us-en/ontap/s3-multiprotocol/index.html#s3-and-nas-interoperability["相互運用性ドキュメント"]を参照してください。
+
+.FlexCache デュアリティで FlexCache をライトバック モードで使用できますか。
+いいえ。FlexCache S3 NASバケットがFlexCacheボリュームに作成される場合、FlexCacheボリュームはライトアラウンドモードになっている*必要があります*。FlexCache S3 NASバケットをライトバックモードのFlexCacheボリュームに作成しようとすると、操作は失敗します。
+
+.ハードウェアの制限により、クラスタの 1 つを ONTAP 9.18.1 にアップグレードできません。キャッシュクラスタのみが ONTAP 9.18.1 を実行している場合でも、クラスタ内で二重性は機能しますか？
+いいえ。キャッシュ クラスターとオリジン クラスターの両方で、最低有効クラスター バージョンは 9.18.1 である必要があります。9.18.1 より前の ONTAP バージョンを実行しているオリジンとピア接続されたキャッシュ クラスターで FlexCache S3 NAS バケットを作成しようとすると、操作は失敗します。
+
+.私はMetroCluster構成を持っています。FlexCacheデュアリティを使用できますか？
+いいえ。FlexCache の二重性は MetroCluster 構成ではサポートされていません。
+
+.FlexCache S3 NAS バケット内のファイルへの S3 アクセスを監査できますか？
+S3監査は、FlexCacheボリュームが使用するNAS監査機能によって提供されます。FlexCacheボリュームのNAS監査の詳細については、link:audit-flexcache-volumes-concept.html["FlexCache 監査の詳細"]を参照してください。
+
+.キャッシュ クラスタが元のクラスタから切断された場合、何が起こるでしょうか？
+FlexCache S3 NASバケットへのS3リクエストは、キャッシュ クラスターが元のクラスターから切断されている場合、 `503 Service Unavailable`エラーで失敗します。
+
+.マルチパート S3 オペレーションを FlexCache デュアリティで使用できますか？
+マルチパートS3オペレーションが機能するには、基盤となるFlexCacheボリュームのgranular-dataフィールドを「advanced」に設定する必要があります。このフィールドは、元のボリュームに設定されている値に設定されます。
+
+.FlexCache の二重性は HTTP および HTTPS アクセスをサポートしますか？
+はい。デフォルトでは、HTTPS が必須です。必要に応じて、HTTP アクセスを許可するように S3 サービスを設定できます。

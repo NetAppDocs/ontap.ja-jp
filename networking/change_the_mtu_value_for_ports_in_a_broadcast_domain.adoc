@@ -19,28 +19,57 @@ summary: ブロードキャスト ドメインの MTU 値を変更すると、�
 
 NOTE: ブロードキャスト ドメイン ポートのMTU値を変更する手順は、ONTAP 9.7以前のバージョンでは異なります。ONTAP 9.7以前を実行しているネットワークでブロードキャスト ドメイン ポートのMTU値を変更する必要がある場合は、link:https://docs.netapp.com/us-en/ontap-system-manager-classic/networking-bd/change_the_mtu_value_for_ports_in_a_broadcast_domain97.html["ブロードキャスト ドメインのポートのMTU値の変更（ONTAP 9.7以前）"^]を参照してください。
 
+[role="tabbed-block"]
+====
+.System Manager
+--
+ONTAP 9.12.1 以降では、System Manager を使用してブロードキャスト ドメインの MTU 値を変更し、そのブロードキャスト ドメイン内のすべてのポートの MTU 値を変更できます。
+
+.手順
+. *ネットワーク > ブロードキャスト ドメイン*を選択します。
+. *ブロードキャスト ドメイン* セクションで、MTU 値を変更するブロードキャスト ドメインの名前を選択します。
+. ブロードキャストドメイン内のすべてのポートの MTU 値を変更するかどうかを確認するプロンプトが表示されます。変更を続行するには、* Yes * をクリックします。
+. 必要に応じて MTU 値を変更し、変更を保存します。
++
+システムはブロードキャストドメイン内のすべてのポートに新しいMTU値を適用します。これにより、それらのポート上のトラフィックが短時間中断されます。
+
+
+
+--
+.CLI
+--
 .開始する前に
 MTU値は、管理トラフィックを処理するe0Mポートを除き、そのレイヤ2ネットワークに接続されているすべてのデバイスで同じである必要があります。
 
 .タスク概要
-MTU値を変更すると、その影響を受けるポートを経由するトラフィックが一時的に中断されます。プロンプトが表示されるので、MTU値を変更するために「y」と入力する必要があります。
+MTU 値を変更すると、影響を受けるポート上のトラフィックが短時間中断されます。システムは、MTU を変更するには *y* と答える必要があるプロンプトを表示します。
 
 .手順
 ブロードキャスト ドメインのすべてのポートのMTU値を変更します。
 
-....
+[listing]
+----
 network port broadcast-domain modify -broadcast-domain <broadcast_domain_name> -mtu <mtu_value> [-ipspace <ipspace_name>]
-....
+----
+各値の意味は次のとおりです。
+
 * `broadcast_domain` は、ブロードキャスト ドメインの名前です。
 * `mtu`は IP パケットの MTU サイズです。一般的な値は 1500 と 9000 です。
-* `ipspace`このブロードキャスト ドメインが存在する IPspace の名前です。このオプションに値を指定しない限り、「Default」IPspace が使用されます。次のコマンドは、ブロードキャスト ドメイン bcast1 内のすべてのポートの MTU を 9000 に変更します：
+* `ipspace`このブロードキャスト ドメインが存在する IPspace の名前です。このオプションに値を指定しない限り、「Default」IPspace が使用されます。
++
+次のコマンドは、ブロードキャスト ドメイン bcast1 内のすべてのポートの MTU を 9000 に変更します：
 
-
-....
++
+[listing]
+----
 network port broadcast-domain modify -broadcast-domain <Default-1> -mtu < 9000 >
 Warning: Changing broadcast domain settings will cause a momentary data-serving interruption.
 Do you want to continue? {y|n}: <y>
-....
+----
+
+
+--
+====
 .関連情報
 * link:https://docs.netapp.com/us-en/ontap-cli/network-port-broadcast-domain-modify.html["ネットワーク ポート ブロードキャスト ドメインの変更"^]
 

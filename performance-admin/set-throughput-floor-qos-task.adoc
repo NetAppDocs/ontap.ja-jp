@@ -2,23 +2,26 @@
 permalink: performance-admin/set-throughput-floor-qos-task.html 
 sidebar: sidebar 
 keywords: setting, throughput, floor, qos 
-summary: ポリシーグループのmin-throughputフィールドを使用して、ストレージオブジェクトのワークロードのスループット下限（QoS Min）を定義できます。このポリシーグループは、ストレージオブジェクトの作成時または変更時に適用できます。ONTAP 9.8以降では、スループット下限をIOPSまたはMBps、あるいはIOPSとMBpsの両方で指定できます。 
+summary: QoS の最小値またはスループットフロアは、競合するワークロードに関係なく、ワークロードのスループットが最小の IOPS または MBps、あるいは IOPS と MBps を下回らないことを保証します。重要なワークロードが優先され、最低限のパフォーマンス要件を満たすように、スループットフロアを設定します。 
 ---
-= ONTAPでQoSを使用してスループットフロアを設定
+= ONTAP QoS ポリシーグループを使用してスループットの下限を設定
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
- `min-throughput`フィールドを使用して、ストレージオブジェクトのワークロードのスループットフロア（QoS Min）を定義できます。ストレージオブジェクトの作成時または変更時に、ポリシーグループを適用できます。ONTAP 9.8以降では、スループットフロアをIOPSまたはMBps、あるいはIOPSとMBpsの両方で指定できます。
+QoS の最小値またはスループットフロアは、競合するワークロードに関係なく、ワークロードのスループットが最小の IOPS または MBps、あるいは IOPS と MBps を下回らないことを保証します。重要なワークロードが優先され、最低限のパフォーマンス要件を満たすように、スループットフロアを設定します。
+
+ `min-throughput`フィールドを使用して、ストレージオブジェクトのワークロードのスループットフロア（QoS Min）を定義できます。ストレージオブジェクトの作成時または変更時に、ポリシーグループを適用できます。
 
 .開始する前に
 * ポリシー グループを作成するには、クラスタ管理者である必要があります。
-* ONTAP 9.13.1以降では、xref:adaptive-policy-template-task.html[適応型ポリシーグループテンプレート]を使用してSVMレベルでスループットフロアを適用できます。QoSポリシーグループが設定されたSVMでは、アダプティブポリシーグループテンプレートを設定することはできません。
 
 
 .タスク概要
+* ONTAP 9.13.1以降では、xref:adaptive-policy-template-task.html[適応型ポリシーグループテンプレート]を使用してSVMレベルでスループットフロアを適用できます。QoSポリシーグループが設定されたSVMでは、アダプティブポリシーグループテンプレートを設定することはできません。
+* ONTAP 9.8以降では、スループットフロアをIOPSまたはMBps、あるいはIOPSとMBpsの両方で指定できます。
 * ONTAP 9.4以降では、_非共有_QoSポリシーグループを使用して、定義済みのスループットフロアを各メンバーワークロードに個別に適用するように指定できます。これは、スループットフロアのポリシーグループを複数のワークロードに適用できる唯一の条件です。
 +
  `-is-shared=false`を `qos policy-group create`コマンドに設定して、非共有ポリシーグループを指定します。
@@ -33,14 +36,15 @@ summary: ポリシーグループのmin-throughputフィールドを使用して
 . link:identify-remaining-performance-capacity-task.html["残存パフォーマンス容量の特定"]の説明に従って、ノードまたはアグリゲートに十分なパフォーマンス容量があることを確認します。
 . ポリシー グループを作成します。
 +
-`qos policy-group create -policy group _policy_group_ -vserver _SVM_ -min-throughput _qos_target_ -is-shared true|false`
-
+[source, cli]
+----
+qos policy-group create -policy-group <policy_group> -vserver <SVM> -min-throughput <qos_target> -is-shared <true|false>
+----
 +
  `qos policy-group create`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/qos-policy-group-create.html["ONTAPコマンド リファレンス"^]を参照してください。
 
-.  `qos policy-group modify`コマンドを使用してスループットフロアを調整できます。
 +
-次のコマンドは、最小スループットが1,000 IOPSの共有ポリシーグループ `pg-vs2`を作成します：
+次の例では、最小スループットが1,000 IOPSの共有ポリシーグループ `pg-vs2`を作成します：
 
 +
 [listing]
@@ -48,7 +52,7 @@ summary: ポリシーグループのmin-throughputフィールドを使用して
 cluster1::> qos policy-group create -policy group pg-vs2 -vserver vs2 -min-throughput 1000iops -is-shared true
 ----
 +
-次のコマンドは、スループット制限のない非共有ポリシーグループ `pg-vs4`を作成します：
+次の例では、スループット制限なしで非共有ポリシーグループ `pg-vs4`を作成します：
 
 +
 [listing]
@@ -56,27 +60,31 @@ cluster1::> qos policy-group create -policy group pg-vs2 -vserver vs2 -min-throu
 cluster1::> qos policy-group create -policy group pg-vs4 -vserver vs4 -is-shared false
 ----
 +
- `qos policy-group modify`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/qos-policy-group-modify.html["ONTAPコマンド リファレンス"^]を参照してください。
+ `qos policy-group modify`コマンドを使用してスループットフロアを調整できます。 `qos policy-group modify`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/qos-policy-group-modify.html["ONTAPコマンド リファレンス"^]をご覧ください。
 
 . ポリシー グループをボリュームまたはLUNに適用します。
 +
-`_storage_object_ create -vserver _SVM_ -qos-policy-group _policy_group_`この `_storage_object_modify`コマンドを使用して、ストレージオブジェクトに別のポリシーグループを適用できます。
+[source, cli]
+----
+vserver create -vserver <SVM> -qos-policy-group <policy_group>
+----
++
+ `vserver modify`コマンドを使用して、ストレージオブジェクトに別のポリシーグループを適用できます。
 
 +
-次のコマンドは、ポリシーグループ `pg-app2`をボリューム `app2`に適用します：
+次の例では、ポリシーグループ `pg-app2`をボリューム `app2`に適用します：
 
 +
 [listing]
 ----
 cluster1::> volume create -vserver vs2 -volume app2 -aggregate aggr1 -qos-policy-group pg-app2
 ----
-+
-この手順で説明されているコマンドの詳細については、link:https://docs.netapp.com/us-en/ontap-cli/["ONTAPコマンド リファレンス"^]を参照してください。
-
 . ポリシー グループのパフォーマンスを監視します。
 +
-`qos statistics performance show`
-
+[source, cli]
+----
+qos statistics performance show
+----
 +
 [NOTE]
 ====
@@ -84,7 +92,7 @@ cluster1::> volume create -vserver vs2 -volume app2 -aggregate aggr1 -qos-policy
 
 ====
 +
-次のコマンドは、ポリシー グループのパフォーマンスを表示します。
+次の例は、ポリシーグループのパフォーマンスを示しています：
 
 +
 [listing]
@@ -102,8 +110,10 @@ _System-Background         30           0KB/s        0ms
 
 . ワークロードのパフォーマンスを監視します。
 +
-`qos statistics workload performance show`
-
+[source, cli]
+----
+qos statistics workload performance show
+----
 +
 [NOTE]
 ====
@@ -111,7 +121,7 @@ _System-Background         30           0KB/s        0ms
 
 ====
 +
-次のコマンドは、ワークロードのパフォーマンスを表示します。
+次の例は、ワークロードのパフォーマンスを示しています：
 
 +
 [listing]
@@ -128,10 +138,6 @@ _Scan_Backgro..   5688       20            0KB/s        0ms
 +
  `qos statistics workload performance show`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/qos-statistics-workload-performance-show.html["ONTAPコマンド リファレンス"^]を参照してください。
 
-+
-[NOTE]
-====
+
+
  `qos statistics workload latency show`コマンドを使用すると、QoSワークロードの詳細なレイテンシ統計を表示できます。link:https://docs.netapp.com/us-en/ontap-cli/qos-statistics-workload-latency-show.html["ONTAPコマンド リファレンス"^]の `qos statistics workload latency show`の詳細をご覧ください。
-
-====
-

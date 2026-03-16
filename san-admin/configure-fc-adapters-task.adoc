@@ -11,45 +11,17 @@ summary: オンボードのFCポートは、それぞれイニシエータまた
 
 
 [role="lead"]
-各オンボード FC ポートは、イニシエータまたはターゲットとして個別に設定できます。一部の FC アダプタ上のポートも、オンボード FC ポートと同様に、ターゲット ポートまたはイニシエータ ポートとして個別に設定できます。ターゲット モードに設定できるアダプタのリストは、link:https://hwu.netapp.com["NetApp Hardware Universe"^]で確認できます。
+オンボードFCアダプタと一部のFC拡張アダプタカードは、イニシエーターポートまたはターゲットポートとして個別に設定できます。その他のFC拡張アダプタは、工場出荷時にイニシエーターまたはターゲットとして設定されており、変更できません。FC SFP+アダプタを搭載したサポート対象のUTA2カードを使用することで、追加のFCポートも利用できます。
 
-ターゲット モードは、ポートを FC イニシエータに接続するために使用されます。イニシエータ モードは、ポートをテープ ドライブ、テープ ライブラリ、または Foreign LUN Import（FLI）を備えたサードパーティ製ストレージに接続するために使用されます。
+イニシエータ ポートはバックエンド ディスク シェルフや、場合によっては外部ストレージ アレイに直接接続するために使用できます。ターゲット ポートは、FC スイッチへの接続にのみ使用できます。
 
-FCアダプタをFCプロトコルとFC-NVMeプロトコル用に設定する手順は同じです。ただし、FC-NVMeをサポートしているのは一部のFCアダプタのみです。FC-NVMeプロトコルをサポートするアダプタの一覧については、link:https://hwu.netapp.com["NetApp Hardware Universe"^]をご覧ください。
-
-
-
-== FCアダプタのターゲット モード設定
-
-.手順
-. アダプタをオフラインにします。
-+
-`node run -node _node_name_ storage disable adapter _adapter_name_`
-
-+
-アダプタがオフラインにならない場合、システムの該当するアダプタ ポートからケーブルを取り外すこともできます。
-
-. アダプタをイニシエータからターゲットに変更します。
-+
-`system hardware unified-connect modify -t target -node _node_name_ adapter _adapter_name_`
-
-. 変更したアダプタをホストしているノードをリブートします。
-. ターゲット ポートの設定が正しいことを確認します。
-+
-`network fcp adapter show -node _node_name_`
-
-+
- `network fcp adapter show`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/network-fcp-adapter-show.html["ONTAPコマンド リファレンス"^]をご覧ください。
-
-. アダプタをオンラインにします。
-+
-`network fcp adapter modify -node _node_name_ -adapter _adapter_port_ -state up`
-
-
+FC用に設定されているオンボード ポートとCNA/UTA2ポートの数は、コントローラのモデルによって異なります。サポートされるターゲット拡張アダプタもコントローラ モデルによって異なります。ご使用のコントローラ モデルでサポートされているオンボードFCポートとターゲット拡張アダプタの完全なリストについては、link:https://hwu.netapp.com["NetApp Hardware Universe"^]を参照してください。
 
 
 
 == FCアダプタのイニシエータ モード設定
+
+イニシエーター モードは、ポートをテープ ドライブ、テープ ライブラリ、または Foreign LUN Import（FLI）を使用したサードパーティのストレージに接続するために使用されます。
 
 .開始する前に
 * アダプタのLIFを、メンバーとして属するすべてのポート セットから削除する必要があります。
@@ -64,29 +36,132 @@ NVMe/FCではイニシエータ モードがサポートされます。
 .手順
 . アダプタからすべてのLIFを削除します。
 +
-`network interface delete -vserver _SVM_name_ -lif _LIF_name,LIF_name_`
-
-+
- `network interface delete`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/network-interface-delete.html["ONTAPコマンド リファレンス"^]をご覧ください。
-
+[source, cli]
+----
+network interface delete -vserver _SVM_name_ -lif _lif_name_,_lif_name_
+----
 . アダプタをオフラインにします。
 +
-`network fcp adapter modify -node _node_name_ -adapter _adapter_port_ -status-admin down`
-
+[source, cli]
+----
+network fcp adapter modify -node _node_name_ -adapter _adapter_port_ -status-admin down
+----
 +
 アダプタがオフラインにならない場合、システムの該当するアダプタ ポートからケーブルを取り外すこともできます。
 
 . アダプタをターゲットからイニシエータに変更します。
 +
-`system hardware unified-connect modify -t initiator _adapter_port_`
-
+[source, cli]
+----
+system hardware unified-connect modify -t initiator _adapter_port_
+----
 . 変更したアダプタをホストしているノードをリブートします。
 . 構成に対してFCポートが正しい状態で設定されていることを確認します。
 +
-`system hardware unified-connect show`
-
+[source, cli]
+----
+system hardware unified-connect show
+----
 . アダプタをオンラインに戻します。
 +
-`node run -node _node_name_ storage enable adapter _adapter_port_`
+[source, cli]
+----
+node run -node _node_name_ storage enable adapter _adapter_port_
+----
 
+
+
+
+== FCアダプタのターゲット モード設定
+
+ターゲット モードは、ポートをFCイニシエータに接続するために使用します。
+
+FCアダプタをFCプロトコルとFC-NVMeプロトコル用に設定する手順は同じです。ただし、FC-NVMeをサポートしているのは一部のFCアダプタのみです。FC-NVMeプロトコルをサポートするアダプタの一覧については、link:https://hwu.netapp.com["NetApp Hardware Universe"^]をご覧ください。
+
+.手順
+. アダプタをオフラインにします。
++
+[source, cli]
+----
+node run -node _node_name_ storage disable adapter _adapter_name_
+----
++
+アダプタがオフラインにならない場合、システムの該当するアダプタ ポートからケーブルを取り外すこともできます。
+
+. アダプタをイニシエータからターゲットに変更します。
++
+[source, cli]
+----
+system node hardware unified-connect modify -t target -node _node_name_ adapter _adapter_name_
+----
+. 変更したアダプタをホストしているノードをリブートします。
+. ターゲット ポートの設定が正しいことを確認します。
++
+[source, cli]
+----
+network fcp adapter show -node _node_name_
+----
+. アダプタをオンラインにします。
++
+[source, cli]
+----
+network fcp adapter modify -node _node_name_ -adapter _adapter_port_ -state up
+----
+
+
+
+
+== FCアダプタの速度を設定する
+
+自動ネゴシエーションを使用するのではなく、アダプタのターゲット ポートの速度を接続先デバイスの速度に合わせて設定する必要があります。自動ネゴシエーションに設定されたポートは、テイクオーバー/ギブバックなどの中断後に再接続するまでに時間がかかる場合があります。
+
+.タスク概要
+このタスクはクラスタ内のすべてのStorage Virtual Machine（SVM）とすべてのLIFを対象としているため、 `-home-port`パラメータと `-home-lif`パラメータを使用して、この操作の範囲を制限する必要があります。これらのパラメータを使用しない場合、操作はクラスタ内のすべてのLIFに適用されるため、望ましくない可能性があります。
+
+.開始する前に
+このアダプタをホームポートとして使用するすべてのLIFはオフラインである必要があります。
+
+.手順
+. このアダプタ上のすべての LIF をオフラインにします：
++
+[source, cli]
+----
+network interface modify -vserver * -lif * { -home-node node1 -home-port 0c } -status-admin down
+----
+. アダプタをオフラインにします。
++
+[source, cli]
+----
+network fcp adapter modify -node node1 -adapter 0c -state down
+----
++
+アダプタがオフラインにならない場合、システムの該当するアダプタ ポートからケーブルを取り外すこともできます。
+
+. ポート アダプタの最大速度を確認します。
++
+[source, cli]
+----
+fcp adapter show -instance
+----
++
+アダプタの速度を最大速度を超えて変更することはできません。
+
+. アダプタの速度を変更します：
++
+[source, cli]
+----
+network fcp adapter modify -node node1 -adapter 0c -speed 16
+----
+. アダプタをオンラインにします：
++
+[source, cli]
+----
+network fcp adapter modify -node node1 -adapter 0c -state up
+----
+. アダプタ上のすべての LIF をオンラインにします：
++
+[source, cli]
+----
+network interface modify -vserver * -lif * { -home-node node1 -home-port 0c } -status-admin up
+----
 

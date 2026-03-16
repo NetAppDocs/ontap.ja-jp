@@ -16,18 +16,43 @@ summary: System Managerのシンプルなワークフローを使用して、ク
 
 
 [role="lead"]
-NetAppでは、新しいクラスタを作成する際にSystem Managerを使用することを推奨しています。System Managerは、クラスタのセットアップのためのシンプルで簡単なワークフローを提供します。ONTAPコマンドラインインターフェイス（CLI）を使用する必要があるのは、MetroCluster構成でONTAP 9.7以前を実行している場合、または特定のプラットフォームでIPv6専用クラスタを設定する必要がある場合のみです。
+NetApp は、新しいクラスタの作成に System Manager の使用を推奨しています。System Manager は、クラスタのセットアップのためのシンプルで簡単なワークフローを提供します。ONTAP 9.7 以前を MetroCluster 構成で実行している場合や、サポートされているシステムで IPv6 のみのクラスタを設定する必要がある場合にのみ、ONTAP コマンドラインインターフェイス（CLI）を使用する必要があります。
 
 .タスク概要
 この手順はlink:https://docs.netapp.com/us-en/ontap-systems-family/index.html["AFF、ASA、FAS"^]およびlink:https://docs.netapp.com/us-en/ontap-afx/index.html["AFXシステム"^]に適用されます。ASA r2システム（ASA A1K、ASA A90、ASA A70、ASA A50、ASA A30、ASA A20、またはASA C30）をお使いの場合は、link:https://docs.netapp.com/us-en/asa-r2/install-setup/initialize-ontap-cluster.html["これらの手順"^]に従ってSystem ManagerでONTAPクラスタをセットアップしてください。ASA r2システムは、SANのみのお客様に特化した、簡素化されたONTAPエクスペリエンスを提供します。
 
-ONTAP 9.13.1以降では、ONTAP CLIを使用したクラスタの初期セットアップ時に、AFF A800およびFAS8700プラットフォーム上の管理LIFにIPv6アドレスを割り当てることができます。ONTAP 9.13.1より前のONTAPリリース、または他のプラットフォーム上のONTAP 9.13.1以降の場合は、System Managerを使用してIPv4アドレスでクラスタを作成し、クラスタのセットアップが完了した後にlink:convert-ipv4-to-ipv6-task.html["IPv6に変換する"]アドレスを割り当てる必要があります。
+クラスタ設定時の管理LIFへのIPv6アドレスの割り当ては、以下のシステムおよびONTAPバージョンでサポートされています。
+
+[cols="2"]
+|===
+| ONTAPバージョン | サポートされるシステム 
+
+
+| 9.17.1以降  a| 
+* AFF C60
+* AFF C30
+* AFF A50
+* AFF A30
+* AFF A20用
+
+
+クラスタ設定時にIPv6アドレス割り当てをサポートするには、BMCバージョンが19.3以降である必要があります。
+
+
+
+| ONTAP 9.13.1以降  a| 
+* AFF A800
+* FAS8700
+
+
+|===
+サポートされているシステムでIPv6アドレスを割り当てるには、ONTAP CLIを使用してクラスタセットアップを実行する必要があります。システムとONTAPバージョンでクラスタセットアップ時のIPv6アドレスの割り当てがサポートされていない場合は、System Managerを使用してIPv4アドレスでクラスタを作成し、クラスタセットアップの完了後にlink:convert-ipv4-to-ipv6-task.html["IPv6に変換する"]アドレスを設定してください。
 
 
 NOTE: System Manager は ONTAP 9.6 以前で IPv6 ネットワークを必要とする導入をサポートしていません。
 
 .開始する前に
-* プラットフォーム モデルのインストールおよびセットアップ手順に従って、新しいストレージ システムをインストールし、ケーブル接続し、電源をオンにしておく必要があります。
+* お使いのシステムモデルのインストールおよび設定手順に従って、新しいストレージシステムを設置し、配線を行い、電源を投入してください。
 +
 link:https://docs.netapp.com/us-en/ontap-systems/index.html["ONTAPハードウェアシステムのドキュメント"^]を参照してください。
 
@@ -126,9 +151,6 @@ Type yes to confirm and continue {yes}: yes
 AutoSupportはデフォルトでは有効になります。
 
 . 画面の指示に従って、ノードに管理IPアドレスを割り当てます。
-+
-ONTAP 9.13.1以降では、A800およびFAS8700プラットフォーム上の管理LIFにIPv6アドレスを割り当てることができます。ONTAP 9.13.1より前のリリース、または他のプラットフォーム上の9.13.1以降では、管理LIFにIPv4アドレスを割り当て、クラスタのセットアップ完了後にIPv6に変換する必要があります。
-
 . 続行するには *Enter* を押してください。
 +
 [listing]
@@ -161,9 +183,6 @@ cluster1-01           true    true
 一度に1つのノードをクラスタに追加できます。各ノードの追加処理を完了し、次のノードの追加を開始する前に、そのノードがクラスタの一部である必要があります。
 
 +
-FAS2720に搭載されているNL-SASドライブが24台以下の場合は、パフォーマンスを最適化するために、ストレージ構成のデフォルトがアクティブ / パッシブに設定されていることを確認してください。詳細については、link:../disks-aggregates/setup-active-passive-config-root-data-task.html["ルートデータパーティショニングを使用してノードにアクティブ / パッシブ構成を設定する"]のドキュメントをご覧ください。
-
-+
 .. クラスタに追加するノードにログインします。
 +
 コンソールでクラスタ セットアップ ウィザードが起動します。
@@ -187,9 +206,6 @@ Type yes to confirm and continue {yes}: yes
 ----
 +
 .. 画面の指示に従ってノードにIPアドレスを割り当てます。
-+
-ONTAP 9.13.1以降では、A800およびFAS8700プラットフォーム上の管理LIFにIPv6アドレスを割り当てることができます。ONTAP 9.13.1より前のリリース、または他のプラットフォーム上の9.13.1以降では、管理LIFにIPv4アドレスを割り当て、クラスタのセットアップ完了後にIPv6に変換する必要があります。
-
 .. 続行するには *Enter* を押してください。
 +
 [listing]

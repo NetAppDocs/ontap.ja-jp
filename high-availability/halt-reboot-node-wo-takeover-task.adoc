@@ -32,8 +32,12 @@ summary: 2ノード クラスタにおいて、ノードやシェルフで特定
 
 
 .手順
-. 両方のノードが正常であることを確認します：
-`cluster show`
+. 両方のノードが正常に機能していることを確認します。
++
+[source, cli]
+----
+cluster show
+----
 +
 両方のノードについて、 `true`が `Health`列に表示されます。
 
@@ -49,15 +53,23 @@ node2        true     true
 +
  `cluster show`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/cluster-show.html["ONTAPコマンド リファレンス"^]をご覧ください。
 
-. 停止または再起動するノードからすべての LIF をパートナーノードに移行します：
-`network interface migrate-all -node _node_name_`
+. 停止またはリブートするノードからパートナー ノードにすべてのLIFを移行します。
++
+[source, cli]
+----
+network interface migrate-all -node <node_name>
+----
 +
  `network interface migrate-all`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/network-interface-migrate-all.html["ONTAPコマンド リファレンス"^]をご覧ください。
 
-. 停止またはリブートするノードにノードの停止時にオンラインのままにしておくアグリゲートがある場合は、それらをパートナー ノードに再配置します。それ以外の場合は、次の手順に進みます。
+. 停止または再起動するノード上に、ノードがダウンしている間もオンライン状態を維持したいアグリゲートが存在する場合は、それらをパートナーノードに再配置してください。
 +
-.. 停止または再起動するノード上のアグリゲートを表示します：
-`storage aggregates show -node _node_name_`
+.. 停止またはリブートするノードのアグリゲートを表示します。
++
+[source, cli]
+----
+storage aggregates show -node <node_name>
+----
 +
 たとえば、node1が停止またはリブートするノードの場合、次のようになります。
 
@@ -79,8 +91,12 @@ test2_aggr  2.18TB    2.18TB    0% online       7 node1    raid_dp,
                                                                 normal
 4 entries were displayed.
 ----
-.. アグリゲートをパートナーノードに移動します：
-`storage aggregate relocation start -node _node_name_ -destination _node_name_ -aggregate-list _aggregate_name_`
+.. アグリゲートをパートナー ノードに移動します。
++
+[source, cli]
+----
+storage aggregate relocation start -node <node_name> -destination <node_name> -aggregate-list <aggregate_name>
+----
 +
 たとえば、アグリゲートaggr1、aggr2、およびtest2_aggrをnode1からnode2に移動します。
 
@@ -89,39 +105,106 @@ test2_aggr  2.18TB    2.18TB    0% online       7 node1    raid_dp,
 
 
 
-. クラスター HA を無効にする：
-`cluster ha modify -configured false`
+. クラスタHAを無効にします。
 +
-戻り出力により、HAが無効になっていることが確認されます： `Notice: HA is disabled`
+[source, cli]
+----
+cluster ha modify -configured false
+----
++
+クラスタHAが無効になっている場合、epsilonは自動的にノード1に移動します。戻り出力により、HAが無効になっていることが確認できます： `Notice: HA is disabled`
 
 +
 
 NOTE: この処理ではストレージ フェイルオーバーは無効になりません。
 
-. 該当するコマンドを使用して、ターゲット ノードをテイクオーバーなしで停止またはリブートします。
+. 停止または再起動するノードがノード 1 の場合は、イプシロンをノード 2 に移動します。
 +
-** `system node halt -node _node_name_ -inhibit-takeover true`
-** `system node reboot -node _node_name_ -inhibit-takeover true`
+.. 権限レベルをadvancedに設定します。
++
+[source, cli]
+----
+set -privilege advanced
+----
+.. ノード 2 が正常であり、イプシロンの対象となることを確認します。
++
+[source, cli]
+----
+cluster show
+----
+.. ノード 1 から epsilon を削除します：
++
+[source, cli]
+----
+cluster modify -node <node1_name> -epsilon false
+----
+.. ノード2にイプシロンを割り当てる：
++
+[source, cli]
+----
+cluster modify -node <node2_name> -epsilon true
+----
+.. epsilon がノード 2 にあることを確認します。
++
+[source, cli]
+----
+cluster show
+----
+
+
+. ターゲットノードを停止または再起動し、テイクオーバーを禁止します。
++
+[cols="1h,1h"]
+|===
+
+
+ a| 
+テイクオーバーを開始せずにノードを停止します。
+ a| 
+[source, cli]
+----
+system node halt -node _node_name_ -inhibit-takeover true
+----
+
+
+ a| 
+テイクオーバーを開始せずにノードをリブートします。
+ a| 
+[source, cli]
+----
+system node reboot -node _node_name_ -inhibit-takeover true
+----
+|===
 +
 
 NOTE: コマンド出力に、続行するかどうかを尋ねる警告が表示されるので、 `y`と入力します。
 
-
-
-. まだオンラインになっているノードが正常な状態であることを確認します（パートナーがダウンしている間）：
-`cluster show`
+. オンラインのままのノードが健全な状態（パートナーは停止）であることを確認します。
++
+[source, cli]
+----
+cluster show
+----
 +
 オンラインノードの場合は、 `Health`列に `true`が表示されます。
 
 +
 
-NOTE: コマンド出力に、クラスタHAが構成されていないことを示す警告が表示されます。この警告は無視してかまいません。
+NOTE: コマンド出力には、クラスタ HA が設定されていないという警告が表示されます。この警告は無視してかまいません。
 
 . ノードの停止またはリブートに必要な操作を実行します。
-. LOADER プロンプトからオフラインのノードをブートします：
-`boot_ontap`
-. 両方のノードが正常であることを確認します：
-`cluster show`
+. オフラインにしたノードをLOADERプロンプトからブートします。
++
+[source, cli]
+----
+boot_ontap
+----
+. 両方のノードが正常に機能していることを確認します。
++
+[source, cli]
+----
+cluster show
+----
 +
 両方のノードについて、 `true`が `Health`列に表示されます。
 
@@ -129,23 +212,43 @@ NOTE: コマンド出力に、クラスタHAが構成されていないことを
 
 NOTE: コマンド出力に、クラスタHAが構成されていないことを示す警告が表示されます。この警告は無視してかまいません。
 
-. クラスタ HA を再度有効にします：
-`cluster ha modify -configured true`
-. この手順の前半でアグリゲートをパートナーノードに再配置した場合は、それらをホームノードに戻します。それ以外の場合は、次の手順に進みます。
-`storage aggregate relocation start -node _node_name_ -destination _node_name_ -aggregate-list _aggregate_name_`
+. クラスタHAを再度有効にします。
++
+[source, cli]
+----
+cluster ha modify -configured true
+----
+. この手順の前半でアグリゲートをパートナーノードに再配置した場合は、ホームノードに戻します。
++
+[source, cli]
+----
+storage aggregate relocation start -node <node_name> -destination <node_name> -aggregate-list <aggregate_name>
+----
 +
 たとえば、アグリゲート aggr1、aggr2、test2_aggr はノード node2 からノード node1 に移動されます：
 `storage aggregate relocation start -node _node2_ -destination _node1_ -aggregate-list _aggr1_,_aggr2_,_test2_aggr_`
 
 . LIFをそれぞれのホーム ポートにリバートします。
 +
-.. ホームポートにないLIFを表示します：
-`network interface show -is-home false`
+.. ホームにないLIFを表示します。
++
+[source, cli]
+----
+network interface show -is-home false
+----
 +
  `network interface show`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/network-interface-show.html["ONTAPコマンド リファレンス"^]を参照してください。
 
 .. 停止したノードから移行したLIF以外にもホームにないLIFがある場合は、リバートする前に移動しても問題がないことを確認します。
-.. 安全であれば、すべてのLIFをホームに戻します。 `network interface revert *` +  `network interface revert`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/network-interface-revert.html["ONTAPコマンド リファレンス"^]を参照してください。
+.. 安全が確保できる場合は、すべての LIF をホームポジションに戻してください。
++
+[source, cli]
+----
+ network interface revert *
+----
++
+ `network interface revert`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/network-interface-revert.html["ONTAPコマンド リファレンス"^]を参照してください。
+
 
 
 

@@ -271,7 +271,18 @@ ONTAPの新しいバージョンをノードの現在のバージョンにする
 
 最初のDRグループのONTAPソフトウェアをアップグレード済みで、8ノードMetroCluster構成内の2つ目のDRグループをアップグレードする場合は、この手順でnode_A_3とnode_B_3を更新します。
 
-. MetroCluster Tiebreakerソフトウェアが有効になっている場合は、無効にします。
+. ノードからすべてのデータLIFを移行します。
++
+[source, cli]
+----
+network interface migrate-all -node node_A_1
+----
++
+[source, cli]
+----
+network interface migrate-all -node node_B_1
+----
+. MetroCluster Tiebreaker ソフトウェアが有効になっている場合は、無効にします。
 . HAペアの各ノードで自動ギブバックを無効にします。
 +
 [source, cli]
@@ -331,7 +342,7 @@ storage failover show
 +
 [listing]
 ----
- cluster1::> storage failover show
+ cluster_A::> storage failover show
                                Takeover
  Node           Partner        Possible State Description
  -------------- -------------- -------- -------------------------------------
@@ -371,7 +382,7 @@ storage failover show
 +
 [listing]
 ----
- cluster1::> storage failover show
+ cluster_B::> storage failover show
                                Takeover
  Node           Partner        Possible State Description
  -------------- -------------- -------- -------------------------------------
@@ -456,7 +467,7 @@ set -privilege advanced
 system image show
 ----
 +
-次の例は、System image2がnode_A_1のデフォルトおよび現在のバージョンであることを示しています。
+次の例は、システム イメージ 2（ターゲット ONTAP イメージ）が node_A_1 のデフォルトおよび現在のバージョンであることを示しています：
 
 +
 [listing]
@@ -482,12 +493,12 @@ system image show
 system image show
 ----
 +
-次の例は、System image2（ONTAP 9.0.0）がnode_A_1のデフォルトおよび現在のバージョンであることを示しています。
+次の例は、システム イメージ 2（ターゲット ONTAP イメージ）が node_B_1 のデフォルトおよび現在のバージョンであることを示しています。
 
 +
 [listing]
 ----
- cluster_A::*> system image show
+ cluster_B::*> system image show
                   Is      Is               Install
  Node     Image   Default Current Version  Date
  -------- ------- ------- ------- -------- -------------------
@@ -499,7 +510,7 @@ system image show
           image2  true    false    Y.Y.Y   MM/DD/YYYY TIME
  4 entries were displayed.
 
- cluster_A::>
+ cluster_B::>
 ----
 
 
@@ -519,7 +530,12 @@ ONTAPの新しいバージョンをノードの現在のバージョンにする
 +
 [source, cli]
 ----
-network interface migrate-all -node nodenameA
+network interface migrate-all -node node_A_2
+----
++
+[source, cli]
+----
+network interface migrate-all -node node_B_2
 ----
 . cluster_Aのターゲット ノードのテイクオーバーを開始します。
 +
@@ -554,7 +570,7 @@ storage failover show
 +
 [listing]
 ----
-cluster1::> storage failover show
+cluster_A::> storage failover show
                               Takeover
 Node           Partner        Possible State Description
 -------------- -------------- -------- -------------------------------------
@@ -615,7 +631,7 @@ storage failover show
 +
 [listing]
 ----
-cluster1::> storage failover show
+cluster_B::> storage failover show
                               Takeover
 Node           Partner        Possible State Description
 -------------- -------------- -------- -------------------------------------
@@ -700,12 +716,12 @@ set -privilege advanced
 system image show
 ----
 +
-次の例は、System image2（ターゲットのONTAPイメージ）がnode_A_2のデフォルトおよび現在のバージョンであることを示しています。
+次の例は、システム イメージ 2（ターゲット ONTAP イメージ）が node_A_2 のデフォルトおよび現在のバージョンであることを示しています：
 
 +
 [listing]
 ----
-cluster_B::*> system image show
+cluster_A::*> system image show
                  Is      Is                 Install
 Node     Image   Default Current Version    Date
 -------- ------- ------- ------- ---------- -------------------
@@ -726,7 +742,7 @@ cluster_A::>
 system image show
 ----
 +
-次の例は、System image2（ターゲットのONTAPイメージ）がnode_B_2のデフォルトおよび現在のバージョンであることを示しています。
+次の例は、システム イメージ 2（ターゲット ONTAP イメージ）が node_B_2 のデフォルトおよび現在のバージョンであることを示しています。
 
 +
 [listing]
@@ -743,7 +759,7 @@ node_B_2
          image2  true    true     Y.Y.Y     MM/DD/YYYY TIME
 4 entries were displayed.
 
-cluster_A::>
+cluster_B::>
 ----
 . HAペアの各ノードで自動ギブバックを有効にします。
 +

@@ -1,0 +1,63 @@
+---
+sidebar: sidebar 
+permalink: snapmirror-active-sync/network-port-requirements.html 
+keywords: SM-BC, SMBC, SM-AS, restrictions, firewall, network ports, snapmirror active sync 
+summary: ONTAP SnapMirror アクティブ同期ネットワークポートの要件 
+---
+= ネットワークポートの要件
+:allow-uri-read: 
+:icons: font
+:linkattrs: 
+:imagesdir: ../media/
+
+
+[role="lead"]
+SnapMirror アクティブ同期レプリケーションには、いくつかのネットワークポート要件があります。
+
+例えば、レプリケーションに関与する各ノードは、パートナーノードの状態を監視し、レプリケーション活動を制御する必要があり、データ自体もレプリケーションされなければなりません。さらに、ONTAP Mediator または ONTAP Cloud Mediator は、クォーラムサービスを提供し、フェイルオーバーを支援するために、すべてのノードと通信する必要があります。これらの機能はすべて、エンドポイントとポートの要件が異なります。
+
+ほとんどの場合、SnapMirrorアクティブ同期レプリケーションは、ポートや宛先に基づく制限なしに、内部ネットワーク上で動作します。IPトラフィックがファイアウォール、ルーター、ネットワークトポロジー、またはその他のメカニズムによって制限されている場合、以下の接続要件を検証する必要があります。
+
+
+
+== クラスタ間リンク/ピアリンクを使用したノード間の通信
+
+|===
+| ポート | ソース | 送受信方向 | デスティネーション | 目的 
+
+
+| 3260 / TCP | クラスタ間LIF | 両方 | クラスタ間LIF | LUNコンセンサス 
+
+
+ a| 
+11104/tcp + 11105/tcp
+| クラスタ間LIF | 両方 | クラスタ間LIF  a| 
+クラスタ間通信
+
+SnapMirrorデータ転送
+
+
+
+| 443/tcp（HTTPS） | クラスタ間LIF | 両方 | クラスタ間LIF | クラスタ間管理 
+
+
+| 10000 / TCP  a| 
+cluster-mgmt LIF + node-mgmt LIF
+| 両方 | オプション | Active IQ Unified Managerとの通信 
+|===
+
+
+== メディエーターとクラスタノード間の通信
+
+|===
+| ポート | ソース | 送受信方向 | デスティネーション | 目的 
+
+
+| 22/tcp （SSH） | 管理ホスト | インバウンド | ONTAP Mediator | ONTAP Mediatorの管理 
+
+
+| 31784/tcp（HTTPS） | クラスタ管理LIF | インバウンド | ONTAP MediatorのWebサーバ | REST API 
+
+
+| 31784 / TCP | ノード管理LIF | インバウンド | ONTAP MediatorのWebサーバ | クォーラムサービス 
+|===

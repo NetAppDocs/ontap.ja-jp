@@ -1,0 +1,29 @@
+---
+permalink: revert/modify-qos-policy-groups.html 
+sidebar: sidebar 
+keywords: modify, modifying, qos, policy, groups, adaptive, non-adaptive, revert, reverting, 9.19.1 
+summary: ONTAP 9.12.1 から復元する場合は、復元する前にインバンド認証を無効にする必要があります。 
+---
+= ONTAP 9.19.1からリバートする前に、ONTAP 9.19.1以降で作成されたQoSポリシーグループを変更します
+:allow-uri-read: 
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+適応型および非適応型のQoSポリシーグループは、デフォルトで自動的に有効化され、ワークロードのスループット上限を1秒間、一時的に50%増加させることで、短期的なパフォーマンス向上要求に対応します。ONTAP 9.19.1以降では、これらのデフォルト設定を変更できます。ONTAP 9.18.1以前のバージョンでは、これらの設定を変更することはできません。ONTAP 9.19.1以降で作成されたQoSポリシーグループのデフォルト設定を変更した場合は、ONTAP 9.19.1からONTAP 9.18.1にリバートする前にリセットする必要があります。
+
+.手順
+. 自動スループット上限引き上げのために有効になっているQoSポリシーグループがあるかどうかを確認してください：
++
+[source, cli]
+----
+qos policy-group show – instance
+----
+. ポリシーグループが `burst-percent`、 `burst-iops`、および `burst-duration`で構成されている場合は、これらのオプションを0に設定します。
++
+[source, cli]
+----
+qos policy-group modify -policy-group <policy-group> -burst-percent 0 -burst-iops 0 -burst-duration 0
+----
+

@@ -1,0 +1,158 @@
+---
+permalink: nfs-admin/enable-disable-nfs-task.html 
+sidebar: sidebar 
+keywords: enable, disable, nfsv3, nfsv4, nfsv4.2, ontap, netapp, nfsv4.1, storage vm, svm, storage virtual machine, nfs, -v3, -v4, -v4.1, -v4.2 
+summary: System ManagerまたはCLIを使用して、NFSバージョンを有効または無効にすることができます。これにより、NFSプロトコルを使用するクライアントのファイルアクセスが可能になります。 
+---
+= ONTAP SVM の NFS を有効または無効にする
+:allow-uri-read: 
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+System ManagerまたはCLIを使用して、NFSバージョンを有効または無効にすることができます。これにより、NFSプロトコルを使用するクライアントのファイルアクセスが可能になります。
+
+デフォルトでは、NFSv3はサポートされているすべてのバージョンのONTAP 9で有効になっています。ONTAP 9.9.1以降では、NFSv4.1とNFSv4.2がデフォルトで有効になっています。それ以前のリリースでは、これらはデフォルトで無効になっています。
+
+ONTAP 9.19.1以降では、NFSv4.1とNFSv4.2を個別に有効または無効にすることができます。ONTAP 9.19.1より前では、NFSv4.1とNFSv4.2を同時に有効または無効にすることしかできませんでした。デフォルトでは、管理者が明示的に無効にしない限り、新しいNFSサービスが作成されるとNFSv4.1とNFSv4.2の両方が有効になります。
+
+
+NOTE: FPolicyによるNFSv4.2ファイルアクセスイベントの監視はサポートされていません。FPolicy監視を設定する場合は、SVM上でNFSv4.2を無効にする必要があります。参考までに、link:nas-audit/supported-file-operation-filter-fpolicy-nfsv4-concept.html["ONTAP FPolicyがNFSv4で監視するサポートされているファイル操作とフィルタの組み合わせ"]を参照してください。
+
+[role="tabbed-block"]
+====
+.System Manager
+--
+.手順
+. System Managerで、*クラスタ > ストレージVM*を選択し、ストレージVMを選択し、*設定*を選択してから、*NFS*の下にあるimage:icon_gear.gif["アクションアイコン"]またはimage:icon-edit-pencil-blue-outline.png["編集アイコン"]を選択します。
+. *NFSを有効にする*チェックボックスを選択します。
+. NFSプロトコルを有効または無効にする：
++
+** NFSv3を有効にするには、*サポートバージョン3を有効にする*チェックボックスを選択し、以下のオプションを検討してください：
++
+*** NFSv3 の 64 ビットファイルシステム ID およびファイル識別子のサポートを有効にするには、*64 ビット FSID とファイル識別子を有効にする*チェックボックスを選択します。
+
+
+** NFSv3を無効にするには、*バージョン3のサポートを有効にする*チェックボックスをオフにします。
+** NFSv4.0を有効にするには、*Enable support version 4*チェックボックスを選択し、以下のオプションを検討してください：
++
+*** * Enable ACL *チェックボックスを選択して、アクセス制御リストの使用を許可します。
+*** 読み取り専用アクセスを許可するには、*読み取り委譲を有効にする*チェックボックスをオンにします。
+*** 書き込みアクセスを許可するには、*書き込み委譲を有効にする*チェックボックスをオンにします。
+*** *64ビットFSIDとファイル識別子を有効にする*チェックボックスを選択して、64ビットファイルシステムIDとファイル識別子のサポートを有効にします。このチェックボックスは、NFSv4.0、NFSv4.1、およびNFSv4.2に適用されます。これは、NFSv3の64ビットサポートを制御するために使用されるチェックボックスとは別のものです。
+
+
+** NFSv4.0を無効にするには、*Enable support version 4*チェックボックスをオフにします。
+** NFSv4.1を有効にするには、*Enable support version 4.1 and 4.2*チェックボックスを選択し、次に*Enable support version 4.1*チェックボックスを選択します。次のオプションを検討してください：
++
+*** * Enable ACL *チェックボックスを選択して、アクセス制御リストの使用を許可します。
+*** 読み取り専用アクセスを許可するには、*読み取り委譲を有効にする*チェックボックスをオンにします。
+*** 書き込みアクセスを許可するには、*書き込み委譲を有効にする*チェックボックスをオンにします。
+*** クライアントがパフォーマンスの強化のために並列NFS（pNFS）を使用できるようにするには、* pNFS *チェックボックスを選択します。
+*** *64ビットFSIDとファイル識別子を有効にする*チェックボックスを選択して、64ビットファイルシステムIDとファイル識別子のサポートを有効にします。このチェックボックスは、NFSv4.0、NFSv4.1、およびNFSv4.2に適用されます。これは、NFSv3の64ビットサポートを制御するために使用されるチェックボックスとは別のものです。
+
+
+** NFSv4.1を無効にするには、*バージョン4.1のサポートを有効にする*チェックボックスをオフにします。
+** NFSv4.2を有効にするには、*Enable support version 4.1 and 4.2*チェックボックスを選択し、次に*Enable support version 4.2*チェックボックスを選択します。以下のオプションを検討してください：
++
+*** * Enable ACL *チェックボックスを選択して、アクセス制御リストの使用を許可します。
+*** 読み取り専用アクセスを許可するには、*読み取り委譲を有効にする*チェックボックスをオンにします。
+*** 書き込みアクセスを許可するには、*書き込み委譲を有効にする*チェックボックスをオンにします。
+*** クライアントがパフォーマンスの強化のために並列NFS（pNFS）を使用できるようにするには、* pNFS *チェックボックスを選択します。
+*** *64ビットFSIDとファイル識別子を有効にする*チェックボックスを選択して、64ビットファイルシステムIDとファイル識別子のサポートを有効にします。このチェックボックスは、NFSv4.0、NFSv4.1、およびNFSv4.2に適用されます。これは、NFSv3の64ビットサポートを制御するために使用されるチェックボックスとは別のものです。
+
+
+** NFSv4.2を無効にするには、*Enable support version 4.2*チェックボックスをオフにします。
+
+
+. オプションで、NFSプロトコルの*V4 IDドメイン名*を指定できます。
+. *保存*を選択します。
+
+
+--
+.CLI
+--
+.手順
+. 次のいずれかを実行します。
++
+[cols="1*, 1*, 1*"]
+|===
+| 状況 | バージョン... | 入力するコマンド 
+
+
+.4+| NFS を有効にする  a| 
+NFSv3
+ a| 
+[source, cli]
+----
+vserver nfs modify -vserver vserver_name -v3 enabled
+----
+
+
+ a| 
+NFSv4.0
+ a| 
+[source, cli]
+----
+vserver nfs modify -vserver vserver_name -v4.0 enabled
+----
+
+
+ a| 
+NFSv4.1
+ a| 
+[source, cli]
+----
+vserver nfs modify -vserver vserver_name -v4.1 enabled
+----
+
+
+ a| 
+NFSv4.2
+ a| 
+[source, cli]
+----
+vserver nfs modify -vserver vserver_name -v4.2 enabled
+----
+
+
+.4+| NFSの無効化  a| 
+NFSv3
+ a| 
+[source, cli]
+----
+vserver nfs modify -vserver vserver_name -v3 disabled
+----
+
+
+ a| 
+NFSv4.0
+ a| 
+[source, cli]
+----
+vserver nfs modify -vserver vserver_name -v4.0 disabled
+----
+
+
+ a| 
+NFSv4.1
+ a| 
+[source, cli]
+----
+vserver nfs modify -vserver vserver_name -v4.1 disabled
+----
+
+
+ a| 
+NFSv4.2
+ a| 
+[source, cli]
+----
+vserver nfs modify -vserver vserver_name -v4.2 disabled
+----
+|===
+
+
+--
+====

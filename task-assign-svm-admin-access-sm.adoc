@@ -1,0 +1,87 @@
+---
+sidebar: sidebar 
+permalink: task-assign-svm-admin-access-sm.html 
+keywords: netapp, system manager, ontap, administration, svm, storage vm, volume, vserver, dashboard, administrator, tenant, multi-tenancy, protocol, network interface, performance, assign 
+summary: ONTAP SVM管理者に、強化されたSVMの監視および管理機能を提供します。 
+---
+= ONTAP System ManagerでSVM管理者アクセスを割り当てます
+:hardbreaks:
+:toclevels: 1
+:allow-uri-read: 
+:toclevels: 1
+:nofooter: 
+:icons: font
+:linkattrs: 
+:imagesdir: ./media/
+
+
+[role="lead"]
+ONTAP 9.19.1以降、ONTAPクラスタ管理者は、SVMを管理する担当者（SVM管理者と呼ばれる）にSystem Managerへのアクセス権を割り当てることができます。
+
+これは、クラスタ管理者が各テナントにSVMダッシュボードを提供できる、マルチテナントONTAP環境で特に役立ちます。
+
+クラスタ管理者は、SVM管理者にボリュームの作成を許可することもできます。
+
+
+
+== ステップ1：SVMダッシュボード用の管理ネットワークインターフェイスを準備する
+
+SVMダッシュボードをSVM管理者に割り当てる前に、SVMに管理ネットワークインターフェースが備わっていることを確認してください。SVMにネットワークインターフェースがない場合は、作成することができます。
+
+.手順
+. System Manager で、 * ネットワークインターフェイス > 概要 * を選択し、 * 追加 * を選択してネットワークインターフェイスを作成します。
+. ネットワークインターフェイスのタイプとして* Storage VM management *を選択します。
+. SVM管理ネットワークインターフェースの*IPアドレス*と*サブネットマスク*を指定します。
+
+
+
+
+== ステップ2：vsadminユーザアカウントの設定を確認する
+
+SVMが作成されるたびに、ONTAPは関連付けられたvsadminユーザーアカウントを自動的に作成します。SVMダッシュボードを管理者に割り当てる前に、vsadminユーザーアカウントにパスワードが設定されており、ロックが解除されていることを確認してください。
+
+.手順
+. クラスタ管理者として System Manager のダッシュボードを開きます。
+. * Cluster > Storage VMs * を選択します。
+. SVMを選択し、*Settings*を選択してから、*Security > Users and roles*を選択します。
+. *vsadmin* ユーザーの横で、image:icon_kabob.gif["メニューオプションアイコン"] を選択し、必要に応じて次の項目を選択します。
++
+.. vsadmin パスワードを更新するには、 * パスワードの変更 * をクリックします。
+.. *ロック解除*して、使用可能であることを確認してください。
+
+
+
+
+
+
+== ステップ3：SVM管理者がボリュームを追加できるようにする（オプション）
+
+ONTAP クラスタ管理者として、SVM 管理者が自分の SVM にローカルボリュームを追加できるようにする場合は、権限を付与できます。
+
+.手順
+. System Manager ダッシュボードを開き、クラスタ管理者として Sign in します。
+. *クラスタ*で、* Storage VM *を選択します。
+. 該当する SVM の image:icon_kabob.gif["メニューオプションアイコン"] を選択します。
+. *Edit*を選択します。
+. * Resource Allocation * で、 * Limit volume creation to preferred local tiers * チェックボックスを選択します。
+. デフォルトでは、チェックボックスを選択すると、すべてのローカル階層が含まれます。必要に応じて、特定の階層を削除できます。ローカル階層をすべて削除するか、チェックボックスを空白のままにした場合、SVM管理者はローカルボリュームをプロビジョニングできません。
+. *保存*を選択します。
+
+
+
+
+== ステップ4：SVM管理者アクセスを割り当てる
+
+SVMダッシュボードへのアクセス権を割り当てるには、各SVM管理者にSVM管理IPアドレスとvsadminパスワードを提供してください。
+
+.手順
+. System Manager で、* Network interfaces > Overview * を選択し、次に * Management * ネットワークインターフェイスを選択します。
+. IPアドレスを選択し、*vsadmin*ユーザー名とパスワードとともにSVM管理者に共有してください。
+
+
+.関連トピック：
+* link:disks-aggregates/assign-aggregates-svms-task.html["ONTAPローカル階層をストレージVM（SVM）に割り当てる"]
+* link:authentication/create-svm-user-accounts-task.html#cluster-and-svm-administrators["ONTAPログイン アカウントの作成について学ぶ"]
+* link:concepts/cluster-svm-administrators-concept.html["クラスタとSVMの管理"]
+* link:https://docs.netapp.com/us-en/ontap-cli/security-login-password.html#description["security login password"]
+

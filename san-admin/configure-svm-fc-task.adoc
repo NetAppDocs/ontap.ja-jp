@@ -13,11 +13,13 @@ summary: ストレージ仮想マシンをFC用に設定するには、SVM用の
 [role="lead"]
 FC用にStorage Virtual Machine（SVM）を設定するには、SVM用のLIFを作成し、それらのLIFにFCプロトコルを割り当てる必要があります。
 
-.開始する前に
-FCライセンス（link:../system-admin/manage-licenses-concept.html#licenses-included-with-ontap-one["ONTAP Oneに含まれる"]）が必要であり、有効になっている必要があります。FCライセンスが有効になっていない場合、LIFとSVMはオンラインとして表示されますが、動作ステータスは `down`になります。LIFとSVMを動作させるには、FCサービスが有効になっている必要があります。イニシエータをホストするには、SVM内のすべてのFC LIFで単一イニシエータゾーニングを使用する必要があります。
-
 .タスク概要
 NetAppでは、FCプロトコルを使用してデータを提供する各SVMで、ノードごとに少なくとも1つのFC LIFをサポートします。2つのファブリックとノードごとに2つのLIFを使用し、各ファブリックにそれぞれのノードから1つのLIFを接続する必要があります。これにより、ノード レイヤとファブリックで冗長性が確保されます。
+
+.開始する前に
+* このタスクを実行するには、クラスタ管理者である必要があります。
+* FCライセンス（link:../system-admin/manage-licenses-concept.html#licenses-included-with-ontap-one["ONTAP Oneに含まれる"]）が必要であり、有効になっている必要があります。FCライセンスが有効になっていない場合、LIFとSVMはオンラインとして表示されますが、動作ステータスは `down`になります。LIFとSVMを動作させるには、FCサービスが有効になっている必要があります。イニシエータをホストするには、SVM内のすべてのFC LIFで単一イニシエータゾーニングを使用する必要があります。
+
 
 .手順
 [role="tabbed-block"]
@@ -32,18 +34,21 @@ ONTAP System Manager（9.7以降）で、iSCSI用のStorage VMを設定します
 
 
  a| 
-. System Managerで、*ストレージ > ストレージVM*をクリックし、*追加*をクリックします。
+. System Manager で、 * Storage > Storage VM * を選択し、 * Add * を選択します。
 . Storage VMの名前を入力します。
 . *Access Protocol* に *FC* を選択します。
-. *Enable FC*をクリックします。+ FCポートは自動的に割り当てられます。
-. *保存*をクリックします。
+. *FCを有効にする*を選択します。
++
+FCポートは自動的に割り当てられます。
+
+. *保存*を選択します。
 
  a| 
-. System Manager で、*Storage > Storage VM* をクリックします。
-. 設定するStorage VMをクリックします。
-. *設定*タブをクリックし、FCプロトコルの横にあるimage:icon_gear.gif["アクションアイコン"]をクリックします。
-. *FC を有効にする* をクリックし、ネットワーク インターフェイスの IP アドレスとサブネット マスクを入力します。+ FC ポートは自動的に割り当てられます。
-. *保存*をクリックします。
+. System Managerで、*Storage > Storage VM*を選択します。
+. 設定するストレージ VM を選択します。
+. * Settings * タブを選択し、FC プロトコルの横にある image:icon_gear.gif["アクションアイコン"] を選択します。
+. * FC を有効にする * を選択し、ネットワークインターフェイスの IP アドレスとサブネットマスクを入力します。+ FC ポートは自動的に割り当てられます。
+. *保存*を選択します。
 
 
 |===
@@ -52,24 +57,32 @@ ONTAP System Manager（9.7以降）で、iSCSI用のStorage VMを設定します
 --
 . SVMのFCサービスを有効にします。
 +
-`vserver fcp create -vserver _vserver_name_ -status-admin up`
-
+[source, cli]
+----
+vserver fcp create -vserver <vserver_name> -status-admin up
+----
 . FCを使用する各ノード上に、SVM用に2つのLIFを作成します。
 +
 ** ONTAP 9.6以降：
 +
-`network interface create -vserver _vserver_name_ -lif _lif_name_ -service-policy default-data-blocks -data-protocol fcp -home-node _node_name_ -home-port _port_name_ -status-admin up`
-
+[source, cli]
+----
+network interface create -vserver <vserver_name> -lif <lif_name> -data-protocol fcp -service-policy default-data-fcp -home-node <node_name> -home-port <port_name> -address <ip_address> -netmask <netmask> -status-admin up
+----
 ** ONTAP 9.5以前：
 +
-`network interface create -vserver _vserver_name_ -lif _lif_name_ -role data -data-protocol fcp -home-node _node_name_ -home-port _port_`
-
+[source, cli]
+----
+network interface create -vserver <vserver_name>_ -lif <lif_name> -role data -data-protocol fcp -home-node <node_name> -home-port <port_name>
+----
 
 
 . LIF が作成され、動作ステータスが `online`であることを確認します：
 +
-`network interface show -vserver _vserver_name_ _lif_name_`
-
+[source, cli]
+----
+network interface show -vserver <vserver_name> <lif_name>
+----
 +
  `network interface show`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/network-interface-show.html["ONTAPコマンド リファレンス"^]を参照してください。
 
@@ -78,7 +91,4 @@ ONTAP System Manager（9.7以降）で、iSCSI用のStorage VMを設定します
 --
 ====
 .関連情報
-* https://mysupport.netapp.com/site/global/dashboard["NetAppサポート"^]
-* https://mysupport.netapp.com/matrix["NetApp Interoperability Matrix Tool"^]
-* xref:lifs-cluster-concept.adoc[クラスタSAN環境でのLIFに関する注意事項]
-
+link:manage-lifs-all-san-protocols-concept.html["ONTAP SAN 環境向け LIF の詳細"]。

@@ -2,7 +2,7 @@
 sidebar: sidebar 
 permalink: data-protection/cloud-backup-using-cbs-task.html 
 keywords: cloud, data, backup, back up, storage, volume, lun, connector, secret key, access key, bluexp back and recovery service, Cloud Backup service, CBS, restore data, protect volumes, ipspace, storagegrid, storage grid, archive, archival, archiving, cost, calculator, glacier, deep archive 
-summary: ONTAP 9.9.1 以降では、System Manager を使用して、NetApp Backup and Recovery サービスでクラウドにデータをバックアップできます。 
+summary: ONTAP 9.19.1以降、System ManagerではNetApp Backup and Recoveryサービスを使用したクラウドでのデータのバックアップがサポートされなくなりました。代わりに、NetApp Consoleを使用してNetApp Backup and Recoveryサービスを設定し、クラウドデスティネーションへのSnapMirror関係を作成する必要があります。 
 ---
 = NetApp Backup and Recoveryを使用してデータをバックアップする
 :hardbreaks:
@@ -16,14 +16,14 @@ summary: ONTAP 9.9.1 以降では、System Manager を使用して、NetApp Back
 
 
 [role="lead"]
-ONTAP 9.9.1 以降では、System Manager を使用して、NetApp Backup and Recovery サービスでクラウドにデータをバックアップできます。
+ONTAP 9.19.1以降、System ManagerではNetApp Backup and Recoveryサービスを使用したクラウドでのデータのバックアップがサポートされなくなりました。代わりに、NetApp Consoleを使用してNetApp Backup and Recoveryサービスを設定し、クラウドデスティネーションへのSnapMirror関係を作成する必要があります。
 
 バックアップとリカバリはFlexVol読み取り/書き込みボリュームとデータ保護（DP）ボリュームをサポートします。ONTAP 9.12.1以降では、バックアップとリカバリはFlexGroupボリュームとSnapLockボリュームをサポートします。
 
 link:https://docs.netapp.com/us-en/data-services-backup-recovery/index.html["NetApp Backup and Recovery"^]についての詳細をご覧ください。
 
 .開始する前に
-NetApp Consoleでアカウントを作成するには、次の手順を実行してください。サービスアカウントの場合、ロールを「Account Admin」として作成する必要があります。（他のサービスアカウントロールには、System Managerから接続を確立するために必要な権限がありません。）
+NetApp Consoleでアカウントを作成するには、次の手順を実行してください。サービスアカウントの場合、ロールを「Account Admin」として作成する必要があります。
 
 . link:https://docs.netapp.com/us-en/console-setup-admin/task-logging-in.html["NetApp Consoleでアカウントを作成する"^]。
 . link:https://docs.netapp.com/us-en/console-setup-admin/concept-connectors.html["NetApp ConsoleでConsoleエージェントを作成する"^]次のいずれかのクラウド プロバイダを使用：
@@ -44,187 +44,9 @@ NOTE: ONTAP 9.10.1以降では、StorageGRIDをクラウドバックアッププ
 
 
 
-== NetApp Consoleでクラスタを登録する
+== NetApp ConsoleとNetApp Backup and Recoveryを使用してONTAPバックアップを管理
 
-NetApp ConsoleまたはSystem Managerを使用して、クラスタをConsoleに登録できます。
-
-.手順
-. System Managerで、*Protection Overview*に移動します。
-. *NetApp Backup and Recovery* で、次の詳細を入力してください：
-+
-** Client ID
-** クライアント シークレット キー
-
-
-. *登録して続行*を選択します。
-
-
-
-
-== NetApp Backup and Recoveryを有効にする
-
-クラスタがNetApp Consoleに登録された後、NetApp Backup and Recoveryを有効にし、最初のバックアップをクラウドに開始する必要があります。
-
-.手順
-. System Managerで、*保護 > 概要*を選択し、*Cloud Backup Service*セクションまでスクロールします。
-. *クライアントID*と*クライアントシークレット*を入力します。
-+
-
-NOTE: ONTAP 9.10.1 以降では、*クラウドの使用コストの詳細を確認する*を選択すると、クラウドの使用コストについて知ることができます。
-
-. *Cloud Backup Serviceに接続して有効化*を選択します。
-. *NetApp Backup and Recoveryを有効にする*ページで、選択したプロバイダに応じて次の詳細を入力します。
-+
-[cols="35,65"]
-|===
-
-
-| このクラウド プロバイダの場合... | 次のデータを入力してください... 
-
-
- a| 
-Azure
- a| 
-** AzureサブスクリプションID
-** リージョン
-** リソース グループ名（既存または新規）
-
-
-
-
- a| 
-AWS
- a| 
-** AWSアカウントID
-** アクセス キー
-** シークレット キー
-** リージョン
-
-
-
-
- a| 
-Google Cloud Project（GCP）
- a| 
-** Google Cloudプロジェクト名
-** Google Cloudアクセス キー
-** Google Cloudシークレット キー
-** リージョン
-
-
-
-
- a| 
-StorageGRID（ONTAP 9.10.1以降、NetApp Consoleのオンプレミス展開のみ）
- a| 
-** サーバ
-** SGアクセス キー
-** SGシークレット キー
-
-
-|===
-. *保護ポリシー*を選択してください:
-+
-** *既存のポリシー*：既存のポリシーを選択します。
-** *新しいポリシー*：名前を指定し、転送スケジュールを設定します。
-+
-
-NOTE: ONTAP 9.10.1以降では、AzureまたはAWSによるアーカイブを有効にするかどうかを指定できます。
-
-+
-
-IMPORTANT: AzureまたはAWSによるボリュームのアーカイブを有効にした場合、アーカイブを無効にすることはできません。
-
-+
-AzureまたはAWSのアーカイブを有効にする場合は、次の情報を指定します。
-
-+
-*** ボリュームをアーカイブするまでの日数。
-*** アーカイブに保持するバックアップの数。最新のバックアップまでアーカイブするには「0」（ゼロ）を指定します。
-*** AWSの場合は、アーカイブ ストレージ クラスを選択します。
-
-
-
-
-. バックアップするボリュームを選択します。
-. *保存*を選択します。
-
-
-
-
-== NetApp Backup and Recoveryに使用する保護ポリシーを編集します
-
-NetApp Backup and Recoveryで使用する保護ポリシーを変更できます。
-
-.手順
-. System Managerで、*保護 > 概要*を選択し、*Cloud Backup Service*セクションまでスクロールします。
-. image:icon_kabob.gif["メニューオプションアイコン"]を選択し、*編集*を選択します。
-. *保護ポリシー*を選択してください:
-+
-** *既存のポリシー*：既存のポリシーを選択します。
-** *新しいポリシー*：名前を指定し、転送スケジュールを設定します。
-+
-
-NOTE: ONTAP 9.10.1以降では、AzureまたはAWSによるアーカイブを有効にするかどうかを指定できます。
-
-+
-
-IMPORTANT: AzureまたはAWSによるボリュームのアーカイブを有効にした場合、アーカイブを無効にすることはできません。
-
-+
-AzureまたはAWSのアーカイブを有効にする場合は、次の情報を指定します。
-
-+
-*** ボリュームをアーカイブするまでの日数。
-*** アーカイブに保持するバックアップの数。最新のバックアップまでアーカイブするには「0」（ゼロ）を指定します。
-*** AWSの場合は、アーカイブ ストレージ クラスを選択します。
-
-
-
-
-. *保存*を選択します。
-
-
-
-
-== 新しいボリュームまたはLUNのクラウドでの保護
-
-新しいボリュームまたはLUNを作成する際にSnapMirror保護関係を確立すると、ボリュームまたはLUNをクラウドにバックアップできます。
-
-.開始する前に
-* SnapMirrorライセンスが必要です。
-* クラスタ間LIFが設定されている必要があります。
-* NTPが設定されている必要があります。
-* クラスタはONTAP 9.9.1以降を実行している必要があります。
-
-
-.タスク概要
-次のクラスタ構成については、新しいボリュームやLUNをクラウドで保護することはできません。
-
-* MetroCluster環境のクラスタ
-* SVM-DR
-* FlexGroup ボリュームは、NetApp Backup and Recovery を使用してバックアップすることはできません。
-
-
-.手順
-. ボリュームまたは LUN をプロビジョニングするときは、System Manager の *保護* ページで、*SnapMirror を有効にする（ローカルまたはリモート）* というチェックボックスをオンにします。
-. Backup and Recoveryポリシー タイプを選択します。
-. バックアップとリカバリが有効になっていない場合は、*NetApp Backup and Recoveryを使用してバックアップを有効にする*を選択します。
-
-
-
-
-== 既存のボリュームまたはLUNのクラウドでの保護
-
-既存のボリュームとLUNに対してSnapMirror保護関係を確立できます。
-
-.手順
-. 既存のボリュームまたは LUN を選択し、* 保護 * を選択します。
-. *ボリュームの保護*ページで、保護ポリシーに*NetApp Backup and Recoveryを使用したバックアップ*を指定します。
-. *Protect*を選択します。
-. *保護*ページで、*SnapMirrorを有効にする（ローカルまたはリモート）*というラベルの付いたチェックボックスをオンにします。
-. *Connect and enable NetApp Backup and Recovery*を選択します。
-
+ONTAP 9.19.1以降、System ManagerはNetApp Backup and Recoveryをサポートしなくなりました。NetApp Backup and RecoveryをNetApp Consoleで使用する方法の詳細については、link:https://docs.netapp.com/us-en/data-services-backup-recovery/prev-ontap-backup-manage.html["NetApp Backup and Recoveryを使用してONTAPシステムのバックアップを管理"^]を参照してください。
 
 
 

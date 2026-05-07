@@ -1,0 +1,110 @@
+---
+sidebar: sidebar 
+permalink: networking/configure-tls-offload.html 
+keywords: TLS offload, TLS, performance 
+summary: TLSオフロード設定を構成する 
+---
+= ONTAP TLSハードウェアオフロードを設定する
+:allow-uri-read: 
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+ONTAP 9.19.1以降では、サポートされているイーサネットカードのリソースを活用することで、TLSオフロードを設定してTLSハンドシェイク後のパフォーマンスを向上させることができます。この機能は暗号化と復号化の処理をオフロードすることで、CPU負荷を軽減し、パフォーマンスを向上させます。
+
+.タスク概要
+* TLSオフロードはデフォルトで無効になっています。
+* オフロードされるのは、AES-GCM暗号スイート（TLSv1.2/TLSv1.3、128/256ビット）のみです。
+* TLSハンドシェイクフェーズはオフロードされません。オフロードされるのは、ハンドシェイク後のデータフェーズのみです。
+* ネットワーク論理インターフェース（LIF）をオフロード機能のないポートに移行すると、自動的にソフトウェアによるフォールバックが発生します。
++
+TLSオフロード接続の場合、TLS暗号化処理は通常ソフトウェアを介さずに、オフロード対応のNICによって処理されます。この接続に関連付けられたLIFがTLSオフロード機能のないネットワークポートに移行した場合、暗号化処理はソフトウェアにフォールバックし、システムカーネルによって処理されます。
+
+* 管理インターフェース（HTTPS、REST API）はこの設定の影響を受けません。
+* TLSハードウェアオフロードの設定はクラスタ全体に適用されます。
+
+
+TLSハードウェアオフロードには、対応するネットワークカードが必要です。以下のネットワークカードがサポートされています：
+
+* 4ポートCX7 10/25GbE
+* 2ポートCX6-Dx 40/100 GbE
+* 2ポートCX7 40/100GbE
+* 2ポートCX7 40/100/200
+
+
+4ポートCX7 10/25 GbE、2ポートCX6-Dx 40/100 GbE、および2ポートCX7 40/100 GbEカードは、以下のAFFプラットフォームでサポートされています（：）
+
+* AFF A20用
+* AFF A30
+* AFF A50
+* AFF C30
+* AFF C60
+
+
+4ポート2ポートCX6-Dx 40/100 GbE、2ポートCX7 40/100 GbE、および2ポートCX7 40/100/200 GbEカードは、以下のAFFおよびFASプラットフォームでサポートされています：
+
+* AFF A70-90用
+* AFF C80用
+* FAS70
+* FAS90
+* AFF A1K用
+
+
+.開始する前に
+* 次のタスクを実行するには、 `admin`権限レベルの ONTAP 管理者である必要があります。
+* すべてのノードでONTAP 9.19.1以降が実行されている必要があります。
+
+
+
+
+== TLSオフロードを有効または無効にする
+
+.手順
+. 現在のTLSオフロードステータスを表示します：
++
+[source, cli]
+----
+security config show
+----
++
+このコマンドは、クラスタ全体のTLSオフロード設定を表示します：
+
++
+[listing]
+----
+cluster1::*> security config show
+Cluster    Supported Offload
+FIPS Mode  Protocols Enabled Supported Cipher Suites
+---------- --------- ------- --------------------------------------------------
+false      TLSv1.3,  false   TLS_RSA_WITH_AES_128_CCM,
+           TLSv1.2           TLS_RSA_WITH_AES_128_CCM_8,
+                             TLS_RSA_WITH_AES_128_GCM_SHA256,
+                             TLS_RSA_WITH_AES_128_CBC_SHA,
+                             TLS_RSA_WITH_AES_128_CBC_SHA256,
+                             TLS_RSA_WITH_AES_256_CCM,
+[...]
+----
+. TLSオフロードを有効または無効にする：
++
+[source, cli]
+----
+security config modify -is-offload-enabled {true|false}
+----
++
+このコマンドは、新規接続時のTLSデータフェーズにおけるハードウェアオフロードを有効または無効にします。TLSオフロード機能を有効にする前に作成された既存の接続は、それらの接続が削除されて再作成されるまでオフロードされません。
+
++
+TLSオフロードを有効にする場合、インターフェースを指定する必要があります：
+
++
+[source, cli]
+----
+security config modify -is-offload-enabled true -interface SSL
+----
+
+
+.関連情報
+* link:https://docs.netapp.com/us-en/ontap-cli/security-config-show.html["security config show"^]
+* link:https://docs.netapp.com/us-en/ontap-cli/security-config-modify.html["security config modify"^]
+

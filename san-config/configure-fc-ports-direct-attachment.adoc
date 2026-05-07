@@ -1,0 +1,106 @@
+---
+permalink: san-config/configure-fc-ports-direct-attachment.html 
+sidebar: sidebar 
+keywords:  
+summary:  
+---
+= FC および FC-NVMe ホストに直接接続するための ONTAP FC ポートを設定
+:allow-uri-read: 
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+ONTAP 9.19.1以降、FCおよびFC-NVMeホストとONTAPストレージ間の接続を確立するためにFCスイッチは必要ありません。ホストは、AFF、ASA、ASA r2、およびFASシステムのFCアダプタポートに直接接続できます。直接接続機能は、簡便性が重要な遠隔地やハイブリッド環境において特に有用です。FCポートをホストに直接接続する前に、FCポートをオフラインにしてトポロジーを変更する必要があります。
+
+直接接続構成で使用されるFCポートには、以下の制限があります：
+
+* このポートは、1つのStorage Virtual Machine（SVM）にのみ割り当てることができます。
+* ポートが直接接続用に設定された後は、そのポートに割り当てることができるネットワークインターフェイス（LIF）は1つだけです。
+* このポートはFCプロトコルまたはFC-NVMeプロトコルのいずれか一方のみをサポートし、両方をサポートすることはできません。
+
+
+.開始する前に
+クラスタ管理者である必要があります。
+
+[role="tabbed-block"]
+====
+.System Manager
+--
+. System Manager で、* Network > FC ports * を選択します。
+. 直接接続用に設定するポートの横にあるimage:icon_kabob.gif["選択アイコン"]を選択し、*トポロジーの編集*を選択します。
+. *トポロジー*で*直接*を選択し、*トポロジーを変更してポートをオフラインにする*を選択します。
+. * Save * を選択します。
+. ターゲットポート用のケーブルをホストイニシエータに直接接続してください。
+. ASA r2システムを使用している場合は、link:https://docs.netapp.com/us-en/asa-r2/administer/manage-client-vm-access.html#create-a-lif-network-interface["この System Manager の手順"^]に従ってLIFを作成してください。AFF、ASA、FASシステムを使用している場合は、次の手順に従ってLIFを作成してください：
++
+.. 「ネットワーク」>「インターフェース」を選択し、次にimage:icon_add.gif["追加アイコン"]を選択します。
+.. FCまたはNVMe/FCプロトコルを選択してください。
+.. LIFに名前を付けるか、ONTAPによって生成された名前を使用します。
+.. 少なくとも1つのサブネットが設定されている場合、LIFに使用するサブネットを選択できます。
+.. サブネットを選択しない場合は、ブロードキャストドメインのIPアドレスとサブネットマスクを指定できます。
+.. ブロードキャストドメインからホームポートを選択します。
++
+ホームポート制御は、ブロードキャストドメインまたはサブネットの選択に基づいて表示されます。
+
+.. *保存*を選択します。
++
+LIFが作成されると、ポートは自動的にオンラインになります。
+
+
+
+
+
+.次の手順
+System Manager で、 * ネットワーク > FC ポート * を選択し、 * トポロジ * が * Direct * と表示されていることを確認します。
+
+--
+.CLI
+--
+. アダプタポートに使用されているLIFの管理ステータスと運用ステータスを表示します（：）
++
+[source, cli]
+----
+network interface show -vserver <SVM_name>
+----
+. アダプタをオフラインにします。
++
+[source, cli]
+----
+network fcp adapter modify -node <node_name> -adapter <adapter_port> -status-admin down
+----
+. アダプタポートからすべてのLIFを削除します。
++
+[source, cli]
+----
+network interface delete -vserver <SVM_name> -lif <lif_name>,<lif_name>
+----
+. アダプタポートのトポロジをダイレクトに変更します：
++
+[source, cli]
+----
+network fcp adapter modify -node <node_name> -adapter <adapter_port> -topology direct
+----
+. ターゲットポート用のケーブルをホストイニシエータに直接接続してください。
+. 単一のLIFインターフェースを作成します：
++
+[source, cli]
+----
+network interface create -vserver <SVM_name> -lif <lif_name> -data protocol fcp|fcp-nvme -home-node <node_name> -home-port <port_name>
+----
++
+LIFの作成後、ポートは自動的に有効になります。
+
+. ポートが直接接続用に設定されていることを確認します。
++
+[source, cli]
+----
+network fcp adapter show -fields topologies-supported
+----
++
+トポロジは直接接続として表示される必要があります。
+
+
+
+--
+====

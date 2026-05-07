@@ -23,6 +23,8 @@ S3サーバとバケットを含むS3対応のStorage VMがすでに存在して
 
 ユーザとグループの権限は、バケットの作成時、または必要に応じてあとから付与することができます。バケットの容量やQoSポリシー グループの割り当ても変更できます。
 
+ONTAP 9.19.1以降では、条件を使用して、オブジェクトのアップロードに対して条件付き書き込みを、オブジェクトの削除に対して条件付き削除を強制することができます。条件付き書き込みと削除は、オブジェクトの上書きや意図しない削除を防ぐ手段を提供します。
+
 ONTAP 9.9.1 以降、ONTAP S3 サーバで AWS クライアントオブジェクトのタグ付け機能をサポートする予定の場合は、 `GetObjectTagging`、 `PutObjectTagging`、および `DeleteObjectTagging`のアクションをバケットまたはグループポリシーを使用して許可する必要があります。
 
 実行する手順は、System ManagerとCLIのどちらのインターフェイスを使用するかによって異なります。
@@ -115,6 +117,12 @@ cluster1::> vserver object-store-server bucket policy statement create -vserver 
 [listing]
 ----
 cluster1::> vserver object-store-server bucket policy statement create -vserver svm1.example.com -bucket bucket1 -effect allow -action GetObject,PutObject,DeleteObject,ListBucket -principal group/group1 -resource bucket1/* -sid "fullAccessForGroup1"
+----
+ONTAP 9.19.1以降では、条件を使用して、オブジェクトのアップロードに対して条件付き書き込みを、オブジェクトの削除に対して条件付き削除を強制することができます。次の例では、bucket1に対する条件付き書き込みを強制するためのバケットポリシーステートメント条件を作成します。
+
+[listing]
+----
+cluster::> vserver object-store-server bucket policy-statement-condition create -vserver vs0 -bucket buck1 -index 1 -operator Null -s3-if-match true
 ----
 ONTAP 9.14.1以降では、バケットポリシーに変数を指定できます。次の例では、ストレージVM `svm1`と `bucket1`のサーババケットポリシーステートメントを作成し、 `${aws:username}`をポリシーリソースの変数として指定します。ポリシーが評価されると、ポリシー変数はリクエストコンテキストのユーザー名に置き換えられ、そのユーザーに対して設定されたポリシーアクションを実行できます。たとえば、次のポリシーステートメントが評価されると、 `${aws:username}`はS3操作を実行するユーザーに置き換えられます。ユーザー `user1`が操作を実行すると、そのユーザーには `bucket1`として `bucket1/user1/*`へのアクセスが許可されます。
 

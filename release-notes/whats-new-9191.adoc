@@ -1,0 +1,239 @@
+---
+permalink: release-notes/whats-new-9191.html 
+sidebar: sidebar 
+keywords: 'what"s new, release notes, 9.19.1' 
+summary: ONTAP 9.19.1で利用できる新機能について説明します。 
+---
+= ONTAP 9.19.1の新機能
+:allow-uri-read: 
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+ONTAP 9.19.1で利用できる新機能について説明します。
+
+最近のONTAP 9リリースにおける既知の問題、制限事項、およびアップグレードに関する注意事項の詳細については、 https://library.netapp.com/ecm/ecm_download_file/ECMLP2492508["ONTAP 9 リリース ノート"^]を参照してください。リリース ノートにアクセスするには、NetAppアカウントでサインインするか、アカウントを作成する必要があります。
+
+* 新しい機能と強化された機能について学びます https://docs.netapp.com/us-en/ontap-metrocluster/releasenotes/mcc-new-features.html["ONTAP MetroCluster機能"^]。
+*  https://docs.netapp.com/us-en/ontap-afx/release-notes/whats-new-9171.html["NetApp AFXストレージシステム向けの新しいONTAPソフトウェア機能と強化された機能"^]について学びましょう。
+*  https://docs.netapp.com/us-en/asa-r2/release-notes/whats-new-9171.html["NetApp ASA r2ストレージシステム向けの新しいONTAPソフトウェア機能と強化されたONTAPソフトウェア機能"^]について学びましょう。
+*  https://docs.netapp.com/us-en/ontap-systems/whats-new.html["AFF、ASA、FASシステムおよびサポート対象スイッチに対する新規および強化されたサポート"^]について学びましょう。
+*  https://docs.netapp.com/us-en/ontap-automation/whats_new.html["ONTAP REST API"^]のアップデートについて学習します。
+
+
+ONTAPの最新バージョンにアップグレードするには、link:../upgrade/create-upgrade-plan.html["ONTAPのアップグレードの準備"]を参照してください。
+
+
+
+== データ保護
+
+[cols="30%,70%"]
+|===
+| 更新 | 概要 
+
+
+ a| 
+xref:../snapmirror-active-sync/interoperability-reference.html[SnapMirror Active SyncはAIXの透過的なアプリケーションフェイルオーバーをサポートします]
+ a| 
+SnapMirror アクティブ同期の対称型アクティブ / アクティブは、2ノードクラスタ上のAIXにおいて、RPOゼロの透過的なフェイルオーバーをサポートします。
+
+
+
+ a| 
+xref:../data-protection/cloud-backup-with-snapmirror-task.html#restore-from-the-cloud[SnapMirror クラウドサポートの制限が S3 バケット 100 個に引き上げられました。]
+ a| 
+SnapMirror クラウドでサポートされる S3 バケットの数が 100 に増加しました。
+
+
+
+ a| 
+xref:../snaplock/snapshot-lock-concept.html[SnapMirror同期は、改ざん防止Snapshotロックをサポートします]
+ a| 
+改ざん防止スナップショットロックはSnapMirror同期で使用できます。
+
+
+
+ a| 
+xref:../data-protection/snapmirror-synchronous-disaster-recovery-basics-concept.html[SnapMirror同期は、Snapshotのデスティネーションボリュームへのレプリケートをサポートします]
+ a| 
+SnapMirror Synchronous を使用して、 Snapshot を宛先ボリュームにレプリケートできます。
+
+|===
+
+
+== ネットワーク
+
+[cols="30%,70%"]
+|===
+| 更新 | 概要 
+
+
+ a| 
+SVMがサポートするNFSバージョンを管理する
+ a| 
+NFSv4.2のサポートはNFSv4.1の設定とは独立して管理されるため、各SVMは必要に応じてNFSv4.2の機能をアドバタイズまたは抑制できます。デフォルトでは、管理者が明示的に無効にしない限り、新しいNFSサービスが作成されるとNFSv4.2が有効になります。
+
+* https://docs.netapp.com/us-en/ontap/nfs-admin/enable-disable-nfsv42-task.html["ONTAP SVMのNFSv4.2を有効または無効にする"]
+* https://docs.netapp.com/us-en/ontap/task_nas_enable_linux_nfs.html["ONTAP System ManagerでNFSを使用してLinuxサーバー用のNASストレージを有効にする"]
+
+
+
+
+ a| 
+xref:../concepts/path-failover-concept.html#nas-path-failover[LIFフェイルオーバー機能の強化]
+ a| 
+ONTAPシステム定義のフェイルオーバーグループポリシーは、NASデータLIFのフェイルオーバーターゲットを動的に拡張し、クラスタ内の利用可能なノード上のブロードキャストドメイン内の利用可能なポートをすべて含める可能性があります。システム定義ポリシーは、任意のフェイルオーバーグループに適用できます。ONTAP 9.19.1より前では、このポリシーを持つLIFはクラスタ内の他の1つのノードにのみフェイルオーバーできました。そのノードがクォーラムから外れた場合、他のノードが利用可能であってもLIFはフェイルオーバーしませんでした。
+
+|===
+
+
+== SAN
+
+[cols="30%,70%"]
+|===
+| 更新 | 概要 
+
+
+ a| 
+xref:../san-config/configure-fc-nvme-hosts-ha-pairs-reference.html[直接接続型FC構成のサポート]
+ a| 
+FCスイッチは、FCおよびFC-NVMeホストをONTAPストレージに接続するために必要ありません。ホストは、AFF、ASA、FASシステムのFCアダプタポートに直接接続できます。この直接接続方式は、簡便性が重要な遠隔地やハイブリッド環境において特に有用です。
+
+
+
+ a| 
+xref:../san-admin/multipath-automatic-lif-failover-support.html[AFF システムでのアクティブ / アクティブマルチパスのサポート]
+ a| 
+AFFシステムはSAN環境におけるアクティブ / アクティブマルチパスをサポートします。アクティブ / アクティブ構成では、LUNまたは名前空間を所有するHAペア内のすべてのパスがアクティブ最適化されるため、ストレージのフェイルオーバーが発生した場合でも、ホストはI/Oを再開するためにフェイルオーバーパスのALUAまたはANAの遷移を待つ必要がありません。これによりフェイルオーバーまでの時間が短縮され、SANのお客様は、以前はASAシステムでのみ利用可能であった同じ無停止パス回復力とロード バランシングを備えたAFFシステムでミッションクリティカルなワークロードを実行できるようになります。
+
+
+
+ a| 
+xref:../san-admin/multipath-automatic-lif-failover-support.html[SAN LIFの自動フェイルオーバーのサポートが強化されました]
+ a| 
+自動LIFフェイルオーバーは、AFFおよびASAシステムのiSCSIプロトコルLIFでアクティブ / アクティブおよびアクティブ / アクティブ / SCSIのみのマルチパス構成、およびNVMe/TCPプロトコルLIFでアクティブ / アクティブマルチパス構成でサポートされています。
+
+
+
+ a| 
+xref:../ontap-fli/get-started/learn-about-data-migration.html[iSCSIプロトコルの外部LUNインポートのサポート]
+ a| 
+Foreign LUN Import（FLI）は、バックエンド接続にiSCSIプロトコルをサポートしています。
+
+|===
+
+
+== S3オブジェクト ストレージ
+
+[cols="30%,70%"]
+|===
+| 更新 | 概要 
+
+
+ a| 
+xref:../s3-config/create-modify-bucket-policy-task.html[ONTAP S3における条件付き書き込みおよび削除（強制適用付き）のサポート]
+ a| 
+条件を使用することで、オブジェクトのアップロードに対して条件付き書き込みを、オブジェクトの削除に対して条件付き削除を強制できます。条件付き書き込みと削除は、オブジェクトの上書きや意図しない削除を防ぐ手段を提供します。
+
+
+
+ a| 
+xref:../s3-config/regenerate-access-keys.html[ONTAP S3 キー]
+ a| 
+元のアクセスキーの有効期限が切れた場合でも、S3 リソースへのユーザーアクセスを維持するには、ONTAPクラスター管理者は、S3ユーザーごとに2つ目のアクセスキーを生成できます。
+
+|===
+
+
+== セキュリティ
+
+[cols="30%,70%"]
+|===
+| 更新 | 概要 
+
+
+ a| 
+ARPワークロード特性がSystem Manager UIから削除されました
+ a| 
+System Managerでは、ベースラインや急増の統計情報を含む、Autonomous Ransomware Protection（ARP）のワークロード特性が表示されなくなりました。急増アクティビティが実際のランサムウェア攻撃や手動調整が必要な事象として誤って解釈されることが多かったため、この情報は削除されました。
+
+ARPの動作と検出方法は変更されておらず、System Managerによるこれらの詳細情報の表示方法のみが影響を受けます。サージ統計は、高度な分析のためのONTAP CLIおよびREST APIオプションを使用して引き続き利用できます。
+
+
+
+ a| 
+xref:../anti-ransomware/use-cases-restrictions-concept.html#supported-configurations[Autonomous Ransomware Protection の SnapMirror 同期および SnapMirror アクティブ同期のサポート]
+ a| 
+ARP/AIは、サポートされているプラットフォーム上でSnapMirror同期（NASおよびSAN）およびSnapMirrorアクティブ同期SAN関係に参加するボリュームをサポートします。ARP/AIは、FAS、AFF、AFXシステム上のSnapMirror同期関係のプライマリボリューム、およびAFFとASA r2システム上のSnapMirrorアクティブ同期SAN関係のプライマリボリュームを保護できます。ARP/AIは、関係におけるアクティブな読み書き可能なプライマリボリューム上で動作し、プライマリ専用のARPスナップショットを作成し、機械学習ベースのランサムウェア検出を提供します。
+
+
+
+ a| 
+xref:../networking/configure-tls-offload.html[TLSオフロード設定]
+ a| 
+TLSオフロードを設定することで、サポートされているイーサネットカードのリソースを活用し、TLSハンドシェイク後のパフォーマンスを向上させることができます。この機能は暗号化と復号化の処理をオフロードすることで、CPU負荷を軽減し、パフォーマンスを向上させます。
+
+|===
+
+
+== ストレージ効率
+
+[cols="30%,70%"]
+|===
+| 更新 | 概要 
+
+
+ a| 
+xref:../flexcache/index.html[NASパフォーマンスの強化]
+ a| 
+ONTAP 9.19.1では、小規模なNASディレクトリのリスト表示リクエストを処理するために、より多くのCPUリソースが利用できるようになりました。この機能強化は、2MB以下（約25,000ファイル）の小さなNASディレクトリを、数百から数千ものクライアントが同時にリスト表示している顧客にメリットをもたらします。
+
+この機能強化により、ディレクトリ一覧表示を実行する多数のクライアントをサポートするために、ローカルFlexCacheボリュームなどの回避策を使用する必要性が軽減されます。クライアント数が少ない場合、パフォーマンスに悪影響はありません。このパフォーマンスの強化は自動的に行われるため、設定は不要です。
+
+|===
+
+
+== ストレージ リソース管理の機能拡張
+
+[cols="30%,70%"]
+|===
+| 更新 | 概要 
+
+
+ a| 
+xref:../performance-admin/guarantee-throughput-qos-task.html[自動QoSスループット上限の増加を制御するデフォルト設定の変更のサポート]
+ a| 
+QoSポリシーグループが、短期的なパフォーマンス向上ニーズに応じてQoSスループットの上限を自動的に引き上げる方法を制御するデフォルト設定を変更できます。これらの設定は、ONTAP 9.18.1以前では変更できません。
+
+|===
+
+
+== System Manager
+
+[cols="30%,70%"]
+|===
+| 更新 | 概要 
+
+
+ a| 
+xref:../concept_svm_admin_dashboard_sm.html[新しい ONTAP System Manager ダッシュボードを使用して SVM を監視および管理]
+ a| 
+新しい専用ダッシュボードにより、SVM管理者は自身のSVMを監視および管理できるようになります。これは、クラスタ管理者が各テナントにSVMダッシュボードを提供できる、マルチテナントONTAP環境で特に役立ちます。
+
+|===
+
+
+== Upgrade
+
+[cols="30%,70%"]
+|===
+| 更新 | 概要 
+
+
+ a| 
+xref:../upgrade/automated-pre-checks.html[自動アップグレード事前チェックに関するレポート機能の強化]
+ a| 
+自動アップグレード前チェックを実行する際、エラーと警告は別々に表示されるため、アップグレード前に解決する必要のある問題を簡単に特定できます。
+
+|===

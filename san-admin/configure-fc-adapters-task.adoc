@@ -134,17 +134,12 @@ ONTAP 9.19.1以降、FCおよびFC-NVMeホストとONTAPストレージ間の接
 . *トポロジー*で*直接*を選択し、*トポロジーを変更してポートをオフラインにする*を選択します。
 . * Save * を選択します。
 . ターゲットポート用のケーブルをホストイニシエータに直接接続してください。
-. ASA r2システムを使用している場合は、link:https://docs.netapp.com/us-en/asa-r2/administer/manage-client-vm-access.html#create-a-lif-network-interface["この System Manager の手順"^]に従ってLIFを作成してください。AFF、ASA、FASシステムを使用している場合は、次の手順に従ってLIFを作成してください：
+. AFF、ASA、またはFASシステムをお持ちの場合は、次の手順に従ってLIFを作成します。ASA r2システムをお持ちの場合は、link:https://docs.netapp.com/us-en/asa-r2/administer/manage-client-vm-access.html#create-a-lif-network-interface["この System Manager の手順"^]に従ってLIFを作成します。
 +
 .. 「ネットワーク」>「インターフェース」を選択し、次にimage:icon_add.gif["追加アイコン"]を選択します。
 .. FCまたはNVMe/FCプロトコルを選択してください。
 .. LIFに名前を付けるか、ONTAPによって生成された名前を使用します。
-.. 少なくとも1つのサブネットが設定されている場合、LIFに使用するサブネットを選択できます。
-.. サブネットを選択しない場合は、ブロードキャストドメインのIPアドレスとサブネットマスクを指定できます。
-.. ブロードキャストドメインからホームポートを選択します。
-+
-ホームポート制御は、ブロードキャストドメインまたはサブネットの選択に基づいて表示されます。
-
+.. ホームポートを選択します。
 .. *保存*を選択します。
 +
 LIFが作成されると、ポートは自動的にオンラインになります。
@@ -175,13 +170,13 @@ network interface show -vserver <SVM_name>
 +
 [source, cli]
 ----
-network interface modify -vserver <SVM_name> -lif* -status-admin down
+network interface modify -vserver <SVM_name> -lif * -home-port <adapter_port> -status-admin down
 ----
 . アダプタポートからすべてのLIFを削除します。
 +
 [source, cli]
 ----
-network interface delete -vserver <SVM_name> -lif <lif_name>,<lif_name>
+network interface delete -vserver <SVM_name> -lif * -home-port <adapter_port>
 ----
 . アダプタをオフラインにします。
 +

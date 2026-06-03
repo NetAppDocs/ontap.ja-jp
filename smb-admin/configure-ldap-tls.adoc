@@ -1,0 +1,105 @@
+---
+permalink: smb-admin/configure-ldap-tls.html 
+sidebar: sidebar 
+keywords: ldap, ssl, tls, secure, securing, active, directory, communication, export, copy, certificate, service, self-signed, root, ca, file, ascii, text, storage, virtual, machine, svm, export a copy of the self-signed root ca certificate 
+summary: ONTAP SMB サーバーに LDAP over TLS を設定して、SMB サーバーと Active Directory LDAP サーバー間の通信を保護します。 
+---
+= ONTAP SMB サーバーの LDAP over TLS の設定
+:allow-uri-read: 
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+ONTAP SMB サーバーに LDAP over TLS を設定して、SMB サーバーと Active Directory LDAP サーバー間の通信を保護します。
+
+
+
+== ステップ1：ONTAP SMB SVM用の自己署名ルートCA証明書をエクスポートします
+
+Active Directory通信の保護にLDAP over SSL/TLSを使用するには、まずActive Directory証明書サービスの自己署名ルートCA証明書のコピーを証明書ファイルにエクスポートし、それをASCIIテキスト ファイルに変換する必要があります。ONTAPは、このテキスト ファイルを使用して証明書をStorage Virtual Machine（SVM）にインストールします。
+
+CIFSサーバが属するドメインには、Active Directory証明書サービスがすでにインストールされ、設定されている必要があります。Active Directory証明書サービスのインストールと設定に関する情報については、 http://technet.microsoft.com/en-us/library/["Microsoft TechNetライブラリ：technet.microsoft.com/ja-jp/library/"]を参照してください。手順
+
+.  `.pem`テキスト形式のドメイン コントローラのルート CA 証明書を取得します。
++
+http://technet.microsoft.com/en-us/library/["Microsoft TechNetライブラリ：technet.microsoft.com/ja-jp/library/"]
+
+
+
+.次の手順
+SVMに証明書をインストールします。
+
+
+
+== ステップ 2：自己署名ルート CA 証明書を ONTAP SMB SVM にインストールします
+
+LDAPサーバにバインドするときにTLSを使用したLDAP認証が必要な場合は、まず自己署名されたルートCA証明書をSVMにインストールする必要があります。
+
+.タスク概要
+TLS通信を使用するONTAP内のすべてのアプリケーションは、Online Certificate Status Protocol（OCSP）を使用してデジタル証明書のステータスを確認できます。LDAP over TLSでOCSPが有効になっている場合、失効した証明書は拒否され、接続は失敗します。
+
+.手順
+. 自己署名ルートCA証明書をインストールします。
++
+.. 証明書のインストールを開始します。
++
+[source, cli]
+----
+security certificate install -vserver <SVM_name> -type server-ca
+----
++
+コンソール出力に次のメッセージが表示されます： `Please enter Certificate: Press <Enter> when done`
+
+.. 証明書 `.pem`ファイルをテキスト エディターで開き、 `-----BEGIN CERTIFICATE-----`で始まり `-----END CERTIFICATE-----`で終わる行を含む証明書をコピーして、コマンド プロンプトの後に貼り付けます。
+.. 証明書が正しく表示されることを確認します。
+.. Enterキーを押して、インストールを完了します。
+
+
+. 証明書がインストールされていることを確認します。
++
+[source, cli]
+----
+security certificate show -vserver <SVM_name>
+----
+
+
+.関連情報
+* link:https://docs.netapp.com/us-en/ontap-cli/security-certificate-install.html["security certificate install"^]
+* link:https://docs.netapp.com/us-en/ontap-cli/security-certificate-show.html["セキュリティ証明書の表示"^]
+
+
+
+
+== ステップ 3：ONTAP SMB サーバで LDAP over TLS を有効にする
+
+SMBサーバでActive Directory LDAPサーバとのセキュアな通信にTLSを使用するためには、SMBサーバのセキュリティ設定を変更してLDAP over TLSを有効にする必要があります。
+
+ONTAP 9.10.1以降、Active Directory（AD）とネームサービスのLDAP接続の両方で、LDAPチャネルバインディングがデフォルトでサポートされます。ONTAPは、Start-TLSまたはLDAPSが有効で、セッションセキュリティが署名またはシールに設定されている場合にのみ、LDAP接続でチャネルバインディングを試行します。ADサーバとのLDAPチャネルバインディングを無効化または再有効化するには、 `vserver cifs security modify`コマンドで `-try-channel-binding-for-ad-ldap`パラメータを使用します。
+
+詳細については、以下を参照してください。
+
+* link:../nfs-admin/using-ldap-concept.html["ONTAP NFS SVMのLDAPについて学ぶ"]
+* link:https://support.microsoft.com/en-us/topic/2020-ldap-channel-binding-and-ldap-signing-requirements-for-windows-ef185fb8-00f7-167d-744c-f299a66fc00a["Windows の 2020 年 LDAP チャネル バインディングおよび LDAP 署名要件"^]。
+
+
+.手順
+. Active Directory LDAPサーバとのセキュアなLDAP通信を可能にするSMBサーバのセキュリティ設定を構成します：
++
+[source, cli]
+----
+vserver cifs security modify -vserver <SVM_name> -use-start-tls-for-ad-ldap true
+----
+. LDAP over TLS セキュリティ設定が次のように設定されていることを確認してください `true`：
++
+[source, cli]
+----
+vserver cifs security show -vserver <SVM_name>
+----
++
+[NOTE]
+====
+SVMが名前マッピングやその他のUNIX情報（ユーザ、グループ、ネットグループなど）の照会に同じLDAPサーバを使用する場合は、 `vserver services name-service ldap client modify`コマンドを使用して `-use-start-tls`オプションも変更する必要があります。
+
+====
+

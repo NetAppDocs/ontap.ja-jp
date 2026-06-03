@@ -9,36 +9,43 @@
 
 たとえば、ボリュームでUNIXセキュリティ形式を使用している場合でも、ONTAPはマルチプロトコルに対応しているため、SMBクライアントから引き続きデータにアクセスできます（認証と許可が適切な場合）。ただし、ONTAPでは、UNIXクライアントのみが標準のツールを使用して変更できるUNIX権限が使用されます。
 
-[cols="5*"]
+[cols="5"]
 |===
 | セキュリティ形式 | 権限を変更できるクライアント | クライアントが使用できる権限 | 結果として得られる実効セキュリティ形式 | ファイルにアクセスできるクライアント 
 
 
-.2+| UNIX .2+| NFS | NFSv3モード ビット .2+| UNIX .9+| NFSとSMB 
+| UNIX | NFS  a| 
+* NFSv3モード ビット
+* NFSv4.x ACL
+
+| UNIX | NFSとSMB 
 
 
-| NFSv4.x ACL 
+| NTFS | SMB | NTFS ACL | NTFS | NFSとSMB 
 
 
-| NTFS | SMB | NTFS ACL | NTFS 
+| 混合 | NFSまたはSMB  a| 
+* NFSv3モード ビット
+* NFSv4.x ACL
+* NTFS ACL
+
+ a| 
+* UNIX（NFSv3モードビットおよびNFSv4.x ACL用）
+* NTFS（NTFS ACL用）
+
+| NFSとSMB 
 
 
-.3+| 混合 .3+| NFSまたはSMB | NFSv3モード ビット .2+| UNIX 
+| Unified（ONTAP 9.4以前のリリースでは、無限ボリュームのみ） | NFSまたはSMB  a| 
+* NFSv3モード ビット
+* NFSv4.1 ACL
+* NTFS ACL
 
+ a| 
+* UNIX（NFSv3モードビットおよびNFSv4.1 ACL用）
+* NTFS（NTFS ACL用）
 
-| NFSv4.x ACL 
-
-
-| NTFS ACL | NTFS 
-
-
-.3+| Unified（ONTAP 9.4以前のリリースでは、無限ボリュームのみ） .3+| NFSまたはSMB | NFSv3モード ビット .2+| UNIX 
-
-
-| NFSv4.1 ACL 
-
-
-| NTFS ACL | NTFS 
+| NFSとSMB 
 |===
 FlexVolでは、UNIX、NTFS、およびmixedのセキュリティ形式がサポートされます。セキュリティ形式がmixedまたはunifiedの場合は、ユーザがセキュリティ形式を各自設定するため、権限を最後に変更したクライアントの種類によって有効になる権限が異なります。権限を最後に変更したクライアントがNFSv3クライアントの場合、権限はUNIX NFSv3モード ビットになります。最後のクライアントがNFSv4クライアントの場合、権限はNFSv4 ACLになります。最後のクライアントがSMBクライアントの場合、権限はWindows NTFS ACLになります。
 

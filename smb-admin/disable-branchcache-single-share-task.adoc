@@ -4,17 +4,30 @@ sidebar: sidebar
 keywords: offer, caching, service, certain, share, offer, cache, disable, branchcache, exist, smb, disable branchcache on a single smb share 
 summary: 以前にキャッシュされたコンテンツを提供していた特定の共有でキャッシュ サービスを提供したくない場合は、既存の SMB 共有でBranchCacheを無効にすることができます。 
 ---
-= 単一のONTAP SMB共有でBranchCacheを無効化する
+= SMB共有でのBranchCacheの無効化
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
+特定のSMB共有で今はBranchCacheキャッシュ サービスを提供する必要がないがあとで必要になる可能性がある場合は、共有単位でBranchCacheを無効にすることができます。すべての共有でキャッシュを提供するようにBranchCacheを設定しているが、一時的にすべてのキャッシュ サービスを無効にする必要がある場合は、BranchCache設定を変更してすべての共有で自動キャッシュを停止することができます。
+
+SMB共有でBranchCacheが最初に有効化された後に無効化された場合、ONTAPは要求元クライアントへのメタデータの送信を停止します。データを必要とするクライアントは、コンテンツサーバ（Storage Virtual Machine（SVM）上のCIFSサーバ）から直接データを取得します。
+
+
+
+== 単一のONTAP SMB共有でBranchCacheを無効化する
+
 以前にキャッシュされたコンテンツを提供していた特定の共有でキャッシュ サービスを提供したくない場合は、既存の SMB 共有でBranchCacheを無効にすることができます。
 
 .手順
-. 次のコマンドを入力します： `vserver cifs share properties remove -vserver vserver_name -share-name share_name -share-properties branchcache`
+. 次のコマンドを入力します。
++
+[source, cli]
+----
+vserver cifs share properties remove -vserver <SVM_name> -share-name <share_name> -share-properties branchcache
+----
 +
 BranchCache共有プロパティは削除されます。適用されているその他の共有プロパティは有効なままです。
 
@@ -68,3 +81,45 @@ File Attribute Cache Lifetime: 10s
                 Offline Files: manual
 Vscan File-Operations Profile: standard
 ----
+
+
+== すべてのONTAP SMB共有の自動キャッシュを停止します
+
+各Storage Virtual Machine（SVM）のすべてのSMB共有でキャッシュを自動的に有効にするようにBranchCacheを設定している場合、設定を変更してすべてのSMB共有に対するコンテンツの自動キャッシュを停止することができます。
+
+.タスク概要
+すべての SMB 共有で自動キャッシュを停止するには、BranchCache 動作モードを共有ごとのキャッシュに変更します。
+
+.手順
+. すべてのSMB共有で自動キャッシュを停止するようにBranchCacheを設定します：
++
+[source, cli]
+----
+vserver cifs branchcache modify -vserver <SVM_name> -operating-mode per-share
+----
+. BranchCacheの設定が正しいことを確認します：
++
+[source, cli]
+----
+vserver cifs branchcache show -vserver <SVM_name>
+----
+
+
+.例
+次のコマンドは、Storage Virtual Machine（SVM、旧Vserver）vs1のBranchCache設定を変更し、すべてのSMB共有での自動キャッシュを停止します。
+
+[listing]
+----
+cluster1::> vserver cifs branchcache modify -vserver vs1 -operating-mode per-share
+
+cluster1::> vserver cifs branchcache show -vserver vs1
+
+                                 Vserver: vs1
+          Supported BranchCache Versions: enable_all
+                      Path to Hash Store: /hash_data
+          Maximum Size of the Hash Store: 20GB
+Encryption Key Used to Secure the Hashes: -
+        CIFS BranchCache Operating Modes: per_share
+----
+.関連情報
+xref:configure-branchcache-enabled-shares-concept.adoc[BranchCache対応共有の設定について学ぶ]

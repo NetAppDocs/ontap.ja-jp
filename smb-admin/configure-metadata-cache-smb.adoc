@@ -1,0 +1,78 @@
+---
+permalink: smb-admin/configure-metadata-cache-smb.html 
+sidebar: sidebar 
+keywords: enable, smb, metadata, cache, store, path, file, attribute, data, performance, client, workload, how smb metadata caching works 
+summary: 有効にすると、SMBメタデータキャッシュはパスとファイル属性データを一定期間保存します。これにより、一般的なワークロードを持つSMB 1.0クライアントのSMBパフォーマンスが向上します。 
+---
+= SMB共有のメタデータ キャッシュの設定
+:allow-uri-read: 
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+メタデータキャッシュは、SMB 1.0クライアント上のファイル属性キャッシュを有効にし、ファイルおよびフォルダ属性への高速アクセスを実現します。属性キャッシュは共有ごとに有効または無効にできます。メタデータキャッシュが有効な場合は、キャッシュされたエントリの有効期限を設定することもできます。クライアントがSMB 2.xまたはSMB 3.0経由で共有に接続している場合、メタデータキャッシュの設定は不要です。
+
+有効にすると、SMBメタデータキャッシュはパスとファイル属性データを一定期間保存します。これにより、一般的なワークロードを持つSMB 1.0クライアントのSMBパフォーマンスが向上します。
+
+特定のタスクでは、SMB は大量のトラフィックを発生させ、パスやファイルのメタデータに対する同一のクエリが複数回実行される場合があります。SMB メタデータキャッシュを使用してキャッシュから情報を取得することで、冗長なクエリの数を減らし、SMB 1.0 クライアントのパフォーマンスを向上させることができます。
+
+[NOTE]
+====
+可能性は低いですが、メタデータキャッシュがSMB 1.0クライアントに古い情報を提供する可能性があります。このリスクを許容できない環境では、この機能を有効にしないでください。
+
+====
+
+
+== ONTAP SMBメタデータ キャッシュを有効にする
+
+SMBメタデータのキャッシングを有効にすることで、SMB 1.0クライアントのSMBパフォーマンスが向上します。デフォルトでは、SMBメタデータのキャッシングは無効になっています。
+
+.手順
+. 新規または既存の共有でSMBメタデータキャッシュを有効にする：
++
+** 新しい共有を作成する際に、SMB メタデータのキャッシュを有効にする：
++
+[source, cli]
+----
+vserver cifs share create -vserver <SVM_name> -share-name <share_name> -path <path> -share-properties attributecache
+----
+** 既存の共有で SMB メタデータキャッシュを有効にする：
++
+[source, cli]
+----
+vserver cifs share properties add -vserver <SVM_name> -share-name <share_name> -share-properties attributecache
+----
+
+
+
+
+
+
+== ONTAP SMBメタデータキャッシュエントリの有効期間を設定する
+
+SMBメタデータキャッシュエントリの有効期間を設定することで、環境内のSMBメタデータキャッシュのパフォーマンスを最適化できます。デフォルトは10秒です。
+
+.開始する前に
+SMBメタデータキャッシュ機能を有効にする必要があります。SMBメタデータキャッシュが有効になっていない場合、SMBキャッシュTTL設定は使用されません。
+
+.手順
+. 新規または既存の共有における SMB メタデータキャッシュエントリの有効期間を設定します。
++
+** 新しい共有を作成する際に、SMBメタデータキャッシュエントリの有効期間を設定します：
++
+[source, cli]
+----
+vserver cifs share create -vserver <SVM_name> -share-name <share_name> -path <path> -attribute-cache-ttl [integerh][integerm][integers]
+----
+** 既存の共有における SMB メタデータキャッシュエントリのライフタイムを設定します。
++
+[source, cli]
+----
+vserver cifs share modify -vserver <SVM_name> -share-name <share_name> -attribute-cache-ttl [integerh][integerm][integers]
+----
+
+
+
+
+共有を作成または変更する際に、追加の共有設定オプションとプロパティを指定できます。link:https://docs.netapp.com/us-en/ontap-cli/search.html?q=vserver+cifs+share["ONTAPコマンド リファレンス"^]の `vserver cifs share`の詳細をご覧ください。

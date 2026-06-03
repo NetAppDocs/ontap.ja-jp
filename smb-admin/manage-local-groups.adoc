@@ -1,0 +1,334 @@
+---
+permalink: smb-admin/manage-local-groups.html 
+sidebar: sidebar 
+keywords: modify, exist, local, group, description, exist, local, group, renaming, rename, modify local groups 
+summary: 既存のローカル グループの説明を変更するか、グループの名前を変更することで、既存のローカル グループを変更できます。 
+---
+= ローカル ONTAP SMB グループを管理
+:allow-uri-read: 
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+ローカルグループは、説明を更新したり名前を変更したりすることで変更できます。クラスター全体または特定のStorage Virtual Machine（SVM）上のすべてのローカルグループを表示し、各グループに誰が所属しているかを確認することもできます。この情報は、SVMにおけるファイルアクセスやユーザ権限の問題のトラブルシューティングに役立ちます。
+
+[cols="2,4a"]
+|===
+| 状況 | 使用するコマンド 
+
+
+ a| 
+クラスタ上のすべてのローカルグループを表示します
+ a| 
+`vserver cifs users-and-groups local-group show`
+
+
+
+ a| 
+SVM上のすべてのローカルグループを表示する
+ a| 
+`vserver cifs users-and-groups local-group show -vserver <SVM_name>`
+
+
+
+ a| 
+クラスタ上のすべてのローカルグループのメンバーを表示する
+ a| 
+`vserver cifs users-and-groups local-group show-members`
+
+
+
+ a| 
+SVM上のすべてのローカルグループのメンバーを表示する
+ a| 
+`vserver cifs users-and-groups local-group show-members -vserver <SVM_name>`
+
+
+
+ a| 
+ローカルグループの説明を変更する
+ a| 
+`vserver cifs users-and-groups local-group modify -vserver <SVM_name> -group-name <group_name> -description text`
+
+説明にスペースが含まれている場合は、二重引用符で囲む必要があります。
+
+
+
+ a| 
+ローカルグループの名前を変更する
+ a| 
+`vserver cifs users-and-groups local-group rename -vserver <SVM_name> -group-name <group_name> -new-group-name <new_group_name>`
+
+|===
+.コマンドの例
+[%collapsible]
+====
+.例
+次の例では、ローカル グループ "`CIFS_SERVER\engineering`" の名前を "`CIFS_SERVER\engineering_new`" に変更します：
+
+[listing]
+----
+cluster1::> vserver cifs users-and-groups local-group rename -vserver vs1 -group-name CIFS_SERVER\engineering -new-group-name CIFS_SERVER\engineering_new
+----
+次の例では、ローカルグループ "`CIFS_SERVER\engineering`" の説明を変更します：
+
+[listing]
+----
+cluster1::> vserver cifs users-and-groups local-group modify -vserver vs1 -group-name CIFS_SERVER\engineering -description "New Description"
+----
+.例
+次の例は、SVM vs1のすべてのローカル グループに関する情報を表示します。
+
+[listing]
+----
+cluster1::> vserver cifs users-and-groups local-group show -vserver vs1
+Vserver  Group Name                  Description
+-------- --------------------------- ----------------------------
+vs1      BUILTIN\Administrators      Built-in Administrators group
+vs1      BUILTIN\Backup Operators    Backup Operators group
+vs1      BUILTIN\Power Users         Restricted administrative privileges
+vs1      BUILTIN\Users               All users
+vs1      CIFS_SERVER\engineering
+vs1      CIFS_SERVER\sales
+----
+.例
+次の例は、SVM vs1のすべてのローカル グループのメンバーに関する情報を表示します。
+
+[listing]
+----
+cluster1::> vserver cifs users-and-groups local-group show-members -vserver vs1
+Vserver   Group Name                   Members
+--------- ---------------------------- ------------------------
+vs1       BUILTIN\Administrators       CIFS_SERVER\Administrator
+                                       AD_DOMAIN\Domain Admins
+                                       AD_DOMAIN\dom_grp1
+          BUILTIN\Users                AD_DOMAIN\Domain Users
+                                       AD_DOMAIN\dom_usr1
+          CIFS_SERVER\engineering      CIFS_SERVER\james
+----
+====
+
+
+== ローカルONTAP SMBグループを削除する
+
+Storage Virtual Machine（SVM）に関連付けられたデータへのアクセス権の判断や、グループ メンバーへのSVMユーザ権限の割り当てに必要なくなった場合、SVMからローカル グループを削除できます。
+
+.タスク概要
+ローカル グループを削除する場合は、次の点に注意してください。
+
+* ファイル システムは変更されません。
++
+このグループを参照するファイルやディレクトリに対するWindowsセキュリティ記述子には反映されません。
+
+* グループが存在しない場合、エラーが返されます。
+* 特別な _Everyone_ グループは削除できません。
+* _BUILTIN\Administrators_ や _BUILTIN\Users_ などの組み込みグループは削除できません。
+
+
+.手順
+. SVM上のローカルグループのリストを表示して、削除するローカルグループの名前を確認します：
++
+[source, cli]
+----
+vserver cifs users-and-groups local-group show -vserver <SVM_name>
+----
+. ローカルグループを削除します：
++
+[source, cli]
+----
+vserver cifs users-and-groups local-group delete -vserver <SVM_name> -group-name <group_name>
+----
+. グループが削除されたことを確認します。
++
+[source, cli]
+----
+vserver cifs users-and-groups local-group show -vserver <SVM_name>
+----
+
+
+.コマンドの例
+[%collapsible]
+====
+次の例では、SVM vs1に関連付けられたローカル グループ「`CIFS_SERVER\sales`」を削除します：
+
+[listing]
+----
+cluster1::> vserver cifs users-and-groups local-group show -vserver vs1
+Vserver   Group Name                   Description
+--------- ---------------------------- ----------------------------
+vs1       BUILTIN\Administrators       Built-in Administrators group
+vs1       BUILTIN\Backup Operators     Backup Operators group
+vs1       BUILTIN\Power Users          Restricted administrative privileges
+vs1       BUILTIN\Users                All users
+vs1       CIFS_SERVER\engineering
+vs1       CIFS_SERVER\sales
+
+cluster1::> vserver cifs users-and-groups local-group delete -vserver vs1 -group-name CIFS_SERVER\sales
+
+cluster1::> vserver cifs users-and-groups local-group show -vserver vs1
+Vserver   Group Name                   Description
+--------- ---------------------------- ----------------------------
+vs1       BUILTIN\Administrators       Built-in Administrators group
+vs1       BUILTIN\Backup Operators     Backup Operators group
+vs1       BUILTIN\Power Users          Restricted administrative privileges
+vs1       BUILTIN\Users                All users
+vs1       CIFS_SERVER\engineering
+----
+====
+
+
+== ローカルONTAP SMBグループにメンバーを追加する
+
+ローカルユーザー、ドメインユーザー、またはドメイングループを追加することで、ローカルグループのメンバーシップを管理できます。これは、グループに設定されたアクセス制御に基づいてデータへのアクセスを制御したい場合、またはユーザにそのグループに関連付けられた権限を持たせたい場合に役立ちます。
+
+.タスク概要
+* 特別な _Everyone_ グループにユーザーを追加することはできません。
+* ローカル グループにユーザを追加する前に、あらかじめそのグループが存在している必要があります。
+* ローカル グループにユーザを追加する前に、あらかじめそのユーザが存在している必要があります。
+* 別のローカル グループにローカル グループを追加することはできません。
+* ローカル グループにドメイン ユーザまたはグループを追加するには、Data ONTAPでSIDを名前解決できる必要があります。
+
+
+.手順
+. グループにメンバーを追加する：
++
+[source, cli]
+----
+vserver cifs users-and-groups local-group add-members -vserver _vserver_name_ -group-name _group_name_ -member-names name[,...]
+----
+
+
+ローカル ユーザ、ドメイン ユーザ、またはドメイン グループをカンマで区切って指定し、指定したローカル グループに追加することができます。
+
+.コマンドの例
+[%collapsible]
+====
+次の例では、SVM vs1上のローカルグループ「`SMB_SERVER\engineering`」に、ローカルユーザー「`SMB_SERVER\sue`」とドメイングループ「`AD_DOM\dom_eng`」を追加します：
+
+[listing]
+----
+cluster1::> vserver cifs users-and-groups local-group add-members -vserver vs1 -group-name SMB_SERVER\engineering -member-names SMB_SERVER\sue,AD_DOMAIN\dom_eng
+----
+====
+
+
+== ローカル ONTAP SMB グループからメンバーを削除
+
+ローカルユーザー、ドメインユーザー、またはドメイングループを削除することで、ローカルグループのメンバーシップを管理できます。これは、グループに設定されたアクセス制御に基づいてデータへのアクセスを制御したい場合、またはユーザにそのグループに関連付けられた権限を持たせたい場合に役立ちます。
+
+.タスク概要
+* 特別な _Everyone_ グループからメンバーを削除することはできません。
+* メンバーを削除するグループが存在している必要があります。
+* グループから削除するメンバーの名前を、対応するSIDに対して、ONTAPで解決できる必要があります。
+
+
+.手順
+. グループからメンバーを削除する：
++
+[source, cli]
+----
+vserver cifs users-and-groups local-group remove-members -vserver _vserver_name_ -group-name _group_name_ -member-names name[,...]
+----
+
+
+ローカル ユーザ、ドメイン ユーザ、またはドメイン グループをカンマで区切って指定し、指定したローカル グループから削除することができます。
+
+.コマンドの例
+[%collapsible]
+====
+次の例では、SVM vs1上のローカルグループ"`SMB_SERVER\engineering`"からローカルユーザー"`SMB_SERVER\sue`"と"`SMB_SERVER\james`"を削除します：
+
+[listing]
+----
+cluster1::> vserver cifs users-and-groups local-group remove-members -vserver vs1 -group-name SMB_SERVER\engineering -member-names SMB_SERVER\sue,SMB_SERVER\james
+----
+====
+
+
+== ローカルデータベース内のONTAP SMBドメインユーザー名とグループ名を更新する
+
+CIFSサーバのローカル グループにドメイン ユーザとドメイン グループを追加できます。これらのドメイン オブジェクトは、クラスタのローカル データベースに登録されます。ドメイン オブジェクトの名前を変更した場合は、ローカル データベースを手動で更新する必要があります。
+
+.タスク概要
+ドメイン名を更新するStorage Virtual Machine（SVM）の名前を指定する必要があります。
+
+.手順
+. 権限レベルをadvancedに設定します。
++
+[source, cli]
+----
+set -privilege advanced
+----
+. ストレージ仮想マシンに関連付けられているドメインユーザとグループの名前を更新します：
++
+[source, cli]
+----
+vserver cifs users-and-groups update-names -vserver <SVM_name>
+----
+. 更新に成功したドメインユーザとグループ、および更新に失敗したドメインユーザとグループを表示します：
++
+[source, cli]
+----
+vserver cifs users-and-groups update-names -vserver <SVM_name> -display-failed-only false|true
+----
+. アップデートに関するすべてのステータス情報を非表示にする場合は、次のコマンドを使用します：
++
+[source, cli]
+----
+vserver cifs users-and-groups update-names -vserver <SVM_name> -suppress-all-output true
+----
+. admin権限レベルに戻ります。
++
+[source, cli]
+----
+set -privilege admin
+----
+
+
+.コマンドの例
+[%collapsible]
+====
+次の例は、Storage Virtual Machine（SVM、旧Vserver）vs1に関連付けられたドメイン ユーザおよびグループの名前を更新します。前回の更新に基づいて、一連の名前を更新する必要があります。
+
+[listing]
+----
+cluster1::> set -privilege advanced
+Warning: These advanced commands are potentially dangerous; use them
+only when directed to do so by technical support personnel.
+Do you wish to continue? (y or n): y
+
+cluster1::*> vserver cifs users-and-groups update-names -vserver vs1
+
+   Vserver:           vs1
+   SID:               S-1-5-21-123456789-234565432-987654321-12345
+   Domain:            EXAMPLE1
+   Out-of-date Name:  dom_user1
+   Updated Name:      dom_user2
+   Status:            Successfully updated
+
+   Vserver:           vs1
+   SID:               S-1-5-21-123456789-234565432-987654322-23456
+   Domain:            EXAMPLE2
+   Out-of-date Name:  dom_user1
+   Updated Name:      dom_user2
+   Status:            Successfully updated
+
+   Vserver:           vs1
+   SID:               S-1-5-21-123456789-234565432-987654321-123456
+   Domain:            EXAMPLE1
+   Out-of-date Name:  dom_user3
+   Updated Name:      dom_user4
+   Status:            Successfully updated; also updated SID "S-1-5-21-123456789-234565432-987654321-123457"
+                      to name "dom_user5"; also updated SID "S-1-5-21-123456789-234565432-987654321-123458"
+                      to name "dom_user6"; also updated SID "S-1-5-21-123456789-234565432-987654321-123459"
+                      to name "dom_user7"; also updated SID "S-1-5-21-123456789-234565432-987654321-123460"
+                      to name "dom_user8"
+
+The command completed successfully. 7 Active Directory objects have been updated.
+
+cluster1::*> set -privilege admin
+----
+====
+.関連情報
+ `vserver cifs`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/search.html?q=vserver+cifs["ONTAPコマンド リファレンス"^]をご覧ください。

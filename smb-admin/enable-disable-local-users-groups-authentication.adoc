@@ -1,0 +1,140 @@
+---
+permalink: smb-admin/enable-disable-local-users-groups-authentication.html 
+sidebar: sidebar 
+keywords: local, user, group, access, control, ntfs, security-style, data, enable, authentication, disable, enable or disable local users and groups functionality 
+summary: NTFSセキュリティ形式データのアクセス制御にローカル ユーザとローカル グループを使用する前に、ローカル ユーザとローカル グループ機能を有効にする必要があります。また、SMB認証にローカル ユーザを使用する場合は、ローカル ユーザ認証機能を有効にする必要があります。 
+---
+= ローカルONTAP SMBユーザおよびグループ機能を有効または無効にする
+:allow-uri-read: 
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+NTFSセキュリティ形式データのアクセス制御にローカル ユーザとローカル グループを使用する前に、ローカル ユーザとローカル グループ機能を有効にする必要があります。また、SMB認証にローカル ユーザを使用する場合は、ローカル ユーザ認証機能を有効にする必要があります。
+
+ローカル ユーザとローカル グループ機能とローカル ユーザ認証はデフォルトで有効になっています。有効になっていない場合は、ローカル ユーザとローカル グループを設定して使用する前に有効にする必要があります。ローカル ユーザとローカル グループ機能はいつでも無効にできます。
+
+ローカル ユーザとローカル グループ機能の明示的な無効化に加えて、ONTAPでは、クラスタ内のノードがローカル ユーザとローカル グループ機能をサポートしていないリリースのONTAPにリバートされた場合にその機能が無効になります。クラスタ内のすべてのノードでその機能をサポートするバージョンのONTAPが実行されるまで、ローカル ユーザとローカル グループ機能は有効になりません。
+
+.関連情報
+* xref:manage-local-user-accounts.html[ローカル ユーザ アカウントの変更]
+* xref:manage-local-groups.html[ローカル グループの変更]
+* xref:manage-local-privileges.html[ローカルまたはドメインのユーザまたはグループに対する権限の追加]
+
+
+
+
+== ONTAP SMBサーバ上のローカル ユーザとグループを有効または無効にする
+
+Storage Virtual Machine（SVM）で、SMBアクセスに使用するローカル ユーザとローカル グループを有効または無効にすることができます。ローカル ユーザとローカル グループ機能はデフォルトで有効になっています。
+
+.タスク概要
+SMB共有およびNTFSファイル権限の設定時にローカル ユーザとローカル グループを使用でき、必要に応じて、SMB接続の作成時の認証のためにローカル ユーザを使用できます。認証のためにローカル ユーザを使用するには、ローカル ユーザとローカル グループ認証オプションも有効にする必要があります。
+
+.手順
+. 権限レベルをadvancedに設定します。
++
+[source, cli]
+----
+set -privilege advanced
+----
+. ローカルユーザとグループを有効または無効にする：
++
+** ローカルユーザとグループを有効にする：
++
+[source, cli]
+----
+vserver cifs options modify -vserver <SVM_name> -is-local-users-and-groups-enabled true
+----
+** ローカルユーザとグループを無効にする：
++
+[source, cli]
+----
+vserver cifs options modify -vserver <SVM_name> -is-local-users-and-groups-enabled false
+----
+
+
+. admin権限レベルに戻ります。
++
+[source, cli]
+----
+set -privilege admin
+----
+
+
+.例
+次の例は、SVM vs1でローカル ユーザとローカル グループ機能を有効にします。
+
+[listing]
+----
+cluster1::> set -privilege advanced
+Warning: These advanced commands are potentially dangerous; use them
+only when directed to do so by technical support personnel.
+Do you wish to continue? (y or n): y
+
+cluster1::*> vserver cifs options modify -vserver vs1 -is-local-users-and-groups-enabled true
+
+cluster1::*> set -privilege admin
+----
+.関連情報
+* xref:manage-local-user-accounts.adoc[ローカル ユーザ アカウントの管理] == ONTAP SMBサーバーでローカルユーザ認証を有効または無効にする
+
+
+Storage Virtual Machine（SVM）でのSMBアクセスに関するローカル ユーザ認証を有効または無効にすることができます。デフォルトでは、ローカル ユーザ認証は許可されます。これは、SVMがドメイン コントローラにアクセスできない場合、またはドメインレベルのアクセス制御を使用しない場合に役立ちます。
+
+.開始する前に
+CIFSサーバでローカル ユーザとローカル グループ機能を有効にしておく必要があります。
+
+.タスク概要
+ローカル ユーザ認証はいつでも有効または無効にできます。SMB接続の作成時の認証のためにローカル ユーザを使用する場合は、CIFSサーバのローカル ユーザとローカル グループ オプションも有効にする必要があります。
+
+.手順
+. 権限レベルをadvancedに設定します。
++
+[source, cli]
+----
+set -privilege advanced
+----
+. ローカルユーザ認証を有効または無効にします。
++
+** ローカルユーザ認証を有効にする：
++
+[source, cli]
+----
+vserver cifs options modify -vserver <SVM_name> -is-local-auth-enabled true
+----
+** ローカルユーザ認証を無効にする：
++
+[source, cli]
+----
+vserver cifs options modify -vserver <SVM_name> -is-local-auth-enabled false
+----
+
+
+. admin権限レベルに戻ります。
++
+[source, cli]
+----
+set -privilege admin
+----
+
+
+.例
+次の例は、SVM vs1でローカル ユーザ認証を有効にします。
+
+[listing]
+----
+cluster1::>set -privilege advanced
+Warning: These advanced commands are potentially dangerous; use them
+only when directed to do so by technical support personnel.
+Do you wish to continue? (y or n): y
+
+cluster1::*> vserver cifs options modify -vserver vs1 -is-local-auth-enabled true
+
+cluster1::*> set -privilege admin
+----
+.関連情報
+* xref:local-user-authentication-concept.adoc[ローカル ユーザ認証について]
+* xref:enable-disable-local-users-groups-authentication.html[サーバ上のローカル ユーザとグループを有効または無効にする]
+

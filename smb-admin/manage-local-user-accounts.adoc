@@ -1,0 +1,202 @@
+---
+permalink: smb-admin/manage-local-user-accounts.html 
+sidebar: sidebar 
+keywords: modify, local, user, account, change, exist, name, description, enable, disable, rename, compromise, administrative, modify local user accounts 
+summary: ローカルユーザアカウントを有効にすることで、SMB経由でSVMデータへのアクセスを許可できます。また、アカウントを無効にすることで、アクセスを防止できます。アカウントを変更して、ユーザのフルネーム、概要、または有効状態を更新することもできます。必要に応じて、ユーザ名が侵害されたなどの管理上の理由でアカウント名を変更できます。ユーザが所属するローカルグループを表示することもできます。これは、ファイルやフォルダへのアクセス権限を判断したり、アクセスに関する問題のトラブルシューティングを行うのに役立ちます。 
+---
+= ローカル ONTAP SMB ユーザアカウントを管理する
+:allow-uri-read: 
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+ローカルユーザアカウントを有効にすることで、SMB経由でSVMデータへのアクセスを許可できます。また、アカウントを無効にすることで、アクセスを防止できます。アカウントを変更して、ユーザのフルネーム、概要、または有効状態を更新することもできます。必要に応じて、ユーザ名が侵害されたなどの管理上の理由でアカウント名を変更できます。ユーザが所属するローカルグループを表示することもできます。これは、ファイルやフォルダへのアクセス権限を判断したり、アクセスに関する問題のトラブルシューティングを行うのに役立ちます。
+
+|===
+| 状況 | コマンドを入力してください... 
+
+
+ a| 
+ローカルユーザのパスワードを変更する
+ a| 
+`vserver cifs users-and-groups local-user set-password -vserver <SVM_name> -user-name <user_name>`
+
+
+
+ a| 
+ローカル ユーザ アカウントの有効化または無効化
+ a| 
+`vserver cifs users-and-groups local-user modify -vserver <SVM_name> -user-name <user_name> -is-account-disabled {true|false}`
+
+
+
+ a| 
+特定のユーザの詳細なアカウント情報を表示する
+ a| 
+`vserver cifs users-and-groups local-user show -instance -vserver <SVM_name> -user-name <user_name>`
+
+
+
+ a| 
+指定したローカル ユーザのローカル ユーザ メンバーシップに関する情報を表示する
+ a| 
+`vserver cifs users-and-groups local-user show-membership -user-name <user_name>`
+
+
+
+ a| 
+このローカル ユーザが属しているローカル グループのローカル ユーザ メンバーシップに関する情報を表示する
+ a| 
+`vserver cifs users-and-groups local-user show-membership -membership _group_name_`
+
+
+
+ a| 
+指定したStorage Virtual Machine（SVM）に関連付けられているローカル ユーザのユーザ メンバーシップに関する情報を表示する
+ a| 
+`vserver cifs users-and-groups local-user show-membership -vserver <SVM_name>`
+
+
+
+ a| 
+指定したSVM上のすべてのローカル ユーザに関する詳細情報を表示する
+ a| 
+`vserver cifs users-and-groups local-user show-membership -instance -vserver <SVM_name>`
+
+
+
+ a| 
+Storage Virtual Machine（SVM）のすべてのユーザに関する情報を表示する
+ a| 
+`vserver cifs users-and-groups local-user show -vserver <SVM_name>`
+
+
+
+ a| 
+ローカルユーザーの説明を変更する
+ a| 
+`vserver cifs users-and-groups local-user modify -vserver <SVM_name> -user-name <user_name> -description text`
+
+説明にスペースが含まれている場合は、二重引用符で囲む必要があります。
+
+
+
+ a| 
+ローカルユーザーのフルネームを変更する
+ a| 
+`vserver cifs users-and-groups local-user modify -vserver <SVM_name> -user-name <user_name> -full-name text`
+
+フルネームにスペースが含まれる場合は、二重引用符で囲む必要があります。
+
+
+
+ a| 
+ローカル ユーザ アカウントの名前の変更
+ a| 
+`vserver cifs users-and-groups local-user rename -vserver <SVM_name> -user-name <user_name> -new-user-name <new_user_name>`
+
+ローカルユーザー名を変更する場合、新しいユーザー名は古いユーザー名と同じCIFSサーバーに関連付けられている必要があります。
+
+|===
+.例
+次の例では、ストレージ仮想マシン（SVM、旧称Vserver）vs1上のローカル ユーザー「`CIFS_SERVER\sue`」の名前を「`CIFS_SERVER\sue_new`」に変更します：
+
+[listing]
+----
+cluster1::> vserver cifs users-and-groups local-user rename -user-name CIFS_SERVER\sue -new-user-name CIFS_SERVER\sue_new -vserver vs1
+----
+.例
+次の例は、SVM vs1のすべてのローカル ユーザに関する情報を表示します。
+
+[listing]
+----
+cluster1::> vserver cifs users-and-groups local-user show -vserver vs1
+Vserver  User Name                   Full Name     Description
+-------- --------------------------- ------------- -------------
+vs1      CIFS_SERVER\Administrator   James Smith   Built-in administrator account
+vs1      CIFS_SERVER\sue             Sue   Jones
+----
+.例
+次の例では、Storage Virtual Machine（SVM、旧称 Vserver）vs1 に関連付けられたローカル ユーザー「`CIFS_SERVER\sue`」のパスワードを設定します：
+
+[listing]
+----
+cluster1::> vserver cifs users-and-groups local-user set-password -user-name CIFS_SERVER\sue -vserver vs1
+
+Enter the new password:
+Confirm the new password:
+----
+.例
+次の例では、SVM vs1 上のすべてのローカル ユーザのメンバーシップ情報を表示します。ユーザ「`CIFS_SERVER\Administrator`」は「`BUILTIN\Administrators`」グループのメンバーであり、「`CIFS_SERVER\sue`」は「`CIFS_SERVER\g1`」グループのメンバーです：
+
+[listing]
+----
+cluster1::> vserver cifs users-and-groups local-user show-membership -vserver vs1
+Vserver    User Name                    Membership
+---------- ---------------------------- ------------------------
+vs1        CIFS_SERVER\Administrator    BUILTIN\Administrators
+           CIFS_SERVER\sue              CIFS_SERVER\g1
+----
+.関連情報
+*  `vserver cifs`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/search.html?q=vserver+cifs["ONTAPコマンド リファレンス"^]をご覧ください。
+* xref:enable-disable-password-complexity-local-users-task.adoc[ローカル ユーザーのパスワードの複雑さを設定する]
+* xref:display-server-security-settings-task.adoc[サーバーのセキュリティ設定に関する情報を表示する]
+
+
+
+
+== ローカルONTAP SMBユーザーアカウントを削除する
+
+CIFSサーバに対するローカルSMB認証や、Storage Virtual Machine（SVM）に格納されたデータへのアクセス権の判断に必要なくなった場合、SVMからローカル ユーザ アカウントを削除できます。
+
+.タスク概要
+ローカル ユーザを削除する場合は、次の点に注意してください。
+
+* ファイル システムは変更されません。
++
+そのユーザを参照するファイルおよびディレクトリのWindowsセキュリティ記述子には反映されません。
+
+* メンバーシップおよび権限のデータベースからローカル ユーザへの参照がすべて削除されます。
+* 一般に使用される標準のユーザ（Administratorなど）は削除できません。
+
+
+.手順
+. 削除するローカルユーザアカウントの名前を確認します。
++
+[source, cli]
+----
+vserver cifs users-and-groups local-user show -vserver <SVM_name>
+----
+. ローカルユーザーを削除します：
++
+[source, cli]
+----
+vserver cifs users-and-groups local-user delete -vserver <SVM_name> -user-name <user_name>
+----
+. ユーザーアカウントが削除されていることを確認してください：
++
+[source, cli]
+----
+vserver cifs users-and-groups local-user show -vserver <SVM_name>
+----
+
+
+次の例では、SVM vs1に関連付けられたローカルユーザー「`CIFS_SERVER\sue`」を削除します：
+
+[listing]
+----
+cluster1::> vserver cifs users-and-groups local-user show -vserver vs1
+Vserver  User Name                   Full Name      Description
+-------- --------------------------- -------------- -------------
+vs1      CIFS_SERVER\Administrator   James Smith    Built-in administrator account
+vs1      CIFS_SERVER\sue             Sue   Jones
+
+
+cluster1::> vserver cifs users-and-groups local-user delete -vserver vs1 -user-name CIFS_SERVER\sue
+
+cluster1::> vserver cifs users-and-groups local-user show -vserver vs1
+Vserver      User Name                   Full Name      Description
+-------- --------------------------- -------------- -------------
+vs1      CIFS_SERVER\Administrator   James Smith    Built-in administrator account
+----

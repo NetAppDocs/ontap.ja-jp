@@ -1,0 +1,40 @@
+---
+permalink: data-protection/convert-exclude-svm-replication-task.html 
+sidebar: sidebar 
+keywords: exclude, network, name service, other settings, svm replication, disaster recovery, convert 
+summary: 'レプリケーション中に SVM 構成情報を除外する SVM DR 関係を、 `-identity-preserve true`パラメータを使用して構成情報をレプリケートする関係に変換できます。' 
+---
+= ONTAP SnapMirror SVMレプリケーション関係をSVM構成情報を含むように変換する
+:allow-uri-read: 
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+レプリケーション中に SVM 構成情報を除外する SVM DR 関係を、 `-identity-preserve true`パラメータを使用して構成情報をレプリケートする関係に変換できます。
+
+.開始する前に
+SnapMirror 転送が進行中の場合は、完了するまで待つか、中止してください。
+
+.手順
+. デスティネーション クラスタから、関係を休止します：
++
+`snapmirror quiesce -destination-path <destination_svm>`：
+
+. 関係状態が休止状態になったら、デスティネーション クラスタから関係を削除します：
++
+`snapmirror delete -destination-path <destination_svm>`：
+
+. ソースクラスタから、SnapMirror スナップショット情報を削除せずにリレーションシップを解放します：
++
+`snapmirror release -destination-path <destination_svm>: -relationship-info-only true`
+
+. デスティネーションから、以下を使用してレプリケーション関係を再作成します `-identity-preserve true`：
++
+`snapmirror create -source-path <source_svm>: -destination-path <destination_svm>: -policy <policy> -schedule <schedule> -identity-preserve true`
+
+. デスティネーション クラスタから、SnapMirror関係を再同期します。
++
+`snapmirror resync -destination-path <destination_svm>:`
+
+

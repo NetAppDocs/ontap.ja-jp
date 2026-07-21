@@ -1,0 +1,311 @@
+---
+permalink: nfs-admin/enable-nfs-over-tls-task.html 
+sidebar: sidebar 
+keywords: nfs over tls, encryption, nfs traffic, mutual tls 
+summary: ONTAP 9.19.1 以降、NFS 対応 SVM の転送中の NFS トラフィックを TLS 1.3 で暗号化できます。TLS 上の NFS は、LIF ごとの TLS 設定をサポートし、オプションの相互 TLS （mTLS） ホスト認証と、一致するクライアントからの非 TLS TCP アクセスを拒否できるエクスポートポリシー制御が含まれています。 
+---
+= TLS を介した NFS を有効にして、転送中の NFS トラフィックを暗号化します
+:allow-uri-read: 
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+ONTAP 9.19.1 以降、NFS 対応 SVM の転送中の NFS トラフィックを TLS 1.3 で暗号化できます。TLS 上の NFS は、LIF ごとの TLS 設定をサポートし、オプションの相互 TLS （mTLS） ホスト認証と、一致するクライアントからの非 TLS TCP アクセスを拒否できるエクスポートポリシー制御が含まれています。
+
+NFS over TLS は、オンプレミス ONTAP プラットフォームの ONTAP 9.19.1 以降でサポートされています。クラウドプラットフォームでは利用できません。NFS over TLS は TCP 接続のみをサポートしています。TLS over RDMA は ONTAP 9.19.1 ではサポートされていません。
+
+.タスク概要
+NFS over TLS は既存の ONTAP NFS インフラストラクチャと連携するため、アプリケーションは引き続き通常どおり NFS を使用でき、TLS は転送中の NFS トラフィックを暗号化します。管理者は、X.509 証明書を使用してストレージシステムを認証し、暗号化されたセッションを確立します。個々のデータ LIF で mTLS を有効にすると、クライアント証明書の検証をオプションで要求できます。NFS over TLS は、ONTAP 9.19.1 において最大 10,000 の適格な NFS over TLS 接続をサポートします。より高い接続制限が必要な場合は、NetApp サポートにお問い合わせください。
+
+.開始する前に
+* TLSが有効になっているNFSデータLIFごとに、X.509サーバー証明書が必要です。証明書は、ONTAPで生成するか、外部CAからインストールするか、または必要なLIF IDチェックに一致する既存のインストール済み証明書から選択することができます。
++
+[NOTE]
+====
+Subject Alternate Name （SAN）には、 `ipaddr`をLIF IPアドレスに設定するか、 `dns`名をLIF FQDNに設定する必要があります。
+
+====
+* クライアントは TCP 上で RPC-with-TLS をサポートし、マウント時に TLS を要求するように構成され、NFSサーバ証明書に署名した認証局を信頼する必要があります。クライアント側の設定手順はクライアントによって異なるため、ここでは説明しません。
+
+
+
+
+[[configure-nfs-over-tls-on-your-ontap-system-to-encrypt-in-transit-data]]
+== ONTAP システムで NFS over TLS を設定して転送中のデータを暗号化する
+
+NFS SVMデータLIF上で、TLS経由のNFSを段階的に構成することも、TLSアクセスが必要な箇所のみで構成することもできます。
+
+デフォルトでは、TLS が有効になっている LIF は、allow-nfs-tls-only を使用して export-policy ルールの適用を設定しない限り、TLS を要求しないクライアントからの TCP 経由の非 TLS NFS も受け入れることができます。一致するクライアントからの非 TLS アクセスを拒否する必要がある場合は、この設定を使用してください。
+
+
+
+[[step-1-prepare-to-enable-nfs-over-tls]]
+== ステップ1：TLS経由のNFSを有効にする準備をする
+
+NFS over TLS に対応するために、以下の要件が満たされていることを確認して ONTAP システムを準備してください。
+
+.手順
+. SVMでNFSが設定されていることを確認します。
++
+[source, cli]
+----
+vserver nfs show -vserver <vserver_name>
+----
+. NFSデータLIFが存在することを確認します。
++
+[source, cli]
+----
+network interface show -role data -instance -data-protocol nfs -vserver <vserver_name>
+----
+
+
+
+
+[[step-2-verify-or-install-a-valid-x-509-server-certificate-for-each-tls-enabled-nfs-data-lif]]
+== ステップ2：TLSが有効になっている各NFSデータLIFに対して、有効なX.509サーバ証明書を確認またはインストールします。
+
+TLSが有効になっている各NFSデータLIFに対して、有効なX.509サーバー証明書が利用可能であることを確認してください。有効な証明書をお持ちでない場合は、証明書を生成してインストールしてください。
+
+.手順
+. インストールされているサーバー証明書を表示する：
++
+[source, cli]
+----
+security certificate show -type server -vserver <vserver_name>
+----
++
+証明書がTLS対応LIFに関連付けられていることを確認します。
+
++
+[source, cli]
+----
+vserver nfs tls interface show -fields certificate-name -vserver <vserver_name> -lif <lif_name>
+----
++
+有効な証明書をお持ちでない場合は、以下の手順に従って証明書を生成し、インストールしてください：link:https://docs.netapp.com/us-en/ontap/authentication/install-server-certificate-cluster-svm-ssl-server-task.html["CA署名済みサーバ証明書のインストール"]。
+
+. NFSクライアントがTCP上のRPC-with-TLSをサポートしていること、およびサーバ証明書に署名した認証局を信頼していることを確認してください。
+
+
+
+
+[[step-3-enable-nfs-over-tls]]
+== ステップ3：TLS経由のNFSを有効にする
+
+ONTAP System Manager またはONTAP CLIを使用して、NFS SVM データLIFでNFS over TLSを有効にします。
+
+[role="tabbed-block"]
+====
+.System Manager
+--
+ONTAP System Manager を使用して、NFSトラフィックを処理するSVMの1つ以上のNFSデータLIFにTLSを設定します。
+
+.手順
+. System Manager で、*クラスタ > ストレージ VM* を選択し、NFS が有効になっているストレージ VM を選択し、*設定* を選択して、NFS カードの NFS over TLS 設定オプションを選択します。
+. TLSステータスが「Disabled」になっているデータLIFを1つ以上選択し、「Enable TLS」を選択します。インストール済みの証明書を選択するか、新しい証明書を作成するか、外部のCA署名済み証明書と秘密鍵を指定します。
+. TLSを編集または無効にします。TLSステータスが「有効」になっているインターフェースの場合、*TLSの編集*を選択して証明書とホスト認証の設定を確認または変更するか、*TLSの無効化*を選択して1つまたは複数のインターフェースのTLSを無効にします。
+. オプション：*ホスト認証（mTLS）を強制する*を選択することもできます。*件名代替名をスキップする*検証オプションは、有効化ワークフローで利用可能で、デフォルトではオフになっています。このオプションは、証明書のサブジェクト代替名がインターフェースと一致しない場合にのみ使用してください。
+. オプション：エクスポートポリシールールでTLSを強制する。NFSv3およびNFSv4のNFSエクスポート構成ワークフローでは、一致するクライアントからのTLSを使用しないTCPアクセスを拒否する場合に、NFSのTLSを強制するオプションを選択します。
+
+
+--
+.CLI
+--
+ONTAP CLIを使用して、NFSトラフィックを処理するSVMの1つ以上のNFSデータLIF上でTLSを設定します。
+
+.手順
+. TLSが有効になっているLIFを検証します。エントリをフィルタリングするためのキーとして、SVMまたはLIFを使用できます。
++
+[source, cli]
+----
+vserver nfs tls interface show -status enabled
+----
+. データLIF上でTLSを有効にし、証明書を関連付けます。
++
+[source, cli]
+----
+ vserver nfs tls interface enable -vserver <vserver_name> -lif <lif_name> -certificate-name <certificate_name>
+----
++
+この例は、データLIFでTLSを有効にし、証明書を関連付ける方法を示しています。
+
++
+[listing]
+----
+vserver nfs tls interface enable -vserver vs1 -lif data1 -certificate-name tls_server_cert
+----
+. オプション：TLS 経由の NFS に対して、相互 TLS （mTLS） ホスト認証を有効にします。デフォルトでは、TLS 上の NFS はサーバーのみのホスト認証を使用します。より高いレベルのセキュリティを実現するには、相互 TLS （mTLS） ホスト認証を強制することができます。LIF ごとに相互ホスト認証の適用を設定します。デフォルトでは無効になっています。NFS クライアントに有効な署名付き証明書がインストールされていることを確認し、次の 2 つの方法のいずれかを使用して、クライアント証明書を ONTAP クラスタにインストールします：
++
+.. 特定のクライアント証明書を明示的に信頼する場合は、クライアント証明書を直接インストールしてください：
++
+[source, cli]
+----
+security certificate install -type client
+----
+.. 特定の CA によって署名されたすべてのクライアント証明書を信頼する場合は、クライアント証明書署名機関（CA）をインストールしてください。
++
+[source, cli]
+----
+security certificate install -type client-ca
+----
++
+*** 目的のLIF上でTLSハンドシェイク中にクライアント証明書の検証を強制します：
++
+[source, cli]
+----
+vserver nfs tls interface modify
+----
++
+この例では、目的のLIFでTLSハンドシェイク中にクライアント証明書の検証を強制する方法を示します。
+
++
+[listing]
+----
+vserver nfs tls interface modify -vserver <vserver_name> -lif <lif_name> -enforce-host-auth true
+----
+
+
+
+
+. オプション：一致するクライアントに対してTLSのみのアクセスを強制します。
++
+** 一致するクライアントからのTLS非対応TCPアクセスを拒否します。
++
+[source, cli]
+----
+allow-nfs-tls-only
+----
+** ルールを更新したら、設定を確認してください。
++
+[source, cli]
+----
+vserver export-policy rule show -fields allow-nfs-tls-only,clientmatch
+----
++
+これはTCP接続にのみ適用されます。RDMAベースの接続では、この制限は適用されません。
+
++
+この例では、一致するクライアントに対してTLSのみのアクセスを強制する方法を示します。
+
++
+[listing]
+----
+vserver export-policy rule modify -vserver vs1 -policyname default -ruleindex 10 -allow-nfs-tls-only true
+vserver export-policy rule show -vserver vs1 -policyname default -fields clientmatch,allow-nfs-tls-only
+----
+
+
+
+
+--
+====
+
+
+[[step-4-verify-the-configuration]]
+== ステップ4：設定を確認する
+
+TLS 経由の NFS を設定したら、設定内容を確認してください。
+
+.手順
+. TLSが有効なインターフェースを確認する：
++
+[source, cli]
+----
+vserver nfs tls interface show -status enabled
+----
+. 必要に応じて、LIF で相互ホスト認証が有効になっていることを確認します。
++
+[source, cli]
+----
+vserver nfs tls interface show -vserver <vserver_name> -lif <lif_name> -instance
+----
+. 必要に応じて、エクスポートポリシーのTLS適用状況を確認します。
++
+[source, cli]
+----
+vserver export-policy rule show -fields allow-nfs-tls-only,clientmatch
+----
+
+
+検証コマンドを解釈するには、以下の例を参照してください。
+
+例：vserver nfs tls interface show
+
+[listing]
+----
+cluster1::> vserver nfs tls interface show
+
+         Logical                                                   Enforce Host
+Vserver  Interface  Address      TLS Status  TLS Certificate Name  Authentication
+-------- ---------- ------------ ---------- --------------------- --------------
+vs1      data1      192.0.2.10   enabled     tls_server_cert       false
+vs1      data2      192.0.2.11   disabled    -                     false
+
+2 entries were displayed.
+----
+例: vserver nfs tls interface show -instance
+
+[listing]
+----
+cluster1::> vserver nfs tls interface show -vserver vs1 -lif data1 -instance
+Vserver: vs1
+Logical Interface: data1
+IP Address: 192.0.2.10
+TLS Status: enabled
+TLS Certificate Name: tls_server_cert
+TLS Certificate UUID: 11111111-2222-3333-4444-555555555555
+Enforce Host Authentication : true
+----
+例：vserver export-policy rule show -fields clientmatch,allow-nfs-tls-only
+
+[listing]
+----
+
+cluster1::> vserver export-policy rule show -vserver vs1 -policyname default -fields clientmatch,allow-nfs-tls-only
+
+vserver  policyname  ruleindex  clientmatch     allow-nfs-tls-only
+-------  ----------  ---------  --------------  ------------------
+vs1      default     1          0.0.0.0/0       false
+vs1      default     10         192.0.2.0/24    true
+
+2 entries were displayed.
+----
+TLS および mTLS クライアント動作マトリックスを使用して、SVM で TLS および mTLS が設定されている場合のクライアントの動作を確認してください。
+
+[cols="4*"]
+|===
+| クライアントの動作 | TLSのみを強制 | mTLS が強制適用されました | 期待される結果 
+
+
+| クライアントが TLS を要求します | いいえ | いいえ | TLS経由でのマウントに成功しました 
+
+
+| クライアントは TLS を要求しません | いいえ | いいえ | TLS非使用TCP経由でのマウントに成功 
+
+
+| クライアントは TLS を要求しません | はい | いいえ | エクスポートポリシーによりアクセスが拒否されています 
+
+
+| クライアントは TLS を要求しましたが、有効なクライアント証明書を提示しませんでした。 | いいえまたははい | はい | TLSネゴシエーションが失敗しました 
+
+
+| クライアントは TLS を要求しますが、サーバー証明書を信頼しません。 | いいえまたははい | いいえまたははい | クライアント側で証明書の検証が失敗したため、マウントが失敗します。 
+|===
+
+
+[[whats-next]]
+== 次の手順
+
+* クライアントの動作を検証します：Linux クライアントが TLS を要求し、ONTAP が使用する認証局を信頼していることを確認します。
+* EMS と統計情報を確認する：EMS メッセージと TLS 関連の統計オブジェクト（ `nfs_tls` や  `nfs_tls_config_cache` など）を使用して、ハンドシェイクや設定の問題を調査します。
+
+
+
+
+[[related-information]]
+== 関連情報
+
+* link:https://hwu.netapp.com["NetApp Hardware Universe"]
+* link:https://docs.netapp.com/us-en/ontap/authentication/install-server-certificate-cluster-svm-ssl-server-task.html["CA署名済みサーバ証明書のインストール"]
+

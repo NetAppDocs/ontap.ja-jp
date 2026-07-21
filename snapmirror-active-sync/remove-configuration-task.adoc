@@ -18,10 +18,10 @@ RTOゼロのSnapMirror同期保護が不要になった場合は、SnapMirrorア
 
 
 
-[[remove-an-asymmetric-configuration]]
-== 非対称構成の削除
+[[remove-an-asymmetric-san-configuration]]
+== 非対称SAN構成を削除する
 
-* SnapMirrorアクティブ同期関係を削除する前に、デスティネーション クラスタのすべてのLUNのマッピングを解除する必要があります。
+* SnapMirror active sync SAN関係を削除する前に、デスティネーション クラスタ内のすべてのLUNのマップを解除しておく必要があります。
 * LUNのマッピングが解除されてホストが再スキャンされると、SCSIターゲットはLUNのインベントリが変更されたことをホストに通知します。RTOゼロの関係が削除されたあと、RTOゼロのセカンダリ ボリュームにある既存のLUNに新しいIDが反映されます。ホストは、セカンダリ ボリュームのLUNをソース ボリュームのLUNと関係ない新しいLUNとして検出します。
 * 関係が削除された後も、セカンダリボリュームはDPボリュームのままです。 `snapmirror break`コマンドを発行して、それらを読み取り / 書き込みに変換できます。
 * 関係が反転されていない場合、フェイルオーバー状態のときに関係を削除することはできません。
@@ -148,6 +148,7 @@ SiteB::> igroup delete -vserver <svm_name> -igroup <igroup_name>`
 .手順
 . ソース クラスタで、*保護 > レプリケーション* に移動します。
 . 削除する関係を見つけて、image:icon_kabob.gif["メニューオプションアイコン"]を選択し、*削除*を選択します。
+. 「レプリケーション構成の削除」ウィンドウで、「ソースボリュームのベーススナップショットを解放する」にチェックを入れ、「削除」を選択します。
 
 
 --
@@ -179,6 +180,56 @@ DST::> snapmirror delete -destination-path vs1:/cg/cg_dst_1 -force true
 [listing]
 ----
 SRC::> snapmirror release -destination-path vs1:/cg/cg_dst_1
+----
+. パスを再検出して、ホストへのローカル パスのみが使用可能であることを確認します。
+
+
+--
+====
+
+
+[[remove-a-nas-configuration]]
+== NAS構成を削除する
+
+[role="tabbed-block"]
+====
+.System Manager
+--
+.手順
+. ソース クラスタで、*保護 > レプリケーション* に移動します。
+. 削除する関係を見つけて、image:icon_kabob.gif["メニューオプションアイコン"]を選択し、*削除*を選択します。
+. 「レプリケーション構成の削除」ウィンドウで、「ソースストレージ VM のベーススナップショットを解放する」にチェックを入れ、「削除」を選択します。
+
+
+--
+.CLI
+--
+. デスティネーション クラスタから、SnapMirror アクティブ同期関係を削除します。
++
+`snapmirror delete -destination-path <destination_path>`
+
++
+例：
+
++
+[listing]
+----
+DST::> snapmirror delete -destination-path vs_b:
+----
++
+SVMとそのボリュームは、セカンダリクラスタから削除されます。
+
+. ソース クラスタから、プライマリ サイトのSnapMirror アクティブ同期関係を解放します。
++
+`snapmirror release -destination-path <destination_path>`
+
++
+例：
+
++
+[listing]
+----
+SRC::> snapmirror release -destination-path vs_b:
 ----
 . パスを再検出して、ホストへのローカル パスのみが使用可能であることを確認します。
 

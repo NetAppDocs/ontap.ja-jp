@@ -60,6 +60,13 @@ xref:../data-protection/snapmirror-synchronous-disaster-recovery-basics-concept.
  a| 
 SnapMirror Synchronous を使用して、スケジュール設定された Snapshot を宛先ボリュームにレプリケートできます。
 
+
+
+ a| 
+xref:../snapmirror-active-sync/protect-nas-task.html[SnapMirror NAS のアクティブ同期サポート]
+ a| 
+SnapMirror active syncは、AFFクラスター（2ノードのみ）または https://docs.netapp.com/us-en/ontap-afx/release-notes/whats-new-9191.html["AFX"]クラスター（4ノードのみ）上でNFSとSMBを使用してSVMレベルでNASワークロードをサポートし、プライマリでの読み取り/書き込みアクセスのみをサポートします。
+
 |===
 
 
@@ -104,6 +111,13 @@ NFSv4.2のサポートはNFSv4.1の設定とは独立して管理されるため
 xref:../concepts/path-failover-concept.html#nas-path-failover[LIFフェイルオーバー機能の強化]
  a| 
 ONTAPシステム定義のフェイルオーバーグループポリシーは、NASデータLIFのフェイルオーバーターゲットを動的に拡張し、クラスタ内の利用可能なノード上のブロードキャストドメイン内の利用可能なポートをすべて含める可能性があります。システム定義ポリシーは、任意のフェイルオーバーグループに適用できます。ONTAP 9.19.1より前では、このポリシーを持つLIFはクラスタ内の他の1つのノードにのみフェイルオーバーできました。そのノードがクォーラムから外れた場合、他のノードが利用可能であってもLIFはフェイルオーバーしませんでした。
+
+
+
+ a| 
+link:../networking/improve-tcp-wan-performance.html["TCPのパフォーマンス向上"]
+ a| 
+ONTAPは、PRRとRACKという2つの損失回復機能をONTAP TCPスタックに統合することで、損失が多く遅延の大きいWANリンク上のTCPデータ転送パフォーマンスを向上させます。PRRはすべてのネットワークに適しており、デフォルトで有効になっています。RACKは、リンク速度が約25 Gigabits/secondの輻輳したネットワークに適しており、デフォルトでは無効になっています。
 
 |===
 
@@ -186,16 +200,32 @@ ARPの動作と検出方法は変更されておらず、System Managerによる
 
 
  a| 
-xref:../anti-ransomware/use-cases-restrictions-concept.html#supported-configurations[Autonomous Ransomware Protection の SnapMirror 同期および SnapMirror アクティブ同期のサポート]
- a| 
-ARP/AIは、サポートされているプラットフォーム上でSnapMirror同期（NASおよびSAN）およびSnapMirrorアクティブ同期SAN関係に参加するボリュームをサポートします。ARP/AIは、FAS、AFF、AFXシステム上のSnapMirror同期関係のプライマリボリューム、およびAFFとASA r2システム上のSnapMirrorアクティブ同期SAN関係のプライマリボリュームを保護できます。ARP/AIは、関係におけるアクティブな読み書き可能なプライマリボリューム上で動作し、プライマリ専用のARPスナップショットを作成し、機械学習ベースのランサムウェア検出を提供します。
-
-
-
- a| 
 xref:../networking/configure-tls-offload.html[TLSオフロード設定]
  a| 
 TLSオフロードを設定することで、サポートされているイーサネットカードのリソースを活用し、TLSハンドシェイク後のパフォーマンスを向上させることができます。この機能は暗号化と復号化の処理をオフロードすることで、CPU負荷を軽減し、パフォーマンスを向上させます。
+
+
+
+ a| 
+xref:../nfs-admin/enable-nfs-over-tls-task.html[TLS を介した NFS を有効にして、転送中の NFS トラフィックを暗号化します]
+ a| 
+NFS対応のSVM上で転送中のNFSトラフィックを暗号化するために、TLS 1.3を使用したNFS over TLSを有効にできます。この機能強化により、信頼されていないネットワーク上でのNFSデータの傍受や改ざんからデータを保護できます。このリリースでは、オプションのLIFごとの相互TLSホスト認証、および一致するクライアントに対する非TLS TCPアクセスを拒否するエクスポートポリシー制御もサポートされています。
+
+
+
+ a| 
+xref:../anti-ransomware/use-cases-restrictions-concept.html#snapmirror[Autonomous Ransomware Protection の SnapMirror 同期および SnapMirror アクティブ同期のサポート]
+ a| 
+ARP/AI は、FAS、AFF、および https://docs.netapp.com/us-en/ontap-afx/release-notes/whats-new-9191.html["AFX"]システムの SnapMirror 同期（NAS および SAN）関係のプライマリボリューム、ならびに AFF および https://docs.netapp.com/us-en/asa-r2/release-notes/whats-new-9191.html["ASA r2"]システムの SnapMirror アクティブ同期 SAN 関係のプライマリボリュームを保護します。検出は、ARP スナップショットが作成されるアクティブな読み取り / 書き込みプライマリで実行されます（スナップショットはレプリケートされません）。
+
+以前は同期レプリケーション関係によりデフォルトのARP有効化が抑制されていたクラスターをONTAP 9.19.1にアップグレードすると、自動的に復元されます。アップデート前の警告により管理者に通知され、無効化するオプションが提供されます。
+
+
+
+ a| 
+xref:../authentication-access-control/webauthn-mfa-overview.html[WebAuthn 依拠当事者ドメインの拡張]
+ a| 
+ONTAP 9.19.1 では、WebAuthn グローバル設定コマンドに新しいパラメータ `-rp-domains`が導入されました。これにより、管理者は System Manager での WebAuthn （FIDO2）多要素認証時に受け入れられる証明書利用者（RP）ドメインのセットを明示的に制限できます。
 
 |===
 

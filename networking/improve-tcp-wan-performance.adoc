@@ -1,0 +1,50 @@
+---
+sidebar: sidebar 
+permalink: networking/improve-tcp-wan-performance.html 
+keywords: tcp, wan, performance, tcp wan performance, prr, proportional rate reduction, rack, recent acknowledgment, tlp, tail loss probe, loss recovery, lossy network, high latency, congestion window, retransmission, duplicate ack, out of order packets, ipspace, tcp stack, network ipspace modify, network ipspace show, lif, nfs, smb, iscsi, nvme tcp, s3, snapmirror, flexcache, intercluster network, ontap 9.19.1 
+summary: ONTAPは、PRRとRACKという2つの損失回復機能をONTAP TCPスタックに統合することで、損失が多く遅延の大きいWANリンク上のTCPデータ転送パフォーマンスを向上させます。 
+---
+= PRRとRACKを使用したONTAP TCP WANパフォーマンスの改善
+:hardbreaks:
+:allow-uri-read: 
+:nofooter: 
+:icons: font
+:linkattrs: 
+:imagesdir: ../media/
+
+
+[role="lead"]
+ONTAP 9.19.1以降、ONTAPはPRRとRACKという2つの損失回復機能をONTAP TCPスタックに統合することで、損失が多く遅延の大きいWANリンク上のTCPデータ転送パフォーマンスを向上させます。PRRはすべてのネットワークに適しており、デフォルトで有効になっています。RACKは、リンク速度が約25 Gigabits/secondの輻輳したネットワークに適しており、デフォルトでは無効になっています。
+
+* *比例レート削減（PRR）：* 損失回復中の輻輳ウィンドウの縮小にほぼ一致するレートで回復データを送信し、利用率の低下と過剰な再送信バーストの両方を回避します。
+* *Recent Acknowledgment (RACK):* 従来の重複ACKカウントではなく、時間ベースの検出を使用して、パケットが順不同で到着した場合でも、失われたパケットをより迅速かつ正確に識別します。RACKには Tail Loss Probe（TLP）が搭載されており、特定のRPCの重要な最終パケットの1つが失われ、新しいデータが前のリクエストが完了した後にしか利用できない場合でも、トランザクション通信をより迅速に完了させることができます。これにより、リクエストの完了が速くなり、WLAN（WiFi）、WAN、インターネットVPN、クラウドトンネルなどの困難なネットワークリンク全体で不要な再送信が削減されます。
+
+
+PRRとRACKは使用されているプロトコルに依存せず、NFS、SMB、iSCSI、NVMe/TCP、S3へのアクセスおよびパフォーマンスを向上させるとともに、WAN接続を介したSnapMirrorやFlexCacheを含むクラスター間ネットワークを使用するONTAP機能のパフォーマンスも向上させます。これらの機能は、すべてのNetAppストレージシステムでサポートされています。
+
+
+NOTE: RACK の有効化は、リンク速度が約 25 Gigabits/second の輻輳したネットワークにのみ推奨されます。リンク速度が 25 Gigabits/second 以上のクリーンなネットワーク環境では、RACK は標準スタックと同じスループットを実現できない場合があります。
+
+.手順
+PRRはデフォルトで有効になっています。RACKはデフォルトでは無効になっています。お使いの環境がRACKに適している場合は、以下の手順で有効にできます。
+
+. IPspace の RACK TCP スタック機能を有効にします：
++
+[source, cli]
+----
+network ipspace modify -ipspace <ipspace_name> -tcp-stack rack
+----
++
+
+NOTE: この変更は新規接続のみに影響します。IPspace への既存の接続で RACK を使用するには、ノード間で LIF を移行するか、LIF を一時的に無効にしてから再度有効にしてください。
+
+. IPspace への変更が適用されたことを確認します。
++
+[source, cli]
+----
+network ipspace show -fields tcp-stack
+----
+
+
+.関連情報
+link:migrate_a_lif.html["LIFの移行"]

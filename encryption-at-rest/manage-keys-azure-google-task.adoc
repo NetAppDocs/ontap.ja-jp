@@ -72,11 +72,13 @@ AWS KMS、AKV、Cloud KMS は、データ SVM のlink:configure-netapp-volume-en
 .Azure
 --
 .ONTAP SVMでAzure Key Vaultを有効にする
-. 始める前に、Azureアカウントから適切な認証クレデンシャル（クライアントシークレットまたは証明書）を取得する必要があります。また、クラスター内のすべてのノードが正常であることを確認する必要があります。これは次のコマンドで確認できます `cluster show`。 `cluster show`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/cluster-show.html["ONTAPコマンド リファレンス"^]を参照してください。
+. 始める前に、Azureアカウントから適切な認証クレデンシャル（クライアントシークレットまたは証明書）を取得する必要があります。クラスター内のすべてのノードが正常であることも確認する必要があります。以下のコマンドで確認できます `cluster show`。 `cluster show`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/cluster-show.html["ONTAPコマンド リファレンス"^]を参照してください。
 . 権限レベルを advanced に設定します
 `set -priv advanced`
-. SVM で AKV を有効にします。
-`security key-manager external azure enable -client-id _client_id_ -tenant-id _tenant_id_ -name -key-id _key_id_ -authentication-method {certificate|client-secret}`プロンプトが表示されたら、Azure アカウントのクライアント証明書またはクライアント シークレットを入力します。
+. SVMでAKVを有効にするONTAP 9.19.1以降では、次のコマンドを使用します：
+`security key-manager external azure create-config -config-name _config_name_ -client-id _client_id_ -tenant-id _tenant_id_ -name URL -key-id _key_id_ -authentication-method {certificate|client-secret} -vserver _vserver_name_`続いて次のコマンドを使用します：
+`security key-manager keystore enable -vserver _vserver_name_ -keystore-type AKV -config-name _config_name_`ONTAP 9.18.1以前では、次のコマンドを使用します：
+`security key-manager external azure enable -client-id _client_id_ -tenant-id _tenant_id_ -name _name_ -key-id _key_id_ -authentication-method {certificate|client-secret} -vserver _vserver_name_`プロンプトが表示されたら、Azureアカウントのクライアント証明書またはクライアントシークレットのいずれかを入力してください。
 . AKV が正しく有効化されていることを確認します：
 `security key-manager external azure show vserver _svm_name_`サービスの到達可能性が正常でない場合は、データ SVM LIF を介して AKV キー管理サービスへの接続を確立します。
 +

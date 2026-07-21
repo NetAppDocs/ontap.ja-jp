@@ -16,10 +16,11 @@ ONTAP Mediatorをインストールまたはアップグレードするには、
 .タスク概要
 * ONTAP Mediator 1.12以降をインストールまたはアップグレードする際には、iSCSIとHTTPSをサポートするONTAP Mediatorをインストールするか、HTTPSのみをサポートするONTAP Mediatorをインストールするかを選択できます。HTTPSのみをサポートするONTAP Mediatorをインストールする場合、SCSTパッケージはインストールされません。
 * SCST がインストールされた ONTAP Mediator 1.11 以前からアップグレードし、アップグレード中に HTTPS のみのオプションを選択した場合、SCST パッケージはアンインストールされ、新しい ONTAP Mediator バージョンには SCST パッケージが含まれません。
+* ONTAP Mediator を使用して複数の MetroCluster IP 構成を監視する場合、サポートはメディエーターの種類、ONTAP バージョン、および OS によって異なります。詳細については、link:https://docs.netapp.com/us-en/ontap-metrocluster/install-ip/concept_mediator_requirements.html#mediator-multiple-mccip["ONTAP Mediator を使用して複数の MetroCluster IP 構成を監視する"^] を参照してください。
 * HTTPSのみをサポートするONTAP Mediatorのインストールは、以下のユースケースでサポートされます：
 +
 ** ONTAP Mediatorを使用してSnapMirrorアクティブ同期クラスタを監視することのみを計画しています。
-** ONTAP MediatorインスタンスごとにHTTPSを使用して単一のMetroCluster IP構成を監視するようにONTAP Mediatorを設定する予定です。
+** HTTPS を使用して ONTAP Mediator を設定し、1 つ以上の MetroCluster IP 構成を監視する予定です。
 
 
 * 以下のシナリオでは、iSCSIとHTTPSをサポートするONTAP Mediatorをインストールする必要があります：
@@ -27,15 +28,6 @@ ONTAP Mediatorをインストールまたはアップグレードするには、
 ** iSCSIを使用して1つ以上のMetroCluster IP構成を監視するONTAP Mediatorを設定する予定です。
 
 
-
-
-[CAUTION]
-====
-* MetroCluster IP構成において、ONTAP MediatorがHTTPSプロトコルで設定されている場合、単一のONTAP Mediatorインスタンスは1つのMetroCluster IP構成のみを監視できます。複数の MetroCluster IP 設定を同時に監視することはサポートされていません。
-* 複数のMetroCluster IP構成を監視するためにHTTPSで構成されたONTAP Mediatorが必要な場合は、MetroCluster IP構成ごとに個別のONTAP Mediatorインスタンスを構成する必要があります。MetroCluster IPに対してHTTPSでONTAP Mediatorを構成することを選択する前に、MetroCluster IP環境の要件を慎重に評価する必要があります。
-
-
-====
 * ONTAP Mediator 1.12以降へのインストールまたはアップグレード中に、インストーラから次の応答を求められます：
 +
 `ONTAP Mediator can be installed with iSCSI and HTTPS support, or HTTPS support only.
@@ -43,9 +35,9 @@ Do you wish to install ONTAP Mediator with iSCSI and HTTPS support? Y(es)/n(o):`
 
 +
 ** iSCSI で設定された ONTAP Mediator を使用して 1 つ以上の MetroCluster IP 構成を監視する予定がある場合は、応答してください `Yes`。
-**  `No`ONTAP MediatorをSnapMirrorアクティブ同期にのみ使用する予定の場合、またはHTTPSを使用してONTAP MediatorインスタンスごとにONTAP Mediatorを設定して単一のMetroCluster IP構成を監視する予定の場合に応答してください。
+**  `No`に応答します。ONTAP Mediator を SnapMirror アクティブ同期にのみ使用する予定の場合、または HTTPS を使用して ONTAP Mediator を設定し、1 つ以上の MetroCluster IP 構成を監視する予定の場合に選択してください。
 +
-または、 `./ontap-mediator-1.12.0/ontap-mediator-1.12.0 -y`コマンドの `--https-only`オプションを使用して、HTTPSのみを指定することもできます。
+または、 `./ontap-mediator-1.12.1/ontap-mediator-1.12.1 -y`コマンドの `--https-only`オプションを使用して、HTTPSのみを指定することもできます。
 
 
 
@@ -54,17 +46,17 @@ Do you wish to install ONTAP Mediator with iSCSI and HTTPS support? Y(es)/n(o):`
 .手順
 . インストーラを実行し、必要に応じてプロンプトに応答します。
 +
-`./ontap-mediator-1.12.0/ontap-mediator-1.12.0 -y`
+`./ontap-mediator-1.12.1/ontap-mediator-1.12.1 -y`
 
 +
 [listing]
 ----
-[root@mediator_host ~]# ./ontap-mediator-1.12.0/ontap-mediator-1.12.0 -y
+[root@mediator_host ~]# ./ontap-mediator-1.12.1/ontap-mediator-1.12.1 -y
 ----
 +
 [NOTE]
 ====
-インストール中に署名のチェックをスキップするには、次のコマンドを使用します： `./ontap-mediator-1.12.0/ontap-mediator-1.12.0 -y --skip-code-signature-check`
+インストール中に署名のチェックをスキップするには、次のコマンドを使用します： `./ontap-mediator-1.12.1/ontap-mediator-1.12.1 -y --skip-code-signature-check`
 
 ====
 +
@@ -78,18 +70,18 @@ Do you wish to install ONTAP Mediator with iSCSI and HTTPS support? Y(es)/n(o):`
 [listing]
 ----
 
-[root@mediator_host ~]# tar -zxvf ontap-mediator-1.12.0.tgz
-ontap-mediator-1.12.0/
-ontap-mediator-1.12.0/csc-prod-chain-ONTAP-Mediator.pem
-ontap-mediator-1.12.0/ONTAP-Mediator-production.pub
-ontap-mediator-1.12.0/tsa-prod-ONTAP-Mediator.pem
-ontap-mediator-1.12.0/csc-prod-ONTAP-Mediator.pem
-ontap-mediator-1.12.0/tsa-prod-chain-ONTAP-Mediator.pem
-ontap-mediator-1.12.0/ontap-mediator-1.12.0
-ontap-mediator-1.12.0/ontap-mediator-1.12.0.sig
-ontap-mediator-1.12.0/ontap-mediator-1.12.0.tsr
-ontap-mediator-1.12.0/ontap-mediator-1.12.0.sig.tsr
-[root@mediator_host ~]# ontap-mediator-1.12.0/ontap-mediator-1.12.0
+[root@mediator_host ~]# tar -zxvf ontap-mediator-1.12.1.tgz
+ontap-mediator-1.12.1/
+ontap-mediator-1.12.1/csc-prod-chain-ONTAP-Mediator.pem
+ontap-mediator-1.12.1/ONTAP-Mediator-production.pub
+ontap-mediator-1.12.1/tsa-prod-ONTAP-Mediator.pem
+ontap-mediator-1.12.1/csc-prod-ONTAP-Mediator.pem
+ontap-mediator-1.12.1/tsa-prod-chain-ONTAP-Mediator.pem
+ontap-mediator-1.12.1/ontap-mediator-1.12.1
+ontap-mediator-1.12.1/ontap-mediator-1.12.1.sig
+ontap-mediator-1.12.1/ontap-mediator-1.12.1.tsr
+ontap-mediator-1.12.1/ontap-mediator-1.12.1.sig.tsr
+[root@mediator_host ~]# ontap-mediator-1.12.1/ontap-mediator-1.12.1
 
 ONTAP Mediator: Self Extracting Installer
 
@@ -426,7 +418,7 @@ Installed:
 Complete!
 OS package installations finished
     OS package installations finished
-    + Installing ONTAP Mediator. (Log: /root/ontap_mediator.pJBcIv/ontap-mediator-1.12.0/ontap-mediator-1.12.0/install_20260324151410.log)
+    + Installing ONTAP Mediator. (Log: /root/ontap_mediator.pJBcIv/ontap-mediator-1.12.1/ontap-mediator-1.12.1/install_20260324151410.log)
         This step will take several minutes. Use the log file to view progress.
         Sudoer config verified
         ONTAP Mediator rsyslog and logging rotation enabled
@@ -532,7 +524,7 @@ OS package installations finished
 + Note: ONTAP Mediator uses a kernel module compiled specifically for the current
         OS. Using 'yum update' to upgrade the kernel might cause service interruption.
     For more information, see /opt/netapp/lib/ontap_mediator/README
-[root@mediator_host ~]# ontap-mediator-1.12.0/ontap-mediator-1.12.0
+[root@mediator_host ~]# ontap-mediator-1.12.1/ontap-mediator-1.12.1
 
 ONTAP Mediator: Self Extracting Installer
 
@@ -548,7 +540,7 @@ ONTAP Mediator can be installed with iSCSI and HTTPS support, or support for HTT
 Do you wish to install ONTAP Mediator with iSCSI and HTTPS support? Y(es)/n(o): yes
 ONTAP Mediator will be installed with mode: ISCSI_HTTPS
 + Selected install package mode: ISCSI_HTTPS
-ONTAP Mediator will be upgraded from version 1.11.0 to 1.12.0.
+ONTAP Mediator will be upgraded from version 1.11.0 to 1.12.1.
 
 
 Do you wish to continue? Y(es)/n(o): yes
@@ -569,7 +561,7 @@ Performing database migrations against clone...
 Migrations successful.
 Database upgrade operation complete.
 + Adding python312 specific packages
-+ Upgrading ONTAP Mediator. (Log: /root/ontap_mediator.gwaGmU/ontap-mediator-1.12.0/ontap-mediator-1.12.0/upgrade_20260420145942.log)
++ Upgrading ONTAP Mediator. (Log: /root/ontap_mediator.gwaGmU/ontap-mediator-1.12.1/ontap-mediator-1.12.1/upgrade_20260420145942.log)
 
 + Note: ONTAP Mediator generated a self-signed server certificate for temporary use on
     this host. If the DNS name or IP address for the host is changed, the certificate
@@ -591,18 +583,18 @@ Database upgrade operation complete.
 [listing]
 ----
 
-[root@mediator_host ~]# tar -zxvf ontap-mediator-1.12.0.tgz
-ontap-mediator-1.12.0/
-ontap-mediator-1.12.0/csc-prod-chain-ONTAP-Mediator.pem
-ontap-mediator-1.12.0/tsa-prod-ONTAP-Mediator.pem
-ontap-mediator-1.12.0/csc-prod-ONTAP-Mediator.pem
-ontap-mediator-1.12.0/tsa-prod-chain-ONTAP-Mediator.pem
-ontap-mediator-1.12.0/ONTAP-Mediator-production.pub
-ontap-mediator-1.12.0/ontap-mediator-1.12.0
-ontap-mediator-1.12.0/ontap-mediator-1.12.0.sig
-ontap-mediator-1.12.0/ontap-mediator-1.12.0.tsr
-ontap-mediator-1.12.0/ontap-mediator-1.12.0.sig.tsr
-[root@mediator_host ~]# ontap-mediator-1.12.0/ontap-mediator-1.12.0 --https-only
+[root@mediator_host ~]# tar -zxvf ontap-mediator-1.12.1.tgz
+ontap-mediator-1.12.1/
+ontap-mediator-1.12.1/csc-prod-chain-ONTAP-Mediator.pem
+ontap-mediator-1.12.1/tsa-prod-ONTAP-Mediator.pem
+ontap-mediator-1.12.1/csc-prod-ONTAP-Mediator.pem
+ontap-mediator-1.12.1/tsa-prod-chain-ONTAP-Mediator.pem
+ontap-mediator-1.12.1/ONTAP-Mediator-production.pub
+ontap-mediator-1.12.1/ontap-mediator-1.12.1
+ontap-mediator-1.12.1/ontap-mediator-1.12.1.sig
+ontap-mediator-1.12.1/ontap-mediator-1.12.1.tsr
+ontap-mediator-1.12.1/ontap-mediator-1.12.1.sig.tsr
+[root@mediator_host ~]# ontap-mediator-1.12.1/ontap-mediator-1.12.1 --https-only
 
 ONTAP Mediator: Self Extracting Installer
 
@@ -665,7 +657,7 @@ Dependencies resolved.
 Nothing to do.
 Complete!
 OS package installations finished
-+ Installing ONTAP Mediator. (Log: /root/ontap_mediator.CJqNqu/ontap-mediator-1.12.0/ontap-mediator-1.12.0/install_20260420120204.log)
++ Installing ONTAP Mediator. (Log: /root/ontap_mediator.CJqNqu/ontap-mediator-1.12.1/ontap-mediator-1.12.1/install_20260420120204.log)
     This step will take several minutes. Use the log file to view progress.
     Sudoer config verified
     ONTAP Mediator rsyslog and logging rotation enabled
@@ -754,19 +746,19 @@ OS package installations finished
         OS. Using 'yum update' to upgrade the kernel might cause service interruption.
     For more information, see /opt/netapp/lib/ontap_mediator/README
 [root@mediator_host~]#
-[root@mediator_host~]# tar -zxvf ontap-mediator-1.12.0.tgz
-ontap-mediator-1.12.0/
-ontap-mediator-1.12.0/csc-prod-chain-ONTAP-Mediator.pem
-ontap-mediator-1.12.0/tsa-prod-ONTAP-Mediator.pem
-ontap-mediator-1.12.0/csc-prod-ONTAP-Mediator.pem
-ontap-mediator-1.12.0/tsa-prod-chain-ONTAP-Mediator.pem
-ontap-mediator-1.12.0/ONTAP-Mediator-production.pub
-ontap-mediator-1.12.0/ontap-mediator-1.12.0
-ontap-mediator-1.12.0/ontap-mediator-1.12.0.sig
-ontap-mediator-1.12.0/ontap-mediator-1.12.0.tsr
-ontap-mediator-1.12.0/ontap-mediator-1.12.0.sig.tsr
+[root@mediator_host~]# tar -zxvf ontap-mediator-1.12.1.tgz
+ontap-mediator-1.12.1/
+ontap-mediator-1.12.1/csc-prod-chain-ONTAP-Mediator.pem
+ontap-mediator-1.12.1/tsa-prod-ONTAP-Mediator.pem
+ontap-mediator-1.12.1/csc-prod-ONTAP-Mediator.pem
+ontap-mediator-1.12.1/tsa-prod-chain-ONTAP-Mediator.pem
+ontap-mediator-1.12.1/ONTAP-Mediator-production.pub
+ontap-mediator-1.12.1/ontap-mediator-1.12.1
+ontap-mediator-1.12.1/ontap-mediator-1.12.1.sig
+ontap-mediator-1.12.1/ontap-mediator-1.12.1.tsr
+ontap-mediator-1.12.1/ontap-mediator-1.12.1.sig.tsr
 [root@mediator_host~]#
-[root@mediator_host~]# ontap-mediator-1.12.0/ontap-mediator-1.12.0 --https-only
+[root@mediator_host~]# ontap-mediator-1.12.1/ontap-mediator-1.12.1 --https-only
 
 ONTAP Mediator: Self Extracting Installer
 
@@ -777,7 +769,7 @@ ONTAP Mediator: Self Extracting Installer
 + ONTAP_MEDIATOR_INSTALL_HTTPS_ONLY is set to '1', args are: ''
 + Starting ONTAP Mediator install/update process: previous installation_mode is ''
 + Selected install package mode: HTTPS_ONLY
-ONTAP Mediator will be upgraded from version 1.11.0 to 1.12.0.
+ONTAP Mediator will be upgraded from version 1.11.0 to 1.12.1.
 
 
 Do you wish to continue? Y(es)/n(o): yes
@@ -798,7 +790,7 @@ Performing database migrations against clone...
 Migrations successful.
 Database upgrade operation complete.
 + Adding python312 specific packages
-+ Upgrading ONTAP Mediator. (Log: /root/ontap_mediator.cRy0mN/ontap-mediator-1.12.0/ontap-mediator-1.12.0/upgrade_20260421113003.log)
++ Upgrading ONTAP Mediator. (Log: /root/ontap_mediator.cRy0mN/ontap-mediator-1.12.1/ontap-mediator-1.12.1/upgrade_20260421113003.log)
 fapolicyd not installed or no rules.d directory found, skipping fapolicyd configuration
     ONTAP Mediator rsyslog and logging rotation enabled
 + Upgrade successful. (Moving log to /opt/netapp/lib/ontap_mediator/log/upgrade_20260421113003.log)\n

@@ -1,0 +1,304 @@
+---
+sidebar: sidebar 
+permalink: snapmirror-active-sync/protect-nas-task.html 
+keywords: SM-BC, snapmirror business continuity, svm, remote protection, destination, nfs, smb 
+summary: NAS構成で事業継続性のための保護を設定するには、保護対象のSVMとそのボリュームを選択し、デスティネーションSVMを作成する必要があります。 
+---
+= NAS向けONTAP SnapMirror active syncによる保護
+:hardbreaks:
+:toclevels: 1
+:allow-uri-read: 
+:toclevels: 1
+:nofooter: 
+:icons: font
+:linkattrs: 
+:imagesdir: ../media/
+
+
+
+
+[[configure-snapmirror-active-sync-for-nas]]
+== NAS 向け SnapMirror アクティブ同期の設定
+
+ONTAP 9.19.1以降では、NAS構成のSnapMirrorアクティブ同期を設定できます。
+
+.開始する前に
+* SnapMirror アクティブ同期関係にある両方のクラスタは、ONTAP 9.19.1 以降を実行している必要があります。
+* クラスタ管理者である必要があります。
+* ONTAP Mediator または ONTAP Cloud Mediator を設定しておく必要があります。
+* ソース クラスタとデスティネーション クラスタのピア関係が確立されている必要があります。
+
+
+.NAS 向け SnapMirror アクティブ同期における ONTAP のサポート対象機能とサポート対象外機能
+以下の表は、NAS 向け SnapMirror アクティブ同期でサポートされている ONTAP 機能とサポートされていない ONTAP 機能について説明しています。
+
+|===
+| ONTAP機能 | SnapMirror アクティブ同期でサポートされています | 追加情報 
+
+
+| アプリケーション整合性グループ | いいえ |  
+
+
+| 監査 | はい | SVM内の統合ログのみが複製されます。 
+
+
+| DPボリューム | いいえ |  
+
+
+| FabricPool | 部分的に |  `all`階層化ポリシーは、SnapMirrorアクティブ同期NASボリュームでは許可されていません。 
+
+
+| ファイルシステム分析 | 部分的に | セカンダリSVMでは、File System Analyticsはデフォルトで `Off`に設定されており、フェイルオーバー後に手動で `On`に設定する必要があります。 
+
+
+| FlexCache ボリューム | いいえ |  
+
+
+| FlexGroupボリューム | いいえ |  
+
+
+| FPolicy とウイルス対策スキャン | はい |  
+
+
+| 負荷共有ミラー | いいえ | ONTAP 9.19.1 では、NAS 向け SnapMirror アクティブ同期は AFF クラスタの 2 ノードのみをサポートします。 
+
+
+| MetroCluster構成 | いいえ |  
+
+
+| NASコマンドの複数管理者による検証 | いいえ |  
+
+
+| S3 NAS | いいえ |  
+
+
+| SnapMirror active sync NAS保護SVM内のSANボリューム | いいえ | SnapMirror アクティブ同期のNAS初期化は、SVMにLUNをホストするボリュームが存在する場合に失敗します。 
+
+
+| SnapLock | いいえ |  
+
+
+| クラウドへのSnapMirror | いいえ |  
+
+
+| SVMの移行 | いいえ |  
+|===
+.タスク概要
+NAS の SnapMirror アクティブ同期を有効にするには、デスティネーション SVM を作成します。フェイルオーバーが発生するまで、デスティネーション SVM は休止状態のままです。
+
+.手順
+System Manager または ONTAP CLI を使用して、NAS 用の SnapMirror アクティブ同期を設定できます。
+
+[role="tabbed-block"]
+====
+.System Manager
+--
+. ソースクラスタから、クラスタ > ストレージVM に移動します。
+. 設定するSVMの名前の横にあるimage:icon_kabob.gif["メニューオプションアイコン"]をクリックして、「保護」を選択します。
+. 「ストレージ VM の保護」ウィンドウで、デスティネーション クラスタを選択します。
+. レプリケーションポリシーとして `AutomatedFailOver`を選択します。
+. デスティネーションに作成されるストレージ VM の名前を入力してください。
+. 保護するボリュームを選択します。
++
+.. *すべてのボリュームを保護* – デフォルトでは、すべてのボリュームが保護されます
+.. *保護するボリュームを選択* - 選択したボリュームのみが保護されます
+.. *除外するボリュームを選択* - 選択したボリュームは保護対象から除外されます
+
+
+. *関係を初期化する* をクリックします。
+. *保存*をクリックします。
+. 「ストレージ VM の保護」ウィンドウで、「保護」列の SVM 保護ステータスを確認します。
+
+
+--
+.CLI
+--
+. デスティネーション クラスタで、dp-destination タイプの SVM を作成します：
++
+`vserver create -vserver <SVM name> -sub-type dp-destination`
+
++
+例：
+
++
+[listing]
+----
+destination::> vserver create -vserver vs_b -sub-type dp-destination
+----
+. ソース SVM へのSVM ピア関係を作成します：
++
+`vserver peer create -vserver <destination SVM> -peer-vserver <souce SVM> -peer-cluster <source cluster> -applications snapmirror`
+
++
+例：
+
++
+[listing]
+----
+destination::> vserver peer create -vserver vs_b -peer-vserver vs_a -peer-cluster SiteA -applications snapmirror
+----
+. ソース SVM で、ピア要求を承認します：
++
+`vserver peer accept -vserver <source SVM name> -peer-vserver <destination SVM name>vserver peer accept -vserver <source SVM name> -peer-vserver <destination SVM name>`
+
++
+例：
+
++
+[listing]
+----
+source::> vserver peer accept -vserver vs_a -peer-vserver vs_b
+----
+. SnapMirror関係を作成：
++
+`snapmirror create -source-path <source SVM name>: -destination-path <destination SVM name>: -policy AutomatedFailOver`
+
++
+例：
+
++
+[listing]
+----
+destination::> snapmirror create -source-path vs_a: -destination-path vs_b: -policy AutomatedFailOver
+----
+. 関係が作成されたことを確認し、ステータスを確認します：
++
+「snapmirror show」
+
++
+例：
+
++
+[listing]
+----
+destination::> snapmirror show
+Progress
+	Source            Destination Mirror        Relationship   Total             Last
+	Path        Type  Path        State         Status         Progress  Healthy Updated
+	----------- ---- ------------ -------       -------------- --------- ------- --------
+	vs_a:       XDP  vs_b:        Uninitialized Idle           -         true    -
+
+----
+. デスティネーション SVM で、関係を初期化します。
++
+`snapmirror initialize -destination-path <SVM name>:`
+
++
+例：
+
++
+[listing]
+----
+destination::> snapmirror initialize -destination-path vs_b:
+----
+. 初期化ステータスを確認します：
++
+`snapmirror show`
+
++
+例：
+
++
+[listing]
+----
+	destination::> snapmirror show
+	                                                                             Progress
+	Source            Destination Mirror        Relationship   Total             Last
+	Path        Type  Path        State         Status         Progress  Healthy Updated
+	----------- ---- ------------ -------       -------------- --------- ------- --------
+	vs_a:       XDP  vs_b:        Snapmirrored  InSync         -         true    -
+
+----
+
+
+--
+====
+
+
+[[create-an-unprotected-volume-in-a-snapmirror-active-sync-nas-configuration]]
+== SnapMirror アクティブ同期 NAS 構成で保護されていないボリュームを作成する
+
+保護が不要な場合は、SnapMirror active syncからボリュームを除外できます。たとえば、開発テスト用にFlexCloneボリュームを作成する場合などです。
+
+.手順
+System Manager または ONTAP CLI を使用して、NAS 用の SnapMirror アクティブ同期からクローンボリュームを除外できます。
+
+[role="tabbed-block"]
+====
+.System Manager
+--
+. ソースクラスタから、*ストレージ > ボリューム*に移動します。
+. ボリュームのリストで、クローンを作成するボリューム名の横にある image:icon_kabob.gif["メニューオプションアイコン"] をクリックし、*クローン* を選択します。
+. *Clone volume* ウィンドウで、*Include clone in protection for business continuity* のチェックが外れていることを確認してください。
+. *Clone* をクリックします。
+
+
+--
+.CLI
+--
+. ソースクラスターから、保護されていないボリュームを既存の SnapMirror アクティブ同期設定に追加します：
++
+`volume clone create -vserver <SVM name> -flexclone <clone vol name> -parent-vserver <SVM name> -parent-volume <vol name> -parent-snapshot <snapshot name>`
+`volume add -vserver <SVM name> -volume <volume name> -smas-protection unprotected`
+
+
+
+--
+====
+
+
+[[use-the-ontap-cli-to-exclude-a-volume-from-a-snapmirror-active-sync-nas-configuration]]
+== ONTAP CLI を使用して、SnapMirror アクティブ同期 NAS 構成からボリュームを除外する
+
+保護が不要になった場合、またはボリュームを削除する場合は、SnapMirror アクティブ同期 NAS 構成からボリュームを除外できます。
+
+
+NOTE: 現在保護されているボリュームを保護されていないとマークすると、SnapMirror アクティブ同期関係での縮小操作が開始されます。縮小操作により、ソースとデスティネーションの両方のボリュームの SnapMirror エントリが削除されます。
+
+
+NOTE: ボリュームを保護解除としてマークしても、プライマリまたはセカンダリのリレーションシップ上のボリュームは自動的に削除されません。ボリュームを削除する場合は、プライマリ SVM とセカンダリ SVM の両方で手動で削除できます。
+
+.手順
+. ボリュームを SnapMirror アクティブ NAS 保護から削除する：
++
+`volume modify -vserver <SVM name> -volume <volume name> -smas-protection unprotected`
+
+
+
+
+
+[[convert-an-svm-dr-relationship-to-a-snapmirror-active-sync-relationship]]
+== SVM DR関係をSnapMirror active sync関係に変換する
+
+ONTAP 9.19.1 では、SVM DR 関係を NAS 関係の SnapMirror アクティブ同期に直接変換することはできません。代わりに、SVM DR 関係を削除し、新しいデスティネーション SVM を作成し、新しい SnapMirror アクティブ同期関係を確立して、その関係を初期化する必要があります。
+
+
+NOTE:  `snapmirror resync`コマンドは現在サポートされていません。
+
+. デスティネーション クラスタで、SnapMirror 関係を削除します：
++
+`snapmirror delete -destination-path`
+
+. プライマリクラスタで、関係情報を解放します。
++
+`snapmirror release -relationship-info-only true`
+
+. デスティネーション クラスタで、dp-destination サブタイプを持つ SVM を作成します。
++
+`vserver create -vserver <SVM name> -sub-type dp-destination`
+
+. デスティネーション クラスタで、 `AutomatedFailover`ポリシーを使用して SnapMirror 関係を作成します：
++
+`snapmirror create -source-path <source SVM name> -destination-path <destination SVM name> -policy AutomatedFailOver`
+
+. デスティネーション クラスタで、関係を初期化します。
++
+`snapmirror initialize -destination-path <SVM name>`
+
+
+
+.関連情報
+* link:https://docs.netapp.com/us-en/ontap-cli/snapmirror-create.html["snapmirror create"^]
+* link:https://docs.netapp.com/us-en/ontap-cli/snapmirror-initialize.html["snapmirror initialize"^]
+* link:https://docs.netapp.com/us-en/ontap-cli/snapmirror-show.html["snapmirror show"^]
+

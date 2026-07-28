@@ -26,41 +26,74 @@ TLSオフロード接続の場合、TLS暗号化処理は通常ソフトウェ�
 
 
 .サポートされているネットワークカードとプラットフォーム
-TLSハードウェアオフロードには、対応するネットワークカードが必要です。以下のネットワークカードがサポートされています：
+TLSハードウェアオフロードには、対応するネットワークカードが必要です。以下の表は、プラットフォームごとにサポートされているネットワークカードの一覧です。
 
+[cols="1,2,3a"]
+|===
+| プラットフォームファミリー | プラットフォーム | 対応ネットワークカード 
+
+
+| AFF と FAS | AFF A20、AFF A30、AFF A50、AFF C30、AFF C60、FAS50  a| 
 * 4ポートCX7 10/25GbE
-* 2ポートCX6-Dx 40/100 GbE
+* 2ポートCX6-DX 40/100GbE
 * 2ポートCX7 40/100GbE
-* 2ポートCX7 40/100/200
 
 
-4ポートCX7 10/25 GbE、2ポートCX6-Dx 40/100 GbE、および2ポートCX7 40/100 GbEカードは、以下のAFFプラットフォームでサポートされています（：）
-
-* AFF A20用
-* AFF A30
-* AFF A50
-* AFF C30
-* AFF C60
 
 
-4ポート2ポートCX6-Dx 40/100 GbE、2ポートCX7 40/100 GbE、および2ポートCX7 40/100/200 GbEカードは、以下のAFFおよびFASプラットフォームでサポートされています：
-
-* AFF A70-90用
-* AFF C80用
-* FAS70
-* FAS90
-* AFF A1K用
+| AFF と FAS | AFF A70、AFF A90、AFF C80、FAS70、FAS90、AFF A1K  a| 
+* 2ポートCX6-DX 40/100GbE
+* 2ポートCX7 40/100GbE
+* 2ポートCX7 40/100/200/400 GbE
 
 
+
+
+| ASA | ASA A20、ASA A30、ASA A50、ASA C30  a| 
+* 4ポートCX7 10/25GbE
+* 2ポートCX6-DX 40/100GbE
+* 2ポートCX7 40/100GbE
+
+
+
+
+| ASA | ASA A70、ASA A90、ASA A1K  a| 
+* 2ポートCX6-DX 40/100GbE
+* 2ポートCX7 40/100GbE
+* 2ポートCX7 40/100/200/400 GbE
+
+
+
+
+| AFX | AFX 1K  a| 
+* 2ポートCX6-DX 40/100GbE
+* 2ポートCX7 40/100GbE
+* 2ポートCX7 40/100/200/400 GbE
+
+
+
+
+| AFX | AFX 2K  a| 
+* 2ポートCX7 40/100/200/400 GbE
+
+
+|===
 .サポートされているトラフィックタイプ
 TLSハードウェアオフロードは、以下のトラフィックタイプをサポートしています：
 
+* NFS
 * NVMe/TCP
 * クラスタピアリング暗号化
 * FabricPool
 * S3
 * NFS
 
+
+
+NOTE: ASA システムでは、TLS ハードウェアオフロードは NVMe/TCP トラフィックにのみ適用されます。NFS over TLS、FabricPool、および S3 は ASA プラットフォームではサポートされていません。
+
+
+NOTE: AFXプラットフォームでは、TLSハードウェアオフロードはNFSおよびS3フロントエンドトラフィックタイプをサポートしています。AFXプラットフォームはSAN/ブロックプロトコルをサポートしていないため、NVMe/TCPはAFXプラットフォームでサポートされていません。
 
 .開始する前に
 * 次のタスクを実行するには、 `admin`権限レベルの ONTAP 管理者である必要があります。
@@ -101,19 +134,11 @@ false      TLSv1.3,  false   TLS_RSA_WITH_AES_128_CCM,
 +
 [source, cli]
 ----
-security config modify -is-offload-enabled {true|false}
+security config modify * -is-offload-enabled {true|false}
 ----
 +
 このコマンドは、新規接続時のTLSデータフェーズにおけるハードウェアオフロードを有効または無効にします。TLSオフロード機能を有効にする前に作成された既存の接続は、それらの接続が削除されて再作成されるまでオフロードされません。
 
-+
-TLSオフロードを有効にする場合、インターフェースを指定する必要があります：
-
-+
-[source, cli]
-----
-security config modify -is-offload-enabled true -interface SSL
-----
 
 
 .関連情報

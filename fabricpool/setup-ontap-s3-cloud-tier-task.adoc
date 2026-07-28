@@ -33,6 +33,11 @@ NOTE: クラスタLIFリソースが飽和状態になると、パフォーマ�
 .タスク概要
 ONTAP 9.8以降では、ONTAP S3サーバの負荷分散が有効になっています。サーバのホスト名が複数のIPアドレスに解決される場合、ONTAPは、返されたすべてのIPアドレス（最大16個のIPアドレス）とクライアント接続を確立します。接続が確立されると、IPアドレスはラウンドロビン方式で選択されます。
 
+
+
+[[set-up-the-ontap-s3-cloud-tier-for-fabricpool]]
+== ONTAP S3 クラウド階層を FabricPool 用に設定する
+
 .手順
 ONTAP System ManagerまたはONTAP CLIを使用して、ONTAP S3をFabricPoolのクラウド階層としてセットアップできます。
 
@@ -103,6 +108,41 @@ cluster1::> storage aggregate object-store config create
 
 --
 ====
+
+
+[[change-the-ontap-s3-fqdn-for-fabricpool-tiering]]
+== FabricPool階層化用のONTAP S3 FQDNを変更する
+
+FQDN の更新を含むネットワークの変更が必要な場合は、ネットワーク障害を回避するために、FabricPool 階層化に使用される ONTAP S3 FQDN を変更する必要があります。
+
+.手順
+. FabricPool ティアの証明書検証を無効にする：
++
+`storage aggregate object-store config modify -object-store-name <object store> -is-certificate-validation-enabled false`
+
+. ONTAP S3 サーバーの FQDN を変更する：
++
+`vserver object-store-server modify -vserver <vserver> -object-store-server <new fqdn>`
+
+. （オプション）証明書の検証が必要でホスト名が変更された場合、link:../s3-config/create-install-ca-certificate-svm-task.html["証明書を更新する"]。
+. 新しい FQDN を使用して FabricPool 階層を更新します：
++
+`storage aggregate object-store config modify -object-store-name <object_store_name> -server <new fqdn>`
+
+. すべてのオブジェクトストア、およびミラーが存在する場合はそのミラーが、FabricPool ティアで利用可能であることを確認します：
++
+`storage aggregate object-store show -fields object-store-availability,mirror-type,is-mirror-degraded`
+
++
+詳細については、link:https://docs.netapp.com/us-en/ontap-cli/storage-aggregate-object-store-show.html#description["storage aggregate object-store show"^]を参照してください。
+
+. 追加のオブジェクトストアについても、これらの手順を繰り返してください。
+. ONTAP S3サーバーで証明書を更新し、FabricPool階層で証明書を更新した場合は、証明書の検証を再度有効にしてください：
++
+`storage aggregate object-store config modify -object-store-name <object store> -is-certificate-validation-enabled true`
+
+
+
 [[create-lif]]
 .関連情報
 * link:../smb-config/create-lif-task.html["SMB用のLIFを作成する"]

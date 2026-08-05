@@ -1,0 +1,41 @@
+---
+permalink: fabricpool/modify-cloud-retrieval-policy-task.html 
+sidebar: sidebar 
+keywords: cloud retrieval, controls, volume, default, tiering policy 
+summary: ボリュームのクラウド取得ポリシーは、ONTAP 9.8 で導入された -cloud-retrieval-policy オプションを使用して変更できます。 
+---
+= ボリュームのクラウド取得ポリシーを変更する
+:allow-uri-read: 
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+FabricPoolクラウドデータの取得は、データがローカル層に書き戻されるタイミングを決定する取得ポリシーによって制御されます。読み取りパターンは、順次またはランダムのいずれかです。
+
+例えば、'Auto' ボリューム階層化ポリシーを使用する場合、コールドブロックが順番に読み込まれると、それらはコールド状態のままクラウド階層に残ります。ほとんどのクライアントアプリケーションにとってこれは望ましい動作であり、アンチウイルスや分析アプリケーションでよく行われるディープファイルスキャンが、ローカル層にコールドデータを書き込むのを防ぎます。
+
+ONTAP 9.8以降では、ボリュームのクラウド取得ポリシーを変更して、link:tiering-policies-concept.html#how-cloud-retrieval-policies-work-with-tiering-policies["デフォルトのクラウド取得"]の動作を上書きすることができます。
+
+.開始する前に
+*  `-cloud-retrieval-policy`オプションを使用してボリュームを変更するには ONTAP 9.8 以降が必要です。
+* この処理を実行するにはadvanced権限レベルが必要です。
+*  `-cloud-retrieval-policy`を使用した階層化ポリシーの動作を理解する必要があります。
++
+link:tiering-policies-concept.html#how-cloud-retrieval-policies-work-with-tiering-policies["クラウド取得ポリシーと階層化ポリシーの連携方法"]
+
+
+
+.手順
+. 既存のボリュームのクラウド取得ポリシーを変更するには、 `volume modify`コマンドで `-cloud-retrieval-policy`オプションを使用します：
++
+[listing]
+----
+volume create -volume <volume_name> -vserver <vserver_name> - tiering-policy <policy_name> -cloud-retrieval-policy
+----
++
+[listing]
+----
+vol modify -volume fp_volume4 -vserver vs0 -cloud-retrieval-policy promote
+----
+

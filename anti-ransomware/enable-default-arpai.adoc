@@ -1,0 +1,112 @@
+---
+sidebar: sidebar 
+permalink: anti-ransomware/enable-default-arpai.html 
+keywords: ARP AI, arpai, enable by default, autonomous ransomware protection AI, default volume state, ONTAP 9.18.1, automatic enablement, SVM default, cluster default, machine learning ransomware 
+summary: ONTAP 9.16.1 以降、新しいボリュームがデフォルトで ARP/AI を有効にした状態になるよう SVM を構成できます。ONTAP 9.18.1 以降、サポート対象システムではクラスタレベルの自動有効化が利用可能です。 
+---
+= 新規ボリュームでデフォルトで ONTAP ARP/AI を有効にする
+:hardbreaks:
+:toclevels: 1
+:allow-uri-read: 
+:toclevels: 1
+:nofooter: 
+:icons: font
+:linkattrs: 
+:imagesdir: ../media/
+
+
+[role="lead"]
+ONTAP 9.16.1以降、ストレージVM（SVM）を構成して、新しいボリュームがデフォルトでAIによる自律型ランサムウェア保護（ARP/AI）で有効になるようにすることができます。ONTAP 9.18.1以降、ARP/AIはlink:support-arpai.html["サポートされているシステム"]に対して12時間の猶予期間後にクラスタレベルで自動的に有効になります。この手順は、クラスタレベルではなくSVMレベルで新規ボリュームに対してARP/AIをデフォルトで有効にする必要がある場合に使用します。
+
+ONTAP 9.17.1 以前では、新しいボリュームで ARP をデフォルトで有効にする唯一の方法は、SVM レベルでの設定です。
+
+
+NOTE: ONTAP 9.15.1 以前を実行している場合は、link:enable-default-arp.html["新しいボリュームで ARP をデフォルトで有効にする"]を参照してください。
+
+
+NOTE: ONTAP 9.13.1 から 9.17.1 の場合、FlexGroup ボリュームは以前の ARP モデルを使用しており、学習期間が必要です。link:enable-default-arp.html["新しいボリュームで ARP をデフォルトで有効にする"] を参照してください。
+
+.タスク概要
+クラスタレベルでARP/AIが自動的に有効になっていないシステムでは、新しいボリュームはデフォルトでARP/AI機能が無効になった状態で作成されます。SVMで新規に作成されるボリュームについては、ARP/AIを有効にし、デフォルトで有効になるように設定する必要があります。
+
+ARP/AIが有効になっていない既存のボリュームは、SVMのデフォルト設定を変更しても、ARP/AIの有効化状態が自動的に変更されることはありません。この手順で説明するSVM設定は、新規ボリュームにのみ影響します。link:enable-arpai.html["既存のボリュームに対してARP/AIを有効にする"]方法をご確認ください。
+
+[[arp-enablement-default-behavior-table]]
+自律型ランサムウェア保護を有効にすると、環境およびONTAPバージョンによっては移行期間に入る場合があります。
+
+[cols="25,25,50"]
+|===
+| ボリューム タイプ | ONTAPのバージョン | 有効化後の動作 
+
+
+.2+| NAS FlexGroup | ONTAP 9.18.1以降 | ARP/AIは学習期間なしですぐにアクティブになります 
+
+
+| ONTAP 9.13.1 から 9.17.1 | ARPは30日間学習モードで開始されます 
+
+
+.2+| NAS FlexVol | ONTAP 9.16.1以降 | ARP/AIは学習期間なしですぐにアクティブになります 
+
+
+| ONTAP 9.10.1から9.15.1 | ARPは30日間学習モードで開始されます 
+
+
+| SANボリューム | ONTAP 9.17.1以降 | ARP/AI は直ちにアクティブになり、初期の保守的なしきい値から移行する前に、適切なアラートしきい値を確立するための評価期間を開始します。 
+|===
+.開始する前に
+ARP/AIをデフォルトで有効にする前に、環境に以下のものが含まれていることを確認してください。
+
+.NAS固有の要件
+* NFSまたはSMB（またはその両方）プロトコルが有効になっているStorage VM（SVM）。
+* ボリュームのアクティブなlink:../concepts/namespaces-junction-points-concept.html["ジャンクションパス"]。
+
+
+.SAN固有の要件
+* iSCSI、FC、または NVMe プロトコルが有効になっているストレージ VM（SVM）。
+
+
+.一般要件
+* ONTAPバージョンのlink:index.html#licenses-for-autonomous-ransomware-protection["正しいライセンス"]。
+* （推奨）マルチ管理者検証（MAV）が有効（ONTAP 9.13.1以降）。link:../multi-admin-verify/enable-disable-task.html["複数管理者による検証を有効にする"]を参照してください。
+
+
+.手順
+System Manager または ONTAP CLI を使用して、SVM レベルで新規ボリュームに対して ARP/AI をデフォルトで有効にすることができます。
+
+[role="tabbed-block"]
+====
+.System Manager
+--
+. 環境に応じて「*ストレージ*」または「*クラスター*」を選択し、「*ストレージVM*」を選択して、ARP/AIで保護するボリュームを格納するストレージVMを選択します。
+. *設定*タブに移動します。*セキュリティ*の下にある*ランサムウェア対策*タイルを見つけて、image:icon_pencil.gif["編集アイコン"]を選択します。
+. ランサムウェア対策（ARP/AI）を有効にするには、チェックボックスをオンにしてください。ストレージVM内の対象となるすべてのボリュームでARP/AIを有効にするには、追加のチェックボックスをオンにしてください。
++
+
+NOTE: ARP/AIは即座にアクティブモードに移行し、学習期間は不要です。
+
+
+
+--
+.CLI
+--
+.既存のSVMを変更して、新しいボリュームでARP/AIをデフォルトで有効にする
+[source, cli]
+----
+vserver modify -vserver <svm_name> -anti-ransomware-default-volume-state enabled
+----
+.新しいボリューム用に、ARP/AIがデフォルトで有効になっている新しいSVMを作成します
+[source, cli]
+----
+vserver create -vserver <svm_name> -anti-ransomware-default-volume-state enabled
+----
+.ARP/AIの状態を確認する
+[source, cli]
+----
+security anti-ransomware volume show
+----
+--
+====
+.関連情報
+* link:default-enable-change-arpai.html["ARP/AIの自動有効化をオプトアウトする"]
+* link:https://docs.netapp.com/us-en/ontap-cli/security-anti-ransomware-volume-show.html["セキュリティ・アンチランサムウェア・ボリューム・ショー"^]
+

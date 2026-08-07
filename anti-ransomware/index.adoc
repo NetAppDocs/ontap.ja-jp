@@ -1,8 +1,8 @@
 ---
 sidebar: sidebar 
 permalink: anti-ransomware/index.html 
-keywords: ransomware, arp, autonomous protection, ai, arp ai, security, detect, detection, threat, attack, suspect, anti-ransomware, entropy, abnormal volume activity, antiransomware, extension conformity, ransomware protection strategy 
-summary: Autonomous Ransomware Protectionは、NASまたはSAN環境でワークロード分析を使用して、ランサムウェア攻撃の可能性がある異常なアクティビティを検出し、警告します。 
+keywords: ransomware, arpai, arp, autonomous protection, ai, arp ai, security, detect, detection, threat, attack, suspect, anti-ransomware, entropy, abnormal volume activity, antiransomware, extension conformity, ransomware protection strategy, ARP AI ONTAP, ONTAP 9.16.1 ransomware, machine learning ransomware ONTAP, current ARP model, ransomware detection SAN NAS ONTAP 
+summary: 自律型ランサムウェア対策はONTAPに組み込まれており、ランサムウェア攻撃の可能性がある異常なアクティビティを検知して警告します。ONTAP 9.16.1以降では、ARP/AIが現在のデフォルトモデルであり、機械学習を使用してNASおよびSAN環境を即座にアクティブに保護します。学習期間は不要です。 
 ---
 = ONTAP自律型ランサムウェア保護について学ぶ
 :hardbreaks:
@@ -16,27 +16,30 @@ summary: Autonomous Ransomware Protectionは、NASまたはSAN環境でワーク
 
 
 [role="lead"]
-ONTAP 9.10.1以降、ONTAP管理者は自律型ランサムウェア対策（ARP）を有効にすることで、NAS（NFSおよびSMB）環境におけるワークロード分析を実行し、ランサムウェア攻撃を示唆する可能性のある異常なアクティビティを事前に検知して警告することができます。ARPはONTAPに直接組み込まれており、ONTAPの他の機能との統合された制御と調整を確保します。ARPはリアルタイムで動作し、ファイルシステムへの書き込みや読み取り時にデータを処理し、潜在的なランサムウェア攻撃を迅速に検知して対応します。
+自律型ランサムウェア対策はONTAPに直接組み込まれており、NASおよびSAN環境におけるワークロード分析を実行し、ランサムウェア攻撃を示唆する可能性のある異常なアクティビティを事前に検知して警告を発します。リアルタイムで動作し、ストレージへの書き込みやストレージからの読み出し時にデータを処理して、データを保護するために自動的に対応します。
 
-ARPは、スケジュールされたSnapshotに加えて、定期的にロックされたSnapshotを作成します。Snapshotの保持期間は動的に調整されます：異常なアクティビティが検出されない場合はSnapshotは迅速に再利用され、攻撃が検出される前に取得されたSnapshotは調査と復旧のために長期間保持されます。
-
-プロトコルのサポート、ワークロードの適合性、およびバージョン固有の要件については、link:use-cases-restrictions-concept.html["ARPのユースケースと考慮事項"]を参照してください。
-
-ARPによって生成されたスナップショットの詳細（ONTAPバージョンによって追加された変更を含む）については、<<ARPスナップショット>>を参照してください。
+ONTAP 9.16.1以降、自律型ランサムウェア対策では、事前学習済みの機械学習モデル（ARP/AI）を使用し、学習期間を必要とせずに即座にアクティブな保護を提供します。NAS（ONTAP 9.16.1以降）およびSAN（ONTAP 9.17.1以降）のボリュームをサポートします。ONTAP 9.10.1から9.15.1については、オリジナルの自律型ランサムウェア対策（ARP）モデルがNAS環境をサポートしており、アクティブな検出を開始する前に学習期間が必要です。
 
 
 
-[[licenses-and-enablement]]
-== ライセンスと有効化
+[[current-documentation-for-your-ontap-version]]
+== お使いのONTAPバージョンの最新ドキュメント
 
-ARPを使用するにはライセンスが必要です。新しいボリュームでARPをデフォルトで有効にするか、ボリュームごとに手動で有効にするかを決定します。
+ARP/AI は、ONTAP 9.16.1 以降の現在のデフォルトモデルです。元の ARP モデルは ONTAP 9.10.1 から 9.15.1 に適用されます。お使いの ONTAP バージョンのドキュメントを選択してください：
+
+* *link:learn-about-arpai.html["ARP/AI （ONTAP 9.16.1以降）"]*: 即時アクティブ保護、SANサポート、および自動セキュリティアップデートを備えた機械学習モデル。
+* *link:learn-about-arp.html["ARP （ONTAP 9.10.1～9.15.1）"]*: NASに特化しており、アクティブな保護が開始される前に学習期間があります。ONTAP 9.16.1 および 9.17.1 の FlexGroup ボリュームにも適用されます。
 
 
 
-[[license-options-for-arp]]
-=== ARPのライセンスオプション
+NOTE: 元の ARP モデルは、ONTAP 9.14.1 以降、新しい機能改善を受けていません。ONTAP 9.16.1 以降で FlexVol ボリュームを使用している場合は、ARP/AI のドキュメントを参照してください。FlexGroup ボリュームは、ONTAP 9.17.1 まで元の ARP モデルを使用し、ONTAP 9.18.1 以降では ARP/AI によってサポートされます。
 
-ARPサポートはlink:https://kb.netapp.com/onprem/ontap/os/ONTAP_9.10.1_and_later_licensing_overview["ONTAP Oneライセンス"^]に含まれています。ONTAP Oneライセンスをお持ちでない場合は、ONTAPのバージョンによって異なるARPで使用できる他のライセンスがあります。
+
+
+[[licenses-for-autonomous-ransomware-protection]]
+== 自律型ランサムウェア対策のライセンス
+
+Autonomous Ransomware Protectionのサポートは、link:https://kb.netapp.com/onprem/ontap/os/ONTAP_9.10.1_and_later_licensing_overview["ONTAP Oneライセンス"^]に含まれています。ONTAP One ライセンスをお持ちでない場合は、お使いの ONTAP のバージョンによって異なる、Autonomous Ransomware Protection 用の他のライセンスをご利用いただけます。
 
 [cols="2*"]
 |===
@@ -56,33 +59,9 @@ ONTAP 9.10.1
 `MT_EK_MGMT`（マルチテナント鍵管理）
 
 |===
-* ONTAP 9.10.1からONTAP 9.11.1以降にアップグレードする場合、システムでARPがすでに設定されている場合は、新しい `Anti-ransomware`ライセンスをインストールする必要はありません。新しいARP設定には、新しいライセンスが必要です。
-* ONTAP 9.11.1以降からONTAP 9.10.1に戻す場合、Anti_ransomwareライセンスでARPを有効にしていると、警告メッセージが表示され、ARPの再設定が必要になることがあります。link:../revert/anti-ransomware-license-task.html["ARPの復元について学ぶ"]。
+* ONTAP 9.10.1 から ONTAP 9.11.1 以降にアップグレードする場合で、Autonomous Ransomware Protection がすでにシステムに構成されている場合は、新しい `Anti-ransomware`ライセンスをインストールする必要はありません。新しい Autonomous Ransomware Protection 構成には、新しいライセンスが必要です。
+* ONTAP 9.11.1 以降から ONTAP 9.10.1 にリバートする場合、 `Anti_ransomware`ライセンスで Autonomous Ransomware Protection を有効にしていると、警告メッセージが表示され、再設定が必要になる場合があります。link:../revert/anti-ransomware-license-task.html["Autonomous Ransomware Protectionのリバートについて"]。
 
-
-
-
-[[enablement-options-for-arp]]
-=== ARPの有効化オプション
-
-ARPは、クラスタ、SVM、ボリュームレベルで柔軟な有効化オプションを提供するため、新しいボリュームに対して自動のデフォルト有効化を設定したり、必要に応じて既存のボリュームでARPを手動で有効化したりできます。
-
-.新しいボリュームでの自動デフォルト有効化
-ONTAP 9.18.1以降、ARPはデフォルトで、AFF AシリーズおよびAFF Cシリーズ、ASA、ASA r2システムのすべての新しいボリュームで自動的に有効になります。この自動デフォルトARP有効化はlink:use-cases-restrictions-concept.html#unsupported-configurations["サポートされていないボリュームまたは構成"]には適用されません。既存のボリュームでは<<manual-default-enablement,ARPを手動で有効にする>>する必要があります。アップグレード時にデフォルトの有効化がどのように適用されるかの詳細については、link:use-cases-restrictions-concept.html#arp-upgrade-considerations["ARPバージョン固有のアップグレードに関する考慮事項"]を参照してください。
-
-
-NOTE: ONTAP 9.19.1以降、デフォルトのARP有効化は、SnapMirror同期およびSnapMirrorアクティブ同期SANの関係を含むクラスタに適用されます。ONTAP 9.18.1では、これらの構成に対してデフォルトの有効化が抑制されていました。クラスタ間のSnapMirror同期関係の場合、デフォルトの有効化は、ソースクラスタと宛先クラスタの両方がONTAP 9.19.1にアップグレードされると有効になります。AFXシステムでは、SnapMirror同期サポートがある場合でも、ARPはデフォルトで有効になっていません。
-
-猶予期間中は、link:default-enable-change.html["System Manager またはONTAP CLIを使用して、クラスタ レベルで新しいボリュームのデフォルトの有効化をオプトアウトします。"]できます。オプトアウトしない場合、猶予期間終了後に作成されるすべての新規ボリュームに対してARPが自動的に有効化されます。猶予期間後にニーズが変化した場合は、いつでもデフォルトの有効化をオンまたはオフにすることができます。
-
-.新しいボリュームでの手動によるデフォルトの有効化
-クラスタレベルでARPの自動デフォルト有効化を無効にした場合は、link:enable-default-task.html["すべての新しいボリュームでデフォルトで ARP を手動で有効にする"]SVMレベルでも有効化を選択できます。ONTAP 9.17.1以前では、新規ボリュームでARPをデフォルトで有効化するには、これが唯一の方法です。
-
-[[manual-default-enablement]]
-.既存のすべてのボリュームまたは特定のボリュームでの ARP の有効化
-9.18.1 以降では、クラスター レベルから既存のすべてのボリュームで ARP を手動で有効にすることができます（*クラスター > セキュリティ* を選択し、image:icon_kabob.gif["メニューオプションアイコン"]*ランサムウェア対策* セクションで *既存のすべてのボリュームで有効にする* を選択します）。
-
-ARP の有効化を特定のボリュームに制限したい場合は、link:enable-task.html["ボリュームごとにARPを有効にする"]できます。
 
 
 
@@ -91,302 +70,25 @@ ARP の有効化を特定のボリュームに制限したい場合は、link:en
 
 効果的なランサムウェア保護には、連携して機能する複数の保護層が必要です。
 
-ONTAP には、ランサムウェアからの保護に役立つ FPolicy、スナップショット、SnapLock、Active IQ Digital Advisor（Digital Advisor とも呼ばれる）などの機能が含まれていますが、ARP は追加の防御層を提供します。
+ONTAPにはFPolicy、スナップショット、SnapLock、およびActive IQ Digital Advisor（Digital Advisorとも呼ばれます）などの機能が含まれており、ランサムウェアからの保護を支援しますが、Autonomous Ransomware Protectionはさらなる防御層を提供します。
 
 NetAppポートフォリオでランサムウェアから保護するその他の機能の詳細については、以下を参照してください：
 
 * link:https://docs.netapp.com/us-en/ontap-technical-reports/ransomware-solutions/ransomware-active-iq.html["NetAppのランサムウェア対策ポートフォリオ"^]
-* link:https://docs.netapp.com/us-en/netapp-solutions-dataops/cyber-vault/ontap-cyber-vault-ps-hardening.html#ontap-cli-or-via-automation-script["PowerShellを使用したONTAPサイバーボールトの強化"^]
+* link:https://docs.netapp.com/us-en/netapp-solutions-dataops/cyber-vault/ontap-cyber-vault-ps-hardening.html["PowerShellを使用したONTAPサイバーボールトの強化"^]
 
 
 
 
-[[what-arp-detects]]
-== ARPの検出対象
-
-ONTAP ARPは、身代金が支払われるまで攻撃者がデータを保持し続けるサービス拒否攻撃から保護するように設計されています。ARPは、以下に基づいてリアルタイムのランサムウェア検出を提供します：
-
-* 受信データが暗号化されているかプレーンテキストであるかを識別します。
-* 分析によって以下の情報を検出します。
-+
-** *エントロピー*：（NASおよびSANで使用）ファイル内のデータのランダム性の評価
-** *ファイル拡張子の種類*：（NASのみで使用）想定される拡張子の種類に準拠していないファイル拡張子
-** *ファイルIOPS*：（ONTAP 9.11.1以降のNASでのみ使用）データ暗号化による異常なボリュームアクティビティの急増
-
-
-
-
-ARPは、少数のファイルが暗号化されただけでほとんどのランサムウェア攻撃の拡散を検出し、自動的に応答してデータを保護し、疑わしい攻撃が発生していることを警告します。
-
-
-NOTE: ランサムウェア検出システムは完全な安全性を保証することはできません。ARPは、ウイルス対策ソフトウェアが侵入を検出できなかった場合に、追加の防御層を提供します。
-
-
-
-[[learn-about-arp-modes]]
-== ARPモードについて
-
-ボリュームに対してARPを有効にすると、ベースラインを確立するための学習期間に入ります。ARPはシステムメトリックを分析し、アラートプロファイルを作成してから、アクティブ検出モードに移行します。アクティブモードでは、ARPは異常なアクティビティを監視し、異常な動作を検知した場合は保護アクションを実行し、アラートを生成します。
-
-ARPの場合、学習モードとアクティブモードの動作はONTAPバージョン、ボリュームタイプ、およびプロトコル（NASまたはSAN）によって異なります。
-
-
-
-[[nas-environments-and-mode-types]]
-=== NAS環境とモードタイプ
-
-次の表は、NAS環境におけるONTAP 9.10.1以降のバージョンの違いをまとめたものです。
-
-以前のARPモデルのバージョンでは、アクティブ監視を開始する前に学習期間を設けることが推奨されます。<<arp-ai,ARP/AI>>をサポートするNAS環境では、学習期間はなく、アクティブ監視が直ちに開始されます。
-
-[cols="1,5,1"]
-|===
-| モード | 概要 | ボリュームのタイプとバージョン 
-
-
-| 学習  a| 
-特定のバージョンのONTAPおよび特定のボリュームタイプでは、ARPを有効にすると、ARPは自動的に学習モードに設定されます。学習モードでは、ONTAPシステムは、エントロピー、ファイル拡張子の種類、ファイルIOPSといった分析領域に基づいてアラートプロファイルを作成します。
-
-ARPを学習モードのまま30日間維持することをお勧めします。ONTAP 9.13.1以降では、ARPは最適な学習間隔を自動的に決定し、切り替えを自動化します。切り替えは30日経過前に実行される可能性があります。ONTAP 9.13.1より前のバージョンでは、手動で切り替えを行うことができます。
-
-ONTAP 9.16.1以降のFlexVolボリュームでは、アクティブモードのみが存在し、このバージョン以降にアップグレードされたFlexVolボリュームでは、学習モードが自動的にアクティブモードに移行します。
-
-ONTAP 9.16.1～9.17.1では、FlexGroupボリュームはまだARP/AIでサポートされておらず、引き続き古いARPモデルが実行されます。そのため、これらのバージョンでFlexGroupボリュームを使用する場合は、引き続き学習期間を設けることをお勧めします。
-
-ONTAP 9.18.1以降、FlexVolボリュームとFlexGroupボリュームの両方にアクティブモードのみが適用されます。アップグレードされたボリュームは自動的にアクティブモードに移行します。
-
-link:switch-learning-to-active-mode.html["学習モードからアクティブモードへの切り替えの詳細"]。
-
-
-TIP: このコマンド `security anti-ransomware volume workload-behavior show`は、ボリューム内で検出されたファイル拡張子を表示します。学習モードの初期段階でこのコマンドを実行し、ファイルタイプの正確な表現が表示された場合でも、ONTAPは他のメトリックをまだ収集しているため、そのデータをアクティブモードへの移行の基準として使用しないでください。link:https://docs.netapp.com/us-en/ontap-cli/security-anti-ransomware-volume-workload-behavior-show.html["ONTAPコマンド リファレンス"^]の `security anti-ransomware volume workload-behavior show`の詳細をご覧ください。
- a| 
-* ONTAP 9.10.1から9.15.1のFlexVolボリューム
-* FlexGroupボリューム（ONTAP 9.13.1～ONTAP 9.17.1）
-
-
-
-
- a| 
-評価
- a| 
-暗号化の基本動作を判断するために、2～4週間の評価期間が設けられます。ベースラインの閾値が設定されている間にも、検出と警告が発生する可能性があります。評価期間が完了したかどうかは、 `security anti-ransomware volume show`コマンドを実行して `Block device detection status`を確認することで判断できます。
-
-link:respond-san-entropy-eval-period.html["ブロックデバイスワークロードに対するONTAP ARP/AI評価期間について学ぶ"]。
- a| 
-ONTAP 9.17.1P5以降でONTAPが検出したハイパーバイザー仮想ディスクを含むNASボリューム
-
-
-
-| アクティブ  a| 
-アクティブモードでは、ファイル拡張子が異常と判断された場合、アラートを評価する必要があります。アラートに基づいてデータを保護するか、アラートを誤検知としてマークすることができます。アラートを誤検知としてマークすると、アラートプロファイルが更新されます。例えば、新しいファイル拡張子によってアラートがトリガーされ、そのアラートを誤検知としてマークした場合、次にそのファイル拡張子が検出されたときにはアラートは表示されなくなります。
- a| 
-サポートされているすべてのONTAPバージョンとFlexVolおよびFlexGroupボリューム
-
-|===
-
-
-[[san-environments-and-mode-types]]
-=== SAN環境とモードタイプ
-
-SAN環境では、自動的にアクティブ検出に移行する前に、_評価_期間（NAS環境の学習モードに類似）が設けられます。次の表は、評価モードとアクティブモードの概要を示しています。
-
-[cols="1,5,1"]
-|===
-| モード | 概要 | ボリュームのタイプとバージョン 
-
-
-| 評価  a| 
-2～4週間の評価期間を設け、ベースラインの暗号化動作を決定します。その間、ARP/AIはSANボリュームに対して即時のアクティブ保護を提供します。ベースラインしきい値の設定中は、検出とアラートが発生する可能性があります。評価期間が完了したかどうかを確認するには、 `security anti-ransomware volume show`コマンドを実行して `Block device detection status`を確認します。
-
-link:respond-san-entropy-eval-period.html["ブロックデバイスワークロードに対するONTAP ARP/AI評価期間について学ぶ"]。
- a| 
-* ONTAP 9.17.1以降のFlexVolボリューム
-
-
-
-
-| アクティブ  a| 
-評価期間終了後、 `security anti-ransomware volume show`コマンドを実行して `Block device detection status`を確認することで、ARP SAN保護がアクティブかどうかを確認できます。 `Active_suitable_workload`のステータスは、評価されたエントロピー量が正常に監視されていることを示します。ARPは、評価中に確認されたデータに応じて、適応しきい値を自動的に調整します。
- a| 
-* ONTAP 9.17.1以降のFlexVolボリューム
-
-
-|===
-
-
-[[threat-assessment-and-arp-snapshots]]
-== 脅威の評価とARP Snapshot
-
-ARPは、学習済みの分析結果に基づいて測定された受信データに基づいて脅威の確率を評価します。ARPが異常を検出すると、測定値が割り当てられます。ARPは、検出時または一定の間隔でスナップショットを割り当てる場合があります。
-
-
-
-[[arp-thresholds]]
-=== ARPのしきい値
-
-* *低*：ボリューム内の異常（例：ボリューム内で新しいファイル拡張子が検出された）を最も早く検出します。このレベルの検出は、ARP/AI機能を備えていないONTAP 9.16.1より前のバージョンでのみ利用可能です。
-+
-** ONTAP 9.11.1 以降では、link:manage-parameters-task.html["ARPの検出パラメータをカスタマイズする"]できます。
-** ONTAP 9.10.1では、Moderateに格上げされるしきい値は100以上です。
-
-
-* *中*: 高いエントロピーが検出されるか、または同じ未知のファイル拡張子を持つ複数のファイルが検出された場合。これは、ARP/AI機能を備えたONTAP 9.16.1以降のベースライン検出レベルです。
-
-
-ONTAPが分析レポートを実行し、異常がランサムウェアプロファイルに一致するかどうかを判断した後、脅威は中程度にエスカレートされます。攻撃確率が中程度の場合、ONTAPは脅威を評価するよう促すEMS通知を生成します。ONTAPは低レベルの脅威についてはアラートを送信しませんが、ONTAP 9.14.1以降ではlink:manage-parameters-task.html#modify-alerts["デフォルトのアラート設定を変更する"]できます。詳細については、link:respond-abnormal-task.html["異常なアクティビティへの対処"]を参照してください。
-
-中程度の脅威に関する情報は、System Managerの*イベント*セクションまたは `security anti-ransomware volume show`コマンドで確認できます。低レベルの脅威イベントは、ARP/AI機能のないONTAP 9.16.1より前のバージョンでも `security anti-ransomware volume show`コマンドを使用して表示できます。link:https://docs.netapp.com/us-en/ontap-cli/security-anti-ransomware-volume-show.html["ONTAPコマンド リファレンス"^]の `security anti-ransomware volume show`の詳細をご覧ください。
-
-
-
-[[arp-snapshots]]
-=== ARPスナップショット
-
-ARPは、攻撃の初期兆候が検出されるとスナップショットを作成します。その後、詳細な分析が行われ、潜在的な攻撃の有無が判断されます。ARPスナップショットは、攻撃が完全に確認される前でもプロアクティブに作成されるため、一部の正当なアプリケーションでは定期的に生成される場合もあります。これらのスナップショットの存在は異常とはみなされません。攻撃が確認された場合、攻撃確率は `Moderate`にエスカレーションされ、攻撃通知が生成されます。
-
-.ARPスナップショットのバージョンによる違い
-* *保持設定を変更する*：ONTAP 9.11.1以降では、link:modify-automatic-snapshot-options-task.html["Snapshotのデータ保持設定を変更する"]できます。
-* *間隔と異常応答*：ONTAP 9.17.1以降、NASボリュームとSANボリュームの両方について、定期的にARPスナップショットが生成されます。また、検出された異常に応じて、ARPスナップショットも生成されます。これは常に標準的な対応でした。ONTAPはARPスナップショットの先頭に名前を追加して、識別しやすくします。
-* *SnapMirror同期とアクティブ同期*：ONTAP 9.19.1以降、SnapMirror同期またはSnapMirrorアクティブ同期の関係に参加するボリューム用に作成されたARPスナップショットには、以下の追加ルールが適用されます。
-+
-** ARPスナップショットはプライマリボリューム上に作成され、保持されます。
-** ARPスナップショットは、SnapMirror同期またはSnapMirrorアクティブ同期の一部としてセカンダリに複製されません。フェイルオーバー後、リカバリボリュームでlink:enable-task.html["ARPを再度有効にする"]する必要があります。
-
-
-
-
-
-NOTE: SnapMirror SynchronousまたはSnapMirror Active Sync SANボリュームでのボリュームレベルのリストア(`volume snapshot restore`）では、SnapMirror SynchronousまたはSnapMirror Active Sync関係を一時的に休止または解除する必要がある場合があります。多くの場合、プライマリボリューム上のARPまたはその他のSnapshotからFlexCloneやファイルレベルのリストア処理を使用することで、SnapMirror SynchronousまたはSnapMirror Active Syncの解除を回避できます。
-
-link:use-cases-restrictions-concept.html#snapmirror["SnapMirror同期およびSnapMirrorアクティブ同期のサポートの詳細については、こちらをご覧ください"]。
-
-次の表は、バージョン別の ARP Snapshot の違いをまとめたものです。
-
-[cols="1,3,3"]
-|===
-| 機能 | ONTAP 9.17.1以降 | ONTAP 9.16.1以前 
-
-
-| 作成トリガー  a| 
-* スナップショットは、特定のトリガーに関係なく、固定の4時間間隔で作成されます
-* 攻撃の確認
-
-
-トリガータイプに基づいて、「定期的」または「攻撃」スナップショットが作成されます。
- a| 
-* 高エントロピーが検出されました
-* 新しいファイル拡張子が検出されました（9.15.1以前）
-* ファイル操作の急増が検出されました（9.15.1以前）
-
-
-スナップショットの作成間隔はトリガータイプに基づきます。
-
-
-
-| 先頭に付ける名前の規則 | 「Anti_ransomware_periodic_backup」「Anti_ransomware_attack_backup」 | 「Anti_ransomware_backup」 
-
-
-| 削除動作 | ARPスナップショットはロックされており、管理者は削除できません | ARPスナップショットはロックされており、管理者は削除できません 
-
-
-| 最大スナップショット数 | link:modify-automatic-snapshot-options-task.html["6つのスナップショット設定可能な制限"] | link:modify-automatic-snapshot-options-task.html["6つのスナップショット設定可能な制限"] 
-
-
-| 保持期間  a| 
-スナップショットは通常12時間保持されます。
-
-* NAS ボリューム：ファイル分析によって攻撃が確認された場合、管理者が攻撃を真または誤検知（clear-suspect）としてマークするまで、攻撃前に作成されたスナップショットは保持されます。
-* SANボリュームまたはVMデータストア：ブロックエントロピー分析によって攻撃が確認された場合、攻撃前に作成されたスナップショットは10日間保持されます（設定可能）。
-
- a| 
-* トリガー条件に基づいて決定されます（固定ではありません）
-* 攻撃前に作成されたスナップショットは、管理者が攻撃を真または誤検知（clear-suspect）としてマークするまで保持されます。
-
-
-
-
-| Clear-suspect アクション  a| 
-管理者は、確認に基づいて保持を設定するclear-suspectアクションを実行できます：
-
-* 偽陽性の保持期間は24時間
-* 真陽性保持期間は7日間
-
- a| 
-管理者は、確認に基づいて保持を設定するclear-suspectアクションを実行できます：
-
-* 偽陽性の保持期間は24時間
-* 真陽性保持期間は7日間
-
-
-この予防的保持動作は、ONTAP 9.16.1より前には存在しません。
-
-
-
-| 有効期限 | すべてのスナップショットに有効期限が設定されます | なし 
-|===
-
-
-[[how-to-recover-data-in-ontap-after-a-ransomware-attack]]
-== ランサムウェア攻撃後のONTAPでのデータ リカバリ方法
-
-ARPは、実績のあるONTAPデータ保護およびディザスタリカバリテクノロジーを基盤として、ランサムウェア攻撃に対応します。ARPは、攻撃の初期兆候が検出されると、ロックされたスナップショットを作成します。まず、攻撃が実際のものか誤検知なのかを確認する必要があります。攻撃が確認されれば、ARPスナップショットを使用してボリュームを復元できます。
-
-ロックされたスナップショットは通常の方法では削除できません。ただし、後で攻撃を誤検知としてマークすると、ONTAPはロックされたコピーを削除します。
-
-ボリューム全体をリバートする代わりに、選択したSnapshotから影響を受けたファイルをリカバリできます。
-
-攻撃への対応とデータの回復の詳細については、次のトピックを参照してください：
-
-* link:respond-abnormal-task.html["異常なアクティビティへの対処"]
-* link:determine-ransomware-tips.html["ランサムウェア攻撃が本物かどうかを判断する"]
-* link:recover-data-task.html["ARPスナップショットからデータをリカバリする"]
-* link:../data-protection/restore-contents-volume-snapshot-task.html["ONTAPスナップショットからのリカバリ"]
-* link:https://www.netapp.com/blog/smart-ransomware-recovery["スマートなランサムウェアリカバリ"^]
-
-
-
-
-[[multi-admin-verification-protection-for-arp]]
-== ARPのマルチ管理者認証保護
-
-ONTAP 9.13.1以降では、Autonomous Ransomware Protection（ARP）の設定に2人以上の認証済みユーザ管理者が必要となるように、マルチ管理者検証（MAV）を有効にすることを推奨します。詳細については、link:../multi-admin-verify/enable-disable-task.html["複数管理者による検証を有効にする"]を参照してください。
-
-
-
-[[autonomous-ransomware-protection-with-artificial-intelligence-arpai]]
-[[arp-ai]]
-== 人工知能を利用した自律型ランサムウェア対策（ARP / AI）
-
-ONTAP 9.16.1以降、ARPはランサムウェア対策分析用の機械学習モデルを採用することでサイバーレジリエンス（復元力）を向上させています。このモデルは、NAS環境で常に進化するランサムウェアを99%の精度で検出します。ARPの機械学習モデルは、ランサムウェア攻撃のシミュレーション前後の大規模なファイルデータセットで事前トレーニングされています。このリソースを大量に消費するトレーニングは、オープンソースのフォレンジック調査データセットを使用してモデルをトレーニングするためにONTAPの外部で行われます。モデリングパイプライン全体で顧客データは使用されず、プライバシーの問題もありません。このトレーニングから生成された事前トレーニング済みモデルは、ONTAPに搭載されています。このモデルは、ONTAP CLIまたはONTAP APIからアクセスしたり変更したりすることはできません。
-
-.ARP/AIのアクティブ保護への即時移行
-ARP/AI では、<<ARPモードについて,学習期間>>はありません。次のサポートされているボリュームタイプでは、ARP/AI はインストールまたはアップグレード直後からアクティブになります：
-
-* ONTAP 9.16.1以降のNAS FlexVolボリューム
-* ONTAP 9.18.1以降のNAS FlexGroupボリューム
-* ONTAP 9.17.1 以降を搭載した SAN ボリューム（link:respond-san-entropy-eval-period.html["評価期間"]中でもすぐにアクティブになります）
-
-
-ARP 機能がすでに有効になっている既存および新規ボリュームの場合、クラスターを ARP/AI 対応の ONTAP バージョンにアップグレードすると、ARP/AI 保護が自動的にアクティブになります。
-
-.ARP/AIの自動更新
-最新のランサムウェア脅威に対する最新の保護を維持するため、ARP/AIは、通常のONTAPアップグレードやリリースとは別に、頻繁に自動更新を実施します。link:../update/enable-automatic-updates-task.html["自動更新を有効にしました"]の場合、セキュリティファイルの自動更新を選択すると、ARP/AIの自動セキュリティ更新の受信も開始できます。また、link:arp-ai-automatic-updates.html#manually-update-arpai-with-the-latest-security-package["これらの更新を手動で行う"]更新のタイミングを選択・制御することも可能です。
-
-ONTAP 9.16.1以降では、システムおよびファームウェアの更新に加えて、System Managerを使用してARP/AIのセキュリティ更新を入手できます。
-
-link:arp-ai-automatic-updates.html["ARP/AIの更新に関する詳細"]
-
-
-
-[[differences-between-arpai-and-arp-models-at-a-glance]]
-== ARP/AIモデルとARPモデルの違いを一目で
+[[autonomous-ransomware-protection-with-ai-arpai-and-legacy-arp-feature-comparison]]
+== AI搭載自律型ランサムウェア対策（ARP/AI）と従来のARPの機能比較
 
 [cols="1,1,1"]
 |===
-| 機能 | ARP | ARP/AI 
+| モデル | ARP | ARP/AI 
 
 
-| ONTAPバージョン | ONTAP 9.10.1～9.15.1 | ONTAP 9.16.1 以降、9.15.1（テクニカル プレビュー） 
+| ONTAPバージョン | ONTAP 9.10.1～9.15.1 | ONTAP 9.16.1以降 
 
 
 | 検出方法 | ファイルアクティビティ、データエントロピー、ファイル拡張子の種類を分析します | 大規模なフォレンジックデータセットでトレーニングされた AI / 機械学習モデル。エントロピーとファイルの挙動を分析 
@@ -396,8 +98,8 @@ link:arp-ai-automatic-updates.html["ARP/AIの更新に関する詳細"]
 
 
 | ボリュームタイプのサポート  a| 
-* FlexVol：9.10.1以降
-* FlexGroup：9.13.1以降
+* FlexVol：9.10.1～9.15.1
+* FlexGroup：9.13.1～9.17.1
 * SAN：サポートされていません
 
  a| 
@@ -420,8 +122,15 @@ link:arp-ai-automatic-updates.html["ARP/AIの更新に関する詳細"]
 | 導入 | ボリュームごとの手動有効化またはSVMレベルのデフォルト設定 | ボリュームごとまたは SVM レベルのデフォルト設定による手動有効化；9.18.1 以降でサポートされるシステムでは、クラスタ レベルですべての新規ボリュームに対してデフォルトで有効化 
 
 
-| 評価期間 | 該当なし | SANボリュームに必要（2～4週間）ベースライン暗号化しきい値を確立 
+| 評価期間 | 該当なし | SANボリュームの場合、ベースラインの暗号化しきい値を確立するために2～4週間必要です。ONTAP 9.17.1以降、ONTAPで検出されたハイパーバイザー仮想ディスクを含むNAS FlexVolボリュームにも必要です。 
 |===
+
+
+[[multi-admin-verification]]
+== マルチ管理者認証
+
+ONTAP 9.13.1以降では、Autonomous Ransomware Protectionの設定に2人以上の認証済みユーザー管理者が必要になるよう、マルチ管理者検証（MAV）を有効にすることをお勧めします。詳細については、link:../multi-admin-verify/enable-disable-task.html["複数管理者による検証を有効にする"]を参照してください。
+
 .関連情報
 * link:https://docs.netapp.com/us-en/ontap-cli/["ONTAPコマンド リファレンス"^]
 

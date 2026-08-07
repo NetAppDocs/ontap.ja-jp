@@ -1,0 +1,244 @@
+---
+sidebar: sidebar 
+permalink: anti-ransomware/support-arpai.html 
+keywords: ARP AI, arpai, autonomous ransomware protection AI, ONTAP 9.16.1, supported configurations, SAN ransomware, NAS ransomware, machine learning ransomware, hypervisor ransomware, SnapMirror ARP AI, AFF ransomware protection, ASA ransomware, FlexVol ARP AI, FlexGroup ARP AI, current ARP AI model ONTAP, ARP AI requirements ONTAP, SAN ransomware support ONTAP 
+summary: ARP/AI （ONTAP 9.16.1以降）は現在のランサムウェア対策モデルであり、AFF、ASA、FAS、およびASA r2システム上のFlexVolおよびFlexGroupボリュームにおけるNASおよびSANワークロードをサポートしています。 
+---
+= AIを使用したONTAP自律型ランサムウェア対策のサポートされている構成
+:allow-uri-read: 
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+AIによる自律型ランサムウェア対策（ARP/AI）は、NAS（ONTAP 9.16.1以降）およびSAN（ONTAP 9.17.1以降）のワークロードで利用可能です。ARP/AIを導入する前に、サポートされている構成とユースケースを確認し、環境が要件を満たしていることを確認してください。
+
+
+NOTE: ONTAP 9.15.1以前を実行している場合は、link:support-arp.html["ARPでサポートされている構成"]を参照してください。
+
+
+
+[[suitable-workloads]]
+== 適しているワークロード
+
+ARP/AIは、以下のようなワークロードに適しています：
+
+* NFSまたはSANストレージ上のデータベース
+* WindowsまたはLinuxのホーム ディレクトリ
+* 画像および動画（例：医療記録および電子設計自動化（EDA）データ）
+* LUNまたはNVMeネームスペースを含むボリューム上のSANワークロード（ONTAP 9.17.1以降）
+* VMware、Hyper-V、KVM、および OpenStack 上の仮想マシンワークロード（ONTAP 9.17.1 以降）
+
+
+
+
+[[unsuitable-workloads]]
+== 適していないワークロード：
+
+ARP/AIは、以下のようなワークロードには適していません：
+
+* ファイルの作成または削除操作が頻繁に発生するワークロード（数秒間に数十万個のファイルなど。たとえば、テスト/開発ワークロード）。
++
+ARP/AIの脅威検出は、ファイルの作成、名前変更、削除といった操作の異常な急増を認識する能力に依存しています。ファイルアクティビティの発生源がアプリケーション自体である場合、ランサムウェアの活動と効果的に区別することはできません。
+
+* アプリケーションやホストがデータを暗号化するワークロード
++
+ARP/AIは、受信データが暗号化されているか暗号化されていないかを区別することに依存しています。アプリケーション自体がデータを暗号化している場合、その機能の有効性は低下します。ただし、ARP/AIは、ファイルのアクティビティ（削除、上書き、作成、または新しいファイル拡張子での作成または名前変更）とファイルの種類に基づいて動作することができます。
+
+* 仮想マシン内のワークロードで、高度に圧縮または暗号化されたファイル（7z、ZIP、パスワードで保護されたPDFファイルやDOCファイルなど）が多数含まれる場合。
+
+
+
+
+[[supported-configurations]]
+== サポートされている構成
+
+ARP/AIは、複数のONTAPバージョンおよび環境にわたるNASおよびSANワークロードをサポートします。ARP/AIを導入する前に、サポートされている機能を確認し、お客様の環境がサポートされていることを確認してください。
+
+
+
+[[baseline-support]]
+=== ベースラインサポート
+
+ARP/AIサポートはONTAP 9.16.1から開始され、FlexVolボリューム上のNASワークロード（NFSおよびSMB）と、学習期間を必要としないMetroCluster構成が含まれます。
+
+
+
+[[protocol-and-hypervisor-support-by-ontap-version]]
+=== ONTAPバージョン別のプロトコルとハイパーバイザーのサポート
+
+* ONTAP 9.17.1以降：SANブロックデバイスのワークロード（LUNまたはNVMeネームスペースを含むボリューム）およびVMware仮想ディスクを含むNASボリューム。
+* ONTAP 9.17.1P5 以降：Hyper-V、KVM、およびOpenStackハイパーバイザーを含む NAS ボリューム。
+
+
+
+
+[[feature-and-configuration-support-matrix]]
+=== 機能および構成のサポートマトリックス
+
+追加の構成とボリュームタイプのサポートは、以下の ONTAP バージョンで利用可能です：
+
+|===
+|  | ONTAP 9.19.1 | ONTAP 9.18.1 | ONTAP 9.17.1 | ONTAP 9.16.1 
+
+
+| SnapMirror非同期で保護されているボリューム | ✓ | ✓ | ✓ | ✓ 
+
+
+| SnapMirror 同期で保護されたボリューム ^1^ | ✓ |  |  |  
+
+
+| SnapMirrorアクティブ同期で保護されたボリューム^1^ | ✓ |  |  |  
+
+
+| SnapMirror非同期で保護されているSVM（SVMディザスタ リカバリ） | ✓ | ✓ | ✓ | ✓ 
+
+
+| SVMデータモビリティ(`vserver migrate`) | ✓ | ✓ | ✓ | ✓ 
+
+
+| FlexGroupボリューム | ✓ | ✓ | ✓ ^2^ | ✓ ^2^ 
+
+
+| マルチ管理者認証 | ✓ | ✓ | ✓ | ✓ 
+
+
+| ARP/AIのデフォルト有効化 | ✓ | ✓ |  |  
+|===
+^1^ ONTAP 9.19.1以降、ARP/AIはFAS、AFF A-series、AFF C-series、およびAFXシステムのNASとSANのSnapMirror同期関係のプライマリボリューム、およびAFF A-series、AFF C-series、およびASA r2システムのSnapMirrorアクティブ同期SAN関係のプライマリボリュームをサポートします。詳細については、<<SnapMirror>>を参照してください。
+
+^2^ ONTAP 9.16.1 および 9.17.1 の FlexGroup ボリュームは ARP/AI 以前の ARP モデルを使用します。FlexGroup ボリュームの完全な ARP/AI サポートは ONTAP 9.18.1 から開始されます。
+
+
+
+[[snapmirror-and-arpai-interoperability]]
+[[snapmirror]]
+== SnapMirrorおよびARP/AIの相互運用性
+
+ONTAP 9.12.1以降では、SnapMirror非同期デスティネーション ボリュームでARPがサポートされます。
+
+ONTAP 9.19.1 以降、ARP/AI は、SnapMirror 同期および SnapMirror アクティブ同期 SAN 関係に参加するプライマリ ボリュームをサポートします。動作は次のとおりです：
+
+* ARP/AIは、FAS、AFF Aシリーズ、AFF Cシリーズ、およびAFXシステムのNASおよびSAN向けSnapMirror同期関係における_プライマリ_ボリュームでサポートされています。
+* ARP/AIは、AFF Aシリーズ、AFF Cシリーズ、およびASA r2システム上のSnapMirrorアクティブ同期SAN関係における_プライマリ_ボリュームでサポートされています。
+* ARP/AI 分析は、SnapMirror 同期および SnapMirror アクティブ同期 SAN 関係のアクティブな読み書きプライマリボリュームでのみ実行されます。
+* ARP/AI スナップショットは、SnapMirror 同期または SnapMirror アクティブ同期の関係において、セカンダリ ボリュームにレプリケートされません。フェイルオーバー後、リカバリボリュームで link:enable-arpai.html["ARP/AIを再度有効にする"] を実行する必要があります。
+
+
+
+NOTE: 同期ミラーリング関係にある両方のボリュームにすべての書き込み操作がコミットされるため、プライマリボリュームでのみARP/AIを有効にするだけで異常を検出するのに十分です。プライマリボリューム上でARP/AI分析によって生成された内部メタデータは、セカンダリボリュームに複製されます。このため、フェイルオーバー後にセカンダリ ボリュームでARP/AIが有効になっている場合、必要なメタデータはすでに存在しています。
+
+SnapMirrorの_非同期_ソースボリュームがARP/AI対応の場合、SnapMirrorデスティネーションボリュームは、ARP/AI構成状態（例： `enabled`）、ARP/AIセキュリティデータ、およびARP/AIによって作成されたソースボリュームのスナップショットを自動的に取得します。明示的な有効化は必要ありません。
+
+非同期デスティネーション ボリュームは読み取り専用（RO）スナップショットで構成されていますが、そのデータに対してARP/AI処理は行われません。ただし、SnapMirror非同期デスティネーション ボリュームが読み書き可能（RW）に変換されると、RWに変換されたデスティネーション ボリューム上でARP/AIが自動的に有効になります。
+
+
+
+[[arpai-and-virtual-machines]]
+== ARP/AIと仮想マシン
+
+ARP/AI は、VMware、Hyper-V、KVM、および OpenStack 上の仮想マシン （VM） をサポートしています。VMware のサポートは ONTAP 9.17.1 から始まります。Hyper-V、KVM、および OpenStack のサポートは ONTAP 9.17.1P5 から始まります。ARP/AI による検出は、VM 内部の変更と VM 外部の変更で異なる動作をします。ARP/AI は、VM 内に多数の高度に圧縮されたファイル （7z や ZIP など） や暗号化されたファイル （パスワードで保護された PDF、DOC、ZIP など） が含まれるワークロードには推奨されません。
+
+.VMの外部での変更
+ARP/AIは、新しい拡張子が暗号化された状態でボリュームに追加された場合、またはファイル拡張子が変更された場合、VM外部のNFSボリューム上のファイル拡張子の変更を検出できます。
+
+.VMの内部での変更
+ランサムウェア攻撃がVMの外部に変更を加えることなくVM内のファイルを変更する場合、VMのデフォルトのエントロピーが低い場合（例：.txt、.docx、または.mp4ファイル）、ARP/AIは脅威を検出します。ONTAP 9.17.1のSANサポート以降、ARP/AIはVM内部でエントロピー異常を検出した場合、脅威アラートも生成します。
+
+デフォルトでは、ファイルのエントロピーが高い場合（例えば、.gzipファイルやパスワードで保護されたファイルなど）、ARP/AIの検出能力は制限されます。この場合も、ARP/AIはプロアクティブなスナップショットを取得できますが、ファイル拡張子が外部から改ざんされていない場合はアラートは発生しません。
+
+
+NOTE: VM内で発生する攻撃の検出はFlexVolボリュームに対してのみ使用でき、ONTAP 9.18.1以降のFlexGroupボリューム上にVMデータストアが設定されている場合は使用できません。
+
+
+
+[[unsupported-configurations]]
+== サポートされない構成
+
+ARP/AIは、ONTAP S3環境ではサポートされていません。
+
+[[unsupported-configurations]]
+ARP/AI は、以下のボリューム構成をサポートしていません：
+
+* FlexGroup ボリューム（ONTAP 9.16.1 および 9.17.1）（FlexGroup ボリュームはこれらのバージョンでは古い ARP モデルを使用します。FlexGroup ボリュームの ARP/AI サポートは ONTAP 9.18.1 から開始されます）
+* FlexCacheボリューム（ARP/AI はオリジン FlexVol ボリュームではサポートされていますが、キャッシュボリュームではサポートされていません）
+* オフライン ボリューム
+* SnapLockボリューム
+* ONTAP 9.18.1以前のSnapMirrorアクティブ同期
+* ONTAP 9.18.1以前のSnapMirror同期
+* SnapMirror 同期デスティネーション ボリュームからのカスケード構成
+* 制限付きボリューム
+* Storage VMのルート ボリューム
+* 停止したStorage VMのボリューム
+* FlexVol から FlexGroup への変換（変換前にARP/AIを無効にする必要があります）
+
+
+
+
+[[arpai-performance-and-frequency-considerations]]
+== ARP/AIのパフォーマンスと頻度に関する考慮事項
+
+ARP/AIは、スループットやピークIOPSで測定されるシステムパフォーマンスへの影響は最小限です。影響は、特定のボリュームワークロードによって異なります。一般的なワークロードの場合、以下の構成制限が推奨されます：
+
+[cols="30,20,30"]
+|===
+| ワークロードの特性 | ノードあたりの最大ボリューム数（推奨値） | ノードあたりのボリューム制限を超えるとパフォーマンスが低下します^1^ 
+
+
+| 読み取り集約型、またはデータを圧縮できる | 150 | 最大IOPSの4% 
+
+
+| 書き込み集約型でデータを圧縮できない | 60  a| 
+* NAS：ONTAP 9.16.1以降では最大IOPSの4%
+* SAN：ONTAP 9.17.1以降では最大IOPSの5%
+
+
+|===
+^1^ 推奨制限を超えて追加されたボリュームの数に関係なく、システムパフォーマンスはこれらのパーセンテージを超えて低下しません。
+
+[NOTE]
+====
+多数の新規ボリュームでARP/AIをデフォルトで有効にすると、システムリソースの使用量が増える可能性があります。ボリューム上でARP/AIを有効にする際には、スナップショットなどの競合プロセスに必要な容量を考慮してください。
+
+====
+ONTAP 9.18.1以降、ARP/AIはプラットフォームの種類とCPUコア数に基づいてボリューム制限の引き上げをサポートします。
+
+[cols="40,30"]
+|===
+| プラットフォームタイプ | ノードあたりの最大ARP/AI対応ボリューム数 
+
+
+| ローエンド（最大20個のCPUコアを搭載したシステム） | 250 
+
+
+| 中規模（最大 64 個の CPU コアを搭載したシステム） | 750 
+
+
+| ハイエンド（64個以上のCPUコアを搭載したシステム） | 1000 
+|===
+
+NOTE: CPU コア数は、2 ノード HA ペアの各ノードに適用されます。
+
+
+
+[[upgrade-considerations-for-existing-clusters]]
+[[arp-upgrade-considerations]]
+== 既存クラスターのアップグレードに関する検討事項
+
+
+NOTE: 新しい ONTAP 9.18.1 以降のクラスタをデプロイする場合、ARP/AI は新しいボリュームでデフォルトで自動的に有効になります。link:learn-about-arpai.html["ARP/AIについて学ぶ"]を参照してください。
+
+AFF A-series、AFF C-series、ASA、またはASA r2システムでONTAP 9.18.1以降にアップグレードすると、12時間の猶予期間後、新しいボリュームに対してARP/AIがデフォルトで自動的に有効になります。猶予期間中は、link:default-enable-change-arpai.html["自動有効化をオプトアウトする"]できます。既存のボリュームは変更されません。既存のボリュームに対してlink:enable-arpai.html["ARP/AIを手動で有効化する"]する必要があります。
+
+ONTAP 9.17.1以前からONTAP 9.18.1にアップグレードされたFlexGroupボリュームでは、ARP/AIが自動的に利用可能になり、学習モードのボリュームがアクティブモードに移行します。
+
+
+
+[[multi-admin-verification-with-arpai-protected-volumes]]
+== ARP/AIで保護されたボリュームを使用した複数管理者による検証
+
+ONTAP 9.13.1以降、ARP/AIによるセキュリティ強化のために、マルチ管理者検証（MAV）を有効にすることができます。MAVは、保護対象ボリューム上でARP/AIを無効化、一時停止、または疑わしい攻撃を誤検知としてマークするために、少なくとも2人以上の認証済み管理者が必要であることを保証します。link:../multi-admin-verify/enable-disable-task.html["ARP/AIで保護されたボリュームに対してMAVを有効にする"]方法をご確認ください。
+
+MAV グループの管理者を定義し、保護する `security anti-ransomware volume disable`、 `security anti-ransomware volume pause`、および `security anti-ransomware volume attack clear-suspect`コマンドの MAV ルールを作成する必要があります。
+
+ `security anti-ransomware volume disable`、 `security anti-ransomware volume pause`、および `security anti-ransomware volume attack clear-suspect`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/search.html?q=security+anti-ransomware+volume["ONTAPコマンド リファレンス"^]をご覧ください。

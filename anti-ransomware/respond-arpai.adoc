@@ -1,0 +1,292 @@
+---
+sidebar: sidebar 
+permalink: anti-ransomware/respond-arpai.html 
+keywords: ARP AI, arpai, respond, abnormal activity, false positive, ransomware attack, NAS, SAN, entropy spike, clear suspect, ONTAP 9.16.1, machine learning ransomware, ransomware detected ONTAP alert, ARP AI warning response, ARP AI false positive response 
+summary: ARP/AIが保護ボリューム内で異常なアクティビティを検出した場合、それが誤検知か実際のランサムウェア攻撃かを評価し、推奨されるONTAP対応ワークフローに従ってください。 
+---
+= ONTAP ARP/AIで検出された異常なアクティビティへの対応
+:allow-uri-read: 
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+AI による自律型ランサムウェア対策（ARP/AI）が保護ボリューム内で異常なアクティビティを検出すると（ONTAP 9.16.1以降）、警告を発します。通知を評価し、誤検知かランサムウェア攻撃の可能性かに分類してください。アクティビティを分類すると、ARP/AIはその評価を記録し、脅威プロファイルを調整して、通常の監視を再開します。
+
+
+NOTE: ONTAP 9.15.1以前を実行している場合は、link:respond-arp.html["ARPによって検出された異常なアクティビティへの対応"]を参照してください。
+
+攻撃を分類すると、ARP/AIスナップショットは分類操作によって開始される短縮された期間保持されます。
+
+* ONTAP 9.17.1以降：確認された攻撃については7日間、誤検出については24時間。
+* ONTAP 9.16.1以前：確認された攻撃については5日間、誤検出については48時間。
+
+
+
+NOTE: ARP/AIスナップショット用にこれらのlink:modify-snapshot-options-arpai.html["保持設定"]を変更できます。
+
+.タスク概要
+NASボリュームの場合、ARP/AIは、高いデータエントロピー、データ暗号化を伴う異常なボリュームアクティビティ、および通常とは異なるファイル拡張子のいずれかの組み合わせを検出すると、疑わしいファイルのリストを表示します。
+
+ONTAP 9.17.1以降：
+
+* *NASボリュームの場合*：ARP/AIは引き続き疑わしいファイルとファイルタイプを提供します。
+* *SANボリュームの場合*（LUNまたはNVMeネームスペースを含むボリューム）：ARP/AIはボリュームレベルでのみエントロピーを評価します。ONTAPはLUNまたはネームスペース内の個々のファイルを認識しないため、疑わしいファイルリストやファイルタイプは利用*できません*。その代わりに、ARP/AIは暗号化率（エントロピースパイク）のボリュームレベルでの急上昇を報告します。
+
+
+NASボリュームとSANボリュームの両方におけるエントロピーの急増に関する詳細は、System Managerの「ランサムウェア対策」ページに報告されます。
+
+Autonomous Ransomware Protectionは検出とスナップショット作成を自動化しますが、ファイルやイベントが本当に悪意のあるものかどうかを最終的に判断するには、手動による調査が必要です。Autonomous Ransomware Protectionは、発生した事象が実際のランサムウェア攻撃であるかどうかを明確に判断することはできません。不審なアクティビティを検知しますが、それが実際のランサムウェアなのか、誤検知（無害なアクティビティ）なのかは、調査して確認する必要があります。
+
+link:determine-ransomware-tips.html["ファイルまたはイベントが本当に悪意のあるものかどうかを判断する"].
+
+ARP/AI警告通知が発行された場合は、以下の2つの方法のいずれかでアクティビティを指定してください。
+
+* *誤検出*：検出されたファイルの種類またはエントロピーの急増はワークロードにおいて想定されるものであり、無視しても構いません。
+* *ランサムウェア攻撃の可能性*：検出されたファイルの種類またはエントロピーの急増は、ワークロードにおいて予期しないものであり、潜在的な攻撃として対処する必要があります。
+
+
+決定事項を更新し、ARP/AI通知をクリアすると、通常の監視が再開されます。ARP/AIは、お客様の評価を脅威評価プロファイルに記録し、お客様の選択に基づいてその後のファイルアクティビティを監視します。
+
+攻撃の疑いがある場合は、それが攻撃であるかどうかを判断し、攻撃である場合は対応し、通知を消去してデータを復元する必要があります。link:recover-arpai.html["ランサムウェア攻撃から回復する方法の詳細"].
+
+.開始する前に
+SANボリュームの場合、ARP/AIはボリュームをアクティブに保護している必要があり、評価モードであってはなりません。
+
+.手順
+異常なアクティビティを分類する必要がある場合は、次の手順に従ってください：
+
+. <<異常なアクティビティの詳細を確認する,異常なアクティビティの詳細を確認する>>
+. <<疑わしいイベントをクリアする際のスナップショットの動作を理解する,疑わしいイベントをクリアする際のスナップショットの動作を理解する>>
+. 次のいずれかを実行します。
++
+** <<偽陽性として分類し、監視を再開する,偽陽性として分類し、監視を再開する>>
+** <<ランサムウェア攻撃の可能性を分類し、データを復旧する,ランサムウェア攻撃の可能性を分類し、データを復旧し、完了する>>
+
+
+
+
+データの復元が必要な場合は、link:recover-arpai.html["ランサムウェア攻撃後のデータ復旧"]の手順に従ってください。
+
+
+
+[[review-abnormal-activity-details]]
+== 異常なアクティビティの詳細を確認する
+
+System ManagerまたはONTAP CLIを使用して、応答フローを選択する前にARP/AI警告の詳細を確認できます。
+
+[role="tabbed-block"]
+====
+.System Manager
+--
+. 「異常なアクティビティ」の通知を受け取ったら、リンクをクリックしてください。または、*ストレージ > ボリューム* に移動し、影響を受けるボリュームを見つけて、*セキュリティ* タブを選択します。
++
+警告は、System Managerダッシュボードの*Events*メニューの*Overview*ペインに表示されます。
+
+. *Security*タブで、異常なアクティビティの詳細を確認します：
++
+** NASボリュームについては、「疑わしいファイルの種類」レポートを確認してください。「疑わしいファイルの種類」ダイアログボックスには、ARP/AIが識別したファイル拡張子とファイル数が表示されます。
+** NASボリュームとSANボリュームの両方について、エントロピースパイクレポートを確認してください。このレポートには、発生時間、期間、書き込まれたデータ量、およびエントロピー値が表示されます。
+
+
+
+
+--
+.CLI
+--
+. 潜在的なランサムウェア攻撃に関する通知を受け取ったら、攻撃を受けた時間と重大度を確認します。
++
+[source, cli]
+----
+security anti-ransomware volume show -vserver <svm_name> -volume <vol_name>
+----
++
+出力例：
+
++
+....
+Vserver Name: vs0
+Volume Name: vol1
+State: enabled
+Attack Probability: moderate
+Attack Timeline: 5/12/2025 01:03:23
+Number of Attacks: 1
+Attack Detected By: encryption_percentage_analysis
+....
++
+EMSメッセージを確認することもできます。
+
++
+[source, cli]
+----
+event log show -message-name callhome.arw.activity.seen
+----
+. （オプション、NASおよびSAN）ボリューム上で検出された最近のエントロピースパイクを表示します：
++
+[source, cli]
+----
+security anti-ransomware volume entropy-stat show-recent-high-encryption-stat -vserver <svm_name> -volume <vol_name>
+----
+. （オプション）時間の経過に伴う暗号化率のヒストグラムを表示します：
++
+[source, cli]
+----
+security anti-ransomware volume entropy-stat show-encryption-percentage-histogram -vserver <svm_name> -volume <vol_name>
+----
+
+
+--
+====
+
+
+[[understand-snapshot-behavior-when-clearing-a-suspected-event]]
+== 疑わしいイベントをクリアする際のスナップショットの動作を理解する
+
+*  `volume snapshot restore`のONTAP 9.16.1以降では、*まず疑わしいイベントをクリア*してからリストアを実行してください。疑わしいファイルをクリアした後、ARP/AIスナップショットは、アクティビティの分類方法に基づいて保持されます。アクティビティをランサムウェア攻撃の可能性としてマークした場合は7日間（デフォルト）、誤検知としてマークした場合は24時間です。最初にクリアしても、リストア対象は削除されません。さらに、ボリュームのリストア後には「疑わしいファイルをクリア」オプションが使用できなくなるため、リストア前に必ずクリアする必要があります。
+*  `volume snapshot restore`以外の回復方法（例えば、FlexCloneまたは単一ファイルSnapRestore）の場合は、まずデータ復旧を実行してから、疑わしいイベントをクリアしてください。これらの方法は、clear-suspectオプションの可用性に影響しません。
+* ONTAP 9.13.1以降、MAVを使用してARP/AI設定を保護する場合、 `clear-suspect`操作には追加の承認が必要になることがあります。link:../multi-admin-verify/request-operation-task.html["すべての管理者からの承認を得る必要があります"] MAV承認グループに関連付けられていない場合、操作は失敗します。
+
+
+
+
+[[classify-as-false-positive-and-resume-monitoring]]
+== 偽陽性として分類し、監視を再開する
+
+特定されたファイルタイプまたはエントロピースパイクがワークロードに対して_想定される_場合は、このフローを使用します。
+
+[role="tabbed-block"]
+====
+.System Manager
+--
+. 応答を記録します：
++
+** NAS ファイルタイプの警告については、影響を受けるファイルを選択し、*誤検出としてマーク*を選択してから、*疑わしいファイルタイプの更新とクリア*を選択してください。
+** エントロピーの急上昇（NASおよびSAN）については、*誤検出としてマーク*を選択し、*保存して閉じる*を選択してください。
+
+
+
+
+これらの操作により、疑わしいファイル（NAS）または異常なアクティビティ（NASおよびSAN）に関する警告通知が解除されます。その後、ARP/AIはボリュームの通常の監視を再開します。
+
+--
+.CLI
+--
+. 決定を記録し、通常のARP/AI監視を再開するには、以下のいずれかのコマンドを実行してください。
++
+** NAS ファイル拡張子の場合：
++
+[source, cli]
+----
+security anti-ransomware volume attack clear-suspect -vserver <svm_name> -volume <vol_name> [<extension_identifiers>] -false-positive true
+----
++
+以下のオプションパラメータを使用すると、特定の拡張機能のみを誤検出として識別できます： `[-extension <text>, ... ]`
+
+** エントロピーの急増（NASおよびSAN）の場合：
++
+[source, cli]
+----
+security anti-ransomware volume attack clear-suspect -vserver <svm_name> -volume <vol_name> -start-time <MM/DD/YYYY HH:MM:SS> -end-time <MM/DD/YYYY HH:MM:SS> -false-positive true
+----
++
+SANボリュームの場合、これが異常なアクティビティを分類する唯一のサポートされている方法です。疑わしいファイルリストやファイル拡張子はありません。
+
+
+
+. ONTAP 9.18.1以降では、 `clear-suspect`操作のステータスを確認できます：
++
+[source, cli]
+----
+security anti-ransomware volume show -clear-suspect-status -volume <vol_name> -vserver <svm_name>
+----
+
+
+--
+====
+
+
+[[classify-as-potential-ransomware-attack-and-recover-data]]
+== ランサムウェア攻撃の可能性を分類し、データを復旧する
+
+ワークロードに対して、検出されたファイルの種類またはエントロピーの急上昇が_予期しない_場合は、このフローを使用してください。
+
+[role="tabbed-block"]
+====
+.System Manager
+--
+. アクティビティを分類：
++
+** NASファイルタイプの警告については、選択したファイルを*ランサムウェア攻撃の可能性あり*としてマークします。
+** エントロピーの急上昇（NASおよびSAN）については、*ランサムウェア攻撃の可能性ありとしてマーク*を選択します。
+
+
+. データを復元する前に、link:recover-arpai.html#choose-a-recovery-method["リカバリ方法のオプション"]を考慮してください。次に、以下のいずれかの操作を行ってください。
++
+** *ボリュームを復元するには*：まず通知をクリアしてから、ボリュームを復元してください。
++
+... [[arp-snapshot-decision-sm-pre-restore]]潜在的な攻撃に関する通知をクリア：
++
+**** NAS ファイルタイプの警告については、* Update and Clear Suspected File Types * を選択します。
+**** エントロピーの急上昇（NASおよびSAN）については、*保存して閉じる*を選択してください。
++
+
+NOTE: 疑わしいファイルを削除した後、ARP/AIスナップショットはデフォルトで7日間保持されます。データ復旧にさらに時間が必要な場合は、link:modify-snapshot-options-arpai.html["ARP/AIスナップショット設定を調整する"]スナップショットの保持期間を延長してください。データ復旧がすべて完了したら、保持期間を短縮できます。
+
+
+
+... link:recover-arpai.html["最新のARP/AIスナップショット、またはそれ以前のスナップショット"]を使用してデータを復元します。
+
+
+** *別の復元方法を使用する場合*：まずデータを復元してから、通知をクリアしてください。
++
+... link:recover-arpai.html["FlexCloneまたは単一ファイルSnapRestoreを使用したデータのリカバリ"]。
+... データ復元後に分類を確定し、通常のARP/AI監視を再開します。
++
+**** NAS ファイルタイプの警告については、* Update and Clear Suspected File Types * を選択します。
+**** エントロピーの急上昇（NASおよびSAN）については、*保存して閉じる*を選択してください。
++
+
+NOTE: 決定を記録すると、攻撃レポートがクリアされます。
+
+
+
+
+
+
+
+
+
+--
+.CLI
+--
+. （NASボリュームのみ）攻撃レポートを作成する：
++
+.. 攻撃レポートを生成し、保存場所を指定します。
++
+[source, cli]
+----
+security anti-ransomware volume attack generate-report -vserver <svm_name> -volume <vol_name> -dest-path <[svm_name]:[junction_path/sub_dir_name]>
+----
+
+
+. [[arp-snapshot-decision-cli-pre-restore]]復元前に疑わしいイベントをクリアします（ `volume snapshot restore`）。この攻撃をランサムウェアの可能性ありとしてマークし（(`-false-positive false`）、疑わしいファイルを削除してロックを解除します：
++
+** NAS ファイル拡張子の場合：
++
+[source, cli]
+----
+security anti-ransomware volume attack clear-suspect -vserver <svm_name> -volume <vol_name> [<extension_identifiers>] -false-positive false
+----
+** エントロピーの急増（NASおよびSAN）の場合：
++
+[source, cli]
+----
+security anti-ransomware volume attack clear-suspect -vserver <svm_name> -volume <vol_name> -start-time <MM/DD/YYYY HH:MM:SS> -end-time <MM/DD/YYYY HH:MM:SS> -false-positive false
+----
+
+
+. [[arp-snapshot-decision-cli-post-restore]]link:recover-arpai.html["データの復旧"]に進みます。
+
+
+--
+====

@@ -1,0 +1,98 @@
+---
+sidebar: sidebar 
+permalink: anti-ransomware/pause-arp.html 
+keywords: ARP, arpai, ARP AI, pause, resume, autonomous ransomware protection, workload event, MAV, multi-admin verification 
+summary: 異常なワークロードが発生することが予想される場合は、ARPまたはARP/AI分析を一時的に停止および再開します。 
+---
+= ONTAP ARP または ARP/AI による保護を一時停止して、ワークロードイベントを分析から除外する
+:hardbreaks:
+:toclevels: 1
+:allow-uri-read: 
+:toclevels: 1
+:nofooter: 
+:icons: font
+:linkattrs: 
+:imagesdir: ../media/
+
+
+[role="lead"]
+異常なワークロードが発生する可能性がある場合は、いつでも自律型ランサムウェア対策（ARPおよびARP/AI）の分析を一時的に停止および再開できます。
+
+ONTAP 9.13.1 以降では、マルチ管理者検証（MAV）を有効にして、ARP または ARP/AI を一時停止するために2人以上の認証済みユーザー管理者が必要となるように設定できます。
+
+link:../multi-admin-verify/enable-disable-task.html["MAVの詳細"]。
+
+.タスク概要
+ARPまたはARP/AIの一時停止中、ONTAPは新規書き込みに関するイベントやアクションをログに記録しませんが、以前のログについてはバックグラウンドで分析が継続されます。
+
+
+NOTE: ARPまたはARP/AI無効化機能を使用して分析を一時停止しないでください。そうすると、ボリュームの保護が無効になり、学習済みのワークロード動作に関する既存の情報がすべて失われます。ARPの場合（ONTAP 9.10.1から9.15.1）、学習期間の再開が必要となります。ARP/AIの場合（ONTAP 9.16.1以降）、蓄積されたワークロード動作データがすべて失われます。SANボリュームの場合、評価期間は最初からやり直されます。
+
+.手順
+System Manager または ONTAP CLI を使用して、ARP または ARP/AI を一時停止できます。
+
+[role="tabbed-block"]
+====
+.System Manager
+--
+. *ストレージ > ボリューム*を選択し、ARPまたはARP/AIを一時停止するボリュームを選択します。
+. ボリュームの概要の*セキュリティ*タブで、*ランサムウェア対策*ボックスの*ランサムウェア対策を一時停止*を選択します。
++
+
+NOTE: ONTAP 9.13.1 以降、ARP または ARP/AI 設定を保護するために MAV を使用している場合、一時停止操作では、1人以上の追加管理者の承認を得るように求められます。link:../multi-admin-verify/request-operation-task.html["すべての管理者からの承認を得る必要があります"] MAV 承認グループに関連付けられていない場合、操作は失敗します。
+
+. 監視を再開するには、*ランサムウェア対策を再開*を選択します。
+
+
+--
+.CLI
+--
+. ボリューム上のARPまたはARP/AIを一時停止する：
++
+[source, cli]
+----
+security anti-ransomware volume pause -vserver <svm_name> -volume <vol_name>
+----
+. 処理を再開するには、 `resume`コマンドを使用します：
++
+[source, cli]
+----
+security anti-ransomware volume resume -vserver <svm_name> -volume <vol_name>
+----
++
+ `security anti-ransomware volume`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/search.html?q=security+anti-ransomware+volume+["ONTAPコマンド リファレンス"^]をご覧ください。
+
+. MAVを使用してARPまたはARP/AI設定を保護している場合、一時停止操作を実行すると、1人以上の追加管理者の承認を得るように求められます。MAV承認グループに所属するすべての管理者からの承認が得られなければ、操作は失敗します。
++
+MAVを使用していて、一時停止処理で追加の承認を求められた場合、各MAVグループの承認者は次の処理を実行する必要があります。
+
++
+.. 要求を表示します。
++
+[source, cli]
+----
+security multi-admin-verify request show
+----
+.. 要求を承認します。
++
+[source, cli]
+----
+security multi-admin-verify request approve -index[<number returned from show request>]
+----
++
+MAVを使用していて、MAVグループの承認者である場合、一時停止処理の要求を却下できます。
+
++
+[source, cli]
+----
+security multi-admin-verify request veto -index[<number returned from show request>]
+----
++
+ `security multi-admin-verify request`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/search.html?q=security+multi-admin-verify+request["ONTAPコマンド リファレンス"^]をご覧ください。
+
+
+
+
+
+--
+====

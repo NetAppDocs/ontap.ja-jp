@@ -1,0 +1,194 @@
+---
+sidebar: sidebar 
+permalink: anti-ransomware/learn-about-arp.html 
+keywords: ransomware, arp, autonomous protection, security, detect, detection, threat, attack, learning mode, anti-ransomware, entropy, file extension, file IOPS, NAS 
+summary: オリジナルのARPモデルは、ランサムウェアのアクティブな検出に切り替える前に、学習期間を設けて行動の基準値を確立します。環境：NAS FlexVol ボリューム（ONTAP 9.10.1～9.15.1）および FlexGroup ボリューム（ONTAP 9.13.1～9.17.1） 
+---
+= ONTAP ARP について（ONTAP 9.10.1 ～ 9.15.1）
+:hardbreaks:
+:toclevels: 1
+:allow-uri-read: 
+:toclevels: 1
+:nofooter: 
+:icons: font
+:linkattrs: 
+:imagesdir: ../media/
+
+
+[role="lead"]
+ONTAP 9.10.1から9.15.1では、自律型ランサムウェア対策（ARP）がNAS環境を監視し、学習期間を設けて動作のベースラインを確立してから、アクティブなランサムウェア検出に切り替えます。ARPは、データのエントロピー、ファイル拡張子の変更、およびファイルIOPSパターンを分析して、潜在的なランサムウェア攻撃を特定します。FlexGroupボリュームの場合、元のARPモデルはONTAP 9.17.1まで適用されます。
+
+
+NOTE: オリジナルの ARP モデルは、ONTAP 9.14.1 以降、新しい機能改善が行われていません。FlexVol ボリュームで ONTAP 9.16.1 以降を実行している場合は、link:learn-about-arpai.html["ARP/AIについて学ぶ"]を参照してください。FlexGroup ボリュームは ONTAP 9.17.1 までオリジナルの ARP モデルを使用し、ONTAP 9.18.1 から ARP/AI でサポートされます。
+
+
+
+[[what-arp-detects]]
+== ARPの検出対象
+
+ARPは受信データを暗号化されたデータか平文データかを識別し、ランサムウェアの活動を検出するために以下の個別のシグナルを使用します：
+
+* *エントロピー*：ファイル内のデータのランダム性を評価する指標（NASのみ）
+* *ファイル拡張子タイプ*：想定される拡張子タイプに準拠しないファイル拡張子（NASのみ）
+* *ファイル IOPS*：データ暗号化による異常なボリュームアクティビティの急増（NAS のみ；ONTAP 9.11.1 以降）
+
+
+ARPは、少数のファイルが暗号化されただけでほとんどのランサムウェア攻撃の拡散を検出し、自動的に応答してデータを保護し、疑わしい攻撃が発生していることを警告します。
+
+
+NOTE: ランサムウェア検出システムは完全な安全性を保証することはできません。ARPは、ウイルス対策ソフトウェアが侵入を検出できなかった場合に、追加の防御層を提供します。
+
+
+
+[[enablement-options-for-arp]]
+== ARPの有効化オプション
+
+ARPはボリュームごとに手動で有効化するか、SVMレベルで新規ボリュームにデフォルトで設定されます。
+
+* SVM のすべての新規ボリュームで ARP をデフォルトで有効にするには、link:enable-default-arp.html["新しいボリュームで ARP をデフォルトで有効にする"]を参照してください。
+* 特定のボリュームでARPを有効にするには、link:enable-arp.html["ボリュームでARPを有効にする"]を参照してください。
+
+
+
+
+[[arp-protection-modes]]
+== ARP保護モード
+
+ARPは、アクティブ検出に切り替える前に、まず学習モードで動作の基準値を確立します。
+
+
+
+[[nas-volumes]]
+=== NASボリューム
+
+以下の表は、NAS環境におけるARPモードをまとめたものです。
+
+[cols="1,5,1"]
+|===
+| モード | 概要 | ボリュームのタイプとバージョン 
+
+
+| 学習  a| 
+ARPを有効にすると、自動的に学習モードに設定されます。学習モードでは、ONTAPシステムは、エントロピー、ファイル拡張子タイプ、ファイルIOPSといった分析領域に基づいてアラートプロファイルを作成します。
+
+ARPを学習モードのまま30日間維持することをお勧めします。ONTAP 9.13.1以降では、ARPは最適な学習間隔を自動的に決定し、切り替えを自動化します。切り替えは30日経過前に実行される可能性があります。ONTAP 9.13.1より前のバージョンでは、手動で切り替えを行うことができます。
+
+link:switch-learning-arp.html["学習モードからアクティブモードへの切り替えの詳細"]。
+
+
+TIP: このコマンド `security anti-ransomware volume workload-behavior show`は、ボリューム内で検出されたファイル拡張子を表示します。学習モードの初期段階でこのコマンドを実行し、ファイルタイプの正確な表現が表示された場合でも、ONTAPは他のメトリックをまだ収集しているため、そのデータをアクティブモードへの移行の基準として使用しないでください。link:https://docs.netapp.com/us-en/ontap-cli/security-anti-ransomware-volume-workload-behavior-show.html["ONTAPコマンド リファレンス"^]の `security anti-ransomware volume workload-behavior show`の詳細をご覧ください。
+ a| 
+* ONTAP 9.10.1から9.15.1のFlexVolボリューム
+* FlexGroup ボリューム（ONTAP 9.13.1 ～ 9.17.1）
+
+
+
+
+| アクティブ  a| 
+学習期間後、ARPはワークロードの活動を監視し、異常な動作を検出した場合は自動的に対応します。ファイル拡張子が異常と判定された場合は、アラートの内容を評価する必要があります。アラートに基づいてデータ保護のための対策を講じることも、アラートを誤検知としてマークすることもできます。アラートを誤検知としてマークすると、アラートプロファイルが更新されます。例えば、新しいファイル拡張子によってアラートがトリガーされ、そのアラートを誤検知としてマークした場合、次回そのファイル拡張子が検出された際にはアラートは受信されません。
+ a| 
+* ONTAP 9.10.1から9.15.1のFlexVolボリューム
+* FlexGroup ボリューム（ONTAP 9.13.1 ～ 9.17.1）
+
+
+|===
+
+
+[[threat-assessment]]
+== 脅威評価
+
+ARPは、脅威の確率を2つのレベルで評価します。
+
+* *低*：ボリューム内の異常を最も早く検出した場合（例えば、ボリューム内に新しいファイル拡張子が検出された場合など）。この検出レベルは、元の ARP モデルでのみ使用できます。
++
+** ONTAP 9.11.1 以降では、link:manage-parameters-arp.html["ARPの検出パラメータをカスタマイズする"] できます。
+
+
+* *中*: 高いエントロピーが検出されるか、または同じ未知のファイル拡張子を持つ複数のファイルが検出された場合。ONTAPによって、異常がランサムウェアのプロファイルと一致しているかを判断する分析レポートが実行されると、脅威は「Moderate」に格上げされます。攻撃確率が中程度の場合、ONTAPは脅威を評価するよう促すEMS通知を生成します。
+
+
+ONTAPは低レベルの脅威についてはアラートを送信しませんが、ONTAP 9.14.1以降ではlink:manage-parameters-arp.html#modify-alerts["デフォルトのアラート設定を変更する"]できます。詳細については、link:respond-arp.html["異常なアクティビティへの対処"]を参照してください。
+
+中程度の脅威に関する情報は、System Manager の *イベント* セクション、または `security anti-ransomware volume show`コマンドを使用して確認できます。低脅威イベントは、 `security anti-ransomware volume show`コマンドを使用して確認することもできます。 `security anti-ransomware volume show`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/security-anti-ransomware-volume-show.html["ONTAPコマンド リファレンス"^]を参照してください。
+
+
+
+[[arp-snapshots]]
+== ARPスナップショット
+
+ARPは、攻撃の初期兆候が検出された時点でスナップショットを作成します。その後、詳細な分析が行われ、潜在的な攻撃の可能性を確認するか否定します。ARPスナップショットは攻撃が完全に確認される前から事前に作成されるため、その存在は異常とみなすべきではありません。攻撃の可能性が確認された場合、攻撃の確率は `Moderate`に引き上げられ、攻撃通知が生成されます。
+
+ONTAP 9.11.1 以降では、link:modify-snapshot-options-arp.html["Snapshotのデータ保持設定を変更する"] できます。
+
+以下の表は、ARPスナップショットの動作をまとめたものです。
+
+[cols="1,3"]
+|===
+| 機能 | オリジナルのARPモデル（ONTAP 9.15.1以前） 
+
+
+| 作成トリガー  a| 
+* 高エントロピーが検出されました
+* 新しいファイル拡張子が検出されました
+* ファイル操作の急増が検出されました（ONTAP 9.11.1以降）
+
+
+スナップショットの作成間隔はトリガータイプに基づきます。
+
+
+
+| 先頭に付ける名前の規則 | 「Anti_ransomware_backup」 
+
+
+| 削除動作 | ARPスナップショットはロックされており、管理者は削除できません 
+
+
+| 最大スナップショット数 | link:modify-snapshot-options-arp.html["6つのスナップショット設定可能な制限"] 
+
+
+| 保持期間  a| 
+* トリガー条件に基づいて決定されます（固定ではありません）
+* 攻撃前に作成されたスナップショットは、管理者が攻撃を真または誤検知（clear-suspect）とマークするまで保持されます。
+
+
+
+
+| Clear-suspect アクション | 管理者は、疑わしい事象を解消する操作を実行することで、アラートを解除し、ロックされたスナップショットを解放できます。 
+
+
+| 有効期限 | なし 
+|===
+
+
+[[respond-to-and-assess-an-attack]]
+== 攻撃への対応と評価
+
+ARPは、攻撃の初期兆候が検出された時点で、ロックされたスナップショットを作成します。その攻撃が本物か、誤検知かを確認する必要があります。ロックされたスナップショットは、通常の手段では削除できません。しかし、後でその攻撃を誤検出としてマークすることにした場合、ONTAPはロックされたコピーを削除します。
+
+* link:respond-arp.html["異常なアクティビティへの対応：ARP"]
+* link:determine-ransomware-tips.html["ランサムウェア攻撃が本物かどうかを判断する"]
+
+
+
+
+[[recover-data-after-an-attack]]
+== 攻撃後のデータのリカバリ
+
+攻撃が確認されれば、ARPスナップショットを使用してボリュームを復元できます。ボリューム全体をリバートする代わりに、選択したSnapshotから影響を受けたファイルをリカバリできます。
+
+* link:recover-arp.html["ARPスナップショットからデータをリカバリする"]
+* link:../data-protection/restore-contents-volume-snapshot-task.html["ONTAPスナップショットからのリカバリ"]
+* link:https://www.netapp.com/blog/smart-ransomware-recovery["スマートなランサムウェアリカバリ"^]
+
+
+
+
+[[multi-admin-verification]]
+== マルチ管理者認証
+
+ONTAP 9.13.1以降では、ARP構成に2人以上の認証済みユーザー管理者が必要となるように、マルチ管理者検証（MAV）を有効にすることをお勧めします。詳細については、link:../multi-admin-verify/enable-disable-task.html["複数管理者による検証を有効にする"]を参照してください。
+
+.関連情報
+* link:support-arp.html["ARPでサポートされている構成"]
+* link:https://docs.netapp.com/us-en/ontap-cli/["ONTAPコマンド リファレンス"^]
+

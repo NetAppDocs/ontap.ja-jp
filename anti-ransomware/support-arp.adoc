@@ -1,0 +1,165 @@
+---
+sidebar: sidebar 
+permalink: anti-ransomware/support-arp.html 
+keywords: ARP, autonomous ransomware protection, ONTAP 9.10.1, supported configurations, NAS, FlexVol, FlexGroup, SnapMirror, MAV, multi-admin verification, 4000 file extensions, NFS, SMB, learning mode, legacy ARP, ONTAP 9.10.1 through 9.15.1 
+summary: ARP （ONTAP 9.10.1～9.15.1）は、FlexVolおよびFlexGroupボリュームのNASワークロードをサポートしています。ARPを導入する前に、サポートされている構成と制限事項を確認してください。 
+---
+= ONTAP ARP でサポートされている構成
+:allow-uri-read: 
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+Autonomous Ransomware Protection （ARP）は、ONTAP 9.10.1からONTAP 9.15.1までのNASワークロードで利用可能です。ARPを導入する前に、推奨される使用方法、サポートされている構成、およびパフォーマンスへの影響について理解しておく必要があります。
+
+
+NOTE: ARP/AIは、ONTAP 9.16.1以降向けの現在のONTAPランサムウェア対策モデルです。ONTAP 9.16.1以降を実行している場合は、link:support-arpai.html["ARP/AIでサポートされている構成"]を参照してください。
+
+
+
+[[suitable-workloads]]
+== 適しているワークロード
+
+ARPは次のタイプのワークロードに適しています：
+
+* NFSストレージのデータベース
+* WindowsまたはLinuxのホーム ディレクトリ
++
+ユーザーは学習期間中に検出されない拡張子を持つファイルを作成する可能性があるため、このワークロードでは誤検出の可能性が高くなります。
+
+* 画像とビデオ
++
+たとえば、医療記録やEDA（Electronic Design Automation）データなどです。
+
+
+
+
+
+[[unsuitable-workloads]]
+== 適していないワークロード：
+
+ARPは次のタイプのワークロードには適していません：
+
+* ファイルの作成または削除操作が頻繁に発生するワークロード（数秒間に数十万個のファイルなど。たとえば、テスト/開発ワークロード）。
++
+ARPの脅威検出は、ファイルの作成、名前変更、または削除操作の異常な急増を認識する能力に依存しています。アプリケーション自体がファイルアクティビティの発生源である場合、ランサムウェアのアクティビティと効果的に区別することはできません。
+
+* 4,000種類以上の固有のファイル拡張子を持つボリュームに対するワークロード。
++
+ARP （ONTAP 9.10.1～9.15.1）は、ボリュームごとに最大4,000個のファイル拡張子を分析できます。ボリューム上の固有ファイル拡張子の数がこの制限を超えると、ARPはランサムウェアの活動を効率的に検出できなくなり、ワークロードは不適切と判断されます。
+
+* アプリケーションやホストがデータを暗号化するワークロード
++
+ARPは、受信データが暗号化されているか暗号化されていないかを区別することに依存しています。アプリケーション自体がデータを暗号化している場合、この機能の有効性は低下します。ただし、ARPはファイルアクティビティ（削除、上書き、作成、または新しいファイル拡張子による作成や名前変更）とファイルタイプに基づいて機能することができます。
+
+* SANワークロード。
++
+ARP（9.10.1～9.15.1）はSANボリュームをサポートしていません。SANサポートはONTAP 9.17.1のARP/AIで導入されました。link:learn-about-arpai.html["SANに関する詳細については、ARP/AIのドキュメントを参照してください。"]
+
+
+
+
+
+[[supported-configurations]]
+== サポートされている構成
+
+ARP （9.10.1 ～ 9.15.1）は、FlexVol ボリュームの NFS および SMB プロトコルを介した NAS ワークロードをサポートし、ONTAP 9.13.1 以降では FlexGroup ボリュームもサポートします。
+
+|===
+| 構成 | ONTAP 9.15.1 | ONTAP 9.14.1 | ONTAP 9.13.1 | ONTAP 9.12.1 | ONTAP 9.11.1 | ONTAP 9.10.1 
+
+
+| FlexVolボリューム（NAS） | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ 
+
+
+| FlexGroupボリューム（NAS） | ✓ | ✓ | ✓ |  |  |  
+
+
+| SnapMirror 非同期のボリューム | ✓ | ✓ | ✓ | ✓ |  |  
+
+
+| SVMとSnapMirror非同期（SVMディザスタリカバリ） | ✓ | ✓ | ✓ | ✓ |  |  
+
+
+| SVMデータモビリティ(`vserver migrate`) | ✓ | ✓ | ✓ | ✓ |  |  
+
+
+| マルチ管理者認証（MAV） | ✓ | ✓ | ✓ |  |  |  
+
+
+| MetroCluster構成 | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ 
+|===
+
+
+[[snapmirror-and-arp-interoperability]]
+[[snapmirror]]
+== SnapMirrorとARPの互換性
+
+ONTAP 9.12.1以降、ARPはSnapMirror非同期SnapMirrorデスティネーションボリュームでサポートされています。SnapMirror同期およびSnapMirrorアクティブ同期は、ONTAP 9.19.1以降のARP/AIでのみサポートされています。
+
+SnapMirrorソースボリュームでARPが有効になっている場合、SnapMirrorデスティネーションボリュームは、ARP構成状態（ `dry-run`または `enabled`など）、ARPトレーニングデータ、およびARPによって作成されたソースボリュームのSnapshotを自動的に取得します。デスティネーション側でARPを別途有効にする必要はありません。
+
+デスティネーション ボリュームは読み取り専用（RO）スナップショットで構成されているため、そのデータに対してARP処理は行われません。ただし、SnapMirrorデスティネーション ボリュームが読み取り/書き込み（RW）に変換されると、RWに変換されたデスティネーション ボリュームでARPが自動的に有効になります。
+
+
+NOTE: ONTAP 9.10.1および9.11.1では、SnapMirrorはARP構成状態、トレーニングデータ、およびスナップショットをソースボリュームからデスティネーションボリュームに転送しません。SnapMirrorデスティネーションボリュームが読み書き可能に変換された場合、変換後、デスティネーションボリューム上のARPを学習モードで明示的に有効にする必要があります。
+
+
+
+[[unsupported-configurations]]
+== サポートされない構成
+
+ARPでは、次のボリューム構成はサポートされません。
+
+* FlexCacheボリューム（元のFlexVolではサポートされますが、キャッシュ ボリュームではサポートされません）
+* オフライン ボリューム
+* SnapLockボリューム
+* SnapMirror Synchronous
+* SnapMirrorアクティブ同期
+* SnapMirror 非同期デスティネーション ボリューム（ONTAP 9.10.1 および 9.11.1）（ONTAP 9.12.1 以降でサポート）
+* 制限付きボリューム
+* Storage VMのルート ボリューム
+* 停止したStorage VMのボリューム
+* FlexVolからFlexGroupへの変換（変換前にARPを無効にする必要があります）
+
+
+
+
+[[performance-and-volume-limits]]
+== 性能およびボリューム制限
+
+ARPは、スループットとピークIOPSで測定されるシステムパフォーマンスに最小限の影響しか与えません。ARP機能の影響は、ボリュームのワークロードによって異なります。一般的なワークロードでは、以下の構成制限が推奨されます：
+
+[cols="2,1,2"]
+|===
+| ワークロードの特性 | ノードあたりの最大ボリューム数（推奨値） | ノードあたりのボリューム制限を超えるとパフォーマンスが低下します^1^ 
+
+
+| 読み取り集約型、またはデータを圧縮できる | 150 | 最大IOPSの4% 
+
+
+| 書き込み集約型でデータを圧縮できない | 60 | 最大IOPSの10% 
+|===
+^1^ 推奨制限を超えて追加されたボリュームの数に関係なく、システムパフォーマンスはこれらのパーセンテージを超えて低下しません。
+
+ARP分析は優先順位に従って実行されるため、保護されているボリュームの数が増えると、各ボリュームでの分析の実行頻度は低くなります。
+
+
+NOTE: 多数の新規ボリュームでARPをデフォルトで有効にすると、システムリソースの使用量が増える可能性があります。ボリュームでARPを有効にする際は、スナップショットなどの競合プロセスに必要な容量を考慮してください。
+
+
+
+[[multi-admin-verificationmulti-admin-verification-with-arp-protected-volumes]]
+== [[multi-admin-verification]]ARP保護ボリュームを使用したマルチ管理者検証
+
+ONTAP 9.13.1以降では、ARPのセキュリティを強化するために、マルチ管理者検証（MAV）を有効にできます。MAVでは、保護対象ボリュームでARPをオフにしたり、ARPを一時停止したり、疑わしい攻撃を誤検知としてマークしたりするには、少なくとも2人以上の認証済み管理者が必要になります。link:../multi-admin-verify/enable-disable-task.html["ARP保護されたボリュームに対してMAVを有効にする"]方法についてはこちらをご覧ください。
+
+MAV グループの管理者を定義し、保護する `security anti-ransomware volume disable`、 `security anti-ransomware volume pause`、および `security anti-ransomware volume attack clear-suspect`コマンドの MAV ルールを作成する必要があります。
+
+ `security anti-ransomware volume disable`、 `security anti-ransomware volume pause`、および `security anti-ransomware volume attack clear-suspect`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/search.html?q=security+anti-ransomware+volume["ONTAPコマンド リファレンス"^]をご覧ください。
+
+.関連情報
+* link:enable-arp.html["ボリュームでARPを有効にする"]
+* link:enable-default-arp.html["新しいボリュームで ARP をデフォルトで有効にする"]
+

@@ -1,0 +1,210 @@
+---
+sidebar: sidebar 
+permalink: anti-ransomware/enable-arpai.html 
+keywords: ARP AI, arpai, enable, autonomous ransomware protection AI, ONTAP 9.16.1, NAS, SAN, FlexVol, FlexGroup, machine learning ransomware, active mode, enable ransomware protection ONTAP 9.16.1, enable ARP AI SAN volumes, no learning period ARP AI enablement 
+summary: ONTAP 9.16.1以降、サポートされているボリュームでARP/AIを有効にすることで、学習期間なしで即座にアクティブな保護を実現します。SANとFlexGroupのサポートは、今後のリリースで利用可能になります。 
+---
+= ボリュームで ONTAP ARP/AI を有効にする
+:allow-uri-read: 
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+ONTAP 9.16.1 以降では、既存のボリュームで AI による自律型ランサムウェア対策（ARP/AI）を有効にするか、ARP/AI が有効になっている新しいボリュームを作成できます。ARP/AI は学習期間を必要とせず、すぐに使用可能です。
+
+
+NOTE: ONTAP 9.15.1 以前を実行している場合は、link:enable-arp.html["ボリュームでARPを有効にする"]を参照してください。
+
+.タスク概要
+ARP/AI は、ONTAP 9.16.1 以降の現在のランサムウェア対策モデルです。ARP/AI を有効にするには、環境が要件を満たしていることを確認した後、環境に合った手順に従ってください。
+
+* <<enable-nas-flexvol,FlexVolを備えたNAS>>（ONTAP 9.16.1以降）
+* <<enable-nas-flexgroup,FlexGroupボリューム付きNAS>>（ONTAP 9.18.1以降）
+* <<enable-san,SANボリューム>>（ONTAP 9.17.1以降）
+
+
+自律型ランサムウェア保護を有効にすると、環境およびONTAPバージョンによっては移行期間に入る場合があります。
+
+[cols="25,25,50"]
+|===
+| ボリューム タイプ | ONTAPのバージョン | 有効化後の動作 
+
+
+.2+| NAS FlexGroup | ONTAP 9.18.1以降 | ARP/AIは学習期間なしですぐにアクティブになります 
+
+
+| ONTAP 9.13.1 から 9.17.1 | ARPは30日間学習モードで開始されます 
+
+
+.2+| NAS FlexVol | ONTAP 9.16.1以降 | ARP/AIは学習期間なしですぐにアクティブになります 
+
+
+| ONTAP 9.10.1から9.15.1 | ARPは30日間学習モードで開始されます 
+
+
+| SANボリューム | ONTAP 9.17.1以降 | ARP/AI は直ちにアクティブになり、初期の保守的なしきい値から移行する前に、適切なアラートしきい値を確立するための評価期間を開始します。 
+|===
+.開始する前に
+ARP/AIを有効にする前に、環境に以下のものが含まれていることを確認してください。
+
+.NAS固有の要件
+* NFSまたはSMB（またはその両方）プロトコルが有効になっているStorage VM（SVM）。
+* クライアントが設定されたNASワークロード。
+* ボリュームのアクティブなlink:../concepts/namespaces-junction-points-concept.html["ジャンクションパス"]。
+
+
+.SAN固有の要件
+* iSCSI、FC、または NVMe プロトコルが有効になっているストレージ VM（SVM）。
+* クライアントが設定されたSANワークロード。
+
+
+.一般要件
+* ONTAPバージョンのlink:index.html#licenses-for-autonomous-ransomware-protection["正しいライセンス"]。
+* （推奨）マルチ管理者検証（MAV）が有効（ONTAP 9.13.1以降）。link:../multi-admin-verify/enable-disable-task.html["複数管理者による検証を有効にする"]を参照してください。
+
+
+
+
+[[enable-arpai-on-nas-flexvol-volumes]]
+[[enable-nas-flexvol]]
+== NAS FlexVol ボリュームでARP/AIを有効にする
+
+ONTAP 9.16.1 以降、NAS FlexVol ボリュームでは、有効化後すぐに ARP/AI がアクティブになります。
+
+[role="tabbed-block"]
+====
+.System Manager
+--
+. *ストレージ > ボリューム* を選択し、保護するボリュームを選択します。
+. *ボリューム*概要の*セキュリティ*タブで、*ステータス*を選択して、無効から有効に切り替えます。
+. *Anti-ransomware* ボックスで、ボリュームの ARP/AI 状態を確認してください。
++
+すべてのボリュームの ARP/AI ステータスを表示するには：*Volumes* ペインで *Show/Hide* を選択し、*Anti-ransomware* ステータスにチェックが入っていることを確認します。
+
+
+
+--
+.CLI
+--
+*既存のボリュームでARP/AIを有効にする：*
+
+[source, cli]
+----
+security anti-ransomware volume enable -volume <vol_name> -vserver <svm_name>
+----
+*ARP/AIを有効にした新しいボリュームを作成する：*
+
+[source, cli]
+----
+volume create -volume <vol_name> -vserver <svm_name> -aggregate <aggr_name> -size <nn> -anti-ransomware-state enabled -junction-path </path_name>
+----
+*ARP/AIの状態を確認します：*
+
+[source, cli]
+----
+security anti-ransomware volume show
+----
+ `security anti-ransomware volume show`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/security-anti-ransomware-volume-show.html["ONTAPコマンド リファレンス"^]を参照してください。
+
+--
+====
+
+
+[[enable-arpai-on-nas-flexgroup-volumes]]
+[[enable-nas-flexgroup]]
+== NAS FlexGroup ボリュームでARP/AIを有効にする
+
+ONTAP 9.18.1以降、ARP/AIはFlexGroupボリュームで有効化後すぐにアクティブになります。
+
+
+NOTE: ONTAP 9.13.1 から 9.17.1 の場合、FlexGroup ボリュームは以前の ARP モデルを使用しており、学習期間が必要です。link:enable-arp.html#enable-arp-on-nas-flexgroup-volumes["NAS FlexGroupボリュームでARPを有効にする"] を参照してください。
+
+[role="tabbed-block"]
+====
+.System Manager
+--
+. *ストレージ > ボリューム* を選択し、保護するFlexGroupボリュームを選択します。
+. *ボリューム*概要の*セキュリティ*タブで、*ステータス*を選択して、無効から有効に切り替えます。
+. *Anti-ransomware* ボックスで、ボリュームの ARP/AI 状態を確認してください。
++
+すべてのボリュームの ARP/AI ステータスを表示するには：*Volumes* ペインで *Show/Hide* を選択し、*Anti-ransomware* ステータスにチェックが入っていることを確認します。
+
+
+
+--
+.CLI
+--
+*既存のFlexGroupボリュームでARP/AIを有効にする：*
+
+[source, cli]
+----
+security anti-ransomware volume enable -volume <vol_name> -vserver <svm_name>
+----
+*ARP/AIを有効にした新しいFlexGroupボリュームを作成する：*
+
+[source, cli]
+----
+volume create -volume <vol_name> -vserver <svm_name> -aggr-list <aggregate name> -aggr-list-multiplier <integer> -size <nn> -anti-ransomware-state enabled -junction-path </path_name>
+----
+*ARP/AIの状態を確認します：*
+
+[source, cli]
+----
+security anti-ransomware volume show
+----
+--
+====
+
+
+[[enable-arpai-on-san-volumes]]
+[[enable-san]]
+== SANボリュームでARP/AIを有効にする
+
+ONTAP 9.17.1 以降、SAN ボリュームで ARP/AI を有効にできます。ARP/AI は有効化後すぐに自動的にアクティブになり、link:entropy-eval-period-arpai.html["エントロピー評価期間"] の間、SAN ボリュームの監視と保護を開始すると同時に、ワークロードが ARP/AI に適しているかどうかを判断し、検出のための最適な暗号化しきい値を設定します。
+
+[role="tabbed-block"]
+====
+.System Manager
+--
+. *Storage > Volumes* を選択し、保護する SAN ボリュームを選択します。
+. *ボリューム*概要の*セキュリティ*タブで、*ステータス*を選択して、無効から有効に切り替えます。
+. ARP/AIは自動的に評価期間に入ります。
+. 「ランサムウェア対策」ボックスで、ARP/AI の状態と評価ステータスを確認してください。
++
+すべてのボリュームの ARP/AI ステータスを表示するには：*Volumes* ペインで *Show/Hide* を選択し、*Anti-ransomware* ステータスにチェックが入っていることを確認します。
+
+
+
+--
+.CLI
+--
+*既存のSANボリュームでARP/AIを有効にする：*
+
+[source, cli]
+----
+security anti-ransomware volume enable -volume <vol_name> -vserver <svm_name>
+----
+*ARP/AIを有効にした新しいSANボリュームを作成する：*
+
+[source, cli]
+----
+volume create -volume <vol_name> -vserver <svm_name> -aggregate <aggr_name> -size <nn> -anti-ransomware-state enabled
+----
+*ARP/AI の状態と評価ステータスを確認する：*
+
+[source, cli]
+----
+security anti-ransomware volume show
+----
+ `Block device detection status`フィールドをチェックして、評価期間の進行状況を監視します。 `security anti-ransomware volume show`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/security-anti-ransomware-volume-show.html["ONTAPコマンド リファレンス"^]を参照してください。
+
+--
+====
+
+
+[[related-information]]
+== 関連情報
+
+* link:entropy-eval-period-arpai.html["SANボリュームのARP/AIエントロピー評価期間"]
+

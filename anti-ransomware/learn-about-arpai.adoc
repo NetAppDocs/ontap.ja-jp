@@ -1,0 +1,254 @@
+---
+sidebar: sidebar 
+permalink: anti-ransomware/learn-about-arpai.html 
+keywords: ransomware, arpai, arp ai, autonomous protection, ai, machine learning, security, detect, detection, threat, attack, anti-ransomware, entropy, snapshot, NAS, SAN, automatic updates, evaluation period 
+summary: ONTAP 9.16.1以降、ARP/AIは事前学習済みの機械学習モデルを使用して、学習期間を必要とせずにNASおよびSAN環境に対して即座にアクティブなランサムウェア保護を提供します。 
+---
+= ONTAP ARP/AI について（ONTAP 9.16.1 以降）
+:hardbreaks:
+:toclevels: 1
+:allow-uri-read: 
+:toclevels: 1
+:nofooter: 
+:icons: font
+:linkattrs: 
+:imagesdir: ../media/
+
+
+[role="lead"]
+ONTAP 9.16.1 以降、自律型ランサムウェア対策は、事前学習済みの機械学習モデル（ARP/AI）を使用して、NAS および SAN 環境における絶えず進化するランサムウェアを検出します。ARP/AI は学習期間なしで即座にアクティブ保護を提供し、ONTAP リリースとは独立したセキュリティの自動更新をサポートします。
+
+ARP/AI は、ONTAP 9.10.1 から 9.15.1 で使用されていた以前の ARP モデルとは異なり、アクティブな保護を開始する前に学習期間が必要でした。機能の比較については、link:index.html#autonomous-ransomware-protection-with-ai-arp-ai-and-legacy-arp-feature-comparison["ARP/AIと従来のARPの機能比較"]を参照してください。
+
+
+
+[[how-arpai-works]]
+== ARP/AIの仕組み
+
+ARP/AIの機械学習モデルは、ランサムウェア攻撃のシミュレーション前後における大量のファイルデータセットを用いて事前学習されています。このリソース集約型のトレーニングは、オープンソースの法科学研究データセットを使用してONTAP外部で実施されます。顧客データは、モデリングパイプライン全体を通じて使用されません。事前学習済みモデルはONTAPに搭載されており、ONTAP CLIまたはONTAP APIからアクセスまたは変更することはできません。
+
+.サポートされているボリュームの即時保護
+ARP/AIは、以下のサポート対象ボリュームタイプに対して即時アクティブ保護を提供します：
+
+* ONTAP 9.16.1以降のNAS FlexVolボリューム
+* ONTAP 9.18.1以降のNAS FlexGroupボリューム
+* SAN FlexVol ボリューム（ONTAP 9.17.1 以降）（即時アクティブ、link:entropy-eval-period-arpai.html["評価期間"] 中も含む）
+
+
+
+NOTE: アップグレード固有の動作（以前のARP機能からの移行など）については、link:support-arpai.html#arp-upgrade-considerations["既存クラスターのアップグレードに関する検討事項"]を参照してください。
+
+.自動セキュリティ更新
+最新のランサムウェアの脅威に対する保護を常に最新の状態に保つため、ARP/AI は通常の ONTAP アップグレードおよびリリースサイクルとは別に、頻繁な自動アップデートを提供しています。link:../update/enable-automatic-updates-task.html["自動更新を有効にしました"]をお持ちの場合は、セキュリティファイルの自動更新を選択することで、ARP/AI のセキュリティ更新を自動的に受信することもできます。link:update-arpai.html#manually-update-arpai-with-the-latest-security-package["これらの更新を手動で行う"]して、更新の実行タイミングを制御することもできます。
+
+ONTAP 9.16.1以降では、システムおよびファームウェアの更新に加えて、System Managerを使用してARP/AIのセキュリティ更新を入手できます。
+
+link:update-arpai.html["ARP/AIの更新に関する詳細"]
+
+
+
+[[what-arpai-detects]]
+== ARP/AIが検出するもの
+
+ARP/AIは、受信データを暗号化されたものか平文かを識別し、複数のエントロピーベースのシグナルとファイル動作パターンを同時に評価する事前学習済みの機械学習モデルを使用して、ランサムウェアの活動をリアルタイムで検出します。
+
+ARP/AIは、ごく少数のファイルが暗号化された時点で、ほとんどのランサムウェア攻撃の拡散を検知し、データを保護するため自動的に対応し、疑わしい攻撃が発生していることを警告します。
+
+
+NOTE: ランサムウェア検出システムは、完全な安全性を保証することはできません。ARP/AIは、アンチウイルスソフトウェアが侵入を検知できなかった場合に、追加の防御層を提供します。
+
+
+
+[[enablement-options-for-arpai]]
+== ARP/AIの有効化オプション
+
+ARP/AIは、クラスタ、SVM、ボリュームの各レベルで柔軟な有効化オプションを提供します。
+
+.新しいボリュームでの自動デフォルト有効化
+ONTAP 9.18.1 以降、ARP/AI は AFF A-series、AFF C-series、ASA、および ASA r2 システムのすべての新しいボリュームでデフォルトで有効になっています。この自動デフォルト有効化は、link:support-arpai.html#unsupported-configurations["サポートされていないボリュームまたは構成"] には適用されません。link:enable-arpai.html["既存のボリュームでARP/AIを手動で有効にする"] することができます。
+
+配備後はいつでもlink:default-enable-change-arpai.html["デフォルトの有効化をオンまたはオフにする"]ことができます。
+
+
+NOTE: アップグレード固有の有効化動作（猶予期間とSnapMirrorバージョン要件を含む）については、link:support-arpai.html#arp-upgrade-considerations["既存クラスターのアップグレードに関する検討事項"]を参照してください。
+
+.新しいボリュームでの手動によるデフォルトの有効化
+クラスターレベルで自動デフォルト有効化を無効にした場合は、SVMレベルでlink:enable-default-arpai.html["すべての新規ボリュームでARP/AIをデフォルトで手動で有効にする"]することもできます。ONTAP 9.17.1以前では、新しいボリュームでARP/AIをデフォルトで有効にするには、この方法しかありません。
+
+.既存のボリューム全体または特定のボリュームで有効化
+ONTAP 9.18.1 以降では、クラスタレベルから既存のすべてのボリュームで ARP/AI を手動で有効にすることができます（*クラスタ > セキュリティ*を選択し、image:icon_kabob.gif["メニューオプションアイコン"]「*ランサムウェア対策*」セクションで「*既存のすべてのボリュームで有効にする*」を選択します）。
+
+特定のボリュームでARP/AIを有効にするには、link:enable-arpai.html["ボリュームでARP/AIを有効にする"]を参照してください。
+
+
+
+[[arpai-protection-modes]]
+== ARP/AI保護モード
+
+ARP/AIは、学習期間なしでボリュームを即座に保護します。以下の表は、ボリュームの種類ごとに保護がどのように動作するかを示しています。
+
+
+
+[[nas-volumes]]
+=== NASボリューム
+
+[cols="1,5,1"]
+|===
+| モード | 概要 | ボリュームのタイプとバージョン 
+
+
+| 評価  a| 
+2～4週間の評価期間を設け、基本的な暗号化動作を判断します。この評価期間中、ARP/AIは即座にアクティブな保護を提供します。ベースラインの閾値が設定されている間にも、検出と警告が発生する可能性があります。評価期間が完了したかどうかは、 `security anti-ransomware volume show`コマンドを実行して `Block device detection status`を確認することで判断できます。
+
+link:entropy-eval-period-arpai.html["ブロックデバイスワークロード向けのARP/AI評価期間について"]。
+ a| 
+NAS FlexVol ボリューム（ONTAP で検出されたハイパーバイザー仮想ディスクを含む、ONTAP 9.17.1P5 以降）
+
+
+
+| アクティブ  a| 
+ARP/AIはワークロードのアクティビティを監視し、ランサムウェア攻撃を示す異常な動作を検出した場合、自動的に対応します。アラートに基づいてデータ保護のための対策を講じることも、アラートを誤検知としてマークすることもできます。アラートを誤検知としてマークすると、検出モデルが更新されます。アラートが異常なファイル動作によって発生し、それを誤検知としてマークした場合、次回同じパターンが検出された際にはアラートは受信されません。
+ a| 
+* ONTAP 9.16.1以降のNAS FlexVolボリューム
+* ONTAP 9.18.1以降のNAS FlexGroupボリューム
+
+
+|===
+
+
+[[san-volumes]]
+=== SANボリューム
+
+[cols="1,5,1"]
+|===
+| モード | 概要 | ボリュームのタイプとバージョン 
+
+
+| 評価  a| 
+2～4週間の評価期間を設け、ベースラインの暗号化動作を決定します。その間、ARP/AIはSANボリュームに対して即時のアクティブ保護を提供します。ベースラインしきい値の設定中は、検出とアラートが発生する可能性があります。評価期間が完了したかどうかを確認するには、 `security anti-ransomware volume show`コマンドを実行して `Block device detection status`を確認します。
+
+link:entropy-eval-period-arpai.html["ブロックデバイスワークロード向けのARP/AI評価期間について"]。
+ a| 
+ONTAP 9.17.1以降のSAN FlexVolボリューム
+
+
+
+| アクティブ  a| 
+評価期間終了後、 `security anti-ransomware volume show`コマンドを実行し、 `Block device detection status`を確認することで、ARP/AI SAN保護がアクティブかどうかを確認できます。ステータスが `Active_suitable_workload`の場合、評価されたエントロピー量が正常に監視できることを示します。ARP/AIは、評価中にレビューされたデータに基づいて、適応しきい値を自動的に調整します。
+ a| 
+ONTAP 9.17.1以降のSAN FlexVolボリューム
+
+|===
+
+
+[[threat-assessment]]
+== 脅威評価
+
+ARP/AIは、データがストレージに書き込まれる際に、脅威の可能性を継続的に評価します。機械学習モデルがアクティビティがランサムウェアのプロファイルに一致すると判断した場合、ONTAPは*中程度*の脅威レベルでEMS通知を生成し、脅威を評価するよう促します。ARP/AIは低脅威レベルを使用しておらず、すべての検出結果は中程度の脅威レベルで報告されます。
+
+中程度の脅威に関する情報は、System Managerの*イベント*セクションまたは `security anti-ransomware volume show`コマンドで確認できます。 `security anti-ransomware volume show`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/security-anti-ransomware-volume-show.html["ONTAPコマンド リファレンス"^]を参照してください。
+
+詳細については、link:respond-arpai.html["異常なアクティビティへの対処"]を参照してください。
+
+
+
+[[arpai-snapshots]]
+== ARP/AIスナップショット
+
+ARP/AIは、攻撃の初期兆候が検出された時点でスナップショットを作成します。次に、潜在的な攻撃の有無を確認するための分析が行われます。ARP/AIは定期的に4時間間隔でスナップショットを生成するため、これらのスナップショットの存在は異常とみなすべきではありません。攻撃が確認された場合、攻撃確率は `Moderate`に設定され、攻撃通知が生成されます。
+
+以下の表は、ARP/AIスナップショットの動作をまとめたものです。
+
+[cols="1,3"]
+|===
+| 機能 | ARP/AIモデル（ONTAP 9.16.1以降） 
+
+
+| 作成トリガー  a| 
+* スナップショットは、特定のトリガーに関係なく、固定の4時間間隔で作成されます
+* 攻撃の確認
+
+
+トリガータイプに基づいて、「定期的」または「攻撃」スナップショットが作成されます。
+
+
+
+| 先頭に付ける名前の規則 | 「Anti_ransomware_periodic_backup」「Anti_ransomware_attack_backup」 
+
+
+| 削除動作 | ARP/AIスナップショットはロックされており、管理者が削除することはできません。 
+
+
+| 最大スナップショット数 | link:modify-snapshot-options-arpai.html["6つのスナップショット設定可能な制限"] 
+
+
+| 保持期間  a| 
+スナップショットは通常12時間保持されます。
+
+* NAS ボリューム：ファイル分析によって攻撃が確認された場合、管理者が攻撃を真または誤検知（clear-suspect）としてマークするまで、攻撃前に作成されたスナップショットは保持されます。
+* SANボリュームまたはVMデータストア：ブロックエントロピー分析によって攻撃が確認された場合、攻撃前に作成されたスナップショットは10日間保持されます（設定可能）。
+
+
+
+
+| Clear-suspect アクション  a| 
+管理者は、確認に基づいて保持を設定するclear-suspectアクションを実行できます：
+
+* 偽陽性の保持期間は24時間
+* 真陽性保持期間は7日間
+
+
+
+
+| 有効期限 | すべてのスナップショットに有効期限が設定されます 
+|===
+
+
+[[snapmirror-synchronous-and-active-sync]]
+=== SnapMirror 同期とアクティブ同期
+
+ONTAP 9.19.1 以降、SnapMirror 同期または SnapMirror アクティブ同期の関係に参加するボリューム用に作成された ARP/AI スナップショットには、以下の追加ルールが適用されます：
+
+* ARP/AIスナップショットはプライマリボリューム上に作成され、保持されます。
+* ARP/AI スナップショットは、SnapMirror 同期または SnapMirror アクティブ同期の一部としてセカンダリにレプリケートされません。フェイルオーバー後にリカバリボリュームで link:enable-arpai.html["ARP/AIを再度有効にする"] する必要があります。
+
+
+
+NOTE: SnapMirror 同期または SnapMirror active sync SAN ボリュームでのボリュームレベルのリストア（(`volume snapshot restore`）では、SnapMirror 同期または SnapMirror active sync 関係を一時的に静止またはブレイクする必要がある場合があります。多くの場合、プライマリボリューム上の ARP/AI またはその他のスナップショットから FlexClone またはファイルレベルのリストア処理を使用することで、SnapMirror 同期または SnapMirror active sync のブレイクを回避できます。
+
+link:support-arpai.html#snapmirror["SnapMirror同期およびSnapMirrorアクティブ同期のサポートの詳細については、こちらをご覧ください"]。
+
+
+
+[[respond-to-and-assess-an-attack]]
+== 攻撃への対応と評価
+
+ARP/AIは、攻撃の初期兆候が検出されると、ロックされたスナップショットを作成します。その攻撃が本物か、誤検知かを確認する必要があります。ロックされたスナップショットは、通常の手段では削除できません。しかし、後でその攻撃を誤検出としてマークすることにした場合、ONTAPはロックされたコピーを削除します。
+
+* link:respond-arpai.html["異常なアクティビティへの対応：ARP/AI"]
+* link:determine-ransomware-tips.html["ランサムウェア攻撃が本物かどうかを判断する"]
+
+
+
+
+[[recover-data-after-an-attack]]
+== 攻撃後のデータのリカバリ
+
+攻撃が確認された場合、ARP/AIスナップショットを使用してボリュームを復元できます。ボリューム全体を復元する代わりに、選択したスナップショットから影響を受けたファイルを復元できます。
+
+* link:recover-arpai.html["ARP/AIスナップショットからデータを復元する"]
+* link:../data-protection/restore-contents-volume-snapshot-task.html["ONTAPスナップショットからのリカバリ"]
+* link:https://www.netapp.com/blog/smart-ransomware-recovery["スマートなランサムウェアリカバリ"^]
+
+
+
+
+[[multi-admin-verification]]
+== マルチ管理者認証
+
+ONTAP 9.13.1以降では、ARP/AI構成に2人以上の認証済みユーザー管理者が必要となるように、マルチ管理者検証（MAV）を有効にすることをお勧めします。詳細については、link:../multi-admin-verify/enable-disable-task.html["複数管理者による検証を有効にする"]を参照してください。
+
+.関連情報
+* link:support-arpai.html["ARP/AI対応構成"]
+* link:https://docs.netapp.com/us-en/ontap-cli/["ONTAPコマンド リファレンス"^]
+

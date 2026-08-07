@@ -1,0 +1,111 @@
+---
+sidebar: sidebar 
+permalink: anti-ransomware/release-history-arp.html 
+keywords: ransomware, arp, autonomous protection, ai, new features, enhancements, release notes, versions, feature availability, release history 
+summary: ONTAP リリース全体にわたる自律型ランサムウェア対策の機能強化について説明します。 
+---
+= ONTAPリリースごとの自律型ランサムウェア対策機能の提供状況
+:hardbreaks:
+:toclevels: 1
+:allow-uri-read: 
+:toclevels: 1
+:nofooter: 
+:icons: font
+:linkattrs: 
+:imagesdir: ../media/
+
+
+[role="lead"]
+ONTAP リリース全体にわたる自律型ランサムウェア対策の機能強化について説明します。
+
+
+
+[[ontap-9-19-1]]
+== ONTAP 9.19.1
+
+* link:support-arpai.html["SnapMirror 同期および SnapMirror アクティブシンクのサポート"]: ARP/AI が SnapMirror 同期および SnapMirror アクティブ同期関係のボリュームをサポートするようになりました。ARP/AI は、関係においてアクティブな読み取り / 書き込みプライマリボリューム上で動作し、プライマリ専用の ARP/AI スナップショットを作成して、機械学習ベースのランサムウェア検出を提供します。
++
+** SnapMirror 同期（NAS および SAN）：FAS、AFF A-series、AFF C-series、および AFX システムでサポートされています。
+** SnapMirror active sync （SAN）：AFF A-Series、AFF C-Series、および ASA r2 システムでサポートされています。
+
+
+* link:manage-parameters-arpai.html["システムマネージャのワークロード特性表示が削除されました"]：System Manager では、ベースライン統計やサージ統計を含む、Autonomous Ransomware Protection with AI（ARP/AI）のワークロード特性が表示されなくなりました。急増するアクティビティはランサムウェア攻撃として、または手動調整が必要な事態として誤解されることが多いため、この情報は削除されました。ARP/AI の動作と検出に変更はなく、サージ統計は高度な分析のための ONTAP CLI および REST API オプションを使用して引き続き利用できます。
+
+
+
+
+[[ontap-9-18-1]]
+== ONTAP 9.18.1
+
+* link:enable-default-arpai.html["ARP/AIの自動デフォルト有効化"]：ARP/AI は、AFF A シリーズおよび AFF C シリーズ、ASA、および ASA r2 システムのすべての新しいボリュームでデフォルトで自動的に有効になります。ONTAP 9.18.1 にアップグレードした後、12 時間の猶予期間内にlink:default-enable-change-arpai.html["デフォルト有効化をオプトアウトする"]することができます。オプトアウトしない場合、猶予期間終了後に作成されるすべての新規ボリュームに対して、ARP/AI が自動的に有効になります。
+* link:support-arpai.html["ARP/AI FlexGroup パリティ"]： FlexGroup ボリュームは、オンプレミス ONTAP プラットフォーム（AFF および FAS）と仮想 ONTAP デプロイメント（Cloud Volumes ONTAP および ONTAP Select）での ARP/AI サポートにおいて、FlexVol ボリュームと同等になりました。ONTAP 9.18.1 以降、FlexGroup ボリュームはデフォルトで ARP/AI モデルを使用します。
+
+
+
+
+[[ontap-9-17-1]]
+== ONTAP 9.17.1
+
+* link:support-arpai.html["SANブロックデバイスのサポート"]：ARP/AIは、暗号化ベースの異常検知機能を備えたSANボリュームをサポートし、ブロックレベルのワークロード向けに高度なランサムウェア対策機能を提供します。サポートされているボリュームには、LUN（ブロックストレージ）およびNVMeネームスペースを含むボリュームが含まれます。ARP/AIは、VMware vSphere ハイパーバイザーの仮想ディスクを含むNASボリュームも検出します。
+* link:respond-arpai.html["System Managerのランサムウェア監視機能がSANに拡張されました"]：System Manager では、NAS ボリュームに加えて SAN ボリュームの ARP ステータス、エントロピースパイクの詳細、および脅威アラートが表示されるようになり、すべてのストレージタイプにわたるランサムウェア対策を単一のビューで確認できます。
+* link:entropy-eval-period-arpai.html["ブロックデバイス評価期間"]：SAN ワークロードは 2～4 週間の評価期間を経て、その間に ARP/AI がベースラインの暗号化動作を確立します。ARP/AI がベースラインのしきい値を設定している間に検知とアラートが発生し、この評価期間中は即時にアクティブな保護が提供されます。
+* link:manage-parameters-arpai.html["SANボリュームの検出しきい値を構成可能"]：評価期間によって SAN ボリュームのベースライン暗号化しきい値が確立された後、そのしきい値を変更して、特定のワークロード特性に合わせて検出を調整できます。
+* link:respond-arpai.html["SANボリュームのエントロピー統計"]：新しい CLI コマンドにより、SAN ワークロードのボリュームレベルの暗号化統計を可視化できるようになり、暗号化率のヒストグラムや最近の高暗号化イベントを表示して、脅威調査をサポートできます。
+* link:recover-arpai.html["ARPスナップショットの命名規則を更新しました"]：ARP スナップショットの命名規則が改善され、定期的な自動バックアップ（名前は `Anti_ransomware_periodic_backup.YYYY-MM-DD_HHMM`）と検出された攻撃に対応して作成されたスナップショット（名前は `Anti_ransomware_attack_backup.YYYY-MM-DD_HHMM`）が区別されるようになりました。
+* link:entropy-eval-period-arpai.html["ハイパーバイザーのサポート"]：ARP/AI は、VMware vSphere 仮想ディスクを含む NAS ボリュームをサポートします。ONTAP 9.17.1 P5 以降、ARP/AI は Hyper-V、KVM、および OpenStack ハイパーバイザーもサポートします。
+
+
+
+
+[[ontap-9-16-1]]
+== ONTAP 9.16.1
+
+* link:index.html["ARP/AIモデルの紹介"]: 新しいAIベースの検出モデルが、FlexVolボリュームの以前のARPモデルに取って代わります。ARP/AIは学習期間の必要性を排除します。有効化するとすぐにアクティブ保護が開始され、ランサムウェアに対する迅速な防御を提供します。
+* link:support-arpai.html["無制限のファイル拡張子検出"]：ARP/AIは、以前のARPモデルに適用されていた4,000種類の固有ファイル拡張子の制限を撤廃したため、多くのファイルタイプを含むワークロードがより適切に保護されます。
+* link:update-arpai.html["セキュリティバンドルの自動更新"]： NetApp は、定期的な ONTAP リリーススケジュールとは別に ARP/AI セキュリティアップデートを提供します。クラスターが自動システムおよびファームウェア更新に登録されている場合、ARP/AI セキュリティアップデートが利用可能になった際に自動的に通知されます。最新の脅威に対する継続的な保護を維持するために、これらのアップデートの自動インストールを設定することもできます。
+
+
+
+
+[[ontap-9-14-1]]
+== ONTAP 9.14.1
+
+* link:manage-parameters-arp.html["調整可能なアラート"]：新しいファイル拡張子が検出されたとき、またはARPスナップショットが取得されたときに通知を受け取るように、自律型ランサムウェア対策を設定します。これにより、ランサムウェアの発生の可能性を早期に警告し、脅威への迅速な対応が可能になります。
+
+
+
+
+[[ontap-9-13-1]]
+== ONTAP 9.13.1
+
+* link:support-arp.html["FlexGroup ボリュームのサポート"]：ARP保護が FlexGroup ボリュームで利用可能になり、従来の FlexVol ボリュームを超えて、大規模かつ拡張性の高いストレージ環境へのランサムウェア対策が拡張されました。
+* link:switch-learning-arp.html["学習モードからアクティブモードへの自動移行"]：ARPは最適な学習間隔を自動的に決定し、学習モードからアクティブモードに切り替えます。これは、従来の30日間の推奨よりも早く発生する可能性があります。この自動化により、手作業の手順が削減され、完全な保護処理が迅速に行われます。
+* link:pause-arp.html["複数管理者による認証統合"]：マルチ管理者検証 (MAV) により、自律型ランサムウェア対策 (ARP) の操作を保護できるようになり、機密性の高い ARP アクションは実行前に複数の管理者の承認を必要とするようになります。
+
+
+
+
+[[ontap-9-12-1]]
+== ONTAP 9.12.1
+
+* link:support-arp.html["SnapMirror の相互運用性"]: ARP は、SnapMirror 非同期関係で保護されたボリュームをサポートするようになり、レプリケートされたデータに対するランサムウェア保護が可能になりました。サポートは、SnapMirror で保護された SVM （SVM ディザスタリカバリ）および SVM データモビリティが有効な SVM にも拡張されています。
+
+
+
+
+[[ontap-9-11-1]]
+== ONTAP 9.11.1
+
+* link:index.html["強化された検出アルゴリズム"]： ONTAP は ARP 検出アルゴリズムを強化し、追加のマルウェア脅威を検出できるようにすることで、ランサムウェア脅威の識別精度と範囲を向上させます。
+* link:manage-parameters-arp.html["変更可能な攻撃検出パラメータ"]：ファイル拡張子、エントロピー、およびIOPSに対するARP検出しきい値を変更して、特定のワークロード特性に合わせて検出動作を調整します。デフォルトでは、ARPは短時間内に20個以上の未知のファイル拡張子が出現した場合に警告を発します。
+* link:modify-snapshot-options-arp.html["設定可能なスナップショット保持期間"]：自動生成される ARP スナップショットの設定（最大スナップショット数や保持動作など）を調整します。
+* link:index.html["ライセンスの更新"]： 新しい `Anti_ransomware`ライセンスキーにより、Autonomous Ransomware Protectionが有効になります。ONTAP 9.10.1 からアップグレードするシステムは、以前のライセンスキーを引き続き使用でき、同じ機能が提供されます。
+
+
+
+
+[[ontap-9-10-1]]
+== ONTAP 9.10.1
+
+* link:index.html["Autonomous Ransomware Protectionの初回リリース"]：自律型ランサムウェア対策は、NAS環境におけるワークロード分析を利用して、ランサムウェア攻撃の可能性を示す異常なアクティビティを警告します。NAS（NFSおよびSMB）をサポートするFlexVolボリュームは、ONTAP 9.10.1以降で使用できます。ARPは最初に学習モードで動作し、システムメトリクスを分析してアラートプロファイルを作成した後、アクティブ検出モードに移行して、リアルタイムのランサムウェア脅威の監視と対応を行います。
+

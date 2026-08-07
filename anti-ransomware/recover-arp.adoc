@@ -1,0 +1,250 @@
+---
+sidebar: sidebar 
+permalink: anti-ransomware/recover-arp.html 
+keywords: ARP, recover data, ransomware attack, ARP snapshot, restore, restore first, ONTAP 9.10.1, Anti_ransomware_backup, snapshot deleted on clear, legacy ARP recovery, ONTAP 9.15.1 or earlier 
+summary: NASボリュームに対するランサムウェア攻撃を確認した後、ARPスナップショットを使用してデータを復元するか、または任意の別のスナップショットを復元してください。ONTAP 9.15.1 以前では、疑わしいイベントをクリアすると、ARPスナップショットはすぐに削除されます。 
+---
+= ONTAP ARP を使用したランサムウェア攻撃後のデータ復旧
+:allow-uri-read: 
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+自律型ランサムウェア対策（ARP）は、スナップショットを作成することで、NASボリューム上のランサムウェアの脅威から保護します。データの復元には、ARPスナップショットまたはボリュームの別のスナップショットを使用できます。
+
+
+NOTE: ONTAP 9.16.1以降を実行している場合は、link:recover-arpai.html["ARP/AIを使用してランサムウェア攻撃後のデータを復旧する"]を参照してください。
+
+.タスク概要
+想定される攻撃状況に応じて、以下のいずれかの方法でデータを復元します：
+
+* *<<restore-from-arp-snapshot,最新のARPスナップショットから復元する>>*: ARPスナップショットの整合性に自信がある場合は、利用可能な最新のARPスナップショットを使用してください。
+* *<<restore-from-earlier-snapshot,以前のスナップショットから復元する>>*: 最新のARPスナップショットのロックを解除し、以前のスナップショットから復元します。
+* *<<restore-without-attack,攻撃が報告されない場合の復元>>*: まず最新のARPスナップショットから復元し、次に選択したスナップショットから復元を実行します。
+
+
+ARP は、先頭に名前を付加したスナップショットを作成します `Anti_ransomware_backup`。例えば、 `Anti_ransomware_backup.2022-12-20_1248`。
+
+.開始する前に
+* 異常な活動の警告に対応している場合は、データ復元作業を進める前にlink:respond-arp.html#classify-as-potential-ransomware-attack-and-recover-data["ランサムウェア攻撃の可能性として分類する必要があります。"]。
+* リストア手順を完了する前に、<<choose-a-recovery-method,復元方法>>を選択し、<<recovery-constraints-and-considerations,回復制約>>を確認してください。
+
+
+
+
+[[choose-a-recovery-method]]
+== リカバリ方法を選択してください
+
+データ破損の程度と運用上の要件に応じて、これらの復旧方法のうち1つ、または複数を組み合わせて選択してください。
+
+* *ボリュームスナップショット復元*：ボリューム全体を選択したスナップショット（ARPまたはスケジュール済み）にロールバックします。これは最も速い方法ですが、復元ポイント以降に作成されたすべてのスナップショットが削除されます。
++
+
+IMPORTANT: ONTAP 9.15.1 以前の場合：ARP スナップショットは、 `clear-suspect`を実行すると*即座に削除されます*。クリアする*前に*、ボリュームのスナップショット復元を完了させてください。link:respond-arp.html#understand-snapshot-behavior-when-clearing-a-suspected-event["疑わしいイベントをクリアする際のスナップショットの動作を理解する"]を参照してください。
+
+* *クリーンなスナップショットからFlexClone*：選択したスナップショットからクローンボリュームを作成し、元のボリュームとそのすべてのスナップショットをフォレンジック分析または追加のリカバリのために保持します。感染した親ボリュームをクリーンなクローンから分離するために、クローンを親ボリュームから分割することをお勧めします。
++
+link:../volumes/create-flexclone-task.html["スナップショットからFlexCloneボリュームを作成する"]およびlink:../volumes/split-flexclone-from-parent-task.html["FlexCloneを親から分割する"]の詳細を確認してください。
+
+* *シングルファイルSnapRestore*：スナップショットから個々のファイルを復元します。各ファイルは、異なるスナップショットから取得できます。これは、影響を受けるファイルの数が比較的少ない場合に実用的です。
++
+link:../data-protection/restore-single-file-snapshot-task.html["Snapshot から単一ファイルを復元する"]の詳細をご覧ください。
+
+* * `.snapshot`ディレクトリからのデータコピー*：標準のファイルコピー操作を使用して、スナップショットのマウントポイントから新しいボリュームにデータをコピーします。この方法では、分析用に元のボリュームとスナップショットが保持されます。
+* *ハイブリッドアプローチ*：ボリュームはまず、SnapRestoreを使用して最も近いクリーンなスナップショットにロールバックされ、その後、残りの破損したファイルは別のスナップショットまたは外部バックアップから個別に復元されます。
+
+
+
+
+[[recovery-constraints-and-considerations]]
+== リカバリの制約と考慮事項
+
+* ONTAP 9.15.1 以前のバージョンでは、ARP スナップショットは `clear-suspect`を実行すると*即座に*削除されます。これは、その活動を誤検知とみなすか、実際の攻撃とみなすかに関わらず適用されます。 `volume snapshot restore`を使用する予定がある場合は、疑わしいイベントをクリアする*前に*復元を完了する必要があります。
+* ARPスナップショットロックの解除は、 `volume snapshot restore`を使用して以前のスナップショットから復元する場合にのみ必要です。FlexClone、シングルファイル SnapRestore、データコピー操作、または同様の方法には必要ありません。
+* ARP で保護されたボリュームが SnapMirror 非同期関係に参加している間にスナップショットから復元する場合は、復元後にすべてのミラーコピーを手動で更新してください。そうしないと、ミラーコピーが使用できなくなり、削除して再作成する必要が生じる可能性があります。
+* ARP （9.10.1 ～ 9.15.1）は、SnapMirror 同期または SnapMirror アクティブ同期をサポートしていません。これらは ARP/AI 専用の機能です（ONTAP 9.19.1 以降）。
+
+
+
+
+[[restore-after-a-system-attack]]
+[[restore-after-system-attack]]
+== システムへの攻撃後のリストア
+
+ボリュームSnapshotのリストアについては、Snapshotのソースと状況に応じて、以下のいずれかのフローを選択してください：
+
+* <<restore-from-arp-snapshot,最新のARPスナップショットから復元する>>
+* <<restore-from-earlier-snapshot,以前のスナップショットから復元する>>
+* <<restore-without-attack,攻撃が確認されなかった場合は復元する>>
+
+
+
+
+[[restore-from-the-most-recent-arp-snapshot]]
+[[restore-from-arp-snapshot]]
+=== 最新のARPスナップショットから復元する
+
+最新のARPスナップショット（リカバリに利用可能な最新のスナップショット）から確実に復元できる場合は、このフローを選択してください。
+
+[role="tabbed-block"]
+====
+.System Manager
+--
+. *ストレージ > ボリューム*を選択し、ボリュームと*Snapshotコピー*を選択します。
+. リストアする最新のARPスナップショット(`Anti_ransomware_backup`）の横にあるimage:icon_kabob.gif["メニューオプションアイコン"]を選択し、*Restore*を選択します。
+. 復元が完了したら、link:respond-arp.html#classify-as-potential-ransomware-attack-and-recover-data["応答フローに戻る"]疑わしいファイルをクリアしてください。
+
+
+--
+.CLI
+--
+. ボリューム内のスナップショットを一覧表示します：
++
+[source, cli]
+----
+volume snapshot show -vserver <svm> -volume <volume>
+----
+. スナップショットからボリュームの内容を復元します：
++
+[source, cli]
+----
+volume snapshot restore -vserver <svm> -volume <volume> -snapshot <snapshot>
+----
+. 復元が完了したら、link:respond-arp.html#classify-as-potential-ransomware-attack-and-recover-data["応答フローに戻る"]疑わしいファイルをクリアしてください。
+
+
+--
+====
+
+
+[[restore-from-an-earlier-snapshot]]
+[[restore-from-earlier-snapshot]]
+=== 以前のスナップショットから復元する
+
+以前のスナップショットから復元する場合は、このフローを選択してください。以前のスナップショットから復元する前に、最新のARPスナップショットのロックを解除してください。
+
+[IMPORTANT]
+====
+ONTAP 9.15.1 以前では、疑わしいイベントをクリアすると、*ARP スナップショットが即座に削除されます*。このフローでは、意図的に以前のスナップショット（ARP スナップショットではない）から復元するため、ロックを解除するにはまずクリアする必要があります。ARP スナップショットからのデータが必要な場合は、代わりに <<restore-from-arp-snapshot,最新のARPスナップショットから復元する>> フローを使用してください。
+
+====
+[role="tabbed-block"]
+====
+.System Manager
+--
+. 最新のARPスナップショットのロックを解除します：
++
+.. *ストレージ > ボリューム*を選択します。
+.. *セキュリティ*を選択し、*疑わしいファイルの種類を表示*を選択します。
+.. ファイルを「Potential ransomware attack（潜在的なランサムウェア攻撃）」としてマークします。
+.. *Update and Clear Suspected File Types* を選択します。
+
+
+. *ストレージ > ボリューム*を選択し、ボリュームと*Snapshotコピー*を選択します。
+. image:icon_kabob.gif["メニューオプションアイコン"]復元する以前のSnapshotの横にあるを選択し、*復元*を選択します。
+
+
+--
+.CLI
+--
+. この攻撃をランサムウェアの可能性ありとしてマークし（(`-false-positive false`）、疑わしいファイルを削除してロックを解除します：
++
+
+IMPORTANT: これにより、ONTAP 9.15.1 以前の ARP スナップショットが即座に削除されます。このコマンドは、以前の（ARP ではない）スナップショットから復元する場合で、ARP スナップショットが不要な場合にのみ実行してください。
+
++
+[source, cli]
+----
+security anti-ransomware volume attack clear-suspect -vserver <svm_name> -volume <vol_name> [<extension identifiers>] -false-positive false
+----
+. ボリューム内のスナップショットを一覧表示します：
++
+[source, cli]
+----
+volume snapshot show -vserver <svm> -volume <volume>
+----
++
+次の例は、 `vol1`のスナップショットを示しています：
+
++
+[listing]
+----
+
+clus1::> volume snapshot show -vserver vs1 -volume vol1
+
+Vserver Volume Snapshot                State    Size  Total% Used%
+------- ------ ---------- ----------- ------   -----  ------ -----
+vs1	    vol1   hourly.2013-01-25_0005  valid   224KB     0%    0%
+               daily.2013-01-25_0010   valid   92KB      0%    0%
+               hourly.2013-01-25_0105  valid   228KB     0%    0%
+               hourly.2013-01-25_0205  valid   236KB     0%    0%
+               hourly.2013-01-25_0305  valid   244KB     0%    0%
+               hourly.2013-01-25_0405  valid   244KB     0%    0%
+               hourly.2013-01-25_0505  valid   244KB     0%    0%
+
+7 entries were displayed.
+----
+. スナップショットからボリュームの内容を復元します：
++
+[source, cli]
+----
+volume snapshot restore -vserver <svm> -volume <volume> -snapshot <snapshot>
+----
++
+次の例では、 `vol1`の内容を復元します：
+
++
+[listing]
+----
+cluster1::> volume snapshot restore -vserver vs0 -volume vol1 -snapshot daily.2013-01-25_0010
+----
+
+
+--
+====
+
+
+[[restore-when-no-attack-is-identified]]
+[[restore-without-attack]]
+== 攻撃が確認されなかった場合は復元する
+
+攻撃が確認されない場合は、まず最新のARPスナップショットから復元し、次にそれ以前のスナップショットから復元してください。
+
+[role="tabbed-block"]
+====
+.System Manager
+--
+. *ストレージ > ボリューム*を選択し、ボリュームと*Snapshotコピー*を選択します。
+. image:icon_kabob.gif["メニューオプションアイコン"]を選択し、最新の `Anti_ransomware_backup` Snapshotを選択します。
+. *復元*を選択します。
+. * Snapshot Copies *メニューに戻り、使用する以前のスナップショットを選択します。
+. *復元*を選択します。
+
+
+--
+.CLI
+--
+. まず、最新のARPスナップショットから復元してください。
++
+.. ボリューム内のスナップショットを一覧表示します：
++
+[source, cli]
+----
+volume snapshot show -vserver <svm> -volume <volume>
+----
+.. スナップショットからボリュームの内容を復元します：
++
+[source, cli]
+----
+volume snapshot restore -vserver <svm> -volume <volume> -snapshot <snapshot>
+----
+
+
+. 使用したい以前のスナップショットを選択し、復元手順を繰り返してください。
+
+
+ `volume snapshot`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/search.html?q=volume+snapshot["ONTAPコマンド リファレンス"^]をご覧ください。
+
+--
+====

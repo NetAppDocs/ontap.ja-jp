@@ -16,21 +16,25 @@ summary: クラスタのONTAPのバージョンを無停止で更新できます
 
 
 [role="lead"]
-自動アップグレードを実行すると、ONTAP は各ノードにターゲットの ONTAP イメージを自動的にインストールし、クラスタが正常にアップグレードできることを検証してから、クラスタ内のノード数に基づいてバックグラウンドでxref:concept_upgrade_methods.html[バッチ アップグレードまたはローリング アップグレード]のいずれかを実行します。
+自動無停止アップグレード（ANDU）を実行すると、ONTAP は各ノードにターゲット ONTAP イメージを自動的にインストールし、クラスターが正常にアップグレードできることを検証してから、クラスター内のノード数に基づいてバックグラウンドで xref:concept_upgrade_methods.html[バッチ アップグレードまたはローリング アップグレード] を実行します。
 
 使用している構成でサポートされている場合は、System Managerを使用して自動アップグレードを実行するようにしてください。System Managerを使用した自動アップグレードがサポートされていない構成の場合は、ONTAPのコマンドライン インターフェイス（CLI）を使用して自動アップグレードを実行できます。
 
 
-NOTE: NetAppを介して ONTAP 9.15.1 以降にアップグレードする場合は、link:https://docs.netapp.com/us-en/console-software-updates/get-started/software-updates.html["NetApp Console ドキュメントのアップグレード手順"^]に従ってください。
+NOTE: NetApp Console から ONTAP 9.15.1 以降にアップグレードする場合は、link:https://docs.netapp.com/us-en/console-software-updates/get-started/software-updates.html["NetApp Console ドキュメントのアップグレード手順"^]に従ってください。
 
 
-IMPORTANT: 自動無停止アップグレード（ANDU）の開始前に `storage failover modify-auto-giveback`コマンドオプションの設定を変更しても、アップグレードプロセスには影響しません。ANDUプロセスでは、アップデートに必要なテイクオーバー/ギブバック処理中、このオプションに設定されている値は無視されます。たとえば、ANDU開始前に `-autogiveback`をfalseに設定しても、ギブバック処理前の自動アップグレードは中断されません。link:https://docs.netapp.com/us-en/ontap-cli/search.html?q=storage+failover+modify-auto-giveback["ONTAPコマンド リファレンス"^]の `storage failover modify-auto-giveback`の詳細をご覧ください。
+IMPORTANT: ANDU の開始前に `storage failover modify-auto-giveback`コマンドオプションの設定を変更しても、アップグレードプロセスには影響しません。ANDU プロセスは、更新に必要なテイクオーバー/ギブバック中に、このオプションに設定されているプリセット値を無視します。たとえば、ANDU を開始する前に `-autogiveback`を false に設定しても、ギブバック前に自動アップグレードが中断されることはありません。 `storage failover modify-auto-giveback`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/search.html?q=storage+failover+modify-auto-giveback["ONTAPコマンド リファレンス"^]を参照してください。
 
 .開始する前に
 * link:prepare.html["アップグレードの準備"]する必要があります。
 * ターゲットの ONTAP リリースに合わせてlink:download-software-image.html["ONTAPソフトウェアイメージをダウンロードする"]してください。
 +
 link:../upgrade/concept_upgrade_paths.html#types-of-upgrade-paths["直接マルチホップアップグレード"]を実行する場合は、特定のlink:../upgrade/concept_upgrade_paths.html#supported-upgrade-paths["アップグレード パス"]に必要な両方のONTAPイメージをダウンロードする必要があります。
+
+* オプションで、link:../update/pre-stage-system-firmware.html["シングルリブートアップグレード用のシステムファームウェアの事前準備"]。
++
+ONTAP 9.17.1 以降、ANDU を実行する前にノードのブートデバイスに新しい BIOS または LOADER ファームウェアが既に存在する場合、アップグレードプロセスは ONTAP イメージにバンドルされているバージョンで上書きするのではなく、新しいファームウェアを保持します。これにより、ONTAP ソフトウェアのアップグレードとファームウェアのアップデートを 1 回の再起動サイクルで完了できます。
 
 * HAペアごとに、1つ以上のポートが各ノードの同じブロードキャスト ドメインに必要です。
 +
@@ -367,6 +371,9 @@ metrocluster show
 
 --
 ====
+.次の手順
+ファームウェアを事前にステージングした場合は、 `system node firmware bootmedia show`コマンドを使用して、各ノードで目的のファームウェアバージョンがアクティブになっていることを確認してください。
+
 
 
 [[resume-ontap-software-upgrade-after-an-error-in-the-automated-upgrade-process]]

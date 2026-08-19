@@ -411,22 +411,36 @@ system node upgrade-revert show -node <nodename>
 ステータスが「complete」、「not needed」、または「there are no table entries returned」のいずれかになっている必要があります。
 
 . HA ペアの他のノードでもこれらの手順を繰り返します。
-. 両方のノードを元に戻した後、クラスタの高可用性を再度有効にします：
+. 両方のノードが元の状態に戻ったら、クラスターの HA を再度有効にします。
 +
 [source, cli]
 ----
 cluster ha modify -configured true
 ----
++
+
+NOTE: クラスターHAを再度有効にすると、 `storage failover auto-giveback`設定がtrueに戻る場合があります。
+
 . 両方のノードでストレージフェイルオーバーを再度有効にします：
 +
 [source, cli]
 ----
 storage failover modify -node <nodename> -enabled true
 ----
+. 両方のノードで `storage failover auto-giveback`設定を確認します：
++
+[source, cli]
+----
+storage failover show -node <nodename>
+----
++
+環境に別の設定が必要な場合は、 `storage failover modify -node <nodename> -auto-giveback <true|false>`コマンドを使用して変更してください。
+
 
 
 --
 ====
 .関連情報
 * link:https://docs.netapp.com/us-en/ontap-cli/storage-failover-modify.html["storage failover modify"^]
+* link:https://kb.netapp.com/on-prem/ontap/Ontap_OS/OS-KBs/Why_auto-giveback_enabled_after_re-enabling_storage_failover_setting["NetApp ナレッジベース：ストレージフェイルオーバー設定を再度有効にした後、自動ギブバックが有効になる理由"^]
 

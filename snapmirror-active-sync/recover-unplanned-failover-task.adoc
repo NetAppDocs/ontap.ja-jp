@@ -2,7 +2,7 @@
 sidebar: sidebar 
 permalink: snapmirror-active-sync/recover-unplanned-failover-task.html 
 keywords: fan-out, snapmirror active sync, unplanned failover 
-summary: 自動計画外フェイルオーバー（AUFO）処理は、プライマリ クラスタが停止しているか分離されている場合に実行されます。AUFOでは、セカンダリ クラスタがプライマリに変換されてクライアントへのデータの提供を開始します。 
+summary: 自動計画外フェイルオーバー（AUFO）操作は、プライマリクラスタがダウンまたは隔離された場合に発生します。SnapMirror アクティブ同期は、このような障害を検知すると、セカンダリクラスタへの自動計画外フェイルオーバーを開始します。セカンダリクラスタがプライマリに変換され、クライアントへのサービス提供を開始します。 
 ---
 = 計画外の自動ONTAPクラスタ フェイルオーバー操作からの回復
 :hardbreaks:
@@ -14,7 +14,7 @@ summary: 自動計画外フェイルオーバー（AUFO）処理は、プライ�
 
 
 [role="lead"]
-自動計画外フェイルオーバー（AUFO）は、プライマリクラスタがダウンまたは孤立した場合に発生します。ONTAPメディエーターはフェイルオーバーの発生を検知し、セカンダリクラスタへの自動計画外フェイルオーバーを実行します。セカンダリクラスタはプライマリクラスタに変換され、クライアントへのサービス提供を開始します。この処理は、ONTAPメディエーターの支援を受けてのみ実行されます。
+自動計画外フェイルオーバー（AUFO）操作は、プライマリクラスタがダウンまたは隔離された場合に発生します。SnapMirror active syncはこのような障害を検出し、セカンダリクラスタへの自動計画外フェイルオーバーを開始します。セカンダリクラスタがプライマリ（優先クラスタ）に変換され、クライアントへのサービス提供を開始します。障害検出とフェイルオーバー処理は、ONTAP Mediatorの支援があって初めて実行できることに注意してください。
 
 
 NOTE: 自動的な計画外フェイルオーバーの後には、I/Oパスの損失がないようにホストパスを再スキャンすることが重要です。
@@ -24,7 +24,7 @@ NOTE: 自動的な計画外フェイルオーバーの後には、I/Oパスの�
 [[reestablish-the-protection-relationship-after-an-unplanned-failover]]
 == 計画外フェイルオーバー後の保護関係の再確立
 
-保護関係は、System ManagerまたはONTAP CLIを使用して再確立できます。
+例えばクラスターAのような元のプライマリークラスターが回復すると、SnapMirrorアクティブ同期は、逆方向の保護を自動的に確立します。クラスター A をプライマリの優先クラスターとして元の状態に戻したい場合は、System Manager または ONTAP CLI を使用して計画的なフェイルオーバー操作を開始することで、手動フェイルバックを実行できます。
 
 [role="tabbed-block"]
 ====
@@ -35,7 +35,7 @@ NOTE: 自動的な計画外フェイルオーバーの後には、I/Oパスの�
 IMPORTANT: ONTAP 9.8からONTAP 9.14.1では、SnapMirrorアクティブ同期はSnapMirror Business Continuity（SM-BC）と呼ばれます。
 
 . *保護 > 関係*に移動し、関係の状態が「InSync」と表示されるまで待ちます。
-. 元のソース クラスタで操作を再開するには、image:icon_kabob.gif["メニューオプションアイコン"]をクリックして [*フェールオーバー*] を選択します。
+. フェイルバックを実行して元のソースクラスターでの操作を再開するには、image:icon_kabob.gif["メニューオプションアイコン"]をクリックして、*フェイルオーバー*を選択します。
 
 
 --
@@ -57,6 +57,25 @@ Primary Data Cluster: cluster-2
 Last Progress Update: -
        Failover Type: unplanned
   Error Reason codes: -
+....
+逆保護関係のステータスは、元のプライマリクラスタで  `snapmirror show` コマンドを使用して監視できます。
+
+例：
+
+....
+ClusterA::> snapmirror show
+                                                                               Progress
+Source             Destination  Mirror        Relationship   Total             Last
+Path         Type  Path         State         Status         Progress  Healthy Updated
+-----------  ----  ------------ -------       -------------- --------- ------- --------
+vs3:/cg/dcg3 XDP   vs1:/cg/scg3 Snapmirrored  InSync          -         true    -
+....
+ `snapmirror failover start`コマンドを使用して、元のプライマリークラスターへのフェイルバックを実行できます。
+
+例：
+
+....
+ClusterA::> snapmirror failover start -destination-path vs1:/cg/scg3
 ....
 イベント メッセージと修正アクションの詳細については、link:https://docs.netapp.com/us-en/ontap-ems-9131/smbc-aufo-events.html["EMS リファレンス"^]を参照してください。
 

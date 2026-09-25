@@ -38,6 +38,7 @@ Activity DirectoryドメインでSMBサーバを作成する場合の条件は�
 * ドメインを指定するときは完全修飾ドメイン名（FQDN）を使用する必要があります。
 * デフォルト設定では、SMBサーバ マシン アカウントはActive Directory CN=Computerオブジェクトに追加されます。
 *  `-ou`オプションを使用して、SMBサーバーを別のOUに追加することもできます。
+* ONTAP 9.13.1 以降では、SMB サーバーのデフォルトサイトを設定できます。ONTAP は、LIF がサイトメンバーシップを持っていない場合、および信頼済みドメインのドメイン コントローラを検索する際に信頼済みドメインのサイト検出が失敗した場合のフォールバックとして、このサイトを使用できます。
 * 必要に応じて、SMBサーバの1つ以上のNetBIOSエイリアス（最大200個）をカンマで区切って追加できます。
 +
 SMBサーバのNetBIOSエイリアスを設定すると、他のファイル サーバのデータをSMBサーバに統合して、SMBサーバが元のファイル サーバの名前に応答するようにする場合に役立ちます。
@@ -58,7 +59,7 @@ SMB ライセンスはlink:../system-admin/manage-licenses-concept.html#licenses
 +
 SMBサーバを認証のみに使用する場合は、CIFSライセンスは必要ありません。
 
-. AD ドメインに SMB サーバを作成します： `+vserver cifs create -vserver vserver_name -cifs-server smb_server_name -domain FQDN [-ou organizational_unit][-netbios-aliases NetBIOS_name, ...][-keytab-uri {(ftp|http)://hostname|IP_address}][-comment text]+`
+. AD ドメインに SMB サーバを作成します： `+vserver cifs create -vserver vserver_name -cifs-server smb_server_name -domain FQDN [-ou organizational_unit][-default-site site_name][-netbios-aliases NetBIOS_name, ...][-keytab-uri {(ftp|http)://hostname|IP_address}][-comment text]+`
 +
 ドメインに参加する場合、このコマンドの実行には数分かかることがあります。
 
@@ -97,6 +98,10 @@ Default Site Used by LIFs Without Site Membership:
                           CIFS Server Description: -
                           List of NetBIOS Aliases: -
 ----
+
+
+ONTAP 9.13.1 以降、ONTAP が信頼できるドメインのサイト情報を検出できない場合、SMB サーバーのデフォルト サイトもフォールバックとして使用されます。
+
 . 必要に応じて、ドメイン コントローラとの暗号化通信を有効にします（ONTAP 9.8 以降）： `vserver cifs security modify -vserver svm_name -encryption-required-for-dc-connection true`
 
 

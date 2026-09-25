@@ -20,8 +20,14 @@ ONTAP SMB サーバーに LDAP over TLS を設定して、SMB サーバーと Ac
 
 Active Directory通信の保護にLDAP over SSL/TLSを使用するには、まずActive Directory証明書サービスの自己署名ルートCA証明書のコピーを証明書ファイルにエクスポートし、それをASCIIテキスト ファイルに変換する必要があります。ONTAPは、このテキスト ファイルを使用して証明書をStorage Virtual Machine（SVM）にインストールします。
 
-CIFSサーバが属するドメインには、Active Directory証明書サービスがすでにインストールされ、設定されている必要があります。Active Directory証明書サービスのインストールと設定に関する情報については、 http://technet.microsoft.com/en-us/library/["Microsoft TechNetライブラリ：technet.microsoft.com/ja-jp/library/"]を参照してください。手順
+CIFSサーバーが属するドメインには、Active Directory証明書サービスが既にインストールされ、構成されている必要があります。Active Directory証明書サービスのインストールと構成に関する情報は、 http://technet.microsoft.com/en-us/library/["Microsoft TechNetライブラリ：technet.microsoft.com/ja-jp/library/"]を参照してください。
 
+[NOTE]
+====
+ONTAP 9.13.1 以降、 `-use-start-tls-for-ad-ldap`または `-use-ldaps-for-ad-ldap`が SMB サーバーで有効になっている場合は、信頼済みドメインとホームドメインの両方に必要な CA 証明書がインストールされていることを確認してください。ONTAP は、信頼済みドメインのドメイン コントローラに対して TLS または LDAPS 接続を確立し、そのサイト情報を取得できる必要があります。
+
+====
+.手順
 .  `.pem`テキスト形式のドメイン コントローラのルート CA 証明書を取得します。
 +
 http://technet.microsoft.com/en-us/library/["Microsoft TechNetライブラリ：technet.microsoft.com/ja-jp/library/"]
@@ -93,6 +99,12 @@ ONTAP 9.10.1以降、Active Directory（AD）とネームサービスのLDAP接�
 ----
 vserver cifs security modify -vserver <SVM_name> -use-start-tls-for-ad-ldap true
 ----
++
+[NOTE]
+====
+ONTAP 9.13.1 以降、Active Directory 接続でセキュアな LDAP 通信が有効になっている場合、ONTAP は信頼済みドメインのドメイン コントローラに接続する際にも、これらのセキュアな接続を使用します。信頼済みドメインのドメイン コントローラに必要な証明書がインストールされていない場合、ONTAP は信頼済みドメインのサイト情報を特定できない可能性があります。
+
+====
 . LDAP over TLS セキュリティ設定が次のように設定されていることを確認してください `true`：
 +
 [source, cli]

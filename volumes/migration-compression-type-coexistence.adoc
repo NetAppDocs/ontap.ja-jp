@@ -1,0 +1,41 @@
+---
+permalink: volumes/migration-compression-type-coexistence.html 
+sidebar: sidebar 
+keywords: access control lists, flexclone files, flexclone luns, inheritance, ACL, ACLs, acl, acls, flexclone 
+summary: FlexCloneファイルおよびFlexClone LUNは、親ファイルおよび親LUNのアクセス制御リストを継承します。 
+---
+= ONTAPボリューム移行時の圧縮タイプの共存のサポート
+:allow-uri-read: 
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+ONTAPシステム間でボリュームが移行される場合、ソースボリュームでデスティネーションボリュームとは異なるデータ圧縮タイプが使用される場合があります。
+
+サポートされている圧縮タイプには、セカンダリ、アダプティブ8K、および温度感受性ストレージ（TSSE）が含まれます。移行中、これらの圧縮タイプは、移行先のボリューム上で一時的に以下のように共存することができます：
+
+[cols="4"]
+|===
+| ソース圧縮タイプ | 宛先圧縮タイプ | 移行でサポートされる共存 | アプリケーションI/O読み取り / 書き込みサイズ 
+
+
+| セカンダリ | TSSE | はい | Auto 
+
+
+| アダプティブ8K | TSSE | はい | Auto 
+
+
+| セカンダリ | アダプティブ8K | いいえ | サポート対象外 
+|===
+.セカンダリおよび適応型8k圧縮からTSSE圧縮への移行
+セカンダリ ボリュームと8kアダプティブ ボリュームは、移行後にバックグラウンドプロセスで、または移行中にデータが宛先ボリュームに書き換えられる際に、段階的にTSSEに変換されます。
+
+ボリュームがセカンダリまたはアダプティブ8K圧縮からTSSE圧縮に移行されたあと、既存のブロックがすべて変換された場合でも、 `volume efficiency show` コマンドの出力に表示される *compression type* は変わりません。圧縮タイプは、変換されたセカンダリ ボリュームの場合は *secondary* のままであり、変換されたアダプティブ8Kボリュームの場合は *adaptive* のままです。
+
+セカンダリ圧縮または適応型8K圧縮から変換されたボリュームに書き込まれる新しいデータは、TSSEで圧縮されます。
+
+.セカンダリ圧縮から適応型8k圧縮への移行
+同一ボリューム上でセカンダリ8K圧縮とアダプティブ8K圧縮を直接共存させることはサポートされていません。
+
+link:move-between-secondary-adaptive-compression-task.html["セカンダリ圧縮とアダプティブ圧縮の間で移行する"]方法を学びます。

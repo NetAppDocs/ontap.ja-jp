@@ -21,11 +21,49 @@ RTOゼロのSnapMirror同期保護が不要になった場合は、SnapMirrorア
 [[remove-an-asymmetric-san-configuration]]
 == 非対称SAN構成を削除する
 
+
+
+[[unmap-luns-on-the-destination-cluster]]
+=== デスティネーション クラスタでLUNのマッピングを解除する
+
+.タスク概要
 * SnapMirror active sync SAN関係を削除する前に、デスティネーション クラスタ内のすべてのLUNのマップを解除しておく必要があります。
 * LUNのマッピングが解除されてホストが再スキャンされると、SCSIターゲットはLUNのインベントリが変更されたことをホストに通知します。RTOゼロの関係が削除されたあと、RTOゼロのセカンダリ ボリュームにある既存のLUNに新しいIDが反映されます。ホストは、セカンダリ ボリュームのLUNをソース ボリュームのLUNと関係ない新しいLUNとして検出します。
 * 関係が削除された後も、セカンダリボリュームはDPボリュームのままです。 `snapmirror break`コマンドを発行して、それらを読み取り / 書き込みに変換できます。
 * 関係が反転されていない場合、フェイルオーバー状態のときに関係を削除することはできません。
 
+
+.手順
+SnapMirror active sync SAN リレーションシップを削除する前に、デスティネーション クラスタ上のリレーションシップに含まれるすべての LUN をアンマップする必要があります。非対称SAN構成を削除する前に、次の手順を完了してください。
+
+. デスティネーションLUNがレプリケートされたigroupを介してマッピングされている場合、デスティネーション クラスタでLUNマッピングを削除する前に、ソース クラスタからigroupレプリケーションを確認して削除する必要があります：
++
+`SiteB::> igroup show -igroup <igroup_name>  -vserver <vserver_name> -fields replication-peer`
+
+. igroupがレプリケートされている場合は、ソースクラスタからレプリケーションピアの関連付けを削除します：
++
+`SiteA::> igroup modify -vserver <svm_name> -igroup <igroup_name> -replication-peer "-"`
+
+. igroupが複製されなくなったことを確認してください：
++
+`SiteB::> igroup show -igroup <igroup_name> -vserver <vserver_name> -fields replication-peer`
+
+. デスティネーション側のLUNマッピングを削除します：
++
+`SiteB::> lun mapping delete -vserver <svm_name> -igroup <igroup_name> -path <lun_path>`
+
+. igroupにマッピングされている追加のLUNがなくなったら、igroupを削除します：
++
+`SiteB::> igroup delete -vserver <svm_name> -igroup <igroup_name>`
+
+
+
+
+
+[[delete-the-snapmirror-active-sync-san-relationship]]
+=== SnapMirror active sync SAN 関係を削除します
+
+LUNのマッピングが解除されたら、SnapMirrorアクティブ同期関係を削除します。
 
 .手順
 . セカンダリ クラスタから、ソース エンドポイントとデスティネーション エンドポイントの間のSnapMirrorアクティブ同期整合性グループ関係を削除します。

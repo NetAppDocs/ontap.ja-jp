@@ -14,84 +14,81 @@ summary: 物理ポートまたは論理ポートに関連付けられた IP ア�
 
 
 [role="lead"]
-SVMは、1つ以上のネットワーク論理インターフェイス（LIF）を通じてクライアントにデータを提供します。データへのアクセスに使用するポートにLIFを作成する必要があります。LIF（ネットワーク インターフェイス）は、物理ポートまたは論理ポートに関連付けられたIPアドレスです。コンポーネントに障害が発生しても、LIFは別の物理ポートにフェイルオーバーまたは移行できるので、引き続きネットワークと通信できます。
-
-.ベストプラクティス
-ONTAPに接続されたスイッチ ポートは、LIFの移行時の遅延を軽減するために、スパニングツリー エッジ ポートとして設定する必要があります。
+ストレージ仮想マシン（SVM）は、物理ポートまたは論理ポートに関連付けられたIPアドレスである1つ以上の論理インターフェース（LIF）を介してクライアントにデータを提供します。データにアクセスするために使用するポートにLIFを作成する必要があります。コンポーネントに障害が発生した場合、ネットワークとの通信を継続できるように、LIFは別の物理ポートにフェイルオーバーまたは移行できます。
 
 .開始する前に
 * このタスクを実行するには、クラスタ管理者である必要があります。
-* 基盤となる物理または論理ネットワーク ポートの管理ステータスがupに設定されている必要があります。
-* サブネット名を使用してLIFのIPアドレスとネットワーク マスク値を割り当てる場合は、そのサブネットが存在している必要があります。
-+
-サブネットには、同じレイヤ 3 サブネットに属する IP アドレスのプールが含まれます。System Manager または `network subnet create`コマンドを使用して作成されます。
-
-+
- `network subnet create`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/network-subnet-create.html["ONTAPコマンド リファレンス"^]を参照してください。
-
-* LIFが処理するトラフィックのタイプを指定するメカニズムが変更されました。ONTAP 9.5以前ではロールで指定していました。ONTAP 9.6以降ではサービス ポリシーで指定します。
+* 基盤となる物理または論理ネットワークポートは、管理 `up`ステータスである必要があります。
 
 
 .タスク概要
+同じネットワーク ポート上にIPv4とIPv6の両方のLIFを作成できます。
+
+.サブネットを使用したLIFSの作成
+* NetApp は、データSVM上のすべてのLIFに対してサブネットオブジェクトを作成することを推奨しています。これは特にMetroCluster構成において重要です。サブネットオブジェクトには関連付けられたブロードキャストドメインがあるため、サブネットオブジェクトによってONTAPがデスティネーションクラスタ上のフェイルオーバーターゲットを判別できるようになります。サブネット名を使用してLIFのIPアドレスとネットワーク マスク値を割り当てる場合は、そのサブネットが存在している必要があります。手順については、link:../networking/create_a_subnet.html["サブネットの作成"]を参照してください。
+* クラスタ内のノード間トラフィックを処理するLIFは、管理トラフィックを処理するLIFまたはデータ トラフィックを処理するLIFと同じサブネット上には存在できません。
+* クラスタ間ネットワークインターフェイスを作成する際、既存のサブネットの範囲内のIPアドレスを指定することはできません。
+* ONTAP 9.7以降では、サブネットを使用してネットワークインターフェイスを作成すると、ONTAPは選択したサブネットから利用可能なIPアドレスを自動的に選択し、ネットワークインターフェイスに割り当てます。サブネットが複数ある場合はサブネットを変更できますが、IPアドレスは変更できません。
+
+
+.ONTAPバージョン別のLIF作成機能のサポート
+LIF作成に関連する機能のサポートは、ONTAPのバージョンによって異なります。
+
+[cols="2"]
+|===
+| ONTAP バージョン以降 | 機能 
+
+
+| 9.12.1 | System Managerにおいて、RDMA経由のNFS構成用のネットワークインターフェイスを作成するためのサポートが追加されました。詳細については、xref:../nfs-rdma/configure-lifs-task.html[RDMA経由のNFS用にLIFを設定する]を参照してください。 
+
+
+| 9.11.1 | All-Flash SAN Array（ASA）システムでの自動iSCSI LIFフェイルオーバーのサポート。新しいiSCSI LIFの場合、SVMに既存のiSCSI LIFがないか、既存のすべてのiSCSI LIFでフェイルオーバーが有効になっていれば、 `sfo-partner-only`ポリシーを使用し、自動復帰を `true`に設定して、フェイルオーバーが自動的に有効になります。ONTAP 9.11.1以降へのアップグレード後、同じSVM内の既存のiSCSI LIFでフェイルオーバーが有効になっていない場合、新しいiSCSI LIFは `disabled`フェイルオーバーポリシーを継承します。link:../san-admin/asa-iscsi-lif-fo-task.html["ASAプラットフォームのiSCSI LIFフェイルオーバー"]の詳細について 
+
+
+| 9.10.1 |  `network interface`コマンドには、RDMA経由のNFS構成用の `-rdma-protocols`パラメータが含まれています 
+
+
+| 9.7 | 同じサブネット内にSVM用の他のLIFが既に存在する場合、LIFのホームポートを指定する必要はありません。ONTAPは、同じサブネット内に既に設定されている他のLIFと同じブロードキャストドメイン内の、指定されたホームノード上のランダムなポートを自動的に選択します。 
+
+
+| 9.6  a| 
+LIFは、サービスポリシーを使用して、処理するトラフィックの種類を指定します。ONTAP 9.5以前では、トラフィックの種類を指定するためにロールが使用されます
+
+|===
+.LIF作成制限
 * 同じLIFにNASプロトコルやSANプロトコルを割り当てることはできません。
 +
-サポートされるプロトコルは、SMB、NFS、FlexCache、iSCSI、およびFCです。iSCSIとFCを他のプロトコルと組み合わせることはできません。ただし、NASプロトコルとイーサネットベースのSANプロトコルは、同じ物理ポートで使用できます。
-
-+
-** SMBトラフィックを伝送するLIFを、ホーム ノードに自動的にリバートするように設定しないでください。Hyper-V over SMBまたはSQL Server over SMBでノンストップ オペレーションを実現するソリューションをSMBサーバでホストする場合、これは必須です。
-
-
-* 同じネットワーク ポート上にIPv4とIPv6の両方のLIFを作成できます。
-* SVMで使用するすべてのネーム マッピング サービスとホスト名解決サービス（DNS、NIS、LDAP、Active Directoryなど）が、SVMのデータ トラフィックを処理する少なくとも1つのLIFから到達可能でなければなりません。
-* クラスタ内のノード間トラフィックを処理するLIFは、管理トラフィックを処理するLIFまたはデータ トラフィックを処理するLIFと同じサブネット上には存在できません。
-* 有効なフェイルオーバー ターゲットのないLIFを作成すると、警告メッセージが表示されます。
-* クラスタ内のLIFの数が多い場合、クラスタでサポートされるLIFの最大数を確認できます。
-+
-** System Manager：ONTAP 9.12.0以降では、ネットワーク インターフェイス グリッドでスループットを表示します。
-** CLI： `network interface capacity show`コマンドと `network interface capacity details show`コマンド（advanced権限レベル）を使用して、各ノードでサポートされているLIF容量を確認します。
-+
- `network interface capacity show`および `network interface capacity details show`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/search.html?q=network+interface+capacity+show["ONTAPコマンド リファレンス"^]をご覧ください。
-
-
-
-* ONTAP 9.7以降では、同じサブネットにSVM用の他のLIFがすでに存在していれば、LIFのホーム ポートを指定する必要はありません。同じサブネットにすでに設定されている他のLIFと同じブロードキャスト ドメインにあるホーム ノードから任意のポートが自動的に選択されます。
-+
-ONTAP 9.4以降では、FC-NVMeがサポートされます。FC-NVMe LIFを作成する場合は、次の点に注意してください。
-
-+
-** LIFを作成するFCアダプタでNVMeプロトコルがサポートされている必要があります。
-** データLIFで使用できるデータ プロトコルはFC-NVMeのみです。
-
+ただし、NASプロトコルとイーサネットベースのSANプロトコルは、同じ物理ポートで使用できます。
 
 * SANをサポートするStorage Virtual Machine（SVM）ごとに、管理トラフィックを処理するLIFを1つ設定する必要があります。
-* NVMeのLIFとネームスペースは、同じノードでホストする必要があります。
-* ノードごとに、SVM ごとに、データ トラフィックを処理する NVMe LIF を最大 2 つ設定できます。
-* サブネットを使用してネットワーク インターフェイスを作成すると、使用可能なIPアドレスが選択したサブネットから自動的に選択され、ネットワーク インターフェイスに割り当てられます。複数のサブネットがある場合にサブネットを変更することはできますが、IPアドレスは変更できません。
-* ネットワーク インターフェイス用のSVMを作成（追加）するときに、既存のサブネット範囲に含まれるIPアドレスを指定することはできません。サブネットの競合エラーが表示されます。この問題は、SVM設定やクラスタ設定でクラスタ間ネットワーク インターフェイスを作成または変更する場合など、ネットワーク インターフェイスの他のワークフローでも発生します。
-* ONTAP 9.10.1以降、 `network interface` CLIコマンドには、NFS over RDMA構成用の `-rdma-protocols`パラメータが含まれています。NFS over RDMA構成用のネットワークインターフェイスの作成は、ONTAP 9.12.1以降のSystem Managerでサポートされています。詳細については、xref:../nfs-rdma/configure-lifs-task.html[RDMA経由のNFS用にLIFを設定する]を参照してください。
-* ONTAP 9.11.1以降では、オールフラッシュSANアレイ（ASA）プラットフォームで自動iSCSI LIFフェイルオーバーを使用できます。
+* NVMe LIF
 +
-指定されたSVMにiSCSI LIFが存在しない場合、または指定されたSVM内の既存のすべてのiSCSI LIFでiSCSI LIFフェイルオーバーがすでに有効になっている場合は、新しく作成されたiSCSI LIFでiSCSI LIFフェイルオーバーが自動的に有効になります（フェイルオーバー ポリシーが `sfo-partner-only`に設定され、自動復帰値が `true`に設定されます）。
-
+** LIFを作成するFCアダプタでNVMeプロトコルがサポートされている必要があります。
+** NVMeのLIFとネームスペースは、同じノードでホストする必要があります。
+** ノードごとに、SVM ごとに、データ トラフィックを処理する NVMe LIF を最大 2 つ設定できます。
+** データLIFは、NVMeと他のプロトコル間で共有することはできません。NVMeデータLIF上では、NVMeが唯一のプロトコルとなります。
 +
-ONTAP 9.11.1 以降にアップグレードした後、iSCSI LIF フェイルオーバー機能が有効になっていない既存の iSCSI LIF が SVM 内に存在し、同じ SVM 内に新しい iSCSI LIF を作成した場合、新しい iSCSI LIF は SVM 内の既存の iSCSI LIF と同じフェイルオーバー ポリシー(`disabled`を適用します。
+link:../nvme/support-limitations.html["NVMeの構成、サポート、制限事項"] の詳細をご覧ください。
 
+
+
+* SMB LIF
 +
-link:../san-admin/asa-iscsi-lif-fo-task.html["ASAプラットフォームのiSCSI LIFフェイルオーバー"]
+** SMBサーバーがHyper-VまたはSMB経由のSQL Serverとの無停止運用ソリューションをホストしている場合、SMBトラフィックを伝送するLIFを自動的にホームノードに戻すように構成しないでください。
 
 
 
-ONTAP 9.7以降では、LIFのホーム ポートは、そのIPspaceの同じサブネットに既存のLIFが1つでも存在していれば自動的に選択されます。ホーム ポートは、そのサブネットの他のLIFと同じブロードキャスト ドメインから選択されます。手動で指定することも引き続き可能です（指定したIPspaceの該当するサブネットにLIFがない場合）。
 
-ONTAP 9.12.0以降では、実行する手順は、System ManagerとCLIのどちらのインターフェイスを使用するかによって異なります。
+.手順
+LIFを作成するには、System ManagerまたはCLIを使用します。
 
 [role="tabbed-block"]
 ====
 .System Manager
 --
-*System Managerを使用してネットワークインターフェイスを追加します*
+.開始する前に
+クラスター内に多数のLIFが存在する場合は、追加のLIFを作成する前に、クラスターでサポートされているLIFの容量を確認できます。ONTAP 9.12.1以降では、System Managerのネットワークインターフェイスグリッドでスループットを確認できます。
 
-.手順
 . *ネットワーク > 概要 > ネットワーク インターフェイス*を選択します。
 . image:icon_add.gif["アイコンを追加"]を選択します。
 . 次のいずれかのインターフェイス ロールを選択します。
@@ -117,7 +114,7 @@ ONTAP 9.12.0以降では、実行する手順は、System ManagerとCLIのどち
 .. サブネットを選択する場合はドロップダウンから選択します。
 .. サブネットを選択せずに次に進むと、ブロードキャスト ドメインのドロップダウンが表示されます。
 +
-... IPアドレスを指定します。IPアドレスが使用中の場合は、警告メッセージが表示されます。
+... IPアドレスを指定してください。IPアドレスが使用中の場合は、警告メッセージが表示されます。
 ... サブネット マスクを指定します。
 
 
@@ -130,13 +127,31 @@ ONTAP 9.12.0以降では、実行する手順は、System ManagerとCLIのどち
 --
 .CLI
 --
-*CLIを使用してLIFを作成する*
+. 必要に応じて、権限レベルを「advanced」に設定すると、ネットワークインターフェイスの容量を表示できます。
++
+.. 権限レベルをadvancedに設定します。
++
+[source, cli]
+----
+set -privilege advanced
+----
+.. 各ノードでサポートされているLIF容量を表示します：
++
+[source, cli]
+----
+network interface capacity details show
+----
++
+ `network interface capacity details show` コマンド link:https://docs.netapp.com/us-en/ontap-cli/search.html?q=network+interface+capacity+show["ONTAPコマンド リファレンス"^] の詳細をご覧ください。
 
-.手順
+
+
 . LIFに使用するIPspaceブロードキャスト ドメインのポートを判断します。
 +
-`network port broadcast-domain show -ipspace _ipspace1_`
-
+[source, cli]
+----
+network port broadcast-domain show -ipspace _ipspace1_
+----
 +
 ....
 IPspace     Broadcast                       Update
@@ -153,20 +168,19 @@ ipspace1
 
 . LIFに使用するサブネットに未使用のIPアドレスが十分にあることを確認します。
 +
-`network subnet show -ipspace _ipspace1_`
-
+[source, cli]
+----
+network subnet show -ipspace _ipspace1_
+----
 +
  `network subnet show`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/network-subnet-show.html["ONTAPコマンド リファレンス"^]を参照してください。
 
 . データへのアクセスに使用するポートに1つ以上のLIFを作成します。
 +
-
-CAUTION: NetAppでは、データSVM上のすべてのLIFに対してサブネットオブジェクトを作成することを推奨しています。これはMetroCluster構成では特に重要です。各サブネットオブジェクトにはブロードキャストドメインが関連付けられているため、サブネットオブジェクトによってONTAPがデスティネーション クラスタ上のフェイルオーバーターゲットを決定できるようになります。手順については、link:../networking/create_a_subnet.html["サブネットの作成"]を参照してください。
-
-+
-....
+[source, cli]
+----
 network interface create -vserver _SVM_name_ -lif _lif_name_ -service-policy _service_policy_name_ -home-node _node_name_ -home-port port_name {-address _IP_address_ - netmask _Netmask_value_ | -subnet-name _subnet_name_} -firewall- policy _policy_ -auto-revert {true|false}
-....
+----
 +
 ** `-home-node`は、 `network interface revert`コマンドがLIF上で実行されたときにLIFが戻るノードです。
 +
@@ -176,7 +190,7 @@ network interface create -vserver _SVM_name_ -lif _lif_name_ -service-policy _se
  `network interface revert`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/network-interface-revert.html["ONTAPコマンド リファレンス"^]を参照してください。
 
 ** `-home-port`は、LIF上で `network interface revert`コマンドが実行されたときにLIFが戻る物理ポートまたは論理ポートです。
-**  `-address`および `-netmask`オプションを使用してIPアドレスを指定することも、 `-subnet_name`オプションを使用してサブネットからの割り当てを有効にすることもできます。
+**  `-address`および `-netmask`オプションを使用してIPアドレスを指定するか、 `-subnet_name`オプションを使用してサブネットからの割り当てを有効にすることができます。
 ** サブネットを使用してIPアドレスとネットワーク マスクを指定した場合、サブネットにゲートウェイが定義されていると、そのサブネットを使用してLIFを作成するときにゲートウェイへのデフォルト ルートがSVMに自動的に追加されます。
 ** IPアドレスを手動で割り当てる場合（サブネットを使用せず）、クライアントまたはドメインコントローラが異なるIPサブネット上にある場合は、ゲートウェイへのデフォルトルートを設定する必要がある場合があります。link:https://docs.netapp.com/us-en/ontap-cli/network-route-create.html["ONTAPコマンド リファレンス"^]の `network route create`の詳細をご覧ください。
 ** `-auto-revert`起動時、管理データベースのステータス変更時、ネットワーク接続時などの状況において、データLIFをホームノードに自動的に戻すかどうかを指定できます。デフォルト設定は `false`ですが、環境のネットワーク管理ポリシーに応じて `true`に設定することもできます。
@@ -184,7 +198,7 @@ network interface create -vserver _SVM_name_ -lif _lif_name_ -service-policy _se
 ** `-data-protocol`FCPまたはNVMe/FCプロトコルをサポートするLIFを作成できます。IP LIFを作成する場合、このオプションは必要ありません。
 
 
-. *オプション*：-address オプションで IPv6 アドレスを割り当てます。
+. 必要に応じて、-address オプションで IPv6 アドレスを割り当てます：
 +
 ..  `network ndp prefix show`コマンドを使用して、さまざまなインターフェースで学習された RA プレフィックスのリストを表示します。
 +
@@ -231,8 +245,7 @@ vs1
 Failover Targets: node1:e0d, node1:e0e, node2:e0d, node2:e0e
 ....
 . 設定したIPアドレスに到達できることを確認します。
-
-
++
 |===
 
 
@@ -244,21 +257,29 @@ Failover Targets: node1:e0d, node1:e0e, node2:e0d, node2:e0e
 
 | IPv6アドレス | network ping6 
 |===
++
 .例
 次のコマンドは、LIF を作成し、 `-address`および `-netmask`パラメータを使用して IP アドレスとネットワーク マスクの値を指定します：
 
++
 ....
 network interface create -vserver vs1.example.com -lif datalif1 -service-policy default-data-files -home-node node-4 -home-port e1c -address 192.0.2.145 -netmask 255.255.255.0 -auto-revert true
 ....
++
 次のコマンドは、LIFを作成し、IPアドレスとネットワーク マスク値を指定したサブネット（client1_sub）から割り当てています。
 
++
 ....
 network interface create -vserver vs3.example.com -lif datalif3 -service-policy default-data-files -home-node node-3 -home-port e1c -subnet-name client1_sub - auto-revert true
 ....
++
 次のコマンドは、NVMe/FC LIFを作成し、 `nvme-fc`データ プロトコルを指定します：
 
++
 ....
 network interface create -vserver vs1.example.com -lif datalif1 -data-protocol nvme-fc -home-node node-4 -home-port 1c -address 192.0.2.145 -netmask 255.255.255.0 -auto-revert true
 ....
+
+
 --
 ====

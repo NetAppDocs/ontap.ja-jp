@@ -14,18 +14,34 @@ summary: 整合性グループを使用して、ローカル スナップショ�
 [role="lead"]
 整合性グループを使用すると、複数のボリュームにまたがるSAN、NAS、NVMeのアプリケーションのローカルとリモートの保護を簡単に管理できます。
 
-整合性グループを作成しても、保護が自動的に有効になるわけではありません。保護ポリシーは、整合性グループの作成時または作成後に設定できます。整合性グループは次の方法で保護できます。
+整合性グループを作成しても、保護が自動的に有効になるわけではありません。保護ポリシーは、整合性グループの作成時または作成後に設定できます。
 
-* ローカル Snapshot
-* SnapMirrorアクティブ同期（9.15.1より前のONTAPバージョンではSnapMirrorビジネス継続性と呼ばれます）
-* xref:index.html#mcc[MetroCluster（9.11.1以降）]
-* SnapMirror非同期（9.13.1以降）
-* 非同期SVMディザスタ リカバリ（9.14.1以降）
+整合性グループで利用できるデータ保護の種類は、ONTAPのバージョンによって異なります。
+
+[cols="2"]
+|===
+| ONTAP…以降で利用可能 | 整合性グループのデータ保護 
 
 
+| 9.20.1 | SnapLock for SnapVault（非SnapLockボリュームから） 
+
+
+| 9.14.1 | SVMディザスタ リカバリ 
+
+
+| 9.13.1 | SnapMirror非同期 
+
+
+| 9.11.1 | 整合性グループは<<two-phase,2フェーズ整合性グループSnapshotの作成>>を提供します。2段階のスナップショット操作では事前チェックを実行し、スナップショットが正常に取得されることを確認します。 
+
+
+| 9.10.1  a| 
+* Snapshotポリシー
+* SnapMirrorアクティブ同期
+
+
+|===
 ネストされた整合性グループを使用している場合は、親整合性グループと子整合性グループに別々の保護ポリシーを設定できます。
-
-ONTAP 9.11.1以降、整合グループは<<two-phase,2フェーズ整合性グループSnapshotの作成>>を提供します。2フェーズのSnapshotオペレーションでは事前チェックが実行され、Snapshotが正常にキャプチャされたことが確認されます。
 
 リカバリは、コンシステンシ・グループ全体、階層構成内の単一のコンシステンシ・グループ、またはコンシステンシ・グループ内の個々のボリュームに対して実行できます。リカバリは、リカバリ元のコンシステンシ・グループを選択し、スナップショットの種類を選択し、復元のベースとなるスナップショットを特定することで実行できます。このプロセスの詳細については、link:../task_dp_restore_from_vault.html["以前のスナップショットからボリュームをリストアする"]を参照してください。
 
@@ -201,7 +217,14 @@ For more information about the ONTAP REST API, see link:https://docs.netapp.com/
 [[set-remote-protection-for-a-consistency-group]]
 == 整合性グループに対するリモート保護の設定
 
-整合性グループは、SnapMirrorアクティブ同期のほか、ONTAP 9.13.1以降ではSnapMirror非同期によってリモート保護を提供します。
+ONTAPのバージョンに応じて、整合性グループは、SnapMirror active sync、SnapMirror非同期、およびSnapLock for SnapVault関係を介したリモート保護を提供します。
+
+ONTAP 9.20.1以降、SnapLock for SnapVault保護が利用可能です。ONTAP 9.13.1以降、SnapMirror非同期保護が利用可能です。
+
+.開始する前に
+* 次の操作が必要です。link:../peering/create-cluster-relationship-93-later-task.html["クラスタ ピア関係を作成"]
+* 次の操作が必要です。link:../peering/create-intercluster-svm-peer-relationship-93-later-task.html["クラスター間SVMピア関係を作成する"]
+
 
 
 
@@ -247,6 +270,12 @@ ONTAP 9.13.1以降では、単一のコンシステンシグループに対し�
 ボリューム単位のSnapshotを持つSnapMirror関係を再同期する際に、 `-preserve`フラグを使用してボリューム単位のSnapshotを保持できます。整合性グループのSnapshotよりも新しいボリューム単位のSnapshotが保持されます。整合性グループのSnapshotがない場合、再同期処理でボリューム単位のSnapshotを転送することはできません。
 
 .開始する前に
+* ONTAP 9.20.1以降では、既存のFCファブリックを介したバックエンドのSnapMirrorレプリケーションを設定できます。FCファブリックをレプリケーションに使用する場合は、link:..//data-protection/configure-backend-fc-replication.html["バックエンドFCレプリケーション用にシステムを構成する"]する必要があります。また、次のことも必要です：
++
+** FCファブリック経由でレプリケートする非同期SnapMirror関係を作成する場合は、トランスポートプロトコルとしてFCを選択します。バックエンドのレプリケーションは、デフォルトでIPプロトコルを使用します。
+** サポートされている非同期保護ポリシーを使用します。link:../data-protection/default-protection-policies-concept.html["バックエンドFCレプリケーションでサポートされているデフォルトの非同期データ保護ポリシーについて確認します"]。
+
+
 * SnapMirror非同期保護は単一の整合性グループでのみ利用可能です。階層型整合性グループではサポートされていません。階層型整合性グループを単一の整合性グループに変換するには、xref:modify-geometry-task.html[整合性グループのアーキテクチャを変更する]を参照してください。
 * ソース クラスタとデスティネーション クラスタのポリシー ラベルが一致している必要があります。
 * アクティブなSnapMirror非同期関係でxref:modify-task.html#add-volumes-to-a-consistency-group[整合性グループにボリュームを追加する]を無停止で実行できます。整合性グループにその他の変更を加える場合は、SnapMirror関係を解除し、整合性グループを変更した上で、関係を再確立して再同期する必要があります。
@@ -275,6 +304,109 @@ NOTE: SnapMirror非同期を使用した整合性グループに設定可能な�
 . 整合性グループを初期化して同期する必要があります。*整合性グループ*メニューに戻り、同期が正常に完了したことを確認してください。*SnapMirror（リモート）*ステータスに `Protected`がimage:../media/icon_shield.png["盾アイコン"]の横に表示されます。
 
 
+
+
+[[configure-snaplock-for-snapvault-replication-from-a-non-snaplock-source]]
+=== 非SnapLockソースからのSnapVaultレプリケーション用にSnapLockを設定する
+
+ONTAP 9.20.1以降では、非SnapLockソースボリュームからSnapLock for SnapVaultデスティネーションボリュームに整合性グループをレプリケートできます。デスティネーションのSnapLock for SnapVaultで保護されたSnapshotは、誤って、または悪意を持って削除することはできません。
+
+.開始する前に
+* link:../system-admin/manage-license-task.html["SnapLockライセンスがインストールされていることを確認する"]する必要があります。ノードにSnapLockライセンスがインストールされていない場合は、link:..//system-admin/install-license-task.html["インストールする"]する必要があります。このライセンスはlink:..//system-admin/manage-licenses-concept.html["ONTAP One"]に含まれています。
+* 両方のクラスタノード上のlink:..//snaplock/initialize-complianceclock-task.html["コンプライアンスクロックを初期化する必要があります"]。
+* 既存のFCファブリック経由でバックエンドのSnapLock for SnapVaultレプリケーションを設定できます。レプリケーションにFCファブリックを使用する場合は、link:..//data-protection/configure-backend-fc-replication.html["バックエンドFCレプリケーション用にシステムを構成する"]。また、次の作業も必要です：
++
+** FCファブリック経由でレプリケートするSnapLock for SnapVault関係を作成する際は、トランスポートプロトコルとしてFCを選択します。バックエンドのレプリケーションは、デフォルトでIPプロトコルを使用します。
+** MirrorAndVault非同期保護ポリシーを使用します。。
+
+
+
+
+.手順
+System ManagerまたはCLIを使用して、SnapLock for SnapVaultレプリケーション関係を設定します
+
+[role="tabbed-block"]
+====
+.System Manager
+--
+System Managerで_vault_レプリケーションポリシーを選択し、デスティネーション スナップショットをロックするように選択して、SnapLock for SnapVaultを有効にします。
+
+. System Managerで、*保護 > 整合性グループ*を選択します。
+. 整合性グループを選択し、次に*保護*を選択します。
++
+System Managerでは、ソース側の情報が自動的に入力されます。
+
+. デスティネーションのクラスタとStorage VMを選択します。
+. 保護ポリシーを選択します。
++
+保持ルールが設定されている_vault_レプリケーションポリシーを選択する必要があります。ONTAP 9.20.1以降では、バックエンドFCレプリケーションを使用するには、_MirrorAndVault_ポリシーを選択する必要があります。
+
+. *デスティネーション整合性グループをロックする*を選択します。
+. *関係を初期化する*が選択されていることを確認してください。
+. *保存*を選択します。
+
+
+--
+.CLI
+--
+. ソース整合性グループのSnapLockデスティネーション ボリュームを作成します：
++
+[source, cli]
+----
+volume create -vserver <dst_svm> -volume <dst_vol> -aggregate <aggr> -size <size> -type DP -snaplock-type enterprise
+----
+. SnapMirror Vaultポリシーを作成します：
++
+[source, cli]
+----
+snapmirror policy create -vserver <dst_svm> -policy <policy_name> -type vault
+----
+. ポリシーに保持ルールを追加します：
++
+[source, cli]
+----
+snapmirror policy add-rule -vserver <dst_svm> -policy <policy_name> -snapmirror-label daily -keep <retention_length> -retention-period <retention_period>
+----
++
+以下の例では、保持期間は1年に設定されています：
+
++
+`snapmirror policy add-rule -vserver svm1 -policy vault -snapmirror-label monthly -keep 12 -retention-period "1 years"`
+
++
+以下の例では、保持期間を30日間に設定しています：
+
++
+`snapmirror policy add-rule -vserver svm1 -policy vault -snapmirror-label daily -keep 30 -retention-period "30 days"`
+
+. SnapLock for SnapVault関係を作成します：
++
+[source, cli]
+----
+snapmirror create -source-path <src_svm>:/cg/<src_cg> -destination-path <dst_svm>:/cg/<dst_cg> -policy <policy_name>
+----
+. 関係を初期化します：
++
+[source, cli]
+----
+snapmirror initialize -destination-path <dst_svm>:<dst_vol>
+----
+. 関係が確立されていることを確認します：
++
+[source, cli]
+----
+snapmirror show -destination-path <dst_svm>:<dst_vol> -fields policy,status,state
+----
+. デスティネーションでスナップショットがロックされていることを確認します：
++
+[source, cli]
+----
+volume snapshot show -vserver <dst_svm> -volume <dst_vol> -fields snapshot,snaplock-expiry-time,is-snaplock-expiry-locked
+----
+
+
+--
+====
 
 
 [[configure-svm-disaster-recovery]]

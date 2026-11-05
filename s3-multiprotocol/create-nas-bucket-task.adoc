@@ -30,17 +30,26 @@ S3 NASバケットには、SVMのルート ディレクトリ内のファイル�
 
 たとえば、大規模なユーザー グループに読み取り専用のデータ アクセスを許可するバケット ポリシーと、限られたグループにそのデータのサブセットに対する操作の実行を許可する別のバケット ポリシーを設定することができます。
 
-ONTAP 9.18.1以降では、S3プロトコルを使用してFlexCacheボリューム上のデータにアプリケーションがアクセスできるようにするNASバケットを作成できます。クラスタ内のすべてのノードでONTAP 9.18.1以降が実行されている必要があります。S3プロトコルを使用してFlexCacheボリュームにアクセスするには、 `-is-s3-enabled`オプションを `true` link:../flexcache/create-volume-task.html["FlexCacheボリューム上"]に設定する必要があります。パラメータはデフォルトで `false`に設定されています。
+ONTAP 9.18.1以降では、アプリケーションがS3プロトコルを使用してFlexCacheボリューム上のデータにアクセスできるようにするS3 NASバケットを作成できます。S3プロトコルを使用してFlexCacheボリュームにアクセスするには、事前に `-is-s3-enabled`オプションを `true` link:../flexcache/create-volume-task.html["FlexCacheボリューム上"]に設定する必要があります。このパラメータは、デフォルトで `false`に設定されています。
 
-ONTAP 9.17.1以降では、ジャンクションパスではなくボリュームにS3 NASバケットを直接リンクできます。デフォルトでは、NASボリューム上のS3バケットはジャンクションパスに関連付けられており、ONTAP管理者はいつでもジャンクションパスを変更できます。これらの変更は、S3バケットの操作に支障をきたす可能性があります。ONTAP 9.17.1以降では、ONTAP CLIの `vserver object-store-server bucket create`コマンドで `-is-nas-path-mutable false`オプションを使用することで、S3 NASバケットをボリュームにリンクできるようになりました。デフォルトでは、 `-is-nas-path-mutable`は `true`に設定されています。
+ONTAP 9.20.1以降、オリジンボリュームがFlexVol volumeの場合、FlexCacheボリューム上のS3 NASバケットがサポートされます。
+
+ONTAP 9.18.1および9.19.1では、FlexCacheボリューム上のS3 NASバケットは、FlexCacheオリジンボリュームがFlexGroupボリュームである場合にのみサポートされます。ONTAP 9.17.1以降では、次のことが可能です：
+
+* S3 NASバケットをジャンクションパスではなくボリュームに直接リンクします。デフォルトでは、NASボリューム上のS3バケットはジャンクションパスに関連付けられていますが、ONTAP管理者はこれをいつでも変更できます。これらの変更は、S3バケットの運用に支障をきたす可能性があります。
+* ONTAP CLI で `vserver object-store-server bucket create`コマンドとともに `-is-nas-path-mutable false`オプションを使用して、S3 NAS バケットをボリュームにリンクする機能を有効にします。デフォルトでは、 `-is-nas-path-mutable`は `true`に設定されています。
+
 
 S3 NAS「バケット」はマッピングであり、S3 バケットではないため、標準の S3 バケットの次のプロパティは S3 NAS バケットには適用されません。
 
-* *aggr-list \ aggr-list-multiplier \ storage-service-level \ volume \ size \ exclude-aggr-list \ qos-policy-group* + S3 NAS バケットを設定するときに、ボリュームまたは qtree は作成されません。
+* *aggr-list \ aggr-list-multiplier \ storage-service-level \ volume \ size \ exclude-aggr-list \ qos-policy-group* + S3 NAS バケットを構成する際に、ボリュームや qtree は作成されません。
 * *role \ is -protected \ is -protected-on-ontap \ is -protected-on-cloud* + S3 NAS バケットはSnapMirror S3 を使用して保護またはミラーリングされませんが、代わりにボリューム粒度で利用可能な通常のSnapMirror保護が使用されます。
 * *versioning-state* + NASボリュームには通常、異なるバージョンを保存するためのSnapshotテクノロジが利用可能です。ただし、S3 NASバケットでは現在、バージョン管理は利用できません。
 * *logical-used \ object-count* + 同等の統計は、ボリューム コマンドを通じて NAS ボリュームに対して利用できます。
 * *マルチパート オブジェクト* + ONTAP 9.16.1以降、基盤となるFlexGroupボリュームでlink:../flexgroup/enable-adv-capacity-flexgroup-task.html["高度な容量バランス調整"]が有効になっている場合、S3 NASバケットでマルチパート オブジェクトがサポートされます。高度な容量バランシングは、FlexGroupボリュームでのみ有効にできます。FlexVolボリュームでは有効にできません。
++
+ONTAP 9.20.1以降では、S3 NASバケットへのアクセスは、FlexCacheボリューム（FlexVolオリジン）でもサポートされます。マルチパートアップロード操作は、FlexCacheボリューム（FlexVolオリジン）上のS3 NASバケットではサポートされていません。これは、FlexVolボリュームがGranular Data Distributionをサポートしていないためです。同じFlexCache NASバケット内でのオブジェクトのコピーは、オリジンボリュームがFlexVolボリュームである場合に実行できます。
+
 
 
 .手順

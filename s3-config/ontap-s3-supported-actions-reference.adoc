@@ -29,6 +29,13 @@ NOTE: これらのS3アクションは、ONTAPでネイティブS3バケット�
 * `x-amz-date`
 
 
+ONTAP 9.20.1以降では、S3 NASバケットで次のチェックサムヘッダーがサポートされます：
+
+* `x-amz-checksum-algorithm`
+* `x-amz-checksum-crc64nvme`
+* `x-amz-checksum-type`
+
+
 
 
 [[bucket-operations]]
@@ -154,6 +161,13 @@ DeleteObjects
 If-Match
 
 |===
+ONTAP 9.20.1以降では、ONTAP S3はS3 NASバケットの柔軟なチェックサムをサポートしています。
+
+* クライアントがリクエストにチェックサムヘッダーを含める場合、ONTAPはチェックサムを検証、保存、および返します。
+* CRC-64NVMEアルゴリズムと `FULL_OBJECT`チェックサム方式のみがサポートされています。
+* フレキシブルチェックサムサポートはS3 NASバケットのみに適用されます。
+
+
 ONTAP 9.9.1以降では、ONTAP S3でオブジェクト メタデータとタグ付けがサポートされます。
 
 * PutObjectとCreateMultipartUploadは、 `x-amz-meta-<key>.`を使用してキーと値のペアを含めます
@@ -276,7 +290,7 @@ ONTAP S3は以下の追加のURIクエリパラメータをサポートしてい
 * `response-expires`
 
 
-そして、この追加のリクエスト ヘッダー：
+追加のリクエストヘッダーは次のとおりです：
 
 * 範囲
 
@@ -289,7 +303,7 @@ ONTAP S3は以下の追加のURIクエリパラメータをサポートしてい
  a| 
 GetObjectAttributes
 
-ONTAP S3 はこの追加ヘッダーをサポートしています。
+ONTAP S3 はこのリクエストのすべての一般的なパラメータとヘッダーをサポートしています。ONTAP S3 はこの追加ヘッダーもサポートしています：
 
 * `x-amz-object-attributes`
 
@@ -302,7 +316,7 @@ ONTAP S3 はこの追加ヘッダーをサポートしています。
 | GetObjectTagging | ONTAP 9.9.1 
 
 
-| HeadObject | ONTAP 9.8 
+| HeadObject ONTAP S3 は、この要求のすべての共通パラメータとヘッダーをサポートしています。 | ONTAP 9.8 
 
 
  a| 
@@ -410,7 +424,7 @@ ONTAP S3 はこの追加ヘッダーをサポートしています。
 | PutObjectTagging | ONTAP 9.9.1 
 
 
-| UploadPart | ONTAP 9.8 
+| UploadPart ONTAP S3は、このリクエストのすべての一般的なパラメータとヘッダーをサポートしています。 | ONTAP 9.8 
 
 
  a| 
@@ -461,6 +475,25 @@ ONTAP S3は以下の追加URIパラメータをサポートしています。
 
 [[s3-actions-by-release]]
 == リリース別のS3の操作
+
+.ONTAP 9.20.1
+ONTAP 9.20.1以降では、FlexCacheボリューム上のS3 NASバケットは、S3 `CopyObject`および `UploadPartCopy` APIを使用したサーバ側のオブジェクトコピー処理をサポートします。同じFlexCache NASバケット内、またはFlexGroupボリュームをバックエンドとするS3 NASバケットからFlexCache NASバケットへ、オブジェクトをコピーできます。FlexVolボリュームをバックエンドとするS3 NASバケットからFlexCache NASバケットへのコピー、2つのFlexCache NASバケット間でのコピー、またはFlexCache NASバケットから非FlexCache NASバケットへのコピーはサポートされていません。
+
+ONTAP 9.20.1では、S3 NASバケット向けにCRC-64NVMEアルゴリズムを使用した柔軟なチェックサムのサポートが追加されました。クライアントがリクエストにチェックサムヘッダーを含めると、ONTAPはチェックサムを検証、保存、および返します。以下の操作は、柔軟なチェックサムヘッダーをサポートしています：
+
+* PutObject
+* CreateMultipartUpload
+* UploadPart
+* CompleteMultipartUpload
+* CopyObject
+* UploadPartCopy
+* GetObject
+* HeadObject
+* ListObjectsV2
+* ListParts
+
+
+CRC-64NVMEアルゴリズムとFULL_OBJECTチェックサム方式のみがサポートされています。フレキシブルチェックサムは、S3 NASバケットでのみサポートされます。
 
 .ONTAP 9.14.1
 ONTAP 9.14.1では、S3オブジェクト ロックのサポートが追加されました。

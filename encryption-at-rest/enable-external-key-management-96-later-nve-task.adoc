@@ -37,6 +37,15 @@ ONTAP 9.11.1以降では、プライマリキーサーバごとに最大3台の�
 
  `security key-manager key migrate`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/security-key-manager-key-migrate.html["ONTAPコマンド リファレンス"^]をご覧ください。
 
+[NOTE]
+====
+ONTAP 9.20.1以降では、データSVMで外部キーマネージャを構成すると、ONTAPは、管理スコープのキーマネージャで現在管理されているすべてのNVEキーを自動的に移行できます。このワークフローでは、別の `security key-manager key migrate`コマンドを実行する必要はありません。
+
+データSVMにすでに暗号化されたボリュームが含まれている場合、ONTAPは有効化操作の一環としてキーを移行します。キーストアは、別途移行手順を必要とせずに、非アクティブ状態からアクティブ状態に直接移行します。
+
+このワークフローは、データSVMのみに対応しています。管理者SVM（クラスタスコープ）ではサポートされていません。
+
+====
 .開始する前に
 * KMIP SSLクライアント証明書とサーバ証明書をインストールしておく必要があります。
 * KMIP サーバーは、各ノードのノード管理 LIF からアクセスできる必要があります。
@@ -57,7 +66,7 @@ ONTAP 9.11.1以降では、プライマリキーサーバごとに最大3台の�
 
 +
 
-NOTE:  `security key-manager external enable`コマンドは、 `security key-manager setup`コマンドに代わるものです。クラスタログインプロンプトでコマンドを実行すると、 `_admin_SVM_`はデフォルトで現在のクラスタの管理SVMになります。 `security key-manager external modify`コマンドを実行して、外部キー管理の設定を変更できます。
+NOTE: ONTAP 9.6以降、 `security key-manager external enable`コマンドは `security key-manager setup`コマンドに置き換わりました。クラスタのログインプロンプトでコマンドを実行すると、 `_admin_SVM_`はデフォルトで現在のクラスタのadmin SVMになります。外部キー管理の設定を変更するには、 `security key-manager external modify`コマンドを実行します。
 
 +
 次のコマンドは、 `cluster1`の外部キー管理を3つの外部キーサーバで有効にします。最初のキーサーバはホスト名とポートを使用して指定され、2番目はIPアドレスとデフォルトポートを使用して指定され、3番目はIPv6アドレスとポートを使用して指定されます：
@@ -67,7 +76,7 @@ NOTE:  `security key-manager external enable`コマンドは、 `security key-ma
 ----
 clusterl::> security key-manager external enable -vserver cluster1 -key-servers ks1.local:15696,10.0.0.10,[fd20:8b1e:b255:814e:32bd:f35c:832c:5a09]:1234 -client-cert AdminVserverClientCert -server-ca-certs AdminVserverServerCaCert
 ----
-. SVMのキー管理ツールを設定します。
+. SVM用のキーマネージャを設定する：
 +
 `security key-manager external enable -vserver SVM -key-servers host_name|IP_address:port,... -client-cert client_certificate -server-ca-cert server_CA_certificates`
 
@@ -91,7 +100,7 @@ svm1l::> security key-manager external enable -vserver svm1 -key-servers keyserv
 +
 [NOTE]
 ====
- `security key-manager external add-servers`コマンドを使用して追加のSVMを設定することもできます。 `security key-manager external add-servers`コマンドは `security key-manager add`コマンドに代わるものです。link:https://docs.netapp.com/us-en/ontap-cli/security-key-manager-external-add-servers.html["ONTAPコマンド リファレンス"^]で `security key-manager external add-servers`の詳細をご覧ください。
+また、 `security key-manager external add-servers`コマンドを使用して、追加のSVMを設定することもできます。ONTAP 9.6以降、 `security key-manager external add-servers`コマンドが `security key-manager add`コマンドに置き換わりました。 `security key-manager external add-servers`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/security-key-manager-external-add-servers.html["ONTAPコマンド リファレンス"^]を参照してください。
 
 ====
 . 設定したすべてのKMIPサーバが接続されていることを確認します。
@@ -101,7 +110,7 @@ svm1l::> security key-manager external enable -vserver svm1 -key-servers keyserv
 +
 [NOTE]
 ====
- `security key-manager external show-status`コマンドは `security key-manager show -status`コマンドを置き換えます。link:https://docs.netapp.com/us-en/ontap-cli/security-key-manager-external-show-status.html["ONTAPコマンド リファレンス"^]の `security key-manager external show-status`の詳細を参照してください。
+ONTAP 9.6以降、 `security key-manager external show-status`コマンドが `security key-manager show -status`コマンドに代わって使用されます。 `security key-manager external show-status`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/security-key-manager-external-show-status.html["ONTAPコマンド リファレンス"^]を参照してください。
 
 ====
 +

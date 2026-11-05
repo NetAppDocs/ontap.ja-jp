@@ -13,17 +13,30 @@ summary: プライマリ ストレージのソース ボリュームとセカン
 [role="lead"]
 プライマリ ストレージのソース ボリュームとセカンダリ ストレージのデスティネーション ボリュームの関係は、_データ保護関係_ と呼ばれます。 `snapmirror create`コマンドを使用して、SnapMirror DR、SnapVault、または統合レプリケーション データ保護関係を作成できます。
 
+.タスク概要
+* この手順はFAS、AFF、およびASAシステムに適用されます。ASA r2システム（ASA A1K、ASA A90、ASA A70、ASA A50、ASA A30、ASA A20、またはASA C30）をお持ちの場合は、link:https://docs.netapp.com/us-en/asa-r2/data-protection/snapshot-replication.html["これらの手順"^]に従ってレプリケーション関係を作成してください。ASA r2システムは、SANのみのお客様向けに簡素化されたONTAPエクスペリエンスを提供します。
+* ONTAP 9.20.1以降では、バックエンドのSnapMirror非同期レプリケーションでIPまたはFCトランスポートのいずれかを使用するように設定できます。バックエンドのレプリケーションは、デフォルトではIPネットワークを使用します。FCファブリック経由でレプリケートするには、SnapMirror関係を作成する際に、サポートされている非同期データ保護ポリシーと `-transport fc`オプションを使用します。link:default-protection-policies-concept.html["バックエンドFCレプリケーションでサポートされているデフォルトの非同期データ保護ポリシーについて確認します"]。
++
+** SnapMirrorレプリケーション関係を作成したあとに、選択したトランスポートプロトコルを変更するには、関係を削除して再作成する必要があります。
+** バックエンドFCのレプリケーションでは、直接接続されたFC構成はサポートされていません。
 
-NOTE: この手順はFAS、AFF、およびASAシステムに適用されます。ASA r2システム（ASA A1K、ASA A90、ASA A70、ASA A50、ASA A30、ASA A20、またはASA C30）をお持ちの場合は、link:https://docs.netapp.com/us-en/asa-r2/data-protection/snapshot-replication.html["これらの手順"^]に従ってレプリケーション関係を作成してください。ASA r2システムは、SANのみのお客様向けに簡素化されたONTAPエクスペリエンスを提供します。
 
-ONTAP 9.11.1以降では、ボリュームとStorage VMを保護する際、System Managerを使用して、事前作成済みおよびカスタムのミラー ポリシーとバックアップ ポリシーの選択、従来のポリシーの表示と選択、保護ポリシーに定義された転送スケジュールの上書きを行うことができます。この機能は、ONTAP 9.8P12およびそれ以降のONTAP 9.8のパッチでも使用できます。
-
+* ONTAP 9.11.1以降では、ボリュームとStorage VMを保護する際、System Managerを使用して、事前作成済みおよびカスタムのミラー ポリシーとバックアップ ポリシーの選択、従来のポリシーの表示と選択、保護ポリシーに定義された転送スケジュールの上書きを行うことができます。この機能は、ONTAP 9.8P12およびそれ以降のONTAP 9.8のパッチでも使用できます。
++
 [NOTE]
 ====
 ONTAP 9.8P12またはそれ以降のONTAP 9.8パッチ リリースを使用していて、System ManagerからSnapMirrorを設定した場合、ONTAP 9.9.1またはONTAP 9.10.1リリースへのアップグレードにはONTAP 9.9.1P13以降およびONTAP 9.10.1P10以降のパッチ リリースを使用する必要があります。
 
 ====
+
+
 .開始する前に
+* ONTAP 9.20.1以降で、FCをトランスポートプロトコルとして使用するSnapMirror非同期関係を構成する場合：
++
+** ONTAPシステムのバックエンドはFCレプリケーション用に構成されている必要があり、FCファブリックとクラスタ間IPネットワークの両方が稼働している必要があります。レプリケーションデータはFCファブリックを介して転送できますが、クラスタ間の通信およびレプリケーション管理機能にはクラスタ間IPネットワークが必要です。link:configure-backend-fc-replication.html["FCレプリケーション用にONTAPシステムバックエンドを設定する方法について説明します。"]。
+** MetroCluster構成では、MetroClusterに使用するストレージイニシエータは、FC経由のレプリケーションに使用するイニシエータとは別にする必要があります。両者間でイニシエータストレージを共有することはサポートされていません。
+
+
 * ソース / デスティネーション クラスタとSVMのピア関係が確立されている必要があります。
 +
 link:../peering/index.html["クラスタとSVMのピアリング"]
@@ -160,12 +173,12 @@ cluster_dst::> snapmirror create -source-path svm1:volA -destination-path svm_ba
 cluster_dst::> snapmirror create -source-path svm1:volA -destination-path svm_backup:volA_dst -type XDP -schedule my_daily -policy XDPDefault
 ----
 +
-次の例では、デフォルトの `MirrorAndVault`ポリシーを使用して統合レプリケーション関係を作成します：
+次の例では、デフォルトの `MirrorAndVault`非同期ポリシーと `fc`トランスポートプロトコルを使用して、統合レプリケーション関係を作成します：
 
 +
 [listing]
 ----
-cluster_dst:> snapmirror create -source-path svm1:volA -destination-path svm_backup:volA_dst -type XDP -schedule my_daily -policy MirrorAndVault
+cluster_dst:> snapmirror create -source-path svm1:volA -destination-path svm_backup:volA_dst -type XDP -schedule my_daily -policy MirrorAndVault -transport fc
 ----
 +
 次の例では、カスタム `my_unified`ポリシーを使用して統合レプリケーション関係を作成します：

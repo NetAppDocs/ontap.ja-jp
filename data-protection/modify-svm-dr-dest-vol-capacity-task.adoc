@@ -1,0 +1,96 @@
+---
+sidebar: sidebar 
+permalink: data-protection/modify-svm-dr-dest-vol-capacity-task.html 
+keywords: netapp, ontap, system manager, data, VM, resynchronize, resynchronization, resync, source, SVM, source SVM, source storage VM, destination, destination storage VM, destination SVM, protection, relationship, protection relationship, relationships, capacity 
+summary: ONTAP 9.20.1以降、ストレージ管理者およびデータ保護管理者は、SVM DRデスティネーションボリュームのいくつかのボリューム容量属性を調整して、デスティネーションの自動拡張の制限をソースの増加に合わせたり、デスティネーションの保持用にSnapshotリザーブを増やしたりすることができます。また、サービスプロバイダの管理者は、デスティネーションの容量に基づいてマルチテナントDRの顧客を正確に管理できます。 
+---
+= ONTAP SVM DR関係のデスティネーションボリューム容量を変更する
+:hardbreaks:
+:toclevels: 1
+:allow-uri-read: 
+:toclevels: 1
+:nofooter: 
+:icons: font
+:linkattrs: 
+:imagesdir: ../media/
+
+
+[role="lead"]
+ONTAP 9.20.1以降、ストレージ管理者およびデータ保護管理者は、SVM DRデスティネーションボリュームのいくつかのボリューム容量属性を調整して、デスティネーションの自動拡張の制限をソースの増加に合わせたり、デスティネーションの保持用にSnapshotリザーブを増やしたりすることができます。また、サービスプロバイダの管理者は、デスティネーションの容量に基づいてマルチテナントDRの顧客を正確に管理できます。
+
+
+
+[[adjust-the-maximum-size-svm-dr-destination-volumes-can-grow-automatically]]
+== SVM DRデスティネーション ボリュームが自動的に拡張できる最大サイズを調整します
+
+.手順
+. ボリュームの最大自動サイズ変更値を変更するには、次のコマンドを入力します：
++
+`volume modify -vserver <dest svm name> -volume <vol name> -max-autosize <integer>`
+
++
+例：
+
++
+[listing]
+----
+volume modify -vserver svmdr_dst -volume vol1 -max-autosize 10TB
+----
+
+
+
+
+[[adjust-the-minimum-size-svm-dr-volumes-can-shrink-automatically]]
+== SVM DRボリュームが自動的に縮小できる最小サイズを調整する
+
+. ボリュームの最小自動サイズ値を変更するには、次のコマンドを入力します：
++
+`volume modify -vserver <dest svm name> -volume vol1 -min-autosize <integer>`
+
++
+例：
+
++
+[listing]
+----
+volume modify -vserver svmdr_dst -volume vol1 -min-autosize 1TB
+----
+
+
+
+
+[[change-the-volumes-autosize-mode]]
+== ボリュームのautosizeモードを変更する
+
+. 自動サイズ調整モードを変更するには、次のコマンドを入力してください：
++
+`volume modify -vserver svmdr_dst -volume vol1 -autosize-mode`
+
++
+例：
+
++
+[listing]
+----
+volume modify -vserver svmdr_dst -volume vol1 -autosize-mode grow
+----
+
+
+
+
+[[adjust-the-amount-of-space-reserved-for-snapshots]]
+== スナップショット用に確保する容量を調整する
+
+. スナップショット用に確保する領域の割合を変更するには、次のコマンドを入力します：
++
+`volume modify -vserver <dest svm name> -volume <vol name> -percent-snapshot-space <integer>`
+
++
+例：
+
++
+[listing]
+----
+volume modify -vserver svmdr_dst -volume vol1 -percent-snapshot-space 25
+----
+

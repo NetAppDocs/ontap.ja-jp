@@ -18,13 +18,13 @@ FPolicyイベントを構成する前に、FPolicyイベントを作成するこ
 [[what-it-means-to-create-an-fpolicy-event]]
 == FPolicyイベントを作成することの意味
 
-FPolicyイベントを作成することは、どのファイル アクセス操作を監視するか、そしてどの監視対象イベント通知を外部FPolicyサーバに送信するかを決定するために、FPolicyプロセスで必要とされる情報を定義することを意味します。FPolicyイベントの設定では、次の設定情報を定義します。
+FPolicyイベントを作成するということは、FPolicyプロセスが監視すべきファイルアクセス操作と、監視対象イベントのうちどの通知を外部FPolicyサーバーに送信するかを判断するために必要な情報を定義することを意味します。FPolicyイベント設定では、以下の設定情報が定義されます：
 
 * Storage Virtual Machine（SVM）名
 * イベント名
 * 監視するプロトコル
 +
-FPolicy は、SMB、NFSv3、NFSv4、および ONTAP 9.15.1 以降では NFSv4.1 ファイル アクセス操作を監視できます。
+FPolicyは、SMB、NFSv3、NFSv4、NFSv4.1（ONTAP 9.15.1以降）、およびS3（ONTAP 9.20.1以降）のファイルアクセス操作を監視できます。
 
 * 監視するファイル処理
 +
@@ -104,16 +104,13 @@ FPolicyイベントに設定するプロトコルを指定します。 `-protoco
 * `cifs`
 * `nfsv3`
 * `nfsv4`
+* `nfsv4.1`（ONTAP 9.15.1以降）
+* `s3`（ONTAP 9.20.1以降）
 
 
 [NOTE]
 ====
  `-protocol`を指定する場合、 `-file-operations`パラメータに有効な値を指定する必要があります。プロトコル バージョンが変更されると、有効な値も変更される可能性があります。
-
-====
-[NOTE]
-====
-ONTAP 9.15.1 以降、nfsv4 では NFSv4.0 および NFSv4.1 イベントをキャプチャできます。
 
 ==== a| 
 `-protocol` `protocol`
@@ -135,6 +132,9 @@ FPolicyイベントのファイル処理のリストを指定します。
 * `getattr`属性取得操作用
 * `link`リンク操作用
 * `lookup`ルックアップ操作用
+* `object_create`S3ファイル操作の場合
+* `object_delete`S3ファイル操作用
+* `object_tag`S3ファイル操作の場合
 * `open`ファイル オープン操作用
 * `read`ファイル読み取り操作用
 * `write`ファイル書き込み操作用
@@ -163,11 +163,17 @@ _フィルター_
  `-filters`パラメータを指定する場合は、 `-file-operations`および `-protocol`パラメータにも有効な値を指定する必要があります。
 
 ====
-* `monitor-ads`代替データ ストリームのクライアント要求をフィルタリングするオプション。
 * `close-with-modification`変更を加えて閉じるクライアント要求をフィルタリングするオプション。
 * `close-without-modification`クライアント要求を変更せずに閉じるようにフィルタリングするオプション。
 * `first-read`最初の読み取りに対するクライアント要求をフィルタリングするオプション
 * `first-write`最初の書き込みに対するクライアント要求をフィルタリングするオプション。
+* `monitor-ads`代替データ ストリームのクライアント要求をフィルタリングするオプション。
+* `object-create-with-put`S3オブジェクトをフィルタリングするオプション。
+* `object-create-with-copy`S3オブジェクトをフィルタリングするオプション。
+* `object-create-with-complete-mpu`S3オブジェクトをフィルタリングするオプション。
+* `exclude-multi-delete`S3オブジェクトをフィルタリングするオプション。
+* `object-tag-put`S3オブジェクトをフィルタリングするオプション。
+* `object-tag-delete`S3オブジェクトをフィルタリングするオプション。
 * `offline-bit`オフライン ビット セットのクライアント要求をフィルタリングするオプション。
 +
 このフィルタを設定すると、オフラインのファイルがアクセスされたときのみFPolicyサーバが通知を受信します。

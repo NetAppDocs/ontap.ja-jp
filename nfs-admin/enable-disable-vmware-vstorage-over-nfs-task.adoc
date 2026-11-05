@@ -11,15 +11,17 @@ summary: vserver nfs modify コマンドを使用して、ストレージ仮想�
 
 
 [role="lead"]
- `vserver nfs modify`コマンドを使用して、ストレージ仮想マシン（SVM）上のVMware vStorage over NFSのサポートを有効または無効にすることができます。
+ストレージ仮想マシン（SVM）でのNFS経由のVMware vStorageのサポートは、 `vserver nfs modify`コマンドを使用して有効または無効にすることができます。この設定は、コピー オフロードやスペース リザベーションなどのVMware VAAI over NFS処理を制御します。
 
 .タスク概要
 デフォルトでは、VMware vStorage over NFSのサポートは無効になっています。
 
+ONTAP 9.20.1以降では、ONTAP NFSでVMware vStorageを有効にすると、シンプロビジョニングされたNFSv3およびNFSv4.1データストアの自動スペース解放もサポートされます。
+
 .手順
-. SVMでの現在のvStorageのサポート ステータスを表示します。
+. SVMの現在のVMware vStorage over NFS設定を確認します：
 +
-`vserver nfs show -vserver vserver_name -instance`
+`vserver nfs show -vserver vserver_name -fields vstorage`
 
 . 次のいずれかを実行します。
 +
@@ -41,10 +43,18 @@ VMware vStorageのサポートを無効にする
 `vserver nfs modify -vserver vserver_name -vstorage disabled`
 
 |===
+. 設定が更新されていることを確認してください：
++
+`vserver nfs show -vserver vserver_name -fields vstorage`
+
 
 
 .終了後の操作
-この機能を使用するには、VMware VAAI用NFSプラグインをインストールする必要があります。詳細については、_Installing the NetApp NFS Plug-in for VMware VAAI_を参照してください。
+この機能を使用する前に、VMware VAAI用NetApp NFSプラグインをインストールする必要があります。自動的な領域解放には、バージョン3.0以降が必要です。
+
+VMwareホスト、プラグイン、および相互運用性の要件については、NetApp VMware VAAI用NFSプラグインのドキュメントおよびNetApp Interoperability Matrix Toolを参照してください。
 
 .関連情報
 http://mysupport.netapp.com/documentation/productlibrary/index.html?productID=61278["NetApp ドキュメント：NetApp NFS Plug-in for VMware VAAI"^]
+
+https://mysupport.netapp.com/matrix["NetApp Interoperability Matrix Tool"^]

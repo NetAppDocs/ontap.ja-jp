@@ -11,7 +11,7 @@ summary: ONTAP 9.3以降では、snapmirror protectコマンドを使用して�
 
 
 [role="lead"]
-ONTAP 9.3以降では、 `snapmirror protect`コマンドを使用してデータ保護関係をワンステップで設定できます。レプリケートするボリュームのリスト、デスティネーション クラスタ上のSVM、ジョブ スケジュール、SnapMirrorポリシーを指定するだけで、 `snapmirror protect`が残りの処理を実行します。
+ `snapmirror protect` コマンドを使用して、データ保護関係を1つのステップで構成できます。レプリケートするボリュームのリスト、デスティネーション クラスタ上のSVM、ジョブ スケジュール、およびSnapMirrorポリシーを指定します。残りの処理は `snapmirror protect`が行います。
 
 .開始する前に
 * ソース / デスティネーション クラスタとSVMのピア関係が確立されている必要があります。
@@ -19,6 +19,11 @@ ONTAP 9.3以降では、 `snapmirror protect`コマンドを使用してデー�
 https://docs.netapp.com/us-en/ontap-system-manager-classic/peering/index.html["クラスタとSVMのピアリング"^]
 
 * デスティネーション ボリューム上の言語は、ソース ボリューム上の言語と同じである必要があります。
+* ONTAP 9.20.1以降では、既存のFCファブリックを介したバックエンドのSnapMirror非同期レプリケーションを設定できます。そのためには、ONTAPシステムのバックエンドがFCレプリケーション用に設定されており、FCファブリックとクラスタ間IPネットワークの両方が稼働している必要があります。レプリケーションデータはFCファブリックを介して転送できますが、クラスタ間の通信およびレプリケーション管理機能にはクラスタ間IPネットワークが必要です。FC直接接続構成は、バックエンドFCレプリケーションではサポートされていません。link:configure-backend-fc-replication.html["FCレプリケーション用にONTAPシステムバックエンドを設定する方法について説明します。"]
++
+** FC をトランスポートプロトコルとして使用する SnapMirror 非同期レプリケーション関係を MetroCluster 構成で設定する場合、MetroCluster に使用するストレージイニシエータは、FC 経由のレプリケーションに使用するイニシエータとは別のものにする必要があります。2 つの間でイニシエータストレージを共有することはサポートされていません。
+
+
 
 
 .タスク概要
@@ -27,22 +32,26 @@ https://docs.netapp.com/us-en/ontap-system-manager-classic/peering/index.html["�
  `snapmirror protect`コマンドは次の手順を実行します：
 
 * レプリケートするボリュームのリスト内の各ボリュームについて、適切なタイプとリザーブされたスペースを持つデスティネーション ボリュームを作成します。
-* 指定したポリシーに適したレプリケーション関係を設定します。
-* 関係を初期化します。
-
-
++
 デスティネーション ボリュームの名前は `_source_volume_name_dst_`という形式です。既存の名前と競合する場合、コマンドはボリューム名に番号を追加します。コマンド オプションでプレフィックスまたはサフィックス（あるいはその両方）を指定できます。サフィックスはシステムが提供する `dst`サフィックスに置き換えられます。
 
-ONTAP 9.4以降では、デスティネーション ボリュームに最大1019個のSnapshotを保存できます。ONTAP 9.3以前では、デスティネーション ボリュームに最大251個のSnapshotを保存できます。
++
+デスティネーションボリュームには最大1019個のスナップショットを含めることができます。
 
+* 指定したポリシーに適したレプリケーション関係を設定します。
+* 関係を初期化します。
++
 [NOTE]
 ====
 初期化には時間がかかる場合があります。 `snapmirror protect`ジョブは初期化の完了を待たずに終了します。そのため、初期化が完了したかどうかを確認するには、 `job show`コマンドではなく、 `snapmirror show`コマンドを使用する必要があります。
 
 ====
-ONTAP 9.5以降では、 `snapmirror protect`コマンドを使用してSnapMirror同期関係を作成できます。
+* ONTAP 9.20.1以降では、FCファブリック経由でレプリケートするためのSnapMirror関係を作成する際に、サポートされている非同期データ保護ポリシーと `-transport fc`オプションを使用してください。バックエンドのレプリケーションは、デフォルトでIPプロトコルを使用します。link:default-protection-policies-concept.html["バックエンドFCレプリケーションでサポートされているデフォルトの非同期データ保護ポリシーについて確認します"]。
++
 
- `snapmirror protect`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/snapmirror-protect.html["ONTAPコマンド リファレンス"^]を参照してください。
+NOTE: SnapMirrorレプリケーション関係を作成したあとに、選択したトランスポートプロトコルを変更するには、関係を削除して再作成する必要があります。
+
+
 
 .手順
 . レプリケーション関係をワンステップで作成して初期化します。
@@ -61,12 +70,12 @@ snapmirror protect -path-list <SVM:volume> -destination-vserver <destination_SVM
 
 ====
 +
-次の例では、デフォルトの `MirrorAllSnapshots`ポリシーを使用してSnapMirror DR関係を作成し、初期化します：
+次の例は、デフォルトの `MirrorAllSnapshots`ポリシーとFCトランスポートプロトコルを使用して、SnapMirror DR関係を作成および初期化します：
 
 +
 [listing]
 ----
-cluster_dst::> snapmirror protect -path-list svm1:volA, svm1:volB -destination-vserver svm_backup -policy MirrorAllSnapshots -schedule replication_daily
+cluster_dst::> snapmirror protect -path-list svm1:volA, svm1:volB -destination-vserver svm_backup -policy MirrorAllSnapshots -schedule replication_daily -transport fc
 ----
 +
 [NOTE]

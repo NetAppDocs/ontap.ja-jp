@@ -1,0 +1,71 @@
+---
+permalink: nas-audit/supported-file-operation-filter-fpolicy-s3.html 
+sidebar: sidebar 
+keywords: ontap 9, supported file operation, filter combinations, fpolicy, monitor, s3 
+summary: FPolicyイベントを設定する際には、S3オブジェクト アクセス操作の監視において特定のファイル操作とフィルタの組み合わせのみがサポートされていることに注意する必要があります。 
+---
+= ONTAP FPolicyがS3で監視するサポートされているファイル操作とフィルタの組み合わせ
+:allow-uri-read: 
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+FPolicyイベントを設定する際には、S3オブジェクト アクセス操作の監視において特定のファイル操作とフィルタの組み合わせのみがサポートされていることに注意する必要があります。
+
+ONTAP 9.20.1以降、FPolicyはNASバケット上のS3オブジェクトイベントの通知をサポートします。S3 FPolicyは、非同期の非必須モードでのみ動作します。
+
+S3オブジェクト アクセスイベントのFPolicy監視でサポートされるファイル操作とフィルタの組み合わせのリストを次の表に示します：
+
+[cols="30,70"]
+|===
+
+
+| サポートされているファイル操作 | サポートされているフィルター 
+
+
+ a| 
+object_create
+ a| 
+object-create-with-put、object-create-with-copy、object-create-with-complete-mpu
+
+
+
+ a| 
+object_delete
+ a| 
+exclude-multi-delete
+
+
+
+ a| 
+オブジェクト アクセス
+ a| 
+object-tag-put、object-tag-delete
+
+|===
+
+
+[[filter-descriptions]]
+== フィルターの説明
+
+以下のリストは、各S3 FPolicyフィルタについて説明しています：
+
+* object-create-with-put：PUTリクエストを使用して実行されるオブジェクト作成操作を監視します。
+* object-create-with-copy：COPYリクエストを使用して実行されるオブジェクト作成操作を監視します。
+* object-create-with-complete-mpu：マルチパートアップロードの完了により実行されるオブジェクト作成操作を監視します。
+* exclude-multi-delete：複数削除リクエストの一部として削除されたオブジェクトに関する通知を除外します。このフィルタが設定されている場合、FPolicyは単一オブジェクトの削除操作に対してのみ通知を生成します。
+* object-tag-put：オブジェクトタグを追加または変更する操作を監視します。
+* object-tag-delete：オブジェクトタグを削除する操作を監視します。
+
+
+
+
+[[additional-considerations-for-s3-fpolicy-events]]
+== S3 FPolicyイベントに関する追加事項
+
+* クライアント主導のS3操作が正常に完了した場合のみ、FPolicy通知が生成されます。内部的に生成される操作（オブジェクトの有効期限切れやスナップショットのリストアなど）および失敗した操作では、通知は生成されません。
+* S3 FPolicyの監視では、GET（読み取り）操作はサポートされていません。
+* 複数削除リクエストでは、最大1,000個のオブジェクトを削除できます。FPolicyは、正常に削除されたオブジェクトごとに1つの通知を生成します。同一の複数削除リクエスト内の各通知は、関連付けのために同じFPolicyリクエストIDとS3リクエストIDを共有します。
+* S3イベントでは、アクセス拒否通知はサポートされていません。
+

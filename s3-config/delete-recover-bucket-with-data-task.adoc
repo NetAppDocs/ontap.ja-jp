@@ -1,0 +1,68 @@
+---
+permalink: s3-config/delete-recover-bucket-with-data-task.html 
+sidebar: sidebar 
+keywords: s3, bucket, system manager, cli, delete, restore, recover 
+summary: ONTAP 9.20.1以降では、オブジェクトストアサーバーでバケット削除処理をスケジュール設定して、バケットを事前に空にすることなく削除できます。 
+---
+= オブジェクトを含むONTAP S3バケットを削除する
+:allow-uri-read: 
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+ONTAP 9.20.1以降では、オブジェクトストアサーバー上でバケット削除操作をスケジュール設定することで、バケットを空にすることなく削除できるようになりました。これは、設定可能な保持期間ベースのリカバリウィンドウを使用することで実現します。これにより、保持期間が満了する前にバケットをリカバリすることが可能になります。
+
+空でないバケットを削除できる機能は、バケットを削除する前にオブジェクトごとに手動でクリーンアップする必要をなくすことで、バケットの廃止を簡素化し、有効期限切れのバックログを減らし、容量をより早く再利用できるようにします。
+
+.開始する前に
+* クラスタ管理者またはSVM管理者である必要があります。
+* advanced権限レベルが必要です。
+
+
+
+
+[[delete-a-bucket-that-contains-objects]]
+== オブジェクトを含むバケットを削除します
+
+保持期間を設定することで、あらかじめバケットを空にしなくても、削除をスケジュールできます。デフォルトでは、保持期間は12時間に設定されています。
+
+.手順
+このタスクは、System ManagerまたはONTAP CLIから実行できます。
+
+[role="tabbed-block"]
+====
+.System Manager
+--
+. *Storage > Buckets*に移動し、削除するバケットを見つけます。
+. バケット名の横をクリックして、*削除*を選択します。
+. バケットが空でない場合は、*バケットの削除*ウィンドウで、データを削除してバケットを空にするオプションを選択し、*削除*を選択します。
+
+
+--
+.CLI
+--
+. バケットが完全に削除されるまでの保持期間を指定してください：
++
+`object-store-server create -vserver <SVM name> -bucket-delete-retention-hours <integer>`
+
+. バケット削除スケジュールを開始します：
++
+`object-store-server bucket delete -bucket <bucket name> -delete-objects tru`e
+
+
+
+--
+====
+
+
+[[recover-a-deleted-bucket]]
+== 削除されたバケットを復元する
+
+バケットが誤って削除された場合は、指定した保持期間中であればONTAP CLIを使用してリカバリできます。
+
+. 削除されたバケットを復元するには、次のコマンドを入力してください：
++
+`object-store-server bucket recover-deleted-bucket -bucket <bucket name>`
+
+

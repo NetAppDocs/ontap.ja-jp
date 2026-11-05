@@ -2,7 +2,7 @@
 sidebar: sidebar 
 permalink: task_nas_provide_client_access_with_name_services.html 
 keywords: netapp, ontap, name services, client access, LDAP, NIS, authenticate NAS client, look up 
-summary: LDAP または NIS を使用して NAS クライアントを認証する 
+summary: ストレージVMがLDAPまたはNISネームサービスを使用するように設定できます。これにより、ONTAPは、NASクライアントの認証に使用される情報（ホスト、ユーザ、グループ、ネットグループなど）を検索できるようになります。 
 ---
 = ONTAP System Managerを使用してネームサービスによるクライアントアクセスを提供する
 :hardbreaks:
@@ -16,14 +16,98 @@ summary: LDAP または NIS を使用して NAS クライアントを認証す�
 
 
 [role="lead"]
-NASクライアントを認証するために、ONTAPがLDAPまたはNISを使用してホスト、ユーザ、グループ、ネットグループの情報を検索できるようにします。
+ストレージVMがLDAPまたはNISネームサービスを使用するように設定できます。これにより、ONTAPは、NASクライアントの認証に使用される情報（ホスト、ユーザ、グループ、ネットグループなど）を検索できるようになります。
 
-この手順では、link:task_nas_enable_linux_nfs.html["NFS"]またはlink:task_nas_enable_windows_smb.html["SMB"]が有効になっている既存のストレージVM上でLDAPまたはNIS構成を作成または変更します。
 
-LDAPを使用する場合は、環境に必要な詳細なLDAP設定を把握し、ONTAPのデフォルトのLDAPスキーマを使用している必要があります。
+
+[[prepare-to-configure-an-svm-name-service]]
+== SVMネームサービスの設定準備
+
+ネームサービスを設定する前に、LDAPを使用するかNISを使用するかを決定する必要があります。さらに、サーバのアドレスやホスト名、ドメインや検索ベース、TLS証明書などの認証や暗号化に関する要件など、IDインフラストラクチャの詳細情報を収集する必要があります。事前にこの情報を準備し、確認しておくことで、スムーズな設定が可能になり、クライアントのアクセスが中断されるのを防ぐことができます。
+
+
+TIP: NISにはLDAPのセキュリティ機能や拡張性の一部が欠けているため、NetAppは、特にNFSv4以降の導入においては、可能な限りLDAPを使用することを推奨します。
+
+また、各サービスがサポートするネームサービス データベース（passwd、group、netgroupなど）と、ONTAPがローカルファイルに対してそれらを検索する順序についても決定する必要があります。同じストレージVMからNFSクライアントとSMBクライアントの両方にサービスを提供する予定がある場合は、プロトコル間の認証情報マッピングの競合を回避するために、LDAPまたはNIS環境が一貫して構成されていることを確認してください。
+
+
+
+[[lightweight-directory-access-protocol]]
+=== Lightweight Directory Access Protocol
+
+Lightweight Directory Access Protocol（LDAP）は、ユーザーアカウント、グループ、その他のIDデータなどの分散ディレクトリ情報をネットワーク経由でアクセスおよび維持するための、オープンでベンダーに依存しないプロトコルです。LDAPディレクトリは、多くのシステムにわたるユーザーとグループの管理を一元化するためによく使用され、Microsoft Active DirectoryはLDAPサーバとしても機能する広く導入されている実装です。ONTAPはLDAPをネームサービスソースとして使用して、NFSクライアントのUNIX ID情報（UID、GID、グループメンバーシップなど）を検索したり、SMBクライアントのユーザーマッピングやその他のID検索をサポートしたりできます。ネームサービスにLDAPを使用すると、ローカルファイルのみを使用する場合よりも、特にNFSv4以降を使用する環境において、セキュリティと拡張性が向上します。
+
+ONTAP 9.20.1より前のバージョンでは、NFSとSMB間で一貫したUID/GIDアクセスを実現するには、Active Directory内のすべてのユーザーとグループに対して明示的な `uidNumber/gidNumber`属性を手動で構成および維持する必要がありました。これは時間のかかるエラーが発生しやすいプロセスであり、大規模な環境や複数ドメインの環境全体で同期を維持するのは困難です。ONTAP 9.20.1では、NASクライアント向けに_自動SIDからUNIX IDへの変換機能を備えたネイティブSSSDサポート_が導入されました。この機能は、決定論的でSSSD互換のアルゴリズムを使用して、Windows SIDからPOSIX UID/GIDを導出し、その逆の処理によって元のSIDを復元します。Active DirectoryがIDソースである場合、SVMのLDAPクライアントでこの機能を有効にすることができます。これにより、ONTAPはActive DirectoryにPOSIX属性を保存することなく、一貫性があり可逆的なUNIX IDを動的に計算できるようになります。
+
+
+
+[[network-information-service]]
+=== Network Information Service
+
+Network Information Service（NIS）は、ネットワーク上のUNIXおよびLinuxシステム間で、ユーザーアカウント、グループ、ホスト名、ネットグループなどの構成情報を共有するためのクライアント/サーバー型のディレクトリプロトコルです。NISは、各システムのローカルファイルに依存するのではなく、クライアントが照会する一連のマップを維持することで、管理を一元化します。ONTAPは、NFSクライアント認証において、LDAPの代替としてNISを使用できます。
+
+
+
+[[configure-an-ldap-service]]
+== LDAPサービスを構成する
+
+ストレージVMにLDAPサービスを設定することで、クライアントからのアクセスを提供できます（オプション）。これは、link:./task_nas_enable_linux_nfs.html["ONTAP System ManagerでNFSを使用してLinuxサーバー用のNASストレージを有効にする"]の手順の一部です。
+
+
+CAUTION: ONTAP 9.20.1以降のリリースで利用可能な*自動SIDからUNIX IDへの変換を使用する*オプションは、ONTAPがWindows SIDをUNIX IDにマッピングする方法を変更するため、注意して有効にする必要があります。このオプションは、POSIX属性がまだユーザに割り当てられていない新規LDAP構成の場合にのみ使用してください。既存のLDAP構成でこれを有効にすると、ファイルの所有権が変更され、アクセス制御が機能しなくなる可能性があります。
+
+.開始する前に
+環境で必要となるLDAP構成の詳細を把握しており、デフォルトのONTAP LDAPスキーマを使用している必要があります。自動SID-UNIX ID変換機能を備えたネイティブSSSDを有効にする場合は、IDソースとしてActive Directoryサーバを指定する必要があります。
 
 .手順
-. 必要なサービスを設定します：*ストレージ > ストレージ VM* をクリックします。
-. ストレージ VM を選択し、* 設定 * をクリックして、LDAP または NIS の image:icon_gear.gif["アクションアイコン"] をクリックします。
-. 名前サービス スイッチの変更を含めます：image:icon_pencil.gif["編集アイコン"]（名前サービス スイッチ）の下をクリックします。
+. System Managerで、左側のナビゲーションペインから *クラスタ* を選択し、次に *ストレージVM* を選択します。
+. 設定したいSVMをリストから選択してください。
+. *設定*タブで、*サービス*までスクロールし、*LDAP*の横にある以下のいずれかを選択します：
++
+.. image:icon_gear.gif["アクションアイコン"]新しい構成を作成する
+.. image:icon_kabob.gif["編集アイコン"]、次に*編集*をクリックして既存の設定を変更します
+
+
+. *Active Directory*または*LDAPサーバ*を選択してください。
+. サーバおよびお客様の環境に適した設定情報を提供してください。
++
+ONTAP 9.20.1以降での新しいLDAP構成で、ネームサーバとしてActive Directoryを使用している場合、オプションで*SIDからUNIX IDへの自動変換を使用する*を選択して、Windows SIDからUNIX IDへの自動マッピングを有効にすることができます。
+
+. 設定を適用するには、*保存*を選択します。
+
+
+
+
+[[configure-an-nis-service]]
+== NISサービスの構成
+
+クライアントアクセスを提供するために、ストレージVMにNISサービスをオプションで設定できます。これは、link:./task_nas_enable_windows_smb.html["ONTAP System ManagerでSMBを使用してWindowsサーバのNASストレージを有効にする"]するための手順の一部です。
+
+.開始する前に
+お使いの環境に必要なNIS構成の詳細情報を用意してください。
+
+.手順
+. System Managerで、左側のナビゲーションペインから *クラスタ* を選択し、次に *ストレージVM* を選択します。
+. 設定したいSVMをリストから選択してください。
+. 「設定」タブで、「サービス」までスクロールし、「NIS」の横にある以下のいずれかを選択します：
++
+.. image:icon_gear.gif["アクションアイコン"]新しい構成を作成する
+.. image:icon_kabob.gif["編集アイコン"]、次に*編集*をクリックして既存の設定を変更します
+
+
+. NISドメインを指定し、サーバと環境に適した関連値を追加してください。
+. 設定を適用するには、*保存*を選択します。
+
+
+
+
+[[related-information]]
+== 関連情報
+
+* link:./nfs-admin/ontap-name-services-concept.html["ONTAPがネーム サービスを使用する方法を学ぶ"]
+* link:./nfs-config/configure-name-services-concept.html["ONTAP NFSネーム サービスについて学ぶ"]
+* link:./authentication/enable-nis-ldap-users-access-cluster-task.html["ONTAPでLDAPサーバまたはNISサーバ アクセスを設定"]
+* link:./smb-admin/configure-nis-ldap-name-services-svm-task.html["ONTAP SMB SVMでNISまたはLDAPネームサービスを設定する"]
+* link:./nfs-config/configure-name-service-switch-table-task.html["ONTAP NFSネーム サービス スイッチ テーブルを設定する"]
+* https://www.netapp.com/pdf.html?item=/media/19423-tr-4835.pdf["技術レポート：ONTAPでLDAPを設定する方法"^]
 

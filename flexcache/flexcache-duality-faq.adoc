@@ -22,7 +22,9 @@ summary: ONTAP 9.18.1で導入されたFlexCacheデュアリティに関する�
 Duality により、ファイル（NAS）プロトコルとオブジェクト（S3）プロトコルの両方を使用して同じデータへの統合アクセスが可能になります。ONTAP 9.12.1でFlexCacheサポートなしで導入されたdualityは、ONTAP 9.18.1でFlexCacheボリュームを含むように拡張され、FlexCacheボリュームにキャッシュされたNASファイルへのS3プロトコル アクセスが可能になりました。
 
 .FlexCache S3 バケットでサポートされている S3 操作は何ですか？
-標準S3 NASバケットでサポートされているS3操作は、FlexCache S3 NASバケットでサポートされていますが、 `COPY`操作は除きます。標準S3 NASバケットでサポートされていない操作の最新リストについては、link:../s3-multiprotocol/index.html#s3-and-nas-interoperability["相互運用性ドキュメント"]を参照してください。
+標準のS3 NASバケットでサポートされているS3操作は、COPY操作を除き、FlexCache S3 NASバケットでもサポートされます。ONTAP 9.20.1以降では、同一のFlexCache NASバケット内でのコピー、およびFlexGroupボリュームをバックエンドとするS3 NASバケットからFlexCache NASバケットへのコピーで、 `CopyObject`と `UploadPartCopy`がサポートされます。FlexVolボリュームをバックエンドとするS3 NASバケットからFlexCache NASバケットへのコピー、2つのFlexCache NASバケット間でのコピー、またはFlexCache NASバケットから非FlexCache NASバケットへのコピーはサポートされていません。
+
+サポートされていない操作の最新リストについては、link:../s3-multiprotocol/index.html#s3-and-nas-interoperability["相互運用性ドキュメント"]を参照してください。
 
 .FlexCache デュアリティで FlexCache をライトバック モードで使用できますか。
 いいえ。FlexCache S3 NASバケットがFlexCacheボリュームに作成される場合、FlexCacheボリュームはライトアラウンドモードになっている*必要があります*。FlexCache S3 NASバケットをライトバックモードのFlexCacheボリュームに作成しようとすると、操作は失敗します。
@@ -38,9 +40,6 @@ S3監査は、FlexCacheボリュームが使用するNAS監査機能によって
 
 .キャッシュ クラスタが元のクラスタから切断された場合、何が起こるでしょうか？
 FlexCache S3 NASバケットへのS3リクエストは、キャッシュ クラスターが元のクラスターから切断されている場合、 `503 Service Unavailable`エラーで失敗します。
-
-.マルチパート S3 オペレーションを FlexCache デュアリティで使用できますか？
-マルチパートS3オペレーションが機能するには、基盤となるFlexCacheボリュームのgranular-dataフィールドを「advanced」に設定する必要があります。このフィールドは、元のボリュームに設定されている値に設定されます。
 
 .FlexCache の二重性は HTTP および HTTPS アクセスをサポートしますか？
 はい。デフォルトでは、HTTPS が必須です。必要に応じて、HTTP アクセスを許可するように S3 サービスを設定できます。

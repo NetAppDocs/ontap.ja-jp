@@ -1,0 +1,109 @@
+---
+permalink: antivirus/icap-vscan.html 
+sidebar: sidebar 
+keywords: antivirus, vscan, icap, on-access scanning, smb 
+summary: ONTAP 9.20.1以降で、SMBオンアクセススキャン用のICAPベースのVscanを構成します。 
+---
+= オンアクセススキャン用にICAPベースのVscanを設定する
+:allow-uri-read: 
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+ONTAP 9.20.1以降では、ONTAP Antivirus Connectorをインストールせずに、オンアクセス・アンチウイルス・スキャン要求をICAP対応スキャンエンジンに直接送信するように、Internet Content Adaptation Protocol（ICAP）ベースのVscanを設定できます。ICAPベースのVscanは、既存のFPolicy共有メモリ通知インフラストラクチャを使用して接続を管理し、スキャン要求を配信します。
+
+ICAPベースのVscanは、標準のICAP REQMODやRESPMODメソッドではなく、FILEMOD（Request Modification for files）と呼ばれる独自のICAP拡張機能を使用します：
+
+* *パスベースのスキャン*：ONTAPは、ICAPリクエストヘッダーでファイルパスとメタデータのみを送信します。ファイルの内容をネットワーク経由でスキャンエンジンにストリーミングしません。
+* *直接ファイルアクセス*：スキャンエンジンは、設定済みの特権ユーザーアカウントを使用して関連するONTAP共有をマウントし、SMBプロトコル経由でファイルデータを直接読み取ります。
+* *利点*：このアプローチでは、大容量ファイルのストリーミングによるCPUとメモリのオーバーヘッドを回避し、ネットワーク トラフィックを削減し、Antivirus Connectorが使用する効率的な読み取りパスを維持します。
+
+
+
+
+[[supported-scan-engines]]
+== サポートされているスキャンエンジン
+
+以下のICAP対応スキャンエンジンがサポートされています：
+
+* Symantec Protection Engine（SPE）
+* OPSWAT MetaDefender
+
+
+
+
+[[configuration-considerations]]
+== 構成に関する考慮事項
+
+ICAPベースのVscanを設定する際は、以下の点に留意してください：
+
+* 各SVMは、ICAPベースのVscan構成またはアンチウイルスコネクタスキャナプールのいずれかを使用する必要があります。同じSVMで両方を構成することはできません。それらを切り替えるには、まず既存の設定を削除する必要があります。
+* ICAPベースのVscanは、SMBでのオンアクセススキャンのみをサポートしています。オンデマンドスキャンおよびNFSオンアクセススキャンはサポートされていません。
+* ONTAP 9.20.1から以前のリリースにリバートする前に、ICAPベースのVscan設定をすべて削除してください。
+
+
+.開始する前に
+* クラスターでONTAP 9.20.1以降が実行されている必要があります。
+* SVMにはSMBが設定され、有効になっている必要があります。
+* ICAP対応のウイルス対策スキャンエンジン（SPEやOPSWATなど）を、クラスタネットワークからアクセス可能なサーバーにインストールして実行する必要があります。
+* SVMには、既存のAntivirus Connector設定が存在してはなりません。各SVMは、ICAPベースのVscanまたはAntivirus Connectorのいずれかをサポートしますが、両方をサポートすることはできません。
+* ICAP接続にTLS暗号化が必要な場合は、適切なサーバーCA証明書をクラスタにインストールしてください。
+
+
+.手順
+. SVM用のICAP構成を作成します。SVMごとにサポートされるICAP構成は1つのみです：
++
+`vserver vscan icap-config create -vserver <svm_name> -server-ip <icap_server_ip> -port <port> -max-connections <max_conn> -service-path <service_path> -ssl-enabled {true|false} -skip-cert-validation {true|false}`
+
++
+.例：
+`cluster1::> vserver vscan icap-config create -vserver vs1 -server-ip 10.10.10.1 -port 1344 -max-connections 10 -service-path SYMCSCANRESPEX-AV -ssl-enabled false -skip-cert-validation false`
+
++
+[cols="25,20,15,40"]
+|===
+
+
+| パラメータ | デフォルト | 範囲 | 概要 
+
+
+ a| 
+`-port`
+| 1344 | 1～65535 | ICAPスキャンエンジンのTCPポート 
+
+
+ a| 
+`-max-connections`
+| 10 | 1～256 | ICAPサーバーへの同時接続の最大数 
+
+
+ a| 
+`-service-path`
+| SYMCSCANRESPEX-AV | 該当なし | スキャンエンジンが公開するICAPサービスパス 
+
+
+ a| 
+`-ssl-enabled`
+| false | 該当なし | ICAP接続でTLS暗号化を有効にする 
+
+
+ a| 
+`-skip-cert-validation`
+| false | 該当なし | サーバー証明書の検証をスキップする 
+|===
+. オンアクセスポリシーが存在しない場合は、作成してください。
++
+`vserver vscan on-access-policy create -vserver <svm_name> -policy-name <policy_name> -protocol CIFS -max-file-size <size> -filters <filter_list> -file-ext-to-exclude <extensions> -paths-to-exclude <paths>`
+
++
+
+NOTE: 以前のVscan構成から既にオンアクセスポリシーが存在し、それがワークロードに適している場合は、ICAPパスでそれを再利用できます。
+
+. Vscanを有効にして、ファイル操作のインターセプトとICAPサーバーへのスキャン要求のルーティングを開始します。
++
+`vserver vscan enable -vserver <svm_name>`
+
+. ICAP接続の状態を確認します：
+`vserver vscan icap-connection-status show -vserver <svm_name>`
+

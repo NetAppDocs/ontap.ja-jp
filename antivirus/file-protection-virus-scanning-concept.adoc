@@ -11,7 +11,7 @@ summary: Vscanは、NetAppが開発したウイルス対策スキャン ソリ�
 
 
 [role="lead"]
-Vscanは、NetAppが開発したウイルス対策スキャン ソリューションで、ウイルスやその他の悪意のあるコードからデータを守れます。パートナーが提供するウイルス対策ソフトウェアとONTAPの機能を組み合わせて、柔軟にファイル スキャンを管理できます。
+Vscanは、ウイルスやその他の悪意のあるコードによるデータ侵害からデータを保護できるウイルス対策スキャンソリューションです。パートナー提供のウイルス対策ソフトウェアとONTAPの機能を組み合わせることで、ファイルスキャンの管理に必要な柔軟性を提供します。
 
 
 
@@ -34,6 +34,42 @@ Vscanは、NetAppが開発したウイルス対策スキャン ソリューシ�
 
 通常、SVMに対してオンアクセス スキャン モードとオンデマンド スキャン モードの両方を有効にします。どちらのモードでも、感染したファイルにはウイルス対策ソフトウェアで設定した処理が実行されます。
 
-NetAppが提供し、外部サーバにインストールされるONTAP Antivirus Connectorが、ストレージ システムとウイルス対策ソフトウェア間の通信を処理します。
+NetAppが提供し、外部サーバーにインストールされるONTAP Antivirus Connectorは、ストレージシステムとアンチウイルスソフトウェア間の通信を処理します。ONTAP 9.20.1以降、ONTAPはInternet Content Adaptation Protocol（ICAP）ベースのスキャンパスをサポートしており、Antivirus Connectorは不要になります。各SVMは、ICAPまたはAntivirus Connectorのいずれかを使用し、両方を使用することはありません。
+
+
+NOTE: ICAPベースのVscanは、オンアクセススキャンのみをサポートしています。
+
+
+
+[[icap-based-vscan-compared-with-the-antivirus-connector]]
+== ICAPベースのVscanとアンチウイルスコネクタの比較
+
+以下の表は、アンチウイルスコネクタとICAPベースのVscanの違いをまとめたものです：
+
+[cols="30,35,35"]
+|===
+
+
+| 機能 | Antivirus Connector | ICAPベースのVscan 
+
+
+| コンポーネント | WindowsサーバーにインストールされたONTAP Antivirus Connector | 不要。ONTAPはスキャンエンジンに直接接続します 
+
+
+| 通信プロトコル | SMB名前付きパイプとMS-RPC | ICAP over TCP 
+
+
+| インフラ | 専用のVscan接続マネージャー | FPolicy共有メモリ通知パイプライン 
+
+
+| サポートされているスキャンエンジンOS | Windowsのみ | WindowsとLinux 
+
+
+| 拡張性 | Antivirus Connectorインスタンスごとに、LIF接続数は400に制限されています | FPolicy接続プーリングを活用してスケーラビリティを向上させます 
+
+
+| 検出メカニズム | ポーリングベースのSVMおよびLIFの検出 | FPolicyによるイベント駆動型接続管理 
+|===
+以下のサンプルは、Antivirus Connectorの通信方法を示しています。
 
 image:how-virus-scanning-works-new.gif["ウイルススキャンのワークフロー。コネクタがストレージシステムとウイルス対策ソフトウェア間の通信をどのように処理するかを説明します。"]

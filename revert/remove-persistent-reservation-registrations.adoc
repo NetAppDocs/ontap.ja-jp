@@ -1,0 +1,39 @@
+---
+permalink: revert/remove-persistent-reservation-registrations.html 
+sidebar: sidebar 
+keywords: revert, persistent reservation, registrations, SCSI-3, LUN, 9.20.1 
+summary: 過去にいずれかのLUNでSCSI-3の永続的予約の登録数が182を超えたことがある場合、ONTAPはONTAP 9.20.1より前のバージョンへのリバートをブロックします。リバートする前に、各LUNを確認し、すべての登録を削除してください。 
+---
+= ONTAP 9.20.1からリバートする前に永続的予約の登録を削除する
+:allow-uri-read: 
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+ONTAP 9.20.1より前のバージョンでは、LUNあたり最大182個のSCSI-3永続的予約の登録がサポートされます。ONTAP 9.20.1以降では、この制限が256に増加します。過去にいずれかのLUNで登録数が182を超えたことがある場合、現在の登録数に関係なく、ONTAPはリバートをブロックします。9.20.1から9.19.1にリバートする前に、影響を受けるLUN上の永続的予約の登録を特定して削除してください。
+
+
+IMPORTANT: クラスタ環境で永続的予約の登録を削除するには、ホスト側の再構成が必要になる場合があります。ホストのオペレーティングシステムとクラスタリングソフトウェアによっては、クラスタリソースをオフラインにし、影響を受けるLUNをクラスタ管理から削除して、リバート後にクラスタへのアクセスを再確立する必要がある場合があります。リバートする前に、クラスタリングソリューションのドキュメントを確認し、テスト環境でリカバリワークフローを検証してください。
+
+.手順
+. 過去に永続的予約の登録数が182を超えたLUNがないか確認します：
++
+[source, cli]
+----
+lun show -field persistent-reservation-scale-tier
+----
++
+persistent-reservation-scale-tier フィールドの値が 182 を超える場合は、LUN が追加の永続的予約メタデータを割り当てたことを示します。これは、現在の登録数に関係なく、リバートを阻止します。
+
+. 影響を受ける各LUNについて、現在のアクティブな登録数を表示します：
++
+[source, cli]
+----
+lun persistent-reservation show -vserver <vserver_name> -path <lun_path>
+----
+. 影響を受けるすべてのLUNで永続的予約の登録を削除します。
++
+リバート事前チェックを実行します。この状態が検出された場合、事前チェックの出力には必要な具体的なクリーンアップコマンドが含まれます。
+
+

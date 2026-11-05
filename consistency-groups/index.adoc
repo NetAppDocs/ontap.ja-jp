@@ -67,17 +67,30 @@ NOTE: ONTAP 9.13.1 では、履歴メトリックは ONTAP REST API を使用し
 [[protect-consistency-groups]]
 == 整合性グループの保護
 
-整合性グループは、アプリケーション整合性のある保護を提供し、複数のボリュームまたはLIF間でデータの一貫性を確保します。整合性グループのスナップショットを作成する際、整合性グループ上に「フェンス」が設定されます。フェンスはスナップショット操作が完了するまでI/Oのキューを開始し、整合性グループ内のすべてのエンティティ間でデータのポイントインタイム整合性を確保します。フェンスは、スケジュールされたスナップショットポリシーの実行やSystem Managerを使用したスナップショットの作成など、スナップショット作成操作中に一時的なレイテンシの急増を引き起こす可能性があります。ONTAP REST APIおよびONTAP CLIのコンテキストの詳細については、link:https://kb.netapp.com/on-prem/ontap/DM/REST-API["ONTAP REST APIドキュメント"^]およびlink:https://docs.netapp.com/us-en/ontap-cli/["ONTAPコマンド リファレンス"^]を参照してください。
+整合性グループによってアプリケーションと整合性のある保護が実現し、複数のボリュームやLIF間でデータの整合性が確保されます。整合性グループのスナップショットを作成する際、整合性グループ上に「フェンス」が設定されます。フェンスはスナップショット操作が完了するまでI/Oのキューを開始し、整合性グループ内のすべてのエンティティ間でデータのポイントインタイム整合性を確保します。フェンスは、スケジュールされたスナップショットポリシーの実行やSystem Managerを使用したスナップショットの作成など、スナップショット作成操作中に一時的なレイテンシの急増を引き起こす可能性があります。
 
-整合性グループは、次の方法で保護できます。
+整合性グループで利用できるデータ保護の種類は、ONTAPのバージョンによって異なります。
 
+[cols="2"]
+|===
+| ONTAP…以降で利用可能 | 整合性グループのデータ保護 
+
+
+| 9.20.1 | link:protect-task.html#configure-snaplock-for-snapvault-replication-from-a-non-snaplock-source["SnapLock for SnapVault（非SnapLockボリュームから）"] 
+
+
+| 9.14.1 | link:../data-protection/snapmirror-svm-replication-concept.html["SVMディザスタ リカバリ"] 
+
+
+| 9.13.1 | xref:../data-protection/snapmirror-disaster-recovery-concept.html[SnapMirror非同期] 
+
+
+| 9.10.1  a| 
 * Snapshotポリシー
 * xref:../snapmirror-active-sync/index.html[SnapMirrorアクティブ同期]
-* <<mcc>>（ONTAP 9.11.1以降）
-* xref:../data-protection/snapmirror-disaster-recovery-concept.html[SnapMirror非同期]（ONTAP 9.13.1以降）
-* link:../data-protection/snapmirror-svm-replication-concept.html["SVMディザスタ リカバリ"]（ONTAP 9.14.1以降）
 
 
+|===
 整合性グループを作成しても、保護が自動的に有効になるわけではありません。ローカル保護ポリシーとリモート保護ポリシーは、整合性グループの作成時または作成後に設定できます。
 
 整合性グループの保護を構成するには、link:protect-task.html["整合性グループの保護"]を参照してください。
@@ -125,9 +138,7 @@ NOTE: ストレージのパフォーマンスと可用性を最適化するた�
 [[upgrade-considerations]]
 == アップグレード時の考慮事項
 
-ONTAP 9.10.1以降にアップグレードすると、ONTAP 9.8および9.9.1でSnapMirror Active Sync（旧称SnapMirror Business Continuity）を使用して作成されたコンシステンシグループは自動的にアップグレードされ、System ManagerまたはONTAP REST APIの*Storage > Consistency Groups*で管理できるようになります。ONTAP 9.8または9.9.1からのアップグレードの詳細については、link:../snapmirror-active-sync/upgrade-revert-task.html["SnapMirror Active Sync のアップグレードと復元に関する考慮事項"]を参照してください。
-
-ONTAP REST API で作成された整合グループ スナップショットは、System Manager の整合グループ インターフェイスおよび整合グループ ONTAP REST API エンドポイントを通じて管理できます。ONTAP 9.14.1 以降、整合グループ スナップショットは ONTAP CLI でも管理できます。
+ONTAP 9.10.1以降にアップグレードすると、ONTAP 9.8および9.9.1でSnapMirror active sync（旧称：SnapMirror Business Continuity）を使用して作成された整合性グループは自動的にアップグレードされ、System Managerの*ストレージ > 整合性グループ*またはONTAP REST APIで管理できるようになります。ONTAP 9.8または9.9.1からのアップグレードの詳細については、link:../snapmirror-active-sync/upgrade-revert-task.html["SnapMirror Active Sync のアップグレードと復元に関する考慮事項"]を参照してください。
 
 
 NOTE: ONTAPIコマンド `cg-start`および `cg-commit`で作成されたスナップショットは、コンシステンシグループスナップショットとして認識されないため、System ManagerのコンシステンシグループインターフェイスまたはONTAP REST APIのコンシステンシグループエンドポイントでは管理できません。ONTAP 9.14.1以降では、SnapMirror非同期ポリシーを使用している場合、これらのスナップショットをデスティネーションボリュームにミラーリングできます。詳細については、xref:protect-task.html#configure-snapmirror-asynchronous[SnapMirror非同期の設定]を参照してください。
@@ -137,60 +148,58 @@ NOTE: ONTAPIコマンド `cg-start`および `cg-commit`で作成されたスナ
 [[supported-features-by-release]]
 == リリース別のサポートされる機能
 
-[cols="3,1,1,1,1,1,1,1"]
+[cols="2"]
 |===
-|  | ONTAP 9.16.1 | ONTAP 9.15.1 | ONTAP 9.14.1 | ONTAP 9.13.1 | ONTAP 9.12.1 | ONTAP 9.11.1 | ONTAP 9.10.1 
+| ONTAPバージョン | サポートされる機能 
 
 
-| 階層型整合性グループ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ 
+| 9.20.1 | セカンダリシステムでのSnapLock for SnapVault保護 
 
 
-| スナップショットによるローカル保護 | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ 
+| 9.16.1  a| 
+マルチ管理者認証
 
 
-| SnapMirrorアクティブ同期 | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ 
+
+| 9.14.1  a| 
+* SVM災害復旧（単一整合性グループのみ）
+* CLIのサポート
 
 
-| MetroClusterのサポート | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |  
 
 
-| 2フェーズ コミット（REST APIのみ） | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |  
+| 9.13.1  a| 
+* 子整合性グループ間でのボリュームの移動
+* 整合性グループのジオメトリの変更
+* 監視
+* SnapMirror非同期（独立した整合性グループのみ）
 
 
-| アプリケーション タグとコンポーネント タグ | ✓ | ✓ | ✓ | ✓ | ✓ |  |  
 
 
-| 整合性グループのクローニング | ✓ | ✓ | ✓ | ✓ | ✓ |  |  
+| 9.12.1  a| 
+* ボリュームの追加と削除
+* アプリケーション タグとコンポーネント タグ
+* 整合性グループのクローニング
+* 新しいNASボリュームを使用したCGの作成（REST APIのみ）
+* NVMeネームスペースを使用してCGを作成します（REST APIのみ）
 
 
-| ボリュームの追加と削除 | ✓ | ✓ | ✓ | ✓ | ✓ |  |  
 
 
-| 新しいNASボリュームを使用した整合性グループの作成 | ✓ | ✓ | ✓ | ✓ | REST APIのみ |  |  
+| 9.11.1  a| 
+* MetroCluster構成
+* 2フェーズ コミット（REST APIのみ）
 
 
-| 新しいNVMeネームスペースを使用した整合性グループの作成 | ✓ | ✓ | ✓ | ✓ | REST APIのみ |  |  
 
 
-| 子整合性グループ間でのボリュームの移動 | ✓ | ✓ | ✓ | ✓ |  |  |  
+| 9.10.1  a| 
+* 階層型整合性グループ
+* スナップショットによるローカル保護
+* SnapMirrorアクティブ同期
 
 
-| 整合性グループのジオメトリの変更 | ✓ | ✓ | ✓ | ✓ |  |  |  
-
-
-| 監視 | ✓ | ✓ | ✓ | ✓ |  |  |  
-
-
-| マルチ管理者認証 | ✓ |  |  |  |  |  |  
-
-
-| SnapMirror非同期（独立した整合性グループのみ） | ✓ | ✓ | ✓ | ✓ |  |  |  
-
-
-| SVMディザスタ リカバリ（独立した整合性グループのみ） | ✓ | ✓ | ✓ |  |  |  |  
-
-
-| CLIのサポート | ✓ | ✓ | ✓ |  |  |  |  
 |===
 
 

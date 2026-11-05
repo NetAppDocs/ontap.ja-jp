@@ -14,7 +14,7 @@ summary: ONTAP 9.13.1 以降では、SVM の容量制限を設定できます。
 ONTAP 9.13.1以降では、Storage VM（SVM）の最大容量を設定できます。また、SVMがしきい値の容量レベルに近づいた場合のアラートを設定することもできます。
 
 .タスク概要
-SVM上の容量は、FlexVol、FlexGroupボリューム、FlexClone、FlexCacheボリュームを合計して算出されます。ボリュームの容量は、そのボリュームが制限されている場合、オフラインの場合、または削除後にリカバリ キューに登録されている場合も、合計に含まれます。自動拡張が設定されているボリュームでは、そのボリュームの最大オートサイズ値が使用され、自動拡張が設定されていない場合はボリュームの実際のサイズが使用されます。
+SVMの容量は、FlexVolボリューム、FlexGroupボリューム、FlexCloneボリューム、FlexCacheボリュームの合計として計算されます。ボリュームは、制限されている場合、オフラインの場合、または削除後にリカバリキューに入っている場合でも、容量計算に影響を与えます。ボリュームに自動拡張が設定されている場合、ボリュームの最大autosize値がSVMのサイズとして計算されます。自動拡張が設定されていない場合は、ボリュームの実際のサイズが計算されます。
 
 次の表は、 `autosize-mode`パラメータが容量計算にどのように影響するかを示しています。
 
@@ -31,6 +31,13 @@ SVM上の容量は、FlexVol、FlexGroupボリューム、FlexClone、FlexCache�
 |===
 .開始する前に
 * SVM制限を設定するには、クラスタ管理者である必要があります。
+* ONTAP 9.20.1以降では、MetroCluster IP構成の一部であるSVMに対してストレージ制限を設定できます。
++
+[NOTE]
+====
+MetroCluster IP構成の*sync-destination* SVMでストレージ制限を有効または無効にすることはサポートされていません。ストレージ制限は、*sync-source* SVMでのみ有効または無効にできます。
+
+====
 * ONTAP 9.16.1以降では、次のデータ保護タイプを含むデータ保護ボリュームを含むSVMに対してストレージ制限を設定できます：
 +
 ** カスケードなしの非同期DRのFlexVolボリューム
@@ -42,17 +49,17 @@ SVM上の容量は、FlexVol、FlexGroupボリューム、FlexClone、FlexCache�
 +
 ** SnapMirror Vault関係
 ** SnapMirrorアクティブ同期
-** FlexGroupボリューム
-** 整合性グループ
+** データ保護ボリュームを含む整合性グループ
+** データ保護FlexGroupボリューム
 ** SVM DR
 ** カスケード
-** MetroCluster
+** MetroCluster FC
 
 
 * ONTAP 9.16.1以降では、負荷共有ミラー関係を作成するときに、デスティネーションSVMでストレージ制限を有効にすることはできません。
 * ストレージ制限が有効になっているソースSVMを移行することはできません。移行処理を実行する前に、ソースのストレージ制限を無効にしてください。
 * SVMの容量はxref:../volumes/quotas-concept.html[クォータ]とは異なります。クォータは最大サイズを超えることはできません。
-* SVMで他の操作が進行中の場合は、ストレージ制限を設定することはできません。 `job show vserver <svm_name>`コマンドを使用して既存のジョブを確認してください。いずれかのジョブが完了してから、コマンドを再度実行してください。link:https://docs.netapp.com/us-en/ontap-cli/job-show.html["ONTAPコマンド リファレンス"^]の `job show`の詳細を確認してください。
+* SVM上でボリューム操作が進行中の場合、ストレージ制限を初めて有効にすることはできません。制限を有効にした後は、ボリューム操作の実行中でも制限値を変更できます。既存のジョブを表示するには、 `job show -vserver <svm_name>` コマンドを使用します。ジョブが完了したら、もう一度コマンドを実行してみてください。 `job show` の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/job-show.html["ONTAPコマンド リファレンス"^] を参照してください。
 
 
 
@@ -64,7 +71,6 @@ SVM上の容量は、FlexVol、FlexGroupボリューム、FlexClone、FlexCache�
 
 * LUN、ネームスペース、またはボリュームの作成
 * LUN、ネームスペース、またはボリュームのクローニング
-* LUN、ネームスペース、またはボリュームの変更
 * LUN、ネームスペース、またはボリュームのサイズの拡大
 * LUN、ネームスペース、またはボリュームの拡張
 * LUN、ネームスペース、またはボリュームのリホスト
@@ -128,6 +134,11 @@ vserver modify -vserver <vserver_name> -storage-limit 0
 
 一度設定した容量制限を、現在割り当てられている容量よりも小さい値に変更することはできません。
 
+[NOTE]
+====
+MetroCluster IP構成の*sync-destination* SVMでストレージ制限を有効または無効にすることはサポートされていません。ストレージ制限は、*sync-source* SVMでのみ有効または無効にできます。
+
+====
 [role="tabbed-block"]
 ====
 .System Manager

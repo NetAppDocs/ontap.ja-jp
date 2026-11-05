@@ -1,0 +1,58 @@
+---
+permalink: revert/remove-snmp-sha512-users.html 
+sidebar: sidebar 
+keywords: revert, reverting, reversion, snmp, snmpv3, sha512, sha-512, authentication, users, switches, 9.20.1 
+summary: SHA-512認証を使用するSNMPv3ユーザーがいる場合、ONTAPはONTAP 9.20.1より前のバージョンへのリバートをブロックします。リバートする前に、これらのユーザーを削除し、サポートされている認証プロトコルで再作成してください。 
+---
+= ONTAP 9.20.1からリバートする前に、SHA-512認証を使用するSNMPv3ユーザーを削除する
+:allow-uri-read: 
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+ONTAP 9.20.1以降では、SHA-512認証を使用するSNMPv3ユーザーを作成できます。9.20.1より前のONTAPバージョンではSHA-512認証がサポートされていないため、SHA-512認証を使用するSNMPv3ユーザーが存在する場合、ONTAPはリバートをブロックします。リバートする前に、これらのユーザーを削除し、サポートされている認証プロトコルを使用して再作成してください。
+
+.手順
+. SHA-512認証を使用するSNMPv3ユーザーを表示します：
++
+[source, cli]
+----
+security snmpusers -authmethod usm -authprotocol sha512
+----
+. 各SHA-512ユーザーを削除します：
++
+[source, cli]
+----
+security login delete -vserver <vserver_name> -user-or-group-name <user_name> -application snmp -authentication-method usm
+----
+. 引き続きユーザーが必要な場合は、 `sha`や `sha2-256`など、サポートされている認証プロトコルを使用して再作成してください：
++
+[source, cli]
+----
+security login create -vserver <vserver_name> -user-or-group-name <user_name> -application snmp -authentication-method usm
+----
++
+ユーザーがスイッチを監視する場合は、スイッチのIPアドレスを指定した `-remote-switch-ipaddress`パラメータを含めます：
+
++
+[source, cli]
+----
+security login create -user-or-group-name <user_name> -application snmp -authentication-method usm -remote-switch-ipaddress <switch_ip_address>
+----
++
+link:../networking/configure_snmpv3_users_in_a_cluster.html["SNMPv3ユーザーの設定"] の詳細をご覧ください。
+
+. イーサネットスイッチが監視に削除されたSHA-512ユーザーを使用していた場合は、各スイッチを更新して再作成されたユーザーを使用するようにしてください：
++
+[source, cli]
+----
+system switch ethernet modify -device <switch_name> -snmp-version SNMPv3 -community-or-username <snmp_user_name>
+----
++
+ `system switch ethernet modify`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/system-switch-ethernet-modify.html["ONTAPコマンド リファレンス"^]を参照してください。
+
++
+イーサネットスイッチの設定方法など、イーサネットスイッチのヘルスモニター（CSHM）のSNMPv3に関する詳細については、link:https://docs.netapp.com/us-en/ontap-systems-switches/switch-cshm/config-snmpv3.html["イーサネットスイッチの状態監視のためにSNMPv3を設定する"^]を参照してください。
+
+

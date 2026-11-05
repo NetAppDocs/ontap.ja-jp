@@ -13,6 +13,13 @@ ONTAP 9.10.1以降では、link:https://docs.microsoft.com/en-us/azure/key-vault
 
 AWS KMS、AKV、Cloud KMS は、データ SVM のlink:configure-netapp-volume-encryption-concept.html["NetApp Volume Encryption（NVE）キー"]の保護にのみ使用できます。
 
+[NOTE]
+====
+ONTAP 9.20.1以降では、すでに管理者スコープのキーマネージャを介して暗号化ボリュームを管理しているデータSVMでクラウドキーマネージャを有効にすると、ONTAPはこれらのNVEキーを新しいデータSVMキーマネージャに自動的に移行します。このワークフローでは、別の `security key-manager key migrate`コマンドを実行する必要はありません。
+
+この自動移行はデータSVMに適用されます。管理用SVMを、オンボードのキー管理またはクラスタスコープの外部キー管理からデータSVMクラウドキーマネージャに移行する場合は、まず適切な管理スコープの移行タスクを完了してください。
+
+====
 .タスク概要
 クラウド プロバイダによるキー管理は、CLIまたはONTAP REST APIを使用して有効にすることができます。
 
@@ -30,7 +37,7 @@ AWS KMS、AKV、Cloud KMS は、データ SVM のlink:configure-netapp-volume-en
 * ONTAPクラスタのノードでNVEがサポートされている必要があります。
 * link:../encryption-at-rest/install-license-task.html["ボリューム暗号化（VE）ライセンスとマルチテナント暗号化キー管理（MTEKM）ライセンスがインストールされている必要があります。"]。これらのライセンスはlink:../system-admin/manage-licenses-concept.html#licenses-included-with-ontap-one["ONTAP One"]に含まれています。
 * クラスタ管理者またはSVM管理者である必要があります。
-* データSVMに暗号化されたボリュームが含まれていないことと、キー管理ツールを使用していないことを確認してください。データSVMに暗号化されたボリュームが含まれている場合は、KMSを設定する前にそれらのボリュームを移行する必要があります。
+* ONTAP 9.20.1以降では、NVEキーが管理者スコープのキーマネージャによって管理されている場合、データSVMに暗号化されたボリュームを含めることができます。ONTAPは、有効化操作中にこれらのキーを自動的に移行します。以前のリリースでは、クラウドキーマネージャーを設定する前にキーを移行してください。
 
 
 
@@ -49,7 +56,10 @@ AWS KMS、AKV、Cloud KMS は、データ SVM のlink:configure-netapp-volume-en
 +
 ** `DescribeKey`
 ** `Encrypt`
-** `Decrypt` + 詳細については、link:https://docs.aws.amazon.com/kms/latest/developerguide/concepts.html#grant["助成金"^]のAWSドキュメントを参照してください。
+** `Decrypt`
++
+詳細については、link:https://docs.aws.amazon.com/kms/latest/developerguide/concepts.html#grant["助成金"^] の AWS ドキュメントを参照してください。
+
 
 
 
@@ -104,8 +114,12 @@ AWS KMS、AKV、Cloud KMS は、データ SVM のlink:configure-netapp-volume-en
 
 --
 ====
-データSVMに1つ以上の暗号化ボリュームがすでに設定されており、対応するNVEキーが管理SVMのオンボードキーマネージャによって管理されている場合は、それらのキーを外部キー管理サービスに移行する必要があります。CLIでこれを行うには、次のコマンドを実行します：
-`security key-manager key migrate -from-Vserver _admin_SVM_ -to-Vserver _data_SVM_`データSVMのすべてのNVEキーが正常に移行されるまで、テナントのデータSVMに新しい暗号化ボリュームを作成することはできません。
+ONTAP 9.20.1以降では、データSVM用に1つ以上の暗号化ボリュームがすでに設定されており、対応するNVEキーがadmin-scopeキーマネージャによって管理されている場合、ONTAPは有効化の操作中にそれらのキーを自動的に移行します。別の `security key-manager key migrate`コマンドを実行する必要はありません。
+
+ONTAP 9.20.1より前のリリースでは、これらのキーを外部キー管理サービスに移行する必要があります。CLIでこれを行うには、次のコマンドを実行します：
+`security key-manager key migrate -from-Vserver _admin_SVM_ -to-Vserver _data_SVM_`
+
+テナントのデータSVMのすべてのNVEキーを移行するまで、データSVMに暗号化された新しいボリュームを作成することはできません。
 
 .関連情報
 * link:https://docs.netapp.com/us-en/cloud-manager-cloud-volumes-ontap/task-encrypting-volumes.html["Cloud Volumes ONTAP の NetApp 暗号化ソリューションによるボリュームの暗号化"^]

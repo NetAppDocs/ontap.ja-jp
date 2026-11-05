@@ -98,7 +98,7 @@ NOTE: すべての `security multi-admin-verify rule`コマンドは、 `securit
 
 
 | ルールを作成します。  a| 
-`security multi-admin-verify rule create -operation _"protected_operation"_ [-query _operation_subset_] [_parameters_]`
+`security multi-admin-verify rule create -operation _"protected_operation"_ [-query _operation_subset_] [-approval-groups _group1_[,_group2_…]] [_parameters_]`
 
 
 
@@ -108,6 +108,8 @@ NOTE: すべての `security multi-admin-verify rule`コマンドは、 `securit
 *例*：次のルールでは、ルートボリュームを削除するには承認が必要です。
 
 `security multi-admin-verify rule create  -operation "volume delete" -query "-vserver vs0"`
+
+ `-approval-groups`パラメータを使用して、このルールに1つ以上のMAV承認グループを指定します。これにより、この操作に限り、グローバル承認グループの設定が上書きされます。
 
 
 
@@ -124,7 +126,55 @@ NOTE: すべての `security multi-admin-verify rule`コマンドは、 `securit
 | ルールを表示  a| 
 `security multi-admin-verify rule show`
 
+
+
+| 利用可能なすべてのMAV保護可能な操作を表示する  a| 
+`security multi-admin-verify registered-operations show`
+
 |===
+
+
+[[view-available-mav-protectable-operations]]
+== 利用可能なMAV保護対象の操作を表示する
+
+ONTAP 9.20.1以降では、現在のクラスタでMAVによって保護できるすべての操作を表示できます。これにより、有効な操作名を判断するために外部ドキュメントを参照することなく、ルールを作成できます。
+
+`security multi-admin-verify registered-operations show`
+
+*例：*
+
+[listing]
+----
+cluster1::> security multi-admin-verify registered-operations show
+Operation
+-----------------------------------------
+cluster peer delete
+security login delete
+security login modify
+volume delete
+volume move start
+volume snapshot delete
+...
+----
+
+NOTE: 操作のリストは、ONTAPのバージョンとクラスタの特性によって異なります。
+
+ワイルドカードマッチングを含め、 `-operation`パラメータを使用して操作名で出力をフィルタリングできます。
+
+*例：*
+
+[listing]
+----
+cluster1::> security multi-admin-verify registered-operations show -operation security*
+Operation
+----------------------------------
+security anti-ransomware volume attack clear-suspect
+security anti-ransomware volume disable
+security anti-ransomware volume event-log modify
+security audit modify
+security login delete
+...
+----
 .関連情報
 * link:https://docs.netapp.com/us-en/ontap-cli/search.html?q=security+multi-admin-verify+rule["セキュリティ多管理者検証ルール"^]
 * link:https://docs.netapp.com/us-en/ontap-cli/security-login-modify.html["security login modify"^]

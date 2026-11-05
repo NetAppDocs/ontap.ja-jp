@@ -4,17 +4,118 @@ permalink: anti-ransomware/modify-snapshot-options-arpai.html
 keywords: ARP AI, arpai, snapshot settings, retention, arw snap, autonomous ransomware protection AI, ONTAP 9.17.1, SAN snapshot parameters, machine learning ransomware 
 summary: ランサムウェアの脅威の可能性に対応して自動的に生成されるARP/AIスナップショットの作成および保持設定を調整します。 
 ---
-= 自動生成された ONTAP ARP/AI スナップショットの設定を調整する
+= ONTAP ARP/AIスナップショット応答ポリシーと設定を構成します
 :allow-uri-read: 
 :icons: font
 :imagesdir: ../media/
 
 
 [role="lead"]
-ONTAP 9.16.1 以降では、CLIを使用して、疑わしいランサムウェア攻撃に対応して自動的に生成される自律型ランサムウェア保護（ARP/AI）スナップショットの保持設定を制御できます。
+ONTAP 9.16.1以降では、CLIを使用して、AIによる自律型ランサムウェア対策（ARP/AI）スナップショットの作成および保持設定を制御できます。ONTAP 9.20.1以降では、定期的なスナップショットと攻撃時のスナップショットの応答ポリシーを設定して、異常なアクティビティを検出したときにARP/AIがスナップショットを作成するかどうかを制御することもできます。
 
 
 NOTE: ONTAP 9.15.1 以前を実行している場合は、link:modify-snapshot-options-arp.html["自動生成されたARPスナップショットの設定を調整する"]を参照してください。
+
+
+
+[[configure-a-snapshot-response-policy]]
+== スナップショット応答ポリシーを設定する
+
+ONTAP 9.20.1以降では、ARP/AIが異常なアクティビティを検出したときにスナップショットを作成するかどうかを制御するために、定期的なスナップショットと攻撃スナップショットに対するARP/AIスナップショット応答ポリシーを設定できます。ポリシーはSVMレベルで設定することも（SVM上のすべてのボリュームがその設定を継承します）、ボリュームレベルで上書きすることもできます。
+
+以下のスナップショット応答ポリシーが利用可能です：
+
+[cols="1,3"]
+|===
+| ポリシー | 動作 
+
+
+| `alert-with-proactive-and-periodic-snapshot` | （デフォルト）ARP/AIはアラートとイベントログを生成し、定期的にスナップショットを作成し、攻撃が検出されたときに追加のスナップショットを作成します。 
+
+
+| `alert-with-proactive-snapshot` | ARP/AIは、攻撃が検出された場合にのみ、アラートとイベントログを生成し、スナップショットを作成します。定期的なスナップショットは作成されません。 
+
+
+| `alert-only` | ARP/AIはアラートとイベントログのみを生成します。ARP/AIスナップショットは作成されません。 
+|===
+
+CAUTION: ポリシーを `alert-only`に設定すると、ARP/AIはスナップショットを作成しません。ランサムウェア攻撃が確認された場合、攻撃が進行中であっても、データ復旧に利用できるARP/AIスナップショットは存在しません。 `alert-only`を使用する前に、スケジュールされたONTAPスナップショット、SnapCenterバックアップ、またはその他のバックアップソリューションなど、適切な外部データ保護が確保されていることを確認してください。
+
+
+NOTE: スナップショット応答ポリシーを変更しても、既存のARP/AIスナップショットはすぐには削除されません。スケジュールされた有効期限に達したときに削除されます。ポリシー変更後、すぐにストレージ容量が解放されるとは想定しないでください。
+
+[role="tabbed-block"]
+====
+.System Manager
+--
+*SVMレベルでスナップショット応答ポリシーを設定します：*
+
+. *クラスタ* > *Storage VM* を選択し、storage VMを選択します。
+. *設定*タブに移動します。*セキュリティ*の下にある*ランサムウェア対策*タイルを見つけて、image:icon_pencil.gif["編集アイコン"]を選択します。
+. *保護レベル*で、SVM上のすべてのARP/AI対応ボリュームに適用する保護タイプを選択します。
+. *保存*を選択します。
+
+
+*ボリュームレベルでスナップショット応答ポリシーを設定します：*
+
+. *ストレージ* > *ボリューム*を選択し、ボリュームを選択します。
+. 「セキュリティ」タブで、「ランサムウェア対策」セクションを見つけ、image:icon_pencil.gif["編集アイコン"] を選択します。
+. *保護レベル*で、このボリュームのSVMレベルの設定を上書きするスナップショット応答ポリシーを選択します。
+. *保存*を選択します。
+
+
+--
+.CLI
+--
+. 現在のARP/AIスナップショット応答ポリシーを表示します：
++
+SVMレベルでは：
+
++
+[source, cli]
+----
+security anti-ransomware vserver snapshot-settings show -vserver <svm_name>
+----
++
+ボリュームレベルで：
+
++
+[source, cli]
+----
+security anti-ransomware volume snapshot-settings show -vserver <svm_name> -volume <volume_name>
+----
+. ARP/AIスナップショット応答ポリシーを設定します：
++
+SVMレベルでは：
+
++
+[source, cli]
+----
+security anti-ransomware vserver snapshot-settings modify -vserver <svm_name> -anti-ransomware-snapshot-policy <policy>
+----
++
+
+NOTE: この設定は、ARP/AIが有効になっているボリュームに適用されます。これは、既存のARP/AI対応ボリュームに遡及的に影響を与えるものではありません。
+
++
+ボリュームレベルで（SVMレベルの設定を上書きします）：
+
++
+[source, cli]
+----
+security anti-ransomware volume snapshot-settings modify -vserver <svm_name> -volume <volume_name> -anti-ransomware-snapshot-policy <policy>
+----
+
+
+--
+====
+
+
+[[adjust-snapshot-creation-and-retention-settings]]
+== スナップショットの作成と保持設定を調整する
+
+
+NOTE: ONTAP 9.20.1以降では、以下の設定は、スナップショット応答ポリシーが `alert-with-proactive-snapshot`または `alert-with-proactive-and-periodic-snapshot`の場合にのみ適用されます。
 
 .開始する前に
 ARP/AI スナップショットオプションは、link:../system-admin/types-svms-concept.html["ノード SVM"]でのみ変更でき、他の SVM タイプでは変更できません。
@@ -49,6 +150,9 @@ options -option-name <arw_setting_name> -option-value <arw_setting_value>
 
 | `arw.snap.max.count`  a| 
 ボリューム内に同時に存在できるARP/AIスナップショットの最大数を指定します。古いコピーは削除され、ARP/AIスナップショットの総数がこの制限内に収まるようにします。
+
+
+NOTE: ONTAP 9.20.1以降、この設定は、スナップショット応答ポリシーが `alert-with-proactive-and-periodic-snapshot`に設定されている場合にのみ適用されます。ポリシーが `alert-with-proactive-snapshot`または `alert-only`に設定されている場合、ONTAPはこの設定を無視します。
  a| 
 ONTAP 9.16.1以降
 
@@ -200,4 +304,5 @@ ONTAP 9.17.1以降
 .関連情報
 * link:learn-about-arpai.html#arp-ai-snapshots["脅威評価とARP/AIスナップショット"]
 * link:entropy-eval-period-arpai.html["SANボリュームのARP/AIエントロピー評価期間"]
+* link:recover-arpai.html["ARP/AIを使用してランサムウェア攻撃後のデータを復旧する"]
 

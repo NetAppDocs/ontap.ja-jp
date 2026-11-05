@@ -1,0 +1,223 @@
+---
+permalink: data-protection/configure-backend-fc-replication.html 
+sidebar: sidebar 
+keywords: configure, backend, FC, replication 
+summary: ONTAP 9.20.1以降では、既存のファイバチャネル（FC）ファブリックを介して、バックエンドのSnapMirror非同期レプリケーションとSnapLock for SnapVaultを設定できます。FC経由でのデータレプリケーションを有効にするには、バックエンドFCレプリケーションを設定する必要があります。。 
+---
+= FC経由のバックエンドレプリケーション用にONTAPシステムを設定する
+:allow-uri-read: 
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+ONTAP 9.20.1以降では、既存のファイバチャネル（FC）ファブリック経由でバックエンドのSnapMirror非同期レプリケーションとSnapLock for SnapVaultを設定できます。FC経由でのデータレプリケーションを有効にするには、バックエンドFCレプリケーションを設定する必要があります。
+
+
+NOTE: FC を介してバックエンドのレプリケーションを構成する場合、FC ファブリックとクラスタ間 IP ネットワークの両方が稼働している必要があります。レプリケーションデータはFCファブリックを介して転送できますが、クラスタ間の通信およびレプリケーション管理機能にはクラスタ間IPネットワークが必要です。
+
+.タスク概要
+FCを直接接続する構成、および自動ファブリックゾーニングを使用する構成は、FC経由のバックエンドレプリケーションではサポートされていません。
+
+.開始する前に
+ソースクラスタとデスティネーション クラスタのノードは、以下の構成要件を満たす必要があります：
+
+* 少なくとも4つのストレージ ノードがレプリケーション関係に参加する必要があります：ソース クラスタの2つのノードと、デスティネーション クラスタの2つのノードです。
+* 各ノードは、少なくとも以下のポートで構成する必要があります：
++
+** 2つの専用FCイニシエータポート
+** FCフロントエンド接続用のFCターゲットポート2個
+** FCバックエンド接続用のFCターゲットポート2個
+
+
+* ソースクラスタとデスティネーション クラスタを接続するスイッチファブリックには、バックエンドトラフィック専用の対応するSFPを備えた、利用可能なポートが最低16個必要です。link:../san-config/fc-config-best-practices.html["FCファブリック構成のベストプラクティス"] の詳細をご確認ください。
+* リンクの安定性を確保するため、レプリケーションパス上のすべてのHBA、SFP、およびスイッチポートは、同じ固定速度で動作する必要があります。
+
+
+.手順
+. バックエンドイニシエータとして使用する、ソース クラスタおよびデスティネーション クラスタ上のFCネットワークアダプタを特定します：
++
+[source, cli]
+----
+network fcp adapter show
+----
++
+以下の例では、ssan-a50-06a-06bがソースクラスタ、ssan-a50-07a-07bがデスティネーション クラスタです。ソースクラスタの出力例は以下のとおりです：
+
++
+[listing]
+----
+ssan-a50-06a-06b::*>network fcp adapter show
+                  Connection  Port    Admin    Operational
+Node         Adapter  Established Address Status   Status
+------------ -------- ----------- ------- -------- ---------------
+ssan-a50-06a 3a       false       0       up       link not connected
+ssan-a50-06a 3b       false       0       up       link not connected
+ssan-a50-06a 3c       false       0       up       link not connected
+ssan-a50-06a 3d       false       0       up       link not connected
+ssan-a50-06b 3a       false       0       up       link not connected
+ssan-a50-06b 3b       false       0       up       link not connected
+ssan-a50-06b 3c       false       0       up       link not connected
+ssan-a50-06b 3d       false       0       up       link not connected
+----
++
+デスティネーション クラスタのサンプル出力は以下のとおりです：
+
++
+[listing]
+----
+ssan-a50-07a-07b::*>network fcp adapter show
+ssan-a50-07a 3a       false       0       up       link not connected
+ssan-a50-07a 3b       false       0       up       link not connected
+ssan-a50-07a 3c       false       0       up       link not connected
+ssan-a50-07a 3d       false       0       up       link not connected
+ssan-a50-07b 3a       false       0       up       link not connected
+ssan-a50-07b 3b       false       0       up       link not connected
+ssan-a50-07b 3c       false       0       up       link not connected
+ssan-a50-07b 3d       false       0       up       link not connected
+----
+. レプリケーション関係にある各ノードにおいて、ソースクラスタとデスティネーション クラスタの両方で、イニシエータモード用に2つのポートを設定します：
++
+.. アダプタをオフラインにします。
++
+[source, cli]
+----
+network fcp adapter modify -node <node_name> -adapter <adapter> -status-admin down
+----
++
+以下の例では、ポート3cをオフラインにします。
+
++
+[listing]
+----
+network fcp adapter modify -node ssan-a50-06a -adapter 3c -status-admin down
+----
+.. アダプタをイニシエータモードに設定します：
++
+[source, cli]
+----
+system hardware unified-connect modify -t initiator <adapter_port>
+----
++
+アダプタの変更を適用するためにノードを再起動しないでください。必要なアダプタをすべて設定してオンラインに戻したら、各ノードでストレージのフェイルオーバーを実行して、変更を無停止で適用します。
+
+.. アダプタをオンラインにします：
++
+[source, cli]
+----
+network fcp adapter modify -node <node_name> -adapter <adapter> -status-admin up
+----
+.. イニシエータモードに設定する必要のあるポートごとに、これらの手順を繰り返してください。
+.. すべてのポートがオンラインであり、イニシエータとして設定されていることを確認してください：
++
+[source, cli]
+----
+network fcp adapter show
+----
+
+
+. FCレプリケーション用に構成されている各HAペアに対して、手動でストレージのフェイルオーバーを実行します。
++
+ストレージのフェイルオーバーにより、ノードの再起動を伴わずにアダプタの変更が完了します。
+
++
+.. HAペアの最初のノードでストレージフェイルオーバーを実行します：
++
+[source, cli]
+----
+storage failover takeover
+----
+.. ストレージのフェイルオーバーが成功したことを確認します：
++
+[source, cli]
+----
+storage failover show-takeover
+----
++
+自動ギブバックはデフォルトで有効になっています。ノードがテイクオーバーされて再起動が完了すると、パートナーノードは自動的にギブバックを開始します。
+
+.. 最初のノードでの自動ギブバックが完了したら、HAペアの2番目のノードでストレージフェイルオーバーを実行します。
+.. FCレプリケーション用に構成されている各HAペアで、ストレージのフェイルオーバー手順を繰り返します。
+
+
+. FCレプリケーション用に構成されているすべてのノードのネットワークFCポートがオンラインであり、イニシエータとして構成されていることを確認してください：
++
+[source, cli]
+----
+system hardware unified-connect show
+----
+. 搭載システムのFCアダプタがターゲットとして設定されていることを確認してください：
++
+[source, cli]
+----
+network fcp adapter show
+----
++
+オンボードシステムアダプタは、デフォルトでターゲットとして構成されます。
+
+. 推奨される配線図を使用して、FCターゲットポートとイニシエータポート間のFC配線を完了してください。
+. ケーブル接続後、各HAペアのFCターゲットポートとイニシエータポートをゾーニングします。
++
+各ゾーンには、イニシエータとターゲットがそれぞれ1つのみ存在する必要があります。
+
++
+以下は、ノードsan-a50-06a/6bとsan-a50-07a/7bの間に作成されたゾーンの例です：
+
++
+[listing]
+----
+zone-6a-7a-1 → Ports san-a50-06a:3c & san-a50-07a:3a
+zone-6a-7a-2 → Ports san-a50-06a:3d & san-a50-07a:3a
+zone-6a-7a-3 → Ports san-a50-06a:3c & san-a50-07a:3b
+zone-6a-7a-4 → Ports san-a50-06a:3d & san-a50-07a:3b
+zone-6b-7a-1 → Ports san-a50-06b:3c & san-a50-07a:3a
+zone-6b-7a-2 → Ports san-a50-06b:3d & san-a50-07a:3a
+zone-6b-7a-3 → Ports san-a50-06b:3c & san-a50-07a:3b
+zone-6b-7a-4 → Ports san-a50-06b:3d & san-a50-07a:3b
+zone-6a-7b-1 → Ports san-a50-06a:3c & san-a50-07b:3a
+zone-6a-7b-2 → Ports san-a50-06a:3d & san-a50-07b:3a
+zone-6a-7b-3 → Ports san-a50-06a:3c & san-a50-07b:3b
+zone-6a-7b-4 → Ports san-a50-06a:3d & san-a50-07b:3b
+zone-6b-7b-1 → Ports san-a50-06b:3c & san-a50-07b:3a
+zone-6b-7b-2 → Ports san-a50-06b:3d & san-a50-07b:3a
+zone-6b-7b-3 → Ports san-a50-06b:3c & san-a50-07b:3b
+zone-6b-7b-4 → Ports san-a50-06b:3d & san-a50-07b:3b
+----
+. ソースクラスタ上にバックエンドFCターゲットネットワークインターフェイス（LIF）を作成し、次にデスティネーション クラスタ上に作成します：
++
+[source, cli]
+----
+network interface create -vserver <SVM> -lif <fcp_backend_target_lif> -data-protocol fcp -home-node <home_node> -home-port <home_port> -status-admin up
+----
++
+次の例では、バックエンド FC LIF がクラスタ A：ssan-a50-06a 上に作成されます。
+
++
+[listing]
+----
+network interface create -vserver ssan-a50-06a -lif fcp_backend_target_lif_1 -data-protocol fcp -home-node ssan-a50-06a -home-port 3a -status-admin up
+network interface create -vserver ssan-a50-06a -lif fcp_backend_target_lif_2 -data-protocol fcp -home-node ssan-a50-06a -home-port 3b -status-admin up
+network interface create -vserver ssan-a50-06b -lif fcp_backend_target_lif_1 -data-protocol fcp -home-node ssan-a50-06b -home-port 3a -status-admin up
+network interface create -vserver ssan-a50-06b -lif fcp_backend_target_lif_2 -data-protocol fcp -home-node ssan-a50-06b -home-port 3b -status-admin up
+----
++
+次の例では、バックエンドFC LIFがクラスタB：ssan-a50-07aに作成されます。
+
++
+[listing]
+----
+network interface create -vserver ssan-a50-07a -lif fcp_backend_target_lif_1 -data-protocol fcp -home-node ssan-a50-07a -home-port 3a -status-admin up
+network interface create -vserver ssan-a50-07a -lif fcp_backend_target_lif_2 -data-protocol fcp -home-node ssan-a50-07a -home-port 3b -status-admin up
+network interface create -vserver ssan-a50-07b -lif fcp_backend_target_lif_1 -data-protocol fcp -home-node ssan-a50-07b -home-port 3a -status-admin up
+network interface create -vserver ssan-a50-07b -lif fcp_backend_target_lif_2 -data-protocol fcp -home-node ssan-a50-07b -home-port 3b -status-admin up
+----
+. LIFが作成されていることを確認してください：
++
+[source, cli]
+----
+network interface show -vserver <SVM>
+----
+
+
+.次は？
+バックエンドのトランスポートプロトコルとしてFCを使用してlink:create-replication-relationship-task.html["SnapMirrorレプリケーションを設定する"]する準備ができました。

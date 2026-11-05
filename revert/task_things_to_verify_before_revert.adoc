@@ -327,6 +327,40 @@ Job ID Name                 Vserver    Node           State
 ----
 
 
+
+
+[[verify-key-manager-state-before-reverting]]
+== 元に戻す前にキーマネージャの状態を確認する
+
+ONTAP 9.20.1から以前のONTAPリリースにリバートする前に、キーマネージャの設定がターゲットリリースに対して有効な状態であることを確認します。
+
+.手順
+. キーマネージャーの状態を表示します：
++
+[source, cli]
+----
+security key-manager keystore show
+----
+. 設定が `inactive`である場合は、リバートを続行する前に削除してください：
++
+[source, cli]
+----
+security key-manager keystore delete -vserver <svm_name>
+----
+. キーマネージャージョブがまだ実行中であるかどうかを確認します：
++
+[source, cli]
+----
+job show -name *keymanager*
+----
+. キーマネージャーのジョブがまだ初期化中の場合は、リバートを開始する前に初期化が完了するまで待機してください。
+
+
+[NOTE]
+====
+アクティブなキーストア構成は、標準のリバートプロセスの一部として処理されます。リバートに関する主な懸念事項は、ONTAP 9.20.1のキーマネージャワークフローによって導入された、非アクティブなキーストアエントリや進行中のキーマネージャジョブです。
+
+====
 .関連情報
 * link:https://docs.netapp.com/us-en/ontap-cli/storage-disk-show.html["storage disk show"^]
 

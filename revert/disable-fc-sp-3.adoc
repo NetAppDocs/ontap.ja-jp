@@ -1,0 +1,35 @@
+---
+permalink: revert/disable-fc-sp-3.html 
+sidebar: sidebar 
+keywords: disable, fc-sp-3, fc, security, revert 
+summary: お客様のONTAPシステムでFCまたはNVMe/FCネットワークインターフェイス（LIF）がFC-SP-3用に有効になっている場合は、ONTAP 9.19.1に戻す前に無効にする必要があります。 
+---
+= ONTAP 9.20.1からリバートする前に、FC LIFでFC-SP-3を無効にする
+:allow-uri-read: 
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+ONTAP 9.20.1以降、ONTAPはAFFおよびFASシステムでBroadcomセキュアホストバスアダプタ（HBA）を使用したFibre Channel Security Protocol 3（FC-SP-3）認証と暗号化をサポートします。ご利用のONTAPシステムでFCまたはNVMe/FCネットワークインターフェイス（LIF）がFC-SP-3用に有効になっている場合、ONTAP 9.19.1にリバートする前に無効にする必要があります。
+
+.手順
+. LIF上のFC-SP-3構成を確認してください：
++
+[source, cli]
+----
+network interface show -fields fc-transport-security
+----
+. *transport-security-state* フィールドのステータスが利用できない場合は、それ以上の対応は必要ありません。ステータスが *mandatory* または *preferred* の場合は、*disabled* に変更します：
++
+[source, cli]
+----
+network interface modify -vserver <vserver_name> -lif <lif_name> -fc-transport-security disabled
+----
+. 以前有効にしたLIFでFC-SP-3が無効になっていることを確認してください：
++
+[source, cli]
+----
+network interface show -fields fc-transport-security
+----
+

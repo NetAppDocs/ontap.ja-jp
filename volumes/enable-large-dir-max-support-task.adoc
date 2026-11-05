@@ -1,0 +1,99 @@
+---
+permalink: volumes/enable-large-dir-max-support-task.html 
+sidebar: sidebar 
+keywords: create, modify, volume, large directory, maxdir-size, directory size, 25 million files 
+summary: 新しいボリュームを作成する際に、より大きな最大ディレクトリサイズをサポートするように設定することも、既存のボリュームを変更することもできます。 
+---
+= 大規模ディレクトリの最大サイズのONTAPサポートを有効にする
+:allow-uri-read: 
+:icons: font
+:imagesdir: ../media/
+
+
+[role="lead"]
+ONTAP 9.20.1以降では、ボリュームを作成する際、または既存のボリュームを変更する際に、より大きな最大ディレクトリサイズのサポートを有効にして構成することができます。これにより、最大4GBのディレクトリサイズに基づいて、ディレクトリには最大で約25 millionのファイル、フォルダ、その他のエントリを格納できます。
+
+[CAUTION]
+====
+ディレクトリの最大サイズを増やした後は、ボリューム上の影響を受けるディレクトリを再作成しない限り、そのサイズを小さくすることはできません。
+
+====
+.開始する前に
+より大きな最大ディレクトリサイズをサポートするようにボリュームを作成または変更する前に、クラスタまたはSVMの管理者であることを確認してください。
+
+
+
+[[create-a-new-volume]]
+== 新しいボリュームを作成
+
+新しいボリュームを作成する際に、ディレクトリの最大サイズを大きく設定できます。
+
+.手順
+. より大きなディレクトリの最大サイズのサポートを有効にしてボリュームを作成します：
++
+[source, cli]
+----
+volume create -vserver <svm_name> -volume <volume_name> -aggregate <aggr_name> -is-dir-index-transfer-enabled true
+----
++
+.例
+[listing]
+----
+volume create -vserver vs1 -volume big_dir1 -aggregate aggr1 -is-dir-index-transfer-enabled true
+----
+. ディレクトリの最大サイズを4 GBまで増やします：
++
+[source, cli]
+----
+volume modify -vserver <svm_name> -volume <volume_name> -maxdir-size <dir_size>
+----
++
+.例
+[listing]
+----
+volume modify -vserver vs1 -volume big_dir1 -maxdir-size 4GB
+----
+
+
+
+
+[[modify-an-existing-volume]]
+== 既存のボリュームの変更
+
+既存のボリュームを変更することで、ディレクトリの最大サイズを大きく設定できます。
+
+.手順
+. 既存のボリュームで、より大きなディレクトリの最大サイズのサポートを有効にします：
++
+[source, cli]
+----
+volume modify -vserver <svm_name> -volume <volume_name> -is-dir-index-transfer-enabled true
+----
++
+.例
+[listing]
+----
+volume modify -vserver vs2 -volume data_vol -is-dir-index-transfer-enabled true
+----
+. ディレクトリの最大サイズを4 GBまで増やします：
++
+[source, cli]
+----
+volume modify -vserver <svm_name> -volume <volume_name> -maxdir-size <dir_size>
+----
++
+.例
+[listing]
+----
+volume modify -vserver vs2 -volume data_vol -maxdir-size 4GB
+----
+
+
+
+
+[[related-information]]
+== 関連情報
+
+* link:../volumes/cautions-increasing-maximum-directory-size-concept.html["ONTAP FlexVol ボリュームの最大ディレクトリサイズ"]
+* https://docs.netapp.com/us-en/ontap-cli/["ONTAPコマンド リファレンス"^]
+

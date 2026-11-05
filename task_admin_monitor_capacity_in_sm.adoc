@@ -131,6 +131,63 @@ NOTE: System Managerでは、ルート ストレージ階層（アグリゲー�
 
 
 
+[[view-the-data-reduction-rate]]
+== データ削減率を表示
+
+データ削減レートは、圧縮、コンパクション、重複排除などのストレージ効率化機能を適用したあとに、データが消費するストレージ容量がどれだけ削減されるかを示します。
+
+ONTAP 9.20.1以降では、データ削減率（DRR）は、削減可能なデータを含めた場合と含めない場合で報告されます。削減可能なデータとは、ストレージ効率化機能を適用した後に容量削減が実現されるデータのことです。ONTAP 9.19.1以前では、DRRには削減可能なデータと削減不可能なデータの両方が含まれています。削減不可能なデータとは、ストレージ効率化機能を適用しても容量削減が実現されないデータ、またはストレージ効率化機能を適用できないデータのことです。削減可能なデータを含まないDDRは、ONTAPのストレージ効率化によって節約されたスペースをより正確に反映します。
+
+.手順
+DRRを表示するには、ONTAP CLIまたはSystem Managerを使用できます。
+
+[role="tabbed-block"]
+====
+.System Manager
+--
+ONTAP 9.13.1以降、System Managerに表示されるデータ削減率は、ほとんどのストレージ効率化機能の結果を考慮していますが、スナップショットとシンプロビジョニングはデータ削減率の一部としてカウントされません。ONTAP 9.12.1以前では、スナップショットやクローンを含めずにこの比率を表示するオプションがあります。
+
+.アグリゲートレベルでDRRを確認するには：
+. System Managerで、*ストレージ > 階層*を選択します。
+. DRRを表示するローカルティア（アグリゲート）を選択します。
++
+DRRは*ローカルティア容量*の項目に記載されています。
+
+
+
+.クラスターレベルでのDRRを表示するには：
+. System Managerで、*ダッシュボード*を選択します。
++
+DRRは容量の下に表示されます。
+
+
+
+--
+.CLI
+--
+CLIでデータ削減率を確認する方法は、ONTAPのバージョンによって異なります。
+
+
+NOTE: データ削減率を表示するために `df -S`コマンドを使用しないでください。自動化プロセスで `df -S`コマンドを使用している場合は、示されているように volume show コマンドに置き換えてください。
+
+[cols="1,3,3,3"]
+|===
+| ONTAPのバージョン | クラスターレベルのDRRを表示するには | アグリゲートレベルのDRRを表示するには | ボリュームレベルのDRRを表示するには 
+
+
+| 9.20.1以降 | `cluster-show` | `storage aggregate show-cumulated-efficiency`  a| 
+* `volume efficiency`
+* `volume show -volume <vol_name> -vserver <SVM> -fields used, sis-space-saved, dedupe-space-saved, compression-space-saved`
+
+
+
+
+| 9.19.1以前 | `cluster-show` | `cluster space show` | `volume show -volume <vol_name> -vserver <SVM> -fields used, sis-space-saved, dedupe-space-saved, compression-space-saved` 
+|===
+--
+====
+
+
 [[view-the-capacity-of-the-volumes-in-a-storage-vm]]
 == Storage VM内のボリュームの容量表示
 

@@ -2,7 +2,7 @@
 permalink: snaplock/snapshot-lock-concept.html 
 sidebar: sidebar 
 keywords: snaplock, snapshot, lock, tamperproof 
-summary: ONTAP 9.12.1以降では、SnapLock以外のボリュームでスナップショットをロックして、ランサムウェア攻撃からの保護を実現できます。スナップショットをロックすることで、誤って削除されたり、悪意を持って削除されたりすることを防止できます。 
+summary: SnapLock以外のボリュームでSnapshotをロックすることで、ランサムウェア攻撃からの保護を実現できます。スナップショットをロックすることで、誤って削除されたり、悪意を持って削除されたりすることを防止できます。 
 ---
 = ランサムウェア攻撃から保護するために ONTAP スナップショットをロックする
 :allow-uri-read: 
@@ -15,13 +15,13 @@ ONTAP 9.12.1以降では、SnapLock以外のボリュームでスナップショ
 
 SnapLockコンプライアンスクロック機能を使用すると、スナップショットを指定した期間ロックし、有効期限に達するまで削除できないようにすることができます。スナップショットをロックすることで改ざん防止機能が強化され、ランサムウェアの脅威から保護されます。ランサムウェア攻撃によってボリュームが侵害された場合、ロックされたスナップショットを使用してデータをリカバリできます。
 
-ONTAP 9.14.1以降、スナップショットロックはSnapLockヴォールトデスティネーションおよび非SnapLock SnapMirrorデスティネーションボリューム上の長期保存スナップショットをサポートします。スナップショットロックは、xref:Modify an existing policy to apply long-term retention[既存のポリシー ラベル]に関連付けられたSnapMirrorポリシールールを使用して保存期間を設定することで有効になります。このルールは、ボリュームに設定されているデフォルトの保存期間をオーバーライドします。SnapMirrorラベルに保存期間が関連付けられていない場合は、ボリュームのデフォルトの保存期間が使用されます。
+ONTAP 9.14.1以降では、スナップショットロックは、非SnapLockのvaultおよびmirror-vaultのSnapMirrorデスティネーションボリュームでの長期保持スナップショットをサポートします。xref:Modify an existing policy to apply long-term retention[既存のポリシー ラベル]に関連付けられたSnapMirrorポリシールールで保持期間を設定することで、スナップショットロックを有効にします。このルールは、ボリュームに設定されているデフォルトの保持期間を上書きします。SnapMirrorラベルに関連付けられた保持期間がない場合は、ボリュームのデフォルトの保持期間が使用されます。
 
 .改ざん防止Snapshotの要件と考慮事項
 * ONTAP CLIを使用する場合は、クラスタ内のすべてのノードでONTAP 9.12.1以降が実行されている必要があります。System Managerを使用する場合は、すべてのノードでONTAP 9.13.1以降が実行されている必要があります。
 * link:../system-admin/install-license-task.html["SnapLockライセンスはクラスタにインストールする必要があります"]。このライセンスはlink:../system-admin/manage-licenses-concept.html#licenses-included-with-ontap-one["ONTAP One"]に含まれています。
 * link:../snaplock/initialize-complianceclock-task.html["クラスタのコンプライアンスクロックを初期化する必要がある"]。
-* ボリューム上でスナップショット ロックが有効になっている場合、クラスタをONTAP 9.12.1より新しいバージョンのONTAPにアップグレードできます。ただし、ロックされているすべてのスナップショットが有効期限に達して削除され、スナップショット ロックが無効になるまで、以前のバージョンのONTAPに戻すことはできません。
+* ボリュームでスナップショットのロックが有効になっている場合、クラスタをONTAP 9.12.1より新しいバージョンのONTAPにアップグレードできます。ただし、ロックされたすべてのスナップショットが有効期限に達して削除され、スナップショットのロックが無効になるまでは、以前のバージョンのONTAPに戻すことはできません。
 * スナップショットがロックされている場合、ボリュームの有効期限はスナップショットの有効期限に設定されます。複数のスナップショットがロックされている場合、ボリュームの有効期限はすべてのスナップショットの中で最も長い有効期限に設定されます。
 * ロックされたスナップショットの保持期間はスナップショット保持数よりも優先されます。つまり、ロックされたスナップショットのスナップショット保持期間が経過していない場合は、保持数の制限は適用されません。
 * SnapMirror関係では、ミラー・ヴォールト・ポリシールールに保持期間を設定でき、デスティネーションボリュームでSnapshotロックが有効になっている場合、デスティネーションにレプリケートされたSnapshotに保持期間が適用されます。保持期間は保持数よりも優先されます。たとえば、有効期限が切れていないSnapshotは、保持数を超えても保持されます。
@@ -71,7 +71,7 @@ ONTAP 9.14.1以降でサポート。
 
 
 .サポートされない機能
-現時点では、改ざん防止Snapshotで次の機能はサポートされていません：
+改ざん防止スナップショットは、以下の機能をサポートしていません：
 
 * 整合性グループ
 * link:../fabricpool/index.html["FabricPool"]
@@ -181,7 +181,7 @@ ONTAP 9.12.1以降では、スナップショットの保持期間を適用す�
 . *Add Snapshot Policy* ウィンドウで、ポリシー名を入力します。
 . image:icon_add.gif["アイコンを追加"]を選択します。
 . スケジュール名、保持するスナップショットの最大数、SnapLock 保持期間などのスナップショット スケジュールの詳細を指定します。
-. *SnapLock保持期間*列に、スナップショットを保持する時間、日数、月数、または年数を入力します。たとえば、保持期間が5日のスナップショットポリシーでは、スナップショットが作成されてから5日間ロックされ、その間は削除できません。次の保持期間範囲がサポートされています：
+. *SnapLock 保持期間*列に、スナップショットを保持する時間、日数、月数、または年数を入力します。たとえば、保持期間が5日間のスナップショットポリシーでは、スナップショットは作成時から5日間ロックされ、その期間中は削除できません。以下の保持期間範囲がサポートされています：
 +
 ** 年数：0 - 100
 ** 月：0 - 1200
@@ -322,19 +322,19 @@ cluster1> volume snapshot modify-snaplock-expiry-time -volume vol1 -snapshot sna
 
 SnapMirror関係では、ミラー・ヴォールト・ポリシールールに保持期間を設定でき、デスティネーションボリュームでSnapshotロックが有効になっている場合、デスティネーションにレプリケートされたSnapshotに保持期間が適用されます。保持期間は保持数よりも優先されます。たとえば、有効期限が切れていないSnapshotは、保持数を超えても保持されます。
 
-ONTAP 9.14.1以降では、スナップショットの長期保持を設定するルールを追加することで、既存のSnapMirrorポリシーを変更できます。このルールは、SnapLockヴォールト デスティネーションおよび非SnapLock SnapMirrorデスティネーション ボリュームにおけるデフォルトのボリューム保持期間をオーバーライドするために使用されます。
+ONTAP 9.14.1以降では、スナップショットの長期保持を設定するルールを追加することで、既存のSnapMirrorポリシーを変更できます。このルールは、非SnapLockのvaultおよびmirror-vaultのSnapMirrorデスティネーション ボリュームにおけるデフォルトのボリューム保持期間を上書きします。
 
 . 既存のSnapMirrorポリシーにルールを追加します。
 +
 `snapmirror policy add-rule -vserver <SVM name> -policy <policy name> -snapmirror-label <label name> -keep <number of snapshots> -retention-period [<integer> days|months|years]`
 
 +
-次の例では、「lockvault」という既存のポリシーに6カ月の保持期間を適用するルールを作成します。
+次の例では、「snapvault」という名前の既存のポリシーに6か月の保持期間を適用するルールを作成します：
 
 +
 [listing]
 ----
-snapmirror policy add-rule -vserver vs1 -policy lockvault -snapmirror-label test1 -keep 10 -retention-period "6 months"
+snapmirror policy add-rule -vserver vs1 -policy snapvault -snapmirror-label test1 -keep 10 -retention-period "6 months"
 ----
 +
  `snapmirror policy add-rule`の詳細については、link:https://docs.netapp.com/us-en/ontap-cli/snapmirror-policy-add-rule.html["ONTAPコマンド リファレンス"^]をご覧ください。
